@@ -47,10 +47,18 @@ from image_tags import (
     audit,
     check_expiry,
     classify,
+    is_immutable_tag,
     load_exceptions,
     scan,
     split_reference,
 )
+from terraform_images import TERRAFORM_ROOT
+
+
+def write_terraform(root: Path, name: str, body: str) -> None:
+    directory = root / TERRAFORM_ROOT
+    directory.mkdir(parents=True, exist_ok=True)
+    (directory / name).write_text(body, encoding="utf-8")
 
 
 def write_manifest(directory: Path, name: str, image: str) -> None:
@@ -101,6 +109,134 @@ class ClassifyTest(unittest.TestCase):
         self.assertFalse(classify("registry/app@sha256:" + "a" * 64)[0])
         self.assertFalse(classify("registry/app:v1.36.0")[0])
         self.assertFalse(classify("postgres:16-alpine")[0])
+
+
+class ImmutableFormTest(unittest.TestCase):
+    """The rule that replaced the ten-word denylist.
+
+    The denylist held `latest, main, master, stable, edge, dev, develop,
+    nightly, prod, production`, so `:release`, `:current`, `:staging`, `:live`
+    and `:rolling` were all read as pinned — and its own docstring claimed
+    `:alpine` was "caught by the digest rule instead", which it was not. Every
+    word below is one a denylist has to have thought of in advance. The rule
+    here does not have to: it asks whether the tag names one specific build.
+    """
+
+    MUTABLE = (
+        "latest",
+        "main",
+        "master",
+        "stable",
+        "edge",
+        "dev",
+        "nightly",
+        "production",
+        # The five the ten-word list let through, and the two this repository
+        # actually deploys today.
+        "release",
+        "current",
+        "staging",
+        "live",
+        "rolling",
+        "alpine",
+        "plain-text",
+        "slim",
+        "bookworm",
+        "canary",
+        "next",
+        "",
+    )
+
+    IMMUTABLE = (
+        "v1.36.0",
+        "1.38.0",
+        "16-alpine",
+        "7-alpine",
+        "3.11-slim",
+        "0.38.0-alpine",
+        "22-alpine",
+        "2026.08.04",
+        "sha256:" + "a" * 64,
+        # What this repository's own publishing workflows produce.
+        "a719980a1c3f5d2",
+        "ci-" + "b" * 40,
+        "sha-" + "c" * 12,
+    )
+
+    def test_only_immutable_forms_are_accepted(self):
+        for tag in self.MUTABLE:
+            with self.subTest(tag=tag):
+                self.assertFalse(is_immutable_tag(tag), f":{tag} must not read as pinned")
+        for tag in self.IMMUTABLE:
+            with self.subTest(tag=tag):
+                self.assertTrue(is_immutable_tag(tag), f":{tag} names a build and must pass")
+
+    def test_the_rule_is_not_a_denylist_in_disguise(self):
+        """A tag nobody thought of is mutable by default, not pinned by default."""
+        for invented in ("wibble", "tuesday", "shiny-new-thing", "gold", "lts"):
+            with self.subTest(tag=invented):
+                self.assertTrue(classify(f"registry/app:{invented}")[0])
+
+
+class TerraformSurfaceTest(unittest.TestCase):
+    """The second deployment surface, which no control read before 2026-08-04."""
+
+    def test_a_mutable_terraform_tag_is_an_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_manifest(root / "platform/k8s/apps/demo", "deployment.yaml", "ns/demo@sha256:" + "d" * 64)
+            write_terraform(
+                root,
+                "ide.tf",
+                'resource "helm_release" "ide" {\n'
+                "  values = [yamlencode({\n"
+                '    image = {\n      repository = "codercom/code-server"\n'
+                '      tag        = "latest"\n    }\n  })]\n}\n',
+            )
+            write_exceptions(root, [])
+            findings = audit(root)
+            self.assertEqual([f.code for f in findings], ["mutable-image-tag"])
+            self.assertIn("code-server", findings[0].message)
+
+    def test_an_unresolvable_terraform_tag_is_an_error_not_a_pass(self):
+        """Cannot-see and approve must not be the same outcome."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_manifest(root / "platform/k8s/apps/demo", "deployment.yaml", "ns/demo@sha256:" + "d" * 64)
+            write_terraform(root, "variables.tf", 'variable "t" {\n  type = string\n}\n')
+            write_terraform(
+                root,
+                "ide.tf",
+                'resource "helm_release" "ide" {\n'
+                "  values = [yamlencode({\n"
+                '    image = {\n      repository = "ns/app"\n'
+                "      tag        = var.t\n    }\n  })]\n}\n",
+            )
+            write_exceptions(root, [])
+            findings = audit(root)
+            self.assertEqual([f.code for f in findings], ["mutable-image-tag"])
+            self.assertIn("not resolvable from tracked sources", findings[0].message)
+
+    def test_a_pinned_terraform_tag_passes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_manifest(root / "platform/k8s/apps/demo", "deployment.yaml", "ns/demo@sha256:" + "d" * 64)
+            write_terraform(
+                root,
+                "db.tf",
+                'resource "kubernetes_deployment" "db" {\n  image = "postgres:16-alpine"\n}\n',
+            )
+            write_exceptions(root, [])
+            self.assertEqual(audit(root), [])
+
+    def test_an_unreadable_terraform_surface_is_an_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_manifest(root / "platform/k8s/apps/demo", "deployment.yaml", "ns/demo@sha256:" + "d" * 64)
+            (root / TERRAFORM_ROOT).mkdir(parents=True)
+            write_exceptions(root, [])
+            with self.assertRaises(ImageTagError):
+                audit(root)
 
 
 class OverlayTest(unittest.TestCase):
@@ -274,6 +410,34 @@ class RepositoryContractTest(unittest.TestCase):
         self.assertGreaterEqual(
             len(refs), 10, f"expected the scan to find this platform's manifests, found {len(refs)}"
         )
+
+    def test_the_scan_reaches_the_terraform_surface_too(self):
+        """Anti-vacuity for the widening itself.
+
+        A `SCAN_ROOT` that quietly stopped covering `platform/terraform/` would
+        make this gate green again while restoring the exact blind spot it was
+        widened to close, and nothing else here would notice.
+        """
+        refs = [r for r in scan(REPO_ROOT) if r.path.startswith(TERRAFORM_ROOT)]
+        self.assertGreaterEqual(
+            len(refs), 8, f"expected the terraform deployment surface, found {len(refs)}"
+        )
+
+    def test_no_terraform_source_declares_a_literal_latest(self):
+        """The regression guard for the 2026-08-04 fix.
+
+        Scoped to terraform: the seven `platform/k8s/apps/*` ventures still
+        carry `:latest` and are registered as IMG-001, with a reason and an
+        expiry. Terraform's two `codercom/code-server` releases and
+        `variables.tf`'s `tag = optional(string, "latest")` were not registered,
+        they were removed, and this fails if any of them comes back.
+        """
+        literal = [
+            r.format()
+            for r in scan(REPO_ROOT)
+            if r.path.startswith(TERRAFORM_ROOT) and ":latest" in r.declared
+        ]
+        self.assertEqual(literal, [], "a tracked terraform source writes :latest again")
 
 
 if __name__ == "__main__":

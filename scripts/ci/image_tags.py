@@ -26,12 +26,35 @@ because the register is stale.
 `tests/test_image_tags.py` runs the same audit under pytest and proves the
 detector rejects a mutable reference and accepts a pinned one — the property the
 step this replaces never had.
+
+Two widenings, 2026-08-04
+-------------------------
+
+**Both deployment surfaces, not one.** `SCAN_ROOT` was `platform/k8s` and
+nothing else. `platform/terraform/` renders the same `helm/web-service` chart,
+is applied against the same cluster, and was read by no control at all — which
+is how `codercom/code-server` came to sit at `:latest` behind a public Traefik
+ingress on `code.marisstella.dev` and again on `opencode.marisstella.dev`. A
+code-server is a remote shell; `:latest` means nobody can say which one is
+answering. `scripts/ci/terraform_images.py` reads that surface, refusing by
+construction to open `*.tfvars` or `*.tfstate`.
+
+**An allowlist of immutable forms, not a denylist of bad words.**
+`MUTABLE_TAGS` was ten words, so `:release`, `:current`, `:staging`, `:live`,
+`:rolling` and `:alpine` all read as "pinned" — and the docstring for that
+constant claimed `alpine` was "caught by the digest rule instead", which it was
+not. A denylist is the wrong shape: it is a list of the mutable tags somebody
+happened to think of, and every tag nobody thought of passes. The rule is
+stated the other way round here — *a tag must be immutable evidence* — so the
+question is no longer "is this one of the bad words" but "does this name one
+specific build". See `is_immutable_tag`.
 """
 
 from __future__ import annotations
 
 import argparse
 import fnmatch
+import re
 import sys
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
@@ -39,6 +62,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence
 
 import yaml
+
+from terraform_images import TERRAFORM_ROOT, TerraformSurfaceError, scan_terraform
 
 SCAN_ROOT = "platform/k8s"
 EXCEPTIONS_PATH = "platform/image-tag-exceptions.yaml"
@@ -49,12 +74,35 @@ REQUIRED_FIELDS = ("id", "path", "owner", "issue", "reason", "expires", "count")
 #: as `platform/exception-register.yaml`.
 MAX_EXPIRY_DAYS = 180
 
-#: Tags that name a moving target rather than a build. `alpine` and friends are
-#: not listed: they are upstream base-image tags, equally mutable, and caught by
-#: the digest rule below instead of by name.
-MUTABLE_TAGS = frozenset(
-    {"latest", "main", "master", "stable", "edge", "dev", "develop", "nightly", "prod", "production"}
-)
+#: A version-like tag: an optional `v`, then a number, then anything. `v1.36.0`,
+#: `1.38.0`, `16-alpine`, `3.11-slim`, `0.38.0-alpine`, `2026.08.04` all name a
+#: release. It is weaker than a digest — `16-alpine` still floats within its
+#: minor line — and that is why the register points every venture at the digest
+#: `platform/ci/promote-pairwise-gitops.sh` already writes. It is accepted as
+#: evidence because it names a release the upstream project published, which
+#: `:alpine` and `:plain-text` and `:stable` do not.
+VERSION_TAG = re.compile(r"^v?\d+(?:\.\d+)*(?:[-_.+][A-Za-z0-9][A-Za-z0-9._+-]*)?$")
+
+#: A build identity: a commit sha, optionally prefixed the way this repository's
+#: own workflows prefix them. `.gitea/workflows/print-atelier-image.yml` and
+#: `local-site-studio-image.yml` both publish `${{ github.sha }}` and both
+#: deliberately decline to publish `:latest`, so this is the form the repository
+#: already produces.
+BUILD_TAG = re.compile(r"^(?:ci-|sha-|git-|build-)?[0-9a-f]{7,64}$")
+
+
+def is_immutable_tag(tag: str) -> bool:
+    """Does this tag name one specific build?
+
+    The whole rule, stated positively. Everything that is not a digest, a
+    version or a build identity is mutable — including every word a denylist
+    would have had to think of in advance.
+    """
+    if not tag:
+        return False
+    if tag.startswith("sha256:"):
+        return True
+    return bool(VERSION_TAG.match(tag) or BUILD_TAG.match(tag))
 
 
 class ImageTagError(Exception):
@@ -121,9 +169,13 @@ def classify(reference: str) -> tuple[bool, str]:
         # Kubernetes defaults an absent tag to `latest`, so this is the same
         # defect as writing it out, and easier to miss in review.
         return True, "no tag, which Kubernetes resolves as :latest"
-    if tag.lower() in MUTABLE_TAGS:
-        return True, f"mutable tag :{tag}"
-    return False, f"pinned to :{tag}"
+    if is_immutable_tag(tag.lower()):
+        return False, f"pinned to :{tag}"
+    return (
+        True,
+        f":{tag} is not immutable evidence — it names no build, no version and no "
+        "digest, so the running code cannot be identified from it",
+    )
 
 
 def _walk_images(node: Any, found: List[str]) -> None:
@@ -180,7 +232,7 @@ def apply_overlay(reference: str, overrides: Dict[str, Dict[str, str]]) -> str:
     return f"{resolved}:{tag}" if tag else resolved
 
 
-def scan(repo_root: Path, scan_root: str = SCAN_ROOT) -> List[ImageRef]:
+def scan_manifests(repo_root: Path, scan_root: str = SCAN_ROOT) -> List[ImageRef]:
     """Every effective image reference under `scan_root`, in sorted path order."""
     root = repo_root / scan_root
     if not root.is_dir():
@@ -223,6 +275,53 @@ def scan(repo_root: Path, scan_root: str = SCAN_ROOT) -> List[ImageRef]:
             "the scan is broken, not the manifests"
         )
     return sorted(refs, key=lambda ref: (ref.path, ref.reference))
+
+
+def scan_terraform_surface(repo_root: Path) -> List[ImageRef]:
+    """The same judgement, applied to what `platform/terraform/` deploys.
+
+    An image reference terraform builds out of an expression this repository
+    cannot resolve — `each.value.tag`, fed from an untracked `terraform.tfvars`
+    — is reported as mutable, not skipped. "The control cannot see it" and "the
+    control approves of it" must never be the same outcome, and the tfvars file
+    is not something a control may open: it holds live credentials.
+    """
+    try:
+        images = scan_terraform(repo_root)
+    except TerraformSurfaceError as exc:
+        raise ImageTagError(str(exc)) from exc
+
+    refs: List[ImageRef] = []
+    for image in images:
+        if not image.resolved:
+            mutable, why = True, (
+                "not resolvable from tracked sources, so nothing here shows it is "
+                f"immutable — {image.origin}"
+            )
+        else:
+            mutable, why = classify(image.reference)
+            why = f"{why} — {image.origin}"
+        refs.append(
+            ImageRef(
+                path=image.path,
+                reference=f"{image.reference} (line {image.line})",
+                mutable=mutable,
+                why=why,
+                declared=image.declared,
+            )
+        )
+    return refs
+
+
+def scan(repo_root: Path, scan_root: str = SCAN_ROOT) -> List[ImageRef]:
+    """Every image reference on every deployment surface this repository tracks.
+
+    Two surfaces, because there are two: `platform/k8s/` reconciled by Argo CD,
+    and `platform/terraform/` applied by `.gitea/workflows/terraform-apply.yml`.
+    Reading one of them and calling the result an audit is how a `:latest`
+    code-server stayed invisible on a public ingress.
+    """
+    return scan_manifests(repo_root, scan_root) + scan_terraform_surface(repo_root)
 
 
 def load_exceptions(repo_root: Path, path: str = EXCEPTIONS_PATH) -> List[Dict[str, Any]]:
@@ -335,9 +434,12 @@ def audit(repo_root: Path, today: Optional[date] = None) -> List[Finding]:
 def format_report(repo_root: Path, findings: Sequence[Finding]) -> str:
     refs = scan(repo_root)
     pinned = sum(1 for ref in refs if not ref.mutable)
+    terraform = sum(1 for ref in refs if ref.path.startswith(TERRAFORM_ROOT))
     lines = [
         "=== Container Image Tag Audit ===",
-        f"{len(refs)} image reference(s) under {SCAN_ROOT}: {pinned} pinned, {len(refs) - pinned} mutable.",
+        f"{len(refs)} image reference(s) across both deployment surfaces "
+        f"({len(refs) - terraform} under {SCAN_ROOT}, {terraform} under {TERRAFORM_ROOT}): "
+        f"{pinned} pinned, {len(refs) - pinned} mutable.",
     ]
     if not findings:
         lines.append("Every mutable reference is registered, counted and unexpired.")
@@ -351,7 +453,10 @@ def format_report(repo_root: Path, findings: Sequence[Finding]) -> str:
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Fail when a Kubernetes manifest deploys a mutable image reference."
+        description=(
+            "Fail when any tracked deployment surface — Kubernetes manifests or "
+            "terraform — deploys an image reference that is not immutable evidence."
+        )
     )
     parser.add_argument("--repo-root", default=None, help="repository root (default: two levels up)")
     args = parser.parse_args(argv)

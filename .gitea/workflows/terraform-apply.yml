@@ -69,6 +69,9 @@ jobs:
           TF_VAR_gitea_admin_password: ${{ secrets.GITEA_ADMIN_PASSWORD }}
           TF_VAR_admin_basic_auth_users: ${{ secrets.ADMIN_BASIC_AUTH_USERS }}
           TF_VAR_code_server_password: ${{ secrets.CODE_SERVER_PASSWORD }}
+          # `code_server_image_tag` has no default: terraform refuses to plan
+          # without it, and refuses any value that is not a digest or a version.
+          TF_VAR_code_server_image_tag: ${{ vars.CODE_SERVER_IMAGE_TAG }}
         run: terraform plan -input=false -lock-timeout=5m -no-color
 
   apply:
@@ -118,6 +121,9 @@ jobs:
           TF_VAR_gitea_admin_password: ${{ secrets.GITEA_ADMIN_PASSWORD }}
           TF_VAR_admin_basic_auth_users: ${{ secrets.ADMIN_BASIC_AUTH_USERS }}
           TF_VAR_code_server_password: ${{ secrets.CODE_SERVER_PASSWORD }}
+          # `code_server_image_tag` has no default: terraform refuses to plan
+          # without it, and refuses any value that is not a digest or a version.
+          TF_VAR_code_server_image_tag: ${{ vars.CODE_SERVER_IMAGE_TAG }}
         run: terraform plan -input=false -lock-timeout=5m -out="$RUNNER_TEMP/apply.tfplan"
 
       - name: Apply the saved plan

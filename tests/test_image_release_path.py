@@ -221,12 +221,134 @@ def test_init_containers_are_audited_too(repo: Path):
     assert irp.measure(repo)["without_build_path"] == 2
 
 
-def test_non_deployment_documents_are_ignored(repo: Path):
+def test_non_workload_documents_are_ignored(repo: Path):
     write(
         repo / irp.APPS_DIR / "svc" / "deployment.yaml",
         "apiVersion: v1\nkind: Service\nmetadata:\n  name: svc\n",
     )
     assert irp.measure(repo)["apps"] == []
+
+
+# --------------------------------------------------------------------------
+# Every workload, not just Deployments in deployment.yaml
+# --------------------------------------------------------------------------
+
+
+def test_a_job_in_another_file_is_read(repo: Path):
+    """`release-hooks.yaml`'s shape: two PreSync/PostSync Jobs, no Deployment.
+
+    Until 2026-08-04 this reader opened `<app>/deployment.yaml` and accepted
+    only `kind: Deployment`, so a Job naming an image nothing builds was outside
+    both numbers. It is the same undeliverable deployment; it just fails at the
+    hook instead of at rollout.
+    """
+    write(
+        repo / irp.APPS_DIR / "hooked" / "release-hooks.yaml",
+        "apiVersion: batch/v1\nkind: Job\nmetadata:\n  name: migrate\n"
+        "spec:\n  template:\n    spec:\n      containers:\n"
+        f"        - name: migrate\n          image: {irp.REGISTRY_PREFIX}migrate:latest\n",
+    )
+    measured = irp.measure(repo)
+    assert measured["without_build_path"] == 1
+    assert measured["mutable_references"] == 1
+    assert measured["apps"][0]["kind"] == "Job"
+
+
+def test_a_cronjob_pod_template_is_found_at_its_own_depth(repo: Path):
+    """A CronJob nests one `jobTemplate` deeper; a fixed path would miss it."""
+    write(
+        repo / irp.APPS_DIR / "backup" / "cronjob.yaml",
+        "apiVersion: batch/v1\nkind: CronJob\nmetadata:\n  name: backup\n"
+        'spec:\n  schedule: "0 3 * * *"\n  jobTemplate:\n    spec:\n      template:\n'
+        "        spec:\n          containers:\n"
+        f"            - name: dump\n              image: {irp.REGISTRY_PREFIX}dump:latest\n",
+    )
+    measured = irp.measure(repo)
+    assert measured["without_build_path"] == 1
+    assert measured["apps"][0]["kind"] == "CronJob"
+
+
+def test_a_statefulset_and_a_daemonset_are_read(repo: Path):
+    write(
+        repo / irp.APPS_DIR / "stateful" / "workloads.yaml",
+        "apiVersion: apps/v1\nkind: StatefulSet\nmetadata:\n  name: s\n"
+        "spec:\n  template:\n    spec:\n      containers:\n"
+        f"        - name: s\n          image: {irp.REGISTRY_PREFIX}s:latest\n"
+        "---\n"
+        "apiVersion: apps/v1\nkind: DaemonSet\nmetadata:\n  name: d\n"
+        "spec:\n  template:\n    spec:\n      containers:\n"
+        f"        - name: d\n          image: {irp.REGISTRY_PREFIX}d:latest\n",
+    )
+    assert irp.measure(repo)["without_build_path"] == 2
+
+
+def test_the_kustomization_is_still_read_as_an_overlay_not_a_workload(repo: Path):
+    make_app(
+        repo,
+        "pinned",
+        irp.REGISTRY_PREFIX + "pinned:latest",
+        kustomize_images=f"- name: {irp.REGISTRY_PREFIX}pinned\n  digest: sha256:{'e' * 64}\n",
+    )
+    measured = irp.measure(repo)
+    assert measured["mutable_references"] == 0
+    assert len(measured["apps"]) == 1
+
+
+def test_unparseable_manifest_is_an_error_not_a_skip(repo: Path):
+    write(repo / irp.APPS_DIR / "broken" / "deployment.yaml", "kind: [unclosed\n")
+    with pytest.raises(irp.RatchetError, match="could not parse"):
+        irp.measure(repo)
+
+
+# --------------------------------------------------------------------------
+# The terraform surface
+# --------------------------------------------------------------------------
+
+
+def make_terraform(repo: Path, name: str, body: str) -> None:
+    write(repo / "platform/terraform" / name, body)
+
+
+def test_a_third_party_terraform_image_is_out_of_scope(repo: Path):
+    """This repository is not codercom's build system, on either surface."""
+    make_terraform(
+        repo,
+        "ide.tf",
+        'resource "helm_release" "ide" {\n  image = "codercom/code-server:4.1.0"\n}\n',
+    )
+    measured = irp.measure(repo)
+    assert measured["without_build_path"] == 0
+    assert measured["mutable_references"] == 0
+    assert measured["apps"][0]["external"] is True
+
+
+def test_an_unresolvable_terraform_repository_counts_both_ways(repo: Path):
+    """`services.tf`'s shape, and the reason it is counted.
+
+    The repository and tag come from `var.services`, whose value lives only in
+    an untracked `terraform.tfvars` no control may open. It is not known to be
+    external, and it is not known to be pinned. A control that resolved either
+    unknown in its own favour would be reporting a fact it does not have.
+    """
+    make_terraform(
+        repo,
+        "services.tf",
+        'resource "helm_release" "web" {\n'
+        "  for_each = var.services\n"
+        "  values = [yamlencode({\n"
+        "    image = {\n      repository = each.value.image\n"
+        "      tag        = each.value.tag\n    }\n  })]\n}\n",
+    )
+    measured = irp.measure(repo)
+    assert measured["without_build_path"] == 1
+    assert measured["mutable_references"] == 1
+    assert measured["without_build_path_apps"] == ["terraform:services"]
+
+
+def test_a_broken_terraform_surface_fails_closed(repo: Path):
+    (repo / "platform/terraform").mkdir(parents=True)
+    with pytest.raises(irp.RatchetError, match="scan is broken"):
+        irp.measure(repo)
 
 
 # --------------------------------------------------------------------------
@@ -390,6 +512,22 @@ class TestRealRepository:
         """The worked example. If this regresses, the venture is undeliverable again."""
         measured = irp.measure(REPO_ROOT)
         assert "local-site-studio" not in measured["without_build_path_apps"]
+
+    def test_the_release_hook_jobs_are_counted(self):
+        """quick-pick-survey's two Jobs and its CronJob, previously unread.
+
+        All three name an image and all three are applied by Argo CD. They cost
+        nothing today — the Jobs resolve to the same kustomize digest as the
+        Deployment and the CronJob runs a third-party postgres — but they were
+        outside both counts, which is a different statement from being clean.
+        """
+        kinds = {app["kind"] for app in irp.measure(REPO_ROOT)["apps"]}
+        assert {"Job", "CronJob"} <= kinds, kinds
+
+    def test_the_terraform_surface_is_measured(self):
+        """Anti-vacuity: a reader that stopped reaching terraform looks green."""
+        from_terraform = [a for a in irp.measure(REPO_ROOT)["apps"] if a["kind"] == "terraform"]
+        assert len(from_terraform) >= 8, f"found {len(from_terraform)}"
 
     def test_this_repository_is_within_its_declared_baseline(self):
         _, failures = irp.evaluate(REPO_ROOT)

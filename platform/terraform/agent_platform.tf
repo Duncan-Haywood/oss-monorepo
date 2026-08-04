@@ -10,6 +10,31 @@ variable "code_server_password" {
   }
 }
 
+# Until 2026-08-04 both code-server releases in this configuration were pinned at
+# the literal `"latest"`, on public Traefik ingresses (`code.marisstella.dev` and
+# `opencode.marisstella.dev`). A code-server is a remote shell: `:latest` means
+# the running build cannot be named, a rollback has no target, and an upstream
+# push lands on a public shell without a diff. `platform/terraform/` was read by
+# no control at all, so nothing said so.
+#
+# There is no default here on purpose. A tag this configuration does not know is
+# a `terraform plan` failure, not a silent float, and the validation refuses any
+# value that is not immutable evidence — the same rule
+# `scripts/ci/image_tags.py:is_immutable_tag` applies to every other surface.
+# Supply it as `TF_VAR_code_server_image_tag`.
+variable "code_server_image_tag" {
+  type        = string
+  description = "Immutable codercom/code-server release: a digest, or a version tag such as 4.x.y"
+
+  validation {
+    condition = can(regex(
+      "^(sha256:[0-9a-f]{64}|v?[0-9]+(\\.[0-9]+)*([-_.+][A-Za-z0-9][A-Za-z0-9._+-]*)?)$",
+      var.code_server_image_tag
+    ))
+    error_message = "code_server_image_tag must name one specific release (a digest or a version); :latest, :stable and friends name a moving target."
+  }
+}
+
 resource "kubernetes_namespace" "agent_system" {
   metadata {
     name = "agent-system"
@@ -62,7 +87,7 @@ resource "helm_release" "code_server" {
       replicas = 1
       image = {
         repository = "codercom/code-server"
-        tag        = "latest"
+        tag        = var.code_server_image_tag
       }
       service = {
         port       = 8080
