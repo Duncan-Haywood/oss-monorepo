@@ -98,9 +98,18 @@ run_ci_test "Portfolio Router Allocation Report Generation" python3 "${REPO_ROOT
 # Also audits kill criteria. `budget.protected` demands them because "without
 # kill criteria there is no condition under which it stops", but until
 # 2026-08-03 a line of prose satisfied that while allocate.py read the criteria
-# into an unused variable. This now fails on a criterion nothing can evaluate
-# and that nobody has parked in portfolio/kill-criteria-register.yaml, on a
-# register that expired or drifted from what it covers, and on a typo'd metric.
+# into an unused variable. Three findings, and only these three:
+# `protected-without-kill-criteria` (protected budget, no criteria declared),
+# `dominated-kill-criterion` (a criterion that can never be the one that fires,
+# because another has the same conditions and reaches them sooner), and
+# `kill-criterion-triggered` (a criterion that has actually fired).
+# It does NOT count criteria that cannot be evaluated — that is the separate
+# "Kill-Criteria Stopping Rule Ratchet" gate below, against
+# platform/kill-criteria-baseline.yaml. An earlier version of this comment
+# described a portfolio/kill-criteria-register.yaml that does not exist on this
+# branch; a gate credited with checks it does not perform is the drift the rest
+# of this file exists to catch, so keep this list matched to the `code=` values
+# in portfolio/router/validate_ventures.py.
 run_ci_test "Venture Contract Validation" python3 "${REPO_ROOT}/portfolio/router/validate_ventures.py" --strict
 # The other half of the same join: the ledger those contracts are checked
 # against. router.py sums `agent_spend_usd` into the explore-grant decay, so a

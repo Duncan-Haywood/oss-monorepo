@@ -13,15 +13,18 @@ nothing.
 from __future__ import annotations
 
 import sys
-from datetime import date, timedelta
 from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+CI_DIR = REPO_ROOT / "scripts" / "ci"
+if str(CI_DIR) not in sys.path:
+    sys.path.insert(0, str(CI_DIR))
+
+from datetime import date, timedelta
 
 import pytest
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO_ROOT / "scripts" / "ci"))
-
-import image_release_path as irp  # noqa: E402
+import image_release_path as irp
 
 
 # --------------------------------------------------------------------------
