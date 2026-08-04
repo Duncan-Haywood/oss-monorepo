@@ -796,6 +796,21 @@ evidence, and completion date before it can be marked done.
   brakes is removing them. 17 router tests and 31 audit tests, all against real
   temporary repositories; mutation-checked ten ways on the audit and nine on the
   router, with every mutation killed by its own test.
+  Integrated 2026-08-04, owner duncan, and the integration is where two further
+  defects surfaced — neither present in either branch alone, which is the case
+  for merging the pile rather than letting branches sit. This work was built
+  against the rival kill-criteria engine and on a `router.py` predating the
+  cap-is-a-ceiling change, so it was ported onto the surviving engine rather
+  than merged over it. First: a venture whose rule fired and a venture starved
+  by an exhausted budget both end at `$0.00` with `funded=False`, so the report
+  labelled a stopping-rule decision "budget exhausted before this rank" —
+  crediting the cap for a call the criterion made. Second, and the one that
+  moved money: `load_cumulative_spend` aborted an entire ledger file on one
+  unreadable `agent_spend_usd`, zeroing recorded spend for every *other* venture
+  in that month and silently restoring their full explore grant, so a typo in
+  one row raised everybody else's allocation. Both fixed; the second was caught
+  by this work's own `test_one_unparseable_entry_does_not_zero_the_rest_of_the_month`
+  running for the first time against the other branch's loader.
   What this does not do. Nothing alerts: the decision surfaces in a CI failure
   and in the allocation report, and if nobody runs CI, nobody hears. Nothing
   physically prevents a session from working on a stopped venture — the queue
