@@ -1527,8 +1527,25 @@ evidence, and completion date before it can be marked done.
   count is the finding: five branches independently built the same
   lockfile-audit control and five carried the same rival release-lag schema.
 
+  Verified at `2ede739` in a clean clone on Node 22.22.3: 19 of 22 named gates
+  pass, 1139 of 1141 pytest tests pass, 112 Dagger-engine contract tests pass,
+  quick-pick-survey 425 of 425, local-site-studio 1270 of 1270 with `tsc
+  --noEmit` clean. The three red gates are `Coverage Baseline Ratchet` and the
+  `Pairwise Unit Suite`, both of which report an uninstalled component in a
+  fresh clone and say so precisely rather than as a test failure, and the
+  pytest suite, whose only two failures are those same two conditions: the
+  coverage basis and `release_lag`.
+
   Not done: this reconciles the branches, not the ledger. `release_lag` is
-  still red and still correct, and nothing here is live.
+  still red and still correct, and nothing here is live. It also does not
+  reconcile the *documentation* of the two engines — the prose in
+  `portfolio/router/router.py` still says `allocate.py` is what reads the
+  criteria, which stopped being true when this module grew
+  `evaluate_stopping_rules`. And the two folds of the ledger the losing branch
+  had unified are two again: `router.py` sums `agent_spend_usd` itself to decay
+  the explore grant while `kill_criteria.py` reads the same rows for the brake,
+  so a change to how spend is counted moves the money in one engine and the
+  brake in the other.
 
 - [ ] ~~Reconcile `agent/integration-2026-08-04`~~, superseded by the entry
   above. Recorded verbatim because the reasoning for deferring it was sound and
