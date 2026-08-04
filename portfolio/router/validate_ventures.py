@@ -592,17 +592,12 @@ def validate_kill_criteria(root: Path) -> List[Finding]:
     """
     findings: List[Finding] = []
 
-    periods: List[Dict[str, Any]] = []
-    ledger_dir = root / "portfolio" / "ledger"
-    if ledger_dir.exists():
-        for ledger_file in sorted(ledger_dir.glob("*.yaml")):
-            try:
-                data = yaml.safe_load(ledger_file.read_text(encoding="utf-8")) or {}
-            except yaml.YAMLError:
-                continue  # reported by the ledger validator, which owns that check
-            if isinstance(data, dict):
-                periods.append(data)
-    facts = kill_criteria.build_ledger_facts(periods)
+    # Reading the ledger is `kill_criteria`'s job, not this validator's. It
+    # groups rows per venture and reports separately whether a ledger exists at
+    # all, which is the difference between a venture that recorded nothing and
+    # a repository with nothing to read — and only the engine knows which
+    # metrics those rows can answer.
+    ledger_rows, ledger_present = kill_criteria.ledger_rows_by_venture(root)
 
     for venture_file in sorted((root / "ventures").glob("*/VENTURE.yaml")):
         try:
@@ -612,17 +607,22 @@ def validate_kill_criteria(root: Path) -> List[Finding]:
             continue  # already reported as unparseable-contract
 
         dir_name = venture_file.parent.name
-        venture_facts = facts.get(data.get("name")) or facts.get(dir_name)
+        venture_name = data.get("name") or dir_name
 
-        for result in kill_criteria.evaluate_venture(data, venture_facts):
-            if result.verdict != kill_criteria.TRIGGERED:
+        for result in kill_criteria.evaluate_venture(
+            data, venture_name, ledger_rows, ledger_present
+        ):
+            if result.outcome != kill_criteria.TRIGGERED:
                 continue
             findings.append(
                 Finding(
                     venture=dir_name,
                     severity="warn",
                     code="kill-criterion-triggered",
-                    message=f"kill criterion fired: {result.description} — {result.detail}",
+                    message=(
+                        f"kill criterion fired: {result.text} — "
+                        f"{kill_criteria.measured_detail(result)}"
+                    ),
                     remedy=(
                         "The allocator has zeroed this venture's budget. Wind it down, or "
                         "change the criterion deliberately and record why."

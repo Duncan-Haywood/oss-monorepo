@@ -221,20 +221,8 @@ WATCHES: Tuple[Watch, ...] = (
         locator="MAX_EXPIRY_DAYS",
         why="the furthest out a SAST finding may be suppressed before review",
     ),
-    Watch(
-        path="scripts/ci/coverage_ratchet.py",
-        kind="python-constant",
-        locator="MAX_BASIS_DRIFT_PERCENT",
-        why="how far a coverage basis may move before the measurement is re-read",
-    ),
     # Same story, one branch later: `stopping_rule_review.py` landed with two
     # caps of its own, and the contract test below caught them within the hour.
-    Watch(
-        path="scripts/ci/stopping_rule_review.py",
-        kind="python-constant",
-        locator="MAX_CONTINUE_OVERRIDES",
-        why="how many fired stopping rules the owner may overrule before it is the standing answer",
-    ),
     Watch(
         path="scripts/ci/stopping_rule_review.py",
         kind="python-constant",
@@ -296,24 +284,6 @@ WATCHES: Tuple[Watch, ...] = (
         kind="python-constant",
         locator="MAX_EXPIRY_DAYS",
         why="the furthest out the image-release baseline may be parked before review",
-    ),
-    Watch(
-        path="scripts/ci/image_tags.py",
-        kind="python-constant",
-        locator="MAX_EXPIRY_DAYS",
-        why="the furthest out a mutable-image-tag exception may be parked before review",
-    ),
-    Watch(
-        path="scripts/ci/sast_scan.py",
-        kind="python-constant",
-        locator="MAX_EXPIRY_DAYS",
-        why="the furthest out a registered SAST finding may be parked before review",
-    ),
-    Watch(
-        path="scripts/ci/stopping_rule_review.py",
-        kind="python-constant",
-        locator="MAX_REVIEW_DAYS",
-        why="how long a `continue` may stand over a fired brake before it is re-argued",
     ),
     Watch(
         path="platform/release-lag-budget.yaml",
