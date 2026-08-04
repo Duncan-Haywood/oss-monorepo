@@ -826,6 +826,51 @@ evidence, and completion date before it can be marked done.
   copy surface, enumerate the claims that need a capability, and name the code
   signal that grants each one. It is not yet a repository-wide control, and it
   should become one; a venture-local habit is what let all of the above ship.
+- [ ] Hold customer-facing copy to behaviour the code actually performs.
+  Owner duncan. Every claim a venture makes to a visitor — a confirmation, a
+  capability, a price, a statistic, a security posture — is either backed by
+  something the code does or it is a false statement.
+  The price half is now a control, 2026-08-03, owner duncan.
+  `local-site-studio` is the venture with a real checkout, and
+  `src/lib/pricing/bundles.ts` is the field the Stripe Checkout Session is built
+  from — `POST /api/stripe/checkout` resolves the tier there, and
+  `bootstrap-stripe-prices.ts` creates each Stripe Price at exactly that
+  `unit_amount` — so that field decides what a card is charged. Nothing bound
+  the advertised amount to it. Twenty-six places restated the sold price as a
+  typed string and only three read it: the checkout form, the tier upsell and
+  the checkout route, all three at or after the checkout step. Everything a
+  buyer reads *before* deciding to pay was unbound — the three pricing cards and
+  the hero, the meta description search results show, the preview "Claim this
+  site" CTA, six publicly reachable `/docs` pages (`src/proxy.ts` gates only
+  `/dashboard`), and the script the AI phone agent reads to callers. Moving
+  `monthlyPriceUsd` from 99 to 129 would have moved the charge while every one
+  of those went on advertising $99, with nothing failing.
+  The transactional surfaces now derive from `BUNDLES`, so they cannot disagree
+  with it, and `src/lib/pricing/advertised-price-claims.test.ts` holds the prose
+  pages: it walks the copy surface off disk and fails when any stated amount is
+  not a price the venture currently sells. It found a `$99` still typed into the
+  landing page while it was being written. Mutation-checked eight ways.
+  The generalizable half is
+  `platform/ci/test/advertised-price-coverage.test.mjs`, which requires every
+  package that states a price **and** offers a way to pay to hold a registered
+  contract or a counted, expiring gap. That second condition is what makes the
+  register readable: scanning for price literals alone matches 10 packages and
+  841 amounts, most of them market sizing in business plans, where a claims
+  contract would be paperwork. With a payment path required it is 4 —
+  `local-site-studio` (covered), `print-atelier`, `ai-first-markets`, and
+  listing-lens `docs-site`. Mutation-checked eleven ways.
+  Three things this does not do. It does not check what a contract *says*;
+  where the sold amount lives is a venture-local judgement. It does not cover
+  non-price claims — a capability or a statistic asserted in copy is the larger
+  and still-open half of this item. And it says nothing about a price advertised
+  with **no** payment path: `quick-pick-survey`'s $9/month tier and
+  `ai-engineering-academy`'s $49/mo tier are both advertised, both carry a "Most
+  Popular" badge, and neither venture has any payment path at all. That is a
+  worse defect than drift and it is a product decision, so it is named here
+  rather than gated. `listing-lens` `docs-site` is the third shape again: its
+  $19 is real but collected by hand over Zelle or PayPal, so there is no charged
+  amount in code to bind it to, and the package declares no `test` script to
+  hold a contract even if one were written.
 
 ### Portfolio stopping rules
 
