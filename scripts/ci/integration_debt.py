@@ -296,6 +296,15 @@ def _dropped_artifacts(
     failure that `scripts/test-ci.sh` is the gate for. Deletion of a file the
     branch created is the shape that silently loses a whole control, which is
     the one worth naming.
+
+    Paths the working tree's `.gitignore` now covers are not counted. Deciding
+    a path should never have been tracked is a different act from losing a
+    control in a merge, and it is one this check cannot otherwise distinguish:
+    untracking the 6200 committed agent-worktree snapshots read here as 24780
+    dropped artifacts, one per file per branch that carried them, which is a
+    volume no register can absorb and which would have buried a real drop.
+    `.gitignore` is the durable statement of that decision, and it is read
+    from the tree under audit rather than from any branch.
     """
     tip_set = set(tip_shas)
     surviving: Set[str] = set()
@@ -314,11 +323,39 @@ def _dropped_artifacts(
         added = _git(
             ["diff", "--name-only", "--diff-filter=A", merge_base, sha], repo_root
         ).splitlines()
-        for path in added:
-            path = path.strip()
-            if path and path not in surviving:
-                dropped.append(DroppedArtifact(path=path, branch=name))
+        missing = [p.strip() for p in added if p.strip() and p.strip() not in surviving]
+        for path in _not_ignored(repo_root, missing):
+            dropped.append(DroppedArtifact(path=path, branch=name))
     return sorted(dropped, key=lambda d: (d.path, d.branch))
+
+
+def _not_ignored(repo_root: Path, paths: Sequence[str]) -> List[str]:
+    """`paths` minus the ones `.gitignore` covers, order preserved.
+
+    `git check-ignore` exits 1 when nothing matches, which is a normal answer
+    here and not an error, so it is run directly rather than through `_git`.
+    Paths arrive on stdin because an absorbed branch can name more of them than
+    a command line holds.
+    """
+    if not paths:
+        return []
+    env = dict(os.environ)
+    env["GIT_CONFIG_GLOBAL"] = "/dev/null"
+    env["GIT_CONFIG_SYSTEM"] = "/dev/null"
+    result = subprocess.run(
+        ["git", "check-ignore", "--no-index", "--stdin"],
+        cwd=str(repo_root),
+        input="\n".join(paths),
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+    if result.returncode not in (0, 1):
+        raise IntegrationDebtError(
+            f"git check-ignore failed ({result.returncode}): {result.stderr.strip()}"
+        )
+    ignored = {line.strip() for line in result.stdout.splitlines() if line.strip()}
+    return [path for path in paths if path not in ignored]
 
 
 def measure(repo_root: Path, baseline_ref: str) -> Measurement:

@@ -278,6 +278,34 @@ class MeasurementTest(unittest.TestCase):
             [(d.path, d.branch) for d in result.dropped],
         )
 
+    def test_a_file_the_tip_now_gitignores_is_not_reported_as_dropped(self):
+        """Untracking is a decision; losing a control in a merge is an accident.
+
+        Removing the 6200 committed agent-worktree snapshots produced 24780
+        reports here — one per file per branch that carried them — which no
+        register can absorb and which would have hidden the single real drop
+        underneath them.
+        """
+        base = self.repo.commit("a.txt")
+        self.repo.set_baseline(at=base)
+        self.repo.checkout("feature", create=True)
+        self.repo.commit("snapshots/copy-of-everything.py", "an agent's snapshot")
+        self.repo.commit("feature/control.py", "the whole control")
+        self.repo.checkout("main")
+        self.repo.merge("feature")
+        (self.repo.root / "snapshots" / "copy-of-everything.py").unlink()
+        (self.repo.root / "feature" / "control.py").unlink()
+        (self.repo.root / ".gitignore").write_text("snapshots/\n")
+        self.repo._run("add", "-A")
+        self.repo._run("commit", "-q", "-m", "untrack the snapshots, and lose a control")
+
+        result = measure(self.repo.root, "origin/main")
+        self.assertEqual(
+            [("feature/control.py", "feature")],
+            [(d.path, d.branch) for d in result.dropped],
+            "the ignored path is filtered; the control deleted beside it is not",
+        )
+
     def test_a_tips_own_files_are_never_reported_as_dropped(self):
         base = self.repo.commit("a.txt")
         self.repo.set_baseline(at=base)
