@@ -33,16 +33,17 @@ kill_criteria:
   # by the portfolio owner. It is deliberately conservative: recorded spend is
   # $18.18 against $0 revenue, so this does not fire today. Confirm or replace
   # the figure — see docs/ENGINEERING-ROADMAP.md#portfolio-stopping-rules.
-  - description: >-
+  - id: spend-without-revenue
+    description: >-
       $150 of recorded agent spend accumulated with no revenue ever recorded
       against this venture in portfolio/ledger/.
     when:
       - metric: cumulative_agent_spend_usd
-        comparator: ">="
-        threshold: 150
+        op: ">="
+        value: 150
       - metric: cumulative_revenue_usd
-        comparator: "=="
-        threshold: 0
+        op: "=="
+        value: 0
 
 links:
   production: null

@@ -162,12 +162,34 @@ evidence, and completion date before it can be marked done.
   generalizable one is the class contract: every class name the built pages use
   must resolve in the stylesheet, which is what catches a shipped-but-invisible
   UI without anyone having to look at the page.
-  Not done: this is one venture. Nothing checks the other ten, the check is
-  string-and-DOM-level rather than a real browser, and `photos-import-tools`
-  has a worse instance of the same defect class still open — `sd_offload.py`
-  writes `"status": "verified"` into the manifest a user consults before
-  erasing an SD card, on a same-byte-length comparison; its `sha256_file()` is
-  defined and called from nowhere.
+  **Two branches fixed this independently and the tree carries one of them.**
+  `agent/continue-work-4-2026-08-02` and the base each found the same four
+  false claims and the same unstyled surface, within a day of each other, and
+  neither knew of the other. The base's implementation is the one that landed:
+  it extracts the checkpoint rules into `site/checkpoint-validator.mjs` and
+  inlines them, so the rules under test are the rules the learner meets, and
+  its suite drives the page's own inlined script in a `node:vm` rather than
+  grepping for strings — mutation-checked 20 ways, against the other's
+  authored-walkthrough rewrite. One thing was ported from the branch that the
+  base did not have: the two estimator sliders now carry the visitor's stated
+  usage into the waitlist application. `$49` is a proposal that appears nowhere
+  in the venture's documentation, so what visitors say they expect to use is
+  the only evidence that could ever set it; without that, the estimator is
+  decoration and the demand data is thrown away at the moment of conversion.
+  Held by a test that drives the real handler and reads the generated `mailto`.
+  That duplication is itself the finding. Two agents spent a session each on
+  the same four defects in the same venture, and the only reason the second
+  one's work was not silently discarded is that someone read both.
+
+  Not done: this is one venture, and nothing checks the other ten. The check is
+  string-and-DOM-level rather than a real browser, so layout, contrast and
+  focus rings are argued from the stylesheet rather than observed. The
+  `photos-import-tools` instance of the same class — `sd_offload.py` writing
+  `"status": "verified"` into the manifest a user consults before erasing an SD
+  card, on a same-byte-length comparison, with `sha256_file()` defined and
+  called from nowhere — was open when this was written and is now closed:
+  `sha256_file` is called on both source and destination and the digests
+  compared before the status is written.
 
   2026-08-04, owner duncan: a second venture, and the most expensive instance
   found so far. `local-site-studio`'s Complete tier sells at `$500 + $199/mo`,
@@ -549,12 +571,15 @@ evidence, and completion date before it can be marked done.
   nobody has to answer. The three Python manifests are registered exceptions
   expiring 2026-11-30, blocked on pip-audit in the runner image, which belongs
   to this item's remaining SAST/SCA tooling work.
-  **Reconcile before merging.** `agent/profit-lever-2026-08-02` built the same
+  **Reconciled 2026-08-04.** `agent/profit-lever-2026-08-02` built the same
   lockfile-coverage control independently, as
-  `platform/ci/test/workflow-supply-chain.test.mjs`. Whoever integrates should
-  keep one, not both, and the two differ in ways worth deciding deliberately.
+  `platform/ci/test/workflow-supply-chain.test.mjs`. This one was kept and that
+  one deleted; its pinning half survives as
+  `platform/ci/test/workflow-action-pinning.test.mjs`. The paragraphs below are
+  the comparison that decided it, left in place because the reasoning is the
+  reusable part.
   That one additionally checks every third-party action is pinned to a commit
-  SHA, which this one does not and which should be kept. This one additionally
+  SHA, which this one does not and which was kept. This one additionally
   fails when a matrix entry's `manager` does not match the committed lockfile
   (`npm audit` in a pnpm workspace reports success without reading anything),
   when an audit command carries `|| true` or drops `--audit-level`, on
@@ -646,29 +671,33 @@ evidence, and completion date before it can be marked done.
   differ the resolver returns null and the behaviour is the full run that has
   been happening all along. A first CI run is what would confirm it, and the
   honest log line is what will show it.
-  is in-flight work to finish rather than a defect in the venture. And the engine
-  reaching a venture at all still depends on affected-path detection, which is
-  narrower than it reads: `getChangedFiles` defaults to `HEAD~1`, so a push
-  carrying several commits verifies only the components the *last* commit touched.
-  A change to a venture in the middle of a push, followed by a docs-only commit,
-  selects nothing. `GITHUB_BASE_REF` widens this to the full branch diff on pull
-  requests, so the hole is on direct pushes — which is also where the weakest
-  review is. Fixing it means diffing the push range rather than one commit, and
-  wants a real runner to confirm what the Gitea event actually provides.
-  Two supply-chain claims the docs stated as fact are now checked, 2026-08-02,
-  owner duncan: `platform/ci/test/workflow-supply-chain.test.mjs` fails on any
-  `uses:` that is not a 40-character SHA with a version comment (all thirty were
-  already pinned, so this guards a regression `actionlint` cannot see), and on
-  any lockfile absent from both `security.yml`'s `dependency-audit` matrix and a
-  dated, owned exemption list. That matrix named four of the ten lockfiles on
-  disk. Because the scanner writing `SECURITY_ROADMAP.md` walks the whole tree,
-  the other six had their findings logged while no merge was blocked on them —
-  the register said "tracked" and the gate covered nothing. One of the six was
-  clean and is now in the matrix; five are exempt to 2026-11-01 because every
-  remaining advisory needs a semver-major upgrade (Next 16, wrangler 4,
-  sharp 0.35), which is an upgrade with its own verification rather than
-  something to fold into this change. `npm audit fix` without `--force` was run
-  against all five and cleared none of them.
+  The action-pinning claim the docs stated as fact is now checked, 2026-08-02,
+  owner duncan. `platform/ci/test/workflow-action-pinning.test.mjs` fails on any
+  `uses:` that is not a 40-character SHA carrying a version comment. All forty
+  were already pinned, so it passed on its first run — which is the point rather
+  than a reason to skip it: `actionlint` does not check pinning and nothing else
+  looked, so `uses: actions/checkout@v4` would have satisfied every gate in the
+  repository, and a mutable tag is a third party's write access to our CI.
+  It arrived on `agent/profit-lever-2026-08-02` welded to a second, weaker copy
+  of the lockfile-audit control, and **the two disagreed on policy in the
+  direction that matters.** That branch left five vulnerable lockfiles out of
+  `security.yml`'s matrix as exemptions expiring 2026-11-01, so the job would
+  stay green; the version already here puts all ten in and lets the failures
+  show. The pinning sweep was kept, the duplicate control was deleted, and the
+  five exemptions were rejected — two of them were factually wrong.
+  `local-site-studio`'s read "advisories need a semver-major Next 16 upgrade"
+  when the venture was already on Next 16.2.9 and the fix was the 16.2.12 patch
+  since taken; `photo-editing/docs-site`'s named two of that package's eighteen
+  findings, mischaracterised both, and omitted its two CRITICALs. An exception
+  describing two of eighteen findings is not a decision anyone could review.
+  What generalizes is the shape of the disagreement rather than the two wrong
+  reasons. Both branches produced a control with the correct fields — owner,
+  issue, reason, expiry, count — and only one of them was covering an unread
+  surface. The register's *form* was satisfied in both. `ENGINEERING-PRINCIPLES.md`
+  already says not to silence a scanner to make CI green, and nothing mechanical
+  distinguishes a well-formed exception written because the work is scheduled
+  from a well-formed exception written because the gate was red. Reading the
+  reasons against the roadmap they cite is what found it, and no gate does that.
 - [ ] Protect `main` in Gitea: required checks and review, no force push, no
   deletion, and least-privilege Actions tokens and isolated runners.
   The entrypoint that runs every gate above could skip them all, closed
@@ -1059,6 +1088,21 @@ evidence, and completion date before it can be marked done.
   brakes is removing them. 17 router tests and 31 audit tests, all against real
   temporary repositories; mutation-checked ten ways on the audit and nine on the
   router, with every mutation killed by its own test.
+  Integrated 2026-08-04, owner duncan, and the integration is where two further
+  defects surfaced — neither present in either branch alone, which is the case
+  for merging the pile rather than letting branches sit. This work was built
+  against the rival kill-criteria engine and on a `router.py` predating the
+  cap-is-a-ceiling change, so it was ported onto the surviving engine rather
+  than merged over it. First: a venture whose rule fired and a venture starved
+  by an exhausted budget both end at `$0.00` with `funded=False`, so the report
+  labelled a stopping-rule decision "budget exhausted before this rank" —
+  crediting the cap for a call the criterion made. Second, and the one that
+  moved money: `load_cumulative_spend` aborted an entire ledger file on one
+  unreadable `agent_spend_usd`, zeroing recorded spend for every *other* venture
+  in that month and silently restoring their full explore grant, so a typo in
+  one row raised everybody else's allocation. Both fixed; the second was caught
+  by this work's own `test_one_unparseable_entry_does_not_zero_the_rest_of_the_month`
+  running for the first time against the other branch's loader.
   What this does not do. Nothing alerts: the decision surfaces in a CI failure
   and in the allocation report, and if nobody runs CI, nobody hears. Nothing
   physically prevents a session from working on a stopped venture — the queue
@@ -1281,6 +1325,23 @@ evidence, and completion date before it can be marked done.
   Not done: this bounds the *numbers*. Nothing yet refuses a control whose
   enforcing logic is weakened without touching a constant — deleting a check,
   widening a comparator, or adding an early return would all pass this.
+  `agent/release-lag-signal-2026-08-02` built this same measure independently
+  and was reconciled into the above on 2026-08-04. Its implementation lost —
+  it declared a separate `platform/release-lag-policy.yaml` with a
+  `target`/`acknowledged` schema, and the version kept here is the one the cap
+  ratchet already watches four constants inside, so replacing it would have
+  broken that register. Its `docs/RELEASE-LAG.md` was kept and retargeted, and
+  its `fetch-depth: 0` reasoning was merged with the affected-path one, since
+  three separate gates turn out to need full history for three different
+  reasons and only one of them was written down.
+  The scope limit that branch stated is worth keeping verbatim, because it is
+  the one thing about this control that an agent will get wrong: **it does not
+  push or merge.** Draining the backlog it measures is an outward action with a
+  production deploy behind it, and belongs to the repository owner rather than
+  to the scheduled runs that created the backlog. The gate's job is to make the
+  gap impossible to not see; closing it is a human's decision. This is also why
+  the gate stays red rather than being widened — the only edit that clears it
+  is shipping, then re-declaring the budget downward.
 - [ ] Add dependency update automation that opens small, tested Gitea changes
   and prioritizes supported framework/security releases.
 

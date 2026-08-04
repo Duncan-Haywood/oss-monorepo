@@ -13,26 +13,12 @@ import yaml
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 
-try:  # runs both as `portfolio.router.allocate` under pytest and as a script
-    from portfolio.router.kill_criteria import (
-        TRIGGERED,
-        UNEVALUABLE,
-        CriterionResult,
-        LedgerFacts,
-        build_ledger_facts,
-        evaluate_venture,
-        has_stopping_rule,
-    )
-except ImportError:  # running as a script, not as portfolio.router.allocate
-    from kill_criteria import (
-        TRIGGERED,
-        UNEVALUABLE,
-        CriterionResult,
-        LedgerFacts,
-        build_ledger_facts,
-        evaluate_venture,
-        has_stopping_rule,
-    )
+try:
+    # Importable as a package (pytest sets `pythonpath`), and runnable as a
+    # script, which puts this directory on sys.path instead of the repo root.
+    from portfolio.router import kill_criteria
+except ImportError:
+    import kill_criteria
 
 
 class PortfolioRouter:
@@ -72,18 +58,28 @@ class PortfolioRouter:
         return ledger_entries
 
     def evaluate_kill_criteria(
-        self, venture: Dict[str, Any], facts: Optional[LedgerFacts] = None
-    ) -> Tuple[bool, List[str], List[CriterionResult]]:
-        """Evaluate the stage rules and every criterion the venture declares.
+        self,
+        venture: Dict[str, Any],
+        ledger_rows: Optional[Dict[str, List[Dict[str, Any]]]] = None,
+        ledger_present: Optional[bool] = None,
+    ) -> Tuple[bool, List[str], List[kill_criteria.CriterionResult]]:
+        """Evaluates whether any kill criterion has fired.
 
-        This used to load `kill_criteria` into a local and then ignore it, so the
-        only rules that ran were the two stage checks below — neither of which
-        can fire while every venture is `prototype`. The declared criteria are
-        now evaluated for real, against recorded ledger history.
+        Until 2026-08-03 this method loaded the venture's declared criteria into
+        a local named `kill_rules` and never referenced it again, so the only
+        conditions that could ever stop a venture were the two stage/MRR rules
+        below — and with all eleven ventures at `prototype`, neither could fire.
+        The declared criteria are now actually evaluated, in
+        `portfolio/router/kill_criteria.py`.
 
-        Returns the kill decision, the human-readable reasons behind it, and the
-        per-criterion verdicts, which the caller needs in order to report the
-        criteria that could not be measured at all.
+        A criterion that cannot be evaluated does **not** count as a pass. It is
+        reported separately and must be registered in
+        `portfolio/kill-criteria-register.yaml`; see `evaluate_all_criteria`.
+
+        Returns the kill decision, the reasons behind it, and the per-criterion
+        verdicts. The caller needs the third value to tell a venture sitting
+        inside its stopping rule from one that has no stopping rule to sit
+        inside of — the work queue rendered those identically before.
         """
         triggered = []
         stage = venture.get("stage", "prototype")
@@ -98,10 +94,16 @@ class PortfolioRouter:
         if stage in ["revenue", "scaling"] and mrr == 0:
             triggered.append("MRR is 0 in revenue/scaling stage")
 
-        results = evaluate_venture(venture, facts)
+        # The venture's own declared criteria, which used to be read and dropped.
+        if ledger_rows is None or ledger_present is None:
+            ledger_rows, ledger_present = kill_criteria.ledger_rows_by_venture(self.repo_root)
+
+        name = venture.get("dir_name") or venture.get("name") or ""
+        results = kill_criteria.evaluate_venture(venture, name, ledger_rows, ledger_present)
         for result in results:
-            if result.verdict == TRIGGERED:
-                triggered.append(f"{result.description} ({result.detail})")
+            if result.outcome == kill_criteria.TRIGGERED:
+                label = result.text or result.criterion_id
+                triggered.append(f"{label} ({result.reason})")
 
         return (len(triggered) > 0, triggered, results)
 
@@ -113,17 +115,30 @@ class PortfolioRouter:
         tell a venture that is inside its stopping rule from one that has no
         stopping rule to be inside of, and those looked identical before.
         """
-        results: List[CriterionResult] = venture.get("criteria_results") or []
+        results: List[kill_criteria.CriterionResult] = venture.get("criteria_results") or []
         return {
             "has_stopping_rule": bool(venture.get("has_stopping_rule")),
             "criteria_declared": len(results),
-            "criteria_evaluable": sum(1 for r in results if r.evaluable),
+            "criteria_evaluable": sum(
+                1 for r in results if r.outcome != kill_criteria.NOT_MEASURABLE
+            ),
             "unevaluable_criteria": [
-                {"description": r.description, "reason": r.reason, "detail": r.detail}
+                {"description": r.text, "reason": r.reason, "criterion_id": r.criterion_id}
                 for r in results
-                if r.verdict == UNEVALUABLE
+                if r.outcome == kill_criteria.NOT_MEASURABLE
             ],
         }
+
+    def evaluate_all_criteria(self) -> List[kill_criteria.CriterionResult]:
+        """Every declared criterion across every venture, with its outcome."""
+        ledger_rows, ledger_present = kill_criteria.ledger_rows_by_venture(self.repo_root)
+        results: List[kill_criteria.CriterionResult] = []
+        for venture in self.load_ventures():
+            name = venture.get("dir_name") or venture.get("name") or ""
+            results.extend(
+                kill_criteria.evaluate_venture(venture, name, ledger_rows, ledger_present)
+            )
+        return results
 
     def calculate_allocation(self, total_budget_usd: float = 500.0) -> Dict[str, Any]:
         ventures = self.load_ventures()
@@ -136,15 +151,15 @@ class PortfolioRouter:
         explore_ventures = []
         killed_ventures = []
 
-        ledger_facts = build_ledger_facts(self.load_ledger())
+        # Read the ledger once rather than per venture.
+        ledger_rows, ledger_present = kill_criteria.ledger_rows_by_venture(self.repo_root)
 
         for v in ventures:
-            facts = ledger_facts.get(v.get("name")) or ledger_facts.get(v.get("dir_name"))
-            is_killed, reasons, results = self.evaluate_kill_criteria(v, facts)
+            is_killed, reasons, results = self.evaluate_kill_criteria(v, ledger_rows, ledger_present)
             v["is_killed"] = is_killed
             v["kill_reasons"] = reasons
             v["criteria_results"] = results
-            v["has_stopping_rule"] = has_stopping_rule(results)
+            v["has_stopping_rule"] = kill_criteria.has_stopping_rule(results)
 
             if is_killed:
                 killed_ventures.append(v)

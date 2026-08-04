@@ -20,17 +20,17 @@
 | 11 | **[quick-pick-survey](../ventures/quick-pick-survey)** | `prototype` | `none` | No | $0.00 | $30.00 | **$6.80** | Core feature completion and concierge MVP testing |
 
 **Total Allocated Agent Spend:** `$250.11 USD` of `$300.00 USD` cap (`$49.89 USD` unallocated)
-
 ## Stopping Rules
 
 No venture has tripped a declared stopping rule against recorded ledger history. That is a measurement, not a guarantee: see the count below.
 
 10 of 11 venture(s) draw `$229.52` with no criterion this engine can measure, so no rule in the system can ever stop their funding: `ai-engineering-academy`, `ai-first-markets`, `mat-470-real-analysis`, `photos-import-tools`, `local-site-studio`, `photo-editing`, `real-estate-agent-photo-app`, `retail-pilot-intel`, `ubuntu-agent-server`, `quick-pick-survey`. `scripts/ci/kill_criteria_ratchet.py` holds that count and reports why each one is unevaluable.
 
+
 ## Allocation Principles Applied
 
 1. **Protected Explore Budget**: Ventures with `budget.protected: true` are guaranteed baseline funding regardless of short-term measured MRR.
 2. **Unmeasured Distinction**: Unmeasured ventures (`economics.mrr: null`) receive neutral explore credit rather than being penalized as zero-revenue.
 3. **Stage-Gated Escalation**: Higher stage ventures (`launched`/`revenue`) receive priority allocations for customer acquisition and monetization scaling.
-4. **The Cap Is A Ceiling**: Total allocated spend never exceeds the portfolio budget cap. The protected floor in principle 1 is a floor within the cap, not a claim against it; when the budget cannot fund every floor, the shortfall falls on the lowest-scoring ventures and is reported above.
-5. **Declared Stopping Rules**: A venture whose `kill_criteria` fire against recorded ledger history is ranked last, allocated `$0.00`, and escalated below. Whether to wind it down is the portfolio owner's decision; withholding the next month's budget until that decision exists is this engine's.
+4. **Declared Stopping Rules**: A venture whose `kill_criteria` fire against recorded ledger history is ranked last, allocated `$0.00`, and escalated below. Whether to wind it down is the portfolio owner's decision; withholding the next month's budget until that decision exists is this engine's.
+5. **The Cap Is A Ceiling**: Total allocated spend never exceeds the portfolio budget cap. The protected floor in principle 1 is a floor within the cap, not a claim against it; when the budget cannot fund every floor, the shortfall falls on the lowest-scoring ventures and is reported above.

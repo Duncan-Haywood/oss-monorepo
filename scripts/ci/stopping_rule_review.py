@@ -61,8 +61,9 @@ if str(REPO_ROOT) not in sys.path:
 
 from portfolio.router.kill_criteria import (
     TRIGGERED,
-    build_ledger_facts,
     evaluate_venture,
+    ledger_rows_by_venture,
+    measured_detail,
 )
 
 REGISTER_PATH = "portfolio/stopping-decisions.yaml"
@@ -228,17 +229,19 @@ def measure(repo_root: Path) -> Measurement:
     ventures_dir = repo_root / "ventures"
     ledger_dir = repo_root / "portfolio" / "ledger"
 
-    periods: List[Dict[str, Any]] = []
+    # `ledger_rows_by_venture` skips a ledger file it cannot parse, so a corrupt
+    # month would silently read as "this venture recorded nothing" — which makes
+    # its criteria unmeasurable, which means nothing fires, which means this gate
+    # finds no decision to demand. Parse every file first and fail on one that
+    # does not load.
     if ledger_dir.exists():
         for ledger_file in sorted(ledger_dir.glob("*.yaml")):
             try:
-                loaded = yaml.safe_load(ledger_file.read_text(encoding="utf-8")) or {}
+                yaml.safe_load(ledger_file.read_text(encoding="utf-8"))
             except yaml.YAMLError as exc:
                 raise ReviewError(f"{ledger_file} is not parseable YAML: {exc}") from exc
-            if isinstance(loaded, dict):
-                periods.append(loaded)
 
-    facts = build_ledger_facts(periods)
+    ledger_rows, ledger_present = ledger_rows_by_venture(repo_root)
 
     measured = 0
     triggered: List[TriggeredCriterion] = []
@@ -252,15 +255,16 @@ def measure(repo_root: Path) -> Measurement:
 
         measured += 1
         name = str(data.get("name") or manifest.parent.name)
-        results = evaluate_venture(data, facts.get(name) or facts.get(manifest.parent.name))
+        lookup = name if name in ledger_rows else manifest.parent.name
+        results = evaluate_venture(data, lookup, ledger_rows, ledger_present)
         for result in results:
-            if result.verdict == TRIGGERED:
+            if result.outcome == TRIGGERED:
                 triggered.append(
                     TriggeredCriterion(
                         venture=name,
                         stage=str(data.get("stage", "unknown")),
-                        description=normalise(result.description),
-                        detail=result.detail,
+                        description=normalise(result.text),
+                        detail=measured_detail(result),
                     )
                 )
 

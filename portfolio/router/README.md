@@ -126,33 +126,29 @@ because the register went stale after somebody made a criterion real.
 As of 2026-08-03 that count is 15 of 15. The portfolio has no working automated
 stop-loss; what it now has is a dated, owned admission of that, and thresholds
 are the venture owner's decision to set.
-## Stopping rules
 
-Each `VENTURE.yaml` declares `kill_criteria`. `kill_criteria.py` evaluates the
-structured ones against recorded ledger history and returns `triggered`,
-`not-triggered` or `unevaluable` — never treating "no data" as "keep funding
-it". `router.py` acts on that verdict, and the report carries all three states:
+### What a verdict does
 
-| State       | What the router does                                            |
-|:------------|:----------------------------------------------------------------|
-| `triggered` | Allocation withheld ($0.00), ranked last, `suggested_focus` reads STOP, escalated in the report's **Stopping Rules** section |
-| `holding`   | Funded normally; at least one criterion is measurable and none fired |
-| `none`      | Funded normally, and named in the report — no declared criterion can be measured, so nothing can ever stop this venture's funding |
+`router.py` — the engine `scripts/test-ci.sh` runs, and the one that writes the
+ranked work queue in `ALLOCATION_REPORT.md` — acts on the verdict. It used to
+carry `kill_criteria` as a field it never read, so a venture could trip its own
+declared brake and keep its rank, its budget and its place at the top of the
+queue an agent session reads to pick work.
 
-Withheld budget is not redistributed. Total portfolio spend falls by the amount
-withheld, because a brake that hands the money to the next venture commits the
-same sum either way. `budget.protected` does not exempt a venture: protection is
-a floor for exploration, and a fired criterion says the exploration reached its
-declared limit.
+| State | What the router does |
+|:---|:---|
+| `TRIGGERED` | Allocation withheld ($0.00), ranked last, escalated in the report's **Stopping Rules** section |
+| `NOT_TRIGGERED` | Funded normally; at least one criterion is measurable and none fired |
+| `NOT_MEASURABLE` | Funded normally, and named in the report — no declared criterion can be measured, so nothing can ever stop this venture's funding |
 
-Whether to wind a venture down stays a human decision. `stopping-decisions.yaml`
-is where that decision is recorded and `scripts/ci/stopping_rule_review.py`
-fails the build until it exists — including when a `wind-down` is recorded but
-the venture's `stage:` never changes.
+Withheld budget is not redistributed: total portfolio spend falls by what was
+withheld. Handing it to the next venture would mean the portfolio commits the
+same sum whether or not a brake fired.
 
-Until 2026-08-03 none of this ran: `router.py` parsed `kill_criteria` into a
-field it never read, and the evaluation lived only in `allocate.py`, which no
-pipeline invokes.
+Stopping a venture is a human judgement and stays one, but a judgement nobody is
+ever asked for is indistinguishable from no rule at all, so
+`scripts/ci/stopping_rule_review.py` fails the build on a triggered criterion
+with no decision recorded in `portfolio/stopping-decisions.yaml`.
 
 ## Status
 

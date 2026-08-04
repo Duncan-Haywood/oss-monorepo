@@ -128,18 +128,10 @@ jobs:
       # Node lockfiles, and the six it omitted turned out to hold 32 of the 47
       # high-severity advisories present on 2026-08-02 — including a Next.js
       # middleware/proxy bypass in local-site-studio. The omission was not a risk
-      # judgement; it was the four somebody had typed. Worse, the scanner that
-      # writes SECURITY_ROADMAP.md walked the whole tree, so those findings were
-      # logged and ungated at the same time.
-      #
-      # Two contract tests hold this list, and both must keep passing:
-      #   * platform/ci/test/dependency-audit-coverage.test.mjs fails when a
-      #     committed lockfile is missing from this list, so the next package
-      #     with dependencies cannot be added without a decision about auditing
-      #     it.
-      #   * platform/ci/test/workflow-supply-chain.test.mjs fails when a
-      #     lockfile on disk is neither listed here nor carries a dated, owned
-      #     exemption — the escape hatch, kept explicit and expiring.
+      # judgement; it was the four somebody had typed.
+      # platform/ci/test/dependency-audit-coverage.test.mjs fails when a
+      # committed lockfile is missing from this list, so the next package with
+      # dependencies cannot be added without a decision about auditing it.
       matrix:
         include:
           - venture: ai-engineering-academy-site

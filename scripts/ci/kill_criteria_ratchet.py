@@ -57,10 +57,10 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from portfolio.router.kill_criteria import (
-    UNEVALUABLE,
-    build_ledger_facts,
+    NOT_MEASURABLE,
     evaluate_venture,
     has_stopping_rule,
+    ledger_rows_by_venture,
 )
 
 BASELINE_PATH = "platform/kill-criteria-baseline.yaml"
@@ -181,17 +181,19 @@ def measure(repo_root: Path) -> Measurement:
     ventures_dir = repo_root / "ventures"
     ledger_dir = repo_root / "portfolio" / "ledger"
 
-    periods: List[Dict[str, Any]] = []
+    # `ledger_rows_by_venture` skips a ledger file it cannot parse, so a corrupt
+    # month would read here as "these ventures recorded nothing" — which is the
+    # unmeasurable verdict, not an error. Parse every file first and fail on one
+    # that does not load, so a broken ledger stops this gate instead of quietly
+    # widening the count it is supposed to hold.
     if ledger_dir.exists():
         for ledger_file in sorted(ledger_dir.glob("*.yaml")):
             try:
-                data = yaml.safe_load(ledger_file.read_text(encoding="utf-8")) or {}
+                yaml.safe_load(ledger_file.read_text(encoding="utf-8"))
             except yaml.YAMLError as exc:
                 raise RatchetError(f"{ledger_file} is not parseable YAML: {exc}") from exc
-            if isinstance(data, dict):
-                periods.append(data)
 
-    facts = build_ledger_facts(periods)
+    ledger_rows, ledger_present = ledger_rows_by_venture(repo_root)
 
     verdicts: List[VentureVerdict] = []
     for manifest in sorted(ventures_dir.glob("*/VENTURE.yaml")):
@@ -203,18 +205,21 @@ def measure(repo_root: Path) -> Measurement:
             continue
 
         name = str(data.get("name") or manifest.parent.name)
-        results = evaluate_venture(data, facts.get(name) or facts.get(manifest.parent.name))
+        # The engine keys ledger rows by the venture's own name; fall back to
+        # the directory name, which is what some ledger rows record.
+        lookup = name if name in ledger_rows else manifest.parent.name
+        results = evaluate_venture(data, lookup, ledger_rows, ledger_present)
         verdicts.append(
             VentureVerdict(
                 venture=name,
                 stage=str(data.get("stage", "unknown")),
                 criteria_declared=len(results),
-                criteria_evaluable=sum(1 for r in results if r.evaluable),
+                criteria_evaluable=sum(1 for r in results if r.outcome != NOT_MEASURABLE),
                 has_stopping_rule=has_stopping_rule(results),
                 unevaluable=[
-                    {"description": r.description, "reason": r.reason, "detail": r.detail}
+                    {"description": r.text, "reason": r.reason, "criterion_id": r.criterion_id}
                     for r in results
-                    if r.verdict == UNEVALUABLE
+                    if r.outcome == NOT_MEASURABLE
                 ],
             )
         )
