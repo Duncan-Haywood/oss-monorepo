@@ -106,6 +106,17 @@ class Watch:
 # floors that are *supposed* to rise as coverage improves, and the two-
 # directional check in `scripts/ci/coverage_ratchet.py` already refuses a drop.
 # Watching them here would forbid the improvement the ratchet exists to force.
+#
+# Not watched either: `platform/integration-debt-budget.yaml`'s
+# `budget.max_unintegrated_tips`. The three caps above it in
+# `scripts/ci/integration_debt.py` are watched, which is what stops it being
+# widened indefinitely. The declared value itself is not a pure debt counter
+# the way `budget.max_unshipped_commits` is — that one only shipping lowers,
+# whereas the tip count rises whenever concurrent sessions branch and falls
+# when someone integrates, both of them normal working state. Locking it to its
+# historical minimum would mean the first quiet day set a ceiling that ordinary
+# parallel work could never clear except by merging under a red gate, and a
+# gate that fails on ordinary work is one that gets widened.
 WATCHES: Tuple[Watch, ...] = (
     Watch(
         path="scripts/ci/release_lag.py",
@@ -217,6 +228,27 @@ WATCHES: Tuple[Watch, ...] = (
         kind="python-constant",
         locator="MAX_REVIEW_DAYS",
         why="how long a decision to keep funding past a fired brake may stand unargued",
+    ),
+    # `integration_debt.py`, 2026-08-04. Registered in the same commit that
+    # added it rather than by a later contract test noticing — which is the
+    # habit the four entries above exist to enforce.
+    Watch(
+        path="scripts/ci/integration_debt.py",
+        kind="python-constant",
+        locator="MAX_DECLARED_TIPS",
+        why="the ceiling on how many separate piles undelivered work may sit in",
+    ),
+    Watch(
+        path="scripts/ci/integration_debt.py",
+        kind="python-constant",
+        locator="MAX_DECLARED_SLACK",
+        why="the widest gap allowed between the measured tip count and the declared ceiling",
+    ),
+    Watch(
+        path="scripts/ci/integration_debt.py",
+        kind="python-constant",
+        locator="MAX_EXPIRY_DAYS",
+        why="the furthest out the integration-debt budget may be parked before review",
     ),
     Watch(
         path="platform/release-lag-budget.yaml",

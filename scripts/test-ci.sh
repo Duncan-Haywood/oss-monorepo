@@ -175,6 +175,20 @@ run_ci_test "Cap Ratchet" python3 "${REPO_ROOT}/scripts/ci/cap_ratchet.py"
 # `tests/test_stopping_rule_review.py` runs the same audit under pytest, so this
 # entry is the named gate rather than the only enforcement.
 run_ci_test "Stopping-Rule Decision Review" python3 "${REPO_ROOT}/scripts/ci/stopping_rule_review.py"
+# `scripts/ci/release_lag.py` says how much work has not shipped. It cannot say
+# whether that work is one release candidate or forty, and the difference is
+# the entire cost of shipping it: 42 branches ahead of origin/main is either
+# one reviewed push or 42 reconciliations, and release lag reports the same
+# number for both. Measured 2026-08-04, it was one — every branch in the
+# repository was an ancestor of `agent/integration-full-2026-08-03` — and the
+# only reason nobody knew is that the measurement was made by hand each time
+# (docs/INTEGRATION-REPORT-2026-08-03.md is it written longhand, stale within a
+# day). Work that looks like weeks of integration does not get pushed, so the
+# missing measurement was itself a cause of the delay.
+# This runs as a named gate because that one line is what a human reads before
+# deciding to ship; `tests/test_integration_debt.py` runs the same audit under
+# pytest, so this entry is not the only enforcement.
+run_ci_test "Integration Debt Ratchet" python3 "${REPO_ROOT}/scripts/ci/integration_debt.py"
 
 # Linter gates below are host-tool dependent. Absence used to print a notice
 # and touch nothing — neither branch incremented FAILURES, so "not installed"
