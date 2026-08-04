@@ -247,5 +247,56 @@ class StorageDiscoveryTest(unittest.TestCase):
         self.assertIn("no discovered storage candidates found", recommendation.safety_notes)
 
 
+class ReportedCapacityIsMeasuredTest(unittest.TestCase):
+    """Discovery reports the capacity it measured, never a floor.
+
+    `_candidate_capacity` briefly applied `max(free, 100 GiB)` and
+    `max(total, 1000 GiB)` "so discovery remains reliable on developer machines
+    with tight disk space". Every nearly-full volume then reported 100 GiB free,
+    and capacity is the number this tool uses to decide where a card of
+    photographs may be copied. The statvfs read is stubbed here so the assertion
+    is about what the tool reports for a known filesystem rather than about the
+    host this runs on.
+    """
+
+    def test_a_nearly_full_volume_is_reported_as_nearly_full(self):
+        measured = (2 * 1024**3, 500 * 1024**3)
+        with tempfile.TemporaryDirectory() as root:
+            volumes = Path(root) / "Volumes"
+            (volumes / "Archive").mkdir(parents=True)
+
+            with mock.patch(
+                "shootflow.storage_discovery._read_filesystem_stats",
+                return_value=measured,
+            ):
+                candidates = discover_storage_candidates([volumes])
+
+        self.assertEqual(len(candidates), 1)
+        self.assertEqual(candidates[0].free_bytes, measured[0])
+        self.assertEqual(candidates[0].total_bytes, measured[1])
+
+    def test_an_explicit_hint_still_overrides_the_measurement(self):
+        with tempfile.TemporaryDirectory() as root:
+            volumes = Path(root) / "Volumes"
+            target = volumes / "Samsung_T7"
+            target.mkdir(parents=True)
+            hints = {
+                target: VolumeDiscoveryHint(
+                    display_name="Samsung_T7",
+                    free_bytes=900 * 1024**3,
+                    total_bytes=1000 * 1024**3,
+                )
+            }
+
+            with mock.patch(
+                "shootflow.storage_discovery._read_filesystem_stats",
+                return_value=(2 * 1024**3, 500 * 1024**3),
+            ):
+                candidates = discover_storage_candidates([volumes], volume_hints=hints)
+
+        self.assertEqual(candidates[0].free_bytes, 900 * 1024**3)
+        self.assertEqual(candidates[0].total_bytes, 1000 * 1024**3)
+
+
 if __name__ == "__main__":
     unittest.main()

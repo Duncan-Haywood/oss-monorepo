@@ -94,7 +94,6 @@ MAX_DECLARED_SLACK = 40
 # 31 branches). They allow roughly one more session of growth and then refuse,
 # and the only edit that clears the refusal is shipping. Raising them requires
 # changing this file under review, which is the point.
-#
 # "Under review" is not a control, and this pair is the proof. `cap_ratchet.py`
 # exists because these two constants were walked 150 -> 170 and 40 -> 45 on
 # 2026-08-03. On 2026-08-04 they were walked again, to 250 and 50, inside

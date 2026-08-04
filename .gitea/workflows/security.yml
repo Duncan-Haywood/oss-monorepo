@@ -154,6 +154,11 @@ jobs:
           - venture: photo-editing-docs-site
             directory: ventures/photo-editing/docs-site
             manager: npm
+          # Not a venture: the CI engine's own dependency tree. Its lockfile was
+          # committed on 2026-08-04 and landed here unaudited, which is the case
+          # the control below exists to catch. It is also the tree with the most
+          # reach — anything resolved here runs inside the pipeline that gates
+          # every other package in this matrix.
           - venture: platform-ci
             directory: platform/ci
             manager: npm

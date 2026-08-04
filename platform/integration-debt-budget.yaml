@@ -93,6 +93,21 @@ budget:
 # `scripts/ci/integration_debt.py` now strips the configured remote, so these
 # entries mean the same thing in both, which is the environment split that
 # function's own docstring already said it had to survive.
+# Emptied 2026-08-04. The one entry registered
+# `ventures/real-estate-agent-photo-app/pipeline/node_modules` as deliberately
+# dropped from `agent/print-atelier-fulfillment-2026-08-04` — a symlink
+# committed as mode 120000 pointing at an absolute path on one machine. That
+# branch has since merged into `main` and the symlink was deleted there, so the
+# gate no longer measures the drop and the registration became the
+# `stale-drop-registration` case: a register outliving what it excuses, which is
+# the state this file's own check calls "stops being read".
+#
+# Removing the entry is the whole fix here; it does not re-open the hole. What
+# it does leave open is that nothing in this tree yet refuses the *class* — a
+# tracked symlink to an absolute path — and `.gitignore`'s `node_modules/`
+# cannot, because the trailing slash matches a directory and not a link. That
+# control is being written on `agent/tracked-symlink-control-2026-08-04` and is
+# not merged as of this commit.
 dropped_artifacts: []
 
 rationale: >-

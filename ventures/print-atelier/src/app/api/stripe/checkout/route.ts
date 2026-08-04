@@ -115,7 +115,7 @@ export async function POST(request: Request) {
   }
 
   const sessionPayload = buildCheckoutSessionPayload(lineItems, region, baseUrl, env);
-  const totals = calculateCheckoutTotals(lineItems, region);
+  const totals = calculateCheckoutTotals(lineItems, region, env);
   const cartValueCents = Math.round(totals.total * 100);
   const retargetingEvents = buildCheckoutSessionRetargetingEvents(
     sessionPayload.sessionId,

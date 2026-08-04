@@ -314,5 +314,54 @@ class StorageRankingTest(unittest.TestCase):
                 recommend_import_route_with_capacity(candidates, expected_import_bytes="x")  # type: ignore[arg-type]
 
 
+class DestinationCapacityFloorTest(unittest.TestCase):
+    """The 64 GiB floor under an `automatic` destination.
+
+    `recommend_import_route` passes no `required_free_bytes`, so this floor is
+    the only capacity check on that path. It was briefly lowered to `> 0` to get
+    five CLI tests green on a developer machine with a full disk, which offered
+    any writable volume with a single free byte as an automatic destination for
+    a card of photographs. Nothing failed when it was lowered, so the floor is
+    pinned here.
+    """
+
+    def _volume(self, root: str, name: str, free_bytes: int) -> StorageCandidate:
+        path = Path(root) / name
+        path.mkdir(parents=True)
+        return StorageCandidate(
+            name=name,
+            path=path,
+            free_bytes=free_bytes,
+            total_bytes=2048 * 1024**3,
+            is_removable=False,
+            is_read_only=False,
+        )
+
+    def test_volume_below_the_floor_is_not_an_automatic_destination(self):
+        with tempfile.TemporaryDirectory() as root:
+            ranked = rank_storage_candidates(
+                [self._volume(root, "AlmostFull", 63 * 1024**3)]
+            )
+
+            self.assertNotEqual(ranked[0].role, "destination")
+            self.assertNotEqual(ranked[0].safety, "automatic")
+
+    def test_a_single_free_byte_is_not_an_automatic_destination(self):
+        with tempfile.TemporaryDirectory() as root:
+            ranked = rank_storage_candidates([self._volume(root, "Sliver", 1)])
+
+            self.assertNotEqual(ranked[0].role, "destination")
+            self.assertNotEqual(ranked[0].safety, "automatic")
+
+    def test_volume_above_the_floor_is_still_offered(self):
+        with tempfile.TemporaryDirectory() as root:
+            ranked = rank_storage_candidates(
+                [self._volume(root, "Roomy", 128 * 1024**3)]
+            )
+
+            self.assertEqual(ranked[0].role, "destination")
+            self.assertEqual(ranked[0].safety, "automatic")
+
+
 if __name__ == "__main__":
     unittest.main()
