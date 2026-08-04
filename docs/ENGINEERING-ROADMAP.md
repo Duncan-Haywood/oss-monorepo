@@ -512,6 +512,41 @@ evidence, and completion date before it can be marked done.
   Still open: `print-atelier`'s page routes as distinct from its API routes,
   and the gate checks that every handler is *accounted for*, not that every
   venture's guard is equally strong — the per-venture contracts carry that.
+- [ ] Hold every test to deciding on its inputs rather than on the machine it
+  runs on. Owner: venture owner. Not started as a repository-wide control; one
+  instance found and fixed.
+  2026-08-04, owner duncan. Five tests in
+  `ventures/photo-editing/tests/test_cli.py` passed or failed on the free disk
+  space of the host. `shootflow.storage._rank_candidate` gives a volume the
+  `destination` role only when it reports **more than 64 GiB free**; the tests
+  build their fake `Volumes/EOS_DIGITAL` and `Volumes/Samsung_T7` inside a
+  `tempfile.TemporaryDirectory()`, so `free_bytes` came from `os.statvfs` of the
+  real filesystem. On a machine with 59 GiB free no destination is selected,
+  every route reports `blocked`, and five tests fail for a reason none of them
+  is about. They are green on a roomier machine and were green when this
+  candidate was last verified, which is why nobody had seen it.
+  Two of the five are the reason this is filed rather than just fixed. The
+  symlinked-destination tests are **security guards** — they assert the CLI
+  refuses to write through a symlink out of the destination volume. Below the
+  threshold the command exits before it ever reaches the symlink check, so the
+  test reported the guard broken; above it, the guard ran. Neither outcome was
+  evidence about the guard. A test whose subject is reached only on a
+  sufficiently empty disk is not testing what it claims on any host.
+  Fixed by `pin_volume_free_space` in that module: the five tests now write a
+  `--volume-metadata-json` file stating the free space the route depends on, a
+  seam the CLI already had and that two neighbouring tests already used. All 68
+  tests in the file pass, and mutation-checked in the direction that matters —
+  deleting `_reject_symlinked_existing_subfolder_components` fails the
+  broken-symlink test, and deleting the containment check as well fails both, so
+  the guards bind now on any host rather than only on a roomy one.
+  Not done, and this item stays open for it: nothing looks for the general case.
+  A test that reads `os.statvfs`, the wall clock, the network, `$HOME`, or the
+  host's locale is invisible until the day the machine changes, and this
+  repository runs its suites on developer laptops and on CI runners with very
+  different amounts of free disk. The cheap version is a scan for tests that
+  reach real-filesystem or real-clock facts without a seam; the honest version
+  is running the repository suite under a constrained environment in CI so the
+  coupling fails there rather than in a year.
 - [ ] Make repository policy, secret history, SAST, SCA/license, IaC, container,
   and image scanning required checks; repair the current failing security jobs.
   Partial, 2026-07-31, owner duncan. Repaired: the CI engine no longer reports
@@ -1594,7 +1629,42 @@ evidence, and completion date before it can be marked done.
   field was missing from one copy and present in the other. Nothing in this
   repository looks for a module that defines the same name twice; the two-way
   merge is what surfaced it, by producing two copies where the other branch had
-  one. Worth a control, not yet written.
+  one. Worth a control, ~~not yet written~~ **written 2026-08-04, owner duncan**:
+  `scripts/ci/duplicate_definitions.py`, registered as "Duplicate Definition
+  Scan" in `scripts/test-ci.sh`, with `tests/test_duplicate_definitions.py`
+  running the same scan under pytest. It fails when a Python module body or
+  class body defines one name twice, and when a JavaScript or TypeScript module
+  declares the same top-level `function` or `var` twice. Fifty tests, fourteen
+  mutations, every mutation killed by a test.
+  Two decisions in it are worth stating, because both are the shape of thing
+  this roadmap has been wrong about before.
+  **No budget and no exception register.** Every other ratchet here declares a
+  number that may be argued upward. This one cannot: a module defining the same
+  name twice is not a trade-off with a legitimate other side, and the remedy is
+  always to delete a copy or rename it. A control with a budget is a control
+  that gets tuned instead of obeyed.
+  **No exemption by file extension.** The obvious shortcut was to skip `.ts` and
+  `.tsx` because `tsc` reports TS2393 on a duplicate function implementation —
+  verified, it does. But not every venture here runs a typecheck gate, so that
+  exemption would have created a region where the property is assumed rather
+  than checked, which is the failure recorded against
+  `capability-claims.test.ts` in the claims item above. One rule applied
+  everywhere costs nothing, because the tree contains no overload signatures at
+  all. A first draft also skipped `.d.ts`; the mutation run showed the skip was
+  dead — `declare function` never matched the pattern in the first place — so it
+  was deleted rather than kept as a comforting no-op. Two of the fifty tests
+  were vacuous for the same reason and were rewritten until they could fail.
+  Evidence that it detects rather than merely passes: run against
+  `agent/integration-2026-08-04b`, the branch that carried the defect, it
+  reports all six duplicated names in `portfolio/router/router.py` and exits 1.
+  Against the current tip it scans 1043 files and reports none. The gate is
+  therefore green today because the tree is clean, not because the scan is
+  narrow — `test_the_scan_actually_covers_this_repository` holds that
+  distinction, since a pass over four files would assert nothing.
+  What it does not do: it sees one *name* defined twice, not two *files* that
+  duplicate each other, and not a duplicated list literal — `cap_ratchet.py`'s
+  doubled `WATCHES` was caught by its own `test_no_watch_is_declared_twice` and
+  would still be. Union-shaped merges of append-only lists remain uncovered.
   What generalizes: `scripts/ci/branch_collisions.py` already counts files two
   live branches are both building. It measured this collision correctly and
   nobody read it before starting. The gap is not the measurement.
