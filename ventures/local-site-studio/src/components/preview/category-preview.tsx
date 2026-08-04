@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Lead } from "@/lib/leads/types";
 import type { CommerceSku } from "@/lib/commerce/types";
 import { getCategoryTheme } from "@/lib/previews/themes";
+import { BUNDLES, formatPriceUsd } from "@/lib/pricing/bundles";
 import { PlaceholderBanner } from "@/components/placeholder-banner";
 import { PreviewContactForm } from "./contact-form";
 import { PreviewMapsEmbed } from "./maps-embed";
@@ -53,7 +54,8 @@ export function CategoryPreview({
             href={`/checkout?slug=${encodeURIComponent(lead.slug)}&tier=${lead.recommendedTier}`}
             className={`inline-flex h-12 items-center justify-center rounded-full px-8 font-medium transition-colors ${theme.ctaClass}`}
           >
-            Claim this site — from $500
+            Claim this site — from{" "}
+            {formatPriceUsd(Math.min(...BUNDLES.map((b) => b.setupPriceUsd)))}
           </Link>
           <a
             href="#contact"
