@@ -14,6 +14,7 @@ import {
   resolveLineItemQuantity,
   resolveLineItemUnitAmountCents,
   resolvePartnerProductId,
+  resolvePrintFileUrl,
 } from "./fulfillment-order-inputs";
 
 export type PrintfulOrderRecipient = {
@@ -30,6 +31,13 @@ export type PrintfulOrderItem = {
   quantity: number;
   retailPrice: string;
   name: string;
+  /**
+   * The artwork Printful prints for this line, sent as its `files` entry. Empty
+   * when unresolved, so `queuePrintfulFulfillmentFromOrder` refuses the order —
+   * no print file exists in this repository, and pointing `files` at a product
+   * page is what `gelato-orders.ts` was stopped from doing in 35b96d60.
+   */
+  printFileUrl: string;
 };
 
 export type PrintfulOrderPayload = {
@@ -147,6 +155,7 @@ export function buildPrintfulOrderPayload(
         retailPrice: unitAmount.ok ? (unitAmount.value / 100).toFixed(2) : "",
         name:
           readMetadataString(paymentMetadata, `lineItemName_${index}`) ?? `Print — ${lineSlug}`,
+        printFileUrl: resolvePrintFileUrl(paymentMetadata, index).value,
       };
     }),
     retailCosts: {
@@ -195,6 +204,7 @@ export function resolvePrintfulOrderInputs(
 
     missing.push(...resolveLineItemQuantity(paymentMetadata, index).missing);
     missing.push(...resolveLineItemUnitAmountCents(paymentMetadata, index).missing);
+    missing.push(...resolvePrintFileUrl(paymentMetadata, index).missing);
   }
 
   const deduped = [...new Set(missing)];
@@ -215,6 +225,79 @@ export function getPrintfulEnvStatus(env: Record<string, string | undefined>): {
   return { ready: blockers.length === 0, blockers };
 }
 
+/**
+ * The payload as Printful's Orders API takes it. The type above is the shape the
+ * rest of this venture reads — operator panels, stored submissions — and stays
+ * camelCase; the conversion happens here, at the wire boundary, and nowhere else.
+ *
+ * The field names are snake_case: `docs/research/2026-06-12-printful-variant-retargeting.md:5`
+ * records `variant_id` per line item against the create-order endpoint, and
+ * `external_id`, `retail_price`, `state_code` and `country_code` are named in
+ * `docs/CONTROL-AUDIT-2026-08-04.md` (print-atelier item 2). `retail_costs`,
+ * `packing_slip` and the element shape of `files` are NOT covered by either
+ * document — they follow the same convention as the fields that are, which is
+ * an inference, not something this repository verified against the vendor.
+ */
+export type PrintfulWireOrderPayload = {
+  external_id: string;
+  recipient: {
+    name: string;
+    address1: string;
+    city: string;
+    state_code: string;
+    country_code: string;
+    zip: string;
+  };
+  items: Array<{
+    variant_id: string;
+    quantity: number;
+    retail_price: string;
+    name: string;
+    /** Absent when no print file resolved, never a fabricated URL. */
+    files?: Array<{ url: string }>;
+  }>;
+  retail_costs: {
+    currency: string;
+    subtotal: string;
+    shipping?: string;
+    tax?: string;
+  };
+  packing_slip?: {
+    email: string;
+    message: string;
+  };
+};
+
+export function toPrintfulWirePayload(payload: PrintfulOrderPayload): PrintfulWireOrderPayload {
+  return {
+    external_id: payload.externalId,
+    recipient: {
+      name: payload.recipient.name,
+      address1: payload.recipient.address1,
+      city: payload.recipient.city,
+      state_code: payload.recipient.stateCode,
+      country_code: payload.recipient.countryCode,
+      zip: payload.recipient.zip,
+    },
+    items: payload.items.map((item) => ({
+      variant_id: item.variantId,
+      quantity: item.quantity,
+      retail_price: item.retailPrice,
+      name: item.name,
+      ...(item.printFileUrl === "" ? {} : { files: [{ url: item.printFileUrl }] }),
+    })),
+    retail_costs: {
+      currency: payload.retailCosts.currency,
+      subtotal: payload.retailCosts.subtotal,
+      ...omitUnset({
+        shipping: payload.retailCosts.shipping ?? null,
+        tax: payload.retailCosts.tax ?? null,
+      }),
+    },
+    ...(payload.packingSlip ? { packing_slip: payload.packingSlip } : {}),
+  };
+}
+
 export async function submitPrintfulOrder(
   payload: PrintfulOrderPayload,
   env: Record<string, string | undefined>,
@@ -227,7 +310,7 @@ export async function submitPrintfulOrder(
       Authorization: `Bearer ${env.PRINTFUL_API_KEY ?? ""}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(toPrintfulWirePayload(payload)),
   });
   return {
     ok: response.ok,

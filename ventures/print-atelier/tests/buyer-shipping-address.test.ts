@@ -177,6 +177,9 @@ test("a resolved buyer address reaches the partner payload unchanged", async () 
       // the order has to be complete before the address can be seen arriving.
       lineItemQuantities: "1",
       lineItemUnitAmounts: "8500",
+      // And the artwork, for the same reason: a line with no print file is
+      // refused before the address can be observed reaching the payload.
+      artworkUrl: "https://files.example.com/prints/midnight-coast.tif",
     },
     {},
   );
