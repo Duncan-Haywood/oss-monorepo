@@ -115,14 +115,50 @@ function rel(file: string): string {
 }
 
 /**
- * The `/docs` tree is the operator's own build log and states the gap honestly
- * ("Until Twilio is live, operators fulfill with a generated FAQ/script pack").
- * Forbidding the phrase there would delete the sentence that tells the truth.
- * What must not carry the claim is the copy between a visitor and the checkout
- * button.
+ * The `/docs` tree is the operator's own build log and generally states the gap
+ * honestly ("Until Twilio is live, operators fulfill with a generated FAQ/script
+ * pack"). Forbidding the phrase there would delete the sentence that tells the
+ * truth. What must not carry the claim is the copy between a visitor and the
+ * checkout button.
+ *
+ * The exemption is earned per claim, not granted per directory. `/docs` is not
+ * behind the password — `src/proxy.ts` guards only `/dashboard` — so a docs page
+ * is public copy like any other, and a blanket exemption is just a place the
+ * claim is allowed to be untrue. It was: `docs/business-model` priced the
+ * Complete tier at "$500 + $199/mo" against "Growth + full marketing + client AI
+ * phone agent", in a table, with no caveat anywhere on the page. The honest
+ * neighbour two files away is what made that invisible — the tree as a whole
+ * looked truthful, so nobody read the row.
+ *
+ * So a docs page may carry the claim only where it also carries the fulfilment
+ * reality within `CAVEAT_PROXIMITY_LINES`. `product-bundles` states it in the
+ * same sentence, which is the standard: a reader meeting the claim has to meet
+ * the correction too, without scrolling to look for it.
  */
-function isBuildLogPage(file: string): boolean {
+const CAVEAT_PROXIMITY_LINES = 3;
+
+/**
+ * Copy that states what actually ships today instead of a caller-facing agent.
+ * Matched near a claim, not anywhere on the page, so a caveat in the footer
+ * cannot license a claim in the header.
+ */
+const FULFILMENT_CAVEATS: ReadonlyArray<RegExp> = [
+  /\buntil\s+twilio\s+is\s+live\b/i,
+  /\b(FAQ\/?|call\s+)?script\s+pack\b/i,
+  /\bvoice\s+pack\b/i,
+];
+
+function isDocsPage(file: string): boolean {
   return rel(file).startsWith(path.join("src", "app", "docs") + path.sep);
+}
+
+/** True when `lines[index]` sits within the caveat window of an honest statement. */
+function caveatNear(lines: string[], index: number): boolean {
+  const from = Math.max(0, index - CAVEAT_PROXIMITY_LINES);
+  const to = Math.min(lines.length - 1, index + CAVEAT_PROXIMITY_LINES);
+  return lines
+    .slice(from, to + 1)
+    .some((line) => FULFILMENT_CAVEATS.some((caveat) => caveat.test(line)));
 }
 
 function telephonyIntegrationPresent(): boolean {
@@ -162,6 +198,34 @@ describe("capability claims", () => {
     expect(AUTONOMOUS_CALL_CLAIMS.some((c) => c.pattern.test(stillTrue))).toBe(false);
   });
 
+  it("exempts a docs page only where the caveat is next to the claim", () => {
+    // The blanket `/docs` exemption is what hid the business-model pricing row,
+    // so the replacement has to be shown to discriminate. Without this, widening
+    // FULFILMENT_CAVEATS until everything matches would look like a passing gate.
+    const explained = [
+      "<p>",
+      "  Complete includes a client AI phone agent (answers their business line).",
+      "  Until Twilio is live, operators fulfill with a generated FAQ/script pack.",
+      "</p>",
+    ];
+    expect(caveatNear(explained, 1)).toBe(true);
+
+    const bare = [
+      "<tr>",
+      "  <td>Growth + full marketing + client AI phone agent</td>",
+      "</tr>",
+    ];
+    expect(caveatNear(bare, 1)).toBe(false);
+
+    // A caveat elsewhere on a long page does not reach the claim.
+    const distant = [
+      "  <td>client AI phone agent</td>",
+      ...Array<string>(CAVEAT_PROXIMITY_LINES + 1).fill("  <td>unrelated</td>"),
+      "  <p>Until Twilio is live, operators fulfill with a script pack.</p>",
+    ];
+    expect(caveatNear(distant, 0)).toBe(false);
+  });
+
   it("does not promise a caller-facing agent while none is integrated", () => {
     if (telephonyIntegrationPresent()) {
       // The capability landed. The claim is now the venture's to make.
@@ -170,13 +234,15 @@ describe("capability claims", () => {
 
     const offences: string[] = [];
     for (const file of publicCopyFiles()) {
-      if (isBuildLogPage(file)) continue;
+      const docs = isDocsPage(file);
       const lines = readFileSync(file, "utf8").split("\n");
       lines.forEach((line, index) => {
         for (const { pattern, why } of AUTONOMOUS_CALL_CLAIMS) {
-          if (pattern.test(line)) {
-            offences.push(`${rel(file)}:${index + 1} — ${why}\n    ${line.trim()}`);
-          }
+          if (!pattern.test(line)) continue;
+          // A docs page may explain the claim; it may not make it unqualified.
+          if (docs && caveatNear(lines, index)) continue;
+          const scope = docs ? " (docs page, and no fulfilment caveat within reach)" : "";
+          offences.push(`${rel(file)}:${index + 1} — ${why}${scope}\n    ${line.trim()}`);
         }
       });
     }

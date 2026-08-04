@@ -204,6 +204,14 @@ def _candidate_refs(repo_root: Path, baseline_ref: str) -> List[Tuple[str, str]]
 
     Symbolic refs (`origin/HEAD`) are skipped: they are an alias for a ref
     already in the list, not a separate pile of work.
+
+    The remote prefix is stripped, so the same branch is named the same thing
+    in both environments. Without that, `dropped_artifacts` — which is keyed on
+    `(path, branch)` — is not portable: an entry registered from a clone reads
+    as `origin/agent/x` and the primary checkout measures `agent/x`, so the
+    same deliberate drop fails twice over, once as unregistered and once as a
+    stale registration. Registering a drop is a reviewed judgement about a
+    *branch*, and it should survive being read from a different checkout of it.
     """
     symbolic: Set[str] = set()
     for line in _git(["for-each-ref", "--format=%(refname) %(symref)", "refs/"], repo_root).splitlines():
@@ -211,7 +219,9 @@ def _candidate_refs(repo_root: Path, baseline_ref: str) -> List[Tuple[str, str]]
         if len(parts) == 2:
             symbolic.add(parts[0])
 
+    remotes = _remote_names(repo_root)
     seen_names: Set[str] = set()
+    seen_candidates: Set[Tuple[str, str]] = set()
     candidates: List[Tuple[str, str]] = []
     for pattern in ("refs/heads/", "refs/remotes/"):
         out = _git(["for-each-ref", "--format=%(refname) %(objectname)", pattern], repo_root)
@@ -225,14 +235,32 @@ def _candidate_refs(repo_root: Path, baseline_ref: str) -> List[Tuple[str, str]]
             seen_names.add(refname)
             if _is_ancestor(repo_root, sha, baseline_ref):
                 continue
-            candidates.append((_short_ref(refname), sha))
+            # A branch held both locally and as a remote-tracking ref is one
+            # branch. It already resolved to one commit; now it also has one
+            # name, so it is not counted or reported twice.
+            entry = (_short_ref(refname, remotes), sha)
+            if entry in seen_candidates:
+                continue
+            seen_candidates.add(entry)
+            candidates.append(entry)
     return candidates
 
 
-def _short_ref(refname: str) -> str:
+def _remote_names(repo_root: Path) -> Tuple[str, ...]:
+    """Configured remotes, longest first so `origin/x` beats a remote named `o`."""
+    names = [n for n in _git(["remote"], repo_root).splitlines() if n.strip()]
+    return tuple(sorted((n.strip() for n in names), key=len, reverse=True))
+
+
+def _short_ref(refname: str, remotes: Sequence[str] = ()) -> str:
     for prefix in ("refs/heads/", "refs/remotes/"):
         if refname.startswith(prefix):
-            return refname[len(prefix) :]
+            short = refname[len(prefix) :]
+            if prefix == "refs/remotes/":
+                for remote in remotes:
+                    if short.startswith(f"{remote}/"):
+                        return short[len(remote) + 1 :]
+            return short
     return refname
 
 
