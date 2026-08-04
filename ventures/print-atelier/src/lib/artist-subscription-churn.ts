@@ -5,23 +5,8 @@
  * recommends tier upgrades (Free -> Pro -> Studio -> Enterprise), and triggers retention interventions.
  */
 
-export type SubscriptionTier = 'free_artisan' | 'pro_gallery' | 'studio_master' | 'enterprise_label';
 export type ArtistSubscriptionTier = 'free_creator' | 'pro_artist' | 'studio_gallery' | 'enterprise_label';
 export type ChurnRiskLevel = 'low' | 'moderate' | 'high' | 'critical';
-
-export interface ArtistSubscriptionProfile {
-  artistId: string;
-  artistName: string;
-  currentTier: SubscriptionTier;
-  monthlySubscriptionFeeUsd: number;
-  monthlySalesVolumeUsd: number;
-  activeListingsCount: number;
-  newListingsPast30Days: number;
-  lastLoginDaysAgo: number;
-  openSupportTicketsCount: number;
-  subscribersCount: number;
-  joinedAt: string;
-}
 
 export interface ArtistActivityMetrics {
   artistId: string;
@@ -32,17 +17,6 @@ export interface ArtistActivityMetrics {
   supportTicketsOpened: number;
   storageUsedMb: number;
   storageLimitMb: number;
-}
-
-export interface ChurnPredictionResult {
-  artistId: string;
-  churnRiskScore: number; // 0 - 100
-  churnRiskLevel: ChurnRiskLevel;
-  recommendedTier: SubscriptionTier;
-  tierUpgradeOpportunity: boolean;
-  projectedAnnualValueUsd: number;
-  recommendedIntervention?: 'schedule_success_call' | 'offer_custom_domain_credit' | 'waive_commission_fee' | 'feature_in_curated_drop';
-  reasons: string[];
 }
 
 export interface ArtistChurnPrediction {
@@ -56,15 +30,6 @@ export interface ArtistChurnPrediction {
   predictedAt: number;
 }
 
-export interface SubscriptionPortfolioForecast {
-  totalActiveArtists: number;
-  currentMonthlyRecurringRevenueUsd: number;
-  currentAnnualRecurringRevenueUsd: number;
-  projectedMonthlyChurnUsd: number;
-  expansionMrrOpportunityUsd: number;
-  netRetentionRatePercent: number;
-}
-
 export interface ArtistCohortSummary {
   totalArtists: number;
   averageChurnRiskPercent: number;
@@ -76,220 +41,12 @@ export interface ArtistCohortSummary {
 
 const churnStore = new Map<string, ArtistChurnPrediction>();
 
-export function evaluateArtistSubscriptionPosture(profile: ArtistSubscriptionProfile): ChurnPredictionResult {
-  const {
-    artistId,
-    currentTier,
-    monthlySubscriptionFeeUsd,
-    monthlySalesVolumeUsd,
-    activeListingsCount,
-    newListingsPast30Days,
-    lastLoginDaysAgo,
-    openSupportTicketsCount,
-  } = profile;
 
-  let churnRiskScore = 0;
-  const reasons: string[] = [];
-
-  if (lastLoginDaysAgo >= 60) {
-    churnRiskScore += 40;
-    reasons.push('Severe inactivity: No login in over 60 days (+40 risk).');
-  } else if (lastLoginDaysAgo >= 30) {
-    churnRiskScore += 25;
-    reasons.push('Moderate inactivity: No login in 30 days (+25 risk).');
-  } else if (lastLoginDaysAgo >= 14) {
-    churnRiskScore += 10;
-    reasons.push('Slight inactivity: No login in 14 days (+10 risk).');
-  }
-
-  if (newListingsPast30Days === 0) {
-    churnRiskScore += 15;
-    reasons.push('Catalog stagnation: Zero new print listings added in 30 days (+15 risk).');
-    if (activeListingsCount < 3) {
-      churnRiskScore += 10;
-      reasons.push('Low listing volume: Fewer than 3 total active artworks (+10 risk).');
-    }
-  }
-
-  if (openSupportTicketsCount >= 3) {
-    churnRiskScore += 20;
-    reasons.push('High support friction: 3+ unresolved support tickets (+20 risk).');
-  } else if (openSupportTicketsCount > 0) {
-    churnRiskScore += 10;
-    reasons.push('Unresolved support ticket present (+10 risk).');
-  }
-
-  if (monthlySalesVolumeUsd === 0 && currentTier !== 'free_artisan') {
-    churnRiskScore += 15;
-    reasons.push('Paying tier with zero sales volume this month (+15 risk).');
-  }
-
-  const finalScore = Math.min(Math.round(churnRiskScore), 100);
-
-  let churnRiskLevel: ChurnRiskLevel = 'low';
-  if (finalScore >= 75) {
-    churnRiskLevel = 'critical';
-  } else if (finalScore >= 50) {
-    churnRiskLevel = 'high';
-  } else if (finalScore >= 25) {
-    churnRiskLevel = 'moderate';
-  }
-
-  let recommendedTier: SubscriptionTier = currentTier;
-  let tierUpgradeOpportunity = false;
-
-  if (monthlySalesVolumeUsd >= 20000 || activeListingsCount >= 100) {
-    recommendedTier = 'enterprise_label';
-  } else if (monthlySalesVolumeUsd >= 5000 || activeListingsCount >= 35) {
-    recommendedTier = 'studio_master';
-  } else if (monthlySalesVolumeUsd >= 1000 || activeListingsCount >= 10) {
-    recommendedTier = 'pro_gallery';
-  } else {
-    recommendedTier = 'free_artisan';
-  }
-
-  if (getTierWeight(recommendedTier) > getTierWeight(currentTier)) {
-    tierUpgradeOpportunity = true;
-    reasons.push(`Tier upgrade recommended: Sales volume ($${monthlySalesVolumeUsd.toLocaleString()}) qualifies for ${recommendedTier}.`);
-  }
-
-  let recommendedIntervention: ChurnPredictionResult['recommendedIntervention'] = undefined;
-  if (churnRiskLevel === 'critical') {
-    recommendedIntervention = 'schedule_success_call';
-  } else if (churnRiskLevel === 'high' && currentTier !== 'free_artisan') {
-    recommendedIntervention = 'waive_commission_fee';
-  } else if (churnRiskLevel === 'moderate' && newListingsPast30Days === 0) {
-    recommendedIntervention = 'feature_in_curated_drop';
-  } else if (tierUpgradeOpportunity) {
-    recommendedIntervention = 'offer_custom_domain_credit';
-  }
-
-  const tierAnnualFeeMap: Record<SubscriptionTier, number> = {
-    free_artisan: 0,
-    pro_gallery: 348,
-    studio_master: 948,
-    enterprise_label: 2388,
-  };
-  const projectedAnnualValueUsd = tierAnnualFeeMap[recommendedTier] + monthlySalesVolumeUsd * 12 * 0.12;
-
-  return {
-    artistId,
-    churnRiskScore: finalScore,
-    churnRiskLevel,
-    recommendedTier,
-    tierUpgradeOpportunity,
-    projectedAnnualValueUsd: parseFloat(projectedAnnualValueUsd.toFixed(2)),
-    recommendedIntervention,
-    reasons,
-  };
-}
-
-function getTierWeight(tier: SubscriptionTier): number {
-  switch (tier) {
-    case 'free_artisan':
-      return 1;
-    case 'pro_gallery':
-      return 2;
-    case 'studio_master':
-      return 3;
-    case 'enterprise_label':
-      return 4;
-  }
-}
-
-export function calculateSubscriptionRevenueForecast(artists: ArtistSubscriptionProfile[]): SubscriptionPortfolioForecast {
-  if (artists.length === 0) {
-    return {
-      totalActiveArtists: 0,
-      currentMonthlyRecurringRevenueUsd: 0,
-      currentAnnualRecurringRevenueUsd: 0,
-      projectedMonthlyChurnUsd: 0,
-      expansionMrrOpportunityUsd: 0,
-      netRetentionRatePercent: 100,
-    };
-  }
-
-  let totalMrr = 0;
-  let projectedMonthlyChurn = 0;
-  let expansionMrrOpportunity = 0;
-
-  for (const artist of artists) {
-    totalMrr += artist.monthlySubscriptionFeeUsd;
-    const posture = evaluateArtistSubscriptionPosture(artist);
-
-    if (posture.churnRiskLevel === 'critical' || posture.churnRiskLevel === 'high') {
-      projectedMonthlyChurn += artist.monthlySubscriptionFeeUsd;
-    }
-
-    if (posture.tierUpgradeOpportunity) {
-      const upgradeFeeMap: Record<SubscriptionTier, number> = {
-        free_artisan: 0,
-        pro_gallery: 29,
-        studio_master: 79,
-        enterprise_label: 199,
-      };
-      const currentFee = artist.monthlySubscriptionFeeUsd;
-      const targetFee = upgradeFeeMap[posture.recommendedTier];
-      if (targetFee > currentFee) {
-        expansionMrrOpportunity += targetFee - currentFee;
-      }
-    }
-  }
-
-  const currentAnnualRecurringRevenueUsd = parseFloat((totalMrr * 12).toFixed(2));
-  const netRetentionRatePercent = totalMrr > 0 ? parseFloat((((totalMrr - projectedMonthlyChurn) / totalMrr) * 100).toFixed(2)) : 100;
-
-  return {
-    totalActiveArtists: artists.length,
-    currentMonthlyRecurringRevenueUsd: parseFloat(totalMrr.toFixed(2)),
-    currentAnnualRecurringRevenueUsd,
-    projectedMonthlyChurnUsd: parseFloat(projectedMonthlyChurn.toFixed(2)),
-    expansionMrrOpportunityUsd: parseFloat(expansionMrrOpportunity.toFixed(2)),
-    netRetentionRatePercent,
-  };
-}
-
-export class ArtistSubscriptionStore {
-  private profiles = new Map<string, ArtistSubscriptionProfile>();
-
-  recordArtist(profile: ArtistSubscriptionProfile): ChurnPredictionResult {
-    this.profiles.set(profile.artistId, profile);
-    return evaluateArtistSubscriptionPosture(profile);
-  }
-
-  getArtist(artistId: string): ArtistSubscriptionProfile | undefined {
-    return this.profiles.get(artistId);
-  }
-
-  getForecast(): SubscriptionPortfolioForecast {
-    return calculateSubscriptionRevenueForecast(Array.from(this.profiles.values()));
-  }
-
-  generateConvexSchema(): string {
-    return `import { defineSchema, defineTable } from "convex/server";
-import { v } from "convex/values";
-
-export default defineSchema({
-  artist_subscriptions: defineTable({
-    artistId: v.string(),
-    artistName: v.string(),
-    currentTier: v.string(),
-    monthlySubscriptionFeeUsd: v.number(),
-    monthlySalesVolumeUsd: v.number(),
-    activeListingsCount: v.number(),
-    lastLoginDaysAgo: v.number(),
-    churnRiskScore: v.number(),
-    churnRiskLevel: v.string(),
-    joinedAt: v.string(),
-  }).index("by_churn_risk", ["churnRiskLevel"])
-    .index("by_tier", ["currentTier"]),
-});`;
-  }
-}
-
-export const artistSubscriptionStore = new ArtistSubscriptionStore();
-
-// Secondary API helpers to support alternate calling signatures
+// The engine this module also carried — `evaluateArtistSubscriptionPosture`,
+// `calculateSubscriptionRevenueForecast` and `ArtistSubscriptionStore`, over a
+// second set of tier names — had no caller anywhere in `src/` or `tests/`. It
+// was removed rather than covered. What remains is still called only by its own
+// suite; no product surface reads a churn prediction yet.
 export function predictArtistChurnAndUpgrade(metrics: ArtistActivityMetrics): ArtistChurnPrediction {
   const {
     artistId,
