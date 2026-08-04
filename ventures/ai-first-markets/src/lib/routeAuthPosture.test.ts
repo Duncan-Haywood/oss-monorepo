@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
 /**
@@ -221,4 +221,40 @@ test("the handler parser separates handlers rather than returning one blob", () 
 test("the paths this contract reads are the ones the app serves", () => {
   assert.equal(relative(process.cwd(), APP_ROOT), join("src", "app"));
   assert.equal(relative(process.cwd(), MIDDLEWARE), join("src", "middleware.ts"));
+});
+
+test("every page the sitemap advertises can be loaded without a session", () => {
+  // The app published a sitemap naming `/` at priority 1 while the middleware
+  // redirected `/` to a login only the operator could pass. Anyone the sitemap
+  // brought in — a prospective subscriber, a crawler — met that redirect, so
+  // the venture could not acquire a customer without a code change. A URL this
+  // app advertises and a URL this app serves anonymously must be the same set.
+  const sitemap = readFileSync(join(APP_ROOT, "sitemap.ts"), "utf8");
+  const urls = [...sitemap.matchAll(/url:\s*"([^"]+)"/g)].map((entry) => entry[1]);
+  assert.ok(urls.length > 0, "no URLs parsed out of src/app/sitemap.ts");
+
+  const unreachable = urls
+    .filter((url) => url.startsWith("/"))
+    .filter((url) => !reachableAnonymously(url));
+  assert.deepEqual(
+    unreachable,
+    [],
+    "the sitemap advertises these paths but the middleware turns anonymous visitors away from them",
+  );
+});
+
+test("the research a subscription pays for is still behind the allowlist", () => {
+  // The counterpart to the check above: the way to make the sitemap reachable
+  // is to publish the landing page, not to publish the product.
+  const guarded = ["/reports", "/reports/ai-market-efficiency", "/ideas", "/ideas/some-idea", "/market-map"];
+  const leaked = guarded.filter((path) => reachableAnonymously(path));
+  assert.deepEqual(leaked, [], "these are the paid pages and they became anonymously reachable");
+
+  // The list above must name pages this app really has, or it guards nothing.
+  for (const segment of ["reports", "ideas", "market-map"]) {
+    assert.ok(
+      existsSync(join(APP_ROOT, segment, "page.tsx")),
+      `src/app/${segment}/page.tsx no longer exists; update the guarded list before trusting it`,
+    );
+  }
 });
