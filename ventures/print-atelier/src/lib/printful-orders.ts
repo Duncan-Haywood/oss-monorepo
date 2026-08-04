@@ -1,5 +1,9 @@
 import type { OrderRecord } from "./orders";
 import {
+  describeMissingBuyerShipping,
+  resolveBuyerShippingAddress,
+} from "./buyer-shipping";
+import {
   defaultPrintfulVariantMappings,
   resolvePrintfulVariantId,
   type PrintfulVariantMapping,
@@ -77,22 +81,25 @@ export function buildPrintfulOrderPayload(
   paymentMetadata: Record<string, unknown> = {},
   variantMappings: PrintfulVariantMapping[] = defaultPrintfulVariantMappings,
 ): PrintfulOrderPayload {
-  const region = order.shippingRegion ?? "US";
-  const countryCode = region === "UK" ? "GB" : region.slice(0, 2).toUpperCase();
   const subtotal = (order.amountCents / 100).toFixed(2);
 
   const catalogSlug = readMetadataString(paymentMetadata, "catalogSlug") ?? "sample-print";
   const buyerEmail = readMetadataString(paymentMetadata, "buyerEmail") ?? "buyer@printatelier.com";
 
+  // Whatever the buyer actually gave us, and nothing else. An unresolved field
+  // stays empty so `queuePrintfulFulfillmentFromOrder` can refuse the order;
+  // filling it in would ship someone else's print to a placeholder street.
+  const { address } = resolveBuyerShippingAddress(paymentMetadata);
+
   return {
     externalId: order.orderId,
     recipient: {
-      name: readMetadataString(paymentMetadata, "shippingName") ?? "Print Atelier Buyer",
-      address1: readMetadataString(paymentMetadata, "shippingAddress1") ?? "123 Market St",
-      city: readMetadataString(paymentMetadata, "shippingCity") ?? "San Francisco",
-      stateCode: readMetadataString(paymentMetadata, "shippingState") ?? "CA",
-      countryCode,
-      zip: readMetadataString(paymentMetadata, "shippingZip") ?? "94105",
+      name: address.name,
+      address1: address.address1,
+      city: address.city,
+      stateCode: address.state,
+      countryCode: address.countryCode,
+      zip: address.postalCode,
     },
     items: Array.from({ length: Math.max(order.lineItemCount, 1) }, (_, index) => {
       const lineSlug =
@@ -172,6 +179,23 @@ export async function queuePrintfulFulfillmentFromOrder(
   const payload = buildPrintfulOrderPayload(order, paymentMetadata);
   const envStatus = getPrintfulEnvStatus(env);
 
+  // Fail closed before anything else, including before the dry-run branch: a
+  // queued dry run is the record an operator later retries, so an order with no
+  // buyer address must never enter the queue looking submittable.
+  const shipping = resolveBuyerShippingAddress(paymentMetadata);
+  if (!shipping.ok) {
+    return recordPrintfulFulfillmentSubmission({
+      orderId: order.orderId,
+      partner: "printful",
+      mode: "dry_run",
+      status: "blocked",
+      apiEndpoint: PRINTFUL_ORDERS_ENDPOINT,
+      payload,
+      message: describeMissingBuyerShipping(shipping.missing),
+      canRetry: false,
+    });
+  }
+
   if (!envStatus.ready) {
     return recordPrintfulFulfillmentSubmission({
       orderId: order.orderId,
@@ -238,6 +262,14 @@ export async function retryPrintfulFulfillmentSubmission(
   const existing = fulfillmentStore.find((item) => item.orderId === orderId);
   if (!existing || existing.status !== "blocked") {
     return null;
+  }
+
+  // `canRetry: false` is set by the buyer-address guard, and a retry cannot
+  // supply the address the guard was missing — the submission holds the payload
+  // but not the payment metadata. Retrying here would POST the empty recipient
+  // the guard exists to stop.
+  if (existing.canRetry === false) {
+    return existing;
   }
 
   const currentRetries = existing.retryCount ?? 0;

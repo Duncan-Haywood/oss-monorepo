@@ -217,12 +217,14 @@ export default function CheckoutLab() {
                 <dd>{formatCheckoutCurrency(totals.subtotal)}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-stone-500">Shipping est.</dt>
+                <dt className="text-stone-500">Shipping</dt>
                 <dd>{formatCheckoutCurrency(totals.shippingEstimate)}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-stone-500">Tax est.</dt>
-                <dd>{formatCheckoutCurrency(totals.taxEstimate)}</dd>
+                <dt className="text-stone-500">Tax</dt>
+                <dd className="text-stone-500">
+                  {totals.taxCollectedAtCheckout ? "Calculated at checkout" : "Not charged"}
+                </dd>
               </div>
               <div className="flex justify-between border-t border-stone-100 pt-2 font-semibold">
                 <dt>Total</dt>

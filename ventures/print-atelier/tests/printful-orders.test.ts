@@ -11,6 +11,21 @@ import {
 } from "../src/lib/printful-orders.ts";
 import type { OrderRecord } from "../src/lib/orders.ts";
 
+/**
+ * A real order carries the address Stripe collected at checkout. These cases
+ * used to pass `{}` and still reach the Printful API, which is what
+ * `tests/buyer-shipping-address.test.ts` now forbids: the recipient was a
+ * hardcoded San Francisco street.
+ */
+const buyerAddress = {
+  shippingName: "Test Buyer",
+  shippingAddress1: "12 Analytical Way",
+  shippingCity: "Portland",
+  shippingState: "OR",
+  shippingZip: "97205",
+  shippingCountry: "US",
+};
+
 const sampleOrder: OrderRecord = {
   orderId: "ord_test_1",
   stripeEventId: "evt_1",
@@ -28,8 +43,8 @@ const sampleOrder: OrderRecord = {
 
 test("buildPrintfulOrderPayload maps Stripe order metadata", () => {
   const payload = buildPrintfulOrderPayload(sampleOrder, {
+    ...buyerAddress,
     catalogSlug: "midnight-coast",
-    shippingName: "Test Buyer",
     buyerEmail: "buyer@example.com",
   });
 
@@ -41,7 +56,7 @@ test("buildPrintfulOrderPayload maps Stripe order metadata", () => {
 
 test("queuePrintfulFulfillmentFromOrder dry-runs without API keys", async () => {
   clearPrintfulFulfillmentForTests();
-  const submission = await queuePrintfulFulfillmentFromOrder(sampleOrder, {}, {});
+  const submission = await queuePrintfulFulfillmentFromOrder(sampleOrder, buyerAddress, {});
 
   assert.ok(submission);
   assert.equal(submission?.mode, "dry_run");
@@ -59,7 +74,7 @@ test("queuePrintfulFulfillmentFromOrder submits when keys and fetch succeed", as
 
   const submission = await queuePrintfulFulfillmentFromOrder(
     sampleOrder,
-    { catalogSlug: "midnight-coast" },
+    { ...buyerAddress, catalogSlug: "midnight-coast" },
     { PRINTFUL_API_KEY: "pf_key", PRINTFUL_STORE_ID: "store_1" },
     fetchFn,
   );
@@ -86,7 +101,7 @@ test("getPrintfulRetryQueue tracks blocked submissions and handles retries", asy
 
   const submission = await queuePrintfulFulfillmentFromOrder(
     sampleOrder,
-    {},
+    buyerAddress,
     { PRINTFUL_API_KEY: "pf_key", PRINTFUL_STORE_ID: "store_1" },
     failFetch,
   );

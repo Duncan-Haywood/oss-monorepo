@@ -43,9 +43,22 @@ export type FulfillmentRoute = {
 export type CheckoutTotals = {
   subtotal: number;
   shippingEstimate: number;
+  /**
+   * Informational only. Nothing in this repository registers Print Atelier for
+   * sales tax or VAT anywhere, so this figure is not collected and must never
+   * be folded into `total` — see `taxCollectedAtCheckout`.
+   */
   taxEstimate: number;
   stripeProcessingFee: number;
+  /** Exactly what Stripe will charge: subtotal plus shipping. */
   total: number;
+  /**
+   * Whether Stripe Tax is enabled for this deployment. When it is, Stripe
+   * computes and adds tax on top of `total` at the payment step; when it is
+   * not, no tax is charged and the order summary says so rather than showing
+   * an amount the buyer is never asked for.
+   */
+  taxCollectedAtCheckout: boolean;
   artistTransfers: number;
   platformRetained: number;
   netProfit: number;
@@ -56,6 +69,10 @@ export type CheckoutSessionPayload = {
   mode: "payment";
   currency: "usd";
   lineItems: Array<{ name: string; unitAmountCents: number; quantity: number }>;
+  /** The shipping the order summary quotes, as a Stripe shipping rate. */
+  shippingAmountCents: number;
+  /** Whether the session should ask Stripe to compute tax. */
+  automaticTax: boolean;
   successUrl: string;
   cancelUrl: string;
   metadata: Record<string, string>;
@@ -234,9 +251,22 @@ export function buildFulfillmentRoute(
   };
 }
 
+/**
+ * Stripe Tax is off unless a deployment turns it on. Enabling it requires a tax
+ * registration and an origin address configured in the Stripe dashboard, so it
+ * cannot be the default: a session with `automatic_tax` enabled on an account
+ * without those is rejected, which would take the whole checkout down.
+ */
+export function isAutomaticTaxEnabled(
+  env: Record<string, string | undefined> = {},
+): boolean {
+  return env.STRIPE_AUTOMATIC_TAX?.trim().toLowerCase() === "enabled";
+}
+
 export function calculateCheckoutTotals(
   lineItems: CheckoutLineItem[],
   region: CheckoutShippingRegion,
+  env: Record<string, string | undefined> = {},
 ): CheckoutTotals {
   const subtotal = roundCurrency(
     lineItems.reduce((sum, item) => sum + item.retailPrice * item.quantity, 0),
@@ -244,7 +274,13 @@ export function calculateCheckoutTotals(
   const shippingEstimate = lineItems.length > 0 ? regionShipping[region] : 0;
   const taxable = subtotal + shippingEstimate;
   const taxEstimate = roundCurrency(taxable * regionTaxRate[region]);
-  const total = roundCurrency(taxable + taxEstimate);
+  // `total` is what the buyer is charged, so it may only contain amounts this
+  // checkout actually puts on the Stripe session. Shipping is now a
+  // `shipping_options` line; tax is either Stripe's to compute or not charged
+  // at all. Adding `taxEstimate` here quoted a US buyer $99.11 against an $85
+  // charge, and quoted EU/UK buyers 20% VAT that was never collected or
+  // remitted.
+  const total = roundCurrency(taxable);
   const stripeProcessingFee = roundCurrency(total * STRIPE_RATE + STRIPE_FIXED);
 
   let artistTransfers = 0;
@@ -267,6 +303,7 @@ export function calculateCheckoutTotals(
     taxEstimate,
     stripeProcessingFee,
     total,
+    taxCollectedAtCheckout: isAutomaticTaxEnabled(env),
     artistTransfers: roundCurrency(artistTransfers),
     platformRetained: roundCurrency(platformRetained),
     netProfit: roundCurrency(netProfit),
@@ -280,7 +317,7 @@ export function buildCheckoutSessionPayload(
   env: Record<string, string | undefined> = {},
 ): CheckoutSessionPayload {
   const route = buildFulfillmentRoute(lineItems, region, env);
-  const totals = calculateCheckoutTotals(lineItems, region);
+  const totals = calculateCheckoutTotals(lineItems, region, env);
 
   const primaryItem = lineItems[0];
   const primaryAccountId =
@@ -303,6 +340,8 @@ export function buildCheckoutSessionPayload(
       unitAmountCents: Math.round(item.retailPrice * 100),
       quantity: item.quantity,
     })),
+    shippingAmountCents: Math.round(totals.shippingEstimate * 100),
+    automaticTax: totals.taxCollectedAtCheckout,
     successUrl: `${baseUrl}/checkout?status=success`,
     cancelUrl: `${baseUrl}/checkout?status=cancelled`,
     metadata: {

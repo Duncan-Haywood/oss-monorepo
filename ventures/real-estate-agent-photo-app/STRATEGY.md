@@ -24,10 +24,20 @@ Listing Lens is realistic if it starts with the audience already feeling the pai
 
 Listing Lens guides agents through a 5-step capture-to-publish workflow:
 
+This page is published on the docs site, so each step says what ships today and
+what is planned. `pipeline/src/offer-claims.test.ts` enforces that distinction
+against the pipeline source.
+
 1. **Guide** — room-by-room prompts, vertical lock, HDR brackets
-2. **Enhance** — instant on-device AI for exposure, sky, perspective, and white balance
-3. **Polish** — optional cloud edits for virtual staging, twilight, and object removal
-4. **Deliver** — MLS exports, optional LiDAR 3D, and 60-second video walkthroughs
+2. **Enhance** — shipped: auto-orientation, exposure and contrast
+   normalisation, sharpening, and a consistent MLS-ready export size. No AI
+   model is involved; `pipeline/package.json` declares `sharp` and nothing else.
+3. **Polish** — planned, not built: cloud edits for virtual staging, twilight,
+   and object removal. Nothing in the pipeline performs any of these today, and
+   each is an alteration requiring the disclosure handling tracked in
+   `process/mls-compliance.ts` before it could be offered.
+4. **Deliver** — MLS exports ship today. LiDAR 3D and 60-second video
+   walkthroughs are planned and not built.
 5. **Brand** — agent headshot, logo, and property microsite
 
 ## Target customer
@@ -75,12 +85,18 @@ Listing Lens should compete against mediocre DIY and slow outsourcing, not luxur
 
 ## Business model
 
+None of the recurring tiers below is on sale. There is no billing code in this
+venture — no subscription, seat, entitlement, or quota logic exists — and the
+only payment path that works today is the manual one in
+`process/payment-collection.ts` for the $19 concierge shoot. Treat the table as
+the intended shape of the model, not as an offer.
+
 | Tier | Price | Buyer | Notes |
 | --- | --- | --- | --- |
-| Starter | $29/mo | Occasional agents | 3 listings included |
-| Agent Pro | $79/mo | Active agents | Unlimited listings with fair use |
-| Team | $249/mo | Small teams / brokerage marketing | 10 seats, templates, batch export |
-| Host pack | $19-79/listing | Airbnb / STR hosts | One-time listing refresh, scales with unit size |
+| Starter | $29/mo | Occasional agents | Planned, not built. 3 listings included |
+| Agent Pro | $79/mo | Active agents | Planned, not built. Unlimited listings with fair use |
+| Team | $249/mo | Small teams / brokerage marketing | Planned, not built. 10 seats, templates, batch export |
+| Host pack | $19-79/listing | Airbnb / STR hosts | Planned, not built. One-time listing refresh, scales with unit size |
 
 Validation pricing can start lower:
 
@@ -142,7 +158,7 @@ Unit economics are compelling if quality is sufficient. An agent with 6 listings
 
 ## Open questions checklist
 
-- [x] MLS compliance by board — general rules researched and documented in `process/mls-compliance.ts` (no branding/watermarks on MLS photos; virtual staging disclosure required in most states as of 2026). Still needs re-verification against the specific board once a real listing is booked.
-- [x] On-device vs cloud for virtual staging — decided cloud API, not on-device Core ML, until real volume justifies the fixed engineering cost. See `process/virtual-staging-tech.ts` and the matching decisions-log.ts entry. Revisit once an app exists and volume approaches the 1,000-15,000 images/month crossover.
+- [x] MLS compliance by board — general rules researched and documented in `process/mls-compliance.ts` (no branding/watermarks on MLS photos; virtual staging disclosure required in most states as of 2026 — the rule this venture would have to satisfy, since virtual staging is not offered today). Still needs re-verification against the specific board once a real listing is booked.
+- [x] On-device vs cloud for virtual staging — a decision about how it would be built, not an offer; virtual staging is planned and not built. Decided cloud API, not on-device Core ML, until real volume justifies the fixed engineering cost. See `process/virtual-staging-tech.ts` and the matching decisions-log.ts entry. Revisit once an app exists and volume approaches the 1,000-15,000 images/month crossover.
 - [ ] v1 scope: photos only vs photos + 3D lite
 - [x] Brokerage sales cycle vs agent PLG — desk research says lead with agent-led PLG (matches the existing primary-beachhead thesis and the concierge MVP already built for it), sequence a brokerage-led motion as a Month-3 expansion step after real paying customers exist, not before or in parallel. See `process/gtm-motion.ts` and the matching decisions-log.ts entry. Revisit once phase 2 produces paying customers or a brokerage inquiry happens organically.

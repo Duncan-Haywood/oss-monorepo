@@ -54,20 +54,36 @@ export async function enhanceImage(
 
   const pipeline = sharp(inputPath)
     .rotate()
-    .resize({ width: options.maxWidth, withoutEnlargement: true })
+    // `width` alone is not a long-edge cap: a 3024x4032 portrait frame — the
+    // orientation the capture checklist tells agents to shoot in — came out
+    // 2048x2731, above the cap, and mixed-orientation shoots were not the
+    // "consistent MLS-ready size" the offer promises. `fit: "inside"` bounds
+    // both edges, which is what the option has always claimed to do.
+    .resize({
+      width: options.maxWidth,
+      height: options.maxWidth,
+      fit: "inside",
+      withoutEnlargement: true,
+    })
     .normalise()
     .sharpen({ sigma: 0.6 })
     .jpeg({ quality: options.quality, mozjpeg: true });
 
-  const { data, info } = await pipeline.toBuffer({ resolveWithObject: true });
   await mkdir(resolve(outputPath, ".."), { recursive: true });
-  await sharp(data).toFile(outputPath);
+  // Write the encoded bytes straight out. Decoding them and calling
+  // `sharp(data).toFile()` re-encoded every delivered photo a second time at
+  // sharp's default quality 80 without mozjpeg, so `--quality` and mozjpeg were
+  // inert and the customer received a twice-compressed file.
+  const info = await pipeline.toFile(outputPath);
 
   return {
     inputPath,
     outputPath,
     inputBytes: inputStat.size,
-    outputBytes: data.length,
+    // `info.size` is the file that was written. Reporting the length of a
+    // buffer that was then thrown away made the operator's delivery report
+    // describe a file nobody received.
+    outputBytes: info.size,
     width: info.width,
     height: info.height,
   };

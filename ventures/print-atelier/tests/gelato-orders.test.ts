@@ -24,10 +24,24 @@ const sampleOrder: OrderRecord = {
   recordedAt: "2026-06-12T15:00:00.000Z",
 };
 
+/**
+ * A real order carries the address Stripe collected at checkout. These cases
+ * used to pass `{}` and still reach the Gelato API, which is what
+ * `tests/buyer-shipping-address.test.ts` now forbids: the recipient was a
+ * hardcoded London street.
+ */
+const buyerAddress = {
+  shippingName: "Elena Buyer",
+  shippingAddress1: "4 Rue des Arts",
+  shippingCity: "Lyon",
+  shippingZip: "69001",
+  shippingCountry: "FR",
+};
+
 test("buildGelatoOrderPayload maps Stripe order metadata to Gelato v4 shape", () => {
   const payload = buildGelatoOrderPayload(sampleOrder, {
+    ...buyerAddress,
     catalogSlug: "midnight-coast",
-    shippingName: "Elena Buyer",
     buyerEmail: "buyer@example.com",
     artworkUrl: "https://cdn.printatelier.com/midnight-coast.jpg",
   });
@@ -41,7 +55,7 @@ test("buildGelatoOrderPayload maps Stripe order metadata to Gelato v4 shape", ()
 
 test("queueGelatoFulfillmentFromOrder dry-runs without API keys", async () => {
   clearGelatoFulfillmentForTests();
-  const submission = await queueGelatoFulfillmentFromOrder(sampleOrder, {}, {});
+  const submission = await queueGelatoFulfillmentFromOrder(sampleOrder, buyerAddress, {});
 
   assert.ok(submission);
   assert.equal(submission?.mode, "dry_run");
@@ -59,7 +73,7 @@ test("queueGelatoFulfillmentFromOrder submits when keys and fetch succeed", asyn
 
   const submission = await queueGelatoFulfillmentFromOrder(
     sampleOrder,
-    { catalogSlug: "midnight-coast" },
+    { ...buyerAddress, catalogSlug: "midnight-coast" },
     { GELATO_API_KEY: "gel_key", GELATO_STORE_ID: "store_eu" },
     fetchFn,
   );
