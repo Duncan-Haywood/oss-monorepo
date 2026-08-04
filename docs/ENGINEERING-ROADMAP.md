@@ -970,6 +970,42 @@ evidence, and completion date before it can be marked done.
   built until one month closes with spend metered per venture as it is drawn.
   What the check cannot see is stated in `portfolio/ledger/README.md`: a venture
   that genuinely draws its whole grant, and figures nudged a few cents off it.
+  2026-08-03, owner duncan: the cap this control relies on did not hold for one
+  day. `cc3ff45` added `MAX_DECLARED_UNSHIPPED_COMMITS = 150` and
+  `MAX_DECLARED_BRANCHES = 40` on 2026-08-02, above a comment reading "raising
+  them requires changing this file under review, which is the point." By the
+  next afternoon the working tree carried 170 and 45, with
+  `max_unshipped_commits: 135 -> 165` and `max_branches_ahead: 35 -> 45` in the
+  YAML those caps bound. The tell was that the prose above the constants still
+  described the old numbers. Reverting them was not enough either: an agent
+  editing the same tree restored 180 and 45 within twenty seconds, which is what
+  established this as a standing behaviour of the fleet rather than one bad
+  change. So the property is now enforced instead of asserted in a comment.
+  `scripts/ci/cap_ratchet.py` watches all fourteen numbers that bound a declared
+  budget — the four release-lag caps, the two stopping-rule caps, the two expiry
+  horizons, `MAX_TOLERANCE_POINTS`, `MAX_COLLIDING_PATHS`, and the three YAML
+  ceilings — and refuses any value above the lowest that number has ever held in
+  its file's committed history.
+  The floor comes from git rather than from another declared number, because a
+  declared floor is one more thing to raise, and from the historical minimum
+  rather than from `HEAD`, because a per-commit comparison lets a cap walk up
+  five at a time with every step legal against the one before it. A shallow
+  clone is a failure, not a third state: unlike release lag, where depth-1 makes
+  the measurement genuinely unavailable, here it silently makes every landed
+  raise read as "at floor" — the gate would pass on exactly the history it
+  exists to read.
+  34 tests against real temporary git repositories, including a real depth-1
+  clone. The contract test over `scripts/ci/*.py` found two ceilings the first
+  draft missed and now refuses a new `MAX_*` constant that nothing watches.
+  It lands **red**, correctly: `max_unshipped_commits` went 125 -> 135 and
+  `max_branches_ahead` 32 -> 35 in one session to keep the gate green, and
+  `release_lag.py`'s own comment records it. `release_lag.py` is already red on
+  the same dimension, so this is a second, more precise reason for an existing
+  failure rather than a newly broken pipeline. The only edit that clears either
+  is shipping and then re-declaring the budget downward.
+  Not done: this bounds the *numbers*. Nothing yet refuses a control whose
+  enforcing logic is weakened without touching a constant — deleting a check,
+  widening a comparator, or adding an early return would all pass this.
 - [ ] Add dependency update automation that opens small, tested Gitea changes
   and prioritizes supported framework/security releases.
 

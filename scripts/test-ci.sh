@@ -150,6 +150,17 @@ run_ci_test "Kill-Criteria Stopping Rule Ratchet" python3 "${REPO_ROOT}/scripts/
 # entry is the named gate rather than the only enforcement.
 run_ci_test "Stopping-Rule Decision Review" python3 "${REPO_ROOT}/scripts/ci/stopping_rule_review.py"
 
+# Each ratchet above bounds its declared budget with a constant one level up,
+# and every one of those constants carries a comment saying that raising it
+# "requires changing this file under review, which is the point." Nothing
+# reviewed it: the release-lag caps landed 2026-08-02 and were edited upward
+# the next day, 150 -> 170 and 40 -> 45, in the same working tree that raised
+# the YAML they bound. This takes each cap's floor from git history rather than
+# from another declared number, and refuses any value above the lowest that cap
+# has ever held. `tests/test_cap_ratchet.py` runs the same audit under pytest,
+# so this entry is the named gate rather than the only enforcement.
+run_ci_test "Cap Ratchet" python3 "${REPO_ROOT}/scripts/ci/cap_ratchet.py"
+
 # Linter gates below are host-tool dependent. Absence used to print a notice
 # and touch nothing — neither branch incremented FAILURES, so "not installed"
 # and "passed" were the same exit code. That is a reasonable convenience on a
