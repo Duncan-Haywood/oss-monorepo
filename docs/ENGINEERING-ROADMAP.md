@@ -241,6 +241,51 @@ evidence, and completion date before it can be marked done.
   `sha256_file()` defined and called from nowhere — was open when the first half
   of this was written and is now closed: `sha256_file` is called on both source
   and destination and the digests compared before the status is written.
+
+  Four ventures of the remaining nine, 2026-08-04, owner duncan — the full
+  evidence is in [the claims audit](CLAIMS-AUDIT-2026-08-04.md); the two
+  findings worth carrying here are the ones that change what this item is for.
+
+  **A control of exactly this shape passed over the whole published site.**
+  `real-estate-agent-photo-app` already had the join this item asks for:
+  `pipeline/src/offer-claims.test.ts` binds each restricted alteration to the
+  code signal that would implement it, and it was green while the docs site
+  advertised all five of them. Its customer-facing surface was three hardcoded
+  paths, and `docs-site/src/lib/docs.ts` renders `STRATEGY.md` as a public
+  page. So the venture sold "instant on-device AI" over a `sharp`-only
+  pipeline and cloud edits for virtual staging, twilight and object removal —
+  the exact class triggering the CA AB 723 / NY / TX disclosure duty the
+  contract was *derived from*. The contract was right, its surface was a
+  guess, and the guess is what made it vacuous where it mattered. It now reads
+  the site's own `DOC_REGISTRY` off disk. Claims may still be named when the
+  same markdown block says they are not built — per claim, not per directory,
+  and at block granularity so re-wrapping a paragraph cannot strip a claim of
+  its disclaimer. **The next such contract should be reviewed for how it
+  decides what to read, not for what it asserts.**
+
+  **The commercial defect this class produces is not always a false claim.**
+  In `print-atelier` the copy was accurate and the code was not. The storefront
+  promises prints "shipped directly to your door"; the Stripe session never
+  asked for one, so both print partners substituted a hardcoded street and
+  every paid order would have been printed and posted to San Francisco or
+  London. The same checkout displayed a bolded Total of subtotal + shipping +
+  tax against a session carrying only the line items — a US cart quoted $99.11
+  and charged $85.00, and EU/UK carts displayed 20% VAT that was never
+  collected and so could never be remitted. Both are now gated by contracts
+  that compare the promise to the behaviour rather than to the copy:
+  `tests/buyer-shipping-address.test.ts` and
+  `tests/checkout-charges-what-it-quotes.test.ts`, mutation-checked eight and
+  four ways.
+
+  Still open, and named with evidence in the audit: `retail-pilot-intel`
+  presents fabricated pilot figures as "key numbers for the close" and asserts
+  GDPR technical controls its edge package cannot perform, which is the
+  highest-liability instance found so far because a prospect signs a DPIA on
+  it; `photo-editing` counts dry-run JSON stubs as materialized deliverables in
+  its pilot-readiness metrics, discarding the `renderer_adapter` field that
+  would distinguish them exactly one layer before it would be shown, and
+  derives its "color calibration" scores from slices of a SHA-256 digest. Five
+  ventures of eleven remain entirely unread.
 - [ ] Configure and verify Gitea branch/environment protection: pull requests
   only for release branches, current required checks, stale approval dismissal,
   CODEOWNERS, one independent approval for Tier 2, two including an accountable
