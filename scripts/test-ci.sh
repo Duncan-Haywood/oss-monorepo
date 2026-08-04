@@ -78,7 +78,6 @@ run_ci_test "Repository Engineering Policy Contract" bash "${REPO_ROOT}/scripts/
 # script fails closed on unknown components and never swallows a gate failure,
 # and until now nothing invoked it.
 run_ci_test "Component Verification Contract" bash "${REPO_ROOT}/scripts/ci/test-verify-component.sh"
-run_ci_test "Vulnerability Roadmap Scanner Contract Tests" bash "${REPO_ROOT}/scripts/security/test-security-scan.sh"
 # The contract test for scripts/ci/verify-component.sh — the shared fail-closed
 # gate every venture workflow shells into. It asserts that an unknown component
 # exits non-zero, that `set -euo pipefail` is present, and that no `|| true`

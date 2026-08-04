@@ -4,7 +4,7 @@ Every other control in this repository asks whether the work is good. None of
 them asked whether it ever shipped.
 
 `scripts/ci/release_lag.py` measures the gap between what is committed and what
-is deployed, holds it to `platform/release-lag-policy.yaml`, and fails closed.
+is deployed, holds it to `platform/release-lag-budget.yaml`, and fails closed.
 `tests/test_release_lag.py` runs it as a repository contract.
 
 ## What it measures
@@ -27,23 +27,34 @@ accruing them means customers are running old code.
 
 ## Why a ratchet, and not a threshold
 
-`target` is what good looks like. `acknowledged` is at most one entry raising
-the limits to what is true today, carrying an owner, an issue, a reason and an
-expiry — the shape `platform/exception-register.yaml` uses for suppressions.
+The whole file is one acknowledgement of what is true today, not a target:
+`baseline_ref`, `owner`, `issue`, `expires` and `rationale` around a `budget`
+block — the shape `platform/exception-register.yaml` uses for suppressions.
 
 Unlike `count` there, these limits are not exact. The number moves with every
 commit anyone makes, and a baseline rewritten hourly is a baseline nobody
-reads. Each limit therefore carries a `slack`, and the audit fails in both
+reads. `slack_commits` carries that imprecision, and the audit fails in both
 directions:
 
-* above the effective limit — the backlog grew past what was reviewed
-* more than `slack` below it — the acknowledgement is stale, lower it
-* inside `target` while an acknowledgement exists — delete it, the target binds
-* expired, or `expires` more than 180 days out
+* above `max_unshipped_commits` — the backlog grew past what was reviewed
+* more than `slack_commits` below it — the declaration is stale, lower it
+* past `max_unshipped_age_days` or `max_branches_ahead`
+* expired, or `expires` more than `MAX_EXPIRY_DAYS` out
+
+`max_unshipped_age_days` is the dimension that cannot be gamed. Committing more
+work always lifts the commit count, so a rising count alone proves only that
+people are working; no amount of new work lowers the age of the oldest
+undelivered commit. Only shipping does.
+
+Each of those four ceilings is itself bounded. `scripts/ci/cap_ratchet.py`
+takes each one's floor from its file's committed history and refuses any value
+above the lowest it has ever held, because the failure mode this control invites
+is raising the budget rather than shipping — and that happened, twice, within a
+day of the budget being set.
 
 It fails closed on a deployment ref that does not resolve, a directory that is
-not a git repository, a missing or malformed policy, an acknowledgement missing
-a field, and an `extra_components` path that no longer exists. An audit that
+not a git repository, a missing or malformed budget, a required field that is
+absent, and an `extra_components` path that no longer exists. An audit that
 cannot see `origin/main` knows nothing about what shipped, and "nothing is
 wrong" is not the honest report of that state.
 

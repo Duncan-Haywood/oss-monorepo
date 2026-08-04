@@ -20,48 +20,25 @@ import sys
 
 # Run both as `python3 portfolio/router/router.py` and as an imported module, so
 # the evaluator has to be reachable either way. Same shape as allocate.py.
-try:  # runs both as `portfolio.router.router` under pytest and as a script
+try:  # runs both as `portfolio.router.router` under pytest
     from portfolio.router.kill_criteria import (
         TRIGGERED,
         CriterionResult,
-        LedgerFacts,
-        build_ledger_facts,
         evaluate_venture,
         has_stopping_rule,
+        ledger_rows_by_venture,
+        measured_detail,
     )
 except ImportError:  # running as a script, not as portfolio.router.router
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from kill_criteria import (
         TRIGGERED,
         CriterionResult,
-        LedgerFacts,
-        build_ledger_facts,
         evaluate_venture,
         has_stopping_rule,
+        ledger_rows_by_venture,
+        measured_detail,
     )
-
-# What a venture's declared stopping rules say about it right now.
-#
-#   triggered  at least one criterion was measured and held
-#   holding    at least one criterion is measurable and none held
-#   none       no declared criterion can be measured at all
-#
-# `none` is deliberately not `holding`. A venture comfortably inside its
-# stopping rule and a venture with no stopping rule to be inside of are
-# different states, and reporting them identically is what let eleven ventures
-# draw budget with no brake for as long as they had existed.
-STOP_TRIGGERED = "triggered"
-STOP_HOLDING = "holding"
-STOP_NONE = "none"
-
-# What the work queue tells an agent session to do with a venture whose
-# stopping rule fired. The queue is what sessions read to pick work, so this
-# string is the only thing standing between a triggered criterion and another
-# month of spend on the venture that triggered it.
-STOPPED_FOCUS = (
-    "STOP — a declared stopping rule fired. Do no further funded work on this "
-    "venture until the owner records a decision in portfolio/stopping-decisions.yaml."
-)
 
 
 STAGE_WEIGHTS = {
@@ -120,6 +97,29 @@ EXPLORE_GRANT_USD = 50.0
 # into a total nobody checks.
 PROTECTED_FLOOR_USD = 20.0
 
+# What a venture's declared stopping rules say about it right now.
+#
+#   triggered  at least one criterion was measured and held
+#   holding    at least one criterion is measurable and none held
+#   none       no declared criterion can be measured at all
+#
+# `none` is deliberately not `holding`. A venture comfortably inside its
+# stopping rule and a venture with no stopping rule to be inside of are
+# different states, and reporting them identically is what let eleven ventures
+# draw budget with no brake for as long as they had existed.
+STOP_TRIGGERED = "triggered"
+STOP_HOLDING = "holding"
+STOP_NONE = "none"
+
+# What the work queue tells an agent session to do with a venture whose
+# stopping rule fired. The queue is what sessions read to pick work, so this
+# string is the only thing standing between a triggered criterion and another
+# month of spend on the venture that triggered it.
+STOPPED_FOCUS = (
+    "STOP — a declared stopping rule fired. Do no further funded work on this "
+    "venture until the owner records a decision in portfolio/stopping-decisions.yaml."
+)
+
 
 def economics_score(mrr: Optional[float], cumulative_spend: float = 0.0) -> float:
     """Economics component of the composite score.
@@ -172,17 +172,15 @@ class VentureContract:
     budget: Budget
     # Prose strings or structured criteria — see portfolio/router/kill_criteria.py
     # for the two forms and which of them the allocator can actually evaluate.
-    # Until 2026-08-03 this module only carried them: it declared the field, and
-    # `compute_allocation` never looked at it. That mattered more than it reads,
-    # because this is the engine `scripts/test-ci.sh` runs and the one that
-    # writes `portfolio/ALLOCATION_REPORT.md` — the ranked queue that agent
-    # sessions read to choose what to work on. `allocate.py`, which did evaluate
-    # them, is run by nothing and writes a different file. So every stopping
-    # rule in the portfolio fed an engine with no consumers, while the engine
-    # with the consumers funded and recommended ventures regardless of them.
+    # This module only carries them; `allocate.py` is what reads them.
     kill_criteria: List[Any]
     links: Dict[str, Optional[str]]
     path: Path
+    # The parsed contract as written. `kill_criteria.py` resolves `mrr` off
+    # `economics` and `days_since:<anchor>` off `anchors`, so handing it only
+    # the criteria list would make both permanently unmeasurable — the exact
+    # failure the evaluator exists to distinguish from "measured, and zero".
+    raw: Dict[str, Any] = field(default_factory=dict)
 
     @classmethod
     def from_yaml(cls, path: Path) -> "VentureContract":
@@ -223,6 +221,7 @@ class VentureContract:
             kill_criteria=data.get("kill_criteria", []),
             links=data.get("links", {}),
             path=path,
+            raw=data or {},
         )
 
 
@@ -242,7 +241,7 @@ class AllocationResult:
     # One of STOP_TRIGGERED / STOP_HOLDING / STOP_NONE.
     stopping_rule: str = STOP_NONE
     # The measured detail behind a triggered criterion, e.g.
-    # "cumulative_agent_spend_usd=150 >= 150; cumulative_revenue_usd=0 == 0".
+    # "cumulative_agent_spend_usd=150.0 >= 150; cumulative_revenue_usd=0.0 == 0".
     # Empty unless `stopping_rule` is STOP_TRIGGERED.
     kill_reasons: List[str] = field(default_factory=list)
     # What this row would have drawn at its position in the queue, had the
@@ -271,53 +270,11 @@ class PortfolioRouter:
 
         return contracts
 
-    def load_ledger_periods(self) -> List[Dict[str, Any]]:
-        """Every parsed month under `portfolio/ledger/*.yaml`.
-
-        A month that fails to parse is reported and skipped rather than
-        aborting: the ledger is append-only recorded history and one bad file
-        must not silently zero the spend of every venture in the other months.
-        """
-        periods: List[Dict[str, Any]] = []
-        if not self.ledger_dir.exists():
-            return periods
-
-        for ledger_file in sorted(self.ledger_dir.glob("*.yaml")):
-            try:
-                with open(ledger_file, "r", encoding="utf-8") as f:
-                    data = yaml.safe_load(f) or {}
-                if isinstance(data, dict):
-                    periods.append(data)
-            except Exception as e:
-                print(f"Warning: Failed to parse ledger {ledger_file}: {e}", file=sys.stderr)
-
-        return periods
-
-    def load_ledger_facts(self) -> Dict[str, "LedgerFacts"]:
-        """Per-venture recorded facts, folded by `kill_criteria.build_ledger_facts`.
-
-        Both the explore-grant decay and stopping-rule evaluation read from this
-        one fold. They used to read from two: this module summed
-        `agent_spend_usd` itself while `kill_criteria.py` summed it again for
-        `allocate.py`, so a change to how spend is counted moved the money in
-        one engine and the brake in the other.
-        """
-        return build_ledger_facts(self.load_ledger_periods())
-
-    def load_cumulative_spend(self) -> Dict[str, float]:
-        """Lifetime recorded agent spend per venture, across every ledger month.
-
-        The explore grant decays against a venture's whole funding history, not
-        just the current month, so a venture cannot refresh its credit simply by
-        crossing a month boundary while still reporting no measurement.
-        """
-        return {
-            name: facts.cumulative_agent_spend_usd
-            for name, facts in self.load_ledger_facts().items()
-        }
-
     def evaluate_stopping_rules(
-        self, venture: VentureContract, facts: Optional["LedgerFacts"]
+        self,
+        venture: VentureContract,
+        ledger_rows: Dict[str, List[Dict[str, Any]]],
+        ledger_present: bool,
     ) -> "tuple[str, List[CriterionResult]]":
         """Evaluate one venture's declared criteria against recorded history.
 
@@ -327,19 +284,58 @@ class PortfolioRouter:
         `scripts/ci/kill_criteria_ratchet.py` — a second implementation of the
         rules here would be a second answer to the same question.
         """
-        results = evaluate_venture({"kill_criteria": venture.kill_criteria}, facts)
-        if any(r.verdict == TRIGGERED for r in results):
+        results = evaluate_venture(venture.raw, venture.name, ledger_rows, ledger_present)
+        if any(r.outcome == TRIGGERED for r in results):
             return STOP_TRIGGERED, results
         if has_stopping_rule(results):
             return STOP_HOLDING, results
         return STOP_NONE, results
 
+    def load_cumulative_spend(self) -> Dict[str, float]:
+        """Lifetime recorded agent spend per venture, across every ledger month.
+
+        The explore grant decays against a venture's whole funding history, not
+        just the current month, so a venture cannot refresh its credit simply by
+        crossing a month boundary while still reporting no measurement.
+        """
+        spend_map: Dict[str, float] = {}
+        if not self.ledger_dir.exists():
+            return spend_map
+
+        for ledger_file in sorted(self.ledger_dir.glob("*.yaml")):
+            try:
+                with open(ledger_file, "r", encoding="utf-8") as f:
+                    data = yaml.safe_load(f) or {}
+            except Exception as e:
+                print(f"Warning: Failed to parse ledger {ledger_file}: {e}", file=sys.stderr)
+                continue
+
+            for entry in data.get("entries", []):
+                v_name = entry.get("venture")
+                if not v_name:
+                    continue
+                # Per entry, not per file. One unparseable `agent_spend_usd`
+                # used to abort the whole month, which zeroed recorded spend for
+                # every *other* venture in it — silently restoring their full
+                # explore grant and raising what the router hands them. A typo
+                # in one row must not become a raise for the rest.
+                try:
+                    spend = float(entry.get("agent_spend_usd", 0.0))
+                except (TypeError, ValueError) as e:
+                    print(
+                        f"Warning: {ledger_file}: venture {v_name!r} has an "
+                        f"unreadable agent_spend_usd ({e}); counted as 0.0",
+                        file=sys.stderr,
+                    )
+                    spend = 0.0
+                spend_map[v_name] = round(spend_map.get(v_name, 0.0) + spend, 2)
+
+        return spend_map
+
     def compute_allocation(self, total_budget_usd: float = 300.0) -> List[AllocationResult]:
         ventures = self.load_ventures()
-        ledger_facts = self.load_ledger_facts()
-        cumulative_spend = {
-            name: facts.cumulative_agent_spend_usd for name, facts in ledger_facts.items()
-        }
+        cumulative_spend = self.load_cumulative_spend()
+        ledger_rows, ledger_present = ledger_rows_by_venture(self.repo_root)
 
         if not ventures:
             return []
@@ -361,14 +357,8 @@ class PortfolioRouter:
 
             composite_score = (stage_w * 0.4) + (econ_score * 0.35) + protected_bonus + hyp_score
 
-            stop_state, criterion_results = self.evaluate_stopping_rules(
-                v, ledger_facts.get(v.name)
-            )
-
             # Determine focus
-            if stop_state == STOP_TRIGGERED:
-                focus = STOPPED_FOCUS
-            elif v.stage == "launched":
+            if v.stage == "launched":
                 focus = "Customer acquisition, conversion optimization, and monetization"
             elif v.stage == "prototype":
                 focus = "Core feature completion and concierge MVP testing"
@@ -379,13 +369,20 @@ class PortfolioRouter:
             else:
                 focus = "Maintenance and exploratory review"
 
-            scored_ventures.append((v, composite_score, focus, stop_state, criterion_results))
+            stop_state, criterion_results = self.evaluate_stopping_rules(
+                v, ledger_rows, ledger_present
+            )
+            if stop_state == STOP_TRIGGERED:
+                focus = STOPPED_FOCUS
+
+            scored_ventures.append(
+                (v, composite_score, focus, stop_state, criterion_results)
+            )
 
         # Triggered ventures sort last regardless of score, then by score
         # descending. Rank is the order of a work queue, and a venture whose own
         # stopping rule fired must not be the first thing a session is told to
-        # work on — which is exactly where print-atelier, the one venture that
-        # has a measurable rule, currently sits.
+        # work on.
         scored_ventures.sort(key=lambda x: (x[3] == STOP_TRIGGERED, -x[1]))
 
         # Allocate budget
@@ -422,21 +419,21 @@ class PortfolioRouter:
             # venture kept its score rank, and understating it is the right
             # direction for a number that argues for spending less.
             #
-            # `protected: true` does not
-            # exempt a venture: protection guarantees a floor while a venture is
-            # being explored, and a triggered criterion is the portfolio saying
-            # the exploration reached its declared limit. print-atelier is both
-            # protected and the only venture with a measurable rule, so an
-            # exemption here would have made the whole mechanism inert.
+            # `protected: true` does not exempt a venture: protection guarantees
+            # a floor while a venture is being explored, and a triggered
+            # criterion is the portfolio saying the exploration reached its
+            # declared limit. print-atelier is both protected and the only
+            # venture with a measurable rule, so an exemption here would have
+            # made the whole mechanism inert.
             withheld = 0.0
             kill_reasons: List[str] = []
             if stop_state == STOP_TRIGGERED:
                 withheld = alloc
                 alloc = 0.0
                 kill_reasons = [
-                    f"{r.description.strip()} ({r.detail})"
+                    f"{r.text.strip()} ({measured_detail(r)})"
                     for r in criterion_results
-                    if r.verdict == TRIGGERED
+                    if r.outcome == TRIGGERED
                 ]
             else:
                 remaining_budget = round(max(0.0, remaining_budget - alloc), 2)
@@ -507,31 +504,32 @@ class PortfolioRouter:
             "|:---:|:---|:---:|:---:|:---:|:---:|:---:|:---:|:---|",
         ]
 
-        stop_labels = {
-            STOP_TRIGGERED: "**TRIGGERED**",
-            STOP_HOLDING: "holding",
-            STOP_NONE: "`none`",
-        }
-
         total_allocated = 0.0
-        unfunded = []
         total_withheld = 0.0
+        unfunded = []
+        stop_labels = {STOP_TRIGGERED: "**TRIGGERED**", STOP_HOLDING: "holding", STOP_NONE: "`none`"}
         for a in allocations:
             prot_str = "YES" if a.protected else "No"
             mrr_str = f"${a.mrr:.2f}" if a.mrr is not None else "Unmeasured"
-            focus_str = a.suggested_focus if a.funded else "**UNFUNDED THIS PERIOD** — budget exhausted before this rank"
+            if a.stopping_rule == STOP_TRIGGERED:
+                # Withheld, not starved. `funded` is False for both, and saying
+                # "budget exhausted" here would credit the shortfall to the cap
+                # instead of to the criterion that actually stopped the money.
+                focus_str = a.suggested_focus
+            elif a.funded:
+                focus_str = a.suggested_focus
+            else:
+                focus_str = "**UNFUNDED THIS PERIOD** — budget exhausted before this rank"
             lines.append(
                 # Repo-relative, not `file://{self.repo_root}`. This report is a
                 # committed artifact and CI regenerates it, so an absolute path
                 # meant the checked-in file could never match what a runner
                 # produced — every worktree and every runner rewrote all 11 rows.
-                f"| {a.rank} | **[{a.venture_name}](../ventures/{a.venture_name})** | `{a.stage}` "
-                f"| {stop_labels.get(a.stopping_rule, a.stopping_rule)} | {prot_str} | {mrr_str} "
-                f"| ${a.monthly_cap:.2f} | **${a.allocated_spend:.2f}** | {focus_str} |"
+                f"| {a.rank} | **[{a.venture_name}](../ventures/{a.venture_name})** | `{a.stage}` | {stop_labels.get(a.stopping_rule, a.stopping_rule)} | {prot_str} | {mrr_str} | ${a.monthly_cap:.2f} | **${a.allocated_spend:.2f}** | {focus_str} |"
             )
             total_allocated += a.allocated_spend
             total_withheld += a.withheld_spend
-            if not a.funded:
+            if not a.funded and a.stopping_rule != STOP_TRIGGERED:
                 unfunded.append(a.venture_name)
 
         lines.extend(
@@ -555,28 +553,24 @@ class PortfolioRouter:
                 ]
             )
 
-        lines.extend(
-            [
-                "",
-            ]
-        )
-
         lines.extend(self._stopping_rule_section(allocations, total_withheld))
 
         lines.extend(
             [
+                "",
                 "## Allocation Principles Applied",
                 "",
                 "1. **Protected Explore Budget**: Ventures with `budget.protected: true` are guaranteed baseline funding regardless of short-term measured MRR.",
                 "2. **Unmeasured Distinction**: Unmeasured ventures (`economics.mrr: null`) receive neutral explore credit rather than being penalized as zero-revenue.",
                 "3. **Stage-Gated Escalation**: Higher stage ventures (`launched`/`revenue`) receive priority allocations for customer acquisition and monetization scaling.",
-                "4. **The Cap Is A Ceiling**: Total allocated spend never exceeds the portfolio budget cap. The protected floor in principle 1 is a floor within the cap, not a claim against it; when the budget cannot fund every floor, the shortfall falls on the lowest-scoring ventures and is reported above.",
-                "5. **Declared Stopping Rules**: A venture whose `kill_criteria` fire against recorded ledger history is ranked last, allocated `$0.00`, and escalated below. Whether to wind it down is the portfolio owner's decision; withholding the next month's budget until that decision exists is this engine's.",
+                "4. **Declared Stopping Rules**: A venture whose `kill_criteria` fire against recorded ledger history is ranked last, allocated `$0.00`, and escalated below. Whether to wind it down is the portfolio owner's decision; withholding the next month's budget until that decision exists is this engine's.",
+                "5. **The Cap Is A Ceiling**: Total allocated spend never exceeds the portfolio budget cap. The protected floor in principle 1 is a floor within the cap, not a claim against it; when the budget cannot fund every floor, the shortfall falls on the lowest-scoring ventures and is reported above.",
                 "",
             ]
         )
 
         return "\n".join(lines)
+
 
     def _stopping_rule_section(
         self, allocations: List[AllocationResult], total_withheld: float
@@ -717,9 +711,6 @@ def route_portfolio(repo_root: Optional[Path] = None, total_monthly_budget: floa
             "rationale": a.rationale,
             "suggested_focus": a.suggested_focus,
             "funded": a.funded,
-            # Carried on every row, not only the triggered ones. A consumer has
-            # to be able to tell a venture inside its stopping rule from one
-            # with no stopping rule to be inside of, and both used to be absent.
             "stopping_rule": a.stopping_rule,
             "kill_reasons": a.kill_reasons,
             "withheld_budget_usd": a.withheld_spend,
@@ -733,7 +724,11 @@ def route_portfolio(repo_root: Optional[Path] = None, total_monthly_budget: floa
             "total_monthly_budget_cap_usd": total_monthly_budget,
             "allocated_monthly_budget_usd": round(total_allocated, 2),
             "unallocated_budget_usd": round(total_monthly_budget - total_allocated, 2),
-            "unfunded_ventures": [a.venture_name for a in allocations if not a.funded],
+            "unfunded_ventures": [
+                a.venture_name
+                for a in allocations
+                if not a.funded and a.stopping_rule != STOP_TRIGGERED
+            ],
             "withheld_by_stopping_rule_usd": round(total_withheld, 2),
             "stopped_ventures": sorted(
                 a.venture_name for a in allocations if a.stopping_rule == STOP_TRIGGERED
