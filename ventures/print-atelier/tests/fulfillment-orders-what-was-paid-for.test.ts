@@ -29,7 +29,7 @@ import {
 import { buildPrintfulOrderPayload, resolvePrintfulOrderInputs } from "../src/lib/printful-orders";
 import { buildGelatoOrderPayload, resolveGelatoOrderInputs } from "../src/lib/gelato-orders";
 import { recordOrderFromPaymentWebhook } from "../src/lib/orders";
-import { catalogArtworks } from "../src/lib/catalog";
+import { catalogArtworks } from "../src/lib/marketplace";
 
 const ENV = {
   NEXT_PUBLIC_SITE_URL: "https://printatelier.test",
@@ -88,14 +88,22 @@ function paidOrderMetadata(cart: CheckoutLineItem[]) {
   };
 }
 
+let eventCounter = 0;
+
 function orderFrom(metadata: Record<string, unknown>, amountCents: number, partnerId: string) {
-  const order = recordOrderFromPaymentWebhook({
-    stripeEventId: `evt_${partnerId}_${amountCents}`,
-    paymentIntentId: `pi_${amountCents}`,
-    amountCents,
-    currency: "usd",
-    metadata: { ...metadata, fulfillmentPartnerId: partnerId },
-  });
+  eventCounter += 1;
+  const order = recordOrderFromPaymentWebhook(
+    `evt_${partnerId}_${eventCounter}`,
+    "payment_intent.succeeded",
+    {
+      id: `pi_${eventCounter}`,
+      amount: amountCents,
+      currency: "usd",
+      metadata: { ...metadata, fulfillmentPartnerId: partnerId },
+    },
+    true,
+    "2026-08-04T00:00:00.000Z",
+  );
   assert.ok(order, "the webhook should record an order");
   return order;
 }
@@ -135,8 +143,11 @@ test("the units ordered are the units charged for", () => {
 });
 
 test("the declared customs value is the item's own price, not the whole order", () => {
+  // International on purpose: domestic shipping is 0, and "shipping is not
+  // folded into the goods" is not a claim a zero can support.
   const cart = multiQuantityCart();
-  const { payload, metadata } = paidOrderMetadata(cart);
+  const { payload, metadata } = paidOrderMetadata(cart, "international");
+  assert.ok(payload.shippingAmountCents > 0, "this test needs a region that charges shipping");
   const chargedCents = payload.lineItems.reduce(
     (sum, item) => sum + item.unitAmountCents * item.quantity,
     0,

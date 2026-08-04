@@ -114,6 +114,8 @@ export const markLeadPaid = mutation({
     commerceAddon: v.boolean(),
     amountTotal: v.float64(),
     stripeCustomerId: v.optional(v.string()),
+    /** Buyer's own business name from checkout metadata; used only for the stub. */
+    buyerBusinessName: v.optional(v.string()),
   },
   // Returns whether this call recorded a *new* order — false means Stripe
   // redelivered a checkout.session.completed event we already processed, and
@@ -143,25 +145,34 @@ export const markLeadPaid = mutation({
       // CRM lead row exists. Insert a paid stub so listOrders revenue and
       // paidNotLive / handoff eligibility stay consistent. Defaults must stay
       // in sync with src/lib/leads/payment-stub.ts buildPaymentStubLeadFields.
+      // Never invent a trading identity for a customer who has just paid: the
+      // buyer's own name wins, a minted organic-<hex> slug carries none, and a
+      // human-named CRM slug can be title-cased. Empty tagline/phone/city are
+      // deliberate — see src/lib/leads/payment-stub.ts, which this mirrors.
+      const provided = args.buyerBusinessName?.trim();
       const businessName =
-        args.slug
-          .split("-")
-          .filter(Boolean)
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(" ") || "Unknown";
+        provided ||
+        (args.slug.startsWith("organic-")
+          ? "New customer (details pending)"
+          : args.slug
+              .split("-")
+              .filter(Boolean)
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(" ") || "New customer (details pending)");
       await ctx.db.insert("leads", {
         slug: args.slug,
         businessName,
         category: "generic",
-        city: "Colorado",
-        state: "CO",
-        tagline: "Local favorites made fresh daily",
-        description: `This is a preview page generated for ${businessName}. Claim it to connect your domain, contact form, and marketing dashboard.`,
-        phone: "(555) 000-0000",
+        city: "",
+        state: "",
+        tagline: "",
+        description:
+          "Created by a completed checkout before any business details were collected. The owner supplies these during onboarding.",
+        phone: "",
         services: [],
         hours: {
-          weekday: "Mon–Fri 9am–5pm",
-          weekend: "Sat–Sun Closed",
+          weekday: "",
+          weekend: "",
         },
         stage: "paid",
         recommendedTier: "growth",

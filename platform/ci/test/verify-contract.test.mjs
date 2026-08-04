@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
@@ -11,7 +12,7 @@ const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, '../../..');
 const VENTURES_DIR = path.join(REPO_ROOT, 'ventures');
 const VERIFY_COMPONENT = path.join(REPO_ROOT, 'scripts/ci/verify-component.sh');
-const WORKFLOWS_DIR = path.join(REPO_ROOT, '.gitea/workflows');
+const WORKFLOW_PATHSPECS = ['.gitea/workflows', 'ventures/*/.github/workflows'];
 
 /**
  * A venture's quality gates are declared in more than one place, and only some
@@ -333,15 +334,27 @@ test('Verify Contract - verify-component.sh runs the same gates as the CI catalo
  * venture, so the catalog is the floor they have to clear.
  */
 function ventureWorkflows() {
-  if (!fs.existsSync(WORKFLOWS_DIR)) return [];
+  const listed = execFileSync('git', ['ls-files', '-z', '--', ...WORKFLOW_PATHSPECS], {
+    cwd: REPO_ROOT,
+    encoding: 'utf8',
+    env: { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1' },
+  });
+  const files = listed
+    .split('\0')
+    .filter(Boolean)
+    .filter((name) => name.endsWith('.yml') || name.endsWith('.yaml'));
 
-  return fs
-    .readdirSync(WORKFLOWS_DIR)
-    .filter((name) => name.endsWith('.yml') || name.endsWith('.yaml'))
-    .map((name) => {
-      const source = fs.readFileSync(path.join(WORKFLOWS_DIR, name), 'utf8');
+  return files
+    .map((relative) => {
+      const fullPath = path.join(REPO_ROOT, relative);
+      const name = path.basename(relative);
+      const source = fs.readFileSync(fullPath, 'utf8');
       const pinned = source.match(/^defaults:\n\s+run:\n\s+working-directory:\s*(\S+)\s*$/m);
-      const ventureRoot = pinned ? ventureRootOf(pinned[1]) : null;
+      let ventureRoot = pinned ? ventureRootOf(pinned[1]) : null;
+      if (!ventureRoot && relative.startsWith('ventures/')) {
+        const parts = relative.split('/');
+        ventureRoot = ventureRootOf(path.join(parts[0], parts[1]));
+      }
       if (!ventureRoot) return null;
 
       // A `run:` step, single line or block scalar opener. Steps that delegate

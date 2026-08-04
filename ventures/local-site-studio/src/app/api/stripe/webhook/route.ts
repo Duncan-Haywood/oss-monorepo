@@ -345,6 +345,11 @@ export async function POST(request: Request) {
               commerceAddon,
               amountTotal,
               stripeCustomerId,
+              // Self-serve checkout has no CRM lead, so this is the only thing
+              // that knows who bought. Without it the paid record — and the
+              // receipt, and the customer's own preview page — names them
+              // after the organic-<hex> slug minted at session create.
+              buyerBusinessName: session.metadata?.businessName,
             },
             WEBHOOK_CONVEX_PRIMARY,
           ));
@@ -356,7 +361,11 @@ export async function POST(request: Request) {
           const { getLeadBySlug } = await import("@/lib/db");
           const { enqueueProductionHandoff } = await import("@/lib/deploy/handoff");
           const lead = await getLeadBySlug(slug);
-          businessName = lead?.businessName || slug;
+          // Prefer the CRM row, then what the buyer typed at checkout. The raw
+          // slug is the last resort and is a minted organic-<hex> id for every
+          // self-serve purchase — not a name to put in a receipt subject line.
+          businessName =
+            lead?.businessName || session.metadata?.businessName?.trim() || slug;
           handoff = await enqueueProductionHandoff(
             {
               leadSlug: slug,

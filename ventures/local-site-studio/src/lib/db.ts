@@ -820,6 +820,12 @@ export async function recordLeadPayment(
     commerceAddon: boolean;
     amountTotal: number;
     stripeCustomerId?: string;
+    /**
+     * The buyer's own business name from checkout metadata. Only consulted when
+     * no CRM lead exists for the slug — without it, a self-serve purchase is
+     * recorded under a name derived from its minted organic-<hex> slug.
+     */
+    buyerBusinessName?: string;
   },
   options?: ConvexPrimaryWriteOptions,
 ): Promise<{ alreadyRecorded: boolean }> {
@@ -846,7 +852,7 @@ export async function recordLeadPayment(
   const lead = await getLeadBySlug(params.slug);
   if (!lead) {
     // Keep field defaults aligned with Convex markLeadPaid stub + payment-stub.ts.
-    const stub = buildPaymentStubLeadFields(params.slug);
+    const stub = buildPaymentStubLeadFields(params.slug, params.buyerBusinessName);
     const id = `lead_${Date.now()}`;
 
     db.prepare(`

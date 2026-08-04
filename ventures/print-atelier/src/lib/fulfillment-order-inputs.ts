@@ -169,13 +169,10 @@ export function resolveLineItemQuantity(
   paymentMetadata: Record<string, unknown> = {},
   index = 0,
 ): ResolvedCount {
-  const raw = readMetadataString(
-    paymentMetadata,
-    FULFILLMENT_INPUT_METADATA_KEYS.lineItemQuantities,
-  );
-  if (raw === "") {
-    return { ok: true, value: 1, missing: [] };
-  }
+  // No `if (raw === "") return 1`. An order that carries no quantity is exactly
+  // the order this function was written for — every order did, until the
+  // checkout started writing the list — and answering "one" for it is the
+  // original defect with a resolver in front of it.
   return resolveLineNumber(
     paymentMetadata,
     FULFILLMENT_INPUT_METADATA_KEYS.lineItemQuantities,
@@ -195,18 +192,11 @@ export function resolveLineItemQuantity(
 export function resolveLineItemUnitAmountCents(
   paymentMetadata: Record<string, unknown> = {},
   index = 0,
-  fallbackAmountCents?: number,
 ): ResolvedCount {
-  const raw = readMetadataString(
-    paymentMetadata,
-    FULFILLMENT_INPUT_METADATA_KEYS.lineItemUnitAmounts,
-  );
-  if (raw === "") {
-    if (fallbackAmountCents !== undefined && fallbackAmountCents > 0) {
-      return { ok: true, value: fallbackAmountCents, missing: [] };
-    }
-    return { ok: true, value: 0, missing: [] };
-  }
+  // No order-total fallback either. The order total *was* the fallback, and
+  // declaring it as the unit price of every item is the customs error this
+  // exists to end; `{ ok: true, value: 0 }` would be the same order passing the
+  // gate with a $0.00 declaration instead.
   return resolveLineNumber(
     paymentMetadata,
     FULFILLMENT_INPUT_METADATA_KEYS.lineItemUnitAmounts,
