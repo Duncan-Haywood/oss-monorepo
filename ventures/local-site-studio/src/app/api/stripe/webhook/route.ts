@@ -6,6 +6,10 @@ import {
   isCheckoutSessionPaid,
   webhookFulfillmentFailureResponse,
 } from "@/lib/payments/webhook-fulfillment";
+import {
+  describeUndeliveredEmail,
+  emailWasDelivered,
+} from "@/lib/email/delivery";
 
 /**
  * Stripe webhook receiver — verifies the signature, then acknowledges the
@@ -21,8 +25,14 @@ import {
  * Marker writes after a successful send are required (5xx) so retries can skip
  * already-sent mail. sendEmail/sendReceiptEmail/sendCommerceBuyNowClientReceipt
  * never throw on suppression/Resend failure (they resolve { success: false }) —
- * the sent-marker must only be written when result.success is true, or a
- * suppressed/failed send is marked "sent" and never recovers on redelivery.
+ * the sent-marker must only be written when the message was actually delivered,
+ * or a suppressed/failed send is marked "sent" and never recovers on redelivery.
+ *
+ * `result.success` is not that test. Without RESEND_API_KEY those helpers
+ * mock-log and resolve { success: true, mock: true }, so a marker written off
+ * `.success` records a message nobody received as permanently delivered — the
+ * buyer pays, gets nothing, and every redelivery reports already_notified.
+ * Gate every marker on emailWasDelivered (see @/lib/email/delivery).
  *
  * When NEXT_PUBLIC_CONVEX_URL is set, fulfillment writes pass requireConvex so
  * a Convex failure does not silently land only in instance-local SQLite
@@ -264,7 +274,7 @@ export async function POST(request: Request) {
                     customerEmail: customerEmail || undefined,
                     previewUrl: `${baseUrl}/preview/${encodeURIComponent(orderSlug)}#catalog`,
                   });
-                  if (sent.success) {
+                  if (emailWasDelivered(sent)) {
                     try {
                       await markCommerceOrderClientReceiptSent(
                         session.id,
@@ -283,7 +293,7 @@ export async function POST(request: Request) {
                     }
                   } else {
                     console.error(
-                      `Commerce client receipt not sent for ${orderSlug} (${sent.reason ?? sent.error ?? "unknown"}) — leaving sent-marker unwritten so redelivery retries`,
+                      `Commerce client receipt not delivered for ${orderSlug} (${describeUndeliveredEmail(sent)}) — leaving sent-marker unwritten so redelivery retries`,
                     );
                   }
                 } catch (emailError) {
@@ -415,7 +425,7 @@ export async function POST(request: Request) {
           if (sideEffects.runReceiptEmail && customerEmail) {
             try {
               const sent = await sendReceiptEmail(customerEmail, businessName, tier, amountTotal);
-              if (sent.success) {
+              if (emailWasDelivered(sent)) {
                 try {
                   const updated = await updateDeployHandoffStatus(
                     slug,
@@ -437,7 +447,7 @@ export async function POST(request: Request) {
                 }
               } else {
                 console.error(
-                  `Receipt email not sent for ${slug} (${sent.reason ?? sent.error ?? "unknown"}) — leaving sent-marker unwritten so redelivery retries`,
+                  `Receipt email not delivered for ${slug} (${describeUndeliveredEmail(sent)}) — leaving sent-marker unwritten so redelivery retries`,
                 );
               }
             } catch (emailError) {
@@ -461,7 +471,7 @@ export async function POST(request: Request) {
                 <p style="font-weight: 500; margin-top: 0;">The ${safeBrand} Team</p>
               `,
               });
-              if (sent.success) {
+              if (emailWasDelivered(sent)) {
                 try {
                   await updateDeployHandoffStatus(
                     slug,
@@ -479,7 +489,7 @@ export async function POST(request: Request) {
                 }
               } else {
                 console.error(
-                  `DNS handoff email not sent for ${slug} (${sent.reason ?? sent.error ?? "unknown"}) — leaving sent-marker unwritten so redelivery retries`,
+                  `DNS handoff email not delivered for ${slug} (${describeUndeliveredEmail(sent)}) — leaving sent-marker unwritten so redelivery retries`,
                 );
               }
             } catch (emailError) {

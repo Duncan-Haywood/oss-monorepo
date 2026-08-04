@@ -423,6 +423,69 @@ describe("POST /api/stripe/webhook", () => {
         { requireConvex: true },
       );
     });
+
+    /**
+     * The mock send is the dangerous one, and it is the case a `.success`
+     * check gets wrong. Without RESEND_API_KEY the helpers resolve
+     * `{ success: true, mock: true }`: nothing left the process, but the send
+     * "succeeded". A marker written off that records a message the buyer never
+     * received as permanently delivered, so the next redelivery reports
+     * already_notified and the mail is outstanding in no system anywhere.
+     * Both markers must stay unwritten — same as suppressed and failed above.
+     */
+    it("writes neither sent-marker when both emails only mock-send (no RESEND_API_KEY), so a paid buyer's mail stays recoverable", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth" },
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
+      sendReceiptEmail.mockResolvedValue({ success: true, mock: true });
+      sendEmail.mockResolvedValue({ success: true, mock: true });
+      updateDeployHandoffStatus.mockImplementation(
+        async (_slug: string, status: string, notes: string[]) => ({
+          ...existingHandoff({ status: status as DeployHandoff["status"] }),
+          notes: [...existingHandoff().notes, ...notes],
+        }),
+      );
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(sendReceiptEmail).toHaveBeenCalledTimes(1);
+      expect(sendEmail).toHaveBeenCalledTimes(1);
+      expect(updateDeployHandoffStatus).not.toHaveBeenCalled();
+    });
+
+    it("still marks the receipt sent when the receipt is delivered and only the DNS email mock-sends", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth" },
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
+      sendReceiptEmail.mockResolvedValue({ success: true, emailId: "re_1" });
+      sendEmail.mockResolvedValue({ success: true, mock: true });
+      updateDeployHandoffStatus.mockImplementation(
+        async (_slug: string, status: string, notes: string[]) => ({
+          ...existingHandoff({ status: status as DeployHandoff["status"] }),
+          notes: [...existingHandoff().notes, ...notes],
+        }),
+      );
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(updateDeployHandoffStatus).toHaveBeenCalledTimes(1);
+      expect(updateDeployHandoffStatus).toHaveBeenCalledWith(
+        "demo-cafe",
+        expect.anything(),
+        [expect.stringContaining("Buyer receipt email sent")],
+        { requireConvex: true },
+      );
+    });
   });
 
   describe("commerce Buy now checkout", () => {
@@ -638,6 +701,48 @@ describe("POST /api/stripe/webhook", () => {
         success: false,
         reason: "suppressed",
       });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(insertClientInquiry).toHaveBeenCalledTimes(1);
+      expect(sendCommerceBuyNowClientReceipt).toHaveBeenCalledTimes(1);
+      expect(markCommerceOrderClientReceiptSent).not.toHaveBeenCalled();
+    });
+
+    it("does not mark the client receipt sent when send resolves success:true with mock:true (missing key)", async () => {
+      constructEvent.mockReturnValue(completedEvent(commerceSession()));
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
+      getCommerceCatalog.mockResolvedValue({ items: [{ id: "sku_1", name: "Coffee Beans" }] });
+      insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
+      getCommerceOrderByStripeSessionId.mockResolvedValue({
+        id: "corder_1",
+        stripeSessionId: "cs_test_1",
+      });
+      sendCommerceBuyNowClientReceipt.mockResolvedValue({
+        success: true,
+        mock: true,
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(insertClientInquiry).toHaveBeenCalledTimes(1);
+      expect(sendCommerceBuyNowClientReceipt).toHaveBeenCalledTimes(1);
+      expect(markCommerceOrderClientReceiptSent).not.toHaveBeenCalled();
+    });
+
+    /** Twin of the bundle mock-send case: `success: true, mock: true` is not delivery. */
+    it("does not mark the client receipt sent when the send only mock-sends (no RESEND_API_KEY)", async () => {
+      constructEvent.mockReturnValue(completedEvent(commerceSession()));
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
+      getCommerceCatalog.mockResolvedValue({ items: [{ id: "sku_1", name: "Coffee Beans" }] });
+      insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
+      getCommerceOrderByStripeSessionId.mockResolvedValue({
+        id: "corder_1",
+        stripeSessionId: "cs_test_1",
+      });
+      sendCommerceBuyNowClientReceipt.mockResolvedValue({ success: true, mock: true });
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
