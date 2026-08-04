@@ -30,17 +30,48 @@ const REPO_ROOT = path.resolve(__dirname, '../../..');
  * copy of the lockfile-audit control that `dependency-audit-coverage.test.mjs`
  * already implements more thoroughly. The pinning sweep was the half with no
  * counterpart anywhere, so it is kept here on its own and the rest was dropped.
+ *
+ * 2026-08-04 — the sentence above ("every `uses:` value in the repository") was
+ * false when it was written, because this file read one directory. The input was
+ * `.gitea/workflows` alone, and `docs/CONTROL-AUDIT-2026-08-04.md` finding 2
+ * measured what that missed: 15 tracked workflow files under
+ * `ventures/*/.github/workflows/` holding 60 `uses:` refs, none of them pinned,
+ * one of them `anomalyco/opencode/github@latest` — a third party's mutable ref
+ * in a scheduled job that carries repository credentials. The control was
+ * correct, could fail, and was pointed at the smaller half of its own subject.
+ *
+ * The input is now every workflow file git tracks, enumerated from git rather
+ * than from a second hardcoded list, so the next venture to commit a
+ * `.github/workflows/` directory is covered without anyone remembering this
+ * file exists. There is no directory exemption: a mutable action reference is
+ * exactly as dangerous in a venture's workflow as in the monorepo's.
  */
 
-function workflowFiles() {
-  return fs
-    .readdirSync(WORKFLOW_DIR)
+/**
+ * The two places this repository keeps workflows: the monorepo's own Gitea CI,
+ * and the per-venture GitHub workflows that ship inside each venture directory.
+ */
+const WORKFLOW_PATHSPECS = ['.gitea/workflows', 'ventures/*/.github/workflows'];
+
+/** Every tracked workflow file, discovered from the git index. */
+function trackedWorkflowPaths() {
+  const listed = execFileSync('git', ['ls-files', '-z', '--', ...WORKFLOW_PATHSPECS], {
+    cwd: REPO_ROOT,
+    encoding: 'utf8',
+    maxBuffer: 1024 * 1024 * 16,
+  });
+  return listed
+    .split('\0')
+    .filter(Boolean)
     .filter((entry) => entry.endsWith('.yml') || entry.endsWith('.yaml'))
-    .sort()
-    .map((entry) => ({
-      relative: path.posix.join('.gitea/workflows', entry),
-      text: fs.readFileSync(path.join(WORKFLOW_DIR, entry), 'utf8'),
-    }));
+    .sort();
+}
+
+function workflowFiles() {
+  return trackedWorkflowPaths().map((relative) => ({
+    relative,
+    text: fs.readFileSync(path.join(REPO_ROOT, relative), 'utf8'),
+  }));
 }
 
 /** `uses:` values that are not `owner/repo@<40-hex sha>  # vX.Y.Z`. */
@@ -95,6 +126,18 @@ test('Action pinning - the sweep reads every workflow, not an empty directory', 
     files.some(({ text }) => /^\s*(?:-\s+)?uses:/m.test(text)),
     'no workflow declares a `uses:` at all — the parser is looking at the wrong thing'
   );
+
+  // Both halves of the subject must actually be in the collection. `length >= 5`
+  // was satisfied by `.gitea/workflows` alone for as long as this control only
+  // read that directory, so a future narrowing back to one root would restore
+  // the exact blind spot that finding 2 recorded without turning anything red.
+  for (const root of ['.gitea/workflows/', 'ventures/']) {
+    assert.ok(
+      files.some(({ relative }) => relative.startsWith(root)),
+      `no workflow under '${root}' reached the pinning sweep — the collection narrowed and ` +
+        'the actions there are now unchecked'
+    );
+  }
 });
 
 test('Action pinning - the pinning detector still detects', () => {
