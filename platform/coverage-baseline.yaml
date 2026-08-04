@@ -134,6 +134,14 @@ components:
     # with its own suite and covers well, which lifts the combined ratio while the
     # contiguous uncovered span in pipeline.mjs (roughly lines 556-805) is exactly
     # where it was. That span is still where raising this should start.
+    # Re-measured 2026-08-04 on Node 22.22.3 after the duplicate-definition and
+    # homepage-release-gate suites landed: 81.17/89.47/90.65 over the same two
+    # source files, now 1211 lines. The basis grew by 35 lines because
+    # `gate-contract.mjs` gained the homepage deploy-gate checks; the percentages
+    # rose over a larger denominator, so this is coverage genuinely added rather
+    # than a smaller surface flattering the ratio. Raised because the floor is
+    # two-directional: leaving it at 79.93 would bank nothing and let the next
+    # change spend the gain silently.
     baseline:
       unexercised: 0
       lines: 81.17
