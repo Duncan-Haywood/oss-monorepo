@@ -1525,6 +1525,32 @@ evidence, and completion date before it can be marked done.
   count is the finding: five branches independently built the same
   lockfile-audit control and five carried the same rival release-lag schema.
 
+  **And then it happened again, within the hour.** A concurrent session merged
+  the same two branches and published `agent/integration-2026-08-04c` seven
+  minutes before this one tried to push the same name. Two independent, largely
+  correct resolutions of the same 39 hunks, each costing a session. That is the
+  fourth time the fleet has built one thing twice this week, and unlike the
+  earlier cases the *cost* here is not the duplicated effort — it is that the
+  tip count went straight back to 2 and nobody would have known which candidate
+  to ship. Reconciled immediately, into `agent/integration-2026-08-04d`; one tip
+  again over 51 refs.
+  Reconciling the two integrations found a defect neither had on its own — or
+  rather, one that this branch had and the other had already fixed.
+  `portfolio/router/router.py` carried a **124-line duplicate tail**: a second
+  `main()`, `find_repo_root`, `load_ventures`, and the closing half of
+  `compute_allocation`'s return, all after `if __name__ == "__main__"`. It came
+  in from `agent/integration-2026-08-04b` and it parses, imports and passes
+  1139 tests, because Python binds the later definition and the later copy was
+  the good one — so the *first* `main()` and the first `find_repo_root` were
+  dead code that read exactly like the live ones. The queue row's `funded`
+  field was missing from one copy and present in the other. Nothing in this
+  repository looks for a module that defines the same name twice; the two-way
+  merge is what surfaced it, by producing two copies where the other branch had
+  one. Worth a control, not yet written.
+  What generalizes: `scripts/ci/branch_collisions.py` already counts files two
+  live branches are both building. It measured this collision correctly and
+  nobody read it before starting. The gap is not the measurement.
+
   Verified at `2ede739` in a clean clone on Node 22.22.3: 19 of 22 named gates
   pass, 1139 of 1141 pytest tests pass, 112 Dagger-engine contract tests pass,
   quick-pick-survey 425 of 425, local-site-studio 1270 of 1270 with `tsc

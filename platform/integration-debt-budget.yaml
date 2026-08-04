@@ -98,6 +98,16 @@ dropped_artifacts:
   # pinning sweep, was not dropped: it survives as
   # platform/ci/test/workflow-action-pinning.test.mjs and gained a check this
   # file never had, that the sweep read a non-empty directory.
+  # The same branch reachable under its local name as well as its remote one.
+  # The audit keys a drop by (path, branch) and reads both ref namespaces, so a
+  # register that names only `origin/...` leaves the local ref unregistered.
+  - path: platform/ci/test/workflow-supply-chain.test.mjs
+    branch: agent/continue-work-2026-08-04b
+    owner: duncan
+    reason: >-
+      Duplicate of dependency-audit-coverage.test.mjs, which covers every
+      assertion it made and five more; its pinning half survives as
+      workflow-action-pinning.test.mjs. No coverage was lost.
   - path: platform/ci/test/workflow-supply-chain.test.mjs
     branch: origin/agent/continue-work-2026-08-04b
     owner: duncan
@@ -132,6 +142,13 @@ dropped_artifacts:
   # release-lag-budget.yaml and no other file references it. The losing branch's
   # docs/RELEASE-LAG.md was kept and retargeted, and its `fetch-depth: 0`
   # reasoning was merged into ci-cd.yml.
+  - path: platform/release-lag-policy.yaml
+    branch: agent/continue-work-2026-08-04b
+    owner: duncan
+    reason: >-
+      Losing schema of the duplicate release-lag control; the surviving
+      platform/release-lag-budget.yaml is the one the cap ratchet watches.
+      Nothing reads this path.
   - path: platform/release-lag-policy.yaml
     branch: origin/agent/continue-work-2026-08-04b
     owner: duncan
