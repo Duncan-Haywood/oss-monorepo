@@ -62,7 +62,7 @@ kill_criteria:
         value: 0
 
   # Metrics available today: mrr, customers, monthly_cost,
-  # cumulative_agent_spend_usd, months_recorded,
+  # cumulative_agent_spend_usd, cumulative_revenue_usd, months_recorded,
   # consecutive_months_negative_net, and days_since:<anchor>. A metric outside
   # that set fails as a broken rule rather than becoming a registered gap.
   - id: sustained-negative-unit-economics

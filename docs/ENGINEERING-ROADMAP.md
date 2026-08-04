@@ -673,6 +673,55 @@ evidence, and completion date before it can be marked done.
   signal that grants each one. It is not yet a repository-wide control, and it
   should become one; a venture-local habit is what let all of the above ship.
 
+### Portfolio stopping rules
+
+- [x] Make the portfolio's declared kill criteria evaluable, and hold the number
+  of ventures without a stopping rule.
+  Owner duncan, 2026-08-03. `portfolio/router/allocate.py` read
+  `kill_criteria` into a local named `kill_rules` and never referenced it again.
+  The only rules that ran were two hardcoded stage checks — `winding-down`, and
+  a zero MRR in `revenue`/`scaling` — and all eleven ventures are `prototype`,
+  so neither could fire. `killed_count` was zero by construction, not by merit,
+  and the allocator moved $199.98 of its $500 pool to ventures whose combined
+  recorded revenue is zero. The suite did not catch it: `test_allocate.py`'s
+  `test_kill_criteria_evaluation` exercises `stage: winding-down` and passes
+  whether or not a declared criterion is ever read.
+
+  All sixteen declared criteria were prose, and most name a quantity nothing in
+  the repository measures — active learners, newsletter signups, CAC per client,
+  agent shoots booked. Evaluating them honestly needed a third verdict:
+  `portfolio/router/kill_criteria.py` returns `triggered`, `not-triggered`, or
+  `unevaluable`, because treating "no data" as "keep funding it" is exactly what
+  made the old behaviour look reasonable. Metrics come only from
+  `portfolio/ledger/*.yaml`, and the vocabulary is fixed in Python so a venture
+  cannot invent a flattering one.
+
+  `scripts/ci/kill_criteria_ratchet.py` counts ventures with no evaluable
+  criterion against `platform/kill-criteria-baseline.yaml`, both directions,
+  capped at 11 so the ceiling can never be widened back to the whole portfolio.
+  Measured 11 of 11 on 2026-08-03; print-atelier's spend-without-revenue
+  criterion took it to 10. Registered as "Kill-Criteria Stopping Rule Ratchet"
+  in `scripts/test-ci.sh`; `tests/test_kill_criteria_ratchet.py` runs the same
+  audit under pytest.
+
+- [ ] Ratify print-atelier's `$150 spend with no recorded revenue` threshold, and
+  give the other ten ventures a criterion that can be measured.
+  The $150 figure was set by the change above, not by the portfolio owner —
+  roughly 2.5 months of that venture's $60 monthly cap, deliberately
+  conservative, and it does not fire today ($18.18 recorded against $0). It
+  needs confirming or replacing. The remaining ten ventures each still draw
+  budget with no rule capable of ending it, which is the open cost this control
+  makes visible rather than fixes. Two routes: restate a prose criterion against
+  a ledger metric, or start measuring the quantity it names. Note that no
+  VENTURE.yaml records a launch date, so every "after 60 days post-launch"
+  criterion has no clock to measure against even in principle.
+
+- [ ] Decide what a triggered criterion should *do*. Today it moves the venture
+  to `killed` in the work queue and zeroes that row's allocation, which is a
+  report, not an action — nothing stops an agent session from working on a
+  killed venture, and no alert fires. Stopping a venture is a human decision and
+  should stay one, but the decision currently has no route to a human.
+
 ## Next 30 days: prove releases and operations
 
 - [ ] Standardize full-SHA image builds, SBOMs, signatures/provenance, digest

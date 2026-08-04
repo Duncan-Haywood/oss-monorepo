@@ -97,6 +97,7 @@ KNOWN_METRICS = (
     "customers",
     "monthly_cost",
     "cumulative_agent_spend_usd",
+    "cumulative_revenue_usd",
     "months_recorded",
     "consecutive_months_negative_net",
 )
@@ -192,6 +193,26 @@ class MetricResolver:
             total += float(spend)
         return round(total, 2)
 
+    def _cumulative_revenue(self) -> Optional[float]:
+        """Total recorded revenue, or None when any month leaves it unrecorded.
+
+        The rival implementation this replaced folded revenue into a float that
+        started at 0.0 and skipped months recording no `mrr_end`, so a venture
+        nobody had ever measured read as one with zero revenue — and the
+        `cumulative_revenue_usd == 0` half of print-atelier's stop-loss fired on
+        absence of data rather than on absence of revenue. A missing month makes
+        the total unknown, not smaller.
+        """
+        if not self.ledger_present or not self.ledger_rows:
+            return None
+        total = 0.0
+        for row in self.ledger_rows:
+            mrr_end = row.get("mrr_end")
+            if mrr_end is None:
+                return None
+            total += float(mrr_end)
+        return round(total, 2)
+
     def _months_recorded(self) -> Optional[float]:
         if not self.ledger_present:
             return None
@@ -254,6 +275,9 @@ class MetricResolver:
         if metric == "cumulative_agent_spend_usd":
             value = self._cumulative_agent_spend()
             return value, "" if value is not None else "no ledger row records spend for this venture"
+        if metric == "cumulative_revenue_usd":
+            value = self._cumulative_revenue()
+            return value, "" if value is not None else "a ledger month records no mrr_end for this venture"
         if metric == "months_recorded":
             value = self._months_recorded()
             return value, "" if value is not None else "no ledger is present"
@@ -419,6 +443,20 @@ def evaluate_venture(
         evaluate_criterion(criterion, index, venture_name, resolver)
         for index, criterion in enumerate(criteria)
     ]
+
+
+def has_stopping_rule(results: List[CriterionResult]) -> bool:
+    """True when at least one declared criterion could actually be measured.
+
+    A venture without one has no rule that can ever stop its funding, however
+    many criteria it declares. `stage: winding-down` is deliberately not counted
+    here — it is a human deciding to stop, which is the outcome a stopping rule
+    is supposed to prompt, not a measurement that prompts it.
+
+    A malformed criterion does not count either. It is NOT_MEASURABLE, and a
+    rule that is simply wrong is not a brake.
+    """
+    return any(r.outcome != NOT_MEASURABLE for r in results)
 
 
 # -- register -------------------------------------------------------------

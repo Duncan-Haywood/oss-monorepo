@@ -62,7 +62,7 @@ class PortfolioRouter:
         venture: Dict[str, Any],
         ledger_rows: Optional[Dict[str, List[Dict[str, Any]]]] = None,
         ledger_present: Optional[bool] = None,
-    ) -> Tuple[bool, List[str]]:
+    ) -> Tuple[bool, List[str], List[kill_criteria.CriterionResult]]:
         """Evaluates whether any kill criterion has fired.
 
         Until 2026-08-03 this method loaded the venture's declared criteria into
@@ -75,6 +75,11 @@ class PortfolioRouter:
         A criterion that cannot be evaluated does **not** count as a pass. It is
         reported separately and must be registered in
         `portfolio/kill-criteria-register.yaml`; see `evaluate_all_criteria`.
+
+        Returns the kill decision, the reasons behind it, and the per-criterion
+        verdicts. The caller needs the third value to tell a venture sitting
+        inside its stopping rule from one that has no stopping rule to sit
+        inside of — the work queue rendered those identically before.
         """
         triggered = []
         stage = venture.get("stage", "prototype")
@@ -94,12 +99,35 @@ class PortfolioRouter:
             ledger_rows, ledger_present = kill_criteria.ledger_rows_by_venture(self.repo_root)
 
         name = venture.get("dir_name") or venture.get("name") or ""
-        for result in kill_criteria.evaluate_venture(venture, name, ledger_rows, ledger_present):
+        results = kill_criteria.evaluate_venture(venture, name, ledger_rows, ledger_present)
+        for result in results:
             if result.outcome == kill_criteria.TRIGGERED:
                 label = result.text or result.criterion_id
                 triggered.append(f"{label} ({result.reason})")
 
-        return (len(triggered) > 0, triggered)
+        return (len(triggered) > 0, triggered, results)
+
+    @staticmethod
+    def _criteria_summary(venture: Dict[str, Any]) -> Dict[str, Any]:
+        """The stopping-rule facts that belong on every work-queue row.
+
+        Carried on killed and active rows alike. A reader of the queue needs to
+        tell a venture that is inside its stopping rule from one that has no
+        stopping rule to be inside of, and those looked identical before.
+        """
+        results: List[kill_criteria.CriterionResult] = venture.get("criteria_results") or []
+        return {
+            "has_stopping_rule": bool(venture.get("has_stopping_rule")),
+            "criteria_declared": len(results),
+            "criteria_evaluable": sum(
+                1 for r in results if r.outcome != kill_criteria.NOT_MEASURABLE
+            ),
+            "unevaluable_criteria": [
+                {"description": r.text, "reason": r.reason, "criterion_id": r.criterion_id}
+                for r in results
+                if r.outcome == kill_criteria.NOT_MEASURABLE
+            ],
+        }
 
     def evaluate_all_criteria(self) -> List[kill_criteria.CriterionResult]:
         """Every declared criterion across every venture, with its outcome."""
@@ -127,9 +155,11 @@ class PortfolioRouter:
         ledger_rows, ledger_present = kill_criteria.ledger_rows_by_venture(self.repo_root)
 
         for v in ventures:
-            is_killed, reasons = self.evaluate_kill_criteria(v, ledger_rows, ledger_present)
+            is_killed, reasons, results = self.evaluate_kill_criteria(v, ledger_rows, ledger_present)
             v["is_killed"] = is_killed
             v["kill_reasons"] = reasons
+            v["criteria_results"] = results
+            v["has_stopping_rule"] = kill_criteria.has_stopping_rule(results)
 
             if is_killed:
                 killed_ventures.append(v)
@@ -157,7 +187,8 @@ class PortfolioRouter:
                     "cap_usd": cap,
                     "mrr": (v.get("economics") or {}).get("mrr"),
                     "status": "active",
-                    "priority": 1 if (v.get("economics") or {}).get("mrr") else 2
+                    "priority": 1 if (v.get("economics") or {}).get("mrr") else 2,
+                    **self._criteria_summary(v),
                 })
 
         # Allocate explore ventures
@@ -177,7 +208,8 @@ class PortfolioRouter:
                     "mrr": (v.get("economics") or {}).get("mrr"),
                     "protected": is_protected,
                     "status": "active",
-                    "priority": 3
+                    "priority": 3,
+                    **self._criteria_summary(v),
                 })
 
         # Record killed ventures
@@ -191,7 +223,8 @@ class PortfolioRouter:
                 "mrr": (v.get("economics") or {}).get("mrr"),
                 "status": "killed",
                 "kill_reasons": v.get("kill_reasons"),
-                "priority": 99
+                "priority": 99,
+                **self._criteria_summary(v),
             })
 
         # Sort allocations by priority rank
@@ -203,6 +236,21 @@ class PortfolioRouter:
             "explore_pool_usd": explore_budget_pool,
             "active_count": len(mature_ventures) + len(explore_ventures),
             "killed_count": len(killed_ventures),
+            # The number this engine could not previously produce. A venture in
+            # here draws budget every month with no criterion that can ever stop
+            # it, which is the condition `scripts/ci/kill_criteria_ratchet.py`
+            # refuses to let grow.
+            "without_stopping_rule": sorted(
+                a["venture"] for a in allocations if not a.get("has_stopping_rule")
+            ),
+            "unfunded_by_stopping_rule_usd": round(
+                sum(
+                    a["allocated_usd"]
+                    for a in allocations
+                    if not a.get("has_stopping_rule")
+                ),
+                2,
+            ),
             "work_queue": allocations
         }
 
@@ -220,10 +268,27 @@ def main():
     print(f"  - Explore Pool (40%): ${result['explore_pool_usd']:.2f}")
     print(f"Active Ventures: {result['active_count']} | Killed: {result['killed_count']}")
     print("------------------------------------------------------------")
-    print(f"{'RANK':<5} {'VENTURE':<30} {'STAGE':<12} {'ALLOCATED':<10} {'STATUS'}")
+    print(f"{'RANK':<5} {'VENTURE':<30} {'STAGE':<12} {'ALLOCATED':<10} {'STATUS':<8} {'STOP RULE'}")
     print("------------------------------------------------------------")
     for idx, item in enumerate(result["work_queue"], start=1):
-        print(f"{idx:<5} {item['venture']:<30} {item['stage']:<12} ${item['allocated_usd']:<9.2f} {item['status'].upper()}")
+        rule = "yes" if item.get("has_stopping_rule") else "NONE"
+        print(
+            f"{idx:<5} {item['venture']:<30} {item['stage']:<12} "
+            f"${item['allocated_usd']:<9.2f} {item['status'].upper():<8} {rule}"
+        )
+
+    without = result["without_stopping_rule"]
+    print("------------------------------------------------------------")
+    if without:
+        print(
+            f"{len(without)} venture(s) draw ${result['unfunded_by_stopping_rule_usd']:.2f} "
+            "with no criterion that can stop them:"
+        )
+        for name in without:
+            print(f"  - {name}")
+        print("Run scripts/ci/kill_criteria_ratchet.py for the per-criterion reasons.")
+    else:
+        print("Every venture has at least one stopping rule that can be measured.")
 
     # Export JSON report
     out_path = os.path.join(repo_root, "portfolio", "router", "allocation_queue.json")
