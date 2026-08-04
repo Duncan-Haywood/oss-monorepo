@@ -38,6 +38,7 @@ No test here is skipped or conditionally skipped, per the note in
 """
 
 import json
+import os
 import subprocess
 import sys
 import unittest.mock
@@ -67,6 +68,9 @@ def write_manifest(directory: Path, manifest: dict) -> None:
     (directory / "package.json").write_text(json.dumps(manifest))
 
 
+SAFE_GIT_ENV = {**os.environ, "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_CONFIG_NOSYSTEM": "1"}
+
+
 def init_repo(repo_root: Path) -> None:
     """A real git repository with one commit, so `git status` has a HEAD."""
     repo_root.mkdir(parents=True, exist_ok=True)
@@ -76,16 +80,16 @@ def init_repo(repo_root: Path) -> None:
         "-c",
         "user.name=Coverage Ratchet Test",
     ]
-    subprocess.run(["git", "-C", str(repo_root), "init", "-q"], check=True)
+    subprocess.run(["git", "-C", str(repo_root), "init", "-q"], check=True, env=SAFE_GIT_ENV)
     (repo_root / ".gitkeep").write_text("")
-    subprocess.run(["git", "-C", str(repo_root), "add", "-A"], check=True)
+    subprocess.run(["git", "-C", str(repo_root), "add", "-A"], check=True, env=SAFE_GIT_ENV)
     subprocess.run(
-        ["git", "-C", str(repo_root), *env_args, "commit", "-qm", "base"], check=True
+        ["git", "-C", str(repo_root), *env_args, "commit", "-qm", "base"], check=True, env=SAFE_GIT_ENV
     )
 
 
 def commit_all(repo_root: Path) -> None:
-    subprocess.run(["git", "-C", str(repo_root), "add", "-A"], check=True)
+    subprocess.run(["git", "-C", str(repo_root), "add", "-A"], check=True, env=SAFE_GIT_ENV)
     subprocess.run(
         [
             "git",
@@ -100,6 +104,7 @@ def commit_all(repo_root: Path) -> None:
             "component",
         ],
         check=True,
+        env=SAFE_GIT_ENV,
     )
 
 

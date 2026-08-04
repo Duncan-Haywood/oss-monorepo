@@ -14,7 +14,11 @@ const VENTURES_DIR = path.join(REPO_ROOT, 'ventures');
 const VERIFY_COMPONENT = path.join(REPO_ROOT, 'scripts/ci/verify-component.sh');
 // The two places this repository keeps workflows: the monorepo's own Gitea CI,
 // and the per-venture GitHub workflows that ship inside each venture directory.
-const WORKFLOW_PATHSPECS = ['.gitea/workflows', 'ventures/*/.github/workflows/*'];
+// The `ventures` pathspec is deliberately the whole tree rather than a glob —
+// the `.github/workflows/` filter below is what selects, so a venture that
+// nests a package one level deeper is still found. Same shape in
+// workflow-action-pinning, node-version-contract and ci-workflow-tooling.
+const WORKFLOW_PATHSPECS = ['.gitea/workflows', 'ventures'];
 
 /**
  * A venture's quality gates are declared in more than one place, and only some
