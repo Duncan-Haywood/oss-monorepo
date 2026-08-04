@@ -248,6 +248,8 @@ test("an order carrying every input still reaches the partner", async () => {
       // writes are what stop the adapter ordering one print of an unpriced item.
       lineItemQuantities: "1",
       lineItemUnitAmounts: "8500",
+      // Printful needs the artwork too, and on the same terms Gelato does.
+      artworkUrl: "https://files.example.com/prints/midnight-coast.tif",
     },
     { PRINTFUL_API_KEY: "key", PRINTFUL_STORE_ID: "store" },
     async () => {

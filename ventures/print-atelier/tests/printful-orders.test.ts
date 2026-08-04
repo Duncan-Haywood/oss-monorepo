@@ -42,6 +42,10 @@ const completeOrderInputs = {
   // multi-quantity order. A fixture calling itself complete has to carry them.
   lineItemQuantities: "1",
   lineItemUnitAmounts: "8500",
+  // And the artwork itself, which becomes the line's Printful `files` entry.
+  // No print file exists in this repository, so an order without one is refused
+  // rather than sent with a URL nobody can print.
+  artworkUrl: "https://files.example.com/prints/midnight-coast.tif",
 };
 
 const sampleOrder: OrderRecord = {

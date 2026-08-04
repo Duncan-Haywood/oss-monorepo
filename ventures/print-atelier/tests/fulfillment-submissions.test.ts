@@ -31,7 +31,15 @@ test("buildFulfillmentSubmissionSummary aggregates submission statuses", () => {
         countryCode: "US",
         zip: "94105",
       },
-      items: [{ variantId: "4011", quantity: 1, retailPrice: "85.00", name: "Print" }],
+      items: [
+        {
+          variantId: "4011",
+          quantity: 1,
+          retailPrice: "85.00",
+          name: "Print",
+          printFileUrl: "https://files.example.com/prints/midnight-coast.tif",
+        },
+      ],
       retailCosts: { currency: "USD", subtotal: "85.00", shipping: "0.00", tax: "0.00" },
     },
     message: "Submitted",
