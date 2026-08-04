@@ -70,7 +70,35 @@ shape in `ai-first-markets`, `print-atelier`, `retail-pilot-intel`.
 Fix: assert that every declared gate's glob resolves to at least one tracked
 file, and fail closed when it does not.
 
-### 2. `ventures/*/.github/workflows/` is unpoliced by every workflow control
+### 2. `ventures/*/.github/workflows/` is unpoliced by every workflow control — FIXED
+
+Fixed in `3f93986c`. All four controls now enumerate workflows with
+`git ls-files -- .gitea/workflows ventures` instead of a hardcoded directory.
+Measured before the change: 15 tracked venture workflow files, 60 `uses:` refs,
+**none** pinned to a SHA and one — `anomalyco/opencode/github@latest` — mutable
+outright. All 60 are now pinned to commit SHAs resolved with `git ls-remote`
+and confirmed against the GitHub API, with the release tag in a trailing
+comment. print-atelier's workflow ran `npm ci && npm run build` on Node 20
+against a venture that declares typecheck+lint+test+build on 22; it now runs
+all four gates individually so a failure names the gate. photo-editing's
+docs-site had the same drift and got the same treatment; four Node-20 pins in
+real-estate-agent-photo-app moved to 22.
+
+Two scoping notes, both per-assertion rather than per-directory: the actionlint
+checksum check stays scoped to the release this control declares, and the
+coverage-component install check stays monorepo-relative because a venture
+checkout cannot satisfy its paths. Both say so inline.
+
+Still open, one layer down: `scripts/test-ci.sh:274` runs `actionlint` over
+`.gitea/workflows/` only, so venture workflows are linted by nothing —
+running it by hand finds two real defects. And three scheduled venture
+workflows carrying repo credentials install vendor CLIs by piping an
+unversioned `curl` to `bash` (`cursor-agent-grok.yml:40`,
+`cursor-scheduled.yml:66`, `grok-scheduled.yml:62`); there is no published
+checksum to pin, so this needs a different fix than the action pins.
+
+The original finding follows.
+
 
 Four separate controls hardcode `.gitea/workflows` as their input:
 `workflow-action-pinning.test.mjs:10`, `node-version-contract.test.mjs:11`,
@@ -256,13 +284,35 @@ The verify chain here is genuinely sound: 1271/1271 tests across 133 files, no
 collection gap, failability proved by injection. The Stripe integration is real
 and fails closed. What is wrong sits around it:
 
-1. **A mocked email is recorded as permanently delivered.** `email/resend.ts:98`
+1. ~~**A mocked email is recorded as permanently delivered.**~~ **FIXED**
+   (`82c65b5d`). `src/lib/email/delivery.ts` adds `emailWasDelivered` (success
+   AND not mock); all three durable sent-marker sites in the webhook gate on it,
+   so a mock send leaves the marker unwritten and the message recovers on
+   redelivery once a real key is configured. `describeUndeliveredEmail` names
+   the missing key in the operator log rather than printing "unknown". Proved by
+   mutation: reverting the three conditions to `.success` fails 6 tests.
+   `sent-marker-contract.test.ts` reads route.ts as source, because a fourth
+   marker site added later would reintroduce the shape with every behavioural
+   test green — which is how this survived a 1271-test suite. Original finding:
+   `email/resend.ts:98`
    returns `{success: true, mock: true}` when `RESEND_API_KEY` is unset; the
    webhook checks only `.success` and writes a durable sent-marker, so recovery
    on Stripe redelivery returns `already_notified` forever. `mock` is checked in
    ten places in the dashboard and **nowhere in the webhook**. First customer
    pays $500, receives nothing, and the system believes it sent both emails.
-2. **Self-serve checkout never captures the buyer's business name.** The form
+2. ~~**Self-serve checkout never captures the buyer's business name.**~~
+   **FIXED** (`d73bdc70` source, `3f93986c` tests). The checkout form now asks
+   for it whenever there is no CRM lead and blocks submit without it; it is
+   carried in Stripe session metadata (truncated to 200 chars — Stripe rejects
+   a session create above 500) and threaded through the webhook into
+   `recordLeadPayment` → `buildPaymentStubLeadFields` and Convex `markLeadPaid`.
+   Where the name is genuinely unknown the stub no longer invents one: a minted
+   `organic-*` slug is never title-cased, and tagline / phone / city / hours are
+   empty rather than fabricated. `mapSqliteRowToLead` was the other half — its
+   prospecting fallbacks would have refilled on read what the write path left
+   empty, so they are now skipped for a `payment_stub` row and kept for every
+   other `dataSource`. Two existing tests asserted the fabricated values as
+   correct and now assert the opposite. Original finding: the form
    collects only an email; `markLeadPaid` fabricates `businessName: "Organic
    8f3a2b1c9d4e"`, `phone: "(555) 000-0000"`, and a bakery tagline. That is what
    the receipt and the customer's own preview page then say.
