@@ -44,10 +44,9 @@ export function ValuePage() {
       </section>
 
       <section className="panel">
-        <h2>Before vs after (6-week pilot)</h2>
+        <h2>Before vs after (Illustrative 6-week pilot scenario)</h2>
         <p className="panel-desc">
-          Baseline from pre-join footfall + Z-report estimates; week 6 from joined
-          door CV and POS.
+          Illustrative model scenario: baseline from pre-join estimates vs simulated week 6 model with joined door and POS data.
         </p>
         <BeforeAfterGrid metrics={pilotBeforeAfter} />
       </section>

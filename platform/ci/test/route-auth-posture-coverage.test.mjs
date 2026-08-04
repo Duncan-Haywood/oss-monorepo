@@ -81,13 +81,24 @@ const REGISTRY = {
 /** The longest number of days an unwritten contract may stay unwritten. */
 const MAX_EXPIRY_DAYS = 180;
 
-/** Recursively collects `route.*` modules under `dir`. */
-function routeModulesUnder(dir, found = []) {
+/** Recursively collects `route.*` and `"use server"` modules under `dir`. */
+function routeModulesUnder(dir, appRoot = dir, found = []) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    if (NOT_SOURCE.has(entry.name)) continue;
     const entryPath = path.join(dir, entry.name);
-    if (entry.isDirectory()) routeModulesUnder(entryPath, found);
-    else if (/^route\.(ts|tsx|js|mjs|jsx)$/.test(entry.name)) found.push(entryPath);
+    if (entry.isDirectory()) {
+      const rel = path.relative(appRoot, entryPath);
+      const isIgnored = (rel !== '' && !rel.startsWith('..'))
+        ? (entry.name === 'node_modules' || entry.name === '.git')
+        : NOT_SOURCE.has(entry.name);
+      if (!isIgnored) routeModulesUnder(entryPath, appRoot, found);
+    } else if (/^route\.(ts|tsx|js|mjs|jsx)$/.test(entry.name)) {
+      found.push(entryPath);
+    } else if (/\.(ts|tsx|js|mjs|jsx)$/.test(entry.name)) {
+      const source = fs.readFileSync(entryPath, 'utf8');
+      if (source.includes('"use server"') || source.includes("'use server'")) {
+        found.push(entryPath);
+      }
+    }
   }
   return found;
 }
@@ -113,7 +124,7 @@ function candidateAppRoots(dir = VENTURES_DIR, depth = 0, found = []) {
 function routeBearingPackages() {
   const packages = new Map();
   for (const appRoot of candidateAppRoots()) {
-    const modules = routeModulesUnder(appRoot);
+    const modules = routeModulesUnder(appRoot, appRoot);
     if (modules.length === 0) continue;
 
     const parent = path.dirname(appRoot);
@@ -123,9 +134,11 @@ function routeBearingPackages() {
     let handlers = 0;
     for (const module of modules) {
       const source = fs.readFileSync(module, 'utf8');
-      handlers += [
-        ...source.matchAll(/export\s+(?:async\s+)?(?:function|const)\s+([A-Z]+)\b/g),
-      ].length;
+      const isRoute = /^route\.(ts|tsx|js|mjs|jsx)$/.test(path.basename(module));
+      const pattern = isRoute
+        ? /export\s+(?:async\s+)?(?:function|const|let|var)\s+([A-Z][A-Z0-9_]*)\b/g
+        : /export\s+(?:async\s+)?(?:function|const|let|var)\s+([a-zA-Z0-9_]+)\b/g;
+      handlers += [...source.matchAll(pattern)].length;
     }
     packages.set(key, (packages.get(key) ?? 0) + handlers);
   }
@@ -351,6 +364,58 @@ test('Route Posture Coverage - every registered contract exists and runs', () =>
   );
 });
 
+function validateGapEntry(packageRoot, gap, livePackages, today) {
+  const problems = [];
+  const { owner, issue, reason, expires, handlers } = gap;
+
+  for (const [field, value] of Object.entries({ owner, issue, reason, expires })) {
+    if (!value || String(value).trim() === '') {
+      problems.push(`${packageRoot}: gap has no ${field}`);
+    }
+  }
+  if (reason && reason.trim().length < 60) {
+    problems.push(
+      `${packageRoot}: the gap's reason states no decision. Say why the ` +
+        'contract does not exist yet and what writing it involves'
+    );
+  }
+
+  if (expires) {
+    const expiryDate = new Date(expires);
+    if (Number.isNaN(expiryDate.getTime())) {
+      problems.push(`${packageRoot}: expires '${expires}' is not a date`);
+    } else {
+      const days = Math.round((expiryDate - today) / 86_400_000);
+      if (days < 0) {
+        problems.push(
+          `${packageRoot}: the gap expired ${-days} days ago. Write the ` +
+            'contract, or re-decide the exception in review and re-date it'
+        );
+      } else if (days > MAX_EXPIRY_DAYS) {
+        problems.push(
+          `${packageRoot}: expires ${expires}, ${days} days out. A gap nobody ` +
+            `re-reads is a policy change made without review; ${MAX_EXPIRY_DAYS} ` +
+            'days is the limit, as it is in the exception register'
+        );
+      }
+    }
+  }
+
+  const actual = livePackages.get(packageRoot);
+  if (actual !== undefined && handlers !== actual) {
+    problems.push(
+      `${packageRoot}: the gap accepts ${handlers} undeclared handlers and the ` +
+        `package now serves ${actual}. ` +
+        (actual > handlers
+          ? 'The unreviewed surface grew. Review the new handlers, then raise ' +
+            'the number deliberately.'
+          : 'The register is stale; lower the number.')
+    );
+  }
+
+  return problems;
+}
+
 test('Route Posture Coverage - every gap is owned, reasoned, sized and expiring', () => {
   const live = routeBearingPackages();
   const problems = [];
@@ -358,52 +423,7 @@ test('Route Posture Coverage - every gap is owned, reasoned, sized and expiring'
 
   for (const [packageRoot, entry] of Object.entries(REGISTRY)) {
     if (!entry.gap) continue;
-    const { owner, issue, reason, expires, handlers } = entry.gap;
-
-    for (const [field, value] of Object.entries({ owner, issue, reason, expires })) {
-      if (!value || String(value).trim() === '') {
-        problems.push(`${packageRoot}: gap has no ${field}`);
-      }
-    }
-    if (reason && reason.trim().length < 60) {
-      problems.push(
-        `${packageRoot}: the gap's reason states no decision. Say why the ` +
-          'contract does not exist yet and what writing it involves'
-      );
-    }
-
-    if (expires) {
-      const expiryDate = new Date(expires);
-      if (Number.isNaN(expiryDate.getTime())) {
-        problems.push(`${packageRoot}: expires '${expires}' is not a date`);
-      } else {
-        const days = Math.round((expiryDate - today) / 86_400_000);
-        if (days < 0) {
-          problems.push(
-            `${packageRoot}: the gap expired ${-days} days ago. Write the ` +
-              'contract, or re-decide the exception in review and re-date it'
-          );
-        } else if (days > MAX_EXPIRY_DAYS) {
-          problems.push(
-            `${packageRoot}: expires ${expires}, ${days} days out. A gap nobody ` +
-              `re-reads is a policy change made without review; ${MAX_EXPIRY_DAYS} ` +
-              'days is the limit, as it is in the exception register'
-          );
-        }
-      }
-    }
-
-    const actual = live.get(packageRoot);
-    if (actual !== undefined && handlers !== actual) {
-      problems.push(
-        `${packageRoot}: the gap accepts ${handlers} undeclared handlers and the ` +
-          `package now serves ${actual}. ` +
-          (actual > handlers
-            ? 'The unreviewed surface grew. Review the new handlers, then raise ' +
-              'the number deliberately.'
-            : 'The register is stale; lower the number.')
-      );
-    }
+    problems.push(...validateGapEntry(packageRoot, entry.gap, live, today));
   }
 
   assert.deepEqual(
@@ -411,6 +431,40 @@ test('Route Posture Coverage - every gap is owned, reasoned, sized and expiring'
     [],
     'Registered gaps that are not real exceptions:\n  ' + problems.join('\n  ')
   );
+});
+
+test('Route Posture Coverage - gap validator fails closed on invalid gaps', () => {
+  const mockLive = new Map([['ventures/fake-venture', 5]]);
+  const today = new Date('2026-08-04');
+
+  const invalidGapMissingOwner = {
+    issue: 'GH-123',
+    reason: 'This is a sufficiently long reason that explains why the contract does not exist yet.',
+    expires: '2026-09-01',
+    handlers: 5,
+  };
+  const problemsMissing = validateGapEntry('ventures/fake-venture', invalidGapMissingOwner, mockLive, today);
+  assert.ok(problemsMissing.some((p) => p.includes('gap has no owner')));
+
+  const expiredGap = {
+    owner: '@dev',
+    issue: 'GH-123',
+    reason: 'This is a sufficiently long reason that explains why the contract does not exist yet.',
+    expires: '2026-08-01',
+    handlers: 5,
+  };
+  const problemsExpired = validateGapEntry('ventures/fake-venture', expiredGap, mockLive, today);
+  assert.ok(problemsExpired.some((p) => p.includes('expired')));
+
+  const mismatchedHandlersGap = {
+    owner: '@dev',
+    issue: 'GH-123',
+    reason: 'This is a sufficiently long reason that explains why the contract does not exist yet.',
+    expires: '2026-09-01',
+    handlers: 3,
+  };
+  const problemsMismatched = validateGapEntry('ventures/fake-venture', mismatchedHandlersGap, mockLive, today);
+  assert.ok(problemsMismatched.some((p) => p.includes('accepts 3 undeclared handlers and the package now serves 5')));
 });
 
 test('Route Posture Coverage - no gap is tracked for a package that has a contract', () => {

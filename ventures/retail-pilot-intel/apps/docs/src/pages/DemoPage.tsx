@@ -21,7 +21,7 @@ const demoScript = [
     goal: "Commercial context: market, pricing (€150–€350/mo), GTM, unit economics.",
     points: [
       "Target: owner-operated luxury micro-format in Italy",
-      "Pilot install €2k–€5k; payback 4–8 weeks at indicative upside",
+      "Pilot install €2k–€4k (prototype estimate); payback 4–8 weeks at indicative upside",
       "Privacy-first positioning vs cloud analytics vendors",
     ],
   },
@@ -33,8 +33,8 @@ const demoScript = [
     points: [
       "Overview: daily KPIs, hourly footfall vs closes, actionable insights",
       "Products: desirability gap — high touch / low sale SKUs",
-      "Experiments: till script lifted scarf attach 22% → 67%",
-      "Business value: €18k–€48k indicative annual upside",
+      "Experiments: till script promoted in model scenario (illustrative)",
+      "Business value: €14k–€32k indicative annual upside (model projection)",
       "Privacy & trust: GDPR posture for stakeholder sign-off",
     ],
   },
@@ -120,20 +120,20 @@ pnpm portal:dev        # http://localhost:5174
         </p>
       </Card>
 
-      <h2>Key numbers for the close</h2>
+      <h2>Illustrative model economics (prototype projection)</h2>
       <DataTable
         headers={["Metric", "Indicative range", "Talking point"]}
         rows={[
           [
             "Annual upside (3 levers)",
-            "€18k–€48k",
-            "Conversion + dead SKU recovery + upsell attach",
+            "€14k–€32k",
+            "Conversion + dead SKU recovery + upsell attach (model projection)",
           ],
           ["Payback", "4–8 weeks", "Owner acts on at least one weekly € decision"],
           ["Subscription", "€150–€350/mo", "Per store after pilot"],
-          ["Pilot install", "€2k–€5k", "Edge node + door CV + POS bridge"],
+          ["Pilot install", "€2k–€4k", "Prototype estimate: Edge node + door CV + POS bridge"],
           ["AOV (leather boutique)", "€180–€450", "One extra sale/week ≈ €10k–€23k/year"],
-          ["Conversion lift (pilot)", "+2.4 pts", "Door+POS join in ~2 weeks"],
+          ["Conversion lift (model)", "+2.4 pts", "Model estimate: door+POS join in ~2 weeks"],
         ]}
       />
 

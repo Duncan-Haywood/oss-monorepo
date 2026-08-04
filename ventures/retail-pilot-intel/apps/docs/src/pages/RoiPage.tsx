@@ -228,7 +228,7 @@ export function RoiPage() {
             "7",
             "Fixture zones / RFID or scanners",
             "52",
-            "€2k–€5k",
+            "€2k–€4k",
             "Enables rank 2 precision",
             "Only if 2 stalls",
             "Defer until ranks 1–3 prove value",

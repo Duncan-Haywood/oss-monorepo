@@ -17,11 +17,15 @@ test("DocLayout includes prototype notice banner", () => {
   );
 });
 
-test("PortalShell includes illustrative data indicator", () => {
+test("PortalShell includes illustrative data indicator and edge stub disclosure", () => {
   const content = readFileSync(PORTAL_SHELL_FILE, "utf-8");
   assert.ok(
     content.includes("Illustrative data") || content.includes("LAN-only demo"),
     "PortalShell must mark demo data as illustrative/demo",
+  );
+  assert.ok(
+    !content.includes('>Edge online<'),
+    "PortalShell must not show unqualified 'Edge online' badge; must indicate stub/demo mode",
   );
 });
 
@@ -38,6 +42,14 @@ test("Docs pages contain prototype/demo disclosures and no deceptive claims", ()
     assert.ok(
       !content.includes("100% GDPR certified by EU Authority"),
       `Page ${file} must not claim official EU certification prior to legal review`,
+    );
+    assert.ok(
+      !content.includes("€2k–€5k"),
+      `Page ${file} must use standardized setup fee range €2k–€4k`,
+    );
+    assert.ok(
+      !content.includes("€18k–€48k"),
+      `Page ${file} must use standardized annual upside range €14k–€32k`,
     );
   }
 });

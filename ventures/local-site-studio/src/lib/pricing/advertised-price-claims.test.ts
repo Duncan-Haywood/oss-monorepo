@@ -58,6 +58,7 @@ const TRANSACTIONAL_SURFACES = [
   "src/app/page.tsx",
   "src/app/layout.tsx",
   "src/components/preview/category-preview.tsx",
+  "src/app/docs/product-bundles/page.tsx",
 ];
 
 /**

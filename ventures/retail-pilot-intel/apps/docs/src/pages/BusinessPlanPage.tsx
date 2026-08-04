@@ -331,8 +331,8 @@ export function BusinessPlanPage() {
       <h3>Pilot (design partner)</h3>
       <ul>
         <li>
-          <strong>Setup:</strong> €1.5k–€3k one-time (edge kit install, POS
-          adapter, DPIA support, 2 weeks onsite/remote tuning) — can be
+          <strong>Setup:</strong> €2k–€4k one-time (prototype estimate: edge kit install, POS
+          adapter, DPIA support, 2 weeks tuning) — can be
           discounted for case-study rights
         </li>
         <li>
@@ -345,7 +345,7 @@ export function BusinessPlanPage() {
           administer
         </li>
       </ul>
-      <h3>Commercial offer (post-pilot)</h3>
+      <h3>Commercial offer (post-pilot prototype roadmap)</h3>
       <DataTable
         headers={["Tier", "Includes", "Indicative price"]}
         rows={[
@@ -355,13 +355,13 @@ export function BusinessPlanPage() {
             "€149–€249 / store / month",
           ],
           [
-            "Margin+",
-            "SKU zones, desirability gap, experiment registry",
+            "Margin+ (Planned)",
+            "SKU zones, desirability gap, experiment registry (in development)",
             "€299–€449 / store / month",
           ],
           [
-            "Street",
-            "Outdoor window funnel + display experiment hooks",
+            "Street (Planned)",
+            "Outdoor window funnel + display experiment hooks (roadmap add-on)",
             "+€100–€150 / month add-on",
           ],
         ]}

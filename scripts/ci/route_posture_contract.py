@@ -78,12 +78,26 @@ COVERAGE_BASELINE_PATH = "platform/coverage-baseline.yaml"
 # entire anonymous endpoint.
 ROUTE_FILENAMES = ("route.ts", "route.tsx", "route.js", "route.jsx", "route.mjs")
 
-# Directories that never contain first-party source.
-PRUNED_DIRS = frozenset({"node_modules", ".next", ".git", "dist", "build", ".turbo", "coverage"})
+# Directories that never contain first-party source, at any depth. Descending
+# into these is never right: `node_modules` is somebody else's code, and the
+# rest are build output or VCS internals.
+VENDOR_DIRS = frozenset({"node_modules", ".next", ".git", ".turbo"})
 
-# `export async function GET(` / `export function POST(`. Matches the shape the
-# three existing contracts already parse, so this audit counts what they count.
-HANDLER_RE = re.compile(r"^\s*export\s+(?:async\s+)?function\s+([A-Z][A-Z0-9_]*)\s*\(", re.MULTILINE)
+# Build-output names that are *also* legal URL segments. `/api/build/route.ts`
+# is a real endpoint whose directory happens to be called `build`, and pruning
+# by name alone made three unguarded handlers invisible to this audit. So these
+# are pruned everywhere except inside an App Router tree, where the name is a
+# path segment rather than an artifact directory.
+ARTIFACT_DIRS = frozenset({"dist", "build", "coverage", "out"})
+
+# Kept for callers that import the old name; it is the union of both sets.
+PRUNED_DIRS = VENDOR_DIRS | ARTIFACT_DIRS
+
+# `export async function GET(` / `export const GET =`. Matches functions and arrow-const handlers.
+ROUTE_HANDLER_RE = re.compile(r"^\s*export\s+(?:async\s+)?(?:function|(?:const|let|var))\s+([A-Z][A-Z0-9_]*)\b", re.MULTILINE)
+
+# Server Actions: exported functions in files containing `"use server"` or `'use server'`.
+ACTION_HANDLER_RE = re.compile(r"^\s*export\s+(?:async\s+)?(?:function|(?:const|let|var))\s+([a-zA-Z0-9_]+)\b", re.MULTILINE)
 
 # `contract` is required unless the venture is exempt: an exempt venture may
 # have no contract written yet, which is a different gap from having written
@@ -136,8 +150,20 @@ def find_repo_root(start: Optional[Path] = None) -> Path:
     raise SystemExit("route posture audit: could not locate the repository root")
 
 
+def _is_route_or_action(entry: Path) -> bool:
+    if entry.name in ROUTE_FILENAMES:
+        return True
+    if entry.suffix in (".ts", ".tsx", ".js", ".jsx", ".mjs"):
+        try:
+            content = entry.read_text(encoding="utf-8", errors="replace")
+            return '"use server"' in content or "'use server'" in content
+        except OSError:
+            return False
+    return False
+
+
 def _walk_routes(root: Path) -> Iterable[Path]:
-    """Yield every route module under `root`, skipping vendored directories."""
+    """Yield every route module and server action file under `root`, skipping vendored directories."""
     if not root.is_dir():
         return
     stack = [root]
@@ -153,9 +179,20 @@ def _walk_routes(root: Path) -> Iterable[Path]:
                 # a worktree. Following it would scan the whole dependency tree.
                 continue
             if entry.is_dir():
-                if entry.name not in PRUNED_DIRS:
-                    stack.append(entry)
-            elif entry.name in ROUTE_FILENAMES:
+                if entry.name in VENDOR_DIRS:
+                    continue
+                if entry.name in ARTIFACT_DIRS:
+                    # Only a directory *under* an `app/` tree can be a URL
+                    # segment. Anywhere else a directory called `build` or
+                    # `coverage` is an artifact, and walking it would scan
+                    # compiled output as though it were routes. The ancestors
+                    # are checked, not the entry itself, so a venture whose
+                    # App Router root is literally `app/build` is still read.
+                    ancestors = entry.relative_to(root).parts[:-1]
+                    if "app" not in ancestors:
+                        continue
+                stack.append(entry)
+            elif _is_route_or_action(entry):
                 yield entry
 
 
@@ -170,8 +207,12 @@ def measure_surface(repo_root: Path, venture: str) -> Surface:
             source = route.read_text(encoding="utf-8", errors="replace")
         except OSError:
             continue
-        for method in HANDLER_RE.findall(source):
-            surface.handlers.append(f"{rel} {method}")
+        if route.name in ROUTE_FILENAMES:
+            for method in ROUTE_HANDLER_RE.findall(source):
+                surface.handlers.append(f"{rel} {method}")
+        elif '"use server"' in source or "'use server'" in source:
+            for action in ACTION_HANDLER_RE.findall(source):
+                surface.handlers.append(f"{rel} {action}")
     return surface
 
 

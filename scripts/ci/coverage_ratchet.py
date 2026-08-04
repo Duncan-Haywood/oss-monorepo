@@ -566,7 +566,7 @@ def uncommitted_component_paths(
     cannot describe the tree, and the generic diagnosis below is still true.
     Raising would convert a reportable failure into a crash.
     """
-    env = {**os.environ, "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_CONFIG_NOSYSTEM": "1"}
+    env = {**os.environ, "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_CONFIG_NOSYSTEM": "1", "XDG_CONFIG_HOME": "/dev/null"}
     try:
         completed = subprocess.run(
             ["git", "-C", str(repo_root), "status", "--porcelain", "--", component_path],
@@ -675,6 +675,8 @@ def run_coverage(repo_root: Path, entry: Dict[str, Any]) -> tuple[Optional[Measu
         env["COVERAGE_LCOV_DESTINATION_DIR"] = str(tmpdir)
         # Keep the child from picking up developer git identity or shell rc files.
         env["GIT_CONFIG_GLOBAL"] = os.devnull
+        env["GIT_CONFIG_NOSYSTEM"] = "1"
+        env["XDG_CONFIG_HOME"] = os.devnull
         tmp_cov_dir = workdir / "coverage" / ".tmp"
         if tmp_cov_dir.exists():
             shutil.rmtree(tmp_cov_dir, ignore_errors=True)

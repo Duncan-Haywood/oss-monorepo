@@ -109,8 +109,8 @@ const PACKAGE_TREES = ['ventures', 'portfolio'];
  */
 const PRICE_LITERAL = /[$€£]\s?\d{1,3}(?:,\d{3})*(?:\.\d{2})?/g;
 
-/** Path segments that name a step in taking money from a customer. */
-const PURCHASE_PATH = /(^|\/)(checkout|pricing|subscribe|billing|buy|plans)(\/|\.)/i;
+/** Path segments that name a step in taking money from a customer or presenting financial terms. */
+const PURCHASE_PATH = /(^|\/)(checkout|pricing|subscribe|billing|buy|plans|order|cart|pay|payment|purchase|upgrade|donate|commercial-viability|business-plan|roi)(\/|\.|$)/i;
 
 /** The longest number of days an unwritten contract may stay unwritten. */
 const MAX_EXPIRY_DAYS = 180;
@@ -132,6 +132,10 @@ const MAX_EXPIRY_DAYS = 180;
 const REGISTRY = {
   'ventures/local-site-studio': {
     contract: 'src/lib/pricing/advertised-price-claims.test.ts',
+  },
+
+  'ventures/retail-pilot-intel/apps/docs': {
+    contract: '../../packages/analytics/tests/claims-contract.test.ts',
   },
 
   'ventures/print-atelier': {
@@ -304,6 +308,16 @@ function vitestIncludes(packageRoot) {
 function collects(packageRoot, contract, script) {
   if (!script) return { ok: false, why: 'the package.json declares no `test` script' };
 
+  // `pnpm -r run test` does not name the contract; it delegates to every
+  // workspace package's own `test`. Resolving that delegation is the whole
+  // point — assuming it collects would vouch for a run this cannot read, which
+  // is the failure mode the rest of this function exists to avoid. So follow it
+  // one level down and ask each workspace package the same question.
+  const recursive = script.match(/^pnpm\s+(?:-r|--recursive)\s+(?:run\s+)?([\w:-]+)/);
+  if (recursive) {
+    return collectsViaWorkspace(packageRoot, contract, recursive[1], script);
+  }
+
   const tokens = script.split(/\s+/).filter(Boolean);
   const paths = tokens.filter((token) => !token.startsWith('-') && /[/*]/.test(token));
 
@@ -335,15 +349,99 @@ function collects(packageRoot, contract, script) {
   };
 }
 
+/**
+ * Resolve `pnpm -r run <name>` by asking each workspace package whether *its*
+ * `<name>` script collects the contract.
+ *
+ * The contract is registered relative to the package that advertises the price,
+ * which is not the package whose test run covers it — retail-pilot-intel
+ * advertises in `apps/docs` and asserts in `packages/analytics`. So the path is
+ * lifted to repo-relative once and re-expressed against each candidate package.
+ */
+function collectsViaWorkspace(packageRoot, contract, scriptName, script) {
+  const workspaceRoot = findWorkspaceRoot(packageRoot);
+  if (!workspaceRoot) {
+    return { ok: false, why: `\`${script}\` recurses, but no pnpm-workspace.yaml declares the members` };
+  }
+
+  const target = path.normalize(path.join(packageRoot, contract));
+  const reached = [];
+
+  for (const member of workspacePackages(workspaceRoot)) {
+    const memberScript = JSON.parse(
+      fs.readFileSync(path.join(REPO_ROOT, member, 'package.json'), 'utf8')
+    ).scripts?.[scriptName];
+    if (!memberScript) continue;
+    reached.push(member);
+
+    // `path.relative` can climb out of the member with `..`, which no runner
+    // glob would ever match — that is the correct answer, not a bug: it means
+    // this member's run does not reach the contract.
+    const fromMember = path.relative(member, target);
+    if (collects(member, fromMember, memberScript).ok) return { ok: true };
+  }
+
+  return {
+    ok: false,
+    why:
+      `\`${script}\` recurses, and none of the ${reached.length} workspace ` +
+      `package(s) declaring a \`${scriptName}\` script collect it ` +
+      `(${reached.join(', ') || 'none found'})`,
+  };
+}
+
+/** The nearest ancestor of `packageRoot` declaring a pnpm workspace. */
+function findWorkspaceRoot(packageRoot) {
+  let dir = packageRoot;
+  for (;;) {
+    if (fs.existsSync(path.join(REPO_ROOT, dir, 'pnpm-workspace.yaml'))) return dir;
+    const parent = path.dirname(dir);
+    if (parent === dir || dir === '.') return null;
+    dir = parent;
+  }
+}
+
+/**
+ * Every tracked package under a workspace root, as repo-relative directories.
+ *
+ * Read from `git ls-files` rather than the filesystem: a manifest inside an
+ * untracked build directory is not part of the run CI checks out, and walking
+ * the tree would also have to re-derive the vendored-directory exclusions.
+ */
+function workspacePackages(workspaceRoot) {
+  const output = execFileSync('git', ['ls-files', '--', `${workspaceRoot}/**/package.json`], {
+    cwd: REPO_ROOT,
+    encoding: 'utf8',
+    env: { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null' },
+  });
+  return output
+    .split('\n')
+    .filter(Boolean)
+    .filter((file) => !file.includes('node_modules/'))
+    .map((file) => path.dirname(file));
+}
+
 function testScriptFor(packageRoot) {
-  const manifest = path.join(REPO_ROOT, packageRoot, 'package.json');
-  if (!fs.existsSync(manifest)) return null;
-  return JSON.parse(fs.readFileSync(manifest, 'utf8')).scripts?.test ?? null;
+  let dir = path.join(REPO_ROOT, packageRoot);
+  while (dir.startsWith(REPO_ROOT)) {
+    const manifest = path.join(dir, 'package.json');
+    if (fs.existsSync(manifest)) {
+      const scripts = JSON.parse(fs.readFileSync(manifest, 'utf8')).scripts || {};
+      if (scripts.test || scripts.ci) return scripts.test || scripts.ci;
+    }
+    if (dir === REPO_ROOT) break;
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return null;
 }
 
 function catalogEntryFor(packageRoot) {
   return VENTURE_CATALOG.find(
-    (component) => (component.packageDir || component.dir) === packageRoot
+    (component) =>
+      (component.packageDir || component.dir) === packageRoot ||
+      packageRoot.startsWith((component.packageDir || component.dir) + '/')
   );
 }
 

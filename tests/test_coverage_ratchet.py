@@ -72,7 +72,7 @@ SAMPLE_LCOV = textwrap.dedent(
 def component(**overrides):
     entry = {
         "id": "demo",
-        "path": "platform/ci",
+        "path": "ventures/mat-470-real-analysis",
         "owner": "duncan",
         "command": ["node", "--version"],
         "sources": ["src/**/*.mjs"],

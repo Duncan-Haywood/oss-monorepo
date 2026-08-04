@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { resolveBundleCheckoutLeadSlug } from "@/lib/checkout/organic-attribution";
 import { CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
+import {
+  advertisedPriceRefusal,
+  bundleCheckoutExpectations,
+  verifyAdvertisedPrices,
+} from "@/lib/pricing/advertised-price-guarantee";
 import { BUNDLES, COMMERCE_ADDON, getBundle } from "@/lib/pricing/bundles";
 import { recordCheckoutSessionCreated } from "@/lib/db";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
@@ -95,9 +100,11 @@ export async function POST(request: Request) {
   ];
   let hasRecurring = false;
   const commerceAddonApplied = body.commerceAddon === true;
+  let monthlyPriceId: string | undefined;
+  let commerceAddonPriceIds: { setupPriceId: string; monthlyPriceId: string } | undefined;
 
   if (bundle.monthlyPriceIdEnv) {
-    const monthlyPriceId = process.env[bundle.monthlyPriceIdEnv];
+    monthlyPriceId = process.env[bundle.monthlyPriceIdEnv];
     if (!monthlyPriceId) {
       return notConfigured(`Set ${bundle.monthlyPriceIdEnv} to the Stripe Price ID for the ${bundle.name} monthly plan.`);
     }
@@ -113,12 +120,40 @@ export async function POST(request: Request) {
         `Set ${COMMERCE_ADDON.setupPriceIdEnv} and ${COMMERCE_ADDON.monthlyPriceIdEnv} for the Commerce add-on.`,
       );
     }
+    commerceAddonPriceIds = { setupPriceId: commerceSetupId, monthlyPriceId: commerceMonthlyId };
     lineItems.push({ price: commerceSetupId, quantity: 1 }, { price: commerceMonthlyId, quantity: 1 });
     hasRecurring = true;
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? new URL(request.url).origin;
   const stripe = new Stripe(secretKey);
+
+  // Ask Stripe what these Price IDs actually charge before creating anything.
+  // The env vars above are the only link between /docs/product-bundles' "$500"
+  // and the amount billed; a stale or test-mode id charges a different figure
+  // than the buyer was shown, and nothing else in this repo would notice. The
+  // same local variables feed both the line items and the expectations, and
+  // the billed ids are passed through so a line item nobody wrote an expected
+  // amount for is refused rather than charged unverified.
+  const priceCheck = await verifyAdvertisedPrices(
+    stripe,
+    bundleCheckoutExpectations({
+      bundle,
+      setupPriceId,
+      monthlyPriceId,
+      commerceAddon: commerceAddonPriceIds,
+    }),
+    lineItems.map((item) => item.price),
+  );
+  const refusal = advertisedPriceRefusal(priceCheck);
+  if (refusal) {
+    // The buyer's message is deliberately vague; the operator needs the detail,
+    // and this line is the only place it exists.
+    console.error(
+      `Refusing ${bundle.id} checkout — advertised price not guaranteed: ${refusal.body.reasons.join("; ")}`,
+    );
+    return NextResponse.json(refusal.body, { status: refusal.status });
+  }
 
   // Homepage CTAs omit slug — mint organic-* so webhook fulfillment + payment
   // stubs still create CRM/handoff rows after Stripe collects money.

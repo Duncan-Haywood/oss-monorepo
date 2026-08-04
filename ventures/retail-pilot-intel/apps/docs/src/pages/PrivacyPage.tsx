@@ -34,14 +34,14 @@ export function PrivacyPage() {
         <li>Sharing identifiable imagery without DPA</li>
       </ul>
 
-      <h2>Technical controls</h2>
+      <h2>Technical controls (planned prototype architecture)</h2>
       <DataTable
-        headers={["Control", "Implementation"]}
+        headers={["Control", "Target Specification"]}
         rows={[
-          ["On-device CV", "Inference on edge PC; RTSP not on internet"],
-          ["Aggregation at source", "AggregateEvent only"],
-          ["No identity linkage", "No join to loyalty/cardholder"],
-          ["Signage", "Italian Art. 13 notice at entrance"],
+          ["On-device CV (Target)", "Design spec: Inference on local edge PC; RTSP local-only"],
+          ["Aggregation at source", "AggregateEvent schema only"],
+          ["No identity linkage", "No join to loyalty/cardholder data"],
+          ["Signage template", "Italian Art. 13 notice template for entrance"],
         ]}
       />
 

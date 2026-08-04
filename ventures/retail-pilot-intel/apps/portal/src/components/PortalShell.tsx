@@ -92,7 +92,7 @@ export function PortalShell({
             {subtitle ? <p className="header-sub">{subtitle}</p> : null}
           </div>
           <div className="header-badges">
-            <span className="pill pill-ok">Edge online</span>
+            <span className="pill pill-ok">Edge: Stub mode</span>
             <span className="pill pill-secure">LAN-only demo</span>
           </div>
         </header>

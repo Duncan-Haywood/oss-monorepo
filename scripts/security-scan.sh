@@ -207,7 +207,7 @@ while IFS= read -r pkg_file; do
 # already audited at their source, so pruning one can hide no real manifest;
 # missing one costs a duplicate audit of a build artifact at best and an audit
 # of a stale vendored tree at worst.
-done < <(find "${REPO_ROOT}/ventures" "${REPO_ROOT}/portfolio" -type d \( -name "node_modules" -o -name ".next" -o -name ".open-next" -o -name ".turbo" -o -name ".vercel" -o -name ".pnpm-store" -o -name "dist" -o -name "build" \) -prune -o -name "package.json" -print 2>/dev/null)
+done < <(find "${REPO_ROOT}/ventures" "${REPO_ROOT}/portfolio" "${REPO_ROOT}/platform" -type d \( -name "node_modules" -o -name ".next" -o -name ".open-next" -o -name ".turbo" -o -name ".vercel" -o -name ".pnpm-store" -o -name "dist" -o -name "build" \) -prune -o -name "package.json" -print 2>/dev/null)
 
 # Secret Scanning in Node.js
 echo "Running Secret Exposure Audit..."
@@ -217,7 +217,7 @@ SECRET_RESULTS=$(node -e '
 
   const repoRoot = process.argv[1];
   const ignoreDirs = new Set(["node_modules", ".git", ".next", "dist", "build", ".venv", "venv", ".terraform"]);
-  const ignoreFiles = new Set(["SECURITY_ROADMAP.md", "package-lock.json", "security-scan.sh"]);
+  const ignoreFiles = new Set(["SECURITY_ROADMAP.md", "package-lock.json", "security-scan.sh", "test-security-scan.sh"]);
   const patterns = [/AWS_SECRET_ACCESS_KEY\s*=/i, /BEGIN\s+RSA\s+PRIVATE\s+KEY/i, /BEGIN\s+OPENSSH\s+PRIVATE\s+KEY/i];
 
   let matches = [];

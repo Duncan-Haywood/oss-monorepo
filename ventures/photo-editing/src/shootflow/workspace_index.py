@@ -458,6 +458,9 @@ def _workspace_health_artifact(root: Path) -> WorkspaceArtifactSummary:
             "render_scheduler_product_metrics": health[
                 "render_scheduler_product_metrics"
             ],
+            "render_scheduler_renderer_adapter": health[
+                "render_scheduler_renderer_adapter"
+            ],
             "task_count": health["task_count"],
             "workflow_authority": health["workflow_authority"],
             "status_counts": health["status_counts"],

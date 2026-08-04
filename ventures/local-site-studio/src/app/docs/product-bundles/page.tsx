@@ -1,5 +1,10 @@
 import { DocLink, DocPage } from "@/components/docs/doc-page";
 import { brand } from "@/lib/brand";
+import { BUNDLES, COMMERCE_ADDON } from "@/lib/pricing/bundles";
+
+const starter = BUNDLES.find((b) => b.id === "starter")!;
+const growth = BUNDLES.find((b) => b.id === "growth")!;
+const complete = BUNDLES.find((b) => b.id === "complete")!;
 
 export default function ProductBundlesDocPage() {
   return (
@@ -44,7 +49,7 @@ export default function ProductBundlesDocPage() {
         </tbody>
       </table>
 
-      <h2>Starter — $500 one-time</h2>
+      <h2>Starter — ${starter.setupPriceUsd} one-time</h2>
       <ul>
         <li>Category template landing page, mobile responsive</li>
         <li>Contact form, Google Maps, hours, basic SEO (form + map live on /preview/[slug])</li>
@@ -52,7 +57,7 @@ export default function ProductBundlesDocPage() {
         <li>Self-serve Stripe checkout</li>
       </ul>
 
-      <h2>Growth — $500 + $99/mo</h2>
+      <h2>Growth — ${growth.setupPriceUsd} + ${growth.monthlyPriceUsd}/mo</h2>
       <p>
         Everything in Starter plus AI marketing engine: 8 social/GBP posts + 2 emails/month,
         brand voice from site data. Operators generate a monthly pack on the leads dashboard and
@@ -63,7 +68,7 @@ export default function ProductBundlesDocPage() {
         once OAuth is configured.
       </p>
 
-      <h2>Complete — $500 + $199/mo</h2>
+      <h2>Complete — ${complete.setupPriceUsd} + ${complete.monthlyPriceUsd}/mo</h2>
       <p>
         Everything in Growth plus full marketing tier and client AI phone agent (answers their
         business line — booking, FAQ, lead capture). Until Twilio is live, operators fulfill with
@@ -75,7 +80,7 @@ export default function ProductBundlesDocPage() {
         voice pack / voice-packs-due blind elsewhere.
       </p>
 
-      <h2>Commerce — +$300 + $49/mo</h2>
+      <h2>Commerce — +${COMMERCE_ADDON.setupPriceUsd} + ${COMMERCE_ADDON.monthlyPriceUsd}/mo</h2>
       <p>
         Stacks on any bundle. Operator-editable catalog ≤50 SKUs on the live preview. Operator
         clicks Sync to Stripe on a saved catalog to create real Stripe Products/Prices per SKU

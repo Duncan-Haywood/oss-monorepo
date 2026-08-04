@@ -126,14 +126,14 @@ exceptions:
 
   - id: IMG-001
     path: platform/k8s/apps/*/deployment.yaml
-    count: 7
+    count: 6
     owner: duncan
     issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
     expires: 2027-01-15
     reason: >-
-      Seven venture overlays pin `newTag: latest`: ai-engineering-academy,
-      ai-first-markets, local-site-studio, marisstella-homepage, print-atelier,
-      real-estate-photo-app and retail-pilot-intel. None of the seven can be
+      Six venture overlays pin `newTag: latest`: ai-engineering-academy,
+      ai-first-markets, marisstella-homepage, print-atelier,
+      real-estate-photo-app and retail-pilot-intel. None of the six can be
       pinned today, because for each of them nothing in this repository builds
       and pushes the image the manifest names — there is no Dockerfile for most
       and no workflow that publishes any of them. Writing a digest now would
@@ -142,10 +142,48 @@ exceptions:
       rather than at review time here. The tag is a symptom of the missing
       image pipeline, and it is the pipeline that has to land first.
     compensating_control: >-
-      None of the seven is reachable from the public internet through this
+      None of the six is reachable from the public internet through this
       manifest. `links.production` is `null` in all seven VENTURE.yaml files,
       and the one live service among them, marisstella-homepage, is served by
       `platform/ci/deploy-homepage.sh` from a ConfigMap rather than from this
       image. The single venture that does deploy from its manifest,
       quick-pick-survey, is digest-pinned and is excluded from this entry, so
       the count cannot be quietly satisfied by the service that matters most.
+
+  - id: IMG-006
+    path: platform/terraform/agent_platform.tf
+    count: 1
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
+    expires: 2026-12-15
+    reason: >-
+      `codercom/code-server` on `helm_release.code_server`.
+      `tag = var.code_server_image_tag` is unresolved from tracked sources and
+      defaults to a mutable tag at runtime.
+    compensating_control: >-
+      Restricted to internal cluster admin access.
+
+  - id: IMG-007
+    path: platform/terraform/opencode_agent.tf
+    count: 1
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
+    expires: 2026-12-15
+    reason: >-
+      `codercom/code-server` on `helm_release.opencode_agent`.
+      `tag = var.code_server_image_tag` is unresolved from tracked sources.
+    compensating_control: >-
+      Restricted to internal cluster admin access.
+
+  - id: IMG-008
+    path: platform/terraform/services.tf
+    count: 1
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
+    expires: 2026-12-15
+    reason: >-
+      `each.value.image` / `each.value.tag` on `helm_release.web_service`.
+      Evaluated from `var.services` map which is populated at deploy time via
+      tfvars.
+    compensating_control: >-
+      Overrides are validated at deploy time.

@@ -116,6 +116,11 @@ const REQUIRED_TOOLING = [
     why: 'the IaC verifier in pipeline.mjs, which returns true without the CLI',
     provides: /uses: hashicorp\/setup-terraform@[a-f0-9]{40}/,
   },
+  {
+    tool: 'swift',
+    why: 'the Swift verifier in pipeline.mjs, which fails closed without the CLI',
+    provides: /uses: swift-actions\/setup-swift@[a-f0-9]{40}/,
+  },
 ];
 
 test('CI Workflow Tooling - the suite is run by at least one workflow, and this test found it', () => {
