@@ -62,6 +62,7 @@ const workflowFiles = () =>
     cwd: REPO_ROOT,
     encoding: 'utf8',
     maxBuffer: 1024 * 1024 * 16,
+    env: { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1' },
   })
     .split('\0')
     .filter(Boolean)

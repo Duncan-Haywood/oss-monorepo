@@ -21,14 +21,53 @@ import { test } from 'node:test';
  * This is the same class of defect as verify-contract.test.mjs covers between
  * the catalog and the venture declarations, one level up: a gate that cannot
  * execute where it is supposed to execute.
+ *
+ * 2026-08-04 — this file named `.gitea/workflows/ci-cd.yml` as a constant, which
+ * `docs/CONTROL-AUDIT-2026-08-04.md` finding 2 counted among four controls whose
+ * entire input was one hardcoded directory. The assertions here are genuinely
+ * about the workflow that *runs the suite* rather than about workflows in
+ * general — a venture's build workflow does not run `scripts/test-ci.sh` and has
+ * no business installing pytest or actionlint. So the fix is not a wider
+ * assertion, it is a discovered subject: every tracked workflow is read, and the
+ * ones that invoke the suite are the ones held to the tooling contract. That is
+ * a property of a workflow's content, not of the directory it sits in, so
+ * nothing is exempt by location; a venture workflow that started running the
+ * suite tomorrow would be checked the same way. The empty-selection case fails
+ * rather than passing over nothing.
  */
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const TEST_CI = path.join(REPO_ROOT, 'scripts/test-ci.sh');
-const WORKFLOW = path.join(REPO_ROOT, '.gitea/workflows/ci-cd.yml');
+
+/**
+ * The two places this repository keeps workflows: the monorepo's own Gitea CI,
+ * and the per-venture GitHub workflows that ship inside each venture directory.
+ */
+const WORKFLOW_PATHSPECS = ['.gitea/workflows', 'ventures/*/.github/workflows'];
+
+/** Every tracked workflow file, read from the git index rather than a directory. */
+function trackedWorkflows() {
+  return execFileSync('git', ['ls-files', '-z', '--', ...WORKFLOW_PATHSPECS], {
+    cwd: REPO_ROOT,
+    encoding: 'utf8',
+    maxBuffer: 1024 * 1024 * 16,
+  })
+    .split('\0')
+    .filter(Boolean)
+    .filter((entry) => entry.endsWith('.yml') || entry.endsWith('.yaml'))
+    .sort()
+    .map((relative) => ({ relative, source: fs.readFileSync(path.join(REPO_ROOT, relative), 'utf8') }));
+}
+
+const ALL_WORKFLOWS = trackedWorkflows();
+
+/**
+ * The workflows that execute `scripts/test-ci.sh`. These, and only these, owe
+ * the suite its tooling — which is why the selection is by what the file runs.
+ */
+const SUITE_WORKFLOWS = ALL_WORKFLOWS.filter(({ source }) => /scripts\/test-ci\.sh/.test(source));
 
 const testCiSource = fs.readFileSync(TEST_CI, 'utf8');
-const workflowSource = fs.readFileSync(WORKFLOW, 'utf8');
 
 /**
  * Every external tool a gate in test-ci.sh shells out to, and the evidence that

@@ -59,6 +59,7 @@ function trackedWorkflowPaths() {
     cwd: REPO_ROOT,
     encoding: 'utf8',
     maxBuffer: 1024 * 1024 * 16,
+    env: { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1' },
   });
   return listed
     .split('\0')
