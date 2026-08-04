@@ -33,7 +33,7 @@ export default function ProductBundlesDocPage() {
           </tr>
           <tr>
             <td>Complete</td>
-            <td>Never miss a call or customer</td>
+            <td>Scripts and lead capture for every call</td>
             <td>Phone-heavy — home services, appointment salons</td>
           </tr>
           <tr>

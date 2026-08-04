@@ -41,7 +41,9 @@ export default function BusinessModelDocPage() {
           <tr>
             <td>Complete</td>
             <td>$500 + $199/mo</td>
-            <td>Growth + full marketing + client AI phone agent</td>
+            <td>
+              Growth + full marketing + client AI call script pack (phone agent pending Twilio)
+            </td>
           </tr>
           <tr>
             <td>Commerce add-on</td>
