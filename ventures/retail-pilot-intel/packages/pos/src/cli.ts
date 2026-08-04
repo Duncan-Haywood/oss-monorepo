@@ -8,8 +8,10 @@ const sample = process.argv.includes("--sample");
 const outDir = resolve("data/pos/inbox");
 
 if (!sample) {
+  // Exit non-zero: no POS adapter ran, so nothing was ingested. Exiting 0 makes
+  // a cron read a permanently broken POS ingest as a successful run.
   console.error("POS ingest: use --sample or drop JSON in data/pos/inbox");
-  process.exit(0);
+  process.exit(1);
 }
 
 const event: SaleEvent = {
@@ -30,6 +32,9 @@ const event: SaleEvent = {
   payment_class: "card",
   pos_vendor: "stub",
   raw_reference: "RCP-0001",
+  // Generated here, not read from a POS. See the edge CLI for why analytics
+  // needs to know.
+  synthetic: true,
 };
 
 mkdirSync(outDir, { recursive: true });

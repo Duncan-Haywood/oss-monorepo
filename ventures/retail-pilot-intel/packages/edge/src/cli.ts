@@ -8,8 +8,10 @@ const sample = process.argv.includes("--sample");
 const outDir = resolve("data/aggregates/outbox");
 
 if (!sample) {
+  // Exit non-zero: a scheduled ingest that produced no events has failed, and a
+  // cron that reads exit 0 here would report a dead camera feed as healthy.
   console.error("Edge ingest not connected to RTSP. Use --sample for a test event.");
-  process.exit(0);
+  process.exit(1);
 }
 
 const now = new Date();
@@ -27,6 +29,10 @@ const event: AggregateEvent = {
   value: 1,
   unit: "count",
   metadata: { model: "stub", version: "0.1.0" },
+  // Generated here, not seen by a camera. Analytics uses this to refuse to
+  // report a measured funnel rather than to print one that is 100% by
+  // construction.
+  synthetic: true,
 };
 
 mkdirSync(outDir, { recursive: true });
