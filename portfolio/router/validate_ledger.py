@@ -28,18 +28,34 @@ The failure mode is quiet and it runs in the flattering direction:
   spend, and the next allocation is computed from it. The allocator ends up
   reading its own output as evidence about the world, and a venture that drew
   nothing decays exactly as if it had spent its whole grant.
+- A month that is never written at all is the same defect one level up. Every
+  reader of this directory sums the months it finds, so an absent month is not
+  an absent record, it is a lower number. `check_continuity` covers holes inside
+  the recorded span and `check_freshness` covers the tail.
 
-That middle one is why the ledger README's rule — "Record outcomes even when they
+That third one is why the ledger README's rule — "Record outcomes even when they
 are nothing", the "spent $80, nothing shipped" row — cannot be written today. It
 needs a per-venture cost signal to sit against the outcome, and an even split is
 not one.
 
+The unwritten-month case is worth stating plainly, because it disables the
+portfolio's only working brake. `portfolio/router/kill_criteria.py` evaluates a
+venture's stopping rules against `cumulative_agent_spend_usd`, which is this
+directory summed. Stop recording months and that total freezes, so a threshold
+the owner set is never reached however much is actually spent — the rule does
+not fire, and it does not report that it could not. Until 2026-08-03 staleness
+was a warning here, and `scripts/test-ci.sh` runs this validator without
+`--strict`, so nothing acted on it; a skipped interior month was not detected in
+any form.
+
 This validator reports; it does not correct. `portfolio/router/README.md` is
 explicit that changing a venture's recorded economics reallocates budget and is
 the portfolio owner's call, and the ledger README forbids rewriting history at
-all. Structural defects that would corrupt the join are errors. Provenance and
-completeness problems in already-closed months are warnings, because they can
-only be annotated, not reconstructed.
+all. Structural defects that would corrupt the join are errors, as is a month
+missing from the record, because the remedy is to write the month rather than to
+rewrite a closed one. Provenance and completeness problems *within* an
+already-closed month stay warnings, because those can only be annotated, not
+reconstructed.
 
 Run `python3 portfolio/router/validate_ledger.py` to report, or with `--strict`
 to exit non-zero on warnings as well as errors.
@@ -312,6 +328,15 @@ def months_between(earlier: str, later: str) -> Optional[int]:
     )
 
 
+def shift_month(period: str, offset: int) -> Optional[str]:
+    """The `YYYY-MM` period `offset` whole months after `period`."""
+    match = PERIOD_PATTERN.match(period)
+    if not match:
+        return None
+    total = int(match.group(1)) * 12 + (int(match.group(2)) - 1) + offset
+    return f"{total // 12:04d}-{total % 12 + 1:02d}"
+
+
 def validate_entry(
     entry: Any, period: str, index: int, ventures: set
 ) -> List[Finding]:
@@ -568,7 +593,80 @@ def check_duplicate_ventures(entries: List[Any], period: str) -> List[Finding]:
     return findings
 
 
+def check_continuity(periods: List[str]) -> List[Finding]:
+    """Every month between the oldest and newest recorded period must be present.
+
+    `check_freshness` reads only `max(periods)`, so a hole in the middle of the
+    record is invisible to it: a ledger holding 2026-05 and 2026-11 is one month
+    behind in December and reports nothing about the five months missing between
+    them.
+
+    A hole is not cosmetic. `build_ledger_facts` in
+    `portfolio/router/kill_criteria.py` sums `agent_spend_usd` across whatever
+    months happen to be on disk, so an absent month lowers
+    `cumulative_agent_spend_usd` — the metric behind the only stopping rule the
+    portfolio can currently evaluate. The error runs in the flattering
+    direction, which is this validator's recurring theme: a venture that has
+    drawn past its threshold reads as though it has not, and the brake that
+    exists to stop funding it does not fire.
+
+    The span is bounded by the recorded months themselves, so months from before
+    the ledger existed fall outside it by construction and are never reported.
+    Backfilling those is neither possible nor wanted — the ledger README forbids
+    rewriting history, and the figures were never captured.
+    """
+    recorded = sorted(p for p in periods if PERIOD_PATTERN.match(p))
+    if len(recorded) < 2:
+        return []
+
+    oldest, newest = recorded[0], recorded[-1]
+    span = months_between(oldest, newest)
+    if span is None:
+        return []
+
+    present = set(recorded)
+    findings: List[Finding] = []
+    for offset in range(1, span):
+        month = shift_month(oldest, offset)
+        if month is None or month in present:
+            continue
+        findings.append(
+            Finding(
+                period=month,
+                severity="error",
+                code="ledger-gap",
+                message=(
+                    f"no {month}.yaml, but the ledger records both {oldest} and {newest}"
+                ),
+                remedy=(
+                    "Record the month, with zero spend if that is what happened. Every "
+                    "reader of this directory sums the months it finds, so a skipped "
+                    "month silently lowers cumulative spend rather than announcing "
+                    "itself — and cumulative spend is what the venture stopping rules "
+                    "in portfolio/router/kill_criteria.py measure against."
+                ),
+            )
+        )
+    return findings
+
+
 def check_freshness(periods: List[str], today: Optional[date] = None) -> List[Finding]:
+    """The newest recorded month must not fall behind the calendar.
+
+    This is an error rather than a warning, and deliberately so. An unrecorded
+    month is the failure that disables the portfolio's only working brake:
+    `cumulative_agent_spend_usd` stops moving, so a spend threshold that would
+    otherwise fire never does, and budget keeps flowing to a venture that has
+    already passed the point its owner said it should stop. A finding that
+    cannot fail a build does not prevent that — `scripts/test-ci.sh` runs this
+    validator without `--strict`, so as a warning this was reported to nobody.
+
+    It is the one check here whose result depends on the date, which means the
+    gate turns red on a schedule if the ledger is not kept. That is the whole
+    point: the only way to clear it is to record the month. Widening
+    `STALE_LEDGER_MONTHS` clears it too, and doing so silently is precisely the
+    erosion this control exists to make visible.
+    """
     if not periods:
         return []
 
@@ -581,7 +679,7 @@ def check_freshness(periods: List[str], today: Optional[date] = None) -> List[Fi
     return [
         Finding(
             period=newest,
-            severity="warn",
+            severity="error",
             code="stale-ledger",
             message=f"newest recorded period is {behind} months behind {current}",
             remedy=(
@@ -651,6 +749,7 @@ def validate_all(repo_root: Optional[Path] = None, today: Optional[date] = None)
 
         findings.extend(validate_period(data, period, ventures, allocations))
 
+    findings.extend(check_continuity(periods))
     findings.extend(check_freshness(periods, today))
     return findings
 
