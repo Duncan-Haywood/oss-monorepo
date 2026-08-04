@@ -1,6 +1,6 @@
 # Listing Lens — Real Estate Agent Photo App
 
-Listing Lens is an AI-first iPhone real estate photography concept: pro-level listing media in 30 minutes, directly from an agent's phone. The product focuses on guided capture, instant AI enhancement, optional cloud polish, MLS-ready delivery, lightweight 3D/video outputs, and agent branding.
+Listing Lens is an iPhone real estate photography concept: pro-level listing media in 30 minutes, directly from an agent's phone. What runs today is guided capture, a deterministic `sharp` enhancement pass (auto-orientation, exposure and contrast normalisation, sharpening, MLS-ready resize), MLS-ready delivery, and agent branding. Cloud polish, 3D and video outputs are planned and not built, and no AI model is involved in any shipped step — see [STRATEGY.md](STRATEGY.md) for which parts of the workflow exist.
 
 **Status:** Concept / market validation
 
