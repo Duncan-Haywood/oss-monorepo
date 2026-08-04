@@ -123,14 +123,14 @@ const REGISTRY = {
       owner: 'duncan',
       issue: 'docs/ENGINEERING-ROADMAP.md#now-establish-and-enforce-the-baseline',
       expires: '2026-12-01',
-      priceLiterals: 96,
+      priceLiterals: 94,
       reason:
         'Advertises a $29/month premium tier and ships a /subscribe route. Its ' +
         'own copy states the tier "has never been sold and there is no payment ' +
         'path", and src/lib/subscription.ts tells a subscriber they have not ' +
         'been charged — so the venture is currently honest about the gap and ' +
         'the risk is that it stops being so once a payment path lands. Most of ' +
-        'the 96 literals are market-commentary figures in src/data/ideas.ts, ' +
+        'the 94 literals are market-commentary figures in src/data/ideas.ts, ' +
         'not offers. The contract should be written with the payment path, not ' +
         'before it.',
     },

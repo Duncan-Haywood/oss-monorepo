@@ -1,7 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { basename, dirname, join, relative, resolve } from "node:path";
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 /**
@@ -70,18 +71,41 @@ const CONTRACTS = [
 /** Directories never worth scanning for source. */
 const IGNORED = new Set(["node_modules", ".next", ".git", "dist", "build", "coverage", ".turbo"]);
 
-/** Every directory under the repository that contains an `src/app` tree. */
-function componentsWithRoutes(dir = REPO_ROOT, found = []) {
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    if (!entry.isDirectory() || IGNORED.has(entry.name)) continue;
-    const path = join(dir, entry.name);
-    if (entry.name === "app" && basename(dirname(path)) === "src" && routeHandlers(path).size > 0) {
-      found.push(relative(REPO_ROOT, resolve(path, "../..")));
-      continue;
-    }
-    componentsWithRoutes(path, found);
+/**
+ * Every directory the repository *tracks* that contains an `src/app` tree
+ * serving route handlers.
+ *
+ * This asks git rather than walking the filesystem, and the difference is not
+ * cosmetic. Walking found `src/app` trees inside `.claude/worktrees/`, where
+ * four whole copies of this repository had been left by earlier agent runs, and
+ * reported all five ventures four more times as unregistered components. The
+ * `IGNORED` denylist below cannot fix that class of bug: it has to name each
+ * offending directory in advance, and the next scratch directory is one nobody
+ * has thought of yet. Anything git ignores or does not track is, by definition,
+ * not part of the repository this control is describing.
+ *
+ * The fail-closed half survives intact. A new venture only reaches CI by being
+ * committed, and the moment it is, its handlers are tracked and appear here.
+ */
+function componentsWithRoutes() {
+  const tracked = execFileSync("git", ["ls-files", "-z", "--", "*/src/app/**/route.ts", "*/src/app/**/route.tsx", "src/app/**/route.ts", "src/app/**/route.tsx"], {
+    cwd: REPO_ROOT,
+    encoding: "utf8",
+    maxBuffer: 64 * 1024 * 1024,
+  })
+    .split("\0")
+    .filter(Boolean);
+
+  const found = new Set();
+  for (const file of tracked) {
+    // `<component>/src/app/.../route.ts` — take everything before `/src/app/`.
+    const marker = file.indexOf("src/app/");
+    if (marker < 0) continue;
+    const component = file.slice(0, marker).replace(/\/$/, "");
+    const appRoot = join(REPO_ROOT, component, "src/app");
+    if (existsSync(appRoot) && routeHandlers(appRoot).size > 0) found.add(component);
   }
-  return found;
+  return [...found];
 }
 
 /**
@@ -201,6 +225,40 @@ test("every component that serves route handlers has a registered posture contra
     [],
     "these components serve route handlers with no route auth posture contract; write one and register it above",
   );
+});
+
+test("an untracked scratch copy of a component is not mistaken for a new one", () => {
+  // The regression. Four copies of this repository under `.claude/worktrees/`
+  // made this control report all five ventures four extra times, and the fix
+  // has to hold for a scratch directory nobody has named yet — so the fixture
+  // deliberately is not `.claude`, and is not in `IGNORED`.
+  const name = "scratch-route-posture-fixture";
+  const fixture = join(REPO_ROOT, name, "src", "app", "api", "thing");
+  mkdirSync(fixture, { recursive: true });
+  try {
+    writeFileSync(join(fixture, "route.ts"), "export async function GET() { return new Response('x') }\n");
+    // Untracked and *not* gitignored, so passing this means the scanner keys on
+    // what git tracks rather than on any denylist. `.gitignore` matching alone
+    // would not have caught this fixture.
+    assert.equal(
+      execFileSync("git", ["ls-files", "--", name], { cwd: REPO_ROOT, encoding: "utf8" }).trim(),
+      "",
+      "fixture must be untracked for this test to mean anything",
+    );
+    let ignored = true;
+    try {
+      execFileSync("git", ["check-ignore", "-q", "--", name], { cwd: REPO_ROOT, stdio: "ignore" });
+    } catch {
+      ignored = false; // check-ignore exits 1 when the path is not ignored
+    }
+    assert.equal(ignored, false, "fixture must not be gitignored, or it would prove only that the ignore list works");
+    assert.ok(
+      !componentsWithRoutes().includes(name),
+      "an untracked directory serving route handlers was reported as a component of this repository",
+    );
+  } finally {
+    rmSync(join(REPO_ROOT, name), { recursive: true, force: true });
+  }
 });
 
 test("every registered contract still belongs to a component that serves routes", () => {
