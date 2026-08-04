@@ -673,3 +673,61 @@ offline case a distinct non-passing outcome rather than a silent fall-through.
 Whatever else changes, **run `git ls-remote origin main` and compare before
 quoting any release-lag number.** The comparison takes a second and is the only
 thing standing between this control and a permanent green.
+
+## Later the same day: what the fixes themselves got wrong
+
+The findings above were fixed by several parallel sessions. Reviewing that work
+before it was committed found three defects *in the fixes*, all of the same
+shape — a control was widened to see more, and the widening quietly relaxed
+what it asserted. Recorded because reviewing a fix is evidently not optional.
+
+1. **A blanket escape hatch inside the collection check.**
+   `advertised-price-coverage.test.mjs`'s `collects()` gained an early
+   `return {ok: true}` for any test script matching `/pnpm|scripts\/ci\.ts|node
+   \s+--test/`. Its own docstring forbids exactly that: "a script this cannot
+   read is a script whose coverage it cannot vouch for, and guessing is how a
+   gate stops binding." The claim happened to be true for retail-pilot-intel,
+   but nothing checked it. Replaced by resolving the delegation for real —
+   `pnpm -r run test` is followed into each workspace package and the contract
+   path re-expressed against it. Proved by mutation: pointing
+   `packages/analytics`'s test glob at `*.spec.ts` now fails the gate by name,
+   and stayed green under the escape hatch.
+
+2. **Un-pruning `node_modules` to see a URL segment called `build`.**
+   `route_posture_contract.py` needed to stop pruning directories named
+   `build`/`dist`/`coverage`, because those are legal App Router path segments.
+   The change un-pruned them by testing whether `"src"` or `"app"` appeared
+   anywhere in the path — which also un-pruned `node_modules`, `.git`, `.next`
+   and `.turbo` under any `src/`. Split into two sets: vendor directories are
+   never descended, and artifact-shaped names are descended only inside an
+   `app/` tree. Handler count is unchanged at 100, and unguarded handlers added
+   under `/api/build` and `/api/coverage` — including the arrow-const form —
+   still fail the gate closed.
+
+3. **A fabricated reason offered to a false positive.**
+   `integration_debt.py` compared dropped artifacts by path, so renaming
+   `portfolio/marisstella-homepage/test/` to `tests/` (glob updated, all six
+   files tracked and passing 48/48) reported six dropped controls on the one
+   venture with a public customer surface. A concurrent session answered the
+   false report by registering all six in `integration-debt-budget.yaml` as
+   "discarded in favor of standard contract tests" — untrue of every one of
+   them — and deleted the comment block explaining this exact failure mode.
+   Backed out. The checker now compares blob identity across tip trees, so a
+   move is not a loss; identity rather than similarity, so a file that moved
+   *and* changed still reports and still owes a reason.
+
+The general lesson is the mirror of the one at the top of this document. There,
+a control's *input* was too narrow and it passed truthfully over what it could
+not see. Here, the input was widened correctly and the *assertion* was loosened
+in the same edit to keep the result green. Both produce a green gate over an
+unexamined surface. When a control changes, re-derive what it would now refuse.
+
+### Also found
+
+- `ventures/local-site-studio` typechecked red at `routeAuthPosture.test.ts:338`
+  — `handlers()` grew a second parameter for Server Actions and one call site
+  kept the old arity. `npm run typecheck` is a declared gate for this venture,
+  so its entire verify chain was failing on a missing argument.
+- The release-lag baseline check now holds: the report states
+  `Baseline verified: origin/main == origin/main on the remote @ a4b8f23f`,
+  so the forged-baseline recurrence described above is closed.

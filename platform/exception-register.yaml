@@ -247,7 +247,7 @@ exceptions:
     kind: lint-suppression
     path: ventures/print-atelier/src/*
     code: react-hooks/set-state-in-effect
-    count: 3
+    count: 4
     owner: duncan
     issue: docs/EXCEPTION-REGISTER.md#exc-015
     expires: 2027-01-31
@@ -258,11 +258,24 @@ exceptions:
       initializer, would make the server's first render and the client's
       disagree and produce a hydration mismatch. The effect is the reason the
       pattern is correct, not an oversight. Same rule and same shape as EXC-003.
+
+      Raised 3 -> 4 on 2026-08-04. The fourth is `setHydrated(true)` on the
+      line after the checkout cart's `setCart(...)`, in the same mount-only
+      effect and covered by the same argument, added with the fix that stopped
+      an empty cart falling back to `buildSampleCheckoutCart()` — which had
+      been showing a shopper two priced prints they never chose with a live pay
+      button under them. The flag exists because the persist effect beside it
+      has to distinguish "cart is empty" from "storage has not been read yet";
+      without it, removing the last line never persisted and the removed print
+      came back on the next visit. So this is one more line of the same
+      pattern, not a new kind of suppression.
     compensating_control: >-
       Each disable is a single next-line suppression sitting on the setState
       call itself, never a file-level one, so any other state set in those
-      components is still checked. All three effects have an empty dependency
-      array and run once; none of them writes state that another effect reads.
+      components is still checked. All four effects have an empty dependency
+      array and run once. The one pair that shares an effect writes `cart` and
+      `hydrated`, and the effect that reads `hydrated` only ever writes to
+      storage — no suppressed setState feeds another effect's state.
 
   - id: EXC-016
     kind: lint-suppression
