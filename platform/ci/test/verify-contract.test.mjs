@@ -12,7 +12,9 @@ const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, '../../..');
 const VENTURES_DIR = path.join(REPO_ROOT, 'ventures');
 const VERIFY_COMPONENT = path.join(REPO_ROOT, 'scripts/ci/verify-component.sh');
-const WORKFLOW_PATHSPECS = ['.gitea/workflows', 'ventures/*/.github/workflows'];
+// The two places this repository keeps workflows: the monorepo's own Gitea CI,
+// and the per-venture GitHub workflows that ship inside each venture directory.
+const WORKFLOW_PATHSPECS = ['.gitea/workflows', 'ventures/*/.github/workflows/*'];
 
 /**
  * A venture's quality gates are declared in more than one place, and only some
@@ -329,10 +331,34 @@ test('Verify Contract - verify-component.sh runs the same gates as the CI catalo
 });
 
 /**
- * Workflows that pin themselves to one venture with a top-level
- * `defaults.run.working-directory`. Anything they run inline is a gate for that
- * venture, so the catalog is the floor they have to clear.
+ * Workflows that belong to exactly one venture. Anything they run inline is a
+ * gate for that venture, so the catalog is the floor they have to clear.
+ *
+ * Two ways a workflow says which venture it is: a top-level
+ * `defaults.run.working-directory` inside `.gitea/workflows`, or simply living
+ * at `ventures/<name>/.github/workflows/`. Until 2026-08-04 only the first was
+ * read, because the collection was a listing of `.gitea/workflows` —
+ * `docs/CONTROL-AUDIT-2026-08-04.md` finding 2. Both halves of that miss
+ * mattered: `ventures/print-atelier/.github/workflows/ci.yml` was outside the
+ * directory *and* declares no `defaults:` block, so it stayed invisible on two
+ * counts while running `npm ci && npm run build` for a venture whose catalog
+ * declares typecheck, lint, test and build. Its 749 tests gated nothing on the
+ * path that merges its own code.
+ *
+ * The list now comes from git across both roots, and a venture-local workflow
+ * takes its venture from its own path. No directory is exempt: this contract
+ * asks whether a workflow that runs *some* of a venture's gates runs all of
+ * them, and that question is identical wherever the file lives.
  */
+
+/** Whether a venture's package.json generates the Prisma client on install. */
+function prismaOnPostinstall(ventureRoot) {
+  const manifest = path.join(REPO_ROOT, ventureRoot, 'package.json');
+  if (!fs.existsSync(manifest)) return false;
+  const scripts = JSON.parse(fs.readFileSync(manifest, 'utf8')).scripts || {};
+  return /(?:^|\s|&&\s*)(?:npx )?prisma generate\b/.test(scripts.postinstall || '');
+}
+
 function ventureWorkflows() {
   const listed = execFileSync('git', ['ls-files', '-z', '--', ...WORKFLOW_PATHSPECS], {
     cwd: REPO_ROOT,
@@ -342,12 +368,15 @@ function ventureWorkflows() {
   const files = listed
     .split('\0')
     .filter(Boolean)
+    .filter((name) => name.startsWith('.gitea/workflows/') || name.includes('.github/workflows/'))
     .filter((name) => name.endsWith('.yml') || name.endsWith('.yaml'));
 
   return files
     .map((relative) => {
       const fullPath = path.join(REPO_ROOT, relative);
-      const name = path.basename(relative);
+      // The repository-relative path, not the basename: six ventures name their
+      // workflow `ci.yml`, and a drift report has to say which one.
+      const name = relative;
       const source = fs.readFileSync(fullPath, 'utf8');
       const pinned = source.match(/^defaults:\n\s+run:\n\s+working-directory:\s*(\S+)\s*$/m);
       let ventureRoot = pinned ? ventureRootOf(pinned[1]) : null;
@@ -363,17 +392,19 @@ function ventureWorkflows() {
       const gates = [];
       let delegatesToSharedScript = false;
       let generatesPrisma = false;
+      let installsDependencies = false;
       for (const line of source.split('\n')) {
         const step = line.trim().match(/^(?:- )?run:\s*(.+)$/);
         if (!step) continue;
         const command = step[1].trim();
         if (/verify-component\.sh\s/.test(command)) delegatesToSharedScript = true;
-        if (command === 'npx prisma generate') generatesPrisma = true;
+        if (/(?:^|\s)(?:npx )?prisma generate\b/.test(command)) generatesPrisma = true;
+        if (/^npm ci\b/.test(command)) installsDependencies = true;
         const token = gateTokenFor(command);
         if (token) gates.push(token);
       }
 
-      return { name, ventureRoot, gates, delegatesToSharedScript, generatesPrisma };
+      return { name, ventureRoot, gates, delegatesToSharedScript, generatesPrisma, installsDependencies };
     })
     .filter(Boolean);
 }
@@ -381,8 +412,19 @@ function ventureWorkflows() {
 test('Verify Contract - workflows that inline a venture gate run the whole catalog', () => {
   const catalog = catalogByVenture();
   const drift = [];
+  const workflows = ventureWorkflows();
 
-  for (const workflow of ventureWorkflows()) {
+  // The collection must keep spanning both roots. `.gitea/workflows` alone
+  // satisfied every other assertion in this test for as long as it was the only
+  // input, which is exactly how print-atelier's workflow went unread.
+  for (const root of ['.gitea/workflows/', 'ventures/']) {
+    assert.ok(
+      workflows.some((workflow) => workflow.name.startsWith(root)),
+      `no venture-scoped workflow under '${root}' reached this contract — the collection narrowed`
+    );
+  }
+
+  for (const workflow of workflows) {
     const components = catalog.get(workflow.ventureRoot);
     if (!components || workflow.delegatesToSharedScript) continue;
 
@@ -405,10 +447,18 @@ test('Verify Contract - workflows that inline a venture gate run the whole catal
 
     const hasPrisma = components.some((component) => component.hasPrisma);
     if (hasPrisma) {
+      // Two ways the client is generated before the gates run, and both are
+      // real: an explicit `prisma generate` step, or `npm ci` in a package
+      // whose `postinstall` runs it. Only the first was recognised until
+      // 2026-08-04, which was invisible while this contract read
+      // `.gitea/workflows` alone — the venture's own CI installs and lets
+      // postinstall generate, and would have been reported as checking an
+      // absent client that it in fact generates.
       assert.ok(
-        workflow.generatesPrisma,
-        `${workflow.name} runs ${workflow.ventureRoot} gates inline but never runs ` +
-          '`npx prisma generate`, so they check a stale or absent client'
+        workflow.generatesPrisma || (workflow.installsDependencies && prismaOnPostinstall(workflow.ventureRoot)),
+        `${workflow.name} runs ${workflow.ventureRoot} gates inline but never generates the ` +
+          'Prisma client — no `prisma generate` step and no `postinstall` that runs it, so the ' +
+          'gates check a stale or absent client'
       );
     }
   }

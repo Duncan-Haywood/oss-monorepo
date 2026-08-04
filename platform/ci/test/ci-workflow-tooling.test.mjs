@@ -43,7 +43,7 @@ const TEST_CI = path.join(REPO_ROOT, 'scripts/test-ci.sh');
  * The two places this repository keeps workflows: the monorepo's own Gitea CI,
  * and the per-venture GitHub workflows that ship inside each venture directory.
  */
-const WORKFLOW_PATHSPECS = ['.gitea/workflows', 'ventures/*/.github/workflows'];
+const WORKFLOW_PATHSPECS = ['.gitea/workflows', 'ventures'];
 
 /** Every tracked workflow file, read from the git index rather than a directory. */
 function trackedWorkflows() {
@@ -55,6 +55,7 @@ function trackedWorkflows() {
   })
     .split('\0')
     .filter(Boolean)
+    .filter((entry) => entry.startsWith('.gitea/workflows/') || entry.includes('.github/workflows/'))
     .filter((entry) => entry.endsWith('.yml') || entry.endsWith('.yaml'))
     .sort()
     .map((relative) => ({ relative, source: fs.readFileSync(path.join(REPO_ROOT, relative), 'utf8') }));

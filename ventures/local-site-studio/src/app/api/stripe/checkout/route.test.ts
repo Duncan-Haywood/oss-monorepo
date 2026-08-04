@@ -272,6 +272,58 @@ describe("POST /api/stripe/checkout", () => {
     );
   });
 
+  /**
+   * The organic path has no CRM lead, so this metadata key is the only thing
+   * that ever knows who bought. Without it webhook fulfillment names the
+   * customer after the minted slug — see buildPaymentStubLeadFields.
+   */
+  it("carries the buyer's business name into session metadata on an organic checkout", async () => {
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_named",
+      url: "https://checkout.stripe.com/named",
+    });
+    const { POST } = await import("./route");
+    const res = await POST(
+      checkoutRequest({ tier: "starter", businessName: "  Rivera Plumbing  " }),
+    );
+    expect(res.status).toBe(200);
+
+    const createArgs = sessionsCreate.mock.calls[0]![0] as {
+      metadata: Record<string, string>;
+    };
+    expect(createArgs.metadata.slug).toMatch(/^organic-/);
+    expect(createArgs.metadata.businessName).toBe("Rivera Plumbing");
+  });
+
+  it("omits the metadata key entirely when no business name was given", async () => {
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({ id: "cs_test_x", url: "https://checkout.stripe.com/x" });
+    const { POST } = await import("./route");
+    await POST(checkoutRequest({ tier: "starter", businessName: "   " }));
+
+    const createArgs = sessionsCreate.mock.calls[0]![0] as {
+      metadata: Record<string, string>;
+    };
+    expect(createArgs.metadata).not.toHaveProperty("businessName");
+  });
+
+  /** Stripe rejects the whole session create above 500 chars of metadata value. */
+  it("truncates an over-long business name instead of failing checkout", async () => {
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({ id: "cs_test_long", url: "https://checkout.stripe.com/l" });
+    const { POST } = await import("./route");
+    const res = await POST(
+      checkoutRequest({ tier: "starter", businessName: "N".repeat(900) }),
+    );
+    expect(res.status).toBe(200);
+
+    const createArgs = sessionsCreate.mock.calls[0]![0] as {
+      metadata: Record<string, string>;
+    };
+    expect(createArgs.metadata.businessName!.length).toBe(200);
+  });
+
   it("treats whitespace-only slug as missing and mints organic-*", async () => {
     setBundlePriceEnv();
     sessionsCreate.mockResolvedValue({

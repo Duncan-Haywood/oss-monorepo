@@ -133,6 +133,41 @@ describe("mapSqliteRowToLead", () => {
     expect(lead.hours).toEqual({ weekday: "Mon–Fri 9am–5pm", weekend: "Sat–Sun Closed" });
   });
 
+  /**
+   * Those defaults exist to make a *speculative* prospecting preview look
+   * complete — the page is the sales pitch. A payment_stub row is the opposite
+   * case: a customer who has already paid and about whom we know nothing.
+   * Re-filling their record on read would put a bakery slogan and a fictional
+   * phone number back on a real customer's own preview page, undoing what
+   * buildPaymentStubLeadFields deliberately left empty.
+   */
+  it("does not re-fabricate tagline/phone/state/description for a payment_stub row", () => {
+    const lead = mapSqliteRowToLead(
+      baseRow({
+        dataSource: "payment_stub",
+        businessName: "Rivera Plumbing",
+        state: undefined,
+        phone: undefined,
+        tagline: null,
+        description: null,
+      }),
+    );
+    expect(lead.businessName).toBe("Rivera Plumbing");
+    expect(lead.state).toBe("");
+    expect(lead.phone).toBe("");
+    expect(lead.tagline).toBe("");
+    expect(lead.description).toBe("");
+  });
+
+  it("still applies the prospecting defaults for every other dataSource", () => {
+    const lead = mapSqliteRowToLead(
+      baseRow({ dataSource: "csv_import", state: undefined, phone: undefined, tagline: null }),
+    );
+    expect(lead.state).toBe("CO");
+    expect(lead.phone).toBe("(555) 000-0000");
+    expect(lead.tagline).toBe("Local favorites made fresh daily");
+  });
+
   it("derives category-specific recommendedTier/tagline defaults when recommendedTier column is absent", () => {
     const trades = mapSqliteRowToLead(baseRow({ category: "trades", tagline: null }));
     expect(trades.recommendedTier).toBe("starter");

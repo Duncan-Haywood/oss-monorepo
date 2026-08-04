@@ -51,7 +51,7 @@ const REPO_ROOT = path.resolve(__dirname, '../../..');
  * The two places this repository keeps workflows: the monorepo's own Gitea CI,
  * and the per-venture GitHub workflows that ship inside each venture directory.
  */
-const WORKFLOW_PATHSPECS = ['.gitea/workflows', 'ventures/*/.github/workflows'];
+const WORKFLOW_PATHSPECS = ['.gitea/workflows', 'ventures'];
 
 /** Every tracked workflow file, discovered from the git index. */
 function trackedWorkflowPaths() {
@@ -64,6 +64,7 @@ function trackedWorkflowPaths() {
   return listed
     .split('\0')
     .filter(Boolean)
+    .filter((entry) => entry.startsWith('.gitea/workflows/') || entry.includes('.github/workflows/'))
     .filter((entry) => entry.endsWith('.yml') || entry.endsWith('.yaml'))
     .sort();
 }

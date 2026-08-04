@@ -425,6 +425,75 @@ describe("POST /api/stripe/webhook", () => {
     });
 
     /**
+     * The self-serve buyer has no CRM lead, so session metadata is the only
+     * carrier of their business name. If the webhook drops it, recordLeadPayment
+     * builds the paid stub from the minted organic-<hex> slug and the customer
+     * is named after their own session id on the receipt and their preview page.
+     */
+    it("passes the buyer's business name from session metadata to recordLeadPayment", async () => {
+      const session = checkoutSession({
+        metadata: {
+          slug: "organic-8f3a2b1c9d4e",
+          tier: "growth",
+          businessName: "Rivera Plumbing",
+        },
+        customer_details: { email: "owner@rivera.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
+      getLeadBySlug.mockResolvedValue(null);
+      updateDeployHandoffStatus.mockImplementation(
+        async (_slug: string, status: string, notes: string[]) => ({
+          ...existingHandoff({ status: status as DeployHandoff["status"] }),
+          notes: [...existingHandoff().notes, ...notes],
+        }),
+      );
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(recordLeadPayment).toHaveBeenCalledWith(
+        expect.objectContaining({
+          slug: "organic-8f3a2b1c9d4e",
+          buyerBusinessName: "Rivera Plumbing",
+        }),
+        { requireConvex: true },
+      );
+    });
+
+    it("names the receipt after the buyer, not the minted slug, when no CRM lead exists", async () => {
+      const session = checkoutSession({
+        metadata: {
+          slug: "organic-8f3a2b1c9d4e",
+          tier: "growth",
+          businessName: "Rivera Plumbing",
+        },
+        customer_details: { email: "owner@rivera.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
+      getLeadBySlug.mockResolvedValue(null);
+      updateDeployHandoffStatus.mockImplementation(
+        async (_slug: string, status: string, notes: string[]) => ({
+          ...existingHandoff({ status: status as DeployHandoff["status"] }),
+          notes: [...existingHandoff().notes, ...notes],
+        }),
+      );
+      const { POST } = await import("./route");
+
+      await POST(webhookRequest());
+      expect(sendReceiptEmail).toHaveBeenCalledWith(
+        "owner@rivera.test",
+        "Rivera Plumbing",
+        "growth",
+        expect.any(Number),
+      );
+      const dnsEmail = sendEmail.mock.calls[0]![0] as { subject: string };
+      expect(dnsEmail.subject).toContain("Rivera Plumbing");
+      expect(dnsEmail.subject).not.toContain("organic-8f3a2b1c9d4e");
+    });
+
+    /**
      * The mock send is the dangerous one, and it is the case a `.success`
      * check gets wrong. Without RESEND_API_KEY the helpers resolve
      * `{ success: true, mock: true }`: nothing left the process, but the send

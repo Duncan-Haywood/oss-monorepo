@@ -35,7 +35,7 @@ const NVMRC = path.join(REPO_ROOT, '.nvmrc');
  * 2026-08-04 — "the six workflow pins" was the whole population this file could
  * see, because it listed `.gitea/workflows` and nothing else.
  * `docs/CONTROL-AUDIT-2026-08-04.md` finding 2 measured the rest: 15 tracked
- * workflow files under `ventures/*/.github/workflows/`, four of which pinned
+ * workflow files under `ventures/<name>/.github/workflows/`, four of which pinned
  * Node 20 while the repository pinned 22 — print-atelier's CI among them, which
  * therefore built that venture on a major nothing else in the repository runs.
  *
@@ -55,7 +55,7 @@ const readNvmrc = () => fs.readFileSync(NVMRC, 'utf8').trim();
  * Enumerated from git so a new venture's workflows are covered on commit rather
  * than when somebody remembers to extend a list here.
  */
-const WORKFLOW_PATHSPECS = ['.gitea/workflows', 'ventures/*/.github/workflows'];
+const WORKFLOW_PATHSPECS = ['.gitea/workflows', 'ventures'];
 
 const workflowFiles = () =>
   execFileSync('git', ['ls-files', '-z', '--', ...WORKFLOW_PATHSPECS], {
@@ -66,6 +66,7 @@ const workflowFiles = () =>
   })
     .split('\0')
     .filter(Boolean)
+    .filter((name) => name.startsWith('.gitea/workflows/') || name.includes('.github/workflows/'))
     .filter((name) => name.endsWith('.yml') || name.endsWith('.yaml'))
     .sort()
     .map((relative) => path.join(REPO_ROOT, relative));
