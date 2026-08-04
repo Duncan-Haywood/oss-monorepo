@@ -1529,8 +1529,107 @@ evidence, and completion date before it can be marked done.
   pass, 424 Dagger-engine tests pass. One gate fails, `release_lag`, and it is
   supposed to — see below.
 
-- [ ] Reconcile `agent/integration-2026-08-04`, the last remaining independent
-  tip, so the pile is one reviewable release candidate instead of two. **Not
+- [x] Reconcile `agent/integration-2026-08-04b`, the last remaining independent
+  tip, so the pile is one reviewable release candidate instead of two. Owner
+  duncan, 2026-08-04, on `agent/integration-2026-08-04c`. The pass below
+  deferred this as an owner decision; it was done because deferring it was
+  costing more than the decision. `scripts/ci/integration_debt.py` now reports
+  **one tip over 49 refs and 48 commits** — shipping is one reviewed push.
+  The two engine choices that the deferral was protecting are stated here so
+  the owner reviews two decisions rather than 39 hunks:
+
+  * **The stop-loss engine: the `op`/`value` one won.** `kill_criteria.py` at
+    667 lines with a `MetricResolver`, `days_since:<anchor>` metrics, a
+    `portfolio/kill-criteria-register.yaml` with owner and expiry, and a
+    dedicated `portfolio/router/test_kill_criteria.py` — against 332 lines with
+    no suite of its own. It also fails closed where the other did not: a ledger
+    month that will not parse stops `kill_criteria_ratchet.py` instead of
+    reading as "these ventures recorded nothing", which is the unmeasurable
+    verdict rather than an error. The one venture with a measurable rule,
+    print-atelier, already declares `op`/`value`, so the surviving engine is the
+    one its brake is written against.
+  * **The commerce copy: this branch's wording won.** `page.tsx` sells an "AI
+    call script pack", not an "AI phone agent". The rival branch's page still
+    said phone agent, which `src/lib/capability-claims.test.ts` forbids because
+    no telephony provider is declared or imported. Resolving that hunk the
+    other way would have re-shipped the false claim the test exists to stop.
+
+  The merge found three defects that existed only in the combination:
+
+  * `portfolio/router/validate_ventures.py` merged clean and called
+    `kill_criteria.build_ledger_facts`, which the surviving engine does not
+    have. Every criterion it evaluates raised `AttributeError`, so the venture
+    contract validator could not report a fired stopping rule at all — a clean
+    auto-merge across two engines, which is the shape no conflict marker shows
+    you. Four of its own tests caught it.
+  * `scripts/ci/cap_ratchet.py` carried five caps twice. Both branches had
+    registered `image_tags`, `sast_scan`, `stopping_rule_review` and
+    `coverage_ratchet` — same constants, different prose.
+    `test_no_watch_is_declared_twice` caught it.
+  * `scripts/test-ci.sh` registered two gates twice: the scanner contract under
+    one name repeated, and the component-verification contract under two
+    different names. 24 registrations over 22 distinct commands. Nothing caught
+    this, because every existing question was satisfied — the command runs, it
+    can fail, and something invokes it. What was wrong was the arithmetic.
+    `platform/ci/test/gate-wiring.test.mjs` now fails on a repeated command and
+    on one name used for two commands, the second being worse: a failure is
+    then attributed to whichever gate the reader assumes. Verified against the
+    pre-merge file, where it finds both.
+
+  `platform/integration-debt-budget.yaml` registers the ten drops the merge
+  made — two duplicate controls, each carried by five separate branches. The
+  count is the finding: five branches independently built the same
+  lockfile-audit control and five carried the same rival release-lag schema.
+
+  **And then it happened again, within the hour.** A concurrent session merged
+  the same two branches and published `agent/integration-2026-08-04c` seven
+  minutes before this one tried to push the same name. Two independent, largely
+  correct resolutions of the same 39 hunks, each costing a session. That is the
+  fourth time the fleet has built one thing twice this week, and unlike the
+  earlier cases the *cost* here is not the duplicated effort — it is that the
+  tip count went straight back to 2 and nobody would have known which candidate
+  to ship. Reconciled immediately, into `agent/integration-2026-08-04d`; one tip
+  again over 51 refs.
+  Reconciling the two integrations found a defect neither had on its own — or
+  rather, one that this branch had and the other had already fixed.
+  `portfolio/router/router.py` carried a **124-line duplicate tail**: a second
+  `main()`, `find_repo_root`, `load_ventures`, and the closing half of
+  `compute_allocation`'s return, all after `if __name__ == "__main__"`. It came
+  in from `agent/integration-2026-08-04b` and it parses, imports and passes
+  1139 tests, because Python binds the later definition and the later copy was
+  the good one — so the *first* `main()` and the first `find_repo_root` were
+  dead code that read exactly like the live ones. The queue row's `funded`
+  field was missing from one copy and present in the other. Nothing in this
+  repository looks for a module that defines the same name twice; the two-way
+  merge is what surfaced it, by producing two copies where the other branch had
+  one. Worth a control, not yet written.
+  What generalizes: `scripts/ci/branch_collisions.py` already counts files two
+  live branches are both building. It measured this collision correctly and
+  nobody read it before starting. The gap is not the measurement.
+
+  Verified at `2ede739` in a clean clone on Node 22.22.3: 19 of 22 named gates
+  pass, 1139 of 1141 pytest tests pass, 112 Dagger-engine contract tests pass,
+  quick-pick-survey 425 of 425, local-site-studio 1270 of 1270 with `tsc
+  --noEmit` clean. The three red gates are `Coverage Baseline Ratchet` and the
+  `Pairwise Unit Suite`, both of which report an uninstalled component in a
+  fresh clone and say so precisely rather than as a test failure, and the
+  pytest suite, whose only two failures are those same two conditions: the
+  coverage basis and `release_lag`.
+
+  Not done: this reconciles the branches, not the ledger. `release_lag` is
+  still red and still correct, and nothing here is live. It also does not
+  reconcile the *documentation* of the two engines — the prose in
+  `portfolio/router/router.py` still says `allocate.py` is what reads the
+  criteria, which stopped being true when this module grew
+  `evaluate_stopping_rules`. And the two folds of the ledger the losing branch
+  had unified are two again: `router.py` sums `agent_spend_usd` itself to decay
+  the explore grant while `kill_criteria.py` reads the same rows for the brake,
+  so a change to how spend is counted moves the money in one engine and the
+  brake in the other.
+
+- [ ] ~~Reconcile `agent/integration-2026-08-04`~~, superseded by the entry
+  above. Recorded verbatim because the reasoning for deferring it was sound and
+  the decision to override it should be visible next to it. **Not
   attempted, deliberately.** It is a second, parallel integration of the same
   source branches rather than a missing merge, so the conflicts are two
   implementations of the same decisions: 39 hunks across 10 files, including

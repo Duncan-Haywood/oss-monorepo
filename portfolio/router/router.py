@@ -711,6 +711,9 @@ def route_portfolio(repo_root: Optional[Path] = None, total_monthly_budget: floa
             "rationale": a.rationale,
             "suggested_focus": a.suggested_focus,
             "funded": a.funded,
+            # Carried on every row, not only the triggered ones. A consumer has
+            # to be able to tell a venture inside its stopping rule from one
+            # with no stopping rule to be inside of, and both used to be absent.
             "stopping_rule": a.stopping_rule,
             "kill_reasons": a.kill_reasons,
             "withheld_budget_usd": a.withheld_spend,
