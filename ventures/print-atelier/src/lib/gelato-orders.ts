@@ -1,5 +1,9 @@
 import type { OrderRecord } from "./orders";
 import {
+  describeMissingBuyerShipping,
+  resolveBuyerShippingAddress,
+} from "./buyer-shipping";
+import {
   defaultGelatoVariantMappings,
   resolveGelatoProductUid,
   type GelatoVariantMapping,
@@ -64,7 +68,13 @@ function readMetadataString(
 }
 
 function splitName(fullName: string): { firstName: string; lastName: string } {
-  const parts = fullName.trim().split(/\s+/);
+  const trimmed = fullName.trim();
+  if (trimmed === "") {
+    // No name to split. Returning a stand-in here would defeat the guard in
+    // `queueGelatoFulfillmentFromOrder`, which reads the resolution, not this.
+    return { firstName: "", lastName: "" };
+  }
+  const parts = trimmed.split(/\s+/);
   if (parts.length === 1) {
     return { firstName: parts[0] ?? "Buyer", lastName: "Print Atelier" };
   }
@@ -79,11 +89,12 @@ export function buildGelatoOrderPayload(
   paymentMetadata: Record<string, unknown> = {},
   variantMappings: GelatoVariantMapping[] = defaultGelatoVariantMappings,
 ): GelatoOrderPayload {
-  const region = order.shippingRegion ?? "EU";
-  const countryCode = region === "UK" ? "GB" : region.slice(0, 2).toUpperCase();
-  const shippingName =
-    readMetadataString(paymentMetadata, "shippingName") ?? "Print Atelier Buyer";
-  const { firstName, lastName } = splitName(shippingName);
+  // The buyer's own address, with no substitutions — see `buyer-shipping.ts`.
+  // `region` no longer decides the country: "EU".slice(0,2) produced the
+  // country code "EU", and "APAC" produced "AP", neither of which is a country.
+  const { address } = resolveBuyerShippingAddress(paymentMetadata);
+  const countryCode = address.countryCode;
+  const { firstName, lastName } = splitName(address.name);
   const catalogSlug = readMetadataString(paymentMetadata, "catalogSlug") ?? "sample-print";
   const buyerEmail =
     readMetadataString(paymentMetadata, "buyerEmail") ?? "buyer@printatelier.com";
@@ -116,11 +127,10 @@ export function buildGelatoOrderPayload(
     shippingAddress: {
       firstName,
       lastName,
-      addressLine1:
-        readMetadataString(paymentMetadata, "shippingAddress1") ?? "10 Market Street",
-      city: readMetadataString(paymentMetadata, "shippingCity") ?? "London",
-      state: readMetadataString(paymentMetadata, "shippingState") ?? "",
-      postCode: readMetadataString(paymentMetadata, "shippingZip") ?? "EC1A 1BB",
+      addressLine1: address.address1,
+      city: address.city,
+      state: address.state,
+      postCode: address.postalCode,
       country: countryCode,
       email: buyerEmail,
     },
@@ -173,6 +183,21 @@ export async function queueGelatoFulfillmentFromOrder(
 
   const payload = buildGelatoOrderPayload(order, paymentMetadata);
   const envStatus = getGelatoEnvStatus(env);
+
+  // Fail closed before the dry-run branch, for the reason given in
+  // `queuePrintfulFulfillmentFromOrder`.
+  const shipping = resolveBuyerShippingAddress(paymentMetadata);
+  if (!shipping.ok) {
+    return recordGelatoFulfillmentSubmission({
+      orderId: order.orderId,
+      partner: "gelato",
+      mode: "dry_run",
+      status: "blocked",
+      apiEndpoint: GELATO_ORDERS_ENDPOINT,
+      payload,
+      message: describeMissingBuyerShipping(shipping.missing),
+    });
+  }
 
   if (!envStatus.ready) {
     return {

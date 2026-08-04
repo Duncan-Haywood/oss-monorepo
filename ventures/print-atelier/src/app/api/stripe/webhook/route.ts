@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireOperator } from "@/lib/api-auth";
+import { extractStripeShippingMetadata } from "@/lib/buyer-shipping";
 import {
   getStripeWebhookEnvStatus,
   processStripeConnectWebhookEvent,
@@ -76,10 +77,19 @@ export async function POST(request: Request) {
   const result = processStripeConnectWebhookEvent(event);
   const ledgerEntry = recordStripeWebhookToLedger(event.id, event.type, result);
   const paymentObject = event.data.object as Record<string, unknown>;
-  const paymentMetadata =
+  const rawMetadata =
     typeof paymentObject.metadata === "object" && paymentObject.metadata !== null
       ? (paymentObject.metadata as Record<string, unknown>)
       : {};
+  // Stripe does not put a collected shipping address in `metadata` — it hangs
+  // it off the PaymentIntent as `shipping`. The fulfillment adapters read
+  // metadata, so lift it across here rather than teaching each adapter the
+  // event shape. Explicit metadata wins, so a manually corrected address is not
+  // overwritten by the one the buyer first typed.
+  const paymentMetadata: Record<string, unknown> = {
+    ...extractStripeShippingMetadata(paymentObject),
+    ...rawMetadata,
+  };
 
   const orderRecord = recordOrderFromPaymentWebhook(
     event.id,

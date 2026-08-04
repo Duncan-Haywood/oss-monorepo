@@ -1,4 +1,5 @@
 import type Stripe from "stripe";
+import { shippingAddressCollectionCountries } from "./buyer-shipping";
 import type { CheckoutSessionPayload } from "./checkout";
 
 export type StripeCheckoutCreateParams = Stripe.Checkout.SessionCreateParams;
@@ -22,6 +23,16 @@ export function buildStripeCheckoutCreateParams(
     success_url: payload.successUrl,
     cancel_url: payload.cancelUrl,
     metadata: payload.metadata,
+    // The storefront promises prints "shipped directly to your door" and the
+    // fulfillment partners need a real recipient. Without this, Stripe never
+    // asks for one and every order reaches the print partner addressless.
+    shipping_address_collection: {
+      allowed_countries: shippingAddressCollectionCountries(
+        payload.shippingRegion,
+      ) as Stripe.Checkout.SessionCreateParams.ShippingAddressCollection.AllowedCountry[],
+    },
+    // Stripe copies the address collected above onto the PaymentIntent, which
+    // is the object the fulfillment webhook receives.
     payment_intent_data: {
       metadata: payload.metadata,
     },
