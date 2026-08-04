@@ -94,8 +94,14 @@ MAX_DECLARED_SLACK = 40
 # 31 branches). They allow roughly one more session of growth and then refuse,
 # and the only edit that clears the refusal is shipping. Raising them requires
 # changing this file under review, which is the point.
-MAX_DECLARED_UNSHIPPED_COMMITS = 250
-MAX_DECLARED_BRANCHES = 50
+# Restored 250 -> 150 and 50 -> 40 on 2026-08-04. `2fdcf837` raised both while
+# the declared budget was 125 commits / 32 branches — already inside the
+# original caps — so the widening bought nothing the budget needed and only
+# moved the ceiling this comment exists to hold. The cap ratchet caught it,
+# which is the control working. Restoring costs nothing: 125 <= 150 and
+# 32 <= 40 both still hold.
+MAX_DECLARED_UNSHIPPED_COMMITS = 150
+MAX_DECLARED_BRANCHES = 40
 
 # The exception register's horizon, for the same reason.
 MAX_EXPIRY_DAYS = 180
