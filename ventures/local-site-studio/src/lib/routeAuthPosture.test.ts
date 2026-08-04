@@ -344,6 +344,9 @@ describe("route auth posture", () => {
         "  return NextResponse.json({});",
         "}",
       ].join("\n"),
+      // HTTP route handlers, not Server Actions: the two are parsed by
+      // different rules and this case is about the uppercase method exports.
+      false,
     );
     expect([...parsed.keys()]).toEqual(["POST", "GET"]);
     expect(parsed.get("GET")).not.toContain("checkRateLimit");
