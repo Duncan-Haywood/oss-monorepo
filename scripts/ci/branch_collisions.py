@@ -35,6 +35,13 @@ Distinguishes a genuine duplicate from shared history: a file added by one
 commit and inherited by thirty descendant branches is one creation, not thirty.
 Only the set of distinct *creating commits* counts.
 
+The baseline is verified against the remote before anything is counted. It used
+to be read straight from `refs/remotes/origin/main` — a local file that was
+overwritten by hand four times in this repository, which shrank the release-lag
+gate from 336 to 2 and would shrink this count the same way, since commits the
+baseline already contains cannot collide. `scripts/ci/baseline_trust.py` carries
+the evidence and does the check.
+
 Usage:
     python3 scripts/ci/branch_collisions.py            # audit, exit 1 over budget
     python3 scripts/ci/branch_collisions.py --report   # always exit 0
@@ -53,6 +60,13 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence
 
+# Sibling module. Explicit rather than relying on `sys.path[0]`, so this keeps
+# working when the file is imported rather than executed.
+if str(Path(__file__).resolve().parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from baseline_trust import describe as describe_trust, trust_findings, verify_baseline
+
 BUDGET_PATH = "platform/release-lag-budget.yaml"
 
 # Declared here rather than in YAML: the number that matters is zero, and a
@@ -70,6 +84,18 @@ MAX_COLLIDING_PATHS = 6
 
 class CollisionError(Exception):
     """A failure that must not be reported as a pass."""
+
+
+class BaselineUnverified(CollisionError):
+    """The baseline could not be shown to be the remote's.
+
+    Separate from `CollisionError` because the two are tolerated differently.
+    "The branches are not present here" is a fact about the checkout; "the ref
+    I am measuring against may have been written by hand" is a fact about the
+    measurement's integrity, and a caller that swallows the first must not
+    swallow the second by accident. `tests/test_branch_collisions.py` had
+    exactly that hole: `except CollisionError: return`.
+    """
 
 
 @dataclass
@@ -92,8 +118,29 @@ def _git(args: Sequence[str], repo_root: Path) -> str:
     return result.stdout
 
 
-def find_collisions(repo_root: Path, baseline_ref: str = "origin/main") -> List[Collision]:
-    """Paths created by more than one commit that is not in the baseline."""
+def find_collisions(repo_root: Path, baseline_ref: str = "origin/main", verify: bool = True) -> List[Collision]:
+    """Paths created by more than one commit that is not in the baseline.
+
+    This counts against `origin/main` for the same reason `release_lag.py` does,
+    and it read that ref the same way: straight out of
+    `refs/remotes/origin/main`, a local file that has been written by hand in
+    this repository four times (see `scripts/ci/baseline_trust.py` for the
+    reflog). A doctored baseline shrinks this count exactly as it shrank the
+    release-lag one — commits that are "already in main" cannot collide — so the
+    baseline is verified against the remote before anything is counted.
+
+    Raises rather than returning findings because this control's whole output is
+    one number, and there is no honest number to return for a baseline nobody
+    could confirm.
+    """
+    if verify:
+        trust = verify_baseline(repo_root, baseline_ref)
+        problems = trust_findings(trust)
+        if problems:
+            raise BaselineUnverified(
+                f"{problems[0][1]} Refusing to report a collision count against an unverified baseline."
+            )
+
     if (repo_root / ".git" / "shallow").exists():
         raise CollisionError(
             "shallow clone: the branches that collide are not present, so this cannot be "
@@ -175,8 +222,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     try:
         collisions = find_collisions(repo_root)
     except CollisionError as exc:
+        status = "baseline-unverified" if isinstance(exc, BaselineUnverified) else "not-measurable"
         if args.json:
-            print(json.dumps({"ok": False, "status": "not-measurable", "error": str(exc)}, indent=2))
+            print(json.dumps({"ok": False, "status": status, "error": str(exc)}, indent=2))
         else:
             print(f"FAIL: {exc}", file=sys.stderr)
         return 0 if args.report else 1

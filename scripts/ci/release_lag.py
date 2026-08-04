@@ -38,6 +38,15 @@ an expired budget, or a declared value over its cap is a failure, not a skip.
 That is the specific way this repository's gates have been found to lie: a
 missing input reported PASSED for work it never did.
 
+The baseline itself is verified against the remote before it is believed. It
+used to be read straight from `refs/remotes/origin/main`, which is a local file
+any process may write — and in this repository it was written by hand four
+times, each time making this gate report `Unshipped commits: 2` when the true
+figure was 336. `scripts/ci/baseline_trust.py` carries the reflog evidence and
+does the checking; a baseline that disagrees with `git ls-remote`, or that could
+not be checked at all, is a finding here rather than a silent fall-through to
+whatever the local ref happens to say.
+
 What it does not do: it does not push, merge, or deploy anything. Shipping is
 an outward action and remains a human decision. This only makes the size of the
 undeployed pile visible on every run instead of once a fortnight by accident.
@@ -62,6 +71,13 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence
 
 import yaml
+
+# Sibling module. Explicit rather than relying on `sys.path[0]`, so this keeps
+# working when the file is imported rather than executed.
+if str(Path(__file__).resolve().parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from baseline_trust import BaselineTrust, describe as describe_trust, trust_findings, verify_baseline
 
 BUDGET_PATH = "platform/release-lag-budget.yaml"
 
@@ -133,6 +149,11 @@ class Measurement:
     fetch_age_days: Optional[int] = None
     observable: bool = True
     observability_note: str = ""
+    # What the remote says about `baseline_ref`. `None` means nobody asked,
+    # which `evaluate` treats as a failure rather than as consent — the
+    # baseline was forged here once, and "we did not check" is the state that
+    # made it work.
+    trust: Optional[BaselineTrust] = None
 
 
 @dataclass
@@ -163,15 +184,27 @@ def _days_between(earlier_epoch: int, now_epoch: int) -> int:
     return max(0, int((now_epoch - earlier_epoch) // 86400))
 
 
-def measure(repo_root: Path, baseline_ref: str, now_epoch: Optional[int] = None) -> Measurement:
+def measure(
+    repo_root: Path,
+    baseline_ref: str,
+    now_epoch: Optional[int] = None,
+    verify: bool = True,
+) -> Measurement:
     """Measure the gap between local branches and the baseline ref.
 
     Fails closed: an unresolvable baseline ref raises rather than measuring
     zero lag, because "the ref is missing" and "everything is shipped" are the
     same number otherwise.
+
+    The baseline is also checked against the remote here rather than in the CLI,
+    because the CLI is not what gates this repository — `tests/test_release_lag.py`
+    is, and it calls `measure` and `evaluate` directly. A check that lived only
+    in `main()` would leave the gate reading a ref nobody verified.
     """
     if now_epoch is None:
         now_epoch = int(time.time())
+
+    trust = verify_baseline(repo_root, baseline_ref) if verify else None
 
     # A shallow clone has no local branch topology: `actions/checkout` fetches
     # one ref at depth 1, so "nothing is undelivered" is trivially true there
@@ -186,6 +219,7 @@ def measure(repo_root: Path, baseline_ref: str, now_epoch: Optional[int] = None)
             unshipped_commits=0,
             branches_ahead=0,
             oldest_unshipped_age_days=0,
+            trust=trust,
             observable=False,
             observability_note=(
                 "shallow clone: local branch topology is not present, so undelivered work "
@@ -254,6 +288,7 @@ def measure(repo_root: Path, baseline_ref: str, now_epoch: Optional[int] = None)
         components=components,
         branch_names=sorted(branch_names),
         fetch_age_days=fetch_age_days,
+        trust=trust,
     )
 
 
@@ -363,6 +398,24 @@ def evaluate(measurement: Measurement, data: Dict[str, Any], today: date) -> Lis
     budget = data["budget"]
     findings: List[Finding] = list(check_expiry(data, today))
 
+    # The baseline's trustworthiness is checked before anything is compared
+    # against it, and before the shallow-clone short-circuit below: whether the
+    # ref reflects the remote has nothing to do with whether local branch
+    # topology is present, and a shallow clone must not become an amnesty for a
+    # forged baseline. `None` means the caller measured with `verify=False`,
+    # which is a finding of its own — the one arrangement that let a hand-written
+    # ref pass for production was that nobody asked.
+    if measurement.trust is None:
+        findings.append(
+            Finding(
+                "baseline-unverified",
+                f"the baseline {measurement.baseline_ref} was never checked against the remote, so this "
+                f"measurement rests on a local file that any process may write. Measure with verify=True.",
+            )
+        )
+    else:
+        findings.extend(Finding(check, message) for check, message in trust_findings(measurement.trust))
+
     # The budget's expiry is a property of the document and is checked
     # everywhere. The lag comparisons are not, because their subject is absent.
     if not measurement.observable:
@@ -410,15 +463,24 @@ def evaluate(measurement: Measurement, data: Dict[str, Any], today: date) -> Lis
 
 def format_report(measurement: Measurement, data: Dict[str, Any], findings: Sequence[Finding]) -> str:
     budget = data["budget"]
+    trust = measurement.trust
+    trust_lines = [describe_trust(trust)] if trust is not None else ["Baseline UNVERIFIED: never checked"]
     if not measurement.observable:
-        lines = ["=== Release lag ===", f"NOT MEASURABLE HERE: {measurement.observability_note}"]
+        lines = ["=== Release lag ===", *trust_lines, f"NOT MEASURABLE HERE: {measurement.observability_note}"]
         if findings:
             lines.append(f"FAIL: {len(findings)} finding(s)")
             lines.extend(f"  [{f.check}] {f.message}" for f in findings)
         return "\n".join(lines)
 
+    if trust is None or not trust.verified:
+        trust_lines.append(
+            "The figures below are measured against that unverified baseline and are not evidence "
+            "about what is live."
+        )
+
     lines = [
         "=== Release lag ===",
+        *trust_lines,
         f"Baseline:            {measurement.baseline_ref} @ {measurement.baseline_sha} "
         f"({measurement.baseline_age_days} days old)",
         f"Unshipped commits:   {measurement.unshipped_commits} (budget {budget['max_unshipped_commits']}, "
@@ -459,6 +521,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     try:
         data = load_budget(repo_root)
+        # `measure` asks the remote whether `baseline_ref` is really the
+        # baseline before anything is counted against it.
+        # `refs/remotes/origin/main` is a local file, and in this repository it
+        # has been overwritten by hand four times.
         measurement = measure(repo_root, data["baseline_ref"])
         findings = evaluate(measurement, data, date.today())
     except LagError as exc:
@@ -471,12 +537,18 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if args.json:
         # `ok` is not enough for a consumer: a run that measured nothing would
         # otherwise be indistinguishable from a run that measured zero lag.
+        verified = measurement.trust is not None and measurement.trust.verified
         status = "fail" if findings else ("pass" if measurement.observable else "not-measurable")
         print(
             json.dumps(
                 {
-                    "ok": bool(measurement.observable and not findings),
+                    # `ok` requires a verified baseline as well as an empty
+                    # finding list: a run measured against a ref nobody checked
+                    # has not established that anything shipped.
+                    "ok": bool(measurement.observable and verified and not findings),
                     "status": status,
+                    "baseline_verified": verified,
+                    "baseline_trust": asdict(measurement.trust) if measurement.trust else None,
                     "measurement": asdict(measurement),
                     "budget": data["budget"],
                     "findings": [asdict(f) for f in findings],

@@ -24,9 +24,13 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CI_DIR = REPO_ROOT / "scripts" / "ci"
-if str(CI_DIR) not in sys.path:
-    sys.path.insert(0, str(CI_DIR))
+TESTS_DIR = Path(__file__).resolve().parent
+for _path in (str(CI_DIR), str(TESTS_DIR)):
+    if _path not in sys.path:
+        sys.path.insert(0, _path)
 
+import dataclasses
+import json as _json
 import subprocess
 import tempfile
 import textwrap
@@ -35,7 +39,19 @@ from datetime import date, datetime, timedelta
 
 import yaml
 
+import baseline_trust
 import release_lag
+from baseline_trust import (
+    STATE_DIVERGED,
+    STATE_MISSING_ON_REMOTE,
+    STATE_NOT_A_REMOTE_REF,
+    STATE_UNREACHABLE,
+    STATE_VERIFIED,
+    BaselineTrust,
+    split_remote_ref,
+    trust_findings,
+    verify_baseline,
+)
 from release_lag import (
     BUDGET_PATH,
     MAX_DECLARED_AGE_DAYS,
@@ -50,8 +66,29 @@ from release_lag import (
     load_budget,
     measure,
 )
+from scratch_remote import ScratchRemote
 
 TODAY = date(2026, 8, 2)
+
+
+def verified_trust(sha="abc1234567890abc1234567890abc1234567890a"):
+    """A baseline the remote confirmed.
+
+    The policy tests below are about the lag budget, not about the baseline, so
+    they say plainly that the baseline was checked and agreed. Stating it is the
+    point: `Measurement.trust` defaults to `None`, and `None` is a finding, so a
+    test that wants to exercise the budget has to declare that the other half
+    was satisfied rather than inherit a silent pass.
+    """
+    return BaselineTrust(
+        ref="origin/main",
+        remote="origin",
+        branch="main",
+        local_sha=sha,
+        remote_sha=sha,
+        state=STATE_VERIFIED,
+        detail="test fixture: remote agreed",
+    )
 
 
 def make_budget(**overrides):
@@ -84,6 +121,7 @@ def make_measurement(**overrides):
         "oldest_unshipped_age_days": 2,
         "components": ["ventures/print-atelier"],
         "branch_names": ["agent/x"],
+        "trust": verified_trust(),
     }
     fields.update(overrides)
     return Measurement(**fields)
@@ -246,46 +284,34 @@ class TestBudgetValidation(unittest.TestCase):
 
 
 class GitRepoTestCase(unittest.TestCase):
-    """Builds real repositories, because the measurement is the risky half."""
+    """Builds real repositories, because the measurement is the risky half.
+
+    These used to stand `refs/remotes/origin/main` up with `git update-ref`,
+    on the reasoning that `measure` only reads it so a real remote was not
+    needed. That reasoning was the defect in miniature: the tests agreed with
+    the code that a hand-written tracking ref is as good as a remote. Every
+    repository built here now has a real bare `origin`, and the baseline is
+    moved by publishing to it and fetching back.
+    """
 
     def git(self, repo, *args):
-        result = subprocess.run(
-            ["git", *args],
-            cwd=str(repo),
-            capture_output=True,
-            text=True,
-            env={
-                "PATH": "/usr/bin:/bin:/usr/local/bin",
-                "HOME": str(repo),
-                "GIT_CONFIG_GLOBAL": "/dev/null",
-                "GIT_CONFIG_SYSTEM": "/dev/null",
-                "GIT_AUTHOR_NAME": "Test",
-                "GIT_AUTHOR_EMAIL": "test@example.invalid",
-                "GIT_COMMITTER_NAME": "Test",
-                "GIT_COMMITTER_EMAIL": "test@example.invalid",
-                "GIT_AUTHOR_DATE": self.stamp,
-                "GIT_COMMITTER_DATE": self.stamp,
-            },
-        )
-        if result.returncode != 0:
-            raise AssertionError(f"git {' '.join(args)}: {result.stderr}")
-        return result.stdout
+        return self.scratch._run(Path(repo), *args).stdout
 
     def setUp(self):
-        self.stamp = "2026-08-01T12:00:00+00:00"
-        self.repo = Path(tempfile.mkdtemp())
-        self.git(self.repo, "init", "-q", "-b", "main")
-        self.commit("README.md", "start")
-        # A local ref standing in for the remote-tracking branch. `measure`
-        # only ever reads it, so a real remote is not needed.
-        self.git(self.repo, "update-ref", "refs/remotes/origin/main", "HEAD")
+        self.scratch = ScratchRemote()
+        self.addCleanup(self.scratch.cleanup)
+        self.repo = self.scratch.work
+
+    @property
+    def stamp(self):
+        return self.scratch.stamp
+
+    @stamp.setter
+    def stamp(self, value):
+        self.scratch.stamp = value
 
     def commit(self, path, text):
-        target = self.repo / path
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(text)
-        self.git(self.repo, "add", path)
-        self.git(self.repo, "commit", "-q", "-m", f"add {path}")
+        self.scratch.commit(path, text)
 
 
 class TestMeasurement(GitRepoTestCase):
@@ -333,7 +359,10 @@ class TestMeasurement(GitRepoTestCase):
     def test_a_branch_already_in_the_baseline_is_not_counted(self):
         self.git(self.repo, "checkout", "-q", "-b", "agent/merged")
         self.commit("shipped.txt", "shipped")
-        self.git(self.repo, "update-ref", "refs/remotes/origin/main", "HEAD")
+        # Shipped for real: the remote moves, then a fetch brings the tracking
+        # ref along. This is the honest version of the `update-ref` this test
+        # used to do, and the only version `measure` now believes.
+        self.scratch.publish()
         m = measure(self.repo, "origin/main")
         self.assertEqual(m.unshipped_commits, 0)
         self.assertEqual(m.branches_ahead, 0)
@@ -396,6 +425,201 @@ class TestUnobservableClone(GitRepoTestCase):
         # origin/main is missing measures zero".
         with self.assertRaises(LagError):
             measure(self.repo, "origin/nonexistent")
+
+
+class TestBaselineTrust(GitRepoTestCase):
+    """The baseline is a local file. These prove it is no longer taken on trust.
+
+    Every one of these drives the real `git` binary against a real bare remote
+    in a temp directory. Nothing here patches `verify_baseline`, `subprocess`,
+    or anything else inside `release_lag` or `baseline_trust`: a test that stubs
+    the module the fix lives in stays green when the fix is reverted, which is
+    a defect this repository has shipped before.
+    """
+
+    def budget_file(self, **budget):
+        (self.repo / "platform").mkdir(parents=True, exist_ok=True)
+        data = make_budget(budget=budget)
+        data["expires"] = data["expires"].isoformat()
+        (self.repo / BUDGET_PATH).write_text(yaml.safe_dump(data))
+
+    def cli(self, *args):
+        return subprocess.run(
+            [sys.executable, str(CI_DIR / "release_lag.py"), "--repo-root", str(self.repo), *args],
+            capture_output=True,
+            text=True,
+        )
+
+    # -- the honest case --------------------------------------------------
+
+    def test_a_tracking_ref_that_matches_the_remote_is_verified(self):
+        trust = verify_baseline(self.repo, "origin/main")
+        self.assertEqual(trust.state, STATE_VERIFIED)
+        self.assertTrue(trust.verified)
+        self.assertEqual(trust.remote_sha, trust.local_sha)
+        self.assertEqual(trust_findings(trust), [])
+
+    def test_publishing_and_fetching_keeps_the_baseline_verified(self):
+        self.commit("ventures/alpha/a.ts", "one")
+        self.scratch.publish()
+        self.assertEqual(verify_baseline(self.repo, "origin/main").state, STATE_VERIFIED)
+
+    # -- the forgery ------------------------------------------------------
+
+    def test_a_hand_written_tracking_ref_is_detected(self):
+        # `git update-ref refs/remotes/origin/main <local commit>`: the command
+        # behind the four blank-reason entries in this repository's reflog.
+        real = self.scratch.rev("refs/remotes/origin/main")
+        self.commit("ventures/alpha/a.ts", "one")
+        forged = self.scratch.forge_baseline("HEAD")
+        self.assertNotEqual(real, forged)
+
+        trust = verify_baseline(self.repo, "origin/main")
+        self.assertEqual(trust.state, STATE_DIVERGED)
+        self.assertFalse(trust.verified)
+        # Both shas must be named, and neither silently preferred.
+        self.assertIn(forged, trust.detail)
+        self.assertIn(real, trust.detail)
+        self.assertIn("does not reflect the remote", trust.detail)
+
+    def test_the_forgery_is_exactly_what_makes_the_lag_vanish(self):
+        # This is the measured defect, reproduced end to end: the same
+        # repository reports two very different amounts of undelivered work
+        # depending only on who last wrote a local file.
+        for i in range(4):
+            self.commit(f"ventures/alpha/{i}.ts", str(i))
+
+        honest = measure(self.repo, "origin/main")
+        self.assertEqual(honest.unshipped_commits, 4)
+        self.assertTrue(honest.trust.verified)
+
+        self.scratch.forge_baseline("HEAD")
+        forged = measure(self.repo, "origin/main")
+        # The count collapses to nothing...
+        self.assertEqual(forged.unshipped_commits, 0)
+        # ...and the gate refuses anyway, which is the entire fix.
+        findings = evaluate(forged, make_budget(), TODAY)
+        self.assertIn("baseline-forged", checks(findings))
+
+    def test_a_forged_baseline_never_prints_a_pass(self):
+        self.commit("ventures/alpha/a.ts", "one")
+        self.scratch.forge_baseline("HEAD")
+        m = measure(self.repo, "origin/main")
+        data = make_budget(budget={"max_unshipped_commits": 0, "slack_commits": 40})
+        text = release_lag.format_report(m, data, evaluate(m, data, TODAY))
+        self.assertIn("UNVERIFIED", text)
+        self.assertNotIn("PASS", text)
+
+    def test_the_cli_refuses_a_forged_baseline(self):
+        # The gate as a process: exit status, not just a returned list.
+        self.commit("ventures/alpha/a.ts", "one")
+        self.scratch.forge_baseline("HEAD")
+        self.budget_file(max_unshipped_commits=0, slack_commits=40)
+        proc = self.cli()
+        self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+        self.assertIn("baseline-forged", proc.stdout)
+
+    def test_the_json_output_reports_an_unverified_baseline(self):
+        self.commit("ventures/alpha/a.ts", "one")
+        self.scratch.forge_baseline("HEAD")
+        self.budget_file(max_unshipped_commits=0, slack_commits=40)
+        payload = _json.loads(self.cli("--json").stdout)
+        self.assertFalse(payload["ok"])
+        self.assertFalse(payload["baseline_verified"])
+        self.assertEqual(payload["status"], "fail")
+        self.assertEqual(payload["baseline_trust"]["state"], STATE_DIVERGED)
+
+    # -- the outage -------------------------------------------------------
+
+    def test_an_unreachable_remote_is_not_a_pass(self):
+        self.scratch.break_remote()
+        trust = verify_baseline(self.repo, "origin/main")
+        self.assertEqual(trust.state, STATE_UNREACHABLE)
+        self.assertFalse(trust.verified)
+        self.assertEqual([c for c, _ in trust_findings(trust)], ["baseline-unverified"])
+
+    def test_offline_with_nothing_to_ship_still_refuses(self):
+        # The dangerous shape: zero lag and no network. Falling back to the
+        # local ref here would print PASS for a delivery nobody confirmed, and
+        # would do it on the exact runs where the check matters most.
+        self.scratch.break_remote()
+        m = measure(self.repo, "origin/main")
+        self.assertEqual(m.unshipped_commits, 0)
+        data = make_budget(budget={"max_unshipped_commits": 0, "slack_commits": 40})
+        findings = evaluate(m, data, TODAY)
+        self.assertIn("baseline-unverified", checks(findings))
+        text = release_lag.format_report(m, data, findings)
+        self.assertNotIn("PASS", text)
+
+    def test_the_cli_exits_non_zero_when_the_remote_is_unreachable(self):
+        self.scratch.break_remote()
+        self.budget_file(max_unshipped_commits=0, slack_commits=40)
+        proc = self.cli()
+        self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+        self.assertIn("baseline-unverified", proc.stdout)
+
+    def test_a_baseline_naming_no_remote_is_not_a_pass(self):
+        self.scratch.drop_remote()
+        trust = verify_baseline(self.repo, "origin/main")
+        self.assertEqual(trust.state, STATE_NOT_A_REMOTE_REF)
+        self.assertTrue(trust_findings(trust))
+
+    def test_a_branch_absent_from_the_remote_is_not_a_pass(self):
+        trust = verify_baseline(self.repo, "origin/never-existed")
+        self.assertEqual(trust.state, STATE_MISSING_ON_REMOTE)
+        self.assertTrue(trust_findings(trust))
+
+    # -- the hole the fix must not leave ----------------------------------
+
+    def test_measuring_without_verifying_is_itself_a_finding(self):
+        # `verify=False` exists for callers that have already verified. If it
+        # ever becomes the quiet default, this fails.
+        m = measure(self.repo, "origin/main", verify=False)
+        self.assertIsNone(m.trust)
+        self.assertIn("baseline-unverified", checks(evaluate(m, make_budget(), TODAY)))
+
+    def test_only_the_verified_state_produces_no_finding(self):
+        # Completeness: no state may be added later that quietly means "fine".
+        states = [
+            STATE_VERIFIED,
+            STATE_DIVERGED,
+            STATE_MISSING_ON_REMOTE,
+            STATE_NOT_A_REMOTE_REF,
+            STATE_UNREACHABLE,
+        ]
+        silent = [
+            s
+            for s in states
+            if not trust_findings(BaselineTrust("origin/main", "origin", "main", "a" * 40, "b" * 40, s, "d"))
+        ]
+        self.assertEqual(silent, [STATE_VERIFIED])
+
+    def test_a_forged_baseline_is_still_caught_in_a_shallow_clone(self):
+        # The shallow-clone third state must not become an amnesty: whether the
+        # ref reflects the remote has nothing to do with branch topology.
+        self.commit("ventures/alpha/a.ts", "one")
+        self.scratch.forge_baseline("HEAD")
+        (self.repo / ".git" / "shallow").write_text("")
+        m = measure(self.repo, "origin/main")
+        self.assertFalse(m.observable)
+        self.assertIn("baseline-forged", checks(evaluate(m, make_budget(), TODAY)))
+
+
+class TestRemoteRefSplitting(unittest.TestCase):
+    def test_plain_remote_and_branch(self):
+        self.assertEqual(split_remote_ref("origin/main", {"origin"}), ("origin", "main"))
+
+    def test_a_branch_containing_slashes(self):
+        self.assertEqual(split_remote_ref("origin/release/1.0", {"origin"}), ("origin", "release/1.0"))
+
+    def test_the_longest_matching_remote_wins(self):
+        self.assertEqual(split_remote_ref("origin/backup/main", {"origin", "origin/backup"}), ("origin/backup", "main"))
+
+    def test_an_unknown_remote_does_not_split(self):
+        self.assertIsNone(split_remote_ref("origin/main", {"upstream"}))
+
+    def test_a_bare_local_ref_does_not_split(self):
+        self.assertIsNone(split_remote_ref("main", {"origin"}))
 
 
 class TestComponentAttribution(unittest.TestCase):
@@ -467,9 +691,39 @@ class TestRealRepository(unittest.TestCase):
         impossible["budget"]["max_unshipped_age_days"] = -1
         self.assertTrue(evaluate(measurement, impossible, date.today()))
 
-    def test_json_output_distinguishes_not_measurable_from_pass(self):
-        import json as _json
+    def test_the_real_measurement_verifies_its_baseline(self):
+        # The gate for this control is pytest, not the CLI, so the verification
+        # has to be on the path pytest takes. If `measure` ever stops asking the
+        # remote, `trust` is None and this fails.
+        data = load_budget(REPO_ROOT)
+        measurement = measure(REPO_ROOT, data["baseline_ref"])
+        self.assertIsNotNone(
+            measurement.trust,
+            "the real measurement did not check its baseline against the remote",
+        )
+        self.assertEqual(measurement.trust.ref, data["baseline_ref"])
 
+    def test_a_forged_baseline_would_be_caught_here(self):
+        # Gate-substance: prove the refusal fires on this repository's own
+        # configuration rather than only in a scratch fixture. The local ref is
+        # not touched — only a hypothetical trust result is evaluated.
+        data = load_budget(REPO_ROOT)
+        measurement = measure(REPO_ROOT, data["baseline_ref"])
+        forged = dataclasses.replace(
+            measurement,
+            trust=BaselineTrust(
+                ref=data["baseline_ref"],
+                remote="origin",
+                branch="main",
+                local_sha="0" * 40,
+                remote_sha="1" * 40,
+                state=STATE_DIVERGED,
+                detail="hypothetical divergence",
+            ),
+        )
+        self.assertIn("baseline-forged", checks(evaluate(forged, data, date.today())))
+
+    def test_json_output_distinguishes_not_measurable_from_pass(self):
         data = load_budget(REPO_ROOT)
         measurement = measure(REPO_ROOT, data["baseline_ref"])
         proc = subprocess.run(

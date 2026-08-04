@@ -21,53 +21,47 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CI_DIR = REPO_ROOT / "scripts" / "ci"
-if str(CI_DIR) not in sys.path:
-    sys.path.insert(0, str(CI_DIR))
+TESTS_DIR = Path(__file__).resolve().parent
+for _path in (str(CI_DIR), str(TESTS_DIR)):
+    if _path not in sys.path:
+        sys.path.insert(0, _path)
 
+import json as _json
 import subprocess
 import tempfile
 import unittest
 
 import branch_collisions
-from branch_collisions import MAX_COLLIDING_PATHS, CollisionError, find_collisions
+from baseline_trust import STATE_DIVERGED, STATE_UNREACHABLE, verify_baseline
+from branch_collisions import (
+    MAX_COLLIDING_PATHS,
+    BaselineUnverified,
+    CollisionError,
+    find_collisions,
+)
+from scratch_remote import ScratchRemote
 
 
 class GitRepoTestCase(unittest.TestCase):
+    """Every repository here has a real bare `origin` in a temp directory.
+
+    These used to write `refs/remotes/origin/main` with `git update-ref` and
+    call it a baseline — the same assumption the code made, and the same one a
+    hand-written ref exploited. The baseline is now moved by publishing to the
+    remote and fetching back, so a test can only "ship" something by shipping
+    it. No test pushes anywhere; see `tests/scratch_remote.py`.
+    """
+
     def git(self, *args):
-        result = subprocess.run(
-            ["git", *args],
-            cwd=str(self.repo),
-            capture_output=True,
-            text=True,
-            env={
-                "PATH": "/usr/bin:/bin:/usr/local/bin",
-                "HOME": str(self.repo),
-                "GIT_CONFIG_GLOBAL": "/dev/null",
-                "GIT_CONFIG_SYSTEM": "/dev/null",
-                "GIT_AUTHOR_NAME": "Test",
-                "GIT_AUTHOR_EMAIL": "test@example.invalid",
-                "GIT_COMMITTER_NAME": "Test",
-                "GIT_COMMITTER_EMAIL": "test@example.invalid",
-                "GIT_AUTHOR_DATE": "2026-08-01T12:00:00+00:00",
-                "GIT_COMMITTER_DATE": "2026-08-01T12:00:00+00:00",
-            },
-        )
-        if result.returncode != 0:
-            raise AssertionError(f"git {' '.join(args)}: {result.stderr}")
-        return result.stdout
+        return self.scratch.git(*args)
 
     def setUp(self):
-        self.repo = Path(tempfile.mkdtemp())
-        self.git("init", "-q", "-b", "main")
-        self.commit("README.md", "start")
-        self.git("update-ref", "refs/remotes/origin/main", "HEAD")
+        self.scratch = ScratchRemote()
+        self.addCleanup(self.scratch.cleanup)
+        self.repo = self.scratch.work
 
     def commit(self, path, text):
-        target = self.repo / path
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(text)
-        self.git("add", path)
-        self.git("commit", "-q", "-m", f"add {path}")
+        self.scratch.commit(path, text)
 
     def paths(self):
         return [c.path for c in find_collisions(self.repo)]
@@ -118,7 +112,7 @@ class TestCollisionDetection(GitRepoTestCase):
 
     def test_a_file_already_in_the_baseline_is_ignored(self):
         self.commit("shipped.py", "already live")
-        self.git("update-ref", "refs/remotes/origin/main", "HEAD")
+        self.scratch.publish()
         self.git("checkout", "-q", "-b", "agent/one")
         self.commit("other.py", "new")
         self.assertEqual(self.paths(), [])
@@ -142,9 +136,19 @@ class TestFailsClosed(GitRepoTestCase):
             find_collisions(self.repo)
         self.assertIn("Refusing to report zero", str(ctx.exception))
 
-    def test_missing_baseline_ref_refuses_to_report_zero(self):
-        with self.assertRaises(CollisionError) as ctx:
+    def test_missing_baseline_ref_refuses_via_the_remote_check(self):
+        # The remote now answers first, and it answers that no such branch
+        # exists there. Refused earlier than before, for a better reason.
+        with self.assertRaises(BaselineUnverified) as ctx:
             find_collisions(self.repo, "origin/nonexistent")
+        self.assertIn("Refusing to report a collision count", str(ctx.exception))
+
+    def test_missing_baseline_ref_still_refuses_without_the_remote_check(self):
+        # The original fail-closed path, still intact underneath: even with
+        # verification skipped, a baseline that does not resolve locally must
+        # not read as "nothing collides".
+        with self.assertRaises(CollisionError) as ctx:
+            find_collisions(self.repo, "origin/nonexistent", verify=False)
         self.assertIn("Refusing to report zero", str(ctx.exception))
 
 
@@ -165,10 +169,97 @@ class TestReport(GitRepoTestCase):
         self.assertNotIn("no path was created by two", text)
 
 
+class TestBaselineTrust(GitRepoTestCase):
+    """`origin/main` is a local file here too, and it was read the same way.
+
+    A doctored baseline shrinks this count for the same reason it shrank the
+    release-lag one: commits the baseline already contains are not scanned, so
+    the duplicates they created stop existing. Real bare remote, real `git`, no
+    patching of `verify_baseline` or of `branch_collisions` — a test that stubs
+    the module the fix lives in survives the fix being reverted.
+    """
+
+    def two_versions_of_one_file(self):
+        self.git("checkout", "-q", "-b", "agent/one")
+        self.commit("scripts/ci/thing.py", "version one")
+        self.git("checkout", "-q", "main")
+        self.git("checkout", "-q", "-b", "agent/two")
+        self.commit("scripts/ci/thing.py", "version two, written independently")
+
+    def cli(self, *args):
+        return subprocess.run(
+            [sys.executable, str(CI_DIR / "branch_collisions.py"), "--repo-root", str(self.repo), *args],
+            capture_output=True,
+            text=True,
+        )
+
+    def test_a_verified_baseline_measures_normally(self):
+        self.two_versions_of_one_file()
+        self.assertEqual(self.paths(), ["scripts/ci/thing.py"])
+
+    def test_a_forged_baseline_would_hide_the_collision(self):
+        # The defect, shown before it is refused: with the tracking ref moved
+        # by hand onto a local branch, the colliding commits are "already in
+        # main" and the count silently drops.
+        self.two_versions_of_one_file()
+        self.assertEqual(len(find_collisions(self.repo, verify=False)), 1)
+        self.scratch.forge_baseline("HEAD")
+        self.assertEqual(find_collisions(self.repo, verify=False), [])
+
+    def test_a_forged_baseline_is_refused(self):
+        self.two_versions_of_one_file()
+        self.scratch.forge_baseline("HEAD")
+        with self.assertRaises(BaselineUnverified) as ctx:
+            find_collisions(self.repo)
+        message = str(ctx.exception)
+        self.assertIn("does not reflect the remote", message)
+        self.assertIn(self.scratch.rev("HEAD"), message)
+        self.assertIn("Refusing to report a collision count", message)
+
+    def test_an_unreachable_remote_is_refused(self):
+        # Offline is not agreement. Zero collisions measured against a baseline
+        # nobody could confirm is not a fact about this repository.
+        self.scratch.break_remote()
+        self.assertEqual(verify_baseline(self.repo, "origin/main").state, STATE_UNREACHABLE)
+        with self.assertRaises(BaselineUnverified) as ctx:
+            find_collisions(self.repo)
+        self.assertIn("could not be verified against the remote", str(ctx.exception))
+
+    def test_the_cli_exits_non_zero_on_a_forged_baseline(self):
+        self.two_versions_of_one_file()
+        self.scratch.forge_baseline("HEAD")
+        proc = self.cli()
+        self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+        self.assertNotIn("PASS", proc.stdout)
+
+    def test_the_cli_exits_non_zero_when_offline(self):
+        self.scratch.break_remote()
+        proc = self.cli()
+        self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+        self.assertNotIn("PASS", proc.stdout)
+        payload = _json.loads(self.cli("--json").stdout)
+        self.assertFalse(payload["ok"])
+        self.assertEqual(payload["status"], "baseline-unverified")
+
+    def test_an_unverified_baseline_is_a_distinct_exception(self):
+        # `BaselineUnverified` exists so callers that tolerate "the branches
+        # are not here" cannot accidentally tolerate "the baseline may be
+        # forged". Both are CollisionError; only one may ever be swallowed.
+        self.assertTrue(issubclass(BaselineUnverified, CollisionError))
+        (self.repo / ".git" / "shallow").write_text("")
+        with self.assertRaises(CollisionError) as ctx:
+            find_collisions(self.repo)
+        self.assertNotIsInstance(ctx.exception, BaselineUnverified)
+
+
 class TestRealRepository(unittest.TestCase):
     def test_it_runs_or_refuses_against_this_repository(self):
         try:
             collisions = find_collisions(REPO_ROOT)
+        except BaselineUnverified:
+            # Never acceptable here: this repository has a remote and the
+            # baseline is checkable. Re-raise rather than pass.
+            raise
         except CollisionError as exc:
             # Only acceptable where the branches genuinely are not present.
             self.assertIn("Refusing to report zero", str(exc))
@@ -177,10 +268,26 @@ class TestRealRepository(unittest.TestCase):
             self.assertGreater(collision.versions, 1)
             self.assertEqual(len(set(collision.commits)), collision.versions)
 
+    def test_the_baseline_is_verified_against_the_remote(self):
+        # The gate for this control is pytest, so the verification has to be on
+        # the path pytest takes.
+        trust = verify_baseline(REPO_ROOT, "origin/main")
+        self.assertTrue(
+            trust.verified,
+            f"this repository's baseline did not verify against its remote: {trust.state} {trust.detail}",
+        )
+
     def test_this_repository_is_within_the_collision_budget(self):
+        # `except CollisionError: return` used to sit here, which meant any
+        # refusal — including a refusal caused by a doctored baseline — passed
+        # this gate silently. An unverified baseline is now a failure, and a
+        # genuinely unmeasurable checkout has to say which one it is.
         try:
             collisions = find_collisions(REPO_ROOT)
-        except CollisionError:
+        except BaselineUnverified:
+            raise
+        except CollisionError as exc:
+            self.assertIn("Refusing to report zero", str(exc))
             return
         self.assertLessEqual(
             len(collisions),
