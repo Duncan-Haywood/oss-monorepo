@@ -38,7 +38,9 @@ No test here is skipped or conditionally skipped, per the note in
 """
 
 import json
+import subprocess
 import sys
+import unittest.mock
 import tempfile
 import unittest
 from pathlib import Path
@@ -48,11 +50,13 @@ CI_DIR = REPO_ROOT / "scripts" / "ci"
 if str(CI_DIR) not in sys.path:
     sys.path.insert(0, str(CI_DIR))
 
+import coverage_ratchet
 from coverage_ratchet import (
     declares_uninstalled_dependencies,
     failure_excerpt,
     looks_like_unresolved_import,
     run_coverage,
+    uncommitted_component_paths,
     unresolved_import_line,
     without_reporter_arguments,
 )
@@ -61,6 +65,42 @@ from coverage_ratchet import (
 def write_manifest(directory: Path, manifest: dict) -> None:
     directory.mkdir(parents=True, exist_ok=True)
     (directory / "package.json").write_text(json.dumps(manifest))
+
+
+def init_repo(repo_root: Path) -> None:
+    """A real git repository with one commit, so `git status` has a HEAD."""
+    repo_root.mkdir(parents=True, exist_ok=True)
+    env_args = [
+        "-c",
+        "user.email=test@example.invalid",
+        "-c",
+        "user.name=Coverage Ratchet Test",
+    ]
+    subprocess.run(["git", "-C", str(repo_root), "init", "-q"], check=True)
+    (repo_root / ".gitkeep").write_text("")
+    subprocess.run(["git", "-C", str(repo_root), "add", "-A"], check=True)
+    subprocess.run(
+        ["git", "-C", str(repo_root), *env_args, "commit", "-qm", "base"], check=True
+    )
+
+
+def commit_all(repo_root: Path) -> None:
+    subprocess.run(["git", "-C", str(repo_root), "add", "-A"], check=True)
+    subprocess.run(
+        [
+            "git",
+            "-C",
+            str(repo_root),
+            "-c",
+            "user.email=test@example.invalid",
+            "-c",
+            "user.name=Coverage Ratchet Test",
+            "commit",
+            "-qm",
+            "component",
+        ],
+        check=True,
+    )
 
 
 class UninstalledDependencyDetectionTest(unittest.TestCase):
@@ -355,6 +395,312 @@ class RunCoverageDiagnosisTest(unittest.TestCase):
                 "the real reason",
                 finding.message,
                 "the finding must carry a reason, not just an exit code",
+            )
+
+
+class UncommittedComponentPathsTest(unittest.TestCase):
+    """What `git status` is asked, and what the answer is used for."""
+
+    def test_a_clean_component_lists_nothing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo_root = Path(tmp)
+            init_repo(repo_root)
+            write_manifest(repo_root / "ventures" / "subject", {})
+            commit_all(repo_root)
+
+            self.assertEqual(uncommitted_component_paths(repo_root, "ventures/subject"), [])
+
+    def test_a_modified_tracked_file_is_listed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo_root = Path(tmp)
+            init_repo(repo_root)
+            component = repo_root / "ventures" / "subject"
+            write_manifest(component, {})
+            commit_all(repo_root)
+            (component / "package.json").write_text(json.dumps({"name": "changed"}))
+
+            self.assertEqual(
+                uncommitted_component_paths(repo_root, "ventures/subject"),
+                ["ventures/subject/package.json"],
+            )
+
+    def test_an_untracked_file_is_listed(self):
+        """The case that actually happened.
+
+        The print-atelier misdiagnosis on 2026-08-04 was caused by a brand new
+        test file that existed for about ninety seconds — the red half of
+        another session's red-green cycle. It was never tracked, so a check
+        that only looked at modifications would have seen a clean tree and
+        blamed the suite, which is the whole defect.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            repo_root = Path(tmp)
+            init_repo(repo_root)
+            component = repo_root / "ventures" / "subject"
+            write_manifest(component, {})
+            commit_all(repo_root)
+            (component / "in-progress.test.ts").write_text("// half written\n")
+
+            self.assertEqual(
+                uncommitted_component_paths(repo_root, "ventures/subject"),
+                ["ventures/subject/in-progress.test.ts"],
+            )
+
+    def test_changes_outside_the_component_are_not_listed(self):
+        """Scoped to the component, or every run in a busy repository is 'dirty'.
+
+        Twenty concurrent sessions means something in the tree is always
+        uncommitted. An unscoped status would mark every component dirty and
+        every coverage failure unattributable, so the scoping is the load-
+        bearing half of the check rather than a tidiness.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            repo_root = Path(tmp)
+            init_repo(repo_root)
+            write_manifest(repo_root / "ventures" / "subject", {})
+            write_manifest(repo_root / "ventures" / "elsewhere", {})
+            commit_all(repo_root)
+            # Content must actually differ. An earlier draft rewrote `{}` with
+            # `{}`, so the tree was never dirty and this passed against an
+            # unscoped `git status` — a fixture that asserted nothing.
+            (repo_root / "ventures" / "elsewhere" / "package.json").write_text(
+                json.dumps({"name": "changed-elsewhere"})
+            )
+            self.assertNotEqual(
+                uncommitted_component_paths(repo_root, "ventures/elsewhere"),
+                [],
+                "precondition: the other component really is dirty",
+            )
+
+            self.assertEqual(uncommitted_component_paths(repo_root, "ventures/subject"), [])
+
+    def test_the_list_is_bounded(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo_root = Path(tmp)
+            init_repo(repo_root)
+            component = repo_root / "ventures" / "subject"
+            write_manifest(component, {})
+            commit_all(repo_root)
+            for index in range(12):
+                (component / f"new-{index}.ts").write_text("//\n")
+
+            listed = uncommitted_component_paths(repo_root, "ventures/subject", limit=6)
+            self.assertEqual(len(listed), 6, "a finding is a sentence, not a status dump")
+
+    def test_outside_a_repository_it_says_nothing_rather_than_raising(self):
+        """The deliberate soft failure, pinned.
+
+        Everywhere else in this file a missing input is an error, because the
+        gate would otherwise pass work it never checked. Here the gate has
+        already failed and this call only words the finding, so an unusable git
+        must degrade to the generic diagnosis rather than crash the audit.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            repo_root = Path(tmp)
+            write_manifest(repo_root / "ventures" / "subject", {})
+
+            self.assertEqual(uncommitted_component_paths(repo_root, "ventures/subject"), [])
+
+    def test_a_git_that_cannot_be_executed_degrades_instead_of_raising(self):
+        """The OSError arm, which the no-repository case above does not reach.
+
+        Outside a repository git runs fine and exits 128, so that test passes
+        on the returncode guard and says nothing about the exception handler.
+        Only a git that cannot be spawned at all exercises this one, and on a
+        host without git every component would otherwise crash the audit
+        instead of failing it with a usable message.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            repo_root = Path(tmp)
+            with unittest.mock.patch.object(
+                coverage_ratchet.subprocess, "run", side_effect=OSError("no git here")
+            ):
+                self.assertEqual(
+                    uncommitted_component_paths(repo_root, "ventures/subject"), []
+                )
+
+    def test_a_failing_git_is_not_read_as_evidence(self):
+        """A non-zero git says nothing about the tree, including when it printed.
+
+        Without the returncode guard, whatever a broken git left on stdout
+        would be parsed as a list of modified paths and reported to the reader
+        as somebody's work in progress.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            repo_root = Path(tmp)
+            broken = subprocess.CompletedProcess(
+                args=["git"], returncode=128, stdout=" M ventures/subject/real.ts\n", stderr=""
+            )
+            with unittest.mock.patch.object(
+                coverage_ratchet.subprocess, "run", return_value=broken
+            ):
+                self.assertEqual(
+                    uncommitted_component_paths(repo_root, "ventures/subject"), []
+                )
+
+
+class DirtyTreeDiagnosisTest(unittest.TestCase):
+    """The finding `run_coverage` returns when the tree it measured was not clean.
+
+    Roughly twenty agent sessions share one working tree in this repository, so
+    a gate reading a component mid-edit is ordinary rather than exceptional. On
+    2026-08-04 the coverage ratchet reported
+
+        ERROR [coverage-command-failed] print-atelier: coverage command exited 1
+            -> A failing suite has no meaningful coverage. Fix the suite first.
+
+    while print-atelier's suite was entirely healthy: another session had a
+    not-yet-passing test file on disk for the length of one red-green cycle.
+    Both the recorded failure and the commit it was blamed on were clean, and
+    finding that out cost a full diagnosis. The verdict was right and the
+    sentence sent the reader somewhere there was nothing to fix.
+    """
+
+    def _entry(self, path: str, command: list) -> dict:
+        return {"id": "component-under-test", "path": path, "command": command}
+
+    def _failing(self) -> list:
+        return ["node", "-e", "console.error('AssertionError: nope'); process.exit(1)"]
+
+    def test_a_failure_on_a_dirty_component_names_the_uncommitted_work(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo_root = Path(tmp)
+            init_repo(repo_root)
+            component = repo_root / "ventures" / "subject"
+            write_manifest(component, {"dependencies": {"tsx": "^4.0.0"}})
+            (component / "node_modules").mkdir()
+            commit_all(repo_root)
+            (component / "in-progress.test.ts").write_text("// half written\n")
+
+            measurement, finding = run_coverage(
+                repo_root, self._entry("ventures/subject", self._failing())
+            )
+
+            self.assertIsNone(measurement)
+            self.assertIsNotNone(finding, "a dirty tree is never a reason to skip")
+            self.assertEqual(finding.severity, "error", "the verdict does not soften")
+            self.assertEqual(finding.code, "coverage-measured-dirty-tree")
+            self.assertIn("in-progress.test.ts", finding.message)
+            self.assertIn(
+                "AssertionError: nope",
+                finding.message,
+                "the underlying reason must survive the reframing",
+            )
+            self.assertIn("clean checkout", finding.remedy)
+            self.assertNotIn("Fix the suite first", finding.remedy)
+
+    def test_a_failure_on_a_clean_component_is_still_blamed_on_the_suite(self):
+        """The direction that must not drift.
+
+        If a clean tree could produce this diagnosis, the gate would have an
+        excuse available on every failure, which is how a control stops meaning
+        anything.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            repo_root = Path(tmp)
+            init_repo(repo_root)
+            component = repo_root / "ventures" / "subject"
+            write_manifest(component, {"dependencies": {"tsx": "^4.0.0"}})
+            (component / "node_modules").mkdir()
+            commit_all(repo_root)
+
+            _, finding = run_coverage(
+                repo_root, self._entry("ventures/subject", self._failing())
+            )
+
+            self.assertEqual(finding.code, "coverage-command-failed")
+            self.assertIn("Fix the suite first", finding.remedy)
+
+    def test_a_passing_component_is_unaffected_by_a_dirty_tree(self):
+        """Dirtiness only ever words a failure; it never creates one."""
+        with tempfile.TemporaryDirectory() as tmp:
+            repo_root = Path(tmp)
+            init_repo(repo_root)
+            component = repo_root / "ventures" / "subject"
+            write_manifest(component, {})
+            commit_all(repo_root)
+            (component / "in-progress.test.ts").write_text("// half written\n")
+
+            lcov = "TN:\nSF:src/a.ts\nDA:1,1\nLF:1\nLH:1\nend_of_record\n"
+            script = (
+                "const fs=require('fs');"
+                f"fs.writeFileSync(process.env.COVERAGE_LCOV_DESTINATION,{json.dumps(lcov)});"
+            )
+            measurement, finding = run_coverage(
+                repo_root, self._entry("ventures/subject", ["node", "-e", script])
+            )
+
+            self.assertIsNone(finding, f"a dirty tree must not fail a green suite: {finding}")
+            self.assertIsNotNone(measurement)
+
+    def test_uninstalled_dependencies_still_win_over_the_dirty_tree(self):
+        """Ordering check, in the style of the missing-path test above.
+
+        A component with no `node_modules` is dirty in this fixture *because*
+        of the uninstalled state, and 'install the dependencies' is the
+        actionable repair. Reporting the tree first would bury it.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            repo_root = Path(tmp)
+            init_repo(repo_root)
+            component = repo_root / "ventures" / "subject"
+            write_manifest(component, {"devDependencies": {"tsx": "^4.0.0"}})
+            commit_all(repo_root)
+            (component / "in-progress.test.ts").write_text("// half written\n")
+
+            _, finding = run_coverage(
+                repo_root,
+                self._entry("ventures/subject", ["node", "--import", "tsx", "-e", ""]),
+            )
+
+            self.assertEqual(finding.code, "component-dependencies-missing")
+
+    def test_the_components_own_artifacts_do_not_count_as_dirtiness(self):
+        """Measured before the run, and this is what that buys.
+
+        A coverage run writes inside the component it measures — `run_coverage`
+        makes `coverage/.tmp` itself, and real commands drop reports beside it.
+        Reading the tree afterwards would find those on every single run, so
+        every failure would be reported as measured against a dirty tree, and a
+        diagnosis that fires unconditionally says exactly as much as no
+        diagnosis at all. That is the failure mode this file exists to prevent,
+        rebuilt one layer up.
+
+        The command below therefore writes a real file into the component and
+        then fails, which is the only version of this test that distinguishes
+        the two orderings: an empty `coverage/.tmp` cannot, because git does not
+        report empty directories, and an earlier draft of this test passed
+        against a deliberately mis-ordered implementation for that reason.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            repo_root = Path(tmp)
+            init_repo(repo_root)
+            component = repo_root / "ventures" / "subject"
+            write_manifest(component, {"dependencies": {"tsx": "^4.0.0"}})
+            (component / "node_modules" / ".keep").parent.mkdir()
+            (component / "node_modules" / ".keep").write_text("")
+            commit_all(repo_root)
+
+            writes_then_fails = (
+                "const fs=require('fs');"
+                "fs.mkdirSync('coverage',{recursive:true});"
+                "fs.writeFileSync('coverage/lcov.info','TN:\\n');"
+                "console.error('AssertionError: nope');"
+                "process.exit(1);"
+            )
+            _, finding = run_coverage(
+                repo_root,
+                self._entry("ventures/subject", ["node", "-e", writes_then_fails]),
+            )
+
+            self.assertTrue(
+                (component / "coverage" / "lcov.info").is_file(),
+                "precondition: the run leaves a file inside the component",
+            )
+            self.assertEqual(
+                finding.code,
+                "coverage-command-failed",
+                "the run's own output must not read as someone's work in progress",
             )
 
 

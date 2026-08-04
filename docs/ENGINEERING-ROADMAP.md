@@ -1886,6 +1886,54 @@ evidence, and completion date before it can be marked done.
   pytest tests, 152 contract tests, both coverage components inside their
   floors — so what is waiting is a pull request, not more work.
 
+  **Correction, 2026-08-04, owner duncan. That last sentence was wrong, and
+  wrong in the direction this roadmap is least able to afford.** Re-running the
+  full suite at `main` a few hours later found *four* red gates, not two. The
+  claim was written from the two that were being worked on rather than from a
+  run, and "what is waiting is a pull request, not more work" is precisely the
+  conclusion a reader would have acted on.
+
+  Two were real and are now fixed:
+
+  * **Cap Ratchet.** `MAX_DECLARED_UNSHIPPED_COMMITS` and
+    `MAX_DECLARED_BRANCHES` stood at 250 and 50 against a historical floor of
+    150 and 40. They were raised inside `2fdcf83`, "complete stash convergence
+    and clean uncommitted work" — a commit whose diff is 6200 files of agent
+    worktree snapshots, where nobody reviewing it was reading these two lines.
+    This is the third time this pair has been walked upward and the second time
+    it happened inside a commit named after something else, which is the
+    argument for the cap ratchet existing and also the argument against
+    trusting "requires changing this file under review" as a control. The tell
+    both times was the same: the prose above the constants still argued for
+    caps "deliberately close to" a 127-commit, 31-branch measurement, because
+    the raise edited the numbers and not the reasoning. Restored to 150/40; the
+    declared budget is 125 and 32, so nothing in
+    `platform/release-lag-budget.yaml` had to move to fit under them. Nothing
+    was measuring differently — the ceiling had simply been lifted off the
+    thing it caps.
+  * **Integration Debt Ratchet.** A stale `dropped_artifacts` entry, excusing a
+    self-referential symlink that `d2cd000` had since deleted outright. The
+    stale direction of that register firing on real data for the second time.
+
+  The other two were the release-lag pair above, which stand as described.
+
+  The fourth red line was not a defect at all, and what it cost is the item
+  worth carrying. The Coverage Baseline Ratchet reported
+  `coverage-command-failed` for `print-atelier`; the suite was healthy, and a
+  concurrent session simply had a not-yet-passing test file on disk for the
+  length of one red-green cycle. The file was created after one clean run and
+  gone before the next. Establishing that took a full investigation which ended
+  by exonerating both the suite and the commit the report pointed at. With
+  roughly twenty sessions sharing one working tree, that is not a freak event —
+  it is the normal cost of every coverage failure anyone reads here. The gate
+  now reports `coverage-measured-dirty-tree` when it measured uncommitted work,
+  naming the files, without softening the verdict; see
+  [the coverage ratchet doc](COVERAGE-RATCHET.md).
+
+  The general lesson is the one the fleet keeps paying for: a claim about what
+  the gates say has to come from a run, and a run has to come from a tree
+  nobody else is writing to. Both halves failed here, in the same paragraph.
+
 ## Next 60 days: responsible product learning
 
 - [ ] Give every venture a versioned measurement plan mapping hypotheses to

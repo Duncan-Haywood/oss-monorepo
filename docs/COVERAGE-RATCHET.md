@@ -90,6 +90,40 @@ work it never did. Each of these is an **error**, never a skip:
 `tests/test_coverage_ratchet.py` asserts every one of these failing directions,
 and no test in it is skipped or conditionally skipped.
 
+## Which failure you are being told about
+
+Every code above is an error and none of them is a skip, so they change no
+verdict — only where they send you first. Sending you to the wrong repair is
+its own cost, and two codes exist purely to avoid it:
+
+- `component-dependencies-missing` — the component declares npm dependencies,
+  has no `node_modules`, and the command died resolving an import. Install and
+  re-run; the suite is not the bug. Both halves of that evidence are required,
+  because `platform/ci` declares a dependency it does not need installed.
+- `coverage-measured-dirty-tree` — the component held uncommitted changes when
+  the command ran, so the failure may not exist at `HEAD`. Re-run against a
+  clean checkout before believing it.
+
+The second one is here because roughly twenty agent sessions share one working
+tree in this repository, which makes measuring a component mid-edit ordinary
+rather than exceptional. On 2026-08-04 the gate reported
+`coverage-command-failed` for `print-atelier` while its suite was entirely
+healthy: another session had a not-yet-passing test file on disk for the length
+of one red-green cycle, and by the time anyone read the report the file no
+longer existed. The recorded failure and the commit it was blamed on were both
+clean, and establishing that cost a full diagnosis.
+
+The tree is read *before* the command runs, not after, because the run itself
+writes inside the component it measures — reading afterwards would report every
+failure as dirty, which is the same as reporting none. In CI the checkout is
+clean, nothing is listed, and the wording is unchanged. A dirty tree never
+excuses a failure and never creates one; it only says the failure has not been
+reproduced anywhere it can be trusted yet.
+
+`tests/test_coverage_ratchet_diagnosis.py` covers these separately from the
+pass/fail directions, because a gate can hold the right verdict and still send
+every reader to the wrong file.
+
 ## Running it
 
 ```bash

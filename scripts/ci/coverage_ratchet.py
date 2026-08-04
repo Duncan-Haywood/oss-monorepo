@@ -543,6 +543,51 @@ def declares_uninstalled_dependencies(workdir: Path) -> bool:
     return not (workdir / "node_modules").is_dir()
 
 
+def uncommitted_component_paths(
+    repo_root: Path, component_path: str, limit: int = 6
+) -> List[str]:
+    """Paths under a component that differ from HEAD, as `git status` sees them.
+
+    Evidence for the `coverage-measured-dirty-tree` diagnosis. Measured *before*
+    the coverage command runs, never after: the run itself creates
+    `coverage/.tmp` and an lcov file, and reporting our own artifacts back as
+    "someone's work in progress" would make the diagnosis fire on every failure,
+    which is the same as it never firing.
+
+    A dirty tree does not make a failure untrue — the suite may be broken at
+    HEAD too — so this never changes a verdict, only which repair the reader is
+    sent to first. In CI the checkout is clean, nothing is listed, and the
+    wording is exactly what it was.
+
+    Fails soft, deliberately, and this is the one place in this file where that
+    is right. Everywhere else a missing input is a failure because the gate
+    would otherwise pass work it never checked. Here the gate has already
+    failed; no git, no repository, or a git that errors means only that we
+    cannot describe the tree, and the generic diagnosis below is still true.
+    Raising would convert a reportable failure into a crash.
+    """
+    try:
+        completed = subprocess.run(
+            ["git", "-C", str(repo_root), "status", "--porcelain", "--", component_path],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return []
+    if completed.returncode != 0:
+        return []
+    changed: List[str] = []
+    for line in completed.stdout.splitlines():
+        entry = line[3:].strip()
+        if not entry:
+            continue
+        # Renames are reported as `old -> new`; the new name is the live one.
+        _, _, renamed = entry.partition(" -> ")
+        changed.append((renamed or entry).strip('"'))
+    return changed[:limit]
+
+
 def without_reporter_arguments(command: Sequence[str]) -> List[str]:
     """The same command with its `--test-reporter*` arguments removed."""
     return [part for part in command if not part.startswith("--test-reporter")]
@@ -617,6 +662,10 @@ def run_coverage(repo_root: Path, entry: Dict[str, Any]) -> tuple[Optional[Measu
             remedy="Use an argv list, not a shell string, so nothing is word-split.",
         )
 
+    # Before anything runs, so the command's own artifacts are not mistaken for
+    # a human's uncommitted work. Used only if the command then fails.
+    uncommitted = uncommitted_component_paths(repo_root, entry["path"])
+
     with tempfile.TemporaryDirectory() as tmpdir:
         destination = Path(tmpdir) / "coverage.lcov"
         env = dict(os.environ)
@@ -688,6 +737,25 @@ def run_coverage(repo_root: Path, entry: Dict[str, Any]) -> tuple[Optional[Measu
                     remedy=(
                         "Install the component's dependencies (npm ci) and re-run. "
                         "This is an uninstalled component, not a failing test suite."
+                    ),
+                )
+            if uncommitted:
+                return None, Finding(
+                    component=name,
+                    severity="error",
+                    code="coverage-measured-dirty-tree",
+                    message=(
+                        f"coverage command exited {completed.returncode} while "
+                        f"{entry['path']} held uncommitted changes ("
+                        + ", ".join(uncommitted)
+                        + "), so this may not be a failure at HEAD: "
+                        + " | ".join(tail)
+                    ),
+                    remedy=(
+                        "Re-run against a clean checkout of this component before "
+                        "treating it as a broken suite. Still failing there means the "
+                        "suite is the bug; passing there means the gate measured "
+                        "work in progress."
                     ),
                 )
             return None, Finding(
