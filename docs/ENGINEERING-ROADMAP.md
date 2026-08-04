@@ -1599,14 +1599,16 @@ evidence, and completion date before it can be marked done.
   live branches are both building. It measured this collision correctly and
   nobody read it before starting. The gap is not the measurement.
 
-  Verified at `2ede739` in a clean clone on Node 22.22.3: 19 of 22 named gates
-  pass, 1139 of 1141 pytest tests pass, 112 Dagger-engine contract tests pass,
+  Verified at `0e17497` in an independent clone on Node 22.22.3, with `npm ci`
+  run in the three ventures whose gates shell into them: **21 of 22 named gates
+  pass**, 1139 of 1141 pytest tests pass, 112 Dagger-engine contract tests pass,
   quick-pick-survey 425 of 425, local-site-studio 1270 of 1270 with `tsc
-  --noEmit` clean. The three red gates are `Coverage Baseline Ratchet` and the
-  `Pairwise Unit Suite`, both of which report an uninstalled component in a
-  fresh clone and say so precisely rather than as a test failure, and the
-  pytest suite, whose only two failures are those same two conditions: the
-  coverage basis and `release_lag`.
+  --noEmit` clean, print-atelier and platform-ci both at their declared coverage
+  baseline. The one red gate is `release_lag`, and it is supposed to be —
+  see below. Measured before the installs, three gates read red; two of those
+  were `Coverage Baseline Ratchet` and the `Pairwise Unit Suite` reporting an
+  uninstalled component, which they name as such rather than as a test failure.
+  Install the dependencies and confirm rather than reporting the excuse.
 
   Not done: this reconciles the branches, not the ledger. `release_lag` is
   still red and still correct, and nothing here is live. It also does not
