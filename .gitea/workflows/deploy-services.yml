@@ -3,18 +3,28 @@ name: Service Release Configuration Validation
 on:
   pull_request:
     paths:
-      - "platform/terraform/helm/web-service/**"
+      # Was `platform/terraform/helm/web-service/**`. The image-tag audit now
+      # reads every `.tf` source too, so a `:latest` added to
+      # `agent_platform.tf` has to trigger the gate that would catch it — a
+      # correct control on a path the workflow never fires for is not a gate.
+      - "platform/terraform/**"
       - "platform/k8s/**"
       - "platform/image-tag-exceptions.yaml"
       - "scripts/ci/image_tags.py"
+      - "scripts/ci/terraform_images.py"
       - ".gitea/workflows/deploy-services.yml"
   push:
     branches: [main]
     paths:
-      - "platform/terraform/helm/web-service/**"
+      # Was `platform/terraform/helm/web-service/**`. The image-tag audit now
+      # reads every `.tf` source too, so a `:latest` added to
+      # `agent_platform.tf` has to trigger the gate that would catch it — a
+      # correct control on a path the workflow never fires for is not a gate.
+      - "platform/terraform/**"
       - "platform/k8s/**"
       - "platform/image-tag-exceptions.yaml"
       - "scripts/ci/image_tags.py"
+      - "scripts/ci/terraform_images.py"
       - ".gitea/workflows/deploy-services.yml"
   workflow_dispatch:
 

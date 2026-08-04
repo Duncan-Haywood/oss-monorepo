@@ -54,8 +54,12 @@ resource "helm_release" "opencode_agent" {
     yamlencode({
       replicas = 1
       image = {
+        # Same release as `helm_release.code_server`, and pinned by the same
+        # required, validated variable. This one answers on
+        # `opencode.marisstella.dev`, which is the second public code-server the
+        # k8s-only audit could not see.
         repository = "codercom/code-server"
-        tag        = "latest"
+        tag        = var.code_server_image_tag
       }
       service = {
         port       = 8080

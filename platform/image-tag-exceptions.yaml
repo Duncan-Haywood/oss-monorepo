@@ -27,6 +27,103 @@
 # registered below because it does not need to be — it is the worked example.
 
 exceptions:
+  # Entries are matched in file order and each reference is claimed once, so a
+  # specific path above a broad glob behaves the way it reads. IMG-002 sits
+  # above IMG-001 for exactly that reason: `platform/k8s/apps/*/deployment.yaml`
+  # would otherwise swallow it and IMG-001's count of 7 would silently become 8.
+  - id: IMG-002
+    path: platform/k8s/apps/service-template/deployment.yaml
+    count: 1
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
+    expires: 2026-12-15
+    reason: >-
+      `image: nginx:alpine # Replace with your docker image registry URL/tag`.
+      Surfaced on 2026-08-04 when `scripts/ci/image_tags.py` stopped asking
+      whether a tag is one of ten bad words and started asking whether it is
+      immutable evidence: `:alpine` names no build and no version, it is
+      whatever Alpine nginx was published last. The old constant's own docstring
+      claimed `alpine` was "caught by the digest rule instead" — it was not,
+      which is the failure mode a denylist has by construction.
+      This is not deployed: `platform/k8s/argocd-apps/` has an Application for
+      each of the eight ventures and none for `service-template`, and the file
+      is the skeleton a new venture is copied from. It cannot be pinned here
+      without picking an nginx version, and no nginx version appears anywhere in
+      this repository to pick from — `portfolio/marisstella-homepage/Dockerfile`
+      says `FROM nginx:alpine` too. Naming a version nobody has read is how a
+      manifest ends up pointing at an artifact that does not exist.
+    compensating_control: >-
+      A template that no Argo CD Application references cannot pull an image
+      into the cluster. The exposure is that the next venture copied from this
+      skeleton inherits a floating tag, which is a review problem rather than a
+      running one, and this gate now sees it either way.
+
+  - id: IMG-003
+    path: platform/terraform/dashboard_portal.tf
+    count: 1
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
+    expires: 2026-12-15
+    reason: >-
+      `nginxdemos/hello:plain-text` on `helm_release.cluster_dashboard`.
+      Surfaced on 2026-08-04 when this audit began reading
+      `platform/terraform/` at all — the second deployment surface, applied by
+      `.gitea/workflows/terraform-apply.yml`, previously read by no control in
+      the repository. `plain-text` is a variant selector, not a version: it
+      floats with every upstream push. Upstream publishes no version tag that
+      appears in any tracked file here, so pinning it means an operator choosing
+      a digest against the live registry, which is a deploy-time act and not one
+      this branch can perform.
+    compensating_control: >-
+      Stated plainly, because the register has been wrong about this before:
+      this one IS publicly reachable. `dashboard_portal.tf` gives it a Traefik
+      ingress on `dashboard.marisstella.dev` with a Let's Encrypt certificate.
+      What limits the exposure is the workload, not the network — `nginxdemos/hello`
+      is a static hello-world with no credentials, no persistence and no mounted
+      secret, and the release declares no `env`. A hostile upstream push would
+      get a pod with nothing in it. That is a genuinely weaker mitigation than
+      "not reachable", and it is the true one.
+
+  - id: IMG-004
+    path: platform/terraform/tailscale.tf
+    count: 1
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
+    expires: 2026-12-15
+    reason: >-
+      `tailscale/tailscale:stable`. `stable` is a channel, not a release — it is
+      precisely the shape `:latest` has, spelled in a word the previous
+      ten-word denylist did not contain, and it is why that denylist was
+      replaced by a rule about what immutability looks like. No tailscale
+      version is recorded in any tracked file here, so pinning it requires an
+      operator to name one.
+    compensating_control: >-
+      None that removes the class. This pod mounts `kubernetes_secret.tailscale_auth`
+      and joins the cluster network, so an upstream push does reach a
+      credentialed workload — the exposure is real and this entry exists to keep
+      it counted and dated rather than to argue it away. It expires 2026-12-15.
+
+  - id: IMG-005
+    path: platform/terraform/helm/web-service/values.yaml
+    count: 1
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
+    expires: 2026-12-15
+    reason: >-
+      The `helm/web-service` chart's default `image: {repository: nginx, tag: alpine}`.
+      Every `helm_release` in `platform/terraform/` renders this chart, so this
+      is the reference any release that forgets to set `image` actually ships —
+      the same class of defect as `variables.tf`'s `tag = optional(string, "latest")`,
+      which was removed on 2026-08-04 rather than registered. This one is not
+      removable the same way: a chart's values file must supply a default for
+      every key its templates read, and Helm has no "required" for a plain
+      value. Same nginx-version problem as IMG-002.
+    compensating_control: >-
+      Every release in this configuration overrides `image` explicitly, so the
+      default is a fallback rather than a live reference — and this audit now
+      reads all six of those overrides, so a release that stopped overriding it
+      would be caught at its own line rather than inherited silently from here.
+
   - id: IMG-001
     path: platform/k8s/apps/*/deployment.yaml
     count: 7

@@ -24,9 +24,15 @@ variable "letsencrypt_email" {
 
 variable "services" {
   type = map(object({
-    domain   = string
-    image    = string
-    tag      = optional(string, "latest")
+    domain = string
+    image  = string
+    # `tag` is required on purpose, and was `optional(string, "latest")` until
+    # 2026-08-04. That default was the tag every service which forgot to declare
+    # one actually shipped on: `services.tf` feeds it straight into the
+    # `helm/web-service` chart, so a floating reference was the silent outcome
+    # of an omission rather than of a decision. A service with no tag must now
+    # fail `terraform plan` — loudly, at review time — instead of floating.
+    tag      = string
     replicas = optional(number, 2)
     port     = optional(number, 80)
     env      = optional(map(string), {})

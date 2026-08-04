@@ -41,6 +41,30 @@ Nothing here deploys, promotes or edits a manifest. Which ventures should be in
 the cluster, and on which digest, is the owner's decision. This only refuses to
 let the count of undeliverable deployments grow quietly.
 
+What it reads, widened 2026-08-04
+---------------------------------
+
+It used to open `<app>/deployment.yaml` and accept only `kind: Deployment`.
+Everything else in an app directory was outside every number this file
+produces, and `platform/k8s/apps/quick-pick-survey/` alone holds three
+workloads that were: two `kind: Job` release hooks in `release-hooks.yaml` and
+a `kind: CronJob` database backup. A Job that names an image nothing builds is
+the same undeliverable deployment as a Deployment that does — it just fails at
+`PreSync` instead of at rollout.
+
+It now reads every YAML document in every app directory and every workload kind
+that carries a pod template, and it reads `platform/terraform/` through
+`scripts/ci/terraform_images.py`, because that is the other surface which puts
+containers in this cluster. Unparseable YAML is a failure, not a skip: a
+manifest nobody can read is a manifest nobody checked.
+
+A reference terraform builds from an expression this repository cannot resolve
+— `each.value.image` and `each.value.tag`, fed from an untracked
+`terraform.tfvars` that no control may open — is counted as *both* unbuildable
+and mutable. Not because it is known to be either, but because it is known to be
+neither, and a control that treats "cannot see" as "fine" is the fail-open this
+whole file exists to close.
+
 Usage:
     python3 scripts/ci/image_release_path.py           # audit, exit 1 on failure
     python3 scripts/ci/image_release_path.py --report  # measure, always exit 0
@@ -60,6 +84,9 @@ from typing import Any, Dict, List, Optional, Sequence
 
 import yaml
 
+from image_tags import is_immutable_tag
+from terraform_images import TERRAFORM_ROOT, TerraformSurfaceError, scan_terraform
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 APPS_DIR = "platform/k8s/apps"
@@ -71,10 +98,19 @@ BASELINE_PATH = "platform/image-release-baseline.yaml"
 #: them, and counting them would make the ceiling meaningless.
 REGISTRY_PREFIX = "git.marisstella.dev/giteaadmin/"
 
-#: The same set `.gitea/workflows/deploy-services.yml` rejects in its rendered
-#: manifests. Kept identical on purpose: two different definitions of "mutable"
-#: is the drift this file exists to catch.
-MUTABLE_TAGS = frozenset({"latest", "main", "master"})
+#: Workload kinds that carry a pod template, and where that template lives.
+#: `deployment.yaml` and `kind: Deployment` were the only things read here until
+#: 2026-08-04, which put two Jobs and a CronJob — all three naming images, all
+#: three applied by Argo CD — outside both numbers below.
+POD_TEMPLATE_PATHS: Dict[str, tuple] = {
+    "Deployment": ("spec", "template", "spec"),
+    "StatefulSet": ("spec", "template", "spec"),
+    "DaemonSet": ("spec", "template", "spec"),
+    "ReplicaSet": ("spec", "template", "spec"),
+    "Job": ("spec", "template", "spec"),
+    "CronJob": ("spec", "jobTemplate", "spec", "template", "spec"),
+    "Pod": ("spec",),
+}
 
 #: Evidence that a workflow builds container images at all. Both forms are in
 #: use — pairwise-ci.yml shells out to `docker build`, homepage-ci.yml uses the
@@ -115,32 +151,66 @@ class AppVerdict:
     has_build_path: bool
     built_by: Optional[str]
     mutable: bool
+    kind: str = "Deployment"
+    source: str = ""
 
 
 def _containers(document: Any) -> List[Dict[str, Any]]:
-    """Every container spec in a Deployment document, init containers included."""
+    """Every container spec in a workload document, init containers included.
+
+    The pod template sits at a different depth per kind — a CronJob nests one
+    Job template deeper — so the path is looked up rather than assumed.
+    """
     if not isinstance(document, dict):
         return []
-    spec = (((document.get("spec") or {}).get("template") or {}).get("spec")) or {}
+    path = POD_TEMPLATE_PATHS.get(document.get("kind"))
+    if path is None:
+        return []
+    spec: Any = document
+    for key in path:
+        if not isinstance(spec, dict):
+            return []
+        spec = spec.get(key) or {}
+    if not isinstance(spec, dict):
+        return []
     found: List[Dict[str, Any]] = []
-    for key in ("containers", "initContainers"):
+    for key in ("containers", "initContainers", "ephemeralContainers"):
         entries = spec.get(key) or []
         if isinstance(entries, list):
             found.extend(entry for entry in entries if isinstance(entry, dict))
     return found
 
 
-def deployment_images(path: Path) -> List[str]:
-    """Images named by the Deployment, in file order."""
-    images: List[str] = []
-    for document in yaml.safe_load_all(path.read_text(encoding="utf-8")):
-        if not isinstance(document, dict) or document.get("kind") != "Deployment":
+def workload_images(path: Path) -> List[tuple]:
+    """(kind, image) for every workload document in the file, in file order.
+
+    Unreadable or unparseable is an error. A manifest that cannot be read is not
+    a manifest with no images in it.
+    """
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError as error:
+        raise RatchetError(f"{path}: could not read: {error}") from error
+    try:
+        documents = list(yaml.safe_load_all(text))
+    except yaml.YAMLError as error:
+        raise RatchetError(f"{path}: could not parse as YAML: {error}") from error
+
+    images: List[tuple] = []
+    for document in documents:
+        if not isinstance(document, dict):
             continue
+        kind = str(document.get("kind") or "")
         for container in _containers(document):
             image = container.get("image")
             if isinstance(image, str) and image.strip():
-                images.append(image.strip())
+                images.append((kind, image.strip()))
     return images
+
+
+def deployment_images(path: Path) -> List[str]:
+    """Back-compatible view: just the image strings, every workload kind."""
+    return [image for _, image in workload_images(path)]
 
 
 def kustomize_overrides(path: Path) -> Dict[str, Dict[str, str]]:
@@ -195,12 +265,19 @@ def resolve(image: str, overrides: Dict[str, Dict[str, str]]) -> tuple[str, str]
 
 
 def is_mutable(reference: str) -> bool:
-    """A reference nothing can pin a release to."""
-    if not reference:
-        return True
-    if reference.startswith("sha256:"):
-        return False
-    return reference in MUTABLE_TAGS
+    """A reference nothing can pin a release to.
+
+    This used to be `reference in {"latest", "main", "master"}` — the same
+    three-word denylist `.gitea/workflows/deploy-services.yml` grepped for, kept
+    identical on purpose so the two could not drift. They could not drift, and
+    they were both wrong the same way: `:release`, `:current`, `:staging`,
+    `:live`, `:rolling`, `:stable`, `:alpine` and `:plain-text` all passed. The
+    rule now comes from one place, `image_tags.is_immutable_tag`, and it is
+    stated positively — a reference must be a digest, a version or a build
+    identity — so a tag nobody thought of in advance is mutable by default
+    instead of pinned by default.
+    """
+    return not is_immutable_tag(reference)
 
 
 def building_workflows(repo_root: Path) -> Dict[str, str]:
@@ -225,33 +302,89 @@ def building_workflows(repo_root: Path) -> Dict[str, str]:
 
 
 def audit_apps(repo_root: Path) -> List[AppVerdict]:
-    """One verdict per image named by an app under platform/k8s/apps."""
+    """One verdict per image named by an app under platform/k8s/apps.
+
+    Every YAML file in the directory, not just `deployment.yaml`, and every
+    workload kind, not just `Deployment`.
+    """
     produced = building_workflows(repo_root)
     verdicts: List[AppVerdict] = []
     apps_dir = repo_root / APPS_DIR
     for app_dir in sorted(p for p in apps_dir.iterdir() if p.is_dir()):
-        deployment = app_dir / "deployment.yaml"
-        if not deployment.exists():
-            continue
         overrides = kustomize_overrides(app_dir / "kustomization.yaml")
-        for image in deployment_images(deployment):
-            repository, reference = resolve(image, overrides)
-            external = not repository.startswith(REGISTRY_PREFIX)
-            name = None if external else repository[len(REGISTRY_PREFIX) :]
-            built_by = produced.get(name) if name else None
-            verdicts.append(
-                AppVerdict(
-                    app=app_dir.name,
-                    image=image,
-                    repository=repository,
-                    reference=reference,
-                    external=external,
-                    # A third-party image is not this repository's to build.
-                    has_build_path=external or built_by is not None,
-                    built_by=built_by,
-                    mutable=False if external else is_mutable(reference),
+        manifests = sorted(app_dir.glob("*.yaml")) + sorted(app_dir.glob("*.yml"))
+        for manifest in manifests:
+            if manifest.name == "kustomization.yaml":
+                # Read as this directory's overlay, above, not as a workload.
+                continue
+            for kind, image in workload_images(manifest):
+                repository, reference = resolve(image, overrides)
+                external = not repository.startswith(REGISTRY_PREFIX)
+                name = None if external else repository[len(REGISTRY_PREFIX) :]
+                built_by = produced.get(name) if name else None
+                verdicts.append(
+                    AppVerdict(
+                        app=app_dir.name,
+                        image=image,
+                        repository=repository,
+                        reference=reference,
+                        external=external,
+                        # A third-party image is not this repository's to build.
+                        has_build_path=external or built_by is not None,
+                        built_by=built_by,
+                        mutable=False if external else is_mutable(reference),
+                        kind=kind,
+                        source=manifest.relative_to(repo_root).as_posix(),
+                    )
                 )
+    return verdicts
+
+
+def audit_terraform(repo_root: Path) -> List[AppVerdict]:
+    """The same two questions, asked of `platform/terraform/`.
+
+    Third-party images are out of scope for both counts, exactly as under
+    `platform/k8s/apps` — this repository is not `codercom`'s build system. What
+    is in scope is a reference whose *repository* cannot be resolved from
+    tracked sources: it may or may not be an organisation image, and a control
+    that cannot tell must not answer "external, therefore fine".
+    """
+    try:
+        images = scan_terraform(repo_root)
+    except TerraformSurfaceError as error:
+        raise RatchetError(str(error)) from error
+
+    produced = building_workflows(repo_root)
+    verdicts: List[AppVerdict] = []
+    for image in images:
+        repository = image.repository
+        known = image.repository_resolved
+        external = known and not repository.startswith(REGISTRY_PREFIX)
+        name = (
+            repository[len(REGISTRY_PREFIX) :]
+            if known and repository.startswith(REGISTRY_PREFIX)
+            else None
+        )
+        built_by = produced.get(name) if name else None
+        reference = image.digest or image.tag or ""
+        verdicts.append(
+            AppVerdict(
+                app=f"terraform:{Path(image.path).stem}",
+                image=image.declared,
+                repository=repository,
+                reference=reference if image.tag_resolved else "",
+                external=external,
+                has_build_path=external or built_by is not None,
+                built_by=built_by,
+                mutable=(
+                    False
+                    if external
+                    else (not image.tag_resolved or is_mutable(reference))
+                ),
+                kind="terraform",
+                source=f"{image.path}:{image.line}",
             )
+        )
     return verdicts
 
 
@@ -323,8 +456,8 @@ def load_baseline(repo_root: Path) -> Dict[str, Any]:
 
 
 def measure(repo_root: Path) -> Dict[str, Any]:
-    """The two counts plus the verdicts behind them."""
-    verdicts = audit_apps(repo_root)
+    """The two counts plus the verdicts behind them, over both surfaces."""
+    verdicts = audit_apps(repo_root) + audit_terraform(repo_root)
     without_build_path = [v for v in verdicts if not v.has_build_path]
     mutable = [v for v in verdicts if v.mutable]
     return {
@@ -371,8 +504,12 @@ def evaluate(repo_root: Path) -> tuple[Dict[str, Any], List[str]]:
 
 
 def _print_report(measured: Dict[str, Any]) -> None:
+    from_terraform = sum(1 for app in measured["apps"] if app["kind"] == "terraform")
     print("Image release path")
-    print(f"  images named by platform/k8s/apps: {len(measured['apps'])}")
+    print(
+        f"  images named by {APPS_DIR} and {TERRAFORM_ROOT}: {len(measured['apps'])}"
+        f" ({len(measured['apps']) - from_terraform} + {from_terraform})"
+    )
     print(f"  without a build path:              {measured['without_build_path']}")
     for app in measured["without_build_path_apps"]:
         print(f"    - {app}")
