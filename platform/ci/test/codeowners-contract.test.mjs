@@ -109,6 +109,7 @@ function trackedPlatformYaml() {
   return execFileSync('git', ['ls-files', 'platform/*.yaml'], {
     cwd: REPO_ROOT,
     encoding: 'utf8',
+    env: { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null' },
   })
     .split('\n')
     .map((line) => line.trim())

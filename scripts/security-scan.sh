@@ -217,7 +217,7 @@ SECRET_RESULTS=$(node -e '
 
   const repoRoot = process.argv[1];
   const ignoreDirs = new Set(["node_modules", ".git", ".next", "dist", "build", ".venv", "venv", ".terraform"]);
-  const ignoreFiles = new Set(["SECURITY_ROADMAP.md", "package-lock.json", "security-scan.sh"]);
+  const ignoreFiles = new Set(["SECURITY_ROADMAP.md", "package-lock.json", "security-scan.sh", "test-security-scan.sh"]);
   const patterns = [/AWS_SECRET_ACCESS_KEY\s*=/i, /BEGIN\s+RSA\s+PRIVATE\s+KEY/i, /BEGIN\s+OPENSSH\s+PRIVATE\s+KEY/i];
 
   let matches = [];

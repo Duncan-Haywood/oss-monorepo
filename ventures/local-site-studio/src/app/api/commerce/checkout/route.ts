@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
 import { getCommerceCatalog, recordCheckoutSessionCreated } from "@/lib/db";
+import {
+  advertisedPriceRefusal,
+  commerceSkuExpectation,
+  verifyAdvertisedPrices,
+} from "@/lib/pricing/advertised-price-guarantee";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 
@@ -74,6 +79,25 @@ export async function POST(request: Request) {
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? new URL(request.url).origin;
   const stripe = new Stripe(secretKey);
+
+  // The preview page prints item.priceCents; item.stripePriceId is what bills.
+  // Resolving the price server-side stops a tampered client payload, but not a
+  // Price whose amount was edited in the Stripe Dashboard after the sync — so
+  // confirm with Stripe before the session exists. See
+  // src/lib/pricing/advertised-price-guarantee.ts.
+  const priceCheck = await verifyAdvertisedPrices(
+    stripe,
+    [commerceSkuExpectation({ ...item, stripePriceId: item.stripePriceId })],
+    [item.stripePriceId],
+  );
+  const refusal = advertisedPriceRefusal(priceCheck);
+  if (refusal) {
+    console.error(
+      `Refusing commerce checkout for ${slug}/${skuId} — advertised price not guaranteed: ` +
+        refusal.body.reasons.join("; "),
+    );
+    return NextResponse.json(refusal.body, { status: refusal.status });
+  }
 
   try {
     const session = await stripe.checkout.sessions.create({

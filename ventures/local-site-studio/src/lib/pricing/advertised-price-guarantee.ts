@@ -254,8 +254,33 @@ function mismatchReason(
 export async function verifyAdvertisedPrices(
   stripe: StripePricesForVerification,
   expectations: readonly AdvertisedPriceExpectation[],
+  /**
+   * Every Price ID the session would actually bill, if the caller has one.
+   *
+   * The guarantee is only as wide as its expectation list. A line item added
+   * later without a matching expectation would be charged unverified and every
+   * test here would still pass, so callers hand over what they are about to
+   * bill and an uncovered id is refused like any other unproven price.
+   */
+  billedPriceIds?: readonly (string | undefined)[],
 ): Promise<AdvertisedPriceVerification> {
   const failures: AdvertisedPriceFailure[] = [];
+
+  if (billedPriceIds) {
+    const expected = new Set(expectations.map((expectation) => expectation.priceId));
+    for (const priceId of billedPriceIds) {
+      if (priceId && expected.has(priceId)) continue;
+      failures.push({
+        kind: "unverifiable",
+        label: "unnamed line item",
+        source: "checkout line items",
+        priceId: priceId ?? "",
+        reason:
+          `Checkout would bill Stripe Price ${priceId ?? "(none)"} with no advertised amount ` +
+          `to check it against — refusing rather than charging an unadvertised price`,
+      });
+    }
+  }
 
   for (const expectation of expectations) {
     let price: StripePriceForVerification;
