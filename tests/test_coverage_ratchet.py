@@ -74,7 +74,8 @@ def component(**overrides):
         "path": "platform/ci",
         "owner": "duncan",
         "command": ["node", "--version"],
-        "baseline": {"lines": 87.5, "functions": 75.0, "branches": 75.0},
+        "sources": ["src/**/*.mjs"],
+        "baseline": {"lines": 87.5, "functions": 75.0, "branches": 75.0, "unexercised": 0},
         # Matches SAMPLE_LCOV, so a comparison against it checks the percentages
         # rather than tripping over the basis.
         "measured": {"files": 2, "lines": 200},
@@ -328,6 +329,7 @@ class RunCoverageTest(unittest.TestCase):
 
     def test_empty_lcov_fails_rather_than_reading_as_perfect(self):
         entry = component(
+            sources=[],
             command=[
                 "node",
                 "-e",
@@ -339,13 +341,14 @@ class RunCoverageTest(unittest.TestCase):
 
     def test_destination_is_provided_and_read_back(self):
         entry = component(
+            sources=["a.ts"],
             command=[
                 "node",
                 "-e",
                 "require('fs').writeFileSync(process.env.COVERAGE_LCOV_DESTINATION,"
                 "'SF:a.ts\\nLF:10\\nLH:9\\nFNF:2\\nFNH:2\\nBRF:4\\nBRH:3\\nend_of_record\\n')",
             ],
-            baseline={"lines": 90.0, "functions": 100.0, "branches": 75.0},
+            baseline={"lines": 90.0, "functions": 100.0, "branches": 75.0, "unexercised": 0},
             measured={"files": 1, "lines": 10},
         )
         measured, failure = run_coverage(REPO_ROOT, entry)

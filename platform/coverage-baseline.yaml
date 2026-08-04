@@ -53,6 +53,13 @@ components:
       - --test-reporter=lcov
       - --test-reporter-destination=$COVERAGE_LCOV_DESTINATION
       - tests/*.test.ts
+    sources:
+      - "src/**/*.ts"
+      - "src/**/*.tsx"
+    exclude:
+      - "*.test.ts"
+      - "*.test.tsx"
+      - "*.d.ts"
     # Measured 2026-08-02 on Node 22.22.3 across 54 source files / 13502 lines,
     # and identically on Node 26.4.0 (branches differ by 0.05 pt, inside the
     # tolerance below).
@@ -67,12 +74,13 @@ components:
     # Branch coverage remains the weakest of the three and is where the climb to
     # the 90% target continues.
     baseline:
-      lines: 91.81
-      functions: 87.53
-      branches: 79.76
+      unexercised: 52
+      lines: 88.07
+      functions: 91.12
+      branches: 82.12
     measured:
-      files: 54
-      lines: 13502
+      files: 132
+      lines: 29504
     tolerance:
       lines: 0.5
       functions: 0.5
@@ -90,6 +98,10 @@ components:
       - --test-reporter=lcov
       - --test-reporter-destination=$COVERAGE_LCOV_DESTINATION
       - test/*.test.mjs
+    sources:
+      - "src/**/*.mjs"
+    exclude:
+      - "*.test.mjs"
     # Measured 2026-08-03 at 5711c17 on Node 22.22.3, across the component's two
     # source files: `src/pipeline.mjs` (805 lines) and `src/gate-contract.mjs`
     # (290), 1095 together — `wc -l platform/ci/src/*.mjs` exactly.
@@ -123,13 +135,15 @@ components:
     # contiguous uncovered span in pipeline.mjs (roughly lines 556-805) is exactly
     # where it was. That span is still where raising this should start.
     baseline:
-      lines: 69.86
-      functions: 85.29
-      branches: 82.58
+      unexercised: 0
+      lines: 79.93
+      functions: 89.19
+      branches: 90.43
     measured:
       files: 2
-      lines: 1095
+      lines: 1176
     tolerance:
       lines: 0.5
       functions: 0.5
       branches: 0.5
+
