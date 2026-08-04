@@ -1,3 +1,4 @@
+import React from "react";
 import AdCatalogFeedLab from "@/components/AdCatalogFeedLab";
 import DemoNav from "@/components/shared/DemoNav";
 

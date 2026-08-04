@@ -1,0 +1,15 @@
+{
+  "name": "AI-First Markets Access Policy",
+  "description": "Whitelist-only access for duncan.andrew.haywood@gmail.com",
+  "decision": "allow",
+  "include": [
+    {
+      "email": {
+        "email": "duncan.andrew.haywood@gmail.com"
+      }
+    }
+  ],
+  "exclude": [],
+  "require": [],
+  "purpose_justification": "Private business evaluation reports — single authorized user"
+}

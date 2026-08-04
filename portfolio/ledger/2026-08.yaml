@@ -1,0 +1,90 @@
+period: 2026-08
+entries:
+  - venture: ai-engineering-academy
+    agent_spend_usd: 40.00
+    human_hours: 4.5
+    outcomes:
+      - Hands-on AI engineering interactive sandbox and agent architecture learning platform validated.
+      - Integrated module runner with node test suite & static site build pipeline.
+    mrr_end: 0
+
+  - venture: ai-first-markets
+    agent_spend_usd: 30.00
+    human_hours: 3.5
+    outcomes:
+      - Premium research newsletter subscription flow & API endpoint ($29/mo) implemented.
+      - Open redirect prevention, email validation, and route auth posture verified with unit tests.
+    mrr_end: 0
+
+  - venture: local-site-studio
+    agent_spend_usd: 28.50
+    human_hours: 2.0
+    outcomes:
+      - Instant preview site generators and performance templates active.
+    mrr_end: 0
+
+  - venture: photo-editing
+    agent_spend_usd: 24.22
+    human_hours: 3.0
+    outcomes:
+      - Batch catalog render pipeline and calibration worker verified.
+    mrr_end: 0
+
+  - venture: print-atelier
+    agent_spend_usd: 20.59
+    human_hours: 4.0
+    outcomes:
+      - Stripe Connect payouts & artist profit split system verified.
+      - POD Printful fulfillment pipeline active.
+    mrr_end: 0
+
+  - venture: real-estate-agent-photo-app
+    agent_spend_usd: 20.15
+    human_hours: 2.5
+    outcomes:
+      - MLS-ready photo enhancement pipeline & microsite generator documented.
+    mrr_end: 0
+
+  - venture: retail-pilot-intel
+    agent_spend_usd: 20.10
+    human_hours: 3.5
+    outcomes:
+      - Door + POS conversion join funnel and SKU desirability matrix verified.
+    mrr_end: 0
+
+  - venture: ubuntu-agent-server
+    agent_spend_usd: 20.05
+    human_hours: 2.0
+    outcomes:
+      - Container execution sandbox runner verified with unit tests passing.
+    mrr_end: 0
+
+  - venture: quick-pick-survey
+    agent_spend_usd: 6.80
+    human_hours: 5.0
+    outcomes:
+      - Pairwise decision engine Glicko-2 and Bradley-Terry logit models verified.
+      - Deep insights and theme customization validated with high concurrency suite.
+    mrr_end: 0
+
+  - venture: mat-470-real-analysis
+    agent_spend_usd: 20.00
+    human_hours: 3.0
+    outcomes:
+      - Interactive analysis problem solver & tutoring site verified with unit suite.
+    mrr_end: 0
+
+  - venture: photos-import-tools
+    agent_spend_usd: 20.00
+    human_hours: 2.5
+    outcomes:
+      - SD offload and local photo import validation suite verified.
+    mrr_end: 0
+
+  - venture: range-coach
+    agent_spend_usd: 6.88
+    human_hours: 2.0
+    outcomes:
+      - Shooting/golf range coaching analytics & session tracking pipeline verified.
+    mrr_end: 0
+

@@ -25,6 +25,8 @@ import {
   calculateMarketLaunchScore,
   fulfillmentPartners,
 } from "./partners";
+import { analyzeArtistRetentionAndPayoutCohorts } from "./artist-cohort-analytics";
+import { inspectPayoutReserveHealth } from "./payout-reserve-health";
 
 const defaultWeeklyBudget = 6800;
 const defaultRetailPrice = 85;
@@ -54,6 +56,8 @@ export type InvestorSnapshot = {
   payoutLedger: StripePayoutLedgerSummary;
   orderSummary: OrderSummary;
   outreachCohortAttribution: OutreachCohortAttribution;
+  artistCohorts: ReturnType<typeof analyzeArtistRetentionAndPayoutCohorts>;
+  reserveHealth: ReturnType<typeof inspectPayoutReserveHealth>;
 };
 
 export function buildInvestorSnapshot(
@@ -123,6 +127,12 @@ export function buildInvestorSnapshot(
   const payoutLedger = buildStripePayoutLedgerSummary();
   const orderSummary = buildOrderSummary();
   const outreachCohortAttribution = buildOutreachCohortAttribution();
+  const artistCohorts = analyzeArtistRetentionAndPayoutCohorts();
+  const reserveHealth = inspectPayoutReserveHealth({
+    availablePlatformBalanceCents: 450000,
+    pendingArtistTransfersCents: 120000,
+    monthlyGrossRevenueCents: monthlyGrossRevenue * 100,
+  });
 
   const pipelineStages = [
     {
@@ -185,5 +195,7 @@ export function buildInvestorSnapshot(
     payoutLedger,
     orderSummary,
     outreachCohortAttribution,
+    artistCohorts,
+    reserveHealth,
   };
 }

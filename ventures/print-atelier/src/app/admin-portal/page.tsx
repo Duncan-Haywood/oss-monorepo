@@ -22,6 +22,15 @@ import {
   calculateCatalogSummary,
   catalogArtworks,
 } from "@/lib/marketplace";
+import {
+  buildPayoutReconciliationWithDiagnostics,
+  calculatePayoutExceptionResolutionVelocity,
+  formatCents,
+} from "@/lib/payout-reconciliation";
+import { executeConnectPayoutBatchTransfer, type ConnectBatchTransferResult } from "@/lib/stripe-connect";
+import { inspectPayoutReserveHealth } from "@/lib/payout-reserve-health";
+import { analyzeArtistRetentionAndPayoutCohorts } from "@/lib/artist-cohort-analytics";
+
 
 type ReleaseStatusFilter = "all" | "hold" | "override-review" | "release-ready";
 type ConsentScenario = "current" | "urban-cleared";
@@ -50,6 +59,7 @@ export default function AdminPortal() {
   const [targetPodAdvantage, setTargetPodAdvantage] = useState(0);
   const [releaseStatusFilter, setReleaseStatusFilter] = useState<ReleaseStatusFilter>("all");
   const [consentScenario, setConsentScenario] = useState<ConsentScenario>("current");
+  const [batchTransferResult, setBatchTransferResult] = useState<ConnectBatchTransferResult | null>(null);
   const consentRecords = useMemo(
     () => [
       {
@@ -102,6 +112,34 @@ export default function AdminPortal() {
   const catalogSummary = calculateCatalogSummary(catalogArtworks);
   const criticalPayoutItems = payoutQueue.filter((item) => item.severity === "critical").length;
 
+  const payoutReconciliation = useMemo(() => {
+    const diagnostics = buildPayoutReconciliationWithDiagnostics({
+      resolveArtistAccount: (order) => ({
+        artistAccountId:
+          order.artistAccountId ??
+          `acct_${order.artistHandle?.replace("@", "") ?? "default"}`,
+        artistHandle: order.artistHandle ?? "@artist",
+      }),
+    });
+    const velocity = calculatePayoutExceptionResolutionVelocity(diagnostics.report);
+    return { ...diagnostics, velocity };
+  }, []);
+
+  const payoutReserveHealth = useMemo(() => {
+    return inspectPayoutReserveHealth({
+      availablePlatformBalanceCents: 450000,
+      pendingArtistTransfersCents: 120000,
+      unresolvedPayoutVariancesCents: payoutReconciliation.velocity.underpaidCentsOwed,
+      monthlyFulfillmentLiabilityCents: 110000,
+      monthlyGrossRevenueCents: 680000,
+      transfersCount: 4,
+    });
+  }, [payoutReconciliation]);
+
+  const artistCohorts = useMemo(() => {
+    return analyzeArtistRetentionAndPayoutCohorts();
+  }, []);
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-300 font-sans">
       {/* Header */}
@@ -141,6 +179,291 @@ export default function AdminPortal() {
         </div>
 
         <FulfillmentSubmissionsPanel />
+
+        {/* Artist Payout Reconciliation & Exception Resolution Velocity */}
+        <div className="bg-slate-800/50 rounded-xl border border-slate-700/50 overflow-hidden">
+          <div className="px-5 py-4 border-b border-slate-700/50 bg-slate-800 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <h2 className="font-semibold text-white flex items-center gap-2">
+                <CircleDollarSign className="w-4 h-4 text-emerald-400" /> Artist Payout Reconciliation & Velocity
+              </h2>
+              <p className="text-sm text-slate-400 mt-1">
+                {payoutReconciliation.velocity.velocityLabel}
+              </p>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
+              <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-2.5">
+                <p className="text-xl font-bold text-emerald-200">{payoutReconciliation.velocity.resolutionRatePercent}%</p>
+                <p className="text-slate-400">Reconciled</p>
+              </div>
+              <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 p-2.5">
+                <p className="text-xl font-bold text-rose-200">{payoutReconciliation.velocity.underpaidAccounts}</p>
+                <p className="text-slate-400">Underpaid</p>
+              </div>
+              <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-2.5">
+                <p className="text-xl font-bold text-amber-200">{formatCents(payoutReconciliation.velocity.underpaidCentsOwed)}</p>
+                <p className="text-slate-400">Owed to Artists</p>
+              </div>
+              <div className="rounded-lg border border-blue-500/20 bg-blue-500/10 p-2.5">
+                <p className="text-xl font-bold text-blue-200">{payoutReconciliation.velocity.estimatedResolutionHours}h</p>
+                <p className="text-slate-400">Est. Workload</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-5 space-y-4">
+            {payoutReconciliation.attributionGap.blocker && (
+              <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200 flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{payoutReconciliation.attributionGap.blocker}</span>
+              </div>
+            )}
+
+            <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-900/40 p-3 rounded-lg border border-slate-700/40 text-xs">
+              <div className="text-slate-300">
+                <span className="font-semibold text-white">Batch Transfer Helper:</span> Automatically top-up accounts missing payouts using Stripe Connect.
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const res = executeConnectPayoutBatchTransfer({
+                    report: payoutReconciliation.report,
+                    minTransferCents: 100,
+                    maxTransferCents: 100000,
+                    testMode: true,
+                  });
+                  setBatchTransferResult(res);
+                }}
+                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-md transition text-xs flex items-start gap-1.5"
+              >
+                Prepare Batch Top-Up Transfers
+              </button>
+            </div>
+
+            {batchTransferResult && (
+              <div className="rounded-lg border border-emerald-500/30 bg-emerald-950/40 p-3 text-xs space-y-2">
+                <div className="flex items-center justify-between font-semibold text-emerald-300">
+                  <span>{batchTransferResult.summaryLabel}</span>
+                  <span>Total Top-Up: {formatCents(batchTransferResult.totalTopUpCents)}</span>
+                </div>
+                {batchTransferResult.instructions.length > 0 && (
+                  <div className="space-y-1 text-slate-300">
+                    <p className="font-medium text-slate-200">Pending Top-Up Instructions:</p>
+                    <ul className="list-disc pl-4 space-y-0.5">
+                      {batchTransferResult.instructions.map((inst, idx) => (
+                        <li key={idx}>
+                          Connect Account <span className="font-mono text-emerald-400">{inst.artistAccountId}</span>: {formatCents(inst.amountCents)} ({inst.description})
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {batchTransferResult.skippedAccounts.length > 0 && (
+                  <p className="text-slate-400 italic">
+                    Skipped {batchTransferResult.skippedAccounts.length} account(s) due to threshold or balance bounds.
+                  </p>
+                )}
+              </div>
+            )}
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead className="text-xs text-slate-400 uppercase bg-slate-900/60">
+                  <tr>
+                    <th className="px-4 py-3">Artist Account</th>
+                    <th className="px-4 py-3">Handle</th>
+                    <th className="px-4 py-3 text-center">Orders</th>
+                    <th className="px-4 py-3 text-right">Expected</th>
+                    <th className="px-4 py-3 text-right">Settled</th>
+                    <th className="px-4 py-3 text-right">Variance</th>
+                    <th className="px-4 py-3 text-center">Status</th>
+                    <th className="px-4 py-3">Action / Resolution</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-700/50 font-mono text-xs">
+                  {payoutReconciliation.report.rows.map((row) => {
+                    const statusClass =
+                      row.status === "underpaid"
+                        ? "border-rose-500/30 bg-rose-500/10 text-rose-300"
+                        : row.status === "overpaid"
+                        ? "border-amber-500/30 bg-amber-500/10 text-amber-300"
+                        : row.status === "unpaid"
+                        ? "border-purple-500/30 bg-purple-500/10 text-purple-300"
+                        : row.status === "balanced"
+                        ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                        : "border-slate-500/30 bg-slate-500/10 text-slate-300";
+
+                    return (
+                      <tr key={row.artistAccountId} className={row.status === "underpaid" ? "bg-rose-950/20" : "hover:bg-slate-700/30"}>
+                        <td className="px-4 py-3 font-semibold text-white">{row.artistAccountId}</td>
+                        <td className="px-4 py-3 text-slate-400">{row.artistHandle ?? "—"}</td>
+                        <td className="px-4 py-3 text-center text-slate-300">{row.orderCount}</td>
+                        <td className="px-4 py-3 text-right font-semibold text-slate-200">{formatCents(row.expectedPayoutCents)}</td>
+                        <td className="px-4 py-3 text-right text-slate-300">{formatCents(row.settledPayoutCents)}</td>
+                        <td className={`px-4 py-3 text-right font-bold ${row.varianceCents < 0 ? "text-rose-400" : row.varianceCents > 0 ? "text-amber-400" : "text-emerald-400"}`}>
+                          {formatCents(row.varianceCents)}
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold border ${statusClass}`}>
+                            {row.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 font-sans text-slate-300">
+                          {row.actionLabel}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {payoutReconciliation.report.rows.length === 0 && (
+                    <tr>
+                      <td colSpan={8} className="px-4 py-6 text-center text-slate-500 font-sans">
+                        No reconciled payout records found. Orders must be stamped with artistAccountId.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* Payout Reserve Buffer Health & Artist Cohorts Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Reserve Buffer Health Panel */}
+          <div className="bg-slate-800/50 rounded-xl border border-slate-700/50 overflow-hidden flex flex-col justify-between">
+            <div className="px-5 py-4 border-b border-slate-700/50 bg-slate-800 flex items-center justify-between">
+              <div>
+                <h2 className="font-semibold text-white flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" /> Stripe Connect Reserve Buffer Health
+                </h2>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Platform balance & reserve coverage ratio against pending payouts & POD liabilities
+                </p>
+              </div>
+              <span
+                className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${
+                  payoutReserveHealth.status === "healthy"
+                    ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                    : payoutReserveHealth.status === "warning"
+                    ? "border-amber-500/30 bg-amber-500/10 text-amber-300"
+                    : "border-rose-500/30 bg-rose-500/10 text-rose-300"
+                }`}
+              >
+                {payoutReserveHealth.status.toUpperCase()} ({payoutReserveHealth.reserveCoveragePercent}%)
+              </span>
+            </div>
+            <div className="p-5 space-y-4 text-xs">
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="rounded-lg border border-slate-700 bg-slate-900/60 p-2.5">
+                  <p className="text-slate-400">Available Cash</p>
+                  <p className="text-lg font-bold text-white mt-1">
+                    {formatCents(payoutReserveHealth.availablePlatformBalanceCents)}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-slate-700 bg-slate-900/60 p-2.5">
+                  <p className="text-slate-400">Target Reserve</p>
+                  <p className="text-lg font-bold text-amber-300 mt-1">
+                    {formatCents(payoutReserveHealth.recommendedReserveBufferCents)}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-slate-700 bg-slate-900/60 p-2.5">
+                  <p className="text-slate-400">Safety Margin</p>
+                  <p
+                    className={`text-lg font-bold mt-1 ${
+                      payoutReserveHealth.netSafetyMarginCents >= 0 ? "text-emerald-400" : "text-rose-400"
+                    }`}
+                  >
+                    {formatCents(payoutReserveHealth.netSafetyMarginCents)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-1 bg-slate-900/40 p-3 rounded-lg border border-slate-700/40">
+                <p className="font-semibold text-slate-200">Liabilities Breakdown:</p>
+                <div className="flex justify-between text-slate-300">
+                  <span>Pending Artist Transfers:</span>
+                  <span className="font-mono">{formatCents(payoutReserveHealth.breakdown.pendingArtistTransfersCents)}</span>
+                </div>
+                <div className="flex justify-between text-slate-300">
+                  <span>Unresolved Payout Variances:</span>
+                  <span className="font-mono">{formatCents(payoutReserveHealth.breakdown.unresolvedPayoutVariancesCents)}</span>
+                </div>
+                <div className="flex justify-between text-slate-300">
+                  <span>Fulfillment POD Invoices:</span>
+                  <span className="font-mono">{formatCents(payoutReserveHealth.breakdown.monthlyFulfillmentLiabilityCents)}</span>
+                </div>
+                <div className="flex justify-between text-slate-300">
+                  <span>Est. Connect Payout Fees:</span>
+                  <span className="font-mono">{formatCents(payoutReserveHealth.breakdown.estimatedConnectPayoutFeesCents)}</span>
+                </div>
+              </div>
+
+              {payoutReserveHealth.warnings.length > 0 && (
+                <div className="space-y-1">
+                  {payoutReserveHealth.warnings.map((w, idx) => (
+                    <p key={idx} className="text-rose-300 flex items-start gap-1.5">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                      {w}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Artist Retention & Payout Repeat Cohort Panel */}
+          <div className="bg-slate-800/50 rounded-xl border border-slate-700/50 overflow-hidden flex flex-col justify-between">
+            <div className="px-5 py-4 border-b border-slate-700/50 bg-slate-800 flex items-center justify-between">
+              <div>
+                <h2 className="font-semibold text-white flex items-center gap-2">
+                  <Users className="w-4 h-4 text-blue-400" /> Artist Retention & Payout Cohorts
+                </h2>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  {artistCohorts.summaryLabel}
+                </p>
+              </div>
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-300">
+                {artistCohorts.repeatPayoutArtistPercent}% Repeat Rate
+              </span>
+            </div>
+            <div className="p-5 space-y-4 text-xs">
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="rounded-lg border border-slate-700 bg-slate-900/60 p-2.5">
+                  <p className="text-slate-400">Total Artists</p>
+                  <p className="text-lg font-bold text-white mt-1">{artistCohorts.totalUniqueArtists}</p>
+                </div>
+                <div className="rounded-lg border border-slate-700 bg-slate-900/60 p-2.5">
+                  <p className="text-slate-400">Repeat Payout Artists</p>
+                  <p className="text-lg font-bold text-blue-300 mt-1">{artistCohorts.repeatPayoutArtistCount}</p>
+                </div>
+                <div className="rounded-lg border border-slate-700 bg-slate-900/60 p-2.5">
+                  <p className="text-slate-400">Avg Orders/Artist</p>
+                  <p className="text-lg font-bold text-emerald-300 mt-1">{artistCohorts.averageOrdersPerArtist}</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <p className="font-semibold text-slate-200">Monthly Payout Cohorts:</p>
+                {artistCohorts.cohortSummaries.map((cohort) => (
+                  <div key={cohort.cohortMonth} className="bg-slate-900/40 p-2.5 rounded-lg border border-slate-700/40 space-y-1">
+                    <div className="flex justify-between font-semibold text-slate-300">
+                      <span>Cohort {cohort.cohortMonth}: {cohort.initialArtistCount} artist(s)</span>
+                      <span>{formatCents(cohort.initialPayoutCents)} initial</span>
+                    </div>
+                    <div className="flex gap-4 text-slate-400 text-[11px]">
+                      {Object.values(cohort.periods).map((p) => (
+                        <span key={p.monthOffset}>
+                          M{p.monthOffset}: {p.retainedArtists} active ({p.retentionRatePercent}%)
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
 
         {/* Payout Guardrails */}
         <div className="bg-slate-800/50 rounded-xl border border-slate-700/50 overflow-hidden">

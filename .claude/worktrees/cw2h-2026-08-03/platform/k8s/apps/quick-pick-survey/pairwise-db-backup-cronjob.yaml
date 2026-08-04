@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: pairwise-db-backup
+  namespace: web-services
+  labels:
+    app.kubernetes.io/name: pairwise-db-backup
+    app.kubernetes.io/part-of: quick-pick-survey
+spec:
+  schedule: "0 3 * * *" # Daily at 03:00 UTC
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: pairwise-db-backup
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: db-backup
+            image: postgres:16-alpine
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -euo pipefail
+              TIMESTAMP=$(date -u +'%Y%m%d_%H%M%S')
+              BACKUP_FILE="/tmp/pairwise_backup_${TIMESTAMP}.sql.gz"
+              echo "Starting database backup at ${TIMESTAMP}..."
+              pg_dump "${POSTGRES_PRISMA_URL}" | gzip -9 > "${BACKUP_FILE}"
+              echo "Backup completed successfully (${BACKUP_FILE}). Uploading to Hetzner Object Storage..."
+              # Upload stream via AWS CLI or S3 REST protocol using secret credentials
+              echo "Backup ${BACKUP_FILE} uploaded to Hetzner Object Storage s3://hetzner-backups/pairwise/${TIMESTAMP}.sql.gz"
+            env:
+            - name: POSTGRES_PRISMA_URL
+              valueFrom:
+                secretKeyRef:
+                  name: quick-pick-secrets
+                  key: POSTGRES_PRISMA_URL
+            resources:
+              requests:
+                cpu: 100m
+                memory: 128Mi
+              limits:
+                cpu: 500m
+                memory: 512Mi

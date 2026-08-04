@@ -3,7 +3,15 @@ import assert from "node:assert/strict";
 
 import { GET as adCatalogGet, POST as adCatalogPost } from "../src/app/api/ad-catalog/sync/route";
 import { GET as fulfillmentGet } from "../src/app/api/fulfillment/submissions/route";
+import { GET as fulfillmentHealthGet } from "../src/app/api/fulfillment/health/route";
 import { GET as retargetingGet } from "../src/app/api/retargeting/events/route";
+import { GET as artistCohortsGet } from "../src/app/api/analytics/artist-cohorts/route";
+import { GET as payoutsReconciliationGet } from "../src/app/api/payouts/reconciliation/route";
+import { POST as payoutsBatchTransferPost } from "../src/app/api/payouts/batch-transfer/route";
+import { GET as fulfillmentCostRouterGet } from "../src/app/api/fulfillment/cost-router/route";
+import { GET as payoutsTaxWithholdingGet } from "../src/app/api/payouts/tax-withholding/route";
+import { POST as customsClearanceAgingPost } from "../src/app/api/ops/customs-clearance-aging/route";
+import { GET as storefrontLocalizationGet } from "../src/app/api/storefront/localization/route";
 import { OPS_TOKEN_ENV } from "../src/lib/api-auth";
 
 /**
@@ -51,7 +59,14 @@ const unauthenticated: [string, () => Promise<Response>][] = [
   ["GET /api/ad-catalog/sync", () => adCatalogGet(request("/api/ad-catalog/sync"))],
   ["POST /api/ad-catalog/sync", () => adCatalogPost(request("/api/ad-catalog/sync"))],
   ["GET /api/fulfillment/submissions", () => fulfillmentGet(request("/api/fulfillment/submissions"))],
+  ["GET /api/fulfillment/health", () => fulfillmentHealthGet(request("/api/fulfillment/health"))],
   ["GET /api/retargeting/events", () => retargetingGet(request("/api/retargeting/events"))],
+  ["GET /api/analytics/artist-cohorts", () => artistCohortsGet(request("/api/analytics/artist-cohorts"))],
+  ["GET /api/payouts/reconciliation", () => payoutsReconciliationGet(request("/api/payouts/reconciliation"))],
+  ["POST /api/payouts/batch-transfer", () => payoutsBatchTransferPost(request("/api/payouts/batch-transfer"))],
+  ["GET /api/fulfillment/cost-router", () => fulfillmentCostRouterGet(request("/api/fulfillment/cost-router"))],
+  ["GET /api/payouts/tax-withholding", () => payoutsTaxWithholdingGet(request("/api/payouts/tax-withholding"))],
+  ["POST /api/ops/customs-clearance-aging", () => customsClearanceAgingPost(request("/api/ops/customs-clearance-aging"))],
 ];
 
 for (const [name, call] of unauthenticated) {
@@ -76,8 +91,53 @@ const wrongToken: [string, () => Promise<Response>][] = [
       fulfillmentGet(request("/api/fulfillment/submissions", { authorization: "Bearer wrong" })),
   ],
   [
+    "GET /api/fulfillment/health",
+    () =>
+      fulfillmentHealthGet(request("/api/fulfillment/health", { authorization: "Bearer wrong" })),
+  ],
+  [
     "GET /api/retargeting/events",
     () => retargetingGet(request("/api/retargeting/events", { authorization: "Bearer wrong" })),
+  ],
+  [
+    "GET /api/analytics/artist-cohorts",
+    () =>
+      artistCohortsGet(request("/api/analytics/artist-cohorts", { authorization: "Bearer wrong" })),
+  ],
+  [
+    "GET /api/payouts/reconciliation",
+    () =>
+      payoutsReconciliationGet(
+        request("/api/payouts/reconciliation", { authorization: "Bearer wrong" }),
+      ),
+  ],
+  [
+    "POST /api/payouts/batch-transfer",
+    () =>
+      payoutsBatchTransferPost(
+        request("/api/payouts/batch-transfer", { authorization: "Bearer wrong" }),
+      ),
+  ],
+  [
+    "GET /api/fulfillment/cost-router",
+    () =>
+      fulfillmentCostRouterGet(
+        request("/api/fulfillment/cost-router", { authorization: "Bearer wrong" }),
+      ),
+  ],
+  [
+    "GET /api/payouts/tax-withholding",
+    () =>
+      payoutsTaxWithholdingGet(
+        request("/api/payouts/tax-withholding", { authorization: "Bearer wrong" }),
+      ),
+  ],
+  [
+    "POST /api/ops/customs-clearance-aging",
+    () =>
+      customsClearanceAgingPost(
+        request("/api/ops/customs-clearance-aging", { authorization: "Bearer wrong" }),
+      ),
   ],
 ];
 

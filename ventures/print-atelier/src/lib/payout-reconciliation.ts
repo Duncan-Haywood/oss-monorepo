@@ -424,7 +424,17 @@ export function buildPayoutReconciliationWithDiagnostics(
   } = {},
 ): PayoutReconciliationDiagnostics {
   const orders = options.orders ?? getOrderRecords();
-  const resolveArtistAccount = options.resolveArtistAccount ?? (() => null);
+  const resolveArtistAccount =
+    options.resolveArtistAccount ??
+    ((order: OrderRecord) => {
+      if (order.artistAccountId) {
+        return {
+          artistAccountId: order.artistAccountId,
+          artistHandle: order.artistHandle ?? undefined,
+        };
+      }
+      return null;
+    });
   const { expectations, skipped } = buildExpectationsFromOrders(orders, resolveArtistAccount);
 
   const report = buildArtistPayoutReconciliation({
@@ -451,3 +461,147 @@ export function buildPayoutReconciliationWithDiagnostics(
     },
   };
 }
+
+export type PayoutExceptionResolutionVelocity = {
+  totalAccounts: number;
+  balancedAccounts: number;
+  underpaidAccounts: number;
+  overpaidAccounts: number;
+  unpaidAccounts: number;
+  unattributedAccounts: number;
+  resolutionRatePercent: number;
+  underpaidCentsOwed: number;
+  overpaidCentsLeaked: number;
+  totalDiscrepancies: number;
+  estimatedResolutionHours: number;
+  velocityLabel: string;
+};
+
+export function calculatePayoutExceptionResolutionVelocity(
+  report: ArtistPayoutReconciliationReport,
+  hoursPerDiscrepancy: number = 1.5,
+): PayoutExceptionResolutionVelocity {
+  const total = report.totals.artists;
+  const balanced = report.statusCounts.balanced;
+  const underpaid = report.statusCounts.underpaid;
+  const overpaid = report.statusCounts.overpaid;
+  const unpaid = report.statusCounts.unpaid;
+  const unattributed = report.statusCounts.unattributed;
+  const totalDiscrepancies = underpaid + overpaid + unpaid + unattributed;
+
+  const resolutionRatePercent = total > 0 ? Math.round((balanced / total) * 1000) / 10 : 100;
+  const estimatedResolutionHours = Math.round(totalDiscrepancies * hoursPerDiscrepancy * 10) / 10;
+
+  const velocityLabel =
+    totalDiscrepancies === 0
+      ? `100% reconciliation velocity — 0 open exceptions across ${total} accounts`
+      : `${resolutionRatePercent}% clean payout rate — ${totalDiscrepancies} open exceptions (~${estimatedResolutionHours}h resolution workload)`;
+
+  return {
+    totalAccounts: total,
+    balancedAccounts: balanced,
+    underpaidAccounts: underpaid,
+    overpaidAccounts: overpaid,
+    unpaidAccounts: unpaid,
+    unattributedAccounts: unattributed,
+    resolutionRatePercent,
+    underpaidCentsOwed: report.totals.underpaidCents,
+    overpaidCentsLeaked: report.totals.overpaidCents,
+    totalDiscrepancies,
+    estimatedResolutionHours,
+    velocityLabel,
+  };
+}
+
+export type PayoutAnomalyAlert = {
+  artistAccountId: string;
+  artistHandle: string | null;
+  varianceCents: number;
+  variancePercent: number;
+  status: ArtistPayoutReconciliationStatus;
+  severity: "high" | "medium" | "low";
+  anomalyType: "large_underpayment" | "large_overpayment" | "unattributed_funds";
+  message: string;
+};
+
+export type PayoutAnomalyReport = {
+  totalAnomalies: number;
+  highSeverityCount: number;
+  mediumSeverityCount: number;
+  alerts: PayoutAnomalyAlert[];
+  summaryLabel: string;
+};
+
+export function detectPayoutVarianceAnomalies(
+  report: ArtistPayoutReconciliationReport,
+  options?: {
+    thresholdCents?: number;
+    thresholdPercent?: number;
+  },
+): PayoutAnomalyReport {
+  const thresholdCents = options?.thresholdCents ?? 1000; // $10.00 default
+  const thresholdPercent = options?.thresholdPercent ?? 15; // 15% variance default
+
+  const alerts: PayoutAnomalyAlert[] = [];
+
+  for (const row of report.rows) {
+    if (row.status === "balanced") continue;
+
+    const absVariance = Math.abs(row.varianceCents);
+    const expected = row.expectedPayoutCents;
+    const variancePercent = expected > 0 ? Math.round((absVariance / expected) * 100) : 100;
+
+    if (row.status === "unattributed") {
+      alerts.push({
+        artistAccountId: row.artistAccountId,
+        artistHandle: row.artistHandle,
+        varianceCents: row.varianceCents,
+        variancePercent,
+        status: row.status,
+        severity: "high",
+        anomalyType: "unattributed_funds",
+        message: `Unattributed transfer of ${formatCents(row.settledPayoutCents)} without order expectation`,
+      });
+      continue;
+    }
+
+    if (absVariance >= thresholdCents || variancePercent >= thresholdPercent) {
+      const isUnderpaid = row.status === "underpaid" || row.status === "unpaid";
+      const anomalyType = isUnderpaid ? "large_underpayment" : "large_overpayment";
+      const severity: "high" | "medium" | "low" =
+        absVariance >= 5000 || variancePercent >= 50 ? "high" : "medium";
+
+      const message = isUnderpaid
+        ? `Underpayment anomaly: ${row.artistHandle || row.artistAccountId} is owed ${formatCents(absVariance)} (${variancePercent}% variance)`
+        : `Overpayment anomaly: ${row.artistHandle || row.artistAccountId} was overpaid by ${formatCents(absVariance)} (${variancePercent}% variance)`;
+
+      alerts.push({
+        artistAccountId: row.artistAccountId,
+        artistHandle: row.artistHandle,
+        varianceCents: row.varianceCents,
+        variancePercent,
+        status: row.status,
+        severity,
+        anomalyType,
+        message,
+      });
+    }
+  }
+
+  const highSeverityCount = alerts.filter((a) => a.severity === "high").length;
+  const mediumSeverityCount = alerts.filter((a) => a.severity === "medium").length;
+
+  const summaryLabel =
+    alerts.length === 0
+      ? `0 payout variance anomalies detected across ${report.totals.artists} accounts`
+      : `${alerts.length} payout variance anomaly alert(s) (${highSeverityCount} high severity, ${mediumSeverityCount} medium severity)`;
+
+  return {
+    totalAnomalies: alerts.length,
+    highSeverityCount,
+    mediumSeverityCount,
+    alerts,
+    summaryLabel,
+  };
+}
+

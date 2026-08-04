@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://retail-pilot-intel.local/schemas/aggregate_event.json",
+  "title": "AggregateEvent",
+  "description": "Privacy-preserving counts from edge vision or scanners. No person identifiers.",
+  "type": "object",
+  "required": ["event_id", "store_id", "source", "metric", "bucket_start", "bucket_end", "value"],
+  "properties": {
+    "event_id": { "type": "string", "format": "uuid" },
+    "store_id": { "type": "string" },
+    "source": {
+      "type": "string",
+      "enum": ["door_cv", "fixture_cv", "scanner", "rfid"]
+    },
+    "metric": {
+      "type": "string",
+      "enum": [
+        "entry",
+        "exit",
+        "bounce",
+        "engaged_visit",
+        "zone_dwell_seconds",
+        "touch",
+        "look_in",
+        "pass_by"
+      ]
+    },
+    "zone_id": { "type": "string", "description": "Optional fixture or door zone" },
+    "sku": { "type": "string", "description": "When metric is SKU-scoped" },
+    "bucket_start": { "type": "string", "format": "date-time" },
+    "bucket_end": { "type": "string", "format": "date-time" },
+    "value": { "type": "number", "minimum": 0 },
+    "unit": {
+      "type": "string",
+      "enum": ["count", "seconds"],
+      "default": "count"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Non-identifying debug (e.g. model version)"
+    }
+  },
+  "additionalProperties": false
+}

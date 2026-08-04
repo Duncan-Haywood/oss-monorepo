@@ -24,9 +24,7 @@ vi.mock("@/lib/prisma", () => ({
   },
 }));
 
-// Anonymous callers only — a signed-in account takes the reuse path instead
-// of creating anything, which is not what these tests are about.
-vi.mock("@/lib/auth", () => ({ getSessionUser: vi.fn(async () => null) }));
+vi.mock("@/lib/auth", () => ({ getSessionUser: vi.fn() }));
 
 vi.mock("@/lib/rateLimit", () => ({
   getClientIp: () => "127.0.0.1",
@@ -34,6 +32,7 @@ vi.mock("@/lib/rateLimit", () => ({
   recordWrite: async () => {},
 }));
 
+import { getSessionUser } from "@/lib/auth";
 import { POST } from "./route";
 
 function post(body: unknown) {
@@ -49,6 +48,7 @@ function post(body: unknown) {
 describe("POST /api/session/start", () => {
   beforeEach(() => {
     create.mockClear();
+    vi.mocked(getSessionUser).mockResolvedValue(null);
   });
 
   it("creates a participant from a first name and a perspective", async () => {

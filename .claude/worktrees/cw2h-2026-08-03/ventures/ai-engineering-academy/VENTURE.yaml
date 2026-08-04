@@ -1,0 +1,28 @@
+name: ai-engineering-academy
+description: Hands-on AI engineering interactive sandbox and agent architecture learning platform.
+stage: prototype
+verify: npm --prefix site test && npm --prefix site run build
+
+owner: duncan
+
+hypotheses:
+  - claim: Software engineers and teams will pay $49/mo subscription for interactive multi-agent and tool-calling sandbox tracks.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 40
+  protected: true
+
+kill_criteria:
+  - Fewer than 50 active learners after 60 days post-launch.
+
+links:
+  production: null
+  analytics: null

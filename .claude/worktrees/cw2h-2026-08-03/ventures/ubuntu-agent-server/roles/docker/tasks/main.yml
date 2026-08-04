@@ -1,0 +1,94 @@
+---
+- name: Add Docker apt repo
+  ansible.builtin.deb822_repository:
+    name: docker
+    types: deb
+    uris: "https://download.docker.com/linux/ubuntu"
+    suites: "{{ ansible_distribution_release }}"
+    components: stable
+    architectures: "{{ 'amd64' if ansible_architecture == 'x86_64' else ansible_architecture }}"
+    signed_by: "https://download.docker.com/linux/ubuntu/gpg"
+  register: docker_repo
+
+- name: Update apt cache after adding Docker repo
+  ansible.builtin.apt:
+    update_cache: true
+  when: docker_repo.changed
+
+- name: Install Docker Engine
+  ansible.builtin.apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+    state: present
+
+- name: Enable and start docker
+  ansible.builtin.systemd:
+    name: docker
+    enabled: true
+    state: started
+
+- name: Add agent_user to the docker group (so it can run docker without sudo)
+  ansible.builtin.user:
+    name: "{{ agent_user }}"
+    groups: docker
+    append: true
+  register: docker_group_membership
+
+- name: Note that a re-login is needed for the new group membership
+  ansible.builtin.debug:
+    msg: >-
+      Added {{ agent_user }} to the docker group. Group membership changes
+      don't apply to already-open SSH sessions or already-running systemd
+      services — the agent-runner.service will pick it up on its next
+      invocation (each run is a fresh process), but if you're testing
+      `docker` by hand over SSH right now, reconnect first.
+  when: docker_group_membership.changed
+
+# `docker build` runs ON THE REMOTE HOST (this is ansible.builtin.command,
+# not something that transfers files itself) — so the build context has to
+# actually exist there first. {{ playbook_dir }} is a path on the CONTROL
+# machine (this Mac); it does not exist on the target. Sync the Dockerfile
+# and the runner scripts it COPYs into a real remote directory, then build
+# against that.
+- name: Ensure remote docker build context directory exists
+  ansible.builtin.file:
+    path: /srv/agents/docker-build
+    state: directory
+    owner: "{{ agent_user }}"
+    group: "{{ agent_user }}"
+    mode: "0755"
+  when: use_docker_sandbox | bool
+
+- name: Sync Dockerfile to the remote build context
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/docker/agent-runner/Dockerfile"
+    dest: /srv/agents/docker-build/Dockerfile
+    owner: "{{ agent_user }}"
+    group: "{{ agent_user }}"
+    mode: "0644"
+  when: use_docker_sandbox | bool
+
+- name: Sync runner scripts into the remote build context
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/roles/agent_runner/files/runners/"
+    dest: /srv/agents/docker-build/runners/
+    owner: "{{ agent_user }}"
+    group: "{{ agent_user }}"
+    mode: "0755"
+  when: use_docker_sandbox | bool
+
+# Plain `docker build` via command rather than the community.docker
+# collection's docker_image module — avoids an extra collection dependency
+# and the Docker Python SDK it needs on the target, for one build command.
+- name: Build the agent-runner image
+  ansible.builtin.command: docker build -t agent-runner:latest /srv/agents/docker-build
+  become: true
+  become_user: "{{ agent_user }}"
+  when: use_docker_sandbox | bool
+  changed_when: true
+  # Runs every time use_docker_sandbox is true — Docker's own build cache
+  # makes a no-op rebuild fast, and "changed_when: true" is honest here
+  # (we're not trying to detect no-op vs real rebuild from Ansible's side).

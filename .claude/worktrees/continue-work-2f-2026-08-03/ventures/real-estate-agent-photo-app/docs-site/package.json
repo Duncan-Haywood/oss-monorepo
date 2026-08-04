@@ -1,0 +1,36 @@
+{
+  "name": "listing-lens-docs",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Private Listing Lens documentation site (Next.js on Cloudflare Pages + Access)",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "pages:deploy": "npm run build && wrangler pages deploy out --project-name=listing-lens-docs --branch=main"
+  },
+  "dependencies": {
+    "lucide-react": "^0.331.0",
+    "next": "^14.2.35",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-markdown": "^9.0.1",
+    "remark-gfm": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.0.1",
+    "eslint": "^8",
+    "eslint-config-next": "14.1.0",
+    "postcss": "^8",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5",
+    "wrangler": "^3.114.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

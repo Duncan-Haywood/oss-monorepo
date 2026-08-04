@@ -1,0 +1,115 @@
+name: OpenCode scheduled agents
+
+# OpenCode OAuth via ~/.local/share/opencode/auth.json.
+# Seed OPENCODE_AUTH from a local `opencode auth login` session.
+# Runs both repo prompts hourly (stagger :20).
+
+on:
+  schedule:
+    - cron: "20 * * * *"
+  workflow_dispatch:
+    inputs:
+      prompt_kind:
+        description: Which prompt to run
+        required: true
+        default: both
+        type: choice
+        options:
+          - both
+          - dev-work
+          - continuous-work
+      model:
+        description: OpenCode provider/model id
+        required: false
+        default: opencode/deepseek-v4-flash
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  id-token: write
+
+jobs:
+  resolve-prompts:
+    runs-on: ubuntu-latest
+    outputs:
+      prompts: ${{ steps.set.outputs.prompts }}
+    steps:
+      - id: set
+        shell: bash
+        run: |
+          kind="${{ github.event.inputs.prompt_kind || 'both' }}"
+          if [ "$kind" = "both" ] || [ "$kind" = "" ]; then
+            echo 'prompts=["dev-work","continuous-work"]' >> "$GITHUB_OUTPUT"
+          else
+            echo "prompts=[\"${kind}\"]" >> "$GITHUB_OUTPUT"
+          fi
+
+  opencode:
+    needs: resolve-prompts
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        prompt_kind: ${{ fromJSON(needs.resolve-prompts.outputs.prompts) }}
+    concurrency:
+      group: opencode-scheduled-${{ matrix.prompt_kind }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Restore OpenCode OAuth cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.local/share/opencode/auth.json
+          key: opencode-oauth-auth-${{ github.run_id }}-${{ matrix.prompt_kind }}
+          restore-keys: |
+            opencode-oauth-auth-
+
+      - name: Seed OpenCode OAuth auth.json
+        env:
+          OPENCODE_AUTH: ${{ secrets.OPENCODE_AUTH }}
+        run: |
+          chmod +x .github/scripts/restore-oauth-auth.sh
+          mkdir -p "$HOME/.local/share/opencode"
+          .github/scripts/restore-oauth-auth.sh "$HOME/.local/share/opencode/auth.json" OPENCODE_AUTH
+
+      - name: Prepare prompt
+        id: prompt
+        run: |
+          chmod +x .github/scripts/prepare-agent-prompt.sh
+          .github/scripts/prepare-agent-prompt.sh \
+            ".github/prompts/${{ matrix.prompt_kind }}.md" \
+            "opencode" \
+            "${{ matrix.prompt_kind }}"
+          PROMPT_PATH="${RUNNER_TEMP:-/tmp}/agent-prompt.md"
+          {
+            echo "body<<PROMPT_EOF"
+            cat "$PROMPT_PATH"
+            echo "PROMPT_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Run OpenCode (OAuth)
+        uses: anomalyco/opencode/github@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # OAuth auth.json is primary; optional API keys are fallbacks only.
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+        with:
+          model: ${{ github.event.inputs.model || 'opencode/deepseek-v4-flash' }}
+          prompt: ${{ steps.prompt.outputs.body }}
+          use_github_token: true
+
+      - name: Persist refreshed OAuth auth
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.local/share/opencode/auth.json
+          key: opencode-oauth-auth-${{ github.run_id }}-${{ matrix.prompt_kind }}

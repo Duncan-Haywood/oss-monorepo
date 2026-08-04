@@ -1,0 +1,124 @@
+name: Terraform Infrastructure & Services Deploy
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "platform/terraform/**"
+  workflow_dispatch:
+    inputs:
+      confirm_apply:
+        description: 'Type APPLY to permit a production infrastructure apply'
+        required: true
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: terraform-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    name: Terraform validate and plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    defaults:
+      run:
+        working-directory: platform/terraform
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@b9cd790757a3e7828004f2f9ff0ed28987ec854b # v3.1.2
+        with:
+          terraform_version: 1.11.4
+
+      - name: Check formatting
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init
+        run: terraform init -input=false
+
+      - name: Validate configuration
+        run: terraform validate
+
+      - name: Setup Kubeconfig for manual plan
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        env:
+          HETZNER_KUBECONFIG: ${{ secrets.HETZNER_KUBECONFIG }}
+        run: |
+          install -d -m 0700 "$RUNNER_TEMP/kube"
+          printf '%s' "$HETZNER_KUBECONFIG" > "$RUNNER_TEMP/kube/config"
+          chmod 0600 "$RUNNER_TEMP/kube/config"
+          echo "KUBECONFIG=$RUNNER_TEMP/kube/config" >> "${GITHUB_ENV:-$GITEA_ENV}"
+
+      - name: Terraform Plan
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          TF_VAR_hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
+          TF_VAR_mimo_api_key: ${{ secrets.MIMO_API_KEY }}
+          TF_VAR_opencode_password: ${{ secrets.OPENCODE_PASSWORD }}
+          TF_VAR_gitea_admin_password: ${{ secrets.GITEA_ADMIN_PASSWORD }}
+          TF_VAR_admin_basic_auth_users: ${{ secrets.ADMIN_BASIC_AUTH_USERS }}
+          TF_VAR_code_server_password: ${{ secrets.CODE_SERVER_PASSWORD }}
+        run: terraform plan -input=false -lock-timeout=5m -no-color
+
+  apply:
+    name: Apply reviewed Terraform
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      github.ref == 'refs/heads/main' &&
+      inputs.confirm_apply == 'APPLY'
+    needs: plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: production-infrastructure
+
+    defaults:
+      run:
+        working-directory: platform/terraform
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@b9cd790757a3e7828004f2f9ff0ed28987ec854b # v3.1.2
+        with:
+          terraform_version: 1.11.4
+
+      - name: Setup Kubeconfig
+        shell: bash
+        env:
+          HETZNER_KUBECONFIG: ${{ secrets.HETZNER_KUBECONFIG }}
+        run: |
+          install -d -m 0700 "$RUNNER_TEMP/kube"
+          printf '%s' "$HETZNER_KUBECONFIG" > "$RUNNER_TEMP/kube/config"
+          chmod 0600 "$RUNNER_TEMP/kube/config"
+          echo "KUBECONFIG=$RUNNER_TEMP/kube/config" >> "${GITHUB_ENV:-$GITEA_ENV}"
+
+      - name: Terraform Init
+        run: terraform init -input=false
+
+      - name: Create the exact plan that will be applied
+        env:
+          TF_VAR_hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
+          TF_VAR_mimo_api_key: ${{ secrets.MIMO_API_KEY }}
+          TF_VAR_opencode_password: ${{ secrets.OPENCODE_PASSWORD }}
+          TF_VAR_gitea_admin_password: ${{ secrets.GITEA_ADMIN_PASSWORD }}
+          TF_VAR_admin_basic_auth_users: ${{ secrets.ADMIN_BASIC_AUTH_USERS }}
+          TF_VAR_code_server_password: ${{ secrets.CODE_SERVER_PASSWORD }}
+        run: terraform plan -input=false -lock-timeout=5m -out="$RUNNER_TEMP/apply.tfplan"
+
+      - name: Apply the saved plan
+        run: terraform apply -input=false -lock-timeout=5m "$RUNNER_TEMP/apply.tfplan"

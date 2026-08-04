@@ -1,13 +1,26 @@
 name: Deploy AI-First Markets
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "ventures/ai-first-markets/**"
-      - ".gitea/workflows/ai-first-markets-*.yml"
-      - "scripts/ci/verify-component.sh"
+  # Automatic production promotion is intentionally absent until this service
+  # has the candidate browser suite required by docs/QUALITY-ENGINEERING.md.
   workflow_dispatch:
+    inputs:
+      quality_exception:
+        description: "Enter APPROVED after the owner approves the temporary UI-test exception"
+        required: true
+        type: string
+      exception_issue:
+        description: "Gitea issue URL for the missing candidate browser gate"
+        required: true
+        type: string
+      exception_evidence:
+        description: "HTTPS link to independent review, exploratory test, and rollback evidence"
+        required: true
+        type: string
+      exception_expires:
+        description: "Exception expiry (YYYY-MM-DD, no more than 30 days)"
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -22,6 +35,13 @@ defaults:
 
 jobs:
   verify-and-deploy:
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'workflow_dispatch' &&
+      inputs.quality_exception == 'APPROVED' &&
+      inputs.exception_issue != '' &&
+      inputs.exception_evidence != '' &&
+      inputs.exception_expires != ''
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment: production
@@ -32,6 +52,16 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
+      - name: Validate the bounded release exception
+        working-directory: ${{ github.workspace }}
+        env:
+          QUALITY_EXCEPTION: ${{ inputs.quality_exception }}
+          EXCEPTION_ISSUE: ${{ inputs.exception_issue }}
+          EXCEPTION_EVIDENCE: ${{ inputs.exception_evidence }}
+          EXCEPTION_EXPIRES: ${{ inputs.exception_expires }}
+        run: >-
+          bash scripts/ci/validate-release-exception.sh "$QUALITY_EXCEPTION"
+          "$EXCEPTION_ISSUE" "$EXCEPTION_EVIDENCE" "$EXCEPTION_EXPIRES"
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: "22"

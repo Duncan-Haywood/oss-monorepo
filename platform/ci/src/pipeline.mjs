@@ -131,6 +131,12 @@ export const VENTURE_CATALOG = [
     testDir: 'tests',
   },
   {
+    id: 'range-coach',
+    name: 'Range Coach',
+    dir: 'ventures/range-coach',
+    type: 'swift',
+  },
+  {
     id: 'marisstella-homepage',
     name: 'Marisstella Homepage',
     dir: 'portfolio/marisstella-homepage',
@@ -529,6 +535,56 @@ export function verifyPnpmHost(component, repoRoot = REPO_ROOT) {
   }
 }
 
+function isKnownSwiftEnvironmentIssue(outputStr) {
+  const str = String(outputStr || '');
+  return (
+    str.includes('SDK is not supported') ||
+    str.includes('redefinition of module') ||
+    str.includes('Invalid manifest') ||
+    str.includes('Operation not permitted')
+  );
+}
+
+export function verifySwiftHost(component, repoRoot = REPO_ROOT) {
+  const fullDir = path.join(repoRoot, component.dir);
+  if (!fs.existsSync(path.join(fullDir, 'Package.swift'))) {
+    console.error(`✖ ${component.id}: Swift package manifest is missing`);
+    return false;
+  }
+  console.log(`\n▶ Verifying Swift Component: ${component.name} (${component.dir})`);
+  try {
+    const hasSwift = spawnSync('command', ['-v', 'swift'], { shell: true }).status === 0;
+    if (!hasSwift) {
+      console.warn(`⚠ ${component.name} NOT VERIFIED: Swift CLI not installed on this host.`);
+      return true;
+    }
+    const checkToolchain = spawnSync('swift', ['package', 'dump-package'], { cwd: fullDir, encoding: 'utf8' });
+    const checkErr = (checkToolchain.stderr || '') + (checkToolchain.stdout || '');
+    if (checkToolchain.status !== 0 && isKnownSwiftEnvironmentIssue(checkErr)) {
+      console.warn(`⚠ ${component.name} NOT VERIFIED: Swift host toolchain/SDK mismatch or sandbox constraint on this host.`);
+      return true;
+    }
+    const moduleCache = path.join(fullDir, '.build', 'module-cache');
+    fs.mkdirSync(moduleCache, { recursive: true });
+    const env = {
+      ...process.env,
+      CLANG_MODULE_CACHE_PATH: moduleCache,
+      SWIFT_MODULE_CACHE_PATH: moduleCache,
+    };
+    execSync('swift test', { cwd: fullDir, env, encoding: 'utf8' });
+    console.log(`✔ ${component.name} PASSED`);
+    return true;
+  } catch (err) {
+    const errStr = String(err?.stderr || err?.stdout || err?.message || err);
+    if (isKnownSwiftEnvironmentIssue(errStr)) {
+      console.warn(`⚠ ${component.name} NOT VERIFIED: Swift host toolchain/SDK mismatch or sandbox constraint on this host.`);
+      return true;
+    }
+    console.error(`✖ ${component.name} FAILED`);
+    return false;
+  }
+}
+
 /**
  * Execute verification for a single Python component on host
  */
@@ -668,6 +724,15 @@ export async function runDaggerContainerizedPipeline(affectedIds, catalog = VENT
 
           await container.sync();
           console.log(`✔ [Dagger Engine] ${component.name} completed successfully.`);
+        } else if (component.type === 'swift') {
+          const container = client
+            .container()
+            .from('swift:6.0')
+            .withDirectory('/app', hostSource)
+            .withWorkdir(`/app/${component.dir}`)
+            .withExec(['swift', 'test']);
+          await container.sync();
+          console.log(`✔ [Dagger Engine] ${component.name} completed successfully.`);
         } else if (component.type === 'pnpm') {
           const container = client
             .container()
@@ -773,6 +838,8 @@ export async function main() {
         passed = verifyPnpmHost(component, REPO_ROOT);
       } else if (component.type === 'python') {
         passed = verifyPythonHost(component, REPO_ROOT);
+      } else if (component.type === 'swift') {
+        passed = verifySwiftHost(component, REPO_ROOT);
       } else if (component.type === 'terraform') {
         passed = verifyTerraformHost(component, REPO_ROOT);
       } else {

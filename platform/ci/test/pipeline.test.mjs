@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -9,6 +10,14 @@ import {
   VENTURE_CATALOG,
   getChangedFiles,
   resolveAffectedComponents,
+  runDaggerContainerizedPipeline,
+  runSecuritySuite,
+  verifyNodeHost,
+  verifyPnpmHost,
+  verifyPythonHost,
+  verifySwiftHost,
+  verifyTerraformHost,
+  main,
 } from '../src/pipeline.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -30,6 +39,17 @@ test('CI Pipeline Catalog - Directory Integrity', () => {
       `Registered component directory does not exist on filesystem: ${component.dir}`
     );
   }
+
+  assert.equal(
+    new Set(VENTURE_CATALOG.map((component) => component.id)).size,
+    VENTURE_CATALOG.length,
+    'Component IDs must be unique',
+  );
+  assert.equal(
+    new Set(VENTURE_CATALOG.map((component) => component.dir)).size,
+    VENTURE_CATALOG.length,
+    'Component directories must be unique',
+  );
 });
 
 /**
@@ -59,7 +79,8 @@ test('CI Pipeline Catalog - every venture with tests is registered and runs them
           stack.push(path.join(current, entry.name));
         } else if (
           /\.test\.(ts|tsx|js|mjs)$/.test(entry.name) ||
-          /^test_.*\.py$/.test(entry.name)
+          /^test_.*\.py$/.test(entry.name) ||
+          (entry.name.endsWith('.swift') && current.includes(`${path.sep}Tests`))
         ) {
           return true;
         }
@@ -106,6 +127,13 @@ test('CI Pipeline Catalog - every venture with tests is registered and runs them
       );
     }
   }
+});
+
+test('CI Pipeline Affected Path Resolver - Swift venture changes select Range Coach', () => {
+  assert.deepEqual(
+    resolveAffectedComponents(['ventures/range-coach/Sources/RangeCoachCore/SwingAnalysis.swift']),
+    ['range-coach'],
+  );
 });
 
 /**
@@ -217,3 +245,90 @@ test('CI Pipeline Git Changed Files Function', () => {
     assert.ok(Array.isArray(files));
   }
 });
+
+test('CI Pipeline Host Verification - Python Host Verifier', () => {
+  const missingComponent = { id: 'invalid-python', name: 'Invalid Python', dir: 'ventures/non-existent' };
+  assert.equal(verifyPythonHost(missingComponent, REPO_ROOT), false);
+
+  const missingTestDirComponent = { id: 'missing-test-dir', name: 'Missing Test Dir', dir: 'platform/ci', testDir: 'non-existent-tests' };
+  assert.equal(verifyPythonHost(missingTestDirComponent, REPO_ROOT), false);
+});
+
+test('CI Pipeline Host Verification - Node Host Verifier', () => {
+  const missingComponent = { id: 'invalid-node', name: 'Invalid Node', dir: 'ventures/non-existent' };
+  assert.equal(verifyNodeHost(missingComponent, REPO_ROOT), false);
+
+  const badScriptComponent = {
+    id: 'bad-script-node',
+    name: 'Bad Script Node',
+    dir: 'portfolio/marisstella-homepage',
+    scripts: ['non-existent-script'],
+  };
+  assert.equal(verifyNodeHost(badScriptComponent, REPO_ROOT), false);
+});
+
+test('CI Pipeline Host Verification - Security Suite', () => {
+  const origEnv = process.env.SECURITY_SCAN_ALLOW_OFFLINE;
+  process.env.SECURITY_SCAN_ALLOW_OFFLINE = '1';
+  try {
+    const res = runSecuritySuite(REPO_ROOT);
+    assert.equal(typeof res, 'boolean');
+  } finally {
+    if (origEnv === undefined) {
+      delete process.env.SECURITY_SCAN_ALLOW_OFFLINE;
+    } else {
+      process.env.SECURITY_SCAN_ALLOW_OFFLINE = origEnv;
+    }
+  }
+});
+
+test('CI Pipeline Host Verification - Pnpm Host Verifier', () => {
+  const missingComponent = { id: 'invalid-pnpm', name: 'Invalid Pnpm', dir: 'ventures/non-existent' };
+  assert.equal(verifyPnpmHost(missingComponent, REPO_ROOT), false);
+});
+
+test('CI Pipeline Host Verification - Terraform Host Verifier', () => {
+  const missingComponent = { id: 'tf-test', name: 'Terraform Test', dir: 'platform/terraform' };
+  const result = verifyTerraformHost(missingComponent, REPO_ROOT);
+  assert.equal(typeof result, 'boolean');
+});
+
+test('CI Pipeline Git Changed Files - GITHUB_BASE_REF and Git Diff Error Catch', () => {
+  const origRef = process.env.GITHUB_BASE_REF;
+  process.env.GITHUB_BASE_REF = 'main';
+  try {
+    const files = getChangedFiles();
+    assert.ok(files === null || Array.isArray(files));
+  } finally {
+    if (origRef === undefined) {
+      delete process.env.GITHUB_BASE_REF;
+    } else {
+      process.env.GITHUB_BASE_REF = origRef;
+    }
+  }
+
+  // Test git diff failure catch returning null
+  const invalidFiles = getChangedFiles('NON_EXISTENT_GIT_REF_123456');
+  assert.equal(invalidFiles, null);
+});
+
+test('CI Pipeline Affected Path Resolver - Handles empty, null, .gitea, package.json, README.md', () => {
+  const mockCatalog = [{ id: 'app1', dir: 'ventures/app1' }];
+
+  assert.deepEqual(resolveAffectedComponents(null, mockCatalog), ['app1']);
+  assert.deepEqual(resolveAffectedComponents([], mockCatalog), ['app1']);
+  assert.deepEqual(resolveAffectedComponents(['.gitea/workflows/ci.yml'], mockCatalog), ['app1']);
+  assert.deepEqual(resolveAffectedComponents(['package.json'], mockCatalog), ['app1']);
+  assert.deepEqual(resolveAffectedComponents(['README.md'], mockCatalog), ['app1']);
+});
+
+test('CI Pipeline Dagger Containerized Fallback', async () => {
+  const mockCatalog = [{ id: 'mat-470-real-analysis', name: 'MAT-470', dir: 'ventures/mat-470-real-analysis', type: 'python' }];
+  const res = await runDaggerContainerizedPipeline(['mat-470-real-analysis'], mockCatalog, REPO_ROOT);
+  // Returns null when container daemon unavailable or fallback triggered
+  assert.ok(res === null || res === true || res === false);
+});
+
+
+
+

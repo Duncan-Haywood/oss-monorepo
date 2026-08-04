@@ -1,0 +1,67 @@
+name: CI
+
+# Everything this workflow checks can and has been run locally (see
+# README's "Development notes"). This exists so it happens automatically
+# on every push/PR instead of relying on remembering to run it by hand —
+# including for PRs the agent runner itself opens against this repo, once
+# self-directed mode is enabled for it (see README's "Everything as code").
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ansible:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install ansible
+        run: pip install ansible ansible-lint
+      - name: Install required collections
+        run: ansible-galaxy collection install -r requirements.yml
+      - name: Syntax check
+        run: ansible-playbook playbook.yml --syntax-check
+      - name: ansible-lint
+        run: ansible-lint
+
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: shellcheck
+        run: shellcheck roles/agent_runner/files/runners/*.sh bootstrap.sh
+
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test dependencies
+        run: pip install -r tests/requirements.txt pyflakes
+      - name: pyflakes
+        run: pyflakes roles/agent_runner/files/agent_runner.py
+      - name: pytest
+        run: pytest tests/ -v
+
+  yaml-sanity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: config/repos.yml parses and has the expected shape
+        run: |
+          python3 -c "
+          import yaml
+          data = yaml.safe_load(open('config/repos.yml'))
+          repos = data.get('repos', [])
+          assert isinstance(repos, list), 'repos: must be a list'
+          for r in repos:
+              assert 'repo' in r and 'tool' in r, f'entry missing repo/tool: {r}'
+              assert r['tool'] in ('claude', 'codex', 'antigravity', 'opencode'), f\"unknown tool: {r['tool']}\"
+          print(f'{len(repos)} repo(s) configured, all well-formed')
+          "

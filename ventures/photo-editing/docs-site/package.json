@@ -8,7 +8,7 @@
     "dev": "node scripts/build-docs.mjs && next dev",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "node scripts/build-docs.mjs && tsc --noEmit",
     "test": "node --test scripts/test-html-to-jsx.mjs scripts/test-generated-docs-current.mjs src/lib/routeAuthPosture.test.ts"
   },
   "dependencies": {
@@ -23,5 +23,10 @@
     "@types/react-dom": "^19.0.4",
     "parse5": "^8.0.1",
     "typescript": "^5.8.2"
+  },
+  "overrides": {
+    "postcss": "^8.5.18",
+    "sharp": "^0.35.3",
+    "next": "16.2.12"
   }
 }

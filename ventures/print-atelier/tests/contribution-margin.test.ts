@@ -4,7 +4,7 @@ import {
   calculateChannelContributionMargin,
   summarizePortfolioContributionMargin,
   ChannelMarginInput,
-} from "../src/lib/contribution-margin.js";
+} from "../src/lib/contribution-margin.ts";
 
 test("calculateChannelContributionMargin computes net contribution, margin %, and ROAS", () => {
   const input: ChannelMarginInput = {

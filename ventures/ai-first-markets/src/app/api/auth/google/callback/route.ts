@@ -12,6 +12,8 @@ import { sanitizeRedirectPath } from "@/lib/redirect";
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   const clientId = getGoogleClientId();
   const clientSecret = getGoogleClientSecret();

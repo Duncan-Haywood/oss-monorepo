@@ -1,0 +1,64 @@
+# Run Cursor Agent CLI pinned to Grok 4.5 (manual dispatch).
+# Auth: CURSOR_API_KEY from the Cursor dashboard (not GROK_AUTH_JSON — that is for the Grok Build CLI).
+name: Cursor Agent (Grok 4.5)
+
+on:
+  workflow_dispatch:
+    inputs:
+      prompt:
+        description: Prompt for the Cursor agent
+        required: true
+        type: string
+      force:
+        description: Allow the agent to modify files and run commands without confirmation
+        required: false
+        type: boolean
+        default: false
+      mode:
+        description: Agent mode (empty = full agent; ask/plan are read-only)
+        required: false
+        type: choice
+        options:
+          - ""
+          - ask
+          - plan
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  cursor-agent:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Cursor CLI
+        run: |
+          curl https://cursor.com/install -fsS | bash
+          echo "$HOME/.cursor/bin" >> "$GITHUB_PATH"
+
+      - name: Run Cursor Agent
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+          AGENT_PROMPT: ${{ inputs.prompt }}
+          AGENT_FORCE: ${{ inputs.force }}
+          AGENT_MODE: ${{ inputs.mode }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CURSOR_API_KEY:-}" ]; then
+            echo "::error::Missing secret CURSOR_API_KEY. Create an API key in the Cursor dashboard and add it as a repo secret."
+            exit 1
+          fi
+
+          args=(-p --trust --model cursor-grok-4.5-high --output-format text)
+          if [ "$AGENT_FORCE" = "true" ]; then
+            args+=(--force)
+          fi
+          if [ -n "$AGENT_MODE" ]; then
+            args+=(--mode "$AGENT_MODE")
+          fi
+
+          agent "${args[@]}" "$AGENT_PROMPT"

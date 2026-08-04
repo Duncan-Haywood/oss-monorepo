@@ -1,0 +1,70 @@
+{
+  "cohort": {
+    "cohort_notes": [
+      "all cohort dashboards meet pilot acceptance thresholds"
+    ],
+    "dashboard_count": 2,
+    "first_draft_output_count": 12,
+    "median_intervention_rate_basis_points": 0,
+    "metrics_available_dashboard_count": 2,
+    "metrics_unavailable_dashboard_count": 0,
+    "pilot_ready_workspace_count": 2,
+    "pilot_ready_workspace_rate_basis_points": 10000,
+    "readiness_blockers": {
+      "completion_below_threshold": 0,
+      "intervention_above_threshold": 0,
+      "materialized_outputs_missing": 0,
+      "metrics_unavailable": 0
+    },
+    "ready_for_pilot_review": true
+  },
+  "generated_at": "2026-06-12T12:05:00Z",
+  "safety_notes": [
+    "pilot-cohort-report is read-only and consumes saved pilot dashboard JSON payloads",
+    "pilot-cohort-report does not authorize workflow actions",
+    "cohort reports do not grant copy, retry, cleanup, overwrite, materialization, or deletion authority",
+    "cohort reports never read raw worker internals or workspace manifests"
+  ],
+  "schema_version": 1,
+  "workflow_authority": {
+    "handoff_kind": "presentation_only",
+    "mode": "observe_only",
+    "permits_cleanup": false,
+    "permits_copy": false,
+    "permits_deletion": false,
+    "permits_file_mutation": false,
+    "permits_materialization": false,
+    "permits_overwrite": false,
+    "permits_retry": false
+  },
+  "workspaces": [
+    {
+      "completion_rate_basis_points": 10000,
+      "dashboard_path": "/Users/duncan/Projects/photo-editing/.local-demos/20260612/pilot-cohort/pilot_dashboards/pilot-demo-001.json",
+      "intervention_rate_basis_points": 0,
+      "materialized_output_count": 6,
+      "metrics_available": true,
+      "readiness_blockers": [],
+      "ready_for_pilot_review": true,
+      "shoot_slug": "pilot-demo-001",
+      "threshold_notes": [
+        "trusted dashboard metrics meet the default pilot acceptance thresholds"
+      ],
+      "workspace": "/Users/duncan/Projects/photo-editing/.local-demos/20260612/pilot-cohort/workspaces/pilot-demo-001"
+    },
+    {
+      "completion_rate_basis_points": 10000,
+      "dashboard_path": "/Users/duncan/Projects/photo-editing/.local-demos/20260612/pilot-cohort/pilot_dashboards/pilot-demo-002.json",
+      "intervention_rate_basis_points": 0,
+      "materialized_output_count": 6,
+      "metrics_available": true,
+      "readiness_blockers": [],
+      "ready_for_pilot_review": true,
+      "shoot_slug": "pilot-demo-002",
+      "threshold_notes": [
+        "trusted dashboard metrics meet the default pilot acceptance thresholds"
+      ],
+      "workspace": "/Users/duncan/Projects/photo-editing/.local-demos/20260612/pilot-cohort/workspaces/pilot-demo-002"
+    }
+  ]
+}

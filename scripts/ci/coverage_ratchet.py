@@ -51,8 +51,10 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -74,6 +76,7 @@ REQUIRED_COMPONENT_FIELDS = (
     "path",
     "command",
     "owner",
+    "sources",
     "baseline",
     "measured",
     "tolerance",
@@ -114,6 +117,11 @@ class Measurement:
     branches_found: int = 0
     branches_hit: int = 0
     files: int = 0
+    # Paths the report actually observed with at least one covered line, and
+    # the declared source files absent from that set. See `unexercised`.
+    exercised: set = field(default_factory=set)
+    unexercised: List[str] = field(default_factory=list)
+    declared_files: int = 0
 
     def percent(self, metric: str) -> float:
         found, hit = {
@@ -145,7 +153,11 @@ class Finding:
         return f"{mark} [{self.code}] {self.component}: {self.message}\n        -> {self.remedy}"
 
 
-def parse_lcov(text: str) -> Measurement:
+def parse_lcov(
+    text: str,
+    allowed_files: Optional[set[str]] = None,
+    workdir: Optional[Path] = None,
+) -> Measurement:
     """Sum the per-file summary records of an lcov report.
 
     lcov emits LF/LH (lines found/hit), FNF/FNH (functions) and BRF/BRH
@@ -153,15 +165,37 @@ def parse_lcov(text: str) -> Measurement:
     DA/BRDA records are what produce them and are not needed here.
     """
     totals = Measurement()
+    current: Optional[str] = None
+    is_allowed: bool = True
     for raw in text.splitlines():
         line = raw.strip()
         if not line or ":" not in line:
             if line == "end_of_record":
-                continue
+                current = None
+                is_allowed = True
             continue
         key, _, value = line.partition(":")
         if key == "SF":
-            totals.files += 1
+            raw_path = value.strip()
+            if raw_path.startswith("file://"):
+                raw_path = raw_path[7:]
+            if workdir is not None and os.path.isabs(raw_path):
+                try:
+                    rel_path = Path(raw_path).relative_to(workdir).as_posix()
+                except ValueError:
+                    rel_path = raw_path
+            else:
+                rel_path = raw_path.lstrip("./")
+
+            current = rel_path
+            if allowed_files is not None:
+                is_allowed = current in allowed_files
+            else:
+                is_allowed = True
+            if is_allowed:
+                totals.files += 1
+            continue
+        if not is_allowed:
             continue
         if key not in {"LF", "LH", "FNF", "FNH", "BRF", "BRH"}:
             continue
@@ -173,6 +207,8 @@ def parse_lcov(text: str) -> Measurement:
             totals.lines_found += count
         elif key == "LH":
             totals.lines_hit += count
+            if count > 0 and current is not None:
+                totals.exercised.add(current)
         elif key == "FNF":
             totals.functions_found += count
         elif key == "FNH":
@@ -182,6 +218,29 @@ def parse_lcov(text: str) -> Measurement:
         elif key == "BRH":
             totals.branches_hit += count
     return totals
+
+
+def enumerate_sources(repo_root: Path, entry: Dict[str, Any]) -> List[str]:
+    """Every source file the component declares, relative to the component root.
+
+    This is the denominator coverage tools do not give you. lcov reports only
+    the files some test loaded, so a module nobody imports is simply absent —
+    and deleting its last test *raises* the reported percentage, because the
+    file leaves the denominator along with its uncovered lines. Enumerating the
+    declared sources independently is what makes that visible.
+    """
+    workdir = repo_root / entry["path"]
+    excludes = entry.get("exclude") or []
+    found: set = set()
+    for pattern in entry.get("sources") or []:
+        for path in workdir.glob(pattern):
+            if not path.is_file():
+                continue
+            relative = path.relative_to(workdir).as_posix()
+            if any(fnmatch.fnmatch(relative, exclude) for exclude in excludes):
+                continue
+            found.add(relative)
+    return sorted(found)
 
 
 def load_baseline(repo_root: Path, path: str = BASELINE_PATH) -> Dict[str, Any]:
@@ -224,6 +283,35 @@ def validate_component(entry: Any) -> List[Finding]:
 
     baseline = entry.get("baseline")
     tolerance = entry.get("tolerance")
+
+    # `unexercised` is the primary control, so a component may not omit it and
+    # be graded on percentages alone.
+    if isinstance(baseline, dict):
+        declared = baseline.get("unexercised")
+        if declared is None:
+            findings.append(
+                Finding(
+                    component=str(name),
+                    severity="error",
+                    code="missing-unexercised-baseline",
+                    message="`baseline.unexercised` is not declared",
+                    remedy=(
+                        "Record how many declared source files no test loads. A "
+                        "percentage floor alone cannot see them; run --report."
+                    ),
+                )
+            )
+        elif not isinstance(declared, int) or isinstance(declared, bool) or declared < 0:
+            findings.append(
+                Finding(
+                    component=str(name),
+                    severity="error",
+                    code="invalid-unexercised-baseline",
+                    message=f"`baseline.unexercised` must be a non-negative integer: {declared!r}",
+                    remedy="It is an exact file count, like `count` in the exception register.",
+                )
+            )
+
     for block, label in ((baseline, "baseline"), (tolerance, "tolerance")):
         if not isinstance(block, dict):
             continue
@@ -533,9 +621,19 @@ def run_coverage(repo_root: Path, entry: Dict[str, Any]) -> tuple[Optional[Measu
         destination = Path(tmpdir) / "coverage.lcov"
         env = dict(os.environ)
         env["COVERAGE_LCOV_DESTINATION"] = str(destination)
+        env["COVERAGE_LCOV_DESTINATION_DIR"] = str(tmpdir)
         # Keep the child from picking up developer git identity or shell rc files.
         env["GIT_CONFIG_GLOBAL"] = os.devnull
-        resolved = [part.replace("$COVERAGE_LCOV_DESTINATION", str(destination)) for part in command]
+        tmp_cov_dir = workdir / "coverage" / ".tmp"
+        if tmp_cov_dir.exists():
+            shutil.rmtree(tmp_cov_dir, ignore_errors=True)
+        tmp_cov_dir.mkdir(parents=True, exist_ok=True)
+        resolved = [
+            part.replace("$COVERAGE_LCOV_DESTINATION_DIR", str(tmpdir)).replace(
+                "$COVERAGE_LCOV_DESTINATION", str(destination)
+            )
+            for part in command
+        ]
 
         try:
             completed = subprocess.run(
@@ -604,6 +702,11 @@ def run_coverage(repo_root: Path, entry: Dict[str, Any]) -> tuple[Optional[Measu
             )
 
         if not destination.is_file():
+            fallback_lcov = Path(tmpdir) / "lcov.info"
+            if fallback_lcov.is_file():
+                destination = fallback_lcov
+
+        if not destination.is_file():
             return None, Finding(
                 component=name,
                 severity="error",
@@ -615,7 +718,28 @@ def run_coverage(repo_root: Path, entry: Dict[str, Any]) -> tuple[Optional[Measu
                 ),
             )
 
-        measurement = parse_lcov(destination.read_text())
+        lcov_text = destination.read_text()
+
+    declared = enumerate_sources(repo_root, entry)
+    declared_set = set(declared) if declared else None
+    measurement = parse_lcov(lcov_text, allowed_files=declared_set, workdir=workdir)
+    measurement.declared_files = len(declared)
+    measurement.unexercised = [path for path in declared if path not in measurement.exercised]
+
+    if declared and not measurement.exercised:
+        return None, Finding(
+            component=name,
+            severity="error",
+            code="no-source-matched",
+            message=(
+                f"{len(declared)} declared source file(s), none of which appear "
+                "covered in the report"
+            ),
+            remedy=(
+                "The `sources` globs and the paths lcov reports must agree. Check "
+                "that both are relative to the component root."
+            ),
+        )
 
     if measurement.lines_found == 0:
         return None, Finding(
@@ -694,6 +818,49 @@ def compare(entry: Dict[str, Any], measured: Measurement) -> List[Finding]:
     baseline = entry["baseline"]
     tolerance = entry["tolerance"]
     findings: List[Finding] = compare_basis(entry, measured)
+
+    # The primary control, and the only one that is an exact integer. A
+    # percentage floor alone cannot catch a whole module going untested,
+    # because an unexercised file leaves the denominator and the average goes
+    # *up*. This counts the files no test loads, and it has no tolerance for
+    # the same reason `count` in the exception register has none.
+    if "unexercised" in baseline:
+        declared_count = int(baseline["unexercised"])
+        actual_count = len(measured.unexercised)
+        if actual_count > declared_count:
+            new = ", ".join(measured.unexercised[:5])
+            findings.append(
+                Finding(
+                    component=name,
+                    severity="error",
+                    code="unexercised-grew",
+                    message=(
+                        f"{actual_count} of {measured.declared_files} source files are "
+                        f"exercised by no test, above the {declared_count} recorded"
+                    ),
+                    remedy=(
+                        f"Cover the files no test loads (e.g. {new}). Note that the "
+                        "line percentage will not catch this — an untested file is "
+                        "absent from it entirely."
+                    ),
+                )
+            )
+        elif actual_count < declared_count:
+            findings.append(
+                Finding(
+                    component=name,
+                    severity="error",
+                    code="unexercised-stale",
+                    message=(
+                        f"{actual_count} of {measured.declared_files} source files are "
+                        f"exercised by no test, below the {declared_count} recorded"
+                    ),
+                    remedy=(
+                        f"Lower baseline.unexercised to {actual_count} in {BASELINE_PATH}. "
+                        "The ratchet only turns one way."
+                    ),
+                )
+            )
 
     for metric in METRICS:
         actual = measured.percent(metric)
@@ -843,7 +1010,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 {
                     "findings": [asdict(f) for f in findings],
                     "measurements": {
-                        name: {**asdict(m), "percentages": m.percentages()}
+                        name: {
+                            **asdict(m),
+                            "exercised": sorted(m.exercised),
+                            "percentages": m.percentages(),
+                        }
                         for name, m in measurements.items()
                     },
                 },
@@ -857,7 +1028,13 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             print(
                 f"{name}: "
                 + ", ".join(f"{metric} {percentages[metric]:.2f}%" for metric in METRICS)
-                + f"  ({measurement.files} files, {measurement.lines_found} lines)"
+                + f"  ({measurement.files} files measured, {measurement.lines_found} lines)"
+            )
+            # Printed second and separately because it is the number the
+            # percentages above cannot express.
+            print(
+                f"    unexercised: {len(measurement.unexercised)}"
+                f" of {measurement.declared_files} declared source files"
             )
         for finding in findings:
             print(finding.format(), file=sys.stderr)

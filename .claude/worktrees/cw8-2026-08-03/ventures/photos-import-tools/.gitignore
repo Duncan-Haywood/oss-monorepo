@@ -1,0 +1,18 @@
+.venv/
+__pycache__/
+*.py[cod]
+
+# Generated metadata and geocoding caches may describe private photos.
+.exif_cache.json
+.gps_city_cache.json
+
+# Runtime state.
+*.sqlite3
+*.jsonl
+status.json
+STOP
+
+# Local configuration.
+.env
+.env.*
+!.env.example

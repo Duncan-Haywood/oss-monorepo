@@ -3,6 +3,8 @@ import type { NextRequest } from "next/server";
 import { AUTH_COOKIE_NAME } from "@/lib/auth";
 import { sanitizeRedirectPath } from "@/lib/redirect";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   const redirectTo = sanitizeRedirectPath(
     request.nextUrl.searchParams.get("redirect"),

@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  app-node-1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - POSTGRES_PRISMA_URL=postgresql://postgres:postgres@db:5432/surveysite?schema=public
+      - POSTGRES_URL_NON_POOLING=postgresql://postgres:postgres@db:5432/surveysite?schema=public
+      - ADMIN_KEY=local-ha-admin-key
+      - ADMIN_SESSION_SECRET=local-ha-session-secret-32-chars-long
+      - RATE_LIMIT_SECRET=local-ha-rate-secret-32-chars-long
+      - APP_ORIGIN=http://localhost:8080
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  app-node-2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - POSTGRES_PRISMA_URL=postgresql://postgres:postgres@db:5432/surveysite?schema=public
+      - POSTGRES_URL_NON_POOLING=postgresql://postgres:postgres@db:5432/surveysite?schema=public
+      - ADMIN_KEY=local-ha-admin-key
+      - ADMIN_SESSION_SECRET=local-ha-session-secret-32-chars-long
+      - RATE_LIMIT_SECRET=local-ha-rate-secret-32-chars-long
+      - APP_ORIGIN=http://localhost:8080
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  nginx-lb:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./scripts/nginx-lb.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app-node-1
+      - app-node-2
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=surveysite
+    ports:
+      - "5545:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d surveysite"]
+      interval: 5s
+      timeout: 3s
+      retries: 5

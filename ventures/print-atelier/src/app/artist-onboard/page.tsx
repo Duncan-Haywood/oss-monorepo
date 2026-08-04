@@ -1,3 +1,4 @@
+import React from "react";
 import ArtistOnboardingIntakeForm from "@/components/ArtistOnboardingIntakeForm";
 import DemoNav from "@/components/shared/DemoNav";
 import { parseArtistOnboardingDeepLinkParams } from "@/lib/artist-onboarding";

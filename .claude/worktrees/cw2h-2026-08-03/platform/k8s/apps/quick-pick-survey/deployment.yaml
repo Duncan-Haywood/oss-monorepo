@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quick-pick-survey-web-service
+  namespace: web-services
+  annotations:
+    pairwise.marisstella.dev/revision: "cd67f02201ec680b408dd6bfc653a1e491902af7"
+  labels:
+    app.kubernetes.io/name: web-service
+    app.kubernetes.io/instance: quick-pick-survey
+    app.kubernetes.io/managed-by: argocd
+spec:
+  replicas: 2
+  minReadySeconds: 5
+  progressDeadlineSeconds: 600
+  revisionHistoryLimit: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: web-service
+      app.kubernetes.io/instance: quick-pick-survey
+  template:
+    metadata:
+      annotations:
+        pairwise.marisstella.dev/revision: "cd67f02201ec680b408dd6bfc653a1e491902af7"
+      labels:
+        app.kubernetes.io/name: web-service
+        app.kubernetes.io/instance: quick-pick-survey
+    spec:
+      terminationGracePeriodSeconds: 30
+      imagePullSecrets:
+        - name: pairwise-registry
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+      containers:
+        - name: web-service
+          image: git.marisstella.dev/giteaadmin/pairwise-app
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          env:
+            - name: RELEASE_REVISION
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.annotations['pairwise.marisstella.dev/revision']
+            - name: POSTGRES_PRISMA_URL
+              value: null
+              valueFrom:
+                secretKeyRef:
+                  name: quick-pick-secrets
+                  key: POSTGRES_PRISMA_URL
+            - name: POSTGRES_URL_NON_POOLING
+              value: null
+              valueFrom:
+                secretKeyRef:
+                  name: quick-pick-secrets
+                  key: POSTGRES_URL_NON_POOLING
+            - name: ADMIN_KEY
+              value: null
+              valueFrom:
+                secretKeyRef:
+                  name: quick-pick-secrets
+                  key: ADMIN_KEY
+            - name: ADMIN_SESSION_SECRET
+              value: null
+              valueFrom:
+                secretKeyRef:
+                  name: quick-pick-secrets
+                  key: ADMIN_SESSION_SECRET
+          readinessProbe:
+            httpGet:
+              path: /api/health/ready
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi

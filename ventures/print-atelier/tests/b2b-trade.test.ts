@@ -5,7 +5,7 @@ import {
   calculateVolumeBonusPct,
   calculateB2BQuote,
   B2BQuoteItem,
-} from "../src/lib/b2b-trade.js";
+} from "../src/lib/b2b-trade.ts";
 
 test("correctly maps annual spend to trade program tiers", () => {
   assert.equal(getB2BTier(0).tier, "member");

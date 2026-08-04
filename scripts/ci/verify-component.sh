@@ -53,8 +53,14 @@ case "$component" in
       corepack pnpm run ci
     )
     ;;
+  range-coach)
+    (
+      cd "$repo_root/ventures/range-coach"
+      swift test
+    )
+    ;;
   *)
-    printf 'Usage: %s {pairwise|ai-first-markets|local-site-studio|print-atelier|retail-pilot-intel}\n' "$0" >&2
+    printf 'Usage: %s {pairwise|ai-first-markets|local-site-studio|print-atelier|retail-pilot-intel|range-coach}\n' "$0" >&2
     exit 2
     ;;
 esac

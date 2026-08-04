@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MAT 470 — Real Analysis Interactive Proof & Study Companion</title>
+  <meta name="description" content="Interactive visual proof exploration, epsilon-delta limit playground, sequence convergence analyzer, and study companion for MAT 470 Real Analysis (Abbott Understanding Analysis)." />
+  <!-- Google Fonts & KaTeX CSS for LaTeX math rendering -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app" class="layout">
+    <!-- Top Navigation Header -->
+    <header class="navbar" role="banner">
+      <div class="brand">
+        <span class="brand-badge">MAT 470</span>
+        <h1 class="brand-title">Real Analysis Explorer</h1>
+      </div>
+      <nav class="nav-links" role="navigation" aria-label="Main Navigation">
+        <button id="nav-epsilon" class="nav-btn active" data-tab="epsilon-section" aria-selected="true">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16M12 4v16"/></svg>
+          $\varepsilon$-$\delta$ Limits
+        </button>
+        <button id="nav-sequences" class="nav-btn" data-tab="sequence-section" aria-selected="false">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Sequence Convergence
+        </button>
+        <button id="nav-supremum" class="nav-btn" data-tab="supremum-section" aria-selected="false">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+          Supremum & Infimum
+        </button>
+        <button id="nav-proofs" class="nav-btn" data-tab="proofs-section" aria-selected="false">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Proof Builder
+        </button>
+        <button id="nav-counterexamples" class="nav-btn" data-tab="counter-section" aria-selected="false">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Pathological Functions
+        </button>
+        <button id="nav-study" class="nav-btn" data-tab="study-section" aria-selected="false">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          Abbott Companion & Quiz
+        </button>
+        <button id="nav-mastery" class="nav-btn highlight-nav-btn" data-tab="mastery-section" aria-selected="false">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Mastery Pass ($14.99/mo)
+        </button>
+      </nav>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content" role="main">
+      
+      <!-- Section 1: Epsilon-Delta Limit Explorer -->
+      <section id="epsilon-section" class="tab-pane active" aria-labelledby="nav-epsilon">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <span class="tag">Chapter 2 & 3</span>
+            <h2>Interactive $\varepsilon$-$\delta$ Limit Definition Sandbox</h2>
+          </div>
+          <p class="panel-desc">
+            Visualize the formal definition of a limit: $\lim_{x \to c} f(x) = L \iff \forall \varepsilon > 0, \exists \delta > 0 \text{ s.t. } 0 < |x - c| < \delta \implies |f(x) - L| < \varepsilon$.
+          </p>
+        </div>
+
+        <div class="sandbox-grid">
+          <!-- Control Panel -->
+          <div class="card control-card">
+            <h3>Preset Functions</h3>
+            <div class="preset-buttons">
+              <button class="preset-btn active" data-fn="linear">Linear: $f(x) = 2x + 1$ ($c=2, L=5$)</button>
+              <button class="preset-btn" data-fn="quadratic">Quadratic: $f(x) = x^2$ ($c=2, L=4$)</button>
+              <button class="preset-btn" data-fn="discontinuous">Discontinuous Step ($c=1$)</button>
+              <button class="preset-btn" data-fn="sin1x">Oscillating: $f(x) = x \sin(1/x)$ ($c=0, L=0$)</button>
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-header">
+                <label for="epsilon-range">$\varepsilon$ (Target Tolerance around $L$):</label>
+                <span id="epsilon-val" class="val-display">0.50</span>
+              </div>
+              <input type="range" id="epsilon-range" min="0.05" max="2.0" step="0.05" value="0.50" aria-label="Epsilon slider" />
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-header">
+                <label for="delta-range">$\delta$ (Input Radius around $c$):</label>
+                <span id="delta-val" class="val-display">0.25</span>
+              </div>
+              <input type="range" id="delta-range" min="0.01" max="1.5" step="0.01" value="0.25" aria-label="Delta slider" />
+            </div>
+
+            <div class="status-banner" id="delta-status-banner">
+              <div class="status-indicator valid" id="status-dot"></div>
+              <span id="status-text">Valid $\delta$: All $x \in (c-\delta, c+\delta) \setminus \{c\}$ land inside $(L-\varepsilon, L+\varepsilon)$!</span>
+            </div>
+
+            <div class="calc-box">
+              <h4>Theoretical $\delta(\varepsilon)$ Bound</h4>
+              <p id="delta-formula-display">For $f(x) = 2x+1$ at $c=2$: max valid $\delta = \varepsilon / 2 = 0.250$</p>
+            </div>
+          </div>
+
+          <!-- Canvas Visualizer -->
+          <div class="card visualizer-card">
+            <div class="canvas-container">
+              <canvas id="epsilon-canvas" width="600" height="420" aria-label="Epsilon Delta graph visualization"></canvas>
+            </div>
+            <div class="legend">
+              <span class="legend-item"><span class="legend-color color-fn"></span> $f(x)$ Curve</span>
+              <span class="legend-item"><span class="legend-color color-eps"></span> $\varepsilon$-tube $(L-\varepsilon, L+\varepsilon)$</span>
+              <span class="legend-item"><span class="legend-color color-delta"></span> $\delta$-interval $(c-\delta, c+\delta)$</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: Sequence Convergence Visualizer -->
+      <section id="sequence-section" class="tab-pane" aria-labelledby="nav-sequences">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <span class="tag">Chapter 2</span>
+            <h2>Sequence Convergence & $N(\varepsilon)$ Threshold Explorer</h2>
+          </div>
+          <p class="panel-desc">
+            Explore sequence convergence $a_n \to L$: for every $\varepsilon > 0$, there exists $N \in \mathbb{N}$ such that $|a_n - L| < \varepsilon$ for all $n \ge N$.
+          </p>
+        </div>
+
+        <div class="sandbox-grid">
+          <div class="card control-card">
+            <h3>Select Sequence $(a_n)$</h3>
+            <div class="preset-buttons">
+              <button class="seq-btn active" data-seq="inv_n">$a_n = \frac{1}{n} \to 0$</button>
+              <button class="seq-btn" data-seq="alt_n">$a_n = \frac{(-1)^n}{n} \to 0$</button>
+              <button class="seq-btn" data-seq="rational">$a_n = \frac{2n + 1}{3n + 5} \to \frac{2}{3}$</button>
+              <button class="seq-btn" data-seq="euler">$a_n = \left(1 + \frac{1}{n}\right)^n \to e \approx 2.718$</button>
+              <button class="seq-btn" data-seq="divergent">$a_n = (-1)^n$ (Divergent)</button>
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-header">
+                <label for="seq-eps-range">$\varepsilon$ Tolerance:</label>
+                <span id="seq-eps-val" class="val-display">0.10</span>
+              </div>
+              <input type="range" id="seq-eps-range" min="0.01" max="0.50" step="0.01" value="0.10" aria-label="Sequence Epsilon slider" />
+            </div>
+
+            <div class="calc-box">
+              <h4>Required Cutoff Index $N(\varepsilon)$</h4>
+              <p id="seq-cutoff-display">For $\varepsilon = 0.10$, minimal $N = 11$. Terms $a_{11}, a_{12}, \dots$ are bounded within $(L-\varepsilon, L+\varepsilon)$.</p>
+            </div>
+          </div>
+
+          <div class="card visualizer-card">
+            <div class="canvas-container">
+              <canvas id="sequence-canvas" width="600" height="420" aria-label="Sequence plot visualization"></canvas>
+            </div>
+            <div class="legend">
+              <span class="legend-item"><span class="legend-color color-pt"></span> Sequence Terms $a_n$</span>
+              <span class="legend-item"><span class="legend-color color-limit"></span> Limit Line $L$</span>
+              <span class="legend-item"><span class="legend-color color-eps"></span> $\varepsilon$-Band</span>
+              <span class="legend-item"><span class="legend-color color-cutoff"></span> Cutoff Line $n = N$</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3: Supremum & Infimum Explorer -->
+      <section id="supremum-section" class="tab-pane" aria-labelledby="nav-supremum">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <span class="tag">Chapter 1</span>
+            <h2>Supremum ($\sup S$) & Infimum ($\inf S$) Visualizer</h2>
+          </div>
+          <p class="panel-desc">
+            Understand the Completeness Axiom of $\mathbb{R}$: Every non-empty set bounded above has a Least Upper Bound ($\sup S \in \mathbb{R}$).
+          </p>
+        </div>
+
+        <div class="sandbox-grid">
+          <div class="card control-card">
+            <h3>Set $S \subset \mathbb{R}$ Explorer</h3>
+            <div class="preset-buttons">
+              <button class="set-btn active" data-set="seq_set">$S = \{1 - \frac{1}{n} : n \in \mathbb{N}\} = \{0, \frac{1}{2}, \frac{2}{3}, \dots\}$</button>
+              <button class="set-btn" data-set="open_interval">$S = (0, 1)$ (Open Interval)</button>
+              <button class="set-btn" data-set="sqrt2">$S = \{x \in \mathbb{Q} : x^2 < 2\}$ ($\sup S = \sqrt{2} \notin \mathbb{Q}$)</button>
+              <button class="set-btn" data-set="union">$S = [0, 1) \cup \{3\}$</button>
+            </div>
+
+            <div class="calc-box highlight-box">
+              <h4 id="sup-set-title">Set Properties</h4>
+              <ul class="prop-list">
+                <li><strong>Supremum ($\sup S$):</strong> <span id="sup-val">1.000</span></li>
+                <li><strong>Infimum ($\inf S$):</strong> <span id="inf-val">0.000</span></li>
+                <li><strong>Is $\sup S \in S$?</strong> <span id="sup-in-set">No (Maximum does not exist in S)</span></li>
+                <li><strong>Is $\inf S \in S$?</strong> <span id="inf-in-set">Yes (Minimum = 0)</span></li>
+              </ul>
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-header">
+                <label for="bound-test-range">Test Upper Bound $u$:</label>
+                <span id="bound-test-val" class="val-display">1.20</span>
+              </div>
+              <input type="range" id="bound-test-range" min="0.5" max="2.0" step="0.02" value="1.20" aria-label="Upper bound test slider" />
+            </div>
+
+            <div class="status-banner" id="bound-status">
+              <span id="bound-status-text">$u = 1.20$ is an Upper Bound, but NOT the Least Upper Bound (since $\sup S = 1.00 < 1.20$).</span>
+            </div>
+          </div>
+
+          <div class="card visualizer-card">
+            <div class="canvas-container">
+              <canvas id="supremum-canvas" width="600" height="420" aria-label="Supremum number line visualization"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4: Interactive Proof Step Construction Builder -->
+      <section id="proofs-section" class="tab-pane" aria-labelledby="nav-proofs">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <span class="tag">Interactive Proof Gym</span>
+            <h2>Step-by-Step Proof Builder & Logic Trainer</h2>
+          </div>
+          <p class="panel-desc">
+            Construct rigorous real analysis proofs step-by-step. Select the correct logical step and state justification axiom.
+          </p>
+        </div>
+
+        <div class="proof-layout">
+          <!-- Proof Selection & Statement -->
+          <div class="card proof-statement-card">
+            <div class="proof-selector">
+              <label for="proof-select">Select Theorem to Prove:</label>
+              <select id="proof-select" aria-label="Select proof theorem">
+                <option value="irrational_sqrt2">Theorem 1.1: $\sqrt{2}$ is Irrational</option>
+                <option value="monotone_convergence">Theorem 2.4: Monotone Convergence Theorem</option>
+                <option value="squeeze_theorem">Theorem 2.3: Squeeze Theorem for Sequences</option>
+                <option value="extreme_value">Theorem 4.4: Extreme Value Theorem on $[a,b]$</option>
+              </select>
+            </div>
+            <div class="statement-box">
+              <h3 id="proof-title">Theorem 1.1: Irrationality of $\sqrt{2}$</h3>
+              <p id="proof-statement">There is no rational number $r \in \mathbb{Q}$ such that $r^2 = 2$.</p>
+            </div>
+          </div>
+
+          <!-- Active Proof Tree & Step Builder -->
+          <div class="proof-workspace">
+            <div class="card current-steps-card">
+              <h3>Constructed Proof Steps</h3>
+              <ol id="proof-step-list" class="step-list">
+                <!-- Steps rendered dynamically -->
+              </ol>
+            </div>
+
+            <div class="card step-choice-card">
+              <h3>Select Next Logical Step</h3>
+              <div id="step-choices" class="choice-buttons">
+                <!-- Choices rendered dynamically -->
+              </div>
+              <div id="proof-feedback" class="feedback-box hidden"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Pathological Functions Laboratory -->
+      <section id="counter-section" class="tab-pane" aria-labelledby="nav-counterexamples">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <span class="tag">Counterexamples</span>
+            <h2>Pathological & Counterexample Function Explorer</h2>
+          </div>
+          <p class="panel-desc">
+            Test mathematical intuition against famous counterexamples in analysis that challenge informal definitions of continuity and differentiability.
+          </p>
+        </div>
+
+        <div class="sandbox-grid">
+          <div class="card control-card">
+            <h3>Counterexample Collection</h3>
+            <div class="preset-buttons">
+              <button class="path-btn active" data-path="dirichlet">Dirichlet Function ($D(x)$)</button>
+              <button class="path-btn" data-path="thomae">Thomae's Popcorn Function ($t(x)$)</button>
+              <button class="path-btn" data-path="weierstrass">Weierstrass Function ($W(x)$)</button>
+              <button class="path-btn" data-path="cantor">Cantor Staircase ($C(x)$)</button>
+            </div>
+
+            <div class="calc-box">
+              <h4 id="path-name">Dirichlet Function</h4>
+              <p id="path-desc">
+                $D(x) = \begin{cases} 1 & \text{if } x \in \mathbb{Q} \\ 0 & \text{if } x \notin \mathbb{Q} \end{cases}$
+              </p>
+              <hr />
+              <p><strong>Discontinuity:</strong> Nowhere continuous on $\mathbb{R}$.</p>
+              <p><strong>Riemann Integrability:</strong> Not Riemann integrable on any interval $[a,b]$.</p>
+            </div>
+          </div>
+
+          <div class="card visualizer-card">
+            <div class="canvas-container">
+              <canvas id="pathological-canvas" width="600" height="420" aria-label="Pathological function visualization"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: Abbott Companion & Quiz -->
+      <section id="study-section" class="tab-pane" aria-labelledby="nav-study">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <span class="tag">Study Companion</span>
+            <h2>Abbott *Understanding Analysis* Concept Mastery & Quiz</h2>
+          </div>
+          <p class="panel-desc">
+            Master core theorems and definitions from Stephen Abbott's *Understanding Analysis* (2nd Edition).
+          </p>
+        </div>
+
+        <div class="study-grid">
+          <!-- Chapter Flashcards & Topics -->
+          <div class="card study-card">
+            <h3>Chapter Roadmap & Key Theorems</h3>
+            <div class="chapter-list">
+              <div class="chapter-item active" data-ch="1">
+                <span class="ch-num">Ch 1</span>
+                <span class="ch-name">The Real Numbers (Completeness, $\sup/\inf$, Countability)</span>
+              </div>
+              <div class="chapter-item" data-ch="2">
+                <span class="ch-num">Ch 2</span>
+                <span class="ch-name">Sequences and Series (Monotone Conv, Subsequences, Bolzano-Weierstrass)</span>
+              </div>
+              <div class="chapter-item" data-ch="3">
+                <span class="ch-num">Ch 3</span>
+                <span class="ch-name">Basic Topology of $\mathbb{R}$ (Open, Closed, Compact, Connected)</span>
+              </div>
+              <div class="chapter-item" data-ch="4">
+                <span class="ch-num">Ch 4</span>
+                <span class="ch-name">Functional Limits & Continuity (Uniform Continuity, IVT, EVT)</span>
+              </div>
+              <div class="chapter-item" data-ch="5">
+                <span class="ch-num">Ch 5</span>
+                <span class="ch-name">The Derivative (MVT, L'Hopital, Darboux's Theorem)</span>
+              </div>
+              <div class="chapter-item" data-ch="6">
+                <span class="ch-num">Ch 6</span>
+                <span class="ch-name">Sequences & Series of Functions (Pointwise vs Uniform Convergence)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Practice Quiz -->
+          <div class="card quiz-card">
+            <h3>Theorem Self-Assessment Quiz</h3>
+            <div id="quiz-container">
+              <div class="quiz-question-box">
+                <span id="quiz-tag" class="tag">Question 1 of 5</span>
+                <h4 id="quiz-question">Which statement accurately defines a compact set $K \subset \mathbb{R}$?</h4>
+                <div id="quiz-options" class="quiz-options">
+                  <!-- Options rendered dynamically -->
+                </div>
+              </div>
+              <div id="quiz-explanation" class="explanation-box hidden"></div>
+              <div class="quiz-footer">
+                <span id="quiz-score">Score: 0 / 0</span>
+                <button id="quiz-next-btn" class="btn primary-btn" disabled>Next Question</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 7: Real Analysis Mastery Pass & Concierge Membership -->
+      <section id="mastery-section" class="tab-pane" aria-labelledby="nav-mastery">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <span class="tag tag-gold">Concierge Membership</span>
+            <h2>MAT 470 Real Analysis Mastery Pass</h2>
+          </div>
+          <p class="panel-desc">
+            Unlock complete step-by-step video proof breakdowns, 1-on-1 PhD proof reviews, and practice exam solutions for Stephen Abbott's *Understanding Analysis*.
+          </p>
+        </div>
+
+        <div class="sandbox-grid">
+          <!-- Pricing & Perks Card -->
+          <div class="card control-card highlight-card">
+            <div class="card-badge">Most Popular for Math Majors</div>
+            <h3>Mastery Pass Perks</h3>
+            <ul class="prop-list">
+              <li><strong>🎥 50+ HD Video Proof Breakdown:</strong> Visual walkthroughs for Abbott Chapters 1–7.</li>
+              <li><strong>✍️ 1-on-1 Proof Feedback:</strong> Submit your written proofs for direct feedback from Real Analysis tutors.</li>
+              <li><strong>📄 Midterm & Final Exam Bank:</strong> Solved practice exams with step-by-step grading rubrics.</li>
+              <li><strong>⚡ Interactive Sandbox Pro Features:</strong> Unlimited $\varepsilon$-$\delta$ function customizers and series analyzers.</li>
+            </ul>
+
+            <div class="price-box">
+              <span class="price-val">$14.99</span> <span class="price-period">/ month</span>
+              <p class="price-sub">Cancel anytime. 7-day money-back guarantee.</p>
+            </div>
+          </div>
+
+          <!-- Subscription Enrollment Form -->
+          <div class="card visualizer-card">
+            <h3>Reserve Early Access & Student Discount</h3>
+            <p>Enter your university email to request student access and unlock an instant $5/month discount ($9.99/mo locked in).</p>
+
+            <form id="mastery-form" class="enrollment-form">
+              <div class="form-group">
+                <label for="mastery-email-input">University Student Email (.edu or .ac.uk):</label>
+                <input type="email" id="mastery-email-input" class="form-control" placeholder="math_major@university.edu" required />
+              </div>
+
+              <div class="form-group">
+                <label for="mastery-course-input">Target Course / Textbook:</label>
+                <input type="text" id="mastery-course-input" class="form-control" placeholder="e.g. MAT 470 / Abbott Understanding Analysis" value="MAT 470 Real Analysis (Abbott)" />
+              </div>
+
+              <button type="submit" id="mastery-signup-btn" class="btn primary-btn btn-lg">
+                Unlock Student Pass & Claim Discount ($9.99/mo)
+              </button>
+            </form>
+
+            <div id="mastery-status-msg" class="status-banner hidden"></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+      <p>MAT 470 Real Analysis Companion &bull; Built according to repository quality & engineering principles.</p>
+    </footer>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

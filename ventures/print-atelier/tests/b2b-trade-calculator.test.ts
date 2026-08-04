@@ -4,7 +4,7 @@ import {
   calculateB2BTradeQuote,
   resolveB2BTradeTier,
   B2B_TRADE_TIERS,
-} from "../src/lib/b2b-trade-calculator.js";
+} from "../src/lib/b2b-trade-calculator.ts";
 
 test("resolveB2BTradeTier selects tier by annual spend volume", () => {
   assert.equal(resolveB2BTradeTier(0).name, "standard");

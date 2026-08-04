@@ -30,6 +30,11 @@
 
 # Global Governance & Scripts
 /ENGINEERING-PRINCIPLES.md  @infrastructure-team @security-team
+/AGENTS.md                  @infrastructure-team @qa-team
+/CONTRIBUTING.md            @infrastructure-team @qa-team
+/docs/DEV-WORKFLOW.md       @infrastructure-team @qa-team
+/docs/QUALITY-ENGINEERING.md @infrastructure-team @qa-team @security-team
+/.gitea/pull_request_template.md @qa-team
 /docs/ENGINEERING-ROADMAP.md @infrastructure-team
 /docs/EXCEPTION-REGISTER.md @security-team
 /scripts/smoke-test.sh      @infrastructure-team @qa-team

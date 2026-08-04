@@ -1,0 +1,43 @@
+nameOverride: ""
+fullnameOverride: ""
+
+replicas: 2
+
+image:
+  repository: nginx
+  tag: alpine
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+ingress:
+  enabled: true
+  className: traefik
+  host: app.example.com
+  path: /
+  pathType: Prefix
+  tls: true
+  clusterIssuer: letsencrypt-prod
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 250m
+    memory: 256Mi
+
+env: {}
+
+probes:
+  livenessPath: /
+  readinessPath: /
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1

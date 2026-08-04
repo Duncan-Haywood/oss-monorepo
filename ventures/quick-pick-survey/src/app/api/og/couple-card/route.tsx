@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
+import { cardField } from "@/lib/ogCardFields";
 
 export const runtime = "edge";
 
@@ -7,10 +8,17 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
 
-    const title = searchParams.get("title") || "The Adventurous Anchors";
-    const score = searchParams.get("score") || "88%";
-    const names = searchParams.get("names") || "You & Partner";
-    const insight = searchParams.get("insight") || "High alignment on life direction with a creative gap on spontaneity.";
+    // Everything rendered below comes from the query string of an endpoint that
+    // answers anonymous callers, so each field is cleaned and length-clamped
+    // first. The reasoning is in `src/lib/ogCardFields.ts`.
+    const title = cardField(searchParams, "title", "The Adventurous Anchors");
+    const score = cardField(searchParams, "score", "88%");
+    const names = cardField(searchParams, "names", "You & Partner");
+    const insight = cardField(
+      searchParams,
+      "insight",
+      "High alignment on life direction with a creative gap on spontaneity.",
+    );
 
     return new ImageResponse(
       (

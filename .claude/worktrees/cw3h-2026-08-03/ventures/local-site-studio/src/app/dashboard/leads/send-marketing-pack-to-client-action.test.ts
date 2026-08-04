@@ -1,0 +1,335 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+/**
+ * Action-level orchestration for sendMarketingPackToClientAction — the operator
+ * Email pack path for sold Growth/Complete content handoff.
+ *
+ * deliver-pack.test.ts covers eligibility + HTML formatting; resend/marketing
+ * helpers cover transport. This suite locks the dashboard action glue:
+ * requireOperatorAuth, eligibility (paid/live Growth/Complete + email),
+ * existing month pack gate, suppression / send failure, preview URL from
+ * NEXT_PUBLIC_APP_URL, and revalidate on success.
+ */
+
+const requireOperatorAuth = vi.fn();
+vi.mock("@/lib/auth/operator", () => ({
+  requireOperatorAuth: (...args: unknown[]) => requireOperatorAuth(...args),
+}));
+
+const revalidatePath = vi.fn();
+vi.mock("next/cache", () => ({
+  revalidatePath: (...args: unknown[]) => revalidatePath(...args),
+}));
+
+vi.mock("next/headers", () => ({
+  headers: vi.fn(),
+}));
+
+const getLeadBySlug = vi.fn();
+const listOrders = vi.fn();
+const getMarketingPack = vi.fn();
+
+vi.mock("@/lib/db", () => ({
+  listOpenCheckoutSessions: vi.fn(),
+  getLeadBySlug: (...args: unknown[]) => getLeadBySlug(...args),
+  recordCheckoutRecoverySent: vi.fn(),
+  getCommerceCatalog: vi.fn(),
+  updateLeadStage: vi.fn(),
+  upsertLead: vi.fn(),
+  updateClientInquiryStatus: vi.fn(),
+  getClientInquiryById: vi.fn(),
+  recordClientInquiryReply: vi.fn(),
+  getLeads: vi.fn(),
+  listOrders: (...args: unknown[]) => listOrders(...args),
+  recordLeadOutreach: vi.fn(),
+  listUnrepliedInquiries: vi.fn(),
+  updateLeadNotes: vi.fn(),
+  updateLeadSnooze: vi.fn(),
+  applyColdLeadDisposition: vi.fn(),
+  upsertMarketingPack: vi.fn(),
+  listMarketingPacksForMonth: vi.fn(),
+  getMarketingPack: (...args: unknown[]) => getMarketingPack(...args),
+  upsertCommerceCatalog: vi.fn(),
+  listCommerceCatalogs: vi.fn(),
+  getCommerceOrderByStripeSessionId: vi.fn(),
+  markCommerceOrderPaidOut: vi.fn(),
+  upsertClientVoicePack: vi.fn(),
+  getClientVoicePackByLeadSlug: vi.fn(),
+  listClientVoicePacks: vi.fn(),
+  listUnpaidCommerceOrders: vi.fn(),
+}));
+
+const sendMarketingPackToClientEmail = vi.fn();
+
+vi.mock("@/lib/email/resend", () => ({
+  sendOutreachEmail1: vi.fn(),
+  sendOutreachFollowUp2: vi.fn(),
+  sendOutreachFollowUp3: vi.fn(),
+  sendInquiryReply: vi.fn(),
+  sendOperatorDailyDigest: vi.fn(),
+  sendStarterUpsellEmail: vi.fn(),
+  sendMarketingPackToClientEmail: (...args: unknown[]) =>
+    sendMarketingPackToClientEmail(...args),
+  sendClientVoicePackToClientEmail: vi.fn(),
+}));
+
+const eligibleLead = {
+  slug: "demo-cafe",
+  businessName: "Demo Cafe",
+  category: "restaurant" as const,
+  city: "Boulder",
+  state: "CO",
+  tagline: "Coffee and pastry",
+  description: "Neighborhood cafe",
+  phone: "(303) 555-0100",
+  email: "hello@demo-cafe.example",
+  services: ["Coffee", "Pastries"],
+  hours: { weekday: "Mon–Fri 7am–3pm", weekend: "Sat 8am–2pm" },
+  stage: "paid" as const,
+  recommendedTier: "growth" as const,
+  dataSource: "manual_entry" as const,
+};
+
+const growthOrder = {
+  id: "ord_1",
+  leadSlug: "demo-cafe",
+  stripeSessionId: "cs_test_growth",
+  tier: "growth",
+  commerceAddon: false,
+  amountPaid: 599,
+  status: "paid",
+  createdAt: "2026-07-13T10:00:00.000Z",
+};
+
+const packVariants = [
+  {
+    contentType: "gbp_post" as const,
+    title: "Stub post",
+    body: "[Stub] Come visit Demo Cafe this week.",
+  },
+];
+
+function currentYearMonth(): string {
+  const now = new Date();
+  const y = now.getUTCFullYear();
+  const m = String(now.getUTCMonth() + 1).padStart(2, "0");
+  return `${y}-${m}`;
+}
+
+describe("sendMarketingPackToClientAction", () => {
+  const originalEnv = { ...process.env };
+  const yearMonth = currentYearMonth();
+
+  beforeEach(() => {
+    vi.resetModules();
+    process.env = { ...originalEnv };
+    delete process.env.NEXT_PUBLIC_APP_URL;
+    requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
+    revalidatePath.mockReset();
+    getLeadBySlug.mockReset().mockResolvedValue(eligibleLead);
+    listOrders.mockReset().mockResolvedValue([growthOrder]);
+    getMarketingPack.mockReset().mockResolvedValue({
+      id: "pack_1",
+      leadSlug: "demo-cafe",
+      yearMonth,
+      generator: "stub",
+      packageTier: "social_email",
+      variants: packVariants,
+      createdAt: "2026-07-13T12:00:00.000Z",
+    });
+    sendMarketingPackToClientEmail.mockReset().mockResolvedValue({
+      success: true,
+      id: "email_1",
+    });
+  });
+
+  afterEach(() => {
+    process.env = { ...originalEnv };
+  });
+
+  it("returns auth error without loading the lead", async () => {
+    requireOperatorAuth.mockResolvedValue({
+      ok: false,
+      error: "Unauthorized — sign in at /dashboard/login",
+    });
+    const { sendMarketingPackToClientAction } = await import("./actions");
+    const res = await sendMarketingPackToClientAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error: "Unauthorized — sign in at /dashboard/login",
+    });
+    expect(getLeadBySlug).not.toHaveBeenCalled();
+    expect(sendMarketingPackToClientEmail).not.toHaveBeenCalled();
+  });
+
+  it("rejects an empty slug", async () => {
+    const { sendMarketingPackToClientAction } = await import("./actions");
+    const res = await sendMarketingPackToClientAction("");
+    expect(res).toEqual({
+      success: false,
+      error: "Slug is required",
+    });
+    expect(getLeadBySlug).not.toHaveBeenCalled();
+  });
+
+  it("rejects when the lead is missing", async () => {
+    getLeadBySlug.mockResolvedValue(null);
+    const { sendMarketingPackToClientAction } = await import("./actions");
+    const res = await sendMarketingPackToClientAction("missing-cafe");
+    expect(res).toEqual({
+      success: false,
+      error: "Lead not found",
+    });
+    expect(sendMarketingPackToClientEmail).not.toHaveBeenCalled();
+  });
+
+  it("rejects Starter-only / unpaid leads (eligibility)", async () => {
+    listOrders.mockResolvedValue([
+      { ...growthOrder, tier: "starter", amountPaid: 500 },
+    ]);
+    const { sendMarketingPackToClientAction } = await import("./actions");
+    const res = await sendMarketingPackToClientAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Email pack requires a paid/live Growth or Complete lead with an email on file",
+    });
+    expect(getMarketingPack).not.toHaveBeenCalled();
+    expect(sendMarketingPackToClientEmail).not.toHaveBeenCalled();
+  });
+
+  it("rejects paid Growth leads without an email on file", async () => {
+    getLeadBySlug.mockResolvedValue({ ...eligibleLead, email: undefined });
+    const { sendMarketingPackToClientAction } = await import("./actions");
+    const res = await sendMarketingPackToClientAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Email pack requires a paid/live Growth or Complete lead with an email on file",
+    });
+    expect(getMarketingPack).not.toHaveBeenCalled();
+    expect(sendMarketingPackToClientEmail).not.toHaveBeenCalled();
+  });
+
+  it("rejects when no pack exists for the current UTC month", async () => {
+    getMarketingPack.mockResolvedValue(null);
+    const { sendMarketingPackToClientAction } = await import("./actions");
+    const res = await sendMarketingPackToClientAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error: `No marketing pack for ${yearMonth} — generate one first`,
+    });
+    expect(getMarketingPack).toHaveBeenCalledWith("demo-cafe", yearMonth);
+    expect(sendMarketingPackToClientEmail).not.toHaveBeenCalled();
+  });
+
+  it("rejects when the pack has zero variants", async () => {
+    getMarketingPack.mockResolvedValue({
+      id: "pack_empty",
+      leadSlug: "demo-cafe",
+      yearMonth,
+      generator: "stub",
+      packageTier: "social_email",
+      variants: [],
+      createdAt: "2026-07-13T12:00:00.000Z",
+    });
+    const { sendMarketingPackToClientAction } = await import("./actions");
+    const res = await sendMarketingPackToClientAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error: `No marketing pack for ${yearMonth} — generate one first`,
+    });
+    expect(sendMarketingPackToClientEmail).not.toHaveBeenCalled();
+  });
+
+  it("sends the pack with preview URL and revalidates on success", async () => {
+    process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
+    const { sendMarketingPackToClientAction } = await import("./actions");
+    const res = await sendMarketingPackToClientAction("demo-cafe");
+
+    expect(res).toEqual({
+      success: true,
+      yearMonth,
+      mock: false,
+    });
+    expect(sendMarketingPackToClientEmail).toHaveBeenCalledOnce();
+    expect(sendMarketingPackToClientEmail).toHaveBeenCalledWith({
+      to: "hello@demo-cafe.example",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      yearMonth,
+      variants: packVariants,
+      previewUrl: "https://app.example.com/preview/demo-cafe",
+    });
+    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+  });
+
+  it("defaults preview base URL to localhost when NEXT_PUBLIC_APP_URL is unset", async () => {
+    const { sendMarketingPackToClientAction } = await import("./actions");
+    const res = await sendMarketingPackToClientAction("demo-cafe");
+    expect(res.success).toBe(true);
+    expect(sendMarketingPackToClientEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        previewUrl: "http://localhost:3000/preview/demo-cafe",
+      }),
+    );
+  });
+
+  it("surfaces suppression without revalidate", async () => {
+    sendMarketingPackToClientEmail.mockResolvedValue({
+      success: false,
+      reason: "suppressed",
+    });
+    const { sendMarketingPackToClientAction } = await import("./actions");
+    const res = await sendMarketingPackToClientAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error: "Email is on the suppression list",
+    });
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("surfaces Resend send failures without revalidate", async () => {
+    sendMarketingPackToClientEmail.mockResolvedValue({
+      success: false,
+      error: "Resend 429",
+    });
+    const { sendMarketingPackToClientAction } = await import("./actions");
+    const res = await sendMarketingPackToClientAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error: "Resend 429",
+    });
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("returns mock:true when the email layer mocks the send", async () => {
+    sendMarketingPackToClientEmail.mockResolvedValue({
+      success: true,
+      mock: true,
+    });
+    const { sendMarketingPackToClientAction } = await import("./actions");
+    const res = await sendMarketingPackToClientAction("demo-cafe");
+    expect(res).toEqual({
+      success: true,
+      yearMonth,
+      mock: true,
+    });
+    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+  });
+
+  it("filters orders to the requested lead slug before eligibility", async () => {
+    listOrders.mockResolvedValue([
+      { ...growthOrder, leadSlug: "other-cafe", tier: "complete" },
+      { ...growthOrder, leadSlug: "demo-cafe", tier: "starter" },
+    ]);
+    const { sendMarketingPackToClientAction } = await import("./actions");
+    const res = await sendMarketingPackToClientAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Email pack requires a paid/live Growth or Complete lead with an email on file",
+    });
+    expect(sendMarketingPackToClientEmail).not.toHaveBeenCalled();
+  });
+});

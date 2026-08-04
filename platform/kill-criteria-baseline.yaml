@@ -29,21 +29,13 @@ issue: docs/ENGINEERING-ROADMAP.md#portfolio-stopping-rules
 expires: 2026-11-30
 
 budget:
-  # Measured 2026-08-03: 11 of 11 ventures had no stopping rule the allocator
-  # could evaluate. All 16 declared criteria were prose — "Fewer than 50 active
-  # learners after 60 days", "CAC exceeds $150 per client" — with no metric
-  # behind them and, in most cases, no measurement anywhere in the repository
-  # that could ever produce the number. Meanwhile `allocate.py` reported
-  # `killed_count: 0` and moved $199.98 of a $500 pool against zero recorded
-  # revenue.
-  #
-  # Lowered 11 -> 10 the same day by print-atelier's spend-without-revenue
-  # criterion, which is the worked example that the mechanism fires end to end.
-  # Every remaining 1 is a venture that can draw budget forever.
-  max_without_stopping_rule: 10
+  # Ratcheted to 0 on 2026-08-03: All 12 ventures in the portfolio now carry
+  # active, evaluable stopping rules based on cumulative recorded agent spend
+  # and revenue in portfolio/ledger/.
+  max_without_stopping_rule: 0
 
   # More than this many below the ceiling and the ceiling is stale.
-  slack: 2
+  slack: 0
 
 rationale: >-
   Kill criteria were the portfolio's only declared spending brake, and

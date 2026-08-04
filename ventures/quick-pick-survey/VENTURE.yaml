@@ -23,6 +23,26 @@ budget:
 kill_criteria:
   - Unmaintained infrastructure or unmerged PR backlog prevents automated deployments.
   - Active participant retention drops below 10% after 30 days.
+  - description: >-
+      $100 of recorded agent spend accumulated with no revenue ever recorded
+      against this venture in portfolio/ledger/.
+    when:
+      - metric: cumulative_agent_spend_usd
+        comparator: ">="
+        threshold: 100
+      - metric: cumulative_revenue_usd
+        comparator: "=="
+        threshold: 0
+  - description: >-
+      $150 of recorded agent spend accumulated with no revenue ever recorded
+      against this venture in portfolio/ledger/.
+    when:
+      - metric: cumulative_agent_spend_usd
+        comparator: ">="
+        threshold: 150
+      - metric: cumulative_revenue_usd
+        comparator: "=="
+        threshold: 0
 
 links:
   production: https://pairwise.marisstella.dev

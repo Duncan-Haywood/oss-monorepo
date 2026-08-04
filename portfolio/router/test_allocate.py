@@ -18,7 +18,7 @@ class TestPortfolioRouter(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.test_dir)
 
-    def create_venture(self, name, stage="prototype", mrr=None, cap=50, is_protected=True, kill_criteria=None):
+    def create_venture(self, name, stage="prototype", mrr=None, cap=50, is_protected=True, kill_criteria=None, kill_criteria_overrides=None):
         vdir = self.ventures_dir / name
         vdir.mkdir(parents=True, exist_ok=True)
         manifest = {
@@ -28,7 +28,8 @@ class TestPortfolioRouter(unittest.TestCase):
             "owner": "test",
             "economics": {"mrr": mrr, "monthly_cost": 10},
             "budget": {"monthly_cap": cap, "protected": is_protected},
-            "kill_criteria": kill_criteria or []
+            "kill_criteria": kill_criteria or [],
+            "kill_criteria_overrides": kill_criteria_overrides or []
         }
         with open(vdir / "VENTURE.yaml", "w", encoding="utf-8") as f:
             yaml.dump(manifest, f)
@@ -195,6 +196,84 @@ class TestPortfolioRouter(unittest.TestCase):
             row["unevaluable_criteria"][0]["reason"],
             "cumulative_agent_spend_usd: no ledger row records spend for this venture",
         )
+
+    def test_human_decision_required_when_venture_killed(self):
+        self.create_venture(
+            "killed-alert",
+            kill_criteria=[
+                {"metric": "cumulative_agent_spend_usd", "comparator": ">=", "threshold": 100}
+            ],
+        )
+        self.write_ledger("2026-07", [{"venture": "killed-alert", "agent_spend_usd": 150.0, "mrr_end": 0}])
+
+        allocation = PortfolioRouter(self.test_dir).calculate_allocation(total_budget_usd=500.0)
+
+        self.assertEqual(allocation["killed_count"], 1)
+        self.assertEqual(len(allocation["human_decisions_required"]), 1)
+        req = allocation["human_decisions_required"][0]
+        self.assertEqual(req["venture"], "killed-alert")
+        self.assertIn("Transition stage to winding-down or register human override", req["action"])
+
+        row = allocation["work_queue"][0]
+        self.assertTrue(row["requires_human_decision"])
+        self.assertTrue(row["action_blocked"])
+
+    def test_human_override_prevents_kill_decision_when_valid(self):
+        self.create_venture(
+            "overridden",
+            kill_criteria=[
+                {
+                    "description": "Spend passed threshold",
+                    "metric": "cumulative_agent_spend_usd",
+                    "comparator": ">=",
+                    "threshold": 100,
+                }
+            ],
+            kill_criteria_overrides=[
+                {
+                    "criterion": "Spend passed threshold",
+                    "owner": "duncan",
+                    "reason": "Pivot testing approved",
+                    "expiry": "2099-12-31",
+                }
+            ],
+        )
+        self.write_ledger("2026-07", [{"venture": "overridden", "agent_spend_usd": 150.0, "mrr_end": 0}])
+
+        allocation = PortfolioRouter(self.test_dir).calculate_allocation(total_budget_usd=500.0)
+
+        self.assertEqual(allocation["killed_count"], 0)
+        row = allocation["work_queue"][0]
+        self.assertEqual(row["status"], "active")
+        self.assertGreater(row["allocated_usd"], 0.0)
+
+    def test_expired_human_override_is_ignored(self):
+        self.create_venture(
+            "expired-override",
+            kill_criteria=[
+                {
+                    "description": "Spend passed threshold",
+                    "metric": "cumulative_agent_spend_usd",
+                    "comparator": ">=",
+                    "threshold": 100,
+                }
+            ],
+            kill_criteria_overrides=[
+                {
+                    "criterion": "Spend passed threshold",
+                    "owner": "duncan",
+                    "reason": "Temporary extension",
+                    "expiry": "2020-01-01",
+                }
+            ],
+        )
+        self.write_ledger("2026-07", [{"venture": "expired-override", "agent_spend_usd": 150.0, "mrr_end": 0}])
+
+        allocation = PortfolioRouter(self.test_dir).calculate_allocation(total_budget_usd=500.0)
+
+        self.assertEqual(allocation["killed_count"], 1)
+        row = allocation["work_queue"][0]
+        self.assertEqual(row["status"], "killed")
 
 
 if __name__ == "__main__":

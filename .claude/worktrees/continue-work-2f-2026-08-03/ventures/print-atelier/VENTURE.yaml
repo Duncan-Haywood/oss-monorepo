@@ -1,0 +1,29 @@
+name: print-atelier
+description: AI-first software marketplace digitizing physical art with POD fulfillment and 30% net profit payouts to artists.
+stage: prototype
+verify: npm run typecheck && npm run lint && npm test && npm run build
+
+owner: duncan
+
+hypotheses:
+  - claim: Automated artist outreach and print-on-demand (Printful/Gelato) sustain positive unit economics with 30% net profit splits.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: 0
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 60
+  protected: true
+
+kill_criteria:
+  - Unit economics remain negative post-payout for 3 consecutive months.
+  - Zero artist onboarding or catalog additions within 60 days of active outreach.
+
+links:
+  production: null
+  analytics: null

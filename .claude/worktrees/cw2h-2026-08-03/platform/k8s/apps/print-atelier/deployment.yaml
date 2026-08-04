@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: print-atelier
+  labels:
+    app: print-atelier
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: print-atelier
+  template:
+    metadata:
+      labels:
+        app: print-atelier
+    spec:
+      containers:
+      - name: print-atelier
+        image: git.marisstella.dev/giteaadmin/print-atelier:latest
+        ports:
+        - containerPort: 3000
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 10

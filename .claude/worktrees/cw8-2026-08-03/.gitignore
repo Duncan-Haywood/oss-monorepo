@@ -1,0 +1,58 @@
+.DS_Store
+*.log
+
+# Environments — never commit secrets. Each venture scopes its own.
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+
+node_modules/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+pytest-of-*/
+ventures/photo-editing/tmp*/
+.mypy_cache/
+.ruff_cache/
+
+dist/
+build/
+.next/
+out/
+coverage/
+security-scan-report.md
+security-policy-report.md
+gitleaks-report.json
+trivy-report.json
+
+tmp/
+*.tmp
+.backups/
+.dev-security-report.tmp
+.playwright-cli/
+
+# Local one-off test environments.
+pytest-of-*/
+
+# Terraform & Hetzner Secrets - Never commit tokens or state
+*.tfstate
+*.tfstate.*
+*.tfvars
+!.tfvars.example
+.env.hetzner
+.terraform/
+
+# Credentials, Keys, & Certificates
+*.pem
+*.key
+*.p12
+*.pfx
+*.p8
+kubeconfig*
+id_rsa*
+id_ed25519*
+
+# Local deployment notes may contain live credentials.
+ventures/quick-pick-survey/quick-pick-secrets.txt

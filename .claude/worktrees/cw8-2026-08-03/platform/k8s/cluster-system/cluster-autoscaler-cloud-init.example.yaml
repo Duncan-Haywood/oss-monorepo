@@ -1,0 +1,17 @@
+#cloud-config
+#
+# Render K3S_URL and K3S_TOKEN locally, then base64-encode this entire file as
+# HCLOUD_CLOUD_INIT in the cluster-autoscaler-hetzner Secret. Never commit the
+# rendered file or the token.
+write_files:
+  - path: /etc/rancher/k3s/config.yaml
+    owner: root:root
+    permissions: "0600"
+    content: |
+      server: "${K3S_URL}"
+      token: "${K3S_TOKEN}"
+      node-label:
+        - "node-role.kubernetes.io/worker=true"
+        - "workload.marisstella.dev/pool=general"
+runcmd:
+  - curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.36.2+k3s1" sh -s - agent

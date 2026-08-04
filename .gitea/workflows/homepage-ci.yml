@@ -13,6 +13,23 @@ on:
       - ".gitea/workflows/homepage-ci.yml"
       - "platform/ci/deploy-homepage.sh"
   workflow_dispatch:
+    inputs:
+      quality_exception:
+        description: "Enter APPROVED after the owner approves the temporary UI-test exception"
+        required: true
+        type: string
+      exception_issue:
+        description: "Gitea issue URL for the missing candidate browser gate"
+        required: true
+        type: string
+      exception_evidence:
+        description: "HTTPS link to independent review, exploratory test, and rollback evidence"
+        required: true
+        type: string
+      exception_expires:
+        description: "Exception expiry (YYYY-MM-DD, no more than 30 days)"
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -58,7 +75,15 @@ jobs:
   deploy:
     name: Deploy to production cluster
     needs: container
-    if: github.ref == 'refs/heads/main'
+    # Automatic promotion remains blocked until the homepage has the candidate
+    # browser suite required by docs/QUALITY-ENGINEERING.md.
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'workflow_dispatch' &&
+      inputs.quality_exception == 'APPROVED' &&
+      inputs.exception_issue != '' &&
+      inputs.exception_evidence != '' &&
+      inputs.exception_expires != ''
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: production
@@ -66,6 +91,17 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
+
+      - name: Validate the bounded release exception
+        working-directory: .
+        env:
+          QUALITY_EXCEPTION: ${{ inputs.quality_exception }}
+          EXCEPTION_ISSUE: ${{ inputs.exception_issue }}
+          EXCEPTION_EVIDENCE: ${{ inputs.exception_evidence }}
+          EXCEPTION_EXPIRES: ${{ inputs.exception_expires }}
+        run: >-
+          bash scripts/ci/validate-release-exception.sh "$QUALITY_EXCEPTION"
+          "$EXCEPTION_ISSUE" "$EXCEPTION_EVIDENCE" "$EXCEPTION_EXPIRES"
 
       - name: Install pinned Kubernetes client
         shell: bash

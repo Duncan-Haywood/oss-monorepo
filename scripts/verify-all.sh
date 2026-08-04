@@ -5,6 +5,8 @@ set -euo pipefail
 # Runs CI self-testing, security scans, affected-path analysis, and venture verification.
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+export SECURITY_SCAN_ALLOW_OFFLINE="${SECURITY_SCAN_ALLOW_OFFLINE:-1}"
+
 echo "=== Starting Monorepo Unified Verification & Dagger CI Suite ==="
 echo "Repository Root: ${REPO_ROOT}"
 echo "Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"

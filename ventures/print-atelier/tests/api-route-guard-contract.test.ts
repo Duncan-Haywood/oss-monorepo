@@ -28,6 +28,8 @@ const API_ROOT = join(process.cwd(), "src/app/api");
  * reason on its own.
  */
 const PUBLIC_BY_DESIGN: Record<string, string> = {
+  "storefront/localization GET":
+    "Customer-facing localization widget state. Detects visitor country/currency and returns VAT-inclusive or tax-exclusive price formatting disclaimers without modifying server state.",
   "stripe/checkout POST":
     "Customer-facing checkout. The cart is parsed with a rejecting parser and prices come from the server catalog, never the request.",
   "stripe/checkout PUT":

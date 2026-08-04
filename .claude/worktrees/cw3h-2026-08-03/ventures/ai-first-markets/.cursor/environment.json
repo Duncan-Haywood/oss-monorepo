@@ -1,0 +1,10 @@
+{
+  "install": "npm ci",
+  "start": "npm run dev",
+  "terminals": [
+    {
+      "name": "Next.js dev",
+      "command": "npm run dev"
+    }
+  ]
+}

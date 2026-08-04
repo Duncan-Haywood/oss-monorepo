@@ -6,9 +6,9 @@ import {
   roundCurrency,
   type CatalogArtwork,
   type ListingConsentRecord,
-} from "@/lib/marketplace";
-import { fulfillmentPartners } from "@/lib/partners";
-import { formatStripeCurrency } from "@/lib/stripe-connect";
+} from "./marketplace";
+import { fulfillmentPartners } from "./partners";
+import { formatStripeCurrency } from "./stripe-connect";
 
 export type CheckoutShippingRegion = "US" | "EU" | "UK" | "APAC";
 
@@ -16,6 +16,8 @@ export type CheckoutLineItem = {
   artworkSlug: string;
   title: string;
   artistName: string;
+  artistAccountId?: string;
+  artistHandle?: string;
   retailPrice: number;
   fulfillmentCost: number;
   quantity: number;
@@ -104,10 +106,19 @@ export function artworkToCheckoutLine(
   artwork: CatalogArtwork,
   quantity = 1,
 ): CheckoutLineItem {
+  const accountId =
+    artwork.artistAccountId ??
+    `acct_${artwork.artistName.toLowerCase().replace(/[^a-z0-9]/g, "")}`;
+  const handle =
+    artwork.artistHandle ??
+    `@${artwork.artistName.toLowerCase().replace(/[^a-z0-9]/g, "")}`;
+
   return {
     artworkSlug: artwork.slug,
     title: artwork.title,
     artistName: artwork.artistName,
+    artistAccountId: accountId,
+    artistHandle: handle,
     retailPrice: artwork.retailPrice,
     fulfillmentCost: artwork.fulfillmentCost,
     quantity: Math.max(1, quantity),
@@ -271,6 +282,18 @@ export function buildCheckoutSessionPayload(
   const route = buildFulfillmentRoute(lineItems, region, env);
   const totals = calculateCheckoutTotals(lineItems, region);
 
+  const primaryItem = lineItems[0];
+  const primaryAccountId =
+    primaryItem?.artistAccountId ??
+    (primaryItem
+      ? `acct_${primaryItem.artistName.toLowerCase().replace(/[^a-z0-9]/g, "")}`
+      : "");
+  const primaryHandle =
+    primaryItem?.artistHandle ??
+    (primaryItem
+      ? `@${primaryItem.artistName.toLowerCase().replace(/[^a-z0-9]/g, "")}`
+      : "");
+
   return {
     sessionId: generateSessionId(),
     mode: "payment",
@@ -289,11 +312,24 @@ export function buildCheckoutSessionPayload(
       platformRetainedTotal: totals.platformRetained.toFixed(2),
       lineItemCount: String(lineItems.length),
       catalogSlug: lineItems[0]?.artworkSlug ?? "",
+      artistAccountId: primaryAccountId,
+      artistHandle: primaryHandle,
+      destinationConnectAccountId: primaryAccountId,
       ...Object.fromEntries(
-        lineItems.flatMap((item, index) => [
-          [`catalogSlug_${index}`, item.artworkSlug],
-          [`lineItemName_${index}`, `${item.title} — ${item.artistName}`],
-        ]),
+        lineItems.flatMap((item, index) => {
+          const accId =
+            item.artistAccountId ??
+            `acct_${item.artistName.toLowerCase().replace(/[^a-z0-9]/g, "")}`;
+          const hnd =
+            item.artistHandle ??
+            `@${item.artistName.toLowerCase().replace(/[^a-z0-9]/g, "")}`;
+          return [
+            [`catalogSlug_${index}`, item.artworkSlug],
+            [`lineItemName_${index}`, `${item.title} — ${item.artistName}`],
+            [`artistAccountId_${index}`, accId],
+            [`artistHandle_${index}`, hnd],
+          ];
+        }),
       ),
     },
     fulfillmentPartnerId: route.partnerId,

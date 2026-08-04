@@ -43,11 +43,14 @@ export function useTheme() {
     const stored = getStoredTheme();
     const effective = stored === "system" ? getSystemTheme() : stored;
     applyTheme(stored);
-    requestAnimationFrame(() => {
+    const rafId = requestAnimationFrame(() => {
       setThemeState(stored);
       setResolvedTheme(effective);
       setMounted(true);
     });
+    return () => {
+      cancelAnimationFrame(rafId);
+    };
   }, []);
 
   useEffect(() => {

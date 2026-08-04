@@ -23,6 +23,26 @@ budget:
 kill_criteria:
   - Zero store pilot deployments after 90 days of sales demo availability.
   - CAC exceeds €300 per store location.
+  - description: >-
+      $150 of recorded agent spend accumulated with no revenue ever recorded
+      against this venture in portfolio/ledger/.
+    when:
+      - metric: cumulative_agent_spend_usd
+        comparator: ">="
+        threshold: 150
+      - metric: cumulative_revenue_usd
+        comparator: "=="
+        threshold: 0
+  - description: >-
+      $150 of recorded agent spend accumulated with no revenue ever recorded
+      against this venture in portfolio/ledger/.
+    when:
+      - metric: cumulative_agent_spend_usd
+        comparator: ">="
+        threshold: 150
+      - metric: cumulative_revenue_usd
+        comparator: "=="
+        threshold: 0
 
 links:
   # Was https://retail-pilot-intel.pages.dev until 2026-08-02. That host is

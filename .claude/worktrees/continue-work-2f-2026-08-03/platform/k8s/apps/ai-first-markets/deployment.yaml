@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-first-markets
+  labels:
+    app: ai-first-markets
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-first-markets
+  template:
+    metadata:
+      labels:
+        app: ai-first-markets
+    spec:
+      containers:
+      - name: ai-first-markets
+        image: git.marisstella.dev/giteaadmin/ai-first-markets:latest
+        ports:
+        - containerPort: 3000
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 10

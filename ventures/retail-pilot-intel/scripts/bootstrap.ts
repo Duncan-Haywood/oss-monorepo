@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 function run(module: string, args: string[] = []): void {
-  const result = spawnSync("pnpm", ["exec", "tsx", module, ...args], {
+  const result = spawnSync("node", ["--import", "tsx", module, ...args], {
     cwd: root,
     stdio: "inherit",
   });

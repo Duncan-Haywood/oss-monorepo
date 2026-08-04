@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A second push to the same branch makes the first run irrelevant.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      # The build only needs these to be present and well-formed — nothing is
+      # queried at build time. Real credentials live in the deploy environment.
+      POSTGRES_PRISMA_URL: postgresql://postgres@127.0.0.1:5432/ci?schema=public
+      POSTGRES_URL_NON_POOLING: postgresql://postgres@127.0.0.1:5432/ci?schema=public
+      ADMIN_KEY: ci-placeholder
+      ADMIN_SESSION_SECRET: ci-placeholder
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Run the gates individually rather than through `npm run verify`, so a
+      # failure names the gate that failed instead of one opaque red step.
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      # The routes against the service container above. Kept after the build
+      # so an environment failure here can't be mistaken for a code failure in
+      # the fast gates.
+      - name: Integration tests
+        run: |
+          # A database of its own: the migration-parity step below uses
+          # `shadow` as a scratch database and drops objects in it.
+          PGPASSWORD=postgres psql -h 127.0.0.1 -U postgres -d shadow \
+            -c "CREATE DATABASE integration"
+          npx prisma migrate deploy
+          npx prisma db seed
+          npm run test:integration
+        env:
+          POSTGRES_PRISMA_URL: postgresql://postgres:postgres@127.0.0.1:5432/integration?schema=public
+          POSTGRES_URL_NON_POOLING: postgresql://postgres:postgres@127.0.0.1:5432/integration?schema=public
+
+      # A schema edit with no migration behind it deploys cleanly and then
+      # fails on the first query, so it is worth catching here even though it
+      # needs a database to compare against.
+      - name: Migrations match the schema
+        run: |
+          npx prisma migrate diff \
+            --from-migrations prisma/migrations \
+            --to-schema-datamodel prisma/schema.prisma \
+            --shadow-database-url "$SHADOW_DATABASE_URL" \
+            --exit-code
+        env:
+          SHADOW_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/shadow
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: shadow
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: local-site-studio
+  labels:
+    app: local-site-studio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: local-site-studio
+  template:
+    metadata:
+      labels:
+        app: local-site-studio
+    spec:
+      containers:
+      - name: local-site-studio
+        image: git.marisstella.dev/giteaadmin/local-site-studio:latest
+        ports:
+        - containerPort: 3000
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 10

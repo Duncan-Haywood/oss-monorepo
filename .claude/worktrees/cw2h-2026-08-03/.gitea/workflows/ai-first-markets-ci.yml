@@ -1,0 +1,45 @@
+name: AI-First Markets CI
+
+on:
+  pull_request:
+    paths:
+      - "ventures/ai-first-markets/**"
+      - ".gitea/workflows/ai-first-markets-ci.yml"
+      - ".gitea/workflows/ai-first-markets-deploy.yml"
+      - "scripts/ci/verify-component.sh"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/ai-first-markets/**"
+      - ".gitea/workflows/ai-first-markets-ci.yml"
+      - ".gitea/workflows/ai-first-markets-deploy.yml"
+      - "scripts/ci/verify-component.sh"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ai-first-markets-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/ai-first-markets
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: ventures/ai-first-markets/package-lock.json
+      - run: npm ci
+      - name: Run the same fail-closed application gate used locally
+        working-directory: ${{ github.workspace }}
+        run: bash scripts/ci/verify-component.sh ai-first-markets

@@ -1,0 +1,105 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pairwise-migrate
+  namespace: web-services
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pairwise-migration
+        app.kubernetes.io/instance: quick-pick-survey
+    spec:
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: pairwise-registry
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+      containers:
+        - name: migrate
+          image: git.marisstella.dev/giteaadmin/pairwise-app
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - export PATH="/app/node_modules/.bin:$PATH"; prisma migrate deploy && prisma db seed
+          env:
+            - name: POSTGRES_PRISMA_URL
+              valueFrom:
+                secretKeyRef:
+                  name: quick-pick-secrets
+                  key: POSTGRES_PRISMA_URL
+            - name: POSTGRES_URL_NON_POOLING
+              valueFrom:
+                secretKeyRef:
+                  name: quick-pick-secrets
+                  key: POSTGRES_URL_NON_POOLING
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pairwise-smoke
+  namespace: web-services
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  backoffLimit: 2
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pairwise-smoke
+        app.kubernetes.io/instance: quick-pick-survey
+    spec:
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: pairwise-registry
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+      containers:
+        - name: smoke
+          image: git.marisstella.dev/giteaadmin/pairwise-app
+          imagePullPolicy: IfNotPresent
+          command:
+            - node
+            - -e
+            - |
+              const checks = [
+                ["http://quick-pick-survey-web-service:3000/api/health", /"status":"ok"/],
+                ["http://quick-pick-survey-web-service:3000/api/health/ready", /"status":"ready"/],
+                ["http://quick-pick-survey-web-service:3000/api/surveys/combined", /combined/i],
+                ["https://pairwise.marisstella.dev/app", /Pairwise/i],
+                ["https://pairwise.marisstella.dev/couple", /Pairwise/i],
+              ];
+              for (const [url, expected] of checks) {
+                const response = await fetch(url, { redirect: "follow" });
+                const body = await response.text();
+                if (!response.ok || !expected.test(body)) {
+                  throw new Error(`${url} failed (${response.status})`);
+                }
+              }
+              console.log("Pairwise GitOps smoke checks passed");
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi

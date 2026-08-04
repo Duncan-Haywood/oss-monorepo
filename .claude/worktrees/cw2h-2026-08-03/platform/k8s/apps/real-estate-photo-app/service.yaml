@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: real-estate-photo-app
+  labels:
+    app: real-estate-photo-app
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http
+  selector:
+    app: real-estate-photo-app

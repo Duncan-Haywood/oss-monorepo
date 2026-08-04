@@ -62,6 +62,9 @@ test("buildCheckoutSessionPayload encodes line items and metadata", () => {
   assert.equal(payload.mode, "payment");
   assert.equal(payload.lineItems.length, cart.length);
   assert.equal(payload.metadata.fulfillmentPartnerId, "printful");
+  assert.ok(payload.metadata.artistAccountId);
+  assert.ok(payload.metadata.artistHandle);
+  assert.ok(payload.metadata.destinationConnectAccountId);
   assert.ok(payload.successUrl.includes("/checkout"));
 });
 

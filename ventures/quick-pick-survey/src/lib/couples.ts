@@ -397,7 +397,11 @@ export function coupleThemeInsights(mine: Ranking, theirs: Ranking, limit = 6): 
       priority: pattern === "difference" ? gap + 20 : shared,
     });
   }
-  return rows.sort((a, b) => b.priority - a.priority).slice(0, limit).map(({ priority: _, ...row }) => row);
+  return rows.sort((a, b) => b.priority - a.priority).slice(0, limit).map((r) => {
+    const row = { ...r } as Record<string, unknown>;
+    delete row.priority;
+    return row as unknown as CoupleThemeInsight;
+  });
 }
 
 /**
@@ -893,7 +897,7 @@ export async function coupleFor(userId: string) {
 // DEEP EXPLAINABLE COUPLE INSIGHTS ENGINE
 // ---------------------------------------------------------------------------
 
-import { getTraitsForItem, LoveLanguage, RelationalDriver, StressResponse } from "@/lib/cardTraitsData";
+import { getTraitsForItem, StressResponse } from "@/lib/cardTraitsData";
 
 export type ExplainableInsight = {
   id: string;

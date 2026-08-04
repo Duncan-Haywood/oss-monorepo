@@ -1,0 +1,20 @@
+# Python dependencies the repository's CI gates need.
+#
+# `scripts/test-ci.sh` runs five Python gates: the portfolio router suite, the
+# repository-wide pytest run, the allocation report generation, the venture
+# contract validator and the exception register audit. Four of them import
+# PyYAML and one needs pytest. Nothing installed either, so on a clean runner
+# every one of them failed while `.gitea/workflows/ci-cd.yml` claimed to be the
+# monorepo's verification pipeline.
+#
+# This list is deliberately short. Everything else those gates import is either
+# in the standard library or a module in this repository — checked against the
+# import surface of tests/, portfolio/, platform/ci/, scripts/ci/ and the four
+# venture test suites under pytest.ini `testpaths`.
+#
+# Ranges rather than exact pins: `ventures/ubuntu-agent-server/tests/requirements.txt`
+# already requires `pytest>=8.0`, and pinning this file below that floor would
+# make the two contradict each other.
+
+pytest>=7.4.3,<9
+PyYAML>=6.0,<7

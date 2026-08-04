@@ -19,6 +19,11 @@ criteria, not aspirations.
 - Unit tests provide fast feedback; contract and integration tests prove real
   boundaries; end-to-end and post-deployment smoke tests prove the deployable
   artifact. Database code is tested against the real database engine.
+- Every user-visible change is tested in a real browser across its critical
+  happy, failure, recovery, responsive, keyboard, and accessibility states.
+  Stable visual regression tests and reviewer-inspected artifacts protect
+  layout and content; automated accessibility scans do not replace manual
+  interaction review.
 - Flaky tests are defects. Quarantine requires an owner, issue, reason, and
   expiry; retries must not turn a failure into a pass without recording it.
 - Test code, fixtures, CI logic, migrations, monitoring rules, and recovery
@@ -30,6 +35,10 @@ criteria, not aspirations.
   test strategy before implementation. Prefer small, reversible changes.
 - Local verification and pull-request CI run formatting, type checks, lint,
   tests, production builds, policy checks, and relevant integration tests.
+- Use short-lived branches and protected pull requests. Direct release-branch
+  pushes are prohibited. The implementer reviews the final diff, and a separate
+  agent run or human independently tries to falsify material changes; an
+  implementer cannot be the only reviewer of their own work.
 - Secure defaults are mandatory: runtime input validation, server-side
   authorization, least privilege, safe output handling, secret isolation,
   bounded resources, and deny-by-default network and data access.
@@ -69,6 +78,11 @@ criteria, not aspirations.
 - Database migrations are forward-safe, isolated, backed up where required,
   and tested before traffic reaches new code. A deployment is complete only
   after readiness, smoke, security, data-integrity, and telemetry checks pass.
+- Merge is not promotion. Production release jobs consume the exact candidate
+  that passed all required checks and explicitly depend on that evidence; a
+  parallel workflow triggered by the same push is not a dependency. Production
+  UI services without a blocking candidate browser suite are not eligible for
+  automatic promotion.
 
 ## 5. Reliability is engineered and measured
 
@@ -130,5 +144,6 @@ criteria, not aspirations.
   risk, learning value, and cost of delay—not feature count or activity.
 
 See [the development workflow](docs/DEV-WORKFLOW.md),
+[quality engineering and release policy](docs/QUALITY-ENGINEERING.md),
 [CI/CD architecture](docs/CI-CD-ARCHITECTURE.md), [security policy](SECURITY.md),
 and [engineering roadmap](docs/ENGINEERING-ROADMAP.md) for implementation.

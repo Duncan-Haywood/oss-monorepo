@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { applyTheme, getStoredTheme, getSystemTheme, THEME_STORAGE_KEY, useTheme } from "@/lib/theme";
+import { applyTheme, getStoredTheme, THEME_STORAGE_KEY, useTheme } from "@/lib/theme";
 import { act, renderHook } from "@testing-library/react";
 
 describe("theme utility", () => {
@@ -35,7 +35,7 @@ describe("theme utility", () => {
   });
 
   it("provides toggleTheme in useTheme hook", () => {
-    const { result } = renderHook(() => useTheme());
+    const { result, unmount } = renderHook(() => useTheme());
 
     expect(result.current.theme).toBe("system");
 
@@ -54,5 +54,7 @@ describe("theme utility", () => {
     expect(result.current.resolvedTheme).toBe("light");
     expect(document.documentElement.classList.contains("dark")).toBe(false);
     expect(window.localStorage.getItem(THEME_STORAGE_KEY)).toBe("light");
+
+    unmount();
   });
 });

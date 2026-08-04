@@ -1,0 +1,53 @@
+period: 2026-07
+entries:
+  - venture: print-atelier
+    agent_spend_usd: 18.18
+    human_hours: 4.0
+    outcomes:
+      - Stripe Connect payouts & 70/30 artist profit split system verified.
+      - POD Printful fulfillment pipeline, catalog intelligence, and consent-gated sitemap active.
+    mrr_end: 0
+
+  - venture: retail-pilot-intel
+    agent_spend_usd: 18.18
+    human_hours: 3.5
+    outcomes:
+      - Door + POS conversion join funnel and SKU desirability matrix verified.
+      - Private docs deployment protection and sales demo portal passcode gate operational.
+    mrr_end: 0
+
+  - venture: quick-pick-survey
+    agent_spend_usd: 18.18
+    human_hours: 5.0
+    outcomes:
+      - Pairwise decision engine Glicko-2 and Bradley-Terry logit models verified.
+      - High-concurrency route error recoveries and test suite validated.
+    mrr_end: 0
+
+  - venture: local-site-studio
+    agent_spend_usd: 18.18
+    human_hours: 2.0
+    outcomes:
+      - Instant preview site generators and Lighthouse 100/100 performance templates active.
+    mrr_end: 0
+
+  - venture: real-estate-agent-photo-app
+    agent_spend_usd: 18.18
+    human_hours: 2.5
+    outcomes:
+      - MLS-ready photo enhancement pipeline & microsite generator documented.
+    mrr_end: 0
+
+  - venture: ubuntu-agent-server
+    agent_spend_usd: 18.18
+    human_hours: 2.0
+    outcomes:
+      - Container execution sandbox runner verified with 22/22 unit tests passing.
+    mrr_end: 0
+
+  - venture: photo-editing
+    agent_spend_usd: 18.18
+    human_hours: 3.0
+    outcomes:
+      - Batch catalog render pipeline and calibration worker verified with 438/438 unit tests passing.
+    mrr_end: 0

@@ -1,0 +1,71 @@
+{
+  "render_plan_fingerprint": "18c621c489789f21f30d7ea823a2b1cb57d05ebbb60edbdaf4136e6878d58265",
+  "schema_version": 1,
+  "shoot_slug": "pilot-demo-001",
+  "task_statuses": [
+    {
+      "attempts": 1,
+      "error_message": null,
+      "output_checksums": [
+        {
+          "path": "deliverables/instagram_reel.mp4",
+          "sha256": "5194764edd676d96d8cc52672af6c370f15a97046bcd28b7c42789d0d3deaf14"
+        }
+      ],
+      "renderer_adapter": "dry-run-local",
+      "state": "succeeded",
+      "task_id": "render_instagram_reel",
+      "updated_at": "2026-06-12T12:00:00Z"
+    },
+    {
+      "attempts": 1,
+      "error_message": null,
+      "output_checksums": [
+        {
+          "path": "deliverables/instagram_reels/hero.mp4",
+          "sha256": "484c79ca491eecce0e963f7f95c425b128d3c3901076f1564b3a6a0ecd427976"
+        }
+      ],
+      "renderer_adapter": "dry-run-local",
+      "state": "succeeded",
+      "task_id": "render_instagram_reel_variant_hero",
+      "updated_at": "2026-06-12T12:00:00Z"
+    },
+    {
+      "attempts": 1,
+      "error_message": null,
+      "output_checksums": [
+        {
+          "path": "deliverables/instagram_carousel/slide_00001.jpg",
+          "sha256": "69ac79644775faa450f028ea31c481b246d7e6086985d0dce17af14c383ff9b4"
+        },
+        {
+          "path": "deliverables/instagram_carousel/slide_00002.jpg",
+          "sha256": "54ede61b6d2d0c51a678b7438458b980a7bc0e6e944d2e4ea3aab2064fa19aa0"
+        }
+      ],
+      "renderer_adapter": "dry-run-local",
+      "state": "succeeded",
+      "task_id": "render_instagram_carousel",
+      "updated_at": "2026-06-12T12:00:00Z"
+    },
+    {
+      "attempts": 1,
+      "error_message": null,
+      "output_checksums": [
+        {
+          "path": "deliverables/instagram_photo_set/photo_00001.jpg",
+          "sha256": "eada44ba000e84581476632290ead77bbdfa54f8e0f3ce742024f768a22939e0"
+        },
+        {
+          "path": "deliverables/instagram_photo_set/photo_00002.jpg",
+          "sha256": "44bbac1ae3bf7f82d7fbffff6b9a4e085b36c2fec18a00bbe70030e022116596"
+        }
+      ],
+      "renderer_adapter": "dry-run-local",
+      "state": "succeeded",
+      "task_id": "export_instagram_photo_set_part_00001",
+      "updated_at": "2026-06-12T12:00:00Z"
+    }
+  ]
+}

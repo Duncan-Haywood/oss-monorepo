@@ -124,7 +124,7 @@ test('Deploy Gate Contract - the shared gate runs the venture unit tests', () =>
     const component = arms[index];
     const body = arms[index + 1] || '';
     if (component === '*') continue;
-    if (!/npm\s+test\b|run\s+(?:test|ci)\b/.test(body)) {
+    if (!/npm\s+test\b|run\s+(?:test|ci)\b|pytest\b|swift\s+test\b/.test(body)) {
       untested.push(component);
     }
   }

@@ -166,6 +166,46 @@ export default function InvestorDashboard() {
         </div>
       </section>
 
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Artist Cohort Retention</h2>
+            <StatusBadge status={snapshot.artistCohorts.healthStatus === "healthy" ? "healthy" : snapshot.artistCohorts.healthStatus === "at_risk" ? "blocked" : "watch"} />
+          </div>
+          <p className="text-2xl font-bold mt-2 tabular-nums">
+            {snapshot.artistCohorts.repeatPayoutArtistPercent}%
+            <span className="text-sm font-normal text-gray-500"> repeat payout rate</span>
+          </p>
+          <ul className="mt-3 space-y-1 text-sm text-gray-600 dark:text-gray-300">
+            <li>Total artists: {snapshot.artistCohorts.totalUniqueArtists} | Repeat: {snapshot.artistCohorts.repeatPayoutArtistCount}</li>
+            <li>Avg orders per artist: {snapshot.artistCohorts.averageOrdersPerArtist}</li>
+            <li>M1 retention: {snapshot.artistCohorts.overallM1RetentionRatePercent}% | M3 retention: {snapshot.artistCohorts.overallM3RetentionRatePercent}%</li>
+            <li className="text-indigo-600 dark:text-indigo-400 font-medium">{snapshot.artistCohorts.summaryLabel}</li>
+          </ul>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Stripe Connect Reserve Health</h2>
+            <StatusBadge status={snapshot.reserveHealth.status === "healthy" ? "healthy" : snapshot.reserveHealth.status === "warning" ? "watch" : "blocked"} />
+          </div>
+          <p className="text-2xl font-bold mt-2 tabular-nums">
+            {snapshot.reserveHealth.reserveCoveragePercent}%
+            <span className="text-sm font-normal text-gray-500"> reserve coverage</span>
+          </p>
+          <ul className="mt-3 space-y-1 text-sm text-gray-600 dark:text-gray-300">
+            <li>Available platform cash: ${(snapshot.reserveHealth.availablePlatformBalanceCents / 100).toLocaleString()}</li>
+            <li>Target reserve buffer: ${(snapshot.reserveHealth.recommendedReserveBufferCents / 100).toLocaleString()}</li>
+            <li>Safety margin: ${(snapshot.reserveHealth.netSafetyMarginCents / 100).toLocaleString()}</li>
+            <li className="text-indigo-600 dark:text-indigo-400 font-medium">
+              {snapshot.reserveHealth.status === "healthy"
+                ? "Reserve buffer fully covers pending payouts, POD liabilities, and chargeback reserves."
+                : snapshot.reserveHealth.warnings[0]}
+            </li>
+          </ul>
+        </div>
+      </section>
+
       <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
         <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
           <div>

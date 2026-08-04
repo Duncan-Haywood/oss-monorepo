@@ -1,0 +1,85 @@
+---
+# --- required: fill these in before running ---
+
+# The account the box will be administered as. Assumed to already exist
+# with sudo rights (created by the Ubuntu Server installer).
+agent_user: duncan
+
+# Public key(s) that should be able to SSH in as agent_user.
+# Defaults to your Mac's own key so this playbook is usable immediately.
+agent_user_authorized_keys:
+  - "{{ lookup('file', '~/.ssh/id_ed25519.pub') }}"
+
+# Hostname to set on the box. The Ubuntu installer gave it a junk
+# DMI-derived default ("duncan-Default-string") last time; pick something sane.
+server_hostname: agent-server
+
+server_timezone: "Etc/UTC"
+
+# --- tailscale ---
+
+# Optional: a pre-auth key from https://login.tailscale.com/admin/settings/keys
+# lets `tailscale up` run non-interactively during provisioning. Leave blank
+# to install+enable tailscaled only, and run `sudo tailscale up` by hand
+# afterwards (needed anyway the first time, to approve the node in your tailnet).
+# NEVER commit a real key here — pass with -e or put in an ansible-vault file.
+tailscale_authkey: ""
+
+# --- power / uptime ---
+
+# Mask systemd sleep/suspend targets so the box can't go to sleep on idle.
+# This is the thing that bit us on the Desktop install.
+disable_sleep: true
+
+# --- unattended-upgrades ---
+
+# Install security updates automatically, but don't auto-reboot — a surprise
+# reboot is worse for a 24/7 agent host than a slightly-stale kernel.
+unattended_upgrades_enabled: true
+unattended_upgrades_auto_reboot: false
+
+# --- node ---
+nodejs_major_version: "22"   # Claude Code requires Node 22+; this satisfies all five tools.
+
+# --- which agent CLIs to install ---
+install_claude_code: true
+install_codex_cli: true
+# Google sunset Gemini CLI for free-tier/Google One users in favor of
+# Antigravity CLI (agy) — using that instead. See README's per-tool table:
+# this one's headless flags are less solidly documented than the other
+# three, verify on the box before trusting it with dry_run: false.
+install_antigravity_cli: true
+install_opencode: true
+# xAI's "Grok Build" has no unauthenticated public install script (as of
+# writing it's gated to SuperGrok/X Premium+ subscribers, and the exact
+# install command is only shown after signing in at grok.com/build).
+# Leaving this off; see README for the manual step.
+install_grok_build: false
+
+# --- autonomous agent runner ---
+#
+# This deploys the actual "agents work on repos unattended" system, not just
+# the CLIs. See README.md's "How it runs" section before enabling it for
+# real — worth reading end to end once, not skimming.
+
+install_agent_runner: true
+
+# How often the runner checks configured repos for new work (systemd
+# OnCalendar syntax). Every 10 minutes is a reasonable starting point.
+agent_runner_schedule: "*:0/10"
+
+# Master kill switch, checked at the start of every run. Independent of
+# per-repo dry_run — this stops EVERYTHING immediately. Directly and
+# idempotently enforced every playbook run (not just on first install) —
+# this var in git is the actual source of truth for whether the system is
+# paused, not server-side state. Starts disabled on purpose — flip to
+# false once you've reviewed config/repos.yml and are ready for it to run.
+agent_runner_start_disabled: true
+
+# Run each headless CLI invocation inside a Docker container instead of
+# directly on the host — real OS-level isolation uniformly across all four
+# tools, not just the ones with their own sandbox flags. This is the
+# least-tested part of the whole system (see docker/agent-runner/Dockerfile
+# and README's "How it runs" — the image has never actually been built).
+# Off by default; the direct-exec path is the validated one.
+use_docker_sandbox: false

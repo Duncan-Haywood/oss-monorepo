@@ -1,0 +1,15 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: quick-pick-survey-web-service
+  namespace: web-services
+  labels:
+    app.kubernetes.io/name: web-service
+    app.kubernetes.io/instance: quick-pick-survey
+    app.kubernetes.io/managed-by: argocd
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: web-service
+      app.kubernetes.io/instance: quick-pick-survey

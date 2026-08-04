@@ -165,9 +165,12 @@ export type StripeWebhookProcessingResult = {
   eventType: string;
   action: string;
   artistAccountId?: string;
+  destinationConnectAccountId?: string;
+  transferAmountCents?: number;
   amountCents?: number;
   testMode: boolean;
 };
+
 
 export type StripeWebhookEnvStatus = {
   secretKeyConfigured: boolean;
@@ -258,15 +261,38 @@ export function processStripeConnectWebhookEvent(
 
   if (event.type === "payment_intent.succeeded") {
     const amount = typeof object.amount === "number" ? object.amount : undefined;
+    const metadata =
+      typeof object.metadata === "object" && object.metadata !== null
+        ? (object.metadata as Record<string, unknown>)
+        : {};
+    const destinationAccountId =
+      typeof metadata.destinationConnectAccountId === "string"
+        ? metadata.destinationConnectAccountId
+        : typeof metadata.artistAccountId === "string"
+        ? metadata.artistAccountId
+        : undefined;
+    const transferTotalString =
+      typeof metadata.artistTransferTotal === "string" ? metadata.artistTransferTotal : undefined;
+    const transferAmountCents = transferTotalString
+      ? Math.round(parseFloat(transferTotalString) * 100)
+      : undefined;
 
     return {
       handled: true,
       eventType: event.type,
-      action: "Trigger POD fulfillment job and schedule Connect transfer after delay",
+      action: destinationAccountId
+        ? `Trigger POD fulfillment job and route Connect transfer of ${
+            transferTotalString ? `$${transferTotalString}` : "calculated 30% share"
+          } to ${destinationAccountId}`
+        : "Trigger POD fulfillment job and schedule Connect transfer after delay",
+      artistAccountId: destinationAccountId,
+      destinationConnectAccountId: destinationAccountId,
+      transferAmountCents,
       amountCents: amount,
       testMode,
     };
   }
+
 
   return {
     handled: false,
@@ -275,3 +301,120 @@ export function processStripeConnectWebhookEvent(
     testMode,
   };
 }
+
+export type ConnectBatchTransferInstruction = {
+  artistAccountId: string;
+  artistHandle: string | null;
+  amountCents: number;
+  currency: string;
+  idempotencyKey: string;
+  description: string;
+  metadata: {
+    type: "reconciliation_topup";
+    underpaidCents: number;
+    reconciledAt: string;
+    testMode: boolean;
+  };
+};
+
+export type ConnectBatchTransferResult = {
+  executedAt: string;
+  totalTransfers: number;
+  totalTopUpCents: number;
+  instructions: ConnectBatchTransferInstruction[];
+  skippedAccounts: Array<{
+    artistAccountId: string;
+    reason: string;
+  }>;
+  summaryLabel: string;
+};
+
+export type ConnectBatchTransferOptions = {
+  report: import("./payout-reconciliation").ArtistPayoutReconciliationReport;
+  minTransferCents?: number;
+  maxTransferCents?: number;
+  testMode?: boolean;
+  now?: string;
+};
+
+export function executeConnectPayoutBatchTransfer({
+  report,
+  minTransferCents = 100,
+  maxTransferCents = 100000,
+  testMode = true,
+  now = new Date().toISOString(),
+}: ConnectBatchTransferOptions): ConnectBatchTransferResult {
+  const instructions: ConnectBatchTransferInstruction[] = [];
+  const skippedAccounts: Array<{ artistAccountId: string; reason: string }> = [];
+
+  const eligibleRows = report.rows.filter(
+    (row) => row.status === "underpaid" || row.status === "unpaid",
+  );
+
+  for (const row of eligibleRows) {
+    const owedCents = Math.abs(row.varianceCents);
+
+    if (row.currency === "MIXED") {
+      skippedAccounts.push({
+        artistAccountId: row.artistAccountId,
+        reason: "Mixed currency on account — cannot execute single-currency batch top-up transfer",
+      });
+      continue;
+    }
+
+    if (owedCents < minTransferCents) {
+      skippedAccounts.push({
+        artistAccountId: row.artistAccountId,
+        reason: `Owed amount (${formatStripeCurrency(owedCents / 100)}) below minimum batch transfer threshold (${formatStripeCurrency(minTransferCents / 100)})`,
+      });
+      continue;
+    }
+
+    if (owedCents > maxTransferCents) {
+      skippedAccounts.push({
+        artistAccountId: row.artistAccountId,
+        reason: `Owed amount (${formatStripeCurrency(owedCents / 100)}) exceeds maximum safe batch transfer threshold (${formatStripeCurrency(maxTransferCents / 100)}) — manual review required`,
+      });
+      continue;
+    }
+
+    const idempotencyKey = `topup_${row.artistAccountId}_${now.substring(0, 10)}_${owedCents}`;
+
+    instructions.push({
+      artistAccountId: row.artistAccountId,
+      artistHandle: row.artistHandle,
+      amountCents: owedCents,
+      currency: row.currency || "USD",
+      idempotencyKey,
+      description: `Print Atelier 30% Net Profit Reconciliation Top-Up for ${row.artistHandle ?? row.artistAccountId}`,
+      metadata: {
+        type: "reconciliation_topup",
+        underpaidCents: owedCents,
+        reconciledAt: report.generatedAt,
+        testMode,
+      },
+    });
+  }
+
+  const totalTopUpCents = instructions.reduce((sum, item) => sum + item.amountCents, 0);
+  const totalTransfers = instructions.length;
+
+  const summaryLabel =
+    totalTransfers === 0
+      ? skippedAccounts.length > 0
+        ? `No batch transfers generated — ${skippedAccounts.length} underpaid account(s) skipped due to guardrails`
+        : "No underpaid accounts require batch transfer top-ups"
+      : `Prepared ${totalTransfers} batch top-up transfer(s) totaling ${formatStripeCurrency(totalTopUpCents / 100)}${
+          skippedAccounts.length > 0 ? ` (${skippedAccounts.length} skipped)` : ""
+        }`;
+
+  return {
+    executedAt: now,
+    totalTransfers,
+    totalTopUpCents,
+    instructions,
+    skippedAccounts,
+    summaryLabel,
+  };
+}
+

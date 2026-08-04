@@ -10,6 +10,8 @@ export type OrderRecord = {
   fulfillmentPartnerId: string | null;
   shippingRegion: string | null;
   artistTransferTotal: number | null;
+  artistAccountId?: string | null;
+  artistHandle?: string | null;
   lineItemCount: number;
   testMode: boolean;
   recordedAt: string;
@@ -82,6 +84,10 @@ export function recordOrderFromPaymentWebhook(
   const artistTransferTotal = parseMetadataNumber(
     readMetadataString(metadata, "artistTransferTotal"),
   );
+  const artistAccountId =
+    readMetadataString(metadata, "artistAccountId") ??
+    readMetadataString(metadata, "destinationConnectAccountId");
+  const artistHandle = readMetadataString(metadata, "artistHandle");
   const lineItemCountRaw = readMetadataString(metadata, "lineItemCount");
   const lineItemCount = lineItemCountRaw
     ? Number.parseInt(lineItemCountRaw, 10) || 1
@@ -97,6 +103,8 @@ export function recordOrderFromPaymentWebhook(
     fulfillmentPartnerId,
     shippingRegion,
     artistTransferTotal,
+    artistAccountId,
+    artistHandle,
     lineItemCount,
     testMode,
     recordedAt: recordedAt ?? new Date().toISOString(),

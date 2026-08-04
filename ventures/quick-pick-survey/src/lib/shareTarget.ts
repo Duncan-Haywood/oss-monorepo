@@ -31,6 +31,7 @@ export type ShareTarget = {
  */
 export function shareTargetFrom(origin: string | null | undefined): ShareTarget | null {
   if (!origin) return null;
+  if (!origin.startsWith("http://") && !origin.startsWith("https://")) return null;
   let parsed: URL;
   try {
     parsed = new URL(origin);

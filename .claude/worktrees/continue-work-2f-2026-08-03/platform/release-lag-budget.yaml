@@ -1,0 +1,63 @@
+# Release lag budget
+#
+# Production runs `origin/main`. This file declares how far the repository is
+# allowed to run ahead of it before the gap is a failure rather than a state.
+# `scripts/ci/release_lag.py` enforces it and fails closed; `tests/test_release_lag.py`
+# runs the same audit under pytest.
+#
+# The ratchet is two-directional, like `count` in `platform/exception-register.yaml`
+# and the coverage baselines in `platform/coverage-baseline.yaml`:
+#
+#   * Measured above `max_unshipped_commits` fails — the undelivered pile grew.
+#   * Measured more than `slack_commits` below it also fails — work shipped and
+#     the budget is now stale. Lowering it is a deliberate, reviewed act.
+#
+# The declared numbers are themselves capped in `release_lag.py`
+# (MAX_DECLARED_AGE_DAYS, MAX_DECLARED_SLACK, MAX_EXPIRY_DAYS) so this file
+# cannot be widened into permanent silence.
+#
+# Nothing here pushes, merges, or deploys. Shipping is a human decision. This
+# only keeps the size of the undeployed pile visible.
+
+baseline_ref: origin/main
+owner: duncan
+issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
+expires: 2026-10-31
+
+budget:
+  # Measured 2026-08-02: 119 commits across 29 local branches were not in
+  # origin/main, touching all 11 ventures plus platform/, portfolio/, scripts/
+  # and .gitea/. Declared slightly above the measurement so an ordinary day of
+  # work does not fail the gate; the number is a record of today's debt, not a
+  # target.
+  #
+  # Raised 119 -> 127 the same day, by the three commits that added this control
+  # and fixed SEC-022. That is the weakness of this dimension and it is worth
+  # stating plainly: committing more work always lifts the count, so a rising
+  # count alone proves nothing except that people are working. Raising it is at
+  # least a visible, reviewed edit rather than silence.
+  #
+  # `max_unshipped_age_days` below is the dimension that cannot be gamed this
+  # way. No amount of new work lowers it; only shipping does.
+  max_unshipped_commits: 135
+
+  # Below this many commits the budget above is stale and must be lowered.
+  slack_commits: 40
+
+  # Lead time for changes. Two days on 2026-08-02. A change finished a week ago
+  # and still not delivered is the failure this gate exists to name — the
+  # homepage's 2026-08-01 accessibility and `rel="noopener"` fixes were still
+  # not live the next day, and nothing said so.
+  max_unshipped_age_days: 7
+
+  max_branches_ahead: 35
+
+rationale: >-
+  Every other control in this repository asks whether work is correct. None
+  asked whether it reached production, so a "Fixed" row in
+  docs/SECURITY_AUDIT_LOG.md and a green pipeline could both be true while the
+  live service ran code from a fortnight earlier. The measured effect of such
+  work on the product, and on revenue, is zero. This budget makes the gap a
+  number that has to be argued down rather than a fact rediscovered by
+  accident. It is the first measured piece of the DORA scorecard item in the
+  30-day section of docs/ENGINEERING-ROADMAP.md.

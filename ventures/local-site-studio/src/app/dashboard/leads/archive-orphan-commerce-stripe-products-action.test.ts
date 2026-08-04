@@ -60,14 +60,10 @@ vi.mock("@/lib/db", () => ({
 
 const archiveOrphanCommerceStripeProducts = vi.fn();
 
-vi.mock("@/lib/commerce", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/commerce")>();
-  return {
-    ...actual,
-    archiveOrphanCommerceStripeProducts: (...args: unknown[]) =>
-      archiveOrphanCommerceStripeProducts(...args),
-  };
-});
+vi.mock("@/lib/commerce", () => ({
+  archiveOrphanCommerceStripeProducts: (...args: unknown[]) =>
+    archiveOrphanCommerceStripeProducts(...args),
+}));
 
 const stripeCtor = vi.fn();
 vi.mock("stripe", () => ({

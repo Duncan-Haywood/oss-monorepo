@@ -45,6 +45,7 @@ def base_contract(**overrides):
         "name": "demo",
         "stage": "prototype",
         "owner": "duncan",
+        "verify": "npm test",
         "hypotheses": [],
         "economics": {"currency": "USD", "mrr": None},
         "budget": {"monthly_cap": 50, "protected": False},

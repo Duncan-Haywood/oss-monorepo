@@ -1,0 +1,28 @@
+name: photos-import-tools
+description: High-performance photo library metadata extraction and automated ingestion utility.
+stage: prototype
+verify: pytest tests
+
+owner: duncan
+
+hypotheses:
+  - claim: Ingestion tools provide foundation for photo-editing and real-estate studio pipelines.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 20
+  protected: true
+
+kill_criteria:
+  - Ingest throughput drops below 500 images/min.
+
+links:
+  production: null
+  analytics: null

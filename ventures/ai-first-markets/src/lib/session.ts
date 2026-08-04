@@ -4,7 +4,7 @@ import {
   getAuthSecret,
   isEmailAllowed,
   normalizeTeamDomain,
-} from "./auth";
+} from "./auth.ts";
 
 export interface SessionPayload {
   email: string;

@@ -11,7 +11,7 @@ export function isEmailAllowed(email: string | null | undefined): boolean {
 export function getAuthSecret(): string {
   const secret = process.env.AUTH_SECRET;
   if (!secret) {
-    if (process.env.NODE_ENV === "development") {
+    if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test") {
       return "dev-only-secret-change-in-production";
     }
     throw new Error("AUTH_SECRET environment variable is required");

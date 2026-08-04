@@ -1,4 +1,4 @@
-import type { BusinessIdea } from "@/lib/types";
+import type { BusinessIdea } from "../lib/types.ts";
 
 const baseDimensions = (
   scores: [number, number, number, number, number, number],

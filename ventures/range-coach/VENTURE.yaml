@@ -1,0 +1,52 @@
+name: range-coach
+description: Privacy-first iPhone and Apple Watch golf practice coach for driving-range swing feedback.
+stage: prototype
+verify: swift test
+
+owner: duncan
+
+hypotheses:
+  - claim: Recreational golfers will complete at least three range sessions per month when each swing produces one immediate, confidence-labeled coaching cue.
+    status: untested
+    checked: null
+  - claim: Apple Watch motion fused with a fixed iPhone camera is useful enough to improve coaching relevance over camera-only feedback.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: 0
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 40
+  protected: false
+
+kill_criteria:
+  - Fewer than 5 of 15 coached pilot users complete a second range session within 30 days.
+  - More than 10 percent of detected swings receive a materially wrong confident cue in a 500-swing labeled pilot.
+  - description: >-
+      $120 of recorded agent spend accumulated with no revenue ever recorded
+      against this venture in portfolio/ledger/.
+    when:
+      - metric: cumulative_agent_spend_usd
+        comparator: ">="
+        threshold: 120
+      - metric: cumulative_revenue_usd
+        comparator: "=="
+        threshold: 0
+  - description: >-
+      $150 of recorded agent spend accumulated with no revenue ever recorded
+      against this venture in portfolio/ledger/.
+    when:
+      - metric: cumulative_agent_spend_usd
+        comparator: ">="
+        threshold: 150
+      - metric: cumulative_revenue_usd
+        comparator: "=="
+        threshold: 0
+
+links:
+  production: null
+  analytics: null

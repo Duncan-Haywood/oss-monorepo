@@ -1,5 +1,5 @@
-import type { BusinessIdea, PortfolioSummary } from "./types";
-import { businessIdeas } from "@/data/ideas";
+import type { BusinessIdea, PortfolioSummary } from "./types.ts";
+import { businessIdeas } from "../data/ideas.ts";
 
 export function getAllIdeas(): BusinessIdea[] {
   return [...businessIdeas].sort((a, b) => a.rank100k - b.rank100k);

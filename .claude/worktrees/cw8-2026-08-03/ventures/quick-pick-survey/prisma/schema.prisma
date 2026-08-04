@@ -1,0 +1,478 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+/// ITEMS: discrete options ranked with Glicko-2 (activities, professions, combined).
+/// FINANCIAL: continuous wealth/earnings attributes fit with a discrete-choice
+/// conjoint model (Davidson tie model).
+/// CONJOINED: identity item (from another ITEMS survey) + financial attributes,
+/// fit against the identity survey's frozen ratings plus new financial coefficients.
+enum SurveyKind {
+  ITEMS
+  FINANCIAL
+  CONJOINED
+}
+
+/// Whose preferences a session is measuring. The same survey content is
+/// rated twice under different framings — what you want for yourself vs.
+/// what you want in a romantic partner — and the two never share rating
+/// state, so they can be compared against each other afterwards.
+enum Perspective {
+  /// What I want for myself / who I want to be.
+  SELF
+  /// What I want in a romantic partner.
+  PARTNER
+  /// What I THINK my partner wants in a partner. Comparing this against
+  /// their real PARTNER ranking is where the sharpest insight comes from:
+  /// not what you each want, but where you're wrong about each other.
+  PARTNER_GUESS
+}
+
+/// A registered account. Owns every Participant session it created, so
+/// progress and results follow the person across devices and browsers.
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  firstName    String
+  gender       String?
+  seeking      String?
+  createdAt    DateTime @default(now())
+
+  sessions       UserSession[]
+  usageEvents    UsageEvent[]
+  participants   Participant[]
+  couplesCreated Couple[]      @relation("CoupleCreator")
+  couplesJoined  Couple[]      @relation("CoupleJoiner")
+}
+
+/// Two linked accounts. Either side can see the comparison once both have
+/// answered enough; neither can see the other's raw answers, only the
+/// aggregate comparison, so it stays a conversation rather than a audit.
+model Couple {
+  id         String    @id @default(cuid())
+  inviteCode String    @unique
+  creatorId  String
+  creator    User      @relation("CoupleCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  joinerId   String?
+  joiner     User?     @relation("CoupleJoiner", fields: [joinerId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+  joinedAt   DateTime?
+
+  challengesSent     CoupleChallenge[] @relation("ChallengerCouple")
+  challengesReceived CoupleChallenge[] @relation("ChallengedCouple")
+
+  @@index([creatorId])
+  @@index([joinerId])
+}
+
+/// Couple-to-Couple Challenge link model for multi-couple virality.
+model CoupleChallenge {
+  id                  String   @id @default(cuid())
+  inviteCode          String   @unique
+  challengerCoupleId  String
+  challengerCouple    Couple   @relation("ChallengerCouple", fields: [challengerCoupleId], references: [id], onDelete: Cascade)
+  challengedCoupleId  String?
+  challengedCouple    Couple?  @relation("ChallengedCouple", fields: [challengedCoupleId], references: [id], onDelete: Cascade)
+  deckId              String?  @default("core-values")
+  createdAt           DateTime @default(now())
+
+  @@index([challengerCoupleId])
+  @@index([challengedCoupleId])
+}
+
+/// A logged-in browser session. The raw token lives only in an HTTP-only
+/// cookie; only its SHA-256 hash is stored, so a database leak can't be
+/// replayed as a login.
+model UserSession {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+/// A password reset request token. Expire after 1 hour, single-use.
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  email     String
+  createdAt DateTime  @default(now())
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  @@index([email, createdAt])
+  @@index([tokenHash])
+}
+
+/// Did an insight actually land? This is the product's real scoreboard —
+/// if people don't find the output useful or the swiping enjoyable, the
+/// data collection isn't earning its keep.
+model InsightFeedback {
+  id         String   @id @default(cuid())
+  userId     String?
+  /// Insight key (e.g. "top-pick"), or "session" for the periodic pulse.
+  subject    String
+  /// 1..5. Kept separate because they come apart: a boring survey can
+  /// still be useful, and a fun one can be useless.
+  usefulness Int?
+  enjoyment  Int?
+  /// Structured explanation for a low rating, from a fixed UI vocabulary.
+  reason     String?
+  note       String?
+  /// Context at the moment of feedback; never shown to a linked partner.
+  answerCount Int?
+  perspective Perspective?
+  path       String?
+  /// Random client id makes retries safe; no browser identity is encoded.
+  clientFeedbackId String? @unique
+  /// Same one-way browser-session digest as UsageEvent, for funnel correlation.
+  sessionKeyHash String?
+  createdAt  DateTime @default(now())
+
+  @@index([subject, createdAt])
+  @@index([reason, createdAt])
+  @@index([userId])
+  @@index([sessionKeyHash, createdAt])
+}
+
+/// An LLM-written narrative read of someone's own ranking data. Cached
+/// rather than regenerated per view, both for cost and so the wording
+/// doesn't churn between visits.
+model GeneratedInsight {
+  id          String   @id @default(cuid())
+  userId      String
+  perspective String
+  /// Number of answers the narrative was generated from — used to decide
+  /// when it's stale enough to be worth regenerating.
+  nAnswers    Int
+  headline    String
+  body        String
+  model       String
+  createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+/// Free-form reports from users: bugs, suggestions, or anything else.
+/// Kept separate from InsightFeedback because that one is a structured
+/// rating of a specific insight, while this is unstructured prose that a
+/// person has to read.
+model UserReport {
+  id        String   @id @default(cuid())
+  userId    String?
+  /// "bug" | "confusing" | "question" | "idea" | "other"
+  kind      String
+  /// "blocked" | "hard" | "minor"
+  impact    String?
+  perspective Perspective?
+  message   String
+  /// Optional contact address, only if they chose to leave one.
+  email     String?
+  /// Which page they were on — the single most useful debugging detail.
+  path      String?
+  userAgent String?
+  /// Set once it has been dealt with, so the admin list can be triaged.
+  resolved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([resolved, createdAt])
+  @@index([kind, createdAt])
+  @@index([impact, createdAt])
+}
+
+/// Bounded, first-party product telemetry. Event names and fields come from
+/// a fixed server allowlist; arbitrary analytics payloads are never stored.
+model UsageEvent {
+  id             String       @id @default(cuid())
+  clientEventId  String       @unique
+  sequence       Int
+  userId         String?
+  user           User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionKeyHash String
+  event          String
+  path           String?
+  perspective    Perspective?
+  domain         String?
+  durationMs     Int?
+  statusCode     Int?
+  success        Boolean?
+  occurredAt     DateTime     @default(now())
+  createdAt      DateTime     @default(now())
+
+  @@index([event, createdAt])
+  @@index([sessionKeyHash, createdAt])
+  @@index([userId, createdAt])
+  @@index([createdAt])
+}
+
+/// Rate limiting for LLM calls (generation and chat), keyed by user.
+model LlmUsage {
+  id        String   @id @default(cuid())
+  userId    String
+  kind      String
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+/// Failed sign-in attempts, keyed by email and a server-keyed IP digest.
+model LoginAttempt {
+  id        String   @id @default(cuid())
+  email     String
+  ip        String
+  success   Boolean
+  createdAt DateTime @default(now())
+
+  @@index([email, createdAt])
+  @@index([ip, createdAt])
+}
+
+/// A single ranking survey (e.g. "activities", "professions", "combined",
+/// "financial", "conjoined"). Shareable at /s/[slug] with no auth.
+model Survey {
+  id                 String     @id @default(cuid())
+  slug               String     @unique
+  title              String
+  description        String?
+  kind               SurveyKind @default(ITEMS)
+  /// For CONJOINED surveys: slug of the ITEMS survey whose ratings supply
+  /// the fixed identity utilities (e.g. "combined").
+  identitySurveySlug String?
+  createdAt          DateTime   @default(now())
+
+  items           Item[]
+  participants    Participant[]
+  financialTrials FinancialTrial[]
+  fits            SurveyFit[]
+}
+
+/// One rankable option within a survey. This is static content only —
+/// rating state lives per-respondent in ParticipantItemRating, so one
+/// person's answers can never move another person's ranking.
+model Item {
+  id         String   @id @default(cuid())
+  surveyId   String
+  survey     Survey   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  slug       String
+  label      String
+  category   String?
+  sortOrder  Int      @default(0)
+  /// Underlying dimensions this item signals (warmth, ambition, …). Ratings
+  /// roll up into per-dimension scores for the "what you value" dashboard.
+  dimensions String[] @default([])
+  /// Versioned, explainable semantic tags used to roll one card into several
+  /// relationship insights. Includes provenance and the exact rule rationale.
+  metadata   Json?
+
+  trialsAsA Trial[] @relation("ItemA")
+  trialsAsB Trial[] @relation("ItemB")
+
+  ratings ParticipantItemRating[]
+
+  financialAsIdentityA FinancialTrial[] @relation("FinancialIdentityA")
+  financialAsIdentityB FinancialTrial[] @relation("FinancialIdentityB")
+
+  @@unique([surveyId, slug])
+  @@index([surveyId])
+}
+
+/// One respondent's Glicko-2 state for one item. Created lazily on first
+/// use; absence means "still at the default 1500/350/0.06".
+model ParticipantItemRating {
+  id            String      @id @default(cuid())
+  participantId String
+  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  itemId        String
+  item          Item        @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  rating     Float    @default(1500)
+  rd         Float    @default(350)
+  volatility Float    @default(0.06)
+  updatedAt  DateTime @updatedAt
+
+  @@unique([participantId, itemId])
+  @@index([participantId])
+}
+
+/// One respondent session for a survey. Identified by a client-generated id
+/// stored in localStorage, or by the account that owns it. `firstName` is
+/// the only thing about the person here: it separates two people answering
+/// on one device, and is "Anonymous" for anyone without an account.
+///
+/// The six nullable columns below it are dead. They were filled by an intro
+/// form that no longer exists, and `session/start` refuses them now (see
+/// its route test), so nothing can write them. They are kept only so that
+/// dropping data already in them stays a deliberate decision by the account
+/// owner rather than a side effect of a migration. See
+/// docs/DATA-COLLECTION.md.
+model Participant {
+  id                 String      @id @default(cuid())
+  surveyId           String
+  survey             Survey      @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  userId             String?
+  user               User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  perspective        Perspective @default(PARTNER)
+  firstName          String
+  lastName           String?
+  email              String?
+  sex                String?
+  seeking            String?
+  age                Int?
+  ethnicity          String?
+  countryOfResidence String?
+  createdAt          DateTime    @default(now())
+  lastSeenAt         DateTime    @updatedAt
+
+  trials          Trial[]
+  financialTrials FinancialTrial[]
+  itemRatings     ParticipantItemRating[]
+  fit             SurveyFit?
+
+  @@index([surveyId])
+  @@index([userId])
+  /// Resuming an account asks "which perspective was this person last using,
+  /// and which participants belong to it" on every page load.
+  @@index([userId, perspective, lastSeenAt])
+}
+
+/// One shown pair. Created when the pair is shown (result null) and filled
+/// in when answered. Unanswered rows (abandoned mid-choice) are how we
+/// measure drop rate.
+model Trial {
+  id            String      @id @default(cuid())
+  participantId String
+  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+
+  itemAId String
+  itemA   Item   @relation("ItemA", fields: [itemAId], references: [id])
+  itemBId String
+  itemB   Item   @relation("ItemB", fields: [itemBId], references: [id])
+
+  shownAt DateTime @default(now())
+
+  // Filled in on answer. result: "A" | "B" | "EQUAL"
+  result            String?
+  answeredAt        DateTime?
+  msToAnswer        Int?
+  msSincePrevAnswer Int?
+  clientMsToAnswer  Int?
+  interactionMethod String?
+
+  itemARatingBefore Float?
+  itemBRatingBefore Float?
+  itemARdBefore     Float?
+  itemBRdBefore     Float?
+  itemARatingAfter  Float?
+  itemBRatingAfter  Float?
+  itemARdAfter      Float?
+  itemBRdAfter      Float?
+
+  @@index([participantId])
+  @@index([itemAId])
+  @@index([itemBId])
+  /// findFirst(participantId, result != null) orderBy answeredAt desc — runs on every answer.
+  @@index([participantId, answeredAt])
+  /// findMany(participantId) orderBy shownAt desc — runs on every question.
+  @@index([participantId, shownAt])
+  /// count(participantId, result != null) — runs on every question and status check.
+  @@index([participantId, result])
+}
+
+/// One shown financial (or conjoined) comparison. Each side is a full
+/// synthetic profile: raw attribute values plus, for CONJOINED surveys, a
+/// reference to the identity Item (owned by the identitySurveySlug survey).
+/// Filled in on answer, same shown-then-answered pattern as Trial.
+model FinancialTrial {
+  id            String      @id @default(cuid())
+  surveyId      String
+  survey        Survey      @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  participantId String
+  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+
+  identityItemAId  String?
+  identityItemA    Item?   @relation("FinancialIdentityA", fields: [identityItemAId], references: [id])
+  incomeA          Float
+  netWorthA        Float
+  futurePotentialA Float
+  yearsToRealizeA  Float
+  weeklyHoursA     Float
+
+  identityItemBId  String?
+  identityItemB    Item?   @relation("FinancialIdentityB", fields: [identityItemBId], references: [id])
+  incomeB          Float
+  netWorthB        Float
+  futurePotentialB Float
+  yearsToRealizeB  Float
+  weeklyHoursB     Float
+
+  shownAt DateTime @default(now())
+
+  result            String?
+  answeredAt        DateTime?
+  msToAnswer        Int?
+  msSincePrevAnswer Int?
+  clientMsToAnswer  Int?
+  interactionMethod String?
+
+  @@index([surveyId])
+  @@index([participantId])
+  @@index([participantId, answeredAt])
+  @@index([participantId, result])
+  @@index([surveyId, result])
+}
+
+/// One respondent's fitted conjoint model for a FINANCIAL or CONJOINED
+/// survey. Scoped per participant for the same reason ratings are — one
+/// person's answers must never move another's fitted coefficients.
+model SurveyFit {
+  id            String      @id @default(cuid())
+  surveyId      String
+  survey        Survey      @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  participantId String      @unique
+  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  /// [{ name, value, se }] for each coefficient (financial betas, and for
+  /// CONJOINED surveys the identity weight lambda).
+  params        Json
+  /// Davidson tie parameter.
+  nu            Float
+  /// Full covariance matrix (row-major) matching the order of `params`.
+  covariance    Json
+  nTrials       Int
+  logLikelihood Float
+  fittedAt      DateTime    @updatedAt
+
+  @@index([surveyId])
+}
+
+/// Login attempts against the admin key, keyed by a server-keyed IP digest.
+model AdminLoginAttempt {
+  id        String   @id @default(cuid())
+  ip        String
+  success   Boolean
+  createdAt DateTime @default(now())
+
+  @@index([ip, createdAt])
+}
+
+/// Anonymous writes (no account to attribute them to), counted per keyed IP digest per
+/// route so `session/start` can't be used to create rows without bound.
+model AnonRequestLog {
+  id        String   @id @default(cuid())
+  ip        String
+  route     String
+  createdAt DateTime @default(now())
+
+  @@index([ip, route, createdAt])
+}

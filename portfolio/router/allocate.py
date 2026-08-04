@@ -213,7 +213,10 @@ class PortfolioRouter:
                 })
 
         # Record killed ventures
+        human_decisions_required = []
         for v in killed_ventures:
+            reasons = v.get("kill_reasons") or []
+            is_winding_down = v.get("stage") == "winding-down"
             allocations.append({
                 "venture": v.get("name"),
                 "stage": v.get("stage"),
@@ -222,10 +225,24 @@ class PortfolioRouter:
                 "cap_usd": 0.0,
                 "mrr": (v.get("economics") or {}).get("mrr"),
                 "status": "killed",
-                "kill_reasons": v.get("kill_reasons"),
+                "requires_human_decision": not is_winding_down,
+                "action_blocked": True,
+                "action_blocked_reason": (
+                    "Stage set to winding-down" if is_winding_down else
+                    "Triggered kill criterion - requires human owner decision (stage update or kill_criteria_overrides entry in VENTURE.yaml)"
+                ),
+                "kill_reasons": reasons,
                 "priority": 99,
                 **self._criteria_summary(v),
             })
+            if not is_winding_down:
+                human_decisions_required.append({
+                    "venture": v.get("name"),
+                    "stage": v.get("stage"),
+                    "owner": v.get("owner", "unassigned"),
+                    "kill_reasons": reasons,
+                    "action": "Transition stage to winding-down or register human override in VENTURE.yaml",
+                })
 
         # Sort allocations by priority rank
         allocations.sort(key=lambda x: (x["priority"], -x["allocated_usd"], x["venture"]))
@@ -236,6 +253,7 @@ class PortfolioRouter:
             "explore_pool_usd": explore_budget_pool,
             "active_count": len(mature_ventures) + len(explore_ventures),
             "killed_count": len(killed_ventures),
+            "human_decisions_required": human_decisions_required,
             # The number this engine could not previously produce. A venture in
             # here draws budget every month with no criterion that can ever stop
             # it, which is the condition `scripts/ci/kill_criteria_ratchet.py`
@@ -289,6 +307,16 @@ def main():
         print("Run scripts/ci/kill_criteria_ratchet.py for the per-criterion reasons.")
     else:
         print("Every venture has at least one stopping rule that can be measured.")
+
+    human_req = result.get("human_decisions_required", [])
+    if human_req:
+        print("------------------------------------------------------------")
+        print("⚠️  HUMAN DECISIONS REQUIRED FOR KILLED VENTURES:")
+        for item in human_req:
+            print(f"  - [{item['venture']}] ({item['stage']}) Owner: {item['owner']}")
+            for reason in item.get("kill_reasons", []):
+                print(f"      Reason: {reason}")
+            print(f"      Action: {item['action']}")
 
     # Export JSON report
     out_path = os.path.join(repo_root, "portfolio", "router", "allocation_queue.json")

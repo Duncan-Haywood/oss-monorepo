@@ -5,6 +5,8 @@ import {
   buildArtistPayoutReconciliation,
   buildExpectationsFromOrders,
   buildPayoutReconciliationWithDiagnostics,
+  calculatePayoutExceptionResolutionVelocity,
+  detectPayoutVarianceAnomalies,
   formatCents,
   toCents,
   type ArtistPayoutExpectation,
@@ -314,8 +316,85 @@ test("diagnostics reconcile fully once checkout resolves the artist account", ()
   assert.equal(report.rows[0]!.artistHandle, "@maya_ceramics");
 });
 
+test("diagnostics automatically attribute orders stamped with artistAccountId metadata", () => {
+  const orderRecord: OrderRecord = order({
+    orderId: "ord_stamped",
+    artistTransferTotal: 24.6,
+    artistAccountId: "acct_maya",
+    artistHandle: "@maya_ceramics",
+  });
+
+  const { report, attributionGap } = buildPayoutReconciliationWithDiagnostics({
+    orders: [orderRecord],
+    payoutEvents: [payoutEvent({ status: "settled", amountCents: 2460 })],
+    now: "2026-07-05T00:00:00Z",
+  });
+
+  assert.equal(attributionGap.ordersAttributed, 1);
+  assert.equal(attributionGap.blocker, null);
+  assert.equal(report.rows.length, 1);
+  assert.equal(report.rows[0]!.artistAccountId, "acct_maya");
+  assert.equal(report.rows[0]!.artistHandle, "@maya_ceramics");
+  assert.equal(report.rows[0]!.status, "balanced");
+});
+
 test("formatCents renders cent-precise currency for operator-facing copy", () => {
   assert.equal(formatCents(2460), "$24.60");
   assert.equal(formatCents(-500), "-$5.00");
   assert.equal(formatCents(0), "$0.00");
 });
+
+test("calculatePayoutExceptionResolutionVelocity computes reconciliation rate and workload hours", () => {
+  const report = buildArtistPayoutReconciliation({
+    expectations: [
+      expectation({ artistAccountId: "acct_1", expectedPayoutCents: 5000 }),
+      expectation({ artistAccountId: "acct_2", expectedPayoutCents: 2000 }),
+      expectation({ artistAccountId: "acct_3", expectedPayoutCents: 3000 }),
+    ],
+    payoutEvents: [
+      payoutEvent({ artistAccountId: "acct_1", status: "settled", amountCents: 3000 }),
+      payoutEvent({ artistAccountId: "acct_2", status: "settled", amountCents: 2000 }),
+      payoutEvent({ artistAccountId: "acct_3", status: "settled", amountCents: 3500 }),
+    ],
+    now: "2026-07-05T00:00:00Z",
+  });
+
+  const velocity = calculatePayoutExceptionResolutionVelocity(report, 2);
+  assert.equal(velocity.totalAccounts, 3);
+  assert.equal(velocity.balancedAccounts, 1);
+  assert.equal(velocity.underpaidAccounts, 1);
+  assert.equal(velocity.overpaidAccounts, 1);
+  assert.equal(velocity.totalDiscrepancies, 2);
+  assert.equal(velocity.resolutionRatePercent, 33.3);
+  assert.equal(velocity.underpaidCentsOwed, 2000);
+  assert.equal(velocity.overpaidCentsLeaked, 500);
+  assert.equal(velocity.estimatedResolutionHours, 4);
+  assert.match(velocity.velocityLabel, /33.3% clean payout rate/);
+});
+
+test("detectPayoutVarianceAnomalies detects underpayment and overpayment alerts exceeding threshold", () => {
+  const report = buildArtistPayoutReconciliation({
+    expectations: [
+      expectation({ artistAccountId: "acct_1", expectedPayoutCents: 10000 }),
+      expectation({ artistAccountId: "acct_2", expectedPayoutCents: 5000 }),
+      expectation({ artistAccountId: "acct_3", expectedPayoutCents: 5000 }),
+    ],
+    payoutEvents: [
+      payoutEvent({ artistAccountId: "acct_1", status: "settled", amountCents: 2000 }), // $80 underpaid (high)
+      payoutEvent({ artistAccountId: "acct_2", status: "settled", amountCents: 5000 }), // balanced
+      payoutEvent({ artistAccountId: "acct_3", status: "settled", amountCents: 6000 }), // $10 overpaid (20% variance -> medium)
+    ],
+    now: "2026-07-05T00:00:00Z",
+  });
+
+  const anomalyReport = detectPayoutVarianceAnomalies(report, { thresholdCents: 1000 });
+  assert.equal(anomalyReport.totalAnomalies, 2);
+  assert.equal(anomalyReport.highSeverityCount, 1);
+  assert.equal(anomalyReport.mediumSeverityCount, 1);
+  assert.equal(anomalyReport.alerts[0].anomalyType, "large_underpayment");
+  assert.equal(anomalyReport.alerts[0].severity, "high");
+  assert.equal(anomalyReport.alerts[1].anomalyType, "large_overpayment");
+  assert.equal(anomalyReport.alerts[1].severity, "medium");
+  assert.match(anomalyReport.summaryLabel, /2 payout variance anomaly alert\(s\)/);
+});
+

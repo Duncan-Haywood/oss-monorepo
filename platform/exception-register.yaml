@@ -226,3 +226,20 @@ exceptions:
       blast radius is a writable checkout plus whatever the workflow token can
       reach, and `ventures/ubuntu-agent-server` already documents a narrower
       per-tool allowlist as the pattern these three should adopt.
+
+  - id: EXC-014
+    kind: lint-suppression
+    path: ventures/quick-pick-survey/src/components/UnifiedRunner.tsx
+    code: react-hooks/exhaustive-deps
+    count: 1
+    owner: duncan
+    issue: docs/EXCEPTION-REGISTER.md#exc-014
+    expires: 2026-10-31
+    reason: >-
+      The keydown handler in UnifiedRunner listens to global window key presses during active survey trial phases.
+      Event handlers like handleAnswer, handleSkip, handleUndo update state without useCallback wrappers;
+      including them in the effect dependencies causes the event listener to bind and unbind on every render.
+    compensating_control: >-
+      State variables phase, trial, submitting, undoableSlug are tracked in the dependency array to ensure
+      listener correctness without unnecessary re-subscription.
+

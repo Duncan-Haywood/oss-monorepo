@@ -32,3 +32,11 @@ if (typeof globalThis.localStorage === "undefined") {
     value: new TestStorage(),
   });
 }
+
+import fs from "node:fs";
+import path from "node:path";
+
+try {
+  fs.mkdirSync(path.resolve(process.cwd(), "coverage/.tmp"), { recursive: true });
+} catch {}
+

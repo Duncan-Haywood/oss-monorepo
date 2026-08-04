@@ -1,0 +1,123 @@
+---
+- name: Set hostname
+  ansible.builtin.hostname:
+    name: "{{ server_hostname }}"
+
+- name: Ensure hostname resolves in /etc/hosts
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.1\.1'
+    line: "127.0.1.1\t{{ server_hostname }}"
+    state: present
+
+- name: Set timezone
+  community.general.timezone:
+    name: "{{ server_timezone }}"
+
+- name: Ensure agent_user has the expected authorized keys
+  ansible.posix.authorized_key:
+    user: "{{ agent_user }}"
+    key: "{{ item }}"
+    state: present
+  loop: "{{ agent_user_authorized_keys }}"
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Upgrade all packages
+  ansible.builtin.apt:
+    upgrade: dist
+
+- name: Install base packages
+  ansible.builtin.apt:
+    name:
+      - git
+      - build-essential
+      - curl
+      - wget
+      - unzip
+      - jq
+      - ripgrep
+      - htop
+      - tmux
+      - ca-certificates
+      - gnupg
+      - software-properties-common
+      - python3-debian  # required by the deb822_repository module (tailscale/nodejs roles)
+      - gnome-keyring    # Antigravity CLI (agy) wants a Secret Service/dbus keyring for
+      - dbus-user-session # credential storage, which headless servers don't run by default.
+      - openssh-server
+      - ufw
+      - unattended-upgrades
+    state: present
+
+- name: Ensure openssh-server is enabled and running
+  ansible.builtin.systemd:
+    name: ssh
+    enabled: true
+    state: started
+
+# --- never sleep: this is what took the box down mid-setup last time ---
+
+- name: Mask sleep/suspend/hibernate targets
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    masked: true
+  loop:
+    - sleep.target
+    - suspend.target
+    - hibernate.target
+    - hybrid-sleep.target
+  when: disable_sleep
+
+- name: Disable logind idle/lid actions (belt and braces on server hardware)
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/logind.conf
+    regexp: "^#?{{ item.key }}="
+    line: "{{ item.key }}={{ item.value }}"
+  loop:
+    - { key: "HandleLidSwitch", value: "ignore" }
+    - { key: "HandleLidSwitchExternalPower", value: "ignore" }
+    - { key: "IdleAction", value: "ignore" }
+  when: disable_sleep
+  notify: Restart systemd-logind
+
+# --- firewall: SSH from anywhere (needed before tailscale is up), full trust on tailnet ---
+
+- name: Allow OpenSSH through ufw
+  community.general.ufw:
+    rule: allow
+    name: OpenSSH
+
+- name: Allow all traffic on the tailscale interface
+  community.general.ufw:
+    rule: allow
+    interface: tailscale0
+    direction: in
+
+- name: Enable ufw
+  community.general.ufw:
+    state: enabled
+    policy: deny
+
+# --- unattended security upgrades, no surprise reboots ---
+
+- name: Configure unattended-upgrades reboot behavior
+  ansible.builtin.lineinfile:
+    path: /etc/apt/apt.conf.d/50unattended-upgrades
+    regexp: '^Unattended-Upgrade::Automatic-Reboot\b'
+    line: 'Unattended-Upgrade::Automatic-Reboot "{{ unattended_upgrades_auto_reboot | lower }}";'
+    create: true
+    mode: "0644"
+  when: unattended_upgrades_enabled
+
+- name: Enable unattended-upgrades periodic runs
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+    mode: "0644"
+  when: unattended_upgrades_enabled

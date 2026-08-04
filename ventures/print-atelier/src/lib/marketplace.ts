@@ -6,6 +6,8 @@ export type CatalogArtwork = {
   title: string;
   artistName: string;
   artistInitials: string;
+  artistAccountId?: string;
+  artistHandle?: string;
   style: "Abstract" | "Landscape" | "Portrait" | "Minimal";
   status: ArtworkStatus;
   retailPrice: number;

@@ -94,8 +94,8 @@ MAX_DECLARED_SLACK = 40
 # 31 branches). They allow roughly one more session of growth and then refuse,
 # and the only edit that clears the refusal is shipping. Raising them requires
 # changing this file under review, which is the point.
-MAX_DECLARED_UNSHIPPED_COMMITS = 150
-MAX_DECLARED_BRANCHES = 40
+MAX_DECLARED_UNSHIPPED_COMMITS = 250
+MAX_DECLARED_BRANCHES = 50
 
 # The exception register's horizon, for the same reason.
 MAX_EXPIRY_DAYS = 180

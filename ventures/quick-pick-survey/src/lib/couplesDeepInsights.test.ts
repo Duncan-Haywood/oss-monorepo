@@ -3,9 +3,7 @@ import {
   Ranking,
   emotionalHarmonyIndex,
   stressCoRegulationProfile,
-  energyPaceCompatibility,
   vulnerabilityBridge,
-  growthAmbitionMatrix,
 } from "@/lib/couples";
 
 function createMockRanking(items: { label: string; rating: number; category: string }[]): Ranking {

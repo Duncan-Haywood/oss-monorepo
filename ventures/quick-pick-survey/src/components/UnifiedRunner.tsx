@@ -761,7 +761,8 @@ export function UnifiedRunner() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [phase, trial, submitting, undoableSlug, handleAnswer, handleSkip, handleUndo]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, trial, submitting, undoableSlug]);
 
   if (phase === "loading") {
     return <CenteredNote>Loading…</CenteredNote>;

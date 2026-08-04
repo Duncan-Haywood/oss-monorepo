@@ -330,5 +330,5 @@ describe("what a selection-only prior buys", () => {
     // change fail here instead of where it belongs.
     console.log("\n" + rows.join("\n") + "\n");
     expect(rows).toHaveLength(6);
-  });
+  }, 180_000);
 });

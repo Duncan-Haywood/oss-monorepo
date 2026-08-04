@@ -44,7 +44,8 @@ class TestPortfolioRouter(unittest.TestCase):
         result = route_portfolio(self.repo_root, total_monthly_budget=500.0)
         self.assertIn("portfolio_summary", result)
         self.assertIn("queue", result)
-        self.assertEqual(result["portfolio_summary"]["total_ventures"], 11)
+        ventures = load_ventures(self.repo_root)
+        self.assertEqual(result["portfolio_summary"]["total_ventures"], len(ventures))
         self.assertGreater(result["portfolio_summary"]["allocated_monthly_budget_usd"], 0)
         
         # Verify queue order

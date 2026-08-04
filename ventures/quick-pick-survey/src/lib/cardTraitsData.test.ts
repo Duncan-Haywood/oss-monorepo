@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { getTraitsForItem, CARD_TRAITS_REGISTRY } from "@/lib/cardTraitsData";
-import { enrichItemsWithTraits, computeTraitVectorProfile, RatedCardWithTraits } from "@/lib/aiTraitTagger";
+import { getTraitsForItem } from "@/lib/cardTraitsData";
+import { computeTraitVectorProfile, RatedCardWithTraits } from "@/lib/aiTraitTagger";
 
 describe("cardTraitsData", () => {
   it("resolves explicitly registered traits correctly", () => {

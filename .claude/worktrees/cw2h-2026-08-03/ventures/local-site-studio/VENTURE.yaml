@@ -1,0 +1,29 @@
+name: local-site-studio
+description: Pre-built websites for local businesses with instant client previews and flat $500 pricing.
+stage: prototype
+verify: npm run typecheck && npm run lint && npm test && npm run build
+
+owner: duncan
+
+hypotheses:
+  - claim: Local service businesses prefer paying a flat $500 fee for a verified pre-built website preview over custom agency quotes.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: 0
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 50
+  protected: true
+
+kill_criteria:
+  - No client checkout or inquiry converted after 60 days post-launch.
+  - Customer acquisition cost (CAC) exceeds $150 per client.
+
+links:
+  production: null
+  analytics: null

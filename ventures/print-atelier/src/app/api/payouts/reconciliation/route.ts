@@ -1,4 +1,7 @@
-import { buildPayoutReconciliationWithDiagnostics } from "@/lib/payout-reconciliation";
+import {
+  buildPayoutReconciliationWithDiagnostics,
+  detectPayoutVarianceAnomalies,
+} from "@/lib/payout-reconciliation";
 import { requireOperator } from "@/lib/api-auth";
 import { NextResponse } from "next/server";
 
@@ -18,5 +21,10 @@ export async function GET(request: Request) {
   }
 
   const diagnostics = buildPayoutReconciliationWithDiagnostics();
-  return NextResponse.json(diagnostics);
+  const anomalies = detectPayoutVarianceAnomalies(diagnostics.report);
+
+  return NextResponse.json({
+    ...diagnostics,
+    anomalies,
+  });
 }

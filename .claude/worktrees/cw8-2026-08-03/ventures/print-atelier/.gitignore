@@ -1,0 +1,24 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+*.log
+node_modules/
+dist/
+build/
+.idea/
+.vscode/
+*.swp
+Thumbs.db
+
+# Local business planning artifacts (keep out of repo unless intentional)
+scratch/
+private/
+
+# Next.js
+.next/
+next-env.d.ts
+out/
+
+# TypeScript incremental build state, written by `npm run typecheck`.
+*.tsbuildinfo

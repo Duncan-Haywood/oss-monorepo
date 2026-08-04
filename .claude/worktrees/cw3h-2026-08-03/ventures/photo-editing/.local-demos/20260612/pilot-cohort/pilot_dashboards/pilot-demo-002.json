@@ -1,0 +1,76 @@
+{
+  "activation": {
+    "production_plan_available": false,
+    "production_scheduler_report_trusted": false,
+    "production_status_trusted": false,
+    "render_scheduler_report_trusted": true,
+    "render_status_trusted": true,
+    "render_tasks_trusted": true
+  },
+  "generated_at": "2026-06-12T12:00:00Z",
+  "intervention": {
+    "blocked_work_count": 0,
+    "conflicted_lease_count": 0,
+    "failed_work_count": 0,
+    "failure_message_count": 0,
+    "intervention_rate_basis_count": 4,
+    "manual_intervention_count": 0,
+    "retryable_work_count": 0,
+    "review_required_work_count": 0
+  },
+  "metric_sources": {
+    "production_scheduler_report": false,
+    "render_scheduler_report": true
+  },
+  "next_action": {
+    "authority": "observe_only",
+    "name": "review_deliverables",
+    "writes_files": false
+  },
+  "pilot_acceptance": {
+    "completion_rate_basis_points": 10000,
+    "intervention_rate_basis_points": 0,
+    "materialized_output_count": 6,
+    "meets_completion_threshold": true,
+    "meets_intervention_threshold": true,
+    "meets_output_threshold": true,
+    "metrics_available": true,
+    "ready_for_pilot_review": true,
+    "threshold_notes": [
+      "trusted dashboard metrics meet the default pilot acceptance thresholds"
+    ],
+    "thresholds": {
+      "max_intervention_rate_basis_points": 2000,
+      "min_completion_rate_basis_points": 9000,
+      "min_materialized_output_count": 1
+    }
+  },
+  "safety_notes": [
+    "pilot-dashboard is read-only and consumes workspace-health instead of raw worker internals",
+    "metric counts are unavailable until trusted scheduler reports validate",
+    "pilot acceptance thresholds are observational and do not authorize workflow actions",
+    "dashboard summaries do not grant copy, retry, cleanup, overwrite, materialization, or deletion authority"
+  ],
+  "schema_version": 2,
+  "shoot_slug": "pilot-demo-002",
+  "throughput": {
+    "attempted_work_count": 4,
+    "completed_work_count": 4,
+    "materialized_output_count": 6,
+    "scheduler_iteration_count": 2,
+    "total_work_count": 4
+  },
+  "workflow_authority": {
+    "handoff_kind": "presentation_only",
+    "mode": "observe_only",
+    "permits_cleanup": false,
+    "permits_copy": false,
+    "permits_deletion": false,
+    "permits_file_mutation": false,
+    "permits_materialization": false,
+    "permits_overwrite": false,
+    "permits_retry": false
+  },
+  "workflow_state": "ready_for_review",
+  "workspace": "/Users/duncan/Projects/photo-editing/.local-demos/20260612/pilot-cohort/workspaces/pilot-demo-002"
+}

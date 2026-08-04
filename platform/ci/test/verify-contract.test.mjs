@@ -59,6 +59,10 @@ function segmentsFor(component, ventureRoot) {
     const testDir = path.join(component.dir, component.testDir || 'tests');
     return [`pytest ${path.relative(ventureRoot, testDir)}`];
   }
+  if (component.type === 'swift') {
+    const pkgPath = relative && relative !== '.' ? ` --package-path ${relative}` : '';
+    return [`swift test${pkgPath}`];
+  }
   if (component.type === 'pnpm') {
     return [`pnpm run ${component.ciScript || 'ci'}`];
   }
@@ -152,6 +156,7 @@ test('Verify Contract - every venture with a contract is registered in the catal
 function catalogGatesFor(component) {
   if (component.type === 'python') return ['pytest'];
   if (component.type === 'pnpm') return [`pnpm:${component.ciScript || 'ci'}`];
+  if (component.type === 'swift') return ['swift:test'];
   if (component.type === 'node') {
     return [...(component.scripts || []), ...(component.workflowOnlyScripts || [])].map(
       (script) => `npm:${script}`
@@ -172,6 +177,7 @@ function gateTokenFor(command) {
   if (npmRun) return `npm:${npmRun[1]}`;
   const pnpmRun = command.match(/^(?:corepack )?pnpm run (\S+)$/);
   if (pnpmRun) return `pnpm:${pnpmRun[1]}`;
+  if (command.startsWith('swift test')) return 'swift:test';
   return null;
 }
 

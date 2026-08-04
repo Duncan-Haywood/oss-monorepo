@@ -1,0 +1,28 @@
+name: ubuntu-agent-server
+description: Autonomous cloud execution environment and agent orchestration microservice server.
+stage: prototype
+verify: pytest tests
+
+owner: duncan
+
+hypotheses:
+  - claim: Secure isolated execution sandboxes reduce subagent operational latency by 40%.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: 0
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 40
+  protected: true
+
+kill_criteria:
+  - Container provisioning time exceeds 15 seconds.
+
+links:
+  production: null
+  analytics: null

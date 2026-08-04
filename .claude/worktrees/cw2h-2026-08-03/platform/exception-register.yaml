@@ -1,0 +1,228 @@
+# Exception register
+#
+# Every inline suppression in tracked source must be covered by an entry here.
+# `scripts/ci/audit_exceptions.py` enforces it and fails closed; see
+# `docs/EXCEPTION-REGISTER.md` for the process and the remediation plan.
+#
+# Required fields: id, kind, path, owner, issue, reason, compensating_control,
+# expires, count.
+#
+# `path` is an fnmatch glob against the repository-relative path, where `*`
+# also matches `/`. `code` is an optional substring that must appear in the
+# matched line. `count` is the exact number of occurrences the entry accepts —
+# the audit fails if the real number is higher (a new suppression slipped in)
+# or lower (the register is stale). Entries are matched in file order and each
+# occurrence is claimed once, so put specific entries above broad ones.
+#
+# `expires` may be at most 180 days out. An exception nobody re-reads is a
+# policy change made without review.
+
+exceptions:
+  - id: EXC-001
+    kind: lint-suppression
+    path: ventures/photo-editing/docs-site/*
+    code: eslint-disable
+    count: 26
+    owner: duncan
+    issue: docs/EXCEPTION-REGISTER.md#exc-001
+    expires: 2027-01-27
+    reason: >-
+      `docs-site/scripts/build-docs.mjs` converts the venture's markdown docs
+      into TSX at build time and emits a file-level `/* eslint-disable */` into
+      each one. Linting machine-generated markup reports on prose, not on code
+      anyone wrote, and no edit to a generated file survives the next build.
+    compensating_control: >-
+      The generator itself is linted and typechecked, and `next build` runs
+      `tsc` over the generated output, so a generator that emits broken TSX
+      still fails the build. Only the style rules are suppressed, never types.
+
+  - id: EXC-002
+    kind: lint-suppression
+    path: ventures/local-site-studio/src/lib/db.ts
+    code: "@typescript-eslint/no-explicit-any"
+    count: 1
+    owner: duncan
+    issue: docs/EXCEPTION-REGISTER.md#exc-002
+    expires: 2026-10-31
+    reason: >-
+      The Convex function names are declared as a hand-written `any` map so the
+      SQLite fallback path compiles without the generated Convex client. This is
+      real lost type safety on a database-touching module, not a style waiver.
+    compensating_control: >-
+      Every call through the shim goes to a named string constant in this one
+      object, so a typo is a runtime 404 from Convex rather than silent data
+      loss. Shorter expiry than the rest: the fix is to generate the client and
+      delete the shim.
+
+  - id: EXC-003
+    kind: lint-suppression
+    path: ventures/quick-pick-survey/src/components/AdminView.tsx
+    code: react-hooks/set-state-in-effect
+    count: 1
+    owner: duncan
+    issue: docs/EXCEPTION-REGISTER.md#exc-003
+    expires: 2027-01-27
+    reason: >-
+      `load()` only calls `setState` after awaiting a fetch. The rule cannot see
+      through the async boundary and reports a synchronous set that does not
+      happen. Restructuring to satisfy the rule reintroduced the bug the comment
+      above it describes, where a failed fetch left the screen on "Checking…".
+    compensating_control: >-
+      `docs/decisions/0005-session-state-without-effects.md` records the
+      decision, and the admin view's tests cover both the success and the
+      fetch-failure path that this code exists to fix.
+
+  - id: EXC-004
+    kind: lint-suppression
+    path: ventures/photo-editing/tests/*
+    code: "BLE001"
+    count: 1
+    owner: duncan
+    issue: docs/EXCEPTION-REGISTER.md#exc-004
+    expires: 2027-01-27
+    reason: >-
+      A test harness catches broad `Exception` to capture failures raised on a
+      worker thread. Narrowing it would drop the very failures the test exists
+      to observe.
+    compensating_control: >-
+      The captured exception is re-raised into the assertion, so a swallowed
+      failure still fails the test rather than passing quietly.
+
+  - id: EXC-005
+    kind: lint-suppression
+    path: ventures/ubuntu-agent-server/*
+    code: "BLE001"
+    count: 1
+    owner: duncan
+    issue: docs/EXCEPTION-REGISTER.md#exc-005
+    expires: 2027-01-27
+    reason: >-
+      The agent runner's poll loop catches broad `Exception` so one bad poll
+      cannot kill the long-running daemon. This is the documented supervisor
+      pattern, not an unexamined catch-all.
+    compensating_control: >-
+      The handler logs the exception with context before continuing, so failures
+      remain visible in the runner's telemetry instead of being discarded.
+
+  - id: EXC-006
+    kind: coverage-suppression
+    path: ventures/photo-editing/tests/*
+    code: "pragma: no cover"
+    count: 2
+    owner: duncan
+    issue: docs/EXCEPTION-REGISTER.md#exc-006
+    expires: 2027-01-27
+    reason: >-
+      Two `except` clauses in test helpers exist only to re-raise a background
+      thread's failure through the assertion. They are uncovered whenever the
+      code under test works, which is the normal case.
+    compensating_control: >-
+      Both are in test code, not production paths, so they cannot inflate the
+      production coverage figure the roadmap ratchets.
+
+  - id: EXC-007
+    kind: type-suppression
+    path: ventures/photo-editing/src/*
+    count: 8
+    owner: duncan
+    issue: docs/EXCEPTION-REGISTER.md#exc-007
+    expires: 2026-10-31
+    reason: >-
+      Eight `# type: ignore` narrowing casts in production `shootflow` code.
+      Each sits immediately after a runtime membership check that mypy cannot
+      use to narrow a `str` to a `Literal`. The check is real; the type system
+      just cannot see it.
+    compensating_control: >-
+      Every one of the eight raises `AnalysisLoaderError` on the failing branch
+      before the ignored line runs, so an unexpected value is a loud runtime
+      failure, not a silent bad cast. Shorter expiry than the rest: these are in
+      production code and a `TypeGuard` would remove the need for all of them.
+
+  - id: EXC-008
+    kind: type-suppression
+    path: ventures/photo-editing/tests/*
+    count: 15
+    owner: duncan
+    issue: docs/EXCEPTION-REGISTER.md#exc-008
+    expires: 2027-01-27
+    reason: >-
+      Negative type tests. Each line deliberately calls a function with the
+      wrong argument type to assert that runtime validation rejects it, so the
+      suppression is what makes the test compile at all. Removing them would
+      delete the boundary tests, not fix them.
+    compensating_control: >-
+      Each suppressed call is inside an assertion that the call raises. If
+      runtime validation were removed the tests would fail, which is the
+      opposite of a suppression hiding a defect.
+
+  - id: EXC-009
+    kind: type-suppression
+    path: ventures/local-site-studio/src/lib/process/prompt_process.tsx
+    count: 1
+    owner: duncan
+    issue: docs/EXCEPTION-REGISTER.md#exc-009
+    expires: 2027-01-27
+    reason: >-
+      Not a suppression. A stored engineering lesson quotes the string
+      `@ts-expect-error` while explaining the outage one caused. The detector
+      matches text and does not parse TypeScript, which is the safe direction to
+      be wrong in.
+    compensating_control: >-
+      The match is inside a string literal in a data file. If it ever became a
+      real suppression the count would rise and the audit would fail.
+
+  - id: EXC-011
+    kind: lint-suppression
+    path: scripts/*
+    code: shellcheck disable=SC2016
+    count: 3
+    owner: duncan
+    issue: docs/EXCEPTION-REGISTER.md#exc-011
+    expires: 2027-01-27
+    reason: >-
+      SC2016 warns that single-quoted `$` and backticks do not expand. These
+      three scripts emit Markdown reports where backticks and dollar signs are
+      literal output, so the non-expansion is the intent rather than the bug.
+    compensating_control: >-
+      All three are covered by ShellCheck for every other rule, and
+      `scripts/security/test-security-scan.sh` asserts against the generated
+      report text, so a genuinely broken interpolation changes the output the
+      tests compare.
+
+  - id: EXC-012
+    kind: lint-suppression
+    path: .gitea/workflows/pairwise-ci.yml
+    code: shellcheck disable=SC2317
+    count: 1
+    owner: duncan
+    issue: docs/EXCEPTION-REGISTER.md#exc-012
+    expires: 2027-01-27
+    reason: >-
+      SC2317 reports the container-smoke `cleanup()` body as unreachable code.
+      It is reached through a `trap`, which ShellCheck does not follow.
+    compensating_control: >-
+      Narrowly scoped to the one function. If the trap were removed the cleanup
+      really would be dead, and the smoke step leaks its container, which the
+      job's own teardown surfaces.
+
+  - id: EXC-013
+    kind: agent-permission-bypass
+    path: ventures/local-site-studio/.github/workflows/*-scheduled.yml
+    count: 3
+    owner: duncan
+    expires: 2026-10-29
+    issue: docs/EXCEPTION-REGISTER.md#exc-013
+    reason: >-
+      The Claude, Gemini and Grok scheduled workflows each start their CLI with
+      every confirmation gate disabled (`--dangerously-skip-permissions` with
+      `--permission-mode bypassPermissions`, `--yolo`, and `--always-approve`
+      respectively). Unattended agents cannot answer a prompt, so a scheduled
+      run either bypasses the gates or does nothing.
+    compensating_control: >-
+      Runs are non-interactive on ephemeral GitHub-hosted runners, and the
+      workflows unset the provider API keys before handing control to the agent.
+      This is the weakest compensating control in the register and the reason
+      this entry expires in 90 days rather than 180: the bypass is real, the
+      blast radius is a writable checkout plus whatever the workflow token can
+      reach, and `ventures/ubuntu-agent-server` already documents a narrower
+      per-tool allowlist as the pattern these three should adopt.

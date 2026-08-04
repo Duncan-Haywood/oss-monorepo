@@ -8,20 +8,21 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 type PageProps = {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 };
 
 export function generateStaticParams() {
   return getAllSeoSlugs().map((slug) => ({ slug }));
 }
 
-export function generateMetadata({ params }: PageProps): Metadata {
-  const page = getSeoPageBySlug(params.slug);
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const page = getSeoPageBySlug(slug);
   if (!page) {
     return { title: "Print not found — Print Atelier" };
   }
 
-  const withState = getSeoPagesWithPublishState().find((item) => item.slug === params.slug);
+  const withState = getSeoPagesWithPublishState().find((item) => item.slug === slug);
   const robots = withState?.publishState.publishable ? "index, follow" : "noindex, nofollow";
 
   return {
@@ -31,13 +32,14 @@ export function generateMetadata({ params }: PageProps): Metadata {
   };
 }
 
-export default function PrintSlugPage({ params }: PageProps) {
-  const page = getSeoPageBySlug(params.slug);
+export default async function PrintSlugPage({ params }: PageProps) {
+  const { slug } = await params;
+  const page = getSeoPageBySlug(slug);
   if (!page) {
     notFound();
   }
 
-  const withState = getSeoPagesWithPublishState().find((item) => item.slug === params.slug);
+  const withState = getSeoPagesWithPublishState().find((item) => item.slug === slug);
 
   return <PrintLandingPage page={page} publishState={withState?.publishState} />;
 }

@@ -2,129 +2,288 @@
   "total_budget_usd": 500.0,
   "mature_pool_usd": 300.0,
   "explore_pool_usd": 200.0,
-  "active_count": 11,
+  "active_count": 12,
   "killed_count": 0,
+  "human_decisions_required": [],
+  "without_stopping_rule": [],
+  "unfunded_by_stopping_rule_usd": 0,
   "work_queue": [
     {
       "venture": "ai-engineering-academy",
       "stage": "prototype",
       "pool": "protected_explore_40%",
-      "allocated_usd": 18.18,
+      "allocated_usd": 16.67,
       "cap_usd": 40,
-      "mrr": null,
+      "mrr": 0,
       "protected": true,
       "status": "active",
-      "priority": 3
+      "priority": 3,
+      "has_stopping_rule": true,
+      "criteria_declared": 3,
+      "criteria_evaluable": 2,
+      "unevaluable_criteria": [
+        {
+          "description": "Fewer than 50 active learners after 60 days post-launch.",
+          "reason": "prose-only",
+          "detail": "stated as prose, with no metric the allocator can read"
+        }
+      ]
     },
     {
       "venture": "ai-first-markets",
       "stage": "prototype",
       "pool": "protected_explore_40%",
-      "allocated_usd": 18.18,
+      "allocated_usd": 16.67,
       "cap_usd": 30,
-      "mrr": null,
+      "mrr": 0,
       "protected": true,
       "status": "active",
-      "priority": 3
+      "priority": 3,
+      "has_stopping_rule": true,
+      "criteria_declared": 3,
+      "criteria_evaluable": 2,
+      "unevaluable_criteria": [
+        {
+          "description": "Fewer than 100 newsletter signups within 30 days of release.",
+          "reason": "prose-only",
+          "detail": "stated as prose, with no metric the allocator can read"
+        }
+      ]
     },
     {
       "venture": "local-site-studio",
       "stage": "prototype",
       "pool": "protected_explore_40%",
-      "allocated_usd": 18.18,
+      "allocated_usd": 16.67,
       "cap_usd": 50,
       "mrr": 0,
       "protected": true,
       "status": "active",
-      "priority": 3
+      "priority": 3,
+      "has_stopping_rule": true,
+      "criteria_declared": 3,
+      "criteria_evaluable": 1,
+      "unevaluable_criteria": [
+        {
+          "description": "No client checkout or inquiry converted after 60 days post-launch.",
+          "reason": "prose-only",
+          "detail": "stated as prose, with no metric the allocator can read"
+        },
+        {
+          "description": "Customer acquisition cost (CAC) exceeds $150 per client.",
+          "reason": "prose-only",
+          "detail": "stated as prose, with no metric the allocator can read"
+        }
+      ]
     },
     {
       "venture": "mat-470-real-analysis",
       "stage": "prototype",
       "pool": "protected_explore_40%",
-      "allocated_usd": 18.18,
+      "allocated_usd": 16.67,
       "cap_usd": 20,
-      "mrr": null,
+      "mrr": 0,
       "protected": true,
       "status": "active",
-      "priority": 3
+      "priority": 3,
+      "has_stopping_rule": true,
+      "criteria_declared": 3,
+      "criteria_evaluable": 2,
+      "unevaluable_criteria": [
+        {
+          "description": "Fewer than 20 regular users per month.",
+          "reason": "prose-only",
+          "detail": "stated as prose, with no metric the allocator can read"
+        }
+      ]
     },
     {
       "venture": "photo-editing",
       "stage": "prototype",
       "pool": "protected_explore_40%",
-      "allocated_usd": 18.18,
+      "allocated_usd": 16.67,
       "cap_usd": 35,
       "mrr": 0,
       "protected": true,
       "status": "active",
-      "priority": 3
+      "priority": 3,
+      "has_stopping_rule": true,
+      "criteria_declared": 3,
+      "criteria_evaluable": 2,
+      "unevaluable_criteria": [
+        {
+          "description": "Batch render throughput fails to process 1,000 images per hour.",
+          "reason": "prose-only",
+          "detail": "stated as prose, with no metric the allocator can read"
+        }
+      ]
     },
     {
       "venture": "photos-import-tools",
       "stage": "prototype",
       "pool": "protected_explore_40%",
-      "allocated_usd": 18.18,
+      "allocated_usd": 16.67,
       "cap_usd": 20,
-      "mrr": null,
+      "mrr": 0,
       "protected": true,
       "status": "active",
-      "priority": 3
+      "priority": 3,
+      "has_stopping_rule": true,
+      "criteria_declared": 3,
+      "criteria_evaluable": 2,
+      "unevaluable_criteria": [
+        {
+          "description": "Ingest throughput drops below 500 images/min.",
+          "reason": "prose-only",
+          "detail": "stated as prose, with no metric the allocator can read"
+        }
+      ]
     },
     {
       "venture": "print-atelier",
       "stage": "prototype",
       "pool": "protected_explore_40%",
-      "allocated_usd": 18.18,
+      "allocated_usd": 16.67,
       "cap_usd": 60,
       "mrr": 0,
       "protected": true,
       "status": "active",
-      "priority": 3
+      "priority": 3,
+      "has_stopping_rule": true,
+      "criteria_declared": 3,
+      "criteria_evaluable": 1,
+      "unevaluable_criteria": [
+        {
+          "description": "Unit economics remain negative post-payout for 3 consecutive months.",
+          "reason": "prose-only",
+          "detail": "stated as prose, with no metric the allocator can read"
+        },
+        {
+          "description": "Zero artist onboarding or catalog additions within 60 days of active outreach.",
+          "reason": "prose-only",
+          "detail": "stated as prose, with no metric the allocator can read"
+        }
+      ]
     },
     {
       "venture": "quick-pick-survey",
       "stage": "prototype",
       "pool": "protected_explore_40%",
-      "allocated_usd": 18.18,
+      "allocated_usd": 16.67,
       "cap_usd": 30,
       "mrr": 0,
       "protected": false,
       "status": "active",
-      "priority": 3
+      "priority": 3,
+      "has_stopping_rule": true,
+      "criteria_declared": 4,
+      "criteria_evaluable": 2,
+      "unevaluable_criteria": [
+        {
+          "description": "Unmaintained infrastructure or unmerged PR backlog prevents automated deployments.",
+          "reason": "prose-only",
+          "detail": "stated as prose, with no metric the allocator can read"
+        },
+        {
+          "description": "Active participant retention drops below 10% after 30 days.",
+          "reason": "prose-only",
+          "detail": "stated as prose, with no metric the allocator can read"
+        }
+      ]
+    },
+    {
+      "venture": "range-coach",
+      "stage": "prototype",
+      "pool": "protected_explore_40%",
+      "allocated_usd": 16.67,
+      "cap_usd": 40,
+      "mrr": 0,
+      "protected": false,
+      "status": "active",
+      "priority": 3,
+      "has_stopping_rule": true,
+      "criteria_declared": 4,
+      "criteria_evaluable": 2,
+      "unevaluable_criteria": [
+        {
+          "description": "Fewer than 5 of 15 coached pilot users complete a second range session within 30 days.",
+          "reason": "prose-only",
+          "detail": "stated as prose, with no metric the allocator can read"
+        },
+        {
+          "description": "More than 10 percent of detected swings receive a materially wrong confident cue in a 500-swing labeled pilot.",
+          "reason": "prose-only",
+          "detail": "stated as prose, with no metric the allocator can read"
+        }
+      ]
     },
     {
       "venture": "real-estate-agent-photo-app",
       "stage": "prototype",
       "pool": "protected_explore_40%",
-      "allocated_usd": 18.18,
+      "allocated_usd": 16.67,
       "cap_usd": 30,
       "mrr": 0,
       "protected": true,
       "status": "active",
-      "priority": 3
+      "priority": 3,
+      "has_stopping_rule": true,
+      "criteria_declared": 3,
+      "criteria_evaluable": 2,
+      "unevaluable_criteria": [
+        {
+          "description": "Fewer than 5 agent shoots booked after 30 days of active concierge outreach.",
+          "reason": "prose-only",
+          "detail": "stated as prose, with no metric the allocator can read"
+        }
+      ]
     },
     {
       "venture": "retail-pilot-intel",
       "stage": "prototype",
       "pool": "protected_explore_40%",
-      "allocated_usd": 18.18,
+      "allocated_usd": 16.67,
       "cap_usd": 50,
       "mrr": 0,
       "protected": true,
       "status": "active",
-      "priority": 3
+      "priority": 3,
+      "has_stopping_rule": true,
+      "criteria_declared": 4,
+      "criteria_evaluable": 2,
+      "unevaluable_criteria": [
+        {
+          "description": "Zero store pilot deployments after 90 days of sales demo availability.",
+          "reason": "prose-only",
+          "detail": "stated as prose, with no metric the allocator can read"
+        },
+        {
+          "description": "CAC exceeds \u20ac300 per store location.",
+          "reason": "prose-only",
+          "detail": "stated as prose, with no metric the allocator can read"
+        }
+      ]
     },
     {
       "venture": "ubuntu-agent-server",
       "stage": "prototype",
       "pool": "protected_explore_40%",
-      "allocated_usd": 18.18,
+      "allocated_usd": 16.67,
       "cap_usd": 40,
       "mrr": 0,
       "protected": true,
       "status": "active",
-      "priority": 3
+      "priority": 3,
+      "has_stopping_rule": true,
+      "criteria_declared": 2,
+      "criteria_evaluable": 1,
+      "unevaluable_criteria": [
+        {
+          "description": "Container provisioning time exceeds 15 seconds.",
+          "reason": "prose-only",
+          "detail": "stated as prose, with no metric the allocator can read"
+        }
+      ]
     }
   ]
 }

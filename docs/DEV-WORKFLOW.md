@@ -9,6 +9,11 @@ The governing philosophy is: **if it is not tested, it is broken**.
 
 ## 1. Local Developer Setup & Pre-Push Quality Gate
 
+All work follows the risk tiers, short-lived branch model, browser/UI test
+requirements, and independent agent review protocol in
+[Quality engineering and release policy](QUALITY-ENGINEERING.md). Direct pushes
+to a release branch are not a development workflow.
+
 ### Before coding
 
 For every material change, record the intended customer outcome and acceptance
@@ -68,6 +73,11 @@ roadmap produced by an incomplete scan silently erases tracked findings.
 - Flakes and skipped checks are tracked defects. Quarantine and policy/scanner
   exceptions require an owner, issue, justification, compensating control, and
   expiry.
+- Tier 2/3 user-visible changes include deterministic real-browser journeys,
+  responsive and keyboard coverage, accessibility scanning plus manual review,
+  and reviewed screenshots/traces for every changed state. Production
+  applications run critical journeys both in pull-request CI and against the
+  immutable candidate.
 
 ---
 
@@ -114,6 +124,20 @@ Git-tracked desired state; Argo CD reconciles it. CI does not use mutable tags
 or hold broad cluster credentials. A release is done only after migration,
 readiness, smoke/security, data-quality, and customer-journey checks pass for
 that digest. Emergency manual changes are recorded and reconciled to Git.
+
+The implementing agent first reviews its final diff against the acceptance
+criteria and looks for untested failure paths. A separate agent run or human
+then reviews independently and tries to falsify the implementation and tests.
+Material follow-up changes invalidate the earlier approval. Tier 3 changes also
+require accountable owner approval.
+
+The required repository settings are pull requests, current blocking checks,
+required approvals, dismissal of stale approvals, and protected production
+environments. Their current live status must be audited; documentation and
+CODEOWNERS do not prove that provider-side enforcement is enabled.
+A deploy job must depend on the gate that produced the candidate; independently
+triggered CI and deploy workflows are races. Missing browser tooling, fixtures,
+visual baselines, or test reports fail closed.
 
 ---
 

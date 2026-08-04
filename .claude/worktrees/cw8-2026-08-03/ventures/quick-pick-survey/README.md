@@ -1,0 +1,154 @@
+# Quick pick
+
+A pairwise-comparison preference engine. You're shown two options and pick one;
+after enough picks it knows your preference ordering — including trade-offs you
+couldn't state directly if asked.
+
+## Deploying
+
+The repo is at `Duncan-Haywood/quick-pick-survey` (private).
+
+1. **Import the project.** Vercel dashboard → Add New → Project → import
+   `Duncan-Haywood/quick-pick-survey`. Framework auto-detects as Next.js; leave the
+   build command alone (`vercel.json` sets it).
+2. **Attach a database.** In the project → Storage → Create Database → Postgres.
+   Vercel injects `POSTGRES_PRISMA_URL` and `POSTGRES_URL_NON_POOLING` automatically.
+3. **Add the app secrets** as Environment
+   Variables (all environments):
+   - `ADMIN_KEY`
+   - `ADMIN_SESSION_SECRET`
+   - `RATE_LIMIT_SECRET`
+   - `APP_ORIGIN=https://pairwise.marisstella.dev`
+   - `RESEND_API_KEY`
+   - `PASSWORD_RESET_FROM=Quick Pick <noreply@marisstella.dev>`
+
+   In Resend, verify `marisstella.dev` and add the DNS records it provides.
+   The existing domain is sufficient: the app can stay on
+   `pairwise.marisstella.dev` while reset mail comes from
+   `noreply@marisstella.dev`.
+4. **Redeploy.** The build runs `prisma migrate deploy` then seeds the surveys, so
+   the schema and content are in place before the app serves a request. Both steps
+   are idempotent and safe on every deploy.
+
+The app sets HTTP-only, host-only production session cookies, invalidates all
+sessions after a password reset, rate-limits authentication writes in Postgres,
+and sends browser hardening headers from `next.config.ts`. Keep `APP_ORIGIN`
+fixed to the canonical HTTPS origin; never derive reset links from request
+headers.
+
+## Running locally
+
+Needs a local Postgres. The quickest way to one, on a laptop or in an agent
+sandbox, is the script the integration tests use:
+
+```bash
+scripts/test-db.sh start      # initdb, start, migrate, seed — idempotent
+scripts/test-db.sh env        # the export lines, if you want them in a shell
+scripts/test-db.sh stop
+```
+
+It finds the server binaries when only `psql` is on `PATH`, and drops to the
+`postgres` system user when run as root. Or do it by hand, with Homebrew's:
+
+```bash
+initdb -D ./pgdata -U postgres -A trust
+pg_ctl -D ./pgdata -o "-p 5544 -h 127.0.0.1 -c unix_socket_directories=" start
+createdb -h 127.0.0.1 -p 5544 -U postgres surveysite
+```
+
+Create `.env` (gitignored):
+
+```
+POSTGRES_PRISMA_URL="postgresql://postgres@127.0.0.1:5544/surveysite?schema=public"
+POSTGRES_URL_NON_POOLING="postgresql://postgres@127.0.0.1:5544/surveysite?schema=public"
+ADMIN_KEY="anything-for-local"
+ADMIN_SESSION_SECRET="anything-for-local"
+RATE_LIMIT_SECRET="anything-else-for-local"
+APP_ORIGIN="http://localhost:3000"
+```
+
+Then:
+
+```bash
+npm install
+npx prisma migrate deploy
+npx prisma db seed
+npm run dev
+```
+
+Use `npx prisma db seed` rather than `npx tsx prisma/seed.ts` directly — the
+Prisma CLI loads `.env`, plain `tsx` does not, and the seed script fails with
+"Environment variable not found: POSTGRES_PRISMA_URL" if it is run bare.
+
+## Before you commit
+
+```bash
+npm run verify            # typecheck → lint → test → build; needs nothing running
+
+scripts/test-db.sh start  # and, if the change touches a route or the schema:
+npm run test:integration  # the real handlers against a real Postgres
+```
+
+`.github/workflows/ci.yml` is configured to run the same four gates plus a
+migration-parity check on every push and pull request, but **it has never
+actually run**: every run since it was added fails in about three seconds with
+no steps and no logs, which is a runner that was never allocated rather than a
+gate that failed. Until that is sorted out, the command above is the whole of
+the enforcement — see [docs/QUALITY-BAR.md](docs/QUALITY-BAR.md).
+
+## How it works
+
+**Discrete items** (activities, professions) use **Glicko-2** — the system chess.com's
+ratings are built on. Each item carries a rating plus a rating deviation, so every
+ranking comes with a real confidence interval. Ratings are stored **per respondent**:
+one person's answers can never move another's ranking.
+
+**Continuous attributes** (income, net worth, upside, hours) don't fit a discrete
+rating system, so they use a **Davidson tie-extended Bradley-Terry model** — a
+paired-comparison logit with an explicit "too close to call" outcome — fit by
+Newton-Raphson with a numerically estimated Hessian for the confidence intervals.
+Every financial pair is a guaranteed non-dominated two-attribute trade-off, so no
+question is ever "the same but one is just better".
+
+**Question selection** adapts: it favours items the model is least sure about, pairs
+items with close ratings (a near-toss-up is the most informative comparison),
+balances coverage, avoids recent repeats, and randomises which option lands on top
+so screen position can't bias the result. It also runs **coarse-to-fine** — early
+questions cross categories to fix the broad shape fast, later ones stay within a
+category where the hard discriminations are.
+
+**Perspectives.** The same content is rated under two framings that never share
+state: what you want for your own life and future self, and what you want in a
+partner. The couples-first flow alternates ten-pick rounds automatically,
+announces every transition in a dialog, and keeps the current focus visible
+above every card. The rankings remain separate even though the person no
+longer has to manage modes in settings.
+
+**Broad Topic Range & Topic Picker (`/topics`).** Pairwise covers a broad range of topics touching on all aspects of a relationship — personal topics, professions, standard and non-standard hobbies (e.g. modular synths, urban exploration, falconry, mycology), values, communication styles, intimacy, and financial trade-offs. The questions can measure attraction or any multi-dimensional preference. This is a loosely held design goal: the core value is the **pairwise ranking and data gathering methodology**, which generates rich couple insights regardless of the topic domain. A dedicated Topic Picker screen (`/topics`) lets users choose specific topics or run an adaptive all-in-one survey.
+
+## How this gets built
+
+[developmentprocess.tsx](developmentprocess.tsx) is the front door — goals,
+principles, the loop a change goes through, the gates, and what "done" means.
+It is typed data guarded by a test, so it cannot drift from what is enforced.
+
+- [docs/PRODUCT-GOALS.md](docs/PRODUCT-GOALS.md) — what the app is for, and what it is not
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — how the measurement works, and where the risk is
+- [docs/DATA-COLLECTION.md](docs/DATA-COLLECTION.md) — everything stored about a person, and what a partner can see
+- [docs/SCREENS.md](docs/SCREENS.md) — every screen, what it fetches, and what it does when that fails
+- [docs/QUALITY-BAR.md](docs/QUALITY-BAR.md) — the gates and the definition of done
+- [docs/CONVERGENCE.md](docs/CONVERGENCE.md) — how many answers a usable result actually costs
+- [docs/POOLING.md](docs/POOLING.md) — the largest available precision win, measured, and why it is not taken
+- [docs/TESTING.md](docs/TESTING.md) — what is covered, what is not, how to add
+- [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md) — what a test enforces, what was only read in the markup, and what nobody has checked
+- [docs/decisions/](docs/decisions/) — why an obvious simplification was rejected
+
+## Known gaps
+
+See [IMPROVEMENT-PLAN.md](IMPROVEMENT-PLAN.md) — the live backlog, ordered by
+priority, with effort estimates and a record of what has already been closed.
+The two largest open items both need the account owner rather than more code:
+a queue of unmerged pull requests, and GitHub Actions never allocating a
+runner. Every API route now has a test; the remaining coverage gap is the page
+components, and below that the thing no suite can settle — somebody reading
+what two linked accounts actually produce on screen.
