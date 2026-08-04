@@ -70,11 +70,24 @@ export function parseLeadServices(raw: string | null | undefined): string[] {
 const CATEGORIES = ["restaurant", "salon", "trades", "generic"] as const;
 const RECOMMENDED_TIERS = ["starter", "growth", "complete"] as const;
 
-/** Map a SQLite `leads` row back into the app-wide Lead shape (fallback-read path). */
+/**
+ * Map a SQLite `leads` row back into the app-wide Lead shape (fallback-read path).
+ *
+ * The tagline / description / phone / state fallbacks below exist for
+ * *prospecting* rows: a business we discovered and built a speculative preview
+ * for, where a plausible-looking page is the sales pitch. They must not apply
+ * to a `payment_stub` row, which is a customer who has already paid and about
+ * whom we genuinely know nothing — see buildPaymentStubLeadFields. Filling
+ * their record in with a bakery slogan and a fictional phone number puts
+ * invented facts about a real customer on their own preview page and in the
+ * operator dashboard. Empty is the honest answer, and it renders as nothing.
+ */
 export function mapSqliteRowToLead(row: SqliteLeadRow): Lead {
   const category = (CATEGORIES as readonly string[]).includes(row.category)
     ? (row.category as Lead["category"])
     : "generic";
+
+  const isPaymentStub = row.dataSource === "payment_stub";
 
   const recommendedTier = (RECOMMENDED_TIERS as readonly string[]).includes(
     row.recommendedTier ?? "",
@@ -91,19 +104,23 @@ export function mapSqliteRowToLead(row: SqliteLeadRow): Lead {
     businessName: row.businessName,
     category,
     city: row.city,
-    state: row.state || "CO",
+    state: row.state || (isPaymentStub ? "" : "CO"),
     address: row.address || undefined,
     tagline:
       row.tagline ||
-      (category === "trades"
-        ? "Professional services you can count on"
-        : category === "salon"
-          ? "Tailored styling and care"
-          : "Local favorites made fresh daily"),
+      (isPaymentStub
+        ? ""
+        : category === "trades"
+          ? "Professional services you can count on"
+          : category === "salon"
+            ? "Tailored styling and care"
+            : "Local favorites made fresh daily"),
     description:
       row.description ||
-      `This is a preview page generated for ${row.businessName}. Claim it to connect your domain, contact form, and marketing dashboard.`,
-    phone: row.phone || "(555) 000-0000",
+      (isPaymentStub
+        ? ""
+        : `This is a preview page generated for ${row.businessName}. Claim it to connect your domain, contact form, and marketing dashboard.`),
+    phone: row.phone || (isPaymentStub ? "" : "(555) 000-0000"),
     email: row.email || undefined,
     services: parseLeadServices(row.services),
     hours: parseLeadHours(row.hours),
