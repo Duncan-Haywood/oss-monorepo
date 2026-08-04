@@ -23,8 +23,31 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  verify:
+    name: Verify through the shared component gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+
+      # This workflow used to build and deploy with no gate in the chain at all.
+      # The component's suite was declared in platform/ci/src/pipeline.mjs, which
+      # ci-cd.yml runs — a separate workflow, triggered by the same push, with no
+      # ordering relationship to this one. So a red suite and a production
+      # rollout raced, and the rollout usually won. Every other release chain in
+      # this repository reaches production behind a gate job; this was the one
+      # that did not, on the one venture with live customers.
+      - name: Run the shared verify-component gate
+        run: scripts/ci/verify-component.sh marisstella-homepage
+
   container:
     name: Build and publish deployable container
+    needs: verify
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:

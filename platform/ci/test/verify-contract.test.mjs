@@ -84,6 +84,26 @@ function catalogByVenture() {
   return grouped;
 }
 
+/**
+ * The catalog grouped by the root each arm of verify-component.sh names.
+ *
+ * `catalogByVenture()` above is `ventures/` only on purpose: VENTURE.yaml is a
+ * venture contract, and a portfolio component has none to compare a `verify:`
+ * line against. The shared script gates those components all the same, though —
+ * portfolio/marisstella-homepage is the live homepage and now has an arm — so
+ * the arm-versus-catalog comparison needs the wider grouping or it would report
+ * "no catalog entry" for a component the catalog does run.
+ */
+function catalogByComponentRoot() {
+  const grouped = new Map();
+  for (const component of VENTURE_CATALOG) {
+    const root = ventureRootOf(component.dir) || component.packageDir || component.dir;
+    if (!grouped.has(root)) grouped.set(root, []);
+    grouped.get(root).push(component);
+  }
+  return grouped;
+}
+
 function canonicalVerifyFor(ventureRoot, components) {
   const ordered = [...components].sort((a, b) =>
     (a.packageDir || a.dir).localeCompare(b.packageDir || b.dir)
@@ -249,7 +269,7 @@ function parseVerifyComponentArms() {
 }
 
 test('Verify Contract - verify-component.sh runs the same gates as the CI catalog', () => {
-  const catalog = catalogByVenture();
+  const catalog = catalogByComponentRoot();
   const drift = [];
 
   for (const [name, componentArm] of parseVerifyComponentArms()) {
