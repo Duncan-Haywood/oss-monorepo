@@ -24,6 +24,12 @@ export interface AggregateEvent {
   value: number;
   unit?: "count" | "seconds";
   metadata?: Record<string, unknown>;
+  /**
+   * True when the event was produced by a sample/stub generator instead of
+   * being observed by a sensor. Producers MUST set it; analytics refuses to
+   * report a measured funnel for any day that contains synthetic events.
+   */
+  synthetic?: boolean;
 }
 
 export interface SaleLineItem {
@@ -46,4 +52,10 @@ export interface SaleEvent {
   payment_class?: PaymentClass;
   pos_vendor?: string;
   raw_reference?: string;
+  /**
+   * True when the basket was produced by a sample/stub generator instead of
+   * being read from a POS. Producers MUST set it; analytics refuses to report
+   * a measured funnel for any day that contains synthetic events.
+   */
+  synthetic?: boolean;
 }
