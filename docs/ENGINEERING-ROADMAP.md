@@ -1262,7 +1262,7 @@ evidence, and completion date before it can be marked done.
   that genuinely draws its whole grant, and figures nudged a few cents off it.
   One of the four DORA measures exists as of 2026-08-02, owner duncan: lead time
   for changes, in its worst case, in `scripts/ci/release_lag.py` against
-  `platform/release-lag-policy.yaml`, held by `tests/test_release_lag.py` and
+  `platform/release-lag-budget.yaml`, held by `tests/test_release_lag.py` and
   documented in [release lag](RELEASE-LAG.md). Deployment frequency,
   change-failure rate and time to restore remain unstarted.
   It was written because the measure was missing in the way that mattered most:
@@ -1475,8 +1475,64 @@ evidence, and completion date before it can be marked done.
   pass, 424 Dagger-engine tests pass. One gate fails, `release_lag`, and it is
   supposed to — see below.
 
-- [ ] Reconcile `agent/integration-2026-08-04`, the last remaining independent
-  tip, so the pile is one reviewable release candidate instead of two. **Not
+- [x] Reconcile `agent/integration-2026-08-04b`, the last remaining independent
+  tip, so the pile is one reviewable release candidate instead of two. Owner
+  duncan, 2026-08-04, on `agent/integration-2026-08-04c`. The pass below
+  deferred this as an owner decision; it was done because deferring it was
+  costing more than the decision. `scripts/ci/integration_debt.py` now reports
+  **one tip over 49 refs and 48 commits** — shipping is one reviewed push.
+  The two engine choices that the deferral was protecting are stated here so
+  the owner reviews two decisions rather than 39 hunks:
+
+  * **The stop-loss engine: the `op`/`value` one won.** `kill_criteria.py` at
+    667 lines with a `MetricResolver`, `days_since:<anchor>` metrics, a
+    `portfolio/kill-criteria-register.yaml` with owner and expiry, and a
+    dedicated `portfolio/router/test_kill_criteria.py` — against 332 lines with
+    no suite of its own. It also fails closed where the other did not: a ledger
+    month that will not parse stops `kill_criteria_ratchet.py` instead of
+    reading as "these ventures recorded nothing", which is the unmeasurable
+    verdict rather than an error. The one venture with a measurable rule,
+    print-atelier, already declares `op`/`value`, so the surviving engine is the
+    one its brake is written against.
+  * **The commerce copy: this branch's wording won.** `page.tsx` sells an "AI
+    call script pack", not an "AI phone agent". The rival branch's page still
+    said phone agent, which `src/lib/capability-claims.test.ts` forbids because
+    no telephony provider is declared or imported. Resolving that hunk the
+    other way would have re-shipped the false claim the test exists to stop.
+
+  The merge found three defects that existed only in the combination:
+
+  * `portfolio/router/validate_ventures.py` merged clean and called
+    `kill_criteria.build_ledger_facts`, which the surviving engine does not
+    have. Every criterion it evaluates raised `AttributeError`, so the venture
+    contract validator could not report a fired stopping rule at all — a clean
+    auto-merge across two engines, which is the shape no conflict marker shows
+    you. Four of its own tests caught it.
+  * `scripts/ci/cap_ratchet.py` carried five caps twice. Both branches had
+    registered `image_tags`, `sast_scan`, `stopping_rule_review` and
+    `coverage_ratchet` — same constants, different prose.
+    `test_no_watch_is_declared_twice` caught it.
+  * `scripts/test-ci.sh` registered two gates twice: the scanner contract under
+    one name repeated, and the component-verification contract under two
+    different names. 24 registrations over 22 distinct commands. Nothing caught
+    this, because every existing question was satisfied — the command runs, it
+    can fail, and something invokes it. What was wrong was the arithmetic.
+    `platform/ci/test/gate-wiring.test.mjs` now fails on a repeated command and
+    on one name used for two commands, the second being worse: a failure is
+    then attributed to whichever gate the reader assumes. Verified against the
+    pre-merge file, where it finds both.
+
+  `platform/integration-debt-budget.yaml` registers the ten drops the merge
+  made — two duplicate controls, each carried by five separate branches. The
+  count is the finding: five branches independently built the same
+  lockfile-audit control and five carried the same rival release-lag schema.
+
+  Not done: this reconciles the branches, not the ledger. `release_lag` is
+  still red and still correct, and nothing here is live.
+
+- [ ] ~~Reconcile `agent/integration-2026-08-04`~~, superseded by the entry
+  above. Recorded verbatim because the reasoning for deferring it was sound and
+  the decision to override it should be visible next to it. **Not
   attempted, deliberately.** It is a second, parallel integration of the same
   source branches rather than a missing merge, so the conflicts are two
   implementations of the same decisions: 39 hunks across 10 files, including
