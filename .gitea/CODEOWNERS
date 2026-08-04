@@ -23,6 +23,24 @@
 /platform/ci/               @infrastructure-team
 /platform/exception-register.yaml @security-team
 
+# The declared budgets and baselines. Each of these files holds numbers that
+# decide whether a gate is allowed to be green — a coverage floor, a suppression
+# count, a ceiling on undelivered work — so raising one waives a gate as
+# effectively as editing the gate. On 2026-08-04 none of them had an owner, and
+# `codeowners-contract.test.mjs` only knew the five surfaces someone had typed
+# into it by hand. That list is now derived: every tracked `platform/*.yaml`
+# must be matched by a rule here, so the next budget file fails the contract
+# until somebody owns it.
+/platform/coverage-baseline.yaml @qa-team @infrastructure-team
+/platform/sast-baseline.yaml @security-team
+/platform/image-tag-exceptions.yaml @infrastructure-team @security-team
+/platform/route-posture-registry.yaml @security-team @qa-team
+/platform/release-lag-budget.yaml @infrastructure-team
+/platform/integration-debt-budget.yaml @infrastructure-team
+/platform/image-release-baseline.yaml @infrastructure-team
+/platform/kill-criteria-baseline.yaml @infrastructure-team @qa-team
+/platform/VENTURE.template.yaml @infrastructure-team @qa-team
+
 # Cloud Infrastructure & Kubernetes Configurations
 /platform/terraform/        @infrastructure-team
 /platform/k8s/              @infrastructure-team

@@ -39,8 +39,11 @@ import tempfile
 import textwrap
 import unittest
 
+import yaml
+
 import cap_ratchet
 from cap_ratchet import (
+    UNWATCHED_BUDGET_KEYS,
     WATCHES,
     CapError,
     Watch,
@@ -49,6 +52,53 @@ from cap_ratchet import (
     extract_yaml_path,
     measure,
 )
+
+
+def platform_budget_files() -> list:
+    """Top-level `platform/*.yaml`, tracked or merely present.
+
+    The union rather than `git ls-files` alone. A budget file that is on disk
+    and not yet committed is exactly the state a new one is added in, and
+    `scripts/ci/audit_exceptions.py` was already found blind to six advisories
+    for the mirror-image reason — it read `git ls-files` and `platform/ci` had
+    never been committed. Either half of the union missing a file is a budget
+    number nobody is holding.
+    """
+    found = {p.name for p in (REPO_ROOT / "platform").glob("*.yaml") if p.is_file()}
+    listed = subprocess.run(
+        ["git", "ls-files", "platform/*.yaml"],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.split()
+    found.update(rel.split("/", 1)[1] for rel in listed if rel.count("/") == 1)
+    return sorted(f"platform/{name}" for name in found)
+
+
+def numeric_budget_leaves(source: str) -> list:
+    """Every numeric leaf under a top-level `budget:` mapping, dotted."""
+    try:
+        data = yaml.safe_load(source)
+    except yaml.YAMLError:
+        return []
+    if not isinstance(data, dict) or not isinstance(data.get("budget"), dict):
+        return []
+
+    leaves = []
+
+    def walk(node: dict, prefix: str) -> None:
+        for key, value in node.items():
+            dotted = f"{prefix}.{key}"
+            if isinstance(value, dict):
+                walk(value, dotted)
+            elif isinstance(value, bool):
+                continue
+            elif isinstance(value, (int, float)):
+                leaves.append(dotted)
+
+    walk(data["budget"], "budget")
+    return leaves
 
 
 def git(repo: Path, *args: str) -> str:
@@ -413,6 +463,84 @@ class RepositoryContractTests(unittest.TestCase):
             "These bound a declared budget but nothing stops them being raised. "
             "Add them to WATCHES in scripts/ci/cap_ratchet.py: " + ", ".join(missing),
         )
+
+    def test_every_yaml_budget_key_is_watched_or_registered_as_exempt(self):
+        """The mirror of the constants contract, for the declared budgets.
+
+        The test above covers `python-constant` watches only, which is why
+        eight numeric keys under `budget:` in `platform/*.yaml` sat unwatched:
+        raising `max_unshipped_age_days` 7 -> 30, `max_without_build_path`
+        5 -> 6 and `slack` 0 -> 4 all measured PASS. A number under `budget:`
+        is a declared ceiling by construction — that is what the key means in
+        this repository — so each one is either held to its historical floor or
+        named in `UNWATCHED_BUDGET_KEYS` with the reason it is not.
+        """
+        watched = {(w.path, w.locator) for w in WATCHES if w.kind == "yaml-path"}
+        exempt = {(e.path, e.locator) for e in UNWATCHED_BUDGET_KEYS}
+
+        missing = []
+        for rel in platform_budget_files():
+            path = REPO_ROOT / rel
+            if not path.is_file():
+                continue
+            for dotted in numeric_budget_leaves(path.read_text(encoding="utf-8")):
+                if (rel, dotted) not in watched and (rel, dotted) not in exempt:
+                    missing.append(f"{rel}:{dotted}")
+
+        self.assertEqual(
+            missing,
+            [],
+            "These declared budgets can be raised and nothing would say so. Add a "
+            "yaml-path Watch to WATCHES in scripts/ci/cap_ratchet.py, or, if the number "
+            "genuinely must be free to rise, a BudgetExemption to UNWATCHED_BUDGET_KEYS "
+            "carrying the reason: " + ", ".join(missing),
+        )
+
+    def test_every_exemption_still_names_a_real_budget_number(self):
+        # An exemption that outlives the key it excuses is a register nobody
+        # reads, and it silently widens the contract above: the pair would sit
+        # in `exempt` forever, ready to absorb a key of the same name added back
+        # later without review.
+        stale = []
+        for exemption in UNWATCHED_BUDGET_KEYS:
+            path = REPO_ROOT / exemption.path
+            if not path.is_file():
+                stale.append(f"{exemption.path} does not exist")
+                continue
+            source = path.read_text(encoding="utf-8")
+            if exemption.locator not in numeric_budget_leaves(source):
+                stale.append(f"{exemption.path}:{exemption.locator} is not a numeric budget key")
+        self.assertEqual(stale, [], "stale exemptions: " + ", ".join(stale))
+
+    def test_no_key_is_both_watched_and_exempt(self):
+        watched = {(w.path, w.locator) for w in WATCHES if w.kind == "yaml-path"}
+        both = sorted(
+            f"{e.path}:{e.locator}" for e in UNWATCHED_BUDGET_KEYS if (e.path, e.locator) in watched
+        )
+        self.assertEqual(both, [], "watched and excused at once: " + ", ".join(both))
+
+    def test_every_exemption_is_one_key_and_carries_a_written_reason(self):
+        # A blanket exemption — a directory, a whole file, a wildcard — is a
+        # region where "every declared budget is ratcheted" may be untrue, and
+        # reads as coverage from outside. Each is earned per key, with prose
+        # long enough to be an argument rather than a label.
+        seen = set()
+        for exemption in UNWATCHED_BUDGET_KEYS:
+            with self.subTest(exemption=f"{exemption.path}:{exemption.locator}"):
+                self.assertTrue(
+                    exemption.path.startswith("platform/") and exemption.path.endswith(".yaml"),
+                    "an exemption names one file",
+                )
+                self.assertNotIn("*", exemption.path)
+                self.assertNotIn("*", exemption.locator)
+                self.assertTrue(
+                    exemption.locator.startswith("budget.") and exemption.locator != "budget.",
+                    "an exemption names one key under `budget:`, not the mapping",
+                )
+                self.assertGreater(len(exemption.why), 80, "the reason has to be a reason")
+                key = (exemption.path, exemption.locator)
+                self.assertNotIn(key, seen, "declared twice")
+                seen.add(key)
 
     def test_no_watch_is_declared_twice(self):
         keys = [(w.path, w.kind, w.locator) for w in WATCHES]
