@@ -369,3 +369,45 @@ EOF
 rm -f "${FINDINGS_TMP}"
 
 echo "Updated ${ROADMAP_FILE} successfully."
+
+# The roadmap is written above before anything below can exit, because recording
+# a finding and refusing the run are separate obligations and the first one must
+# happen either way. What follows is the second.
+#
+# Until 2026-08-04 there was no second. The only `exit 1` in this file was the
+# incomplete-audit refusal, so once an audit *completed* the script fell off the
+# end and returned 0 no matter what it had found, and `pipeline.mjs` printed
+# "✔ Vulnerability & Secret Audit PASSED" over it. The gate was therefore
+# strictest when it knew least: a hardcoded credential blocked a run that could
+# not reach the registry (below, at the incomplete branch) and passed the run
+# that audited every package successfully.
+#
+# Deliberately not gated here: HIGH. A complete audit of this repository is not
+# currently reachable — three packages fail `npm audit` with EOVERRIDE — so the
+# only honest HIGH ceiling would be seeded from an incomplete measurement, which
+# is a declared number this control could not reproduce. It stays recorded on
+# the dashboard and open on the roadmap rather than pinned to a fiction.
+BLOCKING=0
+
+if [ "${SECRET_COUNT}" -ne 0 ]; then
+  echo "" >&2
+  echo "${SECRET_COUNT} hardcoded credential pattern(s) detected." >&2
+  echo "  Rotate the credential and move it to environment configuration." >&2
+  echo "  There is no waiver for this: a committed secret is compromised whether" >&2
+  echo "  or not the dependency audit could run." >&2
+  BLOCKING=1
+fi
+
+if [ "${CRITICAL_COUNT}" -ne 0 ]; then
+  echo "" >&2
+  echo "${CRITICAL_COUNT} CRITICAL dependency finding(s) detected." >&2
+  echo "  The dashboard this run just wrote says CRITICAL means Block Release." >&2
+  echo "  See ${ROADMAP_FILE#"${REPO_ROOT}/"} for the affected packages." >&2
+  BLOCKING=1
+fi
+
+if [ "${BLOCKING}" -ne 0 ]; then
+  echo "" >&2
+  echo "Findings are recorded in ${ROADMAP_FILE#"${REPO_ROOT}/"}; this run does not pass." >&2
+  exit 1
+fi

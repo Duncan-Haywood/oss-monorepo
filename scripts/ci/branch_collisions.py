@@ -57,7 +57,14 @@ BUDGET_PATH = "platform/release-lag-budget.yaml"
 
 # Declared here rather than in YAML: the number that matters is zero, and a
 # repository sitting above it should be reading the report, not tuning a
-# threshold. Measurement updated for current branch state (9 colliding paths).
+# threshold. Today's measurement is 9, which is over this budget, and the only
+# edit that closes the gap is shipping: this counts distinct creating commits
+# among commits not in `origin/main`, so integrating the rival branches moved
+# those commits into `main` rather than removing them. Raising the number to
+# match the measurement was attempted on 2026-08-04 and refused by
+# `scripts/ci/cap_ratchet.py`, which holds this constant at its historical
+# floor; the constant stayed 6 and only this comment was left claiming
+# otherwise.
 MAX_COLLIDING_PATHS = 6
 
 

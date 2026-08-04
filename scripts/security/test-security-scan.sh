@@ -80,14 +80,49 @@ fi
 # Findings are transcribed into the roadmap with their severity.
 finding_body='{"left-pad":{"name":"left-pad","severity":"critical","via":["fixture advisory"],"range":"<1.0.0","fixAvailable":true}}'
 finding_fixture="$(new_fixture findings "$(audit_json 1 0 1 "$finding_body")" lockfile)"
+# Recording the finding and refusing the run are separate obligations: the
+# roadmap must be published (so the finding survives) *and* the run must fail.
+# Until 2026-08-04 this case asserted only the first half, and asserted the exit
+# status was zero — so the suite held the scanner's fail-open in place. The only
+# `exit 1` in the scanner was the incomplete-audit refusal, which made it
+# strictest when it knew least.
 if run_scanner "$finding_fixture"; then
-  grep -q '🚨 \*\*CRITICAL\*\* | \*\*1\*\*' "$finding_fixture/SECURITY_ROADMAP.md" ||
-    fail "a critical finding should be counted on the dashboard"
-  grep -q 'left-pad' "$finding_fixture/SECURITY_ROADMAP.md" ||
-    fail "a critical finding should be listed in the findings table"
-else
-  fail "a scan that finds vulnerabilities should still publish the roadmap"
+  fail "a completed audit that found a CRITICAL vulnerability should exit non-zero"
 fi
+grep -q '🚨 \*\*CRITICAL\*\* | \*\*1\*\*' "$finding_fixture/SECURITY_ROADMAP.md" ||
+  fail "a critical finding should be counted on the dashboard"
+grep -q 'left-pad' "$finding_fixture/SECURITY_ROADMAP.md" ||
+  fail "a critical finding should be listed in the findings table"
+grep -q 'CRITICAL dependency finding' "$finding_fixture/stderr.log" ||
+  fail "a blocking critical finding should say why the run failed"
+
+# HIGH is deliberately not a blocking severity yet: a complete audit of this
+# repository is not currently reachable, so any HIGH ceiling would be seeded
+# from an incomplete measurement. This pins that scope, so narrowing or
+# widening it has to be a deliberate edit to both files rather than a drift.
+high_body='{"left-pad":{"name":"left-pad","severity":"high","via":["fixture advisory"],"range":"<1.0.0","fixAvailable":true}}'
+high_fixture="$(new_fixture high-findings "$(audit_json 0 1 1 "$high_body")" lockfile)"
+if run_scanner "$high_fixture"; then
+  grep -q '⚠️ \*\*HIGH\*\* | \*\*1\*\*' "$high_fixture/SECURITY_ROADMAP.md" ||
+    fail "a high finding should be counted on the dashboard"
+else
+  fail "a high finding should be recorded without failing the run"
+fi
+
+# A committed credential blocks unconditionally. It already blocked on the
+# incomplete-audit path; the case that passed was the healthy one, where every
+# package audited cleanly and the secret was written to the roadmap as a HIGH
+# row over an exit status of zero.
+secret_fixture="$(new_fixture secret-complete-audit "$(audit_json 0 0 0 '{}')" lockfile)"
+printf 'AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMIfixtureEXAMPLEKEY\n' \
+  >"$secret_fixture/ventures/demo/config.sh"
+if run_scanner "$secret_fixture"; then
+  fail "a clean audit that found a committed secret should exit non-zero"
+fi
+grep -q 'config.sh' "$secret_fixture/SECURITY_ROADMAP.md" ||
+  fail "a committed secret should still be recorded in the roadmap"
+grep -q 'hardcoded credential pattern' "$secret_fixture/stderr.log" ||
+  fail "a blocking secret should say why the run failed"
 
 # The regression this suite exists for: npm audit failing must not be read as
 # "no vulnerabilities". The previously recorded findings have to survive.
