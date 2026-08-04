@@ -108,16 +108,12 @@ class Watch:
 # directional check in `scripts/ci/coverage_ratchet.py` already refuses a drop.
 # Watching them here would forbid the improvement the ratchet exists to force.
 #
-# Not watched either: `platform/integration-debt-budget.yaml`'s
-# `budget.max_unintegrated_tips`. The three caps above it in
-# `scripts/ci/integration_debt.py` are watched, which is what stops it being
-# widened indefinitely. The declared value itself is not a pure debt counter
-# the way `budget.max_unshipped_commits` is — that one only shipping lowers,
-# whereas the tip count rises whenever concurrent sessions branch and falls
-# when someone integrates, both of them normal working state. Locking it to its
-# historical minimum would mean the first quiet day set a ceiling that ordinary
-# parallel work could never clear except by merging under a red gate, and a
-# gate that fails on ordinary work is one that gets widened.
+# Every numeric leaf under a top-level `budget:` mapping in `platform/*.yaml`
+# must be either watched below or registered in `UNWATCHED_BUDGET_KEYS` with a
+# reason. `tests/test_cap_ratchet.py` enforces that, the way the sibling
+# contract enforces it for `MAX_*` constants — eight YAML keys drifted unwatched
+# for two days because only the constants had a contract, and a budget number
+# nobody watches is indistinguishable from no budget.
 WATCHES: Tuple[Watch, ...] = (
     Watch(
         path="scripts/ci/release_lag.py",
@@ -303,6 +299,110 @@ WATCHES: Tuple[Watch, ...] = (
         kind="yaml-path",
         locator="budget.max_without_stopping_rule",
         why="the number of ventures that can draw budget forever",
+    ),
+    # 2026-08-04. The three above were the only YAML this ratchet held, and the
+    # control audit found the other eight budget keys open: raising
+    # `max_unshipped_age_days` 7 -> 30, `max_without_build_path` 5 -> 6 and
+    # `slack` 0 -> 4 together still measured `PASS: 27 caps`.
+    #
+    # Every `slack*` key is pure widening room by construction. Slack is the
+    # distance a measurement may fall below its ceiling before the ceiling is
+    # called stale, so raising one is exactly the move that stops a budget being
+    # re-declared after the work that would lower it has already happened. That
+    # is the stale direction of every two-directional check here, disarmed
+    # without touching the ceiling it guards.
+    Watch(
+        path="platform/release-lag-budget.yaml",
+        kind="yaml-path",
+        locator="budget.slack_commits",
+        why="the room the undelivered-pile budget may be stale by before it must be lowered",
+    ),
+    Watch(
+        path="platform/release-lag-budget.yaml",
+        kind="yaml-path",
+        locator="budget.max_unshipped_age_days",
+        why="the lead time finished work may sit undelivered; only shipping lowers it",
+    ),
+    Watch(
+        path="platform/image-release-baseline.yaml",
+        kind="yaml-path",
+        locator="budget.max_without_build_path",
+        why="the number of deployments naming an image nothing in this repository builds",
+    ),
+    Watch(
+        path="platform/image-release-baseline.yaml",
+        kind="yaml-path",
+        locator="budget.max_mutable_references",
+        why="the number of releases pinned to a tag that can move under them",
+    ),
+    Watch(
+        path="platform/image-release-baseline.yaml",
+        kind="yaml-path",
+        locator="budget.slack",
+        why="the room the image-release ceilings may be stale by before they must be lowered",
+    ),
+    Watch(
+        path="platform/integration-debt-budget.yaml",
+        kind="yaml-path",
+        locator="budget.slack_tips",
+        why="the room the tip ceiling may be stale by before it must be re-declared",
+    ),
+    Watch(
+        path="platform/kill-criteria-baseline.yaml",
+        kind="yaml-path",
+        locator="budget.slack",
+        why="the room the stopping-rule ceiling may be stale by before it must be lowered",
+    ),
+)
+
+
+@dataclass(frozen=True)
+class BudgetExemption:
+    """A numeric budget key deliberately left unwatched, and the reason why.
+
+    Earned one key at a time. A file- or directory-level exemption would be a
+    region in which the claim "every declared budget is ratcheted" may quietly
+    be untrue, and this repository has already been bitten by that exact shape
+    in its claims controls. The reason is data a test reads, not a comment
+    nothing enforces: `tests/test_cap_ratchet.py` requires every entry here to
+    still resolve to a real number, so an exemption cannot outlive the key it
+    excuses.
+    """
+
+    path: str
+    locator: str
+    why: str
+
+
+UNWATCHED_BUDGET_KEYS: Tuple[BudgetExemption, ...] = (
+    BudgetExemption(
+        path="platform/integration-debt-budget.yaml",
+        locator="budget.max_unintegrated_tips",
+        why=(
+            "not a pure debt counter. The three caps above it in "
+            "`scripts/ci/integration_debt.py` are watched, which is what stops it being "
+            "widened indefinitely. `budget.max_unshipped_commits` only shipping lowers, "
+            "whereas the tip count rises whenever concurrent sessions branch and falls "
+            "when someone integrates, both of them normal working state. Locking it to "
+            "its historical minimum would mean the first quiet day set a ceiling that "
+            "ordinary parallel work could never clear except by merging under a red "
+            "gate, and a gate that fails on ordinary work is one that gets widened. "
+            "`budget.slack_tips` beside it is watched, so the stale direction is held."
+        ),
+    ),
+    BudgetExemption(
+        path="platform/VENTURE.template.yaml",
+        locator="budget.monthly_cap",
+        why=(
+            "an example value in the file that is copied to start a venture, not a "
+            "number that binds anything. The caps that bind live in "
+            "`ventures/<name>/VENTURE.yaml`, which this enumeration does not reach, so "
+            "ratcheting the template would hold the sample to its historical minimum "
+            "while every real cap stayed free — coverage in appearance only, which is "
+            "the defect this ratchet exists to refuse. What a venture may spend is the "
+            "portfolio owner's call, measured against `portfolio/ledger/` by "
+            "`scripts/ci/kill_criteria_ratchet.py` and `scripts/ci/stopping_rule_review.py`."
+        ),
     ),
 )
 

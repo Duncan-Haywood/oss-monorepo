@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
@@ -67,21 +68,79 @@ test('CODEOWNERS Contract - every rule names at least one owner', () => {
   assert.deepEqual(unowned, [], `rules with no valid owner: ${unowned.join(', ')}`);
 });
 
+/**
+ * Does a CODEOWNERS pattern cover this path?
+ *
+ * Deliberately conservative — it models less than Gitea does, so a rule it
+ * reads as covering really does cover. A directory rule covers what is under
+ * it, a literal file rule covers that file, and a wildcard rule is expanded
+ * segment-wise. Anything it cannot decide it declines, which errs toward
+ * reporting a file unowned rather than toward inventing coverage.
+ */
+function covers(pattern, target) {
+  const rule = pattern.replace(/^\//, '');
+  if (rule.endsWith('/')) return target === rule || target.startsWith(rule);
+  if (/[*?[\]]/.test(rule)) {
+    const source =
+      '^' +
+      rule
+        .split(/(\*\*|\*|\?)/)
+        .map((piece) => {
+          if (piece === '**') return '.*';
+          if (piece === '*') return '[^/]*';
+          if (piece === '?') return '[^/]';
+          return piece.replace(/[.+^${}()|[\]\\]/g, '\\$&');
+        })
+        .join('') +
+      '(/.*)?$';
+    return new RegExp(source).test(target);
+  }
+  return target === rule || target.startsWith(`${rule}/`);
+}
+
+/**
+ * Every tracked YAML directly under `platform/`. These are the declared
+ * budgets, baselines and registers — the numbers that decide whether a gate is
+ * allowed to report green. Derived rather than listed, because the five-entry
+ * hardcoded list this replaced stopped at `exception-register.yaml` and seven
+ * budget files added after it were reviewed by nobody.
+ */
+function trackedPlatformYaml() {
+  return execFileSync('git', ['ls-files', 'platform/*.yaml'], {
+    cwd: REPO_ROOT,
+    encoding: 'utf8',
+  })
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line && line.split('/').length === 2)
+    .sort();
+}
+
 test('CODEOWNERS Contract - the controls that decide a green run are owned', () => {
-  // These are the files that can waive a gate as effectively as editing the
-  // gate: the suppression register, the audit that reads it, the CI engine, and
-  // the script that registers repository-wide gates. Losing review on any of
-  // them is indistinguishable from losing the gate.
+  // The first group is the files that can waive a gate as effectively as
+  // editing the gate: the suppression register, the audit that reads it, the CI
+  // engine, and the script that registers repository-wide gates. The second is
+  // derived from the tree, so a budget file added tomorrow fails this contract
+  // until someone owns it — the hardcoded half is what let the first seven
+  // through.
   const mustBeOwned = [
     'scripts/ci/',
     'scripts/test-ci.sh',
     'platform/ci/',
     'platform/exception-register.yaml',
     'SECURITY_ROADMAP.md',
+    ...trackedPlatformYaml(),
   ];
 
-  const patterns = new Set(rules().map(({ pattern }) => pattern.replace(/^\//, '')));
-  const unowned = mustBeOwned.filter((entry) => !patterns.has(entry));
+  const declared = rules();
+  const unowned = mustBeOwned.filter(
+    (entry) => !declared.some(({ pattern }) => covers(pattern, entry))
+  );
 
-  assert.deepEqual(unowned, [], `unowned control surfaces: ${unowned.join(', ')}`);
+  assert.deepEqual(
+    unowned,
+    [],
+    'control surfaces and declared budgets no CODEOWNERS rule reviews:\n' +
+      unowned.map((entry) => `  - ${entry}`).join('\n')
+  );
 });
