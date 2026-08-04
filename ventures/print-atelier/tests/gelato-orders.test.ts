@@ -38,6 +38,20 @@ const buyerAddress = {
   shippingCountry: "FR",
 };
 
+/**
+ * A complete order: the address plus the inputs the adapter used to invent when
+ * they were absent — the buyer's own email, the artwork actually printed, and a
+ * slug the variant map resolves to a real Gelato product. Tests below that
+ * exercise the env and HTTP branches use this, so that what they are asserting
+ * about is the branch and not the guard.
+ */
+const completeOrderInputs = {
+  ...buyerAddress,
+  catalogSlug: "midnight-coast",
+  buyerEmail: "buyer@example.com",
+  artworkUrl: "https://cdn.printatelier.com/midnight-coast.jpg",
+};
+
 test("buildGelatoOrderPayload maps Stripe order metadata to Gelato v4 shape", () => {
   const payload = buildGelatoOrderPayload(sampleOrder, {
     ...buyerAddress,
@@ -55,7 +69,7 @@ test("buildGelatoOrderPayload maps Stripe order metadata to Gelato v4 shape", ()
 
 test("queueGelatoFulfillmentFromOrder dry-runs without API keys", async () => {
   clearGelatoFulfillmentForTests();
-  const submission = await queueGelatoFulfillmentFromOrder(sampleOrder, buyerAddress, {});
+  const submission = await queueGelatoFulfillmentFromOrder(sampleOrder, completeOrderInputs, {});
 
   assert.ok(submission);
   assert.equal(submission?.mode, "dry_run");
@@ -73,7 +87,7 @@ test("queueGelatoFulfillmentFromOrder submits when keys and fetch succeed", asyn
 
   const submission = await queueGelatoFulfillmentFromOrder(
     sampleOrder,
-    { ...buyerAddress, catalogSlug: "midnight-coast" },
+    completeOrderInputs,
     { GELATO_API_KEY: "gel_key", GELATO_STORE_ID: "store_eu" },
     fetchFn,
   );

@@ -26,6 +26,19 @@ const buyerAddress = {
   shippingCountry: "US",
 };
 
+/**
+ * A complete order: the address plus the inputs the adapter used to invent when
+ * they were absent — the buyer's own email, and a slug the variant map resolves
+ * to a real Printful variant. Tests below that exercise the env and HTTP
+ * branches use this, so that what they are asserting about is the branch and
+ * not the guard.
+ */
+const completeOrderInputs = {
+  ...buyerAddress,
+  catalogSlug: "midnight-coast",
+  buyerEmail: "buyer@example.com",
+};
+
 const sampleOrder: OrderRecord = {
   orderId: "ord_test_1",
   stripeEventId: "evt_1",
@@ -56,7 +69,7 @@ test("buildPrintfulOrderPayload maps Stripe order metadata", () => {
 
 test("queuePrintfulFulfillmentFromOrder dry-runs without API keys", async () => {
   clearPrintfulFulfillmentForTests();
-  const submission = await queuePrintfulFulfillmentFromOrder(sampleOrder, buyerAddress, {});
+  const submission = await queuePrintfulFulfillmentFromOrder(sampleOrder, completeOrderInputs, {});
 
   assert.ok(submission);
   assert.equal(submission?.mode, "dry_run");
@@ -74,7 +87,7 @@ test("queuePrintfulFulfillmentFromOrder submits when keys and fetch succeed", as
 
   const submission = await queuePrintfulFulfillmentFromOrder(
     sampleOrder,
-    { ...buyerAddress, catalogSlug: "midnight-coast" },
+    completeOrderInputs,
     { PRINTFUL_API_KEY: "pf_key", PRINTFUL_STORE_ID: "store_1" },
     fetchFn,
   );
@@ -101,7 +114,7 @@ test("getPrintfulRetryQueue tracks blocked submissions and handles retries", asy
 
   const submission = await queuePrintfulFulfillmentFromOrder(
     sampleOrder,
-    buyerAddress,
+    completeOrderInputs,
     { PRINTFUL_API_KEY: "pf_key", PRINTFUL_STORE_ID: "store_1" },
     failFetch,
   );

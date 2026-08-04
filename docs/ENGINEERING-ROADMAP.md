@@ -277,6 +277,65 @@ evidence, and completion date before it can be marked done.
   `tests/checkout-charges-what-it-quotes.test.ts`, mutation-checked eight and
   four ways.
 
+  **2026-08-04, owner duncan: the address fix stopped at the edge of the
+  address, and the same defect was still live three fields over.** The rule it
+  established — a missing field is a reason to refuse an order, never a reason
+  to invent one — was applied to `shippingAddress`'s address lines and to
+  nothing else in the same object literal. `buyerEmail` still defaulted to
+  `buyer@printatelier.com`, a studio inbox, which Gelato uses as the recipient's
+  shipment-notification address and Printful prints on the packing slip: right
+  street, wrong person, on every order. Gelato's `fileUrl` — the artwork
+  actually printed — defaulted to a URL assembled from the catalog slug, and
+  `CatalogArtwork` carries an `imageClass`, a CSS class, and no print file
+  anywhere in the repository, so it never named artwork. An unmapped artwork
+  defaulted to `pf_<slug>`/`gel_<slug>` against real ids shaped like
+  `gel_poster_18x24_matte`. Printful was told `shipping: "0.00"` and
+  `tax: "0.00"` on every order, which are the retail values a customs
+  declaration is built from, and nothing measured them.
+  **Nothing in the repository writes any of those metadata keys**, so none of
+  these was an edge case: each default was taken on every order. The tell was
+  cheap and generalizable — grep a fulfillment builder for `??` and `||` against
+  a string literal, then check whether anything writes the key being read.
+  `src/lib/fulfillment-order-inputs.ts` now resolves them in the existing
+  `{ok, missing}` shape and the queues refuse before the dry-run branch, since a
+  queued dry run is the record an operator later retries. Nine mutations, all
+  caught, including restoring each of the three defaults. The enabling half
+  shipped with it: Stripe exposes the buyer's email as `receipt_email`,
+  `customer_details.email` or `billing_details.email` depending on which object
+  fired and never in `metadata`, so `extractStripeShippingMetadata` now lifts it
+  alongside the address.
+  **The same run found and fixed a second defect in the same checkout, of the
+  same shape: a control reading caller-controlled text.** The route decided
+  whether to reject a cart by substring-matching blocker strings that
+  interpolate the caller's own artwork slug, so an artwork named `Gelato`
+  produced `Unknown artwork slug: Gelato`, the filter dropped it, and an
+  off-catalog line item reached a live Stripe session priced at one cent with
+  the caller's own Connect account in the payout metadata. `cartEligible` and
+  the funnel carried the same filter.
+  `docs/SECURITY-FINDING-CHECKOUT-OFF-CATALOG-2026-08-04.md` holds the
+  reproduction and separates the price bypass (live) from the payout
+  redirection (poisons the payout queue; nothing in the venture executes a
+  transfer today). The fix splits `cartBlockers` from environment blockers at
+  the point the distinction is known, and `buildCheckoutSessionPayload` now
+  refuses to price an off-catalog item at all, so the money boundary does not
+  depend on a caller having checked first.
+  **Two lessons worth carrying.** The three existing price-tampering tests all
+  buy `midnight-coast`, so all three exercise the catalog-hit branch and none
+  exercises the passthrough that carried client input — a protection can be
+  real on the path that is tested and absent on the path that is not. And the
+  first regression test written here tested `buildCheckoutReadiness` only; the
+  mutation restoring the route's filter **survived it**, because the route held
+  its own copy of the classification. A library-level test left exactly the gap
+  that produced the bug. Six mutations, all caught, after the route-level cases
+  were added.
+  Not done, and deliberately: **Gelato cannot fulfil an order at all**, because
+  no print file exists in this repository to send it — it is now blocked with a
+  named reason instead of submitting a fabricated URL, which is what it was
+  doing in substance anyway, only failing later and after payment. And the real
+  shipping and tax figures are omitted rather than declared zero; carrying the
+  values the checkout already computes needs `checkout.ts`, which was under
+  concurrent edit by another agent during this run.
+
   Still open, and named with evidence in the audit: `retail-pilot-intel`
   presents fabricated pilot figures as "key numbers for the close" and asserts
   GDPR technical controls its edge package cannot perform, which is the

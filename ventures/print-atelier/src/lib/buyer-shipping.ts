@@ -114,13 +114,53 @@ function readNested(source: Record<string, unknown>, key: string): string {
 }
 
 /**
- * Lift the address Stripe collected at checkout into the metadata shape the
+ * Read the buyer's email off whichever Stripe object triggered the webhook.
+ *
+ * Stripe collects an email on every Checkout Session but exposes it in a
+ * different place on each object: `customer_details.email` on the session,
+ * `receipt_email` on the PaymentIntent, and `billing_details.email` on a
+ * charge. None of them is `metadata`, which is what the fulfillment adapters
+ * read, so without this the buyer's own address never reached them.
+ */
+function extractStripeBuyerEmail(paymentObject: Record<string, unknown>): string {
+  const direct = readNested(paymentObject, "receipt_email");
+  if (direct !== "") {
+    return direct;
+  }
+
+  const customerDetails = isRecord(paymentObject.customer_details)
+    ? paymentObject.customer_details
+    : undefined;
+  if (customerDetails) {
+    const fromSession = readNested(customerDetails, "email");
+    if (fromSession !== "") {
+      return fromSession;
+    }
+  }
+
+  const charges = isRecord(paymentObject.charges) ? paymentObject.charges : undefined;
+  const chargeList = charges && Array.isArray(charges.data) ? charges.data : [];
+  const charge = isRecord(paymentObject.latest_charge)
+    ? paymentObject.latest_charge
+    : chargeList.find(isRecord);
+  if (charge && isRecord(charge.billing_details)) {
+    return readNested(charge.billing_details, "email");
+  }
+
+  return "";
+}
+
+/**
+ * Lift what the buyer supplied at checkout into the metadata shape the
  * fulfillment adapters read.
  *
  * Stripe does not put a collected shipping address into `metadata` — it hangs
  * it off the PaymentIntent as `shipping`, or off a Checkout Session as
  * `collected_information.shipping_details`. Both shapes are handled here so the
- * webhook does not have to know which object type triggered it.
+ * webhook does not have to know which object type triggered it. The buyer's
+ * email is lifted on the same trip, for the same reason; the function name is
+ * narrower than what it now carries because its one call site lives in a file
+ * under concurrent edit.
  */
 export function extractStripeShippingMetadata(
   paymentObject: unknown,
@@ -128,6 +168,8 @@ export function extractStripeShippingMetadata(
   if (!isRecord(paymentObject)) {
     return {};
   }
+
+  const buyerEmail = extractStripeBuyerEmail(paymentObject);
 
   const collected = isRecord(paymentObject.collected_information)
     ? paymentObject.collected_information
@@ -138,18 +180,25 @@ export function extractStripeShippingMetadata(
       ? collected.shipping_details
       : undefined;
 
-  if (!details) {
-    return {};
-  }
-
-  const address = isRecord(details.address) ? details.address : {};
+  // The email is emitted whether or not an address came with it. A payment that
+  // carries one but not the other should surface the field it has, so the
+  // adapters name only what is genuinely still missing.
+  const address = details && isRecord(details.address) ? details.address : {};
   const fields: Record<string, string> = {
-    [BUYER_SHIPPING_METADATA_KEYS.name]: readNested(details, "name"),
-    [BUYER_SHIPPING_METADATA_KEYS.address1]: readNested(address, "line1"),
-    [BUYER_SHIPPING_METADATA_KEYS.city]: readNested(address, "city"),
-    [BUYER_SHIPPING_METADATA_KEYS.state]: readNested(address, "state"),
-    [BUYER_SHIPPING_METADATA_KEYS.postalCode]: readNested(address, "postal_code"),
-    [BUYER_SHIPPING_METADATA_KEYS.countryCode]: readNested(address, "country").toUpperCase(),
+    buyerEmail,
+    ...(details
+      ? {
+          [BUYER_SHIPPING_METADATA_KEYS.name]: readNested(details, "name"),
+          [BUYER_SHIPPING_METADATA_KEYS.address1]: readNested(address, "line1"),
+          [BUYER_SHIPPING_METADATA_KEYS.city]: readNested(address, "city"),
+          [BUYER_SHIPPING_METADATA_KEYS.state]: readNested(address, "state"),
+          [BUYER_SHIPPING_METADATA_KEYS.postalCode]: readNested(address, "postal_code"),
+          [BUYER_SHIPPING_METADATA_KEYS.countryCode]: readNested(
+            address,
+            "country",
+          ).toUpperCase(),
+        }
+      : {}),
   };
 
   return Object.fromEntries(Object.entries(fields).filter(([, value]) => value !== ""));
