@@ -49,7 +49,7 @@ export const TAX_REPORTING_THRESHOLD_USD_CENTS = 60000;
 const US_BACKUP_WITHHOLDING_RATE = 24.0; // 24% for unverified US W-9
 const NON_RESIDENT_DEFAULT_WITHHOLDING_RATE = 30.0; // 30% default for unverified W-8BEN
 
-let taxLedgerAuditStore: Map<string, PayoutTaxLedgerEntry> = new Map();
+const taxLedgerAuditStore: Map<string, PayoutTaxLedgerEntry> = new Map();
 
 /**
  * Calculates tax withholding and enforces IRS reporting blocks for artist payouts.

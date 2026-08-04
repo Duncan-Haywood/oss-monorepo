@@ -42,6 +42,10 @@ export default function CapturePage() {
   const [recentSessions, setRecentSessions] = useState<CaptureUploadMetadata[]>([]);
 
   useEffect(() => {
+    // Mount-only hydration from localStorage, which does not exist during SSR.
+    // Reading it in a lazy initializer instead would make the server and client
+    // first renders disagree. See EXC-015 in platform/exception-register.yaml.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setRecentSessions(loadCaptureSessionsFromStorage());
   }, []);
 

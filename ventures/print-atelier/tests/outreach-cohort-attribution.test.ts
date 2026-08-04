@@ -3,6 +3,8 @@ import test from "node:test";
 
 import {
   buildOutreachCohortAttribution,
+  buildOutreachQueue,
+  buildPayoutSafeOutreachSegment,
   clearOutreachAttributionEventsForTests,
   getOutreachAttributionEvents,
   outreachPipelineCohort,
@@ -146,7 +148,6 @@ test("a later attribution event corrects the recorded source channel", () => {
 });
 
 test("buildOutreachQueue enriches items with payout trust copy and objection templates", () => {
-  const { buildOutreachQueue, generateArtistPayoutTrustCopy } = require("../src/lib/outreach");
   const queue = buildOutreachQueue(outreachProspects);
 
   for (const item of queue) {
@@ -154,14 +155,13 @@ test("buildOutreachQueue enriches items with payout trust copy and objection tem
     assert.ok(item.payoutTrustCopy.includes("30% net profit"));
   }
 
-  const james = queue.find((item: any) => item.handle === "@jameswu.art");
+  const james = queue.find((item) => item.handle === "@jameswu.art");
   assert.ok(james);
   assert.ok(james.objectionTemplate);
   assert.equal(james.objectionTemplate.legalClause, "Clause 4.2 — Transparent 30% Net Profit Calculation");
 });
 
 test("buildPayoutSafeOutreachSegment classifies prospects into payout-safe, price adjustment, and blocked", () => {
-  const { buildPayoutSafeOutreachSegment } = require("../src/lib/outreach");
   const result = buildPayoutSafeOutreachSegment(outreachProspects);
 
   assert.equal(result.totalAnalyzed, outreachProspects.length);

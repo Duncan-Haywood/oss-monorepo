@@ -32,9 +32,12 @@ export async function POST(request: Request) {
       prediction,
       persistedRecordId: record.recordId,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
-      { error: "Failed to evaluate customs clearance aging", details: error.message },
+      {
+        error: "Failed to evaluate customs clearance aging",
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     );
   }

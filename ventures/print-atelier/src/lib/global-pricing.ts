@@ -244,7 +244,7 @@ export function calculateGlobalPriceQuote(input: GlobalPricingInput): LocalizedP
     isIncludedInPrice: false,
   };
 
-  let subtotalLocalCents = conversion.rawConvertedCents;
+  const subtotalLocalCents = conversion.rawConvertedCents;
   let estimatedTaxLocalCents = 0;
 
   if (taxInfo.ratePercent > 0) {
@@ -264,7 +264,7 @@ export function calculateGlobalPriceQuote(input: GlobalPricingInput): LocalizedP
   totalDisplayPriceLocalCents = applyLocalRounding(
     totalDisplayPriceLocalCents,
     currency,
-    pppConfig.roundingPattern as any
+    pppConfig.roundingPattern
   );
 
   const podCostLocal = convertCurrency(input.podCostUsdCents, currency, fxConfig).rawConvertedCents;

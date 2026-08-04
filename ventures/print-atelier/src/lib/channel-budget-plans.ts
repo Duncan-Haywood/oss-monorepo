@@ -89,14 +89,37 @@ export function clearWeeklyChannelBudgetPlans(): void {
   }
 }
 
+/**
+ * The two element shapes `createWeeklyChannelBudgetPlan` reads out of a
+ * `ChannelSpendAllocation`: its `plans` entries carry `channel`/`allocatedBudget`/
+ * `baselineCap`, its `allocations` entries carry `id`/`weeklyBudgetCap`. Every
+ * field is optional here because the function probes for whichever is present.
+ * This replaces an `any` on both the container and the element, which meant a
+ * typo in any of these six names would have read `undefined` silently.
+ */
+type BudgetPlanSource = {
+  channel?: string;
+  id?: string;
+  allocatedBudget?: number;
+  recommendedWeeklyBudget?: number;
+  baselineCap?: number;
+  weeklyBudgetCap?: number;
+};
+
 export function createWeeklyChannelBudgetPlan(
   weekStarting: string,
   spendAllocation: ChannelSpendAllocation,
   actualMetrics: Record<string, { spend: number; orders: number; roomPreviewLift?: number }>,
 ): WeeklyChannelBudgetPlan {
-  const rawPlans = (spendAllocation as any)?.plans ?? (spendAllocation as any)?.allocations ?? [];
-  const items: ChannelBudgetItem[] = rawPlans.map((p: any) => {
-    const channelId = p.channel ?? p.id;
+  const source = spendAllocation as
+    | { plans?: BudgetPlanSource[]; allocations?: BudgetPlanSource[] }
+    | undefined;
+  const rawPlans: BudgetPlanSource[] = source?.plans ?? source?.allocations ?? [];
+  const items: ChannelBudgetItem[] = rawPlans.map((p) => {
+    // An entry carrying neither name previously produced `channel: undefined` on
+    // the item and indexed `actualMetrics` with it. `""` keeps that entry visibly
+    // unnamed and unmatched rather than typed as a string it is not.
+    const channelId = p.channel ?? p.id ?? "";
     const targetBudget = p.allocatedBudget ?? p.recommendedWeeklyBudget ?? 0;
     const baselineCap = p.baselineCap ?? p.weeklyBudgetCap ?? 0;
     const metrics = actualMetrics[channelId] ?? { spend: 0, orders: 0, roomPreviewLift: 0 };

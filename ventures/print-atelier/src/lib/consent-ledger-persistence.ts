@@ -1,5 +1,10 @@
 import { ConvexSchemaDefinition } from "./order-persistence";
-import { ArtistConsentEvent, ArtistConsentRights, summarizeArtistConsentLedger } from "./artist-consent-ledger";
+import {
+  ArtistConsentEvent,
+  ArtistConsentRights,
+  getArtistConsentLedger,
+  summarizeArtistConsentLedger,
+} from "./artist-consent-ledger";
 
 export type PersistedConsentEventRecord = {
   dbId: string;
@@ -209,7 +214,6 @@ export function summarizePersistedConsentLedger(filter?: ConsentEventQueryFilter
 }
 
 export function syncConsentLedgerToPersistence() {
-  const { getArtistConsentLedger } = require("./artist-consent-ledger");
   const events: ArtistConsentEvent[] = getArtistConsentLedger();
   return events.map((event) => persistConsentLedgerEvent(event));
 }

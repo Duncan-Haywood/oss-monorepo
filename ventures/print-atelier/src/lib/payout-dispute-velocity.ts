@@ -135,7 +135,17 @@ export function getPrioritizedOpenDisputes(): PayoutDisputeRecord[] {
     .sort((a, b) => b.disputedAmountUsdCents - a.disputedAmountUsdCents);
 }
 
-export function generateConvexDisputeSchema(): Record<string, any> {
+/**
+ * One Convex table as this module describes it: a field-name -> validator-name
+ * map and an index-name -> field-list map. Distinct from `ConvexSchemaDefinition`
+ * in order-persistence, which is the generated-source shape.
+ */
+export type ConvexDisputeTableDefinition = {
+  fields: Record<string, string>;
+  indexes: Record<string, string[]>;
+};
+
+export function generateConvexDisputeSchema(): Record<string, ConvexDisputeTableDefinition> {
   return {
     payout_dispute_logs: {
       fields: {

@@ -243,3 +243,43 @@ exceptions:
       State variables phase, trial, submitting, undoableSlug are tracked in the dependency array to ensure
       listener correctness without unnecessary re-subscription.
 
+  - id: EXC-015
+    kind: lint-suppression
+    path: ventures/print-atelier/src/*
+    code: react-hooks/set-state-in-effect
+    count: 3
+    owner: duncan
+    issue: docs/EXCEPTION-REGISTER.md#exc-015
+    expires: 2027-01-31
+    reason: >-
+      Three mount-only effects hydrate state from localStorage — recent capture
+      sessions, the checkout cart, and saved artist intakes. localStorage does
+      not exist during SSR, so the alternative the rule wants, a lazy useState
+      initializer, would make the server's first render and the client's
+      disagree and produce a hydration mismatch. The effect is the reason the
+      pattern is correct, not an oversight. Same rule and same shape as EXC-003.
+    compensating_control: >-
+      Each disable is a single next-line suppression sitting on the setState
+      call itself, never a file-level one, so any other state set in those
+      components is still checked. All three effects have an empty dependency
+      array and run once; none of them writes state that another effect reads.
+
+  - id: EXC-016
+    kind: lint-suppression
+    path: ventures/print-atelier/src/components/ProductDetailPreviewCTA.tsx
+    code: react-hooks/preserve-manual-memoization
+    count: 1
+    owner: duncan
+    issue: docs/EXCEPTION-REGISTER.md#exc-016
+    expires: 2027-01-31
+    reason: >-
+      React Compiler reports "Compilation Skipped: Existing memoization could not
+      be preserved" for this component. It is a statement about what the compiler
+      declined to optimise, not a defect: the useMemo it could not prove it
+      preserves is hand-written, has a complete dependency array, and behaves
+      identically compiled or not.
+    compensating_control: >-
+      The memoized value feeds a pure comparison function with no side effects,
+      so a stale or recomputed result changes render cost and nothing else. The
+      component's behaviour is covered by tests/product-detail-preview.test.ts.
+

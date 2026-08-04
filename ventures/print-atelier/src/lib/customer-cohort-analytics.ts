@@ -71,16 +71,14 @@ export function analyzeCustomerRetentionAndCohorts(
   const nowMs = new Date(nowIso).getTime();
 
   // Group orders by customer email
-  const customerMap = new Map<
-    string,
-    {
-      email: string;
-      orders: CustomerOrder[];
-      firstOrderDate: string;
-      lastOrderDate: string;
-      totalSpendCents: number;
-    }
-  >();
+  type CustomerAggregate = {
+    email: string;
+    orders: CustomerOrder[];
+    firstOrderDate: string;
+    lastOrderDate: string;
+    totalSpendCents: number;
+  };
+  const customerMap = new Map<string, CustomerAggregate>();
 
   for (const order of orders) {
     const existing = customerMap.get(order.customerEmail);
@@ -124,7 +122,7 @@ export function analyzeCustomerRetentionAndCohorts(
     totalUniqueCustomers > 0 ? Math.round(totalRevenueCents / totalUniqueCustomers) : 0;
 
   // Build monthly cohorts by customer first-order month
-  const cohortGroups = new Map<string, typeof customerMap extends Map<any, infer T> ? T[] : never>();
+  const cohortGroups = new Map<string, CustomerAggregate[]>();
 
   for (const customer of customerMap.values()) {
     const cohortMonth = customer.firstOrderDate.substring(0, 7); // "YYYY-MM"
