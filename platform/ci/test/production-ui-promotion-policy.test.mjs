@@ -63,13 +63,29 @@ test('Production UI Promotion Policy - missing browser gates fail closed', () =>
       /scripts\/ci\/validate-release-exception\.sh/,
       `${entry.workflow} ${entry.job} must validate evidence and bounded expiry before release`,
     );
+    const validateIdx = block.indexOf('Validate the bounded release exception');
+    const privilegedIdx = block.indexOf(entry.privilegedMarker);
+    assert.notEqual(
+      validateIdx,
+      -1,
+      `${entry.workflow} ${entry.job} must contain the "Validate the bounded release exception" step`,
+    );
+    assert.notEqual(
+      privilegedIdx,
+      -1,
+      `${entry.workflow} ${entry.job} must contain the privileged step "${entry.privilegedMarker}"`,
+    );
     assert.ok(
-      block.indexOf('Validate the bounded release exception') <
-        block.indexOf(entry.privilegedMarker),
+      validateIdx < privilegedIdx,
       `${entry.workflow} ${entry.job} must validate before ${entry.privilegedMarker}`,
     );
+    const stepMatch = block.match(/- name: Validate the bounded release exception[\s\S]*?(?=\n      - name:)/);
+    assert.ok(
+      stepMatch,
+      `${entry.workflow} ${entry.job} step "Validate the bounded release exception" block missing`,
+    );
     assert.doesNotMatch(
-      block.match(/- name: Validate the bounded release exception[\s\S]*?(?=\n      - name:)/)?.[0] ?? '',
+      stepMatch[0],
       /run:[\s\S]*\$\{\{\s*inputs\./,
       `${entry.workflow} ${entry.job} must pass dispatch input through env, not shell source`,
     );

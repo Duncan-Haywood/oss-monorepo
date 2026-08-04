@@ -68,7 +68,7 @@ def write_manifest(directory: Path, manifest: dict) -> None:
     (directory / "package.json").write_text(json.dumps(manifest))
 
 
-SAFE_GIT_ENV = {**os.environ, "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_CONFIG_NOSYSTEM": "1"}
+SAFE_GIT_ENV = {**os.environ, "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_CONFIG_NOSYSTEM": "1", "XDG_CONFIG_HOME": "/dev/null"}
 
 
 def init_repo(repo_root: Path) -> None:

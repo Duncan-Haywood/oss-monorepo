@@ -214,9 +214,13 @@ test('CI Pipeline Affected Path Resolver - Venture Path Matching', () => {
   );
   assert.deepEqual(multiApp.sort(), ['app1', 'app2'].sort());
 
-  // Test unaffected changes
+  // Test unmapped changes fall back to all components (fail closed)
   const nonVenture = resolveAffectedComponents(['docs/guide.md'], mockCatalog);
-  assert.deepEqual(nonVenture, []);
+  assert.deepEqual(nonVenture, ['app1', 'app2']);
+
+  // Test .nvmrc change forces full run
+  const nvmrcChange = resolveAffectedComponents(['.nvmrc'], mockCatalog);
+  assert.deepEqual(nvmrcChange, ['app1', 'app2']);
 });
 
 test('CI Pipeline Affected Path Resolver - Monorepo Infrastructure Global Trigger', () => {

@@ -44,11 +44,19 @@ const SECURITY_WORKFLOW = path.join(REPO_ROOT, '.gitea/workflows/security.yml');
  * trade than reading them directly.
  */
 
-/** Lockfile basenames, mapped to the package manager that audits them. */
-const LOCKFILE_MANAGERS = new Map([
+/** Lockfile and manifest basenames or suffixes, mapped to the package manager that audits them. */
+const MANIFEST_MANAGERS = new Map([
   ['package-lock.json', 'npm'],
   ['pnpm-lock.yaml', 'pnpm'],
   ['yarn.lock', 'yarn'],
+  ['requirements-ci.txt', 'pip'],
+  ['requirements-sast.txt', 'pip'],
+  ['requirements.txt', 'pip'],
+  ['Pipfile.lock', 'pip'],
+  ['poetry.lock', 'poetry'],
+  ['go.sum', 'go'],
+  ['Cargo.lock', 'cargo'],
+  ['Gemfile.lock', 'bundler'],
 ]);
 
 /**
@@ -71,6 +79,15 @@ const EXCEPTED = {
       'in the runner image, which is the same "add a scanner" work the roadmap ' +
       'tracks under SAST/SCA and is not done in passing here. Sized and dated ' +
       'so it cannot sit unreviewed.',
+  },
+  'requirements-sast.txt': {
+    owner: 'duncan',
+    issue: 'docs/ENGINEERING-ROADMAP.md#now-establish-and-enforce-the-baseline',
+    expires: '2026-11-30',
+    packages: 2,
+    reason:
+      'Dependencies for the SAST gate (bandit and semgrep). Blocked on the ' +
+      'same missing pip-audit runner tooling as requirements-ci.txt.',
   },
   'ventures/photos-import-tools/requirements.txt': {
     owner: 'duncan',
@@ -104,7 +121,20 @@ const workflowSource = fs.readFileSync(SECURITY_WORKFLOW, 'utf8');
 function trackedManifests() {
   const output = execFileSync(
     'git',
-    ['ls-files', '--', '*package-lock.json', '*pnpm-lock.yaml', '*yarn.lock', '*requirements*.txt'],
+    [
+      'ls-files',
+      '--',
+      '*package-lock.json',
+      '*pnpm-lock.yaml',
+      '*yarn.lock',
+      '*requirements*.txt',
+      '*requirements.txt',
+      '*Pipfile.lock',
+      '*poetry.lock',
+      '*go.sum',
+      '*Cargo.lock',
+      '*Gemfile.lock',
+    ],
     {
       cwd: REPO_ROOT,
       encoding: 'utf8',
@@ -114,11 +144,11 @@ function trackedManifests() {
   return output.split('\n').filter(Boolean).filter((file) => !file.includes('node_modules/'));
 }
 
-/** The tracked lockfiles a package manager can audit, as path -> manager. */
+/** The tracked lockfiles and manifests a package manager can audit, as path -> manager. */
 function trackedLockfiles() {
   const lockfiles = new Map();
   for (const file of trackedManifests()) {
-    const manager = LOCKFILE_MANAGERS.get(path.basename(file));
+    const manager = MANIFEST_MANAGERS.get(path.basename(file));
     if (manager) lockfiles.set(file, manager);
   }
   return lockfiles;
@@ -179,17 +209,18 @@ test('Dependency Audit Coverage - every tracked lockfile is audited or excepted'
   const { entries } = auditMatrix();
   const unaudited = [];
 
-  for (const [lockfile, manager] of trackedLockfiles()) {
-    const directory = path.dirname(lockfile);
+  for (const manifest of trackedManifests()) {
+    const manager = MANIFEST_MANAGERS.get(path.basename(manifest));
+    const directory = path.dirname(manifest);
     if (entries.has(directory)) continue;
-    if (lockfile in EXCEPTED) continue;
-    unaudited.push(`${lockfile} (${manager})`);
+    if (manifest in EXCEPTED) continue;
+    unaudited.push(`${manifest} (${manager ?? 'unknown'})`);
   }
 
   assert.deepEqual(
     unaudited,
     [],
-    'These lockfiles are committed and nothing audits them for known ' +
+    'These lockfiles/manifests are committed and nothing audits them for known ' +
       'vulnerabilities. When this control was written the six unaudited ' +
       'lockfiles held 32 high-severity advisories and the four audited ones ' +
       'held 15, so an unaudited lockfile is not a quiet one — it is an ' +

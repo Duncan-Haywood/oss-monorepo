@@ -402,14 +402,14 @@ test('Host Verifier - verifySwiftHost handles missing swift CLI or SDK mismatch'
   const origPath = process.env.PATH;
   process.env.PATH = `${binDirNoSwift}`;
   try {
-    assert.equal(quietly(() => verifySwiftHost(component, root)), true);
+    assert.equal(quietly(() => verifySwiftHost(component, root)), false);
   } finally {
     process.env.PATH = origPath;
   }
 
   process.env.PATH = `${binDirMismatch}:${origPath}`;
   try {
-    assert.equal(quietly(() => verifySwiftHost(component, root)), true);
+    assert.equal(quietly(() => verifySwiftHost(component, root)), false);
   } finally {
     process.env.PATH = origPath;
   }
@@ -444,7 +444,7 @@ test('Host Verifier - verifySwiftHost handles swift test failure, module redefin
   );
   process.env.PATH = `${binDir}:${origPath}`;
   try {
-    assert.equal(quietly(() => verifySwiftHost(component, root)), true);
+    assert.equal(quietly(() => verifySwiftHost(component, root)), false);
   } finally {
     process.env.PATH = origPath;
   }
@@ -457,7 +457,7 @@ test('Host Verifier - verifySwiftHost handles swift test failure, module redefin
   );
   process.env.PATH = `${binDir}:${origPath}`;
   try {
-    assert.equal(quietly(() => verifySwiftHost(component, root)), true);
+    assert.equal(quietly(() => verifySwiftHost(component, root)), false);
   } finally {
     process.env.PATH = origPath;
   }
@@ -470,7 +470,7 @@ test('Host Verifier - verifySwiftHost handles swift test failure, module redefin
   );
   process.env.PATH = `${binDir}:${origPath}`;
   try {
-    assert.equal(quietly(() => verifySwiftHost(component, root)), true);
+    assert.equal(quietly(() => verifySwiftHost(component, root)), false);
   } finally {
     process.env.PATH = origPath;
   }
@@ -488,7 +488,7 @@ test('Host Verifier - verifySwiftHost handles swift test failure, module redefin
     process.env.PATH = origPath;
   }
 
-  // 5. dump-package fails with unhandled error status (not SDK/sandbox), proceeding to swift test
+  // 5. dump-package fails with unhandled error status, failing closed
   fs.writeFileSync(
     mockSwiftPath,
     '#!/bin/sh\nif [ "$1" = "package" ]; then echo "unknown dump error" >&2; exit 1; fi\nexit 0',
@@ -496,7 +496,7 @@ test('Host Verifier - verifySwiftHost handles swift test failure, module redefin
   );
   process.env.PATH = `${binDir}:${origPath}`;
   try {
-    assert.equal(quietly(() => verifySwiftHost(component, root)), true);
+    assert.equal(quietly(() => verifySwiftHost(component, root)), false);
   } finally {
     process.env.PATH = origPath;
   }

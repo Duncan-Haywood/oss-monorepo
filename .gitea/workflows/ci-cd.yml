@@ -115,6 +115,13 @@ jobs:
           sudo install -m 0755 actionlint /usr/local/bin/actionlint
           rm -f actionlint "${archive}"
 
+      # The Swift verifier in platform/ci/src/pipeline.mjs. Without the CLI that
+      # verifier fails closed, so range-coach requires Swift installed in CI.
+      - name: Setup Swift
+        uses: swift-actions/setup-swift@7ca6abe89196b0142b781604a11f7c3202685714 # v2.4.0
+        with:
+          swift-version: '5.9'
+
       # The IaC gate in platform/ci/src/pipeline.mjs. Without the CLI that
       # verifier returns true having checked nothing, so platform/terraform was
       # reported verified on every CI run.

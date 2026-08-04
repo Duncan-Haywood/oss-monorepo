@@ -125,24 +125,32 @@ ventures:
     # the residual risks recorded as SEC-021.
 
   - venture: local-site-studio
-    contract: null
+    contract: ventures/local-site-studio/src/lib/routeAuthPosture.test.ts
     execution: none
     exempt_until: 2026-10-30
-    route_files: 9
-    handlers: 10
+    route_files: 13
+    handlers: 39
     owner: duncan
     reason: >
-      Nine route modules, ten handlers, no posture contract and no CI gate that
-      runs its suite. Surveyed 2026-08-01: `src/proxy.ts` has a broad matcher
-      but gates only `/dashboard*`, so every `/api/*` path falls through
-      ungated and all authorization is in-handler. Only two handlers call
-      `requireOperatorAuth`, and that helper returns `{ ok: true }` to every
-      anonymous caller when `OPERATOR_DASHBOARD_PASSWORD` is unset — a
-      documented open-demo mode, which means a deploy that omits one env var
-      silently publishes both operator endpoints with no error and no log. One
-      of the two is `/api/marketing/generate`, which makes a billed Anthropic
-      API call per request with attacker-controlled prompt content; see
-      SEC-021 in docs/SECURITY_AUDIT_LOG.md for why its rate limit is not a
-      sufficient brake. A contract here should pin the guarded posture under a
+      Thirteen route modules and 39 handlers — 10 HTTP handlers and 29 Server
+      Actions, the latter visible to this audit only since the walker stopped
+      reading `route.*` exclusively. A posture contract now exists at
+      `src/lib/routeAuthPosture.test.ts`, so this venture is no longer in the
+      "no contract written" state. It remains exempt because `execution: none`
+      is still literally true: no CI gate runs this venture's suite, so the
+      contract binds nothing today. Written but unexecuted is a different gap
+      from unwritten, and this entry stays open until a gate runs it.
+
+      The risk the contract has to pin, surveyed 2026-08-01 and unchanged:
+      `src/proxy.ts` has a broad matcher but gates only `/dashboard*`, so every
+      `/api/*` path falls through ungated and all authorization is in-handler.
+      Only two handlers call `requireOperatorAuth`, and that helper returns
+      `{ ok: true }` to every anonymous caller when `OPERATOR_DASHBOARD_PASSWORD`
+      is unset — a documented open-demo mode, which means a deploy that omits
+      one env var silently publishes both operator endpoints with no error and
+      no log. One of the two is `/api/marketing/generate`, which makes a billed
+      Anthropic API call per request with attacker-controlled prompt content;
+      see SEC-021 in docs/SECURITY_AUDIT_LOG.md for why its rate limit is not a
+      sufficient brake. The contract must pin the guarded posture under a
       fixture where the password *is* set, so the fail-open default is a
       declared, reviewed property rather than an accident of deployment.

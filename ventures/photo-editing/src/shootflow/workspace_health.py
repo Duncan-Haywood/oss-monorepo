@@ -106,6 +106,7 @@ class WorkspaceHealthSummary:
     status_counts: WorkspaceRenderStatusCounts
     next_action: WorkspaceNextAction
     safety_notes: tuple[str, ...]
+    render_scheduler_renderer_adapter: str | None = None
 
 
 def build_workspace_health_summary(workspace_root: Path | str) -> WorkspaceHealthSummary:
@@ -127,6 +128,7 @@ def build_workspace_health_summary(workspace_root: Path | str) -> WorkspaceHealt
     render_input_count = 0
     production_scheduler_product_metrics: Mapping[str, int] | None = None
     render_scheduler_product_metrics: Mapping[str, int] | None = None
+    render_scheduler_renderer_adapter: str | None = None
 
     if _path_exists_or_is_symlink(ingest_manifest_path):
         try:
@@ -276,6 +278,7 @@ def build_workspace_health_summary(workspace_root: Path | str) -> WorkspaceHealt
                 final_manifest=render_status_manifest,
             )
             render_scheduler_product_metrics = render_scheduler_report_manifest.product_metrics
+            render_scheduler_renderer_adapter = render_scheduler_report_manifest.renderer_adapter
             scheduler_report = WorkspaceArtifactHealth(
                 path=scheduler_report_path,
                 exists=True,
@@ -336,6 +339,7 @@ def build_workspace_health_summary(workspace_root: Path | str) -> WorkspaceHealt
         render_input_count=render_input_count,
         production_scheduler_product_metrics=production_scheduler_product_metrics,
         render_scheduler_product_metrics=render_scheduler_product_metrics,
+        render_scheduler_renderer_adapter=render_scheduler_renderer_adapter,
         task_count=0 if trusted_plan is None else len(trusted_plan.render_tasks),
         status_counts=status_counts,
         next_action=_next_action(
@@ -379,6 +383,7 @@ def workspace_health_summary_to_dict(summary: WorkspaceHealthSummary) -> dict[st
         "render_scheduler_product_metrics": _optional_metrics_to_dict(
             summary.render_scheduler_product_metrics
         ),
+        "render_scheduler_renderer_adapter": summary.render_scheduler_renderer_adapter,
         "task_count": summary.task_count,
         "artifacts": {
             "production_status": _artifact_to_dict(summary.production_status),

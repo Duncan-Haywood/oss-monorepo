@@ -101,30 +101,160 @@ const POSTURE: Record<string, { posture: Posture; reason: string }> = {
     reason:
       "Self-describing documentation for the POST above — the method, the accepted content types and the field names. It is a fixed object built from the slug in the URL; it performs no lookup and returns nothing about the lead.",
   },
+
+  // --- Operator Server Actions -------------------------------------------
+  "/dashboard bootstrapStripePricesAction": {
+    posture: "operator",
+    reason: "Bootstraps Stripe price objects for operator.",
+  },
+  "/dashboard/leads addLeadAction": {
+    posture: "operator",
+    reason: "Operator manually adds a new lead to the CRM.",
+  },
+  "/dashboard/leads archiveOrphanCommerceStripeProductsAction": {
+    posture: "operator",
+    reason: "Operator archives orphaned Stripe products.",
+  },
+  "/dashboard/leads assignCustomDomainAction": {
+    posture: "operator",
+    reason: "Operator assigns a custom domain to a lead preview site.",
+  },
+  "/dashboard/leads assignVercelProjectAction": {
+    posture: "operator",
+    reason: "Operator links a Vercel project to a lead.",
+  },
+  "/dashboard/leads disposeColdLeadAction": {
+    posture: "operator",
+    reason: "Operator marks a cold lead disposed.",
+  },
+  "/dashboard/leads generateClientVoicePackAction": {
+    posture: "operator",
+    reason: "Operator generates a client voice pack using AI.",
+  },
+  "/dashboard/leads generateMarketingPackAction": {
+    posture: "operator",
+    reason: "Operator generates a marketing pack using AI.",
+  },
+  "/dashboard/leads getCommerceCatalogAction": {
+    posture: "operator",
+    reason: "Operator fetches custom commerce catalog.",
+  },
+  "/dashboard/leads importLeadsCsvAction": {
+    posture: "operator",
+    reason: "Operator imports lead list CSV into CRM.",
+  },
+  "/dashboard/leads markCommerceOrderPaidOutAction": {
+    posture: "operator",
+    reason: "Operator marks a commerce order as paid out.",
+  },
+  "/dashboard/leads markHandoffLiveAction": {
+    posture: "operator",
+    reason: "Operator marks a lead handoff live.",
+  },
+  "/dashboard/leads openBillingPortalAction": {
+    posture: "operator",
+    reason: "Operator opens Stripe billing portal link for customer.",
+  },
+  "/dashboard/leads replyToInquiryAction": {
+    posture: "operator",
+    reason: "Operator sends a direct email reply to an inquiry.",
+  },
+  "/dashboard/leads saveCommerceCatalogAction": {
+    posture: "operator",
+    reason: "Operator saves updated commerce catalog.",
+  },
+  "/dashboard/leads sendCheckoutRecoveryAction": {
+    posture: "operator",
+    reason: "Operator sends checkout recovery email to prospect.",
+  },
+  "/dashboard/leads sendClientVoicePackToClientAction": {
+    posture: "operator",
+    reason: "Operator emails generated voice pack to client.",
+  },
+  "/dashboard/leads sendCommerceCheckoutRecoveryAction": {
+    posture: "operator",
+    reason: "Operator sends commerce checkout recovery email.",
+  },
+  "/dashboard/leads sendDailyDigestAction": {
+    posture: "operator",
+    reason: "Operator triggers daily lead digest delivery.",
+  },
+  "/dashboard/leads sendFollowUpAction": {
+    posture: "operator",
+    reason: "Operator sends follow up email to lead.",
+  },
+  "/dashboard/leads sendMarketingPackToClientAction": {
+    posture: "operator",
+    reason: "Operator emails marketing pack to client.",
+  },
+  "/dashboard/leads sendStarterUpsellAction": {
+    posture: "operator",
+    reason: "Operator sends starter upsell offer email.",
+  },
+  "/dashboard/leads snoozeLeadAction": {
+    posture: "operator",
+    reason: "Operator snoozes lead notifications.",
+  },
+  "/dashboard/leads syncCommerceCatalogToStripeAction": {
+    posture: "operator",
+    reason: "Operator syncs commerce catalog to Stripe products.",
+  },
+  "/dashboard/leads updateInquiryStatusAction": {
+    posture: "operator",
+    reason: "Operator updates inquiry lifecycle status.",
+  },
+  "/dashboard/leads updateLeadNotesAction": {
+    posture: "operator",
+    reason: "Operator saves internal notes on lead record.",
+  },
+  "/dashboard/leads updateLeadStageAction": {
+    posture: "operator",
+    reason: "Operator updates lead pipeline stage.",
+  },
+
+  // --- Public Server Actions ---------------------------------------------
+  "/dashboard/login loginOperatorAction": {
+    posture: "public",
+    reason:
+      "Processes dashboard login form submission by verifying operator password and setting session cookie.",
+  },
+  "/dashboard/login logoutOperatorAction": {
+    posture: "public",
+    reason:
+      "Clears the operator session cookie upon user request and redirects to login page.",
+  },
 };
 
-/** Every route module under src/app, as served URL path → source. */
-function routeSources(dir = APP_ROOT, prefix = ""): Map<string, string> {
-  const found = new Map<string, string>();
+/** Every route module and server action under src/app, as served URL path → { source, isAction }. */
+function routeSources(dir = APP_ROOT, prefix = ""): Map<string, { source: string; isAction: boolean }> {
+  const found = new Map<string, { source: string; isAction: boolean }>();
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const path = join(dir, entry.name);
     if (entry.isDirectory()) {
       // Route groups `(name)` organize files without appearing in the URL.
       const segment = /^\(.*\)$/.test(entry.name) ? "" : `/${entry.name}`;
-      for (const [name, source] of routeSources(path, `${prefix}${segment}`)) {
-        found.set(name, source);
+      for (const [name, info] of routeSources(path, `${prefix}${segment}`)) {
+        found.set(name, info);
       }
     } else if (entry.name === "route.ts" || entry.name === "route.tsx") {
-      found.set(prefix, readFileSync(path, "utf8"));
+      found.set(prefix, { source: readFileSync(path, "utf8"), isAction: false });
+    } else if (entry.name.endsWith(".ts") || entry.name.endsWith(".tsx")) {
+      const source = readFileSync(path, "utf8");
+      if (source.includes('"use server"') || source.includes("'use server'")) {
+        found.set(prefix, { source, isAction: true });
+      }
     }
   }
   return found;
 }
 
-/** Splits a route module into its exported HTTP handlers, as method → body. */
-function handlers(source: string): Map<string, string> {
+/** Splits a route module or server action file into its exported handlers. */
+function handlers(source: string, isAction: boolean): Map<string, string> {
   const found = new Map<string, string>();
-  const starts = [...source.matchAll(/export (?:async )?function ([A-Z]+)\s*\(/g)];
+  const pattern = isAction
+    ? /export\s+(?:async\s+)?(?:function|const|let|var)\s+([a-zA-Z0-9_]+)\b/g
+    : /export\s+(?:async\s+)?(?:function|const|let|var)\s+([A-Z][A-Z0-9_]*)\b/g;
+  const starts = [...source.matchAll(pattern)];
   starts.forEach((match, index) => {
     const from = match.index ?? 0;
     const to = index + 1 < starts.length ? (starts[index + 1].index ?? source.length) : source.length;
@@ -135,9 +265,9 @@ function handlers(source: string): Map<string, string> {
 
 function everyHandler(): Map<string, string> {
   const found = new Map<string, string>();
-  for (const [path, source] of routeSources()) {
-    for (const [method, body] of handlers(source)) {
-      found.set(`${path} ${method}`, body);
+  for (const [path, { source, isAction }] of routeSources()) {
+    for (const [name, body] of handlers(source, isAction)) {
+      found.set(`${path} ${name}`, body);
     }
   }
   return found;
@@ -176,8 +306,15 @@ describe("route auth posture", () => {
     for (const [name, { posture }] of Object.entries(POSTURE)) {
       if (posture !== "operator") continue;
       const body = real.get(name) ?? "";
-      if (!/status:\s*401/.test(body)) {
-        permissive.push(`${name}: declared operator, but never answers 401`);
+      const isAction = name.endsWith("Action");
+      if (isAction) {
+        if (!(/!auth\.ok/.test(body) || /auth\.error/.test(body))) {
+          permissive.push(`${name}: declared operator action, but never acts on auth check`);
+        }
+      } else {
+        if (!/status:\s*401/.test(body)) {
+          permissive.push(`${name}: declared operator route, but never answers 401`);
+        }
       }
     }
     expect(permissive.sort()).toEqual([]);

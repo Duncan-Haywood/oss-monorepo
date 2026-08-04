@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 /**
@@ -113,16 +113,39 @@ function componentsWithRoutes() {
  * Every route handler under an `src/app` tree, as `<url path> <METHOD>` → body.
  * Route groups `(name)` organize files without appearing in the URL.
  */
+function isIgnored(dirName, currentPath, appRoot) {
+  const rel = relative(appRoot, currentPath);
+  if (rel !== "" && !rel.startsWith("..")) {
+    return dirName === "node_modules" || dirName === ".git";
+  }
+  return IGNORED.has(dirName);
+}
+
+/**
+ * Every route handler under an `src/app` tree, as `<url path> <METHOD>` → body.
+ * Route groups `(name)` organize files without appearing in the URL.
+ */
 function routeHandlers(appRoot, prefix = "", found = new Map()) {
   for (const entry of readdirSync(appRoot, { withFileTypes: true })) {
-    if (IGNORED.has(entry.name)) continue;
     const path = join(appRoot, entry.name);
     if (entry.isDirectory()) {
+      if (isIgnored(entry.name, path, appRoot)) continue;
       const segment = /^\(.*\)$/.test(entry.name) ? "" : `/${entry.name}`;
       routeHandlers(path, `${prefix}${segment}`, found);
-    } else if (entry.name === "route.ts" || entry.name === "route.tsx") {
+    } else {
+      const isRoute = entry.name === "route.ts" || entry.name === "route.tsx" || entry.name === "route.js" || entry.name === "route.jsx" || entry.name === "route.mjs";
+      const ext = entry.name.match(/\.(ts|tsx|js|jsx|mjs)$/);
+      if (!isRoute && !ext) continue;
+
       const source = readFileSync(path, "utf8");
-      const starts = [...source.matchAll(/export (?:async )?function ([A-Z]+)\s*\(/g)];
+      const isAction = !isRoute && (source.includes('"use server"') || source.includes("'use server'"));
+      if (!isRoute && !isAction) continue;
+
+      const handlerPattern = isRoute
+        ? /export\s+(?:async\s+)?(?:function|const|let|var)\s+([A-Z][A-Z0-9_]*)\b/g
+        : /export\s+(?:async\s+)?(?:function|const|let|var)\s+([a-zA-Z0-9_]+)\b/g;
+
+      const starts = [...source.matchAll(handlerPattern)];
       starts.forEach((match, index) => {
         const from = match.index ?? 0;
         const to = index + 1 < starts.length ? (starts[index + 1].index ?? source.length) : source.length;
@@ -144,7 +167,7 @@ function normalize(name) {
 /** Every `"<path> <METHOD>"` string literal a contract file declares. */
 function declaredIn(source) {
   return new Set(
-    [...source.matchAll(/["'`]([^"'`\n]*?)\s+([A-Z]{3,7})["'`]\s*:/g)].map(([, path, method]) =>
+    [...source.matchAll(/["'`]([^"'`\n]*?)\s+([a-zA-Z0-9_]+)["'`]\s*:/g)].map(([, path, method]) =>
       normalize(`${path} ${method}`),
     ),
   );

@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { resolveBundleCheckoutLeadSlug } from "@/lib/checkout/organic-attribution";
 import { CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
+import {
+  advertisedPriceRefusal,
+  bundleCheckoutExpectations,
+  verifyAdvertisedPrices,
+} from "@/lib/pricing/advertised-price-guarantee";
 import { BUNDLES, COMMERCE_ADDON, getBundle } from "@/lib/pricing/bundles";
 import { recordCheckoutSessionCreated } from "@/lib/db";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";

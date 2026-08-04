@@ -302,17 +302,11 @@ export function resolveAffectedComponents(changedFiles, catalog = VENTURE_CATALO
     f.startsWith('.github/') ||
     f.startsWith('.gitea/') ||
     f.startsWith('scripts/') ||
-    f.startsWith('platform/ci/') ||
-    // The repository-wide pytest suite and its configuration and dependencies.
-    f.startsWith('tests/') ||
+    f.startsWith('platform/') ||
+    f === '.nvmrc' ||
     f === 'pytest.ini' ||
     f === 'requirements-ci.txt' ||
-    // Inputs the coverage ratchet and exception audit gates read for every
-    // component; a threshold or expiry edit here changes every verdict.
-    f === 'platform/coverage-baseline.yaml' ||
-    f === 'platform/exception-register.yaml' ||
-    f === 'package.json' ||
-    f === 'README.md'
+    f === 'package.json'
   );
 
   if (isGlobalChange) {
@@ -326,6 +320,11 @@ export function resolveAffectedComponents(changedFiles, catalog = VENTURE_CATALO
         affected.add(item.id);
       }
     }
+  }
+
+  if (affected.size === 0) {
+    // Fail closed: unmapped changes select all components rather than 0
+    return catalog.map(c => c.id);
   }
 
   return Array.from(affected);
@@ -541,7 +540,6 @@ function isKnownSwiftEnvironmentIssue(outputStr) {
   return (
     str.includes('SDK is not supported') ||
     str.includes('redefinition of module') ||
-    str.includes('Invalid manifest') ||
     str.includes('Operation not permitted')
   );
 }
@@ -556,14 +554,18 @@ export function verifySwiftHost(component, repoRoot = REPO_ROOT) {
   try {
     const hasSwift = spawnSync('command', ['-v', 'swift'], { shell: true }).status === 0;
     if (!hasSwift) {
-      console.warn(`⚠ ${component.name} NOT VERIFIED: Swift CLI not installed on this host.`);
-      return true;
+      console.error(`✖ ${component.name} FAILED: Swift CLI not installed on this host.`);
+      return false;
     }
     const checkToolchain = spawnSync('swift', ['package', 'dump-package'], { cwd: fullDir, encoding: 'utf8' });
     const checkErr = (checkToolchain.stderr || '') + (checkToolchain.stdout || '');
-    if (checkToolchain.status !== 0 && isKnownSwiftEnvironmentIssue(checkErr)) {
-      console.warn(`⚠ ${component.name} NOT VERIFIED: Swift host toolchain/SDK mismatch or sandbox constraint on this host.`);
-      return true;
+    if (checkToolchain.status !== 0) {
+      if (isKnownSwiftEnvironmentIssue(checkErr)) {
+        console.error(`✖ ${component.name} FAILED: Swift host toolchain/SDK mismatch or sandbox constraint on this host.`);
+      } else {
+        console.error(`✖ ${component.name} FAILED: Swift dump-package failed:\n${checkErr}`);
+      }
+      return false;
     }
     const moduleCache = path.join(fullDir, '.build', 'module-cache');
     fs.mkdirSync(moduleCache, { recursive: true });
@@ -578,8 +580,8 @@ export function verifySwiftHost(component, repoRoot = REPO_ROOT) {
   } catch (err) {
     const errStr = String(err?.stderr || err?.stdout || err?.message || err);
     if (isKnownSwiftEnvironmentIssue(errStr)) {
-      console.warn(`⚠ ${component.name} NOT VERIFIED: Swift host toolchain/SDK mismatch or sandbox constraint on this host.`);
-      return true;
+      console.error(`✖ ${component.name} FAILED: Swift host toolchain/SDK mismatch or sandbox constraint on this host.`);
+      return false;
     }
     console.error(`✖ ${component.name} FAILED`);
     return false;
