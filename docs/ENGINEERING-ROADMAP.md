@@ -168,6 +168,59 @@ evidence, and completion date before it can be marked done.
   writes `"status": "verified"` into the manifest a user consults before
   erasing an SD card, on a same-byte-length comparison; its `sha256_file()` is
   defined and called from nowhere.
+
+  2026-08-04, owner duncan: a second venture, and the most expensive instance
+  found so far. `local-site-studio`'s Complete tier sells at `$500 + $199/mo`,
+  and five public surfaces — the tier's feature list and tagline, the hero
+  paragraph, the pricing-section blurb, and the upsell email whose only call to
+  action is the checkout link — described "an AI phone agent that answers your
+  business line". No telephony integration exists: `package.json` declares no
+  Twilio, Vapi, Retell, Telnyx, Plivo or Vonage dependency and nothing under
+  `src/` imports one. All of `src/lib/voice/` generates an FAQ and script pack
+  that is emailed to the operator's client for them to read themselves.
+
+  The instructive part is that the venture already knew. Its own
+  `/docs/product-bundles` page, reachable from the same site, says "Until Twilio
+  is live, operators fulfill with a generated FAQ/script pack". The truth was
+  written down one click away from the copy that contradicted it, and nothing
+  compared the two — so they could drift indefinitely, and only ever in the
+  direction that sells better. Distance between an honest internal page and a
+  dishonest sales page is not a documentation problem; it is the absence of a
+  join.
+
+  `src/lib/capability-claims.test.ts` is that join, and it is the generalizable
+  half: it binds the advertised *capability* to whether the implementing code
+  exists, exactly as `src/lib/pricing/advertised-price-claims.test.ts` already
+  binds the advertised *price* to what Stripe charges. It reads the public copy
+  surface off disk rather than from a list, excludes `/docs` so the page telling
+  the truth is not forbidden from telling it, and is two-directional: when a
+  provider is both declared in `package.json` and imported under `src/`, the
+  test stops forbidding the claim. A control that must be switched off by hand
+  to permit the improvement it is waiting for is a control that gets deleted
+  instead. It immediately found a fifth surface the manual search had missed —
+  the "Never miss a call or a customer" tagline — which is the argument for a
+  test over an edit.
+
+  Found in the same pass and fixed beside it, a defect of the same family on the
+  legal rather than the commercial side. `UNSUBSCRIBE_CONVEX_PRIMARY` had made
+  the CAN-SPAM suppression *write* fail closed; the read never followed.
+  `isEmailSuppressed` caught a Convex query failure, logged "falling back to
+  SQLite database", and queried a `suppression_list` table that — precisely
+  because the write is Convex-primary — is provably always empty on such a
+  deploy. It returned `false`, `sendEmail` read that as "not suppressed", and
+  the send proceeded. The harder the write was hardened, the more certainly a
+  Convex outage became permission to email someone who had just opted out.
+  It now throws `ConvexPrimaryReadError` and `sendEmail` declines to send.
+
+  Worth recording because it nearly shipped as a false fix: the first regression
+  test mocked `../db` — `src/lib/db.ts` imports `server-only`, and no test in
+  the venture imports it — so it pinned how `sendEmail` reacts and not whether
+  `isEmailSuppressed` still raises. Reinstating the fallback left all four of
+  its assertions green. Measured, not assumed; the mutation was applied and the
+  suite passed. `suppression-read-source-contract.test.ts` reads `db.ts` instead
+  and fails on that mutation. **A regression test that survives the regression
+  it was written for is the defect, not the coverage** — mutate every fix whose
+  test mocks the module the fix lives in.
 - [ ] Configure and verify Gitea branch/environment protection: pull requests
   only for release branches, current required checks, stale approval dismissal,
   CODEOWNERS, one independent approval for Tier 2, two including an accountable
