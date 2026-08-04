@@ -65,8 +65,8 @@ function multiQuantityCart(): CheckoutLineItem[] {
  * inputs Stripe supplies and the operator mappings, so the order is *complete*
  * and the adapters are exercised on the submit path rather than the refuse path.
  */
-function paidOrderMetadata(cart: CheckoutLineItem[]) {
-  const payload = buildCheckoutSessionPayload(cart, "domestic", ENV.NEXT_PUBLIC_SITE_URL, ENV);
+function paidOrderMetadata(cart: CheckoutLineItem[], region = "domestic") {
+  const payload = buildCheckoutSessionPayload(cart, region, ENV.NEXT_PUBLIC_SITE_URL, ENV);
   return {
     payload,
     metadata: {
