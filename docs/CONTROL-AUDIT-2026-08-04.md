@@ -281,3 +281,132 @@ to stderr, so a cron reads them as success forever.
    sale rather than block it. These are worth fixing *before* the off-repo
    actions unblock revenue, not after.
 5. Findings 3, 4, 6, 7, 9 — real blind spots, none currently exploited.
+
+## Addendum: the pytest control cluster
+
+A seventh audit covered the 15 pytest suites under `tests/`. Same shape, and it
+found the sharpest instances of it. These are open.
+
+### A1. Two git-based controls are blind everywhere except this laptop
+
+`scripts/ci/branch_collisions.py:103` and `scripts/ci/release_lag.py:207,221`
+enumerate `git log --branches`, i.e. local `refs/heads/` only. A clone and a CI
+checkout have exactly one local branch. Verified: the primary checkout reports
+`FAIL: 9 colliding paths`; a clone of that same repo reports `PASS: 0
+collisions, exit 0`. So the collision gate cannot fail in CI at all, and the
+live 3-way duplicate of `quick-pick-survey/src/lib/routeAuthPosture.test.ts` is
+invisible to it.
+
+`scripts/ci/integration_debt.py:226` reads `refs/remotes/` too and its docstring
+says exactly why. That fix was never carried across. Copy it.
+
+This also explains a fact worth writing down: **`release_lag` being green in a
+clone is a measurement artifact, not a state.** In a scratch clone `origin/main`
+means the working repo, so the gate passes by construction.
+
+### A2. The cap ratchet's own evidence window is the one cap nothing watches
+
+`tests/test_cap_ratchet.py:391` skips `cap_ratchet.py` itself, so
+`MAX_REVISIONS` (`scripts/ci/cap_ratchet.py:88`) — the history window every
+floor in the tower is computed from — is unwatched, and lowering it is always
+legal under the ratchet's own rule. Verified end to end on a clean clone:
+lower `MAX_REVISIONS` 500 → 4 under the subject *"perf(ci): bound the
+cap-ratchet history walk"*, raise `MAX_DECLARED_SLACK` 40 → 120, add three
+unrelated commits to push the raise out of the window, and the result is
+`PASS: 27 caps, none above its historical floor` with `34 passed`. Truncation
+prints as a `NOTE`, which fails nothing.
+
+The whole cap tower rests on this one number. It should be watched by something
+that is not itself.
+
+Three further holes in the same module, all verified: renaming a watched file
+resets its floor (`revisions_for` at `:406` omits `--follow` — `git mv` plus a
+150 → 400 raise passes 34/34); a cap declared as `MAX_X: int = 9999` or
+`MAX_X = BASE * 4` or `CAP_X = 9999` is never registered, because the contract
+test only matches a plain `ast.Assign` of `ast.Constant` named `MAX_*`; and
+safety *floors* like `MIN_REVIEWED_REASON_WORDS` are outside the ratchet
+entirely, since `evaluate` only fires on `current > floor`.
+
+### A3. YAML budgets have no contract at all
+
+`cap_ratchet.py:289-303` watches 3 of the 11 numeric budget keys across
+`platform/*.yaml`, and the contract test that demands every constant be watched
+covers `python-constant` watches only. Verified in a clone: raising
+`max_unshipped_age_days` 7 → 30 (a 4× weakening of the lead-time dimension,
+which has no stale-direction check), `max_without_build_path` 5 → 6, and
+`slack` 0 → 4 together yield `PASS: 27 caps` and `107 passed`.
+
+This is finding 8 above from the other direction: those files have no CODEOWNERS
+rule *and* no ratchet.
+
+### A4. A kill criterion counts as a brake if it parses
+
+`portfolio/router/kill_criteria.py:466` — `has_stopping_rule()` is
+`any(r.outcome != NOT_MEASURABLE)`, which asks whether a threshold *parses*,
+never whether it can be *reached*. Verified: raise
+`cumulative_agent_spend_usd` from 150 to 1000000000 in all 12 `VENTURE.yaml`
+files and both gates still exit 0, with the report printing *"Every venture
+holds at least one criterion that can be measured."*
+
+Compounding, the 12 evaluable brakes all read one hand-written file
+(`portfolio/ledger/*.yaml`) that nothing gates downward — setting every
+`agent_spend_usd` to `0.00` passes 84 tests. `validate_ledger.py` already
+detects that seven July entries share `18.18` = `500 × 0.40 / 11`, i.e. the
+orphaned `allocate.py`'s $500 split seeded the ledger, but `scripts/test-ci.sh:128`
+runs it **without `--strict`**, so it exits 0.
+
+### A5. The image controls read one of two deployment surfaces
+
+`scripts/ci/image_tags.py:43` hardcodes `SCAN_ROOT = "platform/k8s"`.
+`platform/terraform/` renders the same Helm chart, is applied by
+`terraform-apply.yml` on push to main, and is never read. Live today:
+`agent_platform.tf:65` pins `codercom/code-server` at `latest` on a public
+Traefik ingress (`code.marisstella.dev`), and `variables.tf:29` makes
+`tag = optional(string, "latest")` the **default for every service**.
+
+Also: `MUTABLE_TAGS` is a 10-word denylist, so `:release`, `:current`,
+`:staging`, `:live` and `:rolling` all read as "pinned"; and
+`image_release_path.py:233` opens only `<app>/deployment.yaml` and accepts only
+`kind: Deployment`, so Jobs and CronJobs naming unbuilt images are outside the
+"no producer" count — two already are.
+
+### A6. Two more weakenings that rode in on unrelated commits
+
+Confirming the pattern already recorded against this class:
+
+- `2fdcf837` *"feat: complete stash convergence and clean uncommitted work"*
+  added **EXC-014**, a new lint waiver on
+  `quick-pick-survey/src/components/UnifiedRunner.tsx` — the only venture
+  serving production traffic — buried inside the 6200-file worktree-snapshot
+  commit.
+- `b388f692` *"fix(print-atelier): clear the 31 lint errors"* — the subject says
+  *clear*; the diff **adds EXC-015 (count 3) and EXC-016 (count 1)**. Four of
+  the 31 were waived rather than fixed, and the audit cannot tell the two apart.
+
+Read the diff, not the subject line.
+
+### A7. Baseline prose contradicts its own machine number
+
+Three registers assert in prose something their own measurement denies:
+`platform/kill-criteria-baseline.yaml:33` declares
+`max_without_stopping_rule: 0` with "All 12 ventures carry active, evaluable
+stopping rules" while its `rationale` in the same file still says "10 of 11
+ventures still have no rule capable of ending their funding" — `load_baseline()`
+requires `rationale` to be non-empty and never reads it;
+`platform/image-tag-exceptions.yaml:41` asserts "no workflow that publishes any
+of them" while `print-atelier-image.yml` and `local-site-studio-image.yml` both
+build and push today; and `image-release-baseline.yaml:44` declares 5 where the
+module measures 4.
+
+A required-but-unread field is a place where prose and behaviour drift silently.
+
+### Genuinely sound, worth not re-auditing
+
+`scripts/ci/integration_debt.py` and its tests are the strongest control in the
+repository — it reads both ref namespaces, cannot pass vacuously, enforces both
+drop-register directions, ratchets all three caps, and is a named gate.
+`duplicate_definitions.py` is sound within Python/JS/TS (its gap is the
+extension list, not the assertion). `stopping_rule_review.py`,
+`audit_exceptions.py`'s expiry and fail-closed behaviour, the coverage
+ratchet's *measurement* machinery, and `tests/test_portfolio_router.py` pinning
+`router.py` as authoritative were all checked hard and hold.
