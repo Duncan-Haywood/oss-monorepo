@@ -37,6 +37,11 @@ const completeOrderInputs = {
   ...buyerAddress,
   catalogSlug: "midnight-coast",
   buyerEmail: "buyer@example.com",
+  // Quantity and unit price are inputs too, for the same reason the three above
+  // are: the adapters had a default for them, and the default was wrong on every
+  // multi-quantity order. A fixture calling itself complete has to carry them.
+  lineItemQuantities: "1",
+  lineItemUnitAmounts: "8500",
 };
 
 const sampleOrder: OrderRecord = {

@@ -240,7 +240,15 @@ test("an order carrying every input still reaches the partner", async () => {
 
   const submission = await queuePrintfulFulfillmentFromOrder(
     orderRecord(),
-    { ...buyerAddress, catalogSlug: "midnight-coast", buyerEmail: "elena@example.com" },
+    {
+      ...buyerAddress,
+      catalogSlug: "midnight-coast",
+      buyerEmail: "elena@example.com",
+      // Every input means every input: the quantity and unit price the checkout
+      // writes are what stop the adapter ordering one print of an unpriced item.
+      lineItemQuantities: "1",
+      lineItemUnitAmounts: "8500",
+    },
     { PRINTFUL_API_KEY: "key", PRINTFUL_STORE_ID: "store" },
     async () => {
       submitted = true;

@@ -173,6 +173,10 @@ test("a resolved buyer address reaches the partner payload unchanged", async () 
       // reaching the payload, and `harbour-light` has no variant mapping.
       catalogSlug: "midnight-coast",
       buyerEmail: "ada@example.com",
+      // Quantity and unit price for the same reason as the email and the slug:
+      // the order has to be complete before the address can be seen arriving.
+      lineItemQuantities: "1",
+      lineItemUnitAmounts: "8500",
     },
     {},
   );

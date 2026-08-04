@@ -50,6 +50,11 @@ const completeOrderInputs = {
   catalogSlug: "midnight-coast",
   buyerEmail: "buyer@example.com",
   artworkUrl: "https://cdn.printatelier.com/midnight-coast.jpg",
+  // Quantity and unit price are inputs too, for the same reason the three above
+  // are: the adapters had a default for them, and the default was wrong on every
+  // multi-quantity order. A fixture calling itself complete has to carry them.
+  lineItemQuantities: "1",
+  lineItemUnitAmounts: "7200",
 };
 
 test("buildGelatoOrderPayload maps Stripe order metadata to Gelato v4 shape", () => {

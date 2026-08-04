@@ -24,22 +24,34 @@ import test from "node:test";
 
 import {
   buildCheckoutSessionPayload,
+  validateCheckoutLineItem,
   type CheckoutLineItem,
   type CheckoutShippingRegion,
 } from "../src/lib/checkout";
 import { buildPrintfulOrderPayload, resolvePrintfulOrderInputs } from "../src/lib/printful-orders";
 import { buildGelatoOrderPayload, resolveGelatoOrderInputs } from "../src/lib/gelato-orders";
 import { recordOrderFromPaymentWebhook } from "../src/lib/orders";
-import { catalogArtworks } from "../src/lib/marketplace";
+import {
+  catalogArtworks,
+  defaultListingConsentRecords,
+  type CatalogArtwork,
+} from "../src/lib/marketplace";
 
 const ENV = {
   NEXT_PUBLIC_SITE_URL: "https://printatelier.test",
   STRIPE_SECRET_KEY: "sk_test_x",
 };
 
+/** The catalog's own definition of what may be sold, not a guess at one. */
+function sellableArtworks(): CatalogArtwork[] {
+  return catalogArtworks.filter(
+    (artwork) => validateCheckoutLineItem(artwork, defaultListingConsentRecords).eligible,
+  );
+}
+
 /** A cart the buyer would recognise: one line bought three times, one bought once. */
 function multiQuantityCart(): CheckoutLineItem[] {
-  const [first, second] = catalogArtworks.filter((artwork) => artwork.available !== false);
+  const [first, second] = sellableArtworks();
   assert.ok(first && second, "the catalog needs two available artworks for this test");
   return [
     {
@@ -233,8 +245,7 @@ test("the checkout stays inside Stripe's 50-key metadata limit", () => {
   // line, because Stripe rejects a session with more than 50 metadata keys and
   // two more per-line keys would have lowered the largest sellable cart from
   // ten lines to eight. This pins that reasoning to a number.
-  const available = catalogArtworks.filter((artwork) => artwork.available !== false);
-  const cart: CheckoutLineItem[] = available.map((artwork) => ({
+  const cart: CheckoutLineItem[] = sellableArtworks().map((artwork) => ({
     artworkSlug: artwork.slug,
     title: artwork.title,
     artistName: artwork.artistName,
@@ -243,7 +254,7 @@ test("the checkout stays inside Stripe's 50-key metadata limit", () => {
     quantity: 2,
   }));
 
-  const payload = buildCheckoutSessionPayload(cart, "domestic", ENV.NEXT_PUBLIC_SITE_URL, ENV);
+  const payload = buildCheckoutSessionPayload(cart, "US", ENV.NEXT_PUBLIC_SITE_URL, ENV);
   const keys = Object.keys(payload.metadata).length;
   assert.ok(
     keys <= 50,
