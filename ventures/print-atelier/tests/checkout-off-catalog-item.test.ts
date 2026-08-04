@@ -146,3 +146,60 @@ test("a catalog cart still prices and routes normally", () => {
   assert.equal(payload.lineItems[0].unitAmountCents, Math.round(artwork.retailPrice * 100));
   assert.notEqual(payload.metadata.destinationConnectAccountId, "acct_attacker");
 });
+
+/**
+ * The three tests above exercise the library. The defect lived in the route,
+ * which had its own copy of the classification as a filter over `blockers` — so
+ * a library-only test leaves exactly the gap that produced the bug. These drive
+ * `POST /api/stripe/checkout` itself.
+ */
+test("POST /api/stripe/checkout rejects an off-catalog cart", async () => {
+  const { POST } = await import("../src/app/api/stripe/checkout/route.ts");
+
+  for (const slug of ["Gelato", "STRIPE", "PRINTFUL", "plain-unknown"]) {
+    const res = await POST(
+      new Request("http://localhost:3000/api/stripe/checkout", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          region: "US",
+          lineItems: [offCatalogItem(slug)],
+        }),
+      }),
+    );
+
+    assert.equal(res.status, 422, `an off-catalog cart named "${slug}" was not rejected`);
+    const body = await res.json();
+    assert.ok(
+      (body.blockers ?? []).some((b: string) => b.includes("Unknown artwork slug")),
+      `rejection did not name the unknown slug for "${slug}": ${JSON.stringify(body)}`,
+    );
+  }
+});
+
+test("POST /api/stripe/checkout still accepts a catalog cart", async () => {
+  const { POST } = await import("../src/app/api/stripe/checkout/route.ts");
+  const artwork = catalogArtworks.find((art) => art.status === "Live") ?? catalogArtworks[0];
+
+  const res = await POST(
+    new Request("http://localhost:3000/api/stripe/checkout", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        region: "US",
+        lineItems: [
+          {
+            artworkSlug: artwork.slug,
+            title: artwork.title,
+            artistName: artwork.artistName,
+            retailPrice: artwork.retailPrice,
+            fulfillmentCost: artwork.fulfillmentCost,
+            quantity: 1,
+          },
+        ],
+      }),
+    }),
+  );
+
+  assert.notEqual(res.status, 422, "the guard closed the path it exists to protect");
+});

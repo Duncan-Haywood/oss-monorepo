@@ -1,9 +1,11 @@
 # Print Atelier checkout: an off-catalog slug sets its own price and payout account
 
-Found 2026-08-04. Reported rather than fixed — see *Why this is a report* below.
+Found 2026-08-04. Reproduced against `84c3286f` plus the uncommitted changes
+present in the tree at the time, and confirmed still present in `d63325be`,
+which is where the sanitizer it sits in was committed.
 
-Status: **open**. Reproduced against the working tree at
-`84c3286f` plus the uncommitted changes present in it at the time.
+Status: **fixed** on `agent/fulfillment-invented-values-2026-08-04`. This
+document is kept as the record of what the defect was and how it was verified.
 
 ## What happens
 
@@ -121,9 +123,9 @@ exercises the `if (artwork)` branch. The `return item` branch — the one that
 carries client input through — has no test at all. The protection is real on the
 path that is tested and absent on the path that is not.
 
-## Suggested fix
+## The fix
 
-Three layers, in the order they matter:
+Three layers, in the order they matter. All three are implemented:
 
 1. **Stop classifying blockers by substring.** Add `cartBlockers: string[]` to
    `CheckoutReadiness`, populated at the point where the distinction is actually
@@ -138,18 +140,35 @@ Three layers, in the order they matter:
    catalog-miss passthrough is deliberate (dropping items silently would turn an
    attack into a partial cart, which is worse) but it reads like a sanitizer.
 
-A regression test that fails against current behaviour is written and available
-at `docs/attachments/checkout-off-catalog-item.test.ts` — it covers all four
-slug shapes, asserts env gaps stay out of `cartBlockers`, and asserts a catalog
-cart still prices and routes normally.
+`tests/checkout-off-catalog-item.test.ts` covers all four slug shapes at the
+library level and drives `POST /api/stripe/checkout` itself, asserts env gaps
+stay out of `cartBlockers`, and asserts a catalog cart still prices and routes
+normally.
 
-## Why this is a report
+## Mutation evidence
 
-`src/lib/checkout.ts`, `src/app/api/stripe/checkout/route.ts` and the webhook
-route were all being actively edited by another agent in the shared working tree
-during this run — `sanitizeCheckoutLineItems` and the canonical re-derivation in
-`buildCheckoutSessionPayload` are that agent's uncommitted work in progress, and
-the hole described here is a gap in a fix that is still being written. Editing
-those files underneath it would corrupt both changes. The fulfillment fix this
-run did land (`fulfillment-order-inputs.ts`) touches only files that agent is not
-in.
+Six mutations, all caught:
+
+| # | Mutation | Caught |
+|---|---|---|
+| C1 | Restore the substring filter in the route | yes |
+| C2 | Restore the off-catalog passthrough in `buildCheckoutSessionPayload` | yes |
+| C3 | Restore the substring filter in `cartEligible` | yes |
+| C4 | Let env blockers leak into `cartBlockers` | yes |
+| C5 | Route stops rejecting on `cartBlockers` entirely | yes |
+| — | Baseline restored | green |
+
+C1 is the one worth recording. It **survived** the first pass, because the
+initial regression test exercised `buildCheckoutReadiness` and the defect lived
+in the route's own copy of the classification. A library-level test leaves
+exactly the gap that produced the bug. The route-level cases were added for
+that reason and C1 fails against them.
+
+## Sequencing note
+
+`src/lib/checkout.ts`, the checkout route and the webhook route were being
+actively edited by another agent in the shared working tree when this was found,
+so it was first written up as a report and the fulfillment work that run was
+kept to files that agent was not in. Once that agent committed (`d63325be`) and
+left those files clean, the hole was confirmed still present in the committed
+code and fixed here.

@@ -94,6 +94,17 @@ export type CheckoutReadiness = {
   envReady: boolean;
   fulfillmentReady: boolean;
   blockers: string[];
+  /**
+   * The subset of `blockers` the cart itself produced, as opposed to the ones a
+   * missing credential produced.
+   *
+   * Callers that reject a cart must read this rather than filter `blockers`.
+   * Those strings interpolate caller-supplied text — `Unknown artwork slug:
+   * ${line.artworkSlug}` — so a filter that drops blockers containing "STRIPE",
+   * "PRINTFUL" or "Gelato" could be made to drop the rejection itself by naming
+   * an artwork after one of them.
+   */
+  cartBlockers: string[];
   nextActions: string[];
 };
 
@@ -142,6 +153,15 @@ export function artworkToCheckoutLine(
   };
 }
 
+/**
+ * Replace the money-bearing fields of each line with the catalog's own values.
+ *
+ * This is **not** a security boundary. An item whose slug is not in the catalog
+ * is returned untouched, on purpose: dropping it silently would turn a tampered
+ * cart into a quietly partial one, and the caller could not tell the difference.
+ * Refusing an off-catalog item is `buildCheckoutReadiness`'s job through
+ * `cartBlockers`, and `buildCheckoutSessionPayload` refuses to price one at all.
+ */
 export function sanitizeCheckoutLineItems(
   lineItems: CheckoutLineItem[],
   artworks: CatalogArtwork[] = catalogArtworks,
@@ -351,7 +371,13 @@ export function buildCheckoutSessionPayload(
     if (artwork) {
       return artworkToCheckoutLine(artwork, item.quantity);
     }
-    return item;
+    // The money boundary, and it does not depend on a caller having checked
+    // first. Returning `item` here carried the caller's own `retailPrice`,
+    // `fulfillmentCost` and `artistAccountId` onto a live Stripe session and
+    // into the payout metadata the Connect webhook reads.
+    throw new Error(
+      `Refusing to price "${item.artworkSlug}": not in the catalog. Every amount on a checkout session is derived from a catalog artwork.`,
+    );
   });
 
   const route = buildFulfillmentRoute(canonicalLineItems, region, env);
@@ -455,33 +481,39 @@ export function buildCheckoutReadiness(
   consentRecords: ListingConsentRecord[] = defaultListingConsentRecords,
   env: Record<string, string | undefined> = {},
 ): CheckoutReadiness {
-  const blockers: string[] = [];
+  // Kept separate at the point the distinction is actually known, rather than
+  // recovered later by matching substrings of the messages. `blockers` stays the
+  // full list for display.
+  const cartBlockers: string[] = [];
+  const envBlockers: string[] = [];
   const nextActions: string[] = [];
 
   if (lineItems.length === 0) {
-    blockers.push("Cart is empty");
+    cartBlockers.push("Cart is empty");
   }
 
   for (const line of lineItems) {
     const artwork = artworks.find((item) => item.slug === line.artworkSlug);
     if (!artwork) {
-      blockers.push(`Unknown artwork slug: ${line.artworkSlug}`);
+      cartBlockers.push(`Unknown artwork slug: ${line.artworkSlug}`);
       continue;
     }
     if (typeof line.retailPrice === "number" && Math.abs(line.retailPrice - artwork.retailPrice) > 0.001) {
-      blockers.push(`${line.title || line.artworkSlug}: Price mismatch ($${line.retailPrice.toFixed(2)} requested vs $${artwork.retailPrice.toFixed(2)} catalog)`);
+      cartBlockers.push(`${line.title || line.artworkSlug}: Price mismatch ($${line.retailPrice.toFixed(2)} requested vs $${artwork.retailPrice.toFixed(2)} catalog)`);
     }
     const eligibility = validateCheckoutLineItem(artwork, consentRecords);
     if (!eligibility.eligible) {
-      blockers.push(...eligibility.blockers.map((b) => `${line.title}: ${b}`));
+      cartBlockers.push(...eligibility.blockers.map((b) => `${line.title}: ${b}`));
     }
   }
 
   const envStatus = getCheckoutEnvStatus(env);
   if (!envStatus.readyForTestCheckout) {
-    blockers.push(...envStatus.blockers);
+    envBlockers.push(...envStatus.blockers);
     nextActions.push("Copy test-mode keys from Stripe Dashboard into .env.local");
   }
+
+  const blockers = [...cartBlockers, ...envBlockers];
 
   const printfulReady = Boolean(env.PRINTFUL_API_KEY && env.PRINTFUL_STORE_ID);
   const gelatoReady = Boolean(env.GELATO_API_KEY && env.GELATO_STORE_ID);
@@ -498,10 +530,11 @@ export function buildCheckoutReadiness(
   }
 
   return {
-    cartEligible: lineItems.length > 0 && blockers.filter((b) => !b.includes("STRIPE")).length === 0,
+    cartEligible: lineItems.length > 0 && cartBlockers.length === 0,
     envReady: envStatus.readyForTestCheckout,
     fulfillmentReady,
     blockers,
+    cartBlockers,
     nextActions,
   };
 }
@@ -608,7 +641,7 @@ export function buildCheckoutFunnelMetrics(
       count: sampleCart.length,
       conversionFromPrevious:
         eligible.length > 0 ? Math.round((sampleCart.length / eligible.length) * 100) : 0,
-      blockers: readiness.cartEligible ? [] : readiness.blockers.filter((b) => !b.includes("STRIPE")),
+      blockers: readiness.cartEligible ? [] : readiness.cartBlockers,
       status: readiness.cartEligible ? "healthy" : "blocked",
     },
     {

@@ -100,9 +100,13 @@ export async function POST(request: Request) {
   }
 
   const readiness = buildCheckoutReadiness(lineItems, undefined, undefined, env);
-  const cartBlockers = readiness.blockers.filter(
-    (blocker) => !blocker.includes("STRIPE") && !blocker.includes("PRINTFUL") && !blocker.includes("Gelato"),
-  );
+  // `readiness.cartBlockers`, never a filter over `readiness.blockers`: those
+  // strings interpolate the caller's own artwork slug, so a cart naming an
+  // artwork "Gelato" produced the blocker `Unknown artwork slug: Gelato` and a
+  // filter dropping anything containing "Gelato" dropped the rejection with it.
+  // An off-catalog line item keeps whatever price and payout account the caller
+  // sent, so that filter was the whole of the price check.
+  const cartBlockers = readiness.cartBlockers;
 
   if (cartBlockers.length > 0) {
     return NextResponse.json(
