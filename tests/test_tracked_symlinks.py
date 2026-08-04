@@ -270,6 +270,7 @@ class RepositoryContractTest(unittest.TestCase):
             cwd=str(REPO_ROOT),
             capture_output=True,
             text=True,
+            env={**os.environ, "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_CONFIG_NOSYSTEM": "1"},
         )
         self.assertEqual(
             0,

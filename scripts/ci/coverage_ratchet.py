@@ -566,11 +566,13 @@ def uncommitted_component_paths(
     cannot describe the tree, and the generic diagnosis below is still true.
     Raising would convert a reportable failure into a crash.
     """
+    env = {**os.environ, "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_CONFIG_NOSYSTEM": "1"}
     try:
         completed = subprocess.run(
             ["git", "-C", str(repo_root), "status", "--porcelain", "--", component_path],
             capture_output=True,
             text=True,
+            env=env,
             timeout=30,
         )
     except (OSError, subprocess.SubprocessError):
