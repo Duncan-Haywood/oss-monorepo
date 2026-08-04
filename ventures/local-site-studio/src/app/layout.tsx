@@ -2,11 +2,7 @@ import type { Metadata } from "next";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { brand } from "@/lib/brand";
-<<<<<<< HEAD
-import { ENTRY_SETUP_PRICE_USD } from "@/lib/pricing/bundles";
-=======
 import { BUNDLES, formatPriceUsd } from "@/lib/pricing/bundles";
->>>>>>> origin/agent/customer-claim-control-2026-08-03
 import "./globals.css";
 
 const geistSans = { variable: "" };
@@ -18,11 +14,7 @@ const entryPrice = formatPriceUsd(
 
 export const metadata: Metadata = {
   title: `${brand.name} — Pre-built websites for local businesses`,
-<<<<<<< HEAD
-  description: `${brand.name} builds professional websites before you buy. Preview your site, pay $${ENTRY_SETUP_PRICE_USD}, go live. Operated by ${brand.legalEntity} (${brand.legalLocation}).`,
-=======
   description: `${brand.name} builds professional websites before you buy. Preview your site, pay ${entryPrice}, go live. Operated by ${brand.legalEntity} (${brand.legalLocation}).`,
->>>>>>> origin/agent/customer-claim-control-2026-08-03
 };
 
 export default function RootLayout({

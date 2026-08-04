@@ -3,31 +3,9 @@ import { brand } from "@/lib/brand";
 import {
   BUNDLES,
   COMMERCE_ADDON,
-<<<<<<< HEAD
-  ENTRY_SETUP_PRICE_USD,
-  type BundleTier,
-} from "@/lib/pricing/bundles";
-
-/**
- * bundles.ts calls itself the single source of truth for pricing, and checkout,
- * the preview upsell and the Stripe bootstrap all read from it — but this page
- * used to carry its own "$500" / "$99/mo" / "+$300" / "$49/mo" literals. Raising
- * a price in bundles.ts moved the charge and left the shop window advertising
- * the old number, which is the one place a customer decides to buy.
- * Marketing copy stays here; every number comes from BUNDLES / COMMERCE_ADDON.
- */
-function usd(amount: number): string {
-  return `$${amount.toLocaleString("en-US")}`;
-}
-
-function perMonth(amount: number | null): string | null {
-  return amount === null ? null : `${usd(amount)}/mo`;
-}
-=======
   formatPriceUsd,
   type BundleTier,
 } from "@/lib/pricing/bundles";
->>>>>>> origin/agent/customer-claim-control-2026-08-03
 
 const steps = [
   {
@@ -47,9 +25,6 @@ const steps = [
   },
 ];
 
-<<<<<<< HEAD
-/** Copy per tier. Keyed by BundleTier, so a new tier in BUNDLES fails typecheck until it has copy. */
-=======
 /**
  * Marketing copy per tier. Prices are deliberately absent: they are read from
  * BUNDLES below, so the amount this page advertises is the same field the
@@ -57,7 +32,6 @@ const steps = [
  * advertised price and the charged price drift apart silently — which is the
  * defect src/lib/pricing/advertised-price-claims.test.ts exists to catch.
  */
->>>>>>> origin/agent/customer-claim-control-2026-08-03
 const bundleCopy: Record<
   BundleTier,
   { tagline: string; features: string[]; highlighted: boolean }
@@ -94,15 +68,6 @@ const bundleCopy: Record<
   },
 };
 
-<<<<<<< HEAD
-const bundles = BUNDLES.map((pricing) => ({
-  id: pricing.id,
-  name: pricing.name,
-  setup: usd(pricing.setupPriceUsd),
-  recurring: perMonth(pricing.monthlyPriceUsd),
-  ...bundleCopy[pricing.id],
-}));
-=======
 const bundles = BUNDLES.map((bundle) => ({
   id: bundle.id,
   name: bundle.name,
@@ -117,7 +82,6 @@ const bundles = BUNDLES.map((bundle) => ({
 const entryPrice = formatPriceUsd(
   Math.min(...BUNDLES.map((bundle) => bundle.setupPriceUsd)),
 );
->>>>>>> origin/agent/customer-claim-control-2026-08-03
 
 const commerceFeatures = [
   "Stripe checkout and simple catalog (≤50 SKUs)",
@@ -140,14 +104,8 @@ export default function Home() {
           <p className="mt-6 text-lg leading-8 text-zinc-600">
             {brand.name} creates professional websites for restaurants, salons, trades,
             and other local businesses. Preview your site first — choose Starter from{" "}
-<<<<<<< HEAD
-            {usd(ENTRY_SETUP_PRICE_USD)},
-            or add automated marketing and an AI phone agent. Self-serve checkout, no sales
-            calls.
-=======
             {entryPrice}, or add automated marketing and an AI phone agent. Self-serve
             checkout, no sales calls.
->>>>>>> origin/agent/customer-claim-control-2026-08-03
           </p>
           {!brand.isConfigured && (
             <p className="mt-4 text-sm text-amber-700">
@@ -307,18 +265,11 @@ export default function Home() {
             <div className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
               <p className="text-sm font-medium text-zinc-500">{COMMERCE_ADDON.name}</p>
               <p className="mt-2 text-4xl font-semibold tracking-tight">
-<<<<<<< HEAD
-                +{usd(COMMERCE_ADDON.setupPriceUsd)}
-              </p>
-              <p className="mt-2 text-sm text-zinc-600">
-                One-time setup + {perMonth(COMMERCE_ADDON.monthlyPriceUsd)} · stacks on any bundle
-=======
                 +{formatPriceUsd(COMMERCE_ADDON.setupPriceUsd)}
               </p>
               <p className="mt-2 text-sm text-zinc-600">
                 One-time setup + {formatPriceUsd(COMMERCE_ADDON.monthlyPriceUsd)}/mo · stacks
                 on any bundle
->>>>>>> origin/agent/customer-claim-control-2026-08-03
               </p>
               <Link
                 href="/checkout?commerce=1"
