@@ -78,7 +78,7 @@ export function resolveBuyerShippingAddress(
     ).toUpperCase(),
   };
 
-  const missing = REQUIRED_FIELDS.filter((field) => address[field] === "").map(
+  const missing: string[] = REQUIRED_FIELDS.filter((field) => address[field] === "").map(
     (field) => BUYER_SHIPPING_METADATA_KEYS[field],
   );
 
