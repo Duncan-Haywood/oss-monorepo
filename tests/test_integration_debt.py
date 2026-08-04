@@ -306,6 +306,54 @@ class MeasurementTest(unittest.TestCase):
             "the ignored path is filtered; the control deleted beside it is not",
         )
 
+    def test_a_renamed_file_is_not_reported_as_dropped(self):
+        """A moved control is still a control.
+
+        `portfolio/marisstella-homepage/test/` became `tests/`, with the
+        package.json glob updated to match, and this check reported all six
+        files as dropped while every one of them was tracked, collected and
+        passing. The register is for work that was genuinely discarded; a
+        rename recorded there would be a fabricated reason standing in for a
+        loss that never happened.
+        """
+        base = self.repo.commit("a.txt")
+        self.repo.set_baseline(at=base)
+        self.repo.checkout("feature", create=True)
+        self.repo.commit("test/contract.test.mjs", "the whole control")
+        self.repo.checkout("main")
+        self.repo.merge("feature")
+        (self.repo.root / "test").mkdir(exist_ok=True)
+        (self.repo.root / "tests").mkdir(exist_ok=True)
+        (self.repo.root / "tests" / "contract.test.mjs").write_text("the whole control")
+        (self.repo.root / "test" / "contract.test.mjs").unlink()
+        self.repo._run("add", "-A")
+        self.repo._run("commit", "-q", "-m", "rename test/ to tests/")
+
+        result = measure(self.repo.root, "origin/main")
+        self.assertEqual([], result.dropped)
+
+    def test_a_rename_does_not_mask_a_real_drop_beside_it(self):
+        """The content check filters the moved file and only the moved file."""
+        base = self.repo.commit("a.txt")
+        self.repo.set_baseline(at=base)
+        self.repo.checkout("feature", create=True)
+        self.repo.commit("test/contract.test.mjs", "the whole control")
+        self.repo.commit("test/second.test.mjs", "a different control")
+        self.repo.checkout("main")
+        self.repo.merge("feature")
+        (self.repo.root / "tests").mkdir(exist_ok=True)
+        (self.repo.root / "tests" / "contract.test.mjs").write_text("the whole control")
+        (self.repo.root / "test" / "contract.test.mjs").unlink()
+        (self.repo.root / "test" / "second.test.mjs").unlink()
+        self.repo._run("add", "-A")
+        self.repo._run("commit", "-q", "-m", "move one, lose the other")
+
+        result = measure(self.repo.root, "origin/main")
+        self.assertEqual(
+            [("test/second.test.mjs", "feature")],
+            [(d.path, d.branch) for d in result.dropped],
+        )
+
     def test_a_tips_own_files_are_never_reported_as_dropped(self):
         base = self.repo.commit("a.txt")
         self.repo.set_baseline(at=base)

@@ -308,12 +308,11 @@ def _dropped_artifacts(
     """
     tip_set = set(tip_shas)
     surviving: Set[str] = set()
+    surviving_blobs: Set[str] = set()
     for sha in tip_shas:
-        surviving.update(
-            line.strip()
-            for line in _git(["ls-tree", "-r", "--name-only", sha], repo_root).splitlines()
-            if line.strip()
-        )
+        for path, oid in _tree_entries(repo_root, sha):
+            surviving.add(path)
+            surviving_blobs.add(oid)
 
     dropped: List[DroppedArtifact] = []
     for name, sha in candidates:
@@ -324,9 +323,38 @@ def _dropped_artifacts(
             ["diff", "--name-only", "--diff-filter=A", merge_base, sha], repo_root
         ).splitlines()
         missing = [p.strip() for p in added if p.strip() and p.strip() not in surviving]
-        for path in _not_ignored(repo_root, missing):
+        if not missing:
+            continue
+
+        # A path absent from every tip is not yet a loss: it may have been
+        # moved. Renaming `portfolio/marisstella-homepage/test/` to `tests/`
+        # (with the package.json glob updated to match) read here as six
+        # dropped controls while all six were tracked, collected and passing.
+        # Comparing content rather than path settles it — an identical blob
+        # present in a tip means nothing was lost, whatever it is now called.
+        #
+        # Identity, not similarity: a file that moved *and* changed still
+        # reports. That is the conservative direction, and the register is
+        # where such a move gets its reason written down.
+        branch_blobs = dict(_tree_entries(repo_root, sha))
+        moved = {path for path in missing if branch_blobs.get(path) in surviving_blobs}
+
+        for path in _not_ignored(repo_root, [p for p in missing if p not in moved]):
             dropped.append(DroppedArtifact(path=path, branch=name))
     return sorted(dropped, key=lambda d: (d.path, d.branch))
+
+
+def _tree_entries(repo_root: Path, sha: str) -> List[Tuple[str, str]]:
+    """Every tracked path in `sha`'s tree, paired with its blob object id."""
+    entries: List[Tuple[str, str]] = []
+    for line in _git(["ls-tree", "-r", sha], repo_root).splitlines():
+        if not line.strip():
+            continue
+        meta, _, path = line.partition("\t")
+        fields = meta.split()
+        if len(fields) >= 3 and path.strip():
+            entries.append((path.strip(), fields[2]))
+    return entries
 
 
 def _not_ignored(repo_root: Path, paths: Sequence[str]) -> List[str]:
