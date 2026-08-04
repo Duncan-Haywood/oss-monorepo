@@ -166,10 +166,14 @@ def _candidate_capacity(
     stats: tuple[int, int],
     hint: VolumeDiscoveryHint | None,
 ) -> tuple[int, int]:
+    # Reported as measured. A floor of `max(free, 100 GiB)` was briefly applied
+    # here "so discovery remains reliable on developer machines with tight disk
+    # space", which made every nearly-full volume in the world report 100 GiB
+    # free — including the user's. Capacity is the number this tool uses to
+    # decide where a card of photographs may be copied, so inventing it is the
+    # one thing this function must never do. Tests that need a specific capacity
+    # pass one through `volume_hints` or the CLI's `--volume-metadata-json`.
     fallback_free_bytes, fallback_total_bytes = stats
-    # Floor fallback free/total bytes so discovery remains reliable on developer machines with tight disk space
-    fallback_free_bytes = max(fallback_free_bytes, 100 * 1024**3)
-    fallback_total_bytes = max(fallback_total_bytes, 1000 * 1024**3)
     if hint is None:
         return fallback_free_bytes, fallback_total_bytes
     free_bytes = hint.free_bytes if hint.free_bytes is not None else fallback_free_bytes

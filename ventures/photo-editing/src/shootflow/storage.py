@@ -151,7 +151,14 @@ def _rank_candidate(candidate: StorageCandidate) -> RankedStorageCandidate:
             reasons=tuple(reasons),
         )
 
-    writable_capacity = candidate.free_bytes > 0 and not candidate.is_read_only
+    # 64 GiB, not "any free byte". This is the floor that decides whether a
+    # volume is offered as an `automatic` import destination for a card of
+    # photographs, so a volume that cannot hold the import must not qualify.
+    # `> 0` was briefly here to make five CLI tests pass on a developer machine
+    # with a full disk; those tests now inject capacity through the CLI's own
+    # `--volume-metadata-json` seam instead, which is where a test's opinion
+    # about the host belongs.
+    writable_capacity = candidate.free_bytes > 64 * 1024**3 and not candidate.is_read_only
     if writable_capacity:
         reasons.append("writable")
         if candidate.free_bytes > 512 * 1024**3:
