@@ -1,8 +1,11 @@
+import AddToCartButton from "@/components/AddToCartButton";
 import DemoNav from "@/components/shared/DemoNav";
 import ProductDetailPreviewCTA from "@/components/ProductDetailPreviewCTA";
 import RoomPreviewExperiment from "@/components/RoomPreviewExperiment";
+import StorefrontCartBadge from "@/components/StorefrontCartBadge";
+import { validateCheckoutLineItem } from "@/lib/checkout";
 import { calculatePrintEconomics, catalogArtworks } from "@/lib/marketplace";
-import { ShoppingBag, Search, Heart, Image as ImageIcon } from "lucide-react";
+import { Search, Heart, Image as ImageIcon } from "lucide-react";
 
 type StorefrontPageProps = {
   searchParams?: {
@@ -11,7 +14,6 @@ type StorefrontPageProps = {
 };
 
 export default function StorefrontPage({ searchParams }: StorefrontPageProps) {
-  const cartCount = 2;
   const liveArtworks = catalogArtworks.filter((artwork) => artwork.status === "Live");
   const filters = ["All", ...Array.from(new Set(liveArtworks.map((artwork) => artwork.style)))];
   const requestedFilter = searchParams?.style;
@@ -39,14 +41,7 @@ export default function StorefrontPage({ searchParams }: StorefrontPageProps) {
           <div className="flex items-center gap-4 text-sm">
             <button className="text-stone-600 hover:text-stone-900">Artists</button>
             <button className="text-stone-600 hover:text-stone-900">Collections</button>
-            <a href="/checkout" className="relative" aria-label="View checkout">
-              <ShoppingBag className="w-5 h-5 text-stone-700" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-indigo-600 text-white text-[10px] rounded-full flex items-center justify-center">
-                  {cartCount}
-                </span>
-              )}
-            </a>
+            <StorefrontCartBadge />
           </div>
         </div>
       </div>
@@ -123,6 +118,10 @@ export default function StorefrontPage({ searchParams }: StorefrontPageProps) {
               retailPrice: art.retailPrice,
               fulfillmentCost: art.fulfillmentCost,
             });
+            // An artwork whose artist has not cleared the storefront channel is
+            // shown but cannot be added, rather than offering a button that the
+            // cart would refuse.
+            const eligibility = validateCheckoutLineItem(art);
 
             return (
               <div key={art.id} className="group cursor-pointer">
@@ -141,9 +140,17 @@ export default function StorefrontPage({ searchParams }: StorefrontPageProps) {
                     <ImageIcon className="w-3 h-3" /> {art.hasRoomMockups ? "Room Preview" : "Preview Soon"}
                   </div>
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition flex items-end justify-center pb-4">
-                    <button className="opacity-0 group-hover:opacity-100 bg-white text-stone-900 px-4 py-2 rounded-md text-sm font-medium transition shadow-lg">
-                      Quick View — ${art.retailPrice}
-                    </button>
+                    {eligibility.eligible ? (
+                      <AddToCartButton
+                        slug={art.slug}
+                        label={`Add — $${art.retailPrice}`}
+                        className="opacity-0 group-hover:opacity-100 bg-white text-stone-900 px-4 py-2 rounded-md text-sm font-medium transition shadow-lg inline-flex items-center gap-1.5"
+                      />
+                    ) : (
+                      <span className="opacity-0 group-hover:opacity-100 bg-white/90 text-stone-500 px-4 py-2 rounded-md text-sm font-medium transition shadow-lg">
+                        Not available
+                      </span>
+                    )}
                   </div>
                 </div>
                 <h3 className="font-semibold text-stone-900">{art.title}</h3>

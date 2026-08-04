@@ -562,6 +562,67 @@ export function buildSampleCheckoutCart(
   return eligible.slice(0, 2).map((artwork) => artworkToCheckoutLine(artwork, 1));
 }
 
+/**
+ * How many prints a cart holds, counting quantities rather than lines.
+ *
+ * The storefront badge showed the literal `2` regardless of the cart, which is
+ * why nothing noticed that the storefront could not put anything in it.
+ */
+export function countCheckoutCartItems(lineItems: CheckoutLineItem[]): number {
+  return lineItems.reduce((total, item) => total + Math.max(0, item.quantity), 0);
+}
+
+/**
+ * Add a catalog artwork to a cart, or increment the line it already has.
+ *
+ * The eligibility gate is applied *here*, on the add, rather than only at
+ * checkout: an artwork whose artist has not accepted the POD license for the
+ * storefront channel must not enter a buyer's cart at all. `buildCheckoutReadiness`
+ * would refuse it later anyway, but only after the buyer had filled a cart and
+ * reached the pay screen, and the blocker it prints names a consent problem the
+ * buyer can do nothing about.
+ *
+ * Prices come from the catalog artwork via `artworkToCheckoutLine`, never from a
+ * caller. The server re-derives every amount again in `buildCheckoutSessionPayload`
+ * — this is the same rule applied one step earlier so the cart a buyer sees and
+ * the session Stripe charges are built from one source.
+ */
+export function addArtworkToCheckoutCart(
+  lineItems: CheckoutLineItem[],
+  artwork: CatalogArtwork,
+  quantity = 1,
+  consentRecords: ListingConsentRecord[] = defaultListingConsentRecords,
+): { ok: boolean; lineItems: CheckoutLineItem[]; blockers: string[] } {
+  const eligibility = validateCheckoutLineItem(artwork, consentRecords);
+  if (!eligibility.eligible) {
+    return { ok: false, lineItems, blockers: eligibility.blockers };
+  }
+
+  const added = Math.max(1, quantity);
+  const existing = lineItems.find((item) => item.artworkSlug === artwork.slug);
+
+  if (existing) {
+    return {
+      ok: true,
+      blockers: [],
+      lineItems: lineItems.map((item) =>
+        item.artworkSlug === artwork.slug
+          ? // Re-derived from the catalog rather than spread from `item`, so a
+            // stale price persisted in localStorage before a catalog change is
+            // corrected on the next add instead of being carried forward.
+            artworkToCheckoutLine(artwork, item.quantity + added)
+          : item,
+      ),
+    };
+  }
+
+  return {
+    ok: true,
+    blockers: [],
+    lineItems: [...lineItems, artworkToCheckoutLine(artwork, added)],
+  };
+}
+
 export function serializeCheckoutCart(lineItems: CheckoutLineItem[]): string {
   return JSON.stringify(lineItems);
 }

@@ -13,6 +13,7 @@ import {
   type CheckoutLineItem,
   type CheckoutShippingRegion,
 } from "@/lib/checkout";
+import { announceCheckoutCartChange } from "@/lib/checkout-cart-client";
 import { catalogArtworks } from "@/lib/marketplace";
 import { fetchOperatorJson, type OperatorFetchResult } from "@/lib/operator-client";
 import Link from "next/link";
@@ -61,21 +62,34 @@ export default function CheckoutLab({ automaticTaxEnabled = false }: CheckoutLab
   const envStatus = envResult?.state === "ok" ? envResult.data : null;
   const [sessionPreview, setSessionPreview] = useState<CheckoutApiResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    const stored = loadCheckoutCartFromStorage();
     // Mount-only hydration from localStorage, which does not exist during SSR.
     // Reading it in a lazy initializer instead would make the server and client
     // first renders disagree. See EXC-015 in platform/exception-register.yaml.
+    //
+    // An empty cart stays empty. This used to fall back to
+    // `buildSampleCheckoutCart()`, so a shopper who opened /checkout without
+    // having added anything was shown two priced prints they had never chosen,
+    // with a live pay button under them. The sample is still one click away
+    // below, but it has to be asked for.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setCart(stored.length > 0 ? stored : buildSampleCheckoutCart());
+    setCart(loadCheckoutCartFromStorage());
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setHydrated(true);
   }, []);
 
   useEffect(() => {
-    if (cart.length > 0) {
-      saveCheckoutCartToStorage(cart);
-    }
-  }, [cart]);
+    // Gated on hydration rather than on the cart being non-empty. Skipping the
+    // write for an empty cart meant removing the last line never persisted: the
+    // stored cart survived, and the removed print reappeared on the next visit.
+    // The guard has to be `hydrated`, because the first render happens before
+    // the effect above has read storage and would otherwise clear it.
+    if (!hydrated) return;
+    saveCheckoutCartToStorage(cart);
+    announceCheckoutCartChange();
+  }, [cart, hydrated]);
 
   useEffect(() => {
     fetchOperatorJson<CheckoutEnvStatus>("/api/stripe/checkout").then(setEnvResult);
@@ -176,7 +190,7 @@ export default function CheckoutLab({ automaticTaxEnabled = false }: CheckoutLab
                 onClick={resetCart}
                 className="text-sm px-3 py-1.5 rounded-lg border border-stone-200 hover:bg-stone-50"
               >
-                Reset sample
+                Load sample cart
               </button>
             </div>
           </div>
