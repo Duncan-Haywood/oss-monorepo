@@ -1231,6 +1231,69 @@ evidence, and completion date before it can be marked done.
 - [ ] Add dependency update automation that opens small, tested Gitea changes
   and prioritizes supported framework/security releases.
 
+### Image release path
+
+- [x] Hold the number of deployments pointing at images this repository cannot
+  build, and the number pinned to a mutable tag.
+  Owner duncan, 2026-08-04. Every venture has Kubernetes manifests under
+  `platform/k8s/apps/`, and writing them is the visible half of shipping — so it
+  is the half that got written. Six of the eight organisation images they name
+  had **no producer anywhere in the repository**: no Dockerfile, no build job,
+  nothing that could ever put that tag in the registry. Complete Deployments,
+  Services, Ingresses and PDBs, reconciled by Argo CD, waiting on images that
+  would never exist. The pod can only ever be `ImagePullBackOff`, and no control
+  said so; the venture reads as deployed because its manifests are complete.
+  That is the same shape as a gate that cannot fail, one layer out from the code.
+
+  The one that cost real money is `local-site-studio`. It holds the most
+  finished commerce code in the monorepo — Stripe Checkout, billing portal, lead
+  CRM, contact persistence — and could not be built at all. It now has a
+  Dockerfile, `output: "standalone"`, and
+  `.gitea/workflows/local-site-studio-image.yml`, which gates through
+  `scripts/ci/verify-component.sh` rather than restating the sequence, proves
+  the container answers `/` — the path the Deployment's own probes use — and
+  publishes only the immutable `:${sha}` tag. It deliberately does not push
+  `:latest` and promotes nothing: `deployment.yaml` pins `:latest`, so
+  publishing it would put an unreviewed build of a venture holding live Stripe
+  code into the cluster on merge.
+
+  Building it surfaced a second defect that had nothing to do with containers.
+  `src/lib/db.ts` imports `DatabaseSync` from `node:sqlite`, added in Node
+  22.5.0, while `.nvmrc` declared 20 and `package.json` declared `>=20.9.0`.
+  Anything honouring either could not build the venture — `next build` dies at
+  "Collecting page data". Measured: fails on 20.20.2, succeeds on 22.22.3. The
+  venture's 1214 tests, typecheck, lint and build had also never run in any
+  pipeline; that workflow is the first that runs them.
+
+  `scripts/ci/image_release_path.py` measures both dimensions against
+  `platform/image-release-baseline.yaml`, two-directionally, capped at 6 and 7 —
+  the numbers measured before the control existed, so neither ceiling can be
+  argued back to where it started. 6 became 5. Registered as "Image Release Path
+  Ratchet" in `scripts/test-ci.sh`; `tests/test_image_release_path.py` runs the
+  same audit under pytest, 45 tests, and the gate was mutation-checked by adding
+  an unbuildable manifest and confirming both dimensions fire.
+
+  The second number is the more uncomfortable one. Seven of eight apps resolve
+  to `:latest`; only quick-pick-survey pins a digest, and only because its
+  GitOps promoter writes one. `.gitea/workflows/deploy-services.yml` already
+  rejects `:latest`, `:main` and `:master`, and already triggers on
+  `platform/k8s/apps/**` — but its only substantive step renders a Helm chart
+  with hardcoded example values, so it has never read one of these files. The
+  rule existed; the reach did not. That gap is now measured, not closed.
+
+- [ ] Give the remaining five undeliverable deployments a producer or delete
+  them. `ai-engineering-academy`, `ai-first-markets`, `print-atelier`,
+  `real-estate-photo-app` and `retail-pilot-intel` each name an image nothing
+  builds. `ai-first-markets` is the one likely to be a deletion rather than a
+  build: it ships to Cloudflare, so its Kubernetes manifest is a phantom
+  surface. `print-atelier` is the one worth building — it is the most complete
+  commerce stack in the repository and its only blocker is being deployed
+  somewhere.
+
+- [ ] Make `deploy-services.yml` inspect the manifests it triggers on, and take
+  the mutable-reference count below 7. Digest promotion exists for exactly one
+  venture; generalising `platform/ci/promote-pairwise-gitops.sh` is the work.
+
 ## Next 60 days: responsible product learning
 
 - [ ] Give every venture a versioned measurement plan mapping hypotheses to

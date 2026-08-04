@@ -189,6 +189,16 @@ run_ci_test "Stopping-Rule Decision Review" python3 "${REPO_ROOT}/scripts/ci/sto
 # deciding to ship; `tests/test_integration_debt.py` runs the same audit under
 # pytest, so this entry is not the only enforcement.
 run_ci_test "Integration Debt Ratchet" python3 "${REPO_ROOT}/scripts/ci/integration_debt.py"
+# Every venture has Kubernetes manifests; most name an image nothing in this
+# repository can build. Six of the eight organisation images under
+# `platform/k8s/apps` had no producer on 2026-08-04 — complete Deployments
+# pointed at tags that would never exist, including local-site-studio, which
+# holds the most finished commerce code in the monorepo. This counts the
+# deployments that cannot be released, and the releases pinned to a mutable tag,
+# and fails when either grows. `tests/test_image_release_path.py` runs the same
+# audit under pytest, so this entry is the named gate rather than the only
+# enforcement.
+run_ci_test "Image Release Path Ratchet" python3 "${REPO_ROOT}/scripts/ci/image_release_path.py"
 
 # Linter gates below are host-tool dependent. Absence used to print a notice
 # and touch nothing — neither branch incremented FAILURES, so "not installed"

@@ -1,0 +1,24 @@
+.git
+.github
+.next
+node_modules
+coverage
+*.log
+
+# Secrets must never enter the build context. .env.example is documentation and
+# is excluded too — nothing in the image reads it.
+.env
+.env.*
+
+# The SQLite fallback file src/lib/db.ts opens. A developer's local database
+# baked into a published image would ship real lead and inquiry rows.
+*.db
+*.db-journal
+
+*.pem
+*.key
+*.tfstate
+*.tfstate.*
+*.tfvars
+Dockerfile*
+.dockerignore
