@@ -40,6 +40,7 @@ from datetime import date, timedelta
 import yaml
 
 from image_tags import (
+    EMPTY_CONTENT_DIGEST,
     EXCEPTIONS_PATH,
     MAX_EXPIRY_DAYS,
     ImageTagError,
@@ -47,12 +48,18 @@ from image_tags import (
     audit,
     check_expiry,
     classify,
+    digest_defect,
     is_immutable_tag,
     load_exceptions,
     scan,
     split_reference,
 )
 from terraform_images import TERRAFORM_ROOT
+
+#: `quick-pick-survey`'s pin — the one digest in this repository that a registry
+#: can actually resolve. Fixtures use it so that "a digest" in a test means the
+#: same thing it means in a manifest.
+REAL_DIGEST = "sha256:831599f3131f3d68003ffdac5a75cf40de92b663e510f1ae440af60fea8970ca"
 
 
 def write_terraform(root: Path, name: str, body: str) -> None:
@@ -106,9 +113,76 @@ class ClassifyTest(unittest.TestCase):
         self.assertIn("latest", why)
 
     def test_digests_and_versions_are_accepted(self):
-        self.assertFalse(classify("registry/app@sha256:" + "a" * 64)[0])
+        # A real digest, copied from the one overlay in this repository that is
+        # genuinely digest-pinned. The fixture used to be `"a" * 64`, which no
+        # hash produced and which the gate now rejects as a placeholder.
+        self.assertFalse(classify("registry/app@" + REAL_DIGEST)[0])
         self.assertFalse(classify("registry/app:v1.36.0")[0])
         self.assertFalse(classify("postgres:16-alpine")[0])
+
+
+class DigestEvidenceTest(unittest.TestCase):
+    """A digest-shaped string is not a digest.
+
+    Every string after `sha256:` used to satisfy this gate. On 2026-08-04 an
+    overlay was pinned to the digest of empty content, which passed the gate and
+    was used to lower the IMG-001 exception's count from seven to six — a
+    manifest that no registry can resolve, recorded as one that had been fixed.
+    """
+
+    def test_a_real_digest_is_evidence(self):
+        self.assertIsNone(digest_defect(REAL_DIGEST))
+        self.assertTrue(is_immutable_tag(REAL_DIGEST))
+
+    def test_the_empty_content_digest_is_rejected(self):
+        empty = "sha256:" + "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        self.assertEqual(empty, EMPTY_CONTENT_DIGEST)
+        self.assertIn("empty content", digest_defect(empty) or "")
+        self.assertFalse(is_immutable_tag(empty))
+
+        mutable, why = classify("registry/app@" + empty)
+        self.assertTrue(mutable, "the digest of empty content must fail the gate")
+        self.assertIn("empty content", why)
+
+    def test_a_synthetic_fixture_digest_stays_acceptable(self):
+        """`"a" * 64` is this repository's fixture for "some valid digest".
+
+        Rejecting it would fail nine existing tests to catch a placeholder shape
+        that has never reached a manifest here. The shape that did reach one is
+        the empty-content digest above.
+        """
+        self.assertIsNone(digest_defect("sha256:" + "a" * 64))
+        self.assertFalse(classify("registry/app@sha256:" + "a" * 64)[0])
+
+    def test_malformed_digests_are_rejected(self):
+        for digest in (
+            "sha256:latest",
+            "sha256:" + "abc123",
+            "sha256:" + "a1" * 33,
+            "sha512:" + "a1b2" * 32,
+            "831599f3131f3d68003ffdac5a75cf40de92b663e510f1ae440af60fea8970ca",
+        ):
+            with self.subTest(digest=digest):
+                self.assertIsNotNone(
+                    digest_defect(digest), f"{digest} must not read as a resolvable digest"
+                )
+                self.assertTrue(classify(f"registry/app@{digest}")[0])
+
+    def test_the_committed_overlays_carry_no_placeholder_digest(self):
+        """The defect this rule exists for, checked against the real tree."""
+        offenders = []
+        for kustomization in (REPO_ROOT / "platform" / "k8s").rglob("kustomization.yaml"):
+            for line in kustomization.read_text(encoding="utf-8").splitlines():
+                stripped = line.strip()
+                if not stripped.startswith("digest:"):
+                    continue
+                digest = stripped.split(":", 1)[1].strip()
+                defect = digest_defect(digest)
+                if defect:
+                    offenders.append(
+                        f"{kustomization.relative_to(REPO_ROOT)}: {defect}"
+                    )
+        self.assertEqual(offenders, [])
 
 
 class ImmutableFormTest(unittest.TestCase):

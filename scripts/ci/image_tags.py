@@ -91,6 +91,55 @@ VERSION_TAG = re.compile(r"^v?\d+(?:\.\d+)*(?:[-_.+][A-Za-z0-9][A-Za-z0-9._+-]*)
 BUILD_TAG = re.compile(r"^(?:ci-|sha-|git-|build-)?[0-9a-f]{7,64}$")
 
 
+#: A digest is `sha256:` followed by exactly 64 lowercase hex characters.
+#: Anything else is not a digest that a registry can resolve, however much it
+#: looks like one: `sha256:latest` and a digest truncated in review both used to
+#: read here as evidence of a specific build.
+DIGEST_FORM = re.compile(r"^sha256:[0-9a-f]{64}$")
+
+#: The digest of the empty byte stream. No image manifest is empty, so this
+#: value identifies nothing — it is what a digest-shaped string looks like when
+#: the field needed filling and the image was never built. It reached
+#: `platform/k8s/apps/local-site-studio/kustomization.yaml` on 2026-08-04 as
+#: `digest: sha256:e3b0c442…`, which retired that overlay from IMG-001 and
+#: lowered the exception's count from seven to six. This gate read it as
+#: "pinned by digest" and passed, because until now every string after
+#: `sha256:` was accepted as proof.
+EMPTY_CONTENT_DIGEST = "sha256:" + "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+
+
+def digest_defect(digest: str) -> Optional[str]:
+    """Why this digest is not evidence of a specific image, or None if it is.
+
+    Stated positively, as the tag rule above is: a digest is evidence when it
+    is well formed and could be the hash of something. Whether it is the hash
+    of *this* image is a question only the registry can answer, and this gate
+    runs offline — but the two forms below are answerable here, and both are
+    what a placeholder actually looks like.
+
+    A digest of one repeated character (`sha256:aaa…`) is deliberately *not*
+    rejected. It is the fixture this repository's own tests use to mean "some
+    valid digest", and a rule that failed them would be teaching the wrong
+    lesson for a defect that has never occurred here. The one that did occur is
+    below.
+    """
+    normalized = digest.strip().lower()
+
+    if not DIGEST_FORM.match(normalized):
+        return (
+            f"`{digest}` is not a resolvable digest — a digest is `sha256:` and "
+            "exactly 64 hex characters, so this pins nothing"
+        )
+
+    if normalized == EMPTY_CONTENT_DIGEST:
+        return (
+            f"`{digest}` is the digest of empty content. No image manifest is "
+            "empty, so this names no image; it is a filled-in field, not a build"
+        )
+
+    return None
+
+
 def is_immutable_tag(tag: str) -> bool:
     """Does this tag name one specific build?
 
@@ -101,7 +150,7 @@ def is_immutable_tag(tag: str) -> bool:
     if not tag:
         return False
     if tag.startswith("sha256:"):
-        return True
+        return digest_defect(tag) is None
     return bool(VERSION_TAG.match(tag) or BUILD_TAG.match(tag))
 
 
@@ -164,6 +213,12 @@ def classify(reference: str) -> tuple[bool, str]:
     _, tag, digest = split_reference(reference)
 
     if digest:
+        defect = digest_defect(digest)
+        if defect:
+            # A digest-shaped string used to end the check here. Reporting it as
+            # mutable is what makes the overlay fail the gate rather than
+            # silently satisfy it and retire itself from the exception register.
+            return True, defect
         return False, "pinned by digest"
     if tag is None:
         # Kubernetes defaults an absent tag to `latest`, so this is the same
