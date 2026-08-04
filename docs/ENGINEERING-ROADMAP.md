@@ -938,10 +938,6 @@ evidence, and completion date before it can be marked done.
   copy surface, enumerate the claims that need a capability, and name the code
   signal that grants each one. It is not yet a repository-wide control, and it
   should become one; a venture-local habit is what let all of the above ship.
-- [ ] Hold customer-facing copy to behaviour the code actually performs.
-  Owner duncan. Every claim a venture makes to a visitor — a confirmation, a
-  capability, a price, a statistic, a security posture — is either backed by
-  something the code does or it is a false statement.
   The price half is now a control, 2026-08-03, owner duncan.
   `local-site-studio` is the venture with a real checkout, and
   `src/lib/pricing/bundles.ts` is the field the Stripe Checkout Session is built
@@ -983,6 +979,34 @@ evidence, and completion date before it can be marked done.
   $19 is real but collected by hand over Zelle or PayPal, so there is no charged
   amount in code to bind it to, and the package declares no `test` script to
   hold a contract even if one were written.
+
+  The capability half is now a control too, 2026-08-04, owner duncan, and the
+  interesting part is where it had a hole. `capability-claims.test.ts` binds an
+  advertised *capability* to whether the implementing code exists, and it
+  exempted the whole `/docs` tree — reasoning that those pages state the gap
+  honestly ("Until Twilio is live, operators fulfill with a generated FAQ/script
+  pack"). That was true of the sentence it was written against. It was not true
+  of the tree, and `/docs` is not behind the password: `src/proxy.ts` gates only
+  `/dashboard`, so those pages are copy a prospective buyer reads.
+  `docs/business-model` priced the Complete tier at "$500 + $199/mo" against
+  "Growth + full marketing + client AI phone agent" — in a table, uncaveated,
+  on a page with no caveat anywhere. The honest neighbour two files away is what
+  kept it invisible: the tree looked truthful in aggregate, so nobody read the
+  row.
+  **A per-directory exemption is a region where the claim is allowed to be
+  untrue.** The exemption is now earned per claim: a docs page may carry the
+  claim only where the fulfilment reality appears within three lines of it,
+  which is the standard the honest page already met in prose. Tightening it
+  found a third surface on the first run, on the page held up as the honest one
+  — `product-bundles` line 36, `<td>Never miss a call or customer</td>`, the
+  Complete tier's positioning in a comparison table, thirty lines above the
+  paragraph that corrects it. Four passes of reading and a grep for "AI phone
+  agent" had all missed that phrasing. Both rows now state what ships, and
+  `caveatNear` has its own discrimination test so widening the caveat list
+  until everything matches cannot pass as green. Mutation-checked both ways.
+  Not done: this is still one venture. The repo-wide half — a coverage gate
+  requiring every package that makes capability claims to hold a contract, as
+  `advertised-price-coverage.test.mjs` does for prices — does not exist.
 
 ### Portfolio stopping rules
 
