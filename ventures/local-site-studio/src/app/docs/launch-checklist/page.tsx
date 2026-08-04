@@ -94,13 +94,19 @@ export default function LaunchChecklistDocPage() {
       <ol>
         <li>
           Set a strong <code>OPERATOR_DASHBOARD_PASSWORD</code> in the deployment environment.
-          Until set (or while still a <code>changeme</code>/<code>password</code> placeholder),{" "}
+          This is required, not advisory: on a production build, until it is set (or while it
+          is still a <code>changeme</code>/<code>password</code> placeholder),{" "}
+          <code>operatorAuthMode</code> returns <code>locked-out</code> — <code>proxy.ts</code>{" "}
+          answers the whole <code>/dashboard</code> tree with 503 and{" "}
+          <code>requireOperatorAuth</code> denies every server action, including{" "}
+          <code>/api/stripe/bootstrap-prices</code>. There is deliberately no environment
+          variable that re-opens it; a real password is the only way out.
+          Outside a production build (<code>next dev</code>) the dashboard stays open for
+          demos, and{" "}
           <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
-          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show an amber open-dashboard
-          banner via <code>assessOperatorAuthEnvReadiness</code> — <code>proxy.ts</code> +{" "}
-          <code>requireOperatorAuth</code> stay in open demo mode (world-reachable CRM mutations).
-          Do not import real contacts or flip stages to <code>outreach_sent</code> without it.
-          Distinct from Stripe / Resend / Anthropic / digest banners.
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show an amber
+          open-dashboard banner via <code>assessOperatorAuthEnvReadiness</code>. Distinct from
+          Stripe / Resend / Anthropic / digest banners.
         </li>
         <li>
           Open <DocLink href="/dashboard/login">/dashboard/login</DocLink>, sign in, confirm

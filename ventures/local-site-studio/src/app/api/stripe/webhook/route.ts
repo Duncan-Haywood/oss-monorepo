@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { markCheckoutSessionComplete, recordLeadPayment } from "@/lib/db";
 import { stripeCustomerIdFromUnknown } from "@/lib/billing/portal";
-import { webhookFulfillmentFailureResponse } from "@/lib/payments/webhook-fulfillment";
+import {
+  isCheckoutSessionPaid,
+  webhookFulfillmentFailureResponse,
+} from "@/lib/payments/webhook-fulfillment";
 
 /**
  * Stripe webhook receiver — verifies the signature, then acknowledges the
@@ -28,6 +31,17 @@ import { webhookFulfillmentFailureResponse } from "@/lib/payments/webhook-fulfil
 
 /** Webhook revenue path: fail closed when Convex is configured but unreachable. */
 const WEBHOOK_CONVEX_PRIMARY = { requireConvex: true } as const;
+
+/**
+ * Fulfillment requires collected money, not a finished Checkout flow. Without
+ * this guard a delayed-notification payment (ACH/Klarna/Bacs) marks the lead
+ * paid at full `amount_total`, queues the production handoff, and emails the
+ * customer DNS go-live instructions before any money exists. See
+ * isCheckoutSessionPaid.
+ */
+function isSessionPaid(session: Stripe.Checkout.Session): boolean {
+  return isCheckoutSessionPaid(session.payment_status);
+}
 
 function notConfigured(message: string) {
   return NextResponse.json(
@@ -64,8 +78,23 @@ export async function POST(request: Request) {
   }
 
   switch (event.type) {
+    // Both events carry the same session id, and every fulfillment write below
+    // is idempotent on it, so a delayed method that settles later re-enters
+    // here and fulfills exactly once — no separate resume path needed.
+    case "checkout.session.async_payment_succeeded":
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
+
+      if (!isSessionPaid(session)) {
+        // Acknowledge so Stripe stops retrying: nothing is wrong, the money has
+        // simply not arrived. Fulfillment happens on
+        // checkout.session.async_payment_succeeded, or never if it fails.
+        console.info(
+          `webhook: session ${session.id} not fulfilled — payment_status=${session.payment_status}`,
+        );
+        return NextResponse.json({ received: true, fulfilled: false, reason: "payment_pending" });
+      }
+
       const slug = session.metadata?.slug;
       const tier = session.metadata?.tier;
       const commerceAddon = session.metadata?.commerceAddon === "true";
@@ -463,6 +492,17 @@ export async function POST(request: Request) {
       } else {
         console.warn("webhook: missing slug or tier in session metadata", session.id);
       }
+      break;
+    }
+    case "checkout.session.async_payment_failed": {
+      // A delayed payment that never settled. Nothing was fulfilled — the guard
+      // above refused the original completed event — so there is nothing to
+      // reverse; record it so a stalled checkout is diagnosable.
+      const session = event.data.object as Stripe.Checkout.Session;
+      console.warn(
+        `webhook: async payment failed for session ${session.id}` +
+          `${session.metadata?.slug ? ` (slug ${session.metadata.slug})` : ""} — not fulfilled`,
+      );
       break;
     }
     default:

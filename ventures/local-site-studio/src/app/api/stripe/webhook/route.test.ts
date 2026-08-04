@@ -78,6 +78,10 @@ function checkoutSession(overrides: Record<string, unknown> = {}) {
     customer_details: { email: null },
     customer_email: null,
     amount_total: 9900,
+    // Stripe always sends payment_status; the default here is the settled card
+    // case these fulfillment tests describe. Unpaid/pending sessions are
+    // covered in webhook-payment-status.test.ts.
+    payment_status: "paid",
     customer: null,
     ...overrides,
   };
