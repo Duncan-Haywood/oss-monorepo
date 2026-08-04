@@ -211,6 +211,26 @@ describe("formatDnsInstructionsForEmail", () => {
     }
   });
 
+  it("gives the operator dashboard the reason instead of blank fields", async () => {
+    const handoff = await enqueue();
+    const { deployHandoffWithheldReason } = await import("./handoff");
+
+    const reason = deployHandoffWithheldReason(handoff);
+    expect(reason).toContain("NEXT_PUBLIC_APP_URL");
+    expect(reason).toContain("NEXT_PUBLIC_PRODUCTION_DOMAIN");
+  });
+
+  it("reports no reason once the handoff is complete", async () => {
+    setEnv({
+      NEXT_PUBLIC_APP_URL: "https://studio.marisstella.dev",
+      NEXT_PUBLIC_PRODUCTION_DOMAIN: "harbor.studio",
+    });
+    const handoff = await enqueue();
+    const { deployHandoffWithheldReason } = await import("./handoff");
+
+    expect(deployHandoffWithheldReason(handoff)).toBeNull();
+  });
+
   it("renders once the handoff carries real values", async () => {
     setEnv({
       NEXT_PUBLIC_APP_URL: "https://studio.marisstella.dev",

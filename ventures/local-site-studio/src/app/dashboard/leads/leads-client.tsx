@@ -4,6 +4,7 @@ import React, { useState, useTransition } from "react";
 import Link from "next/link";
 import type { Lead, LeadPipelineStage, BusinessCategory } from "@/lib/leads/types";
 import type { DeployHandoff } from "@/lib/deploy/types";
+import { deployHandoffWithheldReason } from "@/lib/deploy/dns-email";
 import type { ClientInquiry, ClientInquiryStatus } from "@/lib/inquiries/types";
 import type { CheckoutSessionRecord } from "@/lib/checkout/types";
 import { CSV_LEAD_TEMPLATE } from "@/lib/leads/csv-import";
@@ -1517,24 +1518,40 @@ export function LeadsClient({
                         </>
                       ) : null}
                     </p>
-                    <p className="mt-1 text-xs text-zinc-600">
-                      Host: <code>{h.suggestedHost}</code> ·{" "}
-                      <a
-                        href={h.previewUrl}
-                        className="underline underline-offset-2"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Preview
-                      </a>{" "}
-                      · Contact: <code>{h.contactFormUrl}</code>
-                      {h.customDomain ? (
-                        <>
-                          {" "}
-                          · Custom domain: <code>{h.customDomain}</code>
-                        </>
-                      ) : null}
-                    </p>
+                    {deployHandoffWithheldReason(h) ? (
+                      // Withheld, not broken: the host and link fields are empty
+                      // on purpose because the platform has no configured domain
+                      // or origin, and blanks with no explanation would look like
+                      // a bug. See src/lib/deploy/handoff.ts.
+                      <p className="mt-1 rounded-md bg-amber-50 px-2 py-1.5 text-xs text-amber-900">
+                        {deployHandoffWithheldReason(h)}
+                        {h.customDomain ? (
+                          <>
+                            {" "}
+                            Custom domain on file: <code>{h.customDomain}</code>
+                          </>
+                        ) : null}
+                      </p>
+                    ) : (
+                      <p className="mt-1 text-xs text-zinc-600">
+                        Host: <code>{h.suggestedHost}</code> ·{" "}
+                        <a
+                          href={h.previewUrl}
+                          className="underline underline-offset-2"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Preview
+                        </a>{" "}
+                        · Contact: <code>{h.contactFormUrl}</code>
+                        {h.customDomain ? (
+                          <>
+                            {" "}
+                            · Custom domain: <code>{h.customDomain}</code>
+                          </>
+                        ) : null}
+                      </p>
+                    )}
                     <ul className="mt-2 space-y-0.5 text-xs text-zinc-500">
                       {h.dnsInstructions.map((d) => (
                         <li key={`${d.type}-${d.host}`}>

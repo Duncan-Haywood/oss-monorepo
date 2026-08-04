@@ -15,6 +15,7 @@ import {
 import type { ConvexPrimaryWriteOptions } from "@/lib/payments/convex-primary";
 import { DEPLOY_HANDOFF_CONVEX_PRIMARY } from "./handoff-persist";
 import { preserveDeployHandoffOperatorFields } from "./handoff-preserve";
+import { HANDOFF_BLOCKED_NOTE_PREFIX } from "./dns-email";
 import { isAppUrlConfigured } from "@/lib/seo/app-url-env-readiness";
 import {
   isProductionDomainConfigured,
@@ -23,7 +24,9 @@ import {
 
 export {
   DeployInstructionsBlockedError,
+  HANDOFF_BLOCKED_NOTE_PREFIX,
   assertDeployInstructionsReady,
+  deployHandoffWithheldReason,
   formatDnsInstructionsForEmail,
 } from "./dns-email";
 export {
@@ -98,8 +101,6 @@ function missingHandoffArtifactEnv(): string[] {
   if (!productionRootDomain()) missing.push("NEXT_PUBLIC_PRODUCTION_DOMAIN");
   return missing;
 }
-
-export const HANDOFF_BLOCKED_NOTE_PREFIX = "Go-live instructions withheld:";
 
 /** Operator-facing note explaining exactly why a handoff carries no instructions. */
 export function handoffBlockedNote(missing: readonly string[]): string {

@@ -45,6 +45,33 @@ export function assertDeployInstructionsReady(handoff: DeployHandoff): void {
   }
 }
 
+/** Marks the operator note buildHandoffRecord adds when it withholds the artifact. */
+export const HANDOFF_BLOCKED_NOTE_PREFIX = "Go-live instructions withheld:";
+
+/**
+ * Null when this handoff can be shown to a customer; otherwise the operator
+ * note saying which env var is missing.
+ *
+ * The dashboard needs this because a withheld handoff has empty host and link
+ * fields: rendering those as blanks would replace a wrong answer with a
+ * mysterious one, and the operator would have no way to tell a misconfiguration
+ * from a bug.
+ */
+export function deployHandoffWithheldReason(
+  handoff: DeployHandoff,
+): string | null {
+  try {
+    assertDeployInstructionsReady(handoff);
+    return null;
+  } catch (error) {
+    if (!(error instanceof DeployInstructionsBlockedError)) throw error;
+    return (
+      handoff.notes.find((note) => note.startsWith(HANDOFF_BLOCKED_NOTE_PREFIX)) ??
+      error.message
+    );
+  }
+}
+
 export function formatDnsInstructionsForEmail(handoff: DeployHandoff): string {
   assertDeployInstructionsReady(handoff);
   const rows = handoff.dnsInstructions
