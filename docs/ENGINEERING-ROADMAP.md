@@ -667,6 +667,46 @@ evidence, and completion date before it can be marked done.
   CLI present the probe returns before the SDK branch, so a test of the
   fallback would have passed without executing it.
 
+  **2026-08-04, owner duncan: the scanner that reports the findings could not
+  fail on them.** `scripts/security-scan.sh` had exactly one `exit 1` — the
+  incomplete-audit refusal. Once an audit *completed*, the script wrote
+  `SECURITY_ROADMAP.md` and fell off the end, returning 0 whatever it had
+  found, and `pipeline.mjs:382` printed "✔ Vulnerability & Secret Audit
+  PASSED" over it. The gate was therefore strictest when it knew least: a
+  hardcoded credential blocked a run that could not reach the registry, and
+  passed the run that audited every package successfully. The dashboard that
+  same run writes says CRITICAL means "Block Release"; nothing enforced the
+  sentence. This is one past "a gate that cannot fail" in the same direction as
+  SEC-022 — not a missing control but a control whose *reporting* half was
+  complete and whose *refusing* half was never written.
+  Its own suite held it in place. `scripts/security/test-security-scan.sh`
+  drove a fixture carrying one CRITICAL advisory and asserted the scanner
+  exited **zero**, under the title "a scan that finds vulnerabilities should
+  still publish the roadmap". Publishing the finding and refusing the run are
+  separate obligations; the test asserted only the first, so the suite covered
+  the fail-open rather than uncovering it. That is the general lesson here: a
+  test written from the recording obligation will pass over a missing blocking
+  obligation, because both are true of the same green run.
+  Both obligations now hold. The roadmap is still written before any exit below
+  it, so findings survive; then a committed secret or a CRITICAL advisory exits
+  1. The secret case has no waiver — a committed credential is compromised
+  whether or not the dependency audit ran. Mutation-checked: disabling the new
+  branch fails the two new assertions and only those.
+  HIGH is deliberately left ungated, and the reason is recorded in the script
+  rather than in a number. A complete audit of this repository is not reachable
+  today — three packages fail `npm audit` with `EOVERRIDE` — so a live run
+  measures 0 CRITICAL / 16 HIGH across 8 of 11 packages. Any HIGH ceiling
+  seeded from that would be a declared figure the control could not reproduce,
+  which is the defect class recorded against the coverage register above.
+  Closing that gap means fixing the three `EOVERRIDE` manifests first; that is
+  the open work this item now carries.
+  Note what does *not* change today: `verify-all.sh:8` defaults
+  `SECURITY_SCAN_ALLOW_OFFLINE=1`, and the `EOVERRIDE` gaps send every local
+  and CI run down the incomplete branch, which exits before the new code. The
+  refusal binds the day the audit completes, which is the day it should — but
+  until then this control is reachable only in principle, so it does not yet
+  discharge the item.
+
   **Reconciled 2026-08-04.** `agent/profit-lever-2026-08-02` built the same
   lockfile-coverage control independently, as
   `platform/ci/test/workflow-supply-chain.test.mjs`. This one was kept and that
