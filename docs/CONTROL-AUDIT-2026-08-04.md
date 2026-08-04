@@ -291,8 +291,35 @@ Ordered by what they do to a paid order:
    restart between Stripe delivery attempts re-prints.
 
 Blocking before any of that matters: `platform/k8s/apps/print-atelier/deployment.yaml`
-declares **zero env vars** and no Secret, and there is no add-to-cart anywhere —
-`storefront/page.tsx:14` is `const cartCount = 2`, a literal.
+declares **zero env vars** and no Secret. That one is still open.
+
+~~and there is no add-to-cart anywhere — `storefront/page.tsx:14` is
+`const cartCount = 2`, a literal.~~ **FIXED 2026-08-04** (`eb470478`). The funnel
+was built at both ends and joined by that literal: the cart type, localStorage
+persistence, the checkout page and a server route that re-derives every amount
+all existed, and `saveCheckoutCartToStorage` had exactly one caller in the
+venture. So a shopper could not buy the print they clicked, and — the sharper
+half — `CheckoutLab` seeded `buildSampleCheckoutCart()` whenever storage was
+empty, so opening `/checkout` directly showed two priced prints the shopper had
+never chosen with a live pay button under them. The checkout's own empty state
+had always read "add a consent-cleared listing from the storefront", naming an
+affordance that was never built.
+
+`addArtworkToCheckoutCart` is now the add path and carries the eligibility gate,
+so an artwork whose artist has not accepted the POD license for the storefront
+channel cannot enter a cart at all rather than being refused at the pay screen.
+Prices are re-derived from the catalog on every add including increment, so a
+cart persisted across a price change is corrected rather than carried forward.
+Found while wiring it: the cart write was gated on `cart.length > 0`, so removing
+the last line never reached storage and the print returned on the next visit.
+
+Note which tests were load-bearing. The behavioural tests pass with the
+storefront still rendering the literal — the helper is correct either way. The
+source contracts in `tests/storefront-cart.test.ts` are what pin the defect, and
+all five were proved by mutation, each reverted alone. One of them was itself
+written with the `indexOf`-delimited window this audit flags in finding 5: both
+markers also occurred in the import list, the window came out empty, and the
+assertion ran on nothing. It fails closed on the window now.
 
 Fixed during this session by a concurrent agent, and worth recording because it
 was live at HEAD: `POST /api/stripe/checkout` accepted client-supplied prices
