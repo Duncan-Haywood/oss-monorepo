@@ -630,8 +630,19 @@ Two consequences worth stating plainly:
   `:${github.sha}`, so **the tag the cluster pulls has no producer** — which is
   why the demo image is still there.
 
+**It recurred during the session that found it, which settles what it is.** About
+forty minutes after the `git fetch` above restored the true baseline, the gate
+again reported `unshipped: 1`. `git ls-remote origin main` still answered
+`a4b8f23f`, while `refs/remotes/origin/main` had been set to `b8c949c1` — with a
+blank reflog reason again. `b8c949c1` is a local merge commit created **minutes
+earlier in that same session**, one commit behind local `main`. So the writer is
+not restoring a stale value or recovering from a failed push: it follows local
+`main`'s tip. Whatever performs it, the effect is that this gate reports roughly
+zero undelivered work no matter how much has accumulated, permanently.
+
 The fix in progress is to make `release_lag.py` verify its baseline against
 `git ls-remote` rather than trust the local tracking ref, and to give the
 offline case a distinct non-passing outcome rather than a silent fall-through.
 Whatever else changes, **run `git ls-remote origin main` and compare before
-quoting any release-lag number.**
+quoting any release-lag number.** The comparison takes a second and is the only
+thing standing between this control and a permanent green.
