@@ -304,17 +304,30 @@ evidence, and completion date before it can be marked done.
   `customer_details.email` or `billing_details.email` depending on which object
   fired and never in `metadata`, so `extractStripeShippingMetadata` now lifts it
   alongside the address.
-  **Open, reported not fixed, same run:** the same checkout decides whether to
-  reject a cart by substring-matching blocker strings that embed the caller's own
-  artwork slug, so a slug named `Gelato` erases the `Unknown artwork slug`
-  rejection and an off-catalog line item reaches Stripe at a price, and with a
-  payout account, the caller chose. Verified end to end;
-  `docs/SECURITY-FINDING-CHECKOUT-OFF-CATALOG-2026-08-04.md` has the
-  reproduction, the impact split by how live it is, and a failing regression
-  test. It is a report because the three files it touches were under concurrent
-  edit by another agent. The three existing price-tampering tests all buy
-  `midnight-coast`, so all three exercise the catalog-hit branch and none
-  exercises the passthrough.
+  **The same run found and fixed a second defect in the same checkout, of the
+  same shape: a control reading caller-controlled text.** The route decided
+  whether to reject a cart by substring-matching blocker strings that
+  interpolate the caller's own artwork slug, so an artwork named `Gelato`
+  produced `Unknown artwork slug: Gelato`, the filter dropped it, and an
+  off-catalog line item reached a live Stripe session priced at one cent with
+  the caller's own Connect account in the payout metadata. `cartEligible` and
+  the funnel carried the same filter.
+  `docs/SECURITY-FINDING-CHECKOUT-OFF-CATALOG-2026-08-04.md` holds the
+  reproduction and separates the price bypass (live) from the payout
+  redirection (poisons the payout queue; nothing in the venture executes a
+  transfer today). The fix splits `cartBlockers` from environment blockers at
+  the point the distinction is known, and `buildCheckoutSessionPayload` now
+  refuses to price an off-catalog item at all, so the money boundary does not
+  depend on a caller having checked first.
+  **Two lessons worth carrying.** The three existing price-tampering tests all
+  buy `midnight-coast`, so all three exercise the catalog-hit branch and none
+  exercises the passthrough that carried client input — a protection can be
+  real on the path that is tested and absent on the path that is not. And the
+  first regression test written here tested `buildCheckoutReadiness` only; the
+  mutation restoring the route's filter **survived it**, because the route held
+  its own copy of the classification. A library-level test left exactly the gap
+  that produced the bug. Six mutations, all caught, after the route-level cases
+  were added.
   Not done, and deliberately: **Gelato cannot fulfil an order at all**, because
   no print file exists in this repository to send it — it is now blocked with a
   named reason instead of submitting a fabricated URL, which is what it was
