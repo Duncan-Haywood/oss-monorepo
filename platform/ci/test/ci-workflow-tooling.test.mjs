@@ -117,15 +117,40 @@ const REQUIRED_TOOLING = [
   },
 ];
 
-test('CI Workflow Tooling - the pipeline installs what every gate needs', () => {
-  const missing = REQUIRED_TOOLING.filter((entry) => !entry.provides.test(workflowSource)).map(
-    (entry) => `${entry.tool} (${entry.why})`
+test('CI Workflow Tooling - the suite is run by at least one workflow, and this test found it', () => {
+  // The selection is the whole point of the widening: reading every tracked
+  // workflow and keeping the ones that invoke the suite means a suite runner
+  // added anywhere — including inside a venture — is held to the contract
+  // below. An empty selection is a failure, not zero findings: it is what a
+  // renamed entrypoint or a narrowed pathspec looks like from in here.
+  assert.ok(
+    ALL_WORKFLOWS.length >= 5,
+    `expected the repository's tracked workflows to be found, got ${ALL_WORKFLOWS.length}`
   );
+  assert.ok(
+    ALL_WORKFLOWS.some(({ relative }) => relative.startsWith('ventures/')),
+    'no venture workflow was enumerated — the pathspec narrowed back to .gitea/workflows'
+  );
+  assert.ok(
+    SUITE_WORKFLOWS.length > 0,
+    'no tracked workflow runs scripts/test-ci.sh. Either the repository-wide gate suite ' +
+      'is not executed by CI at all, or the entrypoint was renamed and this contract now ' +
+      'checks nothing.'
+  );
+});
+
+test('CI Workflow Tooling - the pipeline installs what every gate needs', () => {
+  const missing = [];
+  for (const { relative, source } of SUITE_WORKFLOWS) {
+    for (const entry of REQUIRED_TOOLING) {
+      if (!entry.provides.test(source)) missing.push(`${relative}: ${entry.tool} (${entry.why})`);
+    }
+  }
 
   assert.deepEqual(
     missing,
     [],
-    `.gitea/workflows/ci-cd.yml runs scripts/test-ci.sh but does not install:\n  ${missing.join('\n  ')}\n` +
+    `a workflow runs scripts/test-ci.sh but does not install:\n  ${missing.join('\n  ')}\n` +
       'A gate whose tool is absent either fails the run or, worse, reports a pass for a check that never executed.'
   );
 });
@@ -168,17 +193,30 @@ test('CI Workflow Tooling - a missing linter fails CI instead of silently skippi
 });
 
 test('CI Workflow Tooling - network-fetched binaries are checksum verified', () => {
-  // actionlint is downloaded into the job that then lints these workflows.
-  assert.match(
-    workflowSource,
-    /ACTIONLINT_SHA256_LINUX_AMD64: [a-f0-9]{64}/,
-    'the actionlint download must pin a sha256'
-  );
-  assert.match(
-    workflowSource,
-    /sha256sum -c -/,
-    'the pinned actionlint sha256 must actually be verified, not merely recorded'
-  );
+  // Scoped to the workflows that run the suite, and the scope is earned rather
+  // than assumed: the binary in question is the actionlint release this file's
+  // own REQUIRED_TOOLING map declares, fetched by version into the job that
+  // then lints these workflows. Naming a fixed variable and a fixed release URL
+  // is only meaningful against that download.
+  //
+  // What this deliberately does NOT claim is that no other workflow executes
+  // unverified remote code. Three do — the `curl … | bash` vendor installers in
+  // ventures/local-site-studio's cursor and grok scheduled workflows — and they
+  // are a different assertion with a different remedy (those installers publish
+  // no checksum and no version), recorded in docs/CONTROL-AUDIT-2026-08-04.md
+  // rather than silently covered by a rule shaped for actionlint.
+  for (const { relative, source } of SUITE_WORKFLOWS) {
+    assert.match(
+      source,
+      /ACTIONLINT_SHA256_LINUX_AMD64: [a-f0-9]{64}/,
+      `${relative}: the actionlint download must pin a sha256`
+    );
+    assert.match(
+      source,
+      /sha256sum -c -/,
+      `${relative}: the pinned actionlint sha256 must actually be verified, not merely recorded`
+    );
+  }
 });
 
 test('CI Workflow Tooling - coverage components needing node_modules get them installed', () => {
@@ -211,12 +249,18 @@ test('CI Workflow Tooling - coverage components needing node_modules get them in
     }
   }
 
+  // Scoped to the suite runners, and again earned per assertion: the coverage
+  // ratchet is a gate inside scripts/test-ci.sh, so only a workflow that runs
+  // that script has to install what the ratchet's coverage commands load. The
+  // component paths below are monorepo-relative, which is what a suite runner
+  // checks out; a venture workflow checks out only its own directory and could
+  // not satisfy this pattern even in principle.
   const missing = needsInstall.filter(({ componentPath }) => {
     // An install step is a `working-directory: <path>` paired with an npm ci.
     const stepPattern = new RegExp(
       `working-directory:\\s*${componentPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\n\\s*run:\\s*npm ci`
     );
-    return !stepPattern.test(workflowSource);
+    return !SUITE_WORKFLOWS.some(({ source }) => stepPattern.test(source));
   });
 
   assert.deepEqual(

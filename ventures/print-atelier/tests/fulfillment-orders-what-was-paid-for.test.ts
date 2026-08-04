@@ -25,6 +25,7 @@ import test from "node:test";
 import {
   buildCheckoutSessionPayload,
   type CheckoutLineItem,
+  type CheckoutShippingRegion,
 } from "../src/lib/checkout";
 import { buildPrintfulOrderPayload, resolvePrintfulOrderInputs } from "../src/lib/printful-orders";
 import { buildGelatoOrderPayload, resolveGelatoOrderInputs } from "../src/lib/gelato-orders";
@@ -65,7 +66,7 @@ function multiQuantityCart(): CheckoutLineItem[] {
  * inputs Stripe supplies and the operator mappings, so the order is *complete*
  * and the adapters are exercised on the submit path rather than the refuse path.
  */
-function paidOrderMetadata(cart: CheckoutLineItem[], region = "domestic") {
+function paidOrderMetadata(cart: CheckoutLineItem[], region: CheckoutShippingRegion = "US") {
   const payload = buildCheckoutSessionPayload(cart, region, ENV.NEXT_PUBLIC_SITE_URL, ENV);
   return {
     payload,
@@ -146,7 +147,7 @@ test("the declared customs value is the item's own price, not the whole order", 
   // International on purpose: domestic shipping is 0, and "shipping is not
   // folded into the goods" is not a claim a zero can support.
   const cart = multiQuantityCart();
-  const { payload, metadata } = paidOrderMetadata(cart, "international");
+  const { payload, metadata } = paidOrderMetadata(cart, "EU");
   assert.ok(payload.shippingAmountCents > 0, "this test needs a region that charges shipping");
   const chargedCents = payload.lineItems.reduce(
     (sum, item) => sum + item.unitAmountCents * item.quantity,
