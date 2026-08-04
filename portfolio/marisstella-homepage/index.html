@@ -19,9 +19,9 @@
   <div class="bg-grid"></div>
 
   <!-- Header / Navigation -->
-  <header class="site-header">
+  <header class="site-header" id="top">
     <div class="container header-container">
-      <a href="#" class="brand-logo">
+      <a href="#top" class="brand-logo">
         <div class="logo-icon" aria-hidden="true">✦</div>
         <span class="brand-name">Maris Stella <span class="brand-tag">Labs</span></span>
       </a>
@@ -29,6 +29,7 @@
         <a href="#thesis">Thesis</a>
         <a href="#ventures">Ventures</a>
         <a href="#architecture">Studio model</a>
+        <a href="mailto:duncan.andrew.haywood@gmail.com?subject=Maris%20Stella%20Labs%20enquiry">Contact</a>
       </nav>
       <div class="header-actions">
         <div class="status-indicator">
@@ -431,7 +432,10 @@
       </div>
       <div class="closing-action">
         <p>Our flagship venture is live and learning from real decisions today.</p>
-        <a href="https://pairwise.marisstella.dev" target="_blank" rel="noopener" class="btn btn-lg btn-primary">Explore Pairwise <span aria-hidden="true">↗</span></a>
+        <div class="closing-buttons">
+          <a href="https://pairwise.marisstella.dev" target="_blank" rel="noopener" class="btn btn-lg btn-primary">Explore Pairwise <span aria-hidden="true">↗</span></a>
+          <a href="mailto:duncan.andrew.haywood@gmail.com?subject=Maris%20Stella%20Labs%20enquiry" class="btn btn-lg btn-secondary">Work with the studio</a>
+        </div>
       </div>
     </div>
   </section>
@@ -449,8 +453,12 @@
         <div class="footer-col">
           <h4>Ventures</h4>
           <a href="https://pairwise.marisstella.dev" target="_blank" rel="noopener">Pairwise Engine</a>
-          <a href="#ventures">AI Engineering Academy</a>
-          <a href="#ventures">Real Estate Photo Suite</a>
+          <!-- Only ventures with a customer-facing surface are linked. The two
+               below are in build, so they are named rather than linked: a link
+               that scrolls back up this page reads as a product that opened
+               nothing. See portfolio/marisstella-homepage/test/shopfront-contract.test.mjs. -->
+          <span class="footer-pending">AI Engineering Academy <em>in build</em></span>
+          <span class="footer-pending">Real Estate Photo Suite <em>in build</em></span>
         </div>
         <div class="footer-col">
           <h4>Studio</h4>
@@ -459,7 +467,8 @@
           <a href="#ventures">Portfolio</a>
         </div>
         <div class="footer-col">
-          <h4>Domain</h4>
+          <h4>Contact</h4>
+          <a href="mailto:duncan.andrew.haywood@gmail.com?subject=Maris%20Stella%20Labs%20enquiry">Work with the studio</a>
           <a href="https://marisstella.dev">marisstella.dev</a>
           <a href="https://duncanhaywood.dev">duncanhaywood.dev</a>
         </div>

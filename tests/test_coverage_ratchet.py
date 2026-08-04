@@ -30,11 +30,13 @@ if str(CI_DIR) not in sys.path:
 
 from coverage_ratchet import (
     BASELINE_PATH,
+    MAX_BASIS_DRIFT_PERCENT,
     MAX_TOLERANCE_POINTS,
     METRICS,
     Measurement,
     audit,
     compare,
+    compare_basis,
     load_baseline,
     parse_lcov,
     run_coverage,
@@ -73,6 +75,9 @@ def component(**overrides):
         "owner": "duncan",
         "command": ["node", "--version"],
         "baseline": {"lines": 87.5, "functions": 75.0, "branches": 75.0},
+        # Matches SAMPLE_LCOV, so a comparison against it checks the percentages
+        # rather than tripping over the basis.
+        "measured": {"files": 2, "lines": 200},
         "tolerance": {"lines": 0.5, "functions": 0.5, "branches": 0.5},
     }
     entry.update(overrides)
@@ -167,7 +172,7 @@ class ValidateComponentTest(unittest.TestCase):
         self.assertEqual(validate_component(component()), [])
 
     def test_missing_required_field_fails(self):
-        for missing in ("id", "path", "command", "owner", "baseline", "tolerance"):
+        for missing in ("id", "path", "command", "owner", "baseline", "measured", "tolerance"):
             entry = component()
             del entry[missing]
             codes = [f.code for f in validate_component(entry)]
@@ -199,6 +204,99 @@ class ValidateComponentTest(unittest.TestCase):
 
     def test_non_mapping_entry_fails(self):
         self.assertEqual([f.code for f in validate_component("print-atelier")], ["malformed-entry"])
+
+    def test_measured_basis_must_be_a_mapping(self):
+        entry = component(measured=[54, 13502])
+        self.assertIn("invalid-measured-basis", [f.code for f in validate_component(entry)])
+
+    def test_measured_basis_requires_both_halves(self):
+        for present, absent in (("files", "lines"), ("lines", "files")):
+            entry = component(measured={present: 10})
+            codes = [f.code for f in validate_component(entry)]
+            self.assertIn("missing-measured-field", codes, f"{absent} was not required")
+
+    def test_measured_counts_must_be_positive_integers(self):
+        for bad in (0, -1, 54.5, "54", True):
+            entry = component(measured={"files": bad, "lines": 200})
+            self.assertIn(
+                "invalid-measured-field",
+                [f.code for f in validate_component(entry)],
+                f"{bad!r} was accepted as a file count",
+            )
+
+    def test_basis_drift_band_wider_than_the_cap_fails(self):
+        """A band that can hide a component measuring a different surface is not a band."""
+        entry = component(
+            measured={"files": 2, "lines": 200, "drift_percent": MAX_BASIS_DRIFT_PERCENT + 0.1}
+        )
+        self.assertIn("basis-drift-too-wide", [f.code for f in validate_component(entry)])
+
+    def test_negative_basis_drift_fails(self):
+        entry = component(measured={"files": 2, "lines": 200, "drift_percent": -1})
+        self.assertIn("invalid-basis-drift", [f.code for f in validate_component(entry)])
+
+    def test_non_numeric_basis_drift_fails(self):
+        entry = component(measured={"files": 2, "lines": 200, "drift_percent": "wide"})
+        self.assertIn("invalid-basis-drift", [f.code for f in validate_component(entry)])
+
+
+class MeasurementBasisTest(unittest.TestCase):
+    """The check that would have caught the 2026-08-02 inflated floors.
+
+    Both components' baselines were raised onto reports that had started counting
+    their own test files as covered source. Every assertion here is about the
+    denominator, because the percentages in that commit were arithmetically
+    correct — over the wrong set of files.
+    """
+
+    def test_matching_basis_is_clean(self):
+        self.assertEqual(compare_basis(component(), parse_lcov(SAMPLE_LCOV)), [])
+
+    def test_a_report_covering_the_test_files_too_fails(self):
+        """platform-ci, exactly: 1 declared source file, 13 measured."""
+        entry = component(measured={"files": 1, "lines": 805})
+        measured = Measurement(files=13, lines_found=3436, lines_hit=3010)
+        codes = [f.code for f in compare_basis(entry, measured)]
+        self.assertEqual(codes, ["measurement-basis-drift", "measurement-basis-drift"])
+
+    def test_source_silently_dropping_out_of_the_report_fails(self):
+        """The inverse, and the more dangerous one: coverage *rises* as it happens."""
+        entry = component(measured={"files": 54, "lines": 13502})
+        measured = Measurement(files=20, lines_found=5000, lines_hit=4900)
+        findings = compare_basis(entry, measured)
+        self.assertEqual([f.code for f in findings], ["measurement-basis-drift"] * 2)
+        self.assertIn("fewer than", findings[0].message)
+
+    def test_routine_file_churn_inside_the_band_passes(self):
+        entry = component(measured={"files": 54, "lines": 13502})
+        measured = Measurement(files=57, lines_found=14100, lines_hit=13000)
+        self.assertEqual(compare_basis(entry, measured), [])
+
+    def test_a_single_file_component_is_pinned_exactly(self):
+        """10% of one file is a tenth of a file, so any change needs a decision."""
+        entry = component(measured={"files": 1, "lines": 805})
+        measured = Measurement(files=2, lines_found=805, lines_hit=500)
+        codes = [f.code for f in compare_basis(entry, measured)]
+        self.assertEqual(codes, ["measurement-basis-drift"])
+
+    def test_a_wider_declared_band_is_honoured(self):
+        entry = component(measured={"files": 54, "lines": 13502, "drift_percent": 25.0})
+        measured = Measurement(files=66, lines_found=16000, lines_hit=15000)
+        self.assertEqual(compare_basis(entry, measured), [])
+
+    def test_compare_reports_basis_drift_alongside_the_percentages(self):
+        """`compare` is what the audit calls; the basis check must run inside it."""
+        entry = component(measured={"files": 1, "lines": 805})
+        measured = Measurement(
+            files=13,
+            lines_found=3436,
+            lines_hit=3010,
+            functions_found=10,
+            functions_hit=10,
+            branches_found=10,
+            branches_hit=10,
+        )
+        self.assertIn("measurement-basis-drift", [f.code for f in compare(entry, measured)])
 
 
 class RunCoverageTest(unittest.TestCase):
@@ -248,6 +346,7 @@ class RunCoverageTest(unittest.TestCase):
                 "'SF:a.ts\\nLF:10\\nLH:9\\nFNF:2\\nFNH:2\\nBRF:4\\nBRH:3\\nend_of_record\\n')",
             ],
             baseline={"lines": 90.0, "functions": 100.0, "branches": 75.0},
+            measured={"files": 1, "lines": 10},
         )
         measured, failure = run_coverage(REPO_ROOT, entry)
         self.assertIsNone(failure)
@@ -302,6 +401,40 @@ class RepositoryContractTest(unittest.TestCase):
                 # The 90% target is aspirational; a baseline written *at* the
                 # target before it is true would switch the gate off.
                 self.assertLessEqual(entry["baseline"][metric], 100.0)
+
+    def test_every_node_component_pins_what_it_measures(self):
+        """Without this flag the measured surface is whatever the runner defaults to.
+
+        Node 22 counts a component's own test files as covered source; Node 24
+        stopped. `.gitea/workflows/ci-cd.yml` pins Node 22 and developer machines
+        run newer ones, so an unpinned command is measured over two different sets
+        of files and the gate's verdict depends on who ran it. That is how both
+        floors in this file came to be raised onto reports of the test suites
+        grading themselves.
+        """
+        for entry in load_baseline(REPO_ROOT)["components"]:
+            if entry.get("runner") != "node-test":
+                continue
+            pins = [
+                part
+                for part in entry["command"]
+                if part.startswith("--test-coverage-include")
+                or part.startswith("--test-coverage-exclude")
+            ]
+            self.assertTrue(
+                pins,
+                f"{entry['id']} lets the Node version decide which files it measures; "
+                "pass --test-coverage-include so the basis is the same on every runner",
+            )
+
+    def test_every_component_declares_the_basis_of_its_baseline(self):
+        for entry in load_baseline(REPO_ROOT)["components"]:
+            basis = entry.get("measured")
+            self.assertIsInstance(basis, dict, f"{entry['id']} declares no measured basis")
+            for half in ("files", "lines"):
+                self.assertIsInstance(
+                    basis.get(half), int, f"{entry['id']} has no measured.{half}"
+                )
 
     def test_declared_component_paths_exist(self):
         for entry in load_baseline(REPO_ROOT)["components"]:

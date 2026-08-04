@@ -47,17 +47,9 @@ from kill_criteria_ratchet import (
     measure,
 )
 from portfolio.router.kill_criteria import (
+    NOT_MEASURABLE,
     NOT_TRIGGERED,
-    REASON_MALFORMED,
-    REASON_METRIC_UNRECORDED,
-    REASON_NO_LEDGER_HISTORY,
-    REASON_PROSE_ONLY,
-    REASON_UNKNOWN_METRIC,
     TRIGGERED,
-    UNEVALUABLE,
-    LedgerFacts,
-    build_ledger_facts,
-    evaluate_criterion,
     evaluate_venture,
     has_stopping_rule,
 )
@@ -65,18 +57,24 @@ from portfolio.router.kill_criteria import (
 TODAY = date(2026, 8, 3)
 
 
-def facts(**overrides) -> LedgerFacts:
-    base = dict(
-        venture="v1",
-        has_history=True,
-        months_recorded=1,
-        cumulative_agent_spend_usd=18.18,
-        cumulative_revenue_usd=0.0,
-        latest_mrr_usd=0.0,
-        consecutive_months_zero_mrr=1,
-    )
-    base.update(overrides)
-    return LedgerFacts(**base)
+def _venture(criteria) -> dict:
+    return {"name": "v1", "kill_criteria": criteria}
+
+
+ROWS_ZERO_REVENUE = {"v1": [{"venture": "v1", "period": "2026-07", "agent_spend_usd": 200.0, "mrr_end": 0.0}]}
+ROWS_UNRECORDED_REVENUE = {"v1": [{"venture": "v1", "period": "2026-07", "agent_spend_usd": 200.0}]}
+ROWS_EARNING = {"v1": [{"venture": "v1", "period": "2026-07", "agent_spend_usd": 200.0, "mrr_end": 40.0}]}
+
+SPEND_WITHOUT_REVENUE = [
+    {
+        "id": "spend-without-revenue",
+        "description": "spend accumulated with no revenue recorded",
+        "when": [
+            {"metric": "cumulative_agent_spend_usd", "op": ">=", "value": 150},
+            {"metric": "cumulative_revenue_usd", "op": "==", "value": 0},
+        ],
+    }
+]
 
 
 def make_baseline(**overrides) -> dict:
@@ -102,157 +100,56 @@ def make_measurement(without: int, measured: int = 11) -> Measurement:
     )
 
 
-class TestCriterionEvaluation(unittest.TestCase):
-    def test_prose_is_unevaluable_not_a_pass(self):
-        """The original defect: prose criteria silently read as 'do not kill'."""
-        result = evaluate_criterion("Fewer than 50 learners after 60 days.", facts())
-        self.assertEqual(result.verdict, UNEVALUABLE)
-        self.assertEqual(result.reason, REASON_PROSE_ONLY)
-        self.assertFalse(result.evaluable)
+class TestPortedRevenueMetric(unittest.TestCase):
+    """`cumulative_revenue_usd` was ported from the engine this replaced.
 
-    def test_structured_criterion_triggers_when_the_condition_holds(self):
-        result = evaluate_criterion(
-            {
-                "description": "spend passed the cap",
-                "metric": "cumulative_agent_spend_usd",
-                "comparator": ">=",
-                "threshold": 10,
-            },
-            facts(cumulative_agent_spend_usd=18.18),
+    The two implementations disagreed about what an unrecorded month means, and
+    print-atelier's stop-loss — the portfolio's only working brake — is written
+    against this metric, so the disagreement decided whether that brake fires on
+    missing data.
+    """
+
+    def _verdict_of(self, rows, present=True):
+        results = evaluate_venture(
+            _venture(SPEND_WITHOUT_REVENUE), "v1", rows, present, today=TODAY
         )
-        self.assertEqual(result.verdict, TRIGGERED)
-        self.assertIn("cumulative_agent_spend_usd=18.18", result.detail)
+        return results[0].outcome
 
-    def test_structured_criterion_that_was_measured_and_did_not_hold(self):
-        result = evaluate_criterion(
-            {"metric": "cumulative_agent_spend_usd", "comparator": ">=", "threshold": 150},
-            facts(cumulative_agent_spend_usd=18.18),
-        )
-        self.assertEqual(result.verdict, NOT_TRIGGERED)
-        self.assertTrue(result.evaluable)
+    def test_measured_zero_revenue_triggers(self):
+        self.assertEqual(self._verdict_of(ROWS_ZERO_REVENUE), TRIGGERED)
 
-    def test_every_condition_must_hold_for_the_criterion_to_trigger(self):
-        criterion = {
-            "description": "spend with no revenue",
-            "when": [
-                {"metric": "cumulative_agent_spend_usd", "comparator": ">=", "threshold": 10},
-                {"metric": "cumulative_revenue_usd", "comparator": "==", "threshold": 0},
-            ],
-        }
-        self.assertEqual(evaluate_criterion(criterion, facts()).verdict, TRIGGERED)
+    def test_recorded_revenue_does_not_trigger(self):
+        self.assertEqual(self._verdict_of(ROWS_EARNING), NOT_TRIGGERED)
 
-        earning = facts(cumulative_revenue_usd=500.0)
-        self.assertEqual(evaluate_criterion(criterion, earning).verdict, NOT_TRIGGERED)
+    def test_unrecorded_revenue_is_not_measurable_rather_than_zero(self):
+        # The replaced engine folded revenue into a float starting at 0.0 and
+        # skipped months recording no `mrr_end`, so a venture nobody had ever
+        # measured read as one with zero revenue and this criterion TRIGGERED —
+        # stopping a venture for absence of data, not absence of revenue.
+        self.assertEqual(self._verdict_of(ROWS_UNRECORDED_REVENUE), NOT_MEASURABLE)
 
-    def test_an_unmeasurable_condition_makes_the_whole_criterion_unevaluable(self):
-        """Two of three conditions holding is not a rule that declined to fire."""
-        criterion = {
-            "when": [
-                {"metric": "cumulative_agent_spend_usd", "comparator": ">=", "threshold": 10},
-                {"metric": "latest_mrr_usd", "comparator": "==", "threshold": 0},
-            ]
-        }
-        result = evaluate_criterion(criterion, facts(latest_mrr_usd=None))
-        self.assertEqual(result.verdict, UNEVALUABLE)
-        self.assertEqual(result.reason, REASON_METRIC_UNRECORDED)
-
-    def test_an_invented_metric_is_unevaluable_rather_than_a_pass(self):
-        result = evaluate_criterion(
-            {"metric": "vibes", "comparator": ">=", "threshold": 1}, facts()
-        )
-        self.assertEqual(result.verdict, UNEVALUABLE)
-        self.assertEqual(result.reason, REASON_UNKNOWN_METRIC)
-
-    def test_a_bad_comparator_is_unevaluable(self):
-        result = evaluate_criterion(
-            {"metric": "months_recorded", "comparator": "=~", "threshold": 1}, facts()
-        )
-        self.assertEqual(result.verdict, UNEVALUABLE)
-        self.assertEqual(result.reason, REASON_MALFORMED)
-
-    def test_a_non_numeric_threshold_is_unevaluable(self):
-        result = evaluate_criterion(
-            {"metric": "months_recorded", "comparator": ">=", "threshold": "soon"}, facts()
-        )
-        self.assertEqual(result.verdict, UNEVALUABLE)
-        self.assertEqual(result.reason, REASON_MALFORMED)
-
-    def test_an_empty_when_block_is_unevaluable_not_satisfied(self):
-        """A criterion stating no conditions must not read as a rule that held."""
-        result = evaluate_criterion({"description": "d", "when": []}, facts())
-        self.assertEqual(result.verdict, UNEVALUABLE)
-        self.assertEqual(result.reason, REASON_MALFORMED)
-
-    def test_a_venture_absent_from_the_ledger_cannot_be_measured(self):
-        result = evaluate_criterion(
-            {"metric": "cumulative_agent_spend_usd", "comparator": ">=", "threshold": 1}, None
-        )
-        self.assertEqual(result.verdict, UNEVALUABLE)
-        self.assertEqual(result.reason, REASON_NO_LEDGER_HISTORY)
-
-    def test_has_stopping_rule_needs_one_measurable_criterion(self):
-        prose_only = evaluate_venture({"kill_criteria": ["a", "b"]}, facts())
-        self.assertFalse(has_stopping_rule(prose_only))
-
-        mixed = evaluate_venture(
-            {
-                "kill_criteria": [
-                    "a",
-                    {"metric": "months_recorded", "comparator": ">=", "threshold": 99},
-                ]
-            },
-            facts(),
-        )
-        self.assertTrue(has_stopping_rule(mixed))
-
-    def test_a_venture_declaring_nothing_has_no_stopping_rule(self):
-        self.assertFalse(has_stopping_rule(evaluate_venture({}, facts())))
+    def test_no_ledger_at_all_is_not_measurable(self):
+        self.assertEqual(self._verdict_of({}, present=False), NOT_MEASURABLE)
 
 
-class TestLedgerFacts(unittest.TestCase):
-    def test_spend_and_revenue_accumulate_across_months(self):
-        built = build_ledger_facts(
-            [
-                {"period": "2026-07", "entries": [{"venture": "a", "agent_spend_usd": 10, "mrr_end": 0}]},
-                {"period": "2026-08", "entries": [{"venture": "a", "agent_spend_usd": 5.5, "mrr_end": 20}]},
-            ]
-        )
-        self.assertEqual(built["a"].cumulative_agent_spend_usd, 15.5)
-        self.assertEqual(built["a"].cumulative_revenue_usd, 20)
-        self.assertEqual(built["a"].months_recorded, 2)
-        self.assertEqual(built["a"].latest_mrr_usd, 20)
+class TestHasStoppingRule(unittest.TestCase):
+    """Ported alongside the metric; the ratchet counts ventures by this."""
 
-    def test_consecutive_zero_mrr_counts_back_from_the_newest_month(self):
-        built = build_ledger_facts(
-            [
-                {"period": "2026-06", "entries": [{"venture": "a", "mrr_end": 0}]},
-                {"period": "2026-07", "entries": [{"venture": "a", "mrr_end": 40}]},
-                {"period": "2026-08", "entries": [{"venture": "a", "mrr_end": 0}]},
-            ]
-        )
-        self.assertEqual(built["a"].consecutive_months_zero_mrr, 1)
+    def _results(self, criteria):
+        return evaluate_venture(_venture(criteria), "v1", ROWS_ZERO_REVENUE, True, today=TODAY)
 
-    def test_months_are_ordered_by_period_not_by_file_order(self):
-        built = build_ledger_facts(
-            [
-                {"period": "2026-08", "entries": [{"venture": "a", "mrr_end": 30}]},
-                {"period": "2026-07", "entries": [{"venture": "a", "mrr_end": 0}]},
-            ]
-        )
-        self.assertEqual(built["a"].latest_mrr_usd, 30)
-        self.assertEqual(built["a"].consecutive_months_zero_mrr, 0)
+    def test_one_measurable_criterion_is_enough(self):
+        self.assertTrue(has_stopping_rule(self._results(SPEND_WITHOUT_REVENUE)))
 
-    def test_an_unrecorded_mrr_breaks_the_zero_run_rather_than_extending_it(self):
-        built = build_ledger_facts(
-            [
-                {"period": "2026-07", "entries": [{"venture": "a", "mrr_end": 0}]},
-                {"period": "2026-08", "entries": [{"venture": "a"}]},
-            ]
-        )
-        self.assertEqual(built["a"].consecutive_months_zero_mrr, 0)
+    def test_prose_alone_is_no_stopping_rule(self):
+        self.assertFalse(has_stopping_rule(self._results(["No paying customer after 90 days."])))
 
-    def test_a_venture_in_no_ledger_month_has_no_history(self):
-        self.assertEqual(build_ledger_facts([]), {})
+    def test_declaring_nothing_is_no_stopping_rule(self):
+        self.assertFalse(has_stopping_rule(self._results([])))
+
+    def test_a_malformed_rule_is_not_a_brake(self):
+        broken = [{"id": "x", "description": "typo", "when": [{"metric": "vibes", "op": ">=", "value": 1}]}]
+        self.assertFalse(has_stopping_rule(self._results(broken)))
 
 
 class TestBaselineLoading(unittest.TestCase):

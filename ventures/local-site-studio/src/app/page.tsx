@@ -1,5 +1,11 @@
 import Link from "next/link";
 import { brand } from "@/lib/brand";
+import {
+  BUNDLES,
+  COMMERCE_ADDON,
+  formatPriceUsd,
+  type BundleTier,
+} from "@/lib/pricing/bundles";
 
 const steps = [
   {
@@ -19,13 +25,19 @@ const steps = [
   },
 ];
 
-const bundles = [
-  {
-    id: "starter" as const,
-    name: "Starter",
+/**
+ * Marketing copy per tier. Prices are deliberately absent: they are read from
+ * BUNDLES below, so the amount this page advertises is the same field the
+ * Stripe Checkout Session is built from. Typing "$99/mo" here would let the
+ * advertised price and the charged price drift apart silently — which is the
+ * defect src/lib/pricing/advertised-price-claims.test.ts exists to catch.
+ */
+const bundleCopy: Record<
+  BundleTier,
+  { tagline: string; features: string[]; highlighted: boolean }
+> = {
+  starter: {
     tagline: "Your site, live in days",
-    setup: "$500",
-    recurring: null as string | null,
     features: [
       "Professional landing page",
       "Contact form and Google Maps embed",
@@ -34,12 +46,8 @@ const bundles = [
     ],
     highlighted: false,
   },
-  {
-    id: "growth" as const,
-    name: "Growth",
+  growth: {
     tagline: "Site + customers on autopilot",
-    setup: "$500",
-    recurring: "$99/mo",
     features: [
       "Everything in Starter",
       "8 social/GBP posts + 2 emails per month",
@@ -48,21 +56,32 @@ const bundles = [
     ],
     highlighted: true,
   },
-  {
-    id: "complete" as const,
-    name: "Complete",
-    tagline: "Never miss a call or a customer",
-    setup: "$500",
-    recurring: "$199/mo",
+  complete: {
+    tagline: "Be ready for every call",
     features: [
       "Everything in Growth",
       "Full marketing — seasonal promos, A/B variants",
-      "AI phone agent for your business line",
-      "Appointment booking and lead capture",
+      "AI call script pack — FAQ, booking and lead capture, written from your site",
+      "Delivered as a script pack for your line; we do not answer calls for you",
     ],
     highlighted: false,
   },
-];
+};
+
+const bundles = BUNDLES.map((bundle) => ({
+  id: bundle.id,
+  name: bundle.name,
+  setup: formatPriceUsd(bundle.setupPriceUsd),
+  recurring:
+    bundle.monthlyPriceUsd == null
+      ? null
+      : `${formatPriceUsd(bundle.monthlyPriceUsd)}/mo`,
+  ...bundleCopy[bundle.id],
+}));
+
+const entryPrice = formatPriceUsd(
+  Math.min(...BUNDLES.map((bundle) => bundle.setupPriceUsd)),
+);
 
 const commerceFeatures = [
   "Stripe checkout and simple catalog (≤50 SKUs)",
@@ -84,9 +103,9 @@ export default function Home() {
           </h1>
           <p className="mt-6 text-lg leading-8 text-zinc-600">
             {brand.name} creates professional websites for restaurants, salons, trades,
-            and other local businesses. Preview your site first — choose Starter from $500,
-            or add automated marketing and an AI phone agent. Self-serve checkout, no sales
-            calls.
+            and other local businesses. Preview your site first — choose Starter from{" "}
+            {entryPrice}, or add automated marketing and an AI call script pack. Self-serve
+            checkout, no sales calls.
           </p>
           {!brand.isConfigured && (
             <p className="mt-4 text-sm text-amber-700">
@@ -143,7 +162,8 @@ export default function Home() {
           <h2 className="text-2xl font-semibold tracking-tight">Choose your bundle</h2>
           <p className="mt-4 text-zinc-600">
             Every bundle includes a professional website. Add marketing automation or an AI
-            phone agent when your business needs them. Payments processed securely via Stripe.
+            call script pack when your business needs them. Payments processed securely via
+            Stripe.
           </p>
         </div>
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
@@ -244,10 +264,13 @@ export default function Home() {
               </ul>
             </div>
             <div className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
-              <p className="text-sm font-medium text-zinc-500">Commerce add-on</p>
-              <p className="mt-2 text-4xl font-semibold tracking-tight">+$300</p>
+              <p className="text-sm font-medium text-zinc-500">{COMMERCE_ADDON.name}</p>
+              <p className="mt-2 text-4xl font-semibold tracking-tight">
+                +{formatPriceUsd(COMMERCE_ADDON.setupPriceUsd)}
+              </p>
               <p className="mt-2 text-sm text-zinc-600">
-                One-time setup + $49/mo · stacks on any bundle
+                One-time setup + {formatPriceUsd(COMMERCE_ADDON.monthlyPriceUsd)}/mo · stacks
+                on any bundle
               </p>
               <Link
                 href="/checkout?commerce=1"

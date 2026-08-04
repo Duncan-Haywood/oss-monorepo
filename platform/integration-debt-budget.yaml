@@ -1,0 +1,171 @@
+# Integration debt budget
+#
+# `platform/release-lag-budget.yaml` declares how far the repository may run
+# ahead of production. This file declares what *shape* that pile is allowed to
+# be in, which is a different question and the one that decides how expensive
+# shipping is.
+#
+# 42 branches ahead of origin/main is either one push or 42 reconciliations,
+# and release lag reports the same number for both. `scripts/ci/integration_debt.py`
+# counts independent tips — branches that are not an ancestor of any other
+# branch — and fails closed; `tests/test_integration_debt.py` runs the same
+# audit under pytest.
+#
+# The ratchet is two-directional, like `count` in
+# `platform/exception-register.yaml` and the budget in
+# `platform/release-lag-budget.yaml`:
+#
+#   * Measured above `max_unintegrated_tips` fails — the pile fragmented.
+#   * Measured more than `slack_tips` below it also fails — the work converged
+#     and the budget is now stale. Lowering it is a deliberate, reviewed act.
+#
+# The declared numbers are themselves capped in `integration_debt.py`
+# (MAX_DECLARED_TIPS, MAX_DECLARED_SLACK, MAX_EXPIRY_DAYS) and those caps are
+# held to their historical floor by `scripts/ci/cap_ratchet.py`, so this file
+# cannot be widened into permanent silence.
+#
+# Nothing here merges, pushes, or deploys. Integrating and shipping are human
+# decisions. This only keeps the shape of the pile visible.
+
+baseline_ref: origin/main
+owner: duncan
+issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
+expires: 2026-10-31
+
+budget:
+  # Measured 2026-08-04: 42 refs ahead of origin/main across 136 commits, all
+  # of them ancestors of `agent/integration-full-2026-08-03`. One tip. The
+  # integration work was already done and nothing in the repository could say
+  # so, which is why it kept being re-derived by hand —
+  # docs/INTEGRATION-REPORT-2026-08-03.md is that measurement written longhand,
+  # and it was stale within a day.
+  #
+  # Declared at 6 rather than 1 because agent sessions run concurrently and a
+  # handful of branches genuinely in flight is normal working state, not debt.
+  # 1 is today's number, not a sustainable ceiling: the day before, the same
+  # measurement over docs/INTEGRATION-REPORT-2026-08-03.md's 39 branches would
+  # have been about 12. Declaring 1 would fail on any ordinary fan-out, and a
+  # gate that fails on ordinary work gets widened rather than obeyed.
+  #
+  # This dimension is not gameable the way `max_unshipped_commits` is. Adding
+  # commits does not lower it; only merging does, and merging is the behaviour
+  # the number exists to ask for.
+  max_unintegrated_tips: 6
+
+  # Below `max_unintegrated_tips - slack_tips` the budget above is stale and
+  # must be lowered. The band is 1..6: a converged repository stays green, and
+  # 0 — everything shipped — fails until the budget is re-declared, which is
+  # the moment it is worth re-reading.
+  slack_tips: 5
+
+# Files that some branch added and that no release candidate carries. Each one
+# is a place where integration discarded work; an unregistered one fails the
+# gate. Convergence is otherwise cheap to fake — `git merge -s ours` makes a
+# branch an ancestor while dropping every line it carried, and the tip count
+# alone cannot tell that from an honest merge.
+#
+# Empty as measured on 2026-08-04, and it did not start that way. The first
+# measurement found two — `portfolio/router/test_kill_criteria.py` and
+# `portfolio/kill-criteria-register.yaml`, dropped by `fbb8bd1` when the
+# 2026-08-03 integration resolved the duplicate kill-criteria engine in main's
+# favour. Both were registered here with that reason. Within the same session a
+# concurrent agent published `agent/integration-2026-08-04`, which resolved the
+# same duplicate the *other* way and carries both files, so neither is missing
+# from every tip any more and the entries went stale.
+#
+# That is the stale direction of this check firing on real data hours after it
+# was written, and it is the argument for having it. A register pinned to one
+# moment calcifies: without the reverse check these two entries would have sat
+# here excusing a loss that had already been undone, and the next genuine drop
+# would have been read against a register nobody trusted. Re-measure rather
+# than re-declare.
+#
+# Re-measured 2026-08-04 after reconciling the two 2026-08-04 integration
+# lines. Two files, both duplicate controls resolved in favour of the rival
+# already wired into a gate, and both dropped on purpose. Every branch that
+# added each one is listed, because the key here is `(path, branch)` and a
+# drop is only excused for the branches actually named.
+#
+# The same pass found that this register was not portable. Branch names came
+# from the ref path, so a clone measured `origin/agent/x` where the primary
+# checkout measured `agent/x` — the same drop, failing twice over as
+# unregistered *and* stale depending on where the gate ran. `_short_ref` in
+# `scripts/ci/integration_debt.py` now strips the configured remote, so these
+# entries mean the same thing in both, which is the environment split that
+# function's own docstring already said it had to survive.
+dropped_artifacts:
+  # The fourth independently-built rival of `dependency-audit-coverage.test.mjs`.
+  # That one is kept: it enumerates lockfiles with `git ls-files` rather than
+  # walking three named directories, handles `yarn.lock`, and carries five
+  # checks this one lacks — manager/lockfile mismatch, `|| true`, a dropped
+  # `--audit-level`, `continue-on-error`, and `fail-fast: true`. Dropping the
+  # loser also required correcting `.gitea/workflows/security.yml`, whose
+  # comment still named this file as a test that "must keep passing".
+  - path: platform/ci/test/workflow-supply-chain.test.mjs
+    branch: agent/continue-work-2026-08-04b
+    owner: duncan
+    reason: >-
+      Duplicate supply-chain control. `platform/ci/test/dependency-audit-coverage.test.mjs`
+      is kept as the stricter and already-wired one; this is the fourth rival of it.
+  - path: platform/ci/test/workflow-supply-chain.test.mjs
+    branch: agent/integration-debt-2026-08-04
+    owner: duncan
+    reason: >-
+      Same duplicate, carried by this branch too. Resolved in favour of
+      `dependency-audit-coverage.test.mjs`.
+  - path: platform/ci/test/workflow-supply-chain.test.mjs
+    branch: agent/integration-full-2026-08-03
+    owner: duncan
+    reason: >-
+      Same duplicate, carried by this branch too. Resolved in favour of
+      `dependency-audit-coverage.test.mjs`.
+  - path: platform/ci/test/workflow-supply-chain.test.mjs
+    branch: agent/profit-lever-2026-08-02
+    owner: duncan
+    reason: >-
+      The branch this control originated on. Resolved in favour of
+      `dependency-audit-coverage.test.mjs`; the pinning sweep it also carried
+      was kept as its own file rather than dropped with it.
+
+  # The orphan half of the duplicate release-lag control. It declared a
+  # `target`/`acknowledged` schema of its own, while `release-lag-budget.yaml`
+  # is the one `scripts/ci/cap_ratchet.py` watches — four constants plus two
+  # YAML paths. Keeping this file instead would have silently emptied six of
+  # the cap ratchet's watches, which is the whole reason the surviving one won.
+  - path: platform/release-lag-policy.yaml
+    branch: agent/release-lag-signal-2026-08-02
+    owner: duncan
+    reason: >-
+      Duplicate release-lag register. `platform/release-lag-budget.yaml` is kept
+      because the cap ratchet watches six values inside it; this schema is
+      watched by nothing. `docs/RELEASE-LAG.md` was retargeted to the survivor.
+  - path: platform/release-lag-policy.yaml
+    branch: agent/continue-work-2026-08-04b
+    owner: duncan
+    reason: >-
+      Same orphan register, carried by this branch too. Resolved in favour of
+      `platform/release-lag-budget.yaml`.
+  - path: platform/release-lag-policy.yaml
+    branch: agent/integration-debt-2026-08-04
+    owner: duncan
+    reason: >-
+      Same orphan register, carried by this branch too. Resolved in favour of
+      `platform/release-lag-budget.yaml`.
+  - path: platform/release-lag-policy.yaml
+    branch: agent/integration-full-2026-08-03
+    owner: duncan
+    reason: >-
+      Same orphan register, carried by this branch too. Resolved in favour of
+      `platform/release-lag-budget.yaml`.
+
+rationale: >-
+  Release lag says how much work has not shipped. It cannot say whether that
+  work is one candidate or many, and the difference is the entire cost of
+  shipping it. On 2026-08-04 the answer was one candidate — 42 branches all
+  reachable from a single tip that passes 21 of 21 repository gates — and the
+  only reason nobody knew is that the measurement had to be made by hand each
+  time. Work that looks like weeks of integration does not get pushed, so the
+  missing measurement was itself a cause of the delay it failed to describe.
+  This is the second measured piece of the DORA scorecard item in the 30-day
+  section of docs/ENGINEERING-ROADMAP.md, and it is the one that makes the
+  first safe to act on.

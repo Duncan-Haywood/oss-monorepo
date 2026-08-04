@@ -2,6 +2,7 @@ import Link from "next/link";
 import Stripe from "stripe";
 import { ManageBillingButton } from "./manage-billing-button";
 import { orderEligibleForBillingPortal } from "@/lib/billing/portal";
+import { isCheckoutSessionPaid } from "@/lib/payments/webhook-fulfillment";
 
 type CheckoutSuccessPageProps = {
   searchParams: Promise<{ session_id?: string }>;
@@ -26,7 +27,11 @@ async function loadCheckout(
   try {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
     const session = await stripe.checkout.sessions.retrieve(sessionId);
-    if (session.status !== "complete") {
+    // status "complete" only means the Checkout flow finished. A delayed
+    // payment method is complete-and-unpaid, and this page must not tell the
+    // customer their payment landed before it has — the webhook applies the
+    // same predicate before fulfilling.
+    if (session.status !== "complete" || !isCheckoutSessionPaid(session.payment_status)) {
       return { confirmed: false };
     }
     const tier = session.metadata?.tier ?? "";

@@ -1,0 +1,50 @@
+name: Local Site Studio CI
+
+# `scripts/ci/verify-component.sh` has had a `local-site-studio` arm for some
+# time, and until this workflow existed nothing called it. The only declaration
+# that executed was the Dagger catalog's, which does not run this venture's
+# production build — so `npm run build` was verified nowhere, and a suite of
+# 1214 tests gated nothing. See the header of
+# platform/ci/test/verify-contract.test.mjs, which names this as the live hole.
+
+on:
+  pull_request:
+    paths:
+      - "ventures/local-site-studio/**"
+      - ".gitea/workflows/local-site-studio-ci.yml"
+      - "scripts/ci/verify-component.sh"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/local-site-studio/**"
+      - ".gitea/workflows/local-site-studio-ci.yml"
+      - "scripts/ci/verify-component.sh"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: local-site-studio-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/local-site-studio
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: ventures/local-site-studio/package-lock.json
+      - run: npm ci
+      - name: Run the same fail-closed application gate used locally
+        working-directory: ${{ github.workspace }}
+        run: bash scripts/ci/verify-component.sh local-site-studio

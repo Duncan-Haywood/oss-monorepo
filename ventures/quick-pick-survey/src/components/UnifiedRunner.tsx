@@ -371,6 +371,24 @@ export function UnifiedRunner() {
   const pendingPrefetchRef = useRef<Promise<Trial | null> | null>(null);
   const activePrefetchRef = useRef<number>(0);
 
+  /**
+   * The trial whose save is still on the wire, or null.
+   *
+   * Both ways of asking for the next question — the prefetch below and the
+   * `fetchNext` that runs when there is no prefetched pair — leave the browser
+   * at the same moment as the background save, and normally land first. The
+   * server's pending-reuse then matched the row being answered, which is still
+   * `result: null` for another few milliseconds, and handed the identical pair
+   * straight back. The person answered it a second time, `trials/answer`
+   * replied `alreadyAnswered` with a 200, and that answer was discarded. Half
+   * of every session's taps went nowhere and nothing anywhere said so.
+   *
+   * Naming the in-flight trial is what excludes it. A ref rather than state
+   * because both fetchers read it from inside a promise, after the render that
+   * would have carried it.
+   */
+  const answeringTrialIdRef = useRef<string | null>(null);
+
   const prefetchNext = useCallback(
     async (slug: string, pid: string, kind: DomainState["kind"]) => {
       const endpoint = kind === "ITEMS" ? "/api/trials/next" : "/api/financial-trials/next";
@@ -380,7 +398,7 @@ export function UnifiedRunner() {
           const res = await fetch(endpoint, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ participantId: pid }),
+            body: JSON.stringify({ participantId: pid, answeringTrialId: answeringTrialIdRef.current }),
           });
           if (!res.ok) return null;
           const data = await res.json();
@@ -411,7 +429,7 @@ export function UnifiedRunner() {
         const res = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ participantId: pid }),
+          body: JSON.stringify({ participantId: pid, answeringTrialId: answeringTrialIdRef.current }),
         });
         if (!res.ok) {
           recordUsage("question_load", { perspective, domain: slug, durationMs: Math.round(performance.now() - startedAt), success: false });
@@ -532,6 +550,10 @@ export function UnifiedRunner() {
     if (!upcomingTrial && pendingPrefetchRef.current) {
       upcomingTrial = (await pendingPrefetchRef.current) as Trial | null;
     }
+    // Set before any next-question request can be issued below: everything
+    // that asks for a pair reads this to exclude the row now being saved.
+    answeringTrialIdRef.current = currentTrial.trialId;
+
     activePrefetchRef.current++;
     pendingPrefetchRef.current = null;
     setNextTrial(null);
@@ -584,6 +606,10 @@ export function UnifiedRunner() {
         statusCode,
         success: ok,
       });
+      // Cleared only if no later answer has taken over: two saves can overlap.
+      if (answeringTrialIdRef.current === currentTrial.trialId) {
+        answeringTrialIdRef.current = null;
+      }
       if (!ok) {
         setError("That didn't save — check your connection and tap again.");
       }

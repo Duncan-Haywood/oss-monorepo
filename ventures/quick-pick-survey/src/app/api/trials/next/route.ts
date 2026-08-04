@@ -44,6 +44,19 @@ function cardPayload(item: {
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const participantId = typeof body?.participantId === "string" ? body.participantId : null;
+  /**
+   * The trial whose answer is in flight right now, if any.
+   *
+   * The client prefetches the next pair at the moment it accepts a tap, and
+   * saves that tap in the background — so both requests are on the wire at
+   * once and this one usually wins. Without this exclusion the pending-reuse
+   * below matched the row being answered (still `result: null` for another
+   * few milliseconds), handed the identical pair back, and the person answered
+   * it a second time. `trials/answer` then replied `alreadyAnswered` with a
+   * 200 and dropped that second answer on the floor. Every other vote was
+   * discarded, silently, and the ratings were built from half the taps.
+   */
+  const answeringTrialId = typeof body?.answeringTrialId === "string" ? body.answeringTrialId : null;
   if (!participantId) {
     return NextResponse.json({ error: "participantId is required" }, { status: 400 });
   }
@@ -74,6 +87,7 @@ export async function POST(req: NextRequest) {
         result: null,
         interactionMethod: null,
         shownAt: { gte: new Date(Date.now() - PENDING_REUSE_MS) },
+        ...(answeringTrialId ? { id: { not: answeringTrialId } } : {}),
       },
       orderBy: { shownAt: "desc" },
       select: { id: true, itemAId: true, itemBId: true },

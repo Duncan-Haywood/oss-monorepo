@@ -1,4 +1,5 @@
 import { isEmailSuppressed } from "../db";
+import { ConvexPrimaryReadError } from "../payments/convex-primary";
 import { brand } from "../brand";
 import { formatResendFromHeader } from "./email-from-env-readiness";
 import { signUnsubscribeToken } from "./unsubscribe-token";
@@ -31,8 +32,27 @@ export interface SendEmailParams {
 export async function sendEmail({ to, subject, html, leadSlug }: SendEmailParams) {
   const normalizedTo = to.toLowerCase().trim();
 
-  // 1. Check suppression list
-  const suppressed = await isEmailSuppressed(normalizedTo);
+  // 1. Check suppression list.
+  //
+  // An unanswerable suppression check is not permission to send. When Convex is
+  // configured it is the only store an unsubscribe is ever written to, so a
+  // failed read means we do not know whether this address opted out — and the
+  // one outcome CAN-SPAM does not forgive is emailing someone who did.
+  let suppressed: boolean;
+  try {
+    suppressed = await isEmailSuppressed(normalizedTo);
+  } catch (e) {
+    if (e instanceof ConvexPrimaryReadError) {
+      console.error(`[Email Blocked] Suppression list unreadable for ${to}; refusing to send.`, e);
+      return {
+        success: false,
+        error:
+          "Suppression list is temporarily unreadable, so this email was not sent. " +
+          "Retry once the shared store is reachable.",
+      };
+    }
+    throw e;
+  }
   if (suppressed) {
     console.warn(`[Email Skipped] Address ${to} is in the suppression list.`);
     return { success: false, reason: "suppressed" };
@@ -358,7 +378,7 @@ export async function sendStarterUpsellEmail(params: {
   const tierLabel = targetTier === "complete" ? "Complete" : "Growth";
   const marketingLine =
     targetTier === "complete"
-      ? "AI marketing (8 social/GBP posts + 2 emails/month) plus a client AI phone agent that answers your business line."
+      ? "AI marketing (8 social/GBP posts + 2 emails/month) plus an AI call script pack — FAQ, booking and lead-capture scripts written from your site, for you to run on your own line."
       : "an AI marketing engine: 8 social/GBP posts + 2 emails per month, written from your site data.";
 
   const subject = `${businessName} — add ${tierLabel} marketing ($${monthlyPriceUsd}/mo)`;

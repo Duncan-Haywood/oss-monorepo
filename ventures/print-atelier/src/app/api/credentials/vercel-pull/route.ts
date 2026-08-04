@@ -62,6 +62,12 @@ export async function GET(request: Request) {
     label: vault.label,
     credentialsCount: vault.credentials.length,
     blockers: vault.blockers,
+    // The setup screen renders per-key configuration state, and this is the
+    // only way it can get it: the page is unauthenticated, so it must ask a
+    // guarded route rather than read the environment during its own server
+    // render. `vault` is already through `withoutMaskedValues`, so what ships
+    // here is `configured` booleans and no key material.
+    vault,
     hint: "Send POST /api/credentials/vercel-pull to simulate or sync Vercel env variables into the credential vault.",
   });
 }

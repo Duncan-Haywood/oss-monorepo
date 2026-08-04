@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import {
+  OPERATOR_AUTH_LOCKED_OUT_MESSAGE,
   OPERATOR_SESSION_COOKIE,
-  isOperatorAuthConfigured,
+  operatorAuthMode,
   verifyOperatorSessionToken,
 } from "@/lib/auth/operator";
 import {
@@ -14,19 +15,28 @@ import { productionRootDomain } from "@/lib/deploy/handoff";
 import { getLeadBySlug, getLeadSlugByCustomDomain } from "@/lib/db";
 
 function dashboardAuthGate(request: NextRequest, pathname: string): NextResponse | null {
+  const mode = operatorAuthMode();
+
+  // Locked-out: a production build with no usable password. Deny the whole
+  // dashboard, login included — /dashboard/login cannot mint a session without
+  // a password, so letting it through would only redirect-loop. 503 with the
+  // remedy is the honest answer.
+  if (mode === "locked-out") {
+    return new NextResponse(OPERATOR_AUTH_LOCKED_OUT_MESSAGE, {
+      status: 503,
+      headers: { "content-type": "text/plain; charset=utf-8" },
+    });
+  }
+
   if (pathname === "/dashboard/login" || pathname.startsWith("/dashboard/login/")) {
     return NextResponse.next();
   }
 
-  if (!isOperatorAuthConfigured()) {
+  if (mode === "open-demo") {
     return NextResponse.next();
   }
 
-  const password = process.env.OPERATOR_DASHBOARD_PASSWORD;
-  if (!password) {
-    return NextResponse.next();
-  }
-
+  const password = process.env.OPERATOR_DASHBOARD_PASSWORD as string;
   const token = request.cookies.get(OPERATOR_SESSION_COOKIE)?.value;
   if (verifyOperatorSessionToken(token, password)) {
     return NextResponse.next();

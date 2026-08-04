@@ -27,6 +27,8 @@ const PENDING_REUSE_MS = 30 * 60 * 1000;
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const participantId = typeof body?.participantId === "string" ? body.participantId : null;
+  /** See the note on the same field in `trials/next` — identical race, same fix. */
+  const answeringTrialId = typeof body?.answeringTrialId === "string" ? body.answeringTrialId : null;
   if (!participantId) {
     return NextResponse.json({ error: "participantId is required" }, { status: 400 });
   }
@@ -59,6 +61,7 @@ export async function POST(req: NextRequest) {
         result: null,
         interactionMethod: null,
         shownAt: { gte: new Date(Date.now() - PENDING_REUSE_MS) },
+        ...(answeringTrialId ? { id: { not: answeringTrialId } } : {}),
       },
       orderBy: { shownAt: "desc" },
       include: {

@@ -1,0 +1,69 @@
+# Image release path baseline
+#
+# `platform/k8s/apps/*/` names one container image per venture. This file
+# declares how many of those images this repository cannot actually release, in
+# the two ways it fails to: no workflow builds them, and nothing pins them to an
+# immutable reference. `scripts/ci/image_release_path.py` enforces it and fails
+# closed; `tests/test_image_release_path.py` runs the same audit under pytest.
+#
+# Both ceilings are two-directional, like `platform/release-lag-budget.yaml`,
+# `platform/coverage-baseline.yaml` and `platform/kill-criteria-baseline.yaml`:
+#
+#   * Measured above a ceiling fails — a manifest was added for an image nothing
+#     produces, or a build job was removed out from under one.
+#   * Measured more than `slack` below it also fails as stale — a venture became
+#     releasable and locking that in is a deliberate act.
+#
+# The ceilings are capped in the script at 6 and 7, the numbers measured on
+# 2026-08-04 before the control existed. Neither can be argued back up to the
+# state it was written to end.
+#
+# Nothing here deploys, promotes or edits a manifest. Which ventures belong in
+# the cluster, and on which digest, is the portfolio owner's decision.
+
+owner: duncan
+issue: docs/ENGINEERING-ROADMAP.md#image-release-path
+expires: 2026-11-30
+
+budget:
+  # Measured 2026-08-04: 6 of the 8 organisation images named by
+  # platform/k8s/apps had no producer anywhere in the repository — no
+  # Dockerfile, no build job, nothing that could ever put that tag in the
+  # registry. Complete Deployments, Services, Ingresses and PDBs, pointed at by
+  # ArgoCD, waiting on images that would never exist.
+  #
+  # Lowered 6 -> 5 the same day by local-site-studio, which is the worked
+  # example that the path runs end to end: Dockerfile, `output: "standalone"`,
+  # and a workflow that builds the image, proves it serves "/", and publishes an
+  # immutable tag. That venture holds the most finished commerce code in the
+  # monorepo and could not be built at all.
+  #
+  # Each remaining 1 is a venture whose deployment can never start. Of the five,
+  # ai-first-markets is the one that may be correct to delete rather than build:
+  # it ships to Cloudflare, so its Kubernetes manifest is a phantom surface.
+  max_without_build_path: 5
+
+  # Measured 2026-08-04: 7 of 8 resolve to `:latest` after kustomize overrides.
+  # Only quick-pick-survey pins a digest, and only because its GitOps promoter
+  # writes one on every release.
+  #
+  # `.gitea/workflows/deploy-services.yml` already rejects `:latest`, `:main`
+  # and `:master`, and already triggers on `platform/k8s/apps/**` — but its only
+  # substantive step renders a Helm chart with hardcoded example values, so it
+  # has never read any of these files. The rule existed; the reach did not.
+  max_mutable_references: 7
+
+  # More than this many below a ceiling and the ceiling is stale.
+  slack: 2
+
+rationale: >-
+  The engineering roadmap treats deployment as the last mile of quality, and the
+  repository had no check that a deployment could happen at all. Writing
+  Kubernetes manifests is the visible half of shipping and it is the half that
+  got written — every venture had one, most had never been built once. The
+  effect is not a broken cluster but a silent one: a venture reads as deployed
+  because its manifests are complete, while the image it names has no producer
+  and the pod could only ever be ImagePullBackOff. That is the same shape as a
+  gate that cannot fail, one layer out from the code. This baseline does not
+  decide what to deploy; it refuses to let the number of undeliverable
+  deployments grow without anyone noticing.

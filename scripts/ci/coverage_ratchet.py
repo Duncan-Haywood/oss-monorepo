@@ -29,6 +29,13 @@ every commit trains people to bump it without reading it. The tolerance is the
 width of the band that needs no review, not permission to regress: it is
 declared per component and checked in, so widening it is itself reviewable.
 
+Each component also declares the *basis* of its measurement — how many files and
+lines the report covered — and that is checked alongside the percentages. A
+percentage is a ratio, and comparing ratios cannot detect a moved denominator:
+a floor raised on a report that had quietly started counting the component's own
+test files as covered source looks exactly like a floor raised on better tests.
+See `compare_basis` for the instance that produced this check.
+
 Deliberately fails closed. A component declared in the baseline whose coverage
 command fails, produces no lcov, or reports zero total lines is a failure, not
 a skip. That is the specific way the repository's other gates have been found
@@ -68,12 +75,32 @@ REQUIRED_COMPONENT_FIELDS = (
     "command",
     "owner",
     "baseline",
+    "measured",
     "tolerance",
 )
 
 # A tolerance wide enough to hide a deleted test file is not a tolerance. Two
 # percentage points is roughly one small module in the components measured here.
 MAX_TOLERANCE_POINTS = 2.0
+
+# The two halves of the measurement basis: how many files the report covered and
+# how many lines they held. A percentage is a ratio, and this file only ever
+# checked the ratio — so a component could change *what it measured* without
+# moving the number enough to notice.
+BASIS_FIELDS = ("files", "lines")
+
+# How far the basis may move before it needs a deliberate update, as a percentage
+# of the declared figure. Source files are added and deleted routinely, so an
+# exact match would make this unmaintainable; a 4x change in the measured set is
+# not routine, and that is what this catches. Deliberately proportional and not
+# floored at ±1 file: a one-file component is pinned exactly, which is correct,
+# because the only way its file count moves is a change to what is being scoped.
+DEFAULT_BASIS_DRIFT_PERCENT = 10.0
+
+# A drift band wide enough to hide the whole test suite being counted as source
+# is not a band. Caps the per-component override the same way MAX_TOLERANCE_POINTS
+# caps `tolerance`.
+MAX_BASIS_DRIFT_PERCENT = 25.0
 
 
 @dataclass
@@ -261,7 +288,218 @@ def validate_component(entry: Any) -> List[Finding]:
                     )
                 )
 
+    findings.extend(_validate_measured(name, entry.get("measured")))
+
     return findings
+
+
+def _validate_measured(name: Any, measured: Any) -> List[Finding]:
+    """Structural checks on one entry's declared measurement basis."""
+    findings: List[Finding] = []
+    if measured is None:
+        # Absence is already reported as `missing-field`; do not say it twice.
+        return findings
+
+    if not isinstance(measured, dict):
+        return [
+            Finding(
+                component=str(name),
+                severity="error",
+                code="invalid-measured-basis",
+                message=f"`measured` is not a mapping: {measured!r}",
+                remedy=(
+                    "Declare `measured.files` and `measured.lines` — the size of the "
+                    "report the baseline percentages were taken from."
+                ),
+            )
+        ]
+
+    for field_name in BASIS_FIELDS:
+        if field_name not in measured:
+            findings.append(
+                Finding(
+                    component=str(name),
+                    severity="error",
+                    code="missing-measured-field",
+                    message=f"`measured.{field_name}` is not declared",
+                    remedy=(
+                        f"Run --report and record the {field_name} figure it prints. "
+                        "A percentage with no declared denominator cannot be audited."
+                    ),
+                )
+            )
+            continue
+        value = measured[field_name]
+        if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
+            findings.append(
+                Finding(
+                    component=str(name),
+                    severity="error",
+                    code="invalid-measured-field",
+                    message=f"`measured.{field_name}` is not a positive integer: {value!r}",
+                    remedy=f"`measured.{field_name}` is a count taken from the lcov report.",
+                )
+            )
+
+    drift = measured.get("drift_percent", DEFAULT_BASIS_DRIFT_PERCENT)
+    if not isinstance(drift, (int, float)) or isinstance(drift, bool):
+        findings.append(
+            Finding(
+                component=str(name),
+                severity="error",
+                code="invalid-basis-drift",
+                message=f"`measured.drift_percent` is not a number: {drift!r}",
+                remedy="Drift is a width in percent of the declared basis.",
+            )
+        )
+    elif float(drift) < 0:
+        findings.append(
+            Finding(
+                component=str(name),
+                severity="error",
+                code="invalid-basis-drift",
+                message=f"`measured.drift_percent` is negative: {drift}",
+                remedy="Drift is a width in percent of the declared basis.",
+            )
+        )
+    elif float(drift) > MAX_BASIS_DRIFT_PERCENT:
+        findings.append(
+            Finding(
+                component=str(name),
+                severity="error",
+                code="basis-drift-too-wide",
+                message=(
+                    f"`measured.drift_percent` is {drift}%, above the "
+                    f"{MAX_BASIS_DRIFT_PERCENT}% limit"
+                ),
+                remedy=(
+                    "A band this wide stops the basis being a check at all. Narrow it, "
+                    "or split the component."
+                ),
+            )
+        )
+
+    return findings
+
+
+# Node's ways of saying a package could not be resolved. Matched against a
+# failed command's output, never used to decide whether to run one: a component
+# may legitimately declare dependencies its test command does not import, and
+# refusing to run it would trade this misdiagnosis for a worse one.
+#
+# Split because the error code also appears in the `throw new ERR_MODULE_NOT_FOUND(...)`
+# source line Node prints above the message. That line proves the failure kind
+# but names no package, so the phrases that do are searched first.
+UNRESOLVED_IMPORT_NAMING_MARKERS = (
+    "Cannot find package",
+    "Cannot find module",
+)
+UNRESOLVED_IMPORT_CODE_MARKERS = (
+    "ERR_MODULE_NOT_FOUND",
+    "MODULE_NOT_FOUND",
+)
+UNRESOLVED_IMPORT_MARKERS = (
+    UNRESOLVED_IMPORT_NAMING_MARKERS + UNRESOLVED_IMPORT_CODE_MARKERS
+)
+
+
+def looks_like_unresolved_import(output: str) -> bool:
+    """True when a failed command died resolving an import rather than testing."""
+    return any(marker in output for marker in UNRESOLVED_IMPORT_MARKERS)
+
+
+def unresolved_import_line(output: str) -> str:
+    """The first line naming the package that could not be resolved.
+
+    Preferred over a generic tail for this finding. When a loader is missing,
+    every test file fails too, so the tail is a wall of `'test failed'` that
+    reads as a broken suite — the exact impression this diagnosis exists to
+    correct. The one line naming the missing package is the whole story.
+    """
+    lines = [line.strip() for line in output.splitlines() if line.strip()]
+    for markers in (UNRESOLVED_IMPORT_NAMING_MARKERS, UNRESOLVED_IMPORT_CODE_MARKERS):
+        for line in lines:
+            if any(marker in line for marker in markers):
+                return line
+    return ""
+
+
+def declares_uninstalled_dependencies(workdir: Path) -> bool:
+    """True when a component declares npm dependencies but never installed them.
+
+    Half of the evidence for the `component-dependencies-missing` diagnosis; the
+    other half is that the command actually died on an unresolved import. On its
+    own this is not enough, and acting on it alone was wrong: `platform/ci`
+    declares `@dagger.io/dagger` for its pipeline but tests entirely on the Node
+    standard library, so it runs green with no `node_modules` at all. Treating
+    the declaration as proof would have failed a healthy component — and, worse,
+    would have hidden the real catalog bug its suite was catching.
+    """
+    manifest_file = workdir / "package.json"
+    if not manifest_file.is_file():
+        return False
+    try:
+        manifest = json.loads(manifest_file.read_text())
+    except (OSError, ValueError):
+        # An unreadable manifest is the command's problem to report, not ours.
+        return False
+    if not isinstance(manifest, dict):
+        return False
+    declared = sum(
+        len(manifest[block])
+        for block in ("dependencies", "devDependencies")
+        if isinstance(manifest.get(block), dict)
+    )
+    if declared == 0:
+        return False
+    return not (workdir / "node_modules").is_dir()
+
+
+def without_reporter_arguments(command: Sequence[str]) -> List[str]:
+    """The same command with its `--test-reporter*` arguments removed."""
+    return [part for part in command if not part.startswith("--test-reporter")]
+
+
+def diagnostic_rerun(
+    command: Sequence[str], workdir: Path, env: Dict[str, str], timeout: int
+) -> str:
+    """Re-run a failed coverage command with its reporter off, to see why it failed.
+
+    `--test-reporter-destination` sends *everything* to the destination file,
+    including the error that killed the run. A component that dies before any
+    test executes therefore fails with empty stdout, empty stderr, and a 4-byte
+    lcov file, and the audit can only report `coverage command exited 1:` with
+    nothing after the colon. That is a true statement containing no information.
+
+    Running it again without the reporter puts the diagnostic back on stderr.
+    This only ever happens on a failure that produced no output, so it costs
+    nothing on a healthy run and cannot turn a passing component red — the
+    result is used solely to word the finding.
+    """
+    try:
+        repeat = subprocess.run(
+            without_reporter_arguments(command),
+            cwd=workdir,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return ""
+    return repeat.stderr or repeat.stdout or ""
+
+
+def failure_excerpt(output: str, limit: int = 8) -> List[str]:
+    """The most diagnostic lines of a failed command's output.
+
+    Taking the last N lines loses the cause whenever the runtime prints a stack
+    trace: the `Error: ...` line scrolls off and the excerpt is nothing but
+    `at ...` frames. Drop the frames first, then take the tail.
+    """
+    lines = [line.rstrip() for line in output.strip().splitlines() if line.strip()]
+    meaningful = [line for line in lines if not line.lstrip().startswith("at ")]
+    return (meaningful or lines)[-limit:]
 
 
 def run_coverage(repo_root: Path, entry: Dict[str, Any]) -> tuple[Optional[Measurement], Optional[Finding]]:
@@ -329,7 +567,31 @@ def run_coverage(repo_root: Path, entry: Dict[str, Any]) -> tuple[Optional[Measu
             )
 
         if completed.returncode != 0:
-            tail = (completed.stderr or completed.stdout or "").strip().splitlines()[-8:]
+            output = completed.stderr or completed.stdout or ""
+            if not failure_excerpt(output):
+                # The reporter ate the reason. Ask again without it.
+                output = diagnostic_rerun(
+                    resolved, workdir, env, entry.get("timeout_seconds", 900)
+                ) or output
+            tail = failure_excerpt(output)
+            # Both outcomes fail closed. They differ only in which repair they
+            # send the reader to, and sending them to the wrong one costs a
+            # search for a broken test that was never broken.
+            if looks_like_unresolved_import(output) and declares_uninstalled_dependencies(workdir):
+                return None, Finding(
+                    component=name,
+                    severity="error",
+                    code="component-dependencies-missing",
+                    message=(
+                        f"{entry['path']} declares npm dependencies but has no "
+                        "node_modules, and the coverage command died resolving an "
+                        "import: " + unresolved_import_line(output)
+                    ),
+                    remedy=(
+                        "Install the component's dependencies (npm ci) and re-run. "
+                        "This is an uninstalled component, not a failing test suite."
+                    ),
+                )
             return None, Finding(
                 component=name,
                 severity="error",
@@ -370,12 +632,68 @@ def run_coverage(repo_root: Path, entry: Dict[str, Any]) -> tuple[Optional[Measu
     return measurement, None
 
 
+def compare_basis(entry: Dict[str, Any], measured: Measurement) -> List[Finding]:
+    """Check the measurement was taken over the surface the baseline declares.
+
+    This exists because of a specific failure. On 2026-08-02 `platform-ci`'s floor
+    was raised from 52.11% to 87.60% and `print-atelier`'s from 91.70% to 94.07%,
+    both recorded in good faith as "measured". Neither number was the coverage of
+    the code: Node 22 counted the components' own test files as covered source,
+    and test files execute themselves, so 2631 lines of near-total coverage were
+    averaging with 805 lines of real coverage. Node 24 changed the default and
+    stopped counting them, so the same commit passed in CI and failed on a laptop.
+
+    Every percentage check in this file compares a ratio, and a ratio cannot see
+    this: the denominator changed. The comment beside the baseline recorded the
+    right evidence — "13 files / 3436 lines" — but it was prose, so nothing
+    compared it to the 1 file / 805 lines the gate actually measured.
+
+    The inverse case is the more dangerous one and this catches it too. If half a
+    component's source silently stops being measured, coverage *rises*, and the
+    two-directional check reports `baseline-stale` — inviting someone to ratchet
+    the floor up over a shrinking surface.
+    """
+    name = entry["id"]
+    declared = entry["measured"]
+    band = float(declared.get("drift_percent", DEFAULT_BASIS_DRIFT_PERCENT))
+    findings: List[Finding] = []
+
+    actuals = {"files": measured.files, "lines": measured.lines_found}
+    for field_name in BASIS_FIELDS:
+        expected = int(declared[field_name])
+        actual = actuals[field_name]
+        allowed = expected * band / 100.0
+        if abs(actual - expected) <= allowed:
+            continue
+        direction = "more" if actual > expected else "fewer"
+        findings.append(
+            Finding(
+                component=name,
+                severity="error",
+                code="measurement-basis-drift",
+                message=(
+                    f"the report covered {actual} {field_name}, {direction} than the "
+                    f"{expected} the baseline was measured over (drift band {band}%)"
+                ),
+                remedy=(
+                    "The percentages above are ratios over this figure, so a moved "
+                    "denominator makes them incomparable. Check what the command "
+                    "scoped and which runner ran it before touching any baseline; if "
+                    f"the surface genuinely changed, update `measured.{field_name}` "
+                    f"to {actual} in the same reviewed commit as the new percentages."
+                ),
+            )
+        )
+
+    return findings
+
+
 def compare(entry: Dict[str, Any], measured: Measurement) -> List[Finding]:
     """Two-directional comparison of one measurement against its baseline."""
     name = entry["id"]
     baseline = entry["baseline"]
     tolerance = entry["tolerance"]
-    findings: List[Finding] = []
+    findings: List[Finding] = compare_basis(entry, measured)
 
     for metric in METRICS:
         actual = measured.percent(metric)

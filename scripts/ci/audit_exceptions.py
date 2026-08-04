@@ -123,6 +123,19 @@ DETECTORS: Sequence[Detector] = (
         extensions=frozenset(PY_EXTENSIONS),
         description="Bandit security finding suppressed inline",
     ),
+    # Added with the SAST gate (`scripts/ci/sast_scan.py`). Semgrep honours a
+    # `nosemgrep` comment in every language it parses, so it is a per-line
+    # opt-out of the security scanner that leaves no trace anywhere else — the
+    # baseline register in `platform/sast-baseline.yaml` never sees a finding
+    # that was suppressed at the source. Registering the tool without
+    # registering its escape hatch is how a control gets to look enforced while
+    # anyone can step around it one line at a time.
+    Detector(
+        kind="scanner-suppression",
+        pattern=r"\bnosemgrep\b",
+        extensions=frozenset(TS_EXTENSIONS | PY_EXTENSIONS),
+        description="Semgrep security finding suppressed inline",
+    ),
     Detector(
         kind="coverage-suppression",
         pattern=r"#\s*pragma:\s*no\s+cover\b",

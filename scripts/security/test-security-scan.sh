@@ -26,11 +26,21 @@ new_fixture() {
   local name="$1"
   local npm_stub_body="$2"
   local with_lockfile="$3"
+  # A package declaring no dependencies has nothing to audit, which is a
+  # separate case with its own contract below. Fixtures therefore declare a
+  # dependency by default, so that every case here exercises a package the
+  # scanner is genuinely required to audit.
+  local dependencies="${4:-with-deps}"
   local root="$test_root/$name"
 
   mkdir -p "$root/scripts" "$root/ventures/demo" "$root/portfolio" "$root/bin"
   cp "$scanner" "$root/scripts/security-scan.sh"
-  printf '{"name":"demo","version":"1.0.0"}\n' >"$root/ventures/demo/package.json"
+  if [ "$dependencies" = "no-deps" ]; then
+    printf '{"name":"demo","version":"1.0.0"}\n' >"$root/ventures/demo/package.json"
+  else
+    printf '{"name":"demo","version":"1.0.0","dependencies":{"left-pad":"^1.0.0"}}\n' \
+      >"$root/ventures/demo/package.json"
+  fi
   if [ "$with_lockfile" = "lockfile" ]; then
     printf '{"name":"demo","lockfileVersion":3,"packages":{}}\n' \
       >"$root/ventures/demo/package-lock.json"
@@ -47,7 +57,7 @@ new_fixture() {
 
 run_scanner() {
   local root="$1"
-  SECURITY_SCAN_OFFLINE=0 PATH="$root/bin:$PATH" bash "$root/scripts/security-scan.sh" >"$root/stdout.log" 2>"$root/stderr.log"
+  SECURITY_SCAN_ALLOW_OFFLINE=0 SECURITY_SCAN_OFFLINE=0 PATH="$root/bin:$PATH" bash "$root/scripts/security-scan.sh" >"$root/stdout.log" 2>"$root/stderr.log"
 }
 
 audit_json() {
@@ -113,6 +123,64 @@ grep -qF "$recorded_row" "$nolock_fixture/SECURITY_ROADMAP.md" ||
 grep -q 'no npm or pnpm lockfile to audit' "$nolock_fixture/stderr.log" ||
   fail "a package without a lockfile should be reported as an audit gap"
 
+# A package that declares no dependencies has no graph to audit, so demanding a
+# lockfile from it holds the roadmap open on a package that can never produce a
+# finding. portfolio/marisstella-homepage is exactly this: no dependencies, one
+# script running node:test over the standard library, and it blocked every
+# rewrite of SECURITY_ROADMAP.md.
+nodeps_fixture="$(new_fixture no-dependencies 'exit 1' no-lockfile no-deps)"
+if run_scanner "$nodeps_fixture"; then
+  grep -q '| \*\*CLEAN\*\* |' "$nodeps_fixture/SECURITY_ROADMAP.md" ||
+    fail "a dependency-free package should let the roadmap be published"
+else
+  fail "a dependency-free package without a lockfile should exit zero"
+fi
+grep -q 'no dependencies declared' "$nodeps_fixture/stdout.log" ||
+  fail "a dependency-free package should say why it was not audited"
+grep -q 'Incomplete audit' "$nodeps_fixture/stderr.log" &&
+  fail "a dependency-free package must not be recorded as an audit gap"
+
+# The exemption must be scoped to the package that earns it. A dependency-free
+# package sitting beside one that declares dependencies and ships no lockfile
+# must not drag the second one through the gate with it — otherwise adding an
+# empty package.json anywhere would disarm the lockfile requirement repo-wide.
+mixed_fixture="$(new_fixture mixed-deps "$(audit_json 0 0 0 '{}')" no-lockfile no-deps)"
+mkdir -p "$mixed_fixture/ventures/needs-audit"
+printf '{"name":"needs-audit","version":"1.0.0","dependencies":{"left-pad":"^1.0.0"}}\n' \
+  >"$mixed_fixture/ventures/needs-audit/package.json"
+printf '%s\n' "$recorded_row" >"$mixed_fixture/SECURITY_ROADMAP.md"
+if run_scanner "$mixed_fixture"; then
+  fail "a dependency-declaring package without a lockfile should still exit non-zero"
+fi
+grep -qF "$recorded_row" "$mixed_fixture/SECURITY_ROADMAP.md" ||
+  fail "the dependency-free exemption must not overwrite the recorded findings"
+grep -q 'ventures/needs-audit: no npm or pnpm lockfile to audit' "$mixed_fixture/stderr.log" ||
+  fail "the package that declares dependencies should still be reported as a gap"
+
+# A manifest the scanner cannot parse is not a manifest declaring nothing. It
+# must fall through to the normal path and be treated as unaudited, or a
+# corrupt package.json would silently exempt itself.
+malformed_fixture="$(new_fixture malformed-manifest "$(audit_json 0 0 0 '{}')" no-lockfile)"
+printf '{"name":"demo",\n' >"$malformed_fixture/ventures/demo/package.json"
+printf '%s\n' "$recorded_row" >"$malformed_fixture/SECURITY_ROADMAP.md"
+if run_scanner "$malformed_fixture"; then
+  fail "an unparseable package.json should not exempt itself from the audit"
+fi
+grep -qF "$recorded_row" "$malformed_fixture/SECURITY_ROADMAP.md" ||
+  fail "an unparseable package.json must not overwrite the recorded findings"
+
+# Declaring dependencies only under devDependencies still creates a graph an
+# advisory can land in, so it must not qualify for the exemption.
+devdeps_fixture="$(new_fixture dev-dependencies-only "$(audit_json 0 0 0 '{}')" no-lockfile no-deps)"
+printf '{"name":"demo","version":"1.0.0","devDependencies":{"vitest":"^1.0.0"}}\n' \
+  >"$devdeps_fixture/ventures/demo/package.json"
+printf '%s\n' "$recorded_row" >"$devdeps_fixture/SECURITY_ROADMAP.md"
+if run_scanner "$devdeps_fixture"; then
+  fail "a package with only devDependencies should still require a lockfile"
+fi
+grep -q 'no npm or pnpm lockfile to audit' "$devdeps_fixture/stderr.log" ||
+  fail "a devDependencies-only package should be reported as an audit gap"
+
 # An offline run audits nothing, so it must be treated as an audit gap rather
 # than as a clean result. Regression: the offline branch counted every package
 # as audited without auditing it and recorded no gap, so a scan on a sandboxed
@@ -120,7 +188,7 @@ grep -q 'no npm or pnpm lockfile to audit' "$nolock_fixture/stderr.log" ||
 # roadmap as CLEAN, discarding every recorded finding.
 offline_fixture="$(new_fixture offline "$(audit_json 0 0 0 '{}')" lockfile)"
 printf '%s\n' "$recorded_row" >"$offline_fixture/SECURITY_ROADMAP.md"
-if SECURITY_SCAN_OFFLINE=1 PATH="$offline_fixture/bin:$PATH" \
+if SECURITY_SCAN_ALLOW_OFFLINE=0 SECURITY_SCAN_OFFLINE=1 PATH="$offline_fixture/bin:$PATH" \
   bash "$offline_fixture/scripts/security-scan.sh" \
   >"$offline_fixture/stdout.log" 2>"$offline_fixture/stderr.log"; then
   fail "an offline scan should exit non-zero"
@@ -165,6 +233,89 @@ for case_name in offline broken-npm; do
   grep -q 'Incomplete audit' "$allow_fixture/stderr.log" ||
     fail "SECURITY_SCAN_ALLOW_OFFLINE ($case_name) should still report the incomplete audit"
 done
+
+# --- pnpm ---------------------------------------------------------------
+#
+# The cases above all drive npm. pnpm is audited by the same function through a
+# different binary and a different report shape, and this merge brought the two
+# together from branches that had each tested only their own half. Everything
+# below is the pnpm half: without it, the `manager` selection and the advisory
+# normalization are code no test executes.
+
+# Build a fixture whose package is audited by pnpm rather than npm. The stub is
+# installed as `pnpm` and a `pnpm-lock.yaml` selects it, so the scanner's own
+# manager detection is what routes the call — the test does not force it.
+new_pnpm_fixture() {
+  local name="$1"
+  local pnpm_stub_body="$2"
+  local root="$test_root/$name"
+
+  mkdir -p "$root/scripts" "$root/ventures/demo" "$root/portfolio" "$root/bin"
+  cp "$scanner" "$root/scripts/security-scan.sh"
+  printf '{"name":"demo","version":"1.0.0","dependencies":{"left-pad":"^1.0.0"}}\n' \
+    >"$root/ventures/demo/package.json"
+  printf 'lockfileVersion: "9.0"\n' >"$root/ventures/demo/pnpm-lock.yaml"
+
+  {
+    printf '#!/usr/bin/env bash\n'
+    printf '%s\n' "$pnpm_stub_body"
+  } >"$root/bin/pnpm"
+  chmod +x "$root/bin/pnpm"
+  # npm must not be the thing that answers. If manager detection regresses to
+  # always-npm, this stub fails the run rather than quietly passing it.
+  {
+    printf '#!/usr/bin/env bash\n'
+    printf 'echo "npm should not have been invoked for a pnpm package" >&2\n'
+    printf 'exit 1\n'
+  } >"$root/bin/npm"
+  chmod +x "$root/bin/npm"
+
+  printf '%s\n' "$root"
+}
+
+pnpm_advisory_stub='cat <<'\''JSON'\''
+{"advisories":{"1120680":{"module_name":"esbuild","severity":"high","title":"fixture advisory","vulnerable_versions":"<=0.28.0","patched_versions":">=0.28.1"}},"metadata":{"vulnerabilities":{"critical":0,"high":1,"moderate":0,"low":0}}}
+JSON'
+
+# pnpm reports advisories under a different key than npm's `vulnerabilities`
+# map. They are findings either way and belong in the roadmap; a scanner that
+# understood only npm's shape would count this package as audited and clean.
+pnpm_fixture="$(new_pnpm_fixture pnpm-findings "$pnpm_advisory_stub")"
+if run_scanner "$pnpm_fixture"; then
+  grep -q 'esbuild' "$pnpm_fixture/SECURITY_ROADMAP.md" ||
+    fail "a pnpm advisory should be listed in the findings table"
+  grep -q '\*\*HIGH\*\*' "$pnpm_fixture/SECURITY_ROADMAP.md" ||
+    fail "a pnpm advisory should carry its severity into the roadmap"
+else
+  fail "a pnpm package with a usable audit report should publish the roadmap"
+fi
+
+# A workspace member has no lockfile of its own because the workspace root
+# holds it. Demanding one from the member would hold the roadmap open forever
+# on a package whose dependencies are already audited at the root.
+workspace_fixture="$(new_pnpm_fixture pnpm-workspace "$pnpm_advisory_stub")"
+mkdir -p "$workspace_fixture/ventures/demo/packages/member"
+printf 'packages:\n  - packages/*\n' >"$workspace_fixture/ventures/demo/pnpm-workspace.yaml"
+printf '{"name":"member","version":"1.0.0","dependencies":{"left-pad":"^1.0.0"}}\n' \
+  >"$workspace_fixture/ventures/demo/packages/member/package.json"
+run_scanner "$workspace_fixture" ||
+  fail "a pnpm workspace member should not be reported as a missing-lockfile gap"
+grep -q 'covered by its pnpm workspace lockfile' "$workspace_fixture/stdout.log" ||
+  fail "a pnpm workspace member should say why it was not audited separately"
+
+# The exemption is the workspace root's to give. A package outside any
+# workspace that ships no lockfile must still be a gap, or adding a stray
+# pnpm-workspace.yaml anywhere above would disarm the requirement wholesale.
+outside_fixture="$(new_pnpm_fixture pnpm-workspace-scope "$pnpm_advisory_stub")"
+mkdir -p "$outside_fixture/ventures/orphan"
+printf '{"name":"orphan","version":"1.0.0","dependencies":{"left-pad":"^1.0.0"}}\n' \
+  >"$outside_fixture/ventures/orphan/package.json"
+printf '%s\n' "$recorded_row" >"$outside_fixture/SECURITY_ROADMAP.md"
+if run_scanner "$outside_fixture"; then
+  fail "a lockfile-less package outside the workspace should exit non-zero"
+fi
+grep -qF "$recorded_row" "$outside_fixture/SECURITY_ROADMAP.md" ||
+  fail "a lockfile-less package outside the workspace must not overwrite findings"
 
 if [ "$failures" -ne 0 ]; then
   printf 'security-scan contract tests failed: %d\n' "$failures" >&2

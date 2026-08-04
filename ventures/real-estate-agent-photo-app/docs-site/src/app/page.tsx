@@ -13,13 +13,18 @@ export default function HomePage() {
         <div className="rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-950 p-8">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-brand-500/30 bg-brand-500/10 px-3 py-1 text-xs text-brand-200">
             <Lock className="h-3.5 w-3.5" />
-            Private — Cloudflare Access
+            Access gate verified on deploy
           </div>
           <h1 className="font-display text-4xl font-semibold text-white">Listing Lens Docs</h1>
           <p className="mt-4 max-w-2xl text-lg text-slate-300">
             Internal documentation for the Listing Lens real estate photography product. This site
-            deploys to Cloudflare Pages and is gated by Cloudflare Access with a single-email
-            allowlist.
+            deploys to Cloudflare Pages behind Cloudflare Access with a single-email allowlist.
+            The deploy applies that policy before publishing and then re-requests the site with no
+            credentials, failing the release if the content comes back — see{" "}
+            <code className="rounded bg-slate-900 px-1.5 py-0.5 text-base text-slate-300">
+              docs-site/scripts/verify-access-gate.sh
+            </code>
+            . Until a deploy has passed that check, treat everything here as publicly readable.
           </p>
         </div>
 

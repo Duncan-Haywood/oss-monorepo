@@ -69,8 +69,13 @@ export function InsightFeedback({ subject }: { subject: string }) {
     }
   }
 
+  // "that helps tune the next insight for you" promised a personalization loop
+  // that does not exist: `insightFeedback` is written here and read only by the
+  // admin overview and export, never by insight generation. What is true is
+  // that a person reads it, so that is what this says. FeedbackWidget.test.tsx
+  // fails if the personalization claim comes back before the code does.
   if (state === "sent") {
-    return <p className="mt-3 border-t border-neutral-100 pt-2 text-[11px] font-medium text-emerald-700 dark:border-neutral-800 dark:text-emerald-400">✓ Thanks — that helps tune the next insight for you.</p>;
+    return <p className="mt-3 border-t border-neutral-100 pt-2 text-[11px] font-medium text-emerald-700 dark:border-neutral-800 dark:text-emerald-400">✓ Thanks — we read every one of these.</p>;
   }
 
   return (

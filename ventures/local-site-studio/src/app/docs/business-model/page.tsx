@@ -41,7 +41,10 @@ export default function BusinessModelDocPage() {
           <tr>
             <td>Complete</td>
             <td>$500 + $199/mo</td>
-            <td>Growth + full marketing + client AI phone agent</td>
+            <td>
+              Growth + full marketing + client AI voice pack (FAQ, booking and lead-capture
+              scripts the operator delivers; no telephony is integrated — see Product bundles)
+            </td>
           </tr>
           <tr>
             <td>Commerce add-on</td>

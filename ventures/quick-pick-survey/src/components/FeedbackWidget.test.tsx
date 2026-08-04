@@ -1,5 +1,7 @@
 // @vitest-environment jsdom
 
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { InsightFeedback, SessionPulse } from "@/components/FeedbackWidget";
@@ -37,7 +39,7 @@ describe("InsightFeedback", () => {
     fireEvent.click(screen.getByRole("button", { name: "This insight was useful" }));
 
     expect((await screen.findByRole("alert")).textContent).toContain("didn't save");
-    expect(screen.queryByText(/Thanks — that helps/)).toBeNull();
+    expect(screen.queryByText(/Thanks — we read every one/)).toBeNull();
   });
 
   it("sends one structured negative record with its mode and page", async () => {
@@ -52,7 +54,7 @@ describe("InsightFeedback", () => {
     fireEvent.change(screen.getByPlaceholderText("Optional detail"), { target: { value: "Show the trade-off." } });
     fireEvent.click(screen.getByRole("button", { name: "Send" }));
 
-    await screen.findByText(/Thanks — that helps/);
+    await screen.findByText(/Thanks — we read every one/);
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const body = JSON.parse(String(fetchMock.mock.calls[0][1]?.body));
     expect(body).toMatchObject({
@@ -75,6 +77,64 @@ describe("InsightFeedback", () => {
 
     unmount();
     expect(recordUsage).toHaveBeenCalledWith("feedback_dismiss", expect.objectContaining({ domain: "top-pick" }));
+  });
+});
+
+// A contract rather than a word blocklist: the claim is allowed exactly when
+// the capability behind it exists. Build the personalization loop — have
+// anything outside the feedback write path and the admin read path consume
+// `insightFeedback` — and this test stops objecting by itself.
+describe("insight feedback copy is backed by code", () => {
+  const SRC = join(process.cwd(), "src");
+
+  // Where feedback is legitimately handled without personalizing anything: the
+  // widget writes it, the route persists it, the admin surfaces read it back.
+  const NON_PERSONALIZING = [
+    "components/FeedbackWidget",
+    "app/api/feedback/",
+    "app/api/admin/",
+  ];
+
+  function walk(dir: string): string[] {
+    return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) return walk(full);
+      return /\.(ts|tsx)$/.test(entry.name) ? [full] : [];
+    });
+  }
+
+  it("does not promise personalization while nothing generates it", () => {
+    const consumers = walk(SRC).filter((file) => {
+      const relative = file.slice(SRC.length).replace(/\\/g, "/");
+      if (NON_PERSONALIZING.some((prefix) => relative.startsWith(prefix))) return false;
+      if (/\.test\.tsx?$/.test(relative)) return false;
+      return readFileSync(file, "utf8").includes("insightFeedback");
+    });
+
+    const widget = readFileSync(join(SRC, "components/FeedbackWidget.tsx"), "utf8");
+    const confirmations = [...widget.matchAll(/state === "sent"[\s\S]{0,400}?<\/p>/g)]
+      .map((match) => match[0]);
+    expect(confirmations.length).toBeGreaterThan(0);
+
+    const promisesPersonalization = /tune the next|personali[sz]|tailor|adapt(s|ed)? to you|for you\./i;
+
+    if (consumers.length === 0) {
+      for (const confirmation of confirmations) {
+        expect(
+          confirmation,
+          "Feedback confirmation promises personalization, but no module outside the " +
+            "write and admin-read paths consumes insightFeedback. Either build that " +
+            "loop or say what actually happens.",
+        ).not.toMatch(promisesPersonalization);
+      }
+    }
+  });
+
+  it("only claims what the write path actually does", () => {
+    const route = readFileSync(join(SRC, "app/api/feedback/route.ts"), "utf8");
+    // The confirmation says a person reads these. That is true only while the
+    // record is persisted rather than counted and dropped.
+    expect(route).toMatch(/prisma\.insightFeedback\.create/);
   });
 });
 

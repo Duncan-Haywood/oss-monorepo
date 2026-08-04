@@ -39,6 +39,21 @@ This command runs, without swallowing failures:
 - Terraform formatting and initialized validation.
 - Each active venture's typecheck, lint, tests, and production build where defined.
 
+### Vulnerability roadmap integrity
+
+`scripts/security-scan.sh` regenerates `SECURITY_ROADMAP.md`, which is the
+release gate, so it must never mistake a broken scan for a clean one. It audits
+each package with the manager its lockfile implies — `npm` for
+`package-lock.json`, `pnpm` for `pnpm-lock.yaml` — and skips only what is
+provably covered elsewhere: pnpm workspace members and packages that declare no
+dependencies.
+
+Anything it cannot audit — a missing lockfile, an unreachable registry, an
+unparseable report — is an audit gap. On any gap the scan leaves the roadmap
+untouched, prints what it could not audit, and exits non-zero. Install
+dependencies and restore registry access before re-running; committing a
+roadmap produced by an incomplete scan silently erases tracked findings.
+
 ### Test and coverage contract
 
 - Add meaningful unit, contract/integration, and end-to-end or smoke coverage at
@@ -61,7 +76,7 @@ This command runs, without swallowing failures:
 Every Pull Request and push to `main` triggers automated CI gates:
 
 ### Security & Compliance (`.gitea/workflows/security.yml`)
-- **Action Pinning**: All third-party Gitea Actions are pinned to immutable commit SHAs with release tags in comments.
+- **Action Pinning**: All third-party Gitea Actions are pinned to immutable commit SHAs with release tags in comments. Enforced by `platform/ci/test/workflow-action-pinning.test.mjs`, which fails on any `uses:` that is not `owner/repo@<40-hex>` with a version comment. `actionlint` does not check this, so until that test existed the claim was unverified and `uses: actions/checkout@v4` would have passed every gate.
 - **Repository Policy Scan**: Scans tracked files for tracked `.env`, credentials, private keys, or unresolved merge conflicts.
 - **Trivy Scanner**: Audits dependencies, IaC (Terraform/K8s) configurations, and secret patterns.
 - **Gitleaks**: Scans complete Git history for exposed credentials with redacted evidence.

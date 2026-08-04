@@ -25,7 +25,16 @@ done
 
 kubectl -n "$namespace" get deployment "$deployment" >/dev/null
 
-# Production currently serves the static site from an Nginx-mounted ConfigMap.
+# Production serves the static site from this ConfigMap, mounted whole over
+# /usr/share/nginx/html with no key selector. Every key below is therefore a
+# file on the public web site, and the container image's own web root — and so
+# its .dockerignore — is shadowed and cannot restrict what is served.
+#
+# Until 2026-08-02 this also published Dockerfile, which served the build
+# recipe at https://marisstella.dev/Dockerfile (SEC-022). Add only files the
+# site is meant to serve; platform/ci/test/homepage-release-surface.test.mjs
+# fails on anything else.
+#
 # Generate the full release atomically so all replicas receive the same file set.
 #
 # This list is the public web root of marisstella.dev: every key becomes a

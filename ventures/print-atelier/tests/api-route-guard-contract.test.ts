@@ -43,7 +43,7 @@ function routeSources(dir = API_ROOT, prefix = ""): Map<string, string> {
     const path = join(dir, entry.name);
     if (entry.isDirectory()) {
       const next = prefix ? `${prefix}/${entry.name}` : entry.name;
-      for (const [name, source] of routeSources(path, next)) {
+      for (const [name, source] of Array.from(routeSources(path, next))) {
         found.set(name, source);
       }
     } else if (entry.name === "route.ts" || entry.name === "route.tsx") {
@@ -61,7 +61,7 @@ function routeSources(dir = API_ROOT, prefix = ""): Map<string, string> {
 function handlers(source: string): Map<string, string> {
   const found = new Map<string, string>();
   const pattern = /export async function ([A-Z]+)\s*\(/g;
-  const starts = [...source.matchAll(pattern)];
+  const starts = Array.from(source.matchAll(pattern));
   starts.forEach((match, index) => {
     const from = match.index ?? 0;
     const to = index + 1 < starts.length ? (starts[index + 1].index ?? source.length) : source.length;
@@ -72,8 +72,8 @@ function handlers(source: string): Map<string, string> {
 
 test("every API handler is operator-guarded or listed as public by design", () => {
   const unguarded: string[] = [];
-  for (const [route, source] of routeSources()) {
-    for (const [method, body] of handlers(source)) {
+  for (const [route, source] of Array.from(routeSources())) {
+    for (const [method, body] of Array.from(handlers(source))) {
       const name = `${route} ${method}`;
       if (name in PUBLIC_BY_DESIGN) {
         continue;
@@ -92,8 +92,8 @@ test("every API handler is operator-guarded or listed as public by design", () =
 
 test("no route is listed as public by design that no longer exists", () => {
   const real = new Set<string>();
-  for (const [route, source] of routeSources()) {
-    for (const method of handlers(source).keys()) {
+  for (const [route, source] of Array.from(routeSources())) {
+    for (const method of Array.from(handlers(source).keys())) {
       real.add(`${route} ${method}`);
     }
   }
@@ -115,7 +115,7 @@ test("it finds the routes at all, so an empty pass cannot look like a green one"
   // over nothing.
   const routes = routeSources();
   assert.ok(routes.size >= 7, `expected the api routes to be found, saw ${routes.size}`);
-  const totalHandlers = [...routes.values()].reduce(
+  const totalHandlers = Array.from(routes.values()).reduce(
     (count, source) => count + handlers(source).size,
     0,
   );
@@ -137,7 +137,7 @@ test("the handler parser actually separates handlers", () => {
       "}",
     ].join("\n"),
   );
-  assert.deepEqual([...parsed.keys()], ["GET", "POST"]);
+  assert.deepEqual(Array.from(parsed.keys()), ["GET", "POST"]);
   assert.ok(parsed.get("GET")?.includes("requireOperator("));
   assert.ok(!parsed.get("POST")?.includes("requireOperator("));
 });

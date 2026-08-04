@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import { CheckCircle2, Circle, KeyRound, ShieldAlert } from "lucide-react";
-import {
-  buildPartnerCredentialVault,
-  getPartnerCredentialEnvFromProcess,
-  type PartnerCredential,
+import type {
+  PartnerCredential,
+  PartnerCredentialVault as CredentialVault,
 } from "@/lib/partner-credentials";
+import { fetchOperatorJson, type OperatorFetchResult } from "@/lib/operator-client";
+import OperatorAccessNotice from "@/components/OperatorAccessNotice";
 import GelatoVariantMapper from "@/components/GelatoVariantMapper";
 import PrintfulVariantMapper from "@/components/PrintfulVariantMapper";
 import { fulfillmentPartners } from "@/lib/partners";
@@ -41,11 +42,6 @@ function CredentialCard({ credential }: { credential: PartnerCredential }) {
             <span className={item.configured ? "text-stone-700" : "text-stone-500"}>
               {item.label}
               <span className="ml-1 font-mono text-[10px] text-stone-400">({item.key})</span>
-              {item.configured && item.maskedValue && (
-                <span className="ml-2 rounded border border-stone-200 bg-stone-100 px-1.5 py-0.5 font-mono text-[10px] text-stone-600">
-                  {item.maskedValue}
-                </span>
-              )}
             </span>
 
           </li>
@@ -63,15 +59,38 @@ function CredentialCard({ credential }: { credential: PartnerCredential }) {
   );
 }
 
+/**
+ * `/partner-setup` is a page, and this venture has no login, so this component
+ * renders for anonymous visitors.
+ *
+ * It used to build the vault from `getPartnerCredentialEnvFromProcess()`. That
+ * reads the real `process.env` during the server render — a `"use client"`
+ * directive marks the hydration boundary, not the boundary of where the code
+ * runs — so the credential state, including `maskedValue`, was serialised into
+ * the HTML delivered to whoever asked for the URL. `maskSecretValue` keeps the
+ * `sk_live_`/`sk_test_` prefix and the last four characters of the key, which
+ * is the exact material `withoutMaskedValues` exists to keep out of responses:
+ * "the mask never leaves the process".
+ *
+ * So the environment is read in one place only — the operator-guarded route —
+ * and this component asks it, like every other operator panel here. An
+ * anonymous visitor gets `OperatorAccessNotice`, not a mask and not a
+ * confident-looking set of zeros.
+ */
 export default function PartnerCredentialVault() {
-  const vault = useMemo(
-    () => buildPartnerCredentialVault(getPartnerCredentialEnvFromProcess()),
-    [],
+  const [result, setResult] = useState<OperatorFetchResult<{ vault: CredentialVault }> | null>(
+    null,
   );
 
-  const fulfillment = vault.credentials.filter((item) => item.category === "fulfillment");
-  const ads = vault.credentials.filter((item) => item.category === "ads");
-  const payments = vault.credentials.filter((item) => item.category === "payments");
+  useEffect(() => {
+    fetchOperatorJson<{ vault: CredentialVault }>("/api/credentials/vercel-pull").then(setResult);
+  }, []);
+
+  const vault = result?.state === "ok" ? result.data.vault : null;
+
+  const fulfillment = vault?.credentials.filter((item) => item.category === "fulfillment") ?? [];
+  const ads = vault?.credentials.filter((item) => item.category === "ads") ?? [];
+  const payments = vault?.credentials.filter((item) => item.category === "payments") ?? [];
 
   return (
     <div className="space-y-8">
@@ -82,7 +101,9 @@ export default function PartnerCredentialVault() {
             <p className="text-xs font-semibold uppercase tracking-wide text-indigo-200">
               Partner credential vault
             </p>
-            <h2 className="mt-1 text-2xl font-bold">{vault.label}</h2>
+            <h2 className="mt-1 text-2xl font-bold">
+              {vault ? vault.label : "Partner credential vault"}
+            </h2>
             <p className="mt-2 max-w-2xl text-sm text-stone-300">
               Tracks fulfillment, ad platform, and Stripe Connect credentials before programmatic
               catalog sync and artist payouts go live. Copy keys from `.env.example` into your local
@@ -94,24 +115,32 @@ export default function PartnerCredentialVault() {
         <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
           <div className="rounded-xl bg-white/10 p-4">
             <p className="text-xs text-stone-400">Overall score</p>
-            <p className="text-3xl font-bold">{vault.overallScore}</p>
+            <p className="text-3xl font-bold">{vault ? vault.overallScore : "—"}</p>
           </div>
           <div className="rounded-xl bg-white/10 p-4">
             <p className="text-xs text-stone-400">Fulfillment</p>
-            <p className="text-lg font-semibold">{vault.fulfillmentReady ? "Ready" : "Setup"}</p>
+            <p className="text-lg font-semibold">
+              {vault ? (vault.fulfillmentReady ? "Ready" : "Setup") : "—"}
+            </p>
           </div>
           <div className="rounded-xl bg-white/10 p-4">
             <p className="text-xs text-stone-400">Ad platforms</p>
-            <p className="text-lg font-semibold">{vault.adsReady ? "Ready" : "Partial"}</p>
+            <p className="text-lg font-semibold">
+              {vault ? (vault.adsReady ? "Ready" : "Partial") : "—"}
+            </p>
           </div>
           <div className="rounded-xl bg-white/10 p-4">
             <p className="text-xs text-stone-400">Stripe Connect</p>
-            <p className="text-lg font-semibold">{vault.paymentsReady ? "Ready" : "Missing"}</p>
+            <p className="text-lg font-semibold">
+              {vault ? (vault.paymentsReady ? "Ready" : "Missing") : "—"}
+            </p>
           </div>
         </div>
+
+        <OperatorAccessNotice result={result} />
       </section>
 
-      {vault.blockers.length > 0 && (
+      {vault && vault.blockers.length > 0 && (
         <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
           <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" />
           <div>
@@ -125,20 +154,22 @@ export default function PartnerCredentialVault() {
         </div>
       )}
 
-      <div className="rounded-xl border border-indigo-100 bg-indigo-50/60 p-4 text-sm text-indigo-950">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="font-semibold text-indigo-900">Vercel Environment Secret Pull</p>
-            <p className="mt-0.5 text-xs text-indigo-700">{vault.vercelStatus.instructions}</p>
+      {vault && (
+        <div className="rounded-xl border border-indigo-100 bg-indigo-50/60 p-4 text-sm text-indigo-950">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="font-semibold text-indigo-900">Vercel Environment Secret Pull</p>
+              <p className="mt-0.5 text-xs text-indigo-700">{vault.vercelStatus.instructions}</p>
+            </div>
+            <span className="rounded-md bg-indigo-100 px-2.5 py-1 font-mono text-xs font-semibold text-indigo-800">
+              {vault.vercelStatus.environmentName}
+            </span>
           </div>
-          <span className="rounded-md bg-indigo-100 px-2.5 py-1 font-mono text-xs font-semibold text-indigo-800">
-            {vault.vercelStatus.environmentName}
-          </span>
+          <div className="mt-3 flex items-center gap-2 rounded-lg bg-indigo-900 px-3 py-2 text-xs font-mono text-indigo-100">
+            <span className="select-all">{vault.vercelStatus.pullCommand}</span>
+          </div>
         </div>
-        <div className="mt-3 flex items-center gap-2 rounded-lg bg-indigo-900 px-3 py-2 text-xs font-mono text-indigo-100">
-          <span className="select-all">{vault.vercelStatus.pullCommand}</span>
-        </div>
-      </div>
+      )}
 
       <div className="rounded-xl border border-stone-200 bg-white p-5 shadow-sm">
         <div className="flex items-center justify-between">

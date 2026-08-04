@@ -39,7 +39,7 @@ class OffloadStats:
     source_files: int = 0
     source_bytes: int = 0
     copied_files: int = 0
-    skipped_files: int = 0
+    unverified_files: int = 0
     verified_files: int = 0
     errors: list[str] = field(default_factory=list)
     started_at: str = ""
@@ -148,14 +148,21 @@ def rsync_copy(source: Path, dest: Path, log_path: Path) -> int:
 
 
 def verify_and_manifest(card: CardSpec, stats: OffloadStats, manifest_path: Path, log_path: Path) -> None:
+    """Compare every source file against its copy and record the evidence.
+
+    A file is only called "verified" once its SHA-256 has been read off both
+    sides and matched. The manifest is what a person consults before erasing
+    the card, so equal byte counts are treated as a precondition for hashing,
+    never as proof the copy is intact. Each verified file is evicted from local
+    storage here, after its digest is taken, because reading an evicted file
+    back would fault the whole copy down from iCloud again.
+    """
     manifest_entries: list[dict[str, object]] = []
     copied = 0
-    skipped = 0
     verified = 0
 
     for include in card.include_paths:
         source_root = card.source / include
-        dest_root = card.dest / include
         for source_file in iter_media_files(source_root):
             rel = source_file.relative_to(card.source)
             dest_file = card.dest / rel
@@ -168,23 +175,39 @@ def verify_and_manifest(card: CardSpec, stats: OffloadStats, manifest_path: Path
                 stats.errors.append(f"Missing after copy: {rel}")
                 manifest_entries.append(entry)
                 continue
-            if dest_file.stat().st_size != source_file.stat().st_size:
+
+            copied += 1
+            entry["dest_bytes"] = dest_file.stat().st_size
+            if entry["dest_bytes"] != entry["source_bytes"]:
                 stats.errors.append(f"Size mismatch: {rel}")
                 entry["status"] = "size_mismatch"
                 manifest_entries.append(entry)
                 continue
-            entry["dest_bytes"] = dest_file.stat().st_size
+
+            try:
+                source_digest = sha256_file(source_file)
+                dest_digest = sha256_file(dest_file)
+            except OSError as err:
+                stats.errors.append(f"Unreadable during verification: {rel} ({err})")
+                entry["status"] = "unreadable"
+                manifest_entries.append(entry)
+                continue
+
+            entry["source_sha256"] = source_digest
+            entry["dest_sha256"] = dest_digest
+            if source_digest != dest_digest:
+                stats.errors.append(f"Checksum mismatch: {rel}")
+                entry["status"] = "checksum_mismatch"
+                manifest_entries.append(entry)
+                continue
+
             entry["status"] = "verified"
             verified += 1
-            evict(dest_file)
             manifest_entries.append(entry)
-            if entry["status"] == "verified":
-                copied += 1
-            else:
-                skipped += 1
+            evict(dest_file)
 
     stats.copied_files = copied
-    stats.skipped_files = skipped
+    stats.unverified_files = copied - verified
     stats.verified_files = verified
     payload = {
         "card": card.name,
@@ -226,8 +249,9 @@ def offload_card(card: CardSpec, log_path: Path, manifest_path: Path) -> Offload
         dest = card.dest / include
         wait_for_disk_space(min_gb=8.0)
         rsync_copy(source, dest, log_path)
-        for media in iter_media_files(dest):
-            evict(media)
+    # Eviction happens per file inside verify_and_manifest, once that file's
+    # digest has been read. Evicting the whole tree here would mean every hash
+    # faulted the copy back down from iCloud.
     verify_and_manifest(card, stats, manifest_path, log_path)
     stats.finished_at = iso_now()
     return stats

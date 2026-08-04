@@ -1,6 +1,7 @@
 # Testing
 
-Two suites. The first needs nothing; the second needs a database.
+Three suites. The first needs nothing, the second needs a database, the third
+needs a database, a production build and a browser.
 
 ```bash
 npm test                      # unit + component, ~2s, no database, no network
@@ -9,6 +10,10 @@ npx vitest run src/lib/conjoint.test.ts   # one file
 
 scripts/test-db.sh start      # create, migrate and seed a throwaway Postgres
 npm run test:integration      # real route handlers against it
+
+eval "$(scripts/test-db.sh env)"          # and then, for the journeys:
+export RATE_LIMIT_SECRET=local-journey-secret
+npm run build && npm run test:e2e         # a real browser, both viewports
 ```
 
 **Unit and component** — Vitest, `src/**/*.test.ts(x)`. Most files run in the
@@ -22,6 +27,39 @@ directly, with `next/headers` mocked so a test can say which account a call is
 signed in as. Files run one at a time because they share one database. Seeded
 surveys and items are fixture and are never truncated; everything a session
 writes is cleared between tests by `resetData()`.
+
+**Critical journeys** — Playwright, `e2e/*.spec.ts`, config in
+`playwright.config.ts`. Required by the first "Now" item in
+[the engineering roadmap](../../../docs/ENGINEERING-ROADMAP.md): a small,
+deterministic suite covering what a visitor actually does, run on every pull
+request by the `journeys` job in `.gitea/workflows/pairwise-ci.yml` before any
+deployable image is built.
+
+Four things about it are deliberate and are easy to undo by accident:
+
+- **It drives a production build, not the dev server**, and takes its base URL
+  from `PLAYWRIGHT_BASE_URL` when one is set. Nothing under `e2e/` imports
+  application code, so the same specs can be pointed at the deployed candidate
+  — which is what the roadmap asks for and what a dev-server-only suite could
+  never do.
+- **`retries: 0`.** Playwright reports a test that passes on its second attempt
+  as flaky and still exits 0. The repository's release policy says the original
+  failure remains a failed signal, so retries are off and traces, video and
+  screenshots are retained on failure instead. A flaky journey is a defect in
+  the journey or in the product; the trace is how to tell which.
+- **The config throws rather than starting a server it knows will 500.** With
+  no datasource or rate-limit secret, `next start` fails every journey with a
+  stack trace that reads like a product defect. A suite that cannot tell a
+  missing environment from a broken product is not evidence of anything.
+- **A vote waits on the answer POST, not on the next card.** The runner
+  advances optimistically, so "the next pair appeared" says nothing about
+  whether anything was recorded. That distinction is not academic: it is how
+  the dropped-answer race in `trials/next` was found, after four votes produced
+  "2 answered" with four 200s behind it.
+
+There are no `data-testid` attributes in `src/`, and the journeys deliberately
+do not add any. They address the product the way a person does — roles and
+visible text. If that text changes, a failing journey is the correct outcome.
 
 **The simulation files are the expensive ones.** `pairing.simulation.test.ts`,
 `pooling.simulation.test.ts` and `selectionPrior.simulation.test.ts` drive the

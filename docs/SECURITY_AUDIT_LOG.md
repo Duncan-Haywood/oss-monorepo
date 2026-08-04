@@ -29,9 +29,14 @@ This log records all identified application, infrastructure, container, and CI s
 | **SEC-017** | **Critical** | Supply Chain | `ventures/photo-editing/docs-site` | Abandoned `htmltojsx` pulled in `request` (SSRF) and `form-data` (CRLF injection) | **Fixed** |
 | **SEC-018** | High | Application | `ventures/print-atelier/src/app/api/credentials/vercel-pull` | Unauthenticated disclosure of configured partner credential state | **Fixed** |
 | **SEC-019** | **Critical** | Application | `ventures/print-atelier/src/app/api/*` | Six operator API handlers served anonymous callers; one writes live ad catalogs | **Fixed** |
-| **SEC-020** | Low | Application | `ventures/photo-editing/docs-site/src/lib/auth.ts` | Public-path prefix exempted the paths beside it, not only its children | **Fixed** |
-| **SEC-021** | Low | Container | `portfolio/marisstella-homepage/.dockerignore` | Container build context published `nginx.conf` and `package.json` into the image web root | **Fixed (not the live exposure — see SEC-022)** |
-| **SEC-022** | Low | Infrastructure | `platform/ci/deploy-homepage.sh` | The production ConfigMap published `Dockerfile` to the public web root; `/Dockerfile` served 200 | **Fixed, awaiting deploy** |
+| **SEC-020** | Low | Application | `ventures/photo-editing/docs-site/src/lib/auth.ts` | `startsWith("/api/health")` exempted sibling paths from the private site's auth | **Fixed** |
+| **SEC-021** | Low | Container | `portfolio/marisstella-homepage/.dockerignore` | Container image published `nginx.conf` and `package.json` in its web root | **Fixed (image only — see SEC-022)** |
+| **SEC-022** | Low | Infrastructure | `platform/ci/deploy-homepage.sh` | Release ConfigMap published `Dockerfile` to the live web root, and SEC-021's fix did not govern production | **Fixed — pending deploy** |
+| **SEC-023** | High | Application | `ventures/real-estate-agent-photo-app/.github/workflows/deploy-docs.yml` | Listing Lens docs answered an unauthenticated `GET` with 200 and the whole site, behind a rendered padlock | **Fixed** |
+| **SEC-024** | Medium | Supply Chain | `scripts/security-scan.sh` | A dependency-free package held the audit open, freezing the vulnerability register for two days with no run reporting a failure | **Fixed** |
+| **SEC-025** | Medium | Application | `ventures/print-atelier/src/app/api/stripe/webhook/route.ts` | Signed event missing `data` crashed the handler; the resulting 5xx makes Stripe redeliver indefinitely | **Fixed** |
+| **SEC-026** | Medium | Application | `ventures/print-atelier/src/lib/stripe-webhook-server.ts` | Webhook signature verification has no timestamp tolerance, so a captured payload replays indefinitely | **[ ] Open** |
+| **SEC-027** | High | Supply chain | `.gitea/workflows/security.yml` | The dependency-audit matrix covered 4 of 10 committed lockfiles; the 6 unaudited ones held 32 high-severity advisories | **Coverage fixed; 46 of 47 advisories open** |
 
 ---
 
@@ -254,6 +259,58 @@ This log records all identified application, infrastructure, container, and CI s
   `DOCS_SITE_TOKEN` is set, which is deliberate for local development and fails
   closed with a 503 in production. Nothing tests that production branch.
 
+### SEC-023 — High — Listing Lens Docs Served the Whole Internal Site Anonymously Behind a Padlock
+
+- **Location**: `ventures/real-estate-agent-photo-app/.github/workflows/deploy-docs.yml`,
+  the `apply-access` job; claim rendered by
+  `docs-site/src/components/DocsShell.tsx` and `docs-site/src/app/page.tsx`.
+- **Impact**: `https://listing-lens-docs.pages.dev/` answered an unauthenticated
+  `GET` with **HTTP 200 and the full site**, verified 2026-08-01 by fetching it
+  with no credentials from outside the repository. Every page rendered a padlock
+  and the words "Cloudflare Access", the homepage stated the site "is gated by
+  Cloudflare Access with a single-email allowlist", and the page metadata said
+  "protected by Cloudflare Access". None of that was true. Readable by anyone
+  with the URL: the internal outreach templates (cold email, DM and in-person
+  scripts), the booking-intake and leads process, the concierge pricing
+  one-pager, and the owner's personal email address in plain text. The email is
+  published deliberately in the customer-facing booking link, so the exposure
+  that matters is the internal go-to-market material and the false assurance
+  itself — the owner had every on-page reason to believe this was private.
+  `public/_headers` sets `X-Robots-Tag: noindex`, which prevents indexing, not
+  reading.
+- **Root cause**: `docs-site/scripts/setup-cloudflare-access.sh` is correct and
+  complete. The job that runs it was gated on
+  `if: github.event_name == 'workflow_dispatch'` and declared `needs: deploy`, so
+  every push-triggered deploy published the site and skipped the policy
+  entirely. `infra/access-policy.json` is a document, not an applied policy. This
+  is the [ci-runner-tooling]-class defect one level out: a control that is
+  written, reviewed, and version-controlled, and that never executes.
+- **Fix**: `apply-access` now runs on every event and runs **before** `deploy`,
+  so a publish cannot outrun its gate. A new `verify-access` job then re-requests
+  the deployed site with no credentials and fails the release if the content
+  comes back (`docs-site/scripts/verify-access-gate.sh`). `docs-site`'s
+  `pages:deploy` script chains the same verification, because it bypasses the
+  workflow and would otherwise reopen exactly this hole. The on-page claim now
+  names the control and the check that earns it rather than asserting a state
+  the page cannot observe, and says plainly that until a deploy has passed the
+  check the contents should be treated as public.
+- **Evidence**: `verify-access-gate.sh` run against the live hostname
+  **fails today**, reproducing the finding rather than describing it.
+  `docs-site/scripts/verify-access-gate.test.sh` drives all five branches
+  against a local stub origin — redirect-to-Access and content-free 403 pass;
+  200-with-content, redirect-to-a-non-Access-host, and a 403 that still serves
+  the body all fail — so the check is proven to be capable of passing and is not
+  a permanent deploy block. Chained into the pipeline package's `npm test`,
+  which is the only gate the CI catalog runs for this venture. ShellCheck and
+  actionlint clean; full venture suite green.
+- **Residual risk**: **the site is still public as of this entry.** Nothing here
+  turns the gate on — that needs `CLOUDFLARE_API_TOKEN` and
+  `CLOUDFLARE_ACCOUNT_ID` with Zero Trust edit rights present in the repository
+  secrets, and a deploy to run. Until then the new job fails the deploy, which
+  is the correct direction but does not retract what is already published.
+  Separately, the verifier probes only `/`; a future per-path Access policy
+  would need per-path probes.
+
 ---
 
 ### SEC-021 — Low — The Homepage Container Published Its Own Configuration
@@ -288,60 +345,295 @@ This log records all identified application, infrastructure, container, and CI s
   component PASSED without checking anything, and had done so for as long as it
   existed. Nothing found this because nothing was looking: every control asks
   whether a gate is declared and reachable, and this one was both.
-- **Correction, 2026-08-02**: the impact recorded above is wrong, and the fix
-  addresses an artifact production does not serve. Probed with no credentials:
-  `/nginx.conf` and `/package.json` both answer **404**, and always did.
-  Production serves the site from a ConfigMap built by
-  `platform/ci/deploy-homepage.sh`, not from the container image, so
-  `.dockerignore` cannot narrow the public web root. The real exposure was
-  `/Dockerfile`, which answered **200** — see SEC-022. This entry was reasoned
-  from the `Dockerfile` and mutation-checked five ways against the build
-  context, and every one of those checks was measuring the wrong artifact. The
-  `.dockerignore` change remains correct for anyone who builds the image; it
-  was simply never the control that governs marisstella.dev.
+- **Correction, 2026-08-02**: the fix above hardens the container image and does
+  not change what production serves. See SEC-022.
+
+### SEC-022 — Low — Production Published Its Build Recipe, And SEC-021 Did Not Bind
+
+- **Component**: `platform/ci/deploy-homepage.sh` → `marisstella-homepage-files`
+  ConfigMap, `web-services/web-portal-web-service` (production, Kubernetes).
+- **Found**: 2026-08-02, while checking whether SEC-021's fix had shipped.
+- **Issue**: two things, and the second is the one that matters.
+  `deploy-homepage.sh` builds the release ConfigMap with four `--from-file`
+  entries — `index.html`, `style.css`, `app.js` and **`Dockerfile`** — and the
+  Deployment mounts that ConfigMap at `/usr/share/nginx/html` with no `items:`
+  selector. Every key is therefore a file on the public site, and
+  `https://marisstella.dev/Dockerfile` returned the repository's Dockerfile
+  byte-for-byte (230 bytes, `content-type: application/octet-stream`, verified
+  live). Rated Low on the same reasoning as SEC-021: it holds no secret, and
+  what it gives away is the server's construction rather than access to it.
+  The `Dockerfile` key has been in the release set since `8c9b8c8` introduced
+  the ConfigMap deploy on 2026-07-31, with no stated reason; the preflight loop
+  listed it as a required release file, so it read as deliberate.
+- **Why SEC-021's fix does not cover this**: the ConfigMap mount *shadows* the
+  image's web root. Nothing baked into the image at `/usr/share/nginx/html` is
+  ever served, so `.dockerignore` — and
+  `portfolio/marisstella-homepage/test/markup-contract.test.mjs`, which holds
+  it — cannot govern the deployed file set. Both remain correct for anyone
+  running the image directly and are kept. The live evidence is that
+  `/nginx.conf` and `/package.json` return 404 in production not because
+  `.dockerignore` excludes them but because this script never published them,
+  while `/Dockerfile`, which `.dockerignore` *did* exclude, was served anyway.
+  A remediation was recorded against the artifact that was easiest to reason
+  about rather than the one production serves.
+- **Fix**: `Dockerfile` removed from both the publish list and the preflight
+  loop in `platform/ci/deploy-homepage.sh`.
+- **Evidence**: `platform/ci/test/homepage-release-surface.test.mjs`, six tests
+  that read the publish list out of the deploy script and allow-list it: a key
+  must have a servable extension, must be named rather than swept in by a bare
+  `--from-file=<dir>`, must resolve to a file in the repository, must include
+  the three the site cannot render without, and must match the script's own
+  preflight list. Mutation-checked seven ways — republishing `Dockerfile`,
+  adding `nginx.conf`, switching to a directory publish, dropping `app.js`,
+  publishing a missing file, removing the publish list entirely, and drifting
+  the preflight list — each fails its intended test and no other. It runs in
+  `scripts/test-ci.sh` with the rest of `platform/ci/test/`.
+- **Residual risk**: the live ConfigMap still holds the `Dockerfile` key; the
+  fix takes effect on the next homepage deploy, which requires the branch to
+  reach `origin/main`. Until then the file is still served. The allow-list is
+  by extension, so a servable-looking file with sensitive content would pass —
+  this control bounds the file *type*, not its contents.
+- **Process note**: the homepage Deployment and ConfigMap are created
+  imperatively by this script and have no desired state in the repository,
+  against the GitOps requirement in `AGENTS.md`. That is why the mount's
+  missing `items:` selector — the thing that makes every key public — is
+  visible only from the cluster.
 
 ---
 
-### SEC-022 — Low — The Production ConfigMap Published the Build Recipe
+### SEC-025 — Medium — Malformed Signed Stripe Event Crashed the Webhook
+- **Location**: `ventures/print-atelier/src/app/api/stripe/webhook/route.ts`
+- **Impact**: SEC-019 guarded this route's `GET` diagnostic. The `POST` — the
+  path money actually arrives on — is guarded by signature verification instead,
+  and that part was correct. What was missing came after it: the handler read
+  `event.data.object` with no shape check, so a correctly signed event without
+  `data`, or a signed body that is an array, string, number or `null`, raised a
+  `TypeError` and returned 500. Stripe retries 5xx, so one malformed event would
+  be redelivered on Stripe's retry schedule instead of being rejected once. Only
+  Stripe can trigger this, which is what holds it to Medium.
+- **Fix**: An explicit `isWebhookEventShape` check between JSON parsing and first
+  dereference, returning 400 for a shape the handler cannot process.
+- **Evidence**: 9 new tests in `ventures/print-atelier/tests/stripe-webhook-route.test.ts`.
+  This route had no route-level test of any kind — only
+  `verifyStripeWebhookSignature` was tested as a pure function, which cannot
+  observe a status code. The two shape tests fail against the pre-fix handler.
+  The other seven cover authenticity at the route layer — missing header, forged
+  signature, wrong secret, a valid signature replayed over a tampered payload,
+  and an unset secret — and passed before the change, so they are regression
+  cover for a path that previously had none. Full venture verify green:
+  `tsc --noEmit`, `next lint`, 278 tests, `next build`.
 
-- **Location**: `platform/ci/deploy-homepage.sh`, the `--from-file` list.
-- **Found**: 2026-08-02, by probing the live URL while checking whether
-  SEC-021's fix had reached production.
-- **Impact**: `https://marisstella.dev/Dockerfile` answered 200 with the full
-  build recipe: the `nginx:alpine` base, the `COPY nginx.conf
-  /etc/nginx/nginx.conf` line, the `chown` of the web root and cache paths, the
-  `USER nginx` drop and the listening port. Rated Low because it holds no
-  secret — what it gives an attacker is an exact, free read of how the service
-  is built and run instead of having to probe for it. The disclosed `COPY`
-  line also names a file that is *not* published, which is itself a map.
-- **Cause**: the deploy script builds the release ConfigMap from four explicit
-  `--from-file` entries and nginx mounts it as the web root. That list — not
-  the image, and not `.dockerignore` — is the public surface of the site, and
-  it named `Dockerfile` alongside the three real assets. Nothing consumed that
-  key. The venture's own mutation-checked test asserted the `.dockerignore`
-  exclusions, so removing the defect would not have failed a single test.
-- **Fix**: `Dockerfile` removed from both the `--from-file` list and the
-  preflight file check, and the list annotated as the public web root it is.
-- **Evidence**: `platform/ci/test/homepage-release-surface.test.mjs`. The
-  published set must equal the three served assets, no key may match a
-  build/config file shape, the preflight and published lists must agree, and
-  every published key must exist on disk. It fails against the pre-fix script,
-  which is what confirmed the defect, and was mutation-checked five ways:
-  `Dockerfile` restored to the ConfigMap, restored to the preflight alone,
-  `nginx.conf` published, a served asset dropped, and a published file that
-  does not exist. `platform/ci` 62 tests pass; homepage 27 pass.
-- **Residual risk**: **the fix is not live.** It takes effect on the next
-  homepage deploy, and `origin/main` was 2 days behind when this was written.
-  `/Dockerfile` still answers 200 until then. This is the gap
-  `scripts/ci/release_lag.py` and `platform/release-lag-budget.yaml` now
-  measure — a Fixed row in this table is a claim about the repository, not
-  about the running service. `git merge-base --is-ancestor <commit> origin/main`
-  is the check that settles it.
-- **Process note**: the generalizable lesson is SEC-021's, not this entry's. A
-  remediation must be verified against the artifact production actually serves,
-  and for anything with a URL that means probing the URL. Ten seconds of `curl`
-  found both the exposure and the fact that the previous fix had addressed two
-  paths that were never reachable.
+### SEC-026 — Medium — Stripe Webhook Signatures Never Expire
+- **Location**: `ventures/print-atelier/src/lib/stripe-webhook-server.ts:20-22`
+- **Impact**: `verifyStripeWebhookSignature` parses the `t=` timestamp and uses
+  it to rebuild the signed payload, but never compares it against the current
+  time. Stripe's own tolerance window is what stops a captured webhook being
+  replayable; without it, an intercepted request stays valid forever. Given the
+  handler records orders and queues Gelato/Printful fulfillment, a replayed
+  `payment_intent.succeeded` could re-queue fulfillment for an order already
+  shipped.
+- **Status**: Open. Adding a tolerance window changes which deliveries are
+  accepted, and legitimate Stripe retries can arrive well after the original
+  timestamp, so the window is an operational decision rather than a default an
+  agent should pick. Tracked in `ventures/print-atelier/docs/BACKLOG.md`.
+
+### SEC-024 — Medium — The Vulnerability Register Silently Froze for Two Days
+- **Location**: `scripts/security-scan.sh:43-57` (`audit_node_package`)
+- **Impact**: `SECURITY_ROADMAP.md` is the release gate, and it stopped being
+  written on 2026-07-31 without any run reporting a security failure. The
+  scanner requires a lockfile from every directory holding a `package.json`,
+  records a missing one as an audit gap, and the completeness guard then refuses
+  to rewrite the roadmap. `portfolio/marisstella-homepage` acquired a
+  `package.json` when its real test suite landed (`c3287b2`); it declares no
+  dependencies at all — its only script runs `node:test` over the standard
+  library — so it has no lockfile and can never produce a finding, yet it held
+  every subsequent scan open. The failure is quiet in the direction that
+  matters: the roadmap keeps showing the *last* good scan, so it reads as
+  current rather than as absent.
+- **Consequence, measured 2026-08-02**: the committed register recorded 2
+  Critical and 67 High. A completed scan of the same tree finds 0 Critical and
+  47 High. Both criticals were `form-data` and `request` reached through
+  `htmltojsx` in `ventures/photo-editing/docs-site`; that dependency has since
+  been removed, so the register was reporting two blocking criticals that no
+  longer existed, against a stated policy of blocking releases on Critical and
+  High findings.
+- **Fix**: A package declaring no dependencies in any of the six dependency
+  fields is audited as having nothing to audit, rather than recorded as a gap.
+  The decision is read from the committed `package.json` alone and never from
+  environment state, so it cannot be reached by a run that failed to install,
+  lost the registry, or was sandboxed — which is what separates it from the
+  offline branch beside it, where exactly that erasure was the recorded
+  regression. Declaring a single dependency re-arms the lockfile requirement and
+  the real audit; an unparseable manifest falls through to the normal path and
+  is still treated as unaudited.
+- **Evidence**: 4 new cases in `scripts/security/test-security-scan.sh` covering
+  the exemption, its scoping to the package that earns it, a malformed manifest,
+  and a `devDependencies`-only package. Mutation-checked four ways — reverting
+  the exemption, treating an unparseable manifest as dependency-free, ignoring
+  `devDependencies`, and suppressing the lockfile gap repo-wide each fail the
+  intended case and no other. Against the real tree the scan now audits 11
+  packages where it audited 10, and the roadmap rewrites.
+- **Status**: Fixed. The register itself is regenerated by the next scan; it is
+  a generated file and is not hand-corrected here.
+
+### SEC-027 — High — The Dependency Audit Covered Four Lockfiles of Ten
+
+- **Discovered**: 2026-08-02, reviewing which committed lockfiles CI audits.
+- **Impact**: `.gitea/workflows/security.yml` has run a `dependency-audit` job
+  for as long as it has existed, and its matrix has always been a hand-written
+  list of four ventures. The repository tracks **ten** Node lockfiles. The six
+  omitted ones had never been audited by anything, and measuring them found
+  **32 high-severity advisories**:
+
+  | Package | High | Never audited |
+  | --- | --- | --- |
+  | `ventures/real-estate-agent-photo-app/docs-site` | 14 | yes |
+  | `ventures/real-estate-agent-photo-app/research` | 10 | yes |
+  | `ventures/local-site-studio` | 4 | yes |
+  | `ventures/photo-editing/docs-site` | 3 | yes |
+  | `ventures/real-estate-agent-photo-app/pipeline` | 1 | yes |
+  | `ventures/ai-engineering-academy/site` | 0 | yes |
+  | `ventures/retail-pilot-intel` | 8 | no — in the matrix, failing |
+  | `ventures/print-atelier` | 7 | no — in the matrix, failing |
+  | `ventures/ai-first-markets` | 0 | no |
+  | `ventures/quick-pick-survey` | 0 | no |
+
+  The most serious single advisory is in `local-site-studio`: a Next.js
+  **middleware / proxy bypass in App Router applications**. That venture's
+  `src/proxy.ts` gates only `/dashboard` and leaves every `/api` handler to
+  call `requireOperatorAuth()` itself, with no deny-by-default behind it — so a
+  proxy-bypass advisory lands on the one venture whose guard has no second
+  layer. Its lockfile pins a version the advisory covers.
+- **Cause**: two separate failures, and the second is the worse one. The matrix
+  was a list rather than a scan, so it covered what somebody had typed and not
+  what existed, and nothing measured the ratio. Then the two audited ventures
+  that *do* fail — print-atelier at 7 and retail-pilot-intel at 8 — have been
+  failing into a job no branch protection requires, because required status
+  checks are still unconfigured (see the roadmap's Gitea protection item). A
+  red cell nothing blocks on is indistinguishable from a green one.
+- **Fix**: the matrix now lists all ten committed lockfiles. Coverage is the
+  part that is fixed; **the 47 advisories themselves are open**, and are
+  deliberately not remediated in the same change — the available fixes are
+  semver-major bumps of Next.js, `eslint-config-next`, `wrangler` and `sharp`
+  across five ventures, which is a set of upgrades that needs each venture's
+  suite run behind it rather than a lockfile rewrite done in passing.
+- **Evidence**: `platform/ci/test/dependency-audit-coverage.test.mjs`. It scans
+  git for committed lockfiles and fails when one is neither in the matrix nor a
+  registered, owned, expiring, counted exception; it fails on a matrix entry
+  whose directory has no lockfile, on an entry whose `manager` does not match
+  the committed lockfile — `npm audit` in a pnpm workspace reports success
+  without reading anything — on an audit command carrying `|| true`, on a
+  missing `--audit-level`, on `continue-on-error`, and on `fail-fast: true`,
+  which would let one venture's advisories cancel every other venture's audit.
+  It does **not** run `npm audit` itself: advisory counts change when a CVE is
+  published against an unchanged lockfile, so asserting them would fail on days
+  nobody committed anything and would need the network to run at all.
+  Mutation-checked thirteen ways; `platform/ci` 66 tests, 9 new, all passing
+  except two that already fail at `HEAD` for an unrelated catalog defect.
+- **Partial remediation, 2026-08-02**: the two ventures whose fixes were not
+  semver-major were upgraded and verified, taking the repository from 47 high
+  to **46**. The headline number barely moves and that is the wrong thing to
+  read — what left is the directly exploitable half:
+
+  | Venture | next | High before → after | Direct Next.js CVEs resolved |
+  | --- | --- | --- | --- |
+  | `local-site-studio` | 16.2.9 → 16.2.12 | 4 → 3 | middleware/proxy bypass, DoS |
+  | `photo-editing/docs-site` | 15.2.4 → 15.5.22 | 3 → 3 | SSRF, DoS in Server Actions |
+
+  In both, `next` is now flagged **only transitively**, through `postcss` and
+  `sharp`; it carries no CVE of its own. `docs-site`'s count is unchanged
+  because the transitive row remains, which is exactly why a count is a poor
+  proxy for posture and the advisory bodies have to be read.
+  Verified: `local-site-studio` `npm ci` clean, 125 files / 1214 tests passing,
+  `next build` green; `docs-site` 40 tests passing, `next build` green. The
+  exact pin style on `next` was preserved in both.
+- **Residual risk**: 46 advisories remain and are now visible. The residue in
+  the two remediated ventures is `postcss` (<=8.5.17, XSS and arbitrary file
+  read) and `sharp` (<0.35.0, four libvips CVEs), both pulled in by Next.js
+  itself; npm's only proposed fix is a **downgrade to next@9.3.3**, so no
+  forward fix exists and these wait on an upstream Next.js release. The
+  remaining 40 sit in `real-estate-agent-photo-app` (25 across three packages,
+  two of which have **no test script at all**, so an upgrade there has nothing
+  to verify it), `print-atelier` (7) and `retail-pilot-intel` (8). Those need
+  semver-major bumps of `eslint-config-next`, `wrangler` and `sharp` behind a
+  suite each venture does not yet have. Tracked on the roadmap's SCA item with
+  the per-venture counts above as the baseline to ratchet down.
+- **Process note**: this is the same shape as the homepage gate in SEC-021 and
+  the route-posture work — a control that was *declared* and *reachable* and
+  still covered a minority of its subject, because its subject was a list
+  somebody maintained by hand. The generalizable half is never the list; it is
+  the scan that makes the list fail when reality outgrows it.
+
+---
+
+### SEC-021 — Medium — Rate Limits Keyed on a Client-Controlled Header, and the Anonymous Surface Behind Them
+
+- **Location**: `ventures/local-site-studio/src/lib/security/rate-limit.ts:109`
+  and `src/lib/auth/operator.ts` (`requireOperatorAuth`);
+  `ventures/quick-pick-survey/src/lib/http.ts` (`getClientIp`).
+- **What is actually new here**: not the individual weaknesses — the repository
+  already documents both. `rate-limit.ts:18` says the client key "derives from
+  x-forwarded-for / x-real-ip, which a client can spoof", and
+  `marketing/generate/route.ts:47` says in as many words that when the password
+  is unset "requireOperatorAuth returns ok for every caller — without a
+  limiter". What nobody had written down is what they compose into, and that
+  nothing bounds the composition. Each comment describes its own limitation and
+  stops at the edge of its own file. Found while writing the route auth-posture
+  contracts, which is the second time that exercise has surfaced something
+  reading the code did not (see SEC-019, SEC-020).
+- **Impact, local-site-studio**: `POST /api/marketing/generate` calls the
+  Anthropic API once per request — a billed call, with the caller controlling
+  the prompt content. Two things stand between it and the open internet.
+  `requireOperatorAuth` returns `{ ok: true }` to everyone when
+  `OPERATOR_DASHBOARD_PASSWORD` is unset, which is the documented open-demo
+  default; and `checkRateLimit` buckets on the leftmost `x-forwarded-for`
+  entry, which the client supplies, so rotating one header yields a fresh
+  bucket per value. On a deployment where the platform does not overwrite that
+  header, the effective limit is unbounded. The exposure is a metered spend on
+  the operator's own API key rather than a data breach, which is why this is
+  Medium and not High — but it is the one finding in this log with a direct,
+  continuous cost to the portfolio's budget, and the portfolio has no
+  per-venture spend meter that would show it happening
+  (`portfolio/ledger/README.md`). `POST /api/stripe/bootstrap-prices` sits
+  behind the same fail-open auth, with `ALLOW_STRIPE_BOOTSTRAP=1` as its only
+  other gate; a boolean env flag carries no caller identity. Mitigating: its
+  response returns price IDs only, never `STRIPE_SECRET_KEY`, and the operation
+  is additive.
+- **Impact, quick-pick-survey**: the same leftmost-entry keying defeats every
+  anonymous limit on the only venture serving live production traffic —
+  including the per-IP brake on `POST /api/admin/login`, which is a brute-force
+  control on the admin key rather than a convenience limit. **This half is
+  conditional and unresolved**: `http.ts` documents a Vercel assumption, and
+  behind Vercel the leftmost entry genuinely is the real client, so the code is
+  correct there. The repository also ships `scripts/nginx-lb.conf`, whose
+  `proxy_add_x_forwarded_for` appends rather than replaces, leaving an
+  attacker-supplied value leftmost. Which of the two fronts
+  `pairwise.marisstella.dev` is a deployment fact not recorded in the
+  repository. Determining that is the first remediation step, not a code
+  change.
+- **Fix**: none applied, deliberately. The correct fix is to count trusted
+  proxies and index from the right, and the correct count is exactly the
+  off-repo fact above — guessing it either leaves the bypass open or collapses
+  every caller into one bucket and breaks rate limiting outright. Recorded
+  rather than corrected, consistent with how this repository treats controls
+  whose inputs it cannot yet observe.
+- **Evidence**: `ventures/quick-pick-survey/src/lib/routeAuthPosture.test.ts`
+  now declares all 32 handlers, of which 15 are `public` and 9 are
+  `capability` — 24 handlers reachable without a session, which is the surface
+  these limits are the only brake on. That count is held exact by
+  `platform/route-posture-registry.yaml`.
+- **Residual risk, recorded not fixed**: three anonymous endpoints on the live
+  venture carry no bound at all beyond the limits above.
+  `POST /api/trials/undo` **deletes** the most recent answer for a participant
+  id and is the one destructive write in the capability set with no rate limit
+  on it; the capability itself is a `cuid()`, which is time-ordered rather than
+  a CSPRNG token. `GET /api/og/couple-card` renders attacker-supplied text into
+  a branded image served from the production domain, uncapped and
+  unauthenticated — a phishing asset with the site's authority and an image
+  rendering sink. `GET /api/health` returns `RELEASE_REVISION`, disclosing the
+  deployed commit; minor, and easily gated. None of these are regressions; they
+  are the honest reading of what `public` and `capability` mean on that
+  surface, which is what the contract was written to make visible.
 
 ---
 

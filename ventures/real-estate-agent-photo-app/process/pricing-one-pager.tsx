@@ -50,9 +50,13 @@ export const conciergeOffer: ConciergeOffer = {
         "A room-by-room shot list (exterior, living space, kitchen, primary bed/bath, secondary rooms) run from your own iPhone, so nothing important gets missed and nothing gets over-shot.",
     },
     {
+      // Every edit named here has to be one pipeline/src/enhance.ts actually
+      // performs. Held by pipeline/src/offer-claims.test.ts — see the
+      // RESTRICTED_ALTERATIONS list there for why the stronger-sounding
+      // claims are not available to this copy.
       label: "15-25 enhanced, MLS-ready photos",
       detail:
-        "Exposure, sky replacement where needed, and perspective/vertical correction applied to every kept shot.",
+        "Auto-straightening, exposure and contrast balancing, and a sharpening pass applied to every kept shot, exported at a consistent MLS-ready size.",
     },
     {
       label: "Straight export, no software to learn",
@@ -67,7 +71,7 @@ export const conciergeOffer: ConciergeOffer = {
     },
     {
       label: "3. We process the photos",
-      detail: "AI enhancement pass + a manual quality check before delivery.",
+      detail: "Automated enhancement pass + a manual quality check before delivery.",
     },
     {
       label: "4. Pay & get the folder",

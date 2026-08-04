@@ -30,6 +30,9 @@ jobs:
       - name: Test repository policy scanner
         run: bash scripts/security/test-scan-repository.sh
 
+      - name: Test vulnerability roadmap scanner
+        run: bash scripts/security/test-security-scan.sh
+
       - name: Test repository engineering policy contract
         run: bash scripts/ci/test-engineering-policy.sh
 
@@ -77,22 +80,91 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+  sast:
+    name: Static application security testing
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Install SAST tooling
+        run: python3 -m pip install --disable-pip-version-check -r requirements-sast.txt
+
+      # Semgrep resolves `p/default` from its registry at run time, so the rule
+      # set is not pinned the way the tool version is. A registry update that
+      # adds a rule can therefore turn this job red without anything in the
+      # repository changing. That is the intended direction of the trade: the
+      # alternative is vendoring 1074 rules and never learning about a new one.
+      # A red build from a new rule is triaged like any other finding — read it,
+      # then fix it or register it.
+      - name: Run SAST gate
+        run: python3 scripts/ci/sast_scan.py --report sast-report.md
+
+      - name: Retain SAST evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: sast-report
+          path: sast-report.md
+          if-no-files-found: error
+          retention-days: 30
+
   dependency-audit:
     name: Dependency audit (${{ matrix.venture }})
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
       fail-fast: false
+      # Every committed lockfile, not a chosen subset. This matrix listed four
+      # ventures for as long as it had existed while the repository tracked ten
+      # Node lockfiles, and the six it omitted turned out to hold 32 of the 47
+      # high-severity advisories present on 2026-08-02 — including a Next.js
+      # middleware/proxy bypass in local-site-studio. The omission was not a risk
+      # judgement; it was the four somebody had typed. Worse, the scanner that
+      # writes SECURITY_ROADMAP.md walked the whole tree, so those findings were
+      # logged and ungated at the same time.
+      #
+      # platform/ci/test/dependency-audit-coverage.test.mjs holds this list. It
+      # fails when a committed lockfile is neither in this matrix nor carries a
+      # dated, owned, sized exception, so the next package with dependencies
+      # cannot be added without a decision about auditing it, and the escape
+      # hatch stays explicit and expiring.
       matrix:
         include:
+          - venture: ai-engineering-academy-site
+            directory: ventures/ai-engineering-academy/site
+            manager: npm
           - venture: ai-first-markets
             directory: ventures/ai-first-markets
+            manager: npm
+          - venture: local-site-studio
+            directory: ventures/local-site-studio
+            manager: npm
+          - venture: photo-editing-docs-site
+            directory: ventures/photo-editing/docs-site
             manager: npm
           - venture: print-atelier
             directory: ventures/print-atelier
             manager: npm
           - venture: quick-pick-survey
             directory: ventures/quick-pick-survey
+            manager: npm
+          - venture: real-estate-agent-photo-app-docs-site
+            directory: ventures/real-estate-agent-photo-app/docs-site
+            manager: npm
+          - venture: real-estate-agent-photo-app-pipeline
+            directory: ventures/real-estate-agent-photo-app/pipeline
+            manager: npm
+          - venture: real-estate-agent-photo-app-research
+            directory: ventures/real-estate-agent-photo-app/research
             manager: npm
           - venture: retail-pilot-intel
             directory: ventures/retail-pilot-intel
@@ -124,8 +196,9 @@ jobs:
       always() &&
       github.event_name != 'pull_request' &&
       (needs.scan.result == 'failure' ||
+       needs.sast.result == 'failure' ||
        needs.dependency-audit.result == 'failure')
-    needs: [scan, dependency-audit]
+    needs: [scan, sast, dependency-audit]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:

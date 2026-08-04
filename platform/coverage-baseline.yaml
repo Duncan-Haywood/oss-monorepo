@@ -22,6 +22,21 @@
 # `command` is an argv list, never a shell string. The audit substitutes
 # $COVERAGE_LCOV_DESTINATION with a temp path and reads the lcov written there,
 # so a component that reports nothing fails rather than passing silently.
+#
+# `command` must also pin *what* it measures rather than inheriting the runner's
+# default. Every Node component here passes `--test-coverage-include=src/**`,
+# and that flag is load-bearing: Node 22 counts a component's own test files as
+# covered source and Node 24 does not. `.gitea/workflows/ci-cd.yml` pins Node 22
+# while local machines run newer ones, so without the flag the same commit is
+# measured over two different surfaces and the gate's verdict depends on who ran
+# it. Test files execute themselves and so score near 100%, which does not
+# describe the code under test.
+#
+# `measured` records the size of the report each `baseline` was taken from, and
+# the audit checks it. Percentages are ratios; comparing them cannot notice the
+# denominator moving underneath. `drift_percent` defaults to 10 and is capped at
+# 25 — enough for routine file churn, not enough to hide a component measuring a
+# different surface than the one its floor was set over.
 
 components:
   - id: print-atelier
@@ -34,15 +49,30 @@ components:
       - tsx
       - --test
       - --experimental-test-coverage
+      - --test-coverage-include=src/**
       - --test-reporter=lcov
       - --test-reporter-destination=$COVERAGE_LCOV_DESTINATION
       - tests/*.test.ts
-    # Measured 2026-07-31 across 49 files / 13146 lines. Branch coverage is the
-    # weakest of the three and is where the climb to the 90% target starts.
+    # Measured 2026-08-02 on Node 22.22.3 across 54 source files / 13502 lines,
+    # and identically on Node 26.4.0 (branches differ by 0.05 pt, inside the
+    # tolerance below).
+    #
+    # The figures directly above this line were 94.07/89.04/81.31 over "113 files
+    # / 18749 lines". That report was 54 source files plus all 59 files of
+    # `tests/`, whose 5247 lines score near 100% by construction. Backed out
+    # rather than lowered: the suites that commit credited were real, but the
+    # number was never the coverage of the code. The 2026-07-31 figures below it
+    # (91.70/87.46/79.31 over 49 files) were source-only and comparable, so the
+    # honest reading is that this component moved roughly a point, not three.
+    # Branch coverage remains the weakest of the three and is where the climb to
+    # the 90% target continues.
     baseline:
-      lines: 91.70
-      functions: 87.46
-      branches: 79.31
+      lines: 91.81
+      functions: 87.53
+      branches: 79.76
+    measured:
+      files: 54
+      lines: 13502
     tolerance:
       lines: 0.5
       functions: 0.5
@@ -56,18 +86,49 @@ components:
       - node
       - --test
       - --experimental-test-coverage
+      - --test-coverage-include=src/**
       - --test-reporter=lcov
       - --test-reporter-destination=$COVERAGE_LCOV_DESTINATION
       - test/*.test.mjs
-    # Measured 2026-07-31 across `src/pipeline.mjs` / 639 lines. This is the
-    # engine that decides whether every other component passes, and it is the
-    # least covered thing in the repository. Half of it has never been executed
-    # by a test — including, until recently, the paths that report PASSED for a
-    # component that was never verified. Raising this is the priority.
+    # Measured 2026-08-03 at 5711c17 on Node 22.22.3, across the component's two
+    # source files: `src/pipeline.mjs` (805 lines) and `src/gate-contract.mjs`
+    # (290), 1095 together — `wc -l platform/ci/src/*.mjs` exactly.
+    #
+    # The basis moved because the source did. `src/gate-contract.mjs` was added by
+    # e582e0f and is the component's second source file; the previous basis of
+    # 1 file / 805 lines predates it. This is the benign direction of the drift
+    # check and it was still worth stopping on: the same symptom — a denominator
+    # that grew — is what the 13-file/3436-line report below turned out to be,
+    # where the extra files were the component's own tests. The distinction is
+    # that `--test-coverage-include=src/**` scopes this report to `src/`, and
+    # 805 + 290 accounts for the new total with nothing left over, so the added
+    # surface is real source and the percentages below are measured over it.
+    #
+    # Measured 2026-08-02 across `src/pipeline.mjs` alone, 805 lines, identically
+    # on Node 22.22.3 and Node 26.4.0.
+    #
+    # The figures directly above this line were 87.60/93.36/80.68 over "13 files
+    # / 3436 lines". This component has one source file; the other 12 were its own
+    # tests, and `wc -l test/*.test.mjs src/pipeline.mjs` is 3436 exactly. Their
+    # 2631 lines of self-executing code carried 805 lines of 63.98% coverage up to
+    # an apparent 87.60%. Comparable to the 2026-07-31 figures of 52.11/57.14/61.54
+    # over 639 lines, which were source-only: the engine really did gain coverage
+    # from the gate-contract, route-auth-posture and homepage-release-surface
+    # suites — about 12 points of it, not 35.
+    #
+    # This is the engine that decides whether every other component passes, and at
+    # 69.86% it is still the least covered thing in the repository. The rise from
+    # 63.98% is not pipeline.mjs getting better tested: gate-contract.mjs arrived
+    # with its own suite and covers well, which lifts the combined ratio while the
+    # contiguous uncovered span in pipeline.mjs (roughly lines 556-805) is exactly
+    # where it was. That span is still where raising this should start.
     baseline:
-      lines: 52.11
-      functions: 57.14
-      branches: 61.54
+      lines: 69.86
+      functions: 85.29
+      branches: 82.58
+    measured:
+      files: 2
+      lines: 1095
     tolerance:
       lines: 0.5
       functions: 0.5
