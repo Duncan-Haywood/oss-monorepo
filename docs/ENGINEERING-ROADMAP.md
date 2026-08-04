@@ -84,6 +84,7 @@ evidence, and completion date before it can be marked done.
   discards its own failure with `|| true`. Every control we had asked whether a
   gate was *declared* and whether it was *reachable*; this one was both, and
   neither question could tell it from a passing suite.
+<<<<<<< HEAD
 
   Still open, and this item stays unchecked until all of it is done: the
   homepage and AI-First Markets have no journey suite; Pairwise's own suite has
@@ -119,6 +120,76 @@ evidence, and completion date before it can be marked done.
   It also depends on cluster state the repository does not hold — the
   Deployment and ConfigMap are created imperatively and have no desired state
   in git, so the missing `items:` selector is visible only from `kubectl`.
+- [ ] Hold every venture's customer-facing claims to what the venture can
+  actually deliver, and gate the claim rather than the copy. Owner: venture
+  owner. Not started as a portfolio-wide control; one venture is done.
+  2026-08-02, owner duncan: `ai-engineering-academy` is the portfolio's
+  highest-allocated venture (`$40/mo`, rank 1 in
+  [the allocation report](../portfolio/ALLOCATION_REPORT.md)) and its pricing
+  page is the only surface it has that could ever take money. Every branch in
+  flight that touched this venture — eight of them — changed the same single
+  line of `site/package.json`, adding the missing `test` script. None looked at
+  what the pages say. That matters in a specific way: `VENTURE.yaml` declared
+  `verify: npm --prefix site test && npm --prefix site run build`, `npm test`
+  did not exist, so the venture's verification had never once run, and the
+  moment those branches landed CI would have begun *enforcing* the following as
+  regressions:
+  the sandbox sold "test real multi-agent tool-calling workflows … directly in
+  your browser" over a handler that printed one fixed transcript ending
+  `12/12 passing` and `Subgoal satisfaction score: 100%` for any input including
+  an empty one, and ignored which of the three tracks was selected;
+  the mastery checkpoint answered "Schema structure verified. Portfolio point
+  awarded (+25 pts)" to any input over ten characters — `aaaaaaaaaaa` passed,
+  verified against the built page — and the points are stored nowhere;
+  the pricing page headlined "$93.50 / mo (65% Savings)" against a "Retail LLM &
+  Compute Value" computed from two invented rates ($1.50/sandbox-hour,
+  $0.35/mentor-query) that nothing in this repository sources, clamped at zero
+  so it could never show the usage levels where $49 costs more than it returns;
+  it badged an unbuilt tier "Most Popular" for a product with zero customers,
+  and ticked "All 50+ Project Specifications" and "Complete Engineering
+  Knowledge Graph" as delivered when both are design documents in `docs/`.
+  The savings framing also contradicted the venture's own written rule — that a
+  paid tier is priced to cover what it costs to serve plus a modest margin, "not
+  to maximize what a motivated learner is willing to pay" (`docs/05-business-
+  and-strategy.md`). `$49` appears nowhere in the venture's documentation.
+  Separately and more mundanely, the whole revenue surface was unstyled:
+  `site/style.css` defined six nav classes, and the two authored pages
+  referenced twenty-five it did not have, so the pricing cards rendered as an
+  undifferentiated run of text and the waitlist dialog — the single conversion
+  path — appeared as an unstyled block at the foot of the page. Pressing the
+  call to action looked, to a visitor, like nothing happening.
+  Fixed in `site/build.mjs` and `site/style.css`; `site/test.mjs` holds the
+  contracts, and each was confirmed to fail against the pre-change build. The
+  generalizable one is the class contract: every class name the built pages use
+  must resolve in the stylesheet, which is what catches a shipped-but-invisible
+  UI without anyone having to look at the page.
+  **Two branches fixed this independently and the tree carries one of them.**
+  `agent/continue-work-4-2026-08-02` and the base each found the same four
+  false claims and the same unstyled surface, within a day of each other, and
+  neither knew of the other. The base's implementation is the one that landed:
+  it extracts the checkpoint rules into `site/checkpoint-validator.mjs` and
+  inlines them, so the rules under test are the rules the learner meets, and
+  its suite drives the page's own inlined script in a `node:vm` rather than
+  grepping for strings — mutation-checked 20 ways, against the other's
+  authored-walkthrough rewrite. One thing was ported from the branch that the
+  base did not have: the two estimator sliders now carry the visitor's stated
+  usage into the waitlist application. `$49` is a proposal that appears nowhere
+  in the venture's documentation, so what visitors say they expect to use is
+  the only evidence that could ever set it; without that, the estimator is
+  decoration and the demand data is thrown away at the moment of conversion.
+  Held by a test that drives the real handler and reads the generated `mailto`.
+  That duplication is itself the finding. Two agents spent a session each on
+  the same four defects in the same venture, and the only reason the second
+  one's work was not silently discarded is that someone read both.
+  Not done: this is one venture, and nothing checks the other ten. The check is
+  string-and-DOM-level rather than a real browser, so layout, contrast and
+  focus rings are argued from the stylesheet rather than observed. The
+  `photos-import-tools` instance of the same class — `sd_offload.py` writing
+  `"status": "verified"` into the manifest a user consults before erasing an SD
+  card, on a same-byte-length comparison, with `sha256_file()` defined and
+  called from nowhere — was open when this was written and is now closed:
+  `sha256_file` is called on both source and destination and the digests
+  compared before the status is written.
 - [ ] Configure and verify Gitea branch/environment protection: pull requests
   only for release branches, current required checks, stale approval dismissal,
   CODEOWNERS, one independent approval for Tier 2, two including an accountable

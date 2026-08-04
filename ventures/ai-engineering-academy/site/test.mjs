@@ -562,6 +562,48 @@ assert.strictEqual(
   "A team enquiry must reach the inbox distinguishable from an individual signup."
 );
 
+// The stated usage must reach the inbox with the application.
+//
+// $49 is a proposal — the venture's own documentation names no price — so the
+// only thing that can turn it into one is what visitors say they expect to
+// use. The two sliders are the only place they say it. Delivering the
+// application without them makes the estimator decoration and throws away the
+// demand data the price depends on. Driven through the real handler rather
+// than grepped, so a body that stops carrying them fails here.
+const waitlistTrack = calcElement("waitlist-track");
+waitlistTrack.selectedIndex = 0;
+waitlistTrack.options = [{ text: "Track 2 - Evaluation" }];
+calcElement("waitlist-name").value = "Alex Chen";
+calcElement("waitlist-email").value = "alex@example.com";
+calcElement("waitlist-modal").getAttribute = () => "pro";
+for (const id of ["waitlist-form", "waitlist-success", "waitlist-fallback"]) {
+  calcElement(id).style = { display: "" };
+}
+pricingWindow.window = { location: { href: "" } };
+
+calcElement("hours-slider").value = "25";
+calcElement("queries-slider").value = "300";
+pricingWindow.submitWaitlist({ preventDefault() {} });
+
+const applicationBody = decodeURIComponent(
+  (calcElement("waitlist-fallback").href || "").split("&body=")[1] || ""
+);
+assert.match(
+  applicationBody,
+  /Expected sandbox hours per month: 25/,
+  "The application must carry the sandbox hours the visitor stated."
+);
+assert.match(
+  applicationBody,
+  /Expected mentor questions per month: 300/,
+  "The application must carry the mentor questions the visitor stated."
+);
+assert.match(
+  applicationBody,
+  /Email: alex@example\.com/,
+  "The application must still carry the fields it already carried."
+);
+
 console.log("✔ Waitlist application routes to a real destination and makes no false claim.");
 
 // ---------------------------------------------------------------------------
