@@ -35,13 +35,13 @@ function readSource(relativePath: string): string {
 function eligibleArtwork() {
   const artwork = catalogArtworks.find((art) => art.slug === "midnight-coast");
   assert.ok(artwork, "expected midnight-coast in the catalog");
-  return artwork;
+  return { ...artwork, printFileUrl: "https://files.example.test/prints/midnight-coast.tif" };
 }
 
 function consentBlockedArtwork() {
   const artwork = catalogArtworks.find((art) => art.slug === "spring-bloom");
   assert.ok(artwork, "expected spring-bloom in the catalog");
-  return artwork;
+  return { ...artwork, printFileUrl: "https://files.example.test/prints/spring-bloom.tif" };
 }
 
 test("addArtworkToCheckoutCart prices a new line from the catalog, not the caller", () => {

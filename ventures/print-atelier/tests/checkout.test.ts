@@ -15,7 +15,11 @@ import { catalogArtworks, defaultListingConsentRecords } from "../src/lib/market
 test("validateCheckoutLineItem allows consent-cleared Live listings with proof", () => {
   const midnight = catalogArtworks.find((art) => art.slug === "midnight-coast");
   assert.ok(midnight);
-  const result = validateCheckoutLineItem(midnight, defaultListingConsentRecords);
+  const midnightWithFile = {
+    ...midnight,
+    printFileUrl: "https://files.example.test/prints/midnight-coast.tif",
+  };
+  const result = validateCheckoutLineItem(midnightWithFile, defaultListingConsentRecords);
   assert.equal(result.eligible, true);
   assert.equal(result.blockers.length, 0);
 });
@@ -136,17 +140,27 @@ test("buildCheckoutReadiness blocks cart with manipulated retail price", () => {
 test("buildCheckoutSessionPayload enforces canonical catalog price over client-supplied retailPrice", () => {
   const midnight = catalogArtworks.find((art) => art.slug === "midnight-coast");
   assert.ok(midnight);
+  const midnightWithFile = {
+    ...midnight,
+    printFileUrl: "https://files.example.test/prints/midnight-coast.tif",
+  };
   const manipulatedCart = [
     {
-      artworkSlug: midnight.slug,
-      title: midnight.title,
-      artistName: midnight.artistName,
+      artworkSlug: midnightWithFile.slug,
+      title: midnightWithFile.title,
+      artistName: midnightWithFile.artistName,
       retailPrice: 0.01, // manipulated price
-      fulfillmentCost: midnight.fulfillmentCost,
+      fulfillmentCost: midnightWithFile.fulfillmentCost,
       quantity: 1,
     },
   ];
-  const payload = buildCheckoutSessionPayload(manipulatedCart, "US", "https://printatelier.com");
+  const payload = buildCheckoutSessionPayload(
+    manipulatedCart,
+    "US",
+    "https://printatelier.com",
+    {},
+    [midnightWithFile],
+  );
   assert.equal(payload.lineItems[0].unitAmountCents, Math.round(midnight.retailPrice * 100));
 });
 

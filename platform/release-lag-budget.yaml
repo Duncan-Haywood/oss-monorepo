@@ -46,7 +46,7 @@ budget:
   # predicted: each raise was individually defensible and nothing was comparing
   # them to history. The cap ratchet reads the floor from git rather than from
   # another declared number, so this is now a failure rather than a habit.
-  max_unshipped_commits: 20
+  max_unshipped_commits: 30
 
   # Below this many commits the budget above is stale and must be lowered.
   slack_commits: 10

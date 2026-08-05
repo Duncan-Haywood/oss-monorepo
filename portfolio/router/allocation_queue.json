@@ -19,13 +19,13 @@
       "status": "active",
       "priority": 3,
       "has_stopping_rule": true,
-      "criteria_declared": 3,
-      "criteria_evaluable": 2,
+      "criteria_declared": 2,
+      "criteria_evaluable": 1,
       "unevaluable_criteria": [
         {
           "description": "Fewer than 50 active learners after 60 days post-launch.",
-          "reason": "prose-only",
-          "detail": "stated as prose, with no metric the allocator can read"
+          "reason": "prose criterion: no machine-evaluable rule is declared",
+          "criterion_id": "ai-engineering-academy[0]"
         }
       ]
     },
@@ -40,13 +40,13 @@
       "status": "active",
       "priority": 3,
       "has_stopping_rule": true,
-      "criteria_declared": 3,
-      "criteria_evaluable": 2,
+      "criteria_declared": 2,
+      "criteria_evaluable": 1,
       "unevaluable_criteria": [
         {
           "description": "Fewer than 100 newsletter signups within 30 days of release.",
-          "reason": "prose-only",
-          "detail": "stated as prose, with no metric the allocator can read"
+          "reason": "prose criterion: no machine-evaluable rule is declared",
+          "criterion_id": "ai-first-markets[0]"
         }
       ]
     },
@@ -66,13 +66,13 @@
       "unevaluable_criteria": [
         {
           "description": "No client checkout or inquiry converted after 60 days post-launch.",
-          "reason": "prose-only",
-          "detail": "stated as prose, with no metric the allocator can read"
+          "reason": "prose criterion: no machine-evaluable rule is declared",
+          "criterion_id": "local-site-studio[0]"
         },
         {
           "description": "Customer acquisition cost (CAC) exceeds $150 per client.",
-          "reason": "prose-only",
-          "detail": "stated as prose, with no metric the allocator can read"
+          "reason": "prose criterion: no machine-evaluable rule is declared",
+          "criterion_id": "local-site-studio[1]"
         }
       ]
     },
@@ -87,13 +87,13 @@
       "status": "active",
       "priority": 3,
       "has_stopping_rule": true,
-      "criteria_declared": 3,
-      "criteria_evaluable": 2,
+      "criteria_declared": 2,
+      "criteria_evaluable": 1,
       "unevaluable_criteria": [
         {
           "description": "Fewer than 20 regular users per month.",
-          "reason": "prose-only",
-          "detail": "stated as prose, with no metric the allocator can read"
+          "reason": "prose criterion: no machine-evaluable rule is declared",
+          "criterion_id": "mat-470-real-analysis[0]"
         }
       ]
     },
@@ -108,13 +108,13 @@
       "status": "active",
       "priority": 3,
       "has_stopping_rule": true,
-      "criteria_declared": 3,
-      "criteria_evaluable": 2,
+      "criteria_declared": 2,
+      "criteria_evaluable": 1,
       "unevaluable_criteria": [
         {
           "description": "Batch render throughput fails to process 1,000 images per hour.",
-          "reason": "prose-only",
-          "detail": "stated as prose, with no metric the allocator can read"
+          "reason": "prose criterion: no machine-evaluable rule is declared",
+          "criterion_id": "photo-editing[0]"
         }
       ]
     },
@@ -129,13 +129,13 @@
       "status": "active",
       "priority": 3,
       "has_stopping_rule": true,
-      "criteria_declared": 3,
-      "criteria_evaluable": 2,
+      "criteria_declared": 2,
+      "criteria_evaluable": 1,
       "unevaluable_criteria": [
         {
           "description": "Ingest throughput drops below 500 images/min.",
-          "reason": "prose-only",
-          "detail": "stated as prose, with no metric the allocator can read"
+          "reason": "prose criterion: no machine-evaluable rule is declared",
+          "criterion_id": "photos-import-tools[0]"
         }
       ]
     },
@@ -155,13 +155,13 @@
       "unevaluable_criteria": [
         {
           "description": "Unit economics remain negative post-payout for 3 consecutive months.",
-          "reason": "prose-only",
-          "detail": "stated as prose, with no metric the allocator can read"
+          "reason": "prose criterion: no machine-evaluable rule is declared",
+          "criterion_id": "print-atelier[0]"
         },
         {
           "description": "Zero artist onboarding or catalog additions within 60 days of active outreach.",
-          "reason": "prose-only",
-          "detail": "stated as prose, with no metric the allocator can read"
+          "reason": "prose criterion: no machine-evaluable rule is declared",
+          "criterion_id": "print-atelier[1]"
         }
       ]
     },
@@ -176,18 +176,18 @@
       "status": "active",
       "priority": 3,
       "has_stopping_rule": true,
-      "criteria_declared": 4,
-      "criteria_evaluable": 2,
+      "criteria_declared": 3,
+      "criteria_evaluable": 1,
       "unevaluable_criteria": [
         {
           "description": "Unmaintained infrastructure or unmerged PR backlog prevents automated deployments.",
-          "reason": "prose-only",
-          "detail": "stated as prose, with no metric the allocator can read"
+          "reason": "prose criterion: no machine-evaluable rule is declared",
+          "criterion_id": "quick-pick-survey[0]"
         },
         {
           "description": "Active participant retention drops below 10% after 30 days.",
-          "reason": "prose-only",
-          "detail": "stated as prose, with no metric the allocator can read"
+          "reason": "prose criterion: no machine-evaluable rule is declared",
+          "criterion_id": "quick-pick-survey[1]"
         }
       ]
     },
@@ -202,18 +202,18 @@
       "status": "active",
       "priority": 3,
       "has_stopping_rule": true,
-      "criteria_declared": 4,
-      "criteria_evaluable": 2,
+      "criteria_declared": 3,
+      "criteria_evaluable": 1,
       "unevaluable_criteria": [
         {
           "description": "Fewer than 5 of 15 coached pilot users complete a second range session within 30 days.",
-          "reason": "prose-only",
-          "detail": "stated as prose, with no metric the allocator can read"
+          "reason": "prose criterion: no machine-evaluable rule is declared",
+          "criterion_id": "range-coach[0]"
         },
         {
           "description": "More than 10 percent of detected swings receive a materially wrong confident cue in a 500-swing labeled pilot.",
-          "reason": "prose-only",
-          "detail": "stated as prose, with no metric the allocator can read"
+          "reason": "prose criterion: no machine-evaluable rule is declared",
+          "criterion_id": "range-coach[1]"
         }
       ]
     },
@@ -228,13 +228,13 @@
       "status": "active",
       "priority": 3,
       "has_stopping_rule": true,
-      "criteria_declared": 3,
-      "criteria_evaluable": 2,
+      "criteria_declared": 2,
+      "criteria_evaluable": 1,
       "unevaluable_criteria": [
         {
           "description": "Fewer than 5 agent shoots booked after 30 days of active concierge outreach.",
-          "reason": "prose-only",
-          "detail": "stated as prose, with no metric the allocator can read"
+          "reason": "prose criterion: no machine-evaluable rule is declared",
+          "criterion_id": "real-estate-agent-photo-app[0]"
         }
       ]
     },
@@ -249,18 +249,18 @@
       "status": "active",
       "priority": 3,
       "has_stopping_rule": true,
-      "criteria_declared": 4,
-      "criteria_evaluable": 2,
+      "criteria_declared": 3,
+      "criteria_evaluable": 1,
       "unevaluable_criteria": [
         {
           "description": "Zero store pilot deployments after 90 days of sales demo availability.",
-          "reason": "prose-only",
-          "detail": "stated as prose, with no metric the allocator can read"
+          "reason": "prose criterion: no machine-evaluable rule is declared",
+          "criterion_id": "retail-pilot-intel[0]"
         },
         {
           "description": "CAC exceeds \u20ac300 per store location.",
-          "reason": "prose-only",
-          "detail": "stated as prose, with no metric the allocator can read"
+          "reason": "prose criterion: no machine-evaluable rule is declared",
+          "criterion_id": "retail-pilot-intel[1]"
         }
       ]
     },
@@ -280,8 +280,8 @@
       "unevaluable_criteria": [
         {
           "description": "Container provisioning time exceeds 15 seconds.",
-          "reason": "prose-only",
-          "detail": "stated as prose, with no metric the allocator can read"
+          "reason": "prose criterion: no machine-evaluable rule is declared",
+          "criterion_id": "ubuntu-agent-server[0]"
         }
       ]
     }

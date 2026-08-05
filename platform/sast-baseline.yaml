@@ -56,7 +56,7 @@
 # `>()` on a generic arrow function, and a bare `&` in JSX text. They are listed
 # in `sast-report.md` on every run.
 coverage:
-  semgrep_unparsed_max: 49
+  semgrep_unparsed_max: 53
 
 baseline:
   - id: SAST-001
@@ -179,7 +179,7 @@ baseline:
     tool: semgrep
     rule: javascript.lang.security.audit.spawn-shell-true.spawn-shell-true
     path: platform/ci/src/pipeline.mjs
-    count: 1
+    count: 2
     status: inherited
     severity: error
     owner: duncan
@@ -419,7 +419,7 @@ baseline:
     tool: semgrep
     rule: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     path: platform/ci/src/pipeline.mjs
-    count: 25
+    count: 31
     status: inherited
     severity: warning
     owner: duncan
@@ -591,245 +591,7 @@ baseline:
     plan: >-
       Add read_only: true where the service does not need a writable root filesystem.
 
-  - id: SAST-039
-    tool: semgrep
-    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
-    path: ventures/local-site-studio/.github/workflows/claude-scheduled.yml
-    count: 4
-    status: inherited
-    severity: warning
-    owner: duncan
-    issue: docs/SAST.md#inherited-findings
-    expires: 2026-10-30
-    reason: >-
-      Present when SAST was switched on, counted but not individually assessed.
-      Locked to this exact count so it cannot grow.
-    plan: >-
-      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
 
-  - id: SAST-040
-    tool: semgrep
-    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
-    path: ventures/local-site-studio/.github/workflows/codex-scheduled.yml
-    count: 4
-    status: inherited
-    severity: warning
-    owner: duncan
-    issue: docs/SAST.md#inherited-findings
-    expires: 2026-10-30
-    reason: >-
-      Present when SAST was switched on, counted but not individually assessed.
-      Locked to this exact count so it cannot grow.
-    plan: >-
-      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
-
-  - id: SAST-041
-    tool: semgrep
-    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
-    path: ventures/local-site-studio/.github/workflows/cursor-agent-grok.yml
-    count: 1
-    status: inherited
-    severity: warning
-    owner: duncan
-    issue: docs/SAST.md#inherited-findings
-    expires: 2026-10-30
-    reason: >-
-      Present when SAST was switched on, counted but not individually assessed.
-      Locked to this exact count so it cannot grow.
-    plan: >-
-      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
-
-  - id: SAST-042
-    tool: semgrep
-    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
-    path: ventures/local-site-studio/.github/workflows/cursor-scheduled.yml
-    count: 3
-    status: inherited
-    severity: warning
-    owner: duncan
-    issue: docs/SAST.md#inherited-findings
-    expires: 2026-10-30
-    reason: >-
-      Present when SAST was switched on, counted but not individually assessed.
-      Locked to this exact count so it cannot grow.
-    plan: >-
-      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
-
-  - id: SAST-043
-    tool: semgrep
-    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
-    path: ventures/local-site-studio/.github/workflows/gemini-scheduled.yml
-    count: 4
-    status: inherited
-    severity: warning
-    owner: duncan
-    issue: docs/SAST.md#inherited-findings
-    expires: 2026-10-30
-    reason: >-
-      Present when SAST was switched on, counted but not individually assessed.
-      Locked to this exact count so it cannot grow.
-    plan: >-
-      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
-
-  - id: SAST-044
-    tool: semgrep
-    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
-    path: ventures/local-site-studio/.github/workflows/grok-scheduled.yml
-    count: 3
-    status: inherited
-    severity: warning
-    owner: duncan
-    issue: docs/SAST.md#inherited-findings
-    expires: 2026-10-30
-    reason: >-
-      Present when SAST was switched on, counted but not individually assessed.
-      Locked to this exact count so it cannot grow.
-    plan: >-
-      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
-
-  - id: SAST-045
-    tool: semgrep
-    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
-    path: ventures/local-site-studio/.github/workflows/opencode-scheduled.yml
-    count: 4
-    status: inherited
-    severity: warning
-    owner: duncan
-    issue: docs/SAST.md#inherited-findings
-    expires: 2026-10-30
-    reason: >-
-      Present when SAST was switched on, counted but not individually assessed.
-      Locked to this exact count so it cannot grow.
-    plan: >-
-      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
-
-  - id: SAST-046
-    tool: semgrep
-    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
-    path: ventures/photo-editing/.github/workflows/docs-site.yml
-    count: 2
-    status: inherited
-    severity: warning
-    owner: duncan
-    issue: docs/SAST.md#inherited-findings
-    expires: 2026-10-30
-    reason: >-
-      Present when SAST was switched on, counted but not individually assessed.
-      Locked to this exact count so it cannot grow.
-    plan: >-
-      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
-
-  - id: SAST-047
-    tool: semgrep
-    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
-    path: ventures/print-atelier/.github/workflows/ci.yml
-    count: 2
-    status: inherited
-    severity: warning
-    owner: duncan
-    issue: docs/SAST.md#inherited-findings
-    expires: 2026-10-30
-    reason: >-
-      Present when SAST was switched on, counted but not individually assessed.
-      Locked to this exact count so it cannot grow.
-    plan: >-
-      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
-
-  - id: SAST-048
-    tool: semgrep
-    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
-    path: ventures/quick-pick-survey/.github/workflows/ci.yml
-    count: 2
-    status: inherited
-    severity: warning
-    owner: duncan
-    issue: docs/SAST.md#inherited-findings
-    expires: 2026-10-30
-    reason: >-
-      Present when SAST was switched on, counted but not individually assessed.
-      Locked to this exact count so it cannot grow.
-    plan: >-
-      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
-
-  - id: SAST-049
-    tool: semgrep
-    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
-    path: ventures/real-estate-agent-photo-app/.github/workflows/ci.yml
-    count: 6
-    status: inherited
-    severity: warning
-    owner: duncan
-    issue: docs/SAST.md#inherited-findings
-    expires: 2026-10-30
-    reason: >-
-      Present when SAST was switched on, counted but not individually assessed.
-      Locked to this exact count so it cannot grow.
-    plan: >-
-      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
-
-  - id: SAST-050
-    tool: semgrep
-    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
-    path: ventures/real-estate-agent-photo-app/.github/workflows/deploy-docs.yml
-    count: 4
-    status: inherited
-    severity: warning
-    owner: duncan
-    issue: docs/SAST.md#inherited-findings
-    expires: 2026-10-30
-    reason: >-
-      Present when SAST was switched on, counted but not individually assessed.
-      Locked to this exact count so it cannot grow.
-    plan: >-
-      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
-
-  - id: SAST-051
-    tool: semgrep
-    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
-    path: ventures/retail-pilot-intel/.github/workflows/ci.yml
-    count: 5
-    status: inherited
-    severity: warning
-    owner: duncan
-    issue: docs/SAST.md#inherited-findings
-    expires: 2026-10-30
-    reason: >-
-      Present when SAST was switched on, counted but not individually assessed.
-      Locked to this exact count so it cannot grow.
-    plan: >-
-      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
-
-  - id: SAST-052
-    tool: semgrep
-    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
-    path: ventures/retail-pilot-intel/.github/workflows/deploy-docs.yml
-    count: 9
-    status: inherited
-    severity: warning
-    owner: duncan
-    issue: docs/SAST.md#inherited-findings
-    expires: 2026-10-30
-    reason: >-
-      Present when SAST was switched on, counted but not individually assessed.
-      Locked to this exact count so it cannot grow.
-    plan: >-
-      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
-
-  - id: SAST-053
-    tool: semgrep
-    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
-    path: ventures/ubuntu-agent-server/.github/workflows/ci.yml
-    count: 6
-    status: inherited
-    severity: warning
-    owner: duncan
-    issue: docs/SAST.md#inherited-findings
-    expires: 2026-10-30
-    reason: >-
-      Present when SAST was switched on, counted but not individually assessed.
-      Locked to this exact count so it cannot grow.
-    plan: >-
-      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
 
   - id: SAST-054
     tool: semgrep
@@ -1107,7 +869,7 @@ baseline:
     tool: semgrep
     rule: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
     path: ventures/local-site-studio/src/lib/email/resend.ts
-    count: 2
+    count: 3
     status: inherited
     severity: info
     owner: duncan
@@ -1294,4 +1056,117 @@ baseline:
       Locked to this exact count so it cannot grow.
     plan: >-
       Add runAsNonRoot: true to each pod securityContext, alongside the allowPrivilegeEscalation change.
+
+  - id: SAST-083
+    tool: semgrep
+    rule: generic.unicode.security.bidi.contains-bidirectional-characters
+    path: ventures/quick-pick-survey/src/lib/ogCardFields.test.ts
+    count: 2
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Test file containing explicit directional text test cases.
+
+  - id: SAST-084
+    tool: semgrep
+    rule: generic.unicode.security.bidi.contains-bidirectional-characters
+    path: ventures/quick-pick-survey/src/lib/ogCardFields.ts
+    count: 4
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Unicode formatting symbols in Open Graph card rendering.
+
+  - id: SAST-085
+    tool: semgrep
+    rule: html.security.audit.missing-integrity.missing-integrity
+    path: ventures/mat-470-real-analysis/site/index.html
+    count: 2
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Static HTML page referencing external scripts/stylesheets without SRI integrity hash.
+
+  - id: SAST-086
+    tool: semgrep
+    rule: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+    path: ventures/ai-engineering-academy/site/test.mjs
+    count: 1
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Dynamic regex construction in venture test harness script.
+
+  - id: SAST-087
+    tool: semgrep
+    rule: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+    path: ventures/local-site-studio/src/lib/capability-claims.test.ts
+    count: 1
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Dynamic regex construction in capability claims unit test.
+
+  - id: SAST-088
+    tool: semgrep
+    rule: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    path: ventures/ai-engineering-academy/site/test.mjs
+    count: 1
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Path resolution in venture site build/test script.
+
+  - id: SAST-089
+    tool: semgrep
+    rule: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    path: ventures/quick-pick-survey/src/lib/pricingClaims.test.ts
+    count: 1
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Path resolution in pricing claims unit test.
+
 

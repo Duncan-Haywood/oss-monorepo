@@ -20,6 +20,17 @@ declared budget must appear in WATCHES. Without it the control passes forever
 by watching nothing, the way `scripts/ci/test-engineering-policy.sh` once
 proved the coverage floor by grepping for a sentence about it.
 
+That contract used to skip `cap_ratchet.py` itself, which made `MAX_REVISIONS`
+— the history window every floor in the tower is measured from — the one number
+in this repository that nothing watched, and lowering it always legal. It no
+longer skips anything, and three tests here exist only for that number:
+`MAX_REVISIONS` must be watched, it must be watched in the rising direction,
+and the window it declares must still cover the full history of every watched
+file as git reports it today. That last one is measured from git rather than
+from the module, so it does not go quiet when the module's own history is the
+thing being forged.
+
+
 No test here is skipped or conditionally skipped, and none should be.
 `scripts/ci/audit_exceptions.py` treats the unittest skip decorator as a
 suppression needing a registered owner and expiry, and it is right to.
@@ -33,7 +44,6 @@ CI_DIR = REPO_ROOT / "scripts" / "ci"
 if str(CI_DIR) not in sys.path:
     sys.path.insert(0, str(CI_DIR))
 
-import ast
 import subprocess
 import tempfile
 import textwrap
@@ -43,15 +53,32 @@ import yaml
 
 import cap_ratchet
 from cap_ratchet import (
+    DOWN,
+    PREFIXES_MEANING_CEILING,
     UNWATCHED_BUDGET_KEYS,
+    UP,
     WATCHES,
     CapError,
     Watch,
+    declared_bound_constants,
     evaluate,
     extract_python_constant,
     extract_yaml_path,
     measure,
+    module_constants,
 )
+
+# The one watch whose declared direction disagrees with its name, and the whole
+# argument for it. `MAX_REVISIONS` is written as a maximum because it bounds the
+# length of a git walk, but what it *means* is the minimum evidence any floor in
+# the tower is allowed to rest on, so the direction it may move in is up.
+#
+# Deliberately a literal here rather than a registry in the module: an inversion
+# is how a cap stops being ratcheted as a cap, so adding one has to be an edit to
+# the test that enforces the rule, visible as such in the diff. This repository
+# has already been bitten by agents answering a red gate with a new exemption and
+# an invented reason.
+INVERTED_DIRECTIONS = frozenset({("scripts/ci/cap_ratchet.py", "MAX_REVISIONS")})
 
 
 def platform_budget_files() -> list:
@@ -65,11 +92,14 @@ def platform_budget_files() -> list:
     number nobody is holding.
     """
     found = {p.name for p in (REPO_ROOT / "platform").glob("*.yaml") if p.is_file()}
+    env = dict(sys.modules["os"].environ)
+    env["GIT_CONFIG_GLOBAL"] = "/dev/null"
     listed = subprocess.run(
         ["git", "ls-files", "platform/*.yaml"],
         cwd=REPO_ROOT,
         capture_output=True,
         text=True,
+        env=env,
         check=True,
     ).stdout.split()
     found.update(rel.split("/", 1)[1] for rel in listed if rel.count("/") == 1)
@@ -167,6 +197,27 @@ YAML_WATCH = Watch(
 )
 
 
+def floor_file(value) -> str:
+    return f"""
+        \"\"\"A control with a safety floor.\"\"\"
+
+        MIN_THING = {value}
+
+
+        def main():
+            return MIN_THING
+        """
+
+
+FLOOR_WATCH = Watch(
+    path="scripts/ci/thing.py",
+    kind="python-constant",
+    locator="MIN_THING",
+    why="the least a human must write before the suppression counts as reviewed",
+    direction=UP,
+)
+
+
 class ExtractPythonConstantTests(unittest.TestCase):
     def test_reads_a_plain_integer(self):
         self.assertEqual(extract_python_constant("MAX_X = 150\n", "MAX_X"), 150.0)
@@ -198,6 +249,89 @@ class ExtractPythonConstantTests(unittest.TestCase):
         # audited. This asserts the read is static.
         source = "import sys\nsys.exit(99)\nMAX_X = 7\n"
         self.assertEqual(extract_python_constant(source, "MAX_X"), 7.0)
+
+    def test_reads_an_annotated_declaration(self):
+        # `MAX_X: int = 9999` was unreadable *and* unenumerable, so it declared
+        # a ceiling that neither half of this control could see.
+        self.assertEqual(extract_python_constant("MAX_X: int = 9999\n", "MAX_X"), 9999.0)
+
+    def test_a_bare_annotation_declares_no_number(self):
+        self.assertIsNone(extract_python_constant("MAX_X: int\n", "MAX_X"))
+
+    def test_a_chained_assignment_is_read(self):
+        self.assertEqual(extract_python_constant("MAX_A = MAX_B = 5\n", "MAX_B"), 5.0)
+
+    def test_a_constant_bound_twice_is_none_rather_than_its_first_value(self):
+        # Reading the first binding would report a cap of 5 for a module whose
+        # cap is 9999. None makes `measure` fail closed instead.
+        self.assertIsNone(extract_python_constant("MAX_X = 5\nMAX_X = 9999\n", "MAX_X"))
+
+    def test_a_boolean_is_not_a_number(self):
+        self.assertIsNone(extract_python_constant("MAX_X = True\n", "MAX_X"))
+
+
+class DeclaredBoundConstantTests(unittest.TestCase):
+    """The enumeration the repository contract walks every control with.
+
+    Deliberately the same reader `extract_python_constant` uses. When the two
+    disagreed, a constant could be watched and unreadable, or readable and
+    invisible to the contract that demands it be watched — and the audit found
+    all three shapes of the second: `MAX_X: int = 9999`, `MAX_X = BASE * 4`,
+    and `CAP_X = 9999` under a prefix nothing enumerated.
+    """
+
+    def names(self, source: str) -> list:
+        return sorted(c.name for c in declared_bound_constants(source))
+
+    def test_a_plain_max_is_found(self):
+        self.assertEqual(self.names("MAX_X = 1\n"), ["MAX_X"])
+
+    def test_an_annotated_max_is_found(self):
+        found = declared_bound_constants("MAX_X: int = 9999\n")
+        self.assertEqual([c.name for c in found], ["MAX_X"])
+        self.assertEqual(found[0].value, 9999.0)
+
+    def test_an_expression_valued_cap_is_found_but_carries_no_number(self):
+        # `MAX_X = BASE * 4` must not read as absent: absent means "no such cap
+        # here", and this is a cap declared in a way the ratchet cannot hold.
+        found = declared_bound_constants("BASE = 90\nMAX_X = BASE * 4\n")
+        self.assertEqual([c.name for c in found], ["MAX_X"])
+        self.assertIsNone(found[0].value)
+
+    def test_other_ceiling_prefixes_are_found(self):
+        self.assertEqual(self.names("CAP_X = 9999\nLIMIT_Y = 3\n"), ["CAP_X", "LIMIT_Y"])
+
+    def test_floor_prefixes_are_found(self):
+        self.assertEqual(
+            self.names("MIN_A = 1\nFLOOR_B = 2\nTHRESHOLD_C = 3\n"),
+            ["FLOOR_B", "MIN_A", "THRESHOLD_C"],
+        )
+
+    def test_a_name_that_bounds_nothing_is_not_enumerated(self):
+        self.assertEqual(self.names("DEFAULT_TIMEOUT_SECONDS = 25\nREQUIRED = ('a',)\n"), [])
+
+    def test_a_constant_inside_a_function_is_not_module_level(self):
+        self.assertEqual(self.names("def f():\n    MAX_X = 9999\n"), [])
+
+    def test_the_direction_a_name_implies(self):
+        found = {c.name: c.expected_direction for c in declared_bound_constants(
+            "MAX_A = 1\nCAP_B = 1\nLIMIT_C = 1\nMIN_D = 1\nFLOOR_E = 1\nTHRESHOLD_F = 1\n"
+        )}
+        self.assertEqual(
+            found,
+            {
+                "MAX_A": DOWN,
+                "CAP_B": DOWN,
+                "LIMIT_C": DOWN,
+                "MIN_D": UP,
+                "FLOOR_E": UP,
+                "THRESHOLD_F": UP,
+            },
+        )
+
+    def test_module_constants_reads_the_whole_module_not_just_bounds(self):
+        found = module_constants("MAX_X = 1\nOTHER = 2\n")
+        self.assertEqual(sorted(found), ["MAX_X", "OTHER"])
 
 
 class ExtractYamlPathTests(unittest.TestCase):
@@ -232,7 +366,7 @@ class HistoryFloorTests(unittest.TestCase):
         write_and_commit(self.repo, CONST_WATCH.path, constant_file(150), "add cap")
         measurement = measure(self.repo, [CONST_WATCH])
         self.assertEqual(evaluate(measurement), [])
-        self.assertEqual(measurement.readings[0].floor, 150.0)
+        self.assertEqual(measurement.readings[0].bound, 150.0)
 
     def test_a_value_raised_in_the_working_tree_fails(self):
         write_and_commit(self.repo, CONST_WATCH.path, constant_file(150), "add cap")
@@ -268,7 +402,7 @@ class HistoryFloorTests(unittest.TestCase):
         write_and_commit(self.repo, CONST_WATCH.path, constant_file(120), "lower cap")
         measurement = measure(self.repo, [CONST_WATCH])
         self.assertEqual(evaluate(measurement), [])
-        self.assertEqual(measurement.readings[0].floor, 120.0)
+        self.assertEqual(measurement.readings[0].bound, 120.0)
 
     def test_a_value_lowered_then_raised_back_to_the_old_level_fails(self):
         # Once lowered, the lower number is the ceiling forever. Returning to
@@ -290,7 +424,7 @@ class HistoryFloorTests(unittest.TestCase):
         measurement = measure(self.repo, [CONST_WATCH])
         self.assertEqual(evaluate(measurement), [])
         self.assertTrue(measurement.readings[0].first_appearance)
-        self.assertEqual(measurement.readings[0].floor, 150.0)
+        self.assertEqual(measurement.readings[0].bound, 150.0)
 
     def test_a_revision_predating_the_constant_does_not_become_the_floor(self):
         # The file existed before the cap was added to it. Those revisions have
@@ -299,7 +433,7 @@ class HistoryFloorTests(unittest.TestCase):
         write_and_commit(self.repo, CONST_WATCH.path, constant_file(150), "add cap")
         measurement = measure(self.repo, [CONST_WATCH])
         self.assertEqual(evaluate(measurement), [])
-        self.assertEqual(measurement.readings[0].floor, 150.0)
+        self.assertEqual(measurement.readings[0].bound, 150.0)
         self.assertEqual(measurement.readings[0].revisions_seen, 1)
 
     def test_yaml_ceilings_ratchet_the_same_way(self):
@@ -329,6 +463,213 @@ class HistoryFloorTests(unittest.TestCase):
         findings = evaluate(measure(self.repo, watches))
         self.assertEqual(len(findings), 1)
         self.assertIn("MAX_B", findings[0].message)
+
+
+class SafetyFloorTests(unittest.TestCase):
+    """The other direction. A `MIN_*` moving DOWN is the same kind of weakening.
+
+    `evaluate` only ever fired on `current > floor`, so every safety minimum in
+    `scripts/ci/` — the least a human must write before a SAST finding counts
+    as reviewed, the least an owner must write to overrule a fired stopping
+    rule — could be taken to zero with this control reporting PASS.
+    """
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.repo = Path(self._tmp.name)
+        self.addCleanup(self._tmp.cleanup)
+        init_repo(self.repo)
+
+    def test_a_floor_lowered_in_the_working_tree_fails(self):
+        write_and_commit(self.repo, FLOOR_WATCH.path, floor_file(20), "add floor")
+        (self.repo / FLOOR_WATCH.path).write_text(textwrap.dedent(floor_file(1)), encoding="utf-8")
+        findings = evaluate(measure(self.repo, [FLOOR_WATCH]))
+        self.assertEqual(len(findings), 1)
+        self.assertEqual(findings[0].check, "floor-lowered")
+        self.assertIn("BELOW", findings[0].message)
+        self.assertIn("20", findings[0].message)
+
+    def test_a_floor_lowered_and_committed_still_fails(self):
+        write_and_commit(self.repo, FLOOR_WATCH.path, floor_file(20), "add floor")
+        write_and_commit(self.repo, FLOOR_WATCH.path, floor_file(0), "relax the reason length")
+        findings = evaluate(measure(self.repo, [FLOOR_WATCH]))
+        self.assertEqual(len(findings), 1)
+        self.assertEqual(findings[0].check, "floor-lowered")
+
+    def test_a_floor_walked_down_in_small_steps_fails(self):
+        for value in (20, 15, 10, 5):
+            write_and_commit(self.repo, FLOOR_WATCH.path, floor_file(value), f"nudge to {value}")
+        findings = evaluate(measure(self.repo, [FLOOR_WATCH]))
+        self.assertEqual(len(findings), 1)
+        self.assertIn("20", findings[0].message)
+
+    def test_raising_a_floor_passes_and_becomes_the_new_bound(self):
+        write_and_commit(self.repo, FLOOR_WATCH.path, floor_file(20), "add floor")
+        write_and_commit(self.repo, FLOOR_WATCH.path, floor_file(40), "demand more of a reason")
+        measurement = measure(self.repo, [FLOOR_WATCH])
+        self.assertEqual(evaluate(measurement), [])
+        self.assertEqual(measurement.readings[0].bound, 40.0)
+
+    def test_a_floor_raised_then_dropped_back_to_the_old_level_fails(self):
+        write_and_commit(self.repo, FLOOR_WATCH.path, floor_file(20), "add floor")
+        write_and_commit(self.repo, FLOOR_WATCH.path, floor_file(40), "demand more")
+        write_and_commit(self.repo, FLOOR_WATCH.path, floor_file(20), "put it back")
+        findings = evaluate(measure(self.repo, [FLOOR_WATCH]))
+        self.assertEqual(len(findings), 1)
+        self.assertIn("40", findings[0].message)
+
+    def test_the_same_history_read_as_a_cap_would_pass(self):
+        # The asymmetry is the declared direction and nothing else. This is the
+        # test that would have stayed green through the whole defect: the
+        # numbers are identical, only `direction` differs.
+        write_and_commit(self.repo, FLOOR_WATCH.path, floor_file(20), "add floor")
+        (self.repo / FLOOR_WATCH.path).write_text(textwrap.dedent(floor_file(1)), encoding="utf-8")
+        as_a_cap = Watch(
+            path=FLOOR_WATCH.path,
+            kind=FLOOR_WATCH.kind,
+            locator=FLOOR_WATCH.locator,
+            why=FLOOR_WATCH.why,
+            direction=DOWN,
+        )
+        self.assertEqual(evaluate(measure(self.repo, [as_a_cap])), [])
+        self.assertEqual(len(evaluate(measure(self.repo, [FLOOR_WATCH]))), 1)
+
+    def test_an_unknown_direction_raises(self):
+        write_and_commit(self.repo, FLOOR_WATCH.path, floor_file(20), "add floor")
+        sideways = Watch(
+            path=FLOOR_WATCH.path,
+            kind=FLOOR_WATCH.kind,
+            locator=FLOOR_WATCH.locator,
+            why=FLOOR_WATCH.why,
+            direction="either",
+        )
+        with self.assertRaises(CapError) as caught:
+            measure(self.repo, [sideways])
+        self.assertIn("direction", str(caught.exception))
+
+
+class RenamedFileTests(unittest.TestCase):
+    """`git mv` used to reset a floor to whatever the value was that day."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.repo = Path(self._tmp.name)
+        self.addCleanup(self._tmp.cleanup)
+        init_repo(self.repo)
+
+    def rename(self, old: str, new: str) -> None:
+        git(self.repo, "mv", old, new)
+        git(self.repo, "commit", "--quiet", "-m", "chore: move the control")
+
+    def test_a_rename_does_not_reset_the_floor(self):
+        write_and_commit(self.repo, "scripts/ci/old_thing.py", constant_file(150), "add cap")
+        self.rename("scripts/ci/old_thing.py", CONST_WATCH.path)
+        (self.repo / CONST_WATCH.path).write_text(
+            textwrap.dedent(constant_file(400)), encoding="utf-8"
+        )
+        findings = evaluate(measure(self.repo, [CONST_WATCH]))
+        self.assertEqual(len(findings), 1)
+        self.assertEqual(findings[0].check, "cap-raised")
+        self.assertIn("150", findings[0].message)
+
+    def test_the_report_says_the_history_crossed_a_rename(self):
+        write_and_commit(self.repo, "scripts/ci/old_thing.py", constant_file(150), "add cap")
+        self.rename("scripts/ci/old_thing.py", CONST_WATCH.path)
+        measurement = measure(self.repo, [CONST_WATCH])
+        self.assertTrue(
+            any("old_thing.py" in note for note in measurement.notes),
+            f"the rename is not visible in the report: {measurement.notes}",
+        )
+
+    def test_a_floor_survives_a_rename_too(self):
+        write_and_commit(self.repo, "scripts/ci/old_thing.py", floor_file(40), "add floor")
+        self.rename("scripts/ci/old_thing.py", FLOOR_WATCH.path)
+        (self.repo / FLOOR_WATCH.path).write_text(textwrap.dedent(floor_file(1)), encoding="utf-8")
+        findings = evaluate(measure(self.repo, [FLOOR_WATCH]))
+        self.assertEqual(len(findings), 1)
+        self.assertEqual(findings[0].check, "floor-lowered")
+
+    def test_a_lowering_a_merge_discarded_is_still_in_the_history(self):
+        # Two ways of reading history that both looked reasonable and are both
+        # narrower than the truth. `--follow` linearises and drops every merge
+        # (7 of `cap_ratchet.py`'s 10 default revisions, 30 under
+        # `--full-history`); the *default* walk hides any commit TREESAME to a
+        # parent, which is what this fixture builds: a branch lowers the cap to
+        # 90, a `-s ours` merge discards it, and a plain `git log -- path` then
+        # shows only the 150. The walk reads `--full-history` so the 90 counts,
+        # because the rule is the lowest value the file has ever held in
+        # committed history, and it held 90.
+        #
+        # The cost is deliberate: an abandoned branch that lowered a cap pins
+        # the floor at what it lowered it to. The remedy is to lower the cap for
+        # real, which this control has never refused.
+        write_and_commit(self.repo, CONST_WATCH.path, constant_file(150), "add cap")
+        git(self.repo, "checkout", "--quiet", "-b", "side")
+        write_and_commit(self.repo, CONST_WATCH.path, constant_file(90), "lower on a branch")
+        git(self.repo, "checkout", "--quiet", "main")
+        write_and_commit(self.repo, "README.md", "unrelated\n", "unrelated work")
+        git(self.repo, "merge", "--quiet", "-s", "ours", "--no-ff", "-m", "keep ours", "side")
+        plain = git(self.repo, "log", "--format=%H", "--", CONST_WATCH.path).split()
+        self.assertEqual(
+            len(plain), 1, "the fixture no longer hides the lowering, so it proves nothing"
+        )
+        measurement = measure(self.repo, [CONST_WATCH])
+        self.assertEqual(measurement.readings[0].bound, 90.0)
+        self.assertEqual(len(evaluate(measurement)), 1)
+
+
+class EvidenceWindowTests(unittest.TestCase):
+    """`MAX_REVISIONS` is the number every floor above is measured from.
+
+    The audit's proof was: lower it 500 -> 4 under an innocuous subject, add a
+    few commits, and every floor is re-measured from a window in which nothing
+    has been raised yet. Truncation printed a NOTE, which failed nothing.
+    """
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.repo = Path(self._tmp.name)
+        self.addCleanup(self._tmp.cleanup)
+        init_repo(self.repo)
+        self._window = cap_ratchet.MAX_REVISIONS
+        self.addCleanup(setattr, cap_ratchet, "MAX_REVISIONS", self._window)
+
+    def test_a_truncated_walk_fails_rather_than_measuring_from_a_window(self):
+        for value in (150, 140, 130):
+            write_and_commit(self.repo, CONST_WATCH.path, constant_file(value), f"set {value}")
+        cap_ratchet.MAX_REVISIONS = 1
+        with self.assertRaises(CapError) as caught:
+            measure(self.repo, [CONST_WATCH])
+        self.assertIn("window", str(caught.exception))
+        self.assertIn("MAX_REVISIONS", str(caught.exception))
+
+    def test_shrinking_the_window_cannot_buy_a_higher_floor(self):
+        # The audit's move, in miniature: the floor is 100, the value on disk is
+        # 150, and a one-revision window would call that "at floor".
+        write_and_commit(self.repo, CONST_WATCH.path, constant_file(100), "add cap")
+        write_and_commit(self.repo, CONST_WATCH.path, constant_file(150), "raise it")
+        self.assertEqual(len(evaluate(measure(self.repo, [CONST_WATCH]))), 1)
+        cap_ratchet.MAX_REVISIONS = 1
+        with self.assertRaises(CapError):
+            measure(self.repo, [CONST_WATCH])
+
+    def test_a_window_that_exactly_covers_the_history_is_not_truncated(self):
+        for value in (150, 140):
+            write_and_commit(self.repo, CONST_WATCH.path, constant_file(value), f"set {value}")
+        cap_ratchet.MAX_REVISIONS = 2
+        measurement = measure(self.repo, [CONST_WATCH])
+        self.assertEqual(measurement.readings[0].bound, 140.0)
+
+    def test_the_cli_reports_the_truncation_as_a_failure(self):
+        for value in (150, 140, 130):
+            write_and_commit(self.repo, CONST_WATCH.path, constant_file(value), f"set {value}")
+        cap_ratchet.MAX_REVISIONS = 1
+        original = cap_ratchet.WATCHES
+        cap_ratchet.WATCHES = (CONST_WATCH,)
+        try:
+            self.assertEqual(cap_ratchet.main(["--repo-root", str(self.repo)]), 1)
+        finally:
+            cap_ratchet.WATCHES = original
 
 
 class FailsClosedTests(unittest.TestCase):
@@ -436,42 +777,136 @@ class RepositoryContractTests(unittest.TestCase):
                 value = cap_ratchet.extract(watch, path.read_text(encoding="utf-8"))
                 self.assertIsNotNone(value, f"{watch.path}:{watch.locator} did not resolve")
 
-    def test_every_max_declared_constant_in_the_ci_scripts_is_watched(self):
+    def test_every_bound_constant_in_the_ci_scripts_is_watched(self):
         """The contract that stops this control from watching nothing.
 
-        Any module-level constant in `scripts/ci/` named `MAX_*` bounds a
-        declared budget by construction — that is what the prefix means in this
-        repository. Adding one without adding it here would create a new
-        unwatched ceiling, which is the hole this whole file exists to close.
+        Any module-level constant in `scripts/ci/` named `MAX_*`, `CAP_*`,
+        `LIMIT_*`, `MIN_*`, `FLOOR_*` or `THRESHOLD_*` bounds something by
+        construction — that is what the prefix means in this repository — and a
+        change can weaken it in one direction or the other. Adding one without
+        adding it to WATCHES creates a bound nothing holds, which is the hole
+        this whole file exists to close.
+
+        Two things were wrong with this until 2026-08-05, both found by the
+        control audit and both proven end to end:
+
+        * it skipped `cap_ratchet.py` itself, so `MAX_REVISIONS` — the history
+          window every floor in the tower is measured from — was the one number
+          nothing watched, and lowering it was always legal;
+        * it matched only a plain `ast.Assign` of an `ast.Constant` named
+          `MAX_*`, so `MAX_X: int = 9999`, `MAX_X = BASE * 4` and `CAP_X = 9999`
+          each declared a ceiling it could not see.
         """
         watched = {(w.path, w.locator) for w in WATCHES if w.kind == "python-constant"}
         missing = []
+        unreadable = []
         for script in sorted((REPO_ROOT / "scripts" / "ci").glob("*.py")):
-            if script.name == "cap_ratchet.py":
-                continue
             rel = str(script.relative_to(REPO_ROOT))
-            tree = ast.parse(script.read_text(encoding="utf-8"))
-            for node in tree.body:
-                if not isinstance(node, ast.Assign):
-                    continue
-                for target in node.targets:
-                    if not isinstance(target, ast.Name):
-                        continue
-                    name = target.id
-                    if not name.startswith("MAX_"):
-                        continue
-                    if not isinstance(node.value, ast.Constant):
-                        continue
-                    if not isinstance(node.value.value, (int, float)):
-                        continue
-                    if (rel, name) not in watched:
-                        missing.append(f"{rel}:{name}")
+            for const in declared_bound_constants(script.read_text(encoding="utf-8")):
+                if const.value is None:
+                    # Declared as an expression, an annotation with no value, or
+                    # bound twice. The ratchet cannot hold a number it cannot
+                    # read, and "cannot read" must not be reported as "absent".
+                    unreadable.append(f"{rel}:{const.name} (line {const.lineno})")
+                elif (rel, const.name) not in watched:
+                    missing.append(f"{rel}:{const.name}")
+        self.assertEqual(
+            unreadable,
+            [],
+            "These are declared in a form this ratchet cannot reduce to a number, so it "
+            "cannot hold them. Declare each as a plain numeric literal: "
+            + ", ".join(unreadable),
+        )
         self.assertEqual(
             missing,
             [],
-            "These bound a declared budget but nothing stops them being raised. "
+            "These bound something and nothing stops them being weakened. "
             "Add them to WATCHES in scripts/ci/cap_ratchet.py: " + ", ".join(missing),
         )
+
+    def test_this_controls_own_evidence_window_is_watched_and_only_upward(self):
+        """A2 from the control audit, stated as a test.
+
+        `MAX_REVISIONS` is the window every floor above is measured from, so
+        watching it is not optional — and the direction is up, because a larger
+        window can only lower a cap's floor and raise a safety floor's ceiling.
+        Shrinking it re-measures the whole tower from a window in which nothing
+        has been raised yet.
+        """
+        by_key = {(w.path, w.locator): w for w in WATCHES}
+        key = ("scripts/ci/cap_ratchet.py", "MAX_REVISIONS")
+        self.assertIn(
+            key,
+            by_key,
+            "the history window every other floor is computed from is unwatched; "
+            "that was the state the 2026-08-04 audit exploited",
+        )
+        self.assertEqual(
+            by_key[key].direction,
+            UP,
+            "lowering the evidence window is the weakening direction, so it is watched upward",
+        )
+
+    def test_the_evidence_window_still_covers_every_watched_files_history(self):
+        """Measured from git, not from the module's own history.
+
+        The point of taking this reading here is that it does not read
+        `MAX_REVISIONS`'s past — the part an attacker with enough commits could
+        out-wait — it reads how much history exists today. If the window no
+        longer covers a watched file, `measure` fails closed on truncation, and
+        this says so before CI does.
+        """
+        deepest = []
+        for path in sorted({w.path for w in WATCHES}):
+            revisions = subprocess.run(
+                ["git", "log", "--full-history", "--format=%H", "--", path],
+                cwd=REPO_ROOT,
+                capture_output=True,
+                text=True,
+                check=True,
+            ).stdout.split()
+            deepest.append((len(revisions), path))
+        deepest.sort(reverse=True)
+        count, path = deepest[0]
+        self.assertGreaterEqual(
+            cap_ratchet.MAX_REVISIONS,
+            count,
+            f"{path} has {count} revisions and the walk stops at "
+            f"{cap_ratchet.MAX_REVISIONS}, so its floor would come from part of its history. "
+            f"Raise MAX_REVISIONS — that is the strict direction and the ratchet permits it.",
+        )
+
+    def test_every_watch_moves_in_the_direction_its_name_declares(self):
+        """A direction field nobody checks is a way to un-ratchet a cap.
+
+        Flipping a `MAX_*` watch to `direction=UP` would let it be raised
+        forever while still appearing in WATCHES and in the report. The name
+        decides, and the single inversion is registered above with its reason.
+        """
+        for watch in WATCHES:
+            with self.subTest(watch=f"{watch.path}:{watch.locator}"):
+                leaf = watch.locator.rsplit(".", 1)[-1]
+                if watch.kind == "python-constant":
+                    expected = DOWN if leaf.startswith(PREFIXES_MEANING_CEILING) else UP
+                else:
+                    expected = UP if leaf.startswith("min_") else DOWN
+                if (watch.path, watch.locator) in INVERTED_DIRECTIONS:
+                    expected = UP if expected == DOWN else DOWN
+                self.assertEqual(
+                    watch.direction,
+                    expected,
+                    f"{watch.locator} is named as a {'ceiling' if expected == DOWN else 'floor'} "
+                    f"but is watched as the opposite. Either the name or the direction is wrong; "
+                    f"a deliberate inversion goes in INVERTED_DIRECTIONS in this file, with the "
+                    f"argument for it.",
+                )
+
+    def test_the_registered_direction_inversions_are_still_real_watches(self):
+        # An inversion that outlives its watch is a hole waiting for a constant
+        # of the same name to be added back without review.
+        keys = {(w.path, w.locator) for w in WATCHES}
+        stale = sorted(f"{p}:{n}" for p, n in INVERTED_DIRECTIONS if (p, n) not in keys)
+        self.assertEqual(stale, [], "inversions for watches that no longer exist: " + ", ".join(stale))
 
     def test_every_yaml_budget_key_is_watched_or_registered_as_exempt(self):
         """The mirror of the constants contract, for the declared budgets.

@@ -8,8 +8,10 @@ describe("Next.js Metadata Routes & Error pages", () => {
   it("generates robots.txt metadata configuration", () => {
     const config = robots();
     assert.ok(config);
-    assert.equal(config.rules.userAgent, "*");
-    assert.ok(config.sitemap.includes("/sitemap.xml"));
+    const rules = Array.isArray(config.rules) ? config.rules[0] : config.rules;
+    assert.ok(rules);
+    assert.equal(rules.userAgent, "*");
+    assert.ok(typeof config.sitemap === "string" && config.sitemap.includes("/sitemap.xml"));
   });
 
   it("generates sitemap metadata entries", () => {

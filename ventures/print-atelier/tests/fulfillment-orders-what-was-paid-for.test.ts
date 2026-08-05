@@ -44,9 +44,14 @@ const ENV = {
 
 /** The catalog's own definition of what may be sold, not a guess at one. */
 function sellableArtworks(): CatalogArtwork[] {
-  return catalogArtworks.filter(
-    (artwork) => validateCheckoutLineItem(artwork, defaultListingConsentRecords).eligible,
-  );
+  return catalogArtworks
+    .map((artwork) => ({
+      ...artwork,
+      printFileUrl: `https://files.example.test/prints/${artwork.slug}.tif`,
+    }))
+    .filter(
+      (artwork) => validateCheckoutLineItem(artwork, defaultListingConsentRecords).eligible,
+    );
 }
 
 /** A cart the buyer would recognise: one line bought three times, one bought once. */
@@ -79,7 +84,13 @@ function multiQuantityCart(): CheckoutLineItem[] {
  * and the adapters are exercised on the submit path rather than the refuse path.
  */
 function paidOrderMetadata(cart: CheckoutLineItem[], region: CheckoutShippingRegion = "US") {
-  const payload = buildCheckoutSessionPayload(cart, region, ENV.NEXT_PUBLIC_SITE_URL, ENV);
+  const payload = buildCheckoutSessionPayload(
+    cart,
+    region,
+    ENV.NEXT_PUBLIC_SITE_URL,
+    ENV,
+    sellableArtworks(),
+  );
   return {
     payload,
     metadata: {
@@ -254,7 +265,13 @@ test("the checkout stays inside Stripe's 50-key metadata limit", () => {
     quantity: 2,
   }));
 
-  const payload = buildCheckoutSessionPayload(cart, "US", ENV.NEXT_PUBLIC_SITE_URL, ENV);
+  const payload = buildCheckoutSessionPayload(
+    cart,
+    "US",
+    ENV.NEXT_PUBLIC_SITE_URL,
+    ENV,
+    sellableArtworks(),
+  );
   const keys = Object.keys(payload.metadata).length;
   assert.ok(
     keys <= 50,
