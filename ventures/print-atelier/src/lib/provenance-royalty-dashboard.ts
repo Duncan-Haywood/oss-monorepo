@@ -1,3 +1,5 @@
+import { resolveSiteUrl } from "./site-url";
+
 export interface ProvenanceCertificate {
   certificateId: string;
   editionNumber: number;
@@ -45,9 +47,23 @@ export interface VerificationResult {
 
 /**
  * Generates a verification QR URL for art collectors and galleries.
+ *
+ * Returns `""` for a null origin. That is not a new convention invented here:
+ * `verifyArtworkProvenance` already returns `qrVerificationUrl: ""` on its
+ * RECORD_NOT_FOUND branch, so "no URL" is a state this module's readers already
+ * handle. What it must never return is a URL on a domain we do not serve — a
+ * certificate-of-authenticity link is a provenance claim, and pointing it at a
+ * parked page makes that claim about someone else's site.
  */
-export function generateProvenanceQrUrl(baseUrl: string, certificateId: string, signatureHash: string): string {
-  const cleanBase = baseUrl.replace(/\/$/, "");
+export function generateProvenanceQrUrl(
+  baseUrl: string | null,
+  certificateId: string,
+  signatureHash: string,
+): string {
+  if (baseUrl === null) {
+    return "";
+  }
+  const cleanBase = baseUrl.replace(/\/+$/, "");
   const shortHash = signatureHash.slice(0, 12);
   return `${cleanBase}/verify/${certificateId}?hash=${shortHash}`;
 }
@@ -58,7 +74,13 @@ export function generateProvenanceQrUrl(baseUrl: string, certificateId: string, 
 export function verifyArtworkProvenance(
   certificate: ProvenanceCertificate | null,
   providedHash: string,
-  baseUrl = "https://printatelier.com"
+  // Was the literal `"https://printatelier.com"`. A collector or gallery scans
+  // the resulting QR to check an artwork is what it claims to be, so an origin
+  // this venture does not serve turns an authenticity check into a link to a
+  // stranger. Unconfigured yields `""` — the same "no URL" the RECORD_NOT_FOUND
+  // branch below already returns — while `isValid` and `status`, which are what
+  // the caller actually decides on, are unaffected.
+  baseUrl: string | null = resolveSiteUrl()
 ): VerificationResult {
   const timestamp = new Date().toISOString();
 

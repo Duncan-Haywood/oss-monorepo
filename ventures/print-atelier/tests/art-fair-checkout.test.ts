@@ -60,7 +60,15 @@ test('generateBoothQRCheckout creates valid payload and checkout URL', () => {
     category: 'framed_print',
   };
 
-  const qr = generateBoothQRCheckout('booth-42', 'Frieze London', artwork);
+  // The origin is now an argument rather than a `'https://printatelier.com'`
+  // default; `generateBoothQRCheckout` throws without one. See
+  // `tests/gallery-links-unowned-domain.test.ts` for that path.
+  const qr = generateBoothQRCheckout(
+    'booth-42',
+    'Frieze London',
+    artwork,
+    'https://atelier.marisstella.dev'
+  );
 
   assert.equal(qr.boothId, 'booth-42');
   assert.equal(qr.artworkId, 'art-101');

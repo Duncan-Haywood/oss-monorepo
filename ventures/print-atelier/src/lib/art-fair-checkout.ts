@@ -6,6 +6,8 @@
  * and tracks real-time sales velocity by booth wall section.
  */
 
+import { SITE_URL_UNCONFIGURED_HINT, resolveSiteUrl } from './site-url';
+
 export interface BoothDimensions {
   boothId: string;
   fairName: string;
@@ -103,13 +105,32 @@ export function optimizeBoothLayout(
 
 /**
  * Generates dynamic booth QR code checkout payload with fair discount and attribution parameters
+ *
+ * `baseUrl` used to default to the literal `'https://printatelier.com'`, which
+ * is a domain this venture does not serve — see `src/lib/site-url.ts`. A
+ * default parameter is the worst place for that: every call site reads as
+ * correct, and the wrong origin only appears in the output.
+ *
+ * The output here is printed and stuck to a wall at a paid stand, then scanned
+ * by a visitor holding a card. There is no later step at which a wrong origin
+ * could be caught, and no relative form a QR scanner can resolve, so this
+ * throws rather than returning a payload that looks printable. Callers that
+ * name an origin explicitly are unaffected.
  */
 export function generateBoothQRCheckout(
   boothId: string,
   fairName: string,
   artwork: ExhibitionArtwork,
-  baseUrl: string = 'https://printatelier.com'
+  baseUrl: string | null = resolveSiteUrl()
 ): QRCodeCheckoutPayload {
+  if (baseUrl === null) {
+    throw new Error(
+      `Refusing to generate a booth QR checkout link for booth ${boothId}: ` +
+        `no site origin is configured, and a QR code cannot carry a relative link. ` +
+        SITE_URL_UNCONFIGURED_HINT
+    );
+  }
+
   const sanitizedFair = fairName.toLowerCase().replace(/[^a-z0-9]/g, '');
   const fairPromoCode = `${sanitizedFair.toUpperCase()}-10OFF`;
   const discountPercentage = 10;

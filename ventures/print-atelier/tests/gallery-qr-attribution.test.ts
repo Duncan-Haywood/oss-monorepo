@@ -1,4 +1,4 @@
-import { describe, it, beforeEach } from "node:test";
+import { describe, it, after, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import {
   recordQrScanEvent,
@@ -11,8 +11,24 @@ import {
 } from "../src/lib/gallery-qr-attribution";
 
 describe("gallery-qr-attribution", () => {
+  // `processMobileTicketPresale` used to mint every access pass on the
+  // hardcoded `https://printatelier.com`. It now builds the link from the
+  // deployment's configured origin and issues none at all when there is not
+  // one, so these tests have to declare an origin to get a link. The refusal
+  // path has its own coverage in `gallery-links-unowned-domain.test.ts`.
+  const savedSiteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+
   beforeEach(() => {
+    process.env.NEXT_PUBLIC_SITE_URL = "https://atelier.marisstella.dev";
     clearQrAttributionStoreForTesting();
+  });
+
+  after(() => {
+    if (savedSiteUrl === undefined) {
+      delete process.env.NEXT_PUBLIC_SITE_URL;
+    } else {
+      process.env.NEXT_PUBLIC_SITE_URL = savedSiteUrl;
+    }
   });
 
   const wallScan: QrScanEvent = {
@@ -69,7 +85,8 @@ describe("gallery-qr-attribution", () => {
       assert.equal(ticket.qrAttributed, true);
       assert.equal(ticket.attributedPlacement, "wall_plaque");
       assert.ok(ticket.confirmationCode.startsWith("TIX-ABST-"));
-      assert.ok(ticket.accessPassUrl.includes("code="));
+      assert.ok(ticket.accessPassUrl?.includes("code="));
+      assert.ok(ticket.accessPassUrl?.startsWith("https://atelier.marisstella.dev/"));
     });
 
     it("handles ticket presale without scan attribution gracefully", () => {

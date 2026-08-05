@@ -1,4 +1,4 @@
-import { describe, it, beforeEach } from "node:test";
+import { describe, it, after, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import {
   processGuestbookEntry,
@@ -10,7 +10,24 @@ import {
 } from "../src/lib/gallery-guestbook-presale";
 
 describe("gallery-guestbook-presale", () => {
+  // The SMS invite's drop link used to be hardcoded to
+  // `https://printatelier.com`, a domain this venture does not serve.
+  // `processGuestbookEntry` now composes it from the deployment's configured
+  // origin and withholds the whole message when there is none, so these tests
+  // have to declare one. The withheld path is covered in
+  // `gallery-links-unowned-domain.test.ts`.
+  const savedSiteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+
+  after(() => {
+    if (savedSiteUrl === undefined) {
+      delete process.env.NEXT_PUBLIC_SITE_URL;
+    } else {
+      process.env.NEXT_PUBLIC_SITE_URL = savedSiteUrl;
+    }
+  });
+
   beforeEach(() => {
+    process.env.NEXT_PUBLIC_SITE_URL = "https://atelier.marisstella.dev";
     clearGuestbookStoreForTesting();
   });
 

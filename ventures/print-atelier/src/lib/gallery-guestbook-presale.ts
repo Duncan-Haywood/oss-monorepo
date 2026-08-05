@@ -5,6 +5,8 @@
  * and triggers automated SMS and email drops for limited edition print releases.
  */
 
+import { SITE_URL_UNCONFIGURED_HINT, resolveSiteUrl } from "./site-url";
+
 export type GuestInterestLevel = "casual_observer" | "art_enthusiast" | "serious_collector";
 export type VipCohort = "general_presale" | "silver_collector" | "vip_early_access";
 
@@ -97,10 +99,39 @@ export function processGuestbookEntry(entry: GuestbookEntry): GuestConversionRes
   }
 
   // Generate SMS Invite
+  //
+  // The drop link used to be hardcoded to `https://printatelier.com` — see
+  // `src/lib/site-url.ts` for why that is a domain this venture does not serve.
+  // This is the most exposed of the surfaces that carried it: the string below
+  // is sent to a real person's phone, and it carries a working discount code,
+  // so the recipient has every reason to follow it.
+  //
+  // With no configured origin there is no honest message to compose. An SMS
+  // cannot carry a relative link, and a text naming someone else's domain is
+  // worse than no text — it is unrecallable, and it hands a stranger's parked
+  // page an audience that trusts us.
+  //
+  // So the invite is not generated. That is deliberately NOT silent: dropping a
+  // send an operator believes happened is its own defect, so the reason is
+  // pushed onto `notes`, which is part of the returned result and is what the
+  // operator reads. `generatedSmsInviteText` stays undefined, which is the same
+  // shape this function already uses for a guest who did not opt in — the note
+  // is what distinguishes "declined" from "we refused to send".
   let generatedSmsInviteText: string | undefined;
   if (optedInSms && phoneNumber) {
-    const accessTime = assignedVipCohort === "vip_early_access" ? "24 hours early" : "12 hours early";
-    generatedSmsInviteText = `Hi ${guestName}! Thank you for visiting the ${exhibitionSlug} exhibition. Your VIP presale pass is active! Access the drop ${accessTime} with code ${discountCode}: https://printatelier.com/drop/${exhibitionSlug}?code=${discountCode}`;
+    const siteUrl = resolveSiteUrl();
+    if (siteUrl === null) {
+      notes.push(
+        `SMS presale invite NOT generated for this guest: no site origin is configured, ` +
+          `so the drop link would have to name a domain we cannot vouch for. ` +
+          `The guest opted in and is still assigned code ${discountCode}. ` +
+          SITE_URL_UNCONFIGURED_HINT,
+      );
+    } else {
+      const accessTime =
+        assignedVipCohort === "vip_early_access" ? "24 hours early" : "12 hours early";
+      generatedSmsInviteText = `Hi ${guestName}! Thank you for visiting the ${exhibitionSlug} exhibition. Your VIP presale pass is active! Access the drop ${accessTime} with code ${discountCode}: ${siteUrl}/drop/${exhibitionSlug}?code=${discountCode}`;
+    }
   }
 
   // Generate Email Subject
