@@ -213,7 +213,7 @@ export function MarketingDemoWidget() {
         ) : (
           /* Completion & Insight View */
           <div className="py-2 text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/20 text-2xl text-amber-600 dark:text-amber-400 shadow-inner">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/20 text-2xl text-amber-700 dark:text-amber-400 shadow-inner">
               ✨
             </div>
             <span className="inline-block rounded-full bg-amber-500/20 px-3.5 py-1 text-xs font-black uppercase tracking-wider text-amber-900 dark:text-amber-300">

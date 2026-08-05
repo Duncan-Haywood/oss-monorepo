@@ -145,7 +145,7 @@ export function ProfileView() {
         >
           {isDark ? (
             <>
-              <SunIcon className="h-4 w-4 text-amber-600 dark:text-amber-400" aria-hidden="true" />
+              <SunIcon className="h-4 w-4 text-amber-700 dark:text-amber-400" aria-hidden="true" />
               <span>Light mode</span>
             </>
           ) : (

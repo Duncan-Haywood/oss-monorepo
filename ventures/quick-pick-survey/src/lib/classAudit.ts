@@ -13,7 +13,10 @@
  *    background comes from an ancestor is checked against the page surface,
  *    which is right for the ordinary case (a card is white on white) and wrong
  *    for text inside a dark or coloured container. Those are the entries in
- *    `ON_ANCESTOR_BACKGROUND` in the test, each with the ancestor named.
+ *    `ON_ANCESTOR_BACKGROUND` in the test, each naming one element and the
+ *    ancestor surface it sits on. They supply a missing input; they do not
+ *    exempt anything, and the WCAG floor is still enforced against the surface
+ *    they name.
  *  - **Unresolvable colours are reported, not skipped.** An arbitrary value
  *    like `text-[#8a8a8a]` cannot be checked, and silence would read as a pass.
  */

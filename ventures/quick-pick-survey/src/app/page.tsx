@@ -234,7 +234,7 @@ export default function LandingPage() {
         <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 p-8 text-stone-950 shadow-2xl sm:p-12 lg:p-16">
           <div className="relative z-10 grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
             <div>
-              <span className="inline-flex items-center gap-2 rounded-full bg-stone-950/20 px-3.5 py-1 text-xs font-black uppercase tracking-wider text-stone-950">
+              <span className="inline-flex items-center gap-2 rounded-full bg-stone-950/15 px-3.5 py-1 text-xs font-black uppercase tracking-wider text-stone-950">
                 <HeartIcon /> Designed for Couples
               </span>
               <h2 className="mt-5 text-4xl font-black tracking-tight sm:text-5xl">
