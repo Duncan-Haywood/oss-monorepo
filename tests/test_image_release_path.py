@@ -13,6 +13,9 @@ nothing.
 from __future__ import annotations
 
 import sys
+import tempfile
+import unittest
+from datetime import date, timedelta
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -20,78 +23,7 @@ CI_DIR = REPO_ROOT / "scripts" / "ci"
 if str(CI_DIR) not in sys.path:
     sys.path.insert(0, str(CI_DIR))
 
-from datetime import date, timedelta
-
-import pytest
-
 import image_release_path as irp
-
-
-# --------------------------------------------------------------------------
-# Reference parsing
-# --------------------------------------------------------------------------
-
-
-@pytest.mark.parametrize(
-    "image,expected",
-    [
-        ("git.marisstella.dev/giteaadmin/app:latest", ("git.marisstella.dev/giteaadmin/app", "latest")),
-        ("git.marisstella.dev/giteaadmin/app", ("git.marisstella.dev/giteaadmin/app", "")),
-        ("nginx:alpine", ("nginx", "alpine")),
-        ("nginx", ("nginx", "")),
-        (
-            "registry:5000/team/app:v1",
-            ("registry:5000/team/app", "v1"),
-        ),
-        # A registry port must not be mistaken for a tag.
-        ("registry:5000/team/app", ("registry:5000/team/app", "")),
-        (
-            "git.marisstella.dev/giteaadmin/app@sha256:" + "a" * 63 + "b",
-            ("git.marisstella.dev/giteaadmin/app", "sha256:" + "a" * 63 + "b"),
-        ),
-    ],
-)
-def test_split_image(image, expected):
-    assert irp.split_image(image) == expected
-
-
-@pytest.mark.parametrize(
-    "reference,mutable",
-    [
-        ("latest", True),
-        ("main", True),
-        ("master", True),
-        ("", True),  # no tag at all resolves to :latest at pull time
-        ("v1.2.3", False),
-        ("sha256:" + "b" * 63 + "c", False),
-    ],
-)
-def test_is_mutable(reference, mutable):
-    assert irp.is_mutable(reference) is mutable
-
-
-def test_kustomize_digest_overrides_a_mutable_deployment_tag():
-    """quick-pick-survey's shape: mutable in the Deployment, pinned by kustomize."""
-    overrides = {
-        "git.marisstella.dev/giteaadmin/app": {"digest": "sha256:" + "c" * 63 + "d"}
-    }
-    repository, reference = irp.resolve(
-        "git.marisstella.dev/giteaadmin/app:latest", overrides
-    )
-    assert repository == "git.marisstella.dev/giteaadmin/app"
-    assert irp.is_mutable(reference) is False
-
-
-def test_kustomize_newtag_can_reintroduce_mutability():
-    """The override is what ships, so a mutable newTag over a pinned tag counts."""
-    overrides = {"git.marisstella.dev/giteaadmin/app": {"newTag": "latest"}}
-    _, reference = irp.resolve("git.marisstella.dev/giteaadmin/app:v1", overrides)
-    assert irp.is_mutable(reference) is True
-
-
-# --------------------------------------------------------------------------
-# Fixture repositories
-# --------------------------------------------------------------------------
 
 
 def write(path: Path, text: str) -> None:
@@ -140,12 +72,6 @@ def make_baseline(
 
 
 def make_register(root: Path, entries: str = "") -> None:
-    """The mutable-tag exception register `evaluate` re-derives claims from.
-
-    Written explicitly by every test that calls `evaluate`, because a missing
-    register is a hard failure there rather than "no claims to check": the
-    module refuses to report a pass over a file it could not read.
-    """
     write(root / "platform/image-tag-exceptions.yaml", "exceptions:\n" + entries)
 
 
@@ -172,496 +98,429 @@ def register_entry(
     return block
 
 
-@pytest.fixture
-def repo(tmp_path: Path) -> Path:
-    (tmp_path / irp.WORKFLOWS_DIR).mkdir(parents=True)
-    (tmp_path / irp.APPS_DIR).mkdir(parents=True)
-    return tmp_path
-
-
-# --------------------------------------------------------------------------
-# Build-path detection
-# --------------------------------------------------------------------------
-
-
-def test_image_with_a_docker_build_workflow_is_releasable(repo: Path):
-    make_app(repo, "shipper", irp.REGISTRY_PREFIX + "shipper:v1")
-    write(
-        repo / irp.WORKFLOWS_DIR / "shipper.yml",
-        "jobs:\n  container:\n    steps:\n"
-        f"      - run: docker build --tag {irp.REGISTRY_PREFIX}shipper:$SHA .\n",
-    )
-    measured = irp.measure(repo)
-    assert measured["without_build_path"] == 0
-    assert measured["apps"][0]["built_by"] == "shipper.yml"
-
-
-def test_build_push_action_also_counts(repo: Path):
-    make_app(repo, "shipper", irp.REGISTRY_PREFIX + "shipper:v1")
-    write(
-        repo / irp.WORKFLOWS_DIR / "shipper.yml",
-        "jobs:\n  container:\n    steps:\n"
-        "      - uses: docker/build-push-action@abc\n"
-        f"        with:\n          tags: {irp.REGISTRY_PREFIX}shipper:sha\n",
-    )
-    assert irp.measure(repo)["without_build_path"] == 0
-
-
-def test_a_workflow_that_only_deploys_does_not_count_as_a_producer(repo: Path):
-    """The defect this control exists for: manifests and deploy jobs, no build.
-
-    Every GitOps job names the image it rolls out. Treating a mention as
-    production is how this check would end up unable to fail.
-    """
-    make_app(repo, "phantom", irp.REGISTRY_PREFIX + "phantom:v1")
-    write(
-        repo / irp.WORKFLOWS_DIR / "deploy.yml",
-        "jobs:\n  deploy:\n    steps:\n"
-        f"      - run: kubectl set image deploy/phantom app={irp.REGISTRY_PREFIX}phantom:v1\n",
-    )
-    measured = irp.measure(repo)
-    assert measured["without_build_path"] == 1
-    assert measured["without_build_path_apps"] == ["phantom"]
-
-
-def test_a_workflow_building_a_different_image_does_not_cover_this_one(repo: Path):
-    make_app(repo, "phantom", irp.REGISTRY_PREFIX + "phantom:v1")
-    write(
-        repo / irp.WORKFLOWS_DIR / "other.yml",
-        f"jobs:\n  c:\n    steps:\n      - run: docker build --tag {irp.REGISTRY_PREFIX}other:v1 .\n",
-    )
-    assert irp.measure(repo)["without_build_path"] == 1
-
-
-def test_third_party_images_are_out_of_scope(repo: Path):
-    """service-template pins nginx:alpine; this repository is not its producer."""
-    make_app(repo, "service-template", "nginx:alpine")
-    measured = irp.measure(repo)
-    assert measured["without_build_path"] == 0
-    assert measured["mutable_references"] == 0
-    assert measured["apps"][0]["external"] is True
-
-
-def test_init_containers_are_audited_too(repo: Path):
-    write(
-        repo / irp.APPS_DIR / "withinit" / "deployment.yaml",
-        "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: withinit\n"
-        "spec:\n  template:\n    spec:\n      initContainers:\n"
-        f"      - name: migrate\n        image: {irp.REGISTRY_PREFIX}migrate:latest\n"
-        "      containers:\n"
-        f"      - name: app\n        image: {irp.REGISTRY_PREFIX}app:latest\n",
-    )
-    assert irp.measure(repo)["without_build_path"] == 2
-
-
-def test_non_workload_documents_are_ignored(repo: Path):
-    write(
-        repo / irp.APPS_DIR / "svc" / "deployment.yaml",
-        "apiVersion: v1\nkind: Service\nmetadata:\n  name: svc\n",
-    )
-    assert irp.measure(repo)["apps"] == []
-
-
-# --------------------------------------------------------------------------
-# Every workload, not just Deployments in deployment.yaml
-# --------------------------------------------------------------------------
-
-
-def test_a_job_in_another_file_is_read(repo: Path):
-    """`release-hooks.yaml`'s shape: two PreSync/PostSync Jobs, no Deployment.
-
-    Until 2026-08-04 this reader opened `<app>/deployment.yaml` and accepted
-    only `kind: Deployment`, so a Job naming an image nothing builds was outside
-    both numbers. It is the same undeliverable deployment; it just fails at the
-    hook instead of at rollout.
-    """
-    write(
-        repo / irp.APPS_DIR / "hooked" / "release-hooks.yaml",
-        "apiVersion: batch/v1\nkind: Job\nmetadata:\n  name: migrate\n"
-        "spec:\n  template:\n    spec:\n      containers:\n"
-        f"        - name: migrate\n          image: {irp.REGISTRY_PREFIX}migrate:latest\n",
-    )
-    measured = irp.measure(repo)
-    assert measured["without_build_path"] == 1
-    assert measured["mutable_references"] == 1
-    assert measured["apps"][0]["kind"] == "Job"
-
-
-def test_a_cronjob_pod_template_is_found_at_its_own_depth(repo: Path):
-    """A CronJob nests one `jobTemplate` deeper; a fixed path would miss it."""
-    write(
-        repo / irp.APPS_DIR / "backup" / "cronjob.yaml",
-        "apiVersion: batch/v1\nkind: CronJob\nmetadata:\n  name: backup\n"
-        'spec:\n  schedule: "0 3 * * *"\n  jobTemplate:\n    spec:\n      template:\n'
-        "        spec:\n          containers:\n"
-        f"            - name: dump\n              image: {irp.REGISTRY_PREFIX}dump:latest\n",
-    )
-    measured = irp.measure(repo)
-    assert measured["without_build_path"] == 1
-    assert measured["apps"][0]["kind"] == "CronJob"
-
-
-def test_a_statefulset_and_a_daemonset_are_read(repo: Path):
-    write(
-        repo / irp.APPS_DIR / "stateful" / "workloads.yaml",
-        "apiVersion: apps/v1\nkind: StatefulSet\nmetadata:\n  name: s\n"
-        "spec:\n  template:\n    spec:\n      containers:\n"
-        f"        - name: s\n          image: {irp.REGISTRY_PREFIX}s:latest\n"
-        "---\n"
-        "apiVersion: apps/v1\nkind: DaemonSet\nmetadata:\n  name: d\n"
-        "spec:\n  template:\n    spec:\n      containers:\n"
-        f"        - name: d\n          image: {irp.REGISTRY_PREFIX}d:latest\n",
-    )
-    assert irp.measure(repo)["without_build_path"] == 2
-
-
-def test_the_kustomization_is_still_read_as_an_overlay_not_a_workload(repo: Path):
-    make_app(
-        repo,
-        "pinned",
-        irp.REGISTRY_PREFIX + "pinned:latest",
-        kustomize_images=f"- name: {irp.REGISTRY_PREFIX}pinned\n  digest: sha256:{'e' * 63}f\n",
-    )
-    measured = irp.measure(repo)
-    assert measured["mutable_references"] == 0
-    assert len(measured["apps"]) == 1
-
-
-def test_unparseable_manifest_is_an_error_not_a_skip(repo: Path):
-    write(repo / irp.APPS_DIR / "broken" / "deployment.yaml", "kind: [unclosed\n")
-    with pytest.raises(irp.RatchetError, match="could not parse"):
-        irp.measure(repo)
-
-
-# --------------------------------------------------------------------------
-# The terraform surface
-# --------------------------------------------------------------------------
-
-
-def make_terraform(repo: Path, name: str, body: str) -> None:
-    write(repo / "platform/terraform" / name, body)
-
-
-def test_a_third_party_terraform_image_is_out_of_scope(repo: Path):
-    """This repository is not codercom's build system, on either surface."""
-    make_terraform(
-        repo,
-        "ide.tf",
-        'resource "helm_release" "ide" {\n  image = "codercom/code-server:4.1.0"\n}\n',
-    )
-    measured = irp.measure(repo)
-    assert measured["without_build_path"] == 0
-    assert measured["mutable_references"] == 0
-    assert measured["apps"][0]["external"] is True
-
-
-def test_an_unresolvable_terraform_repository_counts_both_ways(repo: Path):
-    """`services.tf`'s shape, and the reason it is counted.
-
-    The repository and tag come from `var.services`, whose value lives only in
-    an untracked `terraform.tfvars` no control may open. It is not known to be
-    external, and it is not known to be pinned. A control that resolved either
-    unknown in its own favour would be reporting a fact it does not have.
-    """
-    make_terraform(
-        repo,
-        "services.tf",
-        'resource "helm_release" "web" {\n'
-        "  for_each = var.services\n"
-        "  values = [yamlencode({\n"
-        "    image = {\n      repository = each.value.image\n"
-        "      tag        = each.value.tag\n    }\n  })]\n}\n",
-    )
-    measured = irp.measure(repo)
-    assert measured["without_build_path"] == 1
-    assert measured["mutable_references"] == 1
-    assert measured["without_build_path_apps"] == ["terraform:services"]
-
-
-def test_a_broken_terraform_surface_fails_closed(repo: Path):
-    (repo / "platform/terraform").mkdir(parents=True)
-    with pytest.raises(irp.RatchetError, match="scan is broken"):
-        irp.measure(repo)
-
-
-# --------------------------------------------------------------------------
-# The ratchet itself
-# --------------------------------------------------------------------------
-
-
-def test_passes_when_measurement_matches_the_declaration(repo: Path):
-    make_app(repo, "phantom", irp.REGISTRY_PREFIX + "phantom:latest")
-    make_baseline(repo, without_build_path=1, mutable=1)
-    make_register(repo)
-    _, failures = irp.evaluate(repo)
-    assert failures == []
-
-
-def test_fails_when_an_unbuildable_deployment_is_added(repo: Path):
-    make_app(repo, "phantom", irp.REGISTRY_PREFIX + "phantom:latest")
-    make_app(repo, "phantom2", irp.REGISTRY_PREFIX + "phantom2:latest")
-    make_baseline(repo, without_build_path=1, mutable=2)
-    make_register(repo)
-    _, failures = irp.evaluate(repo)
-    assert any("max_without_build_path=1" in f for f in failures)
-    assert any("phantom2" in f for f in failures)
-
-
-def test_fails_when_a_ceiling_has_gone_stale(repo: Path):
-    """The other direction: an improvement that nobody locked in."""
-    make_app(repo, "shipper", irp.REGISTRY_PREFIX + "shipper:v1")
-    write(
-        repo / irp.WORKFLOWS_DIR / "shipper.yml",
-        f"jobs:\n  c:\n    steps:\n      - run: docker build --tag {irp.REGISTRY_PREFIX}shipper:v1 .\n",
-    )
-    make_baseline(repo, without_build_path=5, mutable=0, slack=2)
-    make_register(repo)
-    _, failures = irp.evaluate(repo)
-    assert any("stale" in f for f in failures)
-
-
-def test_fails_when_a_release_becomes_mutable(repo: Path):
-    make_app(repo, "pinned", irp.REGISTRY_PREFIX + "pinned:latest")
-    make_baseline(repo, without_build_path=1, mutable=0)
-    make_register(repo)
-    _, failures = irp.evaluate(repo)
-    assert any("mutable" in f for f in failures)
-
-
-# --------------------------------------------------------------------------
-# The register's stated reason, re-derived
-# --------------------------------------------------------------------------
-#
-# IMG-001 accepted six mutable tags on the argument that "nothing in this
-# repository builds and pushes the image the manifest names". By 2026-08-05 two
-# of the six were built and published by `homepage-ci.yml` and
-# `print-atelier-image.yml`, and every gate stayed green, because the sentence
-# doing the work lived in `reason` — a required field no control reads. These
-# tests are for the checked form of that claim.
-
-
-def test_a_true_no_build_path_claim_passes(repo: Path):
-    make_app(repo, "phantom", irp.REGISTRY_PREFIX + "phantom:latest")
-    make_baseline(repo, without_build_path=1, mutable=1)
-    make_register(
-        repo,
-        register_entry(
-            id="IMG-T1",
-            path=f"{irp.APPS_DIR}/*/deployment.yaml",
-            count=1,
-            claims="      no_build_path: true\n",
-        ),
-    )
-    _, failures = irp.evaluate(repo)
-    assert failures == []
-
-
-def test_a_no_build_path_claim_fails_once_the_image_has_a_producer(repo: Path):
-    """The exact drift, reproduced: a build job lands under a standing claim."""
-    make_app(repo, "phantom", irp.REGISTRY_PREFIX + "phantom:latest")
-    make_baseline(repo, without_build_path=1, mutable=1)
-    make_register(
-        repo,
-        register_entry(
-            id="IMG-T1",
-            path=f"{irp.APPS_DIR}/*/deployment.yaml",
-            count=1,
-            claims="      no_build_path: true\n",
-        ),
-    )
-    write(
-        repo / irp.WORKFLOWS_DIR / "phantom-image.yml",
-        "jobs:\n  c:\n    steps:\n"
-        f"      - run: docker build --tag {irp.REGISTRY_PREFIX}phantom:$SHA .\n",
-    )
-    _, failures = irp.evaluate(repo)
-    assert any("IMG-T1" in f and "no_build_path" in f for f in failures)
-    assert any("phantom-image.yml" in f for f in failures)
-
-
-def test_a_specific_entry_above_a_glob_is_judged_on_its_own_references(repo: Path):
-    """The fix shape IMG-009/IMG-010 use, and it has to actually work.
-
-    Moving the two built images to their own entries above the glob must clear
-    the glob's claim rather than leave it failing on references it no longer
-    claims — otherwise the only way to satisfy the check would be to delete it.
-    """
-    make_app(repo, "built", irp.REGISTRY_PREFIX + "built:latest")
-    make_app(repo, "phantom", irp.REGISTRY_PREFIX + "phantom:latest")
-    write(
-        repo / irp.WORKFLOWS_DIR / "built-image.yml",
-        "jobs:\n  c:\n    steps:\n"
-        f"      - run: docker build --tag {irp.REGISTRY_PREFIX}built:$SHA .\n",
-    )
-    make_baseline(repo, without_build_path=1, mutable=2)
-    make_register(
-        repo,
-        register_entry(id="IMG-T2", path=f"{irp.APPS_DIR}/built/deployment.yaml", count=1)
-        + register_entry(
-            id="IMG-T1",
-            path=f"{irp.APPS_DIR}/*/deployment.yaml",
-            count=1,
-            claims="      no_build_path: true\n",
-        ),
-    )
-    _, failures = irp.evaluate(repo)
-    assert failures == []
-
-
-def test_an_unreadable_register_fails_closed(repo: Path):
-    """A register that will not load must not read as "no claims to check"."""
-    make_app(repo, "phantom", irp.REGISTRY_PREFIX + "phantom:latest")
-    make_baseline(repo, without_build_path=1, mutable=1)
-    write(repo / "platform/image-tag-exceptions.yaml", "exceptions: [[[\n")
-    with pytest.raises(irp.RatchetError):
-        irp.evaluate(repo)
-
-
-def test_a_missing_register_fails_closed(repo: Path):
-    make_app(repo, "phantom", irp.REGISTRY_PREFIX + "phantom:latest")
-    make_baseline(repo, without_build_path=1, mutable=1)
-    with pytest.raises(irp.RatchetError):
-        irp.evaluate(repo)
-
-
-# --------------------------------------------------------------------------
-# The declaration must be trustworthy
-# --------------------------------------------------------------------------
-
-
-def test_missing_baseline_fails_closed(repo: Path):
-    with pytest.raises(irp.RatchetError, match="missing"):
-        irp.load_baseline(repo)
-
-
-@pytest.mark.parametrize("field", irp.REQUIRED_TOP_FIELDS)
-def test_missing_required_field_fails_closed(repo: Path, field: str):
-    import yaml
-
-    make_baseline(repo, without_build_path=1, mutable=1)
-    path = repo / irp.BASELINE_PATH
-    document = yaml.safe_load(path.read_text())
-    del document[field]
-    path.write_text(yaml.safe_dump(document), encoding="utf-8")
-    with pytest.raises(irp.RatchetError):
-        irp.load_baseline(repo)
-
-
-@pytest.mark.parametrize("field", irp.REQUIRED_BUDGET_FIELDS)
-def test_missing_budget_field_fails_closed(repo: Path, field: str):
-    import yaml
-
-    make_baseline(repo, without_build_path=1, mutable=1)
-    path = repo / irp.BASELINE_PATH
-    document = yaml.safe_load(path.read_text())
-    del document["budget"][field]
-    path.write_text(yaml.safe_dump(document), encoding="utf-8")
-    with pytest.raises(irp.RatchetError, match=field):
-        irp.load_baseline(repo)
-
-
-def test_unparseable_baseline_fails_closed(repo: Path):
-    make_baseline(repo, without_build_path=1, mutable=1)
-    path = repo / irp.BASELINE_PATH
-    path.write_text("budget:\n  max: [unclosed\n", encoding="utf-8")
-    with pytest.raises(irp.RatchetError, match="not valid YAML"):
-        irp.load_baseline(repo)
-
-
-def test_ceiling_above_its_cap_is_refused(repo: Path):
-    make_baseline(
-        repo,
-        without_build_path=irp.MAX_DECLARED_WITHOUT_BUILD_PATH + 1,
-        mutable=1,
-    )
-    with pytest.raises(irp.RatchetError, match="above the cap"):
-        irp.load_baseline(repo)
-
-
-def test_mutable_ceiling_above_its_cap_is_refused(repo: Path):
-    make_baseline(
-        repo,
-        without_build_path=1,
-        mutable=irp.MAX_DECLARED_MUTABLE_REFERENCES + 1,
-    )
-    with pytest.raises(irp.RatchetError, match="above the cap"):
-        irp.load_baseline(repo)
-
-
-def test_slack_above_its_cap_is_refused(repo: Path):
-    make_baseline(
-        repo, without_build_path=1, mutable=1, slack=irp.MAX_DECLARED_SLACK + 1
-    )
-    with pytest.raises(irp.RatchetError, match="slack"):
-        irp.load_baseline(repo)
-
-
-def test_expired_baseline_is_refused(repo: Path):
-    make_baseline(
-        repo,
-        without_build_path=1,
-        mutable=1,
-        expires=date.today() - timedelta(days=1),
-    )
-    with pytest.raises(irp.RatchetError, match="expired"):
-        irp.load_baseline(repo)
-
-
-def test_expiry_beyond_the_horizon_is_refused(repo: Path):
-    make_baseline(
-        repo,
-        without_build_path=1,
-        mutable=1,
-        expires=date.today() + timedelta(days=irp.MAX_EXPIRY_DAYS + 10),
-    )
-    with pytest.raises(irp.RatchetError, match="horizon"):
-        irp.load_baseline(repo)
-
-
-def test_non_integer_ceiling_is_refused(repo: Path):
-    make_baseline(repo, without_build_path=1, mutable=1)
-    path = repo / irp.BASELINE_PATH
-    path.write_text(
-        path.read_text().replace(
-            "max_without_build_path: 1", "max_without_build_path: some"
-        ),
-        encoding="utf-8",
-    )
-    with pytest.raises(irp.RatchetError, match="non-negative integer"):
-        irp.load_baseline(repo)
-
-
-# --------------------------------------------------------------------------
-# The real repository
-# --------------------------------------------------------------------------
-
-
-class TestRealRepository:
-    def test_the_audit_runs_against_this_repository(self):
+class TestImageReleasePathUnit(unittest.TestCase):
+    def setUp(self) -> None:
+        self.tmp_dir = tempfile.TemporaryDirectory()
+        self.repo = Path(self.tmp_dir.name)
+        (self.repo / irp.WORKFLOWS_DIR).mkdir(parents=True)
+        (self.repo / irp.APPS_DIR).mkdir(parents=True)
+
+    def tearDown(self) -> None:
+        self.tmp_dir.cleanup()
+
+    def test_split_image(self) -> None:
+        cases = [
+            ("git.marisstella.dev/giteaadmin/app:latest", ("git.marisstella.dev/giteaadmin/app", "latest")),
+            ("git.marisstella.dev/giteaadmin/app", ("git.marisstella.dev/giteaadmin/app", "")),
+            ("nginx:alpine", ("nginx", "alpine")),
+            ("nginx", ("nginx", "")),
+            ("registry:5000/team/app:v1", ("registry:5000/team/app", "v1")),
+            ("registry:5000/team/app", ("registry:5000/team/app", "")),
+            (
+                "git.marisstella.dev/giteaadmin/app@sha256:" + "a" * 63 + "b",
+                ("git.marisstella.dev/giteaadmin/app", "sha256:" + "a" * 63 + "b"),
+            ),
+        ]
+        for image, expected in cases:
+            with self.subTest(image=image):
+                self.assertEqual(irp.split_image(image), expected)
+
+    def test_is_mutable(self) -> None:
+        cases = [
+            ("latest", True),
+            ("main", True),
+            ("master", True),
+            ("", True),
+            ("v1.2.3", False),
+            ("sha256:" + "b" * 63 + "c", False),
+        ]
+        for ref, mutable in cases:
+            with self.subTest(ref=ref):
+                self.assertIs(irp.is_mutable(ref), mutable)
+
+    def test_kustomize_digest_overrides_a_mutable_deployment_tag(self) -> None:
+        overrides = {
+            "git.marisstella.dev/giteaadmin/app": {"digest": "sha256:" + "c" * 63 + "d"}
+        }
+        repository, reference = irp.resolve(
+            "git.marisstella.dev/giteaadmin/app:latest", overrides
+        )
+        self.assertEqual(repository, "git.marisstella.dev/giteaadmin/app")
+        self.assertFalse(irp.is_mutable(reference))
+
+    def test_kustomize_newtag_can_reintroduce_mutability(self) -> None:
+        overrides = {"git.marisstella.dev/giteaadmin/app": {"newTag": "latest"}}
+        _, reference = irp.resolve("git.marisstella.dev/giteaadmin/app:v1", overrides)
+        self.assertTrue(irp.is_mutable(reference))
+
+    def test_image_with_a_docker_build_workflow_is_releasable(self) -> None:
+        make_app(self.repo, "shipper", irp.REGISTRY_PREFIX + "shipper:v1")
+        write(
+            self.repo / irp.WORKFLOWS_DIR / "shipper.yml",
+            "jobs:\n  container:\n    steps:\n"
+            f"      - run: docker build --tag {irp.REGISTRY_PREFIX}shipper:$SHA .\n",
+        )
+        measured = irp.measure(self.repo)
+        self.assertEqual(measured["without_build_path"], 0)
+        self.assertEqual(measured["apps"][0]["built_by"], "shipper.yml")
+
+    def test_build_push_action_also_counts(self) -> None:
+        make_app(self.repo, "shipper", irp.REGISTRY_PREFIX + "shipper:v1")
+        write(
+            self.repo / irp.WORKFLOWS_DIR / "shipper.yml",
+            "jobs:\n  container:\n    steps:\n"
+            "      - uses: docker/build-push-action@abc\n"
+            f"        with:\n          tags: {irp.REGISTRY_PREFIX}shipper:sha\n",
+        )
+        self.assertEqual(irp.measure(self.repo)["without_build_path"], 0)
+
+    def test_a_workflow_that_only_deploys_does_not_count_as_a_producer(self) -> None:
+        make_app(self.repo, "phantom", irp.REGISTRY_PREFIX + "phantom:v1")
+        write(
+            self.repo / irp.WORKFLOWS_DIR / "deploy.yml",
+            "jobs:\n  deploy:\n    steps:\n"
+            f"      - run: kubectl set image deploy/phantom app={irp.REGISTRY_PREFIX}phantom:v1\n",
+        )
+        measured = irp.measure(self.repo)
+        self.assertEqual(measured["without_build_path"], 1)
+        self.assertEqual(measured["without_build_path_apps"], ["phantom"])
+
+    def test_a_workflow_building_a_different_image_does_not_cover_this_one(self) -> None:
+        make_app(self.repo, "phantom", irp.REGISTRY_PREFIX + "phantom:v1")
+        write(
+            self.repo / irp.WORKFLOWS_DIR / "other.yml",
+            f"jobs:\n  c:\n    steps:\n      - run: docker build --tag {irp.REGISTRY_PREFIX}other:v1 .\n",
+        )
+        self.assertEqual(irp.measure(self.repo)["without_build_path"], 1)
+
+    def test_third_party_images_are_out_of_scope(self) -> None:
+        make_app(self.repo, "service-template", "nginx:alpine")
+        measured = irp.measure(self.repo)
+        self.assertEqual(measured["without_build_path"], 0)
+        self.assertEqual(measured["mutable_references"], 0)
+        self.assertTrue(measured["apps"][0]["external"])
+
+    def test_init_containers_are_audited_too(self) -> None:
+        write(
+            self.repo / irp.APPS_DIR / "withinit" / "deployment.yaml",
+            "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: withinit\n"
+            "spec:\n  template:\n    spec:\n      initContainers:\n"
+            f"      - name: migrate\n        image: {irp.REGISTRY_PREFIX}migrate:latest\n"
+            "      containers:\n"
+            f"      - name: app\n        image: {irp.REGISTRY_PREFIX}app:latest\n",
+        )
+        self.assertEqual(irp.measure(self.repo)["without_build_path"], 2)
+
+    def test_non_workload_documents_are_ignored(self) -> None:
+        write(
+            self.repo / irp.APPS_DIR / "svc" / "deployment.yaml",
+            "apiVersion: v1\nkind: Service\nmetadata:\n  name: svc\n",
+        )
+        self.assertEqual(irp.measure(self.repo)["apps"], [])
+
+    def test_a_job_in_another_file_is_read(self) -> None:
+        write(
+            self.repo / irp.APPS_DIR / "hooked" / "release-hooks.yaml",
+            "apiVersion: batch/v1\nkind: Job\nmetadata:\n  name: migrate\n"
+            "spec:\n  template:\n    spec:\n      containers:\n"
+            f"        - name: migrate\n          image: {irp.REGISTRY_PREFIX}migrate:latest\n",
+        )
+        measured = irp.measure(self.repo)
+        self.assertEqual(measured["without_build_path"], 1)
+        self.assertEqual(measured["mutable_references"], 1)
+        self.assertEqual(measured["apps"][0]["kind"], "Job")
+
+    def test_a_cronjob_pod_template_is_found_at_its_own_depth(self) -> None:
+        write(
+            self.repo / irp.APPS_DIR / "backup" / "cronjob.yaml",
+            "apiVersion: batch/v1\nkind: CronJob\nmetadata:\n  name: backup\n"
+            'spec:\n  schedule: "0 3 * * *"\n  jobTemplate:\n    spec:\n      template:\n'
+            "        spec:\n          containers:\n"
+            f"            - name: dump\n              image: {irp.REGISTRY_PREFIX}dump:latest\n",
+        )
+        measured = irp.measure(self.repo)
+        self.assertEqual(measured["without_build_path"], 1)
+        self.assertEqual(measured["apps"][0]["kind"], "CronJob")
+
+    def test_a_statefulset_and_a_daemonset_are_read(self) -> None:
+        write(
+            self.repo / irp.APPS_DIR / "stateful" / "workloads.yaml",
+            "apiVersion: apps/v1\nkind: StatefulSet\nmetadata:\n  name: s\n"
+            "spec:\n  template:\n    spec:\n      containers:\n"
+            f"        - name: s\n          image: {irp.REGISTRY_PREFIX}s:latest\n"
+            "---\n"
+            "apiVersion: apps/v1\nkind: DaemonSet\nmetadata:\n  name: d\n"
+            "spec:\n  template:\n    spec:\n      containers:\n"
+            f"        - name: d\n          image: {irp.REGISTRY_PREFIX}d:latest\n",
+        )
+        self.assertEqual(irp.measure(self.repo)["without_build_path"], 2)
+
+    def test_the_kustomization_is_still_read_as_an_overlay_not_a_workload(self) -> None:
+        make_app(
+            self.repo,
+            "pinned",
+            irp.REGISTRY_PREFIX + "pinned:latest",
+            kustomize_images=f"- name: {irp.REGISTRY_PREFIX}pinned\n  digest: sha256:{'e' * 63}f\n",
+        )
+        measured = irp.measure(self.repo)
+        self.assertEqual(measured["mutable_references"], 0)
+        self.assertEqual(len(measured["apps"]), 1)
+
+    def test_unparseable_manifest_is_an_error_not_a_skip(self) -> None:
+        write(self.repo / irp.APPS_DIR / "broken" / "deployment.yaml", "kind: [unclosed\n")
+        with self.assertRaisesRegex(irp.RatchetError, "could not parse"):
+            irp.measure(self.repo)
+
+    def test_a_third_party_terraform_image_is_out_of_scope(self) -> None:
+        write(
+            self.repo / "platform/terraform/ide.tf",
+            'resource "helm_release" "ide" {\n  image = "codercom/code-server:4.1.0"\n}\n',
+        )
+        measured = irp.measure(self.repo)
+        self.assertEqual(measured["without_build_path"], 0)
+        self.assertEqual(measured["mutable_references"], 0)
+        self.assertTrue(measured["apps"][0]["external"])
+
+    def test_an_unresolvable_terraform_repository_counts_both_ways(self) -> None:
+        write(
+            self.repo / "platform/terraform/services.tf",
+            'resource "helm_release" "web" {\n'
+            "  for_each = var.services\n"
+            "  values = [yamlencode({\n"
+            "    image = {\n      repository = each.value.image\n"
+            "      tag        = each.value.tag\n    }\n  })]\n}\n",
+        )
+        measured = irp.measure(self.repo)
+        self.assertEqual(measured["without_build_path"], 1)
+        self.assertEqual(measured["mutable_references"], 1)
+        self.assertEqual(measured["without_build_path_apps"], ["terraform:services"])
+
+    def test_a_broken_terraform_surface_fails_closed(self) -> None:
+        (self.repo / "platform/terraform").mkdir(parents=True)
+        with self.assertRaisesRegex(irp.RatchetError, "scan is broken"):
+            irp.measure(self.repo)
+
+    def test_passes_when_measurement_matches_the_declaration(self) -> None:
+        make_app(self.repo, "phantom", irp.REGISTRY_PREFIX + "phantom:latest")
+        make_baseline(self.repo, without_build_path=1, mutable=1)
+        make_register(self.repo)
+        _, failures = irp.evaluate(self.repo)
+        self.assertEqual(failures, [])
+
+    def test_fails_when_an_unbuildable_deployment_is_added(self) -> None:
+        make_app(self.repo, "phantom", irp.REGISTRY_PREFIX + "phantom:latest")
+        make_app(self.repo, "phantom2", irp.REGISTRY_PREFIX + "phantom2:latest")
+        make_baseline(self.repo, without_build_path=1, mutable=2)
+        make_register(self.repo)
+        _, failures = irp.evaluate(self.repo)
+        self.assertTrue(any("max_without_build_path=1" in f for f in failures))
+        self.assertTrue(any("phantom2" in f for f in failures))
+
+    def test_fails_when_a_ceiling_has_gone_stale(self) -> None:
+        make_app(self.repo, "shipper", irp.REGISTRY_PREFIX + "shipper:v1")
+        write(
+            self.repo / irp.WORKFLOWS_DIR / "shipper.yml",
+            f"jobs:\n  c:\n    steps:\n      - run: docker build --tag {irp.REGISTRY_PREFIX}shipper:v1 .\n",
+        )
+        make_baseline(self.repo, without_build_path=5, mutable=0, slack=2)
+        make_register(self.repo)
+        _, failures = irp.evaluate(self.repo)
+        self.assertTrue(any("stale" in f for f in failures))
+
+    def test_fails_when_a_release_becomes_mutable(self) -> None:
+        make_app(self.repo, "pinned", irp.REGISTRY_PREFIX + "pinned:latest")
+        make_baseline(self.repo, without_build_path=1, mutable=0)
+        make_register(self.repo)
+        _, failures = irp.evaluate(self.repo)
+        self.assertTrue(any("mutable" in f for f in failures))
+
+    def test_a_true_no_build_path_claim_passes(self) -> None:
+        make_app(self.repo, "phantom", irp.REGISTRY_PREFIX + "phantom:latest")
+        make_baseline(self.repo, without_build_path=1, mutable=1)
+        make_register(
+            self.repo,
+            register_entry(
+                id="IMG-T1",
+                path=f"{irp.APPS_DIR}/*/deployment.yaml",
+                count=1,
+                claims="      no_build_path: true\n",
+            ),
+        )
+        _, failures = irp.evaluate(self.repo)
+        self.assertEqual(failures, [])
+
+    def test_a_no_build_path_claim_fails_once_the_image_has_a_producer(self) -> None:
+        make_app(self.repo, "phantom", irp.REGISTRY_PREFIX + "phantom:latest")
+        make_baseline(self.repo, without_build_path=1, mutable=1)
+        make_register(
+            self.repo,
+            register_entry(
+                id="IMG-T1",
+                path=f"{irp.APPS_DIR}/*/deployment.yaml",
+                count=1,
+                claims="      no_build_path: true\n",
+            ),
+        )
+        write(
+            self.repo / irp.WORKFLOWS_DIR / "phantom-image.yml",
+            "jobs:\n  c:\n    steps:\n"
+            f"      - run: docker build --tag {irp.REGISTRY_PREFIX}phantom:$SHA .\n",
+        )
+        _, failures = irp.evaluate(self.repo)
+        self.assertTrue(any("IMG-T1" in f and "no_build_path" in f for f in failures))
+        self.assertTrue(any("phantom-image.yml" in f for f in failures))
+
+    def test_a_specific_entry_above_a_glob_is_judged_on_its_own_references(self) -> None:
+        make_app(self.repo, "built", irp.REGISTRY_PREFIX + "built:latest")
+        make_app(self.repo, "phantom", irp.REGISTRY_PREFIX + "phantom:latest")
+        write(
+            self.repo / irp.WORKFLOWS_DIR / "built-image.yml",
+            "jobs:\n  c:\n    steps:\n"
+            f"      - run: docker build --tag {irp.REGISTRY_PREFIX}built:$SHA .\n",
+        )
+        make_baseline(self.repo, without_build_path=1, mutable=2)
+        make_register(
+            self.repo,
+            register_entry(id="IMG-T2", path=f"{irp.APPS_DIR}/built/deployment.yaml", count=1)
+            + register_entry(
+                id="IMG-T1",
+                path=f"{irp.APPS_DIR}/*/deployment.yaml",
+                count=1,
+                claims="      no_build_path: true\n",
+            ),
+        )
+        _, failures = irp.evaluate(self.repo)
+        self.assertEqual(failures, [])
+
+    def test_an_unreadable_register_fails_closed(self) -> None:
+        make_app(self.repo, "phantom", irp.REGISTRY_PREFIX + "phantom:latest")
+        make_baseline(self.repo, without_build_path=1, mutable=1)
+        write(self.repo / "platform/image-tag-exceptions.yaml", "exceptions: [[[\n")
+        with self.assertRaises(irp.RatchetError):
+            irp.evaluate(self.repo)
+
+    def test_a_missing_register_fails_closed(self) -> None:
+        make_app(self.repo, "phantom", irp.REGISTRY_PREFIX + "phantom:latest")
+        make_baseline(self.repo, without_build_path=1, mutable=1)
+        with self.assertRaises(irp.RatchetError):
+            irp.evaluate(self.repo)
+
+    def test_missing_baseline_fails_closed(self) -> None:
+        with self.assertRaisesRegex(irp.RatchetError, "missing"):
+            irp.load_baseline(self.repo)
+
+    def test_missing_required_field_fails_closed(self) -> None:
+        import yaml
+
+        for field in irp.REQUIRED_TOP_FIELDS:
+            with self.subTest(field=field):
+                make_baseline(self.repo, without_build_path=1, mutable=1)
+                path = self.repo / irp.BASELINE_PATH
+                document = yaml.safe_load(path.read_text())
+                del document[field]
+                path.write_text(yaml.safe_dump(document), encoding="utf-8")
+                with self.assertRaises(irp.RatchetError):
+                    irp.load_baseline(self.repo)
+
+    def test_missing_budget_field_fails_closed(self) -> None:
+        import yaml
+
+        for field in irp.REQUIRED_BUDGET_FIELDS:
+            with self.subTest(field=field):
+                make_baseline(self.repo, without_build_path=1, mutable=1)
+                path = self.repo / irp.BASELINE_PATH
+                document = yaml.safe_load(path.read_text())
+                del document["budget"][field]
+                path.write_text(yaml.safe_dump(document), encoding="utf-8")
+                with self.assertRaisesRegex(irp.RatchetError, field):
+                    irp.load_baseline(self.repo)
+
+    def test_unparseable_baseline_fails_closed(self) -> None:
+        make_baseline(self.repo, without_build_path=1, mutable=1)
+        path = self.repo / irp.BASELINE_PATH
+        path.write_text("budget:\n  max: [unclosed\n", encoding="utf-8")
+        with self.assertRaisesRegex(irp.RatchetError, "not valid YAML"):
+            irp.load_baseline(self.repo)
+
+    def test_ceiling_above_its_cap_is_refused(self) -> None:
+        make_baseline(
+            self.repo,
+            without_build_path=irp.MAX_DECLARED_WITHOUT_BUILD_PATH + 1,
+            mutable=1,
+        )
+        with self.assertRaisesRegex(irp.RatchetError, "above the cap"):
+            irp.load_baseline(self.repo)
+
+    def test_mutable_ceiling_above_its_cap_is_refused(self) -> None:
+        make_baseline(
+            self.repo,
+            without_build_path=1,
+            mutable=irp.MAX_DECLARED_MUTABLE_REFERENCES + 1,
+        )
+        with self.assertRaisesRegex(irp.RatchetError, "above the cap"):
+            irp.load_baseline(self.repo)
+
+    def test_slack_above_its_cap_is_refused(self) -> None:
+        make_baseline(
+            self.repo, without_build_path=1, mutable=1, slack=irp.MAX_DECLARED_SLACK + 1
+        )
+        with self.assertRaisesRegex(irp.RatchetError, "slack"):
+            irp.load_baseline(self.repo)
+
+    def test_expired_baseline_is_refused(self) -> None:
+        make_baseline(
+            self.repo,
+            without_build_path=1,
+            mutable=1,
+            expires=date.today() - timedelta(days=1),
+        )
+        with self.assertRaisesRegex(irp.RatchetError, "expired"):
+            irp.load_baseline(self.repo)
+
+    def test_expiry_beyond_the_horizon_is_refused(self) -> None:
+        make_baseline(
+            self.repo,
+            without_build_path=1,
+            mutable=1,
+            expires=date.today() + timedelta(days=irp.MAX_EXPIRY_DAYS + 10),
+        )
+        with self.assertRaisesRegex(irp.RatchetError, "horizon"):
+            irp.load_baseline(self.repo)
+
+    def test_non_integer_ceiling_is_refused(self) -> None:
+        make_baseline(self.repo, without_build_path=1, mutable=1)
+        path = self.repo / irp.BASELINE_PATH
+        path.write_text(
+            path.read_text().replace(
+                "max_without_build_path: 1", "max_without_build_path: some"
+            ),
+            encoding="utf-8",
+        )
+        with self.assertRaisesRegex(irp.RatchetError, "non-negative integer"):
+            irp.load_baseline(self.repo)
+
+
+class TestRealRepository(unittest.TestCase):
+    def test_the_audit_runs_against_this_repository(self) -> None:
         measured = irp.measure(REPO_ROOT)
-        assert measured["apps"], "no Kubernetes app manifests were found at all"
+        self.assertTrue(measured["apps"], "no Kubernetes app manifests were found at all")
 
-    def test_local_site_studio_can_now_be_built(self):
-        """The worked example. If this regresses, the venture is undeliverable again."""
+    def test_local_site_studio_can_now_be_built(self) -> None:
         measured = irp.measure(REPO_ROOT)
-        assert "local-site-studio" not in measured["without_build_path_apps"]
+        self.assertNotIn("local-site-studio", measured["without_build_path_apps"])
 
-    def test_the_release_hook_jobs_are_counted(self):
-        """quick-pick-survey's two Jobs and its CronJob, previously unread.
-
-        All three name an image and all three are applied by Argo CD. They cost
-        nothing today — the Jobs resolve to the same kustomize digest as the
-        Deployment and the CronJob runs a third-party postgres — but they were
-        outside both counts, which is a different statement from being clean.
-        """
+    def test_the_release_hook_jobs_are_counted(self) -> None:
         kinds = {app["kind"] for app in irp.measure(REPO_ROOT)["apps"]}
-        assert {"Job", "CronJob"} <= kinds, kinds
+        self.assertTrue({"Job", "CronJob"} <= kinds, kinds)
 
-    def test_the_terraform_surface_is_measured(self):
-        """Anti-vacuity: a reader that stopped reaching terraform looks green."""
+    def test_the_terraform_surface_is_measured(self) -> None:
         from_terraform = [a for a in irp.measure(REPO_ROOT)["apps"] if a["kind"] == "terraform"]
-        assert len(from_terraform) >= 8, f"found {len(from_terraform)}"
+        self.assertGreaterEqual(len(from_terraform), 8, f"found {len(from_terraform)}")
 
-    def test_this_repository_is_within_its_declared_baseline(self):
+    def test_this_repository_is_within_its_declared_baseline(self) -> None:
         _, failures = irp.evaluate(REPO_ROOT)
-        assert failures == [], "; ".join(failures)
+        self.assertEqual(failures, [], "; ".join(failures))
+
+
+if __name__ == "__main__":
+    unittest.main()
