@@ -8,6 +8,7 @@ import {
   type CheckoutLineItem,
 } from "../src/lib/checkout.ts";
 import { catalogArtworks, defaultListingConsentRecords } from "../src/lib/marketplace.ts";
+import { withPrintFile } from "./support/print-files.ts";
 
 /**
  * The storefront could not put anything in the cart.
@@ -33,15 +34,18 @@ function readSource(relativePath: string): string {
 }
 
 function eligibleArtwork() {
+  // `withPrintFile`, not the raw catalog entry: a listing with no print file
+  // cannot be sold at all, and these tests are about pricing and increment
+  // rather than about that rule. See tests/support/print-files.ts.
   const artwork = catalogArtworks.find((art) => art.slug === "midnight-coast");
   assert.ok(artwork, "expected midnight-coast in the catalog");
-  return artwork;
+  return withPrintFile(artwork);
 }
 
 function consentBlockedArtwork() {
   const artwork = catalogArtworks.find((art) => art.slug === "spring-bloom");
   assert.ok(artwork, "expected spring-bloom in the catalog");
-  return artwork;
+  return withPrintFile(artwork);
 }
 
 test("addArtworkToCheckoutCart prices a new line from the catalog, not the caller", () => {

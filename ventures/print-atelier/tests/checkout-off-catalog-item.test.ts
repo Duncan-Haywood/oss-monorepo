@@ -7,6 +7,7 @@ import {
   type CheckoutLineItem,
 } from "../src/lib/checkout.ts";
 import { catalogArtworks } from "../src/lib/marketplace.ts";
+import { sellableCatalog } from "./support/print-files.ts";
 
 /**
  * Three tests already assert that a tampered price is replaced by the catalog
@@ -83,7 +84,11 @@ test("cart blockers hold nothing that is merely an environment gap", () => {
     } as CheckoutLineItem,
   ]);
 
-  const readiness = buildCheckoutReadiness(catalogCart, undefined, undefined, {});
+  // `sellableCatalog()`, because the seeded catalog carries no print file and
+  // "no print file" is a genuine *cart* blocker. Leaving it in would make this
+  // test pass or fail on the operator's asset state rather than on the
+  // env/cart split it exists to pin.
+  const readiness = buildCheckoutReadiness(catalogCart, sellableCatalog(), undefined, {});
 
   assert.equal(readiness.envReady, false, "expected an env-incomplete fixture");
   assert.deepEqual(
@@ -141,7 +146,7 @@ test("a catalog cart still prices and routes normally", () => {
     } as CheckoutLineItem,
   ]);
 
-  const payload = buildCheckoutSessionPayload(cart, "US", "https://printatelier.com", STRIPE_ENV);
+  const payload = buildCheckoutSessionPayload(cart, "US", "https://printatelier.com", STRIPE_ENV, sellableCatalog());
 
   assert.equal(payload.lineItems[0].unitAmountCents, Math.round(artwork.retailPrice * 100));
   assert.notEqual(payload.metadata.destinationConnectAccountId, "acct_attacker");
@@ -201,5 +206,20 @@ test("POST /api/stripe/checkout still accepts a catalog cart", async () => {
     }),
   );
 
-  assert.notEqual(res.status, 422, "the guard closed the path it exists to protect");
+  // Not `assert.notEqual(res.status, 422)`. The route resolves the module
+  // catalog and cannot be handed a fixture, and no seeded artwork carries a
+  // print file today, so a catalog cart is legitimately refused — for a reason
+  // that names the missing file. Asserting a bare 200 here would make this
+  // test pass or fail on the operator's asset state; asserting *which* reason
+  // keeps it pinned on what it was written for, which is that the off-catalog
+  // guard must not reject a slug the catalog does hold.
+  if (res.status === 422) {
+    const body = (await res.json()) as { blockers?: string[] };
+    const blockers = body.blockers ?? [];
+    assert.ok(blockers.length > 0, "a 422 must name what it refused");
+    assert.ok(
+      blockers.every((blocker) => /print file/i.test(blocker)),
+      `a catalog cart was refused for something other than its missing print file: ${JSON.stringify(blockers)}`,
+    );
+  }
 });

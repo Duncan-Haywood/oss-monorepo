@@ -8,8 +8,15 @@ describe("Next.js Metadata Routes & Error pages", () => {
   it("generates robots.txt metadata configuration", () => {
     const config = robots();
     assert.ok(config);
-    assert.equal(config.rules.userAgent, "*");
-    assert.ok(config.sitemap.includes("/sitemap.xml"));
+    // `MetadataRoute.Robots` types `rules` as one rule or an array of them and
+    // `sitemap` as optional, so both need narrowing before they are read.
+    // Without it `tsc --noEmit` — a declared gate for this venture — failed on
+    // this file, taking the whole verify chain red with it.
+    const rules = Array.isArray(config.rules) ? config.rules[0] : config.rules;
+    assert.ok(rules, "expected robots.txt to declare at least one rule");
+    assert.equal(rules.userAgent, "*");
+    assert.equal(typeof config.sitemap, "string");
+    assert.ok(String(config.sitemap).includes("/sitemap.xml"));
   });
 
   it("generates sitemap metadata entries", () => {

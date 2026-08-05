@@ -6,6 +6,7 @@ import {
   type CheckoutLineItem,
 } from "../src/lib/checkout.ts";
 import { catalogArtworks } from "../src/lib/marketplace.ts";
+import { sellableCatalog } from "./support/print-files.ts";
 
 test("sanitizeCheckoutLineItems replaces client-tampered price with catalog price", () => {
   const midnight = catalogArtworks.find((art) => art.slug === "midnight-coast");
@@ -42,7 +43,7 @@ test("buildCheckoutSessionPayload uses catalog price after sanitization", () => 
   };
 
   const sanitizedCart = sanitizeCheckoutLineItems([tamperedItem], catalogArtworks);
-  const payload = buildCheckoutSessionPayload(sanitizedCart, "US", "https://printatelier.com", {});
+  const payload = buildCheckoutSessionPayload(sanitizedCart, "US", "https://printatelier.com", {}, sellableCatalog());
 
   assert.equal(payload.lineItems[0].unitAmountCents, Math.round(midnight.retailPrice * 100));
 });
