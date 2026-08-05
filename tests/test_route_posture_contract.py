@@ -388,8 +388,158 @@ class CoverageRatchetWiringTest(unittest.TestCase):
         self.assertIn("unexecuted-contract", self.repo.codes())
 
 
+class VitestSelectionTest(unittest.TestCase):
+    """`execution: venture-test-gate` must read the vitest config, not the filename.
+
+    The check used to answer "does vitest run this file?" by asking whether the
+    *name* ended in `.test.ts`. `ventures/quick-pick-survey/vitest.config.ts`
+    excludes `**/*.integration.test.ts` and includes only `src/**`, so a
+    contract named or placed either way was reported as executed while vitest
+    declined to run it — the exact defect this module's docstring says it exists
+    to close, reproduced inside the audit.
+    """
+
+    def setUp(self) -> None:
+        self.repo = FakeRepo()
+        self.addCleanup(self.repo.close)
+        self.repo.route("v1", "health")
+        self.repo.package_json("v1", "vitest run")
+        self.repo.test_ci('run_ci_test "V1" npm --prefix "${REPO_ROOT}/ventures/v1" test\n')
+
+    def _config(self, body: str) -> None:
+        write(self.repo.root / "ventures/v1/vitest.config.ts", body)
+
+    def _registry(self, contract: str) -> None:
+        self.repo.registry(f"""
+            ventures:
+              - venture: v1
+                contract: {contract}
+                execution: venture-test-gate
+                route_files: 1
+                handlers: 1
+                owner: duncan
+        """)
+
+    def test_a_contract_the_vitest_config_excludes_is_not_executed(self) -> None:
+        """quick-pick-survey's real config, with the contract named to match it."""
+        self._config("""
+            export default {
+              test: {
+                include: ["src/**/*.test.ts"],
+                exclude: ["**/node_modules/**", "**/*.integration.test.ts"],
+              },
+            };
+        """)
+        write(self.repo.root / "ventures/v1/src/lib/posture.integration.test.ts", "// contract")
+        write(self.repo.root / "ventures/v1/src/lib/other.test.ts", "// a suite that does run")
+        self._registry("ventures/v1/src/lib/posture.integration.test.ts")
+        self.assertIn("unexecuted-contract", self.repo.codes())
+
+    def test_the_same_contract_the_config_does_not_exclude_passes(self) -> None:
+        """The mirror, so the check is config-sensitive rather than blanket."""
+        self._config("""
+            export default {
+              test: {
+                include: ["src/**/*.test.ts"],
+                exclude: ["**/node_modules/**", "**/*.integration.test.ts"],
+              },
+            };
+        """)
+        write(self.repo.root / "ventures/v1/src/lib/posture.test.ts", "// contract")
+        self._registry("ventures/v1/src/lib/posture.test.ts")
+        self.assertEqual(self.repo.codes(), [])
+
+    def test_a_contract_outside_the_configured_include_root_is_not_executed(self) -> None:
+        """`include: ["src/**"]` does not reach `tests/`, whatever the suffix."""
+        self._config("""
+            export default { test: { include: ["src/**/*.test.ts"] } };
+        """)
+        write(self.repo.root / "ventures/v1/tests/posture.test.ts", "// contract")
+        write(self.repo.root / "ventures/v1/src/lib/other.test.ts", "// a suite that does run")
+        self._registry("ventures/v1/tests/posture.test.ts")
+        self.assertIn("unexecuted-contract", self.repo.codes())
+
+    def test_an_include_that_selects_nothing_is_not_a_passing_gate(self) -> None:
+        """A glob matching zero files exits 0 and looks exactly like green."""
+        self._config("""
+            export default { test: { include: ["nowhere/**/*.test.ts"] } };
+        """)
+        write(self.repo.root / "ventures/v1/src/lib/posture.test.ts", "// contract")
+        self._registry("ventures/v1/src/lib/posture.test.ts")
+        self.assertIn("unexecuted-contract", self.repo.codes())
+
+    def test_a_glob_inside_a_config_string_is_not_eaten_as_a_comment(self) -> None:
+        """`"src/**/*.test.ts"` contains `/*`. A regex comment stripper swallows
+        the rest of the config from inside the glob and leaves an include list
+        that matches nothing — which the vacuity check would then report as a
+        broken gate on a config that is perfectly fine."""
+        source = rpc._strip_js_comments(
+            'export default { test: { include: ["src/**/*.test.ts"] } }; // trailing\n'
+        )
+        self.assertIn('"src/**/*.test.ts"', source)
+        self.assertNotIn("trailing", source)
+
+    def test_a_single_star_does_not_cross_a_directory_boundary(self) -> None:
+        """fnmatch's `*` spans `/`, which is what made every include look satisfied."""
+        self.assertFalse(rpc.glob_matches_path("*.test.ts", "src/lib/a.test.ts"))
+        self.assertTrue(rpc.glob_matches_path("src/**/*.test.ts", "src/lib/a.test.ts"))
+        self.assertTrue(rpc.glob_matches_path("**/*.test.ts", "a.test.ts"))
+        self.assertFalse(rpc.glob_matches_path("src/**/*.test.ts", "tests/a.test.ts"))
+
+
+class PrunedDirectoryTest(unittest.TestCase):
+    """The one shared rule both this audit and the SAST gate descend by."""
+
+    def setUp(self) -> None:
+        self.repo = FakeRepo()
+        self.addCleanup(self.repo.close)
+        self.root = self.repo.root / "ventures/v1"
+
+    def test_an_app_router_build_segment_is_kept(self) -> None:
+        target = self.root / "src/app/api/build"
+        target.mkdir(parents=True)
+        self.assertFalse(rpc.is_pruned_dir(target, self.root))
+
+    def test_build_output_outside_an_app_tree_is_pruned(self) -> None:
+        target = self.root / "dist"
+        target.mkdir(parents=True)
+        self.assertTrue(rpc.is_pruned_dir(target, self.root))
+
+    def test_a_vendored_directory_is_pruned_even_inside_an_app_tree(self) -> None:
+        target = self.root / "src/app/node_modules"
+        target.mkdir(parents=True)
+        self.assertTrue(rpc.is_pruned_dir(target, self.root))
+
+
 class RepositoryContractTest(unittest.TestCase):
     """The real repository, on every push."""
+
+    def test_every_vitest_venture_really_selects_its_declared_contract(self) -> None:
+        """Read the real configs, not a guess about them.
+
+        Non-vacuous by construction: it asserts at least one registry entry
+        actually goes through the vitest path, so the loop cannot pass by
+        iterating over nothing.
+        """
+        import shlex as _shlex
+
+        checked = 0
+        for entry in rpc.load_registry(REPO_ROOT):
+            contract = entry.get("contract")
+            if entry.get("execution") != "venture-test-gate" or not contract:
+                continue
+            script, cwd = rpc.npm_test_script(REPO_ROOT, str(entry["venture"]),
+                                              REPO_ROOT / str(contract))
+            tokens = _shlex.split(script or "")
+            if not rpc.is_vitest_invocation(tokens) or rpc.vitest_path_arguments(tokens):
+                continue
+            checked += 1
+            selection = rpc.resolve_vitest_selection(cwd, tokens)
+            self.assertNotEqual(selection.candidates, [],
+                                f"{entry['venture']}: {selection.where} selects no file")
+            self.assertTrue(selection.selects(REPO_ROOT / str(contract)),
+                            f"{entry['venture']}: {selection.where} does not select {contract}")
+        self.assertGreater(checked, 0, "no venture reached the vitest resolution path")
 
     def test_the_audit_passes_on_this_repository(self) -> None:
         findings = rpc.audit(REPO_ROOT)

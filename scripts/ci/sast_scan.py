@@ -36,6 +36,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import importlib.util
 import json
 import shutil
 import subprocess
@@ -46,6 +47,27 @@ from pathlib import Path
 from typing import Iterable, Sequence
 
 import yaml
+
+
+def _load_sibling(name: str):
+    """Import a sibling CI control by path.
+
+    Not `sys.path.insert` + a plain import: that puts the import below other
+    statements, so it needs an inline linter suppression, and
+    `scripts/ci/audit_exceptions.py` correctly reports those as unregistered
+    exceptions. A loader is cheaper than a waiver.
+    """
+    location = Path(__file__).resolve().parent / f"{name}.py"
+    spec = importlib.util.spec_from_file_location(name, location)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules.setdefault(name, module)
+    spec.loader.exec_module(module)
+    return module
+
+
+# The directory-pruning rule this gate descends by. Imported, never re-derived:
+# see the note beside ARTIFACT_DIR_NAMES for what a second copy cost.
+_route_posture = _load_sibling("route_posture_contract")
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 BASELINE_PATH = REPO_ROOT / "platform" / "sast-baseline.yaml"
@@ -106,8 +128,39 @@ SEMGREP_CONFIGS = ("p/default",)
 # Paths neither tool should read. Vendored dependencies are the dependency
 # scanner's job (trivy, `npm audit`), not SAST's — findings in code nobody in
 # this repository wrote are noise that buries the findings in code we did.
-EXCLUDED_DIRS = ("node_modules", ".next", ".git", "dist", "build", ".venv")
+#
+# These are safe to prune by *name* at any depth: no URL path segment and no
+# first-party source directory is ever called `node_modules` or `.venv`.
+VENDOR_DIRS = ("node_modules", ".next", ".git", ".venv")
 
+# Build-output names that are *also* legal URL segments, and therefore are NOT
+# safe to prune by name. `src/app/api/build/route.ts` is a real endpoint whose
+# directory happens to be called `build`. `scripts/ci/route_posture_contract.py`
+# learned this the expensive way — pruning by bare name hid three unguarded
+# handlers from that audit — and carved out App Router trees. This scanner kept
+# the bare-name prune and so kept the defect: it silently removed real source
+# from the security scan.
+#
+# The rule is not re-implemented here. `route_posture_contract.is_pruned_dir` is
+# imported, because two copies that agree and are both wrong is the failure mode
+# this repository keeps finding in its own controls.
+ARTIFACT_DIR_NAMES = frozenset(_route_posture.ARTIFACT_DIRS)
+
+# How many App-Router-shadowed files the scan will hand to semgrep as explicit
+# roots before it refuses to run. A handful of route segments named `build` or
+# `out` is normal; hundreds means somebody put real build output inside `app/`,
+# and the honest answer to that is to stop, not to scan part of it.
+MAX_SHADOWED_FILES = 200
+
+# Semgrep ships its own default ignore list, and it prunes `build/` and `dist/`
+# at any depth *regardless of the flags we pass*. Measured 2026-08-05 with
+# semgrep 1.172.0: a file at `ventures/v/src/app/api/build/route.ts` containing
+# `eval(userInput)` is reported in `paths.scanned` as an empty list even with no
+# `--exclude` at all, and the `eval-detected` finding never appears. So dropping
+# `build` from our own exclude list is necessary but not sufficient — the file
+# has to be handed to semgrep as an explicit scanning root, which is the one
+# thing that bypasses the built-in ignore. Verified: passing the path directly
+# scans it, and semgrep de-duplicates a file reachable both ways.
 TOOL_SEMGREP = "semgrep"
 TOOL_BANDIT = "bandit"
 
@@ -140,6 +193,74 @@ class Located:
 
 class ScanError(RuntimeError):
     """A tool could not be run, or ran and could not produce a verdict."""
+
+
+@dataclass(frozen=True)
+class ScanSurface:
+    """What the scanners must skip, and what they cannot otherwise reach.
+
+    `artifact_dirs` are the real build-output directories found on disk, as
+    paths relative to the scan root. Concrete paths, not names: bandit's
+    `--exclude` matches the whole path, so `./dist` excludes a top-level `dist`
+    and nothing at depth — measured 2026-08-05, bandit 1.9.4 happily reported
+    `./ventures/v/dist/artifact.py` while `./dist` was in its exclude list. The
+    bare-name form was therefore wrong in *both* directions at once: it hid real
+    App Router source from semgrep and failed to hide real build output from
+    bandit.
+
+    `shadowed_files` are first-party source files sitting under an App Router
+    directory whose name collides with a build-output name. Semgrep's built-in
+    ignore hides them however we configure it, so they are passed as explicit
+    scanning roots.
+    """
+
+    artifact_dirs: tuple[str, ...]
+    shadowed_files: tuple[str, ...]
+    vendor_dirs: tuple[str, ...] = ()
+
+
+def _is_shadowed(relative: Path) -> bool:
+    """Would semgrep's built-in ignore hide this path because of a directory name?"""
+    return any(part in ARTIFACT_DIR_NAMES for part in relative.parts[:-1])
+
+
+def classify_scan_surface(root: Path) -> ScanSurface:
+    """Walk `root` once and split it into exclusions and semgrep-shadowed source.
+
+    The descent rule is `route_posture_contract.is_pruned_dir` — imported, not
+    re-derived. A directory it prunes is recorded as an exclusion and not
+    entered; a directory it keeps is entered, and any file underneath whose
+    ancestors include a build-output name is recorded as shadowed.
+    """
+    artifact_dirs: list[str] = []
+    vendor_dirs: list[str] = []
+    shadowed: list[str] = []
+    stack = [root]
+    while stack:
+        current = stack.pop()
+        try:
+            entries = sorted(current.iterdir())
+        except (PermissionError, OSError):
+            continue
+        for entry in entries:
+            if entry.is_symlink():
+                # A symlinked `node_modules` is how ventures get their deps.
+                # Following it would scan the whole dependency tree.
+                continue
+            relative = entry.relative_to(root)
+            if entry.is_dir():
+                if _route_posture.is_pruned_dir(entry, root):
+                    if entry.name in ARTIFACT_DIR_NAMES:
+                        artifact_dirs.append(relative.as_posix())
+                    else:
+                        vendor_dirs.append(relative.as_posix())
+                    continue
+                stack.append(entry)
+            elif entry.is_file() and _is_shadowed(relative):
+                shadowed.append(relative.as_posix())
+    return ScanSurface(artifact_dirs=tuple(sorted(artifact_dirs)),
+                       shadowed_files=tuple(sorted(shadowed)),
+                       vendor_dirs=tuple(sorted(vendor_dirs)))
 
 
 def _relative(path: str, root: Path) -> str:
@@ -175,12 +296,31 @@ def run_semgrep(root: Path) -> tuple[list[Located], list[str]]:
             "`pip install -r requirements-ci.txt`. This gate fails rather than "
             "skips: a SAST check that silently does not run is worse than none."
         )
+    surface = classify_scan_surface(root)
     command = [TOOL_SEMGREP, "scan", "--metrics=off", "--json", "--quiet"]
     for config in SEMGREP_CONFIGS:
         command += ["--config", config]
-    for excluded in EXCLUDED_DIRS:
+    for excluded in VENDOR_DIRS:
+        command += [f"--exclude={excluded}"]
+    for excluded in surface.artifact_dirs:
         command += [f"--exclude={excluded}"]
     command.append(str(root))
+    # Explicit scanning roots for the files semgrep's own default ignore would
+    # drop. Nothing else reaches them; see the note beside ARTIFACT_DIR_NAMES.
+    #
+    # Raising rather than truncating. If a venture ever parks real build output
+    # inside its App Router tree this list explodes and the argv would overflow;
+    # quietly scanning the first N would be a gate silently narrowing itself,
+    # which is the failure this whole module is written against.
+    if len(surface.shadowed_files) > MAX_SHADOWED_FILES:
+        raise ScanError(
+            f"{len(surface.shadowed_files)} files sit under an App Router directory "
+            f"named {sorted(ARTIFACT_DIR_NAMES)}, over the limit of {MAX_SHADOWED_FILES}. "
+            f"That is build output inside `app/`, not routes: move it out, or raise "
+            f"MAX_SHADOWED_FILES deliberately. Refusing to scan a silently truncated "
+            f"subset."
+        )
+    command += [str(root / shadowed) for shadowed in surface.shadowed_files]
 
     completed = subprocess.run(command, capture_output=True, text=True, cwd=root)
     if not completed.stdout.strip():
@@ -249,6 +389,14 @@ def run_bandit(root: Path) -> list[Located]:
             "`pip install -r requirements-ci.txt`. This gate fails rather than "
             "skips, for the same reason semgrep does."
         )
+    surface = classify_scan_surface(root)
+    # Concrete paths, because bandit's `--exclude` matches the whole path and
+    # never a bare name at depth: `./node_modules` does not exclude
+    # `./ventures/v/node_modules`, which is why the old bare-name list left
+    # vendored Python inside the scan while claiming to have removed it.
+    excludes = [f"./{name}" for name in VENDOR_DIRS]
+    excludes += [f"./{path}" for path in surface.vendor_dirs]
+    excludes += [f"./{path}" for path in surface.artifact_dirs]
     command = [
         TOOL_BANDIT,
         "-q",
@@ -258,7 +406,7 @@ def run_bandit(root: Path) -> list[Located]:
         "-f",
         "json",
         "--exclude",
-        ",".join(f"./{name}" for name in EXCLUDED_DIRS),
+        ",".join(excludes),
     ]
     completed = subprocess.run(command, capture_output=True, text=True, cwd=root)
     # Bandit exits 1 when it has findings and 2 on a usage error, so the exit

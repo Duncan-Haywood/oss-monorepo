@@ -15,6 +15,7 @@ remembers to.
 
 import importlib.util
 import sys
+import tempfile
 import unittest
 from datetime import date, timedelta
 from pathlib import Path
@@ -237,6 +238,115 @@ class FailClosedTests(unittest.TestCase):
             self.assertIn("bandit is not installed", str(caught.exception))
         finally:
             sast_scan.shutil.which = original
+
+
+class ScanSurfaceTests(unittest.TestCase):
+    """The scanners must not prune real source because of a directory's name.
+
+    `EXCLUDED_DIRS` used to contain the bare names `dist` and `build`, pruned at
+    any depth. `src/app/api/build/route.ts` is a Next.js App Router *route*, not
+    build output, so the security scanner silently stopped reading it — the same
+    incident `scripts/ci/route_posture_contract.py` records in the comment above
+    `ARTIFACT_DIRS`, repeated in the control next door.
+
+    Nothing here mocks the module under test. `classify_scan_surface` runs for
+    real against a real directory tree; the subprocess boundary is the only
+    thing stubbed, and only in the argv tests, so the classification and the
+    command assembly the fix lives in are both genuinely executed.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self._write("ventures/v/src/app/api/build/route.ts", "export async function GET(){}\n")
+        self._write("ventures/v/src/app/api/build/handler.py", "import subprocess\n")
+        self._write("ventures/v/src/app/api/ok/route.ts", "export async function GET(){}\n")
+        self._write("ventures/v/dist/bundle.js", "export function run(x){ return eval(x); }\n")
+        self._write("ventures/v/build/out.js", "export function run(x){ return eval(x); }\n")
+        self._write("ventures/v/node_modules/pkg/index.js", "module.exports = 1;\n")
+        self.surface = sast_scan.classify_scan_surface(self.root)
+
+    def _write(self, relative, text):
+        path = self.root / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+
+    def test_build_output_outside_an_app_tree_is_still_excluded(self):
+        """The prune is scoped, not removed. Vendored output stays out."""
+        self.assertIn("ventures/v/dist", self.surface.artifact_dirs)
+        self.assertIn("ventures/v/build", self.surface.artifact_dirs)
+
+    def test_an_app_router_directory_named_build_is_not_excluded(self):
+        """`/api/build` is a URL segment. Excluding it removes a live endpoint."""
+        self.assertNotIn("ventures/v/src/app/api/build", self.surface.artifact_dirs)
+
+    def test_source_under_an_app_router_build_segment_is_handed_to_the_scanner(self):
+        """Semgrep's own default ignore drops `build/` at any depth whatever
+        flags we pass, so dropping our exclude is not enough on its own: the
+        files have to be named as explicit scanning roots."""
+        self.assertIn("ventures/v/src/app/api/build/route.ts", self.surface.shadowed_files)
+        self.assertIn("ventures/v/src/app/api/build/handler.py", self.surface.shadowed_files)
+
+    def test_real_build_output_is_never_handed_back_as_a_scanning_root(self):
+        """The mirror: re-including everything would be as wrong as excluding it."""
+        for path in self.surface.shadowed_files:
+            self.assertFalse(path.startswith("ventures/v/dist/"), path)
+            self.assertFalse(path.startswith("ventures/v/build/"), path)
+
+    def test_vendored_directories_are_recorded_by_path_not_by_bare_name(self):
+        """bandit's `--exclude ./node_modules` matches the top level only."""
+        self.assertIn("ventures/v/node_modules", self.surface.vendor_dirs)
+
+    def _capture(self, runner):
+        """Run `runner` against the probe tree, capturing argv instead of scanning."""
+        captured = {}
+
+        class _Completed:
+            returncode = 0
+            stdout = '{"results": [], "errors": [], "paths": {"scanned": []}}'
+            stderr = ""
+
+        def fake_run(command, **kwargs):
+            captured["command"] = list(command)
+            return _Completed()
+
+        original_run = sast_scan.subprocess.run
+        original_which = sast_scan.shutil.which
+        sast_scan.subprocess.run = fake_run
+        sast_scan.shutil.which = lambda name: f"/usr/bin/{name}"
+        try:
+            runner(self.root)
+        finally:
+            sast_scan.subprocess.run = original_run
+            sast_scan.shutil.which = original_which
+        return captured["command"]
+
+    def test_semgrep_is_not_asked_to_exclude_the_bare_name_build(self):
+        command = self._capture(sast_scan.run_semgrep)
+        self.assertNotIn("--exclude=build", command)
+        self.assertNotIn("--exclude=dist", command)
+        self.assertIn("--exclude=ventures/v/build", command)
+        self.assertIn("--exclude=ventures/v/dist", command)
+
+    def test_semgrep_receives_the_shadowed_app_source_as_a_scanning_root(self):
+        command = self._capture(sast_scan.run_semgrep)
+        self.assertIn(str(self.root / "ventures/v/src/app/api/build/route.ts"), command)
+
+    def test_too_much_shadowed_source_fails_rather_than_scanning_a_subset(self):
+        """Silently scanning the first N would be the gate narrowing itself."""
+        for index in range(sast_scan.MAX_SHADOWED_FILES + 1):
+            self._write(f"ventures/v/src/app/api/build/f{index}.ts", "export const x = 1;\n")
+        with self.assertRaises(sast_scan.ScanError) as caught:
+            self._capture(sast_scan.run_semgrep)
+        self.assertIn("Refusing to scan a silently truncated subset", str(caught.exception))
+
+    def test_bandit_excludes_nested_build_output_by_path(self):
+        command = self._capture(sast_scan.run_bandit)
+        excludes = command[command.index("--exclude") + 1].split(",")
+        self.assertIn("./ventures/v/dist", excludes)
+        self.assertIn("./ventures/v/node_modules", excludes)
+        self.assertNotIn("./ventures/v/src/app/api/build", excludes)
 
 
 class RepositoryContractTests(unittest.TestCase):
