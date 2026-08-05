@@ -454,6 +454,66 @@ WATCHES: Tuple[Watch, ...] = (
         ),
         direction=UP,
     ),
+    # 2026-08-05, with `scripts/ci/deployment_lag.py`. The sibling
+    # release-lag budget measures the distance from a developer to `origin/main`;
+    # this one measures the distance from `origin/main` to a customer, and every
+    # dimension of it is pure debt. `max_unrecorded_deployments` in particular is
+    # the count of public hostnames nothing in this repository can identify —
+    # raising it is how a branded surface serving a debug page becomes normal.
+    Watch(
+        path="platform/deployment-lag-budget.yaml",
+        kind="yaml-path",
+        locator="budget.max_commits_behind",
+        why="how far behind origin/main the deployed code may be; only promoting lowers it",
+    ),
+    Watch(
+        path="platform/deployment-lag-budget.yaml",
+        kind="yaml-path",
+        locator="budget.max_unrecorded_deployments",
+        why="the number of public hostnames served by something this repository cannot identify",
+    ),
+    Watch(
+        path="platform/deployment-lag-budget.yaml",
+        kind="yaml-path",
+        locator="budget.max_deployed_age_days",
+        why="lead time to the customer; no amount of new work lowers it, only promoting does",
+    ),
+    Watch(
+        path="platform/deployment-lag-budget.yaml",
+        kind="yaml-path",
+        locator="budget.slack_commits",
+        why="the room the deployment budgets may be stale by before they must be lowered",
+    ),
+    Watch(
+        path="scripts/ci/deployment_lag.py",
+        kind="python-constant",
+        locator="MAX_DECLARED_COMMITS_BEHIND",
+        why="the ceiling on how far behind a deployment may be declared to be",
+    ),
+    Watch(
+        path="scripts/ci/deployment_lag.py",
+        kind="python-constant",
+        locator="MAX_DECLARED_UNRECORDED",
+        why="the ceiling on how many public hostnames may be declared untraceable",
+    ),
+    Watch(
+        path="scripts/ci/deployment_lag.py",
+        kind="python-constant",
+        locator="MAX_DECLARED_AGE_DAYS",
+        why="the ceiling on how old the deployed revision may be declared to be",
+    ),
+    Watch(
+        path="scripts/ci/deployment_lag.py",
+        kind="python-constant",
+        locator="MAX_DECLARED_SLACK",
+        why="the ceiling on the deployment budgets' staleness room",
+    ),
+    Watch(
+        path="scripts/ci/deployment_lag.py",
+        kind="python-constant",
+        locator="MAX_EXPIRY_DAYS",
+        why="the furthest out the deployment-lag budget may be parked before review",
+    ),
 )
 
 
