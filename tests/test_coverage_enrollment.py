@@ -216,6 +216,87 @@ class ParseCatalogTests(unittest.TestCase):
         with self.assertRaises(EnrollmentError):
             parse_catalog("export const VENTURE_CATALOG = [\n  {\n    id: 'x',\n")
 
+    def test_an_entry_is_found_whatever_it_is_indented_by(self):
+        # The regression this class was one edit away from being blind to.
+        # Entries used to be found with `re.split(r"\n[ \t]{2}\{", literal)`,
+        # which sees an entry only when its brace sits at exactly two spaces.
+        # A four-space entry was therefore not a malformed entry but *no entry
+        # at all*: it left the catalog shorter, so the component had no floor,
+        # no exemption and no finding, and the gate stayed green. Node does not
+        # read indentation, so that rule made this parser and the module it
+        # audits disagree exactly where the disagreement is invisible.
+        for label, indent in (("four spaces", "    "), ("six spaces", "      "), ("a tab", "\t")):
+            with self.subTest(label):
+                entry = (
+                    f"{indent}{{\n"
+                    f"{indent}  id: 'sneaky',\n"
+                    f"{indent}  dir: 'ventures/sneaky',\n"
+                    f"{indent}  type: 'node',\n"
+                    f"{indent}}},\n"
+                )
+                source = "export const VENTURE_CATALOG = [\n" + entry + "];\n"
+                self.assertEqual([c.id for c in parse_catalog(source)], ["sneaky"])
+
+    def test_a_misindented_entry_beside_normal_ones_is_still_a_candidate(self):
+        source = (
+            "export const VENTURE_CATALOG = [\n"
+            "  {\n    id: 'alpha',\n    dir: 'ventures/alpha',\n    type: 'node',\n  },\n"
+            "      {\n        id: 'sneaky',\n        dir: 'ventures/sneaky',\n"
+            "        type: 'node',\n      },\n"
+            "];\n"
+        )
+        self.assertEqual([c.id for c in parse_catalog(source)], ["alpha", "sneaky"])
+
+    def test_a_brace_inside_a_block_comment_does_not_shift_the_entries(self):
+        # The sibling of the bracket-in-a-comment case above. Depth is counted
+        # over the literal, so a `{` a developer wrote in a note would otherwise
+        # open an object that never closes and fail the whole audit on an
+        # entirely ordinary edit.
+        source = textwrap.dedent(
+            """
+            export const VENTURE_CATALOG = [
+              {
+                /* a brace { and an apostrophe ' in a note to the reader */
+                id: 'alpha',
+                dir: 'ventures/alpha',
+                type: 'node',
+              },
+            ];
+            """
+        )
+        self.assertEqual([c.id for c in parse_catalog(source)], ["alpha"])
+
+    def test_a_brace_inside_a_string_value_does_not_shift_the_entries(self):
+        source = textwrap.dedent(
+            """
+            export const VENTURE_CATALOG = [
+              {
+                id: 'alpha',
+                dir: 'ventures/alpha',
+                type: 'node',
+                note: 'a { that closes nothing',
+              },
+              {
+                id: 'omega',
+                dir: 'ventures/omega',
+                type: 'node',
+              },
+            ];
+            """
+        )
+        self.assertEqual([c.id for c in parse_catalog(source)], ["alpha", "omega"])
+
+    def test_an_unterminated_block_comment_raises(self):
+        # Fails closed rather than parsing whatever survived it.
+        source = (
+            "export const VENTURE_CATALOG = [\n"
+            "  {\n    id: 'alpha',\n    dir: 'ventures/alpha',\n    type: 'node',\n  },\n"
+            "  /* opened and never closed\n"
+            "];\n"
+        )
+        with self.assertRaises(EnrollmentError):
+            parse_catalog(source)
+
     def test_the_module_is_never_executed_to_read_it(self):
         # Importing a registry to audit it lets the registry decide whether it
         # is audited. This asserts the read is static: the sample would throw if
