@@ -32,7 +32,7 @@ import tempfile
 import unittest
 
 import branch_collisions
-from baseline_trust import STATE_DIVERGED, STATE_UNREACHABLE, verify_baseline
+from baseline_trust import STATE_DIVERGED, STATE_UNREACHABLE, trust_findings, verify_baseline
 from branch_collisions import (
     MAX_COLLIDING_PATHS,
     BaselineUnverified,
@@ -258,6 +258,12 @@ class TestRealRepository(unittest.TestCase):
             collisions = find_collisions(REPO_ROOT)
         except BaselineUnverified as exc:
             if "unreachable" in str(exc):
+                # Offline. Reaching this handler proves the control refused, but
+                # a bare `return` asserted nothing — not even that the refusal
+                # was still a refusal about the baseline. The sibling handler
+                # below already had this shape; this branch was added beside it
+                # without it.
+                self.assertIn("Refusing to report", str(exc))
                 return
             raise
         except CollisionError as exc:
@@ -272,7 +278,15 @@ class TestRealRepository(unittest.TestCase):
         # The gate for this control is pytest, so the verification has to be on
         # the path pytest takes.
         trust = verify_baseline(REPO_ROOT, "origin/main")
-        if trust.state == "unreachable":
+        if trust.state == STATE_UNREACHABLE:
+            # A bare `return` sat here. Offline, nothing at all was asserted —
+            # including that the control had noticed it was offline. It cannot
+            # verify the baseline without a remote, so it asserts the one thing
+            # that is still checkable: that this state is not counted as
+            # verified and does produce a finding. `unreachable` only; every
+            # other non-verified state falls through to the assertion below.
+            self.assertFalse(trust.verified)
+            self.assertTrue(trust_findings(trust))
             return
         self.assertTrue(
             trust.verified,
@@ -288,6 +302,12 @@ class TestRealRepository(unittest.TestCase):
             collisions = find_collisions(REPO_ROOT)
         except BaselineUnverified as exc:
             if "unreachable" in str(exc):
+                # Offline. Reaching this handler proves the control refused, but
+                # a bare `return` asserted nothing — not even that the refusal
+                # was still a refusal about the baseline. The sibling handler
+                # below already had this shape; this branch was added beside it
+                # without it.
+                self.assertIn("Refusing to report", str(exc))
                 return
             raise
         except CollisionError as exc:

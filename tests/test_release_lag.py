@@ -768,9 +768,30 @@ class TestRealRepository(unittest.TestCase):
         data = load_budget(REPO_ROOT)
         measurement = measure(REPO_ROOT, data["baseline_ref"])
         findings = evaluate(measurement, data, date.today())
-        if measurement.trust and measurement.trust.state == "unreachable":
-            findings = [f for f in findings if f.check != "baseline-unverified"]
         report = release_lag.format_report(measurement, data, findings)
+
+        if measurement.trust and measurement.trust.state == STATE_UNREACHABLE:
+            # This branch used to read:
+            #
+            #     findings = [f for f in findings if f.check != "baseline-unverified"]
+            #
+            # i.e. delete the finding, then assert the list is empty. That is
+            # the exact fall-through `baseline_trust`'s docstring forbids — "the
+            # one thing neither may do is fall through to the local ref in
+            # silence" — and it applied on every offline run, which is when a
+            # delivery claim is least supportable. Since pytest is this
+            # control's only execution path (`release_lag.py`'s CLI is not the
+            # gate), the module's stated policy was enforced nowhere.
+            #
+            # An offline run cannot say whether the pile shipped, so it asserts
+            # the refusal rather than a budget it has no evidence for. Only
+            # `unreachable` lands here: `diverged` means we checked and it is
+            # wrong, and `missing-on-remote`/`not-a-remote-ref` are
+            # misconfiguration. All three stay red below.
+            self.assertIn("baseline-unverified", [f.check for f in findings])
+            self.assertNotIn("PASS", report)
+            return
+
         if not measurement.observable:
             self.assertIn("NOT MEASURABLE", report)
             self.assertNotIn("PASS", report)
