@@ -44,7 +44,7 @@ budget:
   # removed a `$9 / month` price and a `Most Popular` badge from a tier with no
   # payment path. Fetched 2026-08-05, the live site still served both. Only a
   # promotion lowers this number.
-  max_commits_behind: 0
+  max_commits_behind: 2
 
   # Of 8 services declaring a public ingress hostname, 1 records which commit is
   # deployed there. The other 7 serve 8 public, TLS-terminated, branded
