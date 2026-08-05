@@ -35,7 +35,12 @@ export function checkConvexDatabaseSyncStatus(extraEnv?: { CONVEX_URL?: string }
   const consentSummary = summarizePersistedConsentLedger();
 
   const now = new Date().toISOString();
-  const baseStatus = isConvexConfigured ? "synced" : "synced"; // standard fallback mode when local store active
+  // Was `isConvexConfigured ? "synced" : "synced"`, i.e. "synced" unconditionally,
+  // with `overallStatus` likewise pinned to "healthy". No Convex client, no
+  // `convex` dependency and no `convex/` directory exists in this venture, so
+  // every row was reporting a process-local array as a synced database table.
+  // "unconfigured" is already in the TableSyncInfo union; nothing ever produced it.
+  const baseStatus: TableSyncInfo["status"] = isConvexConfigured ? "synced" : "unconfigured";
 
   const tables: TableSyncInfo[] = [
     {
@@ -85,7 +90,7 @@ export function checkConvexDatabaseSyncStatus(extraEnv?: { CONVEX_URL?: string }
   const totalPersistedRecords = tables.reduce((acc, t) => acc + t.recordCount, 0);
 
   return {
-    overallStatus: isConvexConfigured ? "healthy" : "healthy",
+    overallStatus: isConvexConfigured ? "healthy" : "unconfigured",
     totalPersistedRecords,
     activeTablesCount: tables.length,
     deploymentEnv: isConvexConfigured ? "convex-cloud" : "local-memory-store",

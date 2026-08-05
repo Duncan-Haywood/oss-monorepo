@@ -48,7 +48,15 @@ _(agent assigns at run start)_
 - [x] [platform] Persist payout exception decisions with current economics, suggested retail, override reason, and remediation history
 - [x] [platform] Persist listing release decisions with owner, status, override reason, and artist-facing copy snapshot
 - [x] [platform] Persist consent ledger events with signer, timestamp, source, copy version, and accepted channel rights
-- [x] [platform] Convex order persistence — migrate in-memory `src/lib/orders.ts` records to database
+- [ ] [platform] Convex order persistence — migrate in-memory `src/lib/orders.ts` records to database.
+      Was marked `[x]`. It was not done: this venture has no `convex` dependency, no `convex/`
+      directory and no Convex client. `src/lib/order-persistence.ts` generates schema *text* and
+      writes to `persistedOrderStore`, another process-local array, and nothing in `src/app`
+      calls `persistOrderRecord` at all — the webhook writes only to `orders.ts`. As of
+      2026-08-05 that store no longer evicts silently and every summary built over it declares
+      itself incomplete (`OrderSummary.completeness`), so the gap is now visible rather than
+      fixed. Implement `OrderStore` (`src/lib/orders.ts`) against a real backend and pass it to
+      `setOrderStore`.
 - [x] [platform] Persist Printful variant mappings to Convex with operator audit log
 - [x] [platform] Persist cohort retention metrics (LTV, CAC, payback period, channel status)
 

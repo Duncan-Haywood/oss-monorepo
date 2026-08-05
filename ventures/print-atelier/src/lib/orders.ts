@@ -17,6 +17,26 @@ export type OrderRecord = {
   recordedAt: string;
 };
 
+/**
+ * Whether a set of order records can honestly be presented as *all* the orders
+ * this venture has taken money for.
+ *
+ * This is not decoration. `buildOrderSummary` reduces `totalRevenueCents` and
+ * `totalArtistTransfers` over whatever records it is given, and
+ * `payout-reconciliation.ts` builds each artist's owed amount from the same
+ * set. If the set is a subset, both stay plausible and both under-report — in
+ * the direction that flatters us and underpays the artist. A number that cannot
+ * be complete has to say so next to itself.
+ */
+export type OrderRecordCompleteness = {
+  /** True only when the backing store can account for every order ever recorded. */
+  complete: boolean;
+  storeKind: string;
+  durable: boolean;
+  /** Why the set is not complete. Null only when `complete` is true. */
+  reason: string | null;
+};
+
 export type OrderSummary = {
   totalOrders: number;
   paidOrders: number;
@@ -25,87 +45,141 @@ export type OrderSummary = {
   totalArtistTransfers: number;
   lastOrderAt: string | null;
   testModeOrders: number;
+  /**
+   * Provenance of the numbers above. Read this before quoting any of them as a
+   * revenue or payout figure.
+   */
+  completeness: OrderRecordCompleteness;
+};
+
+/** Describes where paid orders are actually kept, and whether they survive. */
+export type OrderStoreDescriptor = {
+  kind: string;
+  /** True only if a record survives this process exiting. */
+  durable: boolean;
+  /** Maximum records held. Reaching it refuses the write; it never evicts. */
+  capacity: number;
 };
 
 /**
- * How many of the most recent orders are kept for display. The window is
- * bounded so a long-lived process cannot grow without limit.
+ * The seam between "an order was paid for" and "the order was written down".
+ *
+ * `append` must never silently drop a record. A store that cannot accept a paid
+ * order is required to throw, so the caller can decline to acknowledge the
+ * payment, rather than return success over a record it destroyed.
  */
-const ORDER_WINDOW_LIMIT = 100;
-
-/**
- * Newest-first *display window* of order records — not a ledger, and not the
- * source of truth for anything else.
- *
- * Two things used to be derived from this array, and truncating it broke both:
- *  - Webhook idempotency was a scan of this array for a matching
- *    `stripeEventId`. Once an order fell out of the window a replayed Stripe
- *    `payment_intent.succeeded` was no longer recognised as a duplicate, so a
- *    second `OrderRecord` was created with a fresh `orderId` — and `orderId` is
- *    the partner-visible reference id (`orderReferenceId` for Gelato,
- *    `externalId` for Printful), so the print partner saw a genuinely new order
- *    and printed and shipped a second copy of a print paid for once.
- *  - `buildOrderSummary`'s `totalOrders` / `totalRevenueCents` /
- *    `totalArtistTransfers` were reduced over this array, so past 100 orders
- *    they silently became "the last 100" while the investor dashboard kept
- *    labelling them "Total orders" and "Revenue (cents)".
- *
- * Both now live in the dedicated structures below, which do not expire with the
- * display window.
- *
- * PROCESS-LOCAL AND NOT DURABLE — this is a real, unfixed gap, not a caveat.
- * `orderStore`, `ordersByStripeEventId` and `lifetimeTotals` are module state
- * inside one Node process. A pod restart, a redeploy, or a second replica
- * starts from empty, and then:
- *  - the dashboard's lifetime totals reset to zero and under-report every order
- *    taken before the restart; and
- *  - every previously processed `stripeEventId` becomes unknown, so a Stripe
- *    retry arriving after a restart IS recorded a second time and DOES queue a
- *    second fulfillment for an already-paid print.
- * Nothing in this file can close that — it needs a durable store shared across
- * processes. It is already tracked in `docs/BACKLOG.md` as "Convex order
- * persistence — migrate in-memory `src/lib/orders.ts` records to database";
- * note that item is ticked but not built (there is no database in this repo,
- * and `order-persistence.ts` is another in-memory array that emits Convex
- * schema *code*).
- */
-const orderStore: OrderRecord[] = [];
-
-/**
- * Idempotency index: `stripeEventId` -> the order that event created. Kept
- * separately from the display window so a replay is still recognised long after
- * its record has scrolled out of view. `Map` preserves insertion order, so the
- * bound is enforced by evicting the oldest event id first.
- *
- * The bound is sized against Stripe's retry window rather than against volume:
- * Stripe retries a failed webhook for up to about three days, so only events
- * from the last few days can be replayed at all. 10,000 distinct paid orders
- * inside a rolling three-day window (~3,300/day) is orders of magnitude above
- * anything this venture has taken. Memory is therefore constant in lifetime
- * order count — at most `PROCESSED_EVENT_LIMIT` retained `OrderRecord`s (a few
- * MB) plus seven counters — no matter how many orders the process has seen.
- * Records inside the display window are the same objects, not copies.
- *
- * If that ceiling were ever exceeded, the oldest event ids are dropped first,
- * which reopens the duplicate window for the oldest events only.
- */
-const PROCESSED_EVENT_LIMIT = 10_000;
-const ordersByStripeEventId = new Map<string, OrderRecord>();
-
-/**
- * Running lifetime totals, updated on insert. These are what `buildOrderSummary`
- * reports when it is asked about the store, so a total stays a total once the
- * display window starts truncating.
- */
-const lifetimeTotals: OrderSummary = {
-  totalOrders: 0,
-  paidOrders: 0,
-  fulfillmentQueued: 0,
-  totalRevenueCents: 0,
-  totalArtistTransfers: 0,
-  lastOrderAt: null,
-  testModeOrders: 0,
+export type OrderStore = {
+  readonly descriptor: OrderStoreDescriptor;
+  findByStripeEventId(stripeEventId: string): OrderRecord | undefined;
+  /** @throws OrderStoreCapacityExceededError when the store is full. */
+  append(order: OrderRecord): void;
+  /** Newest first. */
+  list(): OrderRecord[];
+  clear(): void;
 };
+
+/**
+ * Thrown instead of evicting. The webhook route turns this into a 5xx so Stripe
+ * retries, because the alternative — 200 over a discarded order — is money
+ * collected against a record that no longer exists.
+ */
+export class OrderStoreCapacityExceededError extends Error {
+  readonly storeKind: string;
+  readonly capacity: number;
+
+  constructor(storeKind: string, capacity: number) {
+    super(
+      `Order store "${storeKind}" is at its capacity of ${capacity} records and refuses to ` +
+        `evict a paid order to make room. The order was NOT recorded. Configure a durable ` +
+        `order store before taking further payments.`,
+    );
+    this.name = "OrderStoreCapacityExceededError";
+    this.storeKind = storeKind;
+    this.capacity = capacity;
+  }
+}
+
+/**
+ * The name is the disclosure. This store is process-local: a pod restart, a
+ * rollout, or a second replica loses every order in it. It is the development
+ * default, and `durable: false` is what makes every summary built over it
+ * declare itself incomplete.
+ */
+export const IN_MEMORY_ORDER_STORE_KIND = "in-memory-development-store";
+
+/**
+ * A bound on memory, not a retention policy — which is the distinction the
+ * previous `orderStore.length = 100` collapsed. At the bound this store refuses
+ * the write; it does not decide which paid order stops existing.
+ */
+export const IN_MEMORY_ORDER_STORE_CAPACITY = 10_000;
+
+export function createInMemoryOrderStore(
+  capacity: number = IN_MEMORY_ORDER_STORE_CAPACITY,
+): OrderStore {
+  const records: OrderRecord[] = [];
+
+  return {
+    descriptor: {
+      kind: IN_MEMORY_ORDER_STORE_KIND,
+      durable: false,
+      capacity,
+    },
+    findByStripeEventId(stripeEventId: string) {
+      return records.find((order) => order.stripeEventId === stripeEventId);
+    },
+    append(order: OrderRecord) {
+      if (records.length >= capacity) {
+        throw new OrderStoreCapacityExceededError(IN_MEMORY_ORDER_STORE_KIND, capacity);
+      }
+      records.unshift(order);
+    },
+    list() {
+      return [...records];
+    },
+    clear() {
+      records.length = 0;
+    },
+  };
+}
+
+let activeOrderStore: OrderStore = createInMemoryOrderStore();
+
+/** Swap in a durable backend. The in-memory default is explicitly a stand-in. */
+export function setOrderStore(store: OrderStore): void {
+  activeOrderStore = store;
+}
+
+export function getOrderStoreDescriptor(): OrderStoreDescriptor {
+  return { ...activeOrderStore.descriptor };
+}
+
+export function resetOrderStoreForTests(): void {
+  activeOrderStore = createInMemoryOrderStore();
+}
+
+export function describeOrderRecordCompleteness(
+  descriptor: OrderStoreDescriptor = activeOrderStore.descriptor,
+): OrderRecordCompleteness {
+  if (descriptor.durable) {
+    return {
+      complete: true,
+      storeKind: descriptor.kind,
+      durable: true,
+      reason: null,
+    };
+  }
+
+  return {
+    complete: false,
+    storeKind: descriptor.kind,
+    durable: false,
+    reason:
+      `Orders are held in "${descriptor.kind}", which is process-local. Orders recorded ` +
+      `before this process started, or by any other replica, are not counted. These totals ` +
+      `are a lower bound, not a reconciliation.`,
+  };
+}
 
 function generateOrderId(): string {
   return `ord_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
@@ -141,11 +215,7 @@ export function recordOrderFromPaymentWebhook(
     return null;
   }
 
-  // Deliberately the idempotency index, not `orderStore`: the store is a
-  // bounded display window and a replay can arrive after the original has
-  // scrolled out of it. Returning the *original* record keeps `orderId` stable,
-  // which is the reference id the print partner deduplicates on.
-  const existing = ordersByStripeEventId.get(stripeEventId);
+  const existing = activeOrderStore.findByStripeEventId(stripeEventId);
   if (existing) {
     return existing;
   }
@@ -192,75 +262,25 @@ export function recordOrderFromPaymentWebhook(
     recordedAt: recordedAt ?? new Date().toISOString(),
   };
 
-  orderStore.unshift(order);
-  if (orderStore.length > ORDER_WINDOW_LIMIT) {
-    orderStore.length = ORDER_WINDOW_LIMIT;
-  }
-
-  ordersByStripeEventId.set(stripeEventId, order);
-  while (ordersByStripeEventId.size > PROCESSED_EVENT_LIMIT) {
-    const oldest = ordersByStripeEventId.keys().next();
-    if (oldest.done) {
-      break;
-    }
-    ordersByStripeEventId.delete(oldest.value);
-  }
-
-  lifetimeTotals.totalOrders += 1;
-  lifetimeTotals.totalRevenueCents += order.amountCents;
-  lifetimeTotals.totalArtistTransfers += order.artistTransferTotal ?? 0;
-  if (order.status === "paid" || order.status === "fulfillment_queued") {
-    lifetimeTotals.paidOrders += 1;
-  }
-  if (order.status === "fulfillment_queued") {
-    lifetimeTotals.fulfillmentQueued += 1;
-  }
-  if (order.testMode) {
-    lifetimeTotals.testModeOrders += 1;
-  }
-  // Same semantics as the previous `orders[0]?.recordedAt`: the most recently
-  // recorded order, not the largest timestamp.
-  lifetimeTotals.lastOrderAt = order.recordedAt;
+  // Throws rather than evicting. The caller must not acknowledge a payment
+  // whose order this store refused to hold.
+  activeOrderStore.append(order);
 
   return order;
 }
 
-/**
- * The bounded display window, newest first — at most `ORDER_WINDOW_LIMIT`
- * records. Callers that need a count or a sum over *all* orders must use
- * `buildOrderSummary()`, which does not read this window.
- */
 export function getOrderRecords(): OrderRecord[] {
-  return [...orderStore];
+  return activeOrderStore.list();
 }
 
 export function clearOrdersForTests(): void {
-  orderStore.length = 0;
-  ordersByStripeEventId.clear();
-  lifetimeTotals.totalOrders = 0;
-  lifetimeTotals.paidOrders = 0;
-  lifetimeTotals.fulfillmentQueued = 0;
-  lifetimeTotals.totalRevenueCents = 0;
-  lifetimeTotals.totalArtistTransfers = 0;
-  lifetimeTotals.lastOrderAt = null;
-  lifetimeTotals.testModeOrders = 0;
+  activeOrderStore.clear();
 }
 
-/**
- * With no argument, reports the store's lifetime totals — these are labelled
- * and displayed as totals (investor dashboard "Total orders" / "Revenue
- * (cents)"), so they must not silently degrade into "the last
- * `ORDER_WINDOW_LIMIT`" once the display window truncates.
- *
- * With an explicit array, summarises exactly that array; callers such as
- * `summarizePersistedOrders` pass a filtered record set and expect a summary of
- * the set they passed, not of this module's store.
- */
-export function buildOrderSummary(orders?: OrderRecord[]): OrderSummary {
-  if (orders === undefined) {
-    return { ...lifetimeTotals };
-  }
-
+export function buildOrderSummary(
+  orders: OrderRecord[] = getOrderRecords(),
+  completeness: OrderRecordCompleteness = describeOrderRecordCompleteness(),
+): OrderSummary {
   const paidOrders = orders.filter(
     (order) => order.status === "paid" || order.status === "fulfillment_queued",
   );
@@ -279,5 +299,6 @@ export function buildOrderSummary(orders?: OrderRecord[]): OrderSummary {
     ),
     lastOrderAt: orders[0]?.recordedAt ?? null,
     testModeOrders: orders.filter((order) => order.testMode).length,
+    completeness,
   };
 }

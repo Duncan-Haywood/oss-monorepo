@@ -1,4 +1,9 @@
-import { getOrderRecords, type OrderRecord } from "./orders";
+import {
+  describeOrderRecordCompleteness,
+  getOrderRecords,
+  type OrderRecord,
+  type OrderRecordCompleteness,
+} from "./orders";
 import {
   queryPersistedStripePayoutEvents,
   type PersistedStripePayoutEvent,
@@ -402,6 +407,15 @@ export type PayoutReconciliationDiagnostics = {
     /** Non-null when the report cannot be trusted as a complete reconciliation. */
     blocker: string | null;
   };
+  /**
+   * Provenance of the order set this reconciliation was computed over.
+   *
+   * An artist is underpaid silently if their order is simply absent from the
+   * expectation set: the row never appears, so nothing reports a variance and
+   * the report reads "balanced" over a set it never had. A reconciliation drawn
+   * from a non-durable store is a lower bound and must say so.
+   */
+  sourceCompleteness: OrderRecordCompleteness;
 };
 
 /**
@@ -421,9 +435,19 @@ export function buildPayoutReconciliationWithDiagnostics(
     now?: string;
     toleranceCents?: number;
     testMode?: boolean;
+    sourceCompleteness?: OrderRecordCompleteness;
   } = {},
 ): PayoutReconciliationDiagnostics {
+  // When the caller hands us an explicit set, that set is what it asked about.
+  // When we read the live store, the store's own durability decides whether the
+  // answer can be called complete.
+  const readLiveStore = options.orders === undefined;
   const orders = options.orders ?? getOrderRecords();
+  const sourceCompleteness: OrderRecordCompleteness =
+    options.sourceCompleteness ??
+    (readLiveStore
+      ? describeOrderRecordCompleteness()
+      : { complete: true, storeKind: "caller-supplied", durable: true, reason: null });
   const resolveArtistAccount =
     options.resolveArtistAccount ??
     ((order: OrderRecord) => {
@@ -446,10 +470,19 @@ export function buildPayoutReconciliationWithDiagnostics(
   });
 
   const unattributable = skipped.filter((entry) => entry.reason.includes("Connect account")).length;
-  const blocker =
-    unattributable > 0
-      ? `${unattributable} order(s) carry no Connect account — checkout must stamp the artist account into payment metadata before payouts can be fully reconciled`
-      : null;
+  const blockerReasons: string[] = [];
+  if (unattributable > 0) {
+    blockerReasons.push(
+      `${unattributable} order(s) carry no Connect account — checkout must stamp the artist account into payment metadata before payouts can be fully reconciled`,
+    );
+  }
+  // An incomplete order set is a reconciliation blocker in its own right. Orders
+  // missing from the source produce no row and no exception, so without this the
+  // report would read clean over a set it silently never had.
+  if (!sourceCompleteness.complete && sourceCompleteness.reason) {
+    blockerReasons.push(sourceCompleteness.reason);
+  }
+  const blocker = blockerReasons.length > 0 ? blockerReasons.join(" | ") : null;
 
   return {
     report,
@@ -459,6 +492,7 @@ export function buildPayoutReconciliationWithDiagnostics(
       skippedOrders: skipped,
       blocker,
     },
+    sourceCompleteness,
   };
 }
 

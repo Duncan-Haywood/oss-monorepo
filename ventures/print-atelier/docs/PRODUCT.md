@@ -83,7 +83,7 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Market launch command center | `buildMarketLaunchCommandCenter` in `src/lib/market-launch.ts` | Single owner gate for supply, demand, payments, and ops readiness | 2026-06-12 |
 | Stripe payout ledger scaffold | `src/lib/stripe-ledger.ts` | In-memory webhook event ledger before Convex order persistence | 2026-06-12 |
 | Outreach onboarding deep-links | `buildArtistOnboardingDeepLink` in `src/lib/outreach.ts` | Sales-portal queue links to pre-filled `/artist-onboard` intake | 2026-06-12 |
-| Order records scaffold | `src/lib/orders.ts` | In-memory orders from `payment_intent.succeeded` webhook metadata | 2026-06-12 |
+| Order records scaffold | `src/lib/orders.ts` | Orders from `payment_intent.succeeded` webhook metadata, held in the `in-memory-development-store`. **Not durable**: records do not survive a pod restart and are not shared between replicas, so every `OrderSummary` reports `completeness.complete: false`. The store refuses a write when full rather than evicting a paid order, and the webhook returns 503 so Stripe retries. Swap a durable `OrderStore` in via `setOrderStore`. | 2026-06-12 |
 | Ad catalog API sync | `src/lib/ad-catalog-sync.ts` + `/api/ad-catalog/sync` | Programmatic Meta/Google/Pinterest catalog push with credential gating | 2026-06-12 |
 | Live ad catalog HTTP | `src/lib/ad-catalog-sync-http.ts` | Real `fetch` to Meta/Google/Pinterest batch endpoints when credentials + sync health pass | 2026-06-12 |
 | Product pipeline diagram | `src/lib/product-pipeline.ts` + `ProductPipelineDiagram` | Capture → catalog → storefront → fulfillment + growth engines on `/docs` and `/investor` | 2026-06-12 |
