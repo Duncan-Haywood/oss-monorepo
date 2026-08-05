@@ -833,3 +833,82 @@ that input comes from. A gate whose input is authored in the same repository,
 by the same automation the gate is meant to constrain, constrains nothing. Ask
 what it would cost to make the gate pass falsely. If the answer is "one string
 literal", the gate is decoration.
+
+## 2026-08-05: re-verification of the addendum findings at HEAD
+
+Every claim below was checked with `git show HEAD:<file>` or by running the
+control, never by grepping the working tree — in a shared tree a grep reads
+another session's uncommitted work as landed state, and this document has
+already recorded one wrong "already fixed" call made exactly that way.
+
+**A2 — CLOSED.** `MAX_REVISIONS` is watched. `git show
+HEAD:scripts/ci/cap_ratchet.py` registers it as a `python-constant` watch at
+`:425`, and `tests/test_cap_ratchet.py:81` carries
+`INVERTED_DIRECTIONS = {("scripts/ci/cap_ratchet.py", "MAX_REVISIONS")}` — the
+window is watched in the *rising* direction, because a larger window is a
+stricter floor. The constants contract no longer skips its own file. The three
+further holes named in §A2 are closed with it: `AnnAssign` is parsed at `:626`
+so `MAX_X: int = 9999` registers; `PREFIXES_MEANING_FLOOR` at `:568` brings
+`MIN_*`, `FLOOR_*` and `THRESHOLD_*` into the ratchet with a declared
+direction, so a safety floor moving *down* now fails; and `historical_paths`
+at `:693` follows renames, with a written argument for why `--follow` supplies
+the names and `--full-history` supplies the walk. Nothing here needs doing.
+
+**A5 — CLOSED, both halves.** `scripts/ci/image_tags.py` reads both deployment
+surfaces: `scan()` at `:371` is `scan_manifests(...) + scan_terraform_surface(...)`,
+and `format_report` counts them separately (measured today: 25 references, 14
+under `platform/k8s`, 11 under `platform/terraform`). The ten-word
+`MUTABLE_TAGS` denylist is gone, replaced by `is_immutable_tag` — an allowlist
+of digest, version and build-identity forms — so `:stable`, `:plain-text` and
+`:alpine` are all findings now, each registered with an owner and an expiry.
+`image_release_path.py` reads every YAML document in an app directory and every
+workload kind carrying a pod template (`POD_TEMPLATE_PATHS` at `:106`), so the
+two Jobs and the CronJob are inside the count.
+
+**A7 — one third was already false, one third fixed here, one third fixed here.**
+
+- `platform/image-release-baseline.yaml` declaring 5 where the module measures
+  4 is **not true at HEAD**: `image_release_path.py --report` measures exactly
+  5 without a build path (ai-engineering-academy, ai-first-markets,
+  real-estate-photo-app, retail-pilot-intel, terraform:services). Do not
+  "correct" this number — measure before editing a baseline.
+- `platform/kill-criteria-baseline.yaml`'s `rationale` did still contradict its
+  own `max_without_stopping_rule: 0`. Rewritten to the re-measured reading,
+  with what the number does *not* say kept explicit and pointed at A4.
+- `platform/image-tag-exceptions.yaml`'s IMG-001 was worse than stale prose.
+  Its `reason` — the entire argument for accepting six mutable tags — asserted
+  that "nothing in this repository builds and pushes the image the manifest
+  names". `homepage-ci.yml` and `print-atelier-image.yml` had been building and
+  publishing two of the six for a day, and no gate could see it, because the
+  sentence doing the work lives in a field nothing reads.
+
+### The fix for the class, not the three instances
+
+Correcting three sentences leaves the mechanism intact. Exception entries may
+now carry a `claims:` mapping, and a claim listed in `CHECKED_CLAIMS`
+(`image_tags.py`) is re-derived by the module that owns the evidence:
+`image_release_path.verify_exception_claims` fails the gate when an entry
+declares `no_build_path: true` for a reference that has a producer. An unknown
+claim key is refused rather than ignored, so a typo cannot buy an unchecked
+claim, and an unreadable or missing register raises rather than reading as "no
+claims to check".
+
+IMG-001 is now four references carrying the checked claim, with print-atelier
+and marisstella-homepage moved to IMG-009 and IMG-010 above it — each stating
+the blocker that is actually true for it. That is the more useful output than
+the count: for print-atelier the blocker is no longer a missing pipeline but a
+missing promotion step, and for marisstella-homepage it is that the manifest
+describes a service the live site is not served from.
+
+Mutation-checked end to end: moving the claim onto IMG-009 (print-atelier,
+which has a producer) fails the gate with the offending app and the workflow
+that builds it; removing the schema call fails 4 tests; unwiring the
+verification fails 3. `tests/test_image_tags.py` and
+`tests/test_image_release_path.py`: 103 passed, up from 92.
+
+**Still open from this addendum:** A1, A4 (a criterion counts as a brake if it
+parses, and the 12 evaluable brakes all read one hand-written ledger), A6 (read
+the diff, not the subject line — which happened again during this run: a
+concurrent session's commit titled `fix(print-atelier): resolve site url
+configuration` carried this control work, another session's `baseline_trust.py`
+change, and a scratch fixture, none of them named in the subject).
