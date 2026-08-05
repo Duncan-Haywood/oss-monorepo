@@ -59,7 +59,7 @@ budget:
   # failure is true: 28 commits are not in origin/main and nothing in them is
   # live. Only a push to origin/main can clear it, and only after that does
   # lowering this number describe anything real.
-  max_unshipped_commits: 12
+  max_unshipped_commits: 0
 
   # Below this many commits the budget above is stale and must be lowered.
   slack_commits: 10
