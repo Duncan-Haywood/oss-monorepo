@@ -1238,6 +1238,47 @@ evidence, and completion date before it can be marked done.
   requiring every package that makes capability claims to hold a contract, as
   `advertised-price-coverage.test.mjs` does for prices — does not exist.
 
+  **Second venture, 2026-08-05, owner duncan: `print-atelier`, and it was
+  hiding behind a homonym.** This is the venture with the most capability copy
+  in the portfolio and the only one with a customer surface, and it looked
+  covered. `ls ventures/print-atelier/tests | grep -i claim` returns
+  `print-damage-claims.test.ts` (warranty) and `artist-payout-claims.test.ts`
+  (disbursement). Neither is about capabilities. **A coverage gate keyed on a
+  filename containing "claims" would have counted this venture as covered and
+  been wrong** — worth knowing before the repo-wide half above gets built,
+  because that is the obvious way to write it.
+
+  `tests/capability-claims.test.ts` binds the AI capture claims to whether an
+  image pipeline exists: a provider declared in `dependencies` *and* imported
+  under `src/`. `sharp` is deliberately excluded where it actually sits, in
+  `overrides` — a transitive security pin does not deskew a photograph, and
+  counting it would have switched the whole contract off on day one. That case
+  has its own test.
+
+  It found **33 offences across 12 files** on the first run, and every
+  audience-facing surface was among them: the artist pitch delivered verbatim
+  to a rightsholder, the storefront, the buyer portal, and the outbound DM
+  template. The detector needed widening twice after the first fix pass — the
+  same claim one verb away (`scrapers identify` where it matched
+  `scrapers scan`), and the outbound DM, which said "turns phone photos into
+  museum-quality prints" and so carried neither "print-ready" nor a timing and
+  slipped all three original patterns. **The claim most likely to reach a real
+  third party was the one the first detector missed.** All three shapes are now
+  in the detector's own self-test.
+
+  The reason this is not cosmetic: it is the same gap that blocks the venture's
+  revenue. `hasUsablePrintFile` refuses to sell an artwork with no print-ready
+  file, and none of the seven catalog artworks has one, because the pipeline
+  that was supposed to produce them is a `setInterval` progress bar. The copy
+  described the missing half of the funnel as finished.
+
+  Still not done, and unchanged by this: the repo-wide coverage gate, and
+  `src/app/layout.tsx`'s site-wide `<meta name="description">`, "AI-First
+  Digitization & Distribution for Artists" — the text search engines and
+  link-preview cards show for every route. It reads as a positioning statement
+  rather than a capability assertion, which is why the control does not gate
+  it, and it is named here rather than silently allowed.
+
 ### Portfolio stopping rules
 
 - [x] Make an unrecorded ledger month fail the build, in both the shapes that

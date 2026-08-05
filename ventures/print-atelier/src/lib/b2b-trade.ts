@@ -65,10 +65,17 @@ export interface B2BQuoteRequest {
  * subtotal. Below it a bulk order is being sold at a level that cannot carry
  * both the payout promise and the platform.
  *
- * Named `MIN_` deliberately: `scripts/ci/cap_ratchet.py` watches constants with
- * this prefix and fails a change that moves the floor down, so discounting past
- * the guardrail has to be an explicit, reviewed decision rather than a one-line
- * edit inside a commit about something else.
+ * The floor is pinned by `tests/b2b-margin-guardrail.test.ts`, so lowering it
+ * means editing the test in the same change and saying why — rather than a
+ * one-line edit riding inside a commit about something else.
+ *
+ * Note it is *not* covered by `scripts/ci/cap_ratchet.py`, despite the `MIN_`
+ * prefix that control keys on. `cap_ratchet` holds an explicit `WATCHES` tuple
+ * whose entries are `kind="python-constant"` or `"yaml-path"`; there is no
+ * TypeScript reader, and every watched path today is under `scripts/ci/`. A
+ * TypeScript safety floor anywhere in `ventures/` is outside it. Naming the
+ * constant `MIN_` does not enroll it — that is worth writing down, because it
+ * reads exactly as though it would.
  */
 export const MIN_PLATFORM_NET_MARGIN_PCT = 15;
 

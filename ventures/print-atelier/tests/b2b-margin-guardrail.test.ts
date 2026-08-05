@@ -41,6 +41,16 @@ function safeQuote() {
   });
 }
 
+test("the margin floor holds at 15%", () => {
+  // The floor is the whole guardrail: everything below reduces to "is the
+  // margin above this number". `scripts/ci/cap_ratchet.py` does NOT cover it —
+  // its WATCHES entries are python-constant or yaml-path, and a TypeScript
+  // `MIN_` in ventures/ is outside every one of them, despite the prefix that
+  // control keys on. So the pin lives here: lowering the floor means editing
+  // this line in the same change, and saying why.
+  assert.equal(MIN_PLATFORM_NET_MARGIN_PCT, 15);
+});
+
 test("a realistic POD cost drives a trade quote under the margin floor", () => {
   // If this stops being reachable the guardrail has no failing case left and
   // the branch below is decoration, so it is asserted rather than assumed.
