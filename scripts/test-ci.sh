@@ -5,6 +5,10 @@ set -euo pipefail
 # Tests and verifies the CI/CD infrastructure, scripts, and policy engines.
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Ensure git commands don't crash when user's home gitconfig is restricted by sandbox
+if [ -z "${GIT_CONFIG_GLOBAL:-}" ] && [ -f "${HOME:-}/.gitconfig" ] && ! [ -r "${HOME:-}/.gitconfig" ]; then
+  export GIT_CONFIG_GLOBAL=/dev/null
+fi
 # Every check below must resolve against the repository, not the caller's
 # working directory. Pre-push hooks and CI runners invoke this from anywhere.
 cd "${REPO_ROOT}"

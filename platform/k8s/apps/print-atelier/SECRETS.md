@@ -89,12 +89,17 @@ different reason. The control test holds this list and re-checks the reason.
 - `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_CONVEX_URL` —
   Next.js substitutes `NEXT_PUBLIC_*` at **build** time, so a runtime env entry
   would look like configuration and change nothing. Verified against this
-  venture's own build output: `.next/server/app/sitemap.xml.body` contains the
+  venture's own build output: `.next/server/app/sitemap.xml.body` contained the
   literal `printatelier.com` baked in from the `??` fallback in
-  `src/app/sitemap.ts`. **Open, not fixed here:** `ventures/print-atelier/Dockerfile`
-  passes no build arg for these, so the image ships with the fallback origin
-  regardless of what the cluster sets. Fixing it means adding `ARG`/`ENV` to the
-  Dockerfile, which is outside this directory.
+  `src/app/sitemap.ts`. **Closed 2026-08-05, but not from here:** the `??`
+  fallbacks are gone — `ventures/print-atelier/src/lib/site-url.ts` resolves the
+  origin and returns null rather than a guessed domain — and
+  `ventures/print-atelier/Dockerfile` now takes `NEXT_PUBLIC_SITE_URL` as a
+  build arg with deliberately no default. So the origin is still not settable
+  from this directory; it is set on the build, and an image built without it
+  publishes nothing (robots.txt disallows all, sitemap.xml is empty,
+  `/api/ad-catalog/sync` answers 503) instead of publishing someone else's
+  domain.
 - `NODE_ENV` — already set to `production` by the image
   (`ventures/print-atelier/Dockerfile`). Restating it here creates a second
   place to get it wrong.
@@ -138,8 +143,20 @@ not remove it.
 - `ventures/print-atelier/.env.example` does not declare `CONVEX_URL` or
   `NEXT_PUBLIC_CONVEX_URL`, although the source reads both. Neither is supplied
   to the pod, so the control does not currently bind on them.
-- `ventures/print-atelier/Dockerfile` sets no build arg for the `NEXT_PUBLIC_*`
-  origins, so the image bakes in `https://printatelier.com` from the `??`
-  fallbacks in `src/app/sitemap.ts`, `src/app/robots.ts` and
-  `src/app/api/ad-catalog/sync/route.ts:49` regardless of what the cluster is
-  configured for. No env entry here can change that.
+- `NEXT_PUBLIC_APP_URL` and `NEXT_PUBLIC_CONVEX_URL` still have no build arg in
+  `ventures/print-atelier/Dockerfile`. `NEXT_PUBLIC_SITE_URL` — the one that
+  baked `https://printatelier.com` into every sitemap, robots.txt and ad-catalog
+  feed — was fixed on 2026-08-05 and is listed above. The other two were not
+  fixed in that change, and one of them is the same shape:
+  `src/app/api/stripe/checkout/route.ts:58` reads
+  `process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"` for the Stripe
+  success and cancel URLs. It is reached only when the request carries no
+  `Host` header, and the line above it trusts that header — which is its own
+  finding, not this one.
+- The build that produces the deployed image passes no
+  `--build-arg NEXT_PUBLIC_SITE_URL`, so what
+  `.gitea/workflows/print-atelier-image.yml` publishes today is a deployment
+  that refuses to publish: robots.txt disallows crawling, sitemap.xml is empty,
+  and `/api/ad-catalog/sync` answers 503. That is the intended fail-closed
+  state, not a finished configuration — someone has to decide the origin this
+  venture serves and pass it to the build.
