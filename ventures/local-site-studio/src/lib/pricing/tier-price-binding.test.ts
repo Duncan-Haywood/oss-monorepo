@@ -151,15 +151,52 @@ function renderText(component: ComponentType): string {
     .replace(/\s+/g, " ");
 }
 
+const WORD_CHAR = /[A-Za-z0-9_]/;
+
+/**
+ * Every whole-word occurrence of `token` in `text`, matched **literally**.
+ *
+ * This deliberately does not build a `RegExp` out of the token, and the SAST
+ * rule is the smaller of the two reasons. `new RegExp(`\\b${token}\\b`)` treats
+ * a product name as a pattern: rename a bundle to `Growth+` and the attribution
+ * silently matches `Growthh`; rename it to `Starter (Pro)` and the file throws
+ * at import time and takes the whole contract with it. Tier names come from
+ * `BUNDLES` in this repository, so nothing here is attacker-controlled — but
+ * price attribution that stays correct only while nobody types a metacharacter
+ * into a product name is a trap, not a guarantee. A literal search has neither
+ * failure mode and is what `\\b…\\b` was standing in for anyway.
+ *
+ * `\b` semantics are preserved: a boundary is only required on a side where the
+ * token itself ends in a word character, which is why `Growth+` may be followed
+ * by a letter but `Growth` may not.
+ */
+function wordOccurrences(text: string, token: string): number[] {
+  const at: number[] = [];
+  if (token.length === 0) return at;
+  const boundStart = WORD_CHAR.test(token[0]);
+  const boundEnd = WORD_CHAR.test(token[token.length - 1]);
+  for (let from = text.indexOf(token); from !== -1; from = text.indexOf(token, from + 1)) {
+    const before = from > 0 ? text[from - 1] : "";
+    const after = text[from + token.length] ?? "";
+    if (boundStart && before !== "" && WORD_CHAR.test(before)) continue;
+    if (boundEnd && after !== "" && WORD_CHAR.test(after)) continue;
+    at.push(from);
+  }
+  return at;
+}
+
+/** Whether `text` names `token` as a whole word. */
+function namesToken(text: string, token: string): boolean {
+  return wordOccurrences(text, token).length > 0;
+}
+
 /** The tier whose name most recently preceded `index`, or null if none has. */
 function attributedTier(text: string, index: number, all: Tier[]): Tier | null {
   let best: { tier: Tier; at: number } | null = null;
   for (const tier of all) {
-    const pattern = new RegExp(`\\b${tier.token}\\b`, "g");
-    let match: RegExpExecArray | null;
-    while ((match = pattern.exec(text)) !== null) {
-      if (match.index >= index) break;
-      if (!best || match.index > best.at) best = { tier, at: match.index };
+    for (const at of wordOccurrences(text, tier.token)) {
+      if (at >= index) break;
+      if (!best || at > best.at) best = { tier, at };
     }
   }
   return best ? best.tier : null;
@@ -180,13 +217,42 @@ function attributedTier(text: string, index: number, all: Tier[]): Tier | null {
  * The walk is confined to `src/app` and `src/components`, so build output —
  * `.next`, `.turbo`, `dist`, all of it sits at the venture root — cannot reach
  * this list the way it reached the register in the coverage incident.
+ *
+ * Each half is returned separately and each is checked before it is used. A
+ * union is only as strong as its weakest contributor, and a half that quietly
+ * contributes nothing leaves the other half's known hole wide open while every
+ * assertion downstream still passes. Two ways that happened here, neither of
+ * which raised anything:
+ *
+ *   - `git ls-files <pathspec>` exits 0 and prints nothing when the pathspec
+ *     matches no tracked file. Not an error, so `execFileSync` does not throw.
+ *     A checkout where the venture is an uninitialised submodule, or a source
+ *     tree exported without its index, silently reduces this to the on-disk
+ *     walk — which the paragraph above says measures the developer's working
+ *     tree rather than the repository.
+ *   - `if (existsSync(root)) walk(root)` skipped a missing walk root in
+ *     silence. A rename of `src/components` reduced this to tracked-only,
+ *     which is the version whose hole a mutation already found.
+ *
+ * Both are now loud. This enumeration decides which files the contract covers,
+ * so it must fail rather than cover fewer.
  */
-function candidateFiles(): string[] {
+const WALK_ROOTS = ["src/app", "src/components"] as const;
+
+function candidateSources(): { tracked: string[]; onDisk: string[] } {
   const tracked = execFileSync("git", ["-C", VENTURE_ROOT, "ls-files", "src"], {
     encoding: "utf8",
   })
     .split("\n")
     .filter(Boolean);
+  if (tracked.length === 0) {
+    throw new Error(
+      `git tracks no file under src/ in ${VENTURE_ROOT}. That is a zero-exit ` +
+        "empty result, not an error, so it would otherwise reduce this contract " +
+        "to the on-disk walk without saying so. Run the suite from a checkout " +
+        "where the venture's sources are tracked.",
+    );
+  }
 
   const onDisk: string[] = [];
   const walk = (dir: string) => {
@@ -200,10 +266,28 @@ function candidateFiles(): string[] {
       onDisk.push(rel);
     }
   };
-  for (const root of ["src/app", "src/components"]) {
-    if (existsSync(path.join(VENTURE_ROOT, root))) walk(root);
+  for (const root of WALK_ROOTS) {
+    if (!existsSync(path.join(VENTURE_ROOT, root))) {
+      throw new Error(
+        `${root} does not exist under ${VENTURE_ROOT}. Skipping it would narrow ` +
+          "the set of files this contract claims to cover without narrowing the " +
+          "claim. If the directory moved, update WALK_ROOTS.",
+      );
+    }
+    walk(root);
+  }
+  if (onDisk.length === 0) {
+    throw new Error(
+      `the on-disk walk of ${WALK_ROOTS.join(" and ")} found no file, so half ` +
+        "of this enumeration is contributing nothing.",
+    );
   }
 
+  return { tracked, onDisk };
+}
+
+function candidateFiles(): string[] {
+  const { tracked, onDisk } = candidateSources();
   return [...new Set([...tracked, ...onDisk])].sort();
 }
 
@@ -214,7 +298,7 @@ function publicPricedFiles(): string[] {
     if (!/^src\/(app|components)\//.test(file)) return false;
     if (file.includes("/dashboard/")) return false;
     const source = readFileSync(path.join(VENTURE_ROOT, file), "utf8");
-    const namesATier = tiers().some((tier) => new RegExp(`\\b${tier.token}\\b`).test(source));
+    const namesATier = tiers().some((tier) => namesToken(source, tier.token));
     const readsAPrice = /PriceUsd|BUNDLES|COMMERCE_ADDON/.test(source);
     return namesATier && readsAPrice;
   });
@@ -247,7 +331,7 @@ describe("an advertised amount is bound to the tier it is advertised under", () 
     }
     for (const tier of all) {
       expect(
-        new RegExp(`\\b${tier.token}\\b`).test(combined),
+        namesToken(combined, tier.token),
         `no rendered surface names the ${tier.label} tier`,
       ).toBe(true);
     }
@@ -305,6 +389,46 @@ describe("an advertised amount is bound to the tier it is advertised under", () 
     }
 
     expect(checked, "no amount was checked at all").toBeGreaterThan(RENDERED_SURFACES.length);
+  });
+
+  it("attributes tier names by literal match, so a metacharacter cannot mis-bind a price", () => {
+    // Every assertion here is wrong under `new RegExp(`\\b${token}\\b`)`, which
+    // is what this used to be. `Growth+` becomes "one or more h", `Pro.`
+    // becomes "any character", and `Starter (Pro)` does not compile at all.
+    // A product rename is an ordinary edit; it must not silently re-point which
+    // tier an advertised amount is attributed to.
+    expect(wordOccurrences("Growthh costs $99", "Growth+")).toEqual([]);
+    expect(wordOccurrences("Growth+ costs $99", "Growth+")).toEqual([0]);
+    expect(wordOccurrences("Prox costs $99", "Pro.")).toEqual([]);
+    expect(wordOccurrences("our plans", "Starter (Pro)")).toEqual([]);
+
+    // …while whole-word semantics still hold for ordinary tokens.
+    expect(wordOccurrences("Starter and ReStarter", "Starter")).toEqual([0]);
+    expect(wordOccurrences("Growth Growth", "Growth")).toEqual([0, 7]);
+    expect(namesToken("the Growth tier", "Growth")).toBe(true);
+    expect(namesToken("Growthful", "Growth")).toBe(false);
+  });
+
+  it("enumerates from two sources and neither may contribute nothing", () => {
+    // The union in candidateFiles() is only as good as its weakest half, and a
+    // half that goes empty is silent by construction: `git ls-files` exits 0 on
+    // a pathspec that matches nothing, and a missing walk root used to be
+    // skipped by an `existsSync` guard. Under either, the three tests above and
+    // the one below stayed green while the contract covered less than it says.
+    // So each source is asserted against the real tree, independently.
+    const { tracked, onDisk } = candidateSources();
+
+    expect(tracked.length, "git contributed no tracked file").toBeGreaterThan(0);
+    expect(onDisk.length, "the filesystem walk contributed no file").toBeGreaterThan(0);
+
+    const mustCover = [
+      ...RENDERED_SURFACES.map((surface) => surface.file),
+      ...UNRENDERED_PRICED_FILES.map((entry) => entry.file),
+    ];
+    for (const file of mustCover) {
+      expect(tracked, `${file} is not tracked, so the git half is not covering it`).toContain(file);
+      expect(onDisk, `${file} is not on disk, so the walk half is not covering it`).toContain(file);
+    }
   });
 
   it("accounts for every public file that pairs a tier name with a price", () => {
