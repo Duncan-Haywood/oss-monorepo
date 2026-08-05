@@ -5,8 +5,12 @@
 # Before this list grew, https://marisstella.dev/nginx.conf served the server
 # configuration and the CSP, and /package.json served the toolchain.
 #
-# Keep it in step with the assertion in test/markup-contract.test.mjs, which
-# fails if an entry is dropped.
+# This list is no longer the claim. `tests/markup-contract.test.mjs` resolves
+# these patterns against the directory as it actually is, and requires what
+# survives to equal the --from-file set in platform/ci/deploy-homepage.sh — so
+# a new file here is a failing test, not a silent publication. It caught this
+# list carrying `test` while the directory on disk was `tests`: every test
+# source and the DOM fixture were being served from the public web root.
 .git
 .github
 .dockerignore
@@ -22,5 +26,10 @@ Dockerfile*
 nginx.conf
 package.json
 package-lock.json
-test
+tests
+output
+e2e
+e2e-report
+e2e-results
+playwright.config.ts
 *.png
