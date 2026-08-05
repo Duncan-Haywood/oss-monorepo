@@ -34,16 +34,20 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const REPO = execFileSync("git", ["rev-parse", "--show-toplevel"], {
-  encoding: "utf8",
-}).trim();
+const REPO = join(dirname(fileURLToPath(import.meta.url)), "../../..");
 
 function tracked(...patterns) {
   return execFileSync("git", ["ls-files", "--", ...patterns], {
     cwd: REPO,
     encoding: "utf8",
+    env: {
+      ...process.env,
+      GIT_CONFIG_GLOBAL: "/dev/null",
+      GIT_CONFIG_NOSYSTEM: "1",
+    },
   })
     .split("\n")
     .filter(Boolean);

@@ -155,7 +155,7 @@ function trackedLockfiles() {
 }
 
 /**
- * The `dependency-audit` matrix, as directory -> { venture, manager }.
+ * The `dependency-audit` matrix, as an array of { venture, directory, manager }.
  *
  * Sliced to the job rather than the whole file so another job growing its own
  * `include:` block cannot be misread as audit coverage.
@@ -173,12 +173,12 @@ function auditMatrix() {
   const nextJob = rest.slice(1).search(/^ {2}\w[\w-]*:/m);
   const jobSource = nextJob === -1 ? rest : rest.slice(0, nextJob + 1);
 
-  const entries = new Map();
+  const entries = [];
   for (const block of jobSource.split(/^\s+- venture:/m).slice(1)) {
     const venture = block.match(/^\s*(\S+)/)?.[1];
     const directory = block.match(/^\s*directory:\s*(\S+)/m)?.[1];
     const manager = block.match(/^\s*manager:\s*(\S+)/m)?.[1];
-    if (venture && directory && manager) entries.set(directory, { venture, manager });
+    if (venture && directory && manager) entries.push({ venture, directory, manager });
   }
   return { entries, jobSource };
 }
@@ -198,7 +198,7 @@ test('Dependency Audit Coverage - the lockfile scan finds lockfiles at all', () 
 test('Dependency Audit Coverage - the matrix parse finds entries at all', () => {
   const { entries } = auditMatrix();
   assert.ok(
-    entries.size > 0,
+    entries.length > 0,
     'Parsed no entries out of the dependency-audit matrix. Either the job is ' +
       'empty or its shape changed and this parser no longer reads it; either ' +
       'way the coverage check below would pass by finding nothing.'
@@ -212,7 +212,8 @@ test('Dependency Audit Coverage - every tracked lockfile is audited or excepted'
   for (const manifest of trackedManifests()) {
     const manager = MANIFEST_MANAGERS.get(path.basename(manifest));
     const directory = path.dirname(manifest);
-    if (entries.has(directory)) continue;
+    const isAudited = entries.some(e => e.directory === directory && e.manager === manager);
+    if (isAudited) continue;
     if (manifest in EXCEPTED) continue;
     unaudited.push(`${manifest} (${manager ?? 'unknown'})`);
   }
@@ -235,9 +236,10 @@ test('Dependency Audit Coverage - every tracked lockfile is audited or excepted'
 test('Dependency Audit Coverage - no matrix entry outlives its lockfile', () => {
   const { entries } = auditMatrix();
   const lockfiles = trackedLockfiles();
-  const directories = new Set([...lockfiles.keys()].map((file) => path.dirname(file)));
 
-  const stale = [...entries.keys()].filter((directory) => !directories.has(directory));
+  const stale = entries
+    .filter(e => ![...lockfiles.entries()].some(([file, manager]) => path.dirname(file) === e.directory && manager === e.manager))
+    .map(e => `${e.venture} (${e.directory}, ${e.manager})`);
 
   assert.deepEqual(
     stale,
@@ -253,14 +255,15 @@ test('Dependency Audit Coverage - every entry audits with its own lockfile’s m
   const lockfiles = trackedLockfiles();
   const mismatched = [];
 
-  for (const [directory, { venture, manager }] of entries) {
-    const [lockfile, actual] =
-      [...lockfiles].find(([file]) => path.dirname(file) === directory) ?? [];
-    if (!actual) continue;
-    if (actual !== manager) {
+  for (const { venture, directory, manager } of entries) {
+    const lockfilesInDir = [...lockfiles.entries()].filter(([file]) => path.dirname(file) === directory);
+    if (lockfilesInDir.length === 0) continue;
+    const hasExactMatch = lockfilesInDir.some(([, actual]) => actual === manager);
+    if (!hasExactMatch) {
+      const [firstFile, actual] = lockfilesInDir[0];
       mismatched.push(
         `${venture}: the matrix audits ${directory} with ${manager}, and the ` +
-          `committed lockfile is ${path.basename(lockfile)}, which ${actual} owns`
+          `committed lockfile is ${path.basename(firstFile)}, which ${actual} owns`
       );
     }
   }
@@ -406,9 +409,11 @@ test('Dependency Audit Coverage - every exception is owned, reasoned, sized and 
 
 test('Dependency Audit Coverage - no exception is tracked for a lockfile the matrix audits', () => {
   const { entries } = auditMatrix();
-  const resolved = Object.keys(EXCEPTED).filter((manifest) =>
-    entries.has(path.dirname(manifest))
-  );
+  const resolved = Object.keys(EXCEPTED).filter((manifest) => {
+    const manager = MANIFEST_MANAGERS.get(path.basename(manifest));
+    const directory = path.dirname(manifest);
+    return entries.some((e) => e.directory === directory && e.manager === manager);
+  });
 
   assert.deepEqual(
     resolved,
