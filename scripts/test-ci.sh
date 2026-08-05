@@ -209,6 +209,19 @@ run_ci_test "Stopping-Rule Decision Review" python3 "${REPO_ROOT}/scripts/ci/sto
 # deciding to ship; `tests/test_integration_debt.py` runs the same audit under
 # pytest, so this entry is not the only enforcement.
 run_ci_test "Integration Debt Ratchet" python3 "${REPO_ROOT}/scripts/ci/integration_debt.py"
+# `release_lag.py` above measures local branches against `origin/main` and
+# reports that nothing in the gap is live. It never asked whether `origin/main`
+# is live either, and on 2026-08-05 it was not: that gate failed at one commit
+# over a budget of zero — a repository one push from fully shipped — while
+# `origin/gitops-production` recorded production as `cd67f022` from 2026-07-31,
+# 436 commits back. In those 436 was the commit that removed a `$9 / month`
+# price and a `Most Popular` badge from a tier with no payment path, so the only
+# venture with live customers was still advertising both. This measures the
+# other half of the distance from a commit to a customer, and counts the public
+# hostnames for which no revision is recorded at all.
+# `tests/test_deployment_lag.py` runs the same audit under pytest, so this entry
+# is the named gate rather than the only enforcement.
+run_ci_test "Deployment Lag Ratchet" python3 "${REPO_ROOT}/scripts/ci/deployment_lag.py"
 # Every venture has Kubernetes manifests; most name an image nothing in this
 # repository can build. Six of the eight organisation images under
 # `platform/k8s/apps` had no producer on 2026-08-04 — complete Deployments

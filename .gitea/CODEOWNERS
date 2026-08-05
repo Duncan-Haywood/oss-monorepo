@@ -36,6 +36,7 @@
 /platform/image-tag-exceptions.yaml @infrastructure-team @security-team
 /platform/route-posture-registry.yaml @security-team @qa-team
 /platform/release-lag-budget.yaml @infrastructure-team
+/platform/deployment-lag-budget.yaml @infrastructure-team
 /platform/integration-debt-budget.yaml @infrastructure-team
 /platform/image-release-baseline.yaml @infrastructure-team
 /platform/kill-criteria-baseline.yaml @infrastructure-team @qa-team
