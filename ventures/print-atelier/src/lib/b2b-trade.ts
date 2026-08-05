@@ -59,6 +59,26 @@ export interface B2BQuoteRequest {
   taxEst?: number;
 }
 
+/**
+ * The floor the trade programme protects: platform net contribution margin,
+ * after POD cost and after the artist's 30%, as a percentage of the discounted
+ * subtotal. Below it a bulk order is being sold at a level that cannot carry
+ * both the payout promise and the platform.
+ *
+ * The floor is pinned by `tests/b2b-margin-guardrail.test.ts`, so lowering it
+ * means editing the test in the same change and saying why — rather than a
+ * one-line edit riding inside a commit about something else.
+ *
+ * Note it is *not* covered by `scripts/ci/cap_ratchet.py`, despite the `MIN_`
+ * prefix that control keys on. `cap_ratchet` holds an explicit `WATCHES` tuple
+ * whose entries are `kind="python-constant"` or `"yaml-path"`; there is no
+ * TypeScript reader, and every watched path today is under `scripts/ci/`. A
+ * TypeScript safety floor anywhere in `ventures/` is outside it. Naming the
+ * constant `MIN_` does not enroll it — that is worth writing down, because it
+ * reads exactly as though it would.
+ */
+export const MIN_PLATFORM_NET_MARGIN_PCT = 15;
+
 export interface B2BQuoteResult {
   tier: B2BTierDetails;
   totalRetail: number;
@@ -128,7 +148,7 @@ export function calculateB2BQuote(request: B2BQuoteRequest): B2BQuoteResult {
   const finalTotal = Math.round((subtotalTrade + finalShipping + (request.taxEst ?? 0)) * 100) / 100;
 
   // Margin safety guardrail: net platform margin percentage must be >= 15%
-  const marginSafe = platformNetMarginPct >= 15;
+  const marginSafe = platformNetMarginPct >= MIN_PLATFORM_NET_MARGIN_PCT;
 
   return {
     tier,
@@ -145,5 +165,52 @@ export function calculateB2BQuote(request: B2BQuoteRequest): B2BQuoteResult {
     finalShipping,
     finalTotal,
     marginSafe,
+  };
+}
+
+/**
+ * What the trade portal should tell a designer about this quote's guardrail.
+ *
+ * This exists because `marginSafe` was computed, unit-tested, returned — and
+ * read by nothing. `src/app/b2b-portal/page.tsx` rendered a green shield
+ * reading "Verified: Artist 30% net profit promise and platform unit economics
+ * clear all profit guardrails" unconditionally, on a route with no
+ * authentication and no demo badge. The one field that could have contradicted
+ * it was discarded at the point of render, so the badge could not go red for
+ * any input.
+ *
+ * With the seeded catalog — POD cost around a third of retail — no quantity or
+ * spend a visitor can enter drives the margin under the floor, so the claim was
+ * accidentally true rather than checked. That is the failure worth naming: the
+ * badge was not wrong yet, and nothing about it would have started being right.
+ * Real canvas POD costs at these price points run closer to half of retail, and
+ * at a 40% trade discount that is the side of the floor this lands on.
+ *
+ * "Verified" is also more than the code does. This is an arithmetic check on
+ * one quote, not an audit of the payout promise, so the wording says which.
+ */
+export function describeMarginGuardrail(quote: B2BQuoteResult): {
+  safe: boolean;
+  headline: string;
+  detail: string;
+} {
+  if (quote.marginSafe) {
+    return {
+      safe: true,
+      headline: "Checked on this quote",
+      detail:
+        `Platform net contribution margin is ${quote.platformNetMarginPct}%, at or above the ` +
+        `${MIN_PLATFORM_NET_MARGIN_PCT}% floor, so the artist's 30% net profit share and the ` +
+        `platform both clear on these figures.`,
+    };
+  }
+  return {
+    safe: false,
+    headline: "Below the margin floor",
+    detail:
+      `Platform net contribution margin is ${quote.platformNetMarginPct}%, under the ` +
+      `${MIN_PLATFORM_NET_MARGIN_PCT}% floor. At a ${quote.effectiveDiscountPct}% trade discount ` +
+      `this order leaves the artist $${quote.artistPayoutTotal.toFixed(2)}. It needs a floor ` +
+      `trade price or a smaller discount before it can be accepted.`,
   };
 }

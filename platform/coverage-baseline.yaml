@@ -83,10 +83,17 @@ components:
     # time, so this is coverage added rather than surface removed.
     # Re-measured 2026-08-05 on Node 22.22.3 after payment-path fixes and listing-sellability landed.
     # Lines and branches rose over a larger basis (143 files) while unexercised held at 49.
+    # The recovered capability-claims chain measured 88.69/83.19 on its own base; both readings
+    # sit inside the 0.5 tolerance, so the higher floor here is kept rather than nudged down.
+    # `functions` does move: the capability-claims control and the B2B margin-guardrail suite
+    # exercise 91.73% of functions, clearing the 0.5 pt tolerance over the 91.22 floor. The
+    # chain's own author left this figure alone because on that base it did not clear tolerance;
+    # on top of the payment-path work already in main it does, so it is raised here rather than
+    # left trailing. Re-measured on Node 22.22.3 by scripts/ci/coverage_ratchet.py itself.
     baseline:
       unexercised: 49
       lines: 88.70
-      functions: 91.22
+      functions: 91.73
       branches: 83.28
     measured:
       files: 143

@@ -36,8 +36,8 @@ export default function CaptureDemo() {
     <div className="min-h-screen bg-gray-950 text-white">
       <header className="border-b border-gray-800 px-6 py-4 flex justify-between items-center">
         <div>
-          <h1 className="text-xl font-bold">AI Capture Pipeline</h1>
-          <p className="text-sm text-gray-400">Phone photo → print-ready master in under 60 seconds</p>
+          <h1 className="text-xl font-bold">AI Capture Pipeline (simulation)</h1>
+          <p className="text-sm text-gray-400">Animated walkthrough of the planned pipeline — no image is uploaded or processed</p>
         </div>
         <Link href="/" className="text-sm px-4 py-2 border border-gray-700 rounded-lg hover:bg-gray-800 transition">Return to Docs</Link>
       </header>
@@ -46,7 +46,7 @@ export default function CaptureDemo() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="space-y-6">
             <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
-              <h2 className="font-semibold mb-4">Pipeline Progress</h2>
+              <h2 className="font-semibold mb-4">Pipeline Progress (simulated)</h2>
               <div className="space-y-3">
                 {STEPS.map((s, i) => (
                   <div
@@ -75,7 +75,8 @@ export default function CaptureDemo() {
             </div>
 
             <div className="bg-gray-900 rounded-xl border border-gray-800 p-6 text-sm text-gray-400">
-              <p><strong className="text-white">How it works:</strong> Artist photographs painting with color-checker card. CV pipeline detects edges, applies LUT calibration, upscales via ESRGAN, then generates 4 lifestyle mockups automatically.</p>
+              <p><strong className="text-white">How it is planned to work:</strong> the artist photographs the painting with a color-checker card, then a CV pipeline deskews it, applies LUT calibration, upscales it via ESRGAN and renders 4 lifestyle mockups.</p>
+              <p className="mt-2 text-amber-300/80">None of that is built yet: this page animates the sequence on a timer, and no image-processing library is installed.</p>
             </div>
           </div>
 
@@ -122,8 +123,8 @@ export default function CaptureDemo() {
               <div className="bg-green-900/30 border border-green-700/50 rounded-lg p-4 flex items-center gap-3">
                 <CheckCircle2 className="w-5 h-5 text-green-400" />
                 <div>
-                  <p className="font-medium text-green-200">Ready for catalog</p>
-                  <p className="text-sm text-green-300/70">SEO copy, tags, and social assets generated. Awaiting artist proof approval.</p>
+                  <p className="font-medium text-green-200">Simulation complete</p>
+                  <p className="text-sm text-green-300/70">In the planned pipeline, SEO copy, tags and social assets would be generated here and sent for artist proof approval.</p>
                 </div>
               </div>
             )}

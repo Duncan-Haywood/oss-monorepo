@@ -111,7 +111,7 @@ export default function ArtistPortal() {
                     <p className="font-bold text-stone-900 dark:text-white">Proof Approval Required</p>
                     <p className="text-sm text-stone-600 dark:text-gray-300">
                       {proofQueue.length > 0
-                        ? `"${proofQueue[0].title}" has been digitized and needs your review.`
+                        ? `"${proofQueue[0].title}" is marked "Proof pending" in the catalog and is waiting on your review. No capture or proof file has been produced for it yet.`
                         : "No proofs are waiting on the artist."}
                     </p>
                   </div>
@@ -127,7 +127,7 @@ export default function ArtistPortal() {
                   <div className="bg-white dark:bg-gray-800 rounded-2xl border border-stone-200 dark:border-gray-700 shadow-sm p-6">
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                       <div>
-                        <p className="text-xs font-bold uppercase tracking-wide text-blue-600 dark:text-blue-300">AI catalog launch queue</p>
+                        <p className="text-xs font-bold uppercase tracking-wide text-blue-600 dark:text-blue-300">Catalog launch queue</p>
                         <h3 className="mt-1 font-bold text-stone-900 dark:text-white">
                           Next fix: {nextCatalogFix.artwork.title} ({nextCatalogFix.readiness.score}% ready)
                         </h3>

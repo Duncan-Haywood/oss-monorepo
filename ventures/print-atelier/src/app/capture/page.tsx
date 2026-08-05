@@ -24,14 +24,19 @@ const processingStages: CaptureProcessingStage[] = [
   "complete",
 ];
 
+// The stages below are the *planned* pipeline, not one that runs. No image
+// provider is integrated (see tests/capability-claims.test.ts), `src/lib/capture.ts`
+// never reads the uploaded File, and `runProcessingPipeline` advances these on a
+// timer. Each label says so where it is rendered, because a reader meeting the
+// stage name has to meet the correction with it.
 const stageLabels: Record<CaptureProcessingStage, string> = {
-  uploaded: "File received",
-  "edge-detect": "Edge detection & deskew",
-  "color-correct": "Color-checker LUT correction",
-  upscale: "AI upscaling to print resolution",
-  mockups: "Generating room mockups",
-  "seo-copy": "Writing SEO product copy",
-  complete: "Ready for artist review",
+  uploaded: "File received (name, size and type only)",
+  "edge-detect": "Planned: edge detection & deskew",
+  "color-correct": "Planned: color-checker LUT correction",
+  upscale: "Planned: AI upscaling to print resolution",
+  mockups: "Planned: room mockup generation",
+  "seo-copy": "Planned: SEO product copy",
+  complete: "Metadata saved locally — ready for artist review",
 };
 
 export default function CapturePage() {
@@ -177,8 +182,11 @@ export default function CapturePage() {
         {step === "processing" && session && (
           <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800 text-center">
             <Loader2 className="w-12 h-12 text-indigo-400 animate-spin mx-auto mb-6" />
-            <h2 className="font-bold text-lg mb-2">AI Processing Pipeline</h2>
-            <p className="text-xs text-gray-500 mb-4">{session.fileName}</p>
+            <h2 className="font-bold text-lg mb-2">Capture Pipeline (simulated)</h2>
+            <p className="text-xs text-gray-500 mb-1">{session.fileName}</p>
+            <p className="text-xs text-amber-300/80 mb-4">
+              Stages advance on a timer — your file is not read or processed. Only its name, size and type are stored.
+            </p>
             <div className="space-y-2 text-sm text-gray-400 mb-6 text-left max-w-xs mx-auto">
               {processingStages.map((stage) => {
                 const stageOrder = processingStages.indexOf(stage);
@@ -212,7 +220,7 @@ export default function CapturePage() {
                 </div>
                 <div className="absolute bottom-4 left-4 right-4">
                   <p className="text-xs text-gray-300 mb-2 flex items-center gap-1">
-                    <Sparkles className="w-3 h-3" /> AI Room Mockup Preview
+                    <Sparkles className="w-3 h-3" /> Room mockup placeholder — mockup generation is not built
                   </p>
                   <div className="w-1/3 aspect-[3/4] bg-gradient-to-br from-amber-700 to-orange-800 rounded shadow-2xl mx-auto border border-white/10" />
                 </div>
@@ -224,7 +232,7 @@ export default function CapturePage() {
                   Metadata persisted: {session.sessionId} · {formatFileSize(session.fileSizeBytes)}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  SEO title auto-generated: &quot;Warm Autumn Forest Canvas Print — Museum Quality&quot;
+                  Sample SEO title from the planned copy step: &quot;Warm Autumn Forest Canvas Print — Museum Quality&quot;
                 </p>
               </div>
             </div>

@@ -14,9 +14,9 @@ export default function SalesOutreach() {
         <h2 className="text-2xl font-semibold">Supply Side: Automated Artist Outreach</h2>
         <p>To build catalog rapidly, we deploy intelligent systems to identify and onboard artists at near-zero marginal cost.</p>
         <ul className="list-disc pl-5 space-y-2">
-          <li><strong>Social Graph Scraping:</strong> Proprietary tools scan Instagram, TikTok, and Pinterest for independent artists meeting engagement and quality thresholds (2k–20k followers, consistent style signals).</li>
-          <li><strong>AI-Personalized DMs:</strong> LLMs reference specific artworks in outreach messages, increasing response rates from ~3% (generic) to ~40%+ (personalized).</li>
-          <li><strong>Self-Serve Onboarding:</strong> Outreach links to a frictionless portal where artists snap a photo and see a living-room mockup in under 3 minutes — the conversion hook.</li>
+          <li><strong>Social Graph Scraping (planned, not yet built):</strong> Discovery across Instagram, TikTok, and Pinterest for independent artists meeting engagement and quality thresholds (2k–20k followers, consistent style signals).</li>
+          <li><strong>AI-Personalized DMs (planned):</strong> LLMs reference specific artworks in outreach messages. Target: a materially higher reply rate than generic outreach — no outreach has been sent, so there is no measured rate to quote.</li>
+          <li><strong>Self-Serve Onboarding:</strong> Outreach links to a portal where the artist uploads work and completes onboarding. Target: a first-session room-mockup hook once mockup rendering ships.</li>
           <li><strong>Zero Human SDRs (Phase 1):</strong> Fully software-orchestrated acquisition until response quality degrades at scale.</li>
         </ul>
       </section>
@@ -27,7 +27,7 @@ export default function SalesOutreach() {
         <div className="bg-blue-50 dark:bg-blue-900/30 p-5 rounded-xl mt-4 border border-blue-100 dark:border-blue-800 not-prose">
           <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2">The &quot;Living Room&quot; Strategy</h3>
           <p className="text-sm text-blue-800 dark:text-blue-200">
-            Consumers struggle to visualize raw art in their homes. Our software generates thousands of hyper-realistic mockups across interior styles. These feed into Meta/Google ad networks where multi-armed bandit algorithms find the exact art + room + frame combination that converts best.
+            Consumers struggle to visualize raw art in their homes. Planned, not yet built: mockup rendering across interior styles at volume, feeding Meta/Google ad networks where multi-armed bandit algorithms find the exact art + room + frame combination that converts best. No renderer ships today.
           </p>
         </div>
         <ul className="list-disc pl-5 space-y-2 mt-4">
