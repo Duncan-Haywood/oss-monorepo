@@ -17,8 +17,18 @@ spec:
       containers:
       - name: marisstella-homepage
         image: git.marisstella.dev/giteaadmin/marisstella-homepage:latest
+        # 8080, because the image cannot serve 80. Its Dockerfile drops to
+        # `USER nginx` before `EXPOSE 8080`, and nginx.conf has
+        # `listen 8080 default_server` — an unprivileged process cannot bind a
+        # privileged port, so this is the image's port and not a preference.
+        # This block and both probes below said 80 until 2026-08-05, so every
+        # pod from this image failed its readiness probe forever, the Service
+        # never got an endpoint, and ingress.yaml — which claims marisstella.dev
+        # and www.marisstella.dev — had nothing behind it.
+        # platform/ci/test/container-port-contract.test.mjs binds these numbers
+        # to the Dockerfile and the nginx config so they cannot drift again.
         ports:
-        - containerPort: 80
+        - containerPort: 8080
         resources:
           requests:
             cpu: 100m
@@ -29,12 +39,12 @@ spec:
         livenessProbe:
           httpGet:
             path: /
-            port: 80
+            port: 8080
           initialDelaySeconds: 10
           periodSeconds: 15
         readinessProbe:
           httpGet:
             path: /
-            port: 80
+            port: 8080
           initialDelaySeconds: 5
           periodSeconds: 10
