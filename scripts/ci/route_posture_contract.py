@@ -81,7 +81,7 @@ ROUTE_FILENAMES = ("route.ts", "route.tsx", "route.js", "route.jsx", "route.mjs"
 # Directories that never contain first-party source, at any depth. Descending
 # into these is never right: `node_modules` is somebody else's code, and the
 # rest are build output or VCS internals.
-VENDOR_DIRS = frozenset({"node_modules", ".next", ".git", ".turbo"})
+VENDOR_DIRS = frozenset({"node_modules", ".next", ".open-next", ".sst", ".vercel", ".git", ".turbo"})
 
 # Build-output names that are *also* legal URL segments. `/api/build/route.ts`
 # is a real endpoint whose directory happens to be called `build`, and pruning

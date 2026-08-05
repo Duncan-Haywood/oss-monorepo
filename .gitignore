@@ -41,6 +41,10 @@ tmp*/
 .backups/
 .dev-security-report.tmp
 .playwright-cli/
+e2e-report/
+e2e-results/
+.open-next/
+.sst/
 
 # Local one-off test environments.
 pytest-of-*/
