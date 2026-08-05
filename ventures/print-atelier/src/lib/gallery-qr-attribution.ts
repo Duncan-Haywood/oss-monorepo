@@ -5,6 +5,8 @@
  * attributes online presale conversions, issues mobile presale tickets, and computes venue ROI metrics.
  */
 
+import { SITE_URL_UNCONFIGURED_HINT, resolveSiteUrl } from './site-url';
+
 export type QrPlacementType = 'wall_plaque' | 'print_catalog' | 'gallery_window' | 'vip_invitation_card';
 export type TicketTier = 'general_admission' | 'collector_preview_pass' | 'artist_reception_vip';
 
@@ -45,7 +47,21 @@ export interface TicketPresaleResult {
   totalPaidUsd: number;
   qrAttributed: boolean;
   attributedPlacement?: QrPlacementType;
-  accessPassUrl: string;
+  /**
+   * Null when this deployment has no configured origin. It was previously typed
+   * `string` and was always populated — with a link on `printatelier.com`, a
+   * domain this venture does not serve. `null` is narrower than the wrong
+   * string on purpose: every caller now has to decide what to do about a ticket
+   * with no pass link, where before there was nothing to decide.
+   */
+  accessPassUrl: string | null;
+  /**
+   * Set only when `accessPassUrl` is null, so a refusal cannot be mistaken for
+   * a ticket that simply had no link. The attendee has paid either way — the
+   * `confirmationCode` below is still valid at the door — so this has to reach
+   * an operator rather than disappear.
+   */
+  accessPassUnavailableReason?: string;
   confirmationCode: string;
 }
 
@@ -111,7 +127,18 @@ export function processMobileTicketPresale(request: MobileTicketRequest): Ticket
   }
 
   const confirmationCode = `TIX-${request.exhibitionSlug.toUpperCase().slice(0, 4)}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
-  const accessPassUrl = `https://printatelier.com/tickets/pass/${request.ticketId}?code=${confirmationCode}`;
+
+  // The pass URL is handed to someone who has just paid for a ticket, and it
+  // used to be hardcoded to `https://printatelier.com` — see
+  // `src/lib/site-url.ts`. A relative path is no use here either: this is
+  // rendered into a QR code and an SMS, both of which leave the app. So with no
+  // configured origin no pass link is issued, and the reason travels with the
+  // ticket rather than being logged and lost.
+  const siteUrl = resolveSiteUrl();
+  const accessPassUrl =
+    siteUrl === null
+      ? null
+      : `${siteUrl}/tickets/pass/${request.ticketId}?code=${confirmationCode}`;
 
   return {
     ticketId: request.ticketId,
@@ -119,6 +146,15 @@ export function processMobileTicketPresale(request: MobileTicketRequest): Ticket
     qrAttributed,
     attributedPlacement,
     accessPassUrl,
+    ...(accessPassUrl === null
+      ? {
+          accessPassUnavailableReason:
+            `No access pass link was issued: this deployment has no configured site ` +
+            `origin, so the link would have to name a domain we cannot vouch for. ` +
+            `The ticket is valid — admit on confirmation code ${confirmationCode}. ` +
+            SITE_URL_UNCONFIGURED_HINT,
+        }
+      : {}),
     confirmationCode,
   };
 }

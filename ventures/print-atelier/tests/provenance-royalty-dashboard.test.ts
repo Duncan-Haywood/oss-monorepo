@@ -10,8 +10,15 @@ import {
 
 describe("Art Collector Provenance & Resale Royalties Engine", () => {
   it("generates deterministic QR verification URLs for provenance certificates", () => {
-    const url = generateProvenanceQrUrl("https://printatelier.com", "CERT-8849", "a1b2c3d4e5f6789");
-    assert.equal(url, "https://printatelier.com/verify/CERT-8849?hash=a1b2c3d4e5f6");
+    // Was `https://printatelier.com`, a domain this venture does not serve —
+    // even as a fixture it is the wrong string to keep reaching for. The
+    // venture's only declared ingress is `atelier.marisstella.dev`.
+    const url = generateProvenanceQrUrl(
+      "https://atelier.marisstella.dev",
+      "CERT-8849",
+      "a1b2c3d4e5f6789"
+    );
+    assert.equal(url, "https://atelier.marisstella.dev/verify/CERT-8849?hash=a1b2c3d4e5f6");
   });
 
   it("verifies authentic certificates with matching cryptographic signatures", () => {
@@ -28,9 +35,13 @@ describe("Art Collector Provenance & Resale Royalties Engine", () => {
       signatureHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     };
 
+    // The origin is now an argument rather than a `"https://printatelier.com"`
+    // default; unconfigured yields no verification URL at all, which is
+    // covered in `gallery-links-unowned-domain.test.ts`.
     const validResult = verifyArtworkProvenance(
       certificate,
-      "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "https://atelier.marisstella.dev"
     );
 
     assert.equal(validResult.isValid, true);
