@@ -9,7 +9,51 @@ const LEGACY_SESSION_COOKIE = "qp_session";
 const SESSION_TTL_DAYS = 30;
 const MAX_ACTIVE_SESSIONS = 10;
 const ATTEMPT_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
-const BCRYPT_ROUNDS = process.env.NODE_ENV === "test" || Boolean(process.env.VITEST) ? 4 : 12;
+
+/**
+ * bcrypt cost.
+ *
+ * `TEST_BCRYPT_ROUNDS` exists so the suites that create accounts finish in
+ * seconds, and that is legitimate. What is not legitimate is reaching it on an
+ * ambient signal: `VITEST` is exported into every process a test runner spawns
+ * and can be inherited or set anywhere, so `VITEST` on its own once dropped
+ * every *newly created* hash to four rounds — trivially crackable — with
+ * nothing reporting it. The cheap cost is therefore reachable only when both
+ * signals a runner sets agree, and a runner signal seen next to
+ * `NODE_ENV=production` is treated as a misconfigured deployment and refused
+ * rather than obeyed. Refusing costs an outage; obeying costs the passwords.
+ */
+export const PRODUCTION_BCRYPT_ROUNDS = 12;
+export const TEST_BCRYPT_ROUNDS = 4;
+
+/** `VITEST=false`, `VITEST=0` and `VITEST=` are absence, not presence. */
+function signalIsSet(value: string | undefined): boolean {
+  if (typeof value !== "string") return false;
+  const normalised = value.trim().toLowerCase();
+  return normalised !== "" && normalised !== "0" && normalised !== "false";
+}
+
+/**
+ * The bcrypt cost this environment is allowed to hash at.
+ *
+ * @throws if a test-runner signal is present alongside `NODE_ENV=production`.
+ */
+export function resolveBcryptRounds(env: NodeJS.ProcessEnv = process.env): number {
+  const nodeEnv = env.NODE_ENV;
+  const underTestRunner = signalIsSet(env.VITEST);
+
+  if (nodeEnv === "production" && underTestRunner) {
+    throw new Error(
+      "Refusing to hash: VITEST is set while NODE_ENV=production. A test-runner " +
+        "signal in a production environment is a misconfiguration, not permission " +
+        `to hash below ${PRODUCTION_BCRYPT_ROUNDS} bcrypt rounds. Unset VITEST.`
+    );
+  }
+
+  // Both signals, or full cost. Either alone is ambiguous.
+  if (nodeEnv === "test" && underTestRunner) return TEST_BCRYPT_ROUNDS;
+  return PRODUCTION_BCRYPT_ROUNDS;
+}
 
 /** Failed-login rate limits, applied per email and per IP independently. */
 const WINDOW_MS = 15 * 60 * 1000;
@@ -21,11 +65,33 @@ export function hashToken(raw: string): string {
 }
 
 export async function hashPassword(plain: string): Promise<string> {
-  return bcrypt.hash(plain, BCRYPT_ROUNDS);
+  return bcrypt.hash(plain, resolveBcryptRounds());
 }
 
 export async function verifyPassword(plain: string, hash: string): Promise<boolean> {
   return bcrypt.compare(plain, hash);
+}
+
+let absentAccountHashCache: { rounds: number; hash: string } | null = null;
+
+/**
+ * A hash of an unguessable secret, at the cost `hashPassword` is currently
+ * issuing.
+ *
+ * The login route compares the submitted password against this when no account
+ * matches, so that a missing account and a wrong password take the same time.
+ * The equalisation only holds while the two costs agree: a literal pinned at
+ * one cost leaves real logins fast and absent-account logins slow the moment
+ * the issuing cost moves, which is precisely the email-enumeration oracle the
+ * comparison exists to close. Deriving it here means the two cannot drift.
+ */
+export async function absentAccountHash(): Promise<string> {
+  const rounds = resolveBcryptRounds();
+  if (absentAccountHashCache?.rounds !== rounds) {
+    const secret = randomBytes(32).toString("base64url");
+    absentAccountHashCache = { rounds, hash: await bcrypt.hash(secret, rounds) };
+  }
+  return absentAccountHashCache.hash;
 }
 
 export function normalizeEmail(email: string): string {
