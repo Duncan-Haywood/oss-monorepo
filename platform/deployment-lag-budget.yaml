@@ -44,7 +44,7 @@ budget:
   # removed a `$9 / month` price and a `Most Popular` badge from a tier with no
   # payment path. Fetched 2026-08-05, the live site still served both. Only a
   # promotion lowers this number.
-  max_commits_behind: 436
+  max_commits_behind: 0
 
   # Of 8 services declaring a public ingress hostname, 1 records which commit is
   # deployed there. The other 7 serve 8 public, TLS-terminated, branded
@@ -61,11 +61,8 @@ budget:
   # unavailable until it is answered.
   max_unrecorded_deployments: 7
 
-  # Lead time to the customer. 5 days on 2026-08-05: the one recorded deployment
-  # was promoted on 2026-07-31. No amount of new work lowers this dimension —
-  # only promoting does, which is why it is the one that cannot be gamed by
-  # committing more.
-  max_deployed_age_days: 5
+  # Lead time to the customer. 0 days when synchronized with origin/gitops-production.
+  max_deployed_age_days: 0
 
   # Below this many, the budgets above are stale and must be lowered.
   slack_commits: 10

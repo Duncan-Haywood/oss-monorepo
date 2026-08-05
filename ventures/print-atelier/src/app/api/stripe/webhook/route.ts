@@ -12,6 +12,7 @@ import {
   recordOrderFromPaymentWebhook,
   type OrderRecord,
 } from "@/lib/orders";
+import { FulfillmentSubmissionStoreCapacityExceededError } from "@/lib/fulfillment-submission-store";
 import {
   queueGelatoFulfillmentFromOrder,
   recordGelatoFulfillmentSubmission,
@@ -127,35 +128,62 @@ export async function POST(request: Request) {
     throw error;
   }
 
+  // Same rule as the order record above, for the same reason. The submission is
+  // the only record that this paid order's fulfillment was attempted — and, when
+  // it is blocked, the only thing that will ever tell an operator so. A 200 over
+  // a refused submission stops Stripe redelivering the one event that could
+  // recreate it.
   let fulfillmentSubmission = null;
-  if (orderRecord) {
-    if (orderRecord.fulfillmentPartnerId === "gelato") {
-      fulfillmentSubmission = await queueGelatoFulfillmentFromOrder(
-        orderRecord,
-        paymentMetadata,
-        {
-          GELATO_API_KEY: process.env.GELATO_API_KEY,
-          GELATO_STORE_ID: process.env.GELATO_STORE_ID,
-        },
-        process.env.GELATO_API_KEY && process.env.GELATO_STORE_ID ? fetch : undefined,
-      );
-      if (fulfillmentSubmission) {
-        recordGelatoFulfillmentSubmission(fulfillmentSubmission);
-      }
-    } else {
-      fulfillmentSubmission = await queuePrintfulFulfillmentFromOrder(
-        orderRecord,
-        paymentMetadata,
-        {
-          PRINTFUL_API_KEY: process.env.PRINTFUL_API_KEY,
-          PRINTFUL_STORE_ID: process.env.PRINTFUL_STORE_ID,
-        },
-        process.env.PRINTFUL_API_KEY && process.env.PRINTFUL_STORE_ID ? fetch : undefined,
-      );
-      if (fulfillmentSubmission) {
-        recordPrintfulFulfillmentSubmission(fulfillmentSubmission);
+  try {
+    if (orderRecord) {
+      if (orderRecord.fulfillmentPartnerId === "gelato") {
+        fulfillmentSubmission = await queueGelatoFulfillmentFromOrder(
+          orderRecord,
+          paymentMetadata,
+          {
+            GELATO_API_KEY: process.env.GELATO_API_KEY,
+            GELATO_STORE_ID: process.env.GELATO_STORE_ID,
+          },
+          process.env.GELATO_API_KEY && process.env.GELATO_STORE_ID ? fetch : undefined,
+        );
+        if (fulfillmentSubmission) {
+          recordGelatoFulfillmentSubmission(fulfillmentSubmission);
+        }
+      } else {
+        fulfillmentSubmission = await queuePrintfulFulfillmentFromOrder(
+          orderRecord,
+          paymentMetadata,
+          {
+            PRINTFUL_API_KEY: process.env.PRINTFUL_API_KEY,
+            PRINTFUL_STORE_ID: process.env.PRINTFUL_STORE_ID,
+          },
+          process.env.PRINTFUL_API_KEY && process.env.PRINTFUL_STORE_ID ? fetch : undefined,
+        );
+        if (fulfillmentSubmission) {
+          recordPrintfulFulfillmentSubmission(fulfillmentSubmission);
+        }
       }
     }
+  } catch (error) {
+    if (error instanceof FulfillmentSubmissionStoreCapacityExceededError) {
+      return NextResponse.json(
+        {
+          error: "Fulfillment submission store refused the record; payment not acknowledged",
+          reason: error.message,
+          storeKind: error.storeKind,
+          capacity: error.capacity,
+          partner: error.partner,
+          orderRecorded: Boolean(orderRecord),
+          orderId: orderRecord?.orderId ?? null,
+          fulfillmentRecorded: false,
+          hint:
+            "Configure a durable fulfillment submission store. Stripe will retry this event; " +
+            "it has not been acknowledged.",
+        },
+        { status: 503 },
+      );
+    }
+    throw error;
   }
 
   return NextResponse.json({

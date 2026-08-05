@@ -1,5 +1,9 @@
 import type { OrderRecord } from "./orders";
 import {
+  createInMemoryFulfillmentSubmissionStore,
+  type FulfillmentSubmissionStoreDescriptor,
+} from "./fulfillment-submission-store";
+import {
   describeMissingBuyerShipping,
   resolveBuyerShippingAddress,
 } from "./buyer-shipping";
@@ -301,22 +305,23 @@ export async function queueGelatoFulfillmentFromOrder(
   };
 }
 
-const fulfillmentStore: GelatoOrderSubmission[] = [];
+const fulfillmentStore =
+  createInMemoryFulfillmentSubmissionStore<GelatoOrderSubmission>("gelato");
 
 export function getGelatoFulfillmentSubmissions(): GelatoOrderSubmission[] {
-  return [...fulfillmentStore];
+  return fulfillmentStore.list();
+}
+
+export function getGelatoFulfillmentStoreDescriptor(): FulfillmentSubmissionStoreDescriptor {
+  return { ...fulfillmentStore.descriptor };
 }
 
 export function recordGelatoFulfillmentSubmission(
   submission: GelatoOrderSubmission,
 ): GelatoOrderSubmission {
-  fulfillmentStore.unshift(submission);
-  if (fulfillmentStore.length > 50) {
-    fulfillmentStore.length = 50;
-  }
-  return submission;
+  return fulfillmentStore.record(submission);
 }
 
 export function clearGelatoFulfillmentForTests(): void {
-  fulfillmentStore.length = 0;
+  fulfillmentStore.clear();
 }

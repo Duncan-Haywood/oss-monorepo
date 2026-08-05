@@ -1,4 +1,10 @@
-import { OrderRecord, OrderStatus, buildOrderSummary, OrderSummary } from "./orders";
+import {
+  OrderRecord,
+  OrderStatus,
+  buildOrderSummary,
+  OrderSummary,
+  type OrderRecordCompleteness,
+} from "./orders";
 
 export type PersistedOrderRecord = OrderRecord & {
   dbId: string;
@@ -108,8 +114,8 @@ export function persistOrderRecord(
     persistedOrderStore.unshift(persisted);
   }
 
-  if (persistedOrderStore.length > 500) {
-    persistedOrderStore.length = 500;
+  if (persistedOrderStore.length > PERSISTED_STORE_CAPACITY) {
+    persistedOrderStore.length = PERSISTED_STORE_CAPACITY;
   }
 
   return persisted;
@@ -164,11 +170,42 @@ export function updateOrderStatusInPersistence(
   return target;
 }
 
+/**
+ * The cap on the Convex mirror. Unlike `orders.ts`, reaching it *truncates*:
+ * `persistOrderRecord` unshifts newest-first and then trims the tail, so the
+ * oldest records are discarded with no throw and no log.
+ *
+ * That behaviour is left as it is — `persistOrderRecord` has no production
+ * caller today, so changing it would be untested churn on a dormant path. What
+ * is fixed is the claim made *about* it: the summary below now says the set is
+ * incomplete, and says why, instead of borrowing the active store's answer.
+ */
+const PERSISTED_STORE_CAPACITY = 500;
+const PERSISTED_STORE_KIND = "convex-mirror (process-local array)";
+
+function describePersistedCompleteness(): OrderRecordCompleteness {
+  const atCapacity = persistedOrderStore.length >= PERSISTED_STORE_CAPACITY;
+
+  return {
+    complete: false,
+    storeKind: PERSISTED_STORE_KIND,
+    durable: false,
+    reason: atCapacity
+      ? `The Convex mirror is holding its maximum of ${PERSISTED_STORE_CAPACITY} records and discards the oldest on each further write, so orders are missing from these totals.`
+      : `Orders here are mirrored into "${PERSISTED_STORE_KIND}", which does not survive the process and truncates to ${PERSISTED_STORE_CAPACITY} records. Do not quote these totals as revenue.`,
+  };
+}
+
 export function summarizePersistedOrders(
   filter?: OrderQueryFilter,
 ): OrderSummary & { persistedTotalCount: number; channelBreakdown: Record<string, number> } {
   const records = queryPersistedOrders(filter);
-  const baseSummary = buildOrderSummary(records);
+  // Second argument supplied on purpose. It defaults to
+  // `describeOrderRecordCompleteness()`, which describes the *active* order
+  // store — a different array with a different durability. Install a durable
+  // store via `setOrderStore` and the default would stamp `complete: true` on
+  // this 500-capped mirror, which nothing had inspected.
+  const baseSummary = buildOrderSummary(records, describePersistedCompleteness());
 
   const channelBreakdown: Record<string, number> = {};
   for (const r of records) {
