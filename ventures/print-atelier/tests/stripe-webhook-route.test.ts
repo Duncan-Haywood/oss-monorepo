@@ -99,6 +99,23 @@ test("refuses a valid signature bound to a different payload", async () => {
   assert.equal(response.status, 400);
 });
 
+test("refuses a genuinely signed payload that is too old to be live", async () => {
+  // The captured-webhook replay. The signature is real — computed with the
+  // real secret over the real body — but the event is from March 2024. The
+  // route must reject it on the timestamp alone, because a 200 here records
+  // an order and queues real print fulfillment for a payment that already
+  // happened. This is the property the `maxAgeSeconds = 0` default removed:
+  // the check ran only because this one call site passed a window.
+  const body = JSON.stringify({
+    id: "evt_replayed",
+    type: "payment_intent.succeeded",
+    data: { object: { amount: 24900, metadata: {} } },
+  });
+  const response = await POST(request(body, sign(body, WEBHOOK_SECRET, "1710000000")));
+  assert.equal(response.status, 400);
+  assert.equal((await response.json()).error, "Invalid Stripe webhook signature");
+});
+
 test("fails closed when no webhook secret is configured", async () => {
   delete process.env.STRIPE_WEBHOOK_SECRET;
   const body = JSON.stringify({ id: "evt_1", type: "account.updated", data: { object: {} } });
