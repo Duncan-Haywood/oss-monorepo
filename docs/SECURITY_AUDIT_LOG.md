@@ -35,7 +35,7 @@ This log records all identified application, infrastructure, container, and CI s
 | **SEC-023** | High | Application | `ventures/real-estate-agent-photo-app/.github/workflows/deploy-docs.yml` | Listing Lens docs answered an unauthenticated `GET` with 200 and the whole site, behind a rendered padlock | **Fixed** |
 | **SEC-024** | Medium | Supply Chain | `scripts/security-scan.sh` | A dependency-free package held the audit open, freezing the vulnerability register for two days with no run reporting a failure | **Fixed** |
 | **SEC-025** | Medium | Application | `ventures/print-atelier/src/app/api/stripe/webhook/route.ts` | Signed event missing `data` crashed the handler; the resulting 5xx makes Stripe redeliver indefinitely | **Fixed** |
-| **SEC-026** | Medium | Application | `ventures/print-atelier/src/lib/stripe-webhook-server.ts` | Webhook signature verification has no timestamp tolerance, so a captured payload replays indefinitely | **[ ] Open** |
+| **SEC-026** | Medium | Application | `ventures/print-atelier/src/lib/stripe-webhook-server.ts` | Webhook signature timestamp tolerance defaulted to `0`, which meant "skip the replay check" | **[x] Fixed** |
 | **SEC-027** | High | Supply chain | `.gitea/workflows/security.yml` | The dependency-audit matrix covered 4 of 10 committed lockfiles; the 6 unaudited ones held 32 high-severity advisories | **Coverage fixed; 46 of 47 advisories open** |
 
 ---
@@ -423,19 +423,47 @@ This log records all identified application, infrastructure, container, and CI s
   cover for a path that previously had none. Full venture verify green:
   `tsc --noEmit`, `next lint`, 278 tests, `next build`.
 
-### SEC-026 — Medium — Stripe Webhook Signatures Never Expire
-- **Location**: `ventures/print-atelier/src/lib/stripe-webhook-server.ts:20-22`
+### SEC-026 — Medium — Stripe Webhook Replay Check Was Off By Default
+- **Location**: `ventures/print-atelier/src/lib/stripe-webhook-server.ts:7,28`
 - **Impact**: `verifyStripeWebhookSignature` parses the `t=` timestamp and uses
-  it to rebuild the signed payload, but never compares it against the current
-  time. Stripe's own tolerance window is what stops a captured webhook being
-  replayable; without it, an intercepted request stays valid forever. Given the
-  handler records orders and queues Gelato/Printful fulfillment, a replayed
-  `payment_intent.succeeded` could re-queue fulfillment for an order already
-  shipped.
-- **Status**: Open. Adding a tolerance window changes which deliveries are
-  accepted, and legitimate Stripe retries can arrive well after the original
-  timestamp, so the window is an operational decision rather than a default an
-  agent should pick. Tracked in `ventures/print-atelier/docs/BACKLOG.md`.
+  it to rebuild the signed payload. Stripe's own tolerance window is what stops
+  a captured webhook being replayable; without it, an intercepted request stays
+  valid forever. Given the handler records orders and queues Gelato/Printful
+  fulfillment, a replayed `payment_intent.succeeded` could re-queue fulfillment
+  for an order already shipped.
+- **Correction to the original entry (2026-08-05)**: as first written, this
+  entry said the timestamp was "never compared against the current time". That
+  stopped being true when a `maxAgeSeconds` parameter was added, and the entry
+  was not revisited — so the register described a defect the code no longer had
+  while the defect it *did* have went unrecorded. The parameter's default was
+  `0` and the body read `if (maxAgeSeconds > 0 && ...)`, so the check existed
+  but was **off unless a call site opted in**. The single call site
+  (`src/app/api/stripe/webhook/route.ts`) passed `300`, so the deployed path was
+  never actually replayable; the exposure was that the fail-open sat in the
+  signature of the function authenticating the money path, where any new call
+  site or a dropped argument would have disabled it with every line still
+  reading as correct.
+- **Fix**: `STRIPE_WEBHOOK_MAX_AGE_SECONDS = 300` (Stripe's documented
+  tolerance, and the value the route already used — nothing was widened or
+  narrowed) is now both the default and the ceiling. Omitting the argument
+  yields the safe value. A caller may narrow the window; a caller may not widen
+  it and cannot switch it off — `0`, negatives, `NaN`, `Infinity` and any value
+  above the ceiling are refused before the header is parsed, so an out-of-range
+  tolerance rejects deliveries rather than accepting replays.
+- **Evidence**: 5 new tests in `ventures/print-atelier/tests/stripe-webhook.test.ts`.
+  Mutation-verified: restoring `maxAgeSeconds = 0` and the `maxAgeSeconds > 0 &&`
+  bypass fails 3 of them (an hour-old genuine signature is accepted), while the
+  14 pre-existing tests in that file and all 10 route-level tests in
+  `stripe-webhook-route.test.ts` stay green under the same mutation — which is
+  why the defect survived SEC-023's route-level test pass. The pre-existing
+  "validates Stripe signature headers" case had in fact *pinned* the fail-open:
+  it asserted `true` for a March-2024 timestamp with the tolerance argument
+  omitted, which is only correct if the age check is disabled.
+- **Not watched by cap_ratchet**: `scripts/ci/cap_ratchet.py` supports
+  `python-constant` and `yaml-path` watches only, so a TypeScript constant under
+  `ventures/` cannot be enrolled. The stand-in is the "the accepted replay
+  window is bounded" test in the venture's own suite, which fails if the
+  constant is raised above 300. It is a bound, not a history-backed ratchet.
 
 ### SEC-024 — Medium — The Vulnerability Register Silently Froze for Two Days
 - **Location**: `scripts/security-scan.sh:43-57` (`audit_node_package`)

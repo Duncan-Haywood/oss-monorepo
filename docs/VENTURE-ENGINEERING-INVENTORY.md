@@ -53,10 +53,13 @@ check on any of its seven API routes. Three specific consequences:
 - `POST /api/ad-catalog/sync` and `/api/credentials/vercel-pull` are
   unauthenticated and wield server-held Meta/Google/Pinterest tokens
   (`src/lib/ad-catalog-sync-http.ts:133`).
-- `verifyStripeWebhookSignature` validates the HMAC but checks no timestamp
-  tolerance, and nothing de-duplicates by event id before fulfilment is queued
-  (`src/lib/stripe-webhook-server.ts`, `src/app/api/stripe/webhook/route.ts`).
-  A captured valid webhook replays indefinitely.
+- ~~`verifyStripeWebhookSignature` validates the HMAC but checks no timestamp
+  tolerance~~ — fixed 2026-08-05 (SEC-026). A 300s tolerance is now the
+  default *and* the ceiling, so a captured webhook expires and no call site can
+  widen or disable the window. The de-duplication half of this item is still
+  open: `ordersByStripeEventId` is process state, so a Stripe retry arriving
+  after a pod restart is a second real print order at the partner
+  (`src/lib/orders.ts`; tracked as the Convex item in the venture backlog).
 
 Nothing is exposed today — the venture has no production deployment. That is
 precisely why this is cheap to fix now and expensive to fix after launch.
