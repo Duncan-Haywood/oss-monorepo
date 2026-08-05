@@ -34,11 +34,19 @@ function signalIsSet(value: string | undefined): boolean {
 }
 
 /**
+ * Only the two variables that decide the cost. Deliberately looser than
+ * `NodeJS.ProcessEnv`, whose `NODE_ENV` Next narrows to three known values —
+ * the environment a deployment actually presents can hold anything, and the
+ * cases worth testing are the ones outside that union.
+ */
+export type BcryptCostSignals = { NODE_ENV?: string; VITEST?: string };
+
+/**
  * The bcrypt cost this environment is allowed to hash at.
  *
  * @throws if a test-runner signal is present alongside `NODE_ENV=production`.
  */
-export function resolveBcryptRounds(env: NodeJS.ProcessEnv = process.env): number {
+export function resolveBcryptRounds(env: BcryptCostSignals = process.env): number {
   const nodeEnv = env.NODE_ENV;
   const underTestRunner = signalIsSet(env.VITEST);
 
