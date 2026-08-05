@@ -17,7 +17,10 @@ import {
   verifyPythonHost,
   verifySwiftHost,
   verifyTerraformHost,
-  main,
+  // `main` is deliberately not imported: it ends in process.exit, so it is
+  // exercised as a spawned process below, where the exit code — the part CI
+  // reads — is observable. It was imported here and never used, which read as
+  // coverage of an entrypoint that had none.
 } from '../src/pipeline.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -223,6 +226,54 @@ test('CI Pipeline Affected Path Resolver - Venture Path Matching', () => {
   assert.deepEqual(nvmrcChange, ['app1', 'app2']);
 });
 
+/**
+ * The single-file assertions above cannot tell the two rules apart.
+ *
+ * `['.nvmrc']` alone selects everything under either rule: as a declared global
+ * path, or as a changeset that matched no component and hit the fail-closed
+ * fallback. Deleting `.nvmrc` and `platform/` from the global list leaves every
+ * single-file case green — verified by mutation, both were removed and the
+ * suite stayed at 26/26.
+ *
+ * A mixed changeset is what separates them. One venture plus a repo-wide file
+ * *does* match a component, so the fallback never fires, and a global path that
+ * is not on the list narrows the run to that one venture — leaving the
+ * repo-wide change unverified everywhere else. `.nvmrc` is the sharpest case:
+ * the node-version contract calls it the single source of truth for the version
+ * every Node component builds on.
+ */
+test('CI Pipeline Affected Path Resolver - repo-wide paths stay global alongside a venture change', () => {
+  const mockCatalog = [
+    { id: 'app1', dir: 'ventures/app1', type: 'node' },
+    { id: 'app2', dir: 'ventures/app2', type: 'python' },
+  ];
+  const oneVenture = 'ventures/app1/src/index.ts';
+
+  const repoWide = [
+    '.nvmrc',
+    'platform/k8s/marisstella-homepage/deployment.yaml',
+    'platform/coverage-baseline.yaml',
+    'platform/exception-register.yaml',
+    'platform/image-tag-exceptions.yaml',
+    'platform/route-posture-registry.yaml',
+    'tests/test_coverage_ratchet.py',
+    'pytest.ini',
+    'requirements-ci.txt',
+    'package.json',
+    'scripts/ci/verify-component.sh',
+    '.github/workflows/ci.yml',
+    '.gitea/workflows/ci-cd.yml',
+  ];
+
+  for (const file of repoWide) {
+    assert.deepEqual(
+      resolveAffectedComponents([oneVenture, file], mockCatalog).sort(),
+      ['app1', 'app2'],
+      `${file} changed alongside a venture must still select every component, not just the venture`,
+    );
+  }
+});
+
 test('CI Pipeline Affected Path Resolver - Monorepo Infrastructure Global Trigger', () => {
   const mockCatalog = [
     { id: 'app1', dir: 'ventures/app1', type: 'node' },
@@ -324,6 +375,71 @@ test('CI Pipeline Affected Path Resolver - Handles empty, null, .gitea, package.
   assert.deepEqual(resolveAffectedComponents(['.gitea/workflows/ci.yml'], mockCatalog), ['app1']);
   assert.deepEqual(resolveAffectedComponents(['package.json'], mockCatalog), ['app1']);
   assert.deepEqual(resolveAffectedComponents(['README.md'], mockCatalog), ['app1']);
+});
+
+/**
+ * Selecting nothing must not be reported as verifying everything.
+ *
+ * resolveAffectedComponents fails closed to the whole catalog, so detection can
+ * no longer produce an empty selection — but main() accepts one directly.
+ * `--venture <typo>` reached the host loop, whose `if (!component) continue`
+ * skipped the unknown id, so the run installed nothing, ran no suite, counted
+ * no failure and exited 0 printing ALL CI VERIFICATION CHECKS PASSED. Observed
+ * before the fix, on this repository, with `--venture nonexistent-venture`.
+ *
+ * Spawned rather than called: main() ends in process.exit, and the exit code is
+ * the part CI reads.
+ */
+test('CI Pipeline main() - a selection that verifies nothing is not a pass', () => {
+  const pipeline = path.join(__dirname, '../src/pipeline.mjs');
+
+  let status = 0;
+  let output = '';
+  try {
+    output = execFileSync(
+      process.execPath,
+      [pipeline, '--venture', 'nonexistent-venture', '--skip-security'],
+      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
+    );
+  } catch (err) {
+    status = err.status;
+    output = `${err.stdout || ''}${err.stderr || ''}`;
+  }
+
+  assert.equal(status, 1, 'an unknown component id must exit non-zero');
+  assert.ok(
+    !output.includes('ALL CI VERIFICATION CHECKS PASSED'),
+    'a run that verified no component must not report every check as passed',
+  );
+  assert.match(
+    output,
+    /nonexistent-venture/,
+    'the failure must name the id nothing verified',
+  );
+});
+
+/**
+ * The guard above must reject an unverifiable selection, not every selection.
+ * marisstella-homepage is the cheapest real component in the catalog: its
+ * `test` script is a node --test suite that runs in well under a second.
+ */
+test('CI Pipeline main() - a real component still verifies and passes', () => {
+  const pipeline = path.join(__dirname, '../src/pipeline.mjs');
+
+  const output = execFileSync(
+    process.execPath,
+    [pipeline, '--venture', 'marisstella-homepage', '--skip-security'],
+    { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
+  );
+
+  assert.ok(
+    output.includes('ALL CI VERIFICATION CHECKS PASSED'),
+    'a component that verifies cleanly must still pass',
+  );
+  assert.ok(
+    !output.includes('Not registered in VENTURE_CATALOG'),
+    'a registered component must not trip the unknown-id guard',
+  );
 });
 
 test('CI Pipeline Dagger Containerized Fallback', async () => {
