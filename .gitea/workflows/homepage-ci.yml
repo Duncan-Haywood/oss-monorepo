@@ -128,15 +128,46 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-      - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
-      - name: Build local container artifact
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
-        with:
-          context: portfolio/marisstella-homepage
-          push: false
-          tags: git.marisstella.dev/giteaadmin/marisstella-homepage:${{ github.sha }}
-          cache-from: type=gha,scope=homepage
-          cache-to: type=gha,mode=max,scope=homepage
+
+      # Plain `docker build`, the position pairwise-ci.yml,
+      # print-atelier-image.yml and local-site-studio-image.yml all already
+      # take. This step used to be `docker/setup-buildx-action` followed by
+      # `docker/build-push-action` with:
+      #
+      #     push: false
+      #     tags: git.marisstella.dev/giteaadmin/marisstella-homepage:${{ github.sha }}
+      #
+      # and no `load: true` and no `outputs:`. setup-buildx-action's default
+      # driver is `docker-container`, whose build result is *not* the local
+      # docker image store; with no output specified BuildKit exports to the
+      # cache only and warns that it has. So the tag named above never existed
+      # anywhere the next step could see it, and "Publish immutable main image"
+      # below — `docker login && docker push "$IMAGE"` — had nothing to push.
+      # The homepage had no immutable `:${sha}` candidate at all, which is the
+      # artifact the release comment in `deploy` and every plan to run the
+      # candidate browser suite against "the published candidate" rest on.
+      #
+      # It arrived in 3ff8fdcd ("chore: commit and sync workspace changes"),
+      # which changed the action's tag from a build-only `marisstella-homepage-ci:`
+      # local tag to the registry reference and added the separate push step —
+      # a publish path introduced inside a commit named after something else.
+      #
+      # Plain `docker build` is preferred over `load: true` because it removes
+      # the driver-dependent behaviour entirely: the build and the push then
+      # demonstrably share one image store, the way the other three image
+      # workflows in this repository do, and two pinned third-party actions
+      # leave the path to the portfolio's only live customer surface. The `gha`
+      # layer cache is dropped with them; this image is `FROM nginx:alpine`
+      # plus three `COPY`s, so it bought nothing worth a driver whose output
+      # went nowhere.
+      #
+      # platform/ci/test/image-publish-provenance.test.mjs now fails closed on
+      # any job that pushes a tag no step in the same job put in the local store.
+      - name: Build the exact deployable image
+        env:
+          IMAGE: git.marisstella.dev/giteaadmin/marisstella-homepage:${{ github.sha }}
+        working-directory: portfolio/marisstella-homepage
+        run: docker build --file Dockerfile --tag "$IMAGE" .
 
       # Immutable tag only, the position local-site-studio-image.yml and
       # print-atelier-image.yml already take.
