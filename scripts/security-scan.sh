@@ -196,18 +196,89 @@ audit_node_package() {
 }
 
 # Scan Node projects (recursively finding all package.json files in ventures/ and portfolio/)
-while IFS= read -r pkg_file; do
-  if [ -n "${pkg_file}" ]; then
-    pkg_dir="$(dirname "${pkg_file}")"
-    rel_dir="${pkg_dir#"${REPO_ROOT}/"}"
-    audit_node_package "${pkg_dir}" "${rel_dir}"
+#
+# Discovery needs a denominator. Counting only the packages a walk happened to
+# reach makes "every package audited" mean "every package we found", and a walk
+# that finds one package then satisfies the completeness guard below and
+# republishes the roadmap as CLEAN. That is not hypothetical: the scan recorded
+# at 2026-08-05 12:59 UTC wrote `1 package(s) audited`, `HIGH: 0` and a single
+# `All Components | None | CLEAN` row over a repository holding 23 HIGH
+# advisories. Three roots are searched and only the missing-root case is needed
+# to produce it, because `2>/dev/null` swallowed find's complaint about it.
+#
+# So: the roots must exist, the walk must succeed, and its result is reconciled
+# against the manifests git tracks. Anything expected but never reached is a
+# gap, and a gap bars the rewrite.
+SCAN_ROOTS=(ventures portfolio platform)
+
+for scan_root in "${SCAN_ROOTS[@]}"; do
+  if [ ! -d "${REPO_ROOT}/${scan_root}" ]; then
+    record_audit_gap "${scan_root}/" "scan root does not exist; the packages under it were never enumerated"
   fi
+done
+
+DISCOVERED_TMP=$(mktemp)
+REACHED_TMP=$(mktemp)
+EXPECTED_TMP=$(mktemp)
+trap 'rm -f "${FINDINGS_TMP}" "${AUDIT_GAPS_TMP}" "${DISCOVERED_TMP}" "${REACHED_TMP}" "${EXPECTED_TMP}"' EXIT
+
 # The prune list is the union of the two this merge brought together. Every
 # entry names a directory that holds generated or vendored copies of packages
 # already audited at their source, so pruning one can hide no real manifest;
 # missing one costs a duplicate audit of a build artifact at best and an audit
 # of a stale vendored tree at worst.
-done < <(find "${REPO_ROOT}/ventures" "${REPO_ROOT}/portfolio" "${REPO_ROOT}/platform" -type d \( -name "node_modules" -o -name ".next" -o -name ".open-next" -o -name ".turbo" -o -name ".vercel" -o -name ".pnpm-store" -o -name "dist" -o -name "build" \) -prune -o -name "package.json" -print 2>/dev/null)
+find_status=0
+for scan_root in "${SCAN_ROOTS[@]}"; do
+  [ -d "${REPO_ROOT}/${scan_root}" ] || continue
+  find "${REPO_ROOT}/${scan_root}" -type d \( -name "node_modules" -o -name ".next" -o -name ".open-next" -o -name ".turbo" -o -name ".vercel" -o -name ".pnpm-store" -o -name "dist" -o -name "build" \) -prune -o -name "package.json" -print >> "${DISCOVERED_TMP}" || find_status=$?
+done
+
+# A walk that errored enumerated an unknown subset. Refusing here is the whole
+# point: a partial list is indistinguishable from a complete one downstream.
+if [ "${find_status}" -ne 0 ]; then
+  record_audit_gap "(package discovery)" "the filesystem walk exited ${find_status}; the package list is incomplete"
+fi
+
+# Manifests git tracks are the expected set. `git ls-files` is used rather than a
+# second walk because it reads the index: it is identical in a clone and in a
+# dirty working tree, and it cannot be inflated by build output or deflated by a
+# directory that failed to check out.
+if git -C "${REPO_ROOT}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  for scan_root in "${SCAN_ROOTS[@]}"; do
+    git -C "${REPO_ROOT}" ls-files -- "${scan_root}" 2>/dev/null || true
+  done | while IFS= read -r tracked; do
+    [ "${tracked##*/}" = "package.json" ] || continue
+    case "${tracked}" in
+      */node_modules/*|*/.next/*|*/.open-next/*|*/.turbo/*|*/.vercel/*|*/.pnpm-store/*|*/dist/*|*/build/*) continue ;;
+    esac
+    printf '%s\n' "${REPO_ROOT}/${tracked}"
+  done | sort -u > "${EXPECTED_TMP}"
+else
+  # Not a git work tree, so the expected set cannot be established and the walk
+  # is unverifiable. Recorded as a gap rather than waved through — an unverified
+  # discovery is exactly the condition that produced the CLEAN dashboard.
+  record_audit_gap "(package discovery)" "not a git work tree; the discovered package list could not be verified"
+fi
+
+while IFS= read -r pkg_file; do
+  if [ -n "${pkg_file}" ]; then
+    pkg_dir="$(dirname "${pkg_file}")"
+    rel_dir="${pkg_dir#"${REPO_ROOT}/"}"
+    printf '%s\n' "${pkg_file}" >> "${REACHED_TMP}"
+    audit_node_package "${pkg_dir}" "${rel_dir}"
+  fi
+done < <(sort -u "${DISCOVERED_TMP}")
+
+# Every tracked manifest the walk never handed to the auditor is unaudited, and
+# the run must not claim otherwise.
+if [ -s "${EXPECTED_TMP}" ]; then
+  sort -u "${REACHED_TMP}" > "${REACHED_TMP}.sorted"
+  while IFS= read -r missed; do
+    [ -n "${missed}" ] || continue
+    record_audit_gap "${missed#"${REPO_ROOT}/"}" "tracked by git but never reached by package discovery"
+  done < <(comm -23 "${EXPECTED_TMP}" "${REACHED_TMP}.sorted")
+  rm -f "${REACHED_TMP}.sorted"
+fi
 
 # Secret Scanning in Node.js
 echo "Running Secret Exposure Audit..."
