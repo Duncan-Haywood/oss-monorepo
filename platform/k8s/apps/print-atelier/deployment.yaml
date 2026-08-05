@@ -19,6 +19,166 @@ spec:
         image: git.marisstella.dev/giteaadmin/print-atelier:latest
         ports:
         - containerPort: 3000
+        # Every value comes from the `print-atelier-secrets` Secret, which is
+        # provisioned out of band and is deliberately NOT a manifest in this
+        # directory or in kustomization.yaml — the same arrangement
+        # quick-pick-survey uses for `quick-pick-secrets`
+        # (ventures/quick-pick-survey/docs/DEPLOYMENT.md:48). Nothing here
+        # carries a literal `value:`. A plausible-looking default is the defect
+        # this venture has already shipped once: `?? "123 Market St"` in
+        # ventures/print-atelier/src/lib/fulfillment-order-inputs.ts was every
+        # paid order's real delivery address. A pod that will not start is a
+        # better outcome than a pod that starts with a fake key.
+        #
+        # See SECRETS.md in this directory for what a human must put in the
+        # Secret before this venture can take a first order.
+        #
+        # The split below is load-bearing, not cosmetic:
+        #
+        #   REQUIRED (no `optional:`) — a missing key leaves the pod in
+        #   CreateContainerConfigError and it never serves. These are the money
+        #   path. `src/app/api/stripe/webhook/route.ts:111,124` passes `fetch`
+        #   to the fulfillment adapters only when that vendor's key pair is set,
+        #   so with Stripe configured and Printful/Gelato not, the charge
+        #   succeeds and the print is queued to a local array that never reaches
+        #   the vendor. Taking money with no path to fulfil it is worse than not
+        #   serving, so the pod refuses to start instead. Both vendors are
+        #   required because both branches are live: the handler routes on
+        #   `orderRecord.fulfillmentPartnerId === "gelato"` and falls through to
+        #   Printful for everything else.
+        #
+        #   OPTIONAL (`optional: true`) — absent key leaves the variable unset,
+        #   which is what the application's own guards already expect. Ad
+        #   attribution degrades: `shouldFireRetargetingHttp`
+        #   (api/stripe/checkout/route.ts:42) simply does not fire, and
+        #   `executeAdCatalogSync` reports the missing keys as blockers and
+        #   simulates instead of pushing. No money and no customer-facing
+        #   correctness turns on them, so they must not block a rollout.
+        env:
+        # --- required: operator authorization -------------------------------
+        # api-auth.ts fails closed on an unset value (503 on every operator
+        # route), so absence is safe but the deploy is pointless. Generate with
+        # `openssl rand -hex 32`.
+        - name: PRINT_ATELIER_OPS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: print-atelier-secrets
+              key: PRINT_ATELIER_OPS_TOKEN
+        # --- required: Stripe ------------------------------------------------
+        - name: STRIPE_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: print-atelier-secrets
+              key: STRIPE_SECRET_KEY
+        - name: STRIPE_PUBLISHABLE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: print-atelier-secrets
+              key: STRIPE_PUBLISHABLE_KEY
+        - name: STRIPE_WEBHOOK_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: print-atelier-secrets
+              key: STRIPE_WEBHOOK_SECRET
+        - name: STRIPE_CONNECT_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: print-atelier-secrets
+              key: STRIPE_CONNECT_CLIENT_ID
+        # --- required: print-on-demand fulfillment ---------------------------
+        - name: PRINTFUL_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: print-atelier-secrets
+              key: PRINTFUL_API_KEY
+        - name: PRINTFUL_STORE_ID
+          valueFrom:
+            secretKeyRef:
+              name: print-atelier-secrets
+              key: PRINTFUL_STORE_ID
+        - name: GELATO_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: print-atelier-secrets
+              key: GELATO_API_KEY
+        - name: GELATO_STORE_ID
+          valueFrom:
+            secretKeyRef:
+              name: print-atelier-secrets
+              key: GELATO_STORE_ID
+        # --- optional: Stripe Tax feature flag -------------------------------
+        # Only `"enabled"` turns it on (src/lib/checkout.ts:352), so an absent
+        # key means off, which is the documented safe default: a session with
+        # automatic_tax on an account with no tax registration is rejected and
+        # the whole checkout goes down. Read server-side by the /checkout page
+        # and passed to the client component, so the pod really does need it.
+        - name: STRIPE_AUTOMATIC_TAX
+          valueFrom:
+            secretKeyRef:
+              name: print-atelier-secrets
+              key: STRIPE_AUTOMATIC_TAX
+              optional: true
+        # --- optional: advertising attribution and catalog sync --------------
+        - name: META_PIXEL_ID
+          valueFrom:
+            secretKeyRef:
+              name: print-atelier-secrets
+              key: META_PIXEL_ID
+              optional: true
+        - name: META_CATALOG_ID
+          valueFrom:
+            secretKeyRef:
+              name: print-atelier-secrets
+              key: META_CATALOG_ID
+              optional: true
+        - name: META_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: print-atelier-secrets
+              key: META_ACCESS_TOKEN
+              optional: true
+        - name: GOOGLE_ADS_CUSTOMER_ID
+          valueFrom:
+            secretKeyRef:
+              name: print-atelier-secrets
+              key: GOOGLE_ADS_CUSTOMER_ID
+              optional: true
+        - name: GOOGLE_ADS_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: print-atelier-secrets
+              key: GOOGLE_ADS_ACCESS_TOKEN
+              optional: true
+        - name: GOOGLE_ADS_CONVERSION_ACTION_ID
+          valueFrom:
+            secretKeyRef:
+              name: print-atelier-secrets
+              key: GOOGLE_ADS_CONVERSION_ACTION_ID
+              optional: true
+        - name: GOOGLE_ADS_DEVELOPER_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: print-atelier-secrets
+              key: GOOGLE_ADS_DEVELOPER_TOKEN
+              optional: true
+        - name: GOOGLE_MERCHANT_CENTER_ID
+          valueFrom:
+            secretKeyRef:
+              name: print-atelier-secrets
+              key: GOOGLE_MERCHANT_CENTER_ID
+              optional: true
+        - name: PINTEREST_AD_ACCOUNT_ID
+          valueFrom:
+            secretKeyRef:
+              name: print-atelier-secrets
+              key: PINTEREST_AD_ACCOUNT_ID
+              optional: true
+        - name: PINTEREST_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: print-atelier-secrets
+              key: PINTEREST_ACCESS_TOKEN
+              optional: true
         resources:
           requests:
             cpu: 100m
