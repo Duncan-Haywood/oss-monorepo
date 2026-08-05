@@ -1120,6 +1120,78 @@ def _catalog_literal(source: str) -> str:
 _CATALOG_FIELD = re.compile(r"^\s*(id|dir|type|packageDir):\s*'([^']*)'", re.M)
 
 
+def _top_level_object_chunks(literal: str) -> List[str]:
+    """The text of each object directly inside the array literal.
+
+    By brace depth, not by indentation. The split this replaced was
+    `re.split(r"\\n[ \\t]{2}\\{", literal)`, which found an entry only when its
+    opening brace sat at exactly two spaces — so an entry written at four
+    spaces, or under a tab, was not a malformed entry but *no entry at all*.
+    It parsed to a shorter catalog, and a shorter candidate set is precisely
+    the quieter gate `parse_catalog` raises rather than returns `[]` to avoid:
+    the component had no floor, no exemption, and no finding. Measured before
+    this change: adding a four-space entry to `VENTURE_CATALOG` left
+    `audit_enrollment` reporting zero findings.
+
+    Node does not read indentation, so the previous rule made this file and the
+    module it audits disagree exactly where the disagreement is invisible. Depth
+    is the property the catalog actually has.
+
+    Quoted spans and `/* */` comments are skipped, so a brace in a string or in
+    a note to a reader cannot move the depth. `_strip_line_comments` has already
+    removed `//` comments from the source; block comments are handled here
+    because only the depth walk is sensitive to them, and raising
+    `unterminated object` at a developer who wrote a perfectly ordinary comment
+    is a gate that costs more than it catches.
+    """
+    chunks: List[str] = []
+    depth = 0
+    start: Optional[int] = None
+    quote: Optional[str] = None
+    escaped = False
+    in_block_comment = False
+    index = -1
+    while index + 1 < len(literal):
+        index += 1
+        char = literal[index]
+        if in_block_comment:
+            if char == "*" and literal[index + 1 : index + 2] == "/":
+                in_block_comment = False
+                index += 1
+            continue
+        if quote is not None:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == quote:
+                quote = None
+            continue
+        if char == "/" and literal[index + 1 : index + 2] == "*":
+            in_block_comment = True
+            index += 1
+            continue
+        if char in "'\"`":
+            quote = char
+            continue
+        if char == "{":
+            depth += 1
+            if depth == 1:
+                start = index
+        elif char == "}":
+            if depth == 1 and start is not None:
+                chunks.append(literal[start : index + 1])
+                start = None
+            depth = max(0, depth - 1)
+    if quote is not None or in_block_comment or depth != 0 or start is not None:
+        raise EnrollmentError(
+            f"{CATALOG_SYMBOL} in {CATALOG_PATH} has an unterminated object, string or "
+            "comment; the candidate set cannot be established from a literal that does "
+            "not close"
+        )
+    return chunks
+
+
 def parse_catalog(source: str) -> List[CatalogComponent]:
     """Every component `VENTURE_CATALOG` declares.
 
@@ -1129,10 +1201,12 @@ def parse_catalog(source: str) -> List[CatalogComponent]:
 
     Raises rather than returning `[]`. An empty candidate set is the vacuous
     case this contract is most exposed to — a glob or a parse that matches
-    nothing exits 0 and looks exactly like a gate that passed.
+    nothing exits 0 and looks exactly like a gate that passed. The same reason
+    entries are found by brace depth rather than by indentation: an entry this
+    parser cannot see is indistinguishable from one that is enrolled.
     """
     literal = _catalog_literal(_strip_line_comments(source))
-    chunks = re.split(r"\n[ \t]{2}\{", literal)[1:]
+    chunks = _top_level_object_chunks(literal)
     components: List[CatalogComponent] = []
     for chunk in chunks:
         fields: Dict[str, str] = {}
