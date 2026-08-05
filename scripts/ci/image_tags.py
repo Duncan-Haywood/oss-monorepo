@@ -68,6 +68,12 @@ from terraform_images import TERRAFORM_ROOT, TerraformSurfaceError, scan_terrafo
 SCAN_ROOT = "platform/k8s"
 EXCEPTIONS_PATH = "platform/image-tag-exceptions.yaml"
 
+#: Where a digest may legitimately come from. A promotion path writes a
+#: `digest:` line into an overlay after a build published the image it names;
+#: nothing else in this repository has any business writing one, because
+#: nothing else knows a digest.
+PROMOTION_ROOTS = ("platform/ci", ".gitea/workflows")
+
 REQUIRED_FIELDS = ("id", "path", "owner", "issue", "reason", "expires", "count")
 
 #: Claims an entry may make that something else in the repository can check.
@@ -397,6 +403,95 @@ def scan(repo_root: Path, scan_root: str = SCAN_ROOT) -> List[ImageRef]:
     return scan_manifests(repo_root, scan_root) + scan_terraform_surface(repo_root)
 
 
+def overlay_digests(repo_root: Path, scan_root: str = SCAN_ROOT) -> List[tuple[str, str]]:
+    """Every `digest:` written into a Kustomize overlay, as (path, digest)."""
+    root = repo_root / scan_root
+    if not root.is_dir():
+        raise ImageTagError(f"nothing to scan: {scan_root} is not a directory")
+
+    found: List[tuple[str, str]] = []
+    for kustomization in sorted(root.rglob("kustomization.yaml")):
+        relative = kustomization.relative_to(repo_root).as_posix()
+        try:
+            data = yaml.safe_load(kustomization.read_text(encoding="utf-8")) or {}
+        except yaml.YAMLError as exc:
+            raise ImageTagError(f"{relative}: could not parse as YAML: {exc}") from exc
+        for entry in data.get("images") or []:
+            if isinstance(entry, dict) and "digest" in entry:
+                found.append((relative, str(entry["digest"])))
+    return found
+
+
+def has_promotion_path(repo_root: Path, overlay_path: str) -> bool:
+    """Does anything in this repository write this overlay's digest?
+
+    A promotion script names the overlay it rewrites — `promote-pairwise-gitops.sh`
+    holds the quick-pick-survey path as a literal — so the question is answerable
+    offline, without asking a registry to resolve anything.
+
+    What this does not do, stated so nobody reads more into a green than is
+    there: it does not parse the script, so a file that names the overlay and
+    handles a `digest:` field for some other purpose would satisfy it. That is a
+    much narrower hole than the one it closes — it needs a real file, under a
+    promotion root, naming this exact overlay — and closing it properly means
+    executing the promotion, which belongs to a release, not to a gate. The
+    check is "someone built a mechanism to write this line", not "this line was
+    written by it".
+    """
+    for promotion_root in PROMOTION_ROOTS:
+        directory = repo_root / promotion_root
+        if not directory.is_dir():
+            continue
+        for candidate in sorted(directory.rglob("*")):
+            if not candidate.is_file():
+                continue
+            try:
+                text = candidate.read_text(encoding="utf-8")
+            except (UnicodeDecodeError, OSError):
+                continue
+            # `digest:` rather than `digest`, so a file that merely mentions
+            # digests in prose does not launder a hand-typed value.
+            if overlay_path in text and "digest:" in text:
+                return True
+    return False
+
+
+def check_digest_provenance(repo_root: Path, scan_root: str = SCAN_ROOT) -> List[Finding]:
+    """A digest is evidence of a build, or it is a filled-in field.
+
+    `digest_defect` judges a digest as a *string*: well formed, and not the one
+    placeholder value that had already reached a manifest. That is a denylist
+    with one entry, and it behaves the way denylists do here. On 2026-08-04 an
+    overlay was pinned to `sha256:e3b0c442…`, the digest of empty content; the
+    rule grew that one value; and on 2026-08-04 the same overlay was pinned to
+    `sha256:a1b2c3d4e5f6…`, typed by hand, which passed every check including
+    the one named for catching placeholders.
+
+    The question a denylist cannot ask is where the digest came from. A real one
+    is written by a promotion path after a build published the image — so an
+    overlay carrying a digest that no promotion path writes was typed by a
+    person, and names an artifact nobody has shown exists. IMG-001's own reason
+    says why that is worse than the mutable tag it replaces: it fails at pull
+    time in the cluster instead of at review time here.
+    """
+    findings: List[Finding] = []
+    for overlay_path, digest in overlay_digests(repo_root, scan_root):
+        if has_promotion_path(repo_root, overlay_path):
+            continue
+        findings.append(
+            Finding(
+                "digest-without-producer",
+                f"{overlay_path} pins `{digest}`, and nothing under "
+                f"{' or '.join(PROMOTION_ROOTS)} writes a digest into that file. A digest "
+                "no promotion path produces was written by hand, so it names an image "
+                "nobody has shown exists.\n        -> Restore the tag this overlay can "
+                "honestly carry and register it, or add the promotion step that earns "
+                "the digest.",
+            )
+        )
+    return findings
+
+
 def load_exceptions(repo_root: Path, path: str = EXCEPTIONS_PATH) -> List[Dict[str, Any]]:
     full = repo_root / path
     if not full.is_file():
@@ -492,6 +587,7 @@ def audit(repo_root: Path, today: Optional[date] = None) -> List[Finding]:
     entries = load_exceptions(repo_root)
 
     findings = check_expiry(entries, today)
+    findings.extend(check_digest_provenance(repo_root))
 
     mutable = [ref for ref in refs if ref.mutable]
     # Entries are matched in file order and each reference is claimed once, so a

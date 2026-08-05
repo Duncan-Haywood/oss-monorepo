@@ -87,6 +87,63 @@ Then add a subsection below saying what has to happen before the expiry date.
 Entries are matched in file order and each occurrence is claimed once, so put
 specific entries above broad ones.
 
+## Gate wiring
+
+A second register, in the same shape and for the same reason, lives in
+`scripts/ci/gate_wiring.py` as `REGISTERED_UNWIRED`. It answers a different
+question: not *is this suppression accounted for* but *does anything execute
+this control at all*.
+
+`platform/ci/test/gate-wiring.test.mjs` asked that question of shell only — its
+input is `scripts/**/test-*.sh`, four files — so the eighteen Python controls in
+`scripts/ci/` were audited for reachability by nothing. Twelve of them are
+registered in `scripts/test-ci.sh` because twelve separate commits put them
+there, which is not a rule and does not survive a deletion.
+
+`scripts/ci/audit_killed_ventures.py` is what that costs. It was written,
+committed, and given a five-case unittest, and no runner, workflow or module
+ever named it. It also imported `portfolio/router/allocate.py` — the orphaned
+engine nothing runs — and asked it for an allocation at `total_budget_usd=500.0`
+while the authoritative `portfolio/router/router.py` allocates at $300, then
+told venture owners to record overrides under `kill_criteria_overrides`, a key
+read by `allocate.py` alone. Unreachable, and pointed at the wrong engine, so
+wiring it would have been worse than deleting it.
+`scripts/ci/stopping_rule_review.py` already does that job against
+`portfolio/router/kill_criteria.py`, with a register, in both directions, and is
+wired. The file is deleted, and `tests/test_gate_wiring.py` fails if it returns.
+
+Every `scripts/ci/*.py` must now be either invoked by a runner or a workflow
+`run:` step, or carry a `Registration`. Four do:
+
+| Control | Kind | Checked predicate |
+| --- | --- | --- |
+| `release_lag.py` | `pytest-gated` | `tests/test_release_lag.py` exercises it and names `REPO_ROOT` |
+| `branch_collisions.py` | `pytest-gated` | `tests/test_branch_collisions.py` exercises it and names `REPO_ROOT` |
+| `baseline_trust.py` | `library` | declares no `__main__`; imported by the two above, which execute |
+| `terraform_images.py` | `library` | declares no `__main__`; imported by `image_tags.py` and `image_release_path.py`, both wired |
+
+The `why` on each entry is prose for a reader and is **not** what holds it. Each
+`kind` carries a typed evidence field that `tests/test_gate_wiring.py`
+recomputes from source on every run, because a register whose entries are only
+prose goes false in silence while every count stays green — this repository has
+been bitten by that shape in its budget ratchet and its claims controls alike.
+An entry whose predicate stops holding fails; so does one that outlives its
+control, one that sits beside a live invocation, and one whose `expires` has
+passed or is more than `MAX_REGISTRATION_DAYS` out.
+
+Two traps the detector is written against, both live in this tree:
+
+- **A `paths:` filter is not an invocation.** `.gitea/workflows/deploy-services.yml`
+  names `scripts/ci/terraform_images.py` in two `paths:` lists and runs it
+  never. A substring search reads that as wiring.
+- **A comment is not an invocation.** `scripts/test-ci.sh` carries a paragraph
+  above every gate, and several name controls that are wired elsewhere or not at
+  all. An invocation must put an interpreter on the same line, outside quotes and
+  outside a comment.
+
+`MAX_UNWIRED_CONTROLS` caps the register at 4 and is watched downward by
+`scripts/ci/cap_ratchet.py`, so the only direction it travels is toward zero.
+
 ## Deliberate scope limits
 
 Being honest about what this does **not** cover:

@@ -46,11 +46,14 @@ from image_tags import (
     ImageTagError,
     apply_overlay,
     audit,
+    check_digest_provenance,
     check_expiry,
     classify,
     digest_defect,
+    has_promotion_path,
     is_immutable_tag,
     load_exceptions,
+    overlay_digests,
     scan,
     split_reference,
 )
@@ -183,6 +186,131 @@ class DigestEvidenceTest(unittest.TestCase):
                         f"{kustomization.relative_to(REPO_ROOT)}: {defect}"
                     )
         self.assertEqual(offenders, [])
+
+
+def write_overlay_with_digest(directory: Path, name: str, digest: str) -> None:
+    directory.mkdir(parents=True, exist_ok=True)
+    (directory / "kustomization.yaml").write_text(
+        yaml.safe_dump(
+            {"images": [{"name": name, "newName": name, "digest": digest}]}
+        ),
+        encoding="utf-8",
+    )
+
+
+class DigestProvenanceTest(unittest.TestCase):
+    """Where a digest came from, which is the question a denylist cannot ask.
+
+    `digest_defect` judges the string. It grew one value — the digest of empty
+    content — after that value reached an overlay on 2026-08-04. On the same day
+    the same overlay was pinned to `sha256:a1b2c3d4e5f6…`, typed by hand, and
+    every check passed, including the one whose name says it catches
+    placeholders. Growing the denylist a second time would buy until the next
+    person types different characters.
+
+    A digest is written by a promotion path after a build published the image it
+    names. Nothing else knows a digest. So an overlay carrying one that no
+    promotion path writes was filled in by a person, and that is answerable here,
+    offline, without asking a registry to resolve anything.
+    """
+
+    IMAGE = "registry.example/app"
+
+    def _root(self, tmp: str, digest: str, promotion: str = "") -> Path:
+        root = Path(tmp)
+        overlay_dir = root / "platform/k8s/apps/app"
+        write_manifest(overlay_dir, "deployment.yaml", self.IMAGE)
+        write_overlay_with_digest(overlay_dir, self.IMAGE, digest)
+        if promotion:
+            promotion_dir = root / "platform/ci"
+            promotion_dir.mkdir(parents=True, exist_ok=True)
+            (promotion_dir / "promote.sh").write_text(promotion, encoding="utf-8")
+        return root
+
+    def test_a_hand_written_digest_is_reported(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._root(tmp, REAL_DIGEST)
+            findings = check_digest_provenance(root)
+            self.assertEqual(
+                ["digest-without-producer"], [f.code for f in findings]
+            )
+            self.assertIn("written by hand", findings[0].message)
+
+    def test_a_promoted_digest_is_evidence(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._root(
+                tmp,
+                REAL_DIGEST,
+                promotion=(
+                    "#!/usr/bin/env bash\n"
+                    'kustomization="$root/platform/k8s/apps/app/kustomization.yaml"\n'
+                    'sed -i "s#digest: .*#digest: ${IMAGE_DIGEST}#" "$kustomization"\n'
+                ),
+            )
+            self.assertEqual([], check_digest_provenance(root))
+
+    def test_a_promotion_file_that_never_writes_a_digest_is_not_a_producer(self):
+        """Naming the overlay is not producing its digest.
+
+        A workflow that merely mentions the path — to lint it, to render it —
+        would otherwise launder any hand-typed value in that file.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._root(
+                tmp,
+                REAL_DIGEST,
+                promotion="kubectl apply -k platform/k8s/apps/app/kustomization.yaml\n",
+            )
+            self.assertEqual(
+                ["digest-without-producer"],
+                [f.code for f in check_digest_provenance(root)],
+            )
+
+    def test_the_forgery_that_passed_would_now_be_caught(self):
+        """The exact value that reached this repository, as a regression case."""
+        forged = "sha256:a1b2c3d4e5f678901234567890abcdef1234567890abcdef1234567890abcdef"
+        self.assertIsNone(
+            digest_defect(forged),
+            "the string rule still accepts it — that is why provenance is checked",
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._root(tmp, forged)
+            self.assertEqual(
+                ["digest-without-producer"],
+                [f.code for f in check_digest_provenance(root)],
+            )
+
+    def test_the_audit_reports_it_rather_than_passing(self):
+        """Wired into the gate, not merely available to it."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._root(tmp, REAL_DIGEST)
+            write_exceptions(root, [])
+            self.assertIn(
+                "digest-without-producer", [f.code for f in audit(root)]
+            )
+
+
+class CommittedDigestProvenanceTest(unittest.TestCase):
+    """The real tree. Both halves, because either alone can pass while broken."""
+
+    def test_every_committed_digest_has_a_producer(self):
+        findings = check_digest_provenance(REPO_ROOT)
+        self.assertEqual(
+            [f.format() for f in findings],
+            [],
+            "an overlay pins a digest that no promotion path writes",
+        )
+
+    def test_the_repository_still_has_a_digest_to_judge(self):
+        """Guards the vacuous pass: no digests scanned is not a clean tree."""
+        digests = overlay_digests(REPO_ROOT)
+        self.assertTrue(
+            digests, "no overlay carries a digest, so the check above proved nothing"
+        )
+        self.assertTrue(
+            any(has_promotion_path(REPO_ROOT, path) for path, _ in digests),
+            "no committed digest has a producer, so the rule is passing vacuously",
+        )
 
 
 class ImmutableFormTest(unittest.TestCase):

@@ -258,6 +258,21 @@ run_ci_test "Duplicate Definition Scan" python3 "${REPO_ROOT}/scripts/ci/duplica
 # enforcement.
 run_ci_test "Tracked Symlink Contract" python3 "${REPO_ROOT}/scripts/ci/tracked_symlinks.py"
 
+# Every entry above this line is a control that runs because some commit added
+# it here, and until now that was the only thing making it true. Nothing audited
+# the set. `platform/ci/test/gate-wiring.test.mjs` asks whether a gate is
+# reachable, but its input is `scripts/**/test-*.sh` — four shell files — so the
+# eighteen Python controls in `scripts/ci/` were checked for reachability by
+# nothing at all. `scripts/ci/audit_killed_ventures.py` was the proof: written,
+# committed, unit-tested against `tmp_path` skeletons, named by no runner and no
+# workflow for its whole life, and reading the orphaned $500 `allocate.py`
+# rather than the $300 `router.py` this file runs at line 103. It is deleted;
+# `stopping_rule_review.py` above does that job against the authoritative
+# engine. This gate is what stops the next one going unnoticed: every
+# `scripts/ci/*.py` is invoked here or in a workflow, or carries a registration
+# whose predicate `tests/test_gate_wiring.py` recomputes from source.
+run_ci_test "Gate Wiring Contract" python3 "${REPO_ROOT}/scripts/ci/gate_wiring.py"
+
 # Linter gates below are host-tool dependent. Absence used to print a notice
 # and touch nothing — neither branch incremented FAILURES, so "not installed"
 # and "passed" were the same exit code. That is a reasonable convenience on a

@@ -179,6 +179,38 @@ exceptions:
       on it acts on a surface nothing serves. Recorded here rather than in the
       count alone for that reason.
 
+  # IMG-011 sits above IMG-001 for the same reason IMG-009 and IMG-010 do: it has
+  # a producer, and IMG-001's argument is about images that do not. It is also the
+  # entry that should never have gone missing. This overlay was registered here
+  # until 67b7a3ae replaced its `newTag: latest` with a hand-typed digest, which
+  # retired it from the census and lowered IMG-001's count — the second forged
+  # digest in this one file, and the reason `check_digest_provenance` now asks
+  # where a digest came from instead of what it looks like.
+  - id: IMG-011
+    path: platform/k8s/apps/local-site-studio/deployment.yaml
+    count: 1
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
+    expires: 2026-12-15
+    reason: >-
+      `newTag: latest`, and — like IMG-009, unlike IMG-001's four — an image that
+      exists. `.gitea/workflows/local-site-studio-image.yml` verifies the venture
+      through the shared component gate, builds the deployable image and publishes
+      `local-site-studio:${sha}` on main, deliberately declining to push `:latest`.
+      What is missing is the same half print-atelier is missing: nothing rewrites
+      this overlay to the digest that build produced. The worked example is
+      `platform/ci/promote-pairwise-gitops.sh`, which rewrites an existing
+      `digest:` line and so needs a first-promotion path here. That is an owner's
+      decision about releasing the venture holding this repository's most complete
+      Stripe Checkout, billing-portal and lead-CRM code, which is why the build
+      workflow stops where it does.
+    compensating_control: >-
+      Not reachable: `links.production` is `null` and no `:latest` is published for
+      this name, so the tag resolves to nothing and a sync would fail at pull time
+      rather than run unidentified code. That is the same exposure the fabricated
+      digest had, with one difference that is the whole point of this entry — this
+      state is counted and expires, and the digest was silent.
+
   - id: IMG-001
     path: platform/k8s/apps/*/deployment.yaml
     count: 4

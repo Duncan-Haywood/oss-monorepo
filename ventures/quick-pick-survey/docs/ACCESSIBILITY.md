@@ -32,8 +32,14 @@ run:
 - **A background counts only if it is on the element itself.** Text whose
   background comes from an ancestor is measured against the page surface. Right
   for the ordinary case — a white card on a white page — and wrong for text on
-  a coloured container, which is why exemptions are listed in the test with the
-  container named.
+  a coloured container. Those elements are listed in `ON_ANCESTOR_BACKGROUND`
+  in the test, each naming the ancestor surface it sits on, and the floor is
+  then enforced against that surface. Nothing is exempt: the entries supply an
+  input the class reader cannot see, they do not switch the check off. An entry
+  is anchored to one file, line, scheme and colour, so it cannot drift onto
+  another element; it must name a background the source really paints at or
+  above that line; it must be load-bearing, or the test tells you to delete it;
+  and it carries an owner, an issue and an expiry capped at 180 days.
 - **Opacity in a `style` prop is invisible to it.** The swipe stamp in
   `CardViews` fades in through inline opacity; the check sees its final state.
 

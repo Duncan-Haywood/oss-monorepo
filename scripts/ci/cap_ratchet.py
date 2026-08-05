@@ -525,6 +525,21 @@ WATCHES: Tuple[Watch, ...] = (
         locator="MAX_EXPIRY_DAYS",
         why="the furthest out the deployment-lag budget may be parked before review",
     ),
+    Watch(
+        path="scripts/ci/gate_wiring.py",
+        kind="python-constant",
+        locator="MAX_UNWIRED_CONTROLS",
+        why=(
+            "the ceiling on how many controls may sit registered as executed-by-nothing. "
+            "Raising it is how the register turns back into the state it was built to end"
+        ),
+    ),
+    Watch(
+        path="scripts/ci/gate_wiring.py",
+        kind="python-constant",
+        locator="MAX_REGISTRATION_DAYS",
+        why="the furthest out an unwired control may be parked before its reason is argued again",
+    ),
 )
 
 

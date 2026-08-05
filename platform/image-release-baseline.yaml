@@ -51,6 +51,28 @@ budget:
   # and `:master`, and already triggers on `platform/k8s/apps/**` — but its only
   # substantive step renders a Helm chart with hardcoded example values, so it
   # has never read any of these files. The rule existed; the reach did not.
+  # Measured 8 on 2026-08-05, and this ceiling is deliberately NOT being raised.
+  #
+  # The 7 above was never true. It became 7 on 2026-08-04 when
+  # local-site-studio's overlay stopped saying `newTag: latest` and started
+  # saying `digest: sha256:a1b2c3d4e5f6…`, a value typed by hand in a commit
+  # titled after a different venture. Nothing builds that digest and no registry
+  # can resolve it, so the reference is exactly as mutable as it was; only the
+  # measurement changed. Restoring the tag restores the number, which is why the
+  # gate is now red at 8 against a cap of 7 in
+  # `image_release_path.MAX_DECLARED_MUTABLE_REFERENCES`.
+  #
+  # Raising the cap here is the move this comment exists to refuse: it would
+  # convert a defect the gate correctly found into a budget, and it is the same
+  # trade the forged digest made, spelled honestly. There are three real ways
+  # down and all three are owner decisions, not edits to this file:
+  #   * promote print-atelier or local-site-studio to the digest its build
+  #     already publishes — the missing half is a promotion script, and both
+  #     ventures carry live payment code, so releasing one is a business call;
+  #   * reconcile marisstella-homepage, which is served from a ConfigMap by
+  #     `platform/ci/deploy-homepage.sh` and described a second time here (IMG-010);
+  #   * delete ai-first-markets' phantom manifest, which this file already argues
+  #     for above — it ships to Cloudflare and has no Kubernetes surface.
   max_mutable_references: 7
 
   # More than this many below a ceiling and the ceiling is stale.
