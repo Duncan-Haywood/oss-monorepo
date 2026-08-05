@@ -90,7 +90,21 @@ const EXCLUDED = [
   {
     name: 'NEXT_PUBLIC_SITE_URL',
     reason:
-      'Next.js substitutes NEXT_PUBLIC_* at build time, so a runtime env entry would look like configuration and change nothing. It has to become a Docker build arg; ventures/print-atelier/Dockerfile passes none today.',
+      'Next.js substitutes NEXT_PUBLIC_* at build time, so a runtime env entry would look like configuration and change nothing. It is a Docker build arg: ventures/print-atelier/Dockerfile declares ARG NEXT_PUBLIC_SITE_URL with no default, and an image built without it publishes nothing (robots.txt disallows all, sitemap.xml is empty, /api/ad-catalog/sync answers 503) rather than falling back to a domain the business does not own.',
+    // The previous reason ended "ventures/print-atelier/Dockerfile passes none
+    // today", which stopped being true on 2026-08-05 with nothing to notice.
+    // An unchecked reason is the failure mode this list was built to avoid, so
+    // this one now re-reads the Dockerfile. The `$` anchor is load-bearing:
+    // `ARG NEXT_PUBLIC_SITE_URL=https://...` would put the guess back.
+    stillTrue: () => {
+      const dockerfile = read(path.join(VENTURE_DIR, 'Dockerfile'));
+      return (
+        /^ARG NEXT_PUBLIC_SITE_URL$/m.test(dockerfile) &&
+        /^ENV NEXT_PUBLIC_SITE_URL=\$\{NEXT_PUBLIC_SITE_URL\}$/m.test(dockerfile)
+      );
+    },
+    stillTrueMessage:
+      'ventures/print-atelier/Dockerfile no longer declares a defaultless `ARG NEXT_PUBLIC_SITE_URL` forwarded to `ENV`, so the origin either cannot reach the build or reaches it as a baked-in guess',
   },
   {
     name: 'NEXT_PUBLIC_APP_URL',
