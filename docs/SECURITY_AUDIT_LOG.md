@@ -37,6 +37,7 @@ This log records all identified application, infrastructure, container, and CI s
 | **SEC-025** | Medium | Application | `ventures/print-atelier/src/app/api/stripe/webhook/route.ts` | Signed event missing `data` crashed the handler; the resulting 5xx makes Stripe redeliver indefinitely | **Fixed** |
 | **SEC-026** | Medium | Application | `ventures/print-atelier/src/lib/stripe-webhook-server.ts` | Webhook signature verification has no timestamp tolerance, so a captured payload replays indefinitely | **[ ] Open** |
 | **SEC-027** | High | Supply chain | `.gitea/workflows/security.yml` | The dependency-audit matrix covered 4 of 10 committed lockfiles; the 6 unaudited ones held 32 high-severity advisories | **Coverage fixed; 46 of 47 advisories open** |
+| **SEC-028** | High | Supply chain | `scripts/security-scan.sh`, three `package.json` | Unsatisfiable `overrides` made three packages uninstallable, dropping them from the audit; the completeness guard counted only packages it reached, so a one-package scan published `CLEAN` over 23 open HIGH advisories | **Fixed; 23 HIGH restored to the roadmap and open** |
 
 ---
 
@@ -634,6 +635,81 @@ This log records all identified application, infrastructure, container, and CI s
   deployed commit; minor, and easily gated. None of these are regressions; they
   are the honest reading of what `public` and `capability` mean on that
   surface, which is what the contract was written to make visible.
+
+---
+
+### SEC-028 — High — A Security Edit Switched The Security Scan Off
+
+- **Discovered**: 2026-08-05, investigating why `scripts/test-ci.sh` and the
+  verification pipeline were red on `main` at its own gates.
+- **Impact**: `SECURITY_ROADMAP.md` — the file the merge policy reads — was
+  published at 12:59 UTC declaring `1 package(s) audited`, `HIGH: 0`, and a
+  single row: `All Components | None | CLEAN | No active vulnerability findings
+  detected`. A complete scan of the same tree measures **23 HIGH, 4 MEDIUM,
+  2 LOW across 12 packages**. For the period the file stood, the repository's
+  security dashboard asserted a clean bill of health it had no evidence for,
+  and the recorded findings from SEC-023 and SEC-027 had been erased from it.
+
+- **Two independent causes, and neither one alone is sufficient:**
+
+  1. **The `overrides` blocks were unsatisfiable.** `2fdcf837` ("complete stash
+     convergence and clean uncommitted work") added an `overrides` block to
+     three manifests and regenerated none of their lockfiles. Each pinned a
+     package the same manifest depends on *directly* — `next`,
+     `eslint-config-next`, `postcss`. npm's rule is that an override on a direct
+     dependency must match that dependency's spec character for character, so
+     npm refused to build a tree at all. Note `postcss: "^8.5.18"` over a direct
+     `"^8"` violates it while being a strict subset. `npm ci` reports this as
+     `EUSAGE ... package.json and package-lock.json are not in sync`, which
+     names the wrong file entirely, and the audit skips any package it cannot
+     install. Three of twelve packages left the scan silently.
+
+  2. **The completeness guard had no denominator.** It refused to rewrite the
+     roadmap when a package landed in `AUDIT_GAPS_TMP` or when `AUDITED_COUNT`
+     was 0 — both conditions on packages the walk had *reached*. Discovery was
+     `find ventures portfolio platform ... 2>/dev/null`, so an absent root
+     contributes no packages, no gap and no message. "Every package audited"
+     therefore meant "every package we happened to find", and one package found,
+     one package audited, satisfied it.
+
+  The file's own header states the opposite guarantee: *"a scan that cannot
+  audit every package refuses to rewrite this file, so a clean dashboard always
+  means a complete scan rather than a failed one."* That sentence was true of
+  the intent and false of the code.
+
+- **Remediation**:
+  - `next` and `eslint-config-next` removed from `overrides` — they are direct
+    dependencies and an override is the wrong mechanism there — and `postcss`
+    aligned to `^8.5.18` in both blocks so override and dependency agree. No
+    override was dropped for convenience; the deferred semver-major `next` bump
+    from SEC-023 stays deferred and still wants a test suite first.
+  - The four lockfiles regenerated. **The security overrides had never once
+    applied**: postcss 8.4.31 → 8.5.25, sharp 0.34.5 → 0.35.3, glob → 10.5.0,
+    brace-expansion → 2.1.4, undici → 6.28.0, ws → 8.21.2.
+  - Discovery now requires each scan root to exist, propagates the walk's exit
+    status instead of discarding its stderr, and reconciles what the walk
+    reached against the manifests `git ls-files` reports under the same roots.
+    A tree that is not a git work tree is itself a gap, because the expected set
+    cannot be established and the walk cannot be checked against anything.
+  - `platform/ci/test/npm-manifest-integrity.test.mjs` holds all 18 tracked
+    manifests and 11 lockfile pairs to npm's override rule and to lockfile-root
+    agreement, statically, with no npm and no network.
+
+- **Note on the numbers.** The roadmap moving from `HIGH: 0` to `HIGH: 23` is
+  the scan recovering its sight, not a regression. It lands well below the 46
+  SEC-023 last measured honestly, because the postcss and sharp overrides
+  finally bite. Do not read the rise as new debt or the earlier 0 as a better
+  posture.
+
+- **What this says about the class.** The three fixture cases added to
+  `scripts/security/test-security-scan.sh` matter less than why they were
+  missing: neither fixture builder created `platform/`, so all ten existing
+  cases had been running against a scan with an absent root, invisibly, for as
+  long as the suite existed. The suite was reproducing the defect it was written
+  to catch. A control's fixtures are part of the control.
+
+- **Status**: **Fixed**. The 23 HIGH are restored to the roadmap and remain
+  open; they are tracked debt, not resolved.
 
 ---
 

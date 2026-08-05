@@ -20,6 +20,22 @@ fail() {
   failures=$((failures + 1))
 }
 
+# A fixture is a git work tree with all three scan roots present, because the
+# scanner treats a missing root and an unverifiable discovery as audit gaps. It
+# reconciles the packages its walk reached against the manifests git tracks, so
+# a fixture that is not a repository can prove nothing about the healthy path.
+#
+# Until 2026-08-05 neither builder created `platform/` or a repository, and the
+# walk's stderr went to /dev/null — so every case ran against a scan with an
+# absent root and no one could tell. That is the same shape as the defect this
+# suite exists to catch, sitting inside the suite itself.
+init_fixture_repo() {
+  local root="$1"
+  git -C "$root" init -q
+  git -C "$root" config user.email "fixture@example.invalid"
+  git -C "$root" config user.name "fixture"
+}
+
 # Build a fixture repository whose stubbed npm reproduces one npm audit
 # behaviour, then run the scanner inside it.
 new_fixture() {
@@ -33,8 +49,9 @@ new_fixture() {
   local dependencies="${4:-with-deps}"
   local root="$test_root/$name"
 
-  mkdir -p "$root/scripts" "$root/ventures/demo" "$root/portfolio" "$root/bin"
+  mkdir -p "$root/scripts" "$root/ventures/demo" "$root/portfolio" "$root/platform" "$root/bin"
   cp "$scanner" "$root/scripts/security-scan.sh"
+  init_fixture_repo "$root"
   if [ "$dependencies" = "no-deps" ]; then
     printf '{"name":"demo","version":"1.0.0"}\n' >"$root/ventures/demo/package.json"
   else
@@ -57,6 +74,16 @@ new_fixture() {
 
 run_scanner() {
   local root="$1"
+  # Staged here rather than in the builders because several cases add a manifest
+  # after the fixture is built. The scanner's expected set is what git tracks, so
+  # a case that writes a package.json and never stages it would be asserting
+  # against a package the scanner does not know to expect.
+  #
+  # Pass `keep-index` to skip the staging step, for the one case that needs the
+  # index to disagree with the working tree on purpose.
+  if [ "${2:-stage}" = "stage" ]; then
+    git -C "$root" add -A >/dev/null 2>&1 || true
+  fi
   SECURITY_SCAN_ALLOW_OFFLINE=0 SECURITY_SCAN_OFFLINE=0 PATH="$root/bin:$PATH" bash "$root/scripts/security-scan.sh" >"$root/stdout.log" 2>"$root/stderr.log"
 }
 
@@ -285,8 +312,9 @@ new_pnpm_fixture() {
   local pnpm_stub_body="$2"
   local root="$test_root/$name"
 
-  mkdir -p "$root/scripts" "$root/ventures/demo" "$root/portfolio" "$root/bin"
+  mkdir -p "$root/scripts" "$root/ventures/demo" "$root/portfolio" "$root/platform" "$root/bin"
   cp "$scanner" "$root/scripts/security-scan.sh"
+  init_fixture_repo "$root"
   printf '{"name":"demo","version":"1.0.0","dependencies":{"left-pad":"^1.0.0"}}\n' \
     >"$root/ventures/demo/package.json"
   printf 'lockfileVersion: "9.0"\n' >"$root/ventures/demo/pnpm-lock.yaml"
@@ -351,6 +379,68 @@ if run_scanner "$outside_fixture"; then
 fi
 grep -qF "$recorded_row" "$outside_fixture/SECURITY_ROADMAP.md" ||
   fail "a lockfile-less package outside the workspace must not overwrite findings"
+
+# --- Discovery completeness -------------------------------------------------
+#
+# The cases above all check what happens to a package the scanner *reached*. The
+# incident on 2026-08-05 came from the other side: `SECURITY_ROADMAP.md` was
+# rewritten with `1 package(s) audited`, `HIGH: 0` and a single
+# `All Components | None | CLEAN` row, over a repository holding 23 HIGH
+# advisories. Nothing failed. Every package the walk found audited cleanly, and
+# the guard's only floor was `AUDITED_COUNT -eq 0`, so "all of the packages we
+# found" passed for "all of the packages". A denominator is the fix, and these
+# cases are what hold it in place.
+
+# A scan root that is not there enumerates nothing, and nothing is
+# indistinguishable from clean once the walk's stderr is discarded.
+missing_root_fixture="$(new_fixture missing-scan-root "$(audit_json 0 0 0 '{}')" lockfile)"
+printf '%s\n' "$recorded_row" >"$missing_root_fixture/SECURITY_ROADMAP.md"
+rmdir "$missing_root_fixture/platform"
+if run_scanner "$missing_root_fixture"; then
+  fail "a missing scan root should exit non-zero"
+fi
+grep -qF "$recorded_row" "$missing_root_fixture/SECURITY_ROADMAP.md" ||
+  fail "a missing scan root must not overwrite the recorded findings"
+grep -q 'scan root does not exist' "$missing_root_fixture/stderr.log" ||
+  fail "a missing scan root should be named as the reason"
+
+# The general form: a manifest git tracks that the walk never handed to the
+# auditor. Reproduced as a partial checkout — the manifest is in the index but
+# not on disk — which is the realistic way a run ends up auditing a fraction of
+# the repository while every package it did find comes back clean.
+#
+# Note the prune list is deliberately applied to both enumerations, so a
+# manifest under `dist/` is absent from the expected set as well and is not a
+# finding. The two sides must agree on scope, or the reconciliation would report
+# every vendored copy as a gap and the guard would never clear.
+unreached_fixture="$(new_fixture unreached-manifest "$(audit_json 0 0 0 '{}')" lockfile)"
+printf '%s\n' "$recorded_row" >"$unreached_fixture/SECURITY_ROADMAP.md"
+mkdir -p "$unreached_fixture/ventures/absent"
+printf '{"name":"absent","version":"1.0.0","dependencies":{"left-pad":"^1.0.0"}}\n' \
+  >"$unreached_fixture/ventures/absent/package.json"
+git -C "$unreached_fixture" add -A >/dev/null 2>&1
+rm -rf "$unreached_fixture/ventures/absent"
+if run_scanner "$unreached_fixture" keep-index; then
+  fail "a tracked manifest the walk never reached should exit non-zero"
+fi
+grep -q 'never reached by package discovery' "$unreached_fixture/stderr.log" ||
+  fail "an unreached manifest should say that discovery missed it"
+grep -qF "$recorded_row" "$unreached_fixture/SECURITY_ROADMAP.md" ||
+  fail "an unreached manifest must not overwrite the recorded findings"
+
+# Without a repository there is no expected set, so the walk's result cannot be
+# checked against anything. That is precisely the state the CLEAN dashboard was
+# published from, and it must fail closed rather than trust the walk.
+ungit_fixture="$(new_fixture no-git-worktree "$(audit_json 0 0 0 '{}')" lockfile)"
+printf '%s\n' "$recorded_row" >"$ungit_fixture/SECURITY_ROADMAP.md"
+rm -rf "$ungit_fixture/.git"
+if run_scanner "$ungit_fixture"; then
+  fail "a scan outside a git work tree should exit non-zero"
+fi
+grep -q 'not a git work tree' "$ungit_fixture/stderr.log" ||
+  fail "a scan outside a git work tree should say the discovery was unverifiable"
+grep -qF "$recorded_row" "$ungit_fixture/SECURITY_ROADMAP.md" ||
+  fail "a scan outside a git work tree must not overwrite the recorded findings"
 
 if [ "$failures" -ne 0 ]; then
   printf 'security-scan contract tests failed: %d\n' "$failures" >&2
