@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import test, { afterEach, beforeEach } from "node:test";
+import test, { describe, afterEach, beforeEach } from "node:test";
 
 import robots from "../src/app/robots.ts";
 import sitemap from "../src/app/sitemap.ts";
@@ -33,6 +33,7 @@ import { catalogArtworks } from "../src/lib/marketplace.ts";
  * green when the fix is reverted.
  */
 
+describe("site-url fail-closed contract", () => {
 const CONFIGURED = "https://atelier.marisstella.dev";
 
 const savedSiteUrl: { value: string | undefined } = { value: undefined };
@@ -460,3 +461,5 @@ test("each exempted module is still unreachable from any route or component", ()
     );
   }
 });
+});
+
