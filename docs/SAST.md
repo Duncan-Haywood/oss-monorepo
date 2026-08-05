@@ -113,9 +113,93 @@ Remediation order, highest value first. Counts are occurrences.
 | `unsafe-formatstring` | 45 | info | Largest and lowest-severity group, all in `local-site-studio`. Most are template literals in log and error strings. |
 | everything else | 14 | mixed | See the `plan` field on each entry. |
 
+## Reviewed findings
+
+An entry marked `reviewed` claims somebody read the finding and can say why it
+is not exploitable. That claim needs somewhere to live at more than the length
+a YAML `reason` invites, so it lives here, and the entry's `issue` field points
+at it.
+
+Note that most entries in the register point at `docs/SAST.md#sast-0nn`
+anchors that do not exist yet — the two below are the first that resolve. That
+gap is worth closing per entry as each is genuinely assessed, and is not worth
+closing by generating empty sections.
+
+### SAST-090
+
+`detect-non-literal-regexp`, three occurrences in
+`ventures/quick-pick-survey/src/lib/retentionWindow.test.ts`.
+
+The file is a source contract: it reads the three rate limiters and asserts each
+declares its retention through `checkedRetentionMs`, against its own window
+constant. To do that it builds a pattern per limiter from that limiter's
+constant names, which is what the rule fires on.
+
+Not exploitable, and the reason is the shape of the input rather than a control
+wrapped around it. Every interpolated value comes from `LIMITER_SOURCES`, a
+`const [...] as const` literal 25 lines above, holding three fixed records of
+identifier names. No request, environment variable, file read, or test parameter
+reaches the pattern; changing what it matches means editing the literal. The
+constructed regexes are then run over source files this repository ships, so
+neither injection nor backtracking has an attacker-supplied side, and the file
+is never bundled.
+
+Writing the patterns as literals would repeat each limiter's constant names in a
+fourth place, which is exactly the drift the contract exists to catch. Revisit
+if `LIMITER_SOURCES` ever stops being a literal in this file.
+
+### SAST-091
+
+`detect-non-literal-regexp`, two occurrences in
+`ventures/local-site-studio/src/lib/pricing/tier-price-binding.test.ts`.
+
+Both build `new RegExp("\\b" + tier.token + "\\b")` to find where a tier is
+named in rendered marketing copy, so that an advertised amount can be bound to
+the tier it is advertised under.
+
+`tier.token` is not caller data. `tiers()` derives it from `BUNDLES` and
+`COMMERCE_ADDON` — the venture's own pricing catalog module — taking the first
+whitespace-delimited word of each bundle name. Influencing the pattern requires
+commit access, at which point the regex is not the weakest thing available. Both
+patterns match markup the test renders itself, never request input, and the file
+is never bundled. The word-boundary form cannot backtrack catastrophically: a
+literal token between two anchors, no alternation, no nested quantifier.
+
+Revisit if tier names ever become operator-editable. A catalog loaded from the
+database or a CMS would make `tier.token` runtime data and this entry wrong; the
+fix then is to escape the token, not to re-date the entry.
+
 ## Known limits
 
 State these rather than discovering them later.
+
+- **The counts are load-sensitive, and degrade in the direction that looks like
+  a code change.** Semgrep applies a per-file timeout. A file that hits it is
+  reported as partially parsed and its findings are simply absent — so on a busy
+  machine the partial-parse count rises *and* individual `count:` values fall,
+  with no error saying either happened. Measured 2026-08-05 on this repository:
+  a full scan run while a test suite was running reported
+  `path-join-resolve-traversal` in `platform/ci/src/pipeline.mjs` as 29
+  occurrences and 54 partially-parsed files; a second full run reported 31 and
+  56; scanning that one file on its own, twice, reported 31 both times. The
+  register's 31 was correct the whole time.
+
+  This matters more than the flapping itself, because of what the failure invites
+  you to do. The gate says `now occurs 29x, baseline allows 31 — lower the
+  count`, and lowering it is a one-line edit that makes the gate green. It is
+  also wrong: it permanently under-reserves a real finding, and the next quiet
+  run fails in the opposite direction. **Never move a `count:` or the
+  `semgrep_unparsed_max` ceiling on the strength of one full-scan number.**
+  Re-measure the specific file on its own, on an otherwise idle machine, twice,
+  and move the register only to a number that reproduces. A count that will not
+  reproduce is a measurement problem, not a register problem.
+
+- **`coverage.semgrep_unparsed_max` is not cap-ratcheted.** Every other ceiling
+  in this repository has its floor pinned to the lowest value it has ever held
+  by `scripts/ci/cap_ratchet.py`, precisely because the tempting response to a
+  failing ceiling is to raise it. This one is watched by nothing, so raising it
+  costs a single line and no review, and — per the limit above — a contended run
+  produces exactly the pressure to do so. Enrolling it is open work.
 
 - **The rule set is not pinned.** The tool version is pinned in
   `requirements-sast.txt`; `p/default` is resolved from the Semgrep registry at

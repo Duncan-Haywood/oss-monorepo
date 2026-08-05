@@ -1066,21 +1066,16 @@ baseline:
     plan: >-
       Test file containing explicit directional text test cases.
 
-  - id: SAST-084
-    tool: semgrep
-    rule: generic.unicode.security.bidi.contains-bidirectional-characters
-    path: ventures/quick-pick-survey/src/lib/ogCardFields.ts
-    count: 4
-    status: inherited
-    severity: warning
-    owner: duncan
-    issue: docs/SAST.md#inherited-findings
-    expires: 2026-10-30
-    reason: >-
-      Present when SAST was switched on, counted but not individually assessed.
-      Locked to this exact count so it cannot grow.
-    plan: >-
-      Unicode formatting symbols in Open Graph card rendering.
+  # SAST-084 (generic.unicode.security.bidi.contains-bidirectional-characters in
+  # ventures/quick-pick-survey/src/lib/ogCardFields.ts) is resolved and removed
+  # rather than re-dated. The four matches were literal bidi codepoints inside
+  # the `NOT_RENDERABLE` character class — the class that exists to strip those
+  # very codepoints out of card text. They are now written as `\uXXXX` escapes,
+  # so the accepted set is unchanged (verified codepoint by codepoint across
+  # U+0000-U+2FFF) and the source file no longer contains characters that
+  # reorder how it reads. Re-verified 2026-08-05 with `semgrep scan --config
+  # p/default` on the file alone: 4 findings on the pre-change file, 0 on the
+  # current one.
 
   - id: SAST-085
     tool: semgrep
@@ -1161,5 +1156,63 @@ baseline:
       Locked to this exact count so it cannot grow.
     plan: >-
       Path resolution in pricing claims unit test.
+
+  - id: SAST-090
+    tool: semgrep
+    rule: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+    path: ventures/quick-pick-survey/src/lib/retentionWindow.test.ts
+    count: 3
+    status: reviewed
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#sast-090
+    expires: 2027-01-28
+    reason: >-
+      The rule flags a RegExp built from a variable, and these three are. The
+      variable is the reason they are not exploitable: every interpolated value
+      is a field of `LIMITER_SOURCES`, a `const [...] as const` array literal
+      declared 25 lines above in the same file, holding three fixed records of
+      identifier names (`RETENTION_MS`, `WINDOW_MS`, `ATTEMPT_RETENTION_MS`,
+      `RATE_LIMIT_WINDOW_MS`) and three fixed subject strings. Nothing reaches
+      these patterns from a request, an environment variable, a file read, or a
+      test parameter; changing what they match requires editing the literal.
+      The regexes are then run over source files this repository ships, not over
+      caller input, so neither injection nor catastrophic backtracking has an
+      attacker-supplied side. The file is a `.test.ts` and is never bundled.
+      Rewriting the patterns as literals would mean repeating each limiter's
+      constant names in a fourth place, which is the drift this source contract
+      was written to catch.
+    plan: >-
+      Revisit if `LIMITER_SOURCES` ever stops being a literal in this file — for
+      example if the table moves to JSON or is derived by globbing the limiters.
+      At that point the interpolated values stop being source-controlled and the
+      entry must be reassessed rather than re-dated.
+
+  - id: SAST-091
+    tool: semgrep
+    rule: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+    path: ventures/local-site-studio/src/lib/pricing/tier-price-binding.test.ts
+    count: 2
+    status: reviewed
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#sast-091
+    expires: 2027-01-28
+    reason: >-
+      Both construct `new RegExp("\\b" + tier.token + "\\b")` to find where a
+      tier is named in rendered marketing copy. `tier.token` is not caller data:
+      `tiers()` builds it from `BUNDLES` and `COMMERCE_ADDON`, the venture's own
+      pricing catalog module, taking the first whitespace-delimited word of each
+      bundle name. The values are TypeScript source constants, so an attacker
+      would need commit access to influence the pattern, at which point the
+      regex is not the weakest thing they control. Both patterns are matched
+      against markup this test renders itself, never against request input, and
+      the file is a `.test.ts` that no build bundles. The word-boundary form
+      also cannot backtrack catastrophically: it is a literal alternation-free
+      token between two anchors.
+    plan: >-
+      Revisit if tier names ever become operator-editable — a catalog loaded from
+      the database or a CMS would make `tier.token` runtime data and this entry
+      wrong. Escaping the token with a regex-quote helper would be the fix then.
 
 
