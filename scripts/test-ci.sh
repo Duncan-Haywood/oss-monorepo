@@ -6,7 +6,7 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # Ensure git commands don't crash when user's home gitconfig is restricted by sandbox
-if [ -z "${GIT_CONFIG_GLOBAL:-}" ] && [ -f "${HOME:-}/.gitconfig" ] && ! [ -r "${HOME:-}/.gitconfig" ]; then
+if [ -z "${GIT_CONFIG_GLOBAL:-}" ]; then
   export GIT_CONFIG_GLOBAL=/dev/null
 fi
 # Every check below must resolve against the repository, not the caller's
@@ -63,8 +63,11 @@ run_ci_test() {
   fi
 }
 
-# 1. Pairwise Unit & Component Tests
+# 1. Venture Unit & Component Tests
 run_ci_test "Pairwise (Quick Pick Survey) Unit Suite" npm --prefix "${REPO_ROOT}/ventures/quick-pick-survey" test
+run_ci_test "AI First Markets Unit Suite" npm --prefix "${REPO_ROOT}/ventures/ai-first-markets" test
+run_ci_test "Photo Editing Docs-Site Unit Suite" npm --prefix "${REPO_ROOT}/ventures/photo-editing/docs-site" test
+run_ci_test "Local Site Studio Unit Suite" npm --prefix "${REPO_ROOT}/ventures/local-site-studio" test
 
 # 2. Dagger CI Engine Unit Tests
 # Every test file under platform/ci/test, not a named one. This line used to

@@ -299,17 +299,26 @@ def command_reaches(command: Sequence[str], cwd: Path, target: Path) -> bool:
     return any(_sh_glob_matches(tok, cwd, target) for tok in tokens)
 
 
-def npm_test_script(repo_root: Path, venture: str) -> Optional[str]:
-    """The venture's `npm test` script, or None if it has no package.json."""
-    pkg = repo_root / VENTURES_DIR / venture / "package.json"
+def npm_test_script(repo_root: Path, venture: str, contract: Optional[Path] = None) -> tuple[Optional[str], Path]:
+    """The venture's `npm test` script and working directory, or (None, venture_dir) if missing."""
+    venture_dir = repo_root / VENTURES_DIR / venture
+    pkg_dir = venture_dir
+    if contract:
+        curr = contract.parent
+        while curr != repo_root and curr != venture_dir.parent:
+            if (curr / "package.json").is_file():
+                pkg_dir = curr
+                break
+            curr = curr.parent
+    pkg = pkg_dir / "package.json"
     if not pkg.is_file():
-        return None
+        return None, venture_dir
     try:
         data = json.loads(pkg.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError):
-        return None
+        return None, pkg_dir
     script = data.get("scripts", {}).get("test")
-    return script if isinstance(script, str) else None
+    return (script if isinstance(script, str) else None), pkg_dir
 
 
 def test_ci_runs_venture_suite(repo_root: Path, venture: str) -> bool:
@@ -320,7 +329,7 @@ def test_ci_runs_venture_suite(repo_root: Path, venture: str) -> bool:
     source = path.read_text(encoding="utf-8")
     # `run_ci_test "<name>" npm --prefix "${REPO_ROOT}/ventures/<venture>" test`
     pattern = re.compile(
-        r"^\s*run_ci_test\s+\"[^\"]*\"\s+npm\s+--prefix\s+\"[^\"]*/" + re.escape(venture) + r"\"\s+test\b",
+        r"^\s*run_ci_test\s+\"[^\"]*\"\s+npm\s+--prefix\s+\"[^\"]*/" + re.escape(venture) + r"(?:/[^\"]*)?\"\s+test\b",
         re.MULTILINE,
     )
     return bool(pattern.search(source))
@@ -357,10 +366,9 @@ def check_execution(repo_root: Path, entry: dict, contract: Path) -> Optional[st
         if not test_ci_runs_venture_suite(repo_root, venture):
             return (f"{TEST_CI_PATH} has no `npm --prefix .../{venture} test` gate, "
                     f"so nothing in CI runs this venture's suite")
-        script = npm_test_script(repo_root, venture)
+        script, cwd = npm_test_script(repo_root, venture, contract)
         if not script:
-            return f"ventures/{venture}/package.json declares no `test` script"
-        cwd = repo_root / VENTURES_DIR / venture
+            return f"{cwd.relative_to(repo_root)}/package.json declares no `test` script"
         if not command_reaches(shlex.split(script), cwd, contract):
             return (f"the venture's test script ({script!r}) does not expand to the contract file. "
                     f"npm runs scripts under sh, which has no globstar, so `**` matches one level only")
