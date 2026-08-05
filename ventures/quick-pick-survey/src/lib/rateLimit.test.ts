@@ -13,23 +13,47 @@
  * production — it either locks out a real couple or lets a script through —
  * and neither shows up as an error anywhere.
  */
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 type CountArgs = { where: { ip: string; route: string; createdAt: { gte: Date } } };
+type CreateArgs = { data: { ip: string; route: string } };
+type DeleteManyArgs = { where: { createdAt: { lt: Date } } };
 
-const count = vi.fn<(args: CountArgs) => Promise<number>>(async () => 0);
-const create = vi.fn<(args: { data: { ip: string; route: string } }) => Promise<object>>(async () => ({}));
-const deleteMany = vi.fn(async () => ({ count: 0 }));
+/**
+ * A standing `AnonRequestLog`, so the sweep and the count meet the same rows
+ * they meet in production instead of two unrelated mock return values.
+ * `createdAt` is stamped at insert time because the real column is
+ * `@default(now())` — the database decides it, and both the sweep and the
+ * count key off it.
+ */
+let rows: { ip: string; route: string; createdAt: Date }[] = [];
+
+const count = vi.fn<(args: CountArgs) => Promise<number>>(
+  async ({ where }) =>
+    rows.filter((row) => row.ip === where.ip && row.route === where.route && row.createdAt >= where.createdAt.gte)
+      .length,
+);
+const create = vi.fn<(args: CreateArgs) => Promise<object>>(async ({ data }) => {
+  const row = { ...data, createdAt: new Date() };
+  rows.push(row);
+  return row;
+});
+const deleteMany = vi.fn<(args: DeleteManyArgs) => Promise<{ count: number }>>(async ({ where }) => {
+  const before = rows.length;
+  rows = rows.filter((row) => row.createdAt >= where.createdAt.lt);
+  return { count: before - rows.length };
+});
 const transaction = vi.fn(async (operations: Promise<unknown>[]) => Promise.all(operations));
 
 vi.mock("@/lib/prisma", () => ({
   prisma: { anonRequestLog: { count, create, deleteMany }, $transaction: transaction },
 }));
 
-const { getClientIp, isWriteRateLimited, recordWrite } = await import("@/lib/rateLimit");
+const { getClientIp, isWriteRateLimited, recordWrite, RETENTION_MS, WINDOW_MS } = await import("@/lib/rateLimit");
 const { rateLimitKey } = await import("@/lib/http");
 
 beforeEach(() => {
+  rows = [];
   count.mockClear();
   create.mockClear();
   deleteMany.mockClear();
@@ -72,7 +96,7 @@ describe("isWriteRateLimited", () => {
     const after = Date.now();
 
     const gte = whereClause().createdAt.gte.getTime();
-    const WINDOW_MS = 15 * 60 * 1000;
+    expect(WINDOW_MS).toBe(15 * 60 * 1000);
     // Bounded on both sides rather than compared to a re-computed `Date.now()`,
     // which would be flaky whenever the clock ticks mid-test.
     expect(gte).toBeGreaterThanOrEqual(before - WINDOW_MS);
@@ -92,6 +116,64 @@ describe("recordWrite", () => {
       data: { ip: rateLimitKey("5.6.7.8"), route: "feedback" },
     });
     expect(create.mock.calls[0][0].data.ip).not.toContain("5.6.7.8");
+  });
+});
+
+/**
+ * The window and the retention period are two constants that read as
+ * independent and are not. `recordWrite` sweeps rows older than RETENTION_MS
+ * in the same `$transaction` that inserts the new row, and those are the rows
+ * `isWriteRateLimited` counts — so the window actually enforced is
+ * `min(WINDOW_MS, RETENTION_MS)`.
+ *
+ * Set retention below the window and every anonymous write limit loosens
+ * silently: no error, no log, `MAX_STARTS_PER_IP` and its five siblings still
+ * read exactly as before, and the endpoints keep returning 200. These tests
+ * fail on that inversion with the module-load guard removed, which is the
+ * point — the guard and the behaviour it protects are checked separately.
+ */
+describe("the retention sweep must outlive the counting window", () => {
+  const IP = "198.51.100.7";
+  const ROUTE = "session/start";
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("still counts earlier writes in the window after a later write sweeps", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-01-01T00:00:00Z"));
+
+    // Three writes as the window opens...
+    await recordWrite(IP, ROUTE);
+    await recordWrite(IP, ROUTE);
+    await recordWrite(IP, ROUTE);
+
+    // ...and a fourth a minute before it closes. Its sweep runs in the same
+    // transaction as its insert and must not carry off the first three.
+    vi.advanceTimersByTime(WINDOW_MS - 60_000);
+    await recordWrite(IP, ROUTE);
+
+    // Four writes inside one window is the fourth caller's limit reached. With
+    // retention below the window this is `false`: the sweep emptied the table
+    // and the caller may keep going indefinitely.
+    expect(await isWriteRateLimited(IP, ROUTE, 4)).toBe(true);
+  });
+
+  it("sweeps only rows already older than the window it counts", async () => {
+    const before = Date.now();
+    await recordWrite(IP, ROUTE);
+    const after = Date.now();
+
+    const cutoff = deleteMany.mock.calls[0][0].where.createdAt.lt.getTime();
+    // Nothing the count can still see may be eligible for deletion.
+    expect(cutoff).toBeLessThan(before - WINDOW_MS);
+    expect(cutoff).toBeGreaterThanOrEqual(before - RETENTION_MS);
+    expect(cutoff).toBeLessThanOrEqual(after - RETENTION_MS);
+  });
+
+  it("declares retention longer than the window", () => {
+    expect(RETENTION_MS).toBeGreaterThan(WINDOW_MS);
   });
 });
 

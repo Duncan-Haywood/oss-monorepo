@@ -2,7 +2,7 @@ import { createHash, randomBytes } from "crypto";
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { rateLimitKey } from "@/lib/http";
+import { assertRetentionOutlivesWindow, rateLimitKey } from "@/lib/http";
 
 export const SESSION_COOKIE = process.env.NODE_ENV === "production" ? "__Host-qp_session" : "qp_session";
 const LEGACY_SESSION_COOKIE = "qp_session";
@@ -15,6 +15,12 @@ const BCRYPT_ROUNDS = process.env.NODE_ENV === "test" || Boolean(process.env.VIT
 const WINDOW_MS = 15 * 60 * 1000;
 const MAX_FAILURES_PER_EMAIL = 8;
 const MAX_FAILURES_PER_IP = 20;
+
+// `recordLoginAttempt` sweeps attempts older than ATTEMPT_RETENTION_MS in the
+// same transaction that records the new one, so a retention at or below
+// WINDOW_MS would delete the failures `isLoginRateLimited` counts and leave
+// both MAX_FAILURES_* constants reading correctly over an empty table.
+assertRetentionOutlivesWindow("auth login limiter", WINDOW_MS, ATTEMPT_RETENTION_MS);
 
 export function hashToken(raw: string): string {
   return createHash("sha256").update(raw).digest("hex");
