@@ -233,3 +233,35 @@ test("the Stripe webhook route passes a bounded tolerance, not a literal", () =>
   );
 });
 
+
+/**
+ * The other fail-open default in this verifier's contract, found while fixing
+ * the tolerance: `createHmac` accepts `""` as a key and returns a digest keyed
+ * on nothing, so a blank secret would authenticate a payload anyone could
+ * sign. The current route is not exposed — it requires a `whsec_` prefix and
+ * 503s otherwise — so this is defence in depth for the next call site, which
+ * is precisely the risk the tolerance default demonstrated is real.
+ */
+test("verifyStripeWebhookSignature refuses to authenticate against a blank secret", () => {
+  const payload = JSON.stringify({ id: "evt_blank", type: "payment_intent.succeeded" });
+  const now = 1710000000;
+
+  for (const blank of ["", "   ", "\t\n"]) {
+    // The header an attacker would send: a genuine HMAC under the blank key.
+    const digest = createHmac("sha256", blank).update(`${now}.${payload}`, "utf8").digest("hex");
+
+    assert.equal(
+      verifyStripeWebhookSignature(payload, `t=${now},v1=${digest}`, blank, 300, now),
+      false,
+      `a blank secret (${JSON.stringify(blank)}) must never verify, even against its own digest`,
+    );
+  }
+
+  // A real secret still verifies — the guard rejects blank keys, not all keys.
+  const secret = "whsec_test_secret";
+  const good = createHmac("sha256", secret).update(`${now}.${payload}`, "utf8").digest("hex");
+  assert.equal(
+    verifyStripeWebhookSignature(payload, `t=${now},v1=${good}`, secret, 300, now),
+    true,
+  );
+});

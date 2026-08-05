@@ -55,6 +55,24 @@ export function verifyStripeWebhookSignature(
     return false;
   }
 
+  // The second fail-open default in this function's contract, and the same
+  // shape as the tolerance above: an absent value that behaves like an
+  // authorised one. `createHmac("sha256", "")` does not throw — it returns a
+  // digest keyed on nothing, which any attacker can reproduce — so an unset
+  // or blank `STRIPE_WEBHOOK_SECRET` reaching here would verify forged
+  // payloads rather than refuse to answer.
+  //
+  // The one current call site is not exposed: `route.ts` requires
+  // `getStripeWebhookEnvStatus().webhookSecretConfigured`, which demands a
+  // `whsec_` prefix, and returns 503 otherwise. This guard is therefore
+  // defence in depth, not a live hole. It is worth having anyway for exactly
+  // the reason this file was being edited: the safety of this verifier
+  // depended on what a single caller happened to pass, and a second call site
+  // that read the env var directly would inherit none of that check.
+  if (typeof webhookSecret !== "string" || webhookSecret.trim() === "") {
+    return false;
+  }
+
   if (!signatureHeader) {
     return false;
   }
