@@ -1,5 +1,9 @@
 import type { OrderRecord } from "./orders";
 import {
+  createInMemoryFulfillmentSubmissionStore,
+  type FulfillmentSubmissionStoreDescriptor,
+} from "./fulfillment-submission-store";
+import {
   describeMissingBuyerShipping,
   resolveBuyerShippingAddress,
 } from "./buyer-shipping";
@@ -413,16 +417,23 @@ export async function queuePrintfulFulfillmentFromOrder(
   });
 }
 
-const fulfillmentStore: PrintfulOrderSubmission[] = [];
+const fulfillmentStore =
+  createInMemoryFulfillmentSubmissionStore<PrintfulOrderSubmission>("printful");
 
 export function getPrintfulFulfillmentSubmissions(): PrintfulOrderSubmission[] {
-  return [...fulfillmentStore];
+  return fulfillmentStore.list();
+}
+
+export function getPrintfulFulfillmentStoreDescriptor(): FulfillmentSubmissionStoreDescriptor {
+  return { ...fulfillmentStore.descriptor };
 }
 
 export function getPrintfulRetryQueue(): PrintfulOrderSubmission[] {
-  return fulfillmentStore.filter(
-    (item) => item.status === "blocked" && (item.canRetry ?? true) && (item.retryCount ?? 0) < (item.maxRetries ?? 3),
-  );
+  return fulfillmentStore
+    .list()
+    .filter(
+      (item) => item.status === "blocked" && (item.canRetry ?? true) && (item.retryCount ?? 0) < (item.maxRetries ?? 3),
+    );
 }
 
 export async function retryPrintfulFulfillmentSubmission(
@@ -430,7 +441,7 @@ export async function retryPrintfulFulfillmentSubmission(
   env: Record<string, string | undefined> = {},
   fetchFn?: FetchLike,
 ): Promise<PrintfulOrderSubmission | null> {
-  const existing = fulfillmentStore.find((item) => item.orderId === orderId);
+  const existing = fulfillmentStore.find(orderId);
   if (!existing || existing.status !== "blocked") {
     return null;
   }
@@ -481,13 +492,9 @@ export async function retryPrintfulFulfillmentSubmission(
 export function recordPrintfulFulfillmentSubmission(
   submission: PrintfulOrderSubmission,
 ): PrintfulOrderSubmission {
-  fulfillmentStore.unshift(submission);
-  if (fulfillmentStore.length > 50) {
-    fulfillmentStore.length = 50;
-  }
-  return submission;
+  return fulfillmentStore.record(submission);
 }
 
 export function clearPrintfulFulfillmentForTests(): void {
-  fulfillmentStore.length = 0;
+  fulfillmentStore.clear();
 }

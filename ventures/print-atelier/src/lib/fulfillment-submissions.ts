@@ -1,8 +1,14 @@
 import {
+  getGelatoFulfillmentStoreDescriptor,
   getGelatoFulfillmentSubmissions,
   type GelatoOrderSubmission,
 } from "./gelato-orders";
 import {
+  describeFulfillmentRecordCompleteness,
+  type FulfillmentRecordCompleteness,
+} from "./fulfillment-submission-store";
+import {
+  getPrintfulFulfillmentStoreDescriptor,
   getPrintfulFulfillmentSubmissions,
   type PrintfulOrderSubmission,
 } from "./printful-orders";
@@ -22,6 +28,13 @@ export type FulfillmentSubmissionSummary = {
   fulfillmentReady: boolean;
   recentSubmissions: FulfillmentSubmissionRecord[];
   blockers: string[];
+  /**
+   * What these counts can vouch for. Every number above is derived from the
+   * submission stores, so a store that forgets makes them a lower bound —
+   * `blockedCount` most of all, because a blocked submission that is not
+   * counted is a paid order nobody is told about.
+   */
+  completeness: FulfillmentRecordCompleteness;
 };
 
 function getAllFulfillmentSubmissions(): FulfillmentSubmissionRecord[] {
@@ -42,9 +55,17 @@ export function buildFulfillmentSubmissionSummary(
   const printfulCount = submissions.filter((item) => item.partner === "printful").length;
   const gelatoCount = submissions.filter((item) => item.partner === "gelato").length;
 
+  const completeness = describeFulfillmentRecordCompleteness([
+    getPrintfulFulfillmentStoreDescriptor(),
+    getGelatoFulfillmentStoreDescriptor(),
+  ]);
+
   const blockers: string[] = [];
   if (submissions.length === 0) {
     blockers.push("No fulfillment submissions yet — complete a Stripe test checkout");
+  }
+  if (!completeness.complete && completeness.reason) {
+    blockers.push(completeness.reason);
   }
   if (blockedCount > 0) {
     blockers.push(`${blockedCount} submission(s) blocked by fulfillment API errors`);
@@ -66,7 +87,10 @@ export function buildFulfillmentSubmissionSummary(
     printfulCount,
     gelatoCount,
     fulfillmentReady: submittedCount > 0 && blockedCount === 0,
+    // The bound on what an operator *sees*. It is deliberately separate from the
+    // bound on what *exists* — collapsing the two is what the evicting store did.
     recentSubmissions: submissions.slice(0, 12),
     blockers,
+    completeness,
   };
 }
