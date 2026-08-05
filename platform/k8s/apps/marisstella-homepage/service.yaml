@@ -7,8 +7,13 @@ metadata:
 spec:
   type: ClusterIP
   ports:
+  # `port: 80` is the Service's own port and is what ingress.yaml routes to, so
+  # it stays. `targetPort` is the container's port and said 80, which no pod
+  # from this image listens on — see deployment.yaml. print-atelier and
+  # local-site-studio already have exactly this shape: port 80, targetPort the
+  # image's port.
   - port: 80
-    targetPort: 80
+    targetPort: 8080
     protocol: TCP
     name: http
   selector:
