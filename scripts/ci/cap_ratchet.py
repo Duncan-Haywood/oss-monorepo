@@ -949,7 +949,11 @@ def format_report(measurement: Measurement, findings: Sequence[Finding]) -> str:
         elif reading.watch.direction == UP and reading.current < reading.bound:
             state = f"LOWERED from floor {_fmt(reading.bound)} ({reading.revisions_seen} revs)"
         elif reading.current != reading.bound:
-            moved = "lowered below previous floor" if reading.watch.direction == DOWN else "raised above previous floor"
+            moved = (
+                "lowered below previous floor"
+                if reading.watch.direction == DOWN
+                else "raised above previous ceiling"
+            )
             state = f"{moved} {_fmt(reading.bound)} — new bound"
         else:
             state = f"at {arrow} bound ({reading.revisions_seen} revs)"
