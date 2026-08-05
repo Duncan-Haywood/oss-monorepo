@@ -487,7 +487,7 @@ class TestBaselineTrust(GitRepoTestCase):
 
     def test_a_hand_written_tracking_ref_is_detected(self):
         # `git update-ref refs/remotes/origin/main <local commit>`: the command
-        # behind the four blank-reason entries in this repository's reflog.
+        # behind the blank-reason entries in this repository's own reflog.
         real = self.scratch.rev("refs/remotes/origin/main")
         self.commit("ventures/alpha/a.ts", "one")
         forged = self.scratch.forge_baseline("HEAD")
@@ -500,6 +500,97 @@ class TestBaselineTrust(GitRepoTestCase):
         self.assertIn(forged, trust.detail)
         self.assertIn(real, trust.detail)
         self.assertIn("does not reflect the remote", trust.detail)
+
+    # -- the evidence in the message, measured rather than declared -------
+
+    def forged_message(self):
+        """The `baseline-forged` finding message for the current repo state."""
+        findings = trust_findings(verify_baseline(self.repo, "origin/main"))
+        self.assertEqual([c for c, _ in findings], ["baseline-forged"])
+        return findings[0][1]
+
+    def test_a_single_hand_written_write_is_reported_as_one_not_as_four(self):
+        # The message used to carry the literal `four`, measured once on
+        # 2026-08-04. It was 34 by 2026-08-05 and it was never 4 on any
+        # repository but this one, on any day but that one.
+        self.commit("ventures/alpha/a.ts", "one")
+        forged = self.scratch.forge_baseline("HEAD")
+
+        message = self.forged_message()
+        self.assertIn("written by hand in this repository once", message)
+        self.assertIn(forged[:12], message)
+        self.assertNotIn("four", message)
+
+    def test_repeated_hand_written_writes_are_counted(self):
+        for i in range(3):
+            self.commit(f"ventures/alpha/{i}.ts", str(i))
+            self.scratch.forge_baseline("HEAD")
+
+        message = self.forged_message()
+        self.assertIn("written by hand in this repository 3 times", message)
+        self.assertNotIn("four", message)
+
+    def test_the_latest_hand_written_write_is_dated_so_a_reader_can_tell_now_from_history(self):
+        # A count alone reads as a closed incident, and the remedy for a closed
+        # incident is `git fetch`. The date is what says the practice is live.
+        self.commit("ventures/alpha/a.ts", "one")
+        self.scratch.forge_baseline("HEAD")
+
+        history = baseline_trust.hand_written_history(self.repo, "origin/main")
+        self.assertTrue(history.readable)
+        self.assertEqual(history.hand_written, 1)
+        # An ISO-8601 date, not a reflog selector like `origin/main@{0}`.
+        datetime.fromisoformat(history.latest_date)
+        self.assertIn(history.latest_date, self.forged_message())
+
+    def test_an_ordinary_stale_fetch_is_not_reported_as_a_forgery(self):
+        # Somebody else shipped and this checkout has not caught up. Diverged,
+        # so it must still refuse — but naming a forger here is an accusation
+        # the reflog does not support, and it sends the reader after the wrong
+        # cause.
+        self.commit("ventures/alpha/a.ts", "one")
+        self.scratch.advance_remote_without_fetching("HEAD")
+
+        trust = verify_baseline(self.repo, "origin/main")
+        self.assertEqual(trust.state, STATE_DIVERGED)
+
+        message = self.forged_message()
+        self.assertIn("Nothing has written it by hand", message)
+        self.assertNotIn("written by hand in this repository", message)
+        self.assertNotIn("find what writes the ref", message)
+        # Still a refusal, and still the same check id.
+        self.assertIn("do not adjust any budget to fit this", message)
+
+    def test_an_unreadable_reflog_is_not_reported_as_a_clean_one(self):
+        # A fresh clone has no reflog for a ref it has not seen change. "Nobody
+        # forged this" and "we could not tell" are different facts; the second
+        # may not be rendered as the first, and neither may assert a count.
+        self.commit("ventures/alpha/a.ts", "one")
+        self.scratch.forge_baseline("HEAD")
+        self.scratch.drop_reflog()
+
+        history = baseline_trust.hand_written_history(self.repo, "origin/main")
+        self.assertFalse(history.readable)
+        self.assertEqual(history.hand_written, 0)
+
+        message = self.forged_message()
+        self.assertIn("unmeasured", message)
+        self.assertNotIn("Nothing has written it by hand", message)
+        self.assertNotIn("written by hand in this repository once", message)
+
+    def test_honest_git_operations_are_never_counted_as_hand_written(self):
+        # The whole discriminator is the blank reason. If a fetch or a branch
+        # update ever counted, the number would grow on ordinary work and the
+        # message would become noise that gets deleted.
+        self.commit("ventures/alpha/a.ts", "one")
+        self.scratch.publish()
+        self.commit("ventures/alpha/b.ts", "two")
+        self.scratch.publish()
+
+        history = baseline_trust.hand_written_history(self.repo, "origin/main")
+        self.assertTrue(history.readable)
+        self.assertGreater(history.total, 1)
+        self.assertEqual(history.hand_written, 0)
 
     def test_the_forgery_is_exactly_what_makes_the_lag_vanish(self):
         # This is the measured defect, reproduced end to end: the same

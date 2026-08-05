@@ -36,11 +36,13 @@ commit and inherited by thirty descendant branches is one creation, not thirty.
 Only the set of distinct *creating commits* counts.
 
 The baseline is verified against the remote before anything is counted. It used
-to be read straight from `refs/remotes/origin/main` — a local file that was
-overwritten by hand four times in this repository, which shrank the release-lag
-gate from 336 to 2 and would shrink this count the same way, since commits the
+to be read straight from `refs/remotes/origin/main` — a local file that keeps
+being overwritten by hand in this repository, which shrank the release-lag gate
+from 336 to 2 and would shrink this count the same way, since commits the
 baseline already contains cannot collide. `scripts/ci/baseline_trust.py` carries
-the evidence and does the check.
+the evidence and does the check, counting the hand-written writes on the run
+that reports them: it was four when first measured on 2026-08-04 and 34 the next
+day, so the number belongs in the finding, not in a docstring.
 
 Usage:
     python3 scripts/ci/branch_collisions.py            # audit, exit 1 over budget

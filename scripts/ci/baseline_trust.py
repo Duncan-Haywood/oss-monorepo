@@ -21,9 +21,20 @@ repository:
 
 A fetch records `fetch origin: ...`; a push records `update by push`. A **blank
 reason** is `git update-ref refs/remotes/origin/main <local commit>` run
-directly. Four such entries are visible, and every subsequent real fetch records
-`forced-update` back to `a4b8f23f` — which `git ls-remote origin main` confirms
-is the true remote tip, dated 2026-07-31.
+directly. Four such entries were visible that day, and every subsequent real
+fetch records `forced-update` back to `a4b8f23f` — which `git ls-remote origin
+main` confirms is the true remote tip, dated 2026-07-31.
+
+**Four was a reading, not a property, and the message used to state it as one.**
+Re-measured 2026-08-05: **34** blank-reason entries out of 173, the most recent
+seven minutes before the measurement, alternating with real fetches that undo
+them — the practice did not stop, it accelerated, and the finding still called it
+four. A frozen count also reads as a closed incident, which makes `git fetch`
+look like the whole remedy when the actual remedy is to find what keeps writing
+the ref. Worse, it was emitted on *every* diverged run: an ordinary stale fetch,
+where nothing had been written by hand at all, was told it had been, four times.
+`hand_written_history` now counts the entries on the run that reports them, and
+`describe_hand_written` says which of the three situations it found.
 
 The consequence, measured: with the doctored ref in place the release-lag gate
 reported `Unshipped commits: 2` against a budget of 125 and passed. After a
@@ -84,6 +95,29 @@ DEFAULT_TIMEOUT_SECONDS = 25
 CHECK_DIVERGED = "baseline-forged"
 CHECK_UNVERIFIED = "baseline-unverified"
 
+#: Field separator for the reflog read below. A reflog *reason* is free text —
+#: git writes `fetch origin: forced-update`, and whoever runs `update-ref`
+#: writes whatever they like — so the fields are split on a control character
+#: that cannot occur inside one, not on a space or a colon.
+_REFLOG_SEP = "\x1f"
+
+
+@dataclass
+class HandWrittenHistory:
+    """Reflog evidence about what has written a tracking ref, and when.
+
+    `readable` is false when the reflog could not be read at all, and that is
+    kept distinct from `hand_written == 0`. "Nobody wrote this by hand" and "we
+    could not tell" are different facts, and collapsing them is how this
+    control's own message came to assert a number nobody had measured.
+    """
+
+    readable: bool
+    total: int = 0
+    hand_written: int = 0
+    latest_date: str = ""
+    latest_sha: str = ""
+
 
 @dataclass
 class BaselineTrust:
@@ -96,6 +130,11 @@ class BaselineTrust:
     remote_sha: str
     state: str
     detail: str = ""
+    #: Populated only when the state is `diverged`, because that is the only
+    #: state where "who wrote this ref?" is the reader's next question. New
+    #: field, last and defaulted, so the positional construction in the tests
+    #: and any other caller keeps working.
+    hand_written: Optional[HandWrittenHistory] = None
 
     @property
     def verified(self) -> bool:
@@ -155,6 +194,88 @@ def split_remote_ref(baseline_ref: str, remotes: Set[str]) -> Optional[Tuple[str
 def _local_sha(repo_root: Path, baseline_ref: str) -> str:
     result = _run(["rev-parse", "--verify", f"{baseline_ref}^{{commit}}"], repo_root, timeout=DEFAULT_TIMEOUT_SECONDS)
     return result.stdout.strip() if result.returncode == 0 else ""
+
+
+def _reflog_date(selector: str) -> str:
+    """The date out of a `--date=` reflog selector like `origin/main@{2026-08-05T20:04:03+04:00}`.
+
+    Between the *first* `@{` and the *last* `}`, because a branch name may
+    contain neither but a date offset contains no braces either way, and being
+    wrong here costs a date in a message rather than a verdict.
+    """
+    start = selector.find("@{")
+    end = selector.rfind("}")
+    if start == -1 or end <= start:
+        return ""
+    return selector[start + 2 : end]
+
+
+def hand_written_history(
+    repo_root: Path,
+    ref: str,
+    timeout: int = DEFAULT_TIMEOUT_SECONDS,
+) -> HandWrittenHistory:
+    """Count the writes to `ref` that no git operation accounts for.
+
+    A fetch records `fetch origin: forced-update`, a push records
+    `update by push`, a branch update records `branch: ...`. `git update-ref`
+    records **nothing** — a blank reason — so a blank-reason entry is a write
+    that some process made directly, and that is exactly the forgery this
+    module exists to refuse.
+
+    This is measured on every diverged run rather than written down once. The
+    number it replaced was a literal `four`, correct when it was observed on
+    2026-08-04 and eight times too small a day later, which mattered because a
+    count that reads as a closed historical incident invites `git fetch` as the
+    whole remedy while the practice continues.
+
+    Read-only: `reflog show` never writes a ref. Missing reflogs are normal —
+    a fresh clone has none for a ref it has not seen change — so an
+    unreadable or empty reflog is reported as such and never as zero.
+    """
+    result = _run(
+        [
+            "reflog",
+            "show",
+            "--date=iso-strict",
+            f"--format=%H{_REFLOG_SEP}%gd{_REFLOG_SEP}%gs",
+            ref,
+        ],
+        repo_root,
+        timeout=timeout,
+    )
+    if result.returncode != 0:
+        return HandWrittenHistory(readable=False)
+
+    total = 0
+    hand_written = 0
+    latest_date = ""
+    latest_sha = ""
+    for line in result.stdout.splitlines():
+        if not line.strip():
+            continue
+        fields = line.split(_REFLOG_SEP)
+        if len(fields) < 3:
+            continue
+        total += 1
+        sha, selector, reason = fields[0], fields[1], fields[2]
+        if reason.strip():
+            continue
+        hand_written += 1
+        # `reflog show` is newest-first, so the first blank one is the latest.
+        if not latest_sha:
+            latest_sha = sha
+            latest_date = _reflog_date(selector)
+
+    if total == 0:
+        return HandWrittenHistory(readable=False)
+    return HandWrittenHistory(
+        readable=True,
+        total=total,
+        hand_written=hand_written,
+        latest_date=latest_date,
+        latest_sha=latest_sha,
+    )
 
 
 def verify_baseline(
@@ -264,6 +385,7 @@ def verify_baseline(
                 f"{local_sha or '(unresolvable)'} locally but {remote}/{branch} is {remote_sha} on the "
                 f"remote. Neither is preferred and neither is used."
             ),
+            hand_written=hand_written_history(repo_root, baseline_ref, timeout=timeout),
         )
 
     return BaselineTrust(
@@ -274,6 +396,47 @@ def verify_baseline(
         remote_sha=remote_sha,
         state=STATE_VERIFIED,
         detail=f"{baseline_ref} matches {remote}/{branch} on the remote at {remote_sha[:12]}.",
+    )
+
+
+def describe_hand_written(trust: BaselineTrust) -> str:
+    """The forgery evidence for a diverged baseline, as measured on this run.
+
+    Three distinct sentences for three distinct facts, because they call for
+    three different actions:
+
+      * writes found  — something in this environment is standing the baseline
+                        up by hand. A fetch repairs the measurement and not the
+                        cause, so the message says to find the writer.
+      * none found    — divergence with a clean reflog is an ordinary stale
+                        fetch. Naming a forger here would be an accusation the
+                        evidence does not support, which is what the literal
+                        `four` did on every diverged run regardless of cause.
+      * unmeasured    — say so. An unreadable reflog is not a clean one.
+    """
+    history = trust.hand_written
+    blank = "a blank reflog reason, which is what `git update-ref` records and no other git operation does"
+
+    if history is None or not history.readable:
+        return (
+            f"Whether it has been written by hand here is unmeasured: this run could not read "
+            f"`git reflog show {trust.ref}`, and an unreadable reflog is not a clean one."
+        )
+
+    if history.hand_written == 0:
+        return (
+            f"Nothing has written it by hand in this repository — all {history.total} reflog "
+            f"entries carry a reason — so this is most likely a stale fetch rather than a forged "
+            f"baseline ({blank})."
+        )
+
+    occasions = "once" if history.hand_written == 1 else f"{history.hand_written} times"
+    when = f" most recently at {history.latest_date}" if history.latest_date else ""
+    latest = f" to {history.latest_sha[:12]}" if history.latest_sha else ""
+    return (
+        f"It has been written by hand in this repository {occasions} — {history.hand_written} of "
+        f"{history.total} reflog entries carry {blank} —{when}{latest}. A fetch repairs this "
+        f"measurement but not the practice: find what writes the ref."
     )
 
 
@@ -293,10 +456,9 @@ def trust_findings(trust: BaselineTrust) -> List[Tuple[str, str]]:
         return [
             (
                 CHECK_DIVERGED,
-                f"{trust.detail} `refs/remotes/{trust.remote}/{trust.branch}` is writable locally and has "
-                f"been written by hand in this repository (four `git update-ref` entries with a blank "
-                f"reflog reason, each undone by the next real fetch). A measurement against a doctored "
-                f"baseline reports whatever the person who wrote the ref wanted it to report. Run "
+                f"{trust.detail} `refs/remotes/{trust.remote}/{trust.branch}` is writable locally by any "
+                f"process. {describe_hand_written(trust)} A measurement against a doctored baseline "
+                f"reports whatever the process that wrote the ref wanted it to report. Run "
                 f"`git fetch {trust.remote}` and re-run; do not adjust any budget to fit this.",
             )
         ]
