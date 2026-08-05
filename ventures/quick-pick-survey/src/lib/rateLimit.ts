@@ -1,10 +1,20 @@
 import { prisma } from "@/lib/prisma";
-import { rateLimitKey } from "@/lib/http";
+import { assertRetentionOutlivesWindow, rateLimitKey } from "@/lib/http";
 
 export { getClientIp } from "@/lib/http";
 
-const WINDOW_MS = 15 * 60 * 1000;
-const RETENTION_MS = 24 * 60 * 60 * 1000;
+/**
+ * Exported so the coupling below is testable from the outside: the window is
+ * the period `isWriteRateLimited` counts inside, and retention is the age at
+ * which `recordWrite`'s sweep deletes those same rows.
+ */
+export const WINDOW_MS = 15 * 60 * 1000;
+export const RETENTION_MS = 24 * 60 * 60 * 1000;
+
+// Retention must outlive the window or the sweep in `recordWrite` deletes rows
+// that `isWriteRateLimited` is still counting, and every anonymous write limit
+// silently loosens to a window of RETENTION_MS. Enforced, not documented.
+assertRetentionOutlivesWindow("rateLimit", WINDOW_MS, RETENTION_MS);
 
 /**
  * Coarse per-IP throttling for the anonymous write endpoints, which have no
