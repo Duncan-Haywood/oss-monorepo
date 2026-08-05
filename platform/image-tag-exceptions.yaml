@@ -126,7 +126,7 @@ exceptions:
 
   # IMG-009 and IMG-010 sit above IMG-001 because its glob would otherwise
   # swallow them, and the argument for accepting them is no longer the same
-  # argument. Both have a producer now; IMG-001's four do not, and conflating
+  # argument. Both have a producer now; IMG-001's three do not, and conflating
   # the two states is what let IMG-001's reason go false unnoticed for a day.
   - id: IMG-009
     path: platform/k8s/apps/print-atelier/deployment.yaml
@@ -135,7 +135,7 @@ exceptions:
     issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
     expires: 2026-12-15
     reason: >-
-      `newTag: latest`, and — unlike IMG-001's four — an image that exists.
+      `newTag: latest`, and — unlike IMG-001's three — an image that exists.
       `.gitea/workflows/print-atelier-image.yml` verifies the venture through
       the shared component gate, builds the exact deployable image, smoke tests
       that it answers "/" , and publishes `print-atelier:${sha}` on main. What
@@ -193,7 +193,7 @@ exceptions:
     issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
     expires: 2026-12-15
     reason: >-
-      `newTag: latest`, and — like IMG-009, unlike IMG-001's four — an image that
+      `newTag: latest`, and — like IMG-009, unlike IMG-001's three — an image that
       exists. `.gitea/workflows/local-site-studio-image.yml` verifies the venture
       through the shared component gate, builds the deployable image and publishes
       `local-site-studio:${sha}` on main, deliberately declining to push `:latest`.
@@ -213,7 +213,7 @@ exceptions:
 
   - id: IMG-001
     path: platform/k8s/apps/*/deployment.yaml
-    count: 4
+    count: 3
     owner: duncan
     issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
     expires: 2027-01-15
@@ -227,20 +227,28 @@ exceptions:
       # instead of when someone happens to re-read it.
       no_build_path: true
     reason: >-
-      Four venture overlays pin `newTag: latest`: ai-engineering-academy,
-      ai-first-markets, real-estate-photo-app and retail-pilot-intel. None of
-      the four can be pinned today, because for each of them nothing in this
-      repository builds and pushes the image the manifest names — there is no
-      Dockerfile and no workflow that publishes any of them. Writing a digest
-      now would pin these Deployments to an artifact that does not exist, which
-      is a worse failure than a mutable tag: it fails at pull time in the
-      cluster rather than at review time here. The tag is a symptom of the
-      missing image pipeline, and it is the pipeline that has to land first.
+      Three venture overlays pin `newTag: latest`: ai-engineering-academy,
+      real-estate-photo-app and retail-pilot-intel. None of the three can be
+      pinned today, because for each of them nothing in this repository builds
+      and pushes the image the manifest names — there is no Dockerfile and no
+      workflow that publishes any of them. Writing a digest now would pin these
+      Deployments to an artifact that does not exist, which is a worse failure
+      than a mutable tag: it fails at pull time in the cluster rather than at
+      review time here. That is not hypothetical — it is exactly what
+      local-site-studio's hand-typed `sha256:a1b2c3d4e5f6…` did until 2026-08-05,
+      and the reason `check_digest_provenance` now asks where a digest came from.
+      The tag is a symptom of the missing image pipeline, and it is the pipeline
+      that has to land first.
       Lowered 6 -> 4 on 2026-08-05 when print-atelier and marisstella-homepage
       gained producers and moved to IMG-009 and IMG-010 — a lower count here is
       the pipeline landing, not the exception shrinking by argument.
+      Lowered 4 -> 3 later the same day for a different and better reason:
+      ai-first-markets' manifests were deleted in 33025739 rather than built.
+      That venture ships to Cloudflare, so its Deployment was a phantom surface
+      describing a service Kubernetes never ran — the one case where the honest
+      fix is that the deployment stops existing, not that it gains a pipeline.
     compensating_control: >-
-      None of the four is reachable from the public internet through this
+      None of the three is reachable from the public internet through this
       manifest, and `links.production` is `null` in every one of their
       VENTURE.yaml files. The single venture that does deploy from its
       manifest, quick-pick-survey, is digest-pinned and is excluded from this
