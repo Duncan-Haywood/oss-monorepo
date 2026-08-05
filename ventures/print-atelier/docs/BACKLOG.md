@@ -10,12 +10,34 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 - [ ] [marketing] Add automated CAPI event delivery health dashboard across Meta, Google, and Pinterest
 - [ ] [ops] Surface `GET /api/payouts/reconciliation` on `/admin-portal` with underpaid accounts ranked first — the route now requires `Authorization: Bearer $PRINT_ATELIER_OPS_TOKEN` (SEC-019), so a browser panel cannot call it directly; it needs the operator login below, or a server component that reads the token server-side
 - [ ] [security] Add a timestamp tolerance to `verifyStripeWebhookSignature` so captured webhooks stop replaying (SEC-026); pick the window deliberately — too tight rejects legitimate Stripe retries, and the handler queues real fulfillment on replay
+- [ ] [platform] Connect one Convex deployment and route `src/lib/orders.ts` through it — this is the item the fourteen ticked "Persist …" entries below do not cover (see the note under `## done`). Do orders first, not because it is the largest but because it is the one where the gap costs money: `ordersByStripeEventId` is process state, so a Stripe retry arriving after a pod restart is a second real print order at the partner. Ship the durable store and the lifetime totals together — the investor dashboard reads those totals and would otherwise reset to zero on every deploy.
 
 ## in_progress
 
 _(agent assigns at run start)_
 
 ## done
+
+> **What "Persist …" means in the fourteen entries below, measured 2026-08-05.**
+> It does not mean a database. Nothing in this venture opens a Convex
+> connection: `grep -rl "ConvexHttpClient\|ConvexClient\|convex/browser" src/`
+> returns nothing, and there is no Convex deployment configured anywhere in the
+> repository. What 47 modules under `src/lib/` do have is a
+> `generateConvex*Schema()` function that returns Convex schema **source code as
+> a string**, beside a module-level array — `const persistedOrderStore:
+> PersistedOrderRecord[] = []` and six siblings — that holds the records inside
+> one Node process.
+>
+> That is real work and the tests over it are real. It is not the thing the
+> titles claim, and the difference is not academic: every one of these stores is
+> empty after a restart, a redeploy, or on a second replica. The entry
+> "Convex order persistence — migrate in-memory `src/lib/orders.ts` records to
+> database" is ticked and `src/lib/orders.ts` is still module state today.
+>
+> Ticks are left in place rather than flipped because the schema-and-shape work
+> was genuinely delivered against them; what is corrected is the reading. The
+> migration itself is now a `ready` item above. Do not add a fifteenth entry of
+> this shape — it would be a fifteenth claim with no database behind it.
 
 - [x] [finance] Add automated Stripe Connect payout reconciliation report per artist account (`src/lib/payout-reconciliation.ts`, `GET /api/payouts/reconciliation`, 18 tests)
 - [x] [platform] Add Convex database sync status indicator to partner setup dashboard
