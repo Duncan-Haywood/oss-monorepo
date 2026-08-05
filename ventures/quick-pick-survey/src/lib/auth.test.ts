@@ -227,12 +227,35 @@ describe("auth helpers", () => {
     });
 
     it("is wired into hashPassword, not merely exported", async () => {
-      // Asked of the real function rather than the source: whatever
-      // hashPassword hands back has been through the floor check, so a hash it
-      // returns can never be one production would refuse.
-      const hash = await hashPassword("SuperSecretPassword123");
-      expect(() => assertHashStrength(hash, { NODE_ENV: process.env.NODE_ENV })).not.toThrow();
-      expect(bcryptCost(hash)).toBe(resolveBcryptRounds());
+      // The check can only be *observed* where the requested cost and the
+      // produced cost disagree, and in a healthy build they never do — so the
+      // disagreement is forced here by making bcrypt return a four-round hash
+      // for a twelve-round request. That is not a hypothetical: it is what a
+      // library swap, a wrapper, or a later edit passing its own cost would
+      // look like from this module's side.
+      //
+      // Written this way because the obvious version of this test — hash, then
+      // assert the result passes the floor — holds whether or not hashPassword
+      // calls the guard at all, and so pins nothing. `bcryptjs` is mocked
+      // rather than `./auth`: the behaviour under test lives in `./auth`, and
+      // mocking that is how a test like this ends up green with the fix
+      // reverted.
+      vi.stubEnv("NODE_ENV", "production");
+      vi.stubEnv("VITEST", "");
+      vi.resetModules();
+      const weak = await bcrypt.hash("SuperSecretPassword123", TEST_BCRYPT_ROUNDS);
+      vi.doMock("bcryptjs", () => ({
+        default: { hash: async () => weak, compare: async () => false },
+      }));
+
+      const freshAuth = await import("./auth");
+      await expect(freshAuth.hashPassword("SuperSecretPassword123")).rejects.toThrow(
+        /Refusing to store a password/,
+      );
+
+      vi.doUnmock("bcryptjs");
+      vi.unstubAllEnvs();
+      vi.resetModules();
     });
   });
 
