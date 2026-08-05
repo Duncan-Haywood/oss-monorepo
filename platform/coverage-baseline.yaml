@@ -166,3 +166,188 @@ components:
       functions: 0.5
       branches: 0.5
 
+  # Enrolled 2026-08-05. Before this commit the file held two components, only
+  # one of which (`print-atelier`) is in `VENTURE_CATALOG` in
+  # `platform/ci/src/pipeline.mjs` — so fifteen of the sixteen catalog
+  # components had no coverage floor at all, and deleting every test in them
+  # could not turn any gate red. `scripts/ci/coverage_ratchet.py` now audits
+  # enrollment as well as the numbers: every catalog component is either
+  # declared here or registered in `UNMEASURED_COMPONENTS` with a predicate a
+  # test evaluates.
+  #
+  # `docs/COVERAGE-RATCHET.md` claimed all three of the ventures below were
+  # already "Onboarded & Ratcheted", at numbers 20-30 points above what they
+  # measure. They were never in this file. The figures here are the ones the
+  # ratchet itself printed on 2026-08-05.
+  - id: quick-pick-survey
+    path: ventures/quick-pick-survey
+    owner: duncan
+    runner: vitest
+    # `--coverage.include`/`--coverage.exclude` are the vitest equivalent of the
+    # `--test-coverage-include=src/**` the Node components pass, and they are
+    # load-bearing for the same reason: without them the measured surface is
+    # whatever the suite happened to import, which is a denominator that moves
+    # with the tests rather than with the code.
+    #
+    # `--coverage.reportsDirectory` takes $COVERAGE_LCOV_DESTINATION_DIR because
+    # vitest writes `lcov.info` into a directory rather than to a named file;
+    # `run_coverage` falls back to `lcov.info` in that directory.
+    command:
+      - npx
+      - vitest
+      - run
+      - --coverage
+      - --coverage.provider=v8
+      - --coverage.reporter=lcovonly
+      - --coverage.reportsDirectory=$COVERAGE_LCOV_DESTINATION_DIR
+      - --coverage.include=src/**
+      - --coverage.exclude=**/*.test.*
+    sources:
+      - "src/**/*.ts"
+      - "src/**/*.tsx"
+    exclude:
+      - "*.test.ts"
+      - "*.test.tsx"
+      - "*.d.ts"
+    # Measured 2026-08-05 on Node 22.22.3, vitest 4.1.10, 59 test files / 434
+    # tests passing. `unexercised` is the number that matters here: 58 of the
+    # 112 declared source files are loaded by no test, including every route
+    # under src/app/api/admin/. 53.90% is the coverage of the other 54 files,
+    # and deleting the last test of any of those 58 would not move it at all.
+    baseline:
+      unexercised: 58
+      lines: 53.90
+      functions: 54.79
+      branches: 45.63
+    measured:
+      files: 111
+      lines: 4024
+    tolerance:
+      lines: 0.5
+      functions: 0.5
+      branches: 0.5
+
+  - id: local-site-studio
+    path: ventures/local-site-studio
+    owner: duncan
+    runner: vitest
+    command:
+      - npx
+      - vitest
+      - run
+      - --coverage
+      - --coverage.provider=v8
+      - --coverage.reporter=lcovonly
+      - --coverage.reportsDirectory=$COVERAGE_LCOV_DESTINATION_DIR
+      - --coverage.include=src/**
+      - --coverage.exclude=**/*.test.*
+    sources:
+      - "src/**/*.ts"
+      - "src/**/*.tsx"
+    exclude:
+      - "*.test.ts"
+      - "*.test.tsx"
+      - "*.d.ts"
+    # Measured 2026-08-05 on Node 22.22.3, vitest 4.1.10, 140 test files / 1380
+    # tests passing. 64 of 173 declared source files are loaded by no test, and
+    # the whole of src/app/checkout/ is among them — the surface that takes a
+    # payment is exercised by nothing.
+    baseline:
+      unexercised: 64
+      lines: 65.47
+      functions: 55.73
+      branches: 61.45
+    measured:
+      files: 173
+      lines: 4866
+    tolerance:
+      lines: 0.5
+      functions: 0.5
+      branches: 0.5
+
+  - id: ai-first-markets
+    path: ventures/ai-first-markets
+    owner: duncan
+    runner: node-test
+    command:
+      - node
+      - --experimental-strip-types
+      - --test
+      - --experimental-test-coverage
+      - --test-coverage-include=src/**
+      - --test-reporter=lcov
+      - --test-reporter-destination=$COVERAGE_LCOV_DESTINATION
+      - src/**/*.test.ts
+    sources:
+      - "src/**/*.ts"
+      - "src/**/*.tsx"
+    exclude:
+      - "*.test.ts"
+      - "*.test.tsx"
+      - "*.d.ts"
+    # Measured 2026-08-05 on Node 22.22.3. This entry is the argument for
+    # `unexercised` in one component: the percentages read 98.37/95.92/89.26 —
+    # the best line coverage in this file — and they are computed over the 7
+    # source files a test loads. The other 24, every API route and every page
+    # among them, are absent from the report and therefore absent from the
+    # ratio. A percentage floor alone would have called this component done.
+    baseline:
+      unexercised: 24
+      lines: 98.37
+      functions: 95.92
+      branches: 89.26
+    measured:
+      files: 7
+      lines: 1408
+    tolerance:
+      lines: 0.5
+      functions: 0.5
+      branches: 0.5
+
+  - id: photo-editing-docs-site
+    path: ventures/photo-editing/docs-site
+    owner: duncan
+    runner: node-test
+    command:
+      - node
+      - --test
+      - --experimental-test-coverage
+      - --test-coverage-include=src/**
+      - --test-reporter=lcov
+      - --test-reporter-destination=$COVERAGE_LCOV_DESTINATION
+      - scripts/test-html-to-jsx.mjs
+      - scripts/test-generated-docs-current.mjs
+      - src/lib/routeAuthPosture.test.ts
+    sources:
+      - "src/**/*.ts"
+      - "src/**/*.tsx"
+    exclude:
+      - "*.test.ts"
+      - "*.test.tsx"
+      - "*.d.ts"
+      # src/generated/doc-content/ is rewritten wholesale by
+      # scripts/generate-docs.mjs from the markdown in docs/, so counting those
+      # files here would make `unexercised` move on every documentation edit —
+      # a gate that fails on ordinary work is one that gets widened. That they
+      # are current is checked by scripts/test-generated-docs-current.mjs, which
+      # is in the command above.
+      - "src/generated/*"
+      - "src/generated/**/*"
+    # Measured 2026-08-05 on Node 22.22.3. One of the 26 non-generated source
+    # files is loaded by a test — `src/lib/routeAuthPosture.ts`, which the route
+    # auth-posture contract reaches — and the other 25, including every API
+    # route, are loaded by nothing. `branches: 100.00` is over that one file and
+    # says nothing about the component; `unexercised: 25` is the honest reading
+    # and is the number a deleted test would move.
+    baseline:
+      unexercised: 25
+      lines: 23.33
+      functions: 6.25
+      branches: 100.00
+    measured:
+      files: 1
+      lines: 180
+    tolerance:
+      lines: 0.5
+      functions: 0.5
+      branches: 0.5

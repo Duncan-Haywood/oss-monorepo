@@ -54,23 +54,20 @@ needs no review — not permission to regress. It is:
 
 ## Current baselines
 
-Measured 2026-07-31. These are what the components actually have, not what the
-principles document wants them to have. Writing 90 here before it was true
-would have switched the gate off.
+The declared floors live in `platform/coverage-baseline.yaml`, each beside the
+date and runner it was measured on. The table in **Enrollment today** below is
+the current reading; this section is not a second copy of those numbers, because
+two places to write a measurement is one place for it to go stale.
 
-| Component | Lines | Functions | Branches | Scope |
-| :--- | ---: | ---: | ---: | :--- |
-| `print-atelier` | 91.70% | 87.46% | 79.31% | 49 files, 13 146 lines |
-| `platform-ci` | 52.11% | 57.14% | 61.54% | `src/pipeline.mjs`, 639 lines |
+These are what the components actually have, not what the principles document
+wants them to have. Writing 90 into any of them before it is true would switch
+the gate off.
 
-`platform-ci` is the finding worth acting on. It is the engine that decides
-whether every other component passes, and roughly half of it has never been
-executed by a test — including, until commit `8d330b3`, the paths that reported
-PASSED for a component that was never verified. Raising this is the priority;
-`print-atelier`'s branch coverage is the next.
-
-Neither number is a target. Both are starting points for the climb to the 90%
-repository floor.
+`platform-ci` remains the entry worth acting on. It is the engine that decides
+whether every other component passes, and until commit `8d330b3` the paths that
+reported PASSED for a component that was never verified were among the
+unexecuted ones. None of the figures is a target; all of them are starting
+points for the climb to the 90% repository floor.
 
 ## How it fails closed
 
@@ -160,25 +157,89 @@ covered. Lowering a baseline needs the same review as any other reduction in a
 control, and the reason belongs in the commit message, not in a widened
 tolerance.
 
-## Onboarding the remaining components
+## The enrollment contract
 
-Both components measured today use Node's built-in
-`--experimental-test-coverage`, which needs no dependency. The rest need a
-coverage provider installed before they can be declared, and a component is
-only added to the baseline once it has been **measured** — declaring one with
-an invented number would reintroduce exactly the problem this replaced.
+Everything above holds the components that are *in* the baseline file. Until
+2026-08-05 nothing held the ones that were not, and that was the larger hole.
 
-| Component | Runner | Blocker / Status | Owner |
-| :--- | :--- | :--- | :--- |
-| `ai-first-markets` | `node --test` | **Onboarded** (lines 100.00%, branches 97.96%) | duncan |
-| `platform-ci` | `node --test` | **Onboarded & Ratcheted** (lines 76.88%, branches 89.47%) | duncan |
-| `print-atelier` | `node --test` | **Onboarded** (lines 92.98%, branches 81.75%) | duncan |
-| `quick-pick-survey` | vitest | **Onboarded & Ratcheted** (lines 74.21%, branches 59.18%) | duncan |
-| `local-site-studio` | vitest | **Onboarded & Ratcheted** (lines 94.70%, branches 89.76%) | duncan |
-| `retail-pilot-intel` | pnpm workspaces | per-package providers, needs a merged report | duncan |
-| Python (`tests`, `portfolio`, `platform/ci`) | pytest | `pytest-cov` / `coverage` not installed | duncan |
+The baseline declared two components. Only one of them — `print-atelier` — is in
+`VENTURE_CATALOG` in `platform/ci/src/pipeline.mjs`, the registry CI verifies.
+So **one of sixteen** catalog components had a coverage floor, and deleting
+every test in the other fifteen turned no gate red anywhere. The ratchet
+reported "every component matches its declared baseline", which was true, and
+said nothing about the five sixths of the catalog it had never been pointed at.
 
-`ai-first-markets` was onboarded on 2026-08-01 following resolution of its test suite imports and route auth posture contracts.
+The table below this section used to say otherwise. It listed
+`ai-first-markets`, `quick-pick-survey` and `local-site-studio` as "Onboarded"
+or "Onboarded & Ratcheted" with figures 20-30 points above what they measure.
+None of the three had ever appeared in `platform/coverage-baseline.yaml`.
+
+`scripts/ci/coverage_ratchet.py` now also audits **enrollment**, on the pattern
+`scripts/ci/cap_ratchet.py` already applies to declared budgets: every candidate
+is either watched or registered as exempt with a reason, and a candidate that is
+neither is a failure.
+
+- The candidate set is parsed from `VENTURE_CATALOG` rather than retyped, and a
+  parse that yields nothing raises rather than returning an empty list. A
+  candidate set that matches nothing exits 0 and looks exactly like a gate that
+  passed.
+- A component is enrolled by having a baseline entry, and 0/0/0 does not count
+  (`enrolled-at-no-floor`) — that is enrollment with nothing under it.
+- A component is excused by an `EnrollmentExemption` in `UNMEASURED_COMPONENTS`,
+  which names **one** catalog id. No directories, no wildcards, no runner
+  families: a region-shaped exemption is a region in which "every component has
+  a floor" may be untrue while every count stays green.
+- Each exemption names a `predicate` from `ENROLLMENT_PREDICATES`, re-evaluated
+  against the tree on every run. When the blocker clears — a Python coverage
+  provider appears in a requirements file, a Swift component is re-typed, a
+  suite moves to `node --test` — the predicate stops holding and the gate goes
+  red until the component is measured. That is what stops the reason from
+  quietly going false, which is what prose-only registers here have done.
+
+`tests/test_coverage_enrollment.py` enforces it under pytest and asserts each
+failing direction. One test takes every catalog component in turn, removes its
+registration, and requires a finding naming it — a component the contract
+tolerates fails there.
+
+## Enrollment today
+
+Measured 2026-08-05 on Node 22.22.3. Percentages are the ratchet's own output;
+`unexercised` is the count of declared source files no test loads, which is the
+number a percentage cannot express.
+
+| Component | Runner | Lines | Branches | Unexercised |
+| :--- | :--- | ---: | ---: | ---: |
+| `print-atelier` | `node --test` | 88.70% | 83.28% | 49 of 143 |
+| `local-site-studio` | vitest | 65.47% | 61.45% | 64 of 173 |
+| `quick-pick-survey` | vitest | 53.90% | 45.63% | 58 of 112 |
+| `ai-first-markets` | `node --test` | 98.37% | 89.26% | 24 of 31 |
+| `photo-editing-docs-site` | `node --test` | 23.33% | 100.00% | 25 of 26 |
+| `platform-ci` (not in the catalog) | `node --test` | 86.06% | 88.00% | 0 of 2 |
+
+`ai-first-markets` is the entry worth reading twice. Its percentages are the
+best in the file and they are computed over the seven source files a test loads;
+the other twenty-four — every API route, every page — are absent from the report
+and therefore absent from the ratio.
+
+The eleven catalog components without a floor are registered in
+`UNMEASURED_COMPONENTS` with the blocker each is waiting on:
+
+| Component | Predicate | Blocker |
+| :--- | :--- | :--- |
+| `mat-470-real-analysis` | `python-coverage-provider-undeclared` | `pytest-cov` in `requirements-ci.txt` |
+| `photos-import-tools` | `python-coverage-provider-undeclared` | same |
+| `photo-editing` | `python-coverage-provider-undeclared` | same |
+| `ubuntu-agent-server` | `python-coverage-provider-undeclared` | same |
+| `portfolio-router` | `python-coverage-provider-undeclared` | same |
+| `range-coach` | `runner-outside-lcov-toolchain` | `llvm-cov export -format=lcov` step |
+| `platform-terraform` | `runner-outside-lcov-toolchain` | none; terraform has no coverage notion |
+| `ai-engineering-academy-site` | `no-coverage-capable-runner` | port `test.mjs` to `node --test` |
+| `real-estate-agent-photo-app` | `no-coverage-capable-runner` | one `node --test` run, and a decision on the shell half |
+| `retail-pilot-intel` | `pnpm-workspace-needs-merged-report` | merged lcov, or one entry per package |
+| `marisstella-homepage` | `source-executed-through-vm` | an importable entry point for `app.js` |
+
+Nothing in that register is a verdict. Five of the eleven clear on one line in
+`requirements-ci.txt` plus a measurement, and the predicate will say so.
 
 
 ## Relationship to `engineering.coverage` in VENTURE.yaml
