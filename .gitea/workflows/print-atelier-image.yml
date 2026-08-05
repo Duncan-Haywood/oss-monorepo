@@ -71,11 +71,27 @@ jobs:
         with:
           persist-credentials: false
 
+      # `NEXT_PUBLIC_SITE_URL` is substituted by Next.js at *build* time, so this
+      # is the only place it can be set — no Deployment env entry can reach it.
+      # `src/lib/site-url.ts` fails closed on an unset value, which is right, but
+      # a fail-closed default with nothing supplying it is just closed: an image
+      # built without this arg serves `Disallow: /` to every crawler, an empty
+      # sitemap, and a merchant feed that refuses to generate. The venture would
+      # deploy healthy and be invisible.
+      #
+      # The value must match the host in
+      # platform/k8s/apps/print-atelier/ingress.yaml — that is the only address
+      # this service answers on. platform/ci/test/build-arg-supply.test.mjs binds
+      # the two so they cannot drift.
       - name: Build the exact deployable image
         env:
           IMAGE: git.marisstella.dev/giteaadmin/print-atelier:${{ github.sha }}
         working-directory: ventures/print-atelier
-        run: docker build --file Dockerfile --tag "$IMAGE" .
+        run: |
+          docker build \
+            --file Dockerfile \
+            --build-arg NEXT_PUBLIC_SITE_URL=https://atelier.marisstella.dev \
+            --tag "$IMAGE" .
 
       # The Deployment's liveness and readiness probes both GET "/", so that is
       # what is proven here. No secrets are needed: every STRIPE_* read is inside
