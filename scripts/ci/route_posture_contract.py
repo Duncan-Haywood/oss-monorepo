@@ -81,14 +81,14 @@ ROUTE_FILENAMES = ("route.ts", "route.tsx", "route.js", "route.jsx", "route.mjs"
 # Directories that never contain first-party source, at any depth. Descending
 # into these is never right: `node_modules` is somebody else's code, and the
 # rest are build output or VCS internals.
-VENDOR_DIRS = frozenset({"node_modules", ".next", ".open-next", ".git", ".turbo"})
+VENDOR_DIRS = frozenset({"node_modules", ".next", ".git", ".turbo"})
 
 # Build-output names that are *also* legal URL segments. `/api/build/route.ts`
 # is a real endpoint whose directory happens to be called `build`, and pruning
 # by name alone made three unguarded handlers invisible to this audit. So these
 # are pruned everywhere except inside an App Router tree, where the name is a
 # path segment rather than an artifact directory.
-ARTIFACT_DIRS = frozenset({"dist", "build", "coverage", "out", ".next", ".open-next", ".tmp"})
+ARTIFACT_DIRS = frozenset({"dist", "build", "coverage", "out"})
 
 # Kept for callers that import the old name; it is the union of both sets.
 PRUNED_DIRS = VENDOR_DIRS | ARTIFACT_DIRS
@@ -181,7 +181,7 @@ def _walk_routes(root: Path) -> Iterable[Path]:
             if entry.is_dir():
                 if entry.name in VENDOR_DIRS:
                     continue
-                if entry.name in ARTIFACT_DIRS or entry.name.startswith("tmp") or entry.name.startswith(".tmp"):
+                if entry.name in ARTIFACT_DIRS:
                     # Only a directory *under* an `app/` tree can be a URL
                     # segment. Anywhere else a directory called `build` or
                     # `coverage` is an artifact, and walking it would scan
