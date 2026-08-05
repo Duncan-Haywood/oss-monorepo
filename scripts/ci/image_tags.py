@@ -428,6 +428,15 @@ def has_promotion_path(repo_root: Path, overlay_path: str) -> bool:
     A promotion script names the overlay it rewrites — `promote-pairwise-gitops.sh`
     holds the quick-pick-survey path as a literal — so the question is answerable
     offline, without asking a registry to resolve anything.
+
+    What this does not do, stated so nobody reads more into a green than is
+    there: it does not parse the script, so a file that names the overlay and
+    handles a `digest:` field for some other purpose would satisfy it. That is a
+    much narrower hole than the one it closes — it needs a real file, under a
+    promotion root, naming this exact overlay — and closing it properly means
+    executing the promotion, which belongs to a release, not to a gate. The
+    check is "someone built a mechanism to write this line", not "this line was
+    written by it".
     """
     for promotion_root in PROMOTION_ROOTS:
         directory = repo_root / promotion_root
@@ -440,7 +449,9 @@ def has_promotion_path(repo_root: Path, overlay_path: str) -> bool:
                 text = candidate.read_text(encoding="utf-8")
             except (UnicodeDecodeError, OSError):
                 continue
-            if overlay_path in text and "digest" in text:
+            # `digest:` rather than `digest`, so a file that merely mentions
+            # digests in prose does not launder a hand-typed value.
+            if overlay_path in text and "digest:" in text:
                 return True
     return False
 
