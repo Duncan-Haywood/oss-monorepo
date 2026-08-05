@@ -13,6 +13,25 @@ export type CatalogArtwork = {
   retailPrice: number;
   fulfillmentCost: number;
   imageClass: string;
+  /**
+   * The print-ready artwork file a POD partner fetches and prints. `https` only:
+   * the partner pulls it from its own infrastructure, and a plaintext fetch of
+   * an artist's full-resolution file is not something to hand to a third party.
+   *
+   * Optional in the type and absent from every seeded artwork below, because no
+   * print file exists in this repository — `imageClass` is a Tailwind gradient
+   * for the storefront tile, not artwork, and this venture has no `public/`
+   * directory to serve one from. That absence used to be discovered *after* the
+   * buyer was charged: `resolvePrintFileUrl` refused the order and the money had
+   * already moved. It is now a listing blocker (`validateCheckoutLineItem`), so
+   * an artwork with no file cannot be sold rather than being sold and not
+   * shipped.
+   *
+   * Populating this is an operator action, and a URL is not enough on its own —
+   * see `tests/catalog-print-file-provenance.test.ts` for what a seeded value
+   * has to satisfy and why a plausible one is not evidence of a file.
+   */
+  printFileUrl?: string;
   tags: string[];
   hasSeoCopy: boolean;
   hasRoomMockups: boolean;

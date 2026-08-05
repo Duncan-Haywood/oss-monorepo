@@ -11,6 +11,7 @@ import {
   type CheckoutShippingRegion,
 } from "../src/lib/checkout";
 import { buildStripeCheckoutCreateParams } from "../src/lib/stripe-checkout-server";
+import { sellableCatalog } from "./support/print-files.ts";
 
 /**
  * The order summary renders a bolded "Total". Before this suite that number was
@@ -43,9 +44,9 @@ function chargedCents(
 
 for (const region of REGIONS) {
   test(`the ${region} order summary total is exactly what Stripe is asked to charge`, () => {
-    const cart = buildSampleCheckoutCart();
+    const cart = buildSampleCheckoutCart(sellableCatalog());
     const totals = calculateCheckoutTotals(cart, region);
-    const payload = buildCheckoutSessionPayload(cart, region, "https://printatelier.test");
+    const payload = buildCheckoutSessionPayload(cart, region, "https://printatelier.test", {}, sellableCatalog());
     const params = buildStripeCheckoutCreateParams(payload);
 
     assert.equal(
@@ -56,10 +57,10 @@ for (const region of REGIONS) {
   });
 
   test(`the ${region} total includes the shipping it quotes`, () => {
-    const cart = buildSampleCheckoutCart();
+    const cart = buildSampleCheckoutCart(sellableCatalog());
     const totals = calculateCheckoutTotals(cart, region);
     const params = buildStripeCheckoutCreateParams(
-      buildCheckoutSessionPayload(cart, region, "https://printatelier.test"),
+      buildCheckoutSessionPayload(cart, region, "https://printatelier.test", {}, sellableCatalog()),
     );
 
     assert.ok(totals.shippingEstimate > 0, "the summary quotes a shipping charge");
@@ -77,14 +78,14 @@ test("an empty cart quotes no shipping and asks Stripe for no shipping rate", ()
   assert.equal(totals.total, 0);
 
   const params = buildStripeCheckoutCreateParams(
-    buildCheckoutSessionPayload([], "US", "https://printatelier.test"),
+    buildCheckoutSessionPayload([], "US", "https://printatelier.test", {}, sellableCatalog()),
   );
   assert.equal(params.shipping_options, undefined);
 });
 
 test("no tax is quoted into the total, in any region", () => {
   for (const region of REGIONS) {
-    const cart = buildSampleCheckoutCart();
+    const cart = buildSampleCheckoutCart(sellableCatalog());
     const totals = calculateCheckoutTotals(cart, region);
     assert.equal(
       totals.total,
@@ -101,16 +102,20 @@ test("automatic tax is off unless a deployment declares a registration", () => {
   assert.equal(isAutomaticTaxEnabled({ STRIPE_AUTOMATIC_TAX: "enabled" }), true);
   assert.equal(isAutomaticTaxEnabled({ STRIPE_AUTOMATIC_TAX: " Enabled " }), true);
 
-  const cart = buildSampleCheckoutCart();
+  const cart = buildSampleCheckoutCart(sellableCatalog());
   const off = buildStripeCheckoutCreateParams(
-    buildCheckoutSessionPayload(cart, "UK", "https://printatelier.test", {}),
+    buildCheckoutSessionPayload(cart, "UK", "https://printatelier.test", {}, sellableCatalog()),
   );
   assert.equal(off.automatic_tax, undefined, "Stripe rejects automatic tax with no registration");
 
   const on = buildStripeCheckoutCreateParams(
-    buildCheckoutSessionPayload(cart, "UK", "https://printatelier.test", {
-      STRIPE_AUTOMATIC_TAX: "enabled",
-    }),
+    buildCheckoutSessionPayload(
+      cart,
+      "UK",
+      "https://printatelier.test",
+      { STRIPE_AUTOMATIC_TAX: "enabled" },
+      sellableCatalog(),
+    ),
   );
   assert.deepEqual(on.automatic_tax, { enabled: true });
 });

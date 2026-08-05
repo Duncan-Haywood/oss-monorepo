@@ -74,6 +74,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import json
 import re
 import sys
@@ -84,7 +85,12 @@ from typing import Any, Dict, List, Optional, Sequence
 
 import yaml
 
-from image_tags import is_immutable_tag
+from image_tags import (
+    EXCEPTIONS_PATH,
+    ImageTagError,
+    is_immutable_tag,
+    load_exceptions,
+)
 from terraform_images import TERRAFORM_ROOT, TerraformSurfaceError, scan_terraform
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -388,6 +394,68 @@ def audit_terraform(repo_root: Path) -> List[AppVerdict]:
     return verdicts
 
 
+def _claimed_source(verdict: AppVerdict) -> str:
+    """The path an exception entry's glob is matched against.
+
+    A terraform verdict carries `<file>:<line>` as its source, because two
+    releases in one `.tf` file are two different references. The register
+    matches files, so the line is dropped here and only here.
+    """
+    if verdict.kind == "terraform":
+        return verdict.source.rsplit(":", 1)[0]
+    return verdict.source
+
+
+def verify_exception_claims(
+    repo_root: Path, verdicts: Sequence[AppVerdict]
+) -> List[str]:
+    """Re-derive what `platform/image-tag-exceptions.yaml` claims about producers.
+
+    An accepted mutable tag is an argument, and the argument IMG-001 makes is
+    that these images cannot be pinned because nothing here builds them. That is
+    a statement about this module's own evidence, so this module can check it —
+    and when it stopped being true for two of the six, nothing did.
+
+    Only entries carrying `claims.no_build_path: true` are checked. The claim is
+    matched the way the register is read in `image_tags.audit`: entries in file
+    order, each mutable reference claimed once, so a specific entry above a
+    broad glob is judged on its own references and not on the glob's.
+    """
+    try:
+        entries = load_exceptions(repo_root)
+    except ImageTagError as error:
+        # The register failing to load is a failure of this gate too. Reading it
+        # as "no claims to check" would make a broken file the quiet way past.
+        raise RatchetError(str(error)) from error
+
+    unclaimed = [v for v in verdicts if v.mutable]
+    failures: List[str] = []
+    for entry in entries:
+        pattern = entry["path"]
+        claimed = [
+            v for v in unclaimed if fnmatch.fnmatch(_claimed_source(v), pattern)
+        ]
+        for verdict in claimed:
+            unclaimed.remove(verdict)
+
+        if not entry.get("claims", {}).get("no_build_path"):
+            continue
+        built = [v for v in claimed if v.has_build_path]
+        if built:
+            detail = ", ".join(
+                f"{v.app} (built by {v.built_by or 'a workflow in this repository'})"
+                for v in sorted(built, key=lambda v: v.app)
+            )
+            failures.append(
+                f"{EXCEPTIONS_PATH}: {entry['id']} claims `no_build_path: true` for "
+                f"`{pattern}`, but {len(built)} of its {len(claimed)} reference(s) "
+                f"now have a producer: {detail}. The exception's argument no longer "
+                "holds for them — move them to their own entry with the reason that "
+                "is true now, or pin them."
+            )
+    return failures
+
+
 def load_baseline(repo_root: Path) -> Dict[str, Any]:
     """Read and validate the declaration, refusing anything a gate cannot trust."""
     path = repo_root / BASELINE_PATH
@@ -498,6 +566,15 @@ def evaluate(repo_root: Path) -> tuple[Dict[str, Any], List[str]]:
                 f"the declared {ceiling_key}={ceiling}. The ceiling is stale — "
                 "lower it to lock the improvement in."
             )
+
+    # The two counts above ask whether the numbers moved. This asks whether the
+    # register's stated reason for accepting them is still true, which is the
+    # half that drifted silently for a day.
+    failures.extend(
+        verify_exception_claims(
+            repo_root, [AppVerdict(**app) for app in measured["apps"]]
+        )
+    )
 
     measured["baseline"] = budget
     return measured, failures

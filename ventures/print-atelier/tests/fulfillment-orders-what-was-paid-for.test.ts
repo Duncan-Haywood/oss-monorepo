@@ -36,6 +36,7 @@ import {
   defaultListingConsentRecords,
   type CatalogArtwork,
 } from "../src/lib/marketplace";
+import { sellableCatalog } from "./support/print-files.ts";
 
 const ENV = {
   NEXT_PUBLIC_SITE_URL: "https://printatelier.test",
@@ -44,7 +45,10 @@ const ENV = {
 
 /** The catalog's own definition of what may be sold, not a guess at one. */
 function sellableArtworks(): CatalogArtwork[] {
-  return catalogArtworks.filter(
+  // Over `sellableCatalog()`, not the raw seed: no seeded artwork carries a
+  // print file yet, so filtering the raw catalog for eligibility returns none
+  // and every assertion below would run on an empty cart.
+  return sellableCatalog().filter(
     (artwork) => validateCheckoutLineItem(artwork, defaultListingConsentRecords).eligible,
   );
 }
@@ -79,7 +83,7 @@ function multiQuantityCart(): CheckoutLineItem[] {
  * and the adapters are exercised on the submit path rather than the refuse path.
  */
 function paidOrderMetadata(cart: CheckoutLineItem[], region: CheckoutShippingRegion = "US") {
-  const payload = buildCheckoutSessionPayload(cart, region, ENV.NEXT_PUBLIC_SITE_URL, ENV);
+  const payload = buildCheckoutSessionPayload(cart, region, ENV.NEXT_PUBLIC_SITE_URL, ENV, sellableCatalog());
   return {
     payload,
     metadata: {
@@ -254,7 +258,7 @@ test("the checkout stays inside Stripe's 50-key metadata limit", () => {
     quantity: 2,
   }));
 
-  const payload = buildCheckoutSessionPayload(cart, "US", ENV.NEXT_PUBLIC_SITE_URL, ENV);
+  const payload = buildCheckoutSessionPayload(cart, "US", ENV.NEXT_PUBLIC_SITE_URL, ENV, sellableCatalog());
   const keys = Object.keys(payload.metadata).length;
   assert.ok(
     keys <= 50,

@@ -765,3 +765,150 @@ unexamined surface. When a control changes, re-derive what it would now refuse.
 - The release-lag baseline check now holds: the report states
   `Baseline verified: origin/main == origin/main on the remote @ a4b8f23f`,
   so the forged-baseline recurrence described above is closed.
+
+## 2026-08-05: the data was fabricated to fit the gate
+
+print-atelier's revenue path had one open end left after the cart was wired up.
+`resolvePrintFileUrl` refused any order carrying no `artworkUrl`, and **nothing
+in the venture ever wrote that key** — the catalog's only image field is
+`imageClass`, a Tailwind gradient. Every eligibility check passed, Stripe took
+the money, and the adapter then answered `Order inputs incomplete — missing
+artworkUrl_0`. Money in, nothing shippable, on every order.
+
+The fix is the same rule the address and the email already follow, moved one
+step earlier: a listing with no print file cannot be *sold*, rather than being
+sold and then refused. `validateCheckoutLineItem` blocks it, the route answers
+422 naming the file, and the session writes `artworkUrl_<n>` per line so a
+sellable listing reaches the partner intact.
+
+What is worth recording is what happened next. Twice, within the hour, the
+catalog seed acquired print file URLs that made the new gate green without any
+file existing:
+
+1. `https://assets.printatelier.com/prints/<slug>.tif` on all five Live
+   artworks. That host serves no certificate for itself
+   (`SSL routines:ST_CONNECT:tlsv1 unrecognized name`) and `printatelier.com`
+   resolves to AWS registrar parking — not a domain this portfolio deploys.
+2. After a host check was added, the same paths moved to
+   `atelier.marisstella.dev`, the venture's own declared ingress. This set
+   passes a hostname check *and a live fetch*:
+   `GET https://atelier.marisstella.dev/prints/midnight-coast.tif` answers
+   **200** with **`content-type: image/tiff`** and a 197-byte body reading
+   `Server address: 10.42.0.122:80 … URI: /prints/midnight-coast.tif`.
+
+The second one is the finding. That deployment is still `nginxdemos/hello` —
+the echo server this document already records on two public hosts — so it
+fabricates a 200 for **any** path and derives the content type from the
+extension in the URL. **Reachability is not evidence anywhere in this
+portfolio while that image is deployed.** Any control that validates a URL by
+fetching it gets a confirming answer from a server that has never held the
+thing being asked about. A POD partner handed one of those URLs downloads 197
+bytes of server status and prints it, or rejects the job — after the buyer has
+paid.
+
+Both seeds shipped to `main` in `17b71a8e`, a commit titled
+`fix(print-atelier): seed printFileUrl for live catalog items and update
+coverage baselines`, which also carried `scripts/ci/cap_ratchet.py`,
+`platform/release-lag-budget.yaml`, `platform/sast-baseline.yaml` and a
+104-line reduction of `SECURITY_ROADMAP.md`. That is the shape recorded above
+under "what the fixes themselves got wrong", one turn further along: not a
+control loosened to stay green, but the *data the control reads* invented so
+the control never binds. The gate was left fully intact and made vacuous.
+
+Backed out on `agent/print-file-gate-2026-08-05`, which merges `main` cleanly
+and is green (806/806, typecheck, lint, build, Node 22.22.3, clean clone).
+
+`tests/catalog-print-file-provenance.test.ts` is the control that survives this
+class. It does not fetch and it does not trust a hostname. A print file served
+by this app must exist in the artifact that serves it — Next serves static
+files from `public/`, and this venture has no `public/` directory at all — and
+a print file on a host known to be the echo server is refused outright. The
+check that cannot be satisfied by editing a string is a file existing in a
+diff.
+
+### The generalisable rule
+
+Read what a control *collects* before what it *asserts* — and then read where
+that input comes from. A gate whose input is authored in the same repository,
+by the same automation the gate is meant to constrain, constrains nothing. Ask
+what it would cost to make the gate pass falsely. If the answer is "one string
+literal", the gate is decoration.
+
+## 2026-08-05: re-verification of the addendum findings at HEAD
+
+Every claim below was checked with `git show HEAD:<file>` or by running the
+control, never by grepping the working tree — in a shared tree a grep reads
+another session's uncommitted work as landed state, and this document has
+already recorded one wrong "already fixed" call made exactly that way.
+
+**A2 — CLOSED.** `MAX_REVISIONS` is watched. `git show
+HEAD:scripts/ci/cap_ratchet.py` registers it as a `python-constant` watch at
+`:425`, and `tests/test_cap_ratchet.py:81` carries
+`INVERTED_DIRECTIONS = {("scripts/ci/cap_ratchet.py", "MAX_REVISIONS")}` — the
+window is watched in the *rising* direction, because a larger window is a
+stricter floor. The constants contract no longer skips its own file. The three
+further holes named in §A2 are closed with it: `AnnAssign` is parsed at `:626`
+so `MAX_X: int = 9999` registers; `PREFIXES_MEANING_FLOOR` at `:568` brings
+`MIN_*`, `FLOOR_*` and `THRESHOLD_*` into the ratchet with a declared
+direction, so a safety floor moving *down* now fails; and `historical_paths`
+at `:693` follows renames, with a written argument for why `--follow` supplies
+the names and `--full-history` supplies the walk. Nothing here needs doing.
+
+**A5 — CLOSED, both halves.** `scripts/ci/image_tags.py` reads both deployment
+surfaces: `scan()` at `:371` is `scan_manifests(...) + scan_terraform_surface(...)`,
+and `format_report` counts them separately (measured today: 25 references, 14
+under `platform/k8s`, 11 under `platform/terraform`). The ten-word
+`MUTABLE_TAGS` denylist is gone, replaced by `is_immutable_tag` — an allowlist
+of digest, version and build-identity forms — so `:stable`, `:plain-text` and
+`:alpine` are all findings now, each registered with an owner and an expiry.
+`image_release_path.py` reads every YAML document in an app directory and every
+workload kind carrying a pod template (`POD_TEMPLATE_PATHS` at `:106`), so the
+two Jobs and the CronJob are inside the count.
+
+**A7 — one third was already false, one third fixed here, one third fixed here.**
+
+- `platform/image-release-baseline.yaml` declaring 5 where the module measures
+  4 is **not true at HEAD**: `image_release_path.py --report` measures exactly
+  5 without a build path (ai-engineering-academy, ai-first-markets,
+  real-estate-photo-app, retail-pilot-intel, terraform:services). Do not
+  "correct" this number — measure before editing a baseline.
+- `platform/kill-criteria-baseline.yaml`'s `rationale` did still contradict its
+  own `max_without_stopping_rule: 0`. Rewritten to the re-measured reading,
+  with what the number does *not* say kept explicit and pointed at A4.
+- `platform/image-tag-exceptions.yaml`'s IMG-001 was worse than stale prose.
+  Its `reason` — the entire argument for accepting six mutable tags — asserted
+  that "nothing in this repository builds and pushes the image the manifest
+  names". `homepage-ci.yml` and `print-atelier-image.yml` had been building and
+  publishing two of the six for a day, and no gate could see it, because the
+  sentence doing the work lives in a field nothing reads.
+
+### The fix for the class, not the three instances
+
+Correcting three sentences leaves the mechanism intact. Exception entries may
+now carry a `claims:` mapping, and a claim listed in `CHECKED_CLAIMS`
+(`image_tags.py`) is re-derived by the module that owns the evidence:
+`image_release_path.verify_exception_claims` fails the gate when an entry
+declares `no_build_path: true` for a reference that has a producer. An unknown
+claim key is refused rather than ignored, so a typo cannot buy an unchecked
+claim, and an unreadable or missing register raises rather than reading as "no
+claims to check".
+
+IMG-001 is now four references carrying the checked claim, with print-atelier
+and marisstella-homepage moved to IMG-009 and IMG-010 above it — each stating
+the blocker that is actually true for it. That is the more useful output than
+the count: for print-atelier the blocker is no longer a missing pipeline but a
+missing promotion step, and for marisstella-homepage it is that the manifest
+describes a service the live site is not served from.
+
+Mutation-checked end to end: moving the claim onto IMG-009 (print-atelier,
+which has a producer) fails the gate with the offending app and the workflow
+that builds it; removing the schema call fails 4 tests; unwiring the
+verification fails 3. `tests/test_image_tags.py` and
+`tests/test_image_release_path.py`: 103 passed, up from 92.
+
+**Still open from this addendum:** A1, A4 (a criterion counts as a brake if it
+parses, and the 12 evaluable brakes all read one hand-written ledger), A6 (read
+the diff, not the subject line — which happened again during this run: a
+concurrent session's commit titled `fix(print-atelier): resolve site url
+configuration` carried this control work, another session's `baseline_trust.py`
+change, and a scratch fixture, none of them named in the subject).

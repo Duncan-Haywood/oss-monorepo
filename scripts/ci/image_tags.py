@@ -70,6 +70,24 @@ EXCEPTIONS_PATH = "platform/image-tag-exceptions.yaml"
 
 REQUIRED_FIELDS = ("id", "path", "owner", "issue", "reason", "expires", "count")
 
+#: Claims an entry may make that something else in the repository can check.
+#:
+#: `reason` is required and never read by any control, which is exactly the
+#: place prose and behaviour drift apart silently. IMG-001 is the worked
+#: example: its reason argued the six overlays could not be pinned because
+#: "nothing in this repository builds and pushes the image the manifest names —
+#: there is no Dockerfile for most and no workflow that publishes any of them".
+#: That was true when it was written. By 2026-08-05 `homepage-ci.yml` and
+#: `print-atelier-image.yml` both built and published two of the six, and no
+#: gate could tell, because the sentence justifying the exception lives in a
+#: field nothing reads.
+#:
+#: A claim listed here is different: `scripts/ci/image_release_path.py` — the
+#: module that measures build paths — re-derives it and fails when the register
+#: says something its own evidence denies. An unknown key is refused rather
+#: than ignored, so a typo cannot buy an unchecked claim.
+CHECKED_CLAIMS = ("no_build_path",)
+
 #: An exception nobody re-reads is a policy change made without review. Same cap
 #: as `platform/exception-register.yaml`.
 MAX_EXPIRY_DAYS = 180
@@ -405,7 +423,36 @@ def load_exceptions(repo_root: Path, path: str = EXCEPTIONS_PATH) -> List[Dict[s
                 f"{path}: entry {entry['id']} has a non-integer count; "
                 "an exception whose size is not recorded grows for free"
             )
+        validate_claims(entry, path)
     return entries
+
+
+def validate_claims(entry: Dict[str, Any], path: str = EXCEPTIONS_PATH) -> None:
+    """`claims` is optional, but a claim that is present must be checkable.
+
+    Refusing an unknown key is the point. A claim nothing re-derives is prose
+    wearing a field's clothes, and it would read in review as though a gate
+    stood behind it.
+    """
+    claims = entry.get("claims")
+    if claims is None:
+        return
+    if not isinstance(claims, dict):
+        raise ImageTagError(
+            f"{path}: entry {entry['id']} has a non-mapping `claims`"
+        )
+    for key, value in claims.items():
+        if key not in CHECKED_CLAIMS:
+            raise ImageTagError(
+                f"{path}: entry {entry['id']} claims `{key}`, which nothing checks. "
+                f"Checked claims are: {', '.join(CHECKED_CLAIMS)}. Add a check for it "
+                "or state it in `reason`, where it reads as the argument it is."
+            )
+        if not isinstance(value, bool):
+            raise ImageTagError(
+                f"{path}: entry {entry['id']} sets `claims.{key}` to {value!r}; "
+                "a checked claim is true or false"
+            )
 
 
 def check_expiry(entries: Sequence[Dict[str, Any]], today: date, path: str = EXCEPTIONS_PATH) -> List[Finding]:

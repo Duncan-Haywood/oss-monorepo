@@ -21,10 +21,11 @@ export default function AdCatalogFeedLab() {
   const [showBlocked, setShowBlocked] = useState(false);
   const [exportFormat, setExportFormat] = useState<"json" | "csv">("json");
 
-  const feed = useMemo(
-    () => buildAdCatalogFeed({ baselineCAC, baseUrl: "https://printatelier.com" }),
-    [baselineCAC],
-  );
+  // The export buttons below hand this feed to an operator as a Meta/Google
+  // upload, so the origin must be the one this deployment is configured with —
+  // not a literal. With none configured every row is blocked and the export is
+  // empty, which is the honest answer. See `src/lib/site-url.ts`.
+  const feed = useMemo(() => buildAdCatalogFeed({ baselineCAC }), [baselineCAC]);
 
   const filteredItems = useMemo(() => {
     const byPlatform =

@@ -436,6 +436,63 @@ class CountRatchetTest(unittest.TestCase):
                 load_exceptions(root)
 
 
+class CheckedClaimsTest(unittest.TestCase):
+    """`claims` is where an entry says something a control can re-derive.
+
+    `reason` is required and read by nobody, which is how IMG-001 spent a day
+    arguing that six images had no producer while two of them were being built
+    and published on every push to main. A claim listed in `CHECKED_CLAIMS` is
+    verified in `scripts/ci/image_release_path.py`; the schema half is here.
+    """
+
+    def _entry(self, claims) -> dict:
+        entry = {
+            "id": "IMG-TEST",
+            "path": "platform/k8s/apps/*/deployment.yaml",
+            "count": 1,
+            "owner": "duncan",
+            "issue": "docs/ENGINEERING-ROADMAP.md",
+            "reason": "test fixture",
+            "expires": (date.today() + timedelta(days=30)).isoformat(),
+        }
+        if claims is not None:
+            entry["claims"] = claims
+        return entry
+
+    def _load(self, claims):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_manifest(root / "platform/k8s/apps/a", "deployment.yaml", "ns/a:latest")
+            write_exceptions(root, [self._entry(claims)])
+            return load_exceptions(root)
+
+    def test_claims_are_optional(self):
+        self.assertEqual(len(self._load(None)), 1)
+
+    def test_a_checked_claim_loads(self):
+        entries = self._load({"no_build_path": True})
+        self.assertIs(entries[0]["claims"]["no_build_path"], True)
+
+    def test_an_unknown_claim_is_refused_rather_than_ignored(self):
+        """A claim nothing re-derives would read in review as a checked one."""
+        with self.assertRaises(ImageTagError) as caught:
+            self._load({"not_reachable": True})
+        self.assertIn("not_reachable", str(caught.exception))
+        self.assertIn("no_build_path", str(caught.exception))
+
+    def test_a_typo_of_a_checked_claim_is_refused(self):
+        with self.assertRaises(ImageTagError):
+            self._load({"no_buildpath": True})
+
+    def test_a_non_boolean_claim_is_refused(self):
+        with self.assertRaises(ImageTagError):
+            self._load({"no_build_path": "yes"})
+
+    def test_a_non_mapping_claims_block_is_refused(self):
+        with self.assertRaises(ImageTagError):
+            self._load(["no_build_path"])
+
+
 class ExpiryTest(unittest.TestCase):
     def _entry(self, expires: str) -> dict:
         return {"id": "IMG-TEST", "expires": expires}

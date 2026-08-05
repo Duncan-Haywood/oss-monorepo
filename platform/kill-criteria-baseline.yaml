@@ -45,5 +45,22 @@ rationale: >-
   shows the result: seven ventures funded through 2026-07, $127.26 spent, and
   zero revenue recorded against any of them. Making the criteria evaluable is
   the fix. This ceiling is what stops it eroding, and it is deliberately not a
-  target — the honest number today is that 10 of 11 ventures still have no rule
-  capable of ending their funding, and each one is an open-ended cost.
+  target.
+  What this number does and does not say, corrected 2026-08-05: the sentence
+  here used to end "10 of 11 ventures still have no rule capable of ending
+  their funding", which was the measurement from before the criteria were made
+  evaluable and directly contradicted `max_without_stopping_rule: 0` five lines
+  above it. Both statements sat in this file for a day. `rationale` is required
+  by `load_baseline()` and read by nothing, so nothing could notice — the same
+  shape as `platform/image-tag-exceptions.yaml`'s IMG-001, whose stated reason
+  went false the same way and is now a checked claim.
+  The true reading today, re-measured: `kill_criteria_ratchet.py --report`
+  gives 12 ventures measured, 0 without a stopping rule. That means every
+  venture holds a criterion the allocator can evaluate. It does not mean every
+  venture has a brake that can fire: the evaluable rules are thresholds on
+  cumulative agent spend recorded in portfolio/ledger/, which is a hand-written
+  file nothing gates downward, and the prose criteria beside them — artist
+  onboarding, post-payout unit economics — remain unmeasurable. See A4 in
+  docs/CONTROL-AUDIT-2026-08-04.md, which is the open finding for that gap.
+  This ceiling counts declarations, not consequences, and should not be read as
+  evidence that spending will actually stop.

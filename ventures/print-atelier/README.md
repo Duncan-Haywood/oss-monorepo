@@ -63,7 +63,16 @@ Visit [http://localhost:3000](http://localhost:3000) for the business plan dashb
 
 All demo pages share navigation via `DemoNav` and link back to the business plan.
 
-Optional: set `NEXT_PUBLIC_SITE_URL` for production sitemap/robots absolute URLs (defaults to `https://printatelier.com`).
+Required for anything published: `NEXT_PUBLIC_SITE_URL` is this deployment's own
+absolute origin (e.g. `https://atelier.marisstella.dev`). It has **no default** —
+it used to fall back to `https://printatelier.com`, a domain this portfolio does
+not own. With it unset the app runs but publishes nothing: `robots.txt`
+disallows crawling, `sitemap.xml` is empty, and `/api/ad-catalog/sync` answers
+`503` rather than pushing an ad-platform product feed of URLs on a guessed host.
+
+Next.js inlines `NEXT_PUBLIC_*` at build time, so it must be set for
+`next build`, not on the running container — in the image that is the
+`NEXT_PUBLIC_SITE_URL` build arg (see `Dockerfile`).
 
 ## Architecture
 

@@ -7,6 +7,7 @@ import {
   type CatalogArtwork,
   type ListingConsentRecord,
 } from "./marketplace";
+import { FULFILLMENT_INPUT_METADATA_KEYS } from "./fulfillment-order-inputs";
 import { fulfillmentPartners } from "./partners";
 import { formatStripeCurrency } from "./stripe-connect";
 
@@ -21,6 +22,12 @@ export type CheckoutLineItem = {
   retailPrice: number;
   fulfillmentCost: number;
   quantity: number;
+  /**
+   * Catalog-derived, never caller-supplied: `sanitizeCheckoutLineItems`
+   * overwrites whatever a stored cart carries, for the same reason it overwrites
+   * the price.
+   */
+  printFileUrl?: string;
 };
 
 export type CheckoutEligibility = {
@@ -150,7 +157,29 @@ export function artworkToCheckoutLine(
     retailPrice: artwork.retailPrice,
     fulfillmentCost: artwork.fulfillmentCost,
     quantity: Math.max(1, quantity),
+    printFileUrl: artwork.printFileUrl,
   };
+}
+
+/**
+ * Whether an artwork carries a file a print partner can actually fetch.
+ *
+ * Deliberately the same rule `resolvePrintFileUrl` applies on the fulfillment
+ * side. The two ends disagreeing is what this whole change is about: the
+ * listing said sellable, the adapter said unfulfillable, and the buyer's card
+ * had already been charged in between.
+ *
+ * This checks the *shape* of the URL, which is all a pure function can check.
+ * Whether the file behind it exists is a different question, and a fabricated
+ * URL passes here — see `tests/catalog-print-file-provenance.test.ts`, which
+ * exists because one appeared in the catalog seed within minutes of this
+ * blocker being written.
+ */
+export function hasUsablePrintFile(artwork: CatalogArtwork): boolean {
+  return (
+    typeof artwork.printFileUrl === "string" &&
+    artwork.printFileUrl.trim().startsWith("https://")
+  );
 }
 
 /**
@@ -187,6 +216,11 @@ export function sanitizeCheckoutLineItems(
       retailPrice: artwork.retailPrice,
       fulfillmentCost: artwork.fulfillmentCost,
       quantity: Math.max(1, item.quantity),
+      // Re-derived, not spread from `item`. A cart round-trips through
+      // localStorage and through a request body, so the URL a print partner is
+      // told to fetch must come from the catalog rather than from whoever last
+      // held the cart.
+      printFileUrl: artwork.printFileUrl,
     };
   });
 }
@@ -219,6 +253,18 @@ export function validateCheckoutLineItem(
 
   if (!artwork.hasApprovedProof) {
     blockers.push("Approved print proof required before buyer checkout");
+  }
+
+  // An approved proof is an approval *of* a file, and the file itself was never
+  // recorded anywhere. Without it the print partner has nothing to print, which
+  // the adapters correctly refuse — after the buyer has paid. Refuse the sale
+  // instead.
+  if (!hasUsablePrintFile(artwork)) {
+    blockers.push(
+      artwork.printFileUrl
+        ? "Print file must be an https URL a POD partner can fetch"
+        : "No print file on this listing — upload the artist's print-ready file before selling it",
+    );
   }
 
   const economics = calculatePrintEconomics({
@@ -369,6 +415,15 @@ export function buildCheckoutSessionPayload(
   const canonicalLineItems = lineItems.map((item) => {
     const artwork = artworks.find((art) => art.slug === item.artworkSlug);
     if (artwork) {
+      // The eligibility gate refuses this listing long before here, and this
+      // check does not rely on the caller having run it — the same rule the
+      // uncatalogued-slug throw below follows. A session created without a print
+      // file is a charge whose order the fulfillment adapter will refuse.
+      if (!hasUsablePrintFile(artwork)) {
+        throw new Error(
+          `Refusing to sell "${item.artworkSlug}": no print file on the catalog listing. A POD partner cannot be sent an order with no artwork to print.`,
+        );
+      }
       return artworkToCheckoutLine(artwork, item.quantity);
     }
     // The money boundary, and it does not depend on a caller having checked
@@ -442,6 +497,15 @@ export function buildCheckoutSessionPayload(
             [`lineItemName_${index}`, `${item.title} — ${item.artistName}`],
             [`artistAccountId_${index}`, accId],
             [`artistHandle_${index}`, hnd],
+            // Per line rather than one shared key, and not a comma-separated
+            // list like the quantities above: Stripe caps a metadata *value* at
+            // 500 characters, which two or three URLs exhaust, and a cart
+            // collapsed onto one image prints the wrong artwork rather than
+            // failing. `resolvePrintFileUrl` reads exactly this key.
+            [
+              `${FULFILLMENT_INPUT_METADATA_KEYS.printFileUrl}_${index}`,
+              item.printFileUrl ?? "",
+            ],
           ];
         }),
       ),

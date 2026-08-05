@@ -11,11 +11,14 @@ import {
   validateCheckoutLineItem,
 } from "../src/lib/checkout.ts";
 import { catalogArtworks, defaultListingConsentRecords } from "../src/lib/marketplace.ts";
+import { sellableCatalog, withPrintFile } from "./support/print-files.ts";
 
 test("validateCheckoutLineItem allows consent-cleared Live listings with proof", () => {
   const midnight = catalogArtworks.find((art) => art.slug === "midnight-coast");
   assert.ok(midnight);
-  const result = validateCheckoutLineItem(midnight, defaultListingConsentRecords);
+  // `withPrintFile`: a listing with no print file is blocked, and this test is
+  // about the consent and proof gates rather than that one.
+  const result = validateCheckoutLineItem(withPrintFile(midnight), defaultListingConsentRecords);
   assert.equal(result.eligible, true);
   assert.equal(result.blockers.length, 0);
 });
@@ -29,7 +32,7 @@ test("validateCheckoutLineItem blocks listings missing storefront consent", () =
 });
 
 test("calculateCheckoutTotals includes shipping, tax, and artist split", () => {
-  const cart = buildSampleCheckoutCart();
+  const cart = buildSampleCheckoutCart(sellableCatalog());
   assert.ok(cart.length > 0);
   const totals = calculateCheckoutTotals(cart, "US");
   assert.ok(totals.subtotal > 0);
@@ -41,7 +44,7 @@ test("calculateCheckoutTotals includes shipping, tax, and artist split", () => {
 });
 
 test("buildFulfillmentRoute prefers Gelato for EU when credentials configured", () => {
-  const cart = buildSampleCheckoutCart();
+  const cart = buildSampleCheckoutCart(sellableCatalog());
   const route = buildFulfillmentRoute(cart, "EU", {
     GELATO_API_KEY: "gelato_test",
     GELATO_STORE_ID: "store_1",
@@ -53,11 +56,14 @@ test("buildFulfillmentRoute prefers Gelato for EU when credentials configured", 
 });
 
 test("buildCheckoutSessionPayload encodes line items and metadata", () => {
-  const cart = buildSampleCheckoutCart();
-  const payload = buildCheckoutSessionPayload(cart, "US", "https://printatelier.com", {
-    PRINTFUL_API_KEY: "pf_test",
-    PRINTFUL_STORE_ID: "pf_store",
-  });
+  const cart = buildSampleCheckoutCart(sellableCatalog());
+  const payload = buildCheckoutSessionPayload(
+    cart,
+    "US",
+    "https://printatelier.com",
+    { PRINTFUL_API_KEY: "pf_test", PRINTFUL_STORE_ID: "pf_store" },
+    sellableCatalog(),
+  );
   assert.ok(payload.sessionId.startsWith("chk_"));
   assert.equal(payload.mode, "payment");
   assert.equal(payload.lineItems.length, cart.length);
@@ -83,8 +89,8 @@ test("getCheckoutEnvStatus requires publishable and secret keys", () => {
 });
 
 test("buildCheckoutReadiness surfaces cart and env blockers", () => {
-  const cart = buildSampleCheckoutCart();
-  const readiness = buildCheckoutReadiness(cart, catalogArtworks, defaultListingConsentRecords, {});
+  const cart = buildSampleCheckoutCart(sellableCatalog());
+  const readiness = buildCheckoutReadiness(cart, sellableCatalog(), defaultListingConsentRecords, {});
   assert.equal(readiness.cartEligible, true);
   assert.equal(readiness.envReady, false);
   assert.equal(readiness.fulfillmentReady, false);
@@ -93,7 +99,7 @@ test("buildCheckoutReadiness surfaces cart and env blockers", () => {
 });
 
 test("buildCheckoutFunnelMetrics tracks cart-to-session readiness stages", () => {
-  const funnel = buildCheckoutFunnelMetrics();
+  const funnel = buildCheckoutFunnelMetrics(sellableCatalog());
   assert.ok(funnel.eligibleListings > 0);
   assert.equal(funnel.stages.length, 5);
   assert.ok(funnel.overallReadiness >= 0 && funnel.overallReadiness <= 100);
@@ -101,7 +107,7 @@ test("buildCheckoutFunnelMetrics tracks cart-to-session readiness stages", () =>
 });
 
 test("buildCheckoutFunnelMetrics marks live checkout ready when env and POD configured", () => {
-  const funnel = buildCheckoutFunnelMetrics(catalogArtworks, defaultListingConsentRecords, {
+  const funnel = buildCheckoutFunnelMetrics(sellableCatalog(), defaultListingConsentRecords, {
     STRIPE_SECRET_KEY: "sk_test_abc",
     STRIPE_PUBLISHABLE_KEY: "pk_test_abc",
     STRIPE_WEBHOOK_SECRET: "whsec_abc",
@@ -128,7 +134,7 @@ test("buildCheckoutReadiness blocks cart with manipulated retail price", () => {
       quantity: 1,
     },
   ];
-  const readiness = buildCheckoutReadiness(manipulatedCart, catalogArtworks, defaultListingConsentRecords, {});
+  const readiness = buildCheckoutReadiness(manipulatedCart, sellableCatalog(), defaultListingConsentRecords, {});
   assert.equal(readiness.cartEligible, false);
   assert.ok(readiness.blockers.some((b) => b.includes("Price mismatch")));
 });
@@ -146,7 +152,7 @@ test("buildCheckoutSessionPayload enforces canonical catalog price over client-s
       quantity: 1,
     },
   ];
-  const payload = buildCheckoutSessionPayload(manipulatedCart, "US", "https://printatelier.com");
+  const payload = buildCheckoutSessionPayload(manipulatedCart, "US", "https://printatelier.com", {}, sellableCatalog());
   assert.equal(payload.lineItems[0].unitAmountCents, Math.round(midnight.retailPrice * 100));
 });
 

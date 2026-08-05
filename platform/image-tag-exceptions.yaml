@@ -124,31 +124,96 @@ exceptions:
       reads all six of those overrides, so a release that stopped overriding it
       would be caught at its own line rather than inherited silently from here.
 
+  # IMG-009 and IMG-010 sit above IMG-001 because its glob would otherwise
+  # swallow them, and the argument for accepting them is no longer the same
+  # argument. Both have a producer now; IMG-001's four do not, and conflating
+  # the two states is what let IMG-001's reason go false unnoticed for a day.
+  - id: IMG-009
+    path: platform/k8s/apps/print-atelier/deployment.yaml
+    count: 1
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
+    expires: 2026-12-15
+    reason: >-
+      `newTag: latest`, and — unlike IMG-001's four — an image that exists.
+      `.gitea/workflows/print-atelier-image.yml` verifies the venture through
+      the shared component gate, builds the exact deployable image, smoke tests
+      that it answers "/" , and publishes `print-atelier:${sha}` on main. What
+      is missing is the other half: nothing rewrites this overlay to that
+      digest, so the manifest still names a tag the build deliberately does not
+      push. The blocker is a promotion step, not a missing pipeline, and the
+      worked example for it is `platform/ci/promote-pairwise-gitops.sh` —
+      except that script rewrites an existing `digest:` line and this
+      kustomization carries `newTag: latest`, so it needs a first-promotion
+      path. That is an owner's decision about releasing a venture holding live
+      Stripe Connect and payout code, which is why the build workflow stops
+      where it does.
+    compensating_control: >-
+      Not reachable: `links.production` is `null`, and the published tag is
+      immutable and unreferenced by any manifest, so nothing pulls it. The
+      exposure is that the Deployment, if ever synced, resolves `:latest` to
+      whatever was pushed last — and no `:latest` is pushed at all, so today it
+      resolves to nothing and the pod would fail at pull time rather than run
+      unidentified code.
+
+  - id: IMG-010
+    path: platform/k8s/apps/marisstella-homepage/deployment.yaml
+    count: 1
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
+    expires: 2026-12-15
+    reason: >-
+      `newTag: latest` on a manifest that is not how this service is served.
+      `homepage-ci.yml` builds and pushes the image, so this is not the missing
+      pipeline IMG-001 describes; but the live apex site is published by
+      `platform/ci/deploy-homepage.sh` from a ConfigMap, which means this
+      Deployment is a second, unsynced description of a service that already
+      runs from somewhere else. Pinning a digest here would make the manifest
+      internally consistent and still not describe production. The honest fix
+      is to reconcile the two paths — one of them should stop existing — and
+      that is an owner's call about the only venture with a customer surface.
+    compensating_control: >-
+      The public site does not come from this image, so a mutable tag here
+      cannot change what a visitor gets. That is also precisely the risk: the
+      manifest reads as the production description and is not, so anyone acting
+      on it acts on a surface nothing serves. Recorded here rather than in the
+      count alone for that reason.
+
   - id: IMG-001
     path: platform/k8s/apps/*/deployment.yaml
-    count: 6
+    count: 4
     owner: duncan
     issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
     expires: 2027-01-15
+    claims:
+      # Re-derived by `scripts/ci/image_release_path.py`, which measures which
+      # images have a producer. The sentence below used to be the whole
+      # justification and lived in `reason`, a required field nothing reads: it
+      # was written when all six had no producer, and stayed on the page after
+      # print-atelier and marisstella-homepage got one. Stating it as a checked
+      # claim means the register fails when the argument stops being true
+      # instead of when someone happens to re-read it.
+      no_build_path: true
     reason: >-
-      Six venture overlays pin `newTag: latest`: ai-engineering-academy,
-      ai-first-markets, marisstella-homepage, print-atelier,
-      real-estate-photo-app and retail-pilot-intel. None of the six can be
-      pinned today, because for each of them nothing in this repository builds
-      and pushes the image the manifest names — there is no Dockerfile for most
-      and no workflow that publishes any of them. Writing a digest now would
-      pin these Deployments to an artifact that does not exist, which is a
-      worse failure than a mutable tag: it fails at pull time in the cluster
-      rather than at review time here. The tag is a symptom of the missing
-      image pipeline, and it is the pipeline that has to land first.
+      Four venture overlays pin `newTag: latest`: ai-engineering-academy,
+      ai-first-markets, real-estate-photo-app and retail-pilot-intel. None of
+      the four can be pinned today, because for each of them nothing in this
+      repository builds and pushes the image the manifest names — there is no
+      Dockerfile and no workflow that publishes any of them. Writing a digest
+      now would pin these Deployments to an artifact that does not exist, which
+      is a worse failure than a mutable tag: it fails at pull time in the
+      cluster rather than at review time here. The tag is a symptom of the
+      missing image pipeline, and it is the pipeline that has to land first.
+      Lowered 6 -> 4 on 2026-08-05 when print-atelier and marisstella-homepage
+      gained producers and moved to IMG-009 and IMG-010 — a lower count here is
+      the pipeline landing, not the exception shrinking by argument.
     compensating_control: >-
-      None of the six is reachable from the public internet through this
-      manifest. `links.production` is `null` in all seven VENTURE.yaml files,
-      and the one live service among them, marisstella-homepage, is served by
-      `platform/ci/deploy-homepage.sh` from a ConfigMap rather than from this
-      image. The single venture that does deploy from its manifest,
-      quick-pick-survey, is digest-pinned and is excluded from this entry, so
-      the count cannot be quietly satisfied by the service that matters most.
+      None of the four is reachable from the public internet through this
+      manifest, and `links.production` is `null` in every one of their
+      VENTURE.yaml files. The single venture that does deploy from its
+      manifest, quick-pick-survey, is digest-pinned and is excluded from this
+      entry, so the count cannot be quietly satisfied by the service that
+      matters most.
 
   - id: IMG-006
     path: platform/terraform/agent_platform.tf

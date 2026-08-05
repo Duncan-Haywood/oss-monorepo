@@ -40,6 +40,52 @@ one is refused, and the refusal cannot be cleared by editing YAML, by editing
 the enforcing script, or by adding commits — only by making the underlying
 number genuinely smaller, which for the release-lag budget means shipping.
 
+Both directions, because half the numbers here are the other kind
+------------------------------------------------------------------
+A cap (`MAX_*`, `CAP_*`) is a ceiling on debt: it may fall forever and may
+never rise. A floor (`MIN_*`) is a safety minimum — how many words a human must
+write before a SAST finding may be suppressed, how many characters an owner
+must write to overrule a fired stopping rule. Lowering one of those is a
+weakening in exactly the same way raising a cap is, and until 2026-08-05 this
+control could not see it: `evaluate` only fired on `current > floor`, so every
+`MIN_*` in `scripts/ci/` sat outside the ratchet. Each watch now declares the
+direction it may move in, and the bound it is held to is the historical minimum
+for a cap and the historical maximum for a floor. The name says which:
+`tests/test_cap_ratchet.py` derives the expected direction from the prefix and
+refuses a watch whose declared direction disagrees with its name.
+
+Why the evidence window is itself watched, and upward
+-----------------------------------------------------
+`MAX_REVISIONS` below bounds the history walk, so it is the number every floor
+in this tower is computed from. The 2026-08-04 control audit demonstrated the
+consequence end to end: lower it 500 -> 4 under an innocuous subject, add a few
+commits, and every floor is re-measured from a four-revision window in which
+nothing has been raised yet — `PASS: 27 caps` with the whole suite green.
+
+Two things hold it now, and deliberately not one:
+
+1. It is watched like everything else, in the *rising* direction. A larger
+   window can only ever produce a lower cap floor and a higher safety-floor
+   ceiling, so raising it is the strengthening move and is always allowed;
+   lowering it is refused. That check reads this file's own history, which is
+   the part an attacker with enough commits could out-wait.
+2. A truncated history walk is now a **failure**, not the `NOTE` it used to
+   print. This is the check that does not depend on reading `MAX_REVISIONS`'s
+   own past: shrinking the window to forge a floor makes every watched file
+   with more revisions than the new window fail loudly, and this file is one of
+   them. The only way out is to raise the window, which (1) permits.
+
+   The cost is real and intended: when a watched file genuinely accumulates
+   more revisions than the window, this gate goes red until someone raises
+   `MAX_REVISIONS`. That is a raise of a number that only makes the control
+   stricter, reviewed in a diff, which is the trade the audit asked for.
+
+Neither check is *independent* of this module — within one file and its test
+that is not achievable, and no fully external watcher exists yet. What exists
+is a second check that reads git rather than this file's history, plus a
+contract in `tests/test_cap_ratchet.py` that measures every watched file's real
+revision count today and fails if the window no longer covers it.
+
 Why git history and not the previous commit: comparing against `HEAD` lets a
 value walk upward five at a time across a session, each step legal against the
 one before it. Comparing against the historical minimum makes the walk
@@ -82,21 +128,38 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import yaml
 
-# How far back to walk a file's history. These files are days old; the bound
-# exists so a long-lived repository cannot turn this check into a git-storm.
-# Truncation is reported, never silent — a floor taken from a partial history
-# is still a floor, but the operator should know it is one.
+# How far back to walk a file's history. The bound exists so a long-lived
+# repository cannot turn this check into a git-storm.
+#
+# This is the evidence window every floor in this file is measured from, so it
+# is watched in `WATCHES` below in the RISING direction: raising it can only
+# make a cap floor lower and a safety-floor ceiling higher, i.e. stricter;
+# lowering it re-measures the whole tower from a shorter window in which
+# nothing has been raised yet. Truncating the walk is a failure rather than the
+# NOTE it used to be, so shrinking this number does not quietly buy a lower
+# floor — it makes every file with more history than the window fail.
 MAX_REVISIONS = 500
+
+# The direction a watched number is allowed to move in.
+DOWN = "down"  # a cap: may fall forever, may never rise
+UP = "up"  # a floor: may rise forever, may never fall
+DIRECTIONS = (DOWN, UP)
 
 
 @dataclass(frozen=True)
 class Watch:
-    """A number that may only ever move down."""
+    """A number that may only ever move in one direction.
+
+    `direction=DOWN` is a cap held to the lowest value it has ever held.
+    `direction=UP` is a safety floor held to the highest value it has ever
+    held — lowering one of those is a weakening, and is refused symmetrically.
+    """
 
     path: str
     kind: str  # "python-constant" | "yaml-path"
     locator: str
     why: str
+    direction: str = DOWN
 
 
 # Every cap that bounds a declared budget elsewhere in the repository, plus the
@@ -353,6 +416,44 @@ WATCHES: Tuple[Watch, ...] = (
         locator="budget.slack",
         why="the room the stopping-rule ceiling may be stale by before it must be lowered",
     ),
+    # 2026-08-05, from the control audit's A2. The contract test used to skip
+    # this file when enumerating watched constants, so the one number every
+    # floor above is computed from was the only one nothing watched. Watched
+    # upward: see the module docstring for why a bigger window is the strict
+    # direction, and why truncation is now a failure rather than a note.
+    Watch(
+        path="scripts/ci/cap_ratchet.py",
+        kind="python-constant",
+        locator="MAX_REVISIONS",
+        why=(
+            "the evidence window every floor in this file is measured from; shrinking it "
+            "re-measures the whole tower from a window in which nothing has been raised yet"
+        ),
+        direction=UP,
+    ),
+    # The safety floors. Same audit, same commit: `evaluate` only fired on
+    # `current > floor`, so a `MIN_*` moving DOWN — the weakening direction for
+    # a minimum — was invisible to this control even where it was watched.
+    Watch(
+        path="scripts/ci/sast_scan.py",
+        kind="python-constant",
+        locator="MIN_REVIEWED_REASON_WORDS",
+        why=(
+            "the least a human must write before a SAST finding is suppressed as reviewed; "
+            "lowering it is how a review becomes a word"
+        ),
+        direction=UP,
+    ),
+    Watch(
+        path="scripts/ci/stopping_rule_review.py",
+        kind="python-constant",
+        locator="MIN_REASON_CHARS",
+        why=(
+            "the least an owner must write to overrule a fired stopping rule; lowering it is "
+            "how an override becomes a shrug"
+        ),
+        direction=UP,
+    ),
 )
 
 
@@ -415,10 +516,13 @@ class CapError(Exception):
 class Reading:
     watch: Watch
     current: float
-    floor: float
-    floor_sha: str
+    # The historical extreme in the direction the watch may not move: the
+    # minimum for a cap, the maximum for a floor. Named `bound` rather than
+    # `floor` since 2026-08-05, when floors joined the ratchet and the old name
+    # would have described half the readings wrongly.
+    bound: float
+    bound_sha: str
     revisions_seen: int
-    history_truncated: bool
     first_appearance: bool
 
 
@@ -450,6 +554,102 @@ def _git(repo_root: Path, *args: str) -> str:
     return proc.stdout
 
 
+# A module-level constant whose name says it bounds something. `MAX_`/`CAP_`/
+# `LIMIT_` are ceilings, `MIN_`/`FLOOR_`/`THRESHOLD_` are the other kind; both
+# are numbers a change can weaken, so both have to be enumerable. The contract
+# test in `tests/test_cap_ratchet.py` walks every `scripts/ci/*.py` with this
+# and demands each one be watched — including this file's own, which it used to
+# skip, which is how `MAX_REVISIONS` came to be the one cap nothing watched.
+#
+# Named so that these names do not themselves match: a constant called
+# `CAP_PREFIXES` would be enumerated as a bound and, being a tuple rather than a
+# number, reported as an unreadable one.
+PREFIXES_MEANING_CEILING = ("MAX_", "CAP_", "LIMIT_")
+PREFIXES_MEANING_FLOOR = ("MIN_", "FLOOR_", "THRESHOLD_")
+BOUND_NAME_PREFIXES = PREFIXES_MEANING_CEILING + PREFIXES_MEANING_FLOOR
+
+
+@dataclass(frozen=True)
+class DeclaredConstant:
+    """A module-level bound found by reading the source, never by importing it."""
+
+    name: str
+    value: Optional[float]  # None when it is not a plain number
+    lineno: int
+
+    @property
+    def expected_direction(self) -> str:
+        return DOWN if self.name.startswith(PREFIXES_MEANING_CEILING) else UP
+
+
+def _literal_number(node: Optional[ast.expr]) -> Optional[float]:
+    """A numeric literal, or None for anything the reader must not guess at."""
+    if node is None:
+        return None
+    if isinstance(node, ast.Constant) and isinstance(node.value, bool):
+        return None
+    if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
+        return float(node.value)
+    # `X = -1` parses as a UnaryOp, not a Constant.
+    if (
+        isinstance(node, ast.UnaryOp)
+        and isinstance(node.op, ast.USub)
+        and isinstance(node.operand, ast.Constant)
+        and not isinstance(node.operand.value, bool)
+        and isinstance(node.operand.value, (int, float))
+    ):
+        return -float(node.operand.value)
+    return None
+
+
+def module_constants(source: str) -> Dict[str, DeclaredConstant]:
+    """Every module-level `NAME = ...`, read statically, never executed.
+
+    Covers plain assignment, chained assignment (`A = B = 5`) and the annotated
+    form (`MAX_X: int = 9999`) — the annotated form was invisible to the
+    contract test until 2026-08-05, which made it a way to declare an unwatched
+    ceiling. A name bound more than once at module level resolves to None
+    rather than to its first binding: `MAX_X = 5` followed later by
+    `MAX_X = 9999` is not a cap of 5, and reading it as one is worse than
+    refusing to read it, because `measure` turns None into a failure.
+    """
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return {}
+    found: Dict[str, DeclaredConstant] = {}
+    rebound: set = set()
+    for node in tree.body:
+        if isinstance(node, ast.Assign):
+            targets: List[ast.expr] = list(node.targets)
+            value = node.value
+        elif isinstance(node, ast.AnnAssign):
+            targets = [node.target]
+            value = node.value  # None for a bare `MAX_X: int` declaration
+        else:
+            continue
+        for target in targets:
+            if not isinstance(target, ast.Name):
+                continue
+            if target.id in found:
+                rebound.add(target.id)
+            found[target.id] = DeclaredConstant(
+                name=target.id, value=_literal_number(value), lineno=node.lineno
+            )
+    for name in rebound:
+        found[name] = DeclaredConstant(name=name, value=None, lineno=found[name].lineno)
+    return found
+
+
+def declared_bound_constants(source: str) -> List[DeclaredConstant]:
+    """The module-level constants whose names say they bound something."""
+    return [
+        const
+        for const in module_constants(source).values()
+        if const.name.startswith(BOUND_NAME_PREFIXES)
+    ]
+
+
 def extract_python_constant(source: str, name: str) -> Optional[float]:
     """Read a module-level `NAME = <number>` without executing the module.
 
@@ -458,29 +658,12 @@ def extract_python_constant(source: str, name: str) -> Optional[float]:
     caller must fail. Parsed with `ast` rather than exec or regex: the file is
     a control, and importing a control to audit it lets the control decide
     whether it is audited.
+
+    Deliberately the same reader the contract test enumerates with, so a cap
+    the enumeration can see is a cap this can read, and vice versa.
     """
-    try:
-        tree = ast.parse(source)
-    except SyntaxError:
-        return None
-    for node in tree.body:
-        if not isinstance(node, ast.Assign):
-            continue
-        for target in node.targets:
-            if isinstance(target, ast.Name) and target.id == name:
-                value = node.value
-                if isinstance(value, ast.Constant) and isinstance(value.value, (int, float)):
-                    return float(value.value)
-                # `X = -1` parses as a UnaryOp, not a Constant.
-                if (
-                    isinstance(value, ast.UnaryOp)
-                    and isinstance(value.op, ast.USub)
-                    and isinstance(value.operand, ast.Constant)
-                    and isinstance(value.operand.value, (int, float))
-                ):
-                    return -float(value.operand.value)
-                return None
-    return None
+    const = module_constants(source).get(name)
+    return None if const is None else const.value
 
 
 def extract_yaml_path(source: str, dotted: str) -> Optional[float]:
@@ -507,12 +690,71 @@ def extract(watch: Watch, source: str) -> Optional[float]:
     raise CapError(f"{watch.path}: unknown watch kind {watch.kind!r}")
 
 
-def revisions_for(repo_root: Path, path: str) -> Tuple[List[str], bool]:
-    """Commits that touched `path`, newest first, and whether the list was cut."""
-    out = _git(repo_root, "log", f"--max-count={MAX_REVISIONS + 1}", "--format=%H", "--", path)
+def historical_paths(repo_root: Path, path: str) -> List[str]:
+    """Every name this file has had, newest first.
+
+    Without this, `git mv` resets a floor to whatever the value is on the day
+    of the rename: the audit renamed a watched file and raised its cap
+    150 -> 400 in the same change, and the suite stayed green.
+
+    `--follow` is used here to learn the names and *only* that. It is not the
+    walk, because it is not a superset of one: measured on this repository it
+    returned 7 revisions of `cap_ratchet.py` where a plain log returned 10 and
+    `--full-history` returned 30, dropping every merge commit on the way. A
+    shorter history is a higher floor, so the walk below reads the widest view
+    git offers and this reads the narrowest thing that answers "what was it
+    called before".
+    """
+    out = _git(
+        repo_root,
+        "log",
+        "--follow",
+        "--name-status",
+        "--format=%x00%H",
+        f"--max-count={MAX_REVISIONS + 1}",
+        "--",
+        path,
+    )
+    names = [path]
+    current = path
+    for line in out.splitlines():
+        if line.startswith("\x00") or not line.strip():
+            continue
+        parts = line.rstrip("\n").split("\t")
+        # `R100<TAB>old<TAB>new` — at this commit the followed file is `new`,
+        # and in every older commit it is `old`.
+        if len(parts) == 3 and parts[0].startswith("R") and parts[2] == current:
+            current = parts[1]
+            if current not in names:
+                names.append(current)
+    return names
+
+
+def revisions_for(repo_root: Path, path: str) -> Tuple[List[str], List[str], bool]:
+    """Commits touching `path` or any previous name of it, newest first.
+
+    Returns the revisions, the names walked, and whether the list was cut.
+
+    `--full-history` because the default simplification hides commits that are
+    TREESAME to a parent, which on this repository is most of them: 10 of 30
+    revisions of `cap_ratchet.py` survive it. Every commit it hides is a value
+    this file genuinely held, and a value hidden from the walk can only make the
+    bound weaker — a higher floor for a cap, a lower ceiling for a safety floor.
+    The widest history is the strictest ratchet, so the walk takes the widest.
+    """
+    names = historical_paths(repo_root, path)
+    out = _git(
+        repo_root,
+        "log",
+        "--full-history",
+        f"--max-count={MAX_REVISIONS + 1}",
+        "--format=%H",
+        "--",
+        *names,
+    )
     shas = [line.strip() for line in out.splitlines() if line.strip()]
     truncated = len(shas) > MAX_REVISIONS
-    return shas[:MAX_REVISIONS], truncated
+    return shas[:MAX_REVISIONS], names, truncated
 
 
 def blob_at(repo_root: Path, sha: str, path: str) -> Optional[str]:
@@ -575,6 +817,12 @@ def measure(repo_root: Path, watches: Sequence[Watch] = WATCHES) -> Measurement:
 
         current: Dict[str, float] = {}
         for watch in path_watches:
+            if watch.direction not in DIRECTIONS:
+                raise CapError(
+                    f"{path}: `{watch.locator}` declares direction {watch.direction!r}, which is "
+                    f"neither {DOWN!r} nor {UP!r}. A number whose direction nobody declared is a "
+                    f"number nothing holds."
+                )
             value = extract(watch, source)
             if value is None:
                 raise CapError(
@@ -583,10 +831,28 @@ def measure(repo_root: Path, watches: Sequence[Watch] = WATCHES) -> Measurement:
                 )
             current[watch.locator] = value
 
-        shas, truncated = revisions_for(repo_root, path)
+        shas, names, truncated = revisions_for(repo_root, path)
+        if truncated:
+            # A NOTE until 2026-08-05, which failed nothing — and the window is
+            # set by `MAX_REVISIONS` in this very file, so a partial walk was a
+            # floor whoever edited that line got to choose. See the docstring.
+            raise CapError(
+                f"{path}: the history walk hit the {MAX_REVISIONS}-revision window, so the bound "
+                f"would come from part of this file's history rather than all of it. A floor taken "
+                f"from a window is a floor whoever set the window chose. Raise `MAX_REVISIONS` in "
+                f"scripts/ci/cap_ratchet.py — that is the strict direction, and the ratchet permits "
+                f"it — rather than trusting a partial walk."
+            )
         history: Dict[str, List[Tuple[float, str]]] = {w.locator: [] for w in path_watches}
+        renamed_from: List[str] = []
         for sha in shas:
-            blob = blob_at(repo_root, sha, path)
+            blob = None
+            for name in names:
+                blob = blob_at(repo_root, sha, name)
+                if blob is not None:
+                    if name != path and name not in renamed_from:
+                        renamed_from.append(name)
+                    break
             if blob is None:
                 continue
             for watch in path_watches:
@@ -597,29 +863,31 @@ def measure(repo_root: Path, watches: Sequence[Watch] = WATCHES) -> Measurement:
         for watch in path_watches:
             seen = history[watch.locator]
             if seen:
-                floor, floor_sha = min(seen, key=lambda pair: pair[0])
+                # A cap is held to the lowest value it has ever held, a floor to
+                # the highest. Same walk, opposite extreme.
+                pick = min if watch.direction == DOWN else max
+                bound, bound_sha = pick(seen, key=lambda pair: pair[0])
                 first_appearance = False
             else:
-                # Never committed with this locator present. There is no floor
-                # to hold it to yet; today's value becomes the floor once it is
-                # committed. Reported, not silently passed.
-                floor, floor_sha = current[watch.locator], ""
+                # Never committed with this locator present. There is no bound
+                # to hold it to yet; today's value becomes it once committed.
+                # Reported, not silently passed.
+                bound, bound_sha = current[watch.locator], ""
                 first_appearance = True
             measurement.readings.append(
                 Reading(
                     watch=watch,
                     current=current[watch.locator],
-                    floor=floor,
-                    floor_sha=floor_sha,
+                    bound=bound,
+                    bound_sha=bound_sha,
                     revisions_seen=len(seen),
-                    history_truncated=truncated,
                     first_appearance=first_appearance,
                 )
             )
-        if truncated:
+        if renamed_from:
             measurement.notes.append(
-                f"{path}: history walk stopped at {MAX_REVISIONS} revisions; the floor is taken "
-                f"from that window."
+                f"{path}: history followed through {len(renamed_from)} earlier name(s) "
+                f"({', '.join(renamed_from)}); the bound includes revisions under them."
             )
 
     measurement.readings.sort(key=lambda r: (r.watch.path, r.watch.locator))
@@ -627,18 +895,37 @@ def measure(repo_root: Path, watches: Sequence[Watch] = WATCHES) -> Measurement:
 
 
 def evaluate(measurement: Measurement) -> List[Finding]:
+    """Refuse a cap that moved UP, and a safety floor that moved DOWN.
+
+    Symmetric on purpose. Until 2026-08-05 only the first half existed, so a
+    `MIN_*` — the least a human must write before a suppression counts as
+    reviewed — could be lowered to zero and this control called it a pass.
+    """
     findings: List[Finding] = []
     for reading in measurement.readings:
-        if reading.current > reading.floor:
+        if reading.watch.direction == DOWN and reading.current > reading.bound:
             findings.append(
                 Finding(
                     check="cap-raised",
                     message=(
                         f"{reading.watch.path}: `{reading.watch.locator}` is {_fmt(reading.current)}, above "
-                        f"the lowest value it has ever held ({_fmt(reading.floor)}, "
-                        f"{reading.floor_sha[:12]}). This number is {reading.watch.why}. Raising it does "
+                        f"the lowest value it has ever held ({_fmt(reading.bound)}, "
+                        f"{reading.bound_sha[:12]}). This number is {reading.watch.why}. Raising it does "
                         f"not make the underlying problem smaller, it makes the gate stop reporting it; "
-                        f"lower it back to {_fmt(reading.floor)} or below."
+                        f"lower it back to {_fmt(reading.bound)} or below."
+                    ),
+                )
+            )
+        elif reading.watch.direction == UP and reading.current < reading.bound:
+            findings.append(
+                Finding(
+                    check="floor-lowered",
+                    message=(
+                        f"{reading.watch.path}: `{reading.watch.locator}` is {_fmt(reading.current)}, BELOW "
+                        f"the highest value it has ever held ({_fmt(reading.bound)}, "
+                        f"{reading.bound_sha[:12]}). This is a floor, not a cap: it is "
+                        f"{reading.watch.why}. Lowering it is the weakening direction, exactly as raising "
+                        f"a cap is; raise it back to {_fmt(reading.bound)} or above."
                     ),
                 )
             )
@@ -653,16 +940,20 @@ def format_report(measurement: Measurement, findings: Sequence[Finding]) -> str:
     lines = ["=== Cap ratchet ==="]
     width = max((len(f"{r.watch.path}:{r.watch.locator}") for r in measurement.readings), default=0)
     for reading in measurement.readings:
+        arrow = "cap" if reading.watch.direction == DOWN else "floor"
         label = f"{reading.watch.path}:{reading.watch.locator}".ljust(width)
         if reading.first_appearance:
-            state = "no committed history yet — this run sets the floor"
-        elif reading.current > reading.floor:
-            state = f"RAISED from floor {_fmt(reading.floor)} ({reading.revisions_seen} revs)"
-        elif reading.current < reading.floor:
-            state = f"lowered below previous floor {_fmt(reading.floor)} — new floor"
+            state = f"no committed history yet — this run sets the {arrow} bound"
+        elif reading.watch.direction == DOWN and reading.current > reading.bound:
+            state = f"RAISED from floor {_fmt(reading.bound)} ({reading.revisions_seen} revs)"
+        elif reading.watch.direction == UP and reading.current < reading.bound:
+            state = f"LOWERED from floor {_fmt(reading.bound)} ({reading.revisions_seen} revs)"
+        elif reading.current != reading.bound:
+            moved = "lowered below previous floor" if reading.watch.direction == DOWN else "raised above previous floor"
+            state = f"{moved} {_fmt(reading.bound)} — new bound"
         else:
-            state = f"at floor ({reading.revisions_seen} revs)"
-        lines.append(f"  {label}  {_fmt(reading.current):>6}  {state}")
+            state = f"at {arrow} bound ({reading.revisions_seen} revs)"
+        lines.append(f"  {label}  {_fmt(reading.current):>6}  [{arrow}] {state}")
     for note in measurement.notes:
         lines.append(f"NOTE: {note}")
     lines.append("")
@@ -671,7 +962,12 @@ def format_report(measurement: Measurement, findings: Sequence[Finding]) -> str:
         for finding in findings:
             lines.append(f"  [{finding.check}] {finding.message}")
     else:
-        lines.append(f"PASS: {len(measurement.readings)} caps, none above its historical floor.")
+        caps = sum(1 for r in measurement.readings if r.watch.direction == DOWN)
+        floors = len(measurement.readings) - caps
+        lines.append(
+            f"PASS: {caps} caps, none above its historical floor; "
+            f"{floors} floors, none below its historical maximum."
+        )
     return "\n".join(lines)
 
 
