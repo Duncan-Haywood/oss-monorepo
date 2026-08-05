@@ -62,9 +62,66 @@ jobs:
       - name: Run the shared verify-component gate
         run: scripts/ci/verify-component.sh marisstella-homepage
 
+  journeys:
+    name: Critical browser journeys
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: portfolio/marisstella-homepage
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          # Not a convenience. platform/ci/test/production-ui-promotion-policy.test.mjs
+          # classifies any job carrying write credentials as a production
+          # mutation, and would then require this job to carry the full
+          # dispatch gate. A test job must not hold the credentials.
+          persist-credentials: false
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: portfolio/marisstella-homepage/package-lock.json
+
+      - name: Install locked dependencies without package lifecycle scripts
+        run: npm ci --ignore-scripts --no-audit --fund=false
+
+      # `npm ci --ignore-scripts` suppresses the browser download, so it is done
+      # here explicitly rather than left to the lifecycle script the install
+      # deliberately skips. Without this the suite would fail to launch, which
+      # docs/QUALITY-ENGINEERING.md requires to be a failure and not a skip:
+      # "Required checks fail closed when tooling, browsers, fixtures,
+      # baselines, services, or reports are missing."
+      - name: Install the Chromium build Playwright expects
+        run: npx playwright install --with-deps chromium
+
+      # The site has no build step — it is three static files — so the suite
+      # serves them over HTTP itself. Setting PLAYWRIGHT_BASE_URL instead points
+      # the same specs at a deployed candidate; see playwright.config.ts.
+      - name: Critical journeys
+        run: npm run test:e2e
+
+      # A red journey with no trace becomes a re-run, and a re-run is how a real
+      # failure turns into a flake. The evidence is part of the gate.
+      - name: Retain failure evidence
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: homepage-journey-evidence
+          path: |
+            portfolio/marisstella-homepage/e2e-report
+            portfolio/marisstella-homepage/e2e-results
+          retention-days: 14
+          if-no-files-found: ignore
+
   container:
     name: Build and publish deployable container
-    needs: verify
+    # A red journey stops the image being *built*, not merely promoted — the
+    # position pairwise-ci.yml already takes. Both gates are peers in one
+    # fan-in, so the container is never produced unless both are green in the
+    # same workflow run.
+    needs: [verify, journeys]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -110,8 +167,22 @@ jobs:
   deploy:
     name: Deploy to production cluster
     needs: container
-    # Automatic promotion remains blocked until the homepage has the candidate
-    # browser suite required by docs/QUALITY-ENGINEERING.md.
+    # Still blocked, and the reason has narrowed rather than gone away.
+    #
+    # The browser suite now exists and gates the build in `journeys` above, but
+    # docs/QUALITY-ENGINEERING.md asks for two runs, not one: on the pull
+    # request, and "on the exact release candidate". Only the first is wired.
+    # portfolio/marisstella-homepage/playwright.config.ts takes
+    # PLAYWRIGHT_BASE_URL for the second, so what remains is a job between
+    # `container` and this one that starts the published :${sha} image and runs
+    # the same specs against it — not new specs.
+    #
+    # Lifting the block is an owner decision about the portfolio's only live
+    # customer surface, and it is not a one-line change: test 3 of
+    # platform/ci/test/production-ui-promotion-policy.test.mjs fails if this
+    # workflow still declares `quality_exception:` inputs while no job
+    # classifies as a promotion, so the inputs above and the six conditions
+    # below have to be removed together.
     if: >-
       github.ref == 'refs/heads/main' &&
       github.event_name == 'workflow_dispatch' &&

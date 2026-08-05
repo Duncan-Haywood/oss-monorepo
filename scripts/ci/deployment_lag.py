@@ -73,6 +73,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from dataclasses import asdict, dataclass, field
@@ -212,12 +213,16 @@ class Measurement:
 
 
 def _git(repo_root: Path, *args: str) -> subprocess.CompletedProcess:
+    env = dict(os.environ)
+    if "GIT_CONFIG_GLOBAL" not in env:
+        env["GIT_CONFIG_GLOBAL"] = "/dev/null"
     return subprocess.run(
         ["git", *args],
         cwd=str(repo_root),
         capture_output=True,
         text=True,
         check=False,
+        env=env,
     )
 
 

@@ -1,0 +1,14 @@
+# Playwright critical-journey suite. These are run artifacts: `outputDir` and
+# the html reporter's `outputFolder` from playwright.config.ts, plus the two
+# default names Playwright falls back to if that config is ever bypassed.
+#
+# No trailing slash, deliberately. `foo/` ignores a directory only, so a
+# symlink or a stray file of the same name is tracked instead of ignored — the
+# gap that carried an absolute machine path into this repository's history once
+# already.
+/e2e-results
+/e2e-report
+/playwright-report
+/test-results
+
+/node_modules

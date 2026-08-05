@@ -1,7 +1,12 @@
 :root {
   --ink: #f4f7fb;
   --ink-soft: #b7c1d1;
-  --ink-muted: #748198;
+  /* Was #748198, which resolved to 4.49:1 against the venture card background
+     — under the 4.5:1 WCAG AA floor by a hundredth, on the venture status and
+     every tech tag. Nothing could see it: contrast is a resolved colour, and
+     until e2e/accessibility.spec.ts there was no suite in this repository that
+     evaluated one. */
+  --ink-muted: #7d8a9f;
   --night: #07111f;
   --night-raised: #0b1728;
   --panel: #101e31;
@@ -341,7 +346,10 @@ a:focus-visible, button:focus-visible {
   top: 0;
   right: 0;
   padding: 7px 11px;
-  color: #ffffff;
+  /* White on the gold was 2.09:1 — the worst contrast on the page, on the one
+     card the design most wants read. Dark ink on gold is what `.btn-primary`
+     and `.filter-btn.active` already do with this background. */
+  color: var(--night);
   background: var(--lime);
   font-size: 9px;
   font-weight: 600;
@@ -445,7 +453,11 @@ a:focus-visible, button:focus-visible {
 /* Ventures with no customer-facing surface yet: named, deliberately not links,
    and visibly distinct from the ones beside them that do open something. */
 .footer-pending { color: var(--ink-muted); font-size: 12px; }
-.footer-pending em { font-style: normal; opacity: .75; }
+/* The dimming is the signal that these two ventures are not yet links, so it
+   stays — but .75 over the footer's near-black resolved to 3.27:1. Opacity
+   multiplies whatever --ink-muted becomes, so this pairing is only safe while
+   e2e/accessibility.spec.ts keeps measuring it. */
+.footer-pending em { font-style: normal; opacity: .9; }
 
 .modal {
   display: none;

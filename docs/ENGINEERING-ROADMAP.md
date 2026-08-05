@@ -85,8 +85,49 @@ evidence, and completion date before it can be marked done.
   gate was *declared* and whether it was *reachable*; this one was both, and
   neither question could tell it from a passing suite.
 
-  Still open, and this item stays unchecked until all of it is done: the
-  homepage and AI-First Markets have no journey suite; Pairwise's own suite has
+  **The homepage, second in the priority order, now has one.** 2026-08-05,
+  owner duncan: `portfolio/marisstella-homepage/e2e/` plus
+  `playwright.config.ts`, 46 journeys across a desktop and a phone viewport,
+  run by a `journeys` job in `.gitea/workflows/homepage-ci.yml` that `container`
+  waits on — so a red journey stops the image being *built*, the same position
+  the pairwise chain takes. Covered: the filter-to-brief primary journey,
+  per-venture brief content, reload behaviour, keyboard-only operation with
+  focus entry, trap and return, the disclosure menu at both widths, contact
+  reachability, layout integrity (horizontal overflow, text escaping its card,
+  a brief taller than the phone it opens on, grid reflow), and axe scans of all
+  four states the journey passes through. `retries: 0`. Mutation-checked seven
+  ways — contrast, focus return, filter membership, panel dismissal, scroll-lock
+  release, mobile reflow, focus trap — each mutation red, and the suite serves
+  the site over HTTP so `PLAYWRIGHT_BASE_URL` points the same specs at a
+  candidate.
+
+  **What writing it found.** Four WCAG 2.1 AA contrast failures on the live
+  site, all fixed: `.venture-badge` at 2.09:1 (white on the gold, on the
+  flagship card), `--ink-muted` at 4.49:1 against the card background — under
+  the floor by a hundredth, on every venture status and tech tag — and
+  `.footer-pending em` at 3.27:1 where an opacity multiplied it further.
+  Contrast is a resolved colour, and until this suite no test in the repository
+  had evaluated one; the fake-DOM suite's `style` is an empty object and the
+  responsive contract models `display` alone. Separately, the container was
+  publishing its own test sources: `.dockerignore` excluded `test` while the
+  directory has always been `tests`, and the contract guarding it asserted that
+  six literal strings were *present in* `.dockerignore` rather than that the
+  web root held only the site. That contract now resolves the patterns against
+  the directory as it is and requires the survivors to equal the `--from-file`
+  set in `platform/ci/deploy-homepage.sh`.
+
+  Still open, and this item stays unchecked until all of it is done: AI-First
+  Markets has no journey suite. The homepage suite has no candidate-side run
+  either — the `journeys` job drives the working tree, so of the two runs the
+  policy asks for ("on every relevant pull request and on the exact release
+  candidate") only the first is wired for both services. What the homepage
+  needs is a job between `container` and `deploy` that starts the published
+  `:${sha}` image and re-runs the same specs against it; the config already
+  takes the base URL. Promotion therefore stays behind its bounded owner
+  exception, and lifting it is coupled — test 3 of
+  `production-ui-promotion-policy.test.mjs` fails if the workflow declares
+  `quality_exception:` inputs while no job classifies as a promotion, so the
+  inputs and the six gate conditions have to go together. Pairwise's own suite has
   no authenticated, couple-linking, or admin-dashboard journey, no visual
   regression evidence, and no candidate-side run — `PLAYWRIGHT_BASE_URL` is
   supported but no workflow points it at the promoted digest yet. The accessible
