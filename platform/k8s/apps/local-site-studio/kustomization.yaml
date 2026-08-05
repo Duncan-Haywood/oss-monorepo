@@ -7,10 +7,18 @@ resources:
 - ingress.yaml
 - pdb.yaml
 
+# `digest:` here was `sha256:a1b2c3d4e5f6…`, typed by hand in 67b7a3ae — a commit
+# titled after the marisstella-homepage digest, which is where it hid. It named no
+# image: nothing builds a local-site-studio image and then rewrites this file, so
+# there was no digest for anyone to know. Its effect was to retire this overlay
+# from the mutable-image census and lower IMG-001's count, which is the second
+# time a fabricated digest has bought a lower number in this exact file.
+# `newTag: latest` is the honest state — registered as IMG-011, with the missing
+# promotion step named there rather than papered over here.
 images:
 - name: git.marisstella.dev/giteaadmin/local-site-studio
   newName: git.marisstella.dev/giteaadmin/local-site-studio
-  digest: sha256:a1b2c3d4e5f678901234567890abcdef1234567890abcdef1234567890abcdef
+  newTag: latest
 
 commonLabels:
   app.kubernetes.io/managed-by: argocd
