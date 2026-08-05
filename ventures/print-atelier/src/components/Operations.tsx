@@ -5,10 +5,10 @@ export default function Operations() {
 
       <section>
         <h2 className="text-2xl font-semibold">Digital-First Artist Acquisition</h2>
-        <p>Instead of manual field outreach, our operations rely on software-driven funnels to acquire supply:</p>
+        <p>Instead of manual field outreach, supply acquisition is planned to run on software-driven funnels. The first two steps below are not yet built &mdash; there is no collector and no sender, and today an operator sources and messages artists by hand:</p>
         <ol className="list-decimal pl-5 space-y-2">
-          <li><strong>Algorithmic Sourcing:</strong> Custom scrapers identify visual artists on Instagram, TikTok, and Pinterest who meet quality thresholds but lack e-commerce links.</li>
-          <li><strong>Automated Outreach:</strong> Personalized, AI-drafted DMs and emails pitching the platform. Tracking open rates and responses via CRM integration.</li>
+          <li><strong>Algorithmic Sourcing (planned):</strong> Discovery of visual artists on Instagram, TikTok, and Pinterest who meet quality thresholds but lack e-commerce links.</li>
+          <li><strong>Automated Outreach (planned):</strong> Personalized DMs and emails pitching the platform, with open and response tracking through a CRM. No CRM is integrated and no message has been sent from the platform.</li>
           <li><strong>Self-Serve Onboarding:</strong> Artists click a link, sign a digital agreement (e-signature API), and are granted access to the web app.</li>
         </ol>
       </section>

@@ -128,8 +128,22 @@ const CAPTURE_CAPABILITY_CLAIMS: ReadonlyArray<{ pattern: RegExp; why: string }>
     why: "states in the past or present tense that artwork was digitized",
   },
   {
-    pattern: /\b(scrapers?|proprietary\s+tools?)\b[^.!?]{0,40}\b(scan|monitor)\b/i,
+    // `scan|monitor` alone missed "Custom scrapers identify visual artists on
+    // Instagram, TikTok and Pinterest" — the same claim, one verb away, in a
+    // file whose other instance the control did catch.
+    pattern: /\b(scrapers?|proprietary\s+tools?)\b[^.!?]{0,40}\b(scan|monitor|identify|find|harvest|collect)\b/i,
     why: "claims a running scraper harvests third-party platforms",
+  },
+  {
+    // The shape the outbound DM template used: no "print-ready", no timing, so
+    // neither of the first two patterns reached it — and this is the one claim
+    // written to be copied out of the app and sent to a named artist.
+    pattern: /\bturns?\s+(phone\s+)?photos?\s+into\b/i,
+    why: "claims the product converts photographs into finished prints",
+  },
+  {
+    pattern: /\bmockups?\b[^.!?]{0,40}\bin\s+(under\s+)?\d+\s*(seconds?|minutes?)\b/i,
+    why: "promises a generated room mockup inside a stated time",
   },
   {
     pattern: /\bML\s+classifiers?\s+score\b/i,
@@ -273,6 +287,10 @@ describe("capability claims", () => {
       "Proprietary tools scan Instagram, TikTok, and Pinterest",
       "ML classifiers score accounts on follower count",
       "AI upscaling to print resolution",
+      // The three shapes that slipped past the first version of this detector.
+      "Custom scrapers identify visual artists on Instagram, TikTok, and Pinterest",
+      "We built software that turns phone photos into museum-quality prints",
+      "Want to see a living-room mockup of your work in 60 seconds?",
     ];
     for (const claim of wasSold) {
       assert.ok(
