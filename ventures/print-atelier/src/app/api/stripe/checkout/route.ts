@@ -16,6 +16,8 @@ import { executeCheckoutRetargetingLive } from "@/lib/retargeting-events-http";
 import { createStripeCheckoutSession } from "@/lib/stripe-checkout-server";
 import { NextResponse } from "next/server";
 import { requireOperator } from "@/lib/api-auth";
+import { resolveCheckoutBaseUrl } from "@/lib/checkout-base-url";
+import { SITE_URL_UNCONFIGURED_HINT } from "@/lib/site-url";
 
 export const runtime = "nodejs";
 
@@ -51,11 +53,15 @@ function shouldFireRetargetingHttp(env: ReturnType<typeof readEnv>): boolean {
   return metaReady || googleReady || pinterestReady;
 }
 
-function resolveBaseUrl(request: Request): string {
-  const host = request.headers.get("host");
-  const proto = request.headers.get("x-forwarded-proto") ?? "http";
-  if (host) return `${proto}://${host}`;
-  return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+/** See `resolveCheckoutBaseUrl` for why no request header reaches this origin. */
+function unconfiguredSiteUrl(): NextResponse {
+  return NextResponse.json(
+    {
+      error: "Site origin is not configured",
+      hint: SITE_URL_UNCONFIGURED_HINT,
+    },
+    { status: 503 },
+  );
 }
 
 /**
@@ -82,7 +88,6 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const env = readEnv();
   const envStatus = getCheckoutEnvStatus(env);
-  const baseUrl = resolveBaseUrl(request);
 
   let body: { lineItems?: CheckoutLineItem[]; region?: CheckoutShippingRegion };
   try {
@@ -117,6 +122,16 @@ export async function POST(request: Request) {
       { status: 422 },
     );
   }
+
+  // Resolved here rather than at the top of the handler so that a malformed body
+  // and an ineligible cart still answer 400 and 422. The origin is only needed
+  // once a session is actually about to be created, which is the only point at
+  // which a wrong one could reach a buyer.
+  const resolvedBaseUrl = resolveCheckoutBaseUrl();
+  if (!resolvedBaseUrl.ok) {
+    return unconfiguredSiteUrl();
+  }
+  const baseUrl = resolvedBaseUrl.baseUrl;
 
   const sessionPayload = buildCheckoutSessionPayload(lineItems, region, baseUrl, env);
   const totals = calculateCheckoutTotals(lineItems, region, env);
