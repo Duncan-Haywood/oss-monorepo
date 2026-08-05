@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Building2, Package, Percent, FolderOpen, Plus, Search, ShieldCheck, DollarSign, Sparkles, AlertCircle } from "lucide-react";
-import { calculateB2BQuote, getB2BTier, B2BQuoteItem } from "@/lib/b2b-trade";
+import { calculateB2BQuote, getB2BTier, describeMarginGuardrail, B2BQuoteItem } from "@/lib/b2b-trade";
 
 export default function B2BPortal() {
   const [activeProject, setActiveProject] = useState("hospitality-lobby");
@@ -38,6 +38,10 @@ export default function B2BPortal() {
     items: items.filter((i) => i.quantity > 0),
     shippingEst: 35.0,
   });
+
+  // Rendered rather than a fixed green badge: `marginSafe` was computed and
+  // discarded here, so the shield below could not go red for any input.
+  const guardrail = describeMarginGuardrail(quote);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-gray-900">
@@ -228,9 +232,21 @@ export default function B2BPortal() {
                   <span>Platform Net Contribution Margin:</span>
                   <span className="font-mono">${quote.platformNetMargin} ({quote.platformNetMarginPct}%)</span>
                 </div>
-                <div className="mt-3 p-2.5 rounded-lg text-xs flex items-center gap-2 border bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300">
-                  <ShieldCheck className="w-4 h-4 shrink-0" />
-                  <span>Verified: Artist 30% net profit promise and platform unit economics clear all profit guardrails.</span>
+                <div
+                  className={`mt-3 p-2.5 rounded-lg text-xs flex items-start gap-2 border ${
+                    guardrail.safe
+                      ? "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300"
+                      : "bg-amber-50 dark:bg-amber-900/20 border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-300"
+                  }`}
+                >
+                  {guardrail.safe ? (
+                    <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" />
+                  ) : (
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  )}
+                  <span>
+                    <strong className="font-semibold">{guardrail.headline}:</strong> {guardrail.detail}
+                  </span>
                 </div>
               </div>
               <button className="mt-4 w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-lg font-medium transition shadow-md flex items-center justify-center gap-2 text-sm">
