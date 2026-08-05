@@ -139,6 +139,39 @@ def make_baseline(
     )
 
 
+def make_register(root: Path, entries: str = "") -> None:
+    """The mutable-tag exception register `evaluate` re-derives claims from.
+
+    Written explicitly by every test that calls `evaluate`, because a missing
+    register is a hard failure there rather than "no claims to check": the
+    module refuses to report a pass over a file it could not read.
+    """
+    write(root / "platform/image-tag-exceptions.yaml", "exceptions:\n" + entries)
+
+
+def register_entry(
+    *,
+    id: str,
+    path: str,
+    count: int,
+    claims: str = "",
+    expires: date | None = None,
+) -> str:
+    expires = expires or (date.today() + timedelta(days=90))
+    block = (
+        f"  - id: {id}\n"
+        f"    path: {path}\n"
+        f"    count: {count}\n"
+        "    owner: duncan\n"
+        "    issue: docs/ENGINEERING-ROADMAP.md#image-release-path\n"
+        f"    expires: {expires.isoformat()}\n"
+        "    reason: fixture\n"
+    )
+    if claims:
+        block += "    claims:\n" + claims
+    return block
+
+
 @pytest.fixture
 def repo(tmp_path: Path) -> Path:
     (tmp_path / irp.WORKFLOWS_DIR).mkdir(parents=True)
@@ -359,6 +392,7 @@ def test_a_broken_terraform_surface_fails_closed(repo: Path):
 def test_passes_when_measurement_matches_the_declaration(repo: Path):
     make_app(repo, "phantom", irp.REGISTRY_PREFIX + "phantom:latest")
     make_baseline(repo, without_build_path=1, mutable=1)
+    make_register(repo)
     _, failures = irp.evaluate(repo)
     assert failures == []
 
@@ -367,6 +401,7 @@ def test_fails_when_an_unbuildable_deployment_is_added(repo: Path):
     make_app(repo, "phantom", irp.REGISTRY_PREFIX + "phantom:latest")
     make_app(repo, "phantom2", irp.REGISTRY_PREFIX + "phantom2:latest")
     make_baseline(repo, without_build_path=1, mutable=2)
+    make_register(repo)
     _, failures = irp.evaluate(repo)
     assert any("max_without_build_path=1" in f for f in failures)
     assert any("phantom2" in f for f in failures)
@@ -380,6 +415,7 @@ def test_fails_when_a_ceiling_has_gone_stale(repo: Path):
         f"jobs:\n  c:\n    steps:\n      - run: docker build --tag {irp.REGISTRY_PREFIX}shipper:v1 .\n",
     )
     make_baseline(repo, without_build_path=5, mutable=0, slack=2)
+    make_register(repo)
     _, failures = irp.evaluate(repo)
     assert any("stale" in f for f in failures)
 
@@ -387,8 +423,105 @@ def test_fails_when_a_ceiling_has_gone_stale(repo: Path):
 def test_fails_when_a_release_becomes_mutable(repo: Path):
     make_app(repo, "pinned", irp.REGISTRY_PREFIX + "pinned:latest")
     make_baseline(repo, without_build_path=1, mutable=0)
+    make_register(repo)
     _, failures = irp.evaluate(repo)
     assert any("mutable" in f for f in failures)
+
+
+# --------------------------------------------------------------------------
+# The register's stated reason, re-derived
+# --------------------------------------------------------------------------
+#
+# IMG-001 accepted six mutable tags on the argument that "nothing in this
+# repository builds and pushes the image the manifest names". By 2026-08-05 two
+# of the six were built and published by `homepage-ci.yml` and
+# `print-atelier-image.yml`, and every gate stayed green, because the sentence
+# doing the work lived in `reason` — a required field no control reads. These
+# tests are for the checked form of that claim.
+
+
+def test_a_true_no_build_path_claim_passes(repo: Path):
+    make_app(repo, "phantom", irp.REGISTRY_PREFIX + "phantom:latest")
+    make_baseline(repo, without_build_path=1, mutable=1)
+    make_register(
+        repo,
+        register_entry(
+            id="IMG-T1",
+            path=f"{irp.APPS_DIR}/*/deployment.yaml",
+            count=1,
+            claims="      no_build_path: true\n",
+        ),
+    )
+    _, failures = irp.evaluate(repo)
+    assert failures == []
+
+
+def test_a_no_build_path_claim_fails_once_the_image_has_a_producer(repo: Path):
+    """The exact drift, reproduced: a build job lands under a standing claim."""
+    make_app(repo, "phantom", irp.REGISTRY_PREFIX + "phantom:latest")
+    make_baseline(repo, without_build_path=1, mutable=1)
+    make_register(
+        repo,
+        register_entry(
+            id="IMG-T1",
+            path=f"{irp.APPS_DIR}/*/deployment.yaml",
+            count=1,
+            claims="      no_build_path: true\n",
+        ),
+    )
+    write(
+        repo / irp.WORKFLOWS_DIR / "phantom-image.yml",
+        "jobs:\n  c:\n    steps:\n"
+        f"      - run: docker build --tag {irp.REGISTRY_PREFIX}phantom:$SHA .\n",
+    )
+    _, failures = irp.evaluate(repo)
+    assert any("IMG-T1" in f and "no_build_path" in f for f in failures)
+    assert any("phantom-image.yml" in f for f in failures)
+
+
+def test_a_specific_entry_above_a_glob_is_judged_on_its_own_references(repo: Path):
+    """The fix shape IMG-009/IMG-010 use, and it has to actually work.
+
+    Moving the two built images to their own entries above the glob must clear
+    the glob's claim rather than leave it failing on references it no longer
+    claims — otherwise the only way to satisfy the check would be to delete it.
+    """
+    make_app(repo, "built", irp.REGISTRY_PREFIX + "built:latest")
+    make_app(repo, "phantom", irp.REGISTRY_PREFIX + "phantom:latest")
+    write(
+        repo / irp.WORKFLOWS_DIR / "built-image.yml",
+        "jobs:\n  c:\n    steps:\n"
+        f"      - run: docker build --tag {irp.REGISTRY_PREFIX}built:$SHA .\n",
+    )
+    make_baseline(repo, without_build_path=1, mutable=2)
+    make_register(
+        repo,
+        register_entry(id="IMG-T2", path=f"{irp.APPS_DIR}/built/deployment.yaml", count=1)
+        + register_entry(
+            id="IMG-T1",
+            path=f"{irp.APPS_DIR}/*/deployment.yaml",
+            count=1,
+            claims="      no_build_path: true\n",
+        ),
+    )
+    _, failures = irp.evaluate(repo)
+    assert failures == []
+
+
+def test_an_unreadable_register_fails_closed(repo: Path):
+    """A register that will not load must not read as "no claims to check"."""
+    make_app(repo, "phantom", irp.REGISTRY_PREFIX + "phantom:latest")
+    make_baseline(repo, without_build_path=1, mutable=1)
+    write(repo / "platform/image-tag-exceptions.yaml", "exceptions: [[[\n")
+    with pytest.raises(irp.RatchetError):
+        irp.evaluate(repo)
+
+
+def test_a_missing_register_fails_closed(repo: Path):
+    make_app(repo, "phantom", irp.REGISTRY_PREFIX + "phantom:latest")
+    make_baseline(repo, without_build_path=1, mutable=1)
+    with pytest.raises(irp.RatchetError):
+        irp.evaluate(repo)
 
 
 # --------------------------------------------------------------------------

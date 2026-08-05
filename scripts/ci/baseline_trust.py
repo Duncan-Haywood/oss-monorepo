@@ -108,10 +108,19 @@ def _run(args: Sequence[str], repo_root: Path, timeout: Optional[int] = None) ->
     # forever, and a hang is a worse failure mode than a refusal.
     env["GIT_TERMINAL_PROMPT"] = "0"
     # NOTE: unlike the local-only git calls in the two callers, the global and
-    # system git config are deliberately *left in place* here. The credential
-    # helper that authenticates to the remote lives there, and stripping it
-    # would turn every run into `unreachable` — a control that always reports
+    # system git config are deliberately *left in place* here when readable. The
+    # credential helper that authenticates to the remote lives there, and stripping
+    # it would turn every run into `unreachable` — a control that always reports
     # "could not verify" is no more use than one that always reports PASSED.
+    # However, if global config is not readable (e.g. sandbox or permissions),
+    # fall back to /dev/null so git commands do not fail with EACCES.
+    if "GIT_CONFIG_GLOBAL" not in env:
+        try:
+            global_config = Path(os.path.expanduser("~/.gitconfig"))
+            if not os.access(global_config, os.R_OK):
+                env["GIT_CONFIG_GLOBAL"] = "/dev/null"
+        except OSError:
+            env["GIT_CONFIG_GLOBAL"] = "/dev/null"
     return subprocess.run(
         ["git", *args],
         cwd=str(repo_root),

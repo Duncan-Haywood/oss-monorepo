@@ -12,6 +12,7 @@ import {
   type SeoLandingPage,
   type SeoPublishState,
 } from "./seo";
+import { resolveSiteUrl, SITE_URL_ENV } from "./site-url";
 
 export type AdCatalogPlatform = "meta" | "google" | "pinterest";
 
@@ -116,26 +117,42 @@ export function evaluateAdCatalogEligibility(
   };
 }
 
+/**
+ * A feed row with no origin behind it. `link` and `imageLink` are what ad
+ * platforms fetch and what a shopper clicks, so an unconfigured deployment
+ * emits them empty and marks the row ineligible rather than filling them with a
+ * guessed host — see `src/lib/site-url.ts`. Ineligible is what stops the row:
+ * `executeAdCatalogSync` counts eligible items, so with no origin configured
+ * every platform reports blocked and `executeAdCatalogSyncLive` makes no
+ * outbound request at all.
+ */
+export const SITE_ORIGIN_BLOCKER = `Site origin not configured — set ${SITE_URL_ENV}`;
+
 function buildFeedItem(
   page: SeoLandingPage,
   publishState: SeoPublishState,
   artwork: CatalogArtwork,
   platform: AdCatalogPlatform,
-  baseUrl: string,
+  baseUrl: string | null,
   eligibility: ReturnType<typeof evaluateAdCatalogEligibility>,
 ): AdCatalogFeedItem {
-  const normalizedBase = normalizeBaseUrl(baseUrl);
+  const normalizedBase = baseUrl === null ? null : normalizeBaseUrl(baseUrl);
+  const blockers =
+    normalizedBase === null
+      ? Array.from(new Set([...eligibility.blockers, SITE_ORIGIN_BLOCKER]))
+      : eligibility.blockers;
+  const eligible = normalizedBase === null ? false : eligibility.eligible;
 
   return {
     id: `${platform}-${page.slug}`,
     platform,
     title: page.title,
     description: page.metaDescription,
-    link: `${normalizedBase}/prints/${page.slug}`,
-    imageLink: artworkImageLink(normalizedBase, artwork),
+    link: normalizedBase === null ? "" : `${normalizedBase}/prints/${page.slug}`,
+    imageLink: normalizedBase === null ? "" : artworkImageLink(normalizedBase, artwork),
     price: `${artwork.retailPrice.toFixed(2)} USD`,
     currency: "USD",
-    availability: eligibility.eligible ? "in stock" : "out of stock",
+    availability: eligible ? "in stock" : "out of stock",
     brand: "Print Atelier",
     condition: "new",
     googleProductCategory: GOOGLE_PRODUCT_CATEGORY,
@@ -144,14 +161,18 @@ function buildFeedItem(
     seoSlug: page.slug,
     artworkSlug: artwork.slug,
     artistName: artwork.artistName,
-    eligible: eligibility.eligible,
-    blockers: eligibility.blockers,
+    eligible,
+    blockers,
   };
 }
 
 export function buildAdCatalogFeed(options: AdCatalogFeedOptions = {}): AdCatalogFeedResult {
   const {
-    baseUrl = "https://printatelier.com",
+    // Was `"https://printatelier.com"`. A caller that does not name an origin
+    // gets this deployment's configured one, or none — never a guessed domain.
+    // `AdCatalogFeedLab` and `AdSyncHealthMonitor` are the callers that matter:
+    // their operator exports a CSV/JSON feed straight into Meta and Google.
+    baseUrl = resolveSiteUrl(),
     consentRecords = defaultListingConsentRecords,
     artworks = catalogArtworks,
     baselineCAC = 68,

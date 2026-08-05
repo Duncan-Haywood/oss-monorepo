@@ -557,24 +557,44 @@ class RenamedFileTests(unittest.TestCase):
         self.addCleanup(self._tmp.cleanup)
         init_repo(self.repo)
 
-    def rename(self, old: str, new: str) -> None:
+    def rename(self, old: str, new: str, body: str = None) -> None:
+        """Move the file, and — the part that matters — change it in the same commit.
+
+        A rename committed on its own leaves the old value present under the
+        new name, so the floor survives even with rename-following removed:
+        the first version of these tests passed with the fix mutated out, which
+        is the whole reason mutation-testing them was not optional. The move
+        and the raise land together here, the way `git mv` plus an edit does in
+        one ordinary commit.
+        """
         git(self.repo, "mv", old, new)
-        git(self.repo, "commit", "--quiet", "-m", "chore: move the control")
+        if body is not None:
+            (self.repo / new).write_text(textwrap.dedent(body), encoding="utf-8")
+            git(self.repo, "add", new)
+        git(self.repo, "commit", "--quiet", "-m", "refactor: give the control a clearer name")
 
     def test_a_rename_does_not_reset_the_floor(self):
         write_and_commit(self.repo, "scripts/ci/old_thing.py", constant_file(150), "add cap")
-        self.rename("scripts/ci/old_thing.py", CONST_WATCH.path)
-        (self.repo / CONST_WATCH.path).write_text(
-            textwrap.dedent(constant_file(400)), encoding="utf-8"
-        )
+        self.rename("scripts/ci/old_thing.py", CONST_WATCH.path, constant_file(400))
         findings = evaluate(measure(self.repo, [CONST_WATCH]))
         self.assertEqual(len(findings), 1)
         self.assertEqual(findings[0].check, "cap-raised")
         self.assertIn("150", findings[0].message)
 
+    def test_no_revision_under_the_new_name_holds_the_old_value(self):
+        # The fixture's own premise: without the rename chain there is nothing
+        # left to measure against, which is exactly why the raise used to pass.
+        write_and_commit(self.repo, "scripts/ci/old_thing.py", constant_file(150), "add cap")
+        self.rename("scripts/ci/old_thing.py", CONST_WATCH.path, constant_file(400))
+        under_new_name = git(self.repo, "log", "--format=%H", "--", CONST_WATCH.path).split()
+        self.assertEqual(len(under_new_name), 1, "the fixture proves nothing")
+        blob = git(self.repo, "show", f"{under_new_name[0]}:{CONST_WATCH.path}")
+        self.assertIn("400", blob)
+        self.assertNotIn("150", blob)
+
     def test_the_report_says_the_history_crossed_a_rename(self):
         write_and_commit(self.repo, "scripts/ci/old_thing.py", constant_file(150), "add cap")
-        self.rename("scripts/ci/old_thing.py", CONST_WATCH.path)
+        self.rename("scripts/ci/old_thing.py", CONST_WATCH.path, constant_file(400))
         measurement = measure(self.repo, [CONST_WATCH])
         self.assertTrue(
             any("old_thing.py" in note for note in measurement.notes),
@@ -583,8 +603,7 @@ class RenamedFileTests(unittest.TestCase):
 
     def test_a_floor_survives_a_rename_too(self):
         write_and_commit(self.repo, "scripts/ci/old_thing.py", floor_file(40), "add floor")
-        self.rename("scripts/ci/old_thing.py", FLOOR_WATCH.path)
-        (self.repo / FLOOR_WATCH.path).write_text(textwrap.dedent(floor_file(1)), encoding="utf-8")
+        self.rename("scripts/ci/old_thing.py", FLOOR_WATCH.path, floor_file(1))
         findings = evaluate(measure(self.repo, [FLOOR_WATCH]))
         self.assertEqual(len(findings), 1)
         self.assertEqual(findings[0].check, "floor-lowered")

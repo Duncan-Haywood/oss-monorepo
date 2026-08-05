@@ -25,6 +25,27 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
+
+# Next.js substitutes NEXT_PUBLIC_* at build time, so this is the only place the
+# site's own origin can enter the image — a Deployment env entry for it would
+# look like configuration and change nothing. That was the state until now, and
+# platform/k8s/apps/print-atelier/SECRETS.md recorded it as open.
+#
+# There is deliberately no default. Before this arg existed the code carried
+# `?? "https://printatelier.com"`, a domain that resolves to AWS registrar
+# parking and that this portfolio does not deploy to (measured 2026-08-05, see
+# ventures/print-atelier/tests/catalog-print-file-provenance.test.ts) — so every
+# image published a sitemap, a robots.txt and an ad-platform product feed of
+# URLs on a host we cannot serve. A default here would restore exactly that: an
+# unset value would once again build into a plausible-looking wrong answer.
+#
+# Built unset, the image is intact but publishes nothing: robots.txt disallows
+# crawling, sitemap.xml is empty, and /api/ad-catalog/sync answers 503. Set it
+# to the origin the ingress actually serves, e.g.
+#   docker build --build-arg NEXT_PUBLIC_SITE_URL=https://atelier.marisstella.dev .
+ARG NEXT_PUBLIC_SITE_URL
+ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
+
 RUN npm run build
 
 FROM base AS runner

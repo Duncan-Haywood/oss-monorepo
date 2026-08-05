@@ -19,10 +19,11 @@ export default function AdSyncHealthMonitor() {
   );
   const syncResult = syncOutcome?.state === "ok" ? syncOutcome.data : null;
   const [syncLoading, setSyncLoading] = useState(false);
-  const health = useMemo(
-    () => buildAdCatalogSyncHealth({ baselineCAC, baseUrl: "https://printatelier.com" }),
-    [baselineCAC],
-  );
+  // No hardcoded origin: `buildAdCatalogSyncHealth` reads the deployment's
+  // configured `NEXT_PUBLIC_SITE_URL` and reports every row blocked when there
+  // is none, which is the true state of a build that does not know its own
+  // address. See `src/lib/site-url.ts`.
+  const health = useMemo(() => buildAdCatalogSyncHealth({ baselineCAC }), [baselineCAC]);
 
   const runCatalogSync = async () => {
     setSyncLoading(true);
@@ -30,11 +31,17 @@ export default function AdSyncHealthMonitor() {
       // This POST writes the live Meta, Google and Pinterest catalogs, so the
       // route refuses a browser with no operator token. Surface the refusal
       // rather than rendering the denial body as if it were a sync result.
+      //
+      // No `baseUrl` parameter: it used to pin `https://printatelier.com`,
+      // which meant this button published a merchant feed of links on a domain
+      // the business does not own — and it did so past every server-side fix,
+      // because an explicit parameter overrides what the server resolves. The
+      // server now decides, and answers 503 (rendered as "unconfigured" below)
+      // when it has no origin. See `src/lib/site-url.ts`.
       setSyncOutcome(
-        await fetchOperatorJson<AdCatalogSyncResult>(
-          "/api/ad-catalog/sync?baseUrl=https://printatelier.com",
-          { method: "POST" },
-        ),
+        await fetchOperatorJson<AdCatalogSyncResult>("/api/ad-catalog/sync", {
+          method: "POST",
+        }),
       );
     } finally {
       setSyncLoading(false);
