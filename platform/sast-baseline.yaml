@@ -602,21 +602,18 @@ baseline:
     plan: >-
       Add allowPrivilegeEscalation: false to each container securityContext. Mechanical, and worth doing across platform/k8s in one change.
 
-  - id: SAST-055
-    tool: semgrep
-    rule: yaml.kubernetes.security.allow-privilege-escalation-no-securitycontext.allow-privilege-escalation-no-securitycontext
-    path: platform/k8s/apps/ai-first-markets/deployment.yaml
-    count: 1
-    status: inherited
-    severity: warning
-    owner: duncan
-    issue: docs/SAST.md#inherited-findings
-    expires: 2026-10-30
-    reason: >-
-      Present when SAST was switched on, counted but not individually assessed.
-      Locked to this exact count so it cannot grow.
-    plan: >-
-      Add allowPrivilegeEscalation: false to each container securityContext. Mechanical, and worth doing across platform/k8s in one change.
+  # SAST-055 (allow-privilege-escalation-no-securitycontext in
+  # platform/k8s/apps/ai-first-markets/deployment.yaml) is removed because its
+  # subject file no longer exists: 33025739 deleted the ai-first-markets
+  # Kubernetes manifests as a phantom surface — that venture ships to Cloudflare
+  # and nothing ever built the image this Deployment named. A waiver whose path
+  # is gone cannot be re-derived, and `test_every_waived_path_still_exists`
+  # correctly refuses it. See SAST-073 for the same deletion under the
+  # run-as-non-root rule.
+  #
+  # This is not the finding being forgiven. The two sibling entries that share
+  # these rules on real manifests — SAST-056 and SAST-074 on local-site-studio —
+  # are untouched and still carry the same unfinished plan.
 
   - id: SAST-056
     tool: semgrep
@@ -890,21 +887,11 @@ baseline:
     plan: >-
       Add runAsNonRoot: true to each pod securityContext, alongside the allowPrivilegeEscalation change.
 
-  - id: SAST-073
-    tool: semgrep
-    rule: yaml.kubernetes.security.run-as-non-root.run-as-non-root
-    path: platform/k8s/apps/ai-first-markets/deployment.yaml
-    count: 1
-    status: inherited
-    severity: info
-    owner: duncan
-    issue: docs/SAST.md#inherited-findings
-    expires: 2026-10-30
-    reason: >-
-      Present when SAST was switched on, counted but not individually assessed.
-      Locked to this exact count so it cannot grow.
-    plan: >-
-      Add runAsNonRoot: true to each pod securityContext, alongside the allowPrivilegeEscalation change.
+  # SAST-073 (run-as-non-root in
+  # platform/k8s/apps/ai-first-markets/deployment.yaml) is removed for the same
+  # reason as SAST-055 above: 33025739 deleted that manifest as a phantom
+  # surface. SAST-074 keeps this rule registered against local-site-studio,
+  # which is a real manifest and still needs the securityContext work.
 
   - id: SAST-074
     tool: semgrep
@@ -1188,31 +1175,30 @@ baseline:
       At that point the interpolated values stop being source-controlled and the
       entry must be reassessed rather than re-dated.
 
-  - id: SAST-091
-    tool: semgrep
-    rule: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
-    path: ventures/local-site-studio/src/lib/pricing/tier-price-binding.test.ts
-    count: 2
-    status: reviewed
-    severity: warning
-    owner: duncan
-    issue: docs/SAST.md#sast-091
-    expires: 2027-01-28
-    reason: >-
-      Both construct `new RegExp("\\b" + tier.token + "\\b")` to find where a
-      tier is named in rendered marketing copy. `tier.token` is not caller data:
-      `tiers()` builds it from `BUNDLES` and `COMMERCE_ADDON`, the venture's own
-      pricing catalog module, taking the first whitespace-delimited word of each
-      bundle name. The values are TypeScript source constants, so an attacker
-      would need commit access to influence the pattern, at which point the
-      regex is not the weakest thing they control. Both patterns are matched
-      against markup this test renders itself, never against request input, and
-      the file is a `.test.ts` that no build bundles. The word-boundary form
-      also cannot backtrack catastrophically: it is a literal alternation-free
-      token between two anchors.
-    plan: >-
-      Revisit if tier names ever become operator-editable — a catalog loaded from
-      the database or a CMS would make `tier.token` runtime data and this entry
-      wrong. Escaping the token with a regex-quote helper would be the fix then.
+  # SAST-091 (detect-non-literal-regexp in
+  # ventures/local-site-studio/src/lib/pricing/tier-price-binding.test.ts) is
+  # resolved and removed rather than re-dated, the same way SAST-084 was.
+  #
+  # It is worth recording *why* this entry existed for about ten minutes. Two
+  # sessions reached the same finding from opposite directions and both were
+  # right in isolation: one assessed it and registered this waiver, arguing
+  # correctly that `tier.token` comes from the venture's own catalog and never
+  # from a request; the other deleted the dynamic pattern outright, because a
+  # tier renamed to `Growth+` would have matched `Growthh` and a tier renamed to
+  # `Starter (Pro)` would have thrown at import — a correctness trap that
+  # outlived the security question. Merging the two left a waiver reserving two
+  # findings in a file that now has none, and this register is two-directional,
+  # so the stale entry fails the gate exactly as an unregistered finding would.
+  #
+  # Verified the way fb87d24d established for exactly this reason, because a
+  # contended full scan cannot settle a count: `semgrep scan --config p/default`
+  # on the file alone, twice, reports 0 detect-non-literal-regexp findings. The
+  # two `new RegExp` strings remaining in that file are inside comments
+  # describing the behaviour that was removed.
+  #
+  # SAST-090 is deliberately untouched. Its subject — retentionWindow.test.ts in
+  # quick-pick-survey — was not fixed, because those three patterns need real
+  # regex semantics (`\s*=\s*`, `[\s\S]{0,200}?`) that escaping cannot preserve.
+  # That waiver is still load-bearing.
 
 
