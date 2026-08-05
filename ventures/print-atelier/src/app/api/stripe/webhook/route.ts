@@ -6,7 +6,12 @@ import {
   processStripeConnectWebhookEvent,
   type StripeConnectWebhookEvent,
 } from "@/lib/stripe-connect";
-import { recordOrderFromPaymentWebhook } from "@/lib/orders";
+import {
+  OrderStoreCapacityExceededError,
+  getOrderStoreDescriptor,
+  recordOrderFromPaymentWebhook,
+  type OrderRecord,
+} from "@/lib/orders";
 import {
   queueGelatoFulfillmentFromOrder,
   recordGelatoFulfillmentSubmission,
@@ -91,12 +96,36 @@ export async function POST(request: Request) {
     ...rawMetadata,
   };
 
-  const orderRecord = recordOrderFromPaymentWebhook(
-    event.id,
-    event.type,
-    paymentObject,
-    !event.livemode,
-  );
+  // A 200 on this endpoint tells Stripe the order is safely written down and
+  // stops redelivery. If the store refused the record, that acknowledgement
+  // would be false and the only copy of a paid order would be gone. Return 5xx
+  // instead and let Stripe retry.
+  let orderRecord: OrderRecord | null = null;
+  try {
+    orderRecord = recordOrderFromPaymentWebhook(
+      event.id,
+      event.type,
+      paymentObject,
+      !event.livemode,
+    );
+  } catch (error) {
+    if (error instanceof OrderStoreCapacityExceededError) {
+      return NextResponse.json(
+        {
+          error: "Order store refused the record; payment not acknowledged",
+          reason: error.message,
+          storeKind: error.storeKind,
+          capacity: error.capacity,
+          orderRecorded: false,
+          hint:
+            "Configure a durable order store. Stripe will retry this event; it has not been " +
+            "acknowledged.",
+        },
+        { status: 503 },
+      );
+    }
+    throw error;
+  }
 
   let fulfillmentSubmission = null;
   if (orderRecord) {
@@ -135,6 +164,11 @@ export async function POST(request: Request) {
     ledgerId: ledgerEntry?.ledgerId ?? null,
     orderRecorded: Boolean(orderRecord),
     orderId: orderRecord?.orderId ?? null,
+    // `orderRecorded` only means the record was accepted by whatever store is
+    // configured. Whether it survives this process is a separate question, and
+    // the answer is currently no.
+    orderDurable: getOrderStoreDescriptor().durable,
+    orderStoreKind: getOrderStoreDescriptor().kind,
     fulfillmentQueued: Boolean(fulfillmentSubmission),
     fulfillmentPartner: fulfillmentSubmission?.partner ?? null,
     fulfillmentStatus: fulfillmentSubmission?.status ?? null,
