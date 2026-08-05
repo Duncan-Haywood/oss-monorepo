@@ -319,24 +319,28 @@ test("a configured live sync does reach the platform — the guard above is not 
  */
 const SRC = fileURLToPath(new URL("../src", import.meta.url));
 
-const LITERAL_EXEMPT = new Map<string, string>([
-  [
-    "lib/art-fair-checkout.ts",
-    "default parameter of generateBoothQRCheckout; imported by no route or component",
-  ],
-  [
-    "lib/provenance-royalty-dashboard.ts",
-    "default parameter of verifyArtworkProvenance; imported by no route or component",
-  ],
-  [
-    "lib/gallery-qr-attribution.ts",
-    "hardcoded access-pass URL; imported by no route or component",
-  ],
-  [
-    "lib/gallery-guestbook-presale.ts",
-    "hardcoded SMS invite URL; imported by no route or component",
-  ],
-]);
+/**
+ * Empty, and that is the point.
+ *
+ * It held four entries — `art-fair-checkout`, `provenance-royalty-dashboard`,
+ * `gallery-qr-attribution`, `gallery-guestbook-presale` — each reading like
+ * "default parameter of X; imported by no route or component". A later fix
+ * removed every one of those literals: all four now resolve the origin through
+ * `site-url.ts` and refuse when it is unset. The exemptions stayed behind.
+ *
+ * A stale exemption is not inert. Only the second half of each reason was ever
+ * re-checked (`each exempted module is still unreachable` below), so the first
+ * half — *that the file still has a literal at all* — went false silently, and
+ * those four paths kept their `continue` in the scan. The result was a hole in
+ * exactly the four files the fix had just cleaned: a scheme-less literal such as
+ * `"printatelier.com"` was skipped here and missed by the sibling control in
+ * `gallery-links-unowned-domain.test.ts`, whose regex requires `https?://`.
+ *
+ * So the entries are gone, and `every exemption is load-bearing` below anchors
+ * the other half of the claim: an exemption for a file with no literal fails
+ * rather than waiting to be noticed.
+ */
+const LITERAL_EXEMPT = new Map<string, string>([]);
 
 function sourceFiles(dir: string): string[] {
   const found: string[] = [];
@@ -433,6 +437,24 @@ test("no publishing surface under src/ carries a printatelier.com literal", () =
     [],
     "these files name a domain this venture does not serve — resolve the origin through src/lib/site-url.ts instead",
   );
+});
+
+test("every exemption is load-bearing", () => {
+  // The half of each reason that was never checked. An exemption for a file
+  // that no longer carries a literal grants a silent skip over that file to
+  // whatever is written in it next — which is how the previous four came to
+  // cover clean code. If this fails, delete the entry; do not add a literal.
+  for (const [relative] of LITERAL_EXEMPT) {
+    const full = path.join(SRC, relative);
+    const carriesLiteral = stringLiterals(readFileSync(full, "utf8")).some((literal) =>
+      literal.includes("printatelier.com"),
+    );
+
+    assert.ok(
+      carriesLiteral,
+      `${relative} is exempted from the literal scan but has no printatelier.com literal — the exemption is stale and is now only a hole in the scan. Remove it.`,
+    );
+  }
 });
 
 test("each exempted module is still unreachable from any route or component", () => {

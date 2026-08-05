@@ -29,6 +29,7 @@ import {
   formatCents,
 } from "@/lib/payout-reconciliation";
 import { executeConnectPayoutBatchTransfer, type ConnectBatchTransferResult } from "@/lib/stripe-connect";
+import { buildListingSellabilityReport } from "@/lib/listing-sellability";
 import { inspectPayoutReserveHealth } from "@/lib/payout-reserve-health";
 import { analyzeArtistRetentionAndPayoutCohorts } from "@/lib/artist-cohort-analytics";
 
@@ -141,6 +142,15 @@ export default function AdminPortal() {
     return analyzeArtistRetentionAndPayoutCohorts();
   }, []);
 
+  // Derived from `validateCheckoutLineItem`, the same call the storefront makes
+  // before it offers an Add button — so this panel cannot say "sellable" over a
+  // listing the storefront is refusing. `consentRecords` is passed rather than
+  // defaulted so the consent scenario toggle above moves this number too.
+  const sellability = useMemo(
+    () => buildListingSellabilityReport(catalogArtworks, consentRecords),
+    [consentRecords],
+  );
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-300 font-sans">
       {/* Header */}
@@ -150,16 +160,77 @@ export default function AdminPortal() {
           <h1 className="text-xl font-bold tracking-tight">Print Atelier <span className="text-slate-500 font-normal">| Operations Command</span></h1>
         </div>
         <div className="flex items-center gap-4">
-          <span className="flex items-center gap-2 text-xs font-medium bg-green-500/10 text-green-400 px-3 py-1 rounded-full border border-green-500/20">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-            All Systems Operational
-          </span>
+          {/*
+            This read "All Systems Operational" unconditionally, above a catalog
+            in which nothing could be bought. A status badge that cannot report a
+            problem is not a status badge, so it now follows the one condition
+            that decides whether the business works: can anything be sold.
+          */}
+          {sellability.storefrontTakesNoMoney ? (
+            <span className="flex items-center gap-2 text-xs font-medium bg-rose-500/10 text-rose-300 px-3 py-1 rounded-full border border-rose-500/20">
+              <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+              Storefront Cannot Sell
+            </span>
+          ) : (
+            <span className="flex items-center gap-2 text-xs font-medium bg-green-500/10 text-green-400 px-3 py-1 rounded-full border border-green-500/20">
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+              All Systems Operational
+            </span>
+          )}
           <Link href="/" className="ml-4 text-sm font-medium px-4 py-2 border border-slate-700 rounded-lg hover:bg-slate-800 text-white transition">Exit to Docs</Link>
         </div>
       </header>
 
       <main className="p-6 max-w-7xl mx-auto space-y-6">
-        
+
+        {/* Can the storefront take money at all? */}
+        {sellability.blocked.length > 0 && (
+          <section
+            className={`rounded-xl border p-5 ${
+              sellability.storefrontTakesNoMoney
+                ? "border-rose-500/40 bg-rose-500/10"
+                : "border-amber-500/30 bg-amber-500/10"
+            }`}
+          >
+            <div className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
+              <div className="flex items-center gap-2">
+                <AlertCircle
+                  className={`h-5 w-5 ${sellability.storefrontTakesNoMoney ? "text-rose-300" : "text-amber-300"}`}
+                />
+                <h2 className="font-semibold text-white">Storefront sellability</h2>
+              </div>
+              <p className="text-sm text-slate-300">
+                <span className="font-bold text-white">{sellability.sellableCount}</span> of{" "}
+                {sellability.totalListings} listings can be sold
+              </p>
+            </div>
+
+            <p className="mt-2 text-sm text-slate-200">{sellability.headline}</p>
+
+            <div className="mt-4 space-y-2">
+              {sellability.blockerGroups.map((group) => (
+                <div
+                  key={group.code}
+                  className="flex flex-col gap-1 rounded-lg bg-slate-900/60 px-4 py-3 md:flex-row md:items-center md:justify-between"
+                >
+                  <div>
+                    <p className="text-sm font-medium text-slate-100">{group.remedy}</p>
+                    <p className="mt-0.5 text-xs text-slate-400">{group.slugs.join(", ")}</p>
+                  </div>
+                  <div className="text-left md:text-right">
+                    <p className="text-lg font-bold text-white">{group.slugs.length}</p>
+                    <p className="text-xs text-slate-500">
+                      {group.wouldFullyUnblock.length > 0
+                        ? `${group.wouldFullyUnblock.length} would go on sale`
+                        : "clears part of each"}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* Top KPIs */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[

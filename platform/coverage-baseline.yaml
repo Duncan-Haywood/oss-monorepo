@@ -81,16 +81,8 @@ components:
     # imports at all, and two of them were on the path that decides what a buyer
     # is charged. All three percentages rose over a larger basis at the same
     # time, so this is coverage added rather than surface removed.
-    #
-    # Re-measured 2026-08-05 on Node 22.22.3 after two fixes on the payment path:
-    # the fulfillment submission stores stopped evicting the record of a blocked
-    # paid order, and the buyer's post-payment return origin stopped being built
-    # from the request's own `Host` header. Both arrived with regression suites,
-    # so lines and branches rose over a larger basis (141 -> 143 files) while
-    # `unexercised` held at 49 — the two new modules are both imported by their
-    # tests. Functions is unchanged at 91.22 and stays where it was; only the two
-    # figures that actually moved are raised, since a floor lifted past what was
-    # measured is a floor nobody has met.
+    # Re-measured 2026-08-05 on Node 22.22.3 after payment-path fixes and listing-sellability landed.
+    # Lines and branches rose over a larger basis (143 files) while unexercised held at 49.
     baseline:
       unexercised: 49
       lines: 88.70

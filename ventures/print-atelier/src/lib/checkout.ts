@@ -30,10 +30,63 @@ export type CheckoutLineItem = {
   printFileUrl?: string;
 };
 
+/**
+ * Why a listing cannot be sold, in a form something other than the storefront
+ * can act on.
+ *
+ * `blockers` was a bare `string[]`, which is enough for the storefront — it only
+ * has to stop offering the print. It is not enough for the operator surface,
+ * which has to say *who fixes this and how*. The admin portal's payout exception
+ * queue re-derived its own blocker list rather than reading this one, the two
+ * enumerations drifted, and the queue reported no exception over five Live
+ * listings the storefront was already refusing to sell. Measured 2026-08-05:
+ * 0 of 6 catalog artworks were checkout-eligible and the operator queue showed 1.
+ *
+ * So the code and the remedy travel with the reason. Anything that wants to
+ * report on sellability derives from `blockerDetails` instead of writing the
+ * list out again.
+ */
+export type CheckoutBlockerCode =
+  | "consent-unevaluated"
+  | "listing-not-live"
+  | "release-hold"
+  | "storefront-consent-missing"
+  | "proof-not-approved"
+  | "print-file-missing"
+  | "print-file-not-fetchable"
+  | "negative-unit-economics";
+
+export type CheckoutBlocker = {
+  code: CheckoutBlockerCode;
+  /** The storefront-side reason. Unchanged wording — callers assert on it. */
+  message: string;
+  /**
+   * The step that clears this blocker on *this* listing, naming the artwork and
+   * the artist so the operator can act without looking anything up.
+   * Deliberately an instruction rather than a restatement of the problem.
+   */
+  operatorAction: string;
+  /**
+   * The same remedy with the artwork left out, for when one blocker code is
+   * reported across many listings at once.
+   *
+   * Both strings are here rather than one, because a per-listing instruction
+   * summarised over a group names whichever artwork happened to sort first and
+   * reads as though it were the only one affected — "upload the master for
+   * Midnight Coast" over a group of six.
+   */
+  remedy: string;
+};
+
 export type CheckoutEligibility = {
   artworkSlug: string;
   eligible: boolean;
+  /**
+   * Message strings only, in blocker order. Kept as-is so existing callers and
+   * tests are unaffected; `blockerDetails` is the richer view of the same list.
+   */
   blockers: string[];
+  blockerDetails: CheckoutBlocker[];
 };
 
 export type FulfillmentRoute = {
@@ -229,30 +282,61 @@ export function validateCheckoutLineItem(
   artwork: CatalogArtwork,
   consentRecords: ListingConsentRecord[] = defaultListingConsentRecords,
 ): CheckoutEligibility {
-  const blockers: string[] = [];
+  const blockerDetails: CheckoutBlocker[] = [];
+  const eligibility = (): CheckoutEligibility => ({
+    artworkSlug: artwork.slug,
+    eligible: blockerDetails.length === 0,
+    blockers: blockerDetails.map((blocker) => blocker.message),
+    blockerDetails,
+  });
 
   if (artwork.status !== "Live") {
-    blockers.push(`Listing status is "${artwork.status}" — only Live prints can checkout`);
+    blockerDetails.push({
+      code: "listing-not-live",
+      message: `Listing status is "${artwork.status}" — only Live prints can checkout`,
+      operatorAction: `Move "${artwork.title}" to Live once its proof and print file are in place`,
+      remedy: "Move the listing to Live once its proof and print file are in place",
+    });
   }
 
   const consentGate = buildListingConsentGate([artwork], consentRecords);
   const item = consentGate.items[0];
 
   if (!item) {
-    blockers.push("Consent gate could not evaluate listing");
-    return { artworkSlug: artwork.slug, eligible: false, blockers };
+    blockerDetails.push({
+      code: "consent-unevaluated",
+      message: "Consent gate could not evaluate listing",
+      operatorAction: `Add a listing consent record for "${artwork.slug}" — the gate has nothing to read`,
+      remedy: "Add a listing consent record — the consent gate has nothing to read",
+    });
+    return eligibility();
   }
 
   if (item.consentStatus === "release-blocked") {
-    blockers.push("Listing blocked by release workflow — resolve ops/finance hold first");
+    blockerDetails.push({
+      code: "release-hold",
+      message: "Listing blocked by release workflow — resolve ops/finance hold first",
+      operatorAction: `Clear the ops/finance hold on "${artwork.slug}" in the listing release workflow`,
+      remedy: "Clear the ops/finance hold in the listing release workflow",
+    });
   }
 
   if (!item.allowedChannels.includes("storefront")) {
-    blockers.push("Storefront consent missing — POD license must be accepted");
+    blockerDetails.push({
+      code: "storefront-consent-missing",
+      message: "Storefront consent missing — POD license must be accepted",
+      operatorAction: `Have ${artwork.artistName} accept the POD storefront license for "${artwork.slug}"`,
+      remedy: "Collect the artist's acceptance of the POD storefront license",
+    });
   }
 
   if (!artwork.hasApprovedProof) {
-    blockers.push("Approved print proof required before buyer checkout");
+    blockerDetails.push({
+      code: "proof-not-approved",
+      message: "Approved print proof required before buyer checkout",
+      operatorAction: `Approve the print proof for "${artwork.title}"`,
+      remedy: "Approve the print proof",
+    });
   }
 
   // An approved proof is an approval *of* a file, and the file itself was never
@@ -260,10 +344,21 @@ export function validateCheckoutLineItem(
   // the adapters correctly refuse — after the buyer has paid. Refuse the sale
   // instead.
   if (!hasUsablePrintFile(artwork)) {
-    blockers.push(
+    blockerDetails.push(
       artwork.printFileUrl
-        ? "Print file must be an https URL a POD partner can fetch"
-        : "No print file on this listing — upload the artist's print-ready file before selling it",
+        ? {
+            code: "print-file-not-fetchable",
+            message: "Print file must be an https URL a POD partner can fetch",
+            operatorAction: `Replace "${artwork.slug}"'s print file with an https URL the POD partner can fetch`,
+            remedy: "Replace the print file with an https URL the POD partner can fetch",
+          }
+        : {
+            code: "print-file-missing",
+            message:
+              "No print file on this listing — upload the artist's print-ready file before selling it",
+            operatorAction: `Upload ${artwork.artistName}'s print-ready master for "${artwork.title}" and record its https URL on the listing`,
+            remedy: "Upload the artist's print-ready master and record its https URL on the listing",
+          },
     );
   }
 
@@ -273,14 +368,15 @@ export function validateCheckoutLineItem(
   });
 
   if (economics.netProfit <= 0) {
-    blockers.push("Negative unit economics — raise retail or lower POD cost");
+    blockerDetails.push({
+      code: "negative-unit-economics",
+      message: "Negative unit economics — raise retail or lower POD cost",
+      operatorAction: `Raise "${artwork.slug}" above $${artwork.fulfillmentCost} or negotiate a lower POD cost`,
+      remedy: "Raise retail above the POD cost or negotiate a lower POD cost",
+    });
   }
 
-  return {
-    artworkSlug: artwork.slug,
-    eligible: blockers.length === 0,
-    blockers,
-  };
+  return eligibility();
 }
 
 export function buildFulfillmentRoute(
