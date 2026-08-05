@@ -7,6 +7,18 @@ resources:
 - ingress.yaml
 - pdb.yaml
 
+# The tag below is what the cluster follows, and this Application syncs from
+# HEAD with `automated: {prune: true, selfHeal: true}` — so whoever moves that
+# tag in the registry releases to production, without a commit and without a
+# review. Until 2026-08-05 the `container` job in .gitea/workflows/homepage-ci.yml
+# moved it on every merge to main. It is now moved only by the dispatch-gated
+# `deploy` job in that workflow, after
+# scripts/ci/validate-release-exception.sh has passed, and
+# platform/ci/test/production-ui-promotion-policy.test.mjs fails closed if any
+# ungated job pushes it again. Replacing this with a `digest:` would remove the
+# coupling entirely; see IMG-001 in platform/image-tag-exceptions.yaml for why
+# that has not happened yet, and note that a digest naming no real image is
+# worse than a tag, not better.
 images:
 - name: git.marisstella.dev/giteaadmin/marisstella-homepage
   newName: git.marisstella.dev/giteaadmin/marisstella-homepage
