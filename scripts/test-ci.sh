@@ -271,7 +271,36 @@ fi
 
 # 6. GitHub/Gitea Actions Workflow Validation
 if have_linter actionlint; then
-  run_ci_test "Workflow Linting" actionlint "${REPO_ROOT}/.gitea/workflows/"*.yml
+  # `.gitea/workflows/` was this line's whole input, so the 15 tracked files
+  # under `ventures/*/.github/workflows/` were linted by nothing. That is the
+  # layer docs/CONTROL-AUDIT-2026-08-04.md finding 2 left open when the four
+  # .mjs workflow controls moved to `git ls-files`; running actionlint over
+  # them by hand on the first pass found two real syntax errors, both fixed in
+  # the same commit as this change.
+  #
+  # Enumerate from the index rather than a glob, for the reason
+  # `gate-collection.test.mjs` gives: a glob is resolved against a laptop's
+  # filesystem, and an untracked workflow that lints clean here is not in the
+  # clone CI checks out. Collecting nothing is a failure, not a pass — an
+  # actionlint invocation with no file arguments exits 0.
+  workflow_files=()
+  while IFS= read -r workflow_file; do
+    workflow_files+=("${REPO_ROOT}/${workflow_file}")
+  done < <(git -C "${REPO_ROOT}" ls-files -- \
+    '.gitea/workflows/*.yml' '.gitea/workflows/*.yaml' \
+    'ventures/*/.github/workflows/*.yml' 'ventures/*/.github/workflows/*.yaml')
+
+  if [ ${#workflow_files[@]} -eq 0 ]; then
+    echo ""
+    echo "✖ FAILED: Workflow Linting collected no files."
+    echo "  Both workflow roots resolved empty against \`git ls-files\`. Either"
+    echo "  every workflow was deleted or renamed out from under this gate, or"
+    echo "  the files are untracked. actionlint exits 0 on no arguments, so"
+    echo "  this fails closed rather than reporting a lint that never ran."
+    FAILURES=$((FAILURES + 1))
+  else
+    run_ci_test "Workflow Linting" actionlint "${workflow_files[@]}"
+  fi
 fi
 
 echo ""

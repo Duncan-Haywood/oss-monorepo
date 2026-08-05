@@ -15,14 +15,19 @@ on:
         type: boolean
         default: false
       mode:
-        description: Agent mode (empty = full agent; ask/plan are read-only)
+        # The full-agent choice was the empty string until 2026-08-05, which
+        # actionlint rejects: a `choice` option may not be empty. `full` is the
+        # same selection under a name, and the run step below still passes no
+        # `--mode` for it, so the CLI invocation is unchanged. A dispatch that
+        # supplies an empty string through the API keeps working too.
+        description: Agent mode (full = unrestricted agent; ask/plan are read-only)
         required: false
         type: choice
         options:
-          - ""
+          - full
           - ask
           - plan
-        default: ""
+        default: full
 
 permissions:
   contents: read
@@ -57,7 +62,7 @@ jobs:
           if [ "$AGENT_FORCE" = "true" ]; then
             args+=(--force)
           fi
-          if [ -n "$AGENT_MODE" ]; then
+          if [ -n "$AGENT_MODE" ] && [ "$AGENT_MODE" != "full" ]; then
             args+=(--mode "$AGENT_MODE")
           fi
 

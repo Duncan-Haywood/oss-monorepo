@@ -1,8 +1,13 @@
 name: CI
 
 on:
+  # `branches-ignore: []` was here until 2026-08-05. An empty sequence is not
+  # valid against GitHub's workflow schema — actionlint rejects it — and the
+  # branch set it names is the empty set, which is what omitting the key means.
+  # So this runs on every branch either way, and now it parses. No control saw
+  # it because actionlint's input was `.gitea/workflows/` alone until the same
+  # commit widened it.
   push:
-    branches-ignore: []
   pull_request:
 
 concurrency:
