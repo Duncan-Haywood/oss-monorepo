@@ -69,8 +69,13 @@ case "$component" in
       npm test
     )
     ;;
+  ai-engineering-academy)
+    run_npm ventures/ai-engineering-academy/site npm test
+    run_npm ventures/ai-engineering-academy/site npm run build
+    ;;
   *)
-    printf 'Usage: %s {pairwise|ai-first-markets|local-site-studio|print-atelier|retail-pilot-intel|range-coach|marisstella-homepage}\n' "$0" >&2
+    printf 'Usage: %s {pairwise|ai-first-markets|local-site-studio|print-atelier|retail-pilot-intel|range-coach|marisstella-homepage|ai-engineering-academy}\n' "$0" >&2
     exit 2
     ;;
 esac
+
