@@ -41,7 +41,10 @@ describe("payout-fx-optimizer engine", () => {
     assert.equal(result.strategy, "batched_threshold");
     assert.equal(result.targetCurrency, "EUR");
     assert.ok(result.feeSavingsUsdCents > 0);
-    assert.ok(result.recommendation.includes("Batched transfer scheduled"));
+    // Was "Batched transfer scheduled". Nothing schedules a transfer here — see
+    // tests/artist-payout-claims.test.ts — so the recommendation now asks the
+    // operator to batch rather than reporting that a batch was arranged.
+    assert.ok(result.recommendation.includes("Batch this payout"));
   });
 
   it("triggers hedged_rate_lock strategy for high FX volatility currency corridors", () => {

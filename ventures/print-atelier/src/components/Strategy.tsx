@@ -20,7 +20,7 @@ export default function Strategy() {
           <li><strong>AI Content Generation:</strong> Automated generation of marketing copy, social media posts, and variant images (e.g., room mockups) from the single digital master.</li>
           <li><strong>Digital-First Distribution:</strong> Algorithmic listing across multiple commerce channels (Shopify, Etsy, customized storefronts).</li>
           <li><strong>Automated Fulfillment:</strong> Seamless API integration with global print-on-demand (POD) partners.</li>
-          <li><strong>Transparent Artist Portal:</strong> Real-time software dashboards for artists to track revenue, automated payouts via Stripe Connect.</li>
+          <li><strong>Transparent Artist Portal:</strong> Real-time software dashboards for artists to track revenue, with Stripe Connect payouts reconciled against every fulfilled order.</li>
         </ul>
       </section>
 
