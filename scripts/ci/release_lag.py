@@ -40,9 +40,11 @@ missing input reported PASSED for work it never did.
 
 The baseline itself is verified against the remote before it is believed. It
 used to be read straight from `refs/remotes/origin/main`, which is a local file
-any process may write — and in this repository it was written by hand four
-times, each time making this gate report `Unshipped commits: 2` when the true
-figure was 336. `scripts/ci/baseline_trust.py` carries the reflog evidence and
+any process may write — and in this repository it has been written by hand
+repeatedly (four times when that was first measured on 2026-08-04, 34 a day
+later), each time making this gate report `Unshipped commits: 2` when the true
+figure was 336. `scripts/ci/baseline_trust.py` counts those writes on the run
+that reports them rather than quoting a number, carries the reflog evidence and
 does the checking; a baseline that disagrees with `git ls-remote`, or that could
 not be checked at all, is a finding here rather than a silent fall-through to
 whatever the local ref happens to say.
@@ -531,7 +533,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         # `measure` asks the remote whether `baseline_ref` is really the
         # baseline before anything is counted against it.
         # `refs/remotes/origin/main` is a local file, and in this repository it
-        # has been overwritten by hand four times.
+        # keeps being overwritten by hand; the finding counts the writes it
+        # found rather than quoting a number measured on some earlier day.
         measurement = measure(repo_root, data["baseline_ref"])
         findings = evaluate(measurement, data, date.today())
     except LagError as exc:
