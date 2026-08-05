@@ -1,10 +1,21 @@
 import { prisma } from "@/lib/prisma";
 import { rateLimitKey } from "@/lib/http";
+import { checkedRetentionMs } from "@/lib/retentionWindow";
 
 export { getClientIp } from "@/lib/http";
 
-const WINDOW_MS = 15 * 60 * 1000;
-const RETENTION_MS = 24 * 60 * 60 * 1000;
+/** How far back `isWriteRateLimited` counts. */
+export const WINDOW_MS = 15 * 60 * 1000;
+
+/**
+ * How long a logged request survives the reaper in `recordWrite`.
+ *
+ * Routed through `checkedRetentionMs` because the two numbers are one
+ * mechanism: retention at or below the window deletes the rows the counter
+ * counts, and all seven anonymous write limiters stop limiting without a
+ * single visible symptom. See `retentionWindow.ts`.
+ */
+export const RETENTION_MS = checkedRetentionMs("rateLimit.anonRequestLog", WINDOW_MS, 24 * 60 * 60 * 1000);
 
 /**
  * Coarse per-IP throttling for the anonymous write endpoints, which have no
