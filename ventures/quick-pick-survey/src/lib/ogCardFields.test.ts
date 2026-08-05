@@ -63,6 +63,55 @@ describe("og card fields", () => {
     expect(rendered).toBe("You dnapartner");
   });
 
+  /**
+   * Every member of the stripped class, pinned at its boundaries.
+   *
+   * The class in `ogCardFields.ts` is one regex holding five ranges, and the
+   * tests above reach two of them by example. A narrowing edit — dropping the
+   * C1 range, or collapsing the two bidi ranges into one — keeps those examples
+   * green while silently letting a control character back into an image served
+   * from the product's own domain. Boundaries rather than samples, because an
+   * off-by-one at a range edge is exactly what an edit like that produces.
+   */
+  it("strips every codepoint in the class, at both edges of every range", () => {
+    const stripped = [
+      ["C0 controls", 0x0000, 0x001f],
+      ["C1 controls", 0x007f, 0x009f],
+      ["LRM/RLM", 0x200e, 0x200f],
+      ["bidi embedding and overrides", 0x202a, 0x202e],
+      ["bidi isolates", 0x2066, 0x2069],
+    ];
+    for (const [label, lo, hi] of stripped) {
+      for (const cp of [lo, hi]) {
+        const ch = String.fromCodePoint(cp);
+        const rendered = cardField(
+          params(`title=${encodeURIComponent(`A${ch}B`)}`),
+          "title",
+          "fallback",
+        );
+        const at = `U+${cp.toString(16).toUpperCase().padStart(4, "0")} (${label})`;
+        expect(rendered, `${at} must be stripped`).toBe("AB");
+      }
+    }
+  });
+
+  it("leaves the codepoints just outside each range alone", () => {
+    // The other half of a boundary: a class that over-strips eats legitimate
+    // copy. U+0020 and U+00A0 are spaces, U+200D joins emoji, U+2028 is a
+    // separator no wider range should swallow, and U+2065 / U+206A sit one
+    // either side of the isolate range.
+    for (const cp of [0x0020, 0x00a0, 0x200d, 0x2010, 0x2065, 0x206a]) {
+      const ch = String.fromCodePoint(cp);
+      const rendered = cardField(
+        params(`title=${encodeURIComponent(`A${ch}B`)}`),
+        "title",
+        "fallback",
+      );
+      const at = `U+${cp.toString(16).toUpperCase().padStart(4, "0")}`;
+      expect(rendered, `${at} must survive cleaning`).toBe(`A${ch}B`);
+    }
+  });
+
   it("falls back when cleaning leaves nothing", () => {
     // Otherwise a query of only control characters renders a blank line where
     // the archetype should be, which reads as a broken card.
