@@ -41,7 +41,7 @@ budget:
   # Each remaining 1 is a venture whose deployment can never start. Of the five,
   # ai-first-markets is the one that may be correct to delete rather than build:
   # it ships to Cloudflare, so its Kubernetes manifest is a phantom surface.
-  max_without_build_path: 5
+  max_without_build_path: 4
 
   # Measured 2026-08-04: 7 of 8 resolve to `:latest` after kustomize overrides.
   # Only quick-pick-survey pins a digest, and only because its GitOps promoter

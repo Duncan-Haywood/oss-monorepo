@@ -213,7 +213,7 @@ exceptions:
 
   - id: IMG-001
     path: platform/k8s/apps/*/deployment.yaml
-    count: 4
+    count: 3
     owner: duncan
     issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
     expires: 2027-01-15
@@ -227,9 +227,9 @@ exceptions:
       # instead of when someone happens to re-read it.
       no_build_path: true
     reason: >-
-      Four venture overlays pin `newTag: latest`: ai-engineering-academy,
-      ai-first-markets, real-estate-photo-app and retail-pilot-intel. None of
-      the four can be pinned today, because for each of them nothing in this
+      Three venture overlays pin `newTag: latest`: ai-engineering-academy,
+      real-estate-photo-app and retail-pilot-intel. None of
+      the three can be pinned today, because for each of them nothing in this
       repository builds and pushes the image the manifest names — there is no
       Dockerfile and no workflow that publishes any of them. Writing a digest
       now would pin these Deployments to an artifact that does not exist, which
@@ -237,8 +237,8 @@ exceptions:
       cluster rather than at review time here. The tag is a symptom of the
       missing image pipeline, and it is the pipeline that has to land first.
       Lowered 6 -> 4 on 2026-08-05 when print-atelier and marisstella-homepage
-      gained producers and moved to IMG-009 and IMG-010 — a lower count here is
-      the pipeline landing, not the exception shrinking by argument.
+      gained producers and moved to IMG-009 and IMG-010, and 4 -> 3 when phantom
+      ai-first-markets manifest was deleted.
     compensating_control: >-
       None of the four is reachable from the public internet through this
       manifest, and `links.production` is `null` in every one of their
