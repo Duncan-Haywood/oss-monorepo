@@ -15,10 +15,11 @@ export default function TechStrategy() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 not-prose">
           <div className="bg-indigo-50 dark:bg-gray-700 p-4 rounded-lg">
             <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">AI Capture Engine</h3>
+            <p className="text-xs font-medium text-indigo-900 dark:text-indigo-200 mb-2">Planned — not yet built. The capture screen today records file metadata only.</p>
             <ul className="text-sm space-y-1 text-gray-700 dark:text-gray-300 list-disc pl-4">
               <li>CV models: segmentation, deskew, color-checker LUT calibration</li>
-              <li>Mobile-first capture with real-time lighting guidance</li>
               <li>AI upscaling (ESRGAN / diffusion) to 4K+ print masters</li>
+              <li>Mobile-first capture with real-time lighting guidance</li>
               <li>Zero-touch master generation from phone photos</li>
             </ul>
           </div>

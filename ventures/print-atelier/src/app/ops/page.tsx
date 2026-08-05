@@ -123,9 +123,11 @@ export default function OpsPage() {
         </div>
 
         <div className="mt-6 p-4 bg-indigo-50 rounded-xl border border-indigo-100 text-sm text-indigo-800">
-          <p className="font-medium mb-1">Sample AI Outreach Message (Draft for Elena Rostova)</p>
+          <p className="font-medium mb-1">Sample Outreach Message (Draft for Elena Rostova)</p>
           <p className="text-indigo-700 italic">
-            &quot;Hi Elena — your &apos;Midnight Coast&apos; series is stunning. We built software that turns phone photos into museum-quality prints with zero logistics on your end. Want to see a living-room mockup of your work in 60 seconds?&quot;
+            &quot;Hi Elena — your &apos;Midnight Coast&apos; series is stunning. We list and sell prints of
+            independent artists&apos; work, handle the print partner and shipping, and pay you 30% of the net
+            profit on every sale. Can we send you an earnings estimate for the coastal pieces?&quot;
           </p>
         </div>
       </div>

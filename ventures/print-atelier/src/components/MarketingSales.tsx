@@ -14,9 +14,9 @@ export default function MarketingSales() {
         <h2 className="text-2xl font-semibold">Supply Side: Artist Acquisition & Sales</h2>
         <div className="not-prose space-y-4 mt-4">
           <div className="p-4 border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-900/20 rounded-r-lg">
-            <h3 className="font-bold text-gray-900 dark:text-white">1. AI-Powered Prospecting</h3>
+            <h3 className="font-bold text-gray-900 dark:text-white">1. AI-Powered Prospecting (planned)</h3>
             <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-              Scrapers monitor Instagram, TikTok, Pinterest, and art fair listings. ML classifiers score accounts on follower count (2k–50k sweet spot), engagement rate, visual quality, and e-commerce gap (no existing print shop).
+              Planned, not yet built: discovery across Instagram, TikTok, Pinterest, and art fair listings, with scoring on follower count (2k–50k sweet spot), engagement rate, visual quality, and e-commerce gap (no existing print shop). No collector or scoring model ships today.
             </p>
           </div>
           <div className="p-4 border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-900/20 rounded-r-lg">
@@ -28,7 +28,7 @@ export default function MarketingSales() {
           <div className="p-4 border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-900/20 rounded-r-lg">
             <h3 className="font-bold text-gray-900 dark:text-white">3. Self-Serve Conversion Funnel</h3>
             <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-              Landing page → capture app demo (instant mockup hook) → e-signature agreement → Stripe Connect onboarding → first piece live within 48 hours. No sales calls required for 90% of artists.
+              Landing page → capture app demo (mockup hook, planned) → e-signature agreement → Stripe Connect onboarding. Target: first piece live within 48 hours, no sales call for 90% of artists.
             </p>
           </div>
           <div className="p-4 border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-900/20 rounded-r-lg">

@@ -78,22 +78,22 @@ export default function MarketResearch() {
               <tr className="border-b border-gray-200 dark:border-gray-700">
                 <td className="py-2 pr-4 font-medium">Mass Market POD</td>
                 <td className="py-2 pr-4">Society6, Redbubble</td>
-                <td className="py-2">Commoditized, zero curation. Artist does 100% of upload/marketing. We automate everything.</td>
+                <td className="py-2">Commoditized, zero curation. Artist does 100% of upload/marketing. Our target: automate listing, marketing, and fulfillment on the artist&apos;s behalf.</td>
               </tr>
               <tr className="border-b border-gray-200 dark:border-gray-700">
                 <td className="py-2 pr-4 font-medium">Curated Print Galleries</td>
                 <td className="py-2 pr-4">Minted, Juniper</td>
-                <td className="py-2">High artist barrier, slow manual ingestion. Our AI scales cataloging instantly.</td>
+                <td className="py-2">High artist barrier, slow manual ingestion. Our planned edge: automated cataloging at low marginal cost — not yet built.</td>
               </tr>
               <tr className="border-b border-gray-200 dark:border-gray-700">
                 <td className="py-2 pr-4 font-medium">DIY Store Builders</td>
                 <td className="py-2 pr-4">Shopify, Etsy</td>
-                <td className="py-2">Artists become logistics managers. We provide done-for-you software layer.</td>
+                <td className="py-2">Artists become logistics managers. Our target: a done-for-you software layer, partly shipped (listing pages, catalog sync, order routing, Stripe payouts).</td>
               </tr>
               <tr>
                 <td className="py-2 pr-4 font-medium">AI Art Generators</td>
                 <td className="py-2 pr-4">Midjourney prints</td>
-                <td className="py-2">No authentic artist story, no physical original. We sell real painter work with provenance.</td>
+                <td className="py-2">No authentic artist story, no physical original. Our model is prints of real painter work with provenance, not model output.</td>
               </tr>
             </tbody>
           </table>
@@ -106,7 +106,7 @@ export default function MarketResearch() {
           <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
             <h3 className="font-bold text-green-800 dark:text-green-300 mb-2">Strengths</h3>
             <ul className="text-sm space-y-1 text-green-900 dark:text-green-200 list-disc pl-4">
-              <li>AI-first ops = near-zero marginal cost per SKU</li>
+              <li>AI-first ops target near-zero marginal cost per SKU</li>
               <li>Dual-sided flywheel (artists bring demand)</li>
               <li>No inventory risk (POD model)</li>
             </ul>
@@ -115,7 +115,7 @@ export default function MarketResearch() {
             <h3 className="font-bold text-red-800 dark:text-red-300 mb-2">Weaknesses</h3>
             <ul className="text-sm space-y-1 text-red-900 dark:text-red-200 list-disc pl-4">
               <li>Cold-start: need supply before demand converts</li>
-              <li>AI capture quality varies by lighting/phone</li>
+              <li>Planned AI capture quality will vary by lighting/phone</li>
               <li>Brand unknown at launch</li>
             </ul>
           </div>
@@ -132,7 +132,7 @@ export default function MarketResearch() {
             <ul className="text-sm space-y-1 text-amber-900 dark:text-amber-200 list-disc pl-4">
               <li>Platform policy changes (Instagram DM limits)</li>
               <li>POD partner pricing increases</li>
-              <li>AI-generated art flooding low-end market</li>
+              <li>Generative-model art flooding low-end market</li>
             </ul>
           </div>
         </div>

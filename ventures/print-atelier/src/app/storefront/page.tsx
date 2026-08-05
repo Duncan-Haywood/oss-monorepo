@@ -50,12 +50,15 @@ export default function StorefrontPage({ searchParams }: StorefrontPageProps) {
         <div className="absolute inset-0 bg-gradient-to-r from-stone-900 via-stone-900/95 to-transparent z-10" />
         <div className="absolute right-0 top-0 w-1/2 h-full bg-gradient-to-br from-indigo-900 to-purple-900 opacity-60" />
         <div className="relative z-20 max-w-7xl mx-auto px-4 py-12 md:py-16">
-          <p className="text-indigo-300 text-sm font-medium mb-3 tracking-wide uppercase">AI-Curated Collection</p>
+          <p className="text-indigo-300 text-sm font-medium mb-3 tracking-wide uppercase">Independent Artist Collection</p>
           <h1 className="text-4xl md:text-5xl font-serif font-bold mb-4 max-w-xl">
             Museum-quality prints from independent artists
           </h1>
           <p className="text-stone-300 max-w-lg mb-8">
-            {liveArtworks.length} launch-ready pieces digitized with AI-enhanced capture. Printed on archival paper and shipped directly to your door. 30% of net profit goes to the artist.
+            {liveArtworks.length} launch-ready listings from the shared catalog, printed on archival paper by our print partners and shipped to your door. 30% of net profit goes to the artist.
+          </p>
+          <p className="text-stone-400 text-xs max-w-lg mb-8">
+            Demo catalog: tiles below are placeholder colour blocks, not artwork scans, and a listing only opens for sale once its print-ready file is uploaded.
           </p>
           <div className="flex gap-3">
             <button className="bg-white text-stone-900 px-6 py-3 rounded-md font-medium hover:bg-stone-100 transition">

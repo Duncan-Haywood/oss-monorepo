@@ -872,10 +872,13 @@ export default function AdminPortal() {
             {/* Real-time AI Pipeline */}
             <div className="bg-slate-800/50 rounded-xl border border-slate-700/50 overflow-hidden">
               <div className="px-5 py-4 border-b border-slate-700/50 flex justify-between items-center bg-slate-800">
-                <h2 className="font-semibold text-white flex items-center gap-2"><Database className="w-4 h-4" /> AI Enhancement Pipeline</h2>
-                <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">Live Feed</span>
+                <h2 className="font-semibold text-white flex items-center gap-2"><Database className="w-4 h-4" /> AI Enhancement Pipeline (planned)</h2>
+                <span className="text-xs bg-amber-500/20 text-amber-300 px-2 py-1 rounded">Sample rows — not a live feed</span>
               </div>
               <div className="p-0">
+                <p className="px-5 pt-3 text-xs text-slate-400">
+                  No image pipeline is integrated, so there is no queue to read. The rows below are placeholder data showing the shape this console would take.
+                </p>
                 <table className="w-full text-sm text-left">
                   <thead className="text-xs text-slate-400 uppercase bg-slate-900/50">
                     <tr>
@@ -888,11 +891,11 @@ export default function AdminPortal() {
                   </thead>
                   <tbody className="divide-y divide-slate-700/50">
                     {[
-                      { id: "img_9x8f2a", artist: "s.chen", stage: "ESRGAN Upscaling", status: "Processing", time: "4s", color: "text-blue-400" },
-                      { id: "img_2b4c19", artist: "ajenkins", stage: "Color Calibration", status: "Processing", time: "12s", color: "text-blue-400" },
-                      { id: "img_7f3e22", artist: "m.doe", stage: "Mockup Gen (x4)", status: "Completed", time: "34s", color: "text-emerald-400" },
-                      { id: "img_1a9d45", artist: "r.smith", stage: "Metadata Tagging", status: "Completed", time: "41s", color: "text-emerald-400" },
-                      { id: "img_5c8b33", artist: "l.wu", stage: "Initial Upload", status: "Resolution too low", time: "1m", color: "text-rose-400" },
+                      { id: "img_9x8f2a", artist: "s.chen", stage: "Upscaling — planned ESRGAN pass", status: "Sample", time: "4s", color: "text-slate-400" },
+                      { id: "img_2b4c19", artist: "ajenkins", stage: "Color calibration (planned)", status: "Sample", time: "12s", color: "text-slate-400" },
+                      { id: "img_7f3e22", artist: "m.doe", stage: "Mockup generation (planned)", status: "Sample", time: "34s", color: "text-slate-400" },
+                      { id: "img_1a9d45", artist: "r.smith", stage: "Metadata tagging (planned)", status: "Sample", time: "41s", color: "text-slate-400" },
+                      { id: "img_5c8b33", artist: "l.wu", stage: "Initial upload (planned)", status: "Sample", time: "1m", color: "text-slate-400" },
                     ].map((row, i) => (
                       <tr key={i} className="hover:bg-slate-700/30 transition">
                         <td className="px-5 py-3 font-mono text-xs text-slate-300">{row.id}</td>

@@ -282,7 +282,8 @@ export default function SalesPortal() {
                 <Mail className="w-6 h-6" /> Reply-to-Onboarding Queue
               </h2>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                AI classifies replies, scores urgency, and hands each artist the next best action.
+                Keyword rules classify each reply and rank it by fit score, so the queue leads with the
+                artists worth answering first.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -399,10 +400,10 @@ export default function SalesPortal() {
           </div>
 
           <div className="mt-6 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900 dark:border-blue-900/40 dark:bg-blue-950/30 dark:text-blue-100">
-            <p className="font-medium mb-1">Sample AI Outreach Message (Draft for Elena Rostova)</p>
+            <p className="font-medium mb-1">Sample Outreach Message (Draft for Elena Rostova)</p>
             <p className="italic">
-              &quot;Hi Elena — your coastal series matches buyer searches for moody blue rooms. Upload one phone
-              capture and we&apos;ll return an earnings estimate, proof mockup, and first listing draft.&quot;
+              &quot;Hi Elena — your coastal series matches buyer searches for moody blue rooms. Send us one
+              photo of a piece and we&apos;ll come back with an earnings estimate and a first listing draft.&quot;
             </p>
           </div>
           <p className="text-xs text-center mt-8 text-gray-400">

@@ -13,11 +13,11 @@ export default function Strategy() {
       <section>
         <h2 className="text-2xl font-semibold">The AI-First Solution</h2>
         <p>
-          Print Atelier sits between artists and buyers as an <strong>AI-powered software and distribution layer</strong>:
+          Print Atelier sits between artists and buyers as an <strong>AI-powered software and distribution layer</strong>. This is the target architecture — the items below marked <em>planned</em> are not yet built.
         </p>
         <ul className="list-disc pl-5 space-y-2">
-          <li><strong>Software-Driven Capture:</strong> We replace expensive studio setups with an AI-enhanced mobile/app-based capture process that automatically color-corrects, deskews, and upscales artwork to print-ready masters.</li>
-          <li><strong>AI Content Generation:</strong> Automated generation of marketing copy, social media posts, and variant images (e.g., room mockups) from the single digital master.</li>
+          <li><strong>Software-Driven Capture (planned):</strong> Replace expensive studio setups with a mobile capture process that will color-correct, deskew, and upscale artwork into print-ready masters. Not yet built — the capture screen today records file metadata locally and runs no image processing.</li>
+          <li><strong>AI Content Generation (planned):</strong> Generation of marketing copy, social media posts, and variant images (e.g., room mockups) from the single digital master.</li>
           <li><strong>Digital-First Distribution:</strong> Algorithmic listing across multiple commerce channels (Shopify, Etsy, customized storefronts).</li>
           <li><strong>Automated Fulfillment:</strong> Seamless API integration with global print-on-demand (POD) partners.</li>
           <li><strong>Transparent Artist Portal:</strong> Real-time software dashboards for artists to track revenue, with Stripe Connect payouts reconciled against every fulfilled order.</li>
@@ -56,10 +56,11 @@ export default function Strategy() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-semibold">Competitive Moat</h2>
+        <h2 className="text-2xl font-semibold">Competitive Moat (Planned)</h2>
+        <p className="text-sm">The moat rests on capture and cataloging software that is not yet built; the items below are the intended defensibility, not shipped capability.</p>
         <ol className="list-decimal pl-5 space-y-2">
           <li><strong>Proprietary AI Capture Tech:</strong> Lowering the barrier to digitizing physical art without losing fidelity.</li>
-          <li><strong>Zero-Marginal-Cost Cataloging:</strong> AI-generated metadata, tagging, and mockups allow us to scale SKU count exponentially.</li>
+          <li><strong>Zero-Marginal-Cost Cataloging:</strong> Generated metadata, tagging, and mockups would let us scale SKU count exponentially.</li>
           <li><strong>Exclusive Artist Relationships:</strong> Secured through an unmatched, frictionless user experience.</li>
         </ol>
       </section>
