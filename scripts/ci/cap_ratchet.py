@@ -270,6 +270,17 @@ WATCHES: Tuple[Watch, ...] = (
         why="the furthest out a SAST finding may be suppressed before review",
     ),
     Watch(
+        path="scripts/ci/sast_scan.py",
+        kind="python-constant",
+        locator="MAX_SHADOWED_FILES",
+        why=(
+            "the ceiling on how many semgrep-shadowed files may be handed back as "
+            "explicit scanning roots. Over it the scan refuses rather than "
+            "truncating, so this bounds the size of a surface the scanner would "
+            "otherwise cover only in part while still reporting a clean result"
+        ),
+    ),
+    Watch(
         path="scripts/ci/coverage_ratchet.py",
         kind="python-constant",
         locator="MAX_BASIS_DRIFT_PERCENT",

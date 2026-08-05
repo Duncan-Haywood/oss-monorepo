@@ -97,6 +97,28 @@ jobs:
         working-directory: ventures/print-atelier
         run: npm ci --ignore-scripts --no-audit --fund=false
 
+      # Enrolled in the coverage baseline on 2026-08-05. Each of the three below
+      # is measured by a command that resolves out of its own gitignored
+      # node_modules — `npx vitest` for the first, and ai-first-markets' suite
+      # imports packages even though its runner is Node's own. Without these
+      # steps the ratchet reports coverage-tool-missing or
+      # component-dependencies-missing on a clean runner, which is a red gate
+      # naming a venture whose tests are fine.
+      #
+      # quick-pick-survey is enrolled too and is already installed above, for
+      # gate 1.
+      - name: Install local-site-studio dependencies for the coverage gate
+        working-directory: ventures/local-site-studio
+        run: npm ci --ignore-scripts --no-audit --fund=false
+
+      - name: Install ai-first-markets dependencies for the coverage gate
+        working-directory: ventures/ai-first-markets
+        run: npm ci --ignore-scripts --no-audit --fund=false
+
+      - name: Install photo-editing docs-site dependencies for the coverage gate
+        working-directory: ventures/photo-editing/docs-site
+        run: npm ci --ignore-scripts --no-audit --fund=false
+
       # Gate 11. Available from apt, unlike actionlint.
       - name: Install ShellCheck
         run: |
