@@ -6,6 +6,7 @@ import {
   isLoginRateLimited,
   normalizeEmail,
   recordLoginAttempt,
+  unknownAccountHash,
   verifyPassword,
 } from "@/lib/auth";
 
@@ -30,8 +31,10 @@ export async function POST(req: NextRequest) {
     const user = await prisma.user.findUnique({ where: { email } });
     // Always run a comparison so a missing account and a wrong password take
     // the same time — otherwise timing reveals which emails are registered.
-    const dummyHash = "$2b$12$oo5eS1lnL0h0GS4vJDLdSuqL8CSlZBHkAmVXFpvUwStb9RSuh1QCu";
-    const ok = await verifyPassword(password, user?.passwordHash ?? dummyHash);
+    // The stand-in hash is derived from the same cost factor real passwords
+    // are hashed at (see `unknownAccountHash`); a literal written down here
+    // drifts from that factor and reopens the oracle it is closing.
+    const ok = await verifyPassword(password, user?.passwordHash ?? (await unknownAccountHash()));
 
     if (!user || !ok) {
       await recordLoginAttempt(email, ip, false);

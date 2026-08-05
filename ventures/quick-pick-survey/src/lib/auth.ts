@@ -9,7 +9,88 @@ const LEGACY_SESSION_COOKIE = "qp_session";
 const SESSION_TTL_DAYS = 30;
 const MAX_ACTIVE_SESSIONS = 10;
 const ATTEMPT_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
-const BCRYPT_ROUNDS = process.env.NODE_ENV === "test" || Boolean(process.env.VITEST) ? 4 : 12;
+
+/**
+ * The cost a stored password is hashed at, and the floor it may never fall
+ * below outside the test suite.
+ */
+export const PRODUCTION_BCRYPT_ROUNDS = 12;
+/**
+ * A deliberately cheap cost so the suite is not dominated by bcrypt. It is
+ * reachable from `NODE_ENV === "test"` and from nothing else.
+ *
+ * It used to be reachable from `process.env.VITEST` as well, which is the
+ * shape this comment exists to keep out. `VITEST` is an ordinary environment
+ * variable: a CI image that ran the suite during its build, a shell export, a
+ * platform-level env inherited by the running service — any of those carries
+ * it into production, where it would have silently dropped every NEW password
+ * hash to 4 rounds while every existing hash stayed at 12. Nothing in the app
+ * reads back the cost of a stored hash, so there was no surface on which that
+ * would ever have shown up.
+ */
+export const TEST_BCRYPT_ROUNDS = 4;
+
+type EnvLike = { NODE_ENV?: string };
+
+/** The cost factor recorded inside a bcrypt hash, or null if it is not one. */
+export function bcryptCost(hash: string): number | null {
+  const match = /^\$2[aby]\$(\d{2})\$/.exec(hash);
+  return match ? Number(match[1]) : null;
+}
+
+/**
+ * Cheap rounds are selected by `NODE_ENV` alone. Any other signal is a
+ * variable some other system controls, and a password hash is not something
+ * another system gets to weaken.
+ */
+export function resolveBcryptRounds(env: EnvLike = process.env): number {
+  return env.NODE_ENV === "test" ? TEST_BCRYPT_ROUNDS : PRODUCTION_BCRYPT_ROUNDS;
+}
+
+/**
+ * Refuses to hand back a hash that production must not store. This is the
+ * fail-closed half: `resolveBcryptRounds` should already make a weak hash
+ * impossible here, so if this ever throws, the selection above has regressed
+ * and a signup failing loudly is the outcome we want over an account whose
+ * password is protected by 4 rounds.
+ */
+export function assertHashStrength(hash: string, env: EnvLike = process.env): string {
+  const cost = bcryptCost(hash);
+  const isProduction = env.NODE_ENV === "production";
+  if (isProduction && (cost === null || cost < PRODUCTION_BCRYPT_ROUNDS)) {
+    throw new Error(
+      `Refusing to store a password hashed at ${cost ?? "an unreadable number of"} rounds in production; ` +
+        `the floor is ${PRODUCTION_BCRYPT_ROUNDS}.`
+    );
+  }
+  return hash;
+}
+
+const BCRYPT_ROUNDS = resolveBcryptRounds();
+
+/**
+ * A bcrypt hash of a value nobody can supply, at exactly the cost real
+ * passwords are hashed at, so that a login for an unknown email costs the same
+ * as a login for a known one.
+ *
+ * The cost is derived rather than written down. It was previously a literal
+ * `$2b$12$...` in the login route, sitting a file away from the constant that
+ * decides what real hashes cost: whenever the two numbers disagreed, the
+ * comparison against this hash took measurably longer (or shorter) than a
+ * comparison against a real one, and the timing equalisation this value exists
+ * to provide silently became the email-enumeration oracle it was closing.
+ *
+ * Computed once and shared. The promise is created eagerly so the first caller
+ * to meet an unknown email does not pay for it.
+ */
+let unknownAccountHashPromise: Promise<string> | null = null;
+export function unknownAccountHash(): Promise<string> {
+  unknownAccountHashPromise ??= bcrypt.hash(randomBytes(32).toString("base64url"), BCRYPT_ROUNDS);
+  return unknownAccountHashPromise;
+}
+// Attaching a handler here keeps a failure from surfacing as an unhandled
+// rejection; the cached promise still carries it to whoever awaits it.
+void unknownAccountHash().catch(() => {});
 
 /** Failed-login rate limits, applied per email and per IP independently. */
 const WINDOW_MS = 15 * 60 * 1000;
@@ -21,7 +102,7 @@ export function hashToken(raw: string): string {
 }
 
 export async function hashPassword(plain: string): Promise<string> {
-  return bcrypt.hash(plain, BCRYPT_ROUNDS);
+  return assertHashStrength(await bcrypt.hash(plain, BCRYPT_ROUNDS));
 }
 
 export async function verifyPassword(plain: string, hash: string): Promise<boolean> {
