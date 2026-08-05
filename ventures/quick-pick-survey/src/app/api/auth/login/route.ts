@@ -31,9 +31,11 @@ export async function POST(req: NextRequest) {
     const user = await prisma.user.findUnique({ where: { email } });
     // Always run a comparison so a missing account and a wrong password take
     // the same time — otherwise timing reveals which emails are registered.
-    // The stand-in is issued at the same cost `hashPassword` is issuing, so the
-    // two sides stay equal if that cost ever moves; it is awaited on every path
-    // so its one-time construction cannot itself become the signal.
+    // The stand-in is derived from the same cost `hashPassword` is issuing, so
+    // the two sides stay equal if that cost ever moves; a literal written down
+    // here drifts from that cost and reopens the oracle it is closing. It is
+    // awaited on every path, not only the unknown-account one, so its one-time
+    // construction cannot itself become the signal.
     const absent = await absentAccountHash();
     const ok = await verifyPassword(password, user?.passwordHash ?? absent);
 

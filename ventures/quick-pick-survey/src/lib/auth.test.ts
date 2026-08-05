@@ -1,10 +1,14 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { describe, expect, it } from "vitest";
+import { join } from "node:path";
+import bcrypt from "bcryptjs";
 import {
   PRODUCTION_BCRYPT_ROUNDS,
   TEST_BCRYPT_ROUNDS,
   absentAccountHash,
+  assertHashStrength,
+  bcryptCost,
   hashPassword,
   hashToken,
   isValidEmail,
@@ -172,6 +176,207 @@ describe("auth helpers", () => {
       // silently stops equalising the moment the issuing cost moves away.
       expect(source).not.toMatch(/\$2[aby]\$\d{2}\$/);
       expect(source).toContain("absentAccountHash");
+      // The stand-in only equalises anything if it is what the comparison
+      // actually receives.
+      expect(source).toContain("verifyPassword");
+      expect(source).toMatch(/verifyPassword\(password, user\?\.passwordHash \?\? absent\)/);
+    });
+
+    it("is awaited on every login path, not only the one with no account", () => {
+      // Awaited behind `??` it is constructed only when an unknown email
+      // arrives, which makes its one-time construction the very signal the
+      // comparison exists to remove.
+      const routePath = fileURLToPath(new URL("../app/api/auth/login/route.ts", import.meta.url));
+      const source = readFileSync(routePath, "utf8");
+      expect(source).toMatch(/const absent = await absentAccountHash\(\);/);
+      expect(source).not.toMatch(/\?\?\s*\(await absentAccountHash\(\)\)/);
+    });
+  });
+});
+
+/**
+ * The cost factor a password is hashed at, and the two ways it has gone wrong
+ * here.
+ *
+ * The first is reachability: the cheap test cost used to be selected by
+ * `process.env.VITEST` as well as by `NODE_ENV`. `VITEST` is an ordinary
+ * environment variable, so any of the usual ways one leaks — an image built in
+ * a job that ran the suite, an exported shell variable, a platform env applied
+ * to the running service — would have dropped every newly created password
+ * hash to 4 rounds, in production, permanently, with nothing anywhere that
+ * reads a stored hash's cost back and so nothing that could ever have
+ * reported it.
+ *
+ * The second is coupling. The login route compares against a stand-in hash for
+ * emails that have no account, so that "no such account" and "wrong password"
+ * take the same time. bcrypt's compare cost is fixed by the cost factor stored
+ * inside the hash it is given — so the stand-in only equalises anything while
+ * its cost equals the cost real passwords are hashed at. It was a `$2b$12$`
+ * literal in the route file and the real cost was a constant in `auth.ts`,
+ * with nothing between them: the first defect, by moving real hashes to 4
+ * rounds, would have turned this defence into the enumeration oracle it exists
+ * to close, and the accounts it exposed would have been exactly the ones
+ * created after the leak.
+ */
+describe("password hashing cost", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  // The login route's own checks live in the `absentAccountHash` block above,
+  // which reads it unstripped — a bcrypt literal is worth flagging even in a
+  // comment there.
+  const AUTH_SOURCE_PATH = join(process.cwd(), "src/lib/auth.ts");
+
+  /** Comments describe the rule; only code can break it. */
+  function codeOf(path: string): string {
+    return readFileSync(path, "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/\/\/.*$/gm, "");
+  }
+
+
+  describe("bcryptCost", () => {
+    it("reads the cost factor back out of a real bcrypt hash", async () => {
+      expect(bcryptCost(await bcrypt.hash("cost-probe", 4))).toBe(4);
+      expect(bcryptCost(await bcrypt.hash("cost-probe", 6))).toBe(6);
+    });
+
+    it("returns null for anything that is not a bcrypt hash", () => {
+      expect(bcryptCost("")).toBeNull();
+      expect(bcryptCost("not-a-hash")).toBeNull();
+      expect(bcryptCost(hashToken("a sha256 digest is not a bcrypt hash"))).toBeNull();
+    });
+  });
+
+  describe("resolveBcryptRounds", () => {
+    it("keeps the production cost when VITEST leaks into a production environment", () => {
+      // The regression this whole block exists for. VITEST is set right now,
+      // in this very process, which is what made the old expression so easy to
+      // get wrong: it was true in the only environment anyone ever ran it in.
+      expect(process.env.VITEST).toBeTruthy();
+      expect(resolveBcryptRounds({ NODE_ENV: "production" })).toBe(PRODUCTION_BCRYPT_ROUNDS);
+    });
+
+    it("keeps the production cost in every environment that is not the test suite", () => {
+      for (const nodeEnv of ["production", "development", "preview", "staging", undefined]) {
+        expect(resolveBcryptRounds({ NODE_ENV: nodeEnv })).toBe(PRODUCTION_BCRYPT_ROUNDS);
+      }
+    });
+
+    it("costs the suite nothing, because the runner sets both signals itself", () => {
+      // Vitest sets NODE_ENV and VITEST, so requiring both leaves the suite at
+      // the cheap cost while removing every single-signal route to it.
+      expect(process.env.NODE_ENV).toBe("test");
+      expect(process.env.VITEST).toBeTruthy();
+      expect(resolveBcryptRounds(process.env)).toBe(TEST_BCRYPT_ROUNDS);
+      expect(TEST_BCRYPT_ROUNDS).toBeLessThan(PRODUCTION_BCRYPT_ROUNDS);
+    });
+
+    it("consults no environment variable beyond the two that name a test runner", () => {
+      // A third variable appearing here is a third system with a say in what a
+      // password costs, which is the class of defect this replaced.
+      const code = codeOf(AUTH_SOURCE_PATH);
+      const start = code.indexOf("export function resolveBcryptRounds");
+      expect(start, "resolveBcryptRounds must be exported from src/lib/auth.ts").toBeGreaterThan(-1);
+      const body = code.slice(start, code.indexOf("\n}", start) + 2);
+      expect(body).toContain("NODE_ENV");
+      const reads = [...body.matchAll(/(?:process\.)?\benv\.([A-Za-z_][A-Za-z0-9_]*)/g)].map((m) => m[1]);
+      expect(reads.length).toBeGreaterThan(0);
+      expect([...new Set(reads)].sort()).toEqual(["NODE_ENV", "VITEST"]);
+    });
+
+    it("is the only thing that decides the cost — no literal cost at any call site", () => {
+      const code = codeOf(AUTH_SOURCE_PATH);
+      // Guard against a stripper that ate the file and made this vacuous.
+      expect(code).toContain("export async function hashPassword");
+      expect(code).toMatch(/bcrypt\.hash\(plain,\s*resolveBcryptRounds\(\)\)/);
+      // Every bcrypt cost in this module comes from the resolver. A numeric
+      // literal here is a second, unguarded decision about what a password
+      // costs — exactly how the four-round path got in.
+      const literalCosts = [...code.matchAll(/bcrypt\.hash\([^;]*?,\s*(\d+)\s*\)/g)].map((m) => m[1]);
+      expect(literalCosts).toEqual([]);
+    });
+  });
+
+  describe("assertHashStrength", () => {
+    it("refuses a weak hash in production rather than storing it", async () => {
+      const weak = await bcrypt.hash("SuperSecretPassword123", TEST_BCRYPT_ROUNDS);
+      expect(bcryptCost(weak)).toBe(TEST_BCRYPT_ROUNDS);
+      expect(() => assertHashStrength(weak, { NODE_ENV: "production" })).toThrow(
+        /Refusing to store a password hashed at 4 rounds in production/
+      );
+      expect(() => assertHashStrength("not-a-bcrypt-hash", { NODE_ENV: "production" })).toThrow(
+        /Refusing to store a password/
+      );
+    });
+
+    it("passes a hash at the production floor straight through", async () => {
+      const strong = await bcrypt.hash("SuperSecretPassword123", PRODUCTION_BCRYPT_ROUNDS);
+      expect(assertHashStrength(strong, { NODE_ENV: "production" })).toBe(strong);
+    });
+
+    it("leaves the cheap test cost alone outside production", async () => {
+      const weak = await bcrypt.hash("SuperSecretPassword123", TEST_BCRYPT_ROUNDS);
+      expect(assertHashStrength(weak, { NODE_ENV: "test" })).toBe(weak);
+      expect(assertHashStrength(weak, { NODE_ENV: "development" })).toBe(weak);
+    });
+
+    it("is wired into hashPassword, so no caller can skip the floor", () => {
+      const code = codeOf(AUTH_SOURCE_PATH);
+      expect(code).toMatch(/assertHashStrength\(await bcrypt\.hash\(plain,/);
+    });
+  });
+
+  describe("the module as production actually loads it", () => {
+    it("hashes at the production cost when the module loads as production", async () => {
+      // No mocks: this re-imports the real module the way a production image
+      // loads it, and asks the real hashPassword what cost it produced.
+      vi.stubEnv("NODE_ENV", "production");
+      vi.stubEnv("VITEST", "");
+      vi.resetModules();
+      const freshAuth = await import("./auth");
+      const hash = await freshAuth.hashPassword("SuperSecretPassword123");
+      expect(bcryptCost(hash)).toBe(PRODUCTION_BCRYPT_ROUNDS);
+      expect(await freshAuth.verifyPassword("SuperSecretPassword123", hash)).toBe(true);
+    });
+
+    it("refuses to hash at all when a leaked VITEST meets NODE_ENV=production", async () => {
+      // The leak the first defect depended on. Under the old expression this
+      // produced a 4-round hash; it now produces no hash.
+      vi.stubEnv("NODE_ENV", "production");
+      expect(process.env.VITEST).toBeTruthy();
+      vi.resetModules();
+      const freshAuth = await import("./auth");
+      await expect(freshAuth.hashPassword("SuperSecretPassword123")).rejects.toThrow(
+        /NODE_ENV=production/
+      );
+    });
+
+    it("hashes at the cheap cost under the suite's own env", async () => {
+      expect(bcryptCost(await hashPassword("SuperSecretPassword123"))).toBe(TEST_BCRYPT_ROUNDS);
+    });
+  });
+
+  describe("the stand-in hash for an absent account", () => {
+    it("tracks the production cost when the module loads as production", async () => {
+      vi.stubEnv("NODE_ENV", "production");
+      vi.stubEnv("VITEST", "");
+      vi.resetModules();
+      const freshAuth = await import("./auth");
+      expect(bcryptCost(await freshAuth.absentAccountHash())).toBe(PRODUCTION_BCRYPT_ROUNDS);
+    });
+
+    it("is rebuilt at the new cost if the issuing cost ever moves", async () => {
+      // The cache is keyed by the cost it was derived at, so a cost change
+      // cannot leave a stale stand-in behind at the old one — which would be
+      // the enumeration oracle reopening from the comparison side.
+      expect(bcryptCost(await absentAccountHash())).toBe(TEST_BCRYPT_ROUNDS);
+      vi.stubEnv("NODE_ENV", "production");
+      vi.stubEnv("VITEST", "");
+      expect(bcryptCost(await absentAccountHash())).toBe(PRODUCTION_BCRYPT_ROUNDS);
+      vi.unstubAllEnvs();
+      expect(bcryptCost(await absentAccountHash())).toBe(TEST_BCRYPT_ROUNDS);
     });
   });
 });
