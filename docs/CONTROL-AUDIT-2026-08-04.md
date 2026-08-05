@@ -267,14 +267,20 @@ Ordered by what they do to a paid order:
    `retail_costs`, `packing_slip` and the `files` element shape are named by no
    repo document and are recorded in the commit as inference to confirm against
    the vendor; only `variant_id` is covered by the research note.
-3. **Gelato is sent a web page as the print file** — `gelato-orders.ts:101`
-   falls back to `https://printatelier.com/prints/<slug>`, an HTML product page,
-   on a host this venture does not deploy to. Nothing ever writes the metadata
-   key that would override it.
-4. **A placeholder email is on every order** — `?? "buyer@printatelier.com"` in
-   both builders; nothing ever lifts the buyer's email from the Stripe session.
-   Same class as the `123 Market St` incident that `buyer-shipping.ts` was
-   written to end; the address was fixed, the email was not brought along.
+3. ~~**Gelato is sent a web page as the print file**~~ **FIXED.**
+   `gelato-orders.ts:101` fell back to `https://printatelier.com/prints/<slug>`,
+   an HTML product page, on a host this venture does not deploy to.
+   `gelato-orders.ts:130` now reads `resolvePrintFileUrl(...).value` with no
+   fallback, and `resolveGelatoOrderInputs` refuses the order when it is unset.
+4. ~~**A placeholder email is on every order**~~ **FIXED**, both halves.
+   `?? "buyer@printatelier.com"` is gone from both builders — `resolveBuyerEmail`
+   (`fulfillment-order-inputs.ts:76`) has no default and requires a plausible
+   address — *and* the missing supply side was built: `extractStripeBuyerEmail`
+   (`buyer-shipping.ts:125`) lifts the buyer's own address off whichever Stripe
+   object triggered the webhook (`receipt_email`, `customer_details.email`, or
+   the charge's `billing_details.email`) and the webhook route merges it into the
+   metadata the adapters read. Refusing without supplying would have blocked
+   every order forever, which is the trap the `artworkUrl` half is still in.
 5. ~~**Multi-line orders declare the wrong customs value**~~ **FIXED**
    (`f7bb4070`, with item 1). The whole PaymentIntent amount, shipping included,
    was stamped as `retailPrice` on *every* item. Printful's `retail_price` is per
@@ -438,18 +444,46 @@ hypothesis price against the priced surface.
 
 Struck items are done; the rest stand.
 
+**Re-verified 2026-08-05 against the working tree, not against this list.** The
+control half of this backlog is finished. Every item below that reads as open was
+checked at the call path before being left standing, and four that this list
+still called open were closed in the code:
+
 1. ~~Finding 1 (vacuous globs)~~ — done, `a658ed57`.
-2. Finding 2 (`.github/workflows` unpoliced) — closes a live mutable-ref supply
-   chain hole and reconnects print-atelier's tests to print-atelier's gate.
-3. Findings 5 and 8 — production promotion and unreviewable budgets.
-4. print-atelier ~~1~~, 2–4, ~~5~~ and local-site-studio 1–2 — the defects that
-   corrupt a sale rather than block it. Worth fixing *before* the off-repo
-   actions unblock revenue, not after. **print-atelier 2 is now the sharpest
-   one left**: the Printful payload is camelCase where the API takes snake_case
-   and carries no `files` array, so the order it submits cannot be accepted at
-   all. The quantity and customs fixes are correct and still ride on a payload
-   Printful rejects.
-5. Findings 3, 4, 6, 7, 9 — real blind spots, none currently exploited.
+2. ~~Finding 2 (`.github/workflows` unpoliced)~~ — done. All 60 `uses:` refs in
+   the 15 venture workflows are SHA-pinned with version comments, and
+   `workflow-action-pinning.test.mjs` derives its input from `git ls-files` over
+   both roots with an explicit anti-narrowing test.
+3. ~~Findings 5 and 8~~ — both done, and both marked FIXED in their own sections
+   above. Finding 5's control now derives what counts as a promotion from the
+   cluster manifests rather than a hardcoded job list.
+4. ~~Finding A1~~ — done. `branch_collisions.py:157` and `release_lag.py:240`
+   read `--branches --remotes`. The last spelling of it, `release_lag.py`'s
+   `components` read, was fixed 2026-08-05 (`b1292503`): it alone still said
+   `--branches HEAD`, so in a clone or CI checkout the report printed a non-zero
+   unshipped count above an empty list of affected components.
+5. Findings 3, 4, 6, 7, 9 — real blind spots, none currently exploited. **These
+   are the only control findings left.**
+
+The revenue half is what stands, and it is now the whole backlog:
+
+6. print-atelier ~~1~~–~~5~~ are done; **6 and 7 are not, and both are verified
+   still open.** `transfers.create` appears nowhere in the venture, so the 30%
+   artist payout has no implementation — money can come in and nothing can send
+   it out. `orders.ts:30` is a process-local array, so a pod restart between
+   Stripe delivery attempts re-prints a paid order.
+7. **The `artworkUrl` trap.** Items 2–4 correctly stopped inventing fulfillment
+   inputs, and the buyer's email was given a real supply side to replace the
+   invented one. The print file was not: nothing in this repository stores a
+   print-ready master, so `resolvePrintFileUrl` refuses **every** order. That is
+   the safe state, not a working one — the venture will take money for a print no
+   partner can be sent. Whoever picks this up should read
+   `checkout-print-file.test.ts` first; a session on 2026-08-05 was mid-way
+   through exactly this when it landed.
+8. local-site-studio 1–2, and print-atelier's `deployment.yaml` declaring zero
+   env vars.
+9. `platform/terraform/terraform.tfvars` is still untracked, still holds live
+   credentials in the working tree, and is still outside every gate.
 
 ### A note on method, from the session that fixed 1 and print-atelier 1/5
 
