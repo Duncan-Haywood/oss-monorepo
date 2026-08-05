@@ -10,38 +10,20 @@ const LEGACY_SESSION_COOKIE = "qp_session";
 const SESSION_TTL_DAYS = 30;
 const MAX_ACTIVE_SESSIONS = 10;
 /**
- * The cost a stored password is hashed at, and the floor it may never fall
- * below outside the test suite.
+ * bcrypt cost.
+ *
+ * `TEST_BCRYPT_ROUNDS` exists so the suites that create accounts finish in
+ * seconds, and that is legitimate. What is not legitimate is reaching it on an
+ * ambient signal: `VITEST` is exported into every process a test runner spawns
+ * and can be inherited or set anywhere, so `VITEST` on its own once dropped
+ * every *newly created* hash to four rounds — trivially crackable — with
+ * nothing reporting it. The cheap cost is therefore reachable only when both
+ * signals a runner sets agree, and a runner signal seen next to
+ * `NODE_ENV=production` is treated as a misconfigured deployment and refused
+ * rather than obeyed. Refusing costs an outage; obeying costs the passwords.
  */
 export const PRODUCTION_BCRYPT_ROUNDS = 12;
-/**
- * A deliberately cheap cost so the suite is not dominated by bcrypt.
- *
- * It used to be reachable from `process.env.VITEST` *on its own*, which is the
- * shape this comment exists to keep out. `VITEST` is an ordinary environment
- * variable: a CI image that ran the suite during its build, a shell export, a
- * platform-level env inherited by the running service — any of those carries
- * it into production, where it would have silently dropped every NEW password
- * hash to 4 rounds while every existing hash stayed at 12. Nothing in the app
- * reads back the cost of a stored hash, so there was no surface on which that
- * would ever have shown up.
- *
- * It is now reachable only when `NODE_ENV` and `VITEST` *both* say a runner is
- * present. Requiring the second signal can only ever narrow the set of
- * environments that reach the cheap cost — `NODE_ENV=test` alone, the shape a
- * misconfigured deployment presents, no longer does — and a runner signal seen
- * next to `NODE_ENV=production` is refused outright rather than obeyed, on the
- * grounds that refusing costs an outage and obeying costs the passwords.
- */
 export const TEST_BCRYPT_ROUNDS = 4;
-
-/**
- * Only the two variables that decide the cost. Deliberately looser than
- * `NodeJS.ProcessEnv`, whose `NODE_ENV` Next narrows to three known values —
- * the environment a deployment actually presents can hold anything, and the
- * cases worth testing are the ones outside that union.
- */
-export type BcryptCostSignals = { NODE_ENV?: string; VITEST?: string };
 
 /** `VITEST=false`, `VITEST=0` and `VITEST=` are absence, not presence. */
 function signalIsSet(value: string | undefined): boolean {
@@ -50,11 +32,13 @@ function signalIsSet(value: string | undefined): boolean {
   return normalised !== "" && normalised !== "0" && normalised !== "false";
 }
 
-/** The cost factor recorded inside a bcrypt hash, or null if it is not one. */
-export function bcryptCost(hash: string): number | null {
-  const match = /^\$2[aby]\$(\d{2})\$/.exec(hash);
-  return match ? Number(match[1]) : null;
-}
+/**
+ * Only the two variables that decide the cost. Deliberately looser than
+ * `NodeJS.ProcessEnv`, whose `NODE_ENV` Next narrows to three known values —
+ * the environment a deployment actually presents can hold anything, and the
+ * cases worth testing are the ones outside that union.
+ */
+export type BcryptCostSignals = { NODE_ENV?: string; VITEST?: string };
 
 /**
  * The bcrypt cost this environment is allowed to hash at.
@@ -79,21 +63,35 @@ export function resolveBcryptRounds(env: BcryptCostSignals = process.env): numbe
 }
 
 /**
- * Refuses to hand back a hash that production must not store. This is the
- * fail-closed half, and it guards a different thing from
- * `resolveBcryptRounds`: that one reads the environment before hashing, this
- * one reads the cost factor out of the hash that was actually produced. A
- * regression in the selection above — or a cost supplied from anywhere else —
- * still has to get past this, and a signup failing loudly is the outcome we
- * want over an account whose password is protected by 4 rounds.
+ * The cost factor recorded inside a bcrypt hash, or null if the string is not
+ * one.
+ *
+ * Nothing in this app reads a stored hash's cost back, which is why a weak
+ * cost was able to be a silent condition: a hash at 4 rounds and a hash at 12
+ * are the same shape, verify the same way, and are indistinguishable to every
+ * caller. This is the only surface on which the difference is observable.
+ */
+export function bcryptCost(hash: string): number | null {
+  const match = /^\$2[aby]\$(\d{2})\$/.exec(hash);
+  return match ? Number(match[1]) : null;
+}
+
+/**
+ * Refuses to hand back a hash production must not store.
+ *
+ * `resolveBcryptRounds` should already make a weak hash unreachable here, so
+ * this is the second line rather than the first: it checks the hash that was
+ * actually produced instead of the number that was requested, which is what
+ * catches a future edit that passes a cost of its own, or a hashing library
+ * that quietly ignores the one it was given. A signup that fails loudly is the
+ * outcome we want over an account whose password is protected by four rounds.
  */
 export function assertHashStrength(hash: string, env: BcryptCostSignals = process.env): string {
   const cost = bcryptCost(hash);
-  const isProduction = env.NODE_ENV === "production";
-  if (isProduction && (cost === null || cost < PRODUCTION_BCRYPT_ROUNDS)) {
+  if (env.NODE_ENV === "production" && (cost === null || cost < PRODUCTION_BCRYPT_ROUNDS)) {
     throw new Error(
       `Refusing to store a password hashed at ${cost ?? "an unreadable number of"} rounds in production; ` +
-        `the floor is ${PRODUCTION_BCRYPT_ROUNDS}.`
+        `the floor is ${PRODUCTION_BCRYPT_ROUNDS}.`,
     );
   }
   return hash;
@@ -116,8 +114,6 @@ export function hashToken(raw: string): string {
 }
 
 export async function hashPassword(plain: string): Promise<string> {
-  // Both halves: the environment decides the cost, and the hash that came back
-  // is checked against the production floor before any caller can store it.
   return assertHashStrength(await bcrypt.hash(plain, resolveBcryptRounds()));
 }
 
@@ -138,11 +134,10 @@ let absentAccountHashCache: { rounds: number; hash: string } | null = null;
  * the issuing cost moves, which is precisely the email-enumeration oracle the
  * comparison exists to close. Deriving it here means the two cannot drift.
  *
- * Cached against the cost it was derived at, so that if the issuing cost ever
- * moves the stand-in is rebuilt at the new cost rather than silently staying
- * at the old one. It goes through the same production floor a stored hash
- * does: a stand-in below the floor is a weak *comparison*, which is the same
- * timing signal read from the other side.
+ * It goes through the same production floor a stored hash does. A stand-in
+ * below the floor is a weak *comparison*, and the timing difference that
+ * creates is the same oracle read from the other side — so the floor has to
+ * cover both, not just the hash that gets written to the database.
  */
 export async function absentAccountHash(): Promise<string> {
   const rounds = resolveBcryptRounds();
@@ -156,9 +151,9 @@ export async function absentAccountHash(): Promise<string> {
 // Built eagerly at module load so the first request to meet an unknown email
 // does not pay for its construction. The login route awaits it on every path
 // regardless, so the one-time cost cannot correlate with whether an account
-// exists; this only keeps that one request from being slow. A failure here is
-// swallowed rather than left as an unhandled rejection — the next caller
-// re-derives and gets the error thrown at it.
+// exists; this only keeps that one request from being slow. A failure is
+// swallowed here rather than left as an unhandled rejection — the cache stays
+// empty and the next caller re-derives and gets the error thrown at it.
 void absentAccountHash().catch(() => {});
 
 export function normalizeEmail(email: string): string {
