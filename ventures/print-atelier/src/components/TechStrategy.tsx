@@ -35,7 +35,7 @@ export default function TechStrategy() {
             <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">Operations & Revenue Platform</h3>
             <ul className="text-sm space-y-1 text-gray-700 dark:text-gray-300 list-disc pl-4">
               <li>Real-time artist dashboards with live sales sync</li>
-              <li>Stripe Connect for automated payouts</li>
+              <li>Stripe Connect payouts, reconciled per fulfilled order</li>
               <li>Predictive inventory and pricing AI</li>
               <li>Fulfillment orchestration across POD partners</li>
             </ul>

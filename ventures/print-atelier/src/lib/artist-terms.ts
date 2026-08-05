@@ -281,7 +281,16 @@ export function getArtistTermsExplainer(): ArtistTermsExplainer {
           "Payouts are calculated transparently per fulfilled order. Net profit equals gross sales revenue minus actual third-party print/shipping costs and merchant processing fees. The Artist receives 30% of this net profit, disbursed monthly via Stripe Connect.",
         artistProtectionHighlights: [
           "Guaranteed 30% split of real net profit",
-          "Automated monthly Stripe Connect disbursements",
+          // Was "Automated monthly Stripe Connect disbursements". Nothing in this
+          // venture creates a Stripe transfer — stripe-checkout-server.ts makes the
+          // only outbound Stripe call and sets no `transfer_data` — and
+          // platform/k8s/apps/print-atelier/ declares no CronJob. An operator issues
+          // each transfer by hand; stripe-connect.ts then ingests the
+          // `transfer.created` webhook and payout-reconciliation.ts reconciles it.
+          // The cadence is real and the ledger is real; the automation was not, and
+          // an artist accepts this line as a consent term under `payoutAcknowledgement`.
+          // tests/artist-payout-claims.test.ts holds this to the code.
+          "Monthly Stripe Connect disbursements, reconciled against every fulfilled order",
           "Complete ledger transparency visible in your Artist Portal dashboard",
         ],
       },

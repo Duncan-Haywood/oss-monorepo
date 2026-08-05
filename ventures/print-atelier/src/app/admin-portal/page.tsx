@@ -222,7 +222,7 @@ export default function AdminPortal() {
 
             <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-900/40 p-3 rounded-lg border border-slate-700/40 text-xs">
               <div className="text-slate-300">
-                <span className="font-semibold text-white">Batch Transfer Helper:</span> Automatically top-up accounts missing payouts using Stripe Connect.
+                <span className="font-semibold text-white">Batch Transfer Helper:</span> Builds the Stripe Connect top-up instructions for accounts missing payouts. Review them, then issue each transfer in Stripe — this button moves no money.
               </div>
               <button
                 type="button"

@@ -103,7 +103,7 @@ export function optimizeArtistPayoutFx(input: FxOptimizerInput): PayoutFxOptimiz
     // Fixed fee amortized across batched threshold volume
     const amortizedFixedFeeUsd = fixedFeeInUsd * (grossPayoutUsdCents / BATCH_THRESHOLD_USD_CENTS);
     optimizedTotalFeeUsd = unoptimizedVariableFeeUsd + amortizedFixedFeeUsd;
-    recommendation = `Payout under $50 USD threshold. Batched transfer scheduled to amortize fixed ${targetCurrency} transfer fees.`;
+    recommendation = `Payout under $50 USD threshold. Batch this payout to amortize fixed ${targetCurrency} transfer fees.`;
   }
 
   const optimizedPayoutUsd = Math.max(0, (grossPayoutUsdCents / 100) - optimizedTotalFeeUsd);
