@@ -194,6 +194,28 @@ State these rather than discovering them later.
   and move the register only to a number that reproduces. A count that will not
   reproduce is a measurement problem, not a register problem.
 
+- **The unparsed *set* flaps at the margin, so an exact-match ceiling over it
+  cannot settle.** Two full scans on an idle machine, minutes apart, both
+  reported 54 files — but not the same 54. Between them
+  `ventures/quick-pick-survey/src/lib/ogCardFields.ts` left the set (fixed) and
+  `ventures/local-site-studio/src/lib/process/prompt_process.tsx` entered it,
+  untouched by either run. That file is 812 KB of TSX, large enough to sit on
+  the timeout boundary and land on either side of it depending on what else the
+  machine is doing. Membership is therefore decided by wall-clock, while the
+  check is an equality against a single integer.
+
+  So the current red — 54 against a ceiling of 53 — is not a code defect and
+  cannot be cleared by fixing one more file: fix one and the next marginal file
+  takes its place. The ceiling also predates the scanner change that widened
+  what gets scanned at all (the App Router carve-out in `sast_scan.py`), so 53
+  was measured against a smaller file set and was never re-measured afterwards.
+  Three things would actually fix this, none of them a number edit: pin
+  semgrep's `--timeout` so membership stops depending on load; make the check an
+  upper bound over a *named* list, so a swap is visible and a genuine addition
+  still fails; or get the 812 KB file out of the scan path, since a single
+  source file that size is its own problem. Until one of them lands, this gate
+  is expected red and the ceiling must not be nudged to match.
+
 - **`coverage.semgrep_unparsed_max` is not cap-ratcheted.** Every other ceiling
   in this repository has its floor pinned to the lowest value it has ever held
   by `scripts/ci/cap_ratchet.py`, precisely because the tempting response to a
