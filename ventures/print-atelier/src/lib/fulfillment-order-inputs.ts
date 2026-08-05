@@ -57,6 +57,117 @@ export type ResolvedValue = {
   missing: string[];
 };
 
+/**
+ * The one definition of a print file URL this venture will act on.
+ *
+ * It lives here, and `checkout.ts`'s `hasUsablePrintFile` calls it, because the
+ * two ends previously each carried their own copy of `startsWith("https://")`.
+ * They *agreed*, which is what made the defect invisible: the listing said
+ * sellable and the adapter said fulfillable, and both were wrong about the same
+ * inputs. Measured 2026-08-05 with `printFileUrl` set to the bare string
+ * `"https://"` — `hasUsablePrintFile` returned true, `validateCheckoutLineItem`
+ * returned zero blockers and `eligible: true`, `buildCheckoutSessionPayload`
+ * created the session, and `toPrintfulWirePayload` emitted
+ * `files: [{ url: "https://" }]` while Gelato got `fileUrl: "https://"`. That is
+ * the charge-then-cannot-fulfil failure the print-file blocker exists to
+ * prevent, arriving through the blocker itself.
+ *
+ * What is required, and why each one:
+ *
+ *   - **Parses as an absolute URL.** `new URL(value)` rather than a prefix test.
+ *     `"https://"` and `"not a url"` throw; a prefix test cannot tell them apart
+ *     from a URL.
+ *   - **Scheme `https`, compared case-insensitively.** RFC 3986 §3.1 makes
+ *     schemes case-insensitive, and `startsWith("https://")` rejected
+ *     `"HTTPS://host/a.tif"` — a valid URL, refused as unfetchable. `URL`
+ *     lowercases `protocol` during parsing, so the comparison below is already
+ *     case-insensitive; there is no `toLowerCase()` to forget. `http` stays
+ *     refused: the partner fetches this from its own infrastructure, and a
+ *     plaintext fetch of an artist's full-resolution master is not something to
+ *     hand to a third party.
+ *   - **A host that could resolve on the public internet** — non-empty, and
+ *     either an IP literal or a name with a dot in it. The WHATWG parser refuses
+ *     an empty host for `https` outright, but it is *forgiving* about extra
+ *     slashes: `new URL("https:///path/a.tif")` does not throw, it silently
+ *     re-reads `path` as the hostname. A single-label host is not resolvable by
+ *     a POD partner's fetcher, so accepting one is the same fail-open with a
+ *     typo in front of it. This subsumes the non-empty check rather than
+ *     repeating it — see the comment at the clause.
+ *   - **Addresses a resource** — a path beyond `/`, or a query string. A bare
+ *     origin (`"https://host"`, and `"https:///path"` once the parser has
+ *     rewritten it to host `path` with path `/`) names a site, not a file; a
+ *     partner told to fetch it downloads a home page and prints it or rejects
+ *     the job, after the buyer has paid. The query-string alternative is
+ *     deliberate: signed download endpoints of the form
+ *     `https://dl.example.com/?id=…` do address one file, and refusing those
+ *     would refuse real revenue.
+ *   - **No embedded credentials.** `https://user:pw@host/a.tif` is a valid URL
+ *     that hands a secret to a third party and writes it into their request
+ *     logs. `parseSiteUrl` in `site-url.ts` refuses userinfo for the same
+ *     reason.
+ *
+ * What is deliberately *not* required:
+ *
+ *   - **Reachability.** No fetch, ever. `atelier.marisstella.dev` currently runs
+ *     an `nginxdemos/hello` echo server that answers any path with `200` and
+ *     `content-type: image/tiff` over a 197-byte status body, so a successful
+ *     GET is not evidence a print file exists — see
+ *     `tests/catalog-print-file-provenance.test.ts`, which is where provenance
+ *     is actually established. This function checks shape, which is all a pure
+ *     function can check, and a well-formed fabrication still passes it.
+ *   - **A fragment-free URL.** A fragment is never sent to the server, so it
+ *     cannot make a fetch fail. Refusing it would be strictness with no failure
+ *     behind it, which is how D3 above came to exist.
+ *
+ * Returns the **trimmed original** rather than `parsed.href`. Normalisation is
+ * semantics-preserving for the URL but not necessarily for a *signature*: a
+ * pre-signed URL whose token covers the exact path and query can be invalidated
+ * by re-encoding. The operator recorded a string; the partner fetches that
+ * string.
+ */
+export function parsePrintFileUrl(value: unknown): string | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+  const trimmed = value.trim();
+  if (trimmed === "") {
+    return null;
+  }
+
+  let parsed: URL;
+  try {
+    parsed = new URL(trimmed);
+  } catch {
+    return null;
+  }
+
+  if (parsed.protocol !== "https:") {
+    return null;
+  }
+  // Non-empty *and* resolvable, in one comparison. An IPv6 literal arrives
+  // bracketed; an IPv4 literal is dotted like a name. There is no separate
+  // `hostname === ""` check because this one already refuses it and a check that
+  // cannot fail is worse than no check — deleting a standalone empty-host clause
+  // broke no test, since the WHATWG parser refuses an empty host for `https`
+  // before this line is reached.
+  if (!parsed.hostname.includes(".") && !parsed.hostname.startsWith("[")) {
+    return null;
+  }
+  if (parsed.username !== "" || parsed.password !== "") {
+    return null;
+  }
+  if ((parsed.pathname === "" || parsed.pathname === "/") && parsed.search === "") {
+    return null;
+  }
+
+  return trimmed;
+}
+
+/** `parsePrintFileUrl` as a predicate, for callers that only need yes or no. */
+export function isUsablePrintFileUrl(value: unknown): boolean {
+  return parsePrintFileUrl(value) !== null;
+}
+
 function readMetadataString(
   metadata: Record<string, unknown> | undefined,
   key: string,
@@ -90,9 +201,11 @@ export function resolveBuyerEmail(
  * wins over the order-wide one so a multi-artwork cart cannot be collapsed onto
  * a single image.
  *
- * Only `https` is accepted: the partner fetches this URL from its own
- * infrastructure, and a plaintext fetch of a customer's artwork is not something
- * to hand to a third party.
+ * What counts as usable is `parsePrintFileUrl` above — the same function
+ * `checkout.ts` blocks a listing with. This end used to apply its own
+ * `startsWith("https://")`, identical to the storefront's copy and wrong in the
+ * same two ways, so the two ends agreed on accepting `"https://"` and agreed on
+ * refusing `"HTTPS://host/a.tif"`.
  */
 export function resolvePrintFileUrl(
   paymentMetadata: Record<string, unknown> = {},
@@ -104,10 +217,11 @@ export function resolvePrintFileUrl(
   const lineValue = readMetadataString(paymentMetadata, lineKey);
   const value = lineValue !== "" ? lineValue : readMetadataString(paymentMetadata, sharedKey);
 
-  if (value === "" || !value.startsWith("https://")) {
+  const usable = parsePrintFileUrl(value);
+  if (usable === null) {
     return { ok: false, value: "", missing: [lineKey] };
   }
-  return { ok: true, value, missing: [] };
+  return { ok: true, value: usable, missing: [] };
 }
 
 /**

@@ -7,7 +7,10 @@ import {
   type CatalogArtwork,
   type ListingConsentRecord,
 } from "./marketplace";
-import { FULFILLMENT_INPUT_METADATA_KEYS } from "./fulfillment-order-inputs";
+import {
+  FULFILLMENT_INPUT_METADATA_KEYS,
+  isUsablePrintFileUrl,
+} from "./fulfillment-order-inputs";
 import { fulfillmentPartners } from "./partners";
 import { formatStripeCurrency } from "./stripe-connect";
 
@@ -217,10 +220,15 @@ export function artworkToCheckoutLine(
 /**
  * Whether an artwork carries a file a print partner can actually fetch.
  *
- * Deliberately the same rule `resolvePrintFileUrl` applies on the fulfillment
- * side. The two ends disagreeing is what this whole change is about: the
- * listing said sellable, the adapter said unfulfillable, and the buyer's card
- * had already been charged in between.
+ * Literally the same rule `resolvePrintFileUrl` applies on the fulfillment side,
+ * because it is the same function — `parsePrintFileUrl`, which owns the
+ * definition and documents every clause of it. The two ends disagreeing is what
+ * the print-file blocker was written for: the listing said sellable, the adapter
+ * said unfulfillable, and the buyer's card had already been charged in between.
+ *
+ * They can also *agree and both be wrong*, which is what two copies of
+ * `startsWith("https://")` did here until 2026-08-05. That is why this is a call
+ * and not a re-implementation.
  *
  * This checks the *shape* of the URL, which is all a pure function can check.
  * Whether the file behind it exists is a different question, and a fabricated
@@ -229,10 +237,7 @@ export function artworkToCheckoutLine(
  * blocker being written.
  */
 export function hasUsablePrintFile(artwork: CatalogArtwork): boolean {
-  return (
-    typeof artwork.printFileUrl === "string" &&
-    artwork.printFileUrl.trim().startsWith("https://")
-  );
+  return isUsablePrintFileUrl(artwork.printFileUrl);
 }
 
 /**
@@ -344,8 +349,12 @@ export function validateCheckoutLineItem(
   // the adapters correctly refuse — after the buyer has paid. Refuse the sale
   // instead.
   if (!hasUsablePrintFile(artwork)) {
+    // `.trim()` decides which of the two codes fires, so that a field holding
+    // only whitespace is reported as *no* print file rather than as an
+    // unfetchable one — "replace the URL" is not an instruction an operator can
+    // follow when there is no URL to replace.
     blockerDetails.push(
-      artwork.printFileUrl
+      artwork.printFileUrl?.trim()
         ? {
             code: "print-file-not-fetchable",
             message: "Print file must be an https URL a POD partner can fetch",
