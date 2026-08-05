@@ -12,10 +12,10 @@ export default function GTMStrategy() {
 
       <section>
         <h2 className="text-2xl font-semibold">Phase 1: Seed the Supply (Months 0–3)</h2>
-        <p>Acquire the first 100 artists through automated, targeted software outreach. Zero paid marketing spend.</p>
+        <p>Acquire the first 100 artists through automated, targeted software outreach. Zero paid marketing spend. The tooling below is planned — none of it is built today.</p>
         <ul className="list-disc pl-5 space-y-2">
           <li><strong>AI Scraping & Filtering:</strong> Instagram accounts with #oilpainting, #acrylicart; 2k–20k followers.</li>
-          <li><strong>Personalized DMs:</strong> AI-generated messages referencing specific portfolio pieces.</li>
+          <li><strong>Personalized DMs:</strong> AI-drafted messages referencing specific portfolio pieces.</li>
           <li><strong>Frictionless Onboarding:</strong> Snap a photo → instant living-room mockup as conversion hook.</li>
         </ul>
         <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border not-prose mt-4">

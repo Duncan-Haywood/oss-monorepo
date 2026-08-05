@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import DemoNav from "@/components/shared/DemoNav";
 import { ShoppingCart, Search, Filter, User, Heart } from "lucide-react";
 
 export default function BuyerPortal() {
@@ -15,6 +16,7 @@ export default function BuyerPortal() {
 
   return (
     <div className="min-h-screen bg-stone-50 dark:bg-gray-900 flex flex-col">
+      <DemoNav current="/buyer-portal" />
       <header className="bg-white dark:bg-gray-800 border-b border-stone-200 dark:border-gray-700 px-6 py-4 sticky top-0 z-20">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-8">
@@ -65,16 +67,18 @@ export default function BuyerPortal() {
               </div>
             </div>
             <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-900/50">
-              <h4 className="font-bold text-blue-900 dark:text-blue-100 text-sm mb-1">AI Room Visualization</h4>
-              <p className="text-xs text-blue-800 dark:text-blue-200 mb-3">Upload a photo of your room to see how art will look.</p>
-              <button className="w-full bg-white dark:bg-gray-800 text-sm font-medium py-2 rounded-lg text-blue-600 dark:text-blue-400 shadow-sm">Try it now</button>
+              <h4 className="font-bold text-blue-900 dark:text-blue-100 text-sm mb-1">Room Visualization (planned)</h4>
+              <p className="text-xs text-blue-800 dark:text-blue-200 mb-3">Uploading a photo of your own room is not built yet.</p>
+              <button disabled className="w-full bg-white dark:bg-gray-800 text-sm font-medium py-2 rounded-lg text-blue-600/60 dark:text-blue-400/60 shadow-sm cursor-not-allowed">Not available yet</button>
             </div>
           </div>
         </aside>
 
         <div className="flex-1">
           <div className="flex justify-between items-center mb-6">
-            <p className="text-sm text-stone-500 dark:text-gray-400">Showing 6 of 1,492 AI-enhanced prints</p>
+            <p className="text-sm text-stone-500 dark:text-gray-400">
+              Showing all {artworks.length} sample listings — placeholder catalog, not live inventory
+            </p>
             <select className="text-sm bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 rounded-lg px-3 py-2 text-stone-700 dark:text-gray-300">
               <option>Recommended</option>
               <option>Newest Arrivals</option>

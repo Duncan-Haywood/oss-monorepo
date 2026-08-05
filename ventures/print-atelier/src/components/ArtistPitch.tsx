@@ -42,7 +42,10 @@ export default function ArtistPitch() {
       <section>
         <h2 className="text-2xl font-semibold">The One-Liner</h2>
         <p className="text-xl italic text-gray-600 dark:text-gray-300">
-          "Upload a photo from your phone. Our AI creates museum-quality prints, markets them, and sends you 30% of the profits. You just keep painting."
+          "Send us a print-quality file of your painting. We build the listing, sync it to Meta, Google, and Pinterest catalogs, route each order to a print partner, and pay you 30% of the net profit through Stripe. You just keep painting."
+        </p>
+        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+          Not yet built: the in-app capture step that would turn a phone photograph into a print-ready master. Until it ships, the artist supplies their own high-resolution file.
         </p>
       </section>
 
@@ -62,8 +65,8 @@ export default function ArtistPitch() {
             <h3 className="text-lg font-bold text-blue-700 dark:text-blue-400 mb-2">The Print Atelier Platform</h3>
             <ul className="list-disc pl-5 space-y-1 text-sm">
               <li>Turn one painting into a recurring digital income stream.</li>
-              <li>Use our app to snap a photo—our AI makes it print-perfect instantly.</li>
-              <li>Our software generates your listings, mockups, and SEO automatically.</li>
+              <li>Planned, not yet built: snap a photo in our app and have it prepared for print. Today you upload your own high-resolution file.</li>
+              <li>Our software builds your listing page and SEO from your catalog entry. Room mockups are planned, not yet built.</li>
               <li>Orders print globally via our API partners and ship directly to the buyer.</li>
             </ul>
           </div>
@@ -73,8 +76,8 @@ export default function ArtistPitch() {
       <section>
         <h2 className="text-2xl font-semibold">What We Handle (Everything but the Art)</h2>
         <ul className="list-disc pl-5 space-y-2">
-          <li><strong>AI Enhancement:</strong> Color correction, deskewing, and upscaling.</li>
-          <li><strong>Digital Marketing:</strong> Programmatic ad buying and social media automation.</li>
+          <li><strong>Image Enhancement (planned, not yet built):</strong> Color correction, deskewing, and upscaling. Today you send a print-quality file.</li>
+          <li><strong>Digital Marketing:</strong> Listing pages and SEO generated from your catalog entry, plus catalog sync to Meta, Google, and Pinterest when credentials are configured. Programmatic ad buying and social posting are planned.</li>
           <li><strong>Global Logistics:</strong> Print production, packaging, and international shipping.</li>
           <li><strong>Customer Support:</strong> Handling returns, damages, and buyer inquiries.</li>
         </ul>

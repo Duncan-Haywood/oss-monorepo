@@ -241,7 +241,7 @@ function ArtistPortalDemo() {
                 </div>
                 <div>
                   <div className="font-bold text-gray-900">Proof Approval Required</div>
-                  <div className="text-sm text-gray-600">"Autumn Canopy" has been digitized and needs your approval.</div>
+                  <div className="text-sm text-gray-600">Illustrative sample — "Autumn Canopy" proof awaiting your approval.</div>
                 </div>
               </div>
               <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50">
@@ -320,7 +320,7 @@ function CapturePreview() {
           <h3 className="text-lg font-bold flex items-center gap-2">
             <Camera className="w-5 h-5 text-indigo-400" /> AI Capture Pipeline
           </h3>
-          <p className="text-sm text-gray-400 mt-1">Phone photo → print-ready master in &lt;60 seconds</p>
+          <p className="text-sm text-gray-400 mt-1">Planned, not yet built — phone photo → print-ready master in &lt;60 seconds</p>
         </div>
         <a href="/capture-demo" className="text-sm bg-indigo-600 px-4 py-2 rounded-lg hover:bg-indigo-500 transition flex items-center gap-1">
           Try Interactive Demo <ExternalLink className="w-3 h-3" />
@@ -339,7 +339,7 @@ function CapturePreview() {
         <div className="aspect-[4/3] bg-stone-200 rounded-lg relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-stone-100 to-stone-300"></div>
           <div className="absolute top-1/3 left-1/4 w-1/2 h-1/3 bg-blue-900 shadow-2xl border-4 border-white"></div>
-          <span className="absolute bottom-3 left-3 text-xs bg-white text-gray-800 px-2 py-1 rounded shadow">AI-generated living room mockup</span>
+          <span className="absolute bottom-3 left-3 text-xs bg-white text-gray-800 px-2 py-1 rounded shadow">Placeholder — AI-generated room mockups are planned</span>
         </div>
       </div>
     </div>
