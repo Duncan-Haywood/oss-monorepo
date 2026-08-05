@@ -209,19 +209,27 @@ components:
       - "*.test.ts"
       - "*.test.tsx"
       - "*.d.ts"
-    # Measured 2026-08-05 on Node 22.22.3, vitest 4.1.10, 59 test files / 434
-    # tests passing. `unexercised` is the number that matters here: 58 of the
-    # 112 declared source files are loaded by no test, including every route
-    # under src/app/api/admin/. 53.90% is the coverage of the other 54 files,
-    # and deleting the last test of any of those 58 would not move it at all.
+    # Re-measured 2026-08-05 on Node 22.22.3, vitest 4.1.10, 60 test files / 473
+    # tests passing, after the rate-limit retention guard and the bcrypt cost
+    # fixes landed together. Every figure moved the right way, and the ratchet
+    # demanded this edit rather than permitting it: it went red with
+    # `unexercised-stale` because the recorded 58 had become an overstatement.
+    #
+    # `unexercised` is still the number that matters: 57 of the 113 declared
+    # source files are loaded by no test, including every route under
+    # src/app/api/admin/. 54.29% is the coverage of the other 56 files, and
+    # deleting the last test of any of those 57 would not move it at all. The
+    # file count rose 112 -> 113 because the retention guard is a new module;
+    # it arrives exercised, which is why the unexercised count fell rather than
+    # holding.
     baseline:
-      unexercised: 58
-      lines: 53.90
-      functions: 54.79
-      branches: 45.63
+      unexercised: 57
+      lines: 54.29
+      functions: 54.96
+      branches: 46.08
     measured:
-      files: 111
-      lines: 4024
+      files: 112
+      lines: 4045
     tolerance:
       lines: 0.5
       functions: 0.5
