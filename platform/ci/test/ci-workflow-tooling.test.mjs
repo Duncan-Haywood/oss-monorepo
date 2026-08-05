@@ -236,7 +236,7 @@ test('CI Workflow Tooling - network-fetched binaries are checksum verified', () 
  * is a file under the component that actually imports one of them, which is a
  * property this test can read rather than assume.
  */
-function importedDeclaredDependencies(componentPath) {
+function importedDeclaredDependencies(componentPath, commandBlock = '') {
   const manifestPath = path.join(REPO_ROOT, componentPath, 'package.json');
   if (!fs.existsSync(manifestPath)) return [];
 
@@ -268,6 +268,14 @@ function importedDeclaredDependencies(componentPath) {
   // intersection with `declared` anyway.
   const specifier = /(?:from|import|require)\s*\(?\s*['"]([^'"]+)['"]/g;
   const used = new Set();
+
+  // A dependency can also be loaded without ever being imported by a file: the
+  // coverage command itself names it, as `--import tsx` and `npx vitest` do.
+  // Keeping this makes the rule a strict superset of the flag list it replaced,
+  // so nothing the old form caught can slip through the new one.
+  for (const word of commandBlock.matchAll(/^\s*-\s*(\S+)\s*$/gm)) {
+    if (declared.has(word[1])) used.add(word[1]);
+  }
   for (const relative of files) {
     let source;
     try {
@@ -334,7 +342,7 @@ test('CI Workflow Tooling - coverage components needing node_modules get them in
     const id = block.split('\n', 1)[0].trim();
     const componentPath = block.match(/^\s*path:\s*(\S+)/m)?.[1];
     if (!componentPath) continue;
-    const imported = importedDeclaredDependencies(componentPath);
+    const imported = importedDeclaredDependencies(componentPath, block);
     if (imported.length > 0) {
       needsInstall.push({ id, componentPath, imported });
     }
