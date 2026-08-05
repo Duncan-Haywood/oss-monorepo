@@ -459,41 +459,137 @@ def read_baseline(document: dict, path: Path) -> list[dict]:
     return entries
 
 
-def check_parse_coverage(unparsed: Sequence[str], document: dict) -> list[str]:
-    """Hold the count of partially-parsed files to its declared ceiling.
+def _marginal_entries(
+    coverage: dict, today: dt.date
+) -> tuple[dict[str, dict], list[str]]:
+    """Parse `coverage.semgrep_unparsed_marginal` into {path: entry} plus problems.
+
+    A marginal entry is an exemption, so it is held to the same shape every other
+    exemption in this repository is: an owner, a reason, and an expiry that is
+    checked. Prose alone is what lets a register entry go quietly false.
+    """
+    raw = coverage.get("semgrep_unparsed_marginal") or []
+    if not isinstance(raw, list):
+        return {}, ["`coverage.semgrep_unparsed_marginal` must be a list"]
+
+    entries: dict[str, dict] = {}
+    problems: list[str] = []
+    for index, entry in enumerate(raw):
+        if not isinstance(entry, dict):
+            problems.append(f"`semgrep_unparsed_marginal[{index}]` must be a mapping")
+            continue
+        path = entry.get("path")
+        if not isinstance(path, str) or not path:
+            problems.append(f"`semgrep_unparsed_marginal[{index}]` has no `path`")
+            continue
+        for field in ("why", "owner"):
+            value = entry.get(field)
+            if not isinstance(value, str) or not value.strip():
+                problems.append(f"marginal entry `{path}` has no `{field}`")
+        expires = entry.get("expires")
+        if not isinstance(expires, dt.date):
+            problems.append(
+                f"marginal entry `{path}` has no `expires:` date. A file excused "
+                "from the parse-coverage list without an expiry is excused forever."
+            )
+        elif expires < today:
+            problems.append(
+                f"marginal entry `{path}` expired on {expires.isoformat()}. "
+                "Re-measure it on an idle machine and either declare it or drop it."
+            )
+        entries[path] = entry
+    return entries, problems
+
+
+def check_parse_coverage(
+    unparsed: Sequence[str], document: dict, today: dt.date | None = None
+) -> list[str]:
+    """Hold the *set* of partially-parsed files to the one the register declares.
 
     Semgrep scans a file it cannot fully parse, it just stops at the construct
     it does not understand — so a new unparseable file is source code that
-    quietly leaves SAST coverage while every gate stays green. Declaring the
-    number is what makes that visible: the count only moves when somebody edits
-    the register and says why.
+    quietly leaves SAST coverage while every gate stays green.
+
+    This used to be an equality against a single integer, and that could not
+    settle. `docs/SAST.md` records the measurement: two full scans on an idle
+    machine, minutes apart, both reported 54 files and not the same 54 — one
+    file left the set (it had been fixed) while an 812 KB TSX file entered it,
+    untouched by either run, because at that size it sits on the parse-timeout
+    boundary and lands on either side of it depending on machine load. Under
+    load the same byte-identical tree produced 53, 53, 56, 54, 55 and 53.
+    Membership was decided by wall-clock while the check was an equality against
+    a number, so the gate could go red — or demand a ratchet — with no code
+    change at all, and the cheapest way to green was to edit the number. That is
+    the pressure this whole register exists to remove.
+
+    Comparing sets fixes both halves of it. A file that newly stops parsing
+    fails even when another one starts parsing in the same run, which the count
+    could not see; and a file that starts parsing again has to be struck from
+    the register, which is the ratchet the count did give and is kept here.
+    Files genuinely on the timeout boundary go in `semgrep_unparsed_marginal`
+    with an owner, a reason and an expiry, and are held to a cap — an escape
+    hatch that is bounded and reviewed rather than a number anyone can nudge.
+
+    It also puts the evidence somewhere a reviewer can see it. `docs/SAST.md`
+    said every affected file is listed in `sast-report.md`; that file is
+    gitignored (`.gitignore:34`), so the identity of the unscanned set existed
+    only on whichever machine last ran a scan, and nothing but its cardinality
+    was ever committed.
     """
     coverage = document.get("coverage")
-    if not isinstance(coverage, dict) or "semgrep_unparsed_max" not in coverage:
+    if not isinstance(coverage, dict) or "semgrep_unparsed" not in coverage:
         return [
-            "baseline register has no `coverage.semgrep_unparsed_max`. It is "
-            "required: without a declared ceiling, a file that stops parsing "
+            "baseline register has no `coverage.semgrep_unparsed`. It is "
+            "required: without a declared list, a file that stops parsing "
             "silently stops being scanned."
         ]
+
+    declared_raw = coverage.get("semgrep_unparsed")
+    if not isinstance(declared_raw, list) or not all(
+        isinstance(item, str) for item in declared_raw
+    ):
+        return ["`coverage.semgrep_unparsed` must be a list of paths"]
+    declared = set(declared_raw)
+
+    marginal, problems = _marginal_entries(coverage, today or dt.date.today())
+
     ceiling = coverage.get("semgrep_unparsed_max")
     if not isinstance(ceiling, int) or isinstance(ceiling, bool) or ceiling < 0:
-        return ["`coverage.semgrep_unparsed_max` must be a non-negative integer"]
+        problems.append("`coverage.semgrep_unparsed_max` must be a non-negative integer")
+    else:
+        # An upper bound over what the register declares, not over what a
+        # single run happened to observe. Unlike the old equality it cannot be
+        # tripped by the flap, and it still stops the declared list growing
+        # without someone raising a number that `cap_ratchet.py` watches.
+        budget = len(declared) + len(marginal)
+        if budget > ceiling:
+            problems.append(
+                f"the register declares {len(declared)} unparsed file(s) plus "
+                f"{len(marginal)} marginal, over the ceiling of {ceiling}. Fix a "
+                "file or raise the ceiling deliberately; do not do the latter to "
+                "clear a red run."
+            )
 
-    actual = len(unparsed)
-    if actual > ceiling:
-        return [
-            f"{actual} file(s) only partially parsed by semgrep, ceiling is "
-            f"{ceiling}. Code in them is not fully scanned. Newly affected: "
-            + ", ".join(unparsed[:10])
-            + ("…" if actual > 10 else "")
-        ]
-    if actual < ceiling:
-        return [
-            f"only {actual} file(s) partially parsed but the ceiling is "
-            f"{ceiling}. Lower it to {actual} — an unratcheted ceiling gives "
-            f"back the coverage that was just won."
-        ]
-    return []
+    observed = set(unparsed)
+    entered = sorted(observed - declared - set(marginal))
+    if entered:
+        problems.append(
+            f"{len(entered)} file(s) newly stopped parsing and are not in "
+            "`coverage.semgrep_unparsed`. Code in them is no longer fully "
+            "scanned: " + ", ".join(entered[:10]) + ("…" if len(entered) > 10 else "")
+        )
+
+    left = sorted(declared - observed)
+    if left:
+        problems.append(
+            f"{len(left)} file(s) declared unparsed now parse cleanly. Strike "
+            "them from `coverage.semgrep_unparsed` — a list that keeps them "
+            "gives back the coverage that was just won: "
+            + ", ".join(left[:10])
+            + ("…" if len(left) > 10 else "")
+        )
+
+    return problems
 
 
 def validate_entries(entries: Sequence[dict], today: dt.date) -> list[str]:
@@ -666,8 +762,11 @@ def write_report(
         "",
         f"Semgrep could not fully parse {len(unparsed)} file(s). Each is scanned "
         "only up to the construct its grammar rejected, so the rest of the file "
-        "is unscanned. The count is held to `coverage.semgrep_unparsed_max` in "
-        "the baseline so it cannot grow unnoticed.",
+        "is unscanned. The *set* — not merely its size — is held to "
+        "`coverage.semgrep_unparsed` in `platform/sast-baseline.yaml`, so a file "
+        "that newly stops parsing fails the gate even when another one starts "
+        "parsing in the same run. This report is gitignored; the register is the "
+        "committed copy of that list, and it is the one a reviewer can read.",
         "",
     ]
     lines += [f"- `{item}`" for item in unparsed] or ["None."]
