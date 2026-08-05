@@ -250,7 +250,12 @@ test('CI Workflow Tooling - coverage components needing node_modules get them in
     const id = block.split('\n', 1)[0].trim();
     const componentPath = block.match(/^\s*path:\s*(\S+)/m)?.[1];
     const usesLoader = /^\s*-\s*--(import|loader|require)\s*$/m.test(block);
-    if (componentPath && usesLoader) {
+    // A command whose first word is `npx` runs a binary out of the component's
+    // own node_modules, which is the same dependency as a runtime hook and was
+    // not covered here: the vitest components enrolled on 2026-08-05 would have
+    // passed this check while failing the gate it exists to protect.
+    const usesLocalBinary = /^\s*-\s*npx\s*$/m.test(block);
+    if (componentPath && (usesLoader || usesLocalBinary)) {
       needsInstall.push({ id, componentPath });
     }
   }

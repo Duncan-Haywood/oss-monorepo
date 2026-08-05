@@ -41,6 +41,15 @@ command fails, produces no lcov, or reports zero total lines is a failure, not
 a skip. That is the specific way the repository's other gates have been found
 to lie: a missing tool reported PASSED for work it never did.
 
+Since 2026-08-05 it also audits *enrollment*, which is the larger half. All of
+the above holds the components that are in the baseline file; nothing held the
+ones that were not, and the file declared two components of which one is in
+`VENTURE_CATALOG`. Fifteen of the sixteen catalog components had no coverage
+floor at all, so deleting every test in them turned no gate red. See the
+"Enrollment contract" section below: every catalog component must have a
+measured floor or an entry in `UNMEASURED_COMPONENTS` naming a predicate that
+re-derives the reason from the tree, and a component that is neither fails.
+
 Usage:
     python3 scripts/ci/coverage_ratchet.py              # audit, exit 1 on failure
     python3 scripts/ci/coverage_ratchet.py --report     # measure, always exit 0
@@ -54,13 +63,14 @@ import argparse
 import fnmatch
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
 import tempfile
 from dataclasses import dataclass, asdict, field
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Sequence
+from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
 import yaml
 
@@ -975,6 +985,717 @@ def compare(entry: Dict[str, Any], measured: Measurement) -> List[Finding]:
     return findings
 
 
+# ---------------------------------------------------------------------------
+# Enrollment contract
+#
+# Everything above holds the components that are *in* the baseline file. Until
+# 2026-08-05 nothing held the ones that were not, and that was the larger hole:
+# the file declared two components, and only one of them — `print-atelier` — is
+# in `VENTURE_CATALOG`. Fifteen of the sixteen catalog components had no
+# coverage floor, so deleting every test in `local-site-studio`,
+# `quick-pick-survey` or `ai-first-markets` turned no gate red. A ratchet that
+# covers a sixth of the catalog reports PASS for the five sixths it never looked
+# at, which is the same shape as the grep for a sentence about the 90% floor
+# that this whole control replaced.
+#
+# The contract is the one `scripts/ci/cap_ratchet.py` already uses for declared
+# budgets, transposed: every candidate is either watched or registered as exempt
+# with a reason, and a new unwatched candidate is a failure. Here the candidates
+# come from the catalog CI verifies, the watch is a baseline entry, and the
+# register is `UNMEASURED_COMPONENTS` below.
+#
+# Two things this deliberately refuses:
+#
+#   * A blanket exemption. No wildcards, no "all Python components", no
+#     directory. Each entry names one catalog id, because a region-shaped
+#     exemption is a region in which "every component has a floor" may quietly
+#     be untrue while every count stays green.
+#   * An exemption whose reason is only prose. Prose in this repository's
+#     registers has gone false while nothing noticed, so each entry names a
+#     `predicate` — a function below that re-derives the reason from the tree
+#     today. When the blocker is cleared, the predicate stops holding and this
+#     gate goes red until the component is measured and enrolled.
+# ---------------------------------------------------------------------------
+
+# The component catalog CI actually verifies. Deliberately this file rather than
+# a list retyped here: a registry the contract keeps its own copy of drifts from
+# the one that runs, and then the contract is complete over a catalog nobody
+# uses.
+CATALOG_PATH = "platform/ci/src/pipeline.mjs"
+CATALOG_SYMBOL = "VENTURE_CATALOG"
+
+# Runner types with no lcov in reach. Swift emits llvm profdata and terraform
+# has no notion of test coverage at all; both would need a conversion step this
+# audit does not have. Read from the catalog's own `type`, so re-typing a
+# component is what clears the exemption, not editing the register.
+NON_LCOV_RUNNER_TYPES = frozenset({"swift", "terraform"})
+
+# Substrings that mean a package's `test` script runs under something that can
+# emit coverage. Matched against the declared script, because the ratchet runs
+# a command over the suite the component declares — a suite of self-executing
+# files chained with `&&` has no single run to measure.
+COVERAGE_CAPABLE_RUNNER_MARKERS = (
+    "node --test",
+    "--experimental-test-coverage",
+    "vitest",
+    "jest",
+    "c8 ",
+    "nyc ",
+)
+
+# A Python coverage provider, as a requirement line would name it.
+PYTHON_COVERAGE_DISTRIBUTIONS = ("pytest-cov", "coverage")
+
+# Where a Python dependency is declared in this repository. Both halves of the
+# union that `tests/test_cap_ratchet.py` uses for budget files: a requirement
+# added and not yet committed still clears the blocker.
+PYTHON_REQUIREMENT_FILENAMES = ("requirements.txt", "pyproject.toml", "setup.cfg")
+PYTHON_REQUIREMENT_GLOBS = ("requirements*.txt", "pyproject.toml", "setup.cfg")
+
+# Directories never worth walking for a requirement file.
+UNWALKED_DIRECTORY_NAMES = frozenset(
+    {".git", "node_modules", ".next", "dist", "build", ".venv", "venv", "__pycache__"}
+)
+
+
+class EnrollmentError(Exception):
+    """The candidate set could not be established. Never reported as a pass."""
+
+
+@dataclass(frozen=True)
+class CatalogComponent:
+    """One entry of `VENTURE_CATALOG`, read statically."""
+
+    id: str
+    dir: str
+    type: str
+    package_dir: Optional[str] = None
+
+    @property
+    def root(self) -> str:
+        """Where the component's manifest lives, which is not always `dir`."""
+        return self.package_dir or self.dir
+
+
+_LINE_COMMENT = re.compile(r"(?<!:)//")
+
+
+def _strip_line_comments(source: str) -> str:
+    """Drop `//` comments, before anything counts brackets.
+
+    Applied first rather than to the extracted literal, because the bracket
+    walk that finds the literal is itself what a comment can derail: the live
+    catalog carries `['build']` and `['test']` in its prose, and one unbalanced
+    `]` in a sentence would end the array early and silently shorten the
+    candidate set. A shorter candidate set is a quieter gate, which is the one
+    failure mode this contract cannot afford.
+
+    `(?<!:)` keeps `https://` in a string from being read as a comment.
+    """
+    return "\n".join(_LINE_COMMENT.split(line, 1)[0] for line in source.splitlines())
+
+
+def _catalog_literal(source: str) -> str:
+    start = source.find(f"const {CATALOG_SYMBOL}")
+    if start < 0:
+        raise EnrollmentError(
+            f"{CATALOG_PATH} declares no {CATALOG_SYMBOL}; the candidate set for the "
+            "coverage enrollment contract cannot be established"
+        )
+    opening = source.find("[", start)
+    if opening < 0:
+        raise EnrollmentError(f"{CATALOG_SYMBOL} in {CATALOG_PATH} is not an array literal")
+    depth = 0
+    for index in range(opening, len(source)):
+        char = source[index]
+        if char == "[":
+            depth += 1
+        elif char == "]":
+            depth -= 1
+            if depth == 0:
+                return source[opening : index + 1]
+    raise EnrollmentError(f"{CATALOG_SYMBOL} in {CATALOG_PATH} has no closing bracket")
+
+
+_CATALOG_FIELD = re.compile(r"^\s*(id|dir|type|packageDir):\s*'([^']*)'", re.M)
+
+
+def parse_catalog(source: str) -> List[CatalogComponent]:
+    """Every component `VENTURE_CATALOG` declares.
+
+    Static text, never an import: the catalog lives in a Node module, and
+    executing a file to find out what it claims lets the file decide whether it
+    is audited.
+
+    Raises rather than returning `[]`. An empty candidate set is the vacuous
+    case this contract is most exposed to — a glob or a parse that matches
+    nothing exits 0 and looks exactly like a gate that passed.
+    """
+    literal = _catalog_literal(_strip_line_comments(source))
+    chunks = re.split(r"\n[ \t]{2}\{", literal)[1:]
+    components: List[CatalogComponent] = []
+    for chunk in chunks:
+        fields: Dict[str, str] = {}
+        for name, value in _CATALOG_FIELD.findall(chunk):
+            fields.setdefault(name, value)
+        missing = [key for key in ("id", "dir", "type") if key not in fields]
+        if missing:
+            raise EnrollmentError(
+                f"a {CATALOG_SYMBOL} entry is missing {', '.join(missing)}; the enrollment "
+                f"contract cannot tell what it is. Entry began: {chunk.strip()[:60]!r}"
+            )
+        components.append(
+            CatalogComponent(
+                id=fields["id"],
+                dir=fields["dir"],
+                type=fields["type"],
+                package_dir=fields.get("packageDir"),
+            )
+        )
+    if not components:
+        raise EnrollmentError(
+            f"{CATALOG_SYMBOL} in {CATALOG_PATH} parsed to zero components. A contract over "
+            "an empty candidate set passes by construction; fix the parse rather than the "
+            "expectation."
+        )
+    return components
+
+
+def load_catalog(repo_root: Path, path: str = CATALOG_PATH) -> List[CatalogComponent]:
+    catalog_file = Path(repo_root) / path
+    if not catalog_file.is_file():
+        raise EnrollmentError(f"component catalog not found: {path}")
+    return parse_catalog(catalog_file.read_text(encoding="utf-8"))
+
+
+@dataclass(frozen=True)
+class EnrollmentExemption:
+    """One catalog component deliberately left without a coverage floor.
+
+    Earned one component at a time, and never for a directory or a runner
+    family. Four fields, three of which a test reads:
+
+      * `component` — exactly one catalog id.
+      * `predicate` — the name of a function in `ENROLLMENT_PREDICATES`. It is
+        re-evaluated against the tree on every run, and the moment it stops
+        holding this gate goes red. That is what stops the reason below from
+        silently going false, which is the failure mode every prose-only
+        register in this repository has already had.
+      * `blocker` — the specific thing that has to change for the component to
+        be measurable. Named so the exemption reads as work, not as a verdict.
+      * `why` — the argument. Prose, and checked only for being long enough to
+        be one; the predicate is what carries the claim.
+    """
+
+    component: str
+    predicate: str
+    blocker: str
+    why: str
+
+
+def _python_coverage_declarations(repo_root: Path) -> List[str]:
+    """Files in this repository that declare a Python coverage provider.
+
+    The blocker for every Python component: `requirements-ci.txt` is what CI
+    installs, and it lists `pytest` and `PyYAML` and nothing else, so no runner
+    that executes these gates can produce a coverage report. Measuring one on a
+    laptop that happens to have `coverage` installed and writing the number into
+    the baseline would produce a floor CI fails closed on for want of a tool.
+    """
+    pattern = re.compile(
+        r"^\s*[\"']?(" + "|".join(re.escape(name) for name in PYTHON_COVERAGE_DISTRIBUTIONS) + r")"
+        r"(\[[^\]]*\])?\s*(==|>=|<=|~=|!=|>|<|[\"']|,|$)",
+        re.M,
+    )
+    found: List[str] = []
+    for path in _walk_requirement_files(repo_root):
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        if pattern.search(text):
+            found.append(path.relative_to(repo_root).as_posix())
+    return sorted(found)
+
+
+def _walk_requirement_files(repo_root: Path) -> Iterable[Path]:
+    for current, directories, filenames in os.walk(repo_root):
+        directories[:] = [d for d in directories if d not in UNWALKED_DIRECTORY_NAMES]
+        for filename in filenames:
+            if filename in PYTHON_REQUIREMENT_FILENAMES or (
+                filename.startswith("requirements") and filename.endswith(".txt")
+            ):
+                yield Path(current) / filename
+
+
+def _predicate_python_coverage_provider_undeclared(
+    repo_root: Path, component: CatalogComponent
+) -> Optional[str]:
+    if component.type != "python":
+        return (
+            f"the catalog now declares this component as `{component.type}`, not `python`, so "
+            "the Python-tooling argument for the exemption no longer describes it"
+        )
+    declared = _python_coverage_declarations(repo_root)
+    if declared:
+        return (
+            "a Python coverage provider is now declared in "
+            + ", ".join(declared)
+            + " — the blocker is cleared, so measure this component and give it a floor"
+        )
+    return None
+
+
+def _predicate_runner_outside_lcov_toolchain(
+    repo_root: Path, component: CatalogComponent
+) -> Optional[str]:
+    if component.type not in NON_LCOV_RUNNER_TYPES:
+        return (
+            f"the catalog now declares this component as `{component.type}`, which is a runner "
+            "this audit can measure; enroll it"
+        )
+    return None
+
+
+def _component_test_script(repo_root: Path, component: CatalogComponent) -> Optional[str]:
+    manifest = Path(repo_root) / component.root / "package.json"
+    if not manifest.is_file():
+        return None
+    try:
+        data = json.loads(manifest.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    if not isinstance(data, dict):
+        return None
+    scripts = data.get("scripts")
+    if not isinstance(scripts, dict):
+        return None
+    script = scripts.get("test")
+    return script if isinstance(script, str) else None
+
+
+def _predicate_no_coverage_capable_runner(
+    repo_root: Path, component: CatalogComponent
+) -> Optional[str]:
+    script = _component_test_script(repo_root, component)
+    if script is None:
+        return (
+            f"{component.root}/package.json no longer declares a `test` script this audit can "
+            "read, so the reason for the exemption can no longer be checked. Fails closed "
+            "rather than standing on an unverifiable claim"
+        )
+    hits = [marker for marker in COVERAGE_CAPABLE_RUNNER_MARKERS if marker in script]
+    if hits:
+        return (
+            "its `test` script now runs under "
+            + ", ".join(repr(hit.strip()) for hit in hits)
+            + ", which emits coverage; measure this component and give it a floor"
+        )
+    return None
+
+
+def _predicate_pnpm_workspace_needs_merged_report(
+    repo_root: Path, component: CatalogComponent
+) -> Optional[str]:
+    workspace = Path(repo_root) / component.root / "pnpm-workspace.yaml"
+    if not workspace.is_file():
+        return (
+            f"{component.root}/pnpm-workspace.yaml is gone, so this is no longer the "
+            "multi-package workspace the exemption describes"
+        )
+    try:
+        data = yaml.safe_load(workspace.read_text(encoding="utf-8")) or {}
+    except yaml.YAMLError as exc:
+        return f"{component.root}/pnpm-workspace.yaml does not parse ({exc}); fails closed"
+    patterns = data.get("packages") if isinstance(data, dict) else None
+    if not isinstance(patterns, list) or not patterns:
+        return f"{component.root}/pnpm-workspace.yaml declares no packages; fails closed"
+    packages = set()
+    for pattern in patterns:
+        if not isinstance(pattern, str):
+            continue
+        for candidate in (Path(repo_root) / component.root).glob(pattern):
+            if (candidate / "package.json").is_file():
+                packages.add(candidate.resolve())
+    if len(packages) <= 1:
+        return (
+            f"the workspace now resolves to {len(packages)} package(s), so there is no longer a "
+            "set of per-package reports to merge; measure it and give it a floor"
+        )
+    return None
+
+
+def _predicate_source_executed_through_vm(
+    repo_root: Path, component: CatalogComponent
+) -> Optional[str]:
+    """The suite runs its source inside `node:vm`, where V8 coverage cannot see it.
+
+    Checked rather than asserted because it is the whole reason: a report that
+    attributes nothing to the source file is indistinguishable from a component
+    with no source, and `empty-coverage-report` would be the only thing the
+    ratchet could say about it.
+    """
+    root = Path(repo_root) / component.root
+    suite = sorted(
+        path
+        for path in root.rglob("*.mjs")
+        if not any(part in UNWALKED_DIRECTORY_NAMES for part in path.parts)
+    )
+    if not suite:
+        return f"{component.root} holds no .mjs suite files, so this claim cannot be checked"
+    for path in suite:
+        try:
+            if "node:vm" in path.read_text(encoding="utf-8"):
+                return None
+        except OSError:
+            continue
+    return (
+        f"no file under {component.root} loads its source through `node:vm` any more, so V8 "
+        "coverage can attribute the source; measure this component and give it a floor"
+    )
+
+
+ENROLLMENT_PREDICATES: Dict[str, Callable[[Path, CatalogComponent], Optional[str]]] = {
+    "python-coverage-provider-undeclared": _predicate_python_coverage_provider_undeclared,
+    "runner-outside-lcov-toolchain": _predicate_runner_outside_lcov_toolchain,
+    "no-coverage-capable-runner": _predicate_no_coverage_capable_runner,
+    "pnpm-workspace-needs-merged-report": _predicate_pnpm_workspace_needs_merged_report,
+    "source-executed-through-vm": _predicate_source_executed_through_vm,
+}
+
+
+UNMEASURED_COMPONENTS: Tuple[EnrollmentExemption, ...] = (
+    EnrollmentExemption(
+        component="mat-470-real-analysis",
+        predicate="python-coverage-provider-undeclared",
+        blocker="add `pytest-cov` to requirements-ci.txt, which is what CI installs",
+        why=(
+            "a pytest component, and nothing in this repository declares a Python coverage "
+            "provider. `requirements-ci.txt` lists `pytest` and `PyYAML` and is the only "
+            "Python install step in `.gitea/workflows/ci-cd.yml`, so a floor measured on a "
+            "laptop that happens to have `coverage` installed would be a floor the CI runner "
+            "fails closed on for want of the tool — `coverage-tool-missing`, on every run, "
+            "for a component whose tests were fine. The blocker is one line in a requirements "
+            "file and one measurement, not a rewrite."
+        ),
+    ),
+    EnrollmentExemption(
+        component="photos-import-tools",
+        predicate="python-coverage-provider-undeclared",
+        blocker="add `pytest-cov` to requirements-ci.txt, which is what CI installs",
+        why=(
+            "the same blocker as every other pytest component here: no Python coverage "
+            "provider is declared anywhere in the repository, so there is no measurement to "
+            "enroll. This venture carries its own `requirements.txt`, which is where its half "
+            "of the fix goes; the gate's half is `requirements-ci.txt`. Registered rather than "
+            "enrolled at zero, because a floor of zero is enrollment with no brake."
+        ),
+    ),
+    EnrollmentExemption(
+        component="photo-editing",
+        predicate="python-coverage-provider-undeclared",
+        blocker="add `pytest-cov` to requirements-ci.txt, which is what CI installs",
+        why=(
+            "the largest Python component in the catalog — 29 test files — and the one most "
+            "worth measuring once a provider is declared. Not enrolled today for the same "
+            "reason as the rest: nothing in the repository declares `pytest-cov` or "
+            "`coverage`, so any number written here would come from one developer's machine "
+            "and could not be reproduced by the runner that enforces it."
+        ),
+    ),
+    EnrollmentExemption(
+        component="ubuntu-agent-server",
+        predicate="python-coverage-provider-undeclared",
+        blocker="add `pytest-cov` to requirements-ci.txt, which is what CI installs",
+        why=(
+            "an Ansible-shaped component whose Python surface is its test helpers and one "
+            "suite; it needs the same declared coverage provider as the other pytest "
+            "components before a floor here would mean anything. Its own "
+            "`tests/requirements.txt` is the natural place for the venture half of that."
+        ),
+    ),
+    EnrollmentExemption(
+        component="portfolio-router",
+        predicate="python-coverage-provider-undeclared",
+        blocker="add `pytest-cov` to requirements-ci.txt, which is what CI installs",
+        why=(
+            "the allocation engine, and the component where a coverage floor would carry the "
+            "most weight, since `tests/test_portfolio_router.py` and its stopping-rule "
+            "sibling are what stand between the ledger and an unreviewed allocation. It is "
+            "held out only by the missing provider, and it should be the first component "
+            "enrolled when that lands."
+        ),
+    ),
+    EnrollmentExemption(
+        component="range-coach",
+        predicate="runner-outside-lcov-toolchain",
+        blocker=(
+            "a `swift test --enable-code-coverage` run plus an `llvm-cov export "
+            "-format=lcov` step, and a Swift toolchain wherever the ratchet runs"
+        ),
+        why=(
+            "a Swift package. `swift test` can emit coverage, but it emits llvm profdata "
+            "rather than lcov, and this audit parses lcov only — so enrolling it means adding "
+            "a conversion step and a Swift toolchain to the runner that executes the coverage "
+            "gate, not just a baseline entry. `.gitea/workflows/ci-cd.yml` does install Swift "
+            "for the pipeline's own verifier, so the toolchain half is already close."
+        ),
+    ),
+    EnrollmentExemption(
+        component="platform-terraform",
+        predicate="runner-outside-lcov-toolchain",
+        blocker=(
+            "nothing; terraform has no test-coverage notion, so this entry stays until the "
+            "component stops being terraform"
+        ),
+        why=(
+            "infrastructure as code with no unit-test runner and no notion of executed lines. "
+            "What stands in for coverage here is `scripts/ci/terraform_images.py` and the IaC "
+            "verifier in the pipeline, which check that the declared images and the manifests "
+            "agree. This is the one entry in this register that is not waiting on work: it is "
+            "here so that the contract's count is exact rather than approximately complete."
+        ),
+    ),
+    EnrollmentExemption(
+        component="ai-engineering-academy-site",
+        predicate="no-coverage-capable-runner",
+        blocker="port `test.mjs` to `node --test` so a single run can be measured",
+        why=(
+            "its `test` script is `node test.mjs` — one script that shells out to `build.mjs`, "
+            "asserts the generated pages exist, and evaluates the result inside `node:vm`. "
+            "There is no test runner to attach `--experimental-test-coverage` to, and the "
+            "source it exercises is executed through a vm context that V8 coverage does not "
+            "attribute to a file. Both halves have to change before a number here would "
+            "describe anything."
+        ),
+    ),
+    EnrollmentExemption(
+        component="real-estate-agent-photo-app",
+        predicate="no-coverage-capable-runner",
+        blocker="port the suite to a single `node --test` run and decide what covers the shell half",
+        why=(
+            "its `test` script is six `tsx <file>.test.ts` invocations chained with `&&`, plus "
+            "`verify-access-gate.test.sh`. A `node --import tsx --test` run would measure the "
+            "six and silently drop the seventh, and the floor would then claim to describe a "
+            "suite it does not run — the shape this repository keeps finding, where a number "
+            "is true of a smaller thing than its label says. Registered rather than measured "
+            "over the convenient subset."
+        ),
+    ),
+    EnrollmentExemption(
+        component="retail-pilot-intel",
+        predicate="pnpm-workspace-needs-merged-report",
+        blocker="a per-package coverage provider in each workspace package and a merged lcov",
+        why=(
+            "a pnpm workspace whose `test` script is `pnpm -r run test`, fanning out across "
+            "the packages under `apps/*` and `packages/*`. Each would produce its own report, "
+            "and this audit reads exactly one lcov per component, so enrolling it means either "
+            "a merge step or splitting it into several baseline entries. Splitting is probably "
+            "the right answer and is a change to the catalog, not to this register."
+        ),
+    ),
+    EnrollmentExemption(
+        component="marisstella-homepage",
+        predicate="source-executed-through-vm",
+        blocker="give `app.js` an importable entry point, or measure it under a browser runner",
+        why=(
+            "the production homepage, and its suite is real — `tests/fixture.mjs` builds a DOM "
+            "from the shipped `index.html` and executes `app.js` inside `node:vm` rather than "
+            "grepping it. That is the right way to test a static page and the wrong shape for "
+            "V8 coverage: code run through a vm context is attributed to no file, so the lcov "
+            "report comes back empty and the ratchet can only say `empty-coverage-report`. "
+            "Measured on 2026-08-05 to confirm it: `--test-coverage-include=app.js` over the "
+            "four suites produced a 4-byte report."
+        ),
+    ),
+)
+
+
+def audit_enrollment(
+    repo_root: Path,
+    baseline_path: str = BASELINE_PATH,
+    catalog: Optional[Sequence[CatalogComponent]] = None,
+    enrolled: Optional[Iterable[str]] = None,
+    exemptions: Sequence[EnrollmentExemption] = UNMEASURED_COMPONENTS,
+) -> List[Finding]:
+    """Every catalog component has a coverage floor or a live, reasoned exemption.
+
+    The arguments exist so `tests/test_coverage_enrollment.py` can put a
+    fabricated catalog and register in front of it and prove each direction
+    fails. Nothing in here branches on which component it is looking at: a
+    contract with a component-shaped hole in it is the disarmed control this
+    repository has found three times already, so every candidate takes the same
+    path and the register is the only place an exception can be written down.
+    """
+    findings: List[Finding] = []
+
+    try:
+        components = list(catalog) if catalog is not None else load_catalog(repo_root)
+    except EnrollmentError as exc:
+        return [
+            Finding(
+                component="<catalog>",
+                severity="error",
+                code="catalog-unreadable",
+                message=str(exc),
+                remedy=(
+                    f"The enrollment contract's candidate set comes from {CATALOG_SYMBOL} in "
+                    f"{CATALOG_PATH}. An unreadable catalog is a failure, never an empty "
+                    "candidate set."
+                ),
+            )
+        ]
+
+    if enrolled is None:
+        try:
+            data = load_baseline(repo_root, baseline_path)
+        except (FileNotFoundError, ValueError) as exc:
+            return [
+                Finding(
+                    component="<baseline>",
+                    severity="error",
+                    code="baseline-unreadable",
+                    message=str(exc),
+                    remedy="The enrollment contract cannot tell what is enrolled.",
+                )
+            ]
+        declared = data.get("components")
+        enrolled_ids = {
+            entry["id"]
+            for entry in (declared if isinstance(declared, list) else [])
+            if isinstance(entry, dict) and isinstance(entry.get("id"), str)
+        }
+    else:
+        enrolled_ids = set(enrolled)
+
+    catalog_ids = {component.id for component in components}
+    by_id = {component.id: component for component in components}
+
+    seen: set = set()
+    for exemption in exemptions:
+        if exemption.component in seen:
+            findings.append(
+                Finding(
+                    component=exemption.component,
+                    severity="error",
+                    code="duplicate-exemption",
+                    message="registered in UNMEASURED_COMPONENTS more than once",
+                    remedy="One entry per component; two reasons for one component means one is stale.",
+                )
+            )
+            continue
+        seen.add(exemption.component)
+
+        if exemption.predicate not in ENROLLMENT_PREDICATES:
+            findings.append(
+                Finding(
+                    component=exemption.component,
+                    severity="error",
+                    code="unknown-predicate",
+                    message=f"predicate {exemption.predicate!r} is not registered",
+                    remedy=(
+                        "An exemption's reason has to be re-derivable from the tree. Add the "
+                        "predicate to ENROLLMENT_PREDICATES, or use one that is there."
+                    ),
+                )
+            )
+            continue
+
+        if exemption.component not in catalog_ids:
+            findings.append(
+                Finding(
+                    component=exemption.component,
+                    severity="error",
+                    code="stale-exemption",
+                    message=f"not a component in {CATALOG_SYMBOL}",
+                    remedy=(
+                        "An exemption that outlives its component is a hole waiting for a "
+                        "component of the same id to be added back without review. Remove it."
+                    ),
+                )
+            )
+            continue
+
+        if exemption.component in enrolled_ids:
+            findings.append(
+                Finding(
+                    component=exemption.component,
+                    severity="error",
+                    code="enrolled-and-exempt",
+                    message=f"has a baseline in {baseline_path} and an exemption",
+                    remedy="It is measured. Delete the exemption.",
+                )
+            )
+            continue
+
+        broken = ENROLLMENT_PREDICATES[exemption.predicate](Path(repo_root), by_id[exemption.component])
+        if broken is not None:
+            findings.append(
+                Finding(
+                    component=exemption.component,
+                    severity="error",
+                    code="exemption-predicate-broken",
+                    message=f"the reason for this exemption no longer holds: {broken}",
+                    remedy=(
+                        f"Blocker recorded as: {exemption.blocker}. Measure the component and "
+                        f"declare a baseline in {baseline_path}, or replace the exemption with "
+                        "one whose predicate is true."
+                    ),
+                )
+            )
+
+    for component in components:
+        if component.id in enrolled_ids or component.id in seen:
+            continue
+        findings.append(
+            Finding(
+                component=component.id,
+                severity="error",
+                code="component-not-enrolled",
+                message=(
+                    f"in {CATALOG_SYMBOL} with no coverage baseline and no registered exemption"
+                ),
+                remedy=(
+                    f"Measure it and declare a baseline in {baseline_path}, or add an "
+                    "EnrollmentExemption to UNMEASURED_COMPONENTS in this file naming a "
+                    "predicate that says why it cannot be measured yet. Deleting this "
+                    "component's tests currently turns no gate red."
+                ),
+            )
+        )
+
+    return findings
+
+
+def enrolled_at_no_floor(entry: Dict[str, Any]) -> Optional[Finding]:
+    """Enrollment with every percentage at zero is enrollment with no brake.
+
+    The cheapest way to make this contract report full coverage of the catalog
+    is to add every component at 0/0/0 with a tolerance, which satisfies "has a
+    baseline" and forbids nothing. Refused here so that the only two honest
+    moves are a measured floor or a registered exemption.
+    """
+    baseline = entry.get("baseline")
+    if not isinstance(baseline, dict):
+        return None
+    values = [baseline.get(metric) for metric in METRICS]
+    if any(not isinstance(value, (int, float)) or isinstance(value, bool) for value in values):
+        return None
+    if any(float(value) > 0.0 for value in values):
+        return None
+    return Finding(
+        component=str(entry.get("id", "<unnamed>")),
+        severity="error",
+        code="enrolled-at-no-floor",
+        message="every declared baseline percentage is 0, so nothing can fall below it",
+        remedy=(
+            "Measure the component and declare what it has, or register it in "
+            "UNMEASURED_COMPONENTS with the blocker that stops it being measured. A floor of "
+            "zero is enrollment in appearance only."
+        ),
+    )
+
+
 def audit(
     repo_root: Path,
     baseline_path: str = BASELINE_PATH,
@@ -986,6 +1707,12 @@ def audit(
     components = data.get("components")
     findings: List[Finding] = []
     measurements: Dict[str, Measurement] = {}
+
+    # Run unconditionally, including under `--component` and `--no-measure`.
+    # Scoping the enrollment check to a subset of the invocations would make the
+    # gate's completeness depend on how it was called, and the caller is exactly
+    # who a missing floor is invisible to.
+    findings.extend(audit_enrollment(repo_root, baseline_path))
 
     if not isinstance(components, list) or not components:
         findings.append(
@@ -1005,6 +1732,10 @@ def audit(
         findings.extend(structural)
         if structural:
             continue
+
+        no_floor = enrolled_at_no_floor(entry)
+        if no_floor is not None:
+            findings.append(no_floor)
 
         name = entry["id"]
         seen[name] = seen.get(name, 0) + 1

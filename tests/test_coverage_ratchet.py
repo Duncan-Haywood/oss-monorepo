@@ -368,7 +368,14 @@ class AuditTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             name = self._baseline_file(tmpdir, {"components": []})
             findings, _ = audit(Path(tmpdir), baseline_path=name)
-            self.assertEqual([f.code for f in findings], ["no-components"])
+            codes = [f.code for f in findings]
+            self.assertIn("no-components", codes)
+            # The enrollment audit runs on every invocation, and a directory
+            # with no `platform/ci/src/pipeline.mjs` has no candidate set. That
+            # is `catalog-unreadable` rather than silence: an unreadable catalog
+            # and an empty one are indistinguishable from the outside, and the
+            # empty one would pass the enrollment contract by construction.
+            self.assertIn("catalog-unreadable", codes)
 
     def test_duplicate_component_ids_fail(self):
         with tempfile.TemporaryDirectory() as tmpdir:
