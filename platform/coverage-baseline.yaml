@@ -81,11 +81,17 @@ components:
     # imports at all, and two of them were on the path that decides what a buyer
     # is charged. All three percentages rose over a larger basis at the same
     # time, so this is coverage added rather than surface removed.
+    # Re-measured 2026-08-05 on Node 22.22.3 by the ratchet itself, after
+    # `listing-sellability.ts` and its 12 tests landed: branches 82.61 -> 83.17,
+    # lines 88.13 -> 88.64.
+    # Raised rather than left trailing — the gate's own remedy line, and a floor
+    # that trails reality ratchets nothing. The other three are unchanged and
+    # still inside tolerance.
     baseline:
       unexercised: 49
-      lines: 88.13
+      lines: 88.64
       functions: 91.22
-      branches: 82.61
+      branches: 83.17
     measured:
       files: 141
       lines: 31237
