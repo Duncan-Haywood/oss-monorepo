@@ -1,20 +1,21 @@
 import { prisma } from "@/lib/prisma";
-import { assertRetentionOutlivesWindow, rateLimitKey } from "@/lib/http";
+import { rateLimitKey } from "@/lib/http";
+import { checkedRetentionMs } from "@/lib/retentionWindow";
 
 export { getClientIp } from "@/lib/http";
 
-/**
- * Exported so the coupling below is testable from the outside: the window is
- * the period `isWriteRateLimited` counts inside, and retention is the age at
- * which `recordWrite`'s sweep deletes those same rows.
- */
+/** How far back `isWriteRateLimited` counts. */
 export const WINDOW_MS = 15 * 60 * 1000;
-export const RETENTION_MS = 24 * 60 * 60 * 1000;
 
-// Retention must outlive the window or the sweep in `recordWrite` deletes rows
-// that `isWriteRateLimited` is still counting, and every anonymous write limit
-// silently loosens to a window of RETENTION_MS. Enforced, not documented.
-assertRetentionOutlivesWindow("rateLimit", WINDOW_MS, RETENTION_MS);
+/**
+ * How long a logged request survives the reaper in `recordWrite`.
+ *
+ * Routed through `checkedRetentionMs` because the two numbers are one
+ * mechanism: retention at or below the window deletes the rows the counter
+ * counts, and all seven anonymous write limiters stop limiting without a
+ * single visible symptom. See `retentionWindow.ts`.
+ */
+export const RETENTION_MS = checkedRetentionMs("rateLimit.anonRequestLog", WINDOW_MS, 24 * 60 * 60 * 1000);
 
 /**
  * Coarse per-IP throttling for the anonymous write endpoints, which have no

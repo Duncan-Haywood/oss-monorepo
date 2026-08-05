@@ -1,19 +1,19 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { prisma } from "@/lib/prisma";
-import { assertRetentionOutlivesWindow, rateLimitKey } from "@/lib/http";
+import { rateLimitKey } from "@/lib/http";
+import { checkedRetentionMs } from "@/lib/retentionWindow";
 
 export const ADMIN_COOKIE_NAME = process.env.NODE_ENV === "production" ? "__Host-admin_session" : "admin_session";
 const SESSION_TTL_MS = 4 * 60 * 60 * 1000; // 4 hours
 
-const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+export const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 const RATE_LIMIT_MAX_FAILURES = 8;
-const ATTEMPT_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
-
-// `recordLoginAttempt` sweeps attempts older than ATTEMPT_RETENTION_MS in the
-// same transaction that records the new one, so a retention at or below the
-// window would delete the failures `isRateLimited` counts and leave the admin
-// key guessable without limit while RATE_LIMIT_MAX_FAILURES still reads 8.
-assertRetentionOutlivesWindow("admin login limiter", RATE_LIMIT_WINDOW_MS, ATTEMPT_RETENTION_MS);
+/** Reaped in `recordLoginAttempt`; must cover the window it is counted over. */
+export const ATTEMPT_RETENTION_MS = checkedRetentionMs(
+  "adminAuth.adminLoginAttempt",
+  RATE_LIMIT_WINDOW_MS,
+  30 * 24 * 60 * 60 * 1000,
+);
 
 function getSecret(): string {
   const secret = process.env.ADMIN_SESSION_SECRET;
