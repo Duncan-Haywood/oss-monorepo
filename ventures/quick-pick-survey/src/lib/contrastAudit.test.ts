@@ -152,6 +152,29 @@ function baseName(token: string): string {
   return token.split("/")[0];
 }
 
+/** The class prefixes that paint a background: a fill, or a gradient stop. */
+const PAINTS_BACKGROUND = ["bg", "from", "via", "to"] as const;
+
+const ALPHA = /^\d{1,3}$/;
+
+/**
+ * Does this line carry a class that paints `name` as a background?
+ *
+ * Whole-token comparison, not a substring search, for the same reason the
+ * annotations are anchored rather than matched: `bg-stone-95` must not be
+ * satisfied by `bg-stone-950`. Built from string equality rather than an
+ * interpolated `RegExp` so that no palette token can become pattern syntax.
+ */
+function paintsBackground(line: string, name: string): boolean {
+  for (const token of line.split(/[\s"'`{}()[\],;]+/)) {
+    const slash = token.indexOf("/");
+    if (slash !== -1 && !ALPHA.test(token.slice(slash + 1))) continue;
+    const bare = slash === -1 ? token : token.slice(0, slash);
+    if (PAINTS_BACKGROUND.some((prefix) => bare === `${prefix}-${name}`)) return true;
+  }
+  return false;
+}
+
 /**
  * The last line at or above `before` that paints `token` as a background —
  * either `bg-<token>` or a gradient stop. An ancestor has to open before its
@@ -160,10 +183,9 @@ function baseName(token: string): string {
  */
 function ancestorLine(source: string, token: string, before: number): number | null {
   const name = baseName(token);
-  const painted = new RegExp(`(?:^|[\\s"'\`])(?:bg|from|via|to)-${name}(?:/\\d{1,3})?(?=[\\s"'\`]|$)`);
   const lines = source.split("\n");
   for (let i = Math.min(before, lines.length) - 1; i >= 0; i -= 1) {
-    if (painted.test(lines[i])) return i + 1;
+    if (paintsBackground(lines[i], name)) return i + 1;
   }
   return null;
 }
