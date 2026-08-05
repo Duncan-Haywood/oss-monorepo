@@ -121,20 +121,51 @@ class ScratchRemote:
         self.git("fetch", "-q", "origin")
         return sha
 
+    def advance_remote_without_fetching(self, rev: str = "HEAD") -> str:
+        """Move the remote's `main` forward and deliberately do not fetch.
+
+        The *innocent* way a baseline diverges: somebody else shipped and this
+        checkout has not caught up. `publish()` is this followed by a fetch.
+
+        It exists because the two causes of divergence want opposite messages.
+        Until it did, every diverged run — including this ordinary one — was
+        told the ref "has been written by hand in this repository (four
+        `git update-ref` entries ...)", which is an accusation with a frozen
+        number attached and no evidence behind it on this path.
+        """
+        sha = self.rev(rev)
+        self._run(self.remote, "fetch", "-q", str(self.work), f"+{sha}:refs/heads/main")
+        return sha
+
     # -- the attack, and the outage ---------------------------------------
 
     def forge_baseline(self, rev: str = "HEAD") -> str:
         """Overwrite the local tracking ref by hand, leaving the remote alone.
 
         This is `git update-ref refs/remotes/origin/main <local commit>`, the
-        command whose four blank-reason entries appear in this repository's
-        `git reflog show refs/remotes/origin/main`. Afterwards the baseline
-        names a commit the remote has never seen, and any count of "work not in
-        origin/main" is whatever the forger chose it to be.
+        command behind the blank-reason entries in this repository's
+        `git reflog show refs/remotes/origin/main` — four of them when the
+        control was written on 2026-08-04, thirty-four a day later, which is why
+        `baseline_trust.hand_written_history` now counts them per run instead of
+        the message asserting a number. Afterwards the baseline names a commit
+        the remote has never seen, and any count of "work not in origin/main" is
+        whatever the forger chose it to be.
         """
         sha = self.rev(rev)
         self.git("update-ref", "refs/remotes/origin/main", sha)
         return sha
+
+    def drop_reflog(self, ref: str = "refs/remotes/origin/main") -> None:
+        """Delete the reflog for `ref`, leaving the ref itself in place.
+
+        Not exotic: a fresh clone has no reflog for a ref it has never seen
+        change, and `core.logAllRefUpdates=false` suppresses them entirely. The
+        point is that "no hand-written writes" and "no way to tell" must not
+        render as the same sentence.
+        """
+        log = self.work / ".git" / "logs" / ref
+        if log.exists():
+            log.unlink()
 
     def break_remote(self) -> None:
         """Point `origin` at a path that does not exist: the offline case.

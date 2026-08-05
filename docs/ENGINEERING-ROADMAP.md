@@ -124,10 +124,37 @@ evidence, and completion date before it can be marked done.
   needs is a job between `container` and `deploy` that starts the published
   `:${sha}` image and re-runs the same specs against it; the config already
   takes the base URL. Promotion therefore stays behind its bounded owner
-  exception, and lifting it is coupled — test 3 of
-  `production-ui-promotion-policy.test.mjs` fails if the workflow declares
-  `quality_exception:` inputs while no job classifies as a promotion, so the
-  inputs and the six gate conditions have to go together. Pairwise's own suite has
+  exception.
+
+  **The coupling recorded here was wrong, and the correction matters because it
+  changes what the work buys.** This said lifting the block was coupled to test
+  3 of `production-ui-promotion-policy.test.mjs`, so "the inputs and the six gate
+  conditions have to go together". Re-derived 2026-08-05 by re-implementing the
+  classifier and running it over the workflow: `deploy` is classified as a
+  promotion by `promotionJobs()` reason 1 — `environment: production` plus a
+  `PRODUCTION_MUTATION` match — and it still matches with every `:latest` line
+  removed, via `platform/ci/deploy-homepage.sh` and
+  `secrets.HETZNER_KUBECONFIG_B64`. Test **4** then requires the six conditions
+  and the named validation step on any classified promotion *unconditionally*:
+  the control has no "unless a candidate browser suite exists" branch anywhere.
+  So adding the candidate-side run does **not** lift the block, and neither does
+  digest-pinning the kustomization on its own. Test 3 is the lesser constraint;
+  deleting the `quality_exception:` inputs fails test 4, not test 3. Add the
+  candidate run on its own merits — it is the second of the two runs the policy
+  asks for — and treat relaxing the promotion gate as a separate reviewed change
+  to the control itself.
+
+  Two prerequisites found in the same pass, both of which have to hold before a
+  candidate-side job means anything, and neither of which was known: the
+  `container` job builds through `docker/build-push-action` with `push: false`
+  and no `load:`, then a later step runs `docker push "$IMAGE"` — so whether the
+  `:${sha}` candidate is ever published needs a real run log; and nothing in this
+  repository has ever reached a container over the network from a job step (all
+  three existing container smoke tests probe from *inside* with `docker exec`,
+  the runner is DinD, and the only proven networking shape is `services:`
+  addressed by alias). The candidate is also not the production artifact:
+  `deploy-homepage.sh` never references `$IMAGE`, and mounts a ConfigMap of
+  three files over the image's web root. Pairwise's own suite has
   no authenticated, couple-linking, or admin-dashboard journey, no visual
   regression evidence, and no candidate-side run — `PLAYWRIGHT_BASE_URL` is
   supported but no workflow points it at the promoted digest yet. The accessible
@@ -2233,19 +2260,43 @@ exists so those actions are a list rather than a rediscovery.
 
 Ordered by what it costs a customer today, measured 2026-08-05.
 
-1. **Promote pairwise, or take the price down.** `pairwise.marisstella.dev`
-   serves `$9 / month`, a `Most Popular` badge and an `Exportable Value Summary
-   PDF` bullet. There is no payment code anywhere in the venture — no Stripe, no
-   checkout route, no billing dependency — and the CTA under the price goes to
-   `/couple`, which is free. `6e67a20f` fixed all three on `main` on 2026-08-02
-   and has not been promoted; production still runs `cd67f022` from 2026-07-31.
-   Promotion is deliberately gated in `.gitea/workflows/pairwise-ci.yml` behind
-   `workflow_dispatch` with `quality_exception == 'APPROVED'`, because the
-   candidate browser suite `docs/QUALITY-ENGINEERING.md` requires is not yet run
-   against the candidate. Both routes are one owner action: promote the fix, or
-   edit the live copy. Leaving it is the option that keeps a price with no way to
-   pay it, and a "Most Popular" badge on a tier with no customers, in front of
-   the only audience this portfolio has.
+1. ~~**Promote pairwise, or take the price down.**~~ **Done, and the item is
+   worth keeping as a record of how it closed.** Re-measured 2026-08-05: the
+   deployment pins revision `3e8d141a`, `git merge-base --is-ancestor 6e67a20f
+   3e8d141a` is true, and `git log 3e8d141a..HEAD -- ventures/quick-pick-survey`
+   is empty — so for this venture, reading `HEAD` is reading production, which
+   is not the normal case in this repository. The live page now heads the
+   section "Free while we build it", prices both tiers `$0`, badges the paid
+   tier "Free while in beta", and names `$9 / month` once as a *planned* price
+   beside the sentence "you will not be charged, and we cannot charge you"
+   (`src/app/page.tsx:324-376`).
+
+   **The reclassification is the useful part.** On 2026-08-02 this was *the
+   claim is false*. Today it is *the feature is missing, and the page says so* —
+   different defects with different fixes, and only the second is open. The
+   remaining action is off-repo and is a decision, not a task: a merchant
+   account (Paddle is merchant-of-record and handles EU/UK VAT, which a
+   consumer subscription sold from a personal entity otherwise has to; either
+   way it needs a legal entity, a bank account and tax details, and no agent may
+   enter any of them), and then a price. There is nothing to price against yet —
+   `VENTURE.yaml` has `hypotheses[0].status: untested`, `economics.mrr: 0`,
+   `customers: null`, `links.analytics: null`. The cheap honest precursor is to
+   count `/couple` completions off the `UsageEvent` model that already exists,
+   rather than adding a waitlist CTA: a waitlist would sail past
+   `pricingClaims.test.ts` (no purchase verb, no price change) while converting
+   an honest page into one that collects addresses against a decision nobody has
+   made.
+
+   **The trap for whoever adds billing.** `hasPaymentPath()`
+   (`src/lib/pricingClaims.test.ts:129-136`) returns true the moment a payment
+   SDK appears in `package.json` or a `checkout` route directory exists, and
+   that switches off the three no-purchase assertions — including the one
+   forcing the "we cannot charge you" disclosure to be truthful. The disclosure
+   copy must be rewritten in the same commit that adds the payment path. This is
+   the deliberate two-directional design ("a control that must be switched off
+   by hand to permit the improvement it is waiting for is a control that gets
+   deleted instead") meeting its own cost: the control relaxes correctly and the
+   copy it was holding true is left unguarded for exactly one commit.
 
 2. **Decide what should answer on five branded subdomains.**
    `academy`, `atelier`, `photo`, `retail` and `studio`.marisstella.dev each
@@ -2262,7 +2313,46 @@ Ordered by what it costs a customer today, measured 2026-08-05.
    that does lowering the budget describe anything real. See
    `platform/release-lag-budget.yaml`.
 
-4. **Ratify print-atelier's `$150 spend with no recorded revenue` threshold**,
+4. **Supply print-atelier's print-ready masters.** Measured 2026-08-05 by
+   running `buildListingSellabilityReport()` and `validateCheckoutLineItem()`
+   over the seeded catalog, not by reading a doc: **catalog size 6,
+   checkout-eligible 0**, `storefrontTakesNoMoney = true`. All six are blocked
+   by `print-file-missing`; every `printFileUrl` is absent, and the string
+   appears in `marketplace.ts` exactly once, as the optional type field, never
+   as a value. Four are additionally blocked by
+   `storefront-consent-missing`, and `abstract-no-4` by three more.
+
+   `wouldFullyUnblock("print-file-missing")` is **2** — supplying masters for
+   `midnight-coast` and `urban-geometry` alone puts two listings on sale, and
+   the rest of the chain behind them is complete: the gate is applied at all
+   three funnel points, variant maps cover the five Live slugs, and buyer email
+   and shipping address are lifted off the PaymentIntent by the webhook. So this
+   is the shortest path to a first dollar anywhere in the portfolio.
+
+   The actions, in order: (a) obtain masters from Elena Rostova
+   (`midnight-coast`, `desert-sun`), Marcus Chen (`urban-geometry`,
+   `city-at-dusk`), Sarah Jenkins (`spring-bloom`), Alex Jenkins
+   (`abstract-no-4`), hosted where a print partner can fetch them over https —
+   **not** `atelier.marisstella.dev` while that still returns the ingress echo
+   page (item 2); (b) collect POD storefront licence acceptance for the four
+   consent-blocked listings; (c) configure `STRIPE_SECRET_KEY`,
+   `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`,
+   `STRIPE_CONNECT_CLIENT_ID`, one of the Printful/Gelato key pairs, and
+   `NEXT_PUBLIC_SITE_URL` — `docs/AUTOMATION_SETUP.md` documents none of them;
+   (d) promote a build, which has no in-repo path today
+   (`print-atelier-image.yml` publishes an immutable tag and promotes nothing,
+   while `deployment.yaml` pins `:latest`).
+
+   **Do not shortcut (a) in the repository.** There is no upload route, no
+   storage env var, no `public/` directory and no persistence module holding a
+   `CatalogArtwork`; the only place a URL can be recorded is the
+   `catalogArtworks` literal in `src/lib/marketplace.ts`, so recording one is a
+   source edit and a commit. `/capture` looks like the writer and is not —
+   `createCaptureSessionFromFile` records name, size, mime and timestamp to
+   `localStorage` and never reads the bytes. Inventing a URL here has already
+   been attempted twice and is what the provenance test exists to stop.
+
+5. **Ratify print-atelier's `$150 spend with no recorded revenue` threshold**,
    and the other unratified stopping rules — the open item in the Now section
    above. These were chosen by the change that made kill criteria evaluable, not
    by the portfolio owner, and they move real budget.
