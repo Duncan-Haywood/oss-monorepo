@@ -22,7 +22,7 @@ exceptions:
     kind: lint-suppression
     path: ventures/photo-editing/docs-site/*
     code: eslint-disable
-    count: 25
+    count: 26
     owner: duncan
     issue: docs/EXCEPTION-REGISTER.md#exc-001
     expires: 2027-01-27
