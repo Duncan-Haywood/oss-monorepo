@@ -81,6 +81,20 @@ jobs:
           cache-from: type=gha,scope=homepage
           cache-to: type=gha,mode=max,scope=homepage
 
+      # Immutable tag only, the position local-site-studio-image.yml and
+      # print-atelier-image.yml already take.
+      #
+      # This step used to also `docker tag ... :latest` and push it.
+      # platform/k8s/apps/marisstella-homepage/kustomization.yaml resolves the
+      # image at `newTag: latest`, and platform/k8s/argocd-apps/marisstella-homepage.yaml
+      # syncs that directory from HEAD with `automated: {prune: true, selfHeal: true}`
+      # — so that push promoted a new build to the cluster behind the portfolio's
+      # only live public customer surface on every merge to main, with no
+      # dispatch gate, no owner exception and no
+      # scripts/ci/validate-release-exception.sh. Publishing the SHA tag is a
+      # build artifact; moving `:latest` is a release, and it now happens in the
+      # gated `deploy` job below instead. platform/ci/test/production-ui-promotion-policy.test.mjs
+      # fails closed if it moves back here.
       - name: Publish immutable main image
         if: github.ref == 'refs/heads/main'
         env:
@@ -92,8 +106,6 @@ jobs:
               --username giteaadmin \
               --password-stdin
           docker push "$IMAGE"
-          docker tag "$IMAGE" git.marisstella.dev/giteaadmin/marisstella-homepage:latest
-          docker push git.marisstella.dev/giteaadmin/marisstella-homepage:latest
 
   deploy:
     name: Deploy to production cluster
@@ -125,6 +137,31 @@ jobs:
         run: >-
           bash scripts/ci/validate-release-exception.sh "$QUALITY_EXCEPTION"
           "$EXCEPTION_ISSUE" "$EXCEPTION_EVIDENCE" "$EXCEPTION_EXPIRES"
+
+      # The promotion the `container` job used to perform on every merge. The
+      # cluster follows `:latest` for this image, so moving that tag is the
+      # release; it is done here, after the bounded exception has been
+      # validated, and nowhere else. The retag is registry-side — the digest
+      # promoted is byte-for-byte the artifact the SHA tag names, so nothing is
+      # rebuilt between verification and production.
+      - name: Promote the verified image to the tag the cluster follows
+        shell: bash
+        env:
+          IMAGE: git.marisstella.dev/giteaadmin/marisstella-homepage:${{ github.sha }}
+          REGISTRY_TOKEN: ${{ secrets.HOMEPAGE_REGISTRY_TOKEN || secrets.PAIRWISE_REGISTRY_TOKEN }}
+        # The promoted tag is written out in full rather than held in a
+        # variable, so the reference stays greppable: that literal is what
+        # production-ui-promotion-policy.test.mjs matches against the tag the
+        # cluster manifests follow. Hiding it behind `$TAG` would make this
+        # promotion invisible to the control that polices it.
+        run: |
+          printf '%s' "$REGISTRY_TOKEN" |
+            docker login git.marisstella.dev \
+              --username giteaadmin \
+              --password-stdin
+          docker pull "$IMAGE"
+          docker tag "$IMAGE" git.marisstella.dev/giteaadmin/marisstella-homepage:latest
+          docker push git.marisstella.dev/giteaadmin/marisstella-homepage:latest
 
       - name: Install pinned Kubernetes client
         shell: bash

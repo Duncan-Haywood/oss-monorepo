@@ -1,6 +1,7 @@
 {
   "name": "shootflow-docs",
   "version": "0.1.0",
+  "type": "module",
   "private": true,
   "scripts": {
     "prebuild": "node scripts/build-docs.mjs",

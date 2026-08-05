@@ -303,6 +303,13 @@ export function resolveAffectedComponents(changedFiles, catalog = VENTURE_CATALO
     f.startsWith('.gitea/') ||
     f.startsWith('scripts/') ||
     f.startsWith('platform/') ||
+    // The repository-wide pytest suite and the gate inputs it reads. Restored:
+    // it was dropped when the empty-selection fallback below was added, and the
+    // fallback does not cover it. The two rules answer different changesets —
+    // the fallback only fires when *nothing* matched, so a commit touching
+    // `tests/` and one venture selects that venture alone and leaves the
+    // repo-wide change unverified everywhere else.
+    f.startsWith('tests/') ||
     f === '.nvmrc' ||
     f === 'pytest.ini' ||
     f === 'requirements-ci.txt' ||
@@ -723,7 +730,13 @@ export async function runDaggerContainerizedPipeline(
 
       for (const id of affectedIds) {
         const component = catalog.find(c => c.id === id);
-        if (!component) continue;
+        if (!component) {
+          // Never skip silently. An id with no catalog entry is a component
+          // nothing verifies, and `continue` reported that as success.
+          console.error(`✖ [Dagger Engine] ${id}: not in the component catalog, so nothing verified it`);
+          allPassed = false;
+          continue;
+        }
 
         console.log(`\n🚀 [Dagger Engine] Running containerized pipeline job for: ${component.name}`);
 
@@ -842,6 +855,28 @@ export async function main() {
   console.log('Components to verify:', affectedIds.join(', ') || 'None');
 
   let totalFailures = 0;
+
+  // The other half of "zero components is not a pass".
+  //
+  // resolveAffectedComponents now fails closed to the whole catalog, so the
+  // *detection* path can no longer hand main() an empty list. main() could
+  // still be handed one directly — `--venture <typo>` puts an id nobody
+  // recognises into affectedIds, and both execution paths did
+  // `if (!component) continue`, so the run installed nothing, compiled
+  // nothing, ran no suite, counted no failure, and printed ALL CI
+  // VERIFICATION CHECKS PASSED. Selecting nothing to verify is a defect in
+  // the selection, not a verdict on the code.
+  const unknownIds = affectedIds.filter(id => !VENTURE_CATALOG.some(c => c.id === id));
+  if (unknownIds.length > 0) {
+    console.error(
+      `✖ Not registered in VENTURE_CATALOG, so nothing would verify them: ${unknownIds.join(', ')}`
+    );
+    totalFailures++;
+  }
+  if (affectedIds.length === 0) {
+    console.error('✖ No component was selected for verification. A run that verifies nothing is not a pass.');
+    totalFailures++;
+  }
 
   // 1. Run Security Suite
   if (!skipSecurity) {
