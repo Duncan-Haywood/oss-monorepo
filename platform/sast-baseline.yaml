@@ -143,21 +143,14 @@ baseline:
     plan: >-
       Add a non-root USER to the agent-runner image, matching the fix already applied to portfolio/marisstella-homepage/Dockerfile under SEC-014.
 
-  - id: SAST-011
-    tool: semgrep
-    rule: generic.secrets.security.detected-bcrypt-hash.detected-bcrypt-hash
-    path: ventures/quick-pick-survey/src/app/api/auth/login/route.ts
-    count: 1
-    status: inherited
-    severity: error
-    owner: duncan
-    issue: docs/SAST.md#inherited-findings
-    expires: 2026-10-30
-    reason: >-
-      Present when SAST was switched on, counted but not individually assessed.
-      Locked to this exact count so it cannot grow.
-    plan: >-
-      Confirm the matched literal is a test fixture rather than a real credential, then either move it behind a fixture factory or mark this entry reviewed.
+  # SAST-011 (generic.secrets.security.detected-bcrypt-hash in
+  # ventures/quick-pick-survey/src/app/api/auth/login/route.ts) is resolved and
+  # removed rather than re-dated. The matched literal was the stand-in hash the
+  # login route compared against when no account existed; it is now derived at
+  # run time by `absentAccountHash()` in ventures/quick-pick-survey/src/lib/auth.ts,
+  # so there is no literal left to match and the entry would fail this register
+  # as stale. Re-verified with `semgrep scan --config p/default` on 2026-08-05:
+  # the rule fires on the pre-change file and on nothing in the current one.
 
   - id: SAST-012
     tool: semgrep

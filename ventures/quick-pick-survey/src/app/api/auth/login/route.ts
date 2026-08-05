@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import {
+  absentAccountHash,
   createSession,
   getClientIp,
   isLoginRateLimited,
@@ -30,8 +31,11 @@ export async function POST(req: NextRequest) {
     const user = await prisma.user.findUnique({ where: { email } });
     // Always run a comparison so a missing account and a wrong password take
     // the same time — otherwise timing reveals which emails are registered.
-    const dummyHash = "$2b$12$oo5eS1lnL0h0GS4vJDLdSuqL8CSlZBHkAmVXFpvUwStb9RSuh1QCu";
-    const ok = await verifyPassword(password, user?.passwordHash ?? dummyHash);
+    // The stand-in is issued at the same cost `hashPassword` is issuing, so the
+    // two sides stay equal if that cost ever moves; it is awaited on every path
+    // so its one-time construction cannot itself become the signal.
+    const absent = await absentAccountHash();
+    const ok = await verifyPassword(password, user?.passwordHash ?? absent);
 
     if (!user || !ok) {
       await recordLoginAttempt(email, ip, false);
