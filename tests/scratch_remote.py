@@ -107,6 +107,20 @@ class ScratchRemote:
         self.git("fetch", "-q", "origin")
         return sha
 
+    def publish_branch(self, branch: str, rev: str = "HEAD") -> str:
+        """Put `rev` on the remote as `branch`, then fetch it back.
+
+        The same honest mechanism as `publish`, for a branch that is not `main`.
+        Deleting the local branch afterwards leaves the commits reachable only
+        through `refs/remotes/`, which is the shape of every clone and every CI
+        checkout: one local branch, and the rest of the fleet's work visible
+        only as tracking refs.
+        """
+        sha = self.rev(rev)
+        self._run(self.remote, "fetch", "-q", str(self.work), f"+{sha}:refs/heads/{branch}")
+        self.git("fetch", "-q", "origin")
+        return sha
+
     # -- the attack, and the outage ---------------------------------------
 
     def forge_baseline(self, rev: str = "HEAD") -> str:

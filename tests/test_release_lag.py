@@ -375,6 +375,25 @@ class TestMeasurement(GitRepoTestCase):
         m = measure(self.repo, "origin/main")
         self.assertEqual(m.components, ["platform", "ventures/alpha", "ventures/beta"])
 
+    def test_components_include_work_reachable_only_from_a_tracking_ref(self):
+        # A clone and a CI checkout have exactly one local branch; everything
+        # else the fleet has pushed is reachable only through `refs/remotes/`.
+        # `unshipped_commits` and `branch_names` both read tracking refs, and
+        # `components` did not — so the one line of the report that names *what*
+        # is running behind came out empty in exactly the environment the report
+        # is read in. The count said "1 commit unshipped" and the list of
+        # affected components said nothing.
+        self.git(self.repo, "checkout", "-q", "-b", "agent/remote-only")
+        self.commit("ventures/gamma/x.ts", "x")
+        self.scratch.publish_branch("agent/remote-only")
+        self.git(self.repo, "checkout", "-q", "main")
+        self.git(self.repo, "branch", "-q", "-D", "agent/remote-only")
+
+        m = measure(self.repo, "origin/main")
+        self.assertEqual(m.unshipped_commits, 1)
+        self.assertEqual(m.branch_names, ["origin/agent/remote-only"])
+        self.assertEqual(m.components, ["ventures/gamma"])
+
     def test_root_level_change_is_attributed(self):
         self.commit("pytest.ini", "[pytest]")
         m = measure(self.repo, "origin/main")

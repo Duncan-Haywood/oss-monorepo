@@ -262,11 +262,18 @@ def measure(
         if ancestor.returncode != 0:
             branch_names.append(branch)
 
+    # The same `revs` the count above is taken from, deliberately reused rather
+    # than respelled. This read used to omit `--remotes` while the count, the
+    # ages and the branch list all included it, so in a clone or a CI checkout —
+    # one local branch, the rest of the fleet visible only as tracking refs —
+    # the report named a number of unshipped commits and then listed no
+    # components at all. Two spellings of "everything not yet shipped" in one
+    # function is how they drifted apart.
     components = sorted(
         {
             _component_of(path)
             for path in _git(
-                ["log", "--branches", "HEAD", "--not", baseline_ref, "--name-only", "--format="],
+                ["log", *revs, "--name-only", "--format="],
                 repo_root,
             ).splitlines()
             if path.strip()
