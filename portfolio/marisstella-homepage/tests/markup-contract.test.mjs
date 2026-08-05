@@ -189,7 +189,27 @@ test('every local asset the page requests is in the repository', () => {
   }
 });
 
-test('the container does not publish its own build and config files', () => {
+/**
+ * Turn one `.dockerignore` line into a matcher against a top-level entry name.
+ *
+ * Deliberately narrow, and it throws rather than guessing. A pattern this
+ * cannot model would otherwise be silently treated as "matches nothing", which
+ * is the failure mode that lets a file reach the web root while the contract
+ * below still reports the exclusion list as complete.
+ */
+function dockerignoreMatcher(pattern) {
+  if (pattern.startsWith('!') || pattern.includes('/') || pattern.includes('**')) {
+    throw new Error(
+      `.dockerignore pattern "${pattern}" is outside what this contract can resolve; ` +
+        'extend the matcher rather than leaving the entry unchecked'
+    );
+  }
+  const source = `^${pattern.split('*').map((part) => part.replace(/[.+?^${}()|[\]\\]/g, '\\$&')).join('[^/]*')}$`;
+  const expression = new RegExp(source);
+  return (name) => expression.test(name);
+}
+
+test('the container publishes exactly the files the site is made of', () => {
   // The Dockerfile copies the build context into the web root, so anything not
   // excluded is fetchable: nginx.conf discloses the server configuration and
   // the CSP, and package.json/Dockerfile disclose the toolchain. nginx only
@@ -199,18 +219,43 @@ test('the container does not publish its own build and config files', () => {
   const ignorePath = path.join(SITE_ROOT, '.dockerignore');
   assert.ok(fs.existsSync(ignorePath), 'no .dockerignore, so the whole build context is served publicly');
 
-  const ignored = fs
+  const matchers = fs
     .readFileSync(ignorePath, 'utf8')
     .split('\n')
     .map((line) => line.trim())
-    .filter((line) => line && !line.startsWith('#'));
+    .filter((line) => line && !line.startsWith('#'))
+    .map(dockerignoreMatcher);
 
-  for (const required of ['Dockerfile', '.dockerignore', 'nginx.conf', 'package.json', 'test', '*.png']) {
-    assert.ok(
-      ignored.includes(required),
-      `.dockerignore must exclude ${required} from the public web root`
-    );
-  }
+  // The previous version of this test asserted that six literal strings were
+  // present in .dockerignore. That is a different claim from the one that
+  // matters, and the gap between them shipped: the list carried `test` while
+  // the directory on disk has always been `tests`, so six test sources and the
+  // DOM fixture derived from index.html were copied into the public web root
+  // and the assertion passed over it for as long as both existed. Enumerate
+  // what is actually on disk instead of naming what is expected to be absent.
+  const shipped = fs
+    .readdirSync(SITE_ROOT)
+    .filter((name) => !name.startsWith('.'))
+    .filter((name) => !matchers.some((matches) => matches(name)))
+    .sort();
+
+  // The second deploy path is the authority on what the site *is*.
+  // platform/ci/deploy-homepage.sh builds a ConfigMap from an explicit
+  // --from-file list and mounts it over the web root, so the cluster serves
+  // that set no matter what the image contains. The two paths disagreeing
+  // means the image and the running site are different sites.
+  const deployScript = fs.readFileSync(
+    path.join(SITE_ROOT, '..', '..', 'platform', 'ci', 'deploy-homepage.sh'),
+    'utf8'
+  );
+  const served = [...deployScript.matchAll(/--from-file="([^=]+)=/g)].map((m) => m[1]).sort();
+
+  assert.ok(served.length > 0, 'no --from-file entries found; this contract has lost its reference point');
+  assert.deepEqual(
+    shipped,
+    served,
+    'the image web root and the ConfigMap deploy-homepage.sh mounts serve different file sets'
+  );
 });
 
 test('the served origin still sets its security headers', () => {
