@@ -912,3 +912,90 @@ the diff, not the subject line — which happened again during this run: a
 concurrent session's commit titled `fix(print-atelier): resolve site url
 configuration` carried this control work, another session's `baseline_trust.py`
 change, and a scratch fixture, none of them named in the subject).
+
+## 2026-08-05, later: three security findings closed, and the fleet duplicated two of them
+
+Three findings from the ranked list were assigned to independent agents, each in
+its own clone, each briefed to contradict the brief with evidence. **All three
+defects were real; two of the three briefs were wrong in a material specific.**
+
+### Closed
+
+**`quick-pick-survey/src/lib/rateLimit.ts` — the retention sweep can outrun the
+counting window.** `recordWrite` runs `deleteMany({createdAt: {lt: now -
+RETENTION_MS}})` in the same `$transaction` as the counter insert, deleting
+exactly the rows `isWriteRateLimited` counts over `now - WINDOW_MS`. The
+ordering was asserted nowhere. The brief said inverting it returns 0 and
+disables limiting; **measured, the window collapses to `min(WINDOW_MS,
+RETENTION_MS)`** — at `RETENTION_MS = 60_000`, four writes inside one 15-minute
+window counted as 1. Fast bursts are still caught; abuse paced above retention
+walks through. The brief also said the two login limiters share these constants;
+they do not. `auth.ts` (`LoginAttempt`) and `adminAuth.ts` (`AdminLoginAttempt`)
+each carry their own `ATTEMPT_RETENTION_MS` against their own window with the
+identical sweep-inside-transaction shape — **three independent instances, not
+one shared constant.** All three now assert the invariant at module load and
+fail closed. Mutation: with the guard removed and retention inverted, 3 tests
+fail and the 12 pre-existing tests stay green — the original suite was blind to
+it.
+
+**`quick-pick-survey/src/lib/auth.ts` — bcrypt cost reachable at 4 rounds in
+production.** `NODE_ENV === "test" || Boolean(process.env.VITEST)` meant
+`VITEST` alone was sufficient in any environment. It feeds only `hashPassword`,
+so the blast radius is newly issued hashes (signup, reset-password), silently.
+Compounding it, `api/auth/login/route.ts` hardcoded a cost-12 `$2b$12$` stand-in
+for timing equalisation, and `bcrypt.compare` takes its cost from the stored
+hash — so a lowered issuing cost inverts the equalisation into the enumeration
+oracle it exists to close. Cheap cost now requires `NODE_ENV === "test"` **and**
+`VITEST`, and `NODE_ENV=production` with `VITEST` set throws rather than
+quietly lowering. The literal is replaced by `absentAccountHash()`, derived at
+run time at whatever cost `hashPassword` is issuing and awaited on every path.
+Four mutations, four killed. **Qualification: latent, not demonstrated live** —
+`VITEST` appears in no deployment surface (Dockerfile sets
+`NODE_ENV=production`, and it is absent from `platform/k8s`,
+`docker-compose.ha.yml`, `vercel.json`, `.gitea/`). The severity is that nothing
+prevented it and nothing would have reported it. `SAST-011` is removed rather
+than re-dated: the matched literal no longer exists, re-verified with
+`semgrep scan --config p/default` (fires on the pre-change file, clean after).
+
+**`print-atelier` Stripe webhook replay guard.** The function is
+`verifyStripeWebhookSignature`, not `verifyStripeWebhook`. `maxAgeSeconds = 0`
+plus `if (maxAgeSeconds > 0 && ...)` meant the default disabled the check; the
+one non-test call site passes `300`, so the deployed path was never replayable.
+**The pre-existing test pinned the fail-open** — `stripe-webhook.test.ts:58`
+asserted `true` for a March-2024 timestamp with the argument omitted, an
+assertion only correct if the age check is off. `STRIPE_WEBHOOK_MAX_AGE_SECONDS
+= 300` is now both default and ceiling: a caller may narrow but not widen, and
+`0`, negatives, `NaN`, `Infinity` and anything above the ceiling are refused
+before the header is parsed. Tolerance unchanged. Mutation: reverted to the
+original shape, 3 tests fail — and the 14 pre-existing tests in that file plus
+all 10 route tests stay green, which is why SEC-023's route-test pass missed it.
+`SEC-026` and `VENTURE-ENGINEERING-INVENTORY.md:56` both described a *different*
+defect ("no timestamp tolerance"), which reads as refuted the moment you see a
+tolerance argument; both corrected.
+
+### What no constant watches
+
+None of these values is enrolled anywhere. `cap_ratchet.py:746-750` dispatches
+on `python-constant` and `yaml-path` only and raises `CapError` on anything
+else, and nothing in `WATCHES` reaches `ventures/`. **A TypeScript constant
+cannot currently be enrolled**, so all three guards are held only by their own
+venture suites. That is finding 9 of the ranked list, and it is now load-bearing
+for three security controls rather than a tidiness item.
+
+### The duplication, measured
+
+Two sessions worked this same ranked list concurrently and built the same two
+fixes: `agent/qp-ratelimit-invariant-2026-08-05` (21:09) against
+`agent/qps-ratelimit-invariant-2026-08-05` (21:09), and the `qp-`/`qps-`
+`bcrypt-rounds` pair eight minutes apart. The other session calls the venture
+**pairwise** and this one calls it **quick-pick-survey**, so a branch-name check
+in either vocabulary misses the collision.
+
+The third pair was **not** a duplicate.
+`agent/print-atelier-webhook-secret-and-route-2026-08-05` contains this run's
+own commits — the other session found the branch, built on it, and added a
+route-level stale-webhook test and blank-secret rejection. The only difference
+between that outcome and the two duplicates is that the branch had been pushed
+to the shared repo as soon as it was committed. **Push the branch before
+verification, not after it**; the collision window here is minutes, so a
+pre-flight check passes and the duplicate gets built anyway.
