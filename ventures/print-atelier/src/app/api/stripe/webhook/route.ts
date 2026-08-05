@@ -22,7 +22,10 @@ import {
   recordPrintfulFulfillmentSubmission,
 } from "@/lib/printful-orders";
 import { recordStripeWebhookToLedger } from "@/lib/stripe-ledger";
-import { verifyStripeWebhookSignature } from "@/lib/stripe-webhook-server";
+import {
+  STRIPE_WEBHOOK_MAX_AGE_SECONDS,
+  verifyStripeWebhookSignature,
+} from "@/lib/stripe-webhook-server";
 
 export const runtime = "nodejs";
 
@@ -56,7 +59,18 @@ export async function POST(request: Request) {
   }
 
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
-  if (!verifyStripeWebhookSignature(payload, signature, webhookSecret, 300)) {
+  // The tolerance is passed explicitly even though it is also the default, so
+  // this line states the replay window money arrives under. Dropping the
+  // argument is now safe (it resolves to the same 300s); widening it is not
+  // possible — the verifier refuses anything above the constant.
+  if (
+    !verifyStripeWebhookSignature(
+      payload,
+      signature,
+      webhookSecret,
+      STRIPE_WEBHOOK_MAX_AGE_SECONDS,
+    )
+  ) {
     return NextResponse.json({ error: "Invalid Stripe webhook signature" }, { status: 400 });
   }
 
