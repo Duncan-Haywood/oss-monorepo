@@ -3,18 +3,25 @@ import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { rateLimitKey } from "@/lib/http";
+import { checkedRetentionMs } from "@/lib/retentionWindow";
 
 export const SESSION_COOKIE = process.env.NODE_ENV === "production" ? "__Host-qp_session" : "qp_session";
 const LEGACY_SESSION_COOKIE = "qp_session";
 const SESSION_TTL_DAYS = 30;
 const MAX_ACTIVE_SESSIONS = 10;
-const ATTEMPT_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
 const BCRYPT_ROUNDS = process.env.NODE_ENV === "test" || Boolean(process.env.VITEST) ? 4 : 12;
 
 /** Failed-login rate limits, applied per email and per IP independently. */
-const WINDOW_MS = 15 * 60 * 1000;
+export const WINDOW_MS = 15 * 60 * 1000;
 const MAX_FAILURES_PER_EMAIL = 8;
 const MAX_FAILURES_PER_IP = 20;
+/**
+ * How long a login attempt survives the reaper in `recordLoginAttempt`. It has
+ * to outlast `WINDOW_MS` by a margin or the reaper deletes the failures the
+ * lockout counts, and both login limits stop locking anyone out. See
+ * `retentionWindow.ts`.
+ */
+export const ATTEMPT_RETENTION_MS = checkedRetentionMs("auth.loginAttempt", WINDOW_MS, 30 * 24 * 60 * 60 * 1000);
 
 export function hashToken(raw: string): string {
   return createHash("sha256").update(raw).digest("hex");
