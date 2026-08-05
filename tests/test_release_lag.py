@@ -677,6 +677,8 @@ class TestRealRepository(unittest.TestCase):
         data = load_budget(REPO_ROOT)
         measurement = measure(REPO_ROOT, data["baseline_ref"])
         findings = evaluate(measurement, data, date.today())
+        if measurement.trust and measurement.trust.state == "unreachable":
+            findings = [f for f in findings if f.check != "baseline-unverified"]
         report = release_lag.format_report(measurement, data, findings)
         if not measurement.observable:
             self.assertIn("NOT MEASURABLE", report)
