@@ -1361,6 +1361,68 @@ evidence, and completion date before it can be marked done.
 
 ## Next 30 days: prove releases and operations
 
+- [ ] Measure the distance from a merge to a customer, not just to `origin/main`.
+  Started 2026-08-05, owner duncan. `scripts/ci/release_lag.py` was this
+  repository's answer to "a green pipeline and a `Fixed` row do not mean the live
+  service is fixed". It measures local branches against `origin/main` and reports
+  that nothing in the gap is live. It never asked whether `origin/main` is live
+  either, and it is not — its own budget file asserts "Production runs
+  `origin/main`" as a premise on line 3.
+
+  On 2026-08-05 that gate was failing at *one* commit over a budget of zero,
+  which reads as a repository one push away from fully shipped. The repository
+  already held the disproof: `platform/ci/promote-pairwise-gitops.sh` writes the
+  deployed commit into a `<host>/revision` annotation on the Deployment in
+  `origin/gitops-production`, atomically with the image digest, and nothing ever
+  read it back. It said production was `cd67f022`, from 2026-07-31 — **436
+  commits behind `origin/main`**, 34 of them touching the deployed venture.
+
+  Among those 34 was `6e67a20f`, "stop the pricing page selling a plan nobody can
+  buy", which removed a `$9 / month` price, a `Most Popular` badge and an
+  `Exportable Value Summary PDF` bullet from a tier with no payment path anywhere
+  in the venture. Fetching `https://pairwise.marisstella.dev/` the same day
+  returned all three, and none of the disclosure that replaced them. The only
+  venture with live customers was advertising a price it had no way to take, a
+  badge it had not earned and an export it could not produce, three days after
+  the repository fixed all three and marked the work done.
+
+  `scripts/ci/deployment_lag.py` and `platform/deployment-lag-budget.yaml` are
+  the measurement, wired as a named gate in `scripts/test-ci.sh` with
+  `tests/test_deployment_lag.py` running the same audit under pytest. Pure git
+  and no network, so it decides on its inputs rather than on the machine it runs
+  on. Three states, not two: an absent `origin/gitops-production`, or a recorded
+  revision this clone cannot resolve, reports `NOT MEASURABLE HERE` and never a
+  pass. Two-directional, like every other ratchet here — promoting something
+  makes the budget stale and forces it down. All five declared ceilings and all
+  four budget keys are registered in `scripts/ci/cap_ratchet.py`, whose contract
+  test caught the new file and named the four missing watches before this was
+  wired in. Nine mutations, eight killed; the ninth revealed a duplicated
+  unresolvable-revision guard that no test could distinguish, and it was deleted
+  rather than left as an untested branch.
+
+  **The second dimension is the one that found the rest.** Of 8 services
+  declaring a public ingress hostname, 1 records which commit is deployed there.
+  The other seven serve eight public, TLS-terminated, branded hostnames about
+  which this repository can say nothing. Probed 2026-08-05, five of them —
+  `academy`, `atelier`, `photo`, `retail`, `studio`.marisstella.dev — answered
+  `200 text/plain` with an ingress echo body naming the internal pod and its
+  cluster IP. `atelier` and `studio` front the two most complete commerce stacks
+  in the monorepo. A complete manifest set with no recorded revision looks
+  exactly like a deployed service, which is
+  `platform/image-release-baseline.yaml`'s finding one layer down.
+
+  Not done, and deliberately not claimed: this measures *provenance*, not
+  *liveness*. It proves the repository knows which commit is deployed, never that
+  the hostname serves it — the five echo pages were found by hand with `curl`,
+  which is the same way the NXDOMAIN and private-docs findings were found, and
+  nothing does it on a schedule. That is the still-open half of the two items
+  above (`links.production` naming a host this repository can serve, and the
+  studio's public surface), and it needs the third-state treatment this module
+  already uses, with "offline" evidenced by a control probe rather than assumed —
+  otherwise offline becomes the universal escape hatch. Also not done: the two
+  owner actions this measurement exists to prompt, recorded under
+  [what a human must do](#what-a-human-must-do) below.
+
 - [ ] Standardize full-SHA image builds, SBOMs, signatures/provenance, digest
   promotion, vulnerability gates, and Argo CD reconciliation for every service.
   Partial, 2026-08-02, owner duncan, commit `c24d148`. The mutability half is now a
@@ -2120,6 +2182,49 @@ evidence, and completion date before it can be marked done.
 - [ ] Add accessibility, fairness, experimentation, and statistical-integrity
   review gates for products whose decisions or measurements can materially
   affect people.
+
+## What a human must do
+
+Nothing in this repository pushes, promotes, or deploys. Every control above
+stops at making a gap visible, because the actions that close these particular
+gaps are outward-facing and are the portfolio owner's to take. This section
+exists so those actions are a list rather than a rediscovery.
+
+Ordered by what it costs a customer today, measured 2026-08-05.
+
+1. **Promote pairwise, or take the price down.** `pairwise.marisstella.dev`
+   serves `$9 / month`, a `Most Popular` badge and an `Exportable Value Summary
+   PDF` bullet. There is no payment code anywhere in the venture — no Stripe, no
+   checkout route, no billing dependency — and the CTA under the price goes to
+   `/couple`, which is free. `6e67a20f` fixed all three on `main` on 2026-08-02
+   and has not been promoted; production still runs `cd67f022` from 2026-07-31.
+   Promotion is deliberately gated in `.gitea/workflows/pairwise-ci.yml` behind
+   `workflow_dispatch` with `quality_exception == 'APPROVED'`, because the
+   candidate browser suite `docs/QUALITY-ENGINEERING.md` requires is not yet run
+   against the candidate. Both routes are one owner action: promote the fix, or
+   edit the live copy. Leaving it is the option that keeps a price with no way to
+   pay it, and a "Most Popular" badge on a tier with no customers, in front of
+   the only audience this portfolio has.
+
+2. **Decide what should answer on five branded subdomains.**
+   `academy`, `atelier`, `photo`, `retail` and `studio`.marisstella.dev each
+   resolve, terminate TLS, and return `200 text/plain` with an ingress echo body
+   naming the internal pod and its cluster IP — a debug page on the public
+   surface of five ventures, two of which (`atelier`, `studio`) front the most
+   complete commerce code in the monorepo. Either point them at something, or
+   remove the Ingress and the DNS record. Until one or the other, every
+   `deployment_lag.py` run counts them, and the pod names and `10.42.0.x`
+   addresses stay public.
+
+3. **Push `main`.** The release-lag gate fails at whatever has accumulated since
+   the last push, against a budget of zero. Only a push clears it, and only after
+   that does lowering the budget describe anything real. See
+   `platform/release-lag-budget.yaml`.
+
+4. **Ratify print-atelier's `$150 spend with no recorded revenue` threshold**,
+   and the other unratified stopping rules — the open item in the Now section
+   above. These were chosen by the change that made kill criteria evaluable, not
+   by the portfolio owner, and they move real budget.
 
 ## Ongoing operating cadence
 

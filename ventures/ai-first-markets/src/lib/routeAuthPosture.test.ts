@@ -22,8 +22,11 @@ import { join, relative } from "node:path";
  * does with that request.
  */
 
-const APP_ROOT = join(process.cwd(), "src/app");
-const MIDDLEWARE = join(process.cwd(), "src/middleware.ts");
+const VENTURE_ROOT = existsSync(join(process.cwd(), "src/middleware.ts"))
+  ? process.cwd()
+  : join(process.cwd(), "ventures/ai-first-markets");
+const APP_ROOT = join(VENTURE_ROOT, "src/app");
+const MIDDLEWARE = join(VENTURE_ROOT, "src/middleware.ts");
 
 /**
  * The declared auth posture of every handler, as `<path> <METHOD>`.
@@ -219,8 +222,8 @@ test("the handler parser separates handlers rather than returning one blob", () 
 });
 
 test("the paths this contract reads are the ones the app serves", () => {
-  assert.equal(relative(process.cwd(), APP_ROOT), join("src", "app"));
-  assert.equal(relative(process.cwd(), MIDDLEWARE), join("src", "middleware.ts"));
+  assert.equal(relative(VENTURE_ROOT, APP_ROOT), join("src", "app"));
+  assert.equal(relative(VENTURE_ROOT, MIDDLEWARE), join("src", "middleware.ts"));
 });
 
 test("every page the sitemap advertises can be loaded without a session", () => {

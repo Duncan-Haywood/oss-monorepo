@@ -1,0 +1,84 @@
+# Deployment lag budget
+#
+# `platform/release-lag-budget.yaml` opens by asserting "Production runs
+# `origin/main`". It does not. This file declares how far what is *actually
+# deployed* is allowed to trail `origin/main`, and how many public hostnames may
+# be served by something this repository cannot identify at all.
+#
+# `scripts/ci/deployment_lag.py` enforces it and fails closed;
+# `tests/test_deployment_lag.py` runs the same audit under pytest.
+#
+# The ratchet is two-directional, like `budget.max_unshipped_commits` beside it:
+#
+#   * Measured above the declared number fails — the deployed code fell further
+#     behind, or another untraceable hostname appeared.
+#   * Measured more than `slack_commits` below it also fails — something was
+#     promoted and the budget is now stale. Lowering it is a deliberate act.
+#
+# The declared numbers are themselves capped in `deployment_lag.py`
+# (MAX_DECLARED_COMMITS_BEHIND, MAX_DECLARED_UNRECORDED, MAX_DECLARED_AGE_DAYS,
+# MAX_DECLARED_SLACK, MAX_EXPIRY_DAYS), and those caps are watched in the falling
+# direction by `scripts/ci/cap_ratchet.py`, so this cannot be widened into
+# permanent silence.
+#
+# Nothing here promotes or deploys. Promotion is an outward action and stays a
+# human decision. This only keeps the distance between a merge and a customer
+# visible on every run.
+
+owner: duncan
+issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
+expires: 2026-10-31
+
+budget:
+  # Measured 2026-08-05, and every number here is today's reality rather than a
+  # target. Declared AT the measurement, not above it: `cac50085` raised the
+  # sibling budget to match a grown pile and `cap_ratchet.py` refused it, on the
+  # grounds that aligning a ceiling to a measurement is the one edit that
+  # guarantees a gate can never report what it exists to report. A new control
+  # has to start somewhere, and starting at the measurement means the very first
+  # promotion lowers it.
+  #
+  # quick-pick-survey is the only service whose deployed commit is recorded:
+  # `cd67f022`, promoted 2026-07-31, 436 commits behind origin/main, 34 of them
+  # touching the venture or its manifests. Among the 34 is `6e67a20f`, which
+  # removed a `$9 / month` price and a `Most Popular` badge from a tier with no
+  # payment path. Fetched 2026-08-05, the live site still served both. Only a
+  # promotion lowers this number.
+  max_commits_behind: 436
+
+  # Of 8 services declaring a public ingress hostname, 1 records which commit is
+  # deployed there. The other 7 serve 8 public, TLS-terminated, branded
+  # hostnames about which this repository can say nothing.
+  #
+  # Probed 2026-08-05: five of them — academy, atelier, photo, retail and
+  # studio.marisstella.dev — answered `200 text/plain` with an ingress echo body
+  # naming the internal pod and its cluster IP. A complete manifest set with no
+  # recorded revision looks exactly like a deployed service, which is the same
+  # shape `platform/image-release-baseline.yaml` was written for one layer down.
+  #
+  # This is the number to drive to zero first. It is not "how far behind are we"
+  # but "do we know what is running", and every other measurement here is
+  # unavailable until it is answered.
+  max_unrecorded_deployments: 7
+
+  # Lead time to the customer. 5 days on 2026-08-05: the one recorded deployment
+  # was promoted on 2026-07-31. No amount of new work lowers this dimension —
+  # only promoting does, which is why it is the one that cannot be gamed by
+  # committing more.
+  max_deployed_age_days: 5
+
+  # Below this many, the budgets above are stale and must be lowered.
+  slack_commits: 10
+
+rationale: >-
+  `scripts/ci/release_lag.py` was this repository's answer to "a green pipeline
+  and a 'Fixed' row do not mean the live service is fixed". It measures local
+  branches against `origin/main` and reports that nothing in the gap is live —
+  but it never asked whether `origin/main` is live either, and it is not. On
+  2026-08-05 that gate failed at one commit over a budget of zero, which read as
+  a repository one push from being fully shipped, while the only venture with
+  live customers ran a revision from five days earlier and advertised a price it
+  had no way to take. The distance from a developer's commit to a customer is
+  the sum of both measurements, and only one of them was being taken. This is
+  the second piece of the DORA scorecard item in the 30-day section of
+  docs/ENGINEERING-ROADMAP.md, and the one that is actually about deployment.
