@@ -107,10 +107,6 @@ const EXCLUDED = [
       'ventures/print-atelier/Dockerfile no longer declares a defaultless `ARG NEXT_PUBLIC_SITE_URL` forwarded to `ENV`, so the origin either cannot reach the build or reaches it as a baked-in guess',
   },
   {
-    name: 'NEXT_PUBLIC_APP_URL',
-    reason: 'build-time substitution, as NEXT_PUBLIC_SITE_URL',
-  },
-  {
     name: 'NEXT_PUBLIC_CONVEX_URL',
     reason: 'build-time substitution, as NEXT_PUBLIC_SITE_URL',
   },
