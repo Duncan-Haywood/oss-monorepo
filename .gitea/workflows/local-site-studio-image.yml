@@ -69,11 +69,25 @@ jobs:
         with:
           persist-credentials: false
 
+      # NEXT_PUBLIC_* is substituted into the bundle by `npm run build`, so it can
+      # only arrive here — no Deployment env entry reaches it afterwards. The
+      # origin is the host platform/k8s/apps/local-site-studio/ingress.yaml
+      # routes, and platform/ci/test/build-arg-supply.test.mjs asserts the two
+      # agree: an image built for an address the cluster does not route is the
+      # same defect with a plausible value in it.
+      #
+      # Without this the built image carried an empty NEXT_PUBLIC_APP_URL, which
+      # this venture fails closed on by design — sendEmail refuses to transmit
+      # because the CAN-SPAM unsubscribe link would be unreachable, and sitemap,
+      # robots and canonical URLs point at localhost.
       - name: Build the exact deployable image
         env:
           IMAGE: git.marisstella.dev/giteaadmin/local-site-studio:${{ github.sha }}
         working-directory: ventures/local-site-studio
-        run: docker build --file Dockerfile --tag "$IMAGE" .
+        run: |
+          docker build --file Dockerfile \
+            --build-arg NEXT_PUBLIC_APP_URL=https://studio.marisstella.dev \
+            --tag "$IMAGE" .
 
       # The Deployment's liveness and readiness probes both GET "/", so that is
       # what is proven here. The app boots with no environment configured —
