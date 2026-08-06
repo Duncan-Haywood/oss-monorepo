@@ -573,6 +573,18 @@ WATCHES: Tuple[Watch, ...] = (
         ),
         direction=UP,
     ),
+    Watch(
+        path="ventures/quick-pick-survey/src/lib/auth.ts",
+        kind="ts-constant",
+        locator="PRODUCTION_BCRYPT_ROUNDS",
+        why=(
+            "the bcrypt cost every production password is hashed at. Lowering it is a weakening "
+            "with no upside and no way to notice from outside — the sibling constant "
+            "`TEST_BCRYPT_ROUNDS = 4` is deliberately cheap and deliberately not watched, so the "
+            "cheap value already exists in this file for a lowering to be copied from"
+        ),
+        direction=UP,
+    ),
 )
 
 
@@ -819,6 +831,43 @@ PINS: Tuple[Pin, ...] = (
         value=0.7,
         why=_PLATFORM_WHY + ", as shown in the investor-facing projection",
     ),
+    # --- the census over every file that computes the split -----------------
+    # Mutation testing of the anchored pins above found the hole these close.
+    # Copying `netProfit * 0.3` to a line that renames the variable does not
+    # match an anchor keyed on `const artistShare = ...`, and renaming is
+    # exactly what the fourteen existing copies did. So each money file also
+    # declares how many times the split literal may appear in it at all.
+    #
+    # `value` here is a count of occurrences, not a value the code holds. The
+    # pattern deliberately matches `0.3`, `0.30`, `0.7` and `0.70` and nothing
+    # else, and comments are stripped before counting so the prose explaining
+    # the split does not inflate its own number.
+    #
+    # This is the check that fails when a fifteenth copy appears.
+    *(
+        Pin(
+            path=f"ventures/print-atelier/src/{rel}",
+            kind="literal-census",
+            locator=r"(?<![0-9.])0\.(?:3|30|7|70)(?![0-9])",
+            value=count,
+            why=(
+                "the number of places this file re-types the 30/70 artist payout split as a bare "
+                "literal. A new one is a site that can drift away from every other"
+            ),
+        )
+        for rel, count in (
+            ("lib/marketplace.ts", 7),
+            ("lib/stripe-connect.ts", 3),
+            ("lib/pod-routing-optimizer.ts", 1),
+            ("lib/global-pricing.ts", 1),
+            ("lib/artist-terms.ts", 1),
+            ("components/FinancialProjections.tsx", 2),
+            ("lib/b2b-trade.ts", 1),
+            ("lib/b2b-trade-calculator.ts", 1),
+            ("lib/fulfillment-cost-router.ts", 1),
+            ("lib/wholesale-margin-optimizer.ts", 1),
+        )
+    ),
     # --- named venture constants that are not ratchetable -------------------
     # Enrolled as pins rather than watches because their safe direction is not
     # knowable from their names: a bigger `MAX_RD` is not "more debt", and a
@@ -829,6 +878,85 @@ PINS: Tuple[Pin, ...] = (
         locator="STRIPE_WEBHOOK_MAX_AGE_SECONDS",
         value=300,
         why="the replay window a Stripe webhook signature is accepted within, and the ceiling any caller may ask for",
+    ),
+    # Money and retention constants whose names no prefix rule reaches, found by
+    # reading the venture rather than by grepping for `MAX_`. Several had no
+    # test of any kind; two were imported by a test and never used in an
+    # assertion, which reads as coverage and provides none.
+    Pin(
+        path="ventures/print-atelier/src/lib/orders.ts",
+        kind="ts-constant",
+        locator="IN_MEMORY_ORDER_STORE_CAPACITY",
+        value=10000,
+        why=(
+            "how many paid orders the process-local store holds before it refuses a write. No "
+            "test referenced it at all"
+        ),
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/fulfillment-submission-store.ts",
+        kind="ts-constant",
+        locator="IN_MEMORY_FULFILLMENT_STORE_CAPACITY",
+        value=10000,
+        why=(
+            "the same bound for fulfillment submissions. Its suite asserts `>= 10_000`, which is "
+            "a floor and holds the direction that matters; this holds the value itself"
+        ),
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/order-persistence.ts",
+        kind="ts-constant",
+        locator="PERSISTED_STORE_CAPACITY",
+        value=500,
+        why=(
+            "the persisted order store's capacity, twenty times smaller than the in-memory store "
+            "it backs, module-private and referenced by no test"
+        ),
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/influencer-attribution.ts",
+        kind="ts-constant",
+        locator="MINIMUM_PAYOUT_THRESHOLD_CENTS",
+        value=5000,
+        why="the least an influencer must earn before a payout is released; no test referenced it",
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/payout-fx-optimizer.ts",
+        kind="ts-constant",
+        locator="BATCH_THRESHOLD_USD_CENTS",
+        value=5000,
+        why="the amount at which payouts are batched to save FX fees; no test referenced it",
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/payout-tax-ledger.ts",
+        kind="ts-constant",
+        locator="TAX_REPORTING_THRESHOLD_USD_CENTS",
+        value=60000,
+        why=(
+            "the $600 reporting threshold in cents. Its test imports it and never uses it in an "
+            "assertion, so the import reads as coverage and is none"
+        ),
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/artist-tax-withholding.ts",
+        kind="ts-constant",
+        locator="IRS_1099_THRESHOLD_USD",
+        value=600.0,
+        why=(
+            "the statutory 1099 threshold — a number set by the IRS rather than by this venture, "
+            "so any change to it is either a legal update or a mistake. Also a dead test import"
+        ),
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/artist-tax-withholding.ts",
+        kind="ts-constant",
+        locator="IRS_BACKUP_WITHHOLDING_RATE",
+        value=0.24,
+        why=(
+            "the statutory backup-withholding rate, deducted from a real artist payment. Its "
+            "test derives the expected withholding from this constant, so that assertion would "
+            "hold at any rate"
+        ),
     ),
     Pin(
         path="ventures/local-site-studio/src/lib/commerce/types.ts",
@@ -1345,6 +1473,19 @@ def fold_ts_number(expression: str) -> Optional[float]:
     return float(value)
 
 
+def strip_ts_comments(source: str) -> str:
+    """Blank out `/* */` and `//` spans, preserving line structure.
+
+    A census counts what the code *does*, and this file's own comments discuss
+    the very literals being counted — the prose explaining the 30/70 split
+    contains "0.3" repeatedly. Counting those would make the number depend on
+    how well the code is documented, and would fall the moment someone improved
+    a comment.
+    """
+    source = re.sub(r"/\*.*?\*/", lambda m: re.sub(r"[^\n]", " ", m.group(0)), source, flags=re.S)
+    return re.sub(r"//[^\n]*", "", source)
+
+
 def ts_module_constants(source: str) -> Dict[str, DeclaredConstant]:
     """Every module-level `const NAME = ...` in a TypeScript source.
 
@@ -1715,6 +1856,35 @@ def evaluate_pins(repo_root: Path, pins: Sequence[Pin] = PINS) -> List[Finding]:
                             f"well be right — but the pin in scripts/ci/cap_ratchet.py has to "
                             f"change in the same diff, so that the new value is something someone "
                             f"chose rather than something that drifted."
+                        ),
+                    )
+                )
+            continue
+
+        if pin.kind == "literal-census":
+            # `value` is the declared number of occurrences, not a number the
+            # code holds. See the comment above `PINS`: an anchored pin only
+            # notices a copy that reuses its variable name, and the copy that
+            # actually happens in this venture renames as it goes.
+            body = strip_ts_comments(source)
+            seen = len(re.findall(pin.locator, body, re.M))
+            if seen != pin.value:
+                findings.append(
+                    Finding(
+                        check="pin-census-changed",
+                        message=(
+                            f"{pin.path}: /{pin.locator}/ occurs {seen} time(s) outside comments, "
+                            f"but {_fmt(pin.value)} are declared. It is {pin.why}. "
+                            + (
+                                "A new occurrence means this number was re-typed at a site no pin "
+                                "and no test knows about — which is how this venture came to "
+                                "compute the same split from two different bases. "
+                                if seen > pin.value
+                                else "A missing occurrence means a site that used to carry it no "
+                                "longer does. "
+                            )
+                            + "If the change is intended, update the census in "
+                            "scripts/ci/cap_ratchet.py in the same diff."
                         ),
                     )
                 )

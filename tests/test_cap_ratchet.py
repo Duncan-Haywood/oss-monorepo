@@ -1239,6 +1239,82 @@ class PinBehaviourTests(unittest.TestCase):
         self.assertEqual([f.check for f in findings], ["pin-changed"])
 
 
+class LiteralCensusTests(unittest.TestCase):
+    """The check that catches a copy the anchored pins cannot see.
+
+    Written because mutation-testing the anchored pins found them green against
+    the mutation that matters most: copying `netProfit * 0.3` to a line with a
+    different variable name does not match an anchor keyed on
+    `const artistShare = ...`, and renaming as it goes is exactly what each of
+    this venture's fourteen existing copies did.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        self.addCleanup(self.tmp.cleanup)
+
+    def _pin(self, count):
+        return Pin(
+            path="m.ts",
+            kind="literal-census",
+            locator=r"(?<![0-9.])0\.(?:3|30|7|70)(?![0-9])",
+            value=count,
+            why="how many times this file re-types the split",
+        )
+
+    def _write(self, text):
+        (self.root / "m.ts").write_text(textwrap.dedent(text), encoding="utf-8")
+
+    def test_the_declared_number_of_occurrences_passes(self):
+        self._write("const a = netProfit * 0.3;\nconst b = netProfit * 0.7;\n")
+        self.assertEqual(evaluate_pins(self.root, [self._pin(2)]), [])
+
+    def test_a_copy_under_a_different_name_fails(self):
+        self._write(
+            """\
+            const a = netProfit * 0.3;
+            const b = netProfit * 0.7;
+            const sneaky = grossProfit * 0.3;
+            """
+        )
+        findings = evaluate_pins(self.root, [self._pin(2)])
+        self.assertEqual([f.check for f in findings], ["pin-census-changed"])
+        self.assertIn("no pin", findings[0].message)
+
+    def test_a_removed_occurrence_also_fails(self):
+        self._write("const a = netProfit * 0.3;\n")
+        findings = evaluate_pins(self.root, [self._pin(2)])
+        self.assertEqual([f.check for f in findings], ["pin-census-changed"])
+
+    def test_comments_are_not_counted(self):
+        # Otherwise the census depends on how well the split is documented, and
+        # falls the moment someone improves a comment about it.
+        self._write(
+            """\
+            // the artist takes 0.3 and the platform keeps 0.7
+            /* historically this was 0.3 too */
+            const a = netProfit * 0.3;
+            """
+        )
+        self.assertEqual(evaluate_pins(self.root, [self._pin(1)]), [])
+
+    def test_stripping_comments_preserves_line_structure(self):
+        # A multi-line block comment must not collapse the lines around it, or
+        # every line number this control reports afterwards is wrong.
+        source = "a\n/* x\ny */\nb\n"
+        stripped = cap_ratchet.strip_ts_comments(source)
+        self.assertEqual(stripped.count("\n"), source.count("\n"))
+        self.assertNotIn("x", stripped)
+        self.assertIn("b", stripped)
+
+    def test_a_longer_decimal_is_not_miscounted(self):
+        # `0.35` is the AI compute cost and `0.03` the payment fee rate; both
+        # sit beside the split in these files and neither is it.
+        self._write("const a = cost * 0.35;\nconst b = fee * 0.03;\nconst c = netProfit * 0.3;\n")
+        self.assertEqual(evaluate_pins(self.root, [self._pin(1)]), [])
+
+
 class VentureEnrollmentContractTests(unittest.TestCase):
     """Watched, pinned, or registered — over the live repository.
 
