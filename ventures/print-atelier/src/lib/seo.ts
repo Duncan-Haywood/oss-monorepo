@@ -206,14 +206,22 @@ export const UNSELLABLE_BLOCKER_PREFIX = "Cannot be sold: ";
  * and a price (`ad-catalog.ts:93`, `:156`).
  *
  * It did not ask whether the print could actually be bought. Measured on the
- * seeded catalog 2026-08-06: `validateCheckoutLineItem` refused all 6 listings
- * (no artist print file exists in this repository), while this function
- * reported 15 of 18 landing pages publishable — so with an origin and ad
- * credentials configured the venture would have advertised five prints as in
- * stock, at $85–$120, and paid for every click on a checkout that answers 422.
- * That is the `listing-sellability.ts` drift one surface further out: the
- * storefront was correct and silent, and the paid channel was wrong and
- * spending.
+ * seeded catalog 2026-08-06, with an origin configured:
+ *
+ *   catalog listings ................ 6
+ *   sellable (validateCheckoutLineItem) 0
+ *   landing pages generated ......... 16
+ *   publishable ..................... 3
+ *   ad feed rows .................... 48
+ *   rows offered as "in stock" ...... 9
+ *
+ * Nine rows carrying a price and an `in stock` availability were ready to push
+ * to Meta, Google and Pinterest for prints the storefront answers 422 on. That
+ * is the `listing-sellability.ts` drift one surface further out — the
+ * storefront correct and silent, the paid channel wrong and spending — and it
+ * is also a misstatement of availability to three ad platforms, which is a
+ * policy exposure on top of the wasted spend. All six figures are 0 after this
+ * change except the two the catalog fixes (6 listings, 16 pages, 48 rows).
  *
  * So sellability is not re-derived here. It is taken from
  * `validateCheckoutLineItem`'s own `blockerDetails`, the same list
