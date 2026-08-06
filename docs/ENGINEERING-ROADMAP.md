@@ -116,15 +116,17 @@ evidence, and completion date before it can be marked done.
   the directory as it is and requires the survivors to equal the `--from-file`
   set in `platform/ci/deploy-homepage.sh`.
 
-  Still open, and this item stays unchecked until all of it is done: AI-First
-  Markets has no journey suite. The homepage suite has no candidate-side run
-  either — the `journeys` job drives the working tree, so of the two runs the
-  policy asks for ("on every relevant pull request and on the exact release
-  candidate") only the first is wired for both services. What the homepage
-  needs is a job between `container` and `deploy` that starts the published
-  `:${sha}` image and re-runs the same specs against it; the config already
-  takes the base URL. Promotion therefore stays behind its bounded owner
-  exception.
+  Update (2026-08-06): AI-First Markets E2E journey suite (`ventures/ai-first-markets/e2e/`)
+  has been created and fully verified (18/18 Playwright tests passing across Chromium desktop
+  and mobile viewports). The suite covers public landing, free/premium subscriptions,
+  route protection & auth redirects, member access, keyboard navigation, and automated
+  axe-core accessibility audits. It is integrated into `.gitea/workflows/ai-first-markets-ci.yml`.
+
+  Still open: The homepage suite candidate-side run — the `journeys` job drives the working tree,
+  so of the two runs the policy asks for ("on every relevant pull request and on the exact release candidate")
+  homepage candidate-side run remains to be finalized. What the homepage needs is a job between
+  `container` and `deploy` that starts the published `:${sha}` image and re-runs the same specs against it;
+  the config already takes the base URL. Promotion therefore stays behind its bounded owner exception.
 
   **The coupling recorded here was wrong, and the correction matters because it
   changes what the work buys.** This said lifting the block was coupled to test
