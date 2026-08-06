@@ -261,3 +261,105 @@ test("an order carrying every input still reaches the partner", async () => {
   assert.equal(submitted, true, "the guard closed the path it exists to protect");
   assert.equal(submission?.status, "submitted");
 });
+
+/**
+ * The last invented input in the pair of adapters, and the one that survived
+ * longest because its blast radius was hidden behind a seed file.
+ *
+ * Both builders resolved the artwork as `catalogSlug ?? "sample-print"`. That
+ * looked contained: `sample-print` is in neither default variant map, so the
+ * product lookup failed and the order was refused. But the refusal was a
+ * property of a row being *absent* from a seed, not of the code — add a
+ * `sample-print` mapping while testing a partner integration and every order
+ * carrying no slug becomes a real order for the sample print, printed and
+ * posted to a buyer who paid for a different artwork.
+ *
+ * So the mapping is supplied here, exactly as an operator might. The order must
+ * still be refused, and refused by naming the slug rather than the mapping.
+ */
+test("an order with no catalog slug is refused even when the fallback slug is a mapped product", async () => {
+  clearPrintfulFulfillmentForTests();
+
+  const mappedSamplePrint = [
+    {
+      catalogSlug: "sample-print",
+      printfulVariantId: "4099",
+      productName: "Enhanced Matte Paper Poster (18×24)",
+      size: "18×24 in",
+      updatedAt: "2026-08-06T00:00:00.000Z",
+    },
+  ];
+
+  const metadataWithoutSlug = {
+    ...buyerAddress,
+    buyerEmail: "elena@example.com",
+    lineItemQuantities: "1",
+    lineItemUnitAmounts: "8500",
+    artworkUrl: "https://files.example.test/prints/midnight-coast.tif",
+  };
+
+  const { resolvePrintfulOrderInputs } = await import("../src/lib/printful-orders.ts");
+  const inputs = resolvePrintfulOrderInputs(
+    orderRecord(),
+    metadataWithoutSlug,
+    mappedSamplePrint,
+  );
+
+  assert.equal(
+    inputs.ok,
+    false,
+    "a mapped fallback slug must not make an order with no artwork fulfillable",
+  );
+  assert.ok(
+    inputs.missing.includes("catalogSlug_0"),
+    `the missing input is the slug, not a mapping — got: ${inputs.missing.join(", ")}`,
+  );
+  assert.ok(
+    !inputs.missing.some((entry) => entry.includes("sample-print")),
+    `no operator should be told to add a mapping for a fabricated artwork — got: ${inputs.missing.join(", ")}`,
+  );
+
+  // And the payload the operator sees must not name the fabricated artwork.
+  const payload = buildPrintfulOrderPayload(
+    orderRecord(),
+    metadataWithoutSlug,
+    mappedSamplePrint,
+  );
+  assert.equal(
+    payload.items[0]?.variantId,
+    "",
+    "the sample print's variant id reached the Printful payload",
+  );
+});
+
+test("Gelato refuses the same order on the same terms", async () => {
+  clearGelatoFulfillmentForTests();
+
+  const mappedSamplePrint = [
+    {
+      catalogSlug: "sample-print",
+      gelatoProductUid: "gel_poster_18x24_matte",
+      productName: "Premium Matte Poster (18×24)",
+      size: "18×24 in",
+      updatedAt: "2026-08-06T00:00:00.000Z",
+    },
+  ];
+
+  const { resolveGelatoOrderInputs } = await import("../src/lib/gelato-orders.ts");
+  const inputs = resolveGelatoOrderInputs(
+    orderRecord({ fulfillmentPartnerId: "gelato" }),
+    {
+      ...buyerAddress,
+      buyerEmail: "elena@example.com",
+      lineItemQuantities: "1",
+      artworkUrl: "https://files.example.test/prints/midnight-coast.tif",
+    },
+    mappedSamplePrint,
+  );
+
+  assert.equal(inputs.ok, false);
+  assert.ok(
+    inputs.missing.includes("catalogSlug_0"),
+    `the missing input is the slug, not a mapping — got: ${inputs.missing.join(", ")}`,
+  );
+});

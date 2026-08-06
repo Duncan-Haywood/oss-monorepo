@@ -15,6 +15,7 @@ import {
 import {
   describeMissingFulfillmentInputs,
   resolveBuyerEmail,
+  resolveLineCatalogSlug,
   resolveLineItemQuantity,
   resolveLineItemUnitAmountCents,
   resolvePartnerProductId,
@@ -119,7 +120,6 @@ export function buildPrintfulOrderPayload(
 ): PrintfulOrderPayload {
   const subtotal = (order.amountCents / 100).toFixed(2);
 
-  const catalogSlug = readMetadataString(paymentMetadata, "catalogSlug") ?? "sample-print";
   // Unresolved stays empty so `queuePrintfulFulfillmentFromOrder` can refuse the
   // order — see `fulfillment-order-inputs.ts`. `buyer@printatelier.com` is a
   // studio inbox, and it was on the packing slip of every order.
@@ -141,10 +141,7 @@ export function buildPrintfulOrderPayload(
       zip: address.postalCode,
     },
     items: Array.from({ length: Math.max(order.lineItemCount, 1) }, (_, index) => {
-      const lineSlug =
-        readMetadataString(paymentMetadata, `catalogSlug_${index}`) ??
-        (index === 0 ? catalogSlug : null) ??
-        catalogSlug;
+      const lineSlug = resolveLineCatalogSlug(paymentMetadata, index).value;
       const mappedVariantId = resolvePrintfulVariantId(lineSlug, variantMappings);
       // Unresolved stays 0 and "" so `queuePrintfulFulfillmentFromOrder` refuses
       // the order. `quantity: 1` charged for three prints and ordered one, and
@@ -187,22 +184,25 @@ export function resolvePrintfulOrderInputs(
   paymentMetadata: Record<string, unknown> = {},
   variantMappings: PrintfulVariantMapping[] = defaultPrintfulVariantMappings,
 ): { ok: boolean; missing: string[] } {
-  const catalogSlug = readMetadataString(paymentMetadata, "catalogSlug") ?? "sample-print";
   const missing: string[] = [...resolveBuyerEmail(paymentMetadata).missing];
 
   for (let index = 0; index < Math.max(order.lineItemCount, 1); index += 1) {
-    const lineSlug =
-      readMetadataString(paymentMetadata, `catalogSlug_${index}`) ??
-      (index === 0 ? catalogSlug : null) ??
-      catalogSlug;
+    const lineSlug = resolveLineCatalogSlug(paymentMetadata, index);
 
     // An explicit per-line variant from metadata is an operator override and
     // needs no mapping behind it.
     const explicitVariantId = readMetadataString(paymentMetadata, `variantId_${index}`);
     if (explicitVariantId === null || explicitVariantId === "") {
+      // The slug is reported before the mapping, and instead of it. Reporting
+      // `product mapping for ""` sends an operator to add a variant mapping
+      // when what is actually absent is the slug the mapping is keyed on.
       missing.push(
-        ...resolvePartnerProductId(resolvePrintfulVariantId(lineSlug, variantMappings), lineSlug)
-          .missing,
+        ...(lineSlug.ok
+          ? resolvePartnerProductId(
+              resolvePrintfulVariantId(lineSlug.value, variantMappings),
+              lineSlug.value,
+            ).missing
+          : lineSlug.missing),
       );
     }
 

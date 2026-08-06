@@ -30,6 +30,11 @@ export const FULFILLMENT_INPUT_METADATA_KEYS = {
   printFileUrl: "artworkUrl",
   lineItemQuantities: "lineItemQuantities",
   lineItemUnitAmounts: "lineItemUnitAmounts",
+  /**
+   * Order-wide fallback for the per-line `catalogSlug_<index>`. Both are
+   * written by `buildCheckoutSessionPayload`.
+   */
+  catalogSlug: "catalogSlug",
 } as const;
 
 /**
@@ -222,6 +227,45 @@ export function resolvePrintFileUrl(
     return { ok: false, value: "", missing: [lineKey] };
   }
   return { ok: true, value: usable, missing: [] };
+}
+
+/**
+ * Which catalog artwork one line of the order is for.
+ *
+ * Both adapters resolved this as `readMetadataString(paymentMetadata,
+ * "catalogSlug") ?? "sample-print"` — the last invented fulfillment input left
+ * in this venture after the address, the buyer email, the quantity and the unit
+ * price were taken out. It was contained only by accident: `sample-print` is
+ * absent from `defaultPrintfulVariantMappings` and
+ * `defaultGelatoVariantMappings`, so the product lookup failed and the order was
+ * refused. That is a guard resting on the *absence* of a row in a seed file
+ * nobody is required to keep any particular shape. Adding a `sample-print`
+ * mapping is an ordinary thing to do while testing a partner integration, and
+ * doing it would turn every order carrying no `catalogSlug` into a real order
+ * for the sample print — printed and posted to a buyer who paid for a different
+ * artwork.
+ *
+ * It also misdirected the operator: the refusal read `product mapping for
+ * "sample-print"`, which reads as "add a variant mapping" when the missing
+ * input is the slug itself.
+ *
+ * Empty means unresolved. Every caller treats that as a reason to refuse.
+ */
+export function resolveLineCatalogSlug(
+  paymentMetadata: Record<string, unknown> = {},
+  index = 0,
+): ResolvedValue {
+  const lineKey = `${FULFILLMENT_INPUT_METADATA_KEYS.catalogSlug}_${index}`;
+  const lineValue = readMetadataString(paymentMetadata, lineKey);
+  const value =
+    lineValue !== ""
+      ? lineValue
+      : readMetadataString(paymentMetadata, FULFILLMENT_INPUT_METADATA_KEYS.catalogSlug);
+
+  if (value === "") {
+    return { ok: false, value: "", missing: [lineKey] };
+  }
+  return { ok: true, value, missing: [] };
 }
 
 /**
