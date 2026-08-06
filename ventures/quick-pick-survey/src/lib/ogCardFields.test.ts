@@ -74,7 +74,12 @@ describe("og card fields", () => {
    * off-by-one at a range edge is exactly what an edit like that produces.
    */
   it("strips every codepoint in the class, at both edges of every range", () => {
-    const stripped = [
+    // Annotated rather than inferred: without this the literal widens to
+    // (string | number)[][], `lo` and `hi` arrive as `string | number`, and
+    // String.fromCodePoint(cp) fails to typecheck. `npm test` never saw it
+    // because vitest transpiles without checking types — only `npm run
+    // typecheck`, which pairwise-ci.yml runs as its own step, does.
+    const stripped: [string, number, number][] = [
       ["C0 controls", 0x0000, 0x001f],
       ["C1 controls", 0x007f, 0x009f],
       ["LRM/RLM", 0x200e, 0x200f],
