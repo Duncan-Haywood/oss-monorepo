@@ -15,6 +15,18 @@ import { buildAdCatalogFeed, SITE_ORIGIN_BLOCKER } from "../src/lib/ad-catalog.t
 import { executeAdCatalogSyncLive, type FetchLike } from "../src/lib/ad-catalog-sync-http.ts";
 import { parseSiteUrl, resolveSiteUrl, SITE_URL_ENV } from "../src/lib/site-url.ts";
 import { catalogArtworks } from "../src/lib/marketplace.ts";
+import { sellableCatalog } from "./support/print-files.ts";
+
+/**
+ * The variable under test in this file is the *origin*, so every other reason a
+ * feed row can be refused has to be held constant — including the newest one.
+ * `evaluateSeoPagePublishability` now refuses to advertise a print the
+ * storefront cannot sell, and no seeded artwork carries a print file, so an
+ * unmodified catalog would make the two "the guard is not just a broken sync"
+ * controls below pass for the wrong reason. They would report the origin guard
+ * working while actually measuring the print-file blocker.
+ */
+const SELLABLE = sellableCatalog();
 
 /**
  * The venture must not publish URLs on a domain it does not own.
@@ -234,7 +246,7 @@ test("an unconfigured deployment produces no eligible feed row and no fabricated
 
 test("a configured deployment builds feed rows on its own origin", () => {
   process.env[SITE_URL_ENV] = CONFIGURED;
-  const feed = buildAdCatalogFeed();
+  const feed = buildAdCatalogFeed({ artworks: SELLABLE });
 
   assert.ok(feed.eligibleCount > 0, "a configured deployment can still sell");
   for (const item of feed.items) {
@@ -280,7 +292,7 @@ test("an unconfigured live sync makes no outbound request to any ad platform", a
   const result = await executeAdCatalogSyncLive(
     ["meta"],
     META_CREDENTIALS,
-    { consentRecords: fullConsent() },
+    { consentRecords: fullConsent(), artworks: SELLABLE },
     recordingFetch(calls),
   );
 
@@ -299,7 +311,7 @@ test("a configured live sync does reach the platform — the guard above is not 
   await executeAdCatalogSyncLive(
     ["meta"],
     META_CREDENTIALS,
-    { consentRecords: fullConsent() },
+    { consentRecords: fullConsent(), artworks: SELLABLE },
     recordingFetch(calls),
   );
 

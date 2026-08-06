@@ -10,6 +10,7 @@ import {
 import {
   describeMissingFulfillmentInputs,
   resolveBuyerEmail,
+  resolveLineCatalogSlug,
   resolveLineItemQuantity,
   resolvePartnerProductId,
   resolvePrintFileUrl,
@@ -106,7 +107,6 @@ export function buildGelatoOrderPayload(
   const { address } = resolveBuyerShippingAddress(paymentMetadata);
   const countryCode = address.countryCode;
   const { firstName, lastName } = splitName(address.name);
-  const catalogSlug = readMetadataString(paymentMetadata, "catalogSlug") ?? "sample-print";
   // Unresolved values stay empty so `queueGelatoFulfillmentFromOrder` can refuse
   // the order — see `fulfillment-order-inputs.ts`. Filling them in would mail
   // the buyer's shipment notices to the studio and print an artwork nobody chose.
@@ -118,10 +118,7 @@ export function buildGelatoOrderPayload(
     customerReferenceId: order.paymentIntentId ?? order.orderId,
     currency: order.currency.toUpperCase(),
     items: Array.from({ length: Math.max(order.lineItemCount, 1) }, (_, index) => {
-      const lineSlug =
-        readMetadataString(paymentMetadata, `catalogSlug_${index}`) ??
-        (index === 0 ? catalogSlug : null) ??
-        catalogSlug;
+      const lineSlug = resolveLineCatalogSlug(paymentMetadata, index).value;
       const mappedProductUid = resolveGelatoProductUid(lineSlug, variantMappings);
       return {
         itemReferenceId: `${order.orderId}_${index}`,
@@ -157,14 +154,10 @@ export function resolveGelatoOrderInputs(
   paymentMetadata: Record<string, unknown> = {},
   variantMappings: GelatoVariantMapping[] = defaultGelatoVariantMappings,
 ): { ok: boolean; missing: string[] } {
-  const catalogSlug = readMetadataString(paymentMetadata, "catalogSlug") ?? "sample-print";
   const missing: string[] = [...resolveBuyerEmail(paymentMetadata).missing];
 
   for (let index = 0; index < Math.max(order.lineItemCount, 1); index += 1) {
-    const lineSlug =
-      readMetadataString(paymentMetadata, `catalogSlug_${index}`) ??
-      (index === 0 ? catalogSlug : null) ??
-      catalogSlug;
+    const lineSlug = resolveLineCatalogSlug(paymentMetadata, index);
 
     // An explicit per-line product id from metadata is an operator override and
     // needs no mapping behind it.
@@ -173,9 +166,14 @@ export function resolveGelatoOrderInputs(
       `gelatoProductUid_${index}`,
     );
     if (explicitProductUid === null || explicitProductUid === "") {
+      // Slug before mapping, and instead of it — see the Printful adapter.
       missing.push(
-        ...resolvePartnerProductId(resolveGelatoProductUid(lineSlug, variantMappings), lineSlug)
-          .missing,
+        ...(lineSlug.ok
+          ? resolvePartnerProductId(
+              resolveGelatoProductUid(lineSlug.value, variantMappings),
+              lineSlug.value,
+            ).missing
+          : lineSlug.missing),
       );
     }
 

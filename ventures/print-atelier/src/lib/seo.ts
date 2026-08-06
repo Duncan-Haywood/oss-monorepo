@@ -8,6 +8,7 @@ import {
   type ListingConsentRecord,
   roundCurrency,
 } from "@/lib/marketplace";
+import { validateCheckoutLineItem } from "@/lib/checkout";
 
 export type SeoLandingIntent =
   | "room-style"
@@ -184,12 +185,73 @@ export type SeoPublishState = {
   consentBlocked: boolean;
 };
 
+/**
+ * The prefix on every blocker this function takes from the checkout gate, so an
+ * operator reading a blocker list can tell "this page is not ready to publish"
+ * apart from "this print cannot be bought".
+ */
+export const UNSELLABLE_BLOCKER_PREFIX = "Cannot be sold: ";
+
+/**
+ * Whether a `/prints/[slug]` landing page may be published, indexed and
+ * advertised.
+ *
+ * `buildBlockers` above is a *second enumeration* of listing readiness — proof,
+ * room mockups, SEO copy — and it is the one that drives money out of the door:
+ * `publishable` decides the page's `robots` directive
+ * (`src/app/prints/[slug]/page.tsx:26`), whether the slug enters `sitemap.xml`
+ * (`buildSitemapEntries`), whether the "Shop this print" CTA is enabled
+ * (`src/components/PrintLandingPage.tsx:98`), and — the expensive one — whether
+ * a row is pushed to Meta, Google and Pinterest with `availability: "in stock"`
+ * and a price (`ad-catalog.ts:93`, `:156`).
+ *
+ * It did not ask whether the print could actually be bought. Measured on the
+ * seeded catalog 2026-08-06, with an origin configured:
+ *
+ *   catalog listings ................ 6
+ *   sellable (validateCheckoutLineItem) 0
+ *   landing pages generated ......... 16
+ *   publishable ..................... 3
+ *   ad feed rows .................... 48
+ *   rows offered as "in stock" ...... 9
+ *
+ * Nine rows carrying a price and an `in stock` availability were ready to push
+ * to Meta, Google and Pinterest for prints the storefront answers 422 on. That
+ * is the `listing-sellability.ts` drift one surface further out — the
+ * storefront correct and silent, the paid channel wrong and spending — and it
+ * is also a misstatement of availability to three ad platforms, which is a
+ * policy exposure on top of the wasted spend. All six figures are 0 after this
+ * change except the two the catalog fixes (6 listings, 16 pages, 48 rows).
+ *
+ * So sellability is not re-derived here. It is taken from
+ * `validateCheckoutLineItem`'s own `blockerDetails`, the same list
+ * `listing-sellability.ts` reads, which is what stops a third enumeration
+ * existing and means a blocker added to the checkout tomorrow reaches the ad
+ * feed without anybody remembering this file.
+ *
+ * `artworks` and `consentRecords` default to the real catalog rather than being
+ * required, because the two call sites that pass neither
+ * (`PrintLandingPage.tsx`) are rendering the real catalog. An artwork absent
+ * from the list is a blocker, not a skip: a page whose artwork cannot be found
+ * is a page whose sellability is unknown, and unknown must not publish.
+ */
 export function evaluateSeoPagePublishability(
   page: SeoLandingPage,
   consentItem?: ListingConsentGateItem,
+  artworks: CatalogArtwork[] = catalogArtworks,
+  consentRecords: ListingConsentRecord[] = defaultListingConsentRecords,
 ): SeoPublishState {
   const blockers = [...page.blockers];
   let consentBlocked = false;
+
+  const artwork = artworks.find((item) => item.slug === page.artworkSlug);
+  if (!artwork) {
+    blockers.push(`${UNSELLABLE_BLOCKER_PREFIX}artwork is not in the catalog`);
+  } else {
+    for (const blocker of validateCheckoutLineItem(artwork, consentRecords).blockerDetails) {
+      blockers.push(`${UNSELLABLE_BLOCKER_PREFIX}${blocker.message}`);
+    }
+  }
 
   if (!consentItem) {
     consentBlocked = true;
@@ -231,7 +293,17 @@ export function getSeoPagesWithPublishState(
 
   return pages.map((page) => ({
     ...page,
-    publishState: evaluateSeoPagePublishability(page, consentBySlug.get(page.artworkSlug)),
+    // `artworks` and `consentRecords` are forwarded rather than left to the
+    // defaults. A caller that supplies its own catalog — every test here, and
+    // `buildAdCatalogFeed`'s `artworks` option — would otherwise have its
+    // sellability judged against the seeded catalog instead of the one it
+    // passed, which is the shape where a control reads a surface nobody chose.
+    publishState: evaluateSeoPagePublishability(
+      page,
+      consentBySlug.get(page.artworkSlug),
+      artworks,
+      consentRecords,
+    ),
   }));
 }
 

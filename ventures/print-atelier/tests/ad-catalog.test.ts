@@ -8,9 +8,22 @@ import {
 } from "../src/lib/ad-catalog.ts";
 import { catalogArtworks, defaultListingConsentRecords } from "../src/lib/marketplace.ts";
 import { generateSeoLandingPages, getSeoPagesWithPublishState } from "../src/lib/seo.ts";
+import { sellableCatalog } from "./support/print-files.ts";
+
+/**
+ * A feed row is only eligible if the print behind it can actually be bought —
+ * `evaluateSeoPagePublishability` reads `validateCheckoutLineItem` so the paid
+ * channel cannot advertise what the storefront refuses to sell. No seeded
+ * artwork has a print file, so the tests below supply one: they are about the
+ * eligibility *rule*, not about whether the operator has uploaded masters yet.
+ */
+const SELLABLE = sellableCatalog();
 
 test("buildAdCatalogFeed only marks items eligible when SEO publish, paid-ad consent, and creative readiness pass", () => {
-  const feed = buildAdCatalogFeed({ baseUrl: "https://printatelier.com" });
+  const feed = buildAdCatalogFeed({
+    baseUrl: "https://printatelier.com",
+    artworks: SELLABLE,
+  });
 
   assert.ok(feed.items.length > 0);
   assert.ok(feed.eligibleCount > 0);
@@ -29,7 +42,10 @@ test("buildAdCatalogFeed only marks items eligible when SEO publish, paid-ad con
 });
 
 test("buildAdCatalogFeed tracks per-platform sync readiness against partner creative minimums", () => {
-  const feed = buildAdCatalogFeed({ baseUrl: "https://printatelier.com" });
+  const feed = buildAdCatalogFeed({
+    baseUrl: "https://printatelier.com",
+    artworks: SELLABLE,
+  });
 
   assert.ok(feed.platformSummary.meta);
   assert.ok(feed.platformSummary.google);
@@ -53,7 +69,10 @@ test("evaluateAdCatalogEligibility blocks pages without paid-ad consent", () => 
 });
 
 test("serializeAdCatalogFeedJson and serializeMetaCatalogFeedCsv export eligible catalog rows", () => {
-  const feed = buildAdCatalogFeed({ baseUrl: "https://printatelier.com" });
+  const feed = buildAdCatalogFeed({
+    baseUrl: "https://printatelier.com",
+    artworks: SELLABLE,
+  });
   const json = serializeAdCatalogFeedJson(feed);
   const parsed = JSON.parse(json) as { items: unknown[]; eligibleCount: number };
 
