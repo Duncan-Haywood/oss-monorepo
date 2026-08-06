@@ -191,28 +191,119 @@ class ReconcileTests(unittest.TestCase):
 
 
 class ParseCoverageTests(unittest.TestCase):
-    def test_exact_match_passes(self):
+    """The parse-coverage check compares *sets*, not a count.
+
+    The count could not settle. `docs/SAST.md` records two idle-machine scans
+    minutes apart that both reported 54 files and not the same 54: one file left
+    the set while an 812 KB TSX file entered it, untouched by either run,
+    because at that size it sits on the parse-timeout boundary. The equality
+    then went red with no code change, and the one-line way to green was to edit
+    the number — the exact pressure this register exists to remove.
+
+    `test_a_swap_fails` is the case the old form could not see and is the
+    reason for the change: one file gained, one lost, count unmoved.
+    """
+
+    TODAY = date(2026, 8, 5)
+
+    def coverage(self, declared, marginal=(), ceiling=None):
+        block = {
+            "semgrep_unparsed": list(declared),
+            "semgrep_unparsed_max": len(declared) + len(marginal) if ceiling is None else ceiling,
+        }
+        if marginal:
+            block["semgrep_unparsed_marginal"] = list(marginal)
+        return {"coverage": block}
+
+    def marginal(self, path, expires=date(2026, 12, 1)):
+        return {
+            "path": path,
+            "why": "812 KB of TSX, on semgrep's parse-timeout boundary",
+            "owner": "duncan",
+            "expires": expires,
+        }
+
+    def test_the_declared_set_passes(self):
         self.assertEqual(
-            check_parse_coverage(["a.ts", "b.ts"], {"coverage": {"semgrep_unparsed_max": 2}}),
+            check_parse_coverage(["a.ts", "b.ts"], self.coverage(["a.ts", "b.ts"]), self.TODAY),
             [],
         )
 
-    def test_growth_fails(self):
+    def test_a_new_unparsed_file_fails(self):
         problems = check_parse_coverage(
-            ["a.ts", "b.ts", "c.ts"], {"coverage": {"semgrep_unparsed_max": 2}}
+            ["a.ts", "b.ts", "c.ts"], self.coverage(["a.ts", "b.ts"]), self.TODAY
         )
-        self.assertTrue(any("not fully scanned" in p for p in problems), problems)
+        self.assertTrue(any("newly stopped parsing" in p for p in problems), problems)
+        self.assertTrue(any("c.ts" in p for p in problems), problems)
 
-    def test_shrink_fails_so_the_ceiling_ratchets_down(self):
-        problems = check_parse_coverage(["a.ts"], {"coverage": {"semgrep_unparsed_max": 2}})
-        self.assertTrue(any("Lower it to 1" in p for p in problems), problems)
+    def test_a_file_that_starts_parsing_again_must_be_struck(self):
+        problems = check_parse_coverage(["a.ts"], self.coverage(["a.ts", "b.ts"]), self.TODAY)
+        self.assertTrue(any("now parse cleanly" in p for p in problems), problems)
+        self.assertTrue(any("b.ts" in p for p in problems), problems)
+
+    def test_a_swap_fails(self):
+        """One in, one out, count unchanged — invisible to the old equality."""
+        problems = check_parse_coverage(
+            ["a.ts", "c.ts"], self.coverage(["a.ts", "b.ts"]), self.TODAY
+        )
+        self.assertTrue(any("newly stopped parsing" in p and "c.ts" in p for p in problems), problems)
+        self.assertTrue(any("now parse cleanly" in p and "b.ts" in p for p in problems), problems)
+
+    def test_a_marginal_file_may_be_present_or_absent(self):
+        document = self.coverage(["a.ts"], [self.marginal("big.tsx")])
+        self.assertEqual(check_parse_coverage(["a.ts", "big.tsx"], document, self.TODAY), [])
+        self.assertEqual(check_parse_coverage(["a.ts"], document, self.TODAY), [])
+
+    def test_a_marginal_entry_without_an_expiry_fails(self):
+        entry = self.marginal("big.tsx")
+        del entry["expires"]
+        problems = check_parse_coverage(
+            ["a.ts", "big.tsx"], self.coverage(["a.ts"], [entry]), self.TODAY
+        )
+        self.assertTrue(any("no `expires:` date" in p for p in problems), problems)
+
+    def test_an_expired_marginal_entry_fails(self):
+        problems = check_parse_coverage(
+            ["a.ts", "big.tsx"],
+            self.coverage(["a.ts"], [self.marginal("big.tsx", date(2026, 8, 4))]),
+            self.TODAY,
+        )
+        self.assertTrue(any("expired on 2026-08-04" in p for p in problems), problems)
+
+    def test_a_marginal_entry_without_a_reason_or_owner_fails(self):
+        for field in ("why", "owner"):
+            entry = self.marginal("big.tsx")
+            del entry[field]
+            problems = check_parse_coverage(
+                ["a.ts", "big.tsx"], self.coverage(["a.ts"], [entry]), self.TODAY
+            )
+            self.assertTrue(any(f"has no `{field}`" in p for p in problems), (field, problems))
+
+    def test_the_declared_list_cannot_exceed_the_ceiling(self):
+        problems = check_parse_coverage(
+            ["a.ts", "b.ts"], self.coverage(["a.ts", "b.ts"], ceiling=1), self.TODAY
+        )
+        self.assertTrue(any("over the ceiling of 1" in p for p in problems), problems)
+
+    def test_the_ceiling_counts_marginal_entries_too(self):
+        """Otherwise the escape hatch is the way around the cap."""
+        problems = check_parse_coverage(
+            ["a.ts"], self.coverage(["a.ts"], [self.marginal("big.tsx")], ceiling=1), self.TODAY
+        )
+        self.assertTrue(any("over the ceiling of 1" in p for p in problems), problems)
 
     def test_missing_declaration_fails(self):
-        problems = check_parse_coverage([], {})
-        self.assertTrue(any("no `coverage.semgrep_unparsed_max`" in p for p in problems), problems)
+        problems = check_parse_coverage([], {}, self.TODAY)
+        self.assertTrue(any("no `coverage.semgrep_unparsed`" in p for p in problems), problems)
+
+    def test_a_non_list_declaration_fails(self):
+        problems = check_parse_coverage([], {"coverage": {"semgrep_unparsed": 53}}, self.TODAY)
+        self.assertTrue(any("must be a list of paths" in p for p in problems), problems)
 
     def test_non_integer_ceiling_fails(self):
-        problems = check_parse_coverage([], {"coverage": {"semgrep_unparsed_max": "30"}})
+        problems = check_parse_coverage(
+            [], {"coverage": {"semgrep_unparsed": [], "semgrep_unparsed_max": "30"}}, self.TODAY
+        )
         self.assertTrue(any("non-negative integer" in p for p in problems), problems)
 
 
