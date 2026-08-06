@@ -650,10 +650,12 @@ This log records all identified application, infrastructure, container, and CI s
   reachable on a real deploy, and what remains of this finding on
   `local-site-studio` is a spoofable limiter key behind an authenticated route.
   The paragraph above is kept in the past tense rather than deleted, because
-  the composition it describes is the reason the fix mattered. Still stale in
-  the tree: the docstring at `src/app/api/marketing/generate/route.ts:44-48`
-  describes the old always-open behaviour. Its `auth`-then-`checkRateLimit`
-  order is unchanged and remains correct.
+  the composition it describes is the reason the fix mattered. The docstring on
+  `src/app/api/marketing/generate/route.ts`, which had gone on describing the
+  old always-open behaviour after the fix landed, is corrected in the same
+  change as this entry. The route's `auth`-then-`checkRateLimit` order is
+  unchanged and remains correct: `open-demo` is still reachable on a
+  non-production build, so the limiter there is not redundant.
 - **Impact, quick-pick-survey**: the same leftmost-entry keying defeats every
   anonymous limit on the only venture serving live production traffic —
   including the per-IP brake on `POST /api/admin/login`, which is a brute-force
