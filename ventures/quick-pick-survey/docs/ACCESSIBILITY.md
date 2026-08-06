@@ -39,7 +39,11 @@ run:
   is anchored to one file, line, scheme and colour, so it cannot drift onto
   another element; it must name a background the source really paints at or
   above that line; it must be load-bearing, or the test tells you to delete it;
-  and it carries an owner, an issue and an expiry capped at 180 days.
+  and it carries an owner, an issue and an expiry capped at 180 days. Where the
+  container is a gradient, the entry must name the stop with the *worst*
+  contrast, not a flattering one — also checked, by substituting every stop that
+  line paints and confirming the named one is the minimum. That rule was prose
+  until 2026-08-06, and one entry had already stopped obeying it.
 - **Opacity in a `style` prop is invisible to it.** The swipe stamp in
   `CardViews` fades in through inline opacity; the check sees its final state.
 
