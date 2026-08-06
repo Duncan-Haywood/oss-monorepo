@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Makes a register's load-bearing prose a checked claim, and its `issue:` resolve.
+r"""Makes a register's load-bearing prose a checked claim, and its `issue:` resolve.
 
 Every register in this repository is machine-checked on its *counts* and unread
 on its *sentences*. `scripts/ci/audit_exceptions.py` requires `reason` and

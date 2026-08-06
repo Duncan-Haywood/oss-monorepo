@@ -232,6 +232,17 @@ run_ci_test "Deployment Lag Ratchet" python3 "${REPO_ROOT}/scripts/ci/deployment
 # audit under pytest, so this entry is the named gate rather than the only
 # enforcement.
 run_ci_test "Image Release Path Ratchet" python3 "${REPO_ROOT}/scripts/ci/image_release_path.py"
+# The registers above are checked on their counts and were unread on their
+# sentences. Seven load-bearing justifications had gone false while every count
+# stayed green — two code-server exceptions claiming "internal cluster admin
+# access" for public ingresses, an exception claiming all eight `type: ignore`
+# raise one error when two do, a homepage entry claiming the public site does
+# not come from an image Argo CD syncs behind the apex domain — and eight
+# `issue:` values pointed at sections nobody had written. This binds each
+# sentence to a predicate and resolves each reference.
+# `tests/test_register_claims.py` runs the same audit under pytest, so this
+# entry is the named gate rather than the only enforcement.
+run_ci_test "Register Claim Audit" python3 "${REPO_ROOT}/scripts/ci/register_claims.py"
 # A criss-cross merge can concatenate two versions of one module, and nothing
 # else here would notice. On 2026-08-04 `portfolio/router/router.py` carried a
 # 124-line duplicate tail — a second `main`, `find_repo_root`, `load_ventures`,
