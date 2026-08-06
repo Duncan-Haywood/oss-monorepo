@@ -26,18 +26,43 @@ export async function GET(request: NextRequest) {
 
   const code = request.nextUrl.searchParams.get("code");
   const error = request.nextUrl.searchParams.get("error");
-  const redirect = sanitizeRedirectPath(
-    request.nextUrl.searchParams.get("state"),
-  );
+  const stateParam = request.nextUrl.searchParams.get("state");
+  const stateCookie = request.cookies.get("oauth_state")?.value;
+
+  let stateNonce = "";
+  let rawRedirect = "/";
+  if (stateParam) {
+    const colonIndex = stateParam.indexOf(":");
+    if (colonIndex !== -1) {
+      stateNonce = stateParam.substring(0, colonIndex);
+      rawRedirect = stateParam.substring(colonIndex + 1);
+    } else {
+      rawRedirect = stateParam;
+    }
+  }
+  const redirect = sanitizeRedirectPath(rawRedirect);
 
   if (error) {
-    return NextResponse.redirect(
+    const res = NextResponse.redirect(
       new URL(`/login?error=${encodeURIComponent(error)}`, request.url),
     );
+    res.cookies.delete("oauth_state");
+    return res;
+  }
+
+  // Validate CSRF state token against the httpOnly cookie when stateNonce is present
+  if (stateNonce && (!stateCookie || stateCookie !== stateNonce)) {
+    const res = NextResponse.redirect(
+      new URL("/login?error=csrf_mismatch", request.url),
+    );
+    res.cookies.delete("oauth_state");
+    return res;
   }
 
   if (!code) {
-    return NextResponse.redirect(new URL("/login?error=no_code", request.url));
+    const res = NextResponse.redirect(new URL("/login?error=no_code", request.url));
+    res.cookies.delete("oauth_state");
+    return res;
   }
 
   const origin = request.nextUrl.origin;
@@ -104,6 +129,7 @@ export async function GET(request: NextRequest) {
     maxAge: AUTH_COOKIE_MAX_AGE,
     path: "/",
   });
+  response.cookies.delete("oauth_state");
 
   return response;
 }

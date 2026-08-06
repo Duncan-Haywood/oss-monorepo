@@ -36,6 +36,11 @@ const MIDDLEWARE = join(VENTURE_ROOT, "src/middleware.ts");
  * `guarded` means the middleware must turn an anonymous caller away.
  */
 const POSTURE: Record<string, { posture: "public" | "guarded"; reason: string }> = {
+  "/api/auth/google GET": {
+    posture: "public",
+    reason:
+      "Initiates Google OAuth flow anonymously by generating a CSRF nonce state cookie and redirecting to Google auth URL.",
+  },
   "/api/auth/google/callback GET": {
     posture: "public",
     reason:

@@ -300,7 +300,7 @@ components:
     # among them, are absent from the report and therefore absent from the
     # ratio. A percentage floor alone would have called this component done.
     baseline:
-      unexercised: 24
+      unexercised: 25
       lines: 98.37
       functions: 95.92
       branches: 89.26

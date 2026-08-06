@@ -70,25 +70,13 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 }
 
 function buildGoogleAuthUrl(redirect: string): string {
-  const clientId = process.env.GOOGLE_CLIENT_ID!;
-  const origin = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  const redirectUri = `${origin}/api/auth/google/callback`;
-
-  const params = new URLSearchParams({
-    client_id: clientId,
-    redirect_uri: redirectUri,
-    response_type: "code",
-    scope: "openid email profile",
-    access_type: "online",
-    prompt: "select_account",
-    state: redirect,
-  });
-
-  return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+  return `/api/auth/google?redirect=${encodeURIComponent(redirect)}`;
 }
 
 function errorMessage(error: string): string {
   switch (error) {
+    case "csrf_mismatch":
+      return "Security validation failed. Please try signing in again.";
     case "oauth_not_configured":
       return "OAuth is not configured on this deployment.";
     case "token_exchange_failed":
