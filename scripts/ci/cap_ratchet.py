@@ -108,6 +108,45 @@ that was always too generous stays too generous — this only refuses to let it
 grow. Tightening one is the portfolio owner's call, and doing so needs no
 permission from this file.
 
+Three ways to be held, because a ratchet is the wrong shape for a product
+-------------------------------------------------------------------------
+Until 2026-08-06 every watch here named a file in `scripts/ci/` or `platform/`,
+and roughly eighty load-bearing numbers under `ventures/` were held by nothing.
+The venture said so itself: `stripe-webhook-server.ts` carried a comment reading
+"TypeScript constants in `ventures/` are not reachable by
+`scripts/ci/cap_ratchet.py`", appointing a test in its own suite as the stand-in.
+
+Closing that hole is not a matter of adding a `.ts` glob, for two reasons.
+
+The first is that a name-based rule misses the numbers that matter. The Stripe
+replay window is called `STRIPE_WEBHOOK_MAX_AGE_SECONDS`, which no `MAX_` prefix
+rule reaches; the artist payout split has no name at all, and is re-typed as a
+bare `* 0.3` at fourteen sites. So the contract is an *enrollment* one — the
+population is enumerated mechanically and every member must be held or argued
+about — rather than a bigger regex. `tests/test_cap_ratchet.py` enforces it.
+
+The second is that a ratchet needs one direction to be unambiguously the weak
+one. That is true of debt budgets and safety minimums. It is false of
+`MAX_RD = 349`, a constant of the Glicko-2 rating algorithm, and of
+`MAX_COMMERCE_SKUS = 50`, a number sold to customers — for those, *both*
+directions are a decision, and ratcheting them would fail on ordinary product
+work. A gate that fails on ordinary work is one that gets widened, which this
+file already says out loud in the exemption for `budget.max_unintegrated_tips`.
+
+So a venture number is held in one of three ways:
+
+    WATCHES                        ratcheted, when a direction is clearly weak
+    PINS                           held at an exact value, so any change is a
+                                   two-file diff under review
+    UNENROLLED_VENTURE_CONSTANTS   registered, with a predicate re-run each time
+
+A pin is prevention by visibility rather than by refusal. Lowering the artist
+split from 30% to 25% stays entirely permitted — it just cannot happen without a
+line in this file changing beside it. Pins also fail closed when the guarded line
+is deleted, and when it is *copied*, which is the drift this venture already
+has: `fulfillment-cost-router.ts` takes 30% of retail while `marketplace.ts`
+takes 30% of net profit, and both were correct on the day they were written.
+
 Usage:
     python3 scripts/ci/cap_ratchet.py              # audit, exit 1 on failure
     python3 scripts/ci/cap_ratchet.py --report     # measure, always exit 0
