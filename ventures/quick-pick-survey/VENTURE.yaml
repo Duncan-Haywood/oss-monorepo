@@ -59,19 +59,51 @@ engineering:
     data_classification: human-subject, credentials
     scan_profile: source, history, dependencies, licenses, IaC, container, image
   measurement:
-    outcome: null
-    decision_supported: null
-    event_schema: null
-    data_quality_tests: null
+    outcome: >-
+      Per-browser-session funnel over a rolling 30 days: route view, survey
+      start, question load, answer save, insights reached, feedback opened;
+      plus the referral loop — invite created, invite entered, invite or
+      insight shared — with failures recorded separately from successes.
+    decision_supported: >-
+      Whether the couples tier is worth a payment path. hypotheses[0] is
+      untested and the $9/month on the pricing page is labelled planned; the
+      answer-to-insight rate and the invite-to-join rate are the inputs that
+      would justify building billing or dropping the tier. Until 2026-08-06
+      neither could be computed: five of the six events they rest on were
+      declared in the vocabulary and emitted by nothing.
+    event_schema: >-
+      src/lib/usage.ts — USAGE_EVENTS is a closed vocabulary and
+      parseUsageBatch bounds every optional field; unknown names are rejected
+      at /api/usage rather than stored.
+    data_quality_tests: >-
+      src/lib/usageVocabulary.test.ts (a declared event has an emitter or a
+      registered reason whose predicate still holds; the operator funnel shows
+      no step nothing can populate), src/lib/usage.test.ts (parser and field
+      bounds), src/app/api/usage/usage.integration.test.ts (idempotent
+      retries and 30-day expiry).
   customer_feedback:
     channels: []
     satisfaction_measure: null
     review_cadence: null
     owner: duncan
   privacy:
-    purpose: null
+    purpose: >-
+      Run the comparison service, and find where people are held up or lost.
+      docs/DATA-COLLECTION.md is the single statement of what is stored and is
+      checked against prisma/schema.prisma and, for the usage vocabulary,
+      against the emitters.
+    # An owner decision with a legal determination attached, not one an
+    # engineering change should record on its behalf. Left open deliberately.
     lawful_basis: null
-    notice_or_consent: null
-    retention: null
-    deletion: null
+    notice_or_consent: >-
+      Notice at /privacy, which names every category collected. No third-party
+      analytics, no advertising trackers, one cookie (the sign-in session).
+    retention: >-
+      Usage events 30 days, enforced in the same transaction that writes them;
+      anonymous-write IP digests at most 24 hours; sign-in attempt digests at
+      most 30 days. Answers and account data are kept until deletion is asked
+      for.
+    deletion: >-
+      Operator-executed on request by email, as stated at /privacy; there is no
+      self-serve delete route. Usage events additionally expire on their own.
     access_owner: duncan

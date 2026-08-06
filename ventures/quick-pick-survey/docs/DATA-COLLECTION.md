@@ -21,7 +21,7 @@ reason for the rule is at the bottom — it has already been broken once.
 | Was an insight useful, why it missed, was swiping enjoyable, optional free text, current mode, page, answer count, a retry-safe random feedback id, and the same one-way browser-session digest used by usage events | Feedback widget, after an insight and periodically | `InsightFeedback` | The admin portal |
 | Browser user-agent and the page it was sent from | Attached to a bug report | `UserReport.userAgent`, `UserReport.path` | The admin portal |
 | Keyed IP digest | Every write to an anonymous route, and every sign-in attempt | `AnonRequestLog`, `LoginAttempt`, `AdminLoginAttempt` for at most 30 days (anonymous-write events are retained for at most 24 hours) | Nobody; used only for rate limiting. The raw IP is not stored |
-| First-party usage event (including when a feedback prompt is shown or skipped), page, self/partner mode, topic or feedback subject, operation duration, success/failure, HTTP status when available, event order, and client-observed time | Automatically while navigating and using core survey actions | `UsageEvent`, linked to a random browser-session digest and retained for at most 30 days | Admin analysis only |
+| First-party usage event (including when a feedback prompt is shown or skipped, when insights are reached, when an insight or invite is shared, and when an invite is created or entered), page, self/partner mode, topic or feedback subject, operation duration, success/failure, HTTP status when available, event order, and client-observed time | Automatically while navigating and using core survey actions | `UsageEvent`, linked to a random browser-session digest and retained for at most 30 days | Admin analysis only |
 | Invite code linking two accounts | Couple screen | `Couple` | Both partners |
 
 ## Not collected
@@ -107,3 +107,23 @@ comes from.
 model that holds something a person typed, or something their browser
 disclosed, needs a row here. Reading the forms will miss the same category of
 field a second time.
+
+## The third time, and it points the other way
+
+2026-08-06. Seven of the twenty-one names in the usage vocabulary
+(`src/lib/usage.ts`) had no caller anywhere in the application, so the row
+above described collection that had never once happened: reaching insights,
+sharing an insight, sharing a card, creating an invite, joining one. The
+schema check this file ends on does not catch that. `UsageEvent.event` is a
+string, and the schema cannot say which of its values are ever written.
+
+This one favoured the reader — less was collected than described — which is
+why it survived. But it is the same defect as an undisclosed field with the
+sign flipped, and it cost more elsewhere: the operator dashboard drew a funnel
+step and a median that were structurally zero, and the referral loop this
+venture's couples tier depends on had no denominator at all.
+
+**So the check has a second half: for the vocabulary, against the emitters.**
+`src/lib/usageVocabulary.test.ts` fails when a declared event has no caller
+and no registered reason, when a registration outlives the situation that
+justified it, and when the dashboard displays a step nothing can populate.
