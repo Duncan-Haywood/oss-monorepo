@@ -74,7 +74,11 @@ describe("og card fields", () => {
    * off-by-one at a range edge is exactly what an edit like that produces.
    */
   it("strips every codepoint in the class, at both edges of every range", () => {
-    const stripped = [
+    // Annotated rather than inferred: without it the rows widen to
+    // `(string | number)[]`, `lo`/`hi` come out as `string | number`, and
+    // `tsc --noEmit` — the first step of this venture's verify — fails on the
+    // `String.fromCodePoint` below.
+    const stripped: [string, number, number][] = [
       ["C0 controls", 0x0000, 0x001f],
       ["C1 controls", 0x007f, 0x009f],
       ["LRM/RLM", 0x200e, 0x200f],
