@@ -2,6 +2,7 @@
 set -Eeuo pipefail
 
 : "${IMAGE_DIGEST:?IMAGE_DIGEST is required}"
+: "${IMAGE_REFERENCE:?IMAGE_REFERENCE is required}"
 : "${RELEASE_REVISION:?RELEASE_REVISION is required}"
 
 [[ "$IMAGE_DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]] || {
@@ -14,6 +15,36 @@ set -Eeuo pipefail
 }
 
 root="$(git rev-parse --show-toplevel)"
+
+git cat-file -e "${RELEASE_REVISION}^{commit}" 2>/dev/null || {
+  printf 'Git revision does not name a commit in this repository: %s\n' "$RELEASE_REVISION" >&2
+  exit 1
+}
+
+expected_reference="git.marisstella.dev/giteaadmin/pairwise-app:${RELEASE_REVISION}"
+[[ "$IMAGE_REFERENCE" == "$expected_reference" ]] || {
+  printf 'Image reference is not the trusted immutable release tag: %s\n' "$IMAGE_REFERENCE" >&2
+  exit 1
+}
+
+registry_digest="$(
+  docker manifest inspect --verbose "$IMAGE_REFERENCE" |
+    jq -er '
+      if type == "array"
+      then .[0].Descriptor.digest
+      else .Descriptor.digest // .digest
+      end |
+      select(type == "string" and test("^sha256:[0-9a-f]{64}$"))
+    '
+)" || {
+  printf 'Could not resolve immutable image reference: %s\n' "$IMAGE_REFERENCE" >&2
+  exit 1
+}
+[[ "$registry_digest" == "$IMAGE_DIGEST" ]] || {
+  printf 'Image provenance mismatch for %s: expected %s, registry returned %s\n' \
+    "$RELEASE_REVISION" "$IMAGE_DIGEST" "$registry_digest" >&2
+  exit 1
+}
 kustomization="$root/platform/k8s/apps/quick-pick-survey/kustomization.yaml"
 deployment="$root/platform/k8s/apps/quick-pick-survey/deployment.yaml"
 
