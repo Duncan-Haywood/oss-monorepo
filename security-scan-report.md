@@ -1,9 +1,10 @@
 # Repository security policy scan
 
-Commit: ``
+Commit: `c626411e09879c08fd824c63a0a807a8439fdf1e`
 
 ## Blocking findings
 
+- [ ] **Unresolved merge marker:** `ventures/quick-pick-survey/src/lib/ogCardFields.test.ts`
 
 ## Controls checked
 
@@ -14,4 +15,4 @@ Commit: ``
 
 ## Result
 
-PASS — no blocking repository-policy findings.
+FAIL — 1 blocking finding(s). Remove the material from the commit, rotate any exposed credential, and follow the history-remediation procedure in `SECURITY.md`.

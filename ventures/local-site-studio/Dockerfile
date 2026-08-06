@@ -24,6 +24,56 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
+
+# Next.js substitutes NEXT_PUBLIC_* into the bundle at `npm run build`, so these
+# can only arrive here. A Deployment env entry for one of them would look like
+# configuration and change nothing — which is why they are absent from
+# platform/k8s/apps/local-site-studio/deployment.yaml and named in
+# platform/k8s/deployment-env-coverage.yaml instead.
+#
+# Every ARG is declared WITHOUT a default, deliberately. An unpassed build arg
+# becomes the empty string, and each of these has a readiness assessor that
+# treats empty as unconfigured and refuses rather than guessing:
+# NEXT_PUBLIC_APP_URL gates sendEmail (the CAN-SPAM unsubscribe link would be
+# unreachable), NEXT_PUBLIC_PREVIEW_DOMAIN used to default to a domain
+# registered to an unrelated third party, and NEXT_PUBLIC_PRODUCTION_DOMAIN
+# gates DNS instructions in the go-live email. A plausible default here is the
+# `?? "123 Market St"` defect with an image-sized blast radius.
+#
+# NEXT_PUBLIC_CONVEX_URL is the money-path one. Empty leaves convexClient null in
+# src/lib/db.ts, so every write — including checkout_sessions and
+# commerce_orders — falls back to SQLite at process.cwd()/local.db, which is
+# container-local and lost on restart or rescale. The venture's own
+# .env.example says it is "required before first paid order" on multi-instance.
+# Nothing is defaulted here; supplying it is the operator action recorded in
+# platform/k8s/apps/local-site-studio/SECRETS.md.
+# Only NEXT_PUBLIC_APP_URL is declared here, and that is a deliberate limit.
+# `platform/ci/test/build-arg-supply.test.mjs` requires every ARG a venture
+# Dockerfile declares to be supplied by the workflow that builds the image, and
+# to match the host the Ingress routes. An ARG nobody passes is an empty string
+# that reads as configuration — decoration with a failure mode.
+#
+# The value below is not a guess: platform/k8s/apps/local-site-studio/ingress.yaml
+# declares `studio.marisstella.dev`, and that control asserts the two agree.
+#
+# The venture reads twelve further NEXT_PUBLIC_* values (brand, legal entity,
+# postal address, preview and production domains, support email, and Convex).
+# They are deliberately NOT declared here, because no value for them exists in
+# this repository and inventing one is the defect this venture has already
+# shipped — NEXT_PUBLIC_PREVIEW_DOMAIN once defaulted to a domain registered to
+# an unrelated third party. Each is itemised in
+# platform/k8s/apps/local-site-studio/SECRETS.md; add the ARG and the matching
+# --build-arg together, at the moment a real value exists.
+#
+# The money-path one is NEXT_PUBLIC_CONVEX_URL. Empty leaves convexClient null in
+# src/lib/db.ts, so checkout_sessions and commerce_orders fall back to SQLite at
+# process.cwd()/local.db — container-local, lost on restart or rescale. The
+# venture's own .env.example calls it "required before first paid order" on
+# multi-instance. It is a build-time value, so no Deployment change can supply
+# it after the fact.
+ARG NEXT_PUBLIC_APP_URL
+ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+
 RUN npm run build
 
 FROM base AS runner
