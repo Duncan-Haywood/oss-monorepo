@@ -540,6 +540,23 @@ WATCHES: Tuple[Watch, ...] = (
         locator="MAX_REGISTRATION_DAYS",
         why="the furthest out an unwired control may be parked before its reason is argued again",
     ),
+    # 2026-08-06, with `scripts/ci/register_claims.py`. A floor, not a cap: it
+    # counts the register sentences bound to a checked predicate. The reason it
+    # has to be watched is the specific way the control can be defeated — when a
+    # claim goes red, deleting the claim is cheaper than correcting the entry,
+    # and leaves the register exactly as unread as it was before the control
+    # existed. Lowering this number is that move, and it is refused here.
+    Watch(
+        path="scripts/ci/register_claims.py",
+        kind="python-constant",
+        locator="MIN_CHECKED_CLAIMS",
+        why=(
+            "the least number of register sentences that must be bound to a checked "
+            "predicate; lowering it is how a claim that went red gets deleted instead "
+            "of corrected"
+        ),
+        direction=UP,
+    ),
 )
 
 

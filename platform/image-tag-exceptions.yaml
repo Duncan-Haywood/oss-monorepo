@@ -109,20 +109,58 @@ exceptions:
     owner: duncan
     issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
     expires: 2026-12-15
+    claims:
+      # Corrected 2026-08-06 and enrolled in the same edit. The sentence used to
+      # read "Every `helm_release` in `platform/terraform/` renders this chart",
+      # which was true of no measurement ever taken here: five of fourteen do.
+      # It sat in `reason`, a required field nothing reads, and overstated the
+      # blast radius by nine releases while every count in this file stayed
+      # green. The two numbers below are now the sentence.
+      helm_releases_total:
+        sentence: >-
+          Five of the fourteen `helm_release` resources
+        count:
+          path: platform/terraform/*.tf
+          pattern: '^resource "helm_release"'
+          equals: 14
+      helm_releases_rendering_this_chart:
+        sentence: >-
+          Five of the fourteen
+        count:
+          path: platform/terraform/*.tf
+          pattern: 'chart\s+=\s+"\$\{path\.module\}/helm/web-service"'
+          equals: 5
+      every_render_overrides_image:
+        sentence: >-
+          this audit reads all five of those overrides
+        count:
+          path: platform/terraform/*.tf
+          pattern: '^\s{8}repository\s*='
+          equals: 5
     reason: >-
       The `helm/web-service` chart's default `image: {repository: nginx, tag: alpine}`.
-      Every `helm_release` in `platform/terraform/` renders this chart, so this
-      is the reference any release that forgets to set `image` actually ships —
-      the same class of defect as `variables.tf`'s `tag = optional(string, "latest")`,
-      which was removed on 2026-08-04 rather than registered. This one is not
-      removable the same way: a chart's values file must supply a default for
-      every key its templates read, and Helm has no "required" for a plain
-      value. Same nginx-version problem as IMG-002.
+      Five of the fourteen `helm_release` resources in `platform/terraform/`
+      render this chart, so for those five this is the reference any release
+      that forgets to set `image` actually ships — the same class of defect as
+      `variables.tf`'s `tag = optional(string, "latest")`, which was removed on
+      2026-08-04 rather than registered. This one is not removable the same way:
+      a chart's values file must supply a default for every key its templates
+      read, and Helm has no "required" for a plain value. Same nginx-version
+      problem as IMG-002.
+
+      Said "Every `helm_release` … renders this chart" until 2026-08-06. The
+      other nine install upstream charts — cert-manager, argo-cd, gitea,
+      kube-prometheus-stack, loki-stack, metrics-server, sealed-secrets, the
+      Gitea runner — or the local `helm/cluster-issuers`, and this values file
+      is nothing to any of them.
     compensating_control: >-
-      Every release in this configuration overrides `image` explicitly, so the
-      default is a fallback rather than a live reference — and this audit now
-      reads all six of those overrides, so a release that stopped overriding it
-      would be caught at its own line rather than inherited silently from here.
+      Every release that renders this chart overrides `image` explicitly, so the
+      default is a fallback rather than a live reference — and this audit reads
+      all five of those overrides, so a release that stopped overriding it would
+      be caught at its own line rather than inherited silently from here. The
+      figure was "six" until 2026-08-06, which was one more override than exists
+      and would have absorbed a release that dropped one without the count
+      moving.
 
   # IMG-009 and IMG-010 sit above IMG-001 because its glob would otherwise
   # swallow them, and the argument for accepting them is no longer the same
@@ -162,22 +200,58 @@ exceptions:
     owner: duncan
     issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
     expires: 2026-12-15
+    claims:
+      # Corrected 2026-08-06. `compensating_control` read "The public site does
+      # not come from this image, so a mutable tag here cannot change what a
+      # visitor gets" — which was the entire argument for accepting the mutable
+      # tag, and was contradicted by three tracked files, one of which says the
+      # opposite in a comment. This is the worst direction for a register
+      # sentence to be wrong in: it converted a live release lever into a
+      # documentation defect, and nothing read the sentence to notice.
+      argocd_reconciles_this_manifest:
+        sentence: >-
+          Argo CD syncs this manifest with `selfHeal`
+        present:
+          path: platform/k8s/argocd-apps/marisstella-homepage.yaml
+          pattern: 'selfHeal:\s*true'
+      workflow_moves_the_tag:
+        sentence: >-
+          `homepage-ci.yml` moves `:latest` and calls that the release
+        present:
+          path: .gitea/workflows/homepage-ci.yml
+          pattern: 'docker push .*marisstella-homepage:latest'
+      manifest_is_behind_the_apex_ingress:
+        sentence: >-
+          fronted by the apex ingress
+        present:
+          path: platform/k8s/apps/marisstella-homepage/ingress.yaml
+          pattern: 'host:\s*(www\.)?marisstella\.dev'
     reason: >-
-      `newTag: latest` on a manifest that is not how this service is served.
-      `homepage-ci.yml` builds and pushes the image, so this is not the missing
-      pipeline IMG-001 describes; but the live apex site is published by
-      `platform/ci/deploy-homepage.sh` from a ConfigMap, which means this
-      Deployment is a second, unsynced description of a service that already
-      runs from somewhere else. Pinning a digest here would make the manifest
-      internally consistent and still not describe production. The honest fix
-      is to reconcile the two paths — one of them should stop existing — and
-      that is an owner's call about the only venture with a customer surface.
+      `newTag: latest` on the manifest for the apex site. `homepage-ci.yml`
+      builds and pushes the image, so this is not the missing pipeline IMG-001
+      describes. Two publication paths exist for this venture — this Deployment,
+      and `platform/ci/deploy-homepage.sh`, which serves a ConfigMap — and the
+      honest fix is still to reconcile them so one stops existing. That is an
+      owner's call about the only venture with a customer surface.
+
+      Until 2026-08-06 this entry argued the Deployment was "a second, unsynced
+      description of a service that already runs from somewhere else". It is
+      synced. `platform/k8s/argocd-apps/marisstella-homepage.yaml` is a live
+      Argo CD Application over `platform/k8s/apps/marisstella-homepage` with
+      `automated: {prune: true, selfHeal: true}`, and the Deployment sits behind
+      an ingress claiming `marisstella.dev` and `www.marisstella.dev`.
     compensating_control: >-
-      The public site does not come from this image, so a mutable tag here
-      cannot change what a visitor gets. That is also precisely the risk: the
-      manifest reads as the production description and is not, so anyone acting
-      on it acts on a surface nothing serves. Recorded here rather than in the
-      count alone for that reason.
+      There is none worth the name, and saying so is the point of this revision.
+      Argo CD syncs this manifest with `selfHeal`, it is fronted by the apex
+      ingress, and `homepage-ci.yml` moves `:latest` and calls that the release
+      in its own comment: "The cluster follows `:latest` for this image, so
+      moving that tag is the release". So whoever moves that tag in the registry
+      releases to the public site, without a commit and without a review — which
+      is what `platform/k8s/apps/marisstella-homepage/kustomization.yaml` has
+      also said in a comment the whole time. What bounds the exposure is that
+      the tag is only moved by the `deploy` job, after this register is
+      validated; what does not bound it is anything about this image being
+      unreachable.
 
   # IMG-011 sits above IMG-001 for the same reason IMG-009 and IMG-010 do: it has
   # a producer, and IMG-001's argument is about images that do not. It is also the
@@ -260,12 +334,60 @@ exceptions:
     owner: duncan
     issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
     expires: 2026-12-15
+    claims:
+      # Corrected 2026-08-06, both fields. `compensating_control` said
+      # "Restricted to internal cluster admin access" of a remote shell on a
+      # public Traefik ingress with a Let's Encrypt production certificate —
+      # and `scripts/ci/image_tags.py`'s own module docstring had been saying
+      # so, in this repository, two entries away from the sentence that denied
+      # it. `reason` said the tag "defaults to a mutable tag at runtime", which
+      # stopped being true on 2026-08-04 when the variable lost its default and
+      # gained a validation. Neither correction moves the count: the reference
+      # is still unresolvable from tracked sources, which is what this register
+      # accepts.
+      ingress_is_public:
+        sentence: >-
+          reachable from the public internet on `code.marisstella.dev`
+        present:
+          path: platform/terraform/agent_platform.tf
+          pattern: 'host\s+=\s+"code\.marisstella\.dev"'
+      gate_is_a_password_not_the_network:
+        sentence: >-
+          gated by a `PASSWORD` env var rather than by the network
+        present:
+          path: platform/terraform/agent_platform.tf
+          pattern: 'PASSWORD\s+=\s+var\.code_server_password'
+      no_network_restriction_exists:
+        sentence: >-
+          no NetworkPolicy or source-range allowlist exists anywhere in this
+          configuration
+        absent:
+          path: platform/terraform/*.tf
+          pattern: '(?i)networkpolicy|ipallowlist|ipwhitelist|sourceRange'
+      tag_variable_is_validated_immutable:
+        sentence: >-
+          refuses any value that is not a digest or a version
+        present:
+          path: platform/terraform/agent_platform.tf
+          pattern: 'sha256:\[0-9a-f\]\{64\}'
     reason: >-
       `codercom/code-server` on `helm_release.code_server`.
-      `tag = var.code_server_image_tag` is unresolved from tracked sources and
-      defaults to a mutable tag at runtime.
+      `tag = var.code_server_image_tag` is unresolved from tracked sources, so
+      this audit cannot name the release the cluster runs. It is not a floating
+      default: since 2026-08-04 the variable has had no default at all and
+      carries a validation that refuses any value that is not a digest or a
+      version, so an unset tag is a `terraform plan` failure. What remains
+      unverifiable here is only which permitted value was supplied.
     compensating_control: >-
-      Restricted to internal cluster admin access.
+      Not the network. This is a remote shell reachable from the public internet
+      on `code.marisstella.dev` — a Traefik ingress with a `letsencrypt-prod`
+      certificate — and gated by a `PASSWORD` env var rather than by the network;
+      no NetworkPolicy or source-range allowlist exists anywhere in this
+      configuration, and ports 80 and 443 are open to `0.0.0.0/0` in
+      `firewall.tf`. The real control is the tag validation named above: it
+      bounds what can be running to one identifiable release, which is the whole
+      of what this entry can honestly claim. It said "Restricted to internal
+      cluster admin access" until 2026-08-06.
 
   - id: IMG-007
     path: platform/terraform/opencode_agent.tf
@@ -273,11 +395,45 @@ exceptions:
     owner: duncan
     issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
     expires: 2026-12-15
+    claims:
+      # The second public code-server, and the same correction as IMG-006 on
+      # 2026-08-06. Kept as its own entry with its own predicates rather than
+      # folded into IMG-006: this one answers on a different hostname with a
+      # different password variable, and a shared claim would have let either
+      # host go private without the register noticing.
+      ingress_is_public:
+        sentence: >-
+          reachable from the public internet on `opencode.marisstella.dev`
+        present:
+          path: platform/terraform/opencode_agent.tf
+          pattern: 'host\s+=\s+"opencode\.marisstella\.dev"'
+      gate_is_a_password_not_the_network:
+        sentence: >-
+          gated by a `PASSWORD` env var rather than by the network
+        present:
+          path: platform/terraform/opencode_agent.tf
+          pattern: 'PASSWORD\s+=\s+var\.opencode_password'
+      tag_variable_is_validated_immutable:
+        sentence: >-
+          the same required, validated variable as IMG-006
+        present:
+          path: platform/terraform/opencode_agent.tf
+          pattern: 'tag\s+=\s+var\.code_server_image_tag'
     reason: >-
-      `codercom/code-server` on `helm_release.opencode_agent`.
-      `tag = var.code_server_image_tag` is unresolved from tracked sources.
+      `codercom/code-server` on `helm_release.opencode_agent`, pinned by the
+      same required, validated variable as IMG-006.
+      `tag = var.code_server_image_tag` is unresolved from tracked sources, so
+      this audit cannot name the release the cluster runs — not because the
+      value may float, but because it is supplied as `TF_VAR_` at plan time.
     compensating_control: >-
-      Restricted to internal cluster admin access.
+      Not the network, for the same reasons as IMG-006 and on a second
+      hostname. This is a remote shell reachable from the public internet on
+      `opencode.marisstella.dev` — a Traefik ingress with a `letsencrypt-prod`
+      certificate — and gated by a `PASSWORD` env var rather than by the
+      network. `scripts/ci/image_tags.py` calls this "the second public
+      code-server the k8s-only audit could not see". The control that does bound
+      the exposure is the tag validation on the shared variable. It said
+      "Restricted to internal cluster admin access" until 2026-08-06.
 
   - id: IMG-008
     path: platform/terraform/services.tf
@@ -285,9 +441,38 @@ exceptions:
     owner: duncan
     issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
     expires: 2026-12-15
+    claims:
+      # Corrected 2026-08-06. "Overrides are validated at deploy time" named a
+      # validation that has never existed: `platform/terraform/variables.tf`
+      # contains no `validation` block at all, for `var.services` or for
+      # anything else. Seven other variables in this directory do carry one —
+      # including `code_server_image_tag`, whose regex is exactly the check this
+      # entry claimed — so the sentence described a pattern implemented next
+      # door and not here. The `absent` claim below is deliberately the shape
+      # that goes red when someone fixes it: adding the validation is the
+      # remedy, and it must rewrite this entry rather than pass under it.
+      tag_is_a_required_field:
+        sentence: >-
+          `tag` is a required `string`
+        present:
+          path: platform/terraform/variables.tf
+          pattern: '^\s+tag\s+=\s+string\s*$'
+      no_validation_constrains_the_value:
+        sentence: >-
+          nothing validates the value
+        absent:
+          path: platform/terraform/variables.tf
+          pattern: '^\s*validation\s*\{'
     reason: >-
       `each.value.image` / `each.value.tag` on `helm_release.web_service`.
       Evaluated from `var.services` map which is populated at deploy time via
       tfvars.
     compensating_control: >-
-      Overrides are validated at deploy time.
+      Weaker than it read until 2026-08-06, when this said "Overrides are
+      validated at deploy time". They are not. What is true is that `tag` is a
+      required `string` in the object type — it was `optional(string, "latest")`
+      until 2026-08-04 — so a service that declares no tag fails `terraform
+      plan` at review time instead of floating. Beyond that, nothing validates
+      the value: `variables.tf` carries no `validation` block, so `latest` is
+      accepted here as readily as a digest. The remedy is the regex
+      `code_server_image_tag` already uses in `agent_platform.tf`.

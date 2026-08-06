@@ -170,9 +170,18 @@ checking. The rest are structural and expire on the standard horizon.
 
 **Generated `docs-site` output — 26 `eslint-disable`, expires 2027-01-27.**
 `build-docs.mjs` emits a file-level disable into each TSX file it generates from
-markdown. No action needed unless the docs site stops being generated; at that
-point the disables become hand-written code and must go. Types are still checked
-by `next build`, so only style rules are suppressed.
+markdown. The disables themselves need no action unless the docs site stops
+being generated; at that point they become hand-written code and must go. Types
+are still checked by `next build`, so only style rules are suppressed.
+
+Two gaps this entry claimed were closed, and were not, until 2026-08-06. The
+venture has no ESLint configuration and does not depend on ESLint, so
+`"lint": "next lint"` resolves to nothing runnable and the `eslint-disable` this
+entry registers is suppressing a linter that does not run. And the generator is
+a `.mjs` file the tsconfig `include` does not name, so `typecheck` executes it
+and then typechecks everything except it. Both are now checked `claims:` on the
+register entry, so they cannot go quiet again. The remedies are a lint config
+for the venture and `"**/*.mjs"` with `checkJs` for the generator.
 
 ### EXC-002
 
@@ -232,6 +241,76 @@ call raises.
 Not a suppression. A stored engineering lesson quotes the string
 `@ts-expect-error` while explaining the outage one caused. If it ever becomes a
 real suppression the count rises and the audit fails.
+
+<!-- EXC-010 is a gap in the numbering. There has never been an entry with that
+id, and nothing in the repository references one. It is recorded here so the
+next reader does not go looking for a section that was deleted, because it was
+not. -->
+
+### EXC-011
+
+**Three `shellcheck disable=SC2016` in `scripts/` — expires 2027-01-27.**
+SC2016 warns that `$` and backticks inside single quotes do not expand. These
+three scripts emit Markdown reports in which both are literal output, so the
+non-expansion is the intent. Every other ShellCheck rule still applies to all
+three, and `scripts/security/test-security-scan.sh` asserts against the
+generated report text, so a genuinely broken interpolation changes the output
+the tests compare. Remove the disables if the report generation moves to a
+heredoc or a templating step where the quoting question does not arise.
+
+### EXC-012
+
+**One `shellcheck disable=SC2317` in `pairwise-ci.yml` — expires 2027-01-27.**
+SC2317 reports the container-smoke `cleanup()` body as unreachable. It is
+reached through a `trap`, which ShellCheck does not follow. Narrowly scoped to
+that one function. If the trap were ever removed the cleanup really would be
+dead and the smoke step would leak its container, which the job's own teardown
+surfaces. Remove the disable when ShellCheck learns to follow `trap`.
+
+### EXC-013
+
+**Three agent permission bypasses in `local-site-studio` scheduled workflows —
+expires 2026-10-29.** The shortest expiry in the register, and the entry whose
+own text calls it the weakest compensating control here. The Claude, Gemini and
+Grok scheduled workflows each start their CLI with every confirmation gate
+disabled — `--dangerously-skip-permissions` with
+`--permission-mode bypassPermissions`, `--yolo`, and `--always-approve`
+respectively. An unattended agent cannot answer a prompt, so a scheduled run
+either bypasses the gates or does nothing.
+
+Two open items, both recorded as checked `claims:` on the register entry so they
+cannot go stale the way this entry's compensating control did:
+
+1. **The Claude workflow's key handling.** It injects `ANTHROPIC_API_KEY` into
+   the environment of the bypassed step and unsets it only inside the branch
+   taken when a `CLAUDE_CODE_OAUTH_TOKEN` is *also* present. On the API-key
+   fallback path the file's own header documents, the credential is live in a
+   process running with no confirmation gates. Gemini and Grok unset their
+   provider key unconditionally and never place it in the step environment;
+   this one should match them, which means deciding whether the API-key
+   fallback is still wanted at all.
+2. **The narrower pattern already exists.** `ventures/ubuntu-agent-server`
+   documents a per-tool allowlist. Adopting it in these three workflows is the
+   remedy that removes the entry rather than renewing it.
+
+Out of scope for this entry and worth naming: the glob covers six
+`*-scheduled.yml` files, and `codex-scheduled.yml` (`--ask-for-approval never`)
+and `cursor-scheduled.yml` (`-p --force`) bypass their gates through flags no
+detector in `scripts/ci/audit_exceptions.py` matches. The count of 3 is correct
+for what the detectors see; it is not the number of unattended agents running
+without confirmation gates, which is 5.
+
+### EXC-014
+
+**One `react-hooks/exhaustive-deps` in `UnifiedRunner.tsx` — expires
+2026-10-31.** The keydown handler listens to global window key presses during
+active survey trial phases. `handleAnswer`, `handleSkip` and `handleUndo` are
+not wrapped in `useCallback`, so including them in the effect's dependencies
+rebinds the listener on every render. The state the listener actually reads —
+`phase`, `trial`, `submitting`, `undoableSlug` — is in the dependency array, so
+correctness does not depend on the suppression. Remove it by wrapping the three
+handlers in `useCallback`, which is a small change nobody has made yet; the
+short expiry is there to force that.
 
 ### EXC-015
 

@@ -26,15 +26,64 @@ exceptions:
     owner: duncan
     issue: docs/EXCEPTION-REGISTER.md#exc-001
     expires: 2027-01-27
+    claims:
+      # Corrected 2026-08-06. This said "The generator itself is linted and
+      # typechecked". Neither half was true, and the first was not true of
+      # anything: `ventures/photo-editing` has no ESLint configuration at all
+      # and does not depend on ESLint, so `"lint": "next lint"` resolves to
+      # nothing runnable. The suppression this entry accepts is an
+      # `eslint-disable`, which made the argument "the linting happens
+      # elsewhere" for a venture where linting happens nowhere. The half that
+      # was true — `next build` typechecks the generated TSX — is the whole
+      # compensating control, and is now the only thing claimed.
+      no_lint_config_exists:
+        sentence: >-
+          venture has no ESLint configuration
+        no_file:
+          path: ventures/photo-editing/*eslint*
+      eslint_is_not_a_dependency:
+        sentence: >-
+          does not depend on ESLint
+        absent:
+          path: ventures/photo-editing/docs-site/package.json
+          pattern: '"eslint'
+      generator_is_outside_the_typecheck_program:
+        sentence: >-
+          a `.mjs` file that the tsconfig `include` does not name
+        absent:
+          path: ventures/photo-editing/docs-site/tsconfig.json
+          pattern: 'mjs'
+      generator_runs_before_every_build:
+        sentence: >-
+          `prebuild` regenerates the TSX before every `next build`
+        present:
+          path: ventures/photo-editing/docs-site/package.json
+          pattern: '"prebuild":\s*"node scripts/build-docs\.mjs"'
+      build_typechecks_the_generated_output:
+        sentence: >-
+          Next's type check is not disabled
+        absent:
+          path: ventures/photo-editing/docs-site/next.config.ts
+          pattern: 'ignoreBuildErrors'
     reason: >-
       `docs-site/scripts/build-docs.mjs` converts the venture's markdown docs
       into TSX at build time and emits a file-level `/* eslint-disable */` into
       each one. Linting machine-generated markup reports on prose, not on code
       anyone wrote, and no edit to a generated file survives the next build.
     compensating_control: >-
-      The generator itself is linted and typechecked, and `next build` runs
-      `tsc` over the generated output, so a generator that emits broken TSX
+      `prebuild` regenerates the TSX before every `next build`, Next's type
+      check is not disabled, and the generated files land under `src/`, which
+      the tsconfig `include` covers — so a generator that emits broken TSX
       still fails the build. Only the style rules are suppressed, never types.
+
+      Said "The generator itself is linted and typechecked" until 2026-08-06,
+      and it is neither. This venture has no ESLint configuration and does not
+      depend on ESLint, so the `eslint-disable` this entry registers is
+      suppressing a linter that does not run; and the generator is a `.mjs`
+      file that the tsconfig `include` does not name, so `tsc --noEmit` executes
+      it and then typechecks everything except it. Both are real gaps, recorded
+      here rather than argued away — the remedy is a lint config for the venture
+      and `"**/*.mjs"` with `checkJs` for the generator.
 
   - id: EXC-002
     kind: lint-suppression
@@ -127,16 +176,57 @@ exceptions:
     owner: duncan
     issue: docs/EXCEPTION-REGISTER.md#exc-007
     expires: 2026-10-31
+    claims:
+      # Corrected 2026-08-06. This said "Every one of the eight raises
+      # `AnalysisLoaderError`". Two do. The other six raise their own module's
+      # error — `RenderWorkerError`, `ProductionWorkerError`,
+      # `ProductionStatusError`, `RenderStatusError` and `AssemblyPlanError`
+      # twice — which is a better design than the sentence described, and the
+      # sentence was still false. That matters because a reader auditing this
+      # entry would grep for `AnalysisLoaderError`, find two, and have no way to
+      # tell whether six guards were missing or six names were wrong.
+      #
+      # The `precedes` predicate is the sentence itself rather than a proxy for
+      # it: every `# type: ignore` in the tree must have a guard raising one of
+      # the six named errors within six lines above it. Removing a guard fails
+      # this, adding an unguarded ignore fails this, and renaming an error
+      # without updating the entry fails this.
+      every_ignore_sits_behind_a_raising_guard:
+        sentence: >-
+          Every one of the eight raises on the failing branch before the ignored
+          line runs
+        precedes:
+          path: ventures/photo-editing/src/*.py
+          before: 'raise (AnalysisLoaderError|RenderWorkerError|ProductionWorkerError|ProductionStatusError|RenderStatusError|AssemblyPlanError)\('
+          after: '#\s*type:\s*ignore'
+          within: 6
+          equals: 8
+      two_of_the_eight_raise_analysis_loader_error:
+        sentence: >-
+          Two of them — both in `analysis.py` — raise `AnalysisLoaderError`
+        precedes:
+          path: ventures/photo-editing/src/shootflow/analysis.py
+          before: 'raise AnalysisLoaderError\('
+          after: '#\s*type:\s*ignore'
+          within: 6
+          equals: 2
     reason: >-
       Eight `# type: ignore` narrowing casts in production `shootflow` code.
-      Each sits immediately after a runtime membership check that mypy cannot
-      use to narrow a `str` to a `Literal`. The check is real; the type system
-      just cannot see it.
+      Six sit immediately after a runtime membership check that mypy cannot use
+      to narrow a `str` to a `Literal`; the two in `render_worker.py` and
+      `production_worker.py` are `arg-type` ignores on a constructor keyword
+      guarded the same way. The check is real; the type system just cannot see
+      it.
     compensating_control: >-
-      Every one of the eight raises `AnalysisLoaderError` on the failing branch
-      before the ignored line runs, so an unexpected value is a loud runtime
-      failure, not a silent bad cast. Shorter expiry than the rest: these are in
-      production code and a `TypeGuard` would remove the need for all of them.
+      Every one of the eight raises on the failing branch before the ignored
+      line runs, so an unexpected value is a loud runtime failure, not a silent
+      bad cast. Two of them — both in `analysis.py` — raise
+      `AnalysisLoaderError`; the other six raise the error their own module
+      defines: `RenderWorkerError`, `ProductionWorkerError`,
+      `ProductionStatusError`, `RenderStatusError`, and `AssemblyPlanError`
+      twice. This entry claimed all eight raised `AnalysisLoaderError` until
+      2026-08-06. Shorter expiry than the rest: these are in production code and
+      a `TypeGuard` would remove the need for all of them.
 
   - id: EXC-008
     kind: type-suppression
@@ -218,14 +308,64 @@ exceptions:
       `--permission-mode bypassPermissions`, `--yolo`, and `--always-approve`
       respectively). Unattended agents cannot answer a prompt, so a scheduled
       run either bypasses the gates or does nothing.
+    claims:
+      # Corrected 2026-08-06. This said "the workflows unset the provider API
+      # keys before handing control to the agent", of three workflows, and it
+      # was true of two. The Claude one injects `ANTHROPIC_API_KEY` into the
+      # environment of the `--dangerously-skip-permissions
+      # --permission-mode bypassPermissions` step and unsets it only inside the
+      # `if` branch taken when an OAuth token is *also* present. On the fallback
+      # path the file's own header documents, the `else` branch unsets
+      # `ANTHROPIC_AUTH_TOKEN` alone and the API key stays live in the bypassed
+      # process. So the register generalised a control that two of three
+      # workflows implement into one all three were credited with — over the
+      # single entry in this file whose own text calls it "the weakest
+      # compensating control in the register".
+      gemini_and_grok_unset_unconditionally:
+        sentence: >-
+          The Gemini and Grok workflows unset their provider key unconditionally
+        present:
+          path: ventures/local-site-studio/.github/workflows/*-scheduled.yml
+          pattern: '^\s+unset (GEMINI_API_KEY|XAI_API_KEY)\b'
+          at_least: 2
+      claude_injects_the_api_key_into_the_bypassed_step:
+        sentence: >-
+          injects `ANTHROPIC_API_KEY` into two steps, one of them the bypassed
+          one
+        count:
+          path: ventures/local-site-studio/.github/workflows/claude-scheduled.yml
+          pattern: '^\s+ANTHROPIC_API_KEY:\s+\$\{\{\s*secrets\.ANTHROPIC_API_KEY\s*\}\}'
+          equals: 2
+      claude_unset_is_conditional:
+        sentence: >-
+          unsets it only when an OAuth token is also present
+        present:
+          path: ventures/local-site-studio/.github/workflows/claude-scheduled.yml
+          pattern: '^\s+unset ANTHROPIC_AUTH_TOKEN \|\| true'
+      runners_are_github_hosted:
+        sentence: >-
+          non-interactive on ephemeral GitHub-hosted runners
+        absent:
+          path: ventures/local-site-studio/.github/workflows/*-scheduled.yml
+          pattern: 'runs-on:.*self-hosted'
     compensating_control: >-
-      Runs are non-interactive on ephemeral GitHub-hosted runners, and the
-      workflows unset the provider API keys before handing control to the agent.
+      Runs are non-interactive on ephemeral GitHub-hosted runners. The Gemini
+      and Grok workflows unset their provider key unconditionally before handing
+      control to the agent, and never place it in the step's environment at all.
+      The Claude workflow does not: it injects `ANTHROPIC_API_KEY` into two
+      steps, one of them the bypassed one, and unsets it only when an OAuth
+      token is also present, so on the API-key fallback path the key is live in
+      a process running with every confirmation gate disabled. The other
+      injection is the OAuth-seeding step, which needs it only to decide whether
+      any credential was supplied at all. Until 2026-08-06 this entry claimed
+      all three workflows unset the key.
+
       This is the weakest compensating control in the register and the reason
       this entry expires in 90 days rather than 180: the bypass is real, the
       blast radius is a writable checkout plus whatever the workflow token can
-      reach, and `ventures/ubuntu-agent-server` already documents a narrower
-      per-tool allowlist as the pattern these three should adopt.
+      reach plus — on that one path — a provider credential, and
+      `ventures/ubuntu-agent-server` already documents a narrower per-tool
+      allowlist as the pattern these three should adopt.
 
   - id: EXC-014
     kind: lint-suppression
