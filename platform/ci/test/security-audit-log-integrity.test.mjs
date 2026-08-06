@@ -129,9 +129,13 @@ test('Security audit log - no identifier is defined twice on any surface', () =>
   // this of the matrix alone was the gap: the matrix is a contiguous sorted
   // table, so it is the surface least able to hide a repeat, while the detail
   // headings are appended one at a time by whoever writes the finding.
+  // `detailIds`, not `detailSections`: the looser pattern. detailSections needs
+  // a second em dash to read the severity off the heading, so a heading written
+  // without one would drop out of it — and a check that a malformed heading can
+  // fall out of is not a uniqueness check.
   const surfaces = [
     ['findings matrix', matrixRows(source).map((row) => row.id)],
-    ['detailed findings', detailSections(source).map((section) => section.id)],
+    ['detailed findings', detailIds(source)],
   ];
 
   for (const [surface, ids] of surfaces) {
@@ -163,7 +167,22 @@ test('Security audit log - the matrix and the detail agree on severity', () => {
     matrixRows(source).map((row) => [row.id, normalizeSeverity(row.cells[0])]),
   );
 
-  for (const section of detailSections(source)) {
+  // A heading this test cannot parse a severity from would be skipped below
+  // rather than compared, so the comparison would quietly cover fewer findings
+  // than the log contains. Every heading must be readable before any is checked.
+  const sections = detailSections(source);
+  const unparsed = detailIds(source).filter(
+    (id) => !sections.some((section) => section.id === id),
+  );
+  assert.deepEqual(
+    unparsed,
+    [],
+    `${LOG}: ${unparsed.join(', ')} has a heading this contract cannot read a severity ` +
+      'from. Headings are `### SEC-xxx — Severity — Title`; without the severity the ' +
+      'agreement check below skips the finding instead of checking it.',
+  );
+
+  for (const section of sections) {
     const tracked = severityById.get(section.id);
     if (tracked === undefined) {
       continue; // The bijection tests above own this case, with a better message.
