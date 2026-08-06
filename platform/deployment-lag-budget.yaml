@@ -44,6 +44,19 @@ budget:
   # removed a `$9 / month` price and a `Most Popular` badge from a tier with no
   # payment path. Fetched 2026-08-05, the live site still served both. Only a
   # promotion lowers this number.
+  #
+  # `36f37e5b` raised this to 2 "to accommodate deployment commit offset" and is
+  # reverted here. Three things were wrong with it. It is the edit the comment
+  # six lines up already refuses, and `cap_ratchet.py` failed on it
+  # (`[cap-raised] ... above the lowest value it has ever held (0, 48981fb9)`),
+  # so the repository was red at its own gate for as long as the 2 stood. It did
+  # not address the finding that was actually failing: `deployment_lag.py`
+  # reported `revision-unresolvable` for quick-pick-survey, and no value of this
+  # budget can silence that — the two are separate findings. And the offset it
+  # names does not exist at this dimension: `worst_commits_behind` measures from
+  # the *recorded* revision, so a promotion that records the commit being
+  # promoted lands at 0, and the bookkeeping commit that records it is the next
+  # promotion's problem, not this one's. Measured after the revert: 0.
   max_commits_behind: 0
 
   # Of 8 services declaring a public ingress hostname, 1 records which commit is
