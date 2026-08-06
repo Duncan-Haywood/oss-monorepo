@@ -43,10 +43,19 @@ function isBusinessContext(value: unknown): value is BusinessContext {
  * Operator-authenticated ad-hoc generation. Prefer generateMarketingPackAction
  * on /dashboard/leads for the persisted monthly Growth/Complete pack.
  *
- * Auth + per-IP rate limit (defense-in-depth): when OPERATOR_DASHBOARD_PASSWORD
- * is unset, requireOperatorAuth returns ok for every caller — without a limiter
- * that open-demo window can burn Anthropic quota unbounded. Mirrors
- * bootstrap-prices (auth then checkRateLimit).
+ * Auth + per-IP rate limit (defense-in-depth), in that order, mirroring
+ * bootstrap-prices. This handler spends money: it calls the Anthropic API once
+ * per request with caller-supplied prompt content, so an anonymous caller here
+ * is a metered charge on the operator's own key.
+ *
+ * requireOperatorAuth used to return ok for every caller whenever
+ * OPERATOR_DASHBOARD_PASSWORD was unset, which made that spend reachable from
+ * the open internet on any deploy that forgot the variable. It no longer does:
+ * on a production build with no usable password the mode is `locked-out` and
+ * this route answers 401. The remaining exposure is `open-demo` — a non-production
+ * build — which is why the limiter below is not redundant. See SEC-029, and
+ * note that checkRateLimit still buckets on the leftmost x-forwarded-for entry,
+ * which a direct client can spoof.
  */
 export async function POST(request: Request) {
   const auth = await requireOperatorAuth();
