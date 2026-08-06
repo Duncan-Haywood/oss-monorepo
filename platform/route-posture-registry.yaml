@@ -50,8 +50,8 @@ ventures:
   - venture: ai-first-markets
     contract: ventures/ai-first-markets/src/lib/routeAuthPosture.test.ts
     execution: venture-test-gate
-    route_files: 3
-    handlers: 4
+    route_files: 4
+    handlers: 5
     owner: duncan
 
   - venture: photo-editing
