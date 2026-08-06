@@ -72,7 +72,11 @@ type AncestorBackground = {
    *
    * For a gradient container this names the stop with the *worst* contrast, so
    * the number enforced is the floor across the whole sweep rather than the
-   * flattering end of it.
+   * flattering end of it. That sentence used to be prose, and CONTRAST-001 had
+   * quietly stopped obeying it — it named `amber-500` (9.25:1) when the same
+   * gradient's `orange-400` stop is worse (8.31:1). "names the worst stop" is
+   * now a checked predicate below, so the flattering end of a sweep cannot be
+   * chosen again, by this entry or a later one.
    */
   background: string[];
   owner: string;
@@ -91,7 +95,9 @@ const EXPIRES = "2027-01-31";
 const ON_ANCESTOR_BACKGROUND: AncestorBackground[] = [
   // Header wordmark chip: `bg-gradient-to-tr from-amber-500 to-orange-400` on
   // the element itself, which the class reader cannot resolve to a colour.
-  { id: "CONTRAST-001", file: "src/app/page.tsx", line: 38, scheme: "dark", text: "stone-950", background: ["amber-500"], owner: OWNER, issue: ISSUE, expires: EXPIRES },
+  // orange-400 is the worse stop for stone-950 text: 8.31:1 against amber-500's
+  // 9.25:1.
+  { id: "CONTRAST-001", file: "src/app/page.tsx", line: 38, scheme: "dark", text: "stone-950", background: ["orange-400"], owner: OWNER, issue: ISSUE, expires: EXPIRES },
 
   // "Designed for Couples" card: `bg-gradient-to-br from-amber-500 via-orange-500
   // to-amber-600` at line 234. amber-600 is the darkest stop.
@@ -199,6 +205,75 @@ function ancestorSurface(entry: AncestorBackground, surface: Rgb): Rgb | null {
     acc = next;
   }
   return acc;
+}
+
+/**
+ * Every background colour a line paints, as palette tokens: `bg-stone-950` and
+ * `to-orange-400` both yield the colour without their prefix. For a gradient
+ * container that is the whole sweep, which is the set "the worst stop" has to
+ * be chosen from. Anything that is not a palette colour — `bg-gradient-to-br`,
+ * `bg-clip-text` — is dropped rather than guessed at.
+ */
+function backgroundTokensOn(line: string): string[] {
+  const out: string[] = [];
+  for (const token of line.split(/[\s"'`{}()[\],;]+/)) {
+    const slash = token.indexOf("/");
+    if (slash !== -1 && !ALPHA.test(token.slice(slash + 1))) continue;
+    const bare = slash === -1 ? token : token.slice(0, slash);
+    for (const prefix of PAINTS_BACKGROUND) {
+      if (!bare.startsWith(`${prefix}-`)) continue;
+      const colour = token.slice(prefix.length + 1);
+      if (PALETTE[baseName(colour)]) out.push(colour);
+      break;
+    }
+  }
+  return out;
+}
+
+/**
+ * The line painting each link of an entry's chain, innermost first exactly as
+ * the structural check walks it, returned in the chain's own order. `null`
+ * where nothing paints that link — the structural test reports those.
+ */
+function ancestorLines(entry: AncestorBackground, source: string): (number | null)[] {
+  const lines: (number | null)[] = entry.background.map(() => null);
+  let ceiling = entry.line;
+  for (let i = entry.background.length - 1; i >= 0; i -= 1) {
+    const at = ancestorLine(source, entry.background[i], ceiling);
+    lines[i] = at;
+    if (at === null) break;
+    ceiling = at;
+  }
+  return lines;
+}
+
+/**
+ * The contrast this entry's text would actually have if chain position `i`
+ * named `token` instead. Mirrors the audit — the element's own background is
+ * composited over the ancestor surface before the text is measured — so the
+ * comparison between two stops is the comparison the floor is enforced on.
+ */
+function ratioWithStop(
+  entry: AncestorBackground,
+  i: number,
+  token: string,
+  pageSurface: Rgb,
+): number | null {
+  const chain = [...entry.background];
+  chain[i] = token;
+  const surface = ancestorSurface({ ...entry, background: chain }, pageSurface);
+  if (!surface) return null;
+
+  const list = SOURCES.lists.find((l) => l.file === entry.file && l.line === entry.line);
+  if (!list) return null;
+  const c = colours(list.classes);
+  const bgToken = entry.scheme === "light" ? c.bg : (c.darkBg ?? c.bg);
+
+  const bg = bgToken ? resolveToken(bgToken, PALETTE, surface) : surface;
+  if (!bg) return null;
+  const text = resolveToken(entry.text, PALETTE, bg);
+  if (!text) return null;
+  return contrastRatio(text, bg);
 }
 
 type Failure = { where: string; scheme: Scheme; ratio: number; needed: number; detail: string };
@@ -355,6 +430,40 @@ describe("ancestor-background annotations", () => {
     }
 
     expect(unproven, "ancestor backgrounds not found in the source").toEqual([]);
+  });
+
+  it("names the worst stop of every container it sits on, never a flattering one", () => {
+    // A gradient sweeps through several colours and the text sits on all of
+    // them, so the only honest number is the worst. Naming a kinder stop
+    // reports a ratio the user never sees, and it is invisible to every other
+    // check here: the flattering stop is painted by that same line, resolves in
+    // the palette, and is load-bearing. Nothing but this catches it.
+    const flattering: string[] = [];
+
+    for (const e of ON_ANCESTOR_BACKGROUND) {
+      const source = SOURCES.source.get(e.file);
+      if (!source) continue; // reported by the anchor test
+      const pageSurface = e.scheme === "light" ? LIGHT_SURFACE : DARK_SURFACE;
+      const lines = ancestorLines(e, source);
+
+      for (const [i, token] of e.background.entries()) {
+        const at = lines[i];
+        if (at === null) continue; // reported by the structural test
+        const chosen = ratioWithStop(e, i, token, pageSurface);
+        if (chosen === null) continue;
+
+        for (const candidate of backgroundTokensOn(source.split("\n")[at - 1])) {
+          const other = ratioWithStop(e, i, candidate, pageSurface);
+          if (other !== null && other < chosen - 1e-9) {
+            flattering.push(
+              `${e.id} names ${token} (${chosen.toFixed(2)}:1) but ${candidate} on the same container at ${e.file}:${at} is worse (${other.toFixed(2)}:1)`,
+            );
+          }
+        }
+      }
+    }
+
+    expect(flattering, "annotations naming a flattering stop of their container").toEqual([]);
   });
 
   it("resolves every ancestor colour against the palette", () => {
