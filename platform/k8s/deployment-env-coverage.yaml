@@ -1,0 +1,126 @@
+# Deployment environment contract coverage
+#
+# `platform/ci/test/print-atelier-deployment-env-contract.test.mjs` binds one
+# venture's Deployment env list to the variables its source actually reads, in
+# both directions. It was written because
+# `platform/k8s/apps/print-atelier/deployment.yaml` declared zero env vars while
+# the venture read twenty, and ArgoCD reported the app Healthy the whole time:
+# a complete manifest set looks exactly like a working service.
+#
+# That control is correct and it is scoped to one directory by a hardcoded
+# constant. Six of the eight apps under `platform/k8s/apps/` were never held to
+# it, and four of those read runtime environment variables and supply none. The
+# control existed only for the venture where someone happened to find the bug.
+#
+# This file is the enrollment half, in the shape `cap_ratchet` and
+# `coverage_ratchet` already use here: every app is either **covered** by a
+# contract or **registered** below with the reason it is not, and a new app can
+# be neither. `platform/ci/test/deployment-env-coverage.test.mjs` enforces it and
+# discovers its subjects from `git ls-files` rather than from a list, so an app
+# added tomorrow is held to the same rule without anyone remembering to add it.
+#
+# WHAT COUNTS AS A RUNTIME VARIABLE. Only variables that a container env entry
+# could actually supply. Excluded by prefix, with the reason each is not a
+# Deployment concern:
+#
+#   * `NEXT_PUBLIC_*` and `VITE_*` — substituted into the bundle at build time.
+#     A runtime env entry for one of these looks like configuration and changes
+#     nothing, which is worse than omitting it. They belong in a Docker build
+#     arg; `ventures/print-atelier/Dockerfile` is the worked example.
+#   * `VERCEL*` — platform variables never set on this cluster. Absence is how
+#     the code detects "not on Vercel".
+#   * `NODE_ENV`, `CI`, `PORT` — supplied by the image or the runtime.
+#
+# The exclusion is by prefix and is deliberately coarse. It decides only whether
+# an app needs a contract *at all*; a contract, once written, classifies every
+# variable individually with its own reason, which is the level where a blanket
+# rule would be a hole.
+#
+# HOW AN ENTRY CLEARS ITSELF. Each entry is asserted to still be uncovered. The
+# moment a contract file for that app exists, its entry here fails the suite and
+# must be deleted. An exemption cannot outlive the thing it excuses.
+#
+# THE COUNT MAY FALL AND MAY NEVER RISE. `max_registered` is the ratchet. It is
+# the number of apps allowed to sit here without a contract. Raising it is
+# refused by the suite, so a new uncovered app cannot be admitted by editing
+# this file — only by writing the contract it is missing.
+
+owner: duncan
+issue: docs/ENGINEERING-ROADMAP.md#deployment-env-contracts
+expires: 2026-11-30
+
+budget:
+  # Measured 2026-08-06: four apps read runtime environment variables and have
+  # no contract binding their Deployment to those reads. Lower this as each
+  # contract lands; the suite fails if it is raised.
+  max_registered: 4
+
+  # More than this many below the ceiling and the ceiling is stale.
+  slack: 0
+
+# Apps under platform/k8s/apps/ that have no application source directory, and
+# so cannot read an environment variable. Kept separate from `registered`
+# because there is nothing here to fix.
+no_application_source:
+  - app: service-template
+    reason: >-
+      A template copied when a venture gains a cluster surface, not a deployed
+      application. No source directory maps to it, so there are no environment
+      reads to bind. The predicate is that no source directory exists.
+
+# Apps whose Deployment is not bound to their source's environment reads.
+#
+# `runtime_env_reads` is the count measured when the entry was written. It is a
+# fact rather than a judgement — a contract decides which of them belong in
+# container env — and it is recorded so the size of each gap is visible without
+# re-deriving it.
+registered:
+  - app: local-site-studio
+    source: ventures/local-site-studio
+    runtime_env_reads: 15
+    reason: >-
+      The largest gap in the portfolio and the only one on a money path. The
+      venture holds a complete Stripe integration — checkout, webhook, billing
+      portal, price bootstrap, and a checkout_sessions table — and its
+      Deployment declares no env at all. Unsupplied are STRIPE_SECRET_KEY,
+      STRIPE_WEBHOOK_SECRET, seven STRIPE_PRICE_ID_* values,
+      OPERATOR_DASHBOARD_PASSWORD, RESEND_API_KEY, ANTHROPIC_API_KEY,
+      ALLOW_STRIPE_BOOTSTRAP, EMAIL_FROM and OPERATOR_DIGEST_EMAIL.
+      Writing the contract is not the blocking step: the Deployment cannot
+      declare a secretKeyRef until the Secret exists in the cluster, and
+      provisioning it is an owner action. The keys are itemised in
+      platform/k8s/apps/local-site-studio/SECRETS.md so that action is a
+      checklist rather than a rediscovery.
+
+  - app: quick-pick-survey
+    source: ventures/quick-pick-survey
+    runtime_env_reads: 17
+    reason: >-
+      The one venture with a live customer surface, and the one place the count
+      above most overstates the gap: several of its reads are test-only
+      (VITEST, QP_TEST_DB_NAME, QP_TEST_DB_PORT, FULL_SIMULATION,
+      COVERAGE_LCOV_DESTINATION_DIR, PLAYWRIGHT_BASE_URL) and belong in no
+      manifest. Five variables are already supplied. A contract here is
+      therefore mostly a classification exercise, and it is worth doing
+      carefully rather than quickly because RATE_LIMIT_SECRET and
+      RESEND_API_KEY are not test-only and are not supplied.
+
+  - app: retail-pilot-intel
+    source: ventures/retail-pilot-intel
+    runtime_env_reads: 4
+    reason: >-
+      Three of the four reads are VITE_* build-time values that the prefix rule
+      above already excludes from the count; the remaining runtime read is
+      STORE_ID. Small, and last in priority behind the two money-bearing apps.
+
+  - app: marisstella-homepage
+    source: portfolio/marisstella-homepage
+    runtime_env_reads: 2
+    reason: >-
+      Both reads (PORT, PLAYWRIGHT_BASE_URL) are runtime or harness values
+      rather than configuration, and the served artefact is a ConfigMap built by
+      scripts/deploy-homepage.sh rather than the image this Deployment names —
+      see the deploy script's --from-file list. A contract here should be
+      written against the ConfigMap set, not the container, which makes it a
+      different shape from the other three and the reason it is registered
+      rather than queued.
