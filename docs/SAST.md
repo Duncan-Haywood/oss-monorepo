@@ -120,10 +120,100 @@ is not exploitable. That claim needs somewhere to live at more than the length
 a YAML `reason` invites, so it lives here, and the entry's `issue` field points
 at it.
 
-Note that most entries in the register point at `docs/SAST.md#sast-0nn`
-anchors that do not exist yet — the two below are the first that resolve. That
-gap is worth closing per entry as each is genuinely assessed, and is not worth
-closing by generating empty sections.
+Every `reviewed` entry's `issue` now resolves. Until 2026-08-06 four of them —
+SAST-001, SAST-002, SAST-004 and SAST-005 — pointed at `docs/SAST.md#sast-0nn`
+anchors nobody had written, and nothing checked, because `issue` was a required
+field four controls demanded and none had ever opened. The 61 `inherited`
+entries share the [Inherited findings](#inherited-findings) anchor, which is
+what that section is for and is not a gap.
+
+`scripts/ci/register_claims.py` now resolves every `issue:` in this register and
+fails on one that names a file or a heading that does not exist. The four
+sections below were written from the code, not generated from their `reason`
+fields: an empty section that satisfies an anchor check would be the same defect
+one level down.
+
+### SAST-001
+
+`raw-html-format`, one occurrence in
+`ventures/local-site-studio/src/app/api/contact/[slug]/route.ts`.
+
+The contact endpoint sends a notification email whose body is built by string
+interpolation, which is what the rule fires on. Every interpolated value passes
+through `escapeHtmlForEmail` (`src/lib/inquiries/reply.ts:33`) first, which
+replaces `&`, `<`, `>`, `"` and `'` with entities — the five that matter, and in
+that order, so the ampersand rewrite cannot double-escape the entities the later
+rules introduce. `plainTextToEmailHtml` on line 44 is the only other path into
+the template and it calls the same function before splitting into paragraphs.
+
+Semgrep does not recognise a project's own sanitizer, so it sees the
+interpolation and not the escape. Every interpolation site in the template was
+read on 2026-08-01 and again on 2026-08-06; there is no unescaped one.
+
+Revisit if the template gains a value that is inserted without passing through
+`escapeHtmlForEmail`, or if the email body moves to a renderer that reintroduces
+raw HTML. The rule firing again after such a change would be correct.
+
+### SAST-002
+
+`react-dangerouslysetinnerhtml`, one occurrence in
+`ventures/local-site-studio/src/app/preview/[slug]/page.tsx`.
+
+The call emits an `application/ld+json` structured-data block. This is the one
+case where React offers no alternative: JSON-LD has to be script content, and
+script content cannot be set as text.
+
+The value goes through `safeJsonLdScript` (`src/lib/seo.ts:69`), which is
+`JSON.stringify(jsonLd).replace(/</g, "\\u003c")`. That is the standard defence
+and it is total rather than heuristic: the only way out of a JSON string inside
+a `<script>` element is a literal `</script>`, and escaping every `<` makes that
+sequence unrepresentable in the output while `JSON.parse` still recovers an
+identical object. The rule fires on any non-constant argument and cannot see
+that the helper admits no input it fails on.
+
+This page is public and unauthenticated, so the assessment matters more here
+than the rule's confidence suggests. Revisit if anything is ever inserted into
+that script element without going through `safeJsonLdScript`.
+
+### SAST-004
+
+Bandit `B108` (`hardcoded_tmp_directory`), one occurrence in
+`ventures/photo-editing/tests/test_assembly.py`.
+
+The match is the string `/tmp/instagram_reel.mp4` at line 639, assigned as the
+`outputs` of a render task in a deliberately malformed manifest. The next two
+lines write that manifest and assert that `load_render_tasks_manifest` raises
+`AssemblyPlanError` matching "Unsafe render task output path".
+
+So the literal is the attack, not a temporary file: it is a workspace-escaping
+absolute path fed to a loader whose job is to reject exactly that, and the test
+immediately above it does the same for the input side. Nothing is created at or
+read from `/tmp` — the manifest is written under a `TemporaryDirectory`, and the
+loader raises before touching the declared output. Removing the literal to
+satisfy Bandit would delete the test's subject and leave the path traversal
+guard uncovered.
+
+Revisit if the assertion ever stops being a rejection.
+
+### SAST-005
+
+Bandit `B108` (`hardcoded_tmp_directory`), one occurrence in
+`ventures/photo-editing/tests/test_production_status_cli.py`.
+
+The match is `/tmp/missing-ingest-manifest.json` at line 802, passed as
+`--ingest-manifest` alongside `--use-production-status`. The assertions are that
+the CLI exits 1, writes nothing to stdout, and reports "cannot be combined" on
+stderr.
+
+The path is never opened. The two flags are mutually exclusive and argument
+handling rejects the combination before any file is read, which is what the test
+exists to pin — the literal only has to be a syntactically valid path that does
+not exist, and its non-existence is part of the fixture. Bandit matches the
+`/tmp` prefix textually and cannot see that the value is never used as a
+filesystem location.
+
+Revisit if the CLI ever reads the manifest before validating flag combinations,
+which would make this an ordering bug rather than a false positive.
 
 ### SAST-090
 
