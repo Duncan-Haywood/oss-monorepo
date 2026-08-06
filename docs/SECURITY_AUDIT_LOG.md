@@ -615,9 +615,11 @@ This log records all identified application, infrastructure, container, and CI s
 - **What is actually new here**: not the individual weaknesses — the repository
   already documents both. `rate-limit.ts:18` says the client key "derives from
   x-forwarded-for / x-real-ip, which a client can spoof", and
-  `marketing/generate/route.ts:47` says in as many words that when the password
-  is unset "requireOperatorAuth returns ok for every caller — without a
-  limiter". What nobody had written down is what they compose into, and that
+  `marketing/generate/route.ts` said in as many words that when the password
+  was unset "requireOperatorAuth returns ok for every caller — without a
+  limiter" (that docstring is corrected in the same change as this entry; the
+  quotation is what it read when the finding was written). What nobody had
+  written down is what they compose into, and that
   nothing bounds the composition. Each comment describes its own limitation and
   stops at the edge of its own file. Found while writing the route auth-posture
   contracts, which is the second time that exercise has surfaced something
