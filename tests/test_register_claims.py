@@ -453,3 +453,50 @@ class RepositoryContractTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ImageRegisterGuardTests(unittest.TestCase):
+    """The image register's own claim-name guard, extended not loosened.
+
+    `image_tags.validate_claims` refused any `claims:` key it did not know by
+    name, which is what stopped a decorative claim being written. Declarative
+    claims carry their own predicate, so they are accepted without being named
+    there — but only when the predicate is one this module can actually
+    evaluate. These cases pin that: the loosening must not extend to a mapping
+    with a misspelled or absent predicate, which would be exactly the unchecked
+    claim the original guard existed to refuse.
+    """
+
+    def setUp(self) -> None:
+        import image_tags
+
+        self.image_tags = image_tags
+
+    def entry(self, claims):
+        return {"id": "IMG-999", "claims": claims}
+
+    def test_a_declarative_claim_with_a_real_predicate_is_accepted(self):
+        self.image_tags.validate_claims(
+            self.entry({"c": {"sentence": "s", "present": {"path": "x", "pattern": "y"}}})
+        )
+
+    def test_a_mapping_with_no_predicate_is_still_refused(self):
+        with self.assertRaises(self.image_tags.ImageTagError):
+            self.image_tags.validate_claims(self.entry({"c": {"sentence": "s"}}))
+
+    def test_a_misspelled_predicate_is_still_refused(self):
+        with self.assertRaises(self.image_tags.ImageTagError):
+            self.image_tags.validate_claims(
+                self.entry({"c": {"sentence": "s", "presnt": {"path": "x"}}})
+            )
+
+    def test_an_unknown_boolean_claim_is_still_refused(self):
+        with self.assertRaises(self.image_tags.ImageTagError):
+            self.image_tags.validate_claims(self.entry({"invented": True}))
+
+    def test_the_predicate_list_is_read_from_the_checker_not_restated(self):
+        # A second copy would drift silently in the worst direction: a predicate
+        # this guard still accepts but the checker no longer evaluates.
+        self.assertEqual(
+            self.image_tags._declarative_predicates(), rc.PREDICATE_KINDS
+        )
