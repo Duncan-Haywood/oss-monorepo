@@ -59,7 +59,7 @@ import sys
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import yaml
 
@@ -522,6 +522,30 @@ def load_exceptions(repo_root: Path, path: str = EXCEPTIONS_PATH) -> List[Dict[s
     return entries
 
 
+def _declarative_predicates() -> Tuple[str, ...]:
+    """The predicate names `scripts/ci/register_claims.py` can evaluate.
+
+    Read from that module rather than restated here. A second copy of the list
+    would drift, and the drift would be silent in the worst direction: a
+    predicate this file still recognises but that one no longer evaluates is an
+    unchecked claim that passes both gates. Imported lazily so `image_tags`
+    keeps working as a library for callers that do not need it, and a missing
+    checker raises rather than degrading to "accept anything".
+    """
+    ci_dir = str(Path(__file__).resolve().parent)
+    if ci_dir not in sys.path:
+        sys.path.insert(0, ci_dir)
+    try:
+        import register_claims
+    except ImportError as error:
+        raise ImageTagError(
+            "scripts/ci/register_claims.py is the checker for declarative claims "
+            f"and could not be imported: {error}. A claim whose checker is absent "
+            "is not a claim that passed."
+        ) from error
+    return register_claims.PREDICATE_KINDS
+
+
 def validate_claims(entry: Dict[str, Any], path: str = EXCEPTIONS_PATH) -> None:
     """`claims` is optional, but a claim that is present must be checkable.
 
@@ -537,10 +561,26 @@ def validate_claims(entry: Dict[str, Any], path: str = EXCEPTIONS_PATH) -> None:
             f"{path}: entry {entry['id']} has a non-mapping `claims`"
         )
     for key, value in claims.items():
+        # A declarative claim carries its own predicate, so it is checkable
+        # without being named here: `scripts/ci/register_claims.py` evaluates it
+        # and binds it to the sentence it stands behind. The guard this branch
+        # keeps is the one that matters — the predicate name is still checked
+        # against that module's own list, so a typo cannot buy an unchecked
+        # claim by being spelled as a mapping instead of a boolean.
+        if isinstance(value, dict):
+            declared = [k for k in _declarative_predicates() if k in value]
+            if len(declared) != 1:
+                raise ImageTagError(
+                    f"{path}: entry {entry['id']} declares `claims.{key}` with "
+                    f"{len(declared)} recognised predicate(s); exactly one is "
+                    "required. See `scripts/ci/register_claims.py`, which checks it."
+                )
+            continue
         if key not in CHECKED_CLAIMS:
             raise ImageTagError(
                 f"{path}: entry {entry['id']} claims `{key}`, which nothing checks. "
-                f"Checked claims are: {', '.join(CHECKED_CLAIMS)}. Add a check for it "
+                f"Checked claims are: {', '.join(CHECKED_CLAIMS)}. Add a check for it, "
+                "give it a predicate `scripts/ci/register_claims.py` can evaluate, "
                 "or state it in `reason`, where it reads as the argument it is."
             )
         if not isinstance(value, bool):
