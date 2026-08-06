@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { INSIGHTS, SWIPES_PER_LEVEL } from "@/lib/insights";
 import { InsightFeedback } from "@/components/FeedbackWidget";
 import { useSessionBundle } from "@/lib/sessionStore";
+import { recordUsage } from "@/lib/usageClient";
 
 type RankedItem = { label: string; category: string | null; rating: number; rd: number; lo: number; hi: number };
 
@@ -37,6 +38,7 @@ export function InsightsView() {
   useEffect(() => {
     if (!bundle) return;
     let cancelled = false;
+    const startedAt = performance.now();
     fetch("/api/insights", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -47,9 +49,23 @@ export function InsightsView() {
         if (cancelled) return;
         setData(d);
         setFetchState("ready");
+        // The step the admin funnel measures answering *towards*: reaching the
+        // payoff screen with insights actually on it. Emitted after the data
+        // lands rather than on mount, because a route view that ends in the
+        // error state is not an insight seen. A cancelled load emits nothing —
+        // they navigated away before there was anything to see.
+        recordUsage("insight_view", {
+          durationMs: Math.round(performance.now() - startedAt),
+          success: true,
+        });
       })
       .catch(() => {
-        if (!cancelled) setFetchState("error");
+        if (cancelled) return;
+        setFetchState("error");
+        recordUsage("insight_view", {
+          durationMs: Math.round(performance.now() - startedAt),
+          success: false,
+        });
       });
     return () => {
       cancelled = true;
@@ -108,8 +124,13 @@ export function InsightsView() {
       await navigator.clipboard.writeText(text);
       setCopiedInsightKey(key);
       setTimeout(() => setCopiedInsightKey(null), 2500);
+      recordUsage("insight_shared", { domain: key, success: true });
     } catch {
-      // Swallowed
+      // The clipboard write is still swallowed for the person — there is
+      // nothing useful to say and nothing they can do — but a share that
+      // silently fails is exactly what the share rate needs to exclude,
+      // so it is no longer swallowed for us.
+      recordUsage("insight_shared", { domain: key, success: false });
     }
   }
 

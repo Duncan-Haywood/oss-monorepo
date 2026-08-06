@@ -21,6 +21,15 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { ShareInsightModal } from "@/components/ShareInsightModal";
+import { recordUsage } from "@/lib/usageClient";
+
+// See the note in InsightsView.test.tsx.
+vi.mock("@/lib/usageClient", () => ({
+  recordUsage: vi.fn(),
+  flushUsage: vi.fn(),
+  getUsageSessionKey: () => "testsessionkey123456",
+  createUsageId: () => "testusageid1234567890",
+}));
 
 const INSIGHT = {
   isOpen: true,
@@ -52,6 +61,9 @@ async function copiedText(props: Record<string, unknown> = {}): Promise<string> 
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
+  // `recordUsage` is a module mock, so its calls survive `cleanup()`; a
+  // per-test count would otherwise read every earlier test's shares too.
+  vi.clearAllMocks();
 });
 
 describe("share target", () => {
@@ -138,5 +150,50 @@ describe("alignment score", () => {
     fireEvent.click(screen.getByRole("button", { name: /Copy Text & Link/ }));
     await waitFor(() => expect(clipboard.text()).not.toBe(""));
     expect(clipboard.text()).not.toMatch(/Alignment Score/);
+  });
+});
+
+/**
+ * The third defect of the same shape, found 2026-08-06: this card is described
+ * above as "the venture's only growth loop", and none of its three routes out —
+ * phone share sheet, WhatsApp, copy — recorded anything. `insight_shared` and
+ * `card_shared` were both in the telemetry vocabulary, both accepted and stored
+ * by `/api/usage`, and neither had a caller anywhere in the application. A loop
+ * whose share rate is unmeasurable cannot be told from one nobody uses.
+ */
+describe("share telemetry", () => {
+  it("records a copied card", async () => {
+    const clipboard = stubClipboard();
+    render(<ShareInsightModal {...INSIGHT} />);
+    fireEvent.click(screen.getByRole("button", { name: /Copy Text & Link/ }));
+    await waitFor(() => expect(clipboard.text()).not.toBe(""));
+
+    expect(recordUsage).toHaveBeenCalledWith("insight_shared", expect.objectContaining({ success: true }));
+  });
+
+  it("records the WhatsApp handoff without claiming it was sent", () => {
+    render(<ShareInsightModal {...INSIGHT} />);
+    fireEvent.click(screen.getByRole("link", { name: /Share to WhatsApp/ }));
+
+    const call = (recordUsage as unknown as { mock: { calls: unknown[][] } }).mock.calls.find(
+      (c) => c[0] === "insight_shared" && (c[1] as { domain?: string })?.domain?.includes("whatsapp"),
+    );
+    expect(call).toBeTruthy();
+    // Once WhatsApp has the text there is no way back to learn whether it was
+    // sent. `success: true` here would be a completion this cannot observe.
+    expect((call?.[1] as { success?: boolean }).success).toBeUndefined();
+  });
+
+  it("counts a phone share once when the browser has no share sheet", async () => {
+    const clipboard = stubClipboard();
+    Object.defineProperty(navigator, "share", { configurable: true, value: undefined });
+    render(<ShareInsightModal {...INSIGHT} />);
+    fireEvent.click(screen.getByRole("button", { name: /Share via Phone/ }));
+    await waitFor(() => expect(clipboard.text()).not.toBe(""));
+
+    const shares = (recordUsage as unknown as { mock: { calls: unknown[][] } }).mock.calls.filter(
+      (c) => c[0] === "insight_shared",
+    );
+    expect(shares).toHaveLength(1);
   });
 });

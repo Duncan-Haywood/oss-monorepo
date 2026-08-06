@@ -2,6 +2,7 @@
 
 import { useState, useSyncExternalStore } from "react";
 import { shareTargetFrom } from "@/lib/shareTarget";
+import { recordUsage } from "@/lib/usageClient";
 
 /** The origin never changes within a session, so there is nothing to subscribe to. */
 const noSubscribe = () => () => {};
@@ -60,12 +61,16 @@ export function ShareInsightModal({
       await navigator.clipboard.writeText(shareText);
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
+      recordUsage("insight_shared", { domain: "couple-insight-copy", success: true });
     } catch {
       // Fallback
+      recordUsage("insight_shared", { domain: "couple-insight-copy", success: false });
     }
   };
 
   const handleNativeShare = async () => {
+    // Only the native branch records; the fallback delegates to `handleCopy`,
+    // which records its own. See the same split in `CoupleView`.
     if (navigator.share) {
       try {
         await navigator.share({
@@ -73,8 +78,11 @@ export function ShareInsightModal({
           text: shareText,
           ...(target ? { url: target.url } : {}),
         });
+        recordUsage("insight_shared", { domain: "couple-insight-native", success: true });
       } catch {
-        // User cancelled or share failed
+        // User cancelled or share failed — indistinguishable through this API,
+        // so `success: false` means "did not complete", not "errored".
+        recordUsage("insight_shared", { domain: "couple-insight-native", success: false });
       }
     } else {
       handleCopy();
@@ -167,6 +175,11 @@ export function ShareInsightModal({
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
+            // A handoff, not a completion: once WhatsApp has the text there is
+            // no way back to tell whether it was sent. `success` is deliberately
+            // left unset rather than `true`, so this cannot be read as a
+            // confirmed share.
+            onClick={() => recordUsage("insight_shared", { domain: "couple-insight-whatsapp" })}
             className="flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl bg-emerald-800 text-white font-medium text-sm transition"
           >
             <span>💬</span>

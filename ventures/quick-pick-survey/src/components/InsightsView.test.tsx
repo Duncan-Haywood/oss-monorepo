@@ -5,6 +5,18 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { InsightsView } from "@/components/InsightsView";
 import { INSIGHTS } from "@/lib/insights";
 import { SESSION_KEY } from "@/lib/sessionStore";
+import { recordUsage } from "@/lib/usageClient";
+
+// Stubbed rather than driven end to end: `recordUsage` batches into
+// sessionStorage and flushes on a timer, so asserting on the call is what
+// binds the component's behaviour. The transport itself is covered by
+// `src/lib/usage.test.ts` and the `/api/usage` integration test.
+vi.mock("@/lib/usageClient", () => ({
+  recordUsage: vi.fn(),
+  flushUsage: vi.fn(),
+  getUsageSessionKey: () => "testsessionkey123456",
+  createUsageId: () => "testusageid1234567890",
+}));
 
 /**
  * The insights page is driven entirely by the catalogue plus a content map,
@@ -67,6 +79,8 @@ describe("InsightsView when the request fails", () => {
     cleanup();
     vi.unstubAllGlobals();
     window.localStorage.clear();
+    // See ShareInsightModal.test.tsx: the module mock's calls outlive cleanup.
+    vi.clearAllMocks();
   });
 
   it("retries in place after a dropped request", async () => {
@@ -101,6 +115,62 @@ describe("InsightsView when the request fails", () => {
 
     expect(await screen.findByText(/Nothing here yet/)).toBeTruthy();
     expect(screen.queryByRole("button", { name: /try again/i })).toBeNull();
+  });
+
+  it("records reaching the insights, and reaching the error instead", async () => {
+    // `insight_view` is the last step of the operator dashboard's funnel and
+    // the far end of its `answer_save -> insight_view` transition. Emitting it
+    // on mount would have counted an error screen as an insight seen, which is
+    // the reading that makes the funnel flatter than the product is.
+    window.localStorage.setItem(SESSION_KEY, JSON.stringify(BUNDLE));
+    let attempt = 0;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        attempt += 1;
+        if (attempt === 1) throw new TypeError("Failed to fetch");
+        return { ok: true, status: 200, json: async () => READY } as Response;
+      }),
+    );
+
+    render(<InsightsView />);
+
+    const retry = await screen.findByRole("button", { name: /try again/i });
+    await waitFor(() => expect(recordUsage).toHaveBeenCalledWith("insight_view", expect.objectContaining({ success: false })));
+
+    fireEvent.click(retry);
+
+    await waitFor(() => expect(recordUsage).toHaveBeenCalledWith("insight_view", expect.objectContaining({ success: true })));
+  });
+
+  it("records a copied insight, including one the clipboard refused", async () => {
+    window.localStorage.setItem(SESSION_KEY, JSON.stringify(BUNDLE));
+    // The share control exists only on an unlocked insight, so one has to be
+    // ready for there to be anything to share.
+    const unlocked = {
+      ...READY,
+      ready: ["top-pick"],
+      content: { "top-pick": { label: "Kindness", category: null, rating: 1520, rd: 60, lo: 1400, hi: 1640 } },
+    };
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({ ok: true, status: 200, json: async () => unlocked }) as Response),
+    );
+    const writeText = vi.fn(async () => {
+      throw new Error("denied");
+    });
+    Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText } });
+
+    render(<InsightsView />);
+
+    const copy = await screen.findByRole("button", { name: /share/i });
+    fireEvent.click(copy);
+
+    // A share that silently fails is the one the share rate most needs to
+    // exclude; the person is still told nothing, deliberately.
+    await waitFor(() =>
+      expect(recordUsage).toHaveBeenCalledWith("insight_shared", expect.objectContaining({ success: false })),
+    );
   });
 
   it("filters insights by category tabs", async () => {
