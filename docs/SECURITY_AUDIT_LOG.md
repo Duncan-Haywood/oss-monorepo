@@ -672,9 +672,13 @@ This log records all identified application, infrastructure, container, and CI s
   a deployed surface. What this finding still describes, and what keeps it open,
   is the *keying*: the limiter half is unchanged on both ventures, and on
   quick-pick-survey the anonymous surface has no operator password in front of
-  it at all. The two prose comments quoted above under "What is actually new
-  here" now overstate the auth half; they are left as quoted because they are
-  the record of what the code said when the finding was written.
+  it at all. The `marketing/generate/route.ts` comment quoted above under "What
+  is actually new here" outlived the fix and was read as a live fail-open more
+  than once afterwards, so it is corrected in place; the quotation above is left
+  intact as the record of what the code said when the finding was written. The
+  `rate-limit.ts:18` comment is left alone because it is still true — the key
+  really does derive from a header the client controls, which is the half of
+  this finding that remains open.
 - **Evidence**: `ventures/quick-pick-survey/src/lib/routeAuthPosture.test.ts`
   now declares all 32 handlers, of which 15 are `public` and 9 are
   `capability` — 24 handlers reachable without a session, which is the surface

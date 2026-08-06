@@ -43,10 +43,23 @@ function isBusinessContext(value: unknown): value is BusinessContext {
  * Operator-authenticated ad-hoc generation. Prefer generateMarketingPackAction
  * on /dashboard/leads for the persisted monthly Growth/Complete pack.
  *
- * Auth + per-IP rate limit (defense-in-depth): when OPERATOR_DASHBOARD_PASSWORD
- * is unset, requireOperatorAuth returns ok for every caller — without a limiter
- * that open-demo window can burn Anthropic quota unbounded. Mirrors
- * bootstrap-prices (auth then checkRateLimit).
+ * Auth + per-IP rate limit (defense-in-depth), because this route makes a
+ * billed Anthropic call per request with caller-supplied prompt content.
+ *
+ * This comment used to read "when OPERATOR_DASHBOARD_PASSWORD is unset,
+ * requireOperatorAuth returns ok for every caller". That stopped being true of
+ * a deploy in f1f60d03: an unset or placeholder password in a production build
+ * is now `locked-out` and requireOperatorAuth refuses unconditionally. It
+ * returns ok for an unset password only in `open-demo` — a non-production
+ * build — which is the documented `next dev` affordance. The stale sentence is
+ * corrected rather than deleted because it was read as a live fail-open more
+ * than once after the fix landed; see SEC-029 in docs/SECURITY_AUDIT_LOG.md.
+ *
+ * The limiter is still load-bearing and is not redundant with auth. It bounds
+ * the open-demo window, and it is the only brake on spend once a real operator
+ * *is* signed in. Its key derives from `x-forwarded-for`, which the caller
+ * supplies — the open half of SEC-029. Mirrors bootstrap-prices (auth then
+ * checkRateLimit).
  */
 export async function POST(request: Request) {
   const auth = await requireOperatorAuth();
