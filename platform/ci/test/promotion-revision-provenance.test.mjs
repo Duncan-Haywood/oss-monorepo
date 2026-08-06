@@ -1,43 +1,6 @@
-// A promotion that records a commit which has never existed.
-//
-// `platform/ci/promote-pairwise-gitops.sh` writes the annotation that is the
-// only record of what serves `pairwise.marisstella.dev`. It validated
-// `RELEASE_REVISION` with `[[ "$RELEASE_REVISION" =~ ^[0-9a-f]{40}$ ]]` — a
-// check on the shape of the string and nothing else.
-//
-// Measured 2026-08-05. `origin/gitops-production` recorded
-// `pairwise.marisstella.dev/revision: "5fa8a33c10e137bcbb3298ecadcb404c0ec54bb7"`.
-// That is forty lowercase hex characters, so it passes the regex exactly. It
-// shares its first eight with `5fa8a33c10e109520b32ca735f171691c93376e6`, which
-// was `main` when it was written, so it survives a human skim of a diff too. It
-// names no object in this repository, and none on the remote: `git fetch origin
-// 5fa8a33c10e137bcbb3298ecadcb404c0ec54bb7` answers `upload-pack: not our ref`.
-//
-// The consequences were exactly the ones the annotation exists to prevent.
-// Nothing in the repository could say what was deployed. `deployment_lag.py`
-// raised `revision-unresolvable` for the service — and its headline figure read
-// `Furthest behind: 0 commits`, because `worst_commits_behind` reduces over
-// services whose `commits_behind` was measured, and an unresolvable revision is
-// never measured. A fabricated revision therefore produces the *best* possible
-// lag number while destroying the record it is made of.
-//
-// A hash is the one input where a well-formed fabrication cannot be told from
-// the real thing by looking. This repository has met that twice already and
-// reached the same conclusion both times: `image_tags.py` refuses to accept a
-// digest's shape as evidence it pins anything, and
-// `fulfillment-order-inputs.ts` refuses `"https://"` for a print file because
-// `startsWith` cannot tell a URL from a prefix. The object database is the
-// authority for a commit id, so the script must ask it.
-//
-// What is asserted here is the behaviour, by running the script: a revision
-// that does not resolve must be refused, and a revision that does must be
-// recorded. The second case matters as much as the first — a check that refuses
-// everything would pass a test that only tries the bad input, and this
-// repository has shipped that shape of "fix" before.
-
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
@@ -45,146 +8,109 @@ import { fileURLToPath } from "node:url";
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), "../../..");
 const SCRIPT = join(REPO, "platform/ci/promote-pairwise-gitops.sh");
-
 const MANIFEST_DIR = "platform/k8s/apps/quick-pick-survey";
 const DIGEST = `sha256:${"a".repeat(64)}`;
-
-/** Forty lowercase hex characters that name no object. The defect's exact shape. */
+const ZERO_DIGEST = `sha256:${"0".repeat(64)}`;
+const ZERO_REVISION = "0".repeat(40);
 const FABRICATED_REVISION = "5fa8a33c10e137bcbb3298ecadcb404c0ec54bb7";
 
-/**
- * A throwaway repository carrying the two files the script rewrites.
- *
- * The script resolves its targets through `git rev-parse --show-toplevel`, so it
- * edits whatever repository it is run inside. That is what makes it testable
- * without touching the real manifests.
- */
+const GIT_ENV = {
+  GIT_CONFIG_GLOBAL: "/dev/null",
+  GIT_CONFIG_NOSYSTEM: "1",
+};
+
 function scratchRepo() {
   const root = mkdtempSync(join(tmpdir(), "promote-provenance-"));
   const git = (...args) =>
     execFileSync("git", args, {
       cwd: root,
       encoding: "utf8",
-      env: {
-        ...process.env,
-        GIT_CONFIG_GLOBAL: "/dev/null",
-        GIT_CONFIG_NOSYSTEM: "1",
-      },
+      env: { ...process.env, ...GIT_ENV },
     });
-
   git("init", "--quiet", "--initial-branch=main");
   git("config", "user.email", "test@example.com");
   git("config", "user.name", "Test");
-
   mkdirSync(join(root, MANIFEST_DIR), { recursive: true });
-  writeFileSync(
-    join(root, MANIFEST_DIR, "kustomization.yaml"),
-    `images:\n  digest: sha256:${"0".repeat(64)}\n`,
-  );
+  writeFileSync(join(root, MANIFEST_DIR, "kustomization.yaml"), `images:\n  digest: ${ZERO_DIGEST}\n`);
   writeFileSync(
     join(root, MANIFEST_DIR, "deployment.yaml"),
-    [
-      "apiVersion: apps/v1",
-      "kind: Deployment",
-      "metadata:",
-      `  annotations:`,
-      `    pairwise.marisstella.dev/revision: "${"0".repeat(40)}"`,
-      "spec:",
-      "  template:",
-      "    metadata:",
-      "      annotations:",
-      `        pairwise.marisstella.dev/revision: "${"0".repeat(40)}"`,
-      "",
-    ].join("\n"),
+    `metadata:\n  annotations:\n    pairwise.marisstella.dev/revision: "${ZERO_REVISION}"\nspec:\n  template:\n    metadata:\n      annotations:\n        pairwise.marisstella.dev/revision: "${ZERO_REVISION}"\n`,
   );
-
   git("add", ".");
   git("commit", "--quiet", "-m", "seed");
   return { root, headSha: git("rev-parse", "HEAD").trim() };
 }
 
-function promote(root, revision) {
+function promote(root, revision, options = {}) {
+  const bin = join(root, "test-bin");
+  mkdirSync(bin, { recursive: true });
+  const docker = join(bin, "docker");
+  const dockerBody = options.dockerBody ?? `printf '{"Descriptor":{"digest":"%s"}}\\n' "${options.registryDigest ?? DIGEST}"`;
+  writeFileSync(docker, `#!/usr/bin/env bash\n${dockerBody}\n`);
+  chmodSync(docker, 0o755);
+  const imageReference =
+    options.imageReference ?? `git.marisstella.dev/giteaadmin/pairwise-app:${revision}`;
   return spawnSync("bash", [SCRIPT], {
     cwd: root,
     encoding: "utf8",
     env: {
       ...process.env,
-      GIT_CONFIG_GLOBAL: "/dev/null",
-      GIT_CONFIG_NOSYSTEM: "1",
+      ...GIT_ENV,
       IMAGE_DIGEST: DIGEST,
+      IMAGE_REFERENCE: imageReference,
+      PATH: `${bin}:${process.env.PATH}`,
       RELEASE_REVISION: revision,
     },
   });
 }
 
-function recordedRevisions(root) {
-  const text = readFileSync(join(root, MANIFEST_DIR, "deployment.yaml"), "utf8");
-  return [...text.matchAll(/pairwise\.marisstella\.dev\/revision: "([0-9a-f]{40})"/g)].map(
-    (m) => m[1],
-  );
+function manifests(root) {
+  return {
+    deployment: readFileSync(join(root, MANIFEST_DIR, "deployment.yaml"), "utf8"),
+    kustomization: readFileSync(join(root, MANIFEST_DIR, "kustomization.yaml"), "utf8"),
+  };
 }
 
-test("a well-formed revision that names no commit is refused", () => {
+function unchanged(root) {
+  assert.match(manifests(root).deployment, new RegExp(ZERO_REVISION, "g"));
+  assert.match(manifests(root).kustomization, new RegExp(ZERO_DIGEST));
+}
+
+test("a well-formed revision that names no commit is refused before writing", () => {
   const { root } = scratchRepo();
   try {
     const run = promote(root, FABRICATED_REVISION);
-
-    assert.notEqual(
-      run.status,
-      0,
-      `the script accepted ${FABRICATED_REVISION}, which names no object. ` +
-        "That is how gitops-production came to record a commit that has never existed.",
-    );
+    assert.notEqual(run.status, 0);
     assert.match(run.stderr, /does not name a commit/);
-
-    // Refusing after writing would still leave the fabrication in the file for
-    // the surrounding workflow to `git add`.
-    assert.deepEqual(
-      recordedRevisions(root),
-      [`${"0".repeat(40)}`, `${"0".repeat(40)}`],
-      "the manifest was modified before the revision was refused",
-    );
+    unchanged(root);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
 });
 
-test("a revision that resolves to a commit is recorded in both annotations", () => {
+test("a real commit and its exact immutable digest are recorded", () => {
   const { root, headSha } = scratchRepo();
   try {
     const run = promote(root, headSha);
-
-    assert.equal(run.status, 0, `refused a real commit: ${run.stderr}`);
-    assert.deepEqual(recordedRevisions(root), [headSha, headSha]);
-    assert.match(
-      readFileSync(join(root, MANIFEST_DIR, "kustomization.yaml"), "utf8"),
-      new RegExp(`  digest: ${DIGEST}`),
-    );
+    assert.equal(run.status, 0, run.stderr);
+    assert.equal(manifests(root).deployment.match(new RegExp(headSha, "g"))?.length, 2);
+    assert.match(manifests(root).kustomization, new RegExp(DIGEST));
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
 });
 
-test("an id that resolves to a non-commit object is refused", () => {
+test("an object that is not a commit is refused", () => {
   const { root } = scratchRepo();
   try {
-    // A blob id is also forty hex characters and `git cat-file -e` alone would
-    // accept it. Only the `^{commit}` peel distinguishes them, so an id that
-    // exists but is not a commit is the mutation that catches dropping it.
     const blob = execFileSync("git", ["hash-object", "-w", "--stdin"], {
       cwd: root,
       input: "not a commit",
       encoding: "utf8",
-      env: {
-        ...process.env,
-        GIT_CONFIG_GLOBAL: "/dev/null",
-        GIT_CONFIG_NOSYSTEM: "1",
-      },
+      env: { ...process.env, ...GIT_ENV },
     }).trim();
-
     const run = promote(root, blob);
-
-    assert.notEqual(run.status, 0, `the script accepted blob ${blob} as a release revision`);
+    assert.notEqual(run.status, 0);
     assert.match(run.stderr, /does not name a commit/);
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -192,12 +118,67 @@ test("an id that resolves to a non-commit object is refused", () => {
 });
 
 test("the guard consults the object database, not only the string", () => {
-  // The regex is necessary but was never sufficient, and a future edit that
-  // deletes the existence check would leave a script that still looks validated.
   const source = readFileSync(SCRIPT, "utf8");
   assert.match(
     source,
     /git cat-file -e "\$\{RELEASE_REVISION\}\^\{commit\}"/,
     "promote-pairwise-gitops.sh no longer asks git whether the revision exists",
   );
+});
+
+test("a digest mismatch is refused before writing", () => {
+  const { root, headSha } = scratchRepo();
+  try {
+    const run = promote(root, headSha, { registryDigest: `sha256:${"b".repeat(64)}` });
+    assert.notEqual(run.status, 0);
+    assert.match(run.stderr, /Image provenance mismatch/);
+    unchanged(root);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("an untrusted repository is refused before registry access", () => {
+  const { root, headSha } = scratchRepo();
+  try {
+    const run = promote(root, headSha, {
+      imageReference: `evil.example/anything:${headSha}`,
+      dockerBody: "exit 99",
+    });
+    assert.notEqual(run.status, 0);
+    assert.match(run.stderr, /not the trusted immutable release tag/);
+    unchanged(root);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+for (const [name, dockerBody] of [
+  ["registry command failure", "exit 7"],
+  ["malformed registry response", "printf 'not-json\\n'"],
+  ["empty registry response", "exit 0"],
+]) {
+  test(`${name} fails closed before writing`, () => {
+    const { root, headSha } = scratchRepo();
+    try {
+      const run = promote(root, headSha, { dockerBody });
+      assert.notEqual(run.status, 0);
+      assert.match(run.stderr, /Could not resolve immutable image reference/);
+      unchanged(root);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+}
+
+test("the promote step supplies registry credentials and the exact SHA tag", () => {
+  const workflow = readFileSync(join(REPO, ".gitea/workflows/pairwise-ci.yml"), "utf8");
+  const start = workflow.indexOf("- name: Commit the verified digest to the production branch");
+  const end = workflow.indexOf("\n  verify-production:", start);
+  const promoteStep = workflow.slice(start, end);
+  assert.ok(start >= 0 && end > start, "could not isolate the promote step");
+  assert.match(promoteStep, /IMAGE_REFERENCE: git\.marisstella\.dev\/giteaadmin\/pairwise-app:\$\{\{ github\.sha \}\}/);
+  assert.match(promoteStep, /REGISTRY_TOKEN: \$\{\{ secrets\.PAIRWISE_REGISTRY_TOKEN \}\}/);
+  assert.match(promoteStep, /docker login git\.marisstella\.dev/);
+  assert.match(promoteStep, /platform\/ci\/promote-pairwise-gitops\.sh/);
 });

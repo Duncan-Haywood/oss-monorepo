@@ -352,8 +352,14 @@ jobs:
       - name: Commit the verified digest to the production branch
         env:
           IMAGE_DIGEST: ${{ needs.container.outputs.image_digest }}
+          IMAGE_REFERENCE: git.marisstella.dev/giteaadmin/pairwise-app:${{ github.sha }}
           RELEASE_REVISION: ${{ github.sha }}
+          REGISTRY_TOKEN: ${{ secrets.PAIRWISE_REGISTRY_TOKEN }}
         run: |
+          printf '%s' "$REGISTRY_TOKEN" |
+            docker login git.marisstella.dev \
+              --username giteaadmin \
+              --password-stdin
           git config user.name "Pairwise GitOps promoter"
           git config user.email "pairwise-gitops@marisstella.dev"
           if git fetch origin gitops-production; then
