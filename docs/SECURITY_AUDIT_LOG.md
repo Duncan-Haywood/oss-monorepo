@@ -38,6 +38,7 @@ This log records all identified application, infrastructure, container, and CI s
 | **SEC-026** | Medium | Application | `ventures/print-atelier/src/lib/stripe-webhook-server.ts` | Webhook signature timestamp tolerance defaulted to `0`, which meant "skip the replay check" | **[x] Fixed** |
 | **SEC-027** | High | Supply chain | `.gitea/workflows/security.yml` | The dependency-audit matrix covered 4 of 10 committed lockfiles; the 6 unaudited ones held 32 high-severity advisories | **Coverage fixed; 46 of 47 advisories open** |
 | **SEC-028** | High | Supply chain | `scripts/security-scan.sh`, three `package.json` | Unsatisfiable `overrides` made three packages uninstallable, dropping them from the audit; the completeness guard counted only packages it reached, so a one-package scan published `CLEAN` over 23 open HIGH advisories | **Fixed; 23 HIGH restored to the roadmap and open** |
+| **SEC-029** | Medium | Application | `ventures/local-site-studio/src/lib/security/rate-limit.ts`, `ventures/quick-pick-survey/src/lib/http.ts` | Rate limiters bucket on the leftmost `x-forwarded-for` entry, which the caller supplies, so rotating the header yields a fresh bucket per value | **Open — needs the trusted-proxy count, an off-repo deployment fact** |
 
 ---
 
@@ -595,7 +596,18 @@ This log records all identified application, infrastructure, container, and CI s
 
 ---
 
-### SEC-021 — Medium — Rate Limits Keyed on a Client-Controlled Header, and the Anonymous Surface Behind Them
+### SEC-029 — Medium — Rate Limits Keyed on a Client-Controlled Header, and the Anonymous Surface Behind Them
+
+- **Identifier note**: filed as `SEC-021` when it was written, an id this log had
+  already given to the homepage container finding. Two unrelated findings then
+  shared one row in the matrix, and that row described the *other* one — so this
+  finding was untracked while every integrity check passed, because the check
+  that refuses an undocumented finding asks only whether the id appears in the
+  matrix, and it did. `docs/INTEGRATION-REPORT-2026-08-04b.md` recorded the
+  collision on 2026-08-04 and proposed `SEC-028`, which was taken in the
+  meantime. Renumbered to `SEC-029` here, and the uniqueness contract in
+  `platform/ci/test/security-audit-log-integrity.test.mjs` now reads both
+  surfaces on which an id can be defined rather than the matrix alone.
 
 - **Location**: `ventures/local-site-studio/src/lib/security/rate-limit.ts:109`
   and `src/lib/auth/operator.ts` (`requireOperatorAuth`);
@@ -613,8 +625,8 @@ This log records all identified application, infrastructure, container, and CI s
 - **Impact, local-site-studio**: `POST /api/marketing/generate` calls the
   Anthropic API once per request — a billed call, with the caller controlling
   the prompt content. Two things stand between it and the open internet.
-  `requireOperatorAuth` returns `{ ok: true }` to everyone when
-  `OPERATOR_DASHBOARD_PASSWORD` is unset, which is the documented open-demo
+  `requireOperatorAuth` returned `{ ok: true }` to everyone when
+  `OPERATOR_DASHBOARD_PASSWORD` was unset, which was the documented open-demo
   default; and `checkRateLimit` buckets on the leftmost `x-forwarded-for`
   entry, which the client supplies, so rotating one header yields a fresh
   bucket per value. On a deployment where the platform does not overwrite that
@@ -628,6 +640,20 @@ This log records all identified application, infrastructure, container, and CI s
   other gate; a boolean env flag carries no caller identity. Mitigating: its
   response returns price IDs only, never `STRIPE_SECRET_KEY`, and the operation
   is additive.
+- **The auth half is now closed** (`f1f60d03`, "fail closed when the operator
+  password is missing in production"). `operatorAuthMode` splits the
+  no-password case in two: `open-demo` off a production build, and `locked-out`
+  on one, where `requireOperatorAuth` denies unconditionally and there is
+  deliberately no environment variable that re-opens it.
+  `ventures/local-site-studio/src/lib/auth/operator-fail-closed.test.ts` holds
+  that behaviourally. So the billed Anthropic path is no longer anonymously
+  reachable on a real deploy, and what remains of this finding on
+  `local-site-studio` is a spoofable limiter key behind an authenticated route.
+  The paragraph above is kept in the past tense rather than deleted, because
+  the composition it describes is the reason the fix mattered. Still stale in
+  the tree: the docstring at `src/app/api/marketing/generate/route.ts:44-48`
+  describes the old always-open behaviour. Its `auth`-then-`checkRateLimit`
+  order is unchanged and remains correct.
 - **Impact, quick-pick-survey**: the same leftmost-entry keying defeats every
   anonymous limit on the only venture serving live production traffic —
   including the per-IP brake on `POST /api/admin/login`, which is a brute-force
