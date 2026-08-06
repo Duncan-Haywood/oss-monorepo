@@ -61,7 +61,16 @@ const FABRICATED_REVISION = "5fa8a33c10e137bcbb3298ecadcb404c0ec54bb7";
  */
 function scratchRepo() {
   const root = mkdtempSync(join(tmpdir(), "promote-provenance-"));
-  const git = (...args) => execFileSync("git", args, { cwd: root, encoding: "utf8" });
+  const git = (...args) =>
+    execFileSync("git", args, {
+      cwd: root,
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        GIT_CONFIG_GLOBAL: "/dev/null",
+        GIT_CONFIG_NOSYSTEM: "1",
+      },
+    });
 
   git("init", "--quiet", "--initial-branch=main");
   git("config", "user.email", "test@example.com");
@@ -98,7 +107,13 @@ function promote(root, revision) {
   return spawnSync("bash", [SCRIPT], {
     cwd: root,
     encoding: "utf8",
-    env: { ...process.env, IMAGE_DIGEST: DIGEST, RELEASE_REVISION: revision },
+    env: {
+      ...process.env,
+      GIT_CONFIG_GLOBAL: "/dev/null",
+      GIT_CONFIG_NOSYSTEM: "1",
+      IMAGE_DIGEST: DIGEST,
+      RELEASE_REVISION: revision,
+    },
   });
 }
 
@@ -160,6 +175,11 @@ test("an id that resolves to a non-commit object is refused", () => {
       cwd: root,
       input: "not a commit",
       encoding: "utf8",
+      env: {
+        ...process.env,
+        GIT_CONFIG_GLOBAL: "/dev/null",
+        GIT_CONFIG_NOSYSTEM: "1",
+      },
     }).trim();
 
     const run = promote(root, blob);
