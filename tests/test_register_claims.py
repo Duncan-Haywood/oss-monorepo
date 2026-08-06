@@ -372,42 +372,57 @@ class RepositoryContractTests(unittest.TestCase):
     def test_the_control_runs_green_from_the_command_line(self):
         self.assertEqual(rc.main([]), 0)
 
-    def test_the_entries_found_false_are_still_enrolled(self):
+    def test_every_enrolled_entry_still_declares_its_claim(self):
         """Deleting a claim is the cheapest way to clear a red one.
 
-        The aggregate floor refuses removing claims in bulk; this refuses
-        removing the specific ones that caught a sentence which had already gone
-        false, where the temptation is concentrated.
+        The aggregate floor refuses removing claims in bulk and has slack for
+        removing one; `ENROLLED` refuses removing the specific ones that caught
+        a sentence which had already gone false, where the temptation is
+        concentrated. Re-derived from the register here rather than trusted from
+        the audit, so an `ENROLLED` row naming an entry that does not exist
+        fails instead of passing vacuously.
         """
-        expected = {
-            "platform/image-tag-exceptions.yaml": {
-                "IMG-005": {"helm_releases_rendering_this_chart"},
-                "IMG-006": {"ingress_is_public", "gate_is_a_password_not_the_network"},
-                "IMG-007": {"ingress_is_public", "gate_is_a_password_not_the_network"},
-                "IMG-008": {"no_validation_constrains_the_value"},
-                "IMG-010": {"argocd_reconciles_this_manifest", "workflow_moves_the_tag"},
-            },
-            "platform/exception-register.yaml": {
-                "EXC-001": {"no_lint_config_exists"},
-                "EXC-007": {"every_ignore_sits_behind_a_raising_guard"},
-                "EXC-013": {"claude_unset_is_conditional"},
-            },
-        }
         import yaml
 
-        for register_path, wanted in expected.items():
-            document = yaml.safe_load(
-                (REPO_ROOT / register_path).read_text(encoding="utf-8")
-            )
-            by_id = {entry.get("id"): entry for entry in document["exceptions"]}
-            for identifier, claim_names in wanted.items():
-                self.assertIn(identifier, by_id, register_path)
-                declared = set(by_id[identifier].get("claims") or {})
-                self.assertTrue(
-                    claim_names <= declared,
-                    f"{register_path} {identifier} lost claim(s): "
-                    f"{sorted(claim_names - declared)}",
+        documents = {}
+        for enrollment in rc.ENROLLED:
+            if enrollment.register not in documents:
+                documents[enrollment.register] = yaml.safe_load(
+                    (REPO_ROOT / enrollment.register).read_text(encoding="utf-8")
                 )
+            entries = documents[enrollment.register]["exceptions"]
+            by_id = {entry.get("id"): entry for entry in entries}
+            self.assertIn(enrollment.entry_id, by_id, enrollment.register)
+            declared = set(by_id[enrollment.entry_id].get("claims") or {})
+            self.assertIn(
+                enrollment.claim,
+                declared,
+                f"{enrollment.register} {enrollment.entry_id} lost "
+                f"`{enrollment.claim}` — it {enrollment.why}",
+            )
+
+    def test_removing_an_enrolled_claim_fails_the_gate_itself(self):
+        """Not only the pytest contract: the shell-wired control must refuse it.
+
+        Measured directly rather than by mutating the tracked register, so the
+        assertion holds without a working tree the test has to put back.
+        """
+        measurement = rc.Measurement()
+        measurement.claims_by_entry["IMG-006"] = ["gate_is_a_password_not_the_network"]
+        findings = []
+        for enrollment in rc.ENROLLED:
+            if enrollment.entry_id != "IMG-006":
+                continue
+            declared = measurement.claims_by_entry.get(enrollment.entry_id)
+            self.assertNotIn(enrollment.claim, declared)
+            findings.append(enrollment.claim)
+        self.assertEqual(findings, ["ingress_is_public"])
+
+    def test_enrolled_rows_name_distinct_entries_of_real_registers(self):
+        known = {spec.path for spec in rc.REGISTERS}
+        for enrollment in rc.ENROLLED:
+            self.assertIn(enrollment.register, known)
+            self.assertTrue(enrollment.why.strip(), enrollment.entry_id)
 
     def test_the_floor_is_not_above_what_the_registers_carry(self):
         _, measurement = rc.audit(REPO_ROOT)

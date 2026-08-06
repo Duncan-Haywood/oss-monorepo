@@ -200,6 +200,90 @@ DERIVED_CLAIMS: Tuple[DerivedClaim, ...] = (
     ),
 )
 
+@dataclass(frozen=True)
+class Enrollment:
+    """An entry whose sentence was found false, and the claim that caught it.
+
+    `MIN_CHECKED_CLAIMS` is an aggregate and an aggregate has slack: with 27
+    claims standing, deleting one entry's still leaves the floor met. That is
+    the move this refuses. Every id below is a sentence that was live and untrue
+    on 2026-08-06 — the places where the temptation to clear a red by deleting
+    the claim is concentrated, because the claim is the only thing that ever
+    noticed.
+
+    Earned one entry at a time, deliberately, rather than "every entry must
+    carry a claim": a blanket rule would be a region in which the claim may
+    quietly be untrue, and would push the next author toward a decorative
+    predicate to satisfy it.
+    """
+
+    register: str
+    entry_id: str
+    claim: str
+    why: str
+
+
+ENROLLED: Tuple[Enrollment, ...] = (
+    Enrollment(
+        register="platform/image-tag-exceptions.yaml",
+        entry_id="IMG-005",
+        claim="helm_releases_rendering_this_chart",
+        why="said every `helm_release` renders this chart; five of fourteen do",
+    ),
+    Enrollment(
+        register="platform/image-tag-exceptions.yaml",
+        entry_id="IMG-006",
+        claim="ingress_is_public",
+        why="said 'internal cluster admin access' of a public `code.marisstella.dev`",
+    ),
+    Enrollment(
+        register="platform/image-tag-exceptions.yaml",
+        entry_id="IMG-007",
+        claim="ingress_is_public",
+        why="the same sentence, on a public `opencode.marisstella.dev`",
+    ),
+    Enrollment(
+        register="platform/image-tag-exceptions.yaml",
+        entry_id="IMG-008",
+        claim="no_validation_constrains_the_value",
+        why="claimed a deploy-time validation `variables.tf` has never contained",
+    ),
+    Enrollment(
+        register="platform/image-tag-exceptions.yaml",
+        entry_id="IMG-010",
+        claim="argocd_reconciles_this_manifest",
+        why=(
+            "said the public site does not come from this image, of a manifest Argo "
+            "CD syncs with `selfHeal` behind the apex ingress"
+        ),
+    ),
+    Enrollment(
+        register="platform/exception-register.yaml",
+        entry_id="EXC-001",
+        claim="no_lint_config_exists",
+        why=(
+            "said the generator is linted, in a venture with no ESLint configuration "
+            "and no ESLint dependency"
+        ),
+    ),
+    Enrollment(
+        register="platform/exception-register.yaml",
+        entry_id="EXC-007",
+        claim="every_ignore_sits_behind_a_raising_guard",
+        why="said all eight raise `AnalysisLoaderError`; two do",
+    ),
+    Enrollment(
+        register="platform/exception-register.yaml",
+        entry_id="EXC-013",
+        claim="claude_unset_is_conditional",
+        why=(
+            "said all three workflows unset the provider key; the Claude one unsets "
+            "it only when an OAuth token is also present"
+        ),
+    ),
+)
+
+
 PREDICATE_KINDS = ("present", "absent", "count", "no_file", "precedes")
 
 #: Fields a claim mapping may carry beside its single predicate.
@@ -788,6 +872,43 @@ def audit(repo_root: Path) -> Tuple[List[Finding], Measurement]:
             findings.extend(
                 check_claims(
                     repo_root, tracked, spec, entry, identifier, measurement
+                )
+            )
+
+    for enrollment in ENROLLED:
+        declared = measurement.claims_by_entry.get(enrollment.entry_id)
+        if declared is None:
+            findings.append(
+                Finding(
+                    severity="error",
+                    code="enrolled-entry-missing",
+                    where=f"{enrollment.register} ({enrollment.entry_id})",
+                    message=(
+                        f"is enrolled for claim `{enrollment.claim}` but the entry "
+                        "carries no claims, or no longer exists"
+                    ),
+                    remedy=(
+                        f"This entry {enrollment.why}. If the exception is gone, "
+                        "remove its ENROLLED row in the same change and say so; if "
+                        "it is still here, restore the claim."
+                    ),
+                )
+            )
+        elif enrollment.claim not in declared:
+            findings.append(
+                Finding(
+                    severity="error",
+                    code="enrolled-claim-removed",
+                    where=f"{enrollment.register} ({enrollment.entry_id})",
+                    message=(
+                        f"no longer declares `{enrollment.claim}`; it declares "
+                        + ", ".join(sorted(declared))
+                    ),
+                    remedy=(
+                        f"This entry {enrollment.why}, and that claim is what caught "
+                        "it. Deleting a claim to clear a red returns the sentence to "
+                        "being unread. Correct the entry instead."
+                    ),
                 )
             )
 
