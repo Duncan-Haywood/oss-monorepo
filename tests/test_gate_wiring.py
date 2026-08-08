@@ -300,6 +300,66 @@ class RegisterContractTests(unittest.TestCase):
                         f"{importer} does not itself execute",
                     )
 
+    def test_every_baseline_measuring_gate_verifies_its_baseline(self):
+        """Enrollment, derived — not a list someone remembered to extend.
+
+        `baseline_trust.py` exists because `refs/remotes/origin/main` is a local
+        file any process may write, and four hand-written entries are on this
+        repository's reflog. Until 2026-08-08 the obligation to consult it was
+        recorded only as the `imported_by` tuple on that module's registration,
+        which names the controls that *do* import it. A gate that measured against
+        `origin/main` and skipped verification was therefore simply absent from
+        the list, and nothing was in a position to notice.
+
+        One was. `integration_debt.py` counted every tip against `origin/main`
+        with no check at all, and a single `git update-ref` pointing that ref at a
+        local merge of the pile took its measurement from 2 tips to 0 — landing in
+        the branch whose message asks the reader to lower the ceiling to the
+        forged number. See `tests/test_integration_debt.py::BaselineTrustTest`.
+
+        So the rule is computed from source here. A module under `scripts/ci/`
+        that declares an entrypoint and names a baseline — the literal
+        `"origin/main"` in code, or the `baseline_ref` identifier — must import
+        `baseline_trust`. `ast` is used rather than a text search so that prose
+        about `origin/main` in a docstring, of which there is a great deal in this
+        repository, cannot satisfy or trip the rule.
+        """
+        import ast
+
+        obliged = []
+        for path in sorted(CI_DIR.glob("*.py")):
+            control = f"scripts/ci/{path.name}"
+            if not declares_main(REPO_ROOT, control):
+                continue
+            tree = ast.parse(path.read_text())
+            names_a_baseline = any(
+                (isinstance(n, ast.Constant) and isinstance(n.value, str) and n.value == "origin/main")
+                or (isinstance(n, ast.Name) and n.id == "baseline_ref")
+                or (isinstance(n, ast.arg) and n.arg == "baseline_ref")
+                for n in ast.walk(tree)
+            )
+            if names_a_baseline:
+                obliged.append(control)
+
+        # If this drops to nothing the rule has stopped selecting anything and the
+        # test would pass vacuously — the shape `docs/CONTROL-AUDIT-2026-08-04.md`
+        # records as a vacuous glob, in a different language.
+        self.assertGreaterEqual(
+            len(obliged),
+            4,
+            f"the baseline-gate detector selected {obliged}; it is no longer finding the "
+            "controls it exists to police",
+        )
+
+        for control in obliged:
+            with self.subTest(control=control):
+                self.assertTrue(
+                    imports_module(REPO_ROOT, control, "scripts/ci/baseline_trust.py"),
+                    f"{control} measures against a baseline ref and does not import "
+                    "scripts/ci/baseline_trust.py, so it counts against a local file "
+                    "nobody checked against the remote",
+                )
+
     def test_no_control_is_both_wired_and_registered(self):
         wired = set(measure(REPO_ROOT).wired)
         both = sorted(r.path for r in REGISTERED_UNWIRED if r.path in wired)

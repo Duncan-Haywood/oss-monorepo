@@ -43,6 +43,12 @@ from datetime import date, timedelta
 import yaml
 
 import integration_debt
+from baseline_trust import (
+    STATE_DIVERGED,
+    STATE_UNREACHABLE,
+    STATE_VERIFIED,
+    BaselineTrust,
+)
 from integration_debt import (
     BUDGET_PATH,
     MAX_DECLARED_SLACK,
@@ -75,6 +81,27 @@ def make_budget(**overrides):
     return data
 
 
+def verified_trust(sha="abc1234567890abc1234567890abc1234567890a"):
+    """A baseline the remote confirmed.
+
+    Mirrors `tests/test_release_lag.py`'s helper of the same name, for the same
+    reason. The policy tests below are about the tip budget, not about the
+    baseline, so they say plainly that the baseline was checked and agreed.
+    Stating it is the point: `Measurement.trust` defaults to `None`, and `None`
+    is now a finding, so a test that wants to exercise the budget has to declare
+    that the other half was satisfied rather than inherit a silent pass.
+    """
+    return BaselineTrust(
+        ref="origin/main",
+        remote="origin",
+        branch="main",
+        local_sha=sha,
+        remote_sha=sha,
+        state=STATE_VERIFIED,
+        detail="test fixture: remote agreed",
+    )
+
+
 def make_measurement(**overrides):
     data = {
         "baseline_ref": "origin/main",
@@ -85,6 +112,7 @@ def make_measurement(**overrides):
         "tip_names": ["agent/integration-full"],
         "absorbed_refs": 41,
         "dropped": [],
+        "trust": verified_trust(),
     }
     data.update(overrides)
     return Measurement(**data)
@@ -632,12 +660,134 @@ class ExitCodeTest(unittest.TestCase):
         self.assertIn("will not pass by default", result.stderr)
 
 
+class BaselineTrustTest(unittest.TestCase):
+    """The baseline this control counts against is verified, or nothing is reported.
+
+    Every number this module produces is "work not in `baseline_ref`", read out of
+    `refs/remotes/origin/main` — a local file any process may write. Measured
+    2026-08-08: this was the only `origin/main`-baselined control in
+    `scripts/ci/` that never verified it, while `release_lag.py`,
+    `branch_collisions.py` and `deployment_lag.py` all did.
+
+    The forgery is cheap and it paid. One
+    `git update-ref refs/remotes/origin/main <a local merge of every tip>` moved
+    the measurement from 2 tips to 0 on this repository. The gate did not merely
+    miss it: 0 against a declared budget of 2 lands in the `budget-stale` branch,
+    whose message reads "Lower `max_unintegrated_tips` to 0". Comply once and the
+    honest state — a real pile of unintegrated branches — is red for good, and the
+    ratchet has been permanently weakened by a fabricated input rather than by any
+    change to the code it measures.
+    """
+
+    def test_a_measurement_with_no_baseline_check_is_a_finding(self):
+        m = make_measurement(trust=None)
+        checks = [f.check for f in evaluate(m, make_budget(), TODAY)]
+        self.assertIn("baseline-unverified", checks)
+
+    def test_a_diverged_baseline_is_reported_as_forged(self):
+        m = make_measurement(
+            trust=BaselineTrust(
+                ref="origin/main",
+                remote="origin",
+                branch="main",
+                local_sha="a" * 40,
+                remote_sha="b" * 40,
+                state=STATE_DIVERGED,
+                detail="local and remote disagree",
+            )
+        )
+        checks = [f.check for f in evaluate(m, make_budget(), TODAY)]
+        self.assertIn("baseline-forged", checks)
+
+    def test_a_verified_baseline_within_budget_produces_no_finding(self):
+        m = make_measurement(tips=["a" * 40], trust=verified_trust())
+        self.assertEqual([], evaluate(m, make_budget(), TODAY))
+
+    def test_an_unverified_baseline_never_asks_for_a_lower_ceiling(self):
+        # The point of the whole class. A forged baseline drives the tip count
+        # toward zero, which is the direction that lands in `budget-stale` and
+        # instructs a ratchet. That instruction must not be reachable from a
+        # baseline nobody could confirm, because acting on it is not reversible in
+        # practice: this control treats raising the ceiling again as a weakening.
+        m = make_measurement(tips=[], tip_names=[], trust=None)
+        findings = evaluate(m, make_budget(budget={"max_unintegrated_tips": 4, "slack_tips": 0}), TODAY)
+        checks = [f.check for f in findings]
+
+        self.assertIn("budget-stale-unverifiable", checks)
+        self.assertNotIn("budget-stale", checks)
+        self.assertNotIn(
+            "Lower `max_unintegrated_tips`",
+            " ".join(f.message for f in findings),
+            "a run that could not verify its baseline named a new ceiling anyway",
+        )
+
+    def test_a_verified_baseline_still_asks_for_a_lower_ceiling(self):
+        # The other direction, so the guard above cannot be satisfied by simply
+        # deleting the ratchet advice. A converged pile on a confirmed baseline
+        # must still say so — that is the two-directional half of this control.
+        m = make_measurement(tips=[], tip_names=[], trust=verified_trust())
+        findings = evaluate(m, make_budget(budget={"max_unintegrated_tips": 4, "slack_tips": 0}), TODAY)
+
+        self.assertIn("budget-stale", [f.check for f in findings])
+        self.assertIn("Lower `max_unintegrated_tips` to 0", " ".join(f.message for f in findings))
+
+    def test_the_report_names_the_baseline_it_could_not_verify(self):
+        m = make_measurement(trust=None)
+        report = format_report(m, make_budget(), evaluate(m, make_budget(), TODAY))
+        self.assertIn("UNVERIFIED", report)
+        self.assertNotIn("PASS", report)
+
+    def test_measure_verifies_by_default_and_records_what_it_found(self):
+        # `verify=False` exists for callers that have already verified. Passing it
+        # is not a way to obtain a silent pass: the missing record is itself a
+        # finding, so the flag cannot be used to buy a clean run.
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        repo = GitRepo(Path(tmp.name))
+        repo.commit("a.txt", "one")
+        repo.set_baseline()
+
+        skipped = measure(repo.root, "origin/main", verify=False)
+        self.assertIsNone(skipped.trust)
+        self.assertIn(
+            "baseline-unverified", [f.check for f in evaluate(skipped, make_budget(), TODAY)]
+        )
+
+        checked = measure(repo.root, "origin/main")
+        self.assertIsNotNone(checked.trust)
+
+    def test_the_json_output_states_whether_the_baseline_was_verified(self):
+        result = subprocess.run(
+            [sys.executable, str(CI_DIR / "integration_debt.py"), "--json", "--report"],
+            capture_output=True,
+            text=True,
+            cwd=str(REPO_ROOT),
+        )
+        payload = json.loads(result.stdout)
+        self.assertIn("baseline_verified", payload)
+        self.assertIsInstance(payload["baseline_verified"], bool)
+
+
 class RepositoryContractTest(unittest.TestCase):
     """The gate itself, executed against this repository."""
 
     def test_this_repository_is_within_its_declared_budget(self):
         measurement, budget_data, findings = audit(REPO_ROOT)
         report = format_report(measurement, budget_data, findings)
+
+        if measurement.trust and measurement.trust.state == STATE_UNREACHABLE:
+            # An offline run cannot say whether the pile is still unintegrated,
+            # so it asserts the refusal rather than a budget it has no evidence
+            # for. Copied deliberately from `tests/test_release_lag.py`, down to
+            # which states land here: only `unreachable`. `diverged` means we
+            # checked and the local ref disagrees with the remote, and
+            # `missing-on-remote`/`not-a-remote-ref` are misconfiguration. All
+            # three stay red below, because for this control they are exactly the
+            # states a forged baseline produces.
+            self.assertIn("baseline-unverified", [f.check for f in findings])
+            self.assertNotIn("PASS", report)
+            return
+
         if not measurement.observable:
             self.assertIn("NOT MEASURABLE", report)
             self.assertNotIn("PASS", report)
