@@ -1,11 +1,9 @@
 # Repository security policy scan
 
-Commit: `5f311624b6c7d4a04914ff4eb4e9f85717db9c8f`
+Commit: `b52b3bc9f9356614ac0defc9305f45154e1e385c`
 
 ## Blocking findings
 
-- [ ] **Unresolved merge marker:** `platform/k8s/apps/quick-pick-survey/deployment.yaml`
-- [ ] **Unresolved merge marker:** `ventures/quick-pick-survey/src/lib/ogCardFields.test.ts`
 
 ## Controls checked
 
@@ -16,4 +14,4 @@ Commit: `5f311624b6c7d4a04914ff4eb4e9f85717db9c8f`
 
 ## Result
 
-FAIL — 2 blocking finding(s). Remove the material from the commit, rotate any exposed credential, and follow the history-remediation procedure in `SECURITY.md`.
+PASS — no blocking repository-policy findings.
