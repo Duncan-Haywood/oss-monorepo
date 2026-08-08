@@ -64,4 +64,54 @@ printf 'password = var.database_password\n' >"$variable_repo/main.tf"
 git -C "$variable_repo" add main.tf
 run_scan "$variable_repo"
 
+key_repo="$(new_repo private-key)"
+printf -- '-----BEGIN OPENSSH PRIVATE KEY-----\nnot-real\n' >"$key_repo/notes.txt"
+git -C "$key_repo" add notes.txt
+if run_scan "$key_repo"; then
+  printf 'expected private-key material to fail\n' >&2
+  exit 1
+fi
+grep -q 'Private-key material detected' "$key_repo/report.md"
+
+# The merge-marker detector, which had no case here until 2026-08-08 — and on
+# that day an unresolved conflict was committed to `main` in
+# `platform/ci/test/security-audit-log-integrity.test.mjs`, where it sat for six
+# commits. The scanner would have caught it; nothing on the path that merge took
+# ran the scanner. The runner registration is the other half of that fix, in
+# `scripts/test-ci.sh`. This half is so that the detector cannot rot unnoticed
+# before the next one.
+#
+# The fixture is the real shape: a `.mjs` file whose two sides each define the
+# same function, which is what makes this failure so quiet — the file looks like
+# code, and the duplicate-definition scan reports it as a *different* defect.
+conflict_repo="$(new_repo merge-conflict)"
+cat >"$conflict_repo/module.mjs" <<'CONFLICTED'
+export function shared() {
+<<<<<<< HEAD
+  return 'ours';
+=======
+  return 'theirs';
+>>>>>>> agent/some-branch
+}
+CONFLICTED
+git -C "$conflict_repo" add module.mjs
+if run_scan "$conflict_repo"; then
+  printf 'expected an unresolved merge marker to fail\n' >&2
+  exit 1
+fi
+grep -q 'Unresolved merge marker' "$conflict_repo/report.md"
+
+# A detector that fires on everything is not a detector. `=======` is a marker
+# only on its own line: an inline run of equals signs, a short rule, and the
+# words that name the markers in prose must all pass, or the first document that
+# explains this control turns its own gate red and invites someone to delete it.
+marker_prose_repo="$(new_repo merge-marker-prose)"
+cat >"$marker_prose_repo/NOTES.md" <<'PROSE'
+Resolve a conflict by deleting the <<<<<<< and >>>>>>> lines.
+| a ======= b |
+====
+PROSE
+git -C "$marker_prose_repo" add NOTES.md
+run_scan "$marker_prose_repo"
+
 printf 'repository policy scanner tests passed\n'
