@@ -62,12 +62,28 @@ function recordPaidOrder(n: number): OrderRecord | null {
   );
 }
 
+/**
+ * The webhook asks Stripe for the buyer's email when the event does not carry
+ * one, and these events do not. That call is gated on `STRIPE_SECRET_KEY`, so a
+ * developer with one exported would have these tests reaching the real Stripe
+ * API and asserting on what it said. What is under test here is the order store,
+ * not the network: unset it, and restore whatever was there.
+ */
+const savedSecretKey: { value?: string } = {};
+
 beforeEach(() => {
+  savedSecretKey.value = process.env.STRIPE_SECRET_KEY;
+  delete process.env.STRIPE_SECRET_KEY;
   resetOrderStoreForTests();
   clearOrdersForTests();
 });
 
 afterEach(() => {
+  if (savedSecretKey.value === undefined) {
+    delete process.env.STRIPE_SECRET_KEY;
+  } else {
+    process.env.STRIPE_SECRET_KEY = savedSecretKey.value;
+  }
   resetOrderStoreForTests();
 });
 

@@ -55,6 +55,14 @@ export function buildStripeCheckoutCreateParams(
     },
     // Stripe copies the address collected above onto the PaymentIntent, which
     // is the object the fulfillment webhook receives.
+    //
+    // The buyer's *email* cannot be pinned here the way the address is. Stripe
+    // collects it on its own hosted page, after this session exists, so there is
+    // no value to give `payment_intent_data.receipt_email` at create time, and
+    // `customer_creation` would only put a customer *id* on the PaymentIntent —
+    // still not an address anything can read. The email lands on the charge as
+    // `billing_details.email`; the webhook retrieves it there
+    // (`stripe-payment-intent.ts`) rather than this end inventing a source.
     payment_intent_data: {
       metadata: payload.metadata,
     },

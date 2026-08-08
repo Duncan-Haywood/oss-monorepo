@@ -22,6 +22,7 @@ import {
   recordPrintfulFulfillmentSubmission,
 } from "@/lib/printful-orders";
 import { recordStripeWebhookToLedger } from "@/lib/stripe-ledger";
+import { fetchStripePaymentIntentBuyerEmail } from "@/lib/stripe-payment-intent";
 import {
   STRIPE_WEBHOOK_MAX_AGE_SECONDS,
   verifyStripeWebhookSignature,
@@ -140,6 +141,56 @@ export async function POST(request: Request) {
       );
     }
     throw error;
+  }
+
+  // The buyer's own email address, which the event does not carry.
+  //
+  // `payment_intent.succeeded` delivers an unexpanded PaymentIntent: on API
+  // version 2025-02-24.acacia it has no `customer_details` (that is a Checkout
+  // Session field), no `charges` (removed in 2022-11-15), and a `latest_charge`
+  // that is a bare id string. `receipt_email` is null because a Checkout Session
+  // cannot set one — the buyer types their email into Stripe's page after the
+  // session exists. So every source `extractStripeShippingMetadata` reads misses,
+  // and both adapters refused the order as missing `buyerEmail`, after the card
+  // was charged and behind a 200 that stopped Stripe redelivering. The email is
+  // on the charge; getting it costs one retrieval with `expand[]=latest_charge`.
+  const secretKey = process.env.STRIPE_SECRET_KEY?.trim() ?? "";
+  const liftedBuyerEmail =
+    typeof paymentMetadata.buyerEmail === "string" ? paymentMetadata.buyerEmail.trim() : "";
+  if (
+    orderRecord &&
+    event.type === "payment_intent.succeeded" &&
+    liftedBuyerEmail === "" &&
+    typeof paymentObject.id === "string" &&
+    secretKey !== ""
+  ) {
+    const lookup = await fetchStripePaymentIntentBuyerEmail(paymentObject.id, secretKey, fetch);
+
+    // A transient failure must not be acknowledged. The submission this would
+    // otherwise write is `blocked` with `canRetry: false`, which the retry path
+    // refuses and no operator action can revive — and a 200 tells Stripe never
+    // to send the one event that could recreate it.
+    if (!lookup.ok && lookup.retryable) {
+      return NextResponse.json(
+        {
+          error: "Could not read the buyer's email from Stripe; payment not acknowledged",
+          reason: lookup.reason,
+          orderRecorded: Boolean(orderRecord),
+          orderId: orderRecord.orderId,
+          fulfillmentRecorded: false,
+          hint:
+            "Stripe will retry this event. Fulfillment was not queued, because an order with " +
+            "no buyer email is refused rather than submitted with a substitute address.",
+        },
+        { status: 503 },
+      );
+    }
+
+    // A retrieval that succeeded and found nothing leaves the field absent, and
+    // the adapters refuse the order on it. Nothing is defaulted here.
+    if (lookup.ok && lookup.email !== "") {
+      paymentMetadata.buyerEmail = lookup.email;
+    }
   }
 
   // Same rule as the order record above, for the same reason. The submission is
