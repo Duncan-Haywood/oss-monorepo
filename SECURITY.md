@@ -31,6 +31,26 @@ and on demand. It provides:
   variable files, private keys, and unresolved merge markers.
 - Fixture-based tests that prove the repository-policy gate accepts safe
   examples and rejects each prohibited class.
+
+The repository-policy gate also runs in `scripts/test-ci.sh` — the runner used
+before a push — as `Repository Security Policy Scan`, against this repository
+rather than against fixtures. Those are different questions, and until
+2026-08-08 only the fixture one was asked locally: the scanner was invoked by
+the `Security` workflow and the Dagger security suite, both of which run *after*
+a merge has already happened. In that window commit `30f9ab40` merged a branch
+with the conflict unresolved, leaving literal merge markers in
+`platform/ci/test/security-audit-log-integrity.test.mjs`; the file stopped
+parsing, nine security-audit-log checks executed none of themselves, and the
+markers survived six commits before being removed under an unrelated subject
+line. The scanner detects that shape in one line and was never asked.
+
+Both halves are needed and neither substitutes for the other: the fixture tests
+prove the detectors still detect, and the repository scan proves they have been
+pointed at the tree. `platform/ci/test/gate-wiring.test.mjs` fails if the
+registration is dropped. Note that the scan reads every tracked file including
+the scanner's own tests, so fixtures there assemble prohibited strings from
+parts rather than spelling them out; exempting the scanner's tests instead would
+put a hole in the control to make its tests fit.
 - Reports retained as Gitea Actions artifacts for 30 days and an automatically
   maintained Gitea issue when a default-branch or scheduled scan fails.
 
