@@ -65,6 +65,32 @@ const OVERVIEW = {
       { subject: "top-pick", prompted: 10, submitted: 4, dismissed: 5, responseRate: 0.4 },
     ],
   },
+  referral: {
+    invites: {
+      created: 24,
+      converted: 2,
+      maturedCreated: 4,
+      maturedConverted: 2,
+      immature: 20,
+      maturedRate: 0.5,
+      medianHoursToConvert: 3.5,
+      p90HoursToConvert: 5,
+      maturityWindowHours: 168,
+      maturityAdequate: true,
+    },
+    challenges: {
+      created: 3,
+      converted: 1,
+      maturedCreated: 2,
+      maturedConverted: 1,
+      immature: 1,
+      maturedRate: 0.5,
+      medianHoursToConvert: null,
+      p90HoursToConvert: null,
+      maturityWindowHours: 168,
+      maturityAdequate: null,
+    },
+  },
   hardest: [{ label: "Cooking together", medianMs: 7000, n: 5 }],
   easiest: [{ label: "Doing taxes", medianMs: 900, n: 4 }],
   feedback: {
@@ -284,5 +310,86 @@ describe("AdminView", () => {
     for (const what of ["trials", "ratings", "financial", "feedback", "reports"]) {
       expect(hrefs, `export link for ${what}`).toContain(`/api/admin/export?what=${what}`);
     }
+  });
+
+  /**
+   * The referral rate is the only number on this screen the owner would price
+   * a plan against, so the failures that matter are the ones where it reads
+   * as more certain than it is. Each of these is a way that happens.
+   */
+  describe("referral conversion", () => {
+    async function renderWith(referral: unknown) {
+      stubFetch({ "/api/admin/overview": { status: 200, body: { ...OVERVIEW, referral } } });
+      render(<AdminView />);
+      await screen.findByText("Accounts");
+    }
+
+    it("never shows the rate without the cohort it was computed over", async () => {
+      await renderWith(OVERVIEW.referral);
+
+      const card = screen.getByText("Partner invites").parentElement!;
+      expect(card.textContent).toMatch(/50%/);
+      // A bare "50%" over four invites would read as a finding. The counts are
+      // part of the claim, not a footnote.
+      expect(card.textContent).toMatch(/2 of 4 invites sent more than 7 days ago/);
+    });
+
+    it("says how many invites were excluded for being too recent", async () => {
+      // Without this line the operator sees 2 conversions from 24 invites
+      // reported as 50% and cannot tell where the other 20 went.
+      await renderWith(OVERVIEW.referral);
+
+      const card = screen.getByText("Partner invites").parentElement!;
+      expect(card.textContent).toMatch(/20 too recent to count/);
+      expect(card.textContent).toMatch(/24 sent in total/);
+    });
+
+    it("renders an unmeasurable rate as an explanation, never as 0%", async () => {
+      // The distinction the whole feature protects: nobody has had the chance
+      // to join yet is not the same as nobody joined.
+      await renderWith({
+        ...OVERVIEW.referral,
+        invites: {
+          created: 6, converted: 0, maturedCreated: 0, maturedConverted: 0, immature: 6,
+          maturedRate: null, medianHoursToConvert: null, p90HoursToConvert: null,
+          maturityWindowHours: 168, maturityAdequate: null,
+        },
+      });
+
+      const card = screen.getByText("Partner invites").parentElement!;
+      expect(card.textContent).toMatch(/No invite is older than 7 days yet/);
+      expect(card.textContent).not.toMatch(/0%/);
+    });
+
+    it("warns on the surface when conversions are still arriving after the window", async () => {
+      // The rate is real but censored. If this only lived in the JSON the
+      // screen would publish an understated number with no hint of it.
+      await renderWith({
+        ...OVERVIEW.referral,
+        invites: { ...OVERVIEW.referral.invites, p90HoursToConvert: 400, maturityAdequate: false },
+      });
+
+      expect(screen.getByText(/still arriving after 7 days, so this rate understates/)).toBeTruthy();
+    });
+
+    it("omits the latency line for a conversion that records no timestamp", async () => {
+      // Challenges have no accepted-at column. Showing "median —" would imply
+      // a measurement that was attempted and came back empty.
+      await renderWith(OVERVIEW.referral);
+
+      const card = screen.getByText("Couple challenges").parentElement!;
+      expect(card.textContent).toMatch(/1 of 2 challenges sent more than 7 days ago/);
+      expect(card.textContent).not.toMatch(/median/);
+    });
+
+    it("still renders the rest of the screen when an older API omits referral", async () => {
+      const withoutReferral: Record<string, unknown> = { ...OVERVIEW };
+      delete withoutReferral.referral;
+      stubFetch({ "/api/admin/overview": { status: 200, body: withoutReferral } });
+      render(<AdminView />);
+
+      await screen.findByText("Accounts");
+      expect(screen.queryByText("Referral conversion")).toBeNull();
+    });
   });
 });

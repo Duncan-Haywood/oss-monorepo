@@ -5,6 +5,20 @@ import { useCallback, useEffect, useState } from "react";
 type Velocity = { from: number; medianMs: number; n: number };
 type Timing = { label: string; medianMs: number; n: number };
 
+/** Mirrors `ConversionSummary` in `@/lib/inviteConversion`. */
+type Conversion = {
+  created: number;
+  converted: number;
+  maturedCreated: number;
+  maturedConverted: number;
+  immature: number;
+  maturedRate: number | null;
+  medianHoursToConvert: number | null;
+  p90HoursToConvert: number | null;
+  maturityWindowHours: number;
+  maturityAdequate: boolean | null;
+};
+
 type Overview = {
   totals: {
     users: number;
@@ -31,6 +45,7 @@ type Overview = {
     transitions: { from: string; to: string; n: number; medianMs: number | null; p95Ms: number | null }[];
     feedbackResponse: { subject: string; prompted: number; submitted: number; dismissed: number; responseRate: number | null }[];
   };
+  referral?: { invites: Conversion; challenges: Conversion };
   hardest: Timing[];
   easiest: Timing[];
   feedback: {
@@ -370,6 +385,28 @@ export function AdminView() {
         )}
       </Section>
 
+      {data.referral && (
+        <Section title="Referral conversion">
+          <p className="mb-3 text-xs text-neutral-500 dark:text-neutral-400">
+            Measured per invite, from the invite rows themselves — not from the usage events. An
+            invite and the join it produces come from two different people, so the event stream
+            cannot link them.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <ConversionCard
+              title="Partner invites"
+              subject="invite"
+              data={data.referral.invites}
+            />
+            <ConversionCard
+              title="Couple challenges"
+              subject="challenge"
+              data={data.referral.challenges}
+            />
+          </div>
+        </Section>
+      )}
+
       {(data.hardest.length > 0 || data.easiest.length > 0) && (
         <Section title="What slows people down">
           <div className="grid gap-4 sm:grid-cols-2">
@@ -548,6 +585,55 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function Grid({ children }: { children: React.ReactNode }) {
   return <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">{children}</div>;
+}
+
+/**
+ * One conversion rate, rendered so it cannot be read as more than it is.
+ *
+ * Three rules, each guarding a way this number misleads:
+ *  - the rate never appears without the cohort it was computed over, so a
+ *    100% built on two invites cannot be mistaken for a result;
+ *  - a null rate renders as "—" with the reason, never as 0%, because "no
+ *    invite has had time yet" and "nobody joined" are opposite facts;
+ *  - invites still inside the maturity window are shown as excluded, so the
+ *    operator can see the rate is not simply joins over invites sent.
+ */
+function ConversionCard({ title, subject, data }: { title: string; subject: string; data: Conversion }) {
+  const days = Math.round(data.maturityWindowHours / 24);
+  return (
+    <div className="rounded-xl bg-neutral-100 px-3 py-3 text-xs dark:bg-neutral-800">
+      <h3 className="mb-1 text-xs font-semibold text-neutral-600 dark:text-neutral-400">{title}</h3>
+      <div className="text-xl font-bold tabular-nums">
+        {data.maturedRate === null ? "—" : `${Math.round(data.maturedRate * 100)}%`}
+      </div>
+      <p className="text-neutral-500 dark:text-neutral-400">
+        {data.maturedRate === null
+          ? `No ${subject} is older than ${days} days yet, so there is nothing to measure.`
+          : `${data.maturedConverted} of ${data.maturedCreated} ${subject}s sent more than ${days} days ago.`}
+      </p>
+      <ul className="mt-2 space-y-0.5 text-[11px] text-neutral-500 dark:text-neutral-400">
+        <li>{data.created} sent in total · {data.converted} converted</li>
+        {data.immature > 0 && (
+          <li>{data.immature} too recent to count, on either side of the rate</li>
+        )}
+        {data.medianHoursToConvert !== null && (
+          <li>
+            median {formatHours(data.medianHoursToConvert)} to convert
+            {data.p90HoursToConvert !== null ? ` · P90 ${formatHours(data.p90HoursToConvert)}` : ""}
+          </li>
+        )}
+        {data.maturityAdequate === false && (
+          <li className="font-semibold text-amber-700 dark:text-amber-500">
+            Conversions are still arriving after {days} days, so this rate understates.
+          </li>
+        )}
+      </ul>
+    </div>
+  );
+}
+
+function formatHours(hours: number): string {
+  return hours < 48 ? `${hours.toFixed(1)}h` : `${(hours / 24).toFixed(1)}d`;
 }
 
 function Stat({ label, value }: { label: string; value: React.ReactNode }) {

@@ -373,6 +373,101 @@ describe("overview", () => {
     expect((await (await overview()).json()).totals.linkedCouples).toBe(1);
   });
 
+  /**
+   * `linkedCouples` is a numerator with no denominator: it can only ever rise,
+   * and it cannot answer whether inviting works. These bind the rate that can.
+   *
+   * They are here rather than beside `summariseConversion`'s unit tests
+   * because what is under test is the *wiring* — that the route reads the
+   * invite rows at all, maps `joinerId`/`joinedAt` onto the right fields, and
+   * puts the result on the response. All of that can break with the pure
+   * function still green.
+   */
+  const daysAgo = (n: number) => new Date(Date.now() - n * 24 * 60 * 60 * 1000);
+
+  it("reports the invite denominator, not only the invites that converted", async () => {
+    signedIn();
+    const a = await createAccount();
+    const b = await createAccount();
+    // Two invites old enough to have an outcome; one of them converted.
+    await prisma.couple.create({
+      data: { inviteCode: "MATURE01", creatorId: a.id, createdAt: daysAgo(20) },
+    });
+    await prisma.couple.create({
+      data: {
+        inviteCode: "MATURE02", creatorId: a.id, createdAt: daysAgo(20),
+        joinerId: b.id, joinedAt: daysAgo(19),
+      },
+    });
+
+    const body = await (await overview()).json();
+
+    expect(body.referral.invites.maturedCreated).toBe(2);
+    expect(body.referral.invites.maturedConverted).toBe(1);
+    expect(body.referral.invites.maturedRate).toBe(0.5);
+    // The latency has to survive the mapping too — a summary that reported the
+    // rate but no timing would mean `joinedAt` was never read.
+    expect(body.referral.invites.medianHoursToConvert).toBeGreaterThan(0);
+  });
+
+  it("keeps an invite sent today out of both sides of the rate", async () => {
+    signedIn();
+    const a = await createAccount();
+    const b = await createAccount();
+    await prisma.couple.create({
+      data: {
+        inviteCode: "MATURE03", creatorId: a.id, createdAt: daysAgo(20),
+        joinerId: b.id, joinedAt: daysAgo(19),
+      },
+    });
+    await prisma.couple.create({
+      data: { inviteCode: "FRESH001", creatorId: a.id },
+    });
+
+    const body = await (await overview()).json();
+
+    expect(body.referral.invites.created).toBe(2);
+    expect(body.referral.invites.immature).toBe(1);
+    expect(body.referral.invites.maturedCreated).toBe(1);
+    // Not 1/2. An invite sent minutes ago has not declined to convert.
+    expect(body.referral.invites.maturedRate).toBe(1);
+  });
+
+  it("agrees with linkedCouples about what a conversion is", async () => {
+    // `joinedAt` is nullable and `linkedCouples` counts on `joinerId`, so a
+    // couple linked without a timestamp is reachable. If the referral summary
+    // keyed off `joinedAt` instead, these two numbers would disagree on the
+    // same screen and the rate would quietly understate.
+    signedIn();
+    const a = await createAccount();
+    const b = await createAccount();
+    await prisma.couple.create({
+      data: {
+        inviteCode: "NOSTAMP1", creatorId: a.id, createdAt: daysAgo(20),
+        joinerId: b.id, joinedAt: null,
+      },
+    });
+
+    const body = await (await overview()).json();
+
+    expect(body.totals.linkedCouples).toBe(1);
+    expect(body.referral.invites.maturedConverted).toBe(1);
+    expect(body.referral.invites.maturedRate).toBe(1);
+    // Counted in the rate, absent from the timing — nothing was measured.
+    expect(body.referral.invites.medianHoursToConvert).toBeNull();
+  });
+
+  it("reports no rate rather than a zero when nothing has had time to convert", async () => {
+    signedIn();
+    const a = await createAccount();
+    await prisma.couple.create({ data: { inviteCode: "FRESH002", creatorId: a.id } });
+
+    const body = await (await overview()).json();
+
+    expect(body.referral.invites.maturedRate).toBeNull();
+    expect(body.referral.invites.immature).toBe(1);
+  });
+
   it("counts abandoned sessions, not unanswered rows", async () => {
     // The distinction the route's own comment insists on: a trial row is
     // written when a pair is shown, so unanswered rows are mostly reloads.
