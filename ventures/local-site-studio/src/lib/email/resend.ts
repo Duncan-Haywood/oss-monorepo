@@ -54,40 +54,94 @@ function emailLinkBaseUrl(): string {
   );
 }
 
+/**
+ * Why this message is being sent — and therefore whether the unsubscribe
+ * suppression list applies to it. Required on every send, never inferred.
+ *
+ * CAN-SPAM's opt-out obligation (15 U.S.C. §7704(a)(3)-(4)) attaches to a
+ * *commercial* electronic mail message: one whose primary purpose is the
+ * advertisement or promotion of a product or service (§7702(2)(A)). It does
+ * not attach to a "transactional or relationship message" (§7702(17)(A)),
+ * which expressly includes a message that facilitates, completes or confirms
+ * a commercial transaction the recipient has already agreed to (clause (i)),
+ * and one that delivers goods or services the recipient is entitled to
+ * receive under the terms of that transaction (clause (v)).
+ *
+ * That distinction is load-bearing here because this venture sells by cold
+ * outreach. `GET /api/unsubscribe` suppresses exactly the address that
+ * `/checkout` later prefills from the lead row, so a buyer's address is
+ * routinely already on the list at the moment they pay $500. Applying the list
+ * to their receipt and their go-live instructions did not honour an opt-out —
+ * nobody opts out of the thing they just bought. It took the money and sent
+ * nothing back, silently, with the webhook still ACKing 200.
+ *
+ * Rules for this flag:
+ *   - "marketing" is the default classification and stays fully suppressed.
+ *     Every outreach, follow-up, recovery, upsell and pack-delivery message is
+ *     marketing, including ones a reader might feel are "just a notification".
+ *   - "transactional" bypasses the suppression list ONLY. It is for messages
+ *     that carry no advertising and exist because money already changed hands.
+ *     It is NOT a bypass of the CAN-SPAM footer gate below: an unset
+ *     NEXT_PUBLIC_* variable still blocks a transactional message, because a
+ *     missing physical postal address is a defect in the artifact itself and
+ *     no classification makes it safe to transmit.
+ *   - The set of transactional senders is deliberately tiny and is pinned by
+ *     transactional-suppression.test.ts. Widening it is a change to what this
+ *     venture may mail an unsubscribed person; make it there, on purpose.
+ *
+ * Not reclassified, on purpose: `sendCommerceBuyNowClientReceipt` and the
+ * contact-form notify both go to `lead.email`, an address whose paid status is
+ * not established at the call site — a free-preview lead can receive both. The
+ * defect fixed here is the buyer's own receipt, so the bypass covers that and
+ * nothing adjacent to it.
+ */
+export type EmailKind = "transactional" | "marketing";
+
 export interface SendEmailParams {
   to: string;
   subject: string;
   html: string;
+  /** Required and explicit at every call site — see EmailKind. */
+  kind: EmailKind;
   leadSlug?: string;
 }
 
-export async function sendEmail({ to, subject, html, leadSlug }: SendEmailParams) {
+export async function sendEmail({ to, subject, html, kind, leadSlug }: SendEmailParams) {
   const normalizedTo = to.toLowerCase().trim();
 
-  // 1. Check suppression list.
+  // 1. Check suppression list — commercial mail only.
   //
-  // An unanswerable suppression check is not permission to send. When Convex is
-  // configured it is the only store an unsubscribe is ever written to, so a
-  // failed read means we do not know whether this address opted out — and the
-  // one outcome CAN-SPAM does not forgive is emailing someone who did.
-  let suppressed: boolean;
-  try {
-    suppressed = await isEmailSuppressed(normalizedTo);
-  } catch (e) {
-    if (e instanceof ConvexPrimaryReadError) {
-      console.error(`[Email Blocked] Suppression list unreadable for ${to}; refusing to send.`, e);
-      return {
-        success: false,
-        error:
-          "Suppression list is temporarily unreadable, so this email was not sent. " +
-          "Retry once the shared store is reachable.",
-      };
+  // A transactional message skips this branch entirely rather than reading and
+  // ignoring the answer: the list has no bearing on it, and consulting it would
+  // leave a paid customer's receipt hostage to the store's availability (see
+  // the fail-closed refusal below, which is correct for marketing and would be
+  // a second silent way to lose a receipt).
+  //
+  // For marketing mail, an unanswerable suppression check is not permission to
+  // send. When Convex is configured it is the only store an unsubscribe is ever
+  // written to, so a failed read means we do not know whether this address
+  // opted out — and the one outcome CAN-SPAM does not forgive is emailing
+  // someone who did.
+  if (kind === "marketing") {
+    let suppressed: boolean;
+    try {
+      suppressed = await isEmailSuppressed(normalizedTo);
+    } catch (e) {
+      if (e instanceof ConvexPrimaryReadError) {
+        console.error(`[Email Blocked] Suppression list unreadable for ${to}; refusing to send.`, e);
+        return {
+          success: false,
+          error:
+            "Suppression list is temporarily unreadable, so this email was not sent. " +
+            "Retry once the shared store is reachable.",
+        };
+      }
+      throw e;
     }
-    throw e;
-  }
-  if (suppressed) {
-    console.warn(`[Email Skipped] Address ${to} is in the suppression list.`);
-    return { success: false, reason: "suppressed" };
+    if (suppressed) {
+      console.warn(`[Email Skipped] Address ${to} is in the suppression list.`);
+      return { success: false, reason: "suppressed" };
+    }
   }
 
   // 2. Build the CAN-SPAM footer — or refuse.
@@ -124,6 +178,21 @@ Lead: ${leadSlug || "None"}`);
   const safeBrand = escapeHtmlForEmail(footer.brandName);
   const safeLegalEntity = escapeHtmlForEmail(footer.legalEntity);
   const safePostalAddress = escapeHtmlForEmail(footer.postalAddress);
+
+  // Sender identification (§7704(a)(1)) and the physical postal address
+  // (§7704(a)(5)) are unconditional. The sentence explaining *why* the message
+  // arrived is not: telling someone who just paid $500 that they were mailed
+  // "as a business contact of interest" is a false statement about the message,
+  // and it invites them to read the unsubscribe link as a way to stop receipts.
+  // A transactional message says what it is and scopes the opt-out to what the
+  // opt-out actually controls.
+  const relationshipLine =
+    kind === "transactional"
+      ? `This message confirms or completes a purchase you made from ${safeBrand}. It is not a marketing message.`
+      : `This email was sent by ${safeBrand} to business contacts of interest.`;
+  const unsubscribeLabel =
+    kind === "transactional" ? "Unsubscribe from marketing email" : "Unsubscribe";
+
   const fullHtml = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #18181b; line-height: 1.6; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="margin-bottom: 30px;">
@@ -131,10 +200,10 @@ Lead: ${leadSlug || "None"}`);
       </div>
       <hr style="border: 0; border-top: 1px solid #e4e4e7; margin: 30px 0;" />
       <footer style="font-size: 12px; color: #71717a; text-align: center; line-height: 1.5;">
-        <p>This email was sent by ${safeBrand} to business contacts of interest.</p>
+        <p>${relationshipLine}</p>
         <p>${safeLegalEntity} · ${safePostalAddress}</p>
         <p>
-          <a href="${unsubscribeUrl}" style="color: #2563eb; text-decoration: underline;">Unsubscribe</a> | 
+          <a href="${unsubscribeUrl}" style="color: #2563eb; text-decoration: underline;">${unsubscribeLabel}</a> |
           <a href="${baseUrl}/privacy" style="color: #2563eb; text-decoration: underline;">Privacy Policy</a>
         </p>
       </footer>
@@ -207,7 +276,7 @@ export async function sendOutreachEmail(to: string, businessName: string, slug: 
     <p style="font-weight: 500; margin-top: 0;">The ${escapeHtmlForEmail(brand.name)} Team</p>
   `;
 
-  return sendEmail({ to, subject, html, leadSlug: slug });
+  return sendEmail({ to, subject, html, kind: "marketing", leadSlug: slug });
 }
 
 /**
@@ -237,7 +306,7 @@ export async function sendOutreachFollowUp2(
     <p style="font-weight: 500; margin-top: 0;">The ${escapeHtmlForEmail(brand.name)} Team</p>
   `;
 
-  return sendEmail({ to, subject, html, leadSlug: slug });
+  return sendEmail({ to, subject, html, kind: "marketing", leadSlug: slug });
 }
 
 /**
@@ -267,7 +336,7 @@ export async function sendOutreachFollowUp3(
     <p style="font-weight: 500; margin-top: 0;">The ${escapeHtmlForEmail(brand.name)} Team</p>
   `;
 
-  return sendEmail({ to, subject, html, leadSlug: slug });
+  return sendEmail({ to, subject, html, kind: "marketing", leadSlug: slug });
 }
 
 /**
@@ -297,7 +366,7 @@ export async function sendCheckoutAbandonedRecovery(
     <p style="font-weight: 500; margin-top: 0;">The ${escapeHtmlForEmail(brand.name)} Team</p>
   `;
 
-  return sendEmail({ to, subject, html, leadSlug: slug });
+  return sendEmail({ to, subject, html, kind: "marketing", leadSlug: slug });
 }
 
 /**
@@ -329,7 +398,7 @@ export async function sendCommerceAbandonedRecovery(
     <p style="font-size: 12px; color: #71717a; margin-top: 4px;">Powered by ${escapeHtmlForEmail(brand.name)}</p>
   `;
 
-  return sendEmail({ to, subject, html, leadSlug: slug });
+  return sendEmail({ to, subject, html, kind: "marketing", leadSlug: slug });
 }
 
 /**
@@ -366,7 +435,7 @@ export async function sendInquiryReply(params: {
     </blockquote>
   `;
 
-  return sendEmail({ to, subject, html, leadSlug });
+  return sendEmail({ to, subject, html, kind: "marketing", leadSlug });
 }
 
 /**
@@ -453,7 +522,7 @@ export async function sendStarterUpsellEmail(params: {
     <p style="font-weight: 500; margin-top: 0;">The ${escapeHtmlForEmail(brand.name)} Team</p>
   `;
 
-  return sendEmail({ to, subject, html, leadSlug: slug });
+  return sendEmail({ to, subject, html, kind: "marketing", leadSlug: slug });
 }
 
 /**
@@ -478,7 +547,7 @@ export async function sendMarketingPackToClientEmail(params: {
     previewUrl,
   });
 
-  return sendEmail({ to, subject, html, leadSlug: slug });
+  return sendEmail({ to, subject, html, kind: "marketing", leadSlug: slug });
 }
 
 /**
@@ -501,7 +570,7 @@ export async function sendClientVoicePackToClientEmail(params: {
     previewUrl,
   });
 
-  return sendEmail({ to, subject, html, leadSlug: slug });
+  return sendEmail({ to, subject, html, kind: "marketing", leadSlug: slug });
 }
 
 /**
@@ -540,11 +609,19 @@ export async function sendCommerceBuyNowClientReceipt(params: {
     previewUrl,
   });
 
-  return sendEmail({ to, subject, html, leadSlug: slug });
+  return sendEmail({ to, subject, html, kind: "marketing", leadSlug: slug });
 }
 
 /**
- * Sends a transactional order receipt email.
+ * Receipt for a completed bundle purchase — the only helper here classified
+ * `kind: "transactional"`.
+ *
+ * It confirms a commercial transaction the recipient has already entered into
+ * (15 U.S.C. §7702(17)(A)(i)) and carries no advertising, so the unsubscribe
+ * suppression list does not reach it. That matters concretely: the buyer's
+ * address usually arrived through cold outreach and is often already
+ * suppressed by the time they pay, which is how a $500 payment used to produce
+ * no receipt at all. The CAN-SPAM footer gate still applies — see EmailKind.
  */
 export async function sendReceiptEmail(to: string, businessName: string, tier: string, amount: number) {
   const subject = `Your receipt for ${businessName} - ${brand.name}`;
@@ -557,5 +634,5 @@ export async function sendReceiptEmail(to: string, businessName: string, tier: s
     <p style="font-weight: 500; margin-top: 0;">The ${escapeHtmlForEmail(brand.name)} Team</p>
   `;
 
-  return sendEmail({ to, subject, html });
+  return sendEmail({ to, subject, html, kind: "transactional" });
 }

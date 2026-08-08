@@ -87,7 +87,20 @@ export default function ComplianceDocPage() {
           commerce checkout / billing portal / preview-open / bootstrap-prices /
           marketing generate) before token verify — returns 429 +
           Retry-After so a harvested footer link cannot unboundedly mutate the global suppression
-          list that gates every automated send
+          list that gates every <em>commercial</em> send
+        </li>
+        <li>
+          The suppression list gates commercial mail only. A receipt or go-live instructions for
+          a purchase the recipient just paid for is a transactional or relationship message (15
+          U.S.C. §7702(17)(A)(i), (v)), not a commercial electronic mail message, so the opt-out
+          obligation does not reach it — and because this venture sells by cold outreach, a
+          buyer&apos;s address is often already suppressed when they pay. Senders declare{" "}
+          <code>kind: &quot;transactional&quot;</code> explicitly (
+          <code>src/lib/email/resend.ts</code>); the roster is pinned by{" "}
+          <code>src/lib/email/transactional-suppression.test.ts</code> and covers only the
+          bundle receipt and the post-payment DNS handoff. The bypass is of the suppression list
+          alone — sender identification, the physical postal address and the CAN-SPAM footer
+          gate still block every send, transactional included, when unconfigured
         </li>
         <li>Non-deceptive subject lines</li>
       </ul>

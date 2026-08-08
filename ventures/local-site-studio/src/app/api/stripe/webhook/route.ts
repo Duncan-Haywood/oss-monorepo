@@ -470,6 +470,11 @@ export async function POST(request: Request) {
               const safeBrand = escapeHtmlForEmail(brand.name);
               const sent = await sendEmail({
                 to: customerEmail,
+                // Transactional: this is how the buyer receives what they just
+                // paid for (15 U.S.C. §7702(17)(A)(v)) — without it the site
+                // they bought cannot go live. The outreach suppression list
+                // must not swallow it; see EmailKind in lib/email/resend.ts.
+                kind: "transactional",
                 subject: `Next steps: go live with ${businessName} — ${brand.name}`,
                 leadSlug: slug,
                 html: `

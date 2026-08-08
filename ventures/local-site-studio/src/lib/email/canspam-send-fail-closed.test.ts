@@ -94,6 +94,7 @@ describe("sendEmail — CAN-SPAM footer fail-closed", () => {
       to: "owner@example.com",
       subject: "hello",
       html: "<p>hi</p>",
+      kind: "marketing",
     });
 
     expect(result.success).toBe(false);
@@ -112,6 +113,7 @@ describe("sendEmail — CAN-SPAM footer fail-closed", () => {
       to: "owner@example.com",
       subject: "hello",
       html: "<p>hi</p>",
+      kind: "marketing",
     });
 
     expect(result.success).toBe(false);
@@ -127,6 +129,7 @@ describe("sendEmail — CAN-SPAM footer fail-closed", () => {
       to: "owner@example.com",
       subject: "hello",
       html: "<p>hi</p>",
+      kind: "marketing",
     });
 
     expect(result.success).toBe(false);
@@ -143,6 +146,7 @@ describe("sendEmail — CAN-SPAM footer fail-closed", () => {
       to: "owner@example.com",
       subject: "hello",
       html: "<p>hi</p>",
+      kind: "marketing",
     });
 
     expect(result.success).toBe(false);
@@ -158,6 +162,7 @@ describe("sendEmail — CAN-SPAM footer fail-closed", () => {
       to: "owner@example.com",
       subject: "hello",
       html: "<p>hi</p>",
+      kind: "marketing",
     });
 
     expect(result.success).toBe(false);
@@ -175,6 +180,7 @@ describe("sendEmail — CAN-SPAM footer fail-closed", () => {
       to: "owner@example.com",
       subject: "hello",
       html: "<p>hi</p>",
+      kind: "marketing",
     });
 
     expect(result.success).toBe(true);
