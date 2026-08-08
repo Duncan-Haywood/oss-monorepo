@@ -40,7 +40,11 @@ import {
  */
 
 /** Webhook revenue path: fail closed when Convex is configured but unreachable. */
-const WEBHOOK_CONVEX_PRIMARY = { requireConvex: true } as const;
+// `requireDurableLedger` is set here and nowhere else: this is the only route
+// that writes after Stripe has taken money, so it is the only one for which an
+// instance-local SQLite file is the wrong answer rather than the demo answer.
+// See `assertDurableLedgerStore`.
+const WEBHOOK_CONVEX_PRIMARY = { requireConvex: true, requireDurableLedger: true } as const;
 
 /**
  * Fulfillment requires collected money, not a finished Checkout flow. Without

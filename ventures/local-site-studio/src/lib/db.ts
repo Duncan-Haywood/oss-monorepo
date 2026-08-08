@@ -17,6 +17,7 @@ import { newCommerceOrderId } from "./commerce/orders";
 import type { CommerceOrderRecord, InsertCommerceOrderInput } from "./commerce/orders";
 import type { ClientVoicePack, UpsertClientVoicePackInput } from "./voice/pack";
 import {
+  assertDurableLedgerStore,
   ConvexPrimaryReadError,
   ConvexPrimaryWriteError,
   shouldFallbackToSqliteOnConvexFailure,
@@ -829,6 +830,7 @@ export async function recordLeadPayment(
   },
   options?: ConvexPrimaryWriteOptions,
 ): Promise<{ alreadyRecorded: boolean }> {
+  assertDurableLedgerStore("recordLeadPayment", convexClient !== null, options);
   if (convexClient) {
     try {
       return await convexClient.mutation(api.leads.markLeadPaid, params);
@@ -1044,6 +1046,7 @@ export async function insertDeployHandoff(
   handoff: DeployHandoff,
   options?: ConvexPrimaryWriteOptions,
 ): Promise<void> {
+  assertDurableLedgerStore("insertDeployHandoff", convexClient !== null, options);
   if (convexClient) {
     try {
       await convexClient.mutation(api.deployHandoffs.upsert, {
@@ -1170,6 +1173,7 @@ export async function updateDeployHandoffStatus(
   extraNotes: string[] = [],
   options?: ConvexPrimaryWriteOptions,
 ): Promise<DeployHandoff | null> {
+  assertDurableLedgerStore("updateDeployHandoffStatus", convexClient !== null, options);
   const updatedAt = new Date().toISOString();
 
   if (convexClient) {
@@ -1344,6 +1348,7 @@ export async function insertClientInquiry(
   input: CreateClientInquiryInput,
   options?: ConvexPrimaryWriteOptions,
 ): Promise<ClientInquiry> {
+  assertDurableLedgerStore("insertClientInquiry", convexClient !== null, options);
   const now = new Date().toISOString();
   const inquiry: ClientInquiry = {
     id: `inq_${input.leadSlug}_${Date.now()}`,
@@ -1719,6 +1724,7 @@ export async function markCheckoutSessionComplete(
   stripeSessionId: string,
   options?: ConvexPrimaryWriteOptions,
 ): Promise<void> {
+  assertDurableLedgerStore("markCheckoutSessionComplete", convexClient !== null, options);
   if (convexClient) {
     try {
       await convexClient.mutation(api.checkoutSessions.markComplete, { stripeSessionId });
@@ -2033,6 +2039,7 @@ export async function insertCommerceOrder(
   input: InsertCommerceOrderInput,
   options?: ConvexPrimaryWriteOptions,
 ): Promise<{ alreadyRecorded: boolean }> {
+  assertDurableLedgerStore("insertCommerceOrder", convexClient !== null, options);
   const createdAt = new Date().toISOString();
   // Generated once up front (not inside the SQLite-only branch) so both
   // backends persist and return the same app-owned id — the Convex
@@ -2221,6 +2228,7 @@ export async function markCommerceOrderClientReceiptSent(
   clientReceiptEmailSentAt: string = new Date().toISOString(),
   options?: ConvexPrimaryWriteOptions,
 ): Promise<void> {
+  assertDurableLedgerStore("markCommerceOrderClientReceiptSent", convexClient !== null, options);
   if (convexClient) {
     try {
       await convexClient.mutation(api.commerceOrders.markClientReceiptSent, {
