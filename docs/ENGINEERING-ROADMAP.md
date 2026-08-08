@@ -122,11 +122,27 @@ evidence, and completion date before it can be marked done.
   route protection & auth redirects, member access, keyboard navigation, and automated
   axe-core accessibility audits. It is integrated into `.gitea/workflows/ai-first-markets-ci.yml`.
 
-  Still open: The homepage suite candidate-side run — the `journeys` job drives the working tree,
-  so of the two runs the policy asks for ("on every relevant pull request and on the exact release candidate")
-  homepage candidate-side run remains to be finalized. What the homepage needs is a job between
-  `container` and `deploy` that starts the published `:${sha}` image and re-runs the same specs against it;
-  the config already takes the base URL. Promotion therefore stays behind its bounded owner exception.
+  Update (2026-08-08, owner duncan): the homepage candidate-side run is now
+  written. `.gitea/workflows/homepage-ci.yml` gained a `candidate` job between
+  `container` and `deploy` that pulls the published image **by digest**, starts
+  it, and runs the same 46 specs against it through `PLAYWRIGHT_BASE_URL`. No
+  new specs. `container` gained an `image_digest` output for it, read back from
+  the registry with `docker manifest inspect`, mirroring pairwise-ci.yml — a
+  `:${sha}` tag is still a mutable pointer, and ENGINEERING-PRINCIPLES.md:70
+  asks for the digest.
+
+  Four fail-closed refusals inside that job, because every one of them is a way
+  this gate could have gone green over nothing: no parseable digest, an image
+  that will not pull or never serves, a URL the runner cannot reach, and a
+  collection of zero tests. The subtle one is the fourth's sibling — if
+  `PLAYWRIGHT_BASE_URL` were unset, `playwright.config.ts` would start
+  `e2e/static-server.mjs` and the job would report a green *candidate* run
+  having tested the working tree. So the job proves the URL is the container
+  before the suite starts, by requiring the `Content-Security-Policy` header
+  `nginx.conf` sets and `static-server.mjs` deliberately does not.
+
+  Promotion still stays behind its bounded owner exception; see the correction
+  immediately below, which this work confirms rather than changes.
 
   **The coupling recorded here was wrong, and the correction matters because it
   changes what the work buys.** This said lifting the block was coupled to test
@@ -156,7 +172,32 @@ evidence, and completion date before it can be marked done.
   the runner is DinD, and the only proven networking shape is `services:`
   addressed by alias). The candidate is also not the production artifact:
   `deploy-homepage.sh` never references `$IMAGE`, and mounts a ConfigMap of
-  three files over the image's web root. Pairwise's own suite has
+  three files over the image's web root.
+
+  Status of those two, 2026-08-08. The **first is resolved**: `container` no
+  longer uses `docker/build-push-action` at all — it is a plain
+  `docker build --tag`, so build and push demonstrably share one image store,
+  and `platform/ci/test/image-publish-provenance.test.mjs` now fails closed on
+  any job pushing a tag no step in the same job put there. The **second stands
+  and is the one thing about the new `candidate` job that a local run cannot
+  settle.** It is handled rather than assumed: the job probes twice, first from
+  inside with `docker exec` (the proven shape, which isolates "the image does
+  not serve") and then from the runner with `curl` against the published port.
+  If the runner's Docker shape does not publish to the runner's own loopback,
+  the second probe fails the job with that diagnosis in those words. It fails
+  closed; it does not fall back to anything. The first real run on Gitea is
+  what settles it, and if it turns out the port is unreachable the fix is the
+  networking shape, not the destination of the suite.
+
+  The third caveat is unchanged and worth restating, because it bounds what the
+  new job proves: `deploy-homepage.sh` still never reads `$IMAGE`, so the
+  candidate is a faithful *stand-in* for production rather than production's
+  literal artifact. What makes it faithful is a contract test, not a build
+  step — `portfolio/marisstella-homepage/tests/markup-contract.test.mjs`
+  requires the image's web root and the script's `--from-file` set to be the
+  same files, and the image additionally carries the real `nginx.conf` that
+  production's pod runs. Replacing the ConfigMap mount with the image's own web
+  root would remove the indirection entirely and is the better end state. Pairwise's own suite has
   no authenticated, couple-linking, or admin-dashboard journey, no visual
   regression evidence, and no candidate-side run — `PLAYWRIGHT_BASE_URL` is
   supported but no workflow points it at the promoted digest yet. The accessible
