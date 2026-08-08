@@ -53,10 +53,29 @@ Preserve that. Do not add a default to make a banner go away.
 
 `src/lib/db.ts` constructs the Convex client only when that URL resolves, and
 falls back to SQLite at `process.cwd()/local.db` when it does not. In a
-container that path is **ephemeral**: every `checkout_sessions` and
-`commerce_orders` row is lost on pod restart, rescale or reschedule, with no
-error raised. The venture's own `.env.example` says it is "required before first
-paid order on Vercel / multi-instance".
+container that path is **ephemeral** — `deployment.yaml` mounts no volume, so
+it lives on the writable layer and goes with the pod.
+
+**What that used to mean, and no longer does.** Until `7b421c2e` the Stripe
+webhook wrote the sale to that file and returned 200. Stripe treated the
+delivery as successful and stopped redelivering, so the next restart, rollout
+or rescale deleted the only record that a customer had paid — silently, with no
+error anywhere. The venture *documented* the risk in two places (`.env.example`
+and the dashboard banner from `convex-url-env-readiness.ts`) and refused on it
+in none.
+
+It now refuses. `assertDurableLedgerStore` in `src/lib/payments/convex-primary.ts`
+makes every post-payment write throw when Convex is unconfigured; the route
+turns that into its existing 500, so **Stripe redelivers for ~3 days** and the
+order lands as soon as you supply the URL. Set it before taking a payment — the
+consequence of not setting it is now a visible failed webhook in the Stripe
+dashboard rather than a quiet loss, but it is still an unfulfilled order.
+
+Only the paid-order path refuses. The contact form, CRM and unsubscribe keep the
+SQLite path, which `.env.example` documents as fine for solo local demos.
+Enforced by `src/app/api/stripe/webhook/durable-ledger-enrollment.test.ts`,
+which discovers the route's fulfillment writes from its own source, so a write
+added later cannot skip the guard.
 
 It is a `NEXT_PUBLIC_*` value, so it is a **build arg, not a Secret key**. An
 image built without it cannot be fixed by any Deployment change.
@@ -65,7 +84,7 @@ image built without it cannot be fixed by any Deployment change.
 
 | Build arg | Where to get it | What happens if it is empty |
 | --- | --- | --- |
-| `NEXT_PUBLIC_CONVEX_URL` | Convex dashboard → deployment URL | SQLite-only. Paid orders lost on pod restart. **Set before taking a payment.** |
+| `NEXT_PUBLIC_CONVEX_URL` | Convex dashboard → deployment URL | Every post-payment write refuses; the webhook 500s and Stripe redelivers. No order is fulfilled until it is set. **Set before taking a payment.** |
 | `NEXT_PUBLIC_APP_URL` | The public origin this is served on | `sendEmail` refuses to transmit (the CAN-SPAM unsubscribe link would be unreachable); sitemap/robots/canonical point at localhost. |
 | `NEXT_PUBLIC_COMPANY_ADDRESS` | The real postal address of the legal entity | `sendEmail` refuses. CAN-SPAM requires a physical postal address in outreach. |
 | `NEXT_PUBLIC_BRAND_NAME` | Owner decision | Customer-facing brand is blank. |

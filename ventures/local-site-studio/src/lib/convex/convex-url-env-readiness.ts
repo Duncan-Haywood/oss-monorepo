@@ -3,9 +3,18 @@
  *
  * Stripe / Resend / Vercel / brand banners already cover payment, outbound,
  * Domains API, and CAN-SPAM. Without a real NEXT_PUBLIC_CONVEX_URL, every
- * serverless / multi-instance deploy keeps the SQLite-only path — payments,
- * CRM, handoffs, and inquiries write to instance-local SQLite while other
- * instances (and Convex-first readers) never see them.
+ * serverless / multi-instance deploy keeps the SQLite-only path — CRM and
+ * inquiries write to instance-local SQLite while other instances (and
+ * Convex-first readers) never see them.
+ *
+ * The post-payment writes are no longer in that list, and the distinction is
+ * the point of this banner rather than a detail of it. They used to take the
+ * same silent fallback, which meant a paid order landed in a file the next pod
+ * restart deletes. They now refuse — see `assertDurableLedgerStore` in
+ * `../payments/convex-primary.ts` — so the Stripe webhook 500s and Stripe
+ * redelivers instead. This banner is therefore the difference between "orders
+ * are queued at Stripe waiting for you" and "orders are being lost", and it is
+ * the only place an operator is told which.
  *
  * Matches src/lib/db.ts client init:
  *   missing or whitespace-only → no ConvexHttpClient (SQLite-only).

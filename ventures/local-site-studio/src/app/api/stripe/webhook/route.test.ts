@@ -238,7 +238,7 @@ describe("POST /api/stripe/webhook", () => {
 
       expect(response.status).toBe(200);
       expect(json).toEqual({ received: true });
-      expect(markCheckoutSessionComplete).toHaveBeenCalledWith("cs_test_1", { requireConvex: true });
+      expect(markCheckoutSessionComplete).toHaveBeenCalledWith("cs_test_1", { requireConvex: true, requireDurableLedger: true });
       expect(recordLeadPayment).toHaveBeenCalledTimes(1);
       expect(insertDeployHandoff).toHaveBeenCalledTimes(1);
       expect(sendReceiptEmail).toHaveBeenCalledWith(
@@ -426,7 +426,7 @@ describe("POST /api/stripe/webhook", () => {
         "demo-cafe",
         expect.anything(),
         [expect.stringContaining("DNS handoff email sent")],
-        { requireConvex: true },
+        { requireConvex: true, requireDurableLedger: true },
       );
     });
 
@@ -456,7 +456,7 @@ describe("POST /api/stripe/webhook", () => {
         "demo-cafe",
         expect.anything(),
         [expect.stringContaining("Buyer receipt email sent")],
-        { requireConvex: true },
+        { requireConvex: true, requireDurableLedger: true },
       );
     });
 
@@ -526,7 +526,7 @@ describe("POST /api/stripe/webhook", () => {
           slug: "organic-8f3a2b1c9d4e",
           buyerBusinessName: "Rivera Plumbing",
         }),
-        { requireConvex: true },
+        { requireConvex: true, requireDurableLedger: true },
       );
     });
 
@@ -621,7 +621,7 @@ describe("POST /api/stripe/webhook", () => {
         "demo-cafe",
         expect.anything(),
         [expect.stringContaining("Buyer receipt email sent")],
-        { requireConvex: true },
+        { requireConvex: true, requireDurableLedger: true },
       );
     });
   });
@@ -656,7 +656,7 @@ describe("POST /api/stripe/webhook", () => {
           amountPaidUsd: 25,
           stripeSessionId: "cs_test_1",
         }),
-        { requireConvex: true },
+        { requireConvex: true, requireDurableLedger: true },
       );
       expect(insertClientInquiry).toHaveBeenCalledTimes(1);
       const inquiryArg = insertClientInquiry.mock.calls[0]?.[0];
@@ -666,7 +666,7 @@ describe("POST /api/stripe/webhook", () => {
       expect(markCommerceOrderClientReceiptSent).toHaveBeenCalledWith(
         "cs_test_1",
         expect.any(String),
-        { requireConvex: true },
+        { requireConvex: true, requireDurableLedger: true },
       );
     });
 
