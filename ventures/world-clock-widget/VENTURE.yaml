@@ -1,0 +1,32 @@
+name: world-clock-widget
+description: iPhone/iPad/Mac app and home-screen widget showing local time, sunrise, and sunset for major world cities.
+
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: People who work or have family across time zones want a widget that's information-dense by default (time + sunrise/sunset for several cities), not a single minimalist clock face.
+    status: untested
+    checked: null
+  - claim: People will pay for a "pro" tier (more cities, custom locations, lock-screen complications) once they're using the free widget daily.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 50
+  protected: true
+
+kill_criteria:
+  - No one (including the owner) uses the widget daily 30 days after the first TestFlight build.
+  - No paying customer after 90 days post-launch, if a paid tier ships.
+
+links:
+  production: null
+  analytics: null
