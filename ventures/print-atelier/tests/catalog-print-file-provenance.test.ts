@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 
@@ -111,5 +111,132 @@ test("the seeded catalog is honest about having no print files yet", () => {
     catalogArtworks.filter((artwork) => artwork.printFileUrl !== undefined).map((a) => a.slug),
     [],
     "a seeded artwork now carries a print file — confirm the file exists, then update this test in the same change",
+  );
+});
+
+// --- the scope this control depends on, and did not state -------------------
+
+/**
+ * Every test above reads `catalogArtworks`. That is the whole population *only*
+ * while the seed literal is the only thing that can put a print file on a
+ * listing — and nothing said so, or checked it.
+ *
+ * The gap is not hypothetical, and it is not the fabricated-URL gap the tests
+ * above close. It is the shape where a well-meaning change adds a *second*
+ * source — an operator API route, a `PRINT_ATELIER_PRINT_FILES` env map, a
+ * persistence store keyed on slug — because the blocker's own `operatorAction`
+ * says "record its https URL on the listing" and the product offers no way to
+ * do that. A URL arriving by any of those routes is shape-checked by
+ * `parsePrintFileUrl` and then sent to a POD partner, while every assertion
+ * above still passes: `catalogArtworks` is untouched, so the host checks, the
+ * `public/` check and the empty-set check all read a population the URL was
+ * never in. The control would report provenance established over nothing.
+ *
+ * Measured 2026-08-08 by running the money path with one master supplied: the
+ * chain behind the seed is complete and does ship. `artworkUrl_0` reaches
+ * `payment_intent_data.metadata`, survives to `payment_intent.succeeded`, and
+ * `queuePrintfulFulfillmentFromOrder` returns `queued` with the file, quantity,
+ * unit retail price, recipient and buyer email all correct. So a second source
+ * is *sufficient* to move money against a print file this control never saw.
+ *
+ * The two contracts below therefore pin the control's own scope rather than any
+ * behaviour. They are exact sets in both directions: adding a source fails, and
+ * so does removing one, because either is a change to what "provenance" covers
+ * here and neither should land without someone re-reading this file.
+ */
+
+const SRC_ROOT = new URL("../src/", import.meta.url);
+
+/** Every `.ts`/`.tsx` under `src/`, relative to it, sorted. */
+function sourceFiles(dir: URL = SRC_ROOT, prefix = ""): string[] {
+  const found: string[] = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) =>
+    a.name.localeCompare(b.name),
+  )) {
+    if (entry.isDirectory()) {
+      found.push(...sourceFiles(new URL(`${entry.name}/`, dir), `${prefix}${entry.name}/`));
+    } else if (/\.tsx?$/.test(entry.name)) {
+      found.push(`${prefix}${entry.name}`);
+    }
+  }
+  return found;
+}
+
+/**
+ * Case-insensitive on purpose: it has to catch `printFileUrl` the field and
+ * `parsePrintFileUrl` / `isUsablePrintFileUrl` / `resolvePrintFileUrl` the
+ * three functions. A case-sensitive `printFileUrl` misses all three — and
+ * misses `gelato-orders.ts` entirely, which is the adapter that sends the URL
+ * to Gelato.
+ */
+const PRINT_FILE_MENTION = /printfileurl/i;
+
+test("the print file surface is the reviewed set of modules, and no other", () => {
+  const touching = sourceFiles().filter((file) =>
+    PRINT_FILE_MENTION.test(readFileSync(new URL(file, SRC_ROOT), "utf8")),
+  );
+
+  assert.deepEqual(
+    touching,
+    [
+      // Declares the field, and holds the seed that is this control's population.
+      "lib/checkout.ts",
+      // Owns `parsePrintFileUrl` — the one definition of a usable URL — and the
+      // `artworkUrl` metadata key both adapters read.
+      "lib/fulfillment-order-inputs.ts",
+      "lib/gelato-orders.ts",
+      "lib/marketplace.ts",
+      "lib/printful-orders.ts",
+    ].sort(),
+    "a module outside the reviewed set now handles print file URLs. If it can " +
+      "introduce a URL that is not on a `catalogArtworks` entry — an API route, an " +
+      "env map, a persistence store — then the three tests at the top of this file " +
+      "no longer see the whole population, and provenance is established over a set " +
+      "the new URL is not in. Extend those tests to read the new source, then add " +
+      "the module here in the same change.",
+  );
+});
+
+test("nothing constructs a print file URL from a source other than the catalog", () => {
+  // The file-set contract above cannot see a new source added *inside* a module
+  // that already handles print files — `checkout.ts` reading `process.env`, say.
+  // This one pins every assignment's right-hand side, so that edit fails too.
+  const assignments: string[] = [];
+  for (const file of sourceFiles()) {
+    const source = readFileSync(new URL(file, SRC_ROOT), "utf8");
+    for (const line of source.split("\n")) {
+      // `\??` so an *optional* declaration (`printFileUrl?: string;`) is caught
+      // too. Without it the two `?:` declarations were invisible here, and a
+      // new source declared optional would have been invisible with them.
+      const match = /\bprintFileUrl\s*\??\s*:\s*(.+?),?\s*$/.exec(line);
+      if (match) {
+        assignments.push(`${file}: ${match[1].trim()}`);
+      }
+    }
+  }
+
+  assert.deepEqual(
+    assignments.sort(),
+    [
+      // The metadata key name, not a URL.
+      'lib/fulfillment-order-inputs.ts: "artworkUrl"',
+      // Type declarations.
+      "lib/checkout.ts: string;",
+      "lib/marketplace.ts: string;",
+      "lib/printful-orders.ts: string;",
+      // The two catalog-derived reads: `artworkToCheckoutLine` and
+      // `sanitizeCheckoutLineItems`. Both re-derive from the artwork rather than
+      // carrying whatever a stored cart held.
+      "lib/checkout.ts: artwork.printFileUrl",
+      "lib/checkout.ts: artwork.printFileUrl",
+      // The fulfillment end, through the shared validator, from order metadata
+      // the checkout wrote from the catalog.
+      "lib/printful-orders.ts: resolvePrintFileUrl(paymentMetadata, index).value",
+    ].sort(),
+    "a print file URL is now assigned from an expression this control has not " +
+      "reviewed. If the new right-hand side can yield a URL that is not on a " +
+      "`catalogArtworks` entry, the tests at the top of this file stop covering " +
+      "every URL that reaches a POD partner. Confirm where the value comes from " +
+      "and extend those tests to read it, then record the expression here.",
   );
 });
