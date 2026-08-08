@@ -383,7 +383,8 @@ describe("AdminView", () => {
     });
 
     it("still renders the rest of the screen when an older API omits referral", async () => {
-      const { referral: _omitted, ...withoutReferral } = OVERVIEW;
+      const withoutReferral: Record<string, unknown> = { ...OVERVIEW };
+      delete withoutReferral.referral;
       stubFetch({ "/api/admin/overview": { status: 200, body: withoutReferral } });
       render(<AdminView />);
 

@@ -209,27 +209,32 @@ components:
       - "*.test.ts"
       - "*.test.tsx"
       - "*.d.ts"
-    # Re-measured 2026-08-05 on Node 22.22.3, vitest 4.1.10, 60 test files / 473
-    # tests passing, after the rate-limit retention guard and the bcrypt cost
-    # fixes landed together. Every figure moved the right way, and the ratchet
-    # demanded this edit rather than permitting it: it went red with
-    # `unexercised-stale` because the recorded 58 had become an overstatement.
+    # Re-measured 2026-08-08 on Node 22.22.3, vitest 4.1.10, 61 test files / 514
+    # tests passing, after the referral-conversion work added `lib/stats.ts` and
+    # `lib/inviteConversion.ts`. The ratchet demanded this edit rather than
+    # permitting it: it went red with `baseline-stale` on functions and
+    # branches, which is the intended behaviour when new code arrives with
+    # tests — a floor that trails reality ratchets nothing.
     #
-    # `unexercised` is still the number that matters: 57 of the 113 declared
-    # source files are loaded by no test, including every route under
-    # src/app/api/admin/. 54.29% is the coverage of the other 56 files, and
-    # deleting the last test of any of those 57 would not move it at all. The
-    # file count rose 112 -> 113 because the retention guard is a new module;
-    # it arrives exercised, which is why the unexercised count fell rather than
-    # holding.
+    # `unexercised` is still the number that matters, and it is the number that
+    # did not move: 57 of the 115 declared source files are loaded by no test.
+    # The two new modules arrive exercised, so the declared count rose 113 ->
+    # 115 while the unexercised count held at 57. 54.70% is the coverage of the
+    # other 58 files, and deleting the last test of any of those 57 would not
+    # move it at all.
+    #
+    # `measured.files` (114) and the declared count (115) differ by one and
+    # always have: the declared set is the `sources` glob, the measured set is
+    # what the v8 provider emitted. The prose above this block previously said
+    # 113 declared beside a measured 112 for the same reason.
     baseline:
       unexercised: 57
-      lines: 54.29
-      functions: 54.96
-      branches: 46.08
+      lines: 54.70
+      functions: 55.67
+      branches: 46.84
     measured:
-      files: 112
-      lines: 4045
+      files: 114
+      lines: 4077
     tolerance:
       lines: 0.5
       functions: 0.5
