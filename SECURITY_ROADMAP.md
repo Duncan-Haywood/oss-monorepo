@@ -1,7 +1,7 @@
 # Security Roadmap & Vulnerability Log
 
 > **Automated Security Scanning & Governance Status**
-> - **Last Scan Execution**: `2026-08-08 12:07:05 UTC`
+> - **Last Scan Execution**: `2026-08-08 12:15:58 UTC`
 > - **CI Pipeline Scanner**: Enabled (`.gitea/workflows/security.yml`)
 > - **Audit Coverage**: 12 package(s) audited. A scan that cannot
 >   audit every package refuses to rewrite this file, so a clean dashboard always
@@ -15,8 +15,8 @@
 | Severity | Active Issues | Target SLA | Mitigation Priority |
 | :--- | :--- | :--- | :--- |
 | 🚨 **CRITICAL** | **0** | Immediate (24h) | Block Release |
-| ⚠️ **HIGH** | **23** | 7 Days | Sprint Backlog |
-| 🟡 **MEDIUM** | **6** | 30 Days | Scheduled Update |
+| ⚠️ **HIGH** | **13** | 7 Days | Sprint Backlog |
+| 🟡 **MEDIUM** | **4** | 30 Days | Scheduled Update |
 | 🔵 **LOW** | **2** | 90 Days | Maintenance Window |
 
 ---
@@ -25,19 +25,7 @@
 
 | Component / File | Package / Target | Severity | Range | Issue / Vulnerability | Recommended Fix | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| ventures/ai-first-markets | `brace-expansion` | **HIGH** | <=1.1.17 || 2.0.0 - 2.1.3 || 4.0.0 - 5.0.8 | brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation, brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation, brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation | npm audit fix | [ ] Scheduled |
-| ventures/ai-first-markets | `js-yaml` | **HIGH** | 4.0.0 - 4.3.0 | JS-YAML: Quadratic CPU consumption in !!omap resolution (3.x and 4.x) — CVE-2026-59870 fix not backported | npm audit fix | [ ] Scheduled |
-| ventures/ai-first-markets | `nanoid` | **HIGH** | <3.3.17 | nanoid: custom generators can loop indefinitely when size is zero | npm audit fix | [ ] Scheduled |
-| ventures/local-site-studio | `js-yaml` | **HIGH** | 4.0.0 - 4.3.0 | JS-YAML: Quadratic CPU consumption in !!omap resolution (3.x and 4.x) — CVE-2026-59870 fix not backported | npm audit fix | [ ] Scheduled |
-| ventures/local-site-studio | `nanoid` | **HIGH** | <3.3.17 | nanoid: custom generators can loop indefinitely when size is zero | npm audit fix | [ ] Scheduled |
 | ventures/print-atelier | `esbuild` | **LOW** | 0.27.3 - 0.28.0 | esbuild allows arbitrary file read when running the development server on Windows | npm audit fix | [ ] Scheduled |
-| ventures/quick-pick-survey | `brace-expansion` | **HIGH** | >=4.0.0 <5.0.9 || <1.1.18 | brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation, brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation | npm audit fix | [ ] Scheduled |
-| ventures/quick-pick-survey | `js-yaml` | **HIGH** | 4.0.0 - 4.3.0 | JS-YAML: Quadratic CPU consumption in !!omap resolution (3.x and 4.x) — CVE-2026-59870 fix not backported | npm audit fix | [ ] Scheduled |
-| ventures/quick-pick-survey | `nanoid` | **HIGH** | <3.3.17 | nanoid: custom generators can loop indefinitely when size is zero | npm audit fix | [ ] Scheduled |
-| ventures/real-estate-agent-photo-app/docs-site | `next` | **MODERATE** | 9.3.4-canary.0 - 16.3.0-preview.10 | postcss | Upgrade next@16.3.0 | [ ] Scheduled |
-| ventures/real-estate-agent-photo-app/docs-site | `postcss` | **HIGH** | <=8.5.22 | PostCSS has XSS via Unescaped </style> in its CSS Stringify Output, PostCSS: Arbitrary file read and information disclosure via attacker-controlled sourceMappingURL in CSS comments, PostCSS: Path Traversal in Previous Source Map Auto-Loading (sourceMappingURL) leads to Arbitrary .map File Disclosure, PostCSS: incomplete fix of GHSA-6g55-p6wh-862q — attacker-controlled sourceMappingURL reads arbitrary .map files when `from` is unset | Upgrade next@16.3.0 | [ ] Scheduled |
-| ventures/real-estate-agent-photo-app/research | `next` | **MODERATE** | 9.3.4-canary.0 - 16.3.0-preview.10 | postcss | Upgrade next@16.3.0 | [ ] Scheduled |
-| ventures/real-estate-agent-photo-app/research | `postcss` | **HIGH** | <=8.5.22 | PostCSS has XSS via Unescaped </style> in its CSS Stringify Output, PostCSS: Arbitrary file read and information disclosure via attacker-controlled sourceMappingURL in CSS comments, PostCSS: Path Traversal in Previous Source Map Auto-Loading (sourceMappingURL) leads to Arbitrary .map File Disclosure, PostCSS: incomplete fix of GHSA-6g55-p6wh-862q — attacker-controlled sourceMappingURL reads arbitrary .map files when `from` is unset | Upgrade next@16.3.0 | [ ] Scheduled |
 | ventures/retail-pilot-intel | `esbuild` | **LOW** | >=0.27.3 <0.28.1 | esbuild allows arbitrary file read when running the development server on Windows | Upgrade esbuild to >=0.28.1 | [ ] Scheduled |
 | ventures/retail-pilot-intel | `brace-expansion` | **HIGH** | <1.1.16 | brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups | Upgrade brace-expansion to >=1.1.16 | [ ] Scheduled |
 | ventures/retail-pilot-intel | `brace-expansion` | **HIGH** | >=3.0.0 <5.0.7 | brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups | Upgrade brace-expansion to >=5.0.7 | [ ] Scheduled |
