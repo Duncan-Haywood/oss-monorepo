@@ -2,21 +2,8 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/adminAuth";
-
-/** Median is used throughout rather than mean — response times are heavily right-skewed
- *  (one distracted answer can be minutes long) and a mean would be dominated by it. */
-function median(xs: number[]): number | null {
-  if (!xs.length) return null;
-  const s = [...xs].sort((a, b) => a - b);
-  const mid = Math.floor(s.length / 2);
-  return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
-}
-
-function percentile(xs: number[], fraction: number): number | null {
-  if (!xs.length) return null;
-  const sorted = [...xs].sort((a, b) => a - b);
-  return sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * fraction))];
-}
+import { median, percentile } from "@/lib/stats";
+import { summariseConversion } from "@/lib/inviteConversion";
 
 /** A pause long enough that they almost certainly left and came back. */
 const SESSION_GAP_MS = 10 * 60 * 1000;
@@ -30,7 +17,7 @@ export async function GET() {
   }
 
   try {
-    const [participants, trials, financialTrials, feedback, users, couples, usageEvents] = await Promise.all([
+    const [participants, trials, financialTrials, feedback, users, couples, usageEvents, coupleInvites, coupleChallenges] = await Promise.all([
       prisma.participant.findMany({
         select: {
           id: true, firstName: true, lastName: true, email: true, sex: true, age: true,
@@ -59,6 +46,20 @@ export async function GET() {
         select: { event: true, sessionKeyHash: true, sequence: true, occurredAt: true, domain: true, durationMs: true, statusCode: true, success: true },
         orderBy: { createdAt: "desc" },
         take: 20_000,
+      }),
+      // The referral denominator. `couples` above counts only the invites that
+      // converted; on its own that number can only ever go up and says nothing
+      // about whether inviting works. These rows carry the invite and its
+      // outcome together, so the rate is per-invite and attributable.
+      prisma.couple.findMany({
+        select: { createdAt: true, joinerId: true, joinedAt: true },
+        orderBy: { createdAt: "desc" },
+        take: 5000,
+      }),
+      prisma.coupleChallenge.findMany({
+        select: { createdAt: true, challengedCoupleId: true },
+        orderBy: { createdAt: "desc" },
+        take: 5000,
       }),
     ]);
 
@@ -242,6 +243,35 @@ export async function GET() {
       feedbackResponse,
     };
 
+    // Referral conversion is deliberately NOT computed from `usageEvents`.
+    // `couple_invite_created` and `couple_joined` come from two different
+    // people in two different sessions, and everything in `usage` above groups
+    // by `sessionKeyHash` — a transition row for that pair would sit at n = 0
+    // forever and read as "invites never convert". See `lib/inviteConversion`.
+    const now = new Date();
+    const referral = {
+      invites: summariseConversion(
+        coupleInvites.map((row) => ({
+          createdAt: row.createdAt,
+          converted: row.joinerId !== null,
+          convertedAt: row.joinedAt,
+        })),
+        now,
+      ),
+      // The challenge table records no acceptance timestamp, so every latency
+      // here is null and `maturityAdequate` cannot be judged. The rate is still
+      // sound; the nulls say plainly which parts are not measured rather than
+      // implying a validated window.
+      challenges: summariseConversion(
+        coupleChallenges.map((row) => ({
+          createdAt: row.createdAt,
+          converted: row.challengedCoupleId !== null,
+          convertedAt: null,
+        })),
+        now,
+      ),
+    };
+
     return NextResponse.json({
       totals: {
         users,
@@ -264,6 +294,7 @@ export async function GET() {
           .sort((a, b) => b.count - a.count),
       },
       usage,
+      referral,
       hardest: slowest,
       easiest: fastest,
       feedback: {
