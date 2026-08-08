@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Default values. Index numbers refer to CityData.CITIES in
+  source/CityData.mc, keep the two in sync if the catalog is reordered.
+  Defaults: London(8), New York(6), Tokyo(17), Sydney(18), theme Midnight(0).
+-->
+<properties>
+    <property id="City1Index" type="number">8</property>
+    <property id="City2Index" type="number">6</property>
+    <property id="City3Index" type="number">17</property>
+    <property id="City4Index" type="number">18</property>
+    <property id="ThemeIndex" type="number">0</property>
+</properties>

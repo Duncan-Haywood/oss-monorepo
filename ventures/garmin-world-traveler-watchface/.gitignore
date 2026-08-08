@@ -1,0 +1,14 @@
+# Connect IQ build output
+bin/
+gen/
+*.prg
+*.prg.debug.xml
+*.iq
+
+# Editor / SDK local state
+.vscode/settings.json
+.eclipse/
+.settings/
+
+# OS
+.DS_Store

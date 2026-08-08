@@ -1,0 +1,9 @@
+project.manifest = manifest.xml
+
+# Default source/resource discovery (source/**, resources/**) is implicit for
+# every product via base.jungle, which this project inherits automatically.
+# Per-device resource overrides (e.g. resources-round, resources-rectangle)
+# can be added later by declaring:
+#   <product>.resourcePath = resources;resources-round
+# if the layout ever needs shape-specific tuning beyond the runtime
+# dc.getWidth()/dc.getHeight() adaptation already used in WorldTravelerView.
