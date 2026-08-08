@@ -238,26 +238,29 @@ Writing the patterns as literals would repeat each limiter's constant names in a
 fourth place, which is exactly the drift the contract exists to catch. Revisit
 if `LIMITER_SOURCES` ever stops being a literal in this file.
 
-### SAST-091
+### SAST-091 — withdrawn, the code it described is gone
 
-`detect-non-literal-regexp`, two occurrences in
-`ventures/local-site-studio/src/lib/pricing/tier-price-binding.test.ts`.
+This section used to justify a waiver for two `detect-non-literal-regexp`
+findings in `ventures/local-site-studio/src/lib/pricing/tier-price-binding.test.ts`,
+which built `new RegExp("\\b" + tier.token + "\\b")` to bind an advertised
+amount to the tier it is advertised under.
 
-Both build `new RegExp("\\b" + tier.token + "\\b")` to find where a tier is
-named in rendered marketing copy, so that an advertised amount can be bound to
-the tier it is advertised under.
+It was resolved by fixing the code rather than waiving it (`ad560a0e`): the
+match is now a literal `String.indexOf` scan with hand-rolled word-boundary
+semantics, and the dynamic patterns are gone. That was the stronger choice for
+a reason unrelated to security — the regex was also *wrong*: `Growth+` matched
+`Growthh`, and a tier named `Starter (Pro)` threw at import. A regression test
+pins the metacharacter cases.
 
-`tier.token` is not caller data. `tiers()` derives it from `BUNDLES` and
-`COMMERCE_ADDON` — the venture's own pricing catalog module — taking the first
-whitespace-delimited word of each bundle name. Influencing the pattern requires
-commit access, at which point the regex is not the weakest thing available. Both
-patterns match markup the test renders itself, never request input, and the file
-is never bundled. The word-boundary form cannot backtrack catastrophically: a
-literal token between two anchors, no alternation, no nested quantifier.
+There is no `SAST-091` entry in `platform/sast-baseline.yaml`, and there should
+not be: the two-directional gate treats a waiver whose finding no longer
+reproduces as a failure, so a stale waiver here would go red exactly as an
+unregistered finding does.
 
-Revisit if tier names ever become operator-editable. A catalog loaded from the
-database or a CMS would make `tier.token` runtime data and this entry wrong; the
-fix then is to escape the token, not to re-date the entry.
+Kept as history because the live-voice version of this section outlived the fix
+and was read as a current waiver more than once. Nothing checks prose in this
+file against the register — `sast_scan.py` validates that an entry's `issue`
+field is present, never that the anchor it names still describes anything.
 
 ## Known limits
 
@@ -284,27 +287,40 @@ State these rather than discovering them later.
   and move the register only to a number that reproduces. A count that will not
   reproduce is a measurement problem, not a register problem.
 
-- **The unparsed *set* flaps at the margin, so an exact-match ceiling over it
-  cannot settle.** Two full scans on an idle machine, minutes apart, both
-  reported 54 files — but not the same 54. Between them
+- **The unparsed set used to flap, and no longer does. Resolved 2026-08-08.**
+  Two full scans on an idle machine, minutes apart, once both reported 54 files
+  — but not the same 54. Between them
   `ventures/quick-pick-survey/src/lib/ogCardFields.ts` left the set (fixed) and
   `ventures/local-site-studio/src/lib/process/prompt_process.tsx` entered it,
-  untouched by either run. That file is 812 KB of TSX, large enough to sit on
-  the timeout boundary and land on either side of it depending on what else the
-  machine is doing. Membership is therefore decided by wall-clock, while the
-  check is an equality against a single integer.
+  untouched by either run. Membership was decided by wall-clock: semgrep's
+  per-rule-per-file timeout defaults to 5s, a timeout is reported at
+  `level: warn` exactly as a parse failure is, and `run_semgrep` folded both
+  into one set.
 
-  So the current red — 54 against a ceiling of 53 — is not a code defect and
-  cannot be cleared by fixing one more file: fix one and the next marginal file
-  takes its place. The ceiling also predates the scanner change that widened
-  what gets scanned at all (the App Router carve-out in `sast_scan.py`), so 53
-  was measured against a smaller file set and was never re-measured afterwards.
-  Three things would actually fix this, none of them a number edit: pin
-  semgrep's `--timeout` so membership stops depending on load; make the check an
-  upper bound over a *named* list, so a swap is visible and a genuine addition
-  still fails; or get the 812 KB file out of the scan path, since a single
-  source file that size is its own problem. Until one of them lands, this gate
-  is expected red and the ceiling must not be nudged to match.
+  Two changes fixed it, and both were needed. `--timeout=0` removes the
+  wall-clock term, so membership follows the grammar alone. And the `warn`
+  errors are now partitioned on their tag against an allowlist,
+  `SEMGREP_FILE_PROPERTY_WARNINGS`: only tags that describe a *file* may enter
+  the set, while anything else — a timeout above all — describes the *run* and
+  raises `ScanError`. A degraded run now fails loudly instead of quietly
+  rewriting the register in either direction. That second half matters more
+  than the flag: without it, a future semgrep whose timeout is not fully
+  disabled by `--timeout=0` would silently reintroduce the same defect.
+
+  Evidence, all on one tree at load average 326. With the default timeout: 57
+  files, including 9 `Timeout` warnings over 5 files. With `--timeout=0`: two
+  consecutive scans producing byte-identical 52-file sets, zero timeouts. The
+  earlier account in this document was right about the mechanism and wrong
+  about the remedy — `prompt_process.tsx` really does sit on the timeout
+  boundary, but it never fails to *parse*, so it was never a grammar problem
+  and no amount of fixing files would have settled the set.
+
+  Two tags are on the allowlist, not one. Besides `PartialParsing`, semgrep
+  reports `Other syntax error` for the three Helm templates under
+  `platform/terraform/helm/`, whose Go templating is not valid YAML. That is as
+  deterministic as a grammar rejection and belongs in the register; a
+  first pass that allowed only `PartialParsing` turned the gate red on those
+  three files, which is how the distinction was found.
 
 - **`coverage.semgrep_unparsed_max` is not cap-ratcheted.** Every other ceiling
   in this repository has its floor pinned to the lowest value it has ever held
@@ -319,12 +335,18 @@ State these rather than discovering them later.
   anything here changing. That is the accepted trade — the alternative is
   vendoring 1074 rules and never learning about a new one — but it means a red
   SAST job is not automatically someone's regression.
-- **49 files are only partially parsed.** Semgrep's grammar rejects some
-  constructs (`>()` on a generic arrow, a bare `&` in JSX text); it scans the
-  file up to that point and warns rather than erroring. Those files are
-  therefore not fully covered. The count is held exactly by
-  `coverage.semgrep_unparsed_max`, so it cannot grow unnoticed, and every
-  affected file is listed in `sast-report.md`.
+- **52 files are only partially parsed.** Semgrep's grammar rejects some
+  constructs (`>()` on a generic arrow, a bare `&` in JSX text; Go templating in
+  the Helm templates; `${{ }}` in workflow YAML); it scans the file up to that
+  point and warns rather than erroring. Those files are therefore not fully
+  covered. They are named one per line in `coverage.semgrep_unparsed` in
+  `platform/sast-baseline.yaml`, and the gate compares that list to what the run
+  observed in both directions: a file that newly stops parsing fails, and a file
+  that starts parsing again must be struck from the list, so recovered coverage
+  is not quietly given back. `coverage.semgrep_unparsed_max` bounds the size of
+  the list itself. Do not look for the affected files in `sast-report.md` —
+  that file is gitignored, so it only ever existed on whichever machine last ran
+  a scan, which is why the identity of the unscanned set is committed here.
 - **Bandit is gated at medium severity.** At low severity it adds 88 findings,
   42 of them `assert` in test files and 44 `subprocess` calls in CI scripts
   using list arguments and no shell. The full count is in the report.

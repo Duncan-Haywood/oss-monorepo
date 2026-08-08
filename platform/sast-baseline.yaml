@@ -47,16 +47,79 @@
 # warning rather than an error. So a file that stops parsing quietly stops being
 # covered with every gate still green.
 #
-# The count is therefore declared rather than tolerated, and it is matched
-# exactly, not as an upper bound: raising it is a deliberate statement that more
-# code is unscanned, and lowering happens automatically the moment someone fixes
-# one, because a ceiling above the real number fails too.
+# The *set* is declared, not its cardinality. A count could not tell "one file
+# was fixed and another broke" from "nothing changed", and the cheapest way to
+# clear a red count was always to edit the number. Comparing sets makes both
+# directions explicit: a file that newly stops parsing fails the gate, and a
+# file that starts parsing again has to be struck from this list, so coverage
+# won is coverage kept.
 #
-# All 49 are Semgrep grammar limitations, not defects in this repository:
-# `>()` on a generic arrow function, and a bare `&` in JSX text. They are listed
-# in `sast-report.md` on every run.
+# Every entry is a Semgrep grammar limitation, not a defect in this repository:
+# `>()` on a generic arrow function and a bare `&` in JSX text for the TS/TSX
+# files, Go templating for the Helm templates, and `${{ }}` expressions for the
+# workflow YAML.
+#
+# Measured 2026-08-08 on semgrep 1.172.0 against a clean clone of `main` with
+# `--timeout=0`, which is what makes this list a property of the files rather
+# than of the machine. Two consecutive runs at load average 326 produced this
+# set exactly; before the timeout was disabled, the same tree produced 53, 53,
+# 56 and 54, 55, 53. Re-measure in a clean clone — a working tree carries
+# untracked and generated files that are not what this register describes.
 coverage:
-  semgrep_unparsed_max: 53
+  semgrep_unparsed_max: 52
+  semgrep_unparsed:
+    - .gitea/workflows/deploy-services.yml
+    - platform/terraform/helm/web-service/templates/deployment.yaml
+    - platform/terraform/helm/web-service/templates/ingress.yaml
+    - platform/terraform/helm/web-service/templates/pdb.yaml
+    - ventures/ai-first-markets/src/app/subscribe/page.tsx
+    - ventures/ai-first-markets/src/components/NewsletterSubscription.tsx
+    - ventures/local-site-studio/.github/workflows/claude-scheduled.yml
+    - ventures/local-site-studio/.github/workflows/codex-scheduled.yml
+    - ventures/local-site-studio/.github/workflows/cursor-scheduled.yml
+    - ventures/local-site-studio/.github/workflows/gemini-scheduled.yml
+    - ventures/local-site-studio/.github/workflows/grok-scheduled.yml
+    - ventures/local-site-studio/.github/workflows/opencode-scheduled.yml
+    - ventures/local-site-studio/src/app/dashboard/leads/generate-client-voice-pack-action.test.ts
+    - ventures/local-site-studio/src/app/dashboard/leads/generate-marketing-pack-action.test.ts
+    - ventures/local-site-studio/src/app/dashboard/leads/sync-commerce-catalog-to-stripe-action.test.ts
+    - ventures/local-site-studio/src/components/preview/category-preview.tsx
+    - ventures/mat-470-real-analysis/site/index.html
+    - ventures/print-atelier/src/app/admin-portal/page.tsx
+    - ventures/print-atelier/src/app/b2b-portal/page.tsx
+    - ventures/print-atelier/src/app/capture/page.tsx
+    - ventures/print-atelier/src/app/sales-portal/page.tsx
+    - ventures/print-atelier/src/components/ArtistOnboardingIntakeForm.tsx
+    - ventures/print-atelier/src/components/BusinessOverview.tsx
+    - ventures/print-atelier/src/components/CompetitiveBattlecards.tsx
+    - ventures/print-atelier/src/components/FinancialProjections.tsx
+    - ventures/print-atelier/src/components/GTMStrategy.tsx
+    - ventures/print-atelier/src/components/InvestorDashboard.tsx
+    - ventures/print-atelier/src/components/MarketResearch.tsx
+    - ventures/print-atelier/src/components/MarketingSales.tsx
+    - ventures/print-atelier/src/components/Operations.tsx
+    - ventures/print-atelier/src/components/PartnerCredentialVault.tsx
+    - ventures/print-atelier/src/components/PlatformDemo.tsx
+    - ventures/print-atelier/src/components/RevenueModel.tsx
+    - ventures/print-atelier/src/components/SalesOutreach.tsx
+    - ventures/print-atelier/src/components/Strategy.tsx
+    - ventures/print-atelier/src/components/TechStrategy.tsx
+    - ventures/quick-pick-survey/src/app/page.tsx
+    - ventures/quick-pick-survey/src/components/CoupleView.tsx
+    - ventures/quick-pick-survey/src/components/TopicPickerView.tsx
+    - ventures/quick-pick-survey/src/components/marketing/MarketingDemoWidget.tsx
+    - ventures/retail-pilot-intel/apps/docs/src/pages/ArchitecturePage.tsx
+    - ventures/retail-pilot-intel/apps/docs/src/pages/BusinessPlanPage.tsx
+    - ventures/retail-pilot-intel/apps/docs/src/pages/DashboardPage.tsx
+    - ventures/retail-pilot-intel/apps/docs/src/pages/DemoPage.tsx
+    - ventures/retail-pilot-intel/apps/docs/src/pages/GtmPage.tsx
+    - ventures/retail-pilot-intel/apps/docs/src/pages/HomePage.tsx
+    - ventures/retail-pilot-intel/apps/docs/src/pages/MetricsPage.tsx
+    - ventures/retail-pilot-intel/apps/docs/src/pages/PrivacyPage.tsx
+    - ventures/retail-pilot-intel/apps/docs/src/pages/RoadmapPage.tsx
+    - ventures/retail-pilot-intel/apps/portal/src/components/LoginGate.tsx
+    - ventures/retail-pilot-intel/apps/portal/src/pages/OverviewPage.tsx
+    - ventures/retail-pilot-intel/scripts/convert-html-to-tsx.ts
 
 baseline:
   - id: SAST-001

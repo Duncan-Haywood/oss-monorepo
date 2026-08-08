@@ -14,6 +14,7 @@ remembers to.
 """
 
 import importlib.util
+import json
 import sys
 import tempfile
 import unittest
@@ -440,6 +441,91 @@ class ScanSurfaceTests(unittest.TestCase):
         self.assertNotIn("./ventures/v/src/app/api/build", excludes)
 
 
+class WarningPartitionTests(unittest.TestCase):
+    """Which `level: warn` errors may enter the declared unparsed set.
+
+    The set is compared exactly, so anything that can enter or leave it without
+    a file changing is a defect. Semgrep reports a timeout at the same level as
+    a parse failure, and folding the two together made the register a function
+    of machine load: measured on this repository, the default timeout produced 9
+    `Timeout` warnings over 5 files that parse fine, and the set swung between
+    52 and 57 on one unchanged tree.
+    """
+
+    def _run_with(self, errors):
+        payload = {"results": [], "errors": errors, "paths": {"scanned": []}}
+
+        class _Completed:
+            returncode = 0
+            stdout = json.dumps(payload)
+            stderr = ""
+
+        captured = {}
+
+        def fake_run(command, **kwargs):
+            captured["command"] = list(command)
+            return _Completed()
+
+        original_run = sast_scan.subprocess.run
+        original_which = sast_scan.shutil.which
+        sast_scan.subprocess.run = fake_run
+        sast_scan.shutil.which = lambda name: f"/usr/bin/{name}"
+        try:
+            with tempfile.TemporaryDirectory() as root:
+                _, unparsed = sast_scan.run_semgrep(Path(root))
+            return unparsed, captured["command"]
+        finally:
+            sast_scan.subprocess.run = original_run
+            sast_scan.shutil.which = original_which
+
+    def test_the_per_file_timeout_is_disabled(self):
+        """Without this, set membership is decided by wall-clock."""
+        _, command = self._run_with([])
+        self.assertIn("--timeout=0", command)
+
+    def test_a_parse_failure_enters_the_set(self):
+        unparsed, _ = self._run_with(
+            [{"level": "warn", "type": ["PartialParsing", []], "path": "a.tsx"}]
+        )
+        self.assertEqual(unparsed, ["a.tsx"])
+
+    def test_a_template_syntax_error_enters_the_set(self):
+        """The Helm templates report this tag, and do so deterministically."""
+        unparsed, _ = self._run_with(
+            [{"level": "warn", "type": "Other syntax error", "path": "chart/x.yaml"}]
+        )
+        self.assertEqual(unparsed, ["chart/x.yaml"])
+
+    def test_a_timeout_refuses_the_run_instead_of_joining_the_set(self):
+        with self.assertRaises(ScanError) as caught:
+            self._run_with(
+                [
+                    {"level": "warn", "type": ["PartialParsing", []], "path": "a.tsx"},
+                    {"level": "warn", "type": "Timeout", "path": "big.tsx"},
+                ]
+            )
+        message = str(caught.exception)
+        self.assertIn("Timeout", message)
+        self.assertIn("big.tsx", message)
+
+    def test_an_unrecognised_tag_refuses_the_run(self):
+        """An allowlist, so a new tag stops the gate rather than silently
+        joining a register that is compared exactly."""
+        with self.assertRaises(ScanError):
+            self._run_with([{"level": "warn", "type": "SomeNewTag", "path": "a.tsx"}])
+
+    def test_error_kind_unwraps_semgreps_list_form(self):
+        """`type` is `["PartialParsing", [spans]]`; comparing the list to a
+        string is never equal, which would classify every warning as unexpected."""
+        self.assertEqual(
+            sast_scan._error_kind({"type": ["PartialParsing", [{"path": "a"}]]}),
+            "PartialParsing",
+        )
+        self.assertEqual(sast_scan._error_kind({"type": "Timeout"}), "Timeout")
+        self.assertEqual(sast_scan._error_kind({"type": []}), "(empty)")
+        self.assertEqual(sast_scan._error_kind("not a dict"), "(malformed)")
+
+
 class RepositoryContractTests(unittest.TestCase):
     """Contract tests against the real register, so they run on every push."""
 
@@ -453,6 +539,60 @@ class RepositoryContractTests(unittest.TestCase):
 
     def test_real_baseline_declares_a_parse_ceiling(self):
         self.assertIsInstance(self.document["coverage"]["semgrep_unparsed_max"], int)
+
+    def test_real_baseline_declares_the_unparsed_set(self):
+        """The register must name the files, not just bound how many there are.
+
+        `check_parse_coverage` requires `coverage.semgrep_unparsed` and returns
+        that single problem when it is absent, so a register without it fails
+        the gate on every run regardless of what semgrep observed. That is
+        exactly what shipped: the commit that moved this check from an exact
+        count to a set comparison changed `sast_scan.py` and this file's
+        synthetic fixtures, and never touched the real register — leaving the
+        gate unconditionally red and parse coverage enforced by nothing.
+
+        The test that existed asserted only `semgrep_unparsed_max`, the key the
+        migration made vestigial, so nothing here noticed. A contract test over
+        the real document is the thing that would have caught it, and it is
+        cheap: it reads YAML and runs no scanner.
+        """
+        declared = self.document["coverage"].get("semgrep_unparsed")
+        self.assertIsInstance(
+            declared,
+            list,
+            "platform/sast-baseline.yaml must declare `coverage.semgrep_unparsed` "
+            "as a list; without it `check_parse_coverage` fails closed on every run.",
+        )
+        self.assertTrue(all(isinstance(path, str) for path in declared))
+        self.assertEqual(
+            sorted(declared), declared, "keep the declared set sorted so diffs are readable"
+        )
+        self.assertEqual(
+            len(set(declared)), len(declared), "the declared set contains a duplicate path"
+        )
+
+    def test_every_unparsed_path_still_exists(self):
+        """A declared unparsed file that was deleted or renamed can never be
+        observed again, so it sits in the register giving back nothing and is
+        never reviewed — the same failure `test_every_waived_path_still_exists`
+        covers for waivers."""
+        declared = self.document["coverage"].get("semgrep_unparsed") or []
+        missing = [path for path in declared if not (REPO_ROOT / path).exists()]
+        self.assertEqual(
+            missing, [], f"`coverage.semgrep_unparsed` names missing files: {missing}"
+        )
+
+    def test_declared_unparsed_set_is_within_its_own_ceiling(self):
+        """The ceiling bounds the register, so the register cannot silently
+        outgrow the number `cap_ratchet` and review are watching."""
+        coverage = self.document["coverage"]
+        declared = coverage.get("semgrep_unparsed") or []
+        marginal = coverage.get("semgrep_unparsed_marginal") or []
+        self.assertLessEqual(
+            len(declared) + len(marginal),
+            coverage["semgrep_unparsed_max"],
+            "the declared unparsed set is over its own ceiling",
+        )
 
     def test_every_waived_path_still_exists(self):
         """A waiver pointing at a deleted file can never be matched, so it can

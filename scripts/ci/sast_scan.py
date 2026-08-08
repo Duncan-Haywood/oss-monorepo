@@ -164,6 +164,22 @@ MAX_SHADOWED_FILES = 200
 TOOL_SEMGREP = "semgrep"
 TOOL_BANDIT = "bandit"
 
+# The `level: warn` tags that describe a *file* rather than a *run*, and so may
+# enter the declared unparsed set. Measured against semgrep 1.172.0 on this
+# repository:
+#
+#   PartialParsing       the TS/TSX grammar rejecting a construct it does not
+#                        model — `>()` on a generic arrow, a bare `&` in JSX text
+#   Other syntax error   emitted for the three Helm templates under
+#                        `platform/terraform/helm/`, whose Go templating is not
+#                        valid YAML. Deterministic: identical across runs.
+#
+# This is an allowlist, not a denylist, so an unrecognised tag stops the run
+# instead of silently joining the register. `Timeout` is the tag this exists to
+# keep out — see the partition in `run_semgrep`. Adding a tag here is a claim
+# that it is reproducible from file content alone; verify that before doing it.
+SEMGREP_FILE_PROPERTY_WARNINGS = frozenset({"PartialParsing", "Other syntax error"})
+
 # Bandit severities the gate blocks on. See the module docstring for why LOW is
 # reported but not gated.
 GATED_BANDIT_SEVERITY = frozenset({"MEDIUM", "HIGH"})
@@ -263,6 +279,23 @@ def classify_scan_surface(root: Path) -> ScanSurface:
                        vendor_dirs=tuple(sorted(vendor_dirs)))
 
 
+def _error_kind(error: object) -> str:
+    """Return Semgrep's tag for one `errors[]` entry.
+
+    Measured against semgrep 1.172.0: `type` is a two-element list whose head is
+    the tag and whose tail is the payload — `["PartialParsing", [{…spans…}]]` —
+    but not for every variant, so a bare string has to be accepted too. Reading
+    `type` without unwrapping compares a list to a string, which is never equal
+    and would classify every warning as unexpected.
+    """
+    if not isinstance(error, dict):
+        return "(malformed)"
+    kind = error.get("type")
+    if isinstance(kind, list):
+        return str(kind[0]) if kind else "(empty)"
+    return str(kind)
+
+
 def _relative(path: str, root: Path) -> str:
     """Normalise a tool-reported path to one relative to the scanned root.
 
@@ -297,7 +330,21 @@ def run_semgrep(root: Path) -> tuple[list[Located], list[str]]:
             "skips: a SAST check that silently does not run is worse than none."
         )
     surface = classify_scan_surface(root)
-    command = [TOOL_SEMGREP, "scan", "--metrics=off", "--json", "--quiet"]
+    # `--timeout=0` disables Semgrep's per-rule-per-file timeout (default 5s).
+    #
+    # That timeout made the unparsed set a function of how busy the machine was
+    # rather than of what the files contain. Measured on this repository: the
+    # same byte-identical tree produced 53, 53, 56 and 54, 55, 53 unparsed files
+    # across runs at load average 34 — straddling its own declared ceiling, so
+    # the gate could go red, or instruct someone to strike a file from the
+    # register, with no code change at all. Both directions are wrong: one
+    # blocks a clean tree, the other permanently gives back scanning coverage
+    # that was never actually won.
+    #
+    # With the timeout off, membership is decided by the grammar alone. The cost
+    # is wall-clock on a pathological file, which is the right thing to pay for
+    # a register that is compared exactly.
+    command = [TOOL_SEMGREP, "scan", "--metrics=off", "--json", "--quiet", "--timeout=0"]
     for config in SEMGREP_CONFIGS:
         command += ["--config", config]
     for excluded in VENDOR_DIRS:
@@ -340,22 +387,65 @@ def run_semgrep(root: Path) -> tuple[list[Located], list[str]]:
     # crashed. The scan still exits successfully with findings from whatever did
     # load, so ignoring it silently shrinks the rule set over time. Fatal.
     #
-    # `level: warn` is almost always PartialParsing: Semgrep's TS/TSX grammar
+    # `level: warn` is *usually* PartialParsing: Semgrep's TS/TSX grammar
     # rejecting a construct it does not model (a `>()` generic arrow, a bare `&`
     # in JSX text). The file is scanned, but not all of it. That is a coverage
     # gap rather than a failure, and it is handled where it can be bounded — see
-    # `coverage.semgrep_unparsed_max` in the baseline. Making it fatal would
-    # mean the gate could never run at all.
+    # `coverage.semgrep_unparsed` in the baseline. Making it fatal would mean the
+    # gate could never run at all.
+    #
+    # "Usually" is the load-bearing word, and reading it as "always" is what made
+    # this gate flap. A timeout also arrives as `level: warn`, and folding it into
+    # the same set made the register a function of machine load — see the note on
+    # `--timeout=0` above. The two are opposite kinds of fact: a parse failure is
+    # a property of the file and belongs in a register compared exactly, while a
+    # timeout is a property of the run and must not silently enter or leave it.
+    # So the set is built only from the tags in SEMGREP_FILE_PROPERTY_WARNINGS,
+    # and any other warning is fatal: a degraded run fails loudly instead of
+    # quietly rewriting coverage in either direction.
+    #
+    # Measured, and the reason this is a partition rather than a single tag:
+    # with the default timeout this repository reported 9 `Timeout` warnings over
+    # 5 files that do parse fine — including one the previous version of
+    # `docs/SAST.md` had singled out as a grammar problem. With `--timeout=0`
+    # there are none, and the remaining tags are stable across runs.
     fatal = [error for error in payload.get("errors") or [] if error.get("level") == "error"]
     if fatal:
         rendered = "; ".join(str(error.get("message", error))[:200] for error in fatal)
         raise ScanError(f"semgrep reported {len(fatal)} scan error(s): {rendered}")
 
+    warnings = [error for error in payload.get("errors") or [] if error.get("level") == "warn"]
+    unexpected = [
+        error
+        for error in warnings
+        if _error_kind(error) not in SEMGREP_FILE_PROPERTY_WARNINGS
+    ]
+    if unexpected:
+        rendered = "; ".join(
+            sorted(
+                {
+                    f"{_error_kind(error)} at "
+                    f"{_relative(str(error.get('path', '')), root) or '(no path)'}"
+                    for error in unexpected
+                }
+            )[:10]
+        )
+        raise ScanError(
+            f"semgrep reported {len(unexpected)} warning(s) whose tag is not one "
+            f"of {sorted(SEMGREP_FILE_PROPERTY_WARNINGS)}: {rendered}. Those tags "
+            "describe the files; anything else describes this run — a timeout "
+            "under load is the usual cause. Letting it into the unparsed set "
+            "would allow machine load to rewrite the coverage register in either "
+            "direction, so the run is refused rather than recorded. Re-run on a "
+            "quieter machine; add a tag to SEMGREP_FILE_PROPERTY_WARNINGS only "
+            "once you have shown it reproduces from file content alone."
+        )
+
     unparsed = sorted(
         {
             _relative(str(error.get("path", "")), root)
-            for error in payload.get("errors") or []
-            if error.get("level") == "warn" and error.get("path")
+            for error in warnings
+            if error.get("path")
         }
     )
 
