@@ -565,6 +565,35 @@ WATCHES: Tuple[Watch, ...] = (
         locator="MAX_EXPIRY_DAYS",
         why="the furthest out the deployment-lag budget may be parked before review",
     ),
+    # 2026-08-08. The last ceiling in `platform/` that nothing watched, and
+    # `docs/SAST.md` had it listed as open work for two days. It bounds the
+    # size of `coverage.semgrep_unparsed` — the register of files semgrep
+    # scans only up to the construct it cannot parse. Every file on that list
+    # is source code that is partly outside SAST coverage while the job stays
+    # green, so the list is pure debt and the ceiling over it may only fall.
+    #
+    # It escaped for a mechanical reason worth naming: the sibling contract in
+    # `tests/test_cap_ratchet.py` enumerated numeric leaves under a top-level
+    # `budget:` mapping, and this key lives under `coverage:`. The contract was
+    # reading a guessed surface — the key name — rather than the shape of the
+    # number, so a ceiling one word away from the enumerated prefix was
+    # invisible to it. That hole is closed in the same change.
+    #
+    # Measured before enrolling: 49 on 2026-08-01, raised to 53 on 2026-08-05,
+    # 52 today. The raise to 53 is the move this ratchet exists to refuse, and
+    # it happened while the number was a bare count compared for equality and
+    # the unparsed set was flapping under machine load. Nothing recorded it.
+    Watch(
+        path="platform/sast-baseline.yaml",
+        kind="yaml-path",
+        locator="coverage.semgrep_unparsed_max",
+        why=(
+            "the ceiling on how many files semgrep may fail to fully parse. Each one is "
+            "scanned only up to the construct semgrep's grammar rejects, so raising this "
+            "buys a green SAST job by giving back scanning coverage rather than by "
+            "fixing anything"
+        ),
+    ),
     Watch(
         path="scripts/ci/gate_wiring.py",
         kind="python-constant",

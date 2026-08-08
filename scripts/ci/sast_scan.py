@@ -44,7 +44,7 @@ import sys
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Sequence
+from typing import Callable, Iterable, Sequence
 
 import yaml
 
@@ -745,8 +745,113 @@ def _parse_date(value: str) -> dt.date | None:
         return None
 
 
-def reconcile(findings: Iterable[Located], entries: Sequence[dict]) -> list[str]:
-    """Compare real findings against the baseline; return one problem per mismatch."""
+def semgrep_counts_for_file(root: Path, relative: str) -> Counter[str]:
+    """Scan one file alone and return {rule: occurrences}.
+
+    Deliberately not a whole-repository scan: the point is to measure the file
+    without whatever else was contending for the machine.
+    """
+    command = [
+        TOOL_SEMGREP, "scan", "--metrics=off", "--json", "--quiet", "--timeout=0",
+    ]
+    for config in SEMGREP_CONFIGS:
+        command += ["--config", config]
+    command.append(str(root / relative))
+    completed = subprocess.run(command, capture_output=True, text=True, cwd=root)
+    if not completed.stdout.strip():
+        raise ScanError(
+            f"semgrep produced no output re-measuring {relative} "
+            f"(exit {completed.returncode}): {completed.stderr.strip()[:300]}"
+        )
+    try:
+        payload = json.loads(completed.stdout)
+    except json.JSONDecodeError as error:
+        raise ScanError(f"semgrep output was not JSON re-measuring {relative}: {error}") from error
+    if [e for e in payload.get("errors") or [] if e.get("level") == "error"]:
+        raise ScanError(f"semgrep errored re-measuring {relative}")
+    return Counter(
+        str(result.get("check_id", ""))
+        for result in payload.get("results", [])
+        if _relative(str(result.get("path", "")), root) == relative
+    )
+
+
+def isolated_recount(root: Path):
+    """Return a `recount(finding) -> int | None` that re-measures one file, twice.
+
+    This exists because of a measurement that is recorded in `docs/SAST.md` and
+    was still live on 2026-08-08. `--timeout=0` made the *unparsed set*
+    reproducible; it did not make the per-`(rule, path)` **counts**
+    reproducible. Measured on one byte-identical tree at load average 387-406,
+    two full scans whose unparsed sets were byte-identical:
+
+        unsafe-formatstring in …/api/stripe/webhook/route.ts   13  ->   7
+        detect-child-process in platform/ci/src/pipeline.mjs    3  ->   4
+
+    Semgrep raised no error and no warning either time. `reconcile` compares
+    those counts exactly in both directions, so the 7 makes the gate print
+    "occurs 7x but the baseline reserves 13. Lower the count." Lowering it is a
+    one-line edit that turns the gate green and permanently under-reserves a
+    real finding — the exact weakening this register exists to refuse, arrived
+    at with no code change at all.
+
+    The remedy is the one `docs/SAST.md` already prescribes to a human —
+    "re-measure the specific file on its own, twice, and move the register only
+    to a number that reproduces" — done by the gate instead of asked of the
+    reader, because a procedure in prose is not a control. Scanning that one
+    file alone three times returned 13, 13, 13 at the same load.
+
+    Two consequences, and both matter:
+
+    - it only ever runs in the direction that would *lower* a number. A count
+      that came back higher than the register is a new occurrence and still
+      fails immediately; nothing here can suppress that;
+    - if the two isolated measurements disagree with each other, this raises
+      rather than picking one. A number the machine cannot reproduce twice in
+      a row is not evidence, and reporting the lower of two is how the register
+      gets ratcheted down by load. Fail closed on non-determinism.
+    """
+    cache: dict[str, Counter[str]] = {}
+
+    def recount(finding: Finding) -> int | None:
+        # Only semgrep flaps this way; bandit has no per-file timeout and no
+        # observed variance. Returning None means "not verifiable", and the
+        # caller then trusts the full-scan number exactly as it did before.
+        if finding.tool != TOOL_SEMGREP:
+            return None
+        if finding.path not in cache:
+            first = semgrep_counts_for_file(root, finding.path)
+            second = semgrep_counts_for_file(root, finding.path)
+            if first != second:
+                differing = sorted(
+                    f"{rule}: {first.get(rule, 0)} then {second.get(rule, 0)}"
+                    for rule in set(first) | set(second)
+                    if first.get(rule, 0) != second.get(rule, 0)
+                )
+                raise ScanError(
+                    f"re-measuring {finding.path} on its own twice produced different "
+                    f"counts ({'; '.join(differing[:5])}). The gate will not report a "
+                    "number it cannot reproduce, because the only thing it could do "
+                    "with one is tell you to lower the register to it. Re-run on a "
+                    "quieter machine."
+                )
+            cache[finding.path] = first
+        return cache[finding.path].get(finding.rule, 0)
+
+    return recount
+
+
+def reconcile(
+    findings: Iterable[Located],
+    entries: Sequence[dict],
+    recount: "Callable[[Finding], int | None] | None" = None,
+) -> list[str]:
+    """Compare real findings against the baseline; return one problem per mismatch.
+
+    `recount` is consulted only when a finding occurs *fewer* times than the
+    register reserves — see `isolated_recount` for why that direction alone is
+    re-measured, and why disagreement raises instead of resolving.
+    """
     problems: list[str] = []
     actual = Counter(item.finding for item in findings)
     lines: dict[Finding, list[Located]] = {}
@@ -787,6 +892,24 @@ def reconcile(findings: Iterable[Located], entries: Sequence[dict]) -> list[str]
         real = actual.get(finding, 0)
         if real < expected:
             entry_id = entry_for[finding]["id"]
+            if recount is not None:
+                confirmed = recount(finding)
+                if confirmed is not None:
+                    if confirmed == expected:
+                        # The full scan under-counted under contention. The
+                        # register was right; say nothing rather than invite a
+                        # ratchet down to a number that does not reproduce.
+                        continue
+                    if confirmed > expected:
+                        problems.append(
+                            f"{entry_id}: {finding.describe()} occurs {confirmed}x when "
+                            f"re-measured on its own, baseline allows {expected}. The "
+                            f"full scan reported {real}x, so this was hidden by "
+                            f"contention as well as unregistered — read the reason on "
+                            f"record before raising the count."
+                        )
+                        continue
+                    real = confirmed
             if real == 0:
                 problems.append(
                     f"{entry_id}: stale baseline entry — {finding.describe()} no longer "
@@ -903,7 +1026,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
 
     problems = validate_entries(entries, dt.date.today())
-    problems += reconcile(findings, entries)
+    try:
+        problems += reconcile(findings, entries, recount=isolated_recount(args.root))
+    except ScanError as error:
+        # A count that will not reproduce is a measurement problem, and the
+        # gate refuses to turn one into a register edit. Exit 2 (could not
+        # run), not 1 (found something), so nobody reads it as a code change.
+        print(f"SAST gate could not run: {error}", file=sys.stderr)
+        return 2
     problems += check_parse_coverage(unparsed, document)
 
     write_report(args.report, findings, low_severity, unparsed, problems)

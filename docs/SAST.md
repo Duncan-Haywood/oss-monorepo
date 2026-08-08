@@ -287,6 +287,13 @@ State these rather than discovering them later.
   and move the register only to a number that reproduces. A count that will not
   reproduce is a measurement problem, not a register problem.
 
+  As of 2026-08-08 the gate performs that re-measurement itself before it ever
+  prints "lower the count", and the `semgrep_unparsed_max` half is cap-ratcheted
+  so it cannot be raised at all. Both are below. This paragraph stays because
+  the judgement in it is still the one to apply by hand to anything the
+  automation does not cover — a `count:` you are tempted to move for any other
+  reason.
+
 - **The unparsed set used to flap, and no longer does. Resolved 2026-08-08.**
   Two full scans on an idle machine, minutes apart, once both reported 54 files
   — but not the same 54. Between them
@@ -309,8 +316,18 @@ State these rather than discovering them later.
 
   Evidence, all on one tree at load average 326. With the default timeout: 57
   files, including 9 `Timeout` warnings over 5 files. With `--timeout=0`: two
-  consecutive scans producing byte-identical 52-file sets, zero timeouts. The
-  earlier account in this document was right about the mechanism and wrong
+  consecutive scans producing byte-identical 52-file sets, zero timeouts.
+
+  Re-measured 2026-08-08 at load average 300-420 — roughly a third again the
+  load the fix was first validated at — because a determinism claim is only
+  worth what it was stressed to. With `--timeout=0`, three consecutive full
+  scans of one byte-identical tree: 52, 52, 52, and the *same* 52 all three
+  times, compared as sorted sets rather than counts. With the default timeout
+  restored on that same tree: **64** files. So machine load was worth twelve
+  files of apparent parse failure, every one of which would have been a
+  register entry someone was invited to add.
+
+  The earlier account in this document was right about the mechanism and wrong
   about the remedy — `prompt_process.tsx` really does sit on the timeout
   boundary, but it never fails to *parse*, so it was never a grammar problem
   and no amount of fixing files would have settled the set.
@@ -322,12 +339,82 @@ State these rather than discovering them later.
   first pass that allowed only `PartialParsing` turned the gate red on those
   three files, which is how the distinction was found.
 
-- **`coverage.semgrep_unparsed_max` is not cap-ratcheted.** Every other ceiling
-  in this repository has its floor pinned to the lowest value it has ever held
-  by `scripts/ci/cap_ratchet.py`, precisely because the tempting response to a
-  failing ceiling is to raise it. This one is watched by nothing, so raising it
-  costs a single line and no review, and — per the limit above — a contended run
-  produces exactly the pressure to do so. Enrolling it is open work.
+- **`coverage.semgrep_unparsed_max` is cap-ratcheted. Enrolled 2026-08-08.** It
+  is watched by `scripts/ci/cap_ratchet.py` as a `yaml-path` cap, so it may fall
+  forever and may never rise: the only way to clear a failure is to make a file
+  parse. Until then it was watched by nothing, and raising it cost a single line
+  and no review — which had already happened. Measured over its own history:
+  49 on 2026-08-01, **raised to 53 on 2026-08-05**, 52 on 2026-08-08. The raise
+  is the move the ratchet exists to refuse, it was made while the number was a
+  bare count compared for equality and the unparsed set was flapping under
+  machine load, and nothing recorded it.
+
+  Enrolling it turned the ratchet red at 52 against a floor of 49. That was
+  cleared by fixing three files rather than by moving the number — the three
+  `.test.ts` files under `ventures/local-site-studio/src/app/dashboard/leads/`,
+  each of which wrote `importOriginal<typeof import("@/lib/…")>()`. Semgrep's
+  TypeScript grammar rejects a dynamic `import(...)` type inside a type argument
+  list and stops parsing there, so the bulk of each test file was outside SAST
+  coverage. Naming the type (`type VoiceModule = typeof import("@/lib/voice")`)
+  parses; measured on the three files alone, before 3 `PartialParsing` errors
+  and after 0. An `as` cast also parses and was rejected — it would silence real
+  type errors to buy the same result.
+
+  It escaped enrolment for a reason worth naming, because it is a shape this
+  repository keeps finding: the contract in `tests/test_cap_ratchet.py` that is
+  supposed to catch an unwatched YAML ceiling enumerated numeric leaves under a
+  top-level `budget:` mapping, and this key lives under `coverage:`. The
+  contract was reading a guessed surface — the top-level key name — rather than
+  the shape of the number. It now also enumerates any `max_*`/`*_max`/`min_*`/
+  `*_min` key anywhere in a `platform/*.yaml`. Measured when the broadening
+  landed: across every such file that rule finds exactly one key that the old
+  one missed, the one above, so it cost no new exemptions.
+
+- **The per-(rule, path) `count:` values are load-sensitive too. The gate now
+  re-measures rather than reports. Resolved 2026-08-08.** `--timeout=0` settled
+  the *unparsed set*; it did not settle the *finding counts*, and that half is
+  compared exactly in both directions as well.
+
+  Measured on one byte-identical tree at load average 383-406, three
+  consecutive full scans whose unparsed sets were byte-identical all three
+  times (49 files, the same 49): total findings 153, 148, 154. Two register
+  entries moved between the first two:
+
+  | Rule | Path | Run 1 | Run 2 |
+  | --- | --- | --- | --- |
+  | `unsafe-formatstring` | `…/src/app/api/stripe/webhook/route.ts` | 13 | 7 |
+  | `detect-child-process` | `platform/ci/src/pipeline.mjs` | 3 | 4 |
+
+  Semgrep raised no error and no warning either time, so the fail-closed
+  partition on warning tags — which is what catches a degraded *unparsed set* —
+  cannot see this at all. Scanning the webhook route on its own, three times,
+  at the same load: 13, 13, 13. The low number was the machine.
+
+  What the gate used to do with it was print `occurs 7x but the baseline
+  reserves 13. Lower the count.` That is the failure this register exists to
+  prevent, reached with no code change: lowering it is one line, turns the run
+  green, permanently under-reserves a real finding, and fails in the opposite
+  direction on the next quiet run.
+
+  `isolated_recount` in `scripts/ci/sast_scan.py` now does what this document
+  had been asking a human to do. When — and *only* when — a finding occurs
+  fewer times than the register reserves, the gate re-scans that one file
+  alone, twice, and:
+
+  - if the isolated count matches the register, the full scan was contended and
+    nothing is reported. The register keeps its higher, correct number;
+  - if the isolated count reproduces and still differs, that number is
+    reported, so a genuinely fixed finding still forces its stale waiver out;
+  - if the two isolated measurements disagree with each other, the run raises
+    `ScanError` and `main` exits 2 — could not run — rather than picking the
+    lower. **A number the machine cannot reproduce twice is not evidence, and
+    the only thing the gate could do with one is tell you to lower the register
+    to it.**
+
+  The direction matters and is pinned by a test: a count *above* the register
+  is a new occurrence and is never re-measured, so nothing on this path can
+  suppress a finding. The re-measurement costs two single-file scans, and only
+  on a run that was going to fail anyway.
 
 - **The rule set is not pinned.** The tool version is pinned in
   `requirements-sast.txt`; `p/default` is resolved from the Semgrep registry at
@@ -335,7 +422,7 @@ State these rather than discovering them later.
   anything here changing. That is the accepted trade — the alternative is
   vendoring 1074 rules and never learning about a new one — but it means a red
   SAST job is not automatically someone's regression.
-- **52 files are only partially parsed.** Semgrep's grammar rejects some
+- **49 files are only partially parsed.** Semgrep's grammar rejects some
   constructs (`>()` on a generic arrow, a bare `&` in JSX text; Go templating in
   the Helm templates; `${{ }}` in workflow YAML); it scans the file up to that
   point and warns rather than erroring. Those files are therefore not fully
@@ -347,6 +434,24 @@ State these rather than discovering them later.
   the list itself. Do not look for the affected files in `sast-report.md` —
   that file is gitignored, so it only ever existed on whichever machine last ran
   a scan, which is why the identity of the unscanned set is committed here.
+
+  **Most of the list is one defect, and it is a one-character fix.** Measured
+  2026-08-08 by scanning each declared file alone and reading the span semgrep
+  rejected: of the 49, **37 are a bare `&` in JSX text** — `<li>Integrity &
+  confidentiality</li>` — spread over `print-atelier` (17),
+  `retail-pilot-intel` (11), `quick-pick-survey` (4), `ai-first-markets` (2)
+  and `local-site-studio` (1). Writing it `&amp;` is the idiomatic JSX form and
+  renders identically. The rest: 9 workflow YAMLs with `${{ }}`, 3 Helm
+  templates, and one `.ts` script. Note that a bare `&` in a JSX *attribute*
+  (`title="Privacy & GDPR"`) parses fine — only text nodes are affected, so a
+  blind find-and-replace over the file is wrong.
+
+  Clearing that class would take the register from 49 to 12 and would ratchet
+  the ceiling down with it. It is deliberately not done here: it is 37 files of
+  user-visible copy across five ventures, and this repository requires
+  real-browser verification for user-visible change, which the scheduled-run
+  environment cannot provide. It is the single largest available recovery of
+  SAST coverage in the repository and wants a session with a browser.
 - **Bandit is gated at medium severity.** At low severity it adds 88 findings,
   42 of them `assert` in test files and 44 `subprocess` calls in CI scripts
   using list arguments and no shell. The full count is in the report.
