@@ -3,8 +3,9 @@
 A worldtimer-bezel watch face, in the style of classic GMT/world-time
 travel watches: a fixed 24-hour ring runs around the rim, and the 24
 major cities of the world — one per standard time zone — sit at whatever
-position on that ring matches their current local hour. Analog hands read
-your own local time off the same ring.
+position on that ring matches their current local hour. Your own local
+time is digital, big and centered, framed by a sub-dial ring; a small
+accent marker on the outer ring ties it back to the world-time bezel.
 
 ![Design mockup](docs/design-mockup.png)
 
@@ -23,15 +24,20 @@ simulator screenshots.)*
   city's *own current local hour* on the fixed ring — so as the day
   progresses, the whole ring of cities visually sweeps around together,
   the same way a real worldtimer watch bezel does.
-- Analog hour + minute hands, pivoting at the center, reading your local
-  time off that same 24-hour scale.
+- Big digital local time + date in the center, respecting the device's
+  12/24-hour preference, framed by a thin sub-dial ring.
+- A small accent "now" marker sitting directly on the hour ring at your
+  current local-time angle — reads the ring without drawing a hand.
+- A thin bezel line around the rim, and night-hours (18:00-06:00) ticks
+  tinted with a dimmer tone than daytime ticks, as a rough day/night cue.
 - Automatic, self-contained DST handling for zones that need it (US, EU,
   Australia, New Zealand) — no network access or bundled timezone database
   needed. Unlike a real mechanical worldtimer (which can only rotate one
   ring uniformly and drifts out of alignment during mixed DST periods),
   each city here is computed independently, so it "hops" a notch on its
   own DST transition day instead of throwing off any other city.
-- Four selectable color themes (Midnight, Aurora, Sand, Mono).
+- Four selectable color themes (Midnight, Aurora, Sand, Mono), each with
+  an accent/muted/dim tone triad.
 - Draws everything programmatically from screen dimensions, so one
   codebase adapts to round, semi-round and rectangular displays without
   per-device layout resources.
@@ -58,9 +64,9 @@ manifest.xml                    App metadata, target device list
 monkey.jungle                   Build configuration
 source/
   WorldTravelerApp.mc            App entry point
-  WorldTravelerView.mc            Radial ring + hands drawing logic
+  WorldTravelerView.mc            Radial ring + digital-center drawing logic
   CityData.mc                    24-zone catalog + timezone/DST math
-  Themes.mc                      Color themes
+  Themes.mc                      Color themes (accent/muted/dim per theme)
 resources/
   drawables/                     Launcher icon
   strings/                       App name + settings labels
@@ -83,12 +89,11 @@ variable — the whole set of labels moves together in the aggregate (all
 correct through individual DST transitions, which a single rotating disc
 cannot represent.
 
-**The hands.** The hour hand reads local time on the *same* 0-24 scale as
-the ring (`angleFor24Hour(hour + minute/60)`), so it always points at
-(roughly) your own city's position in the ring. The minute hand uses an
-ordinary 60-minute scale. Both are drawn as tapered polygons via a
-rotation matrix applied to a template pointing straight up — the standard
-technique for analog hands in Connect IQ (see `drawHand()`).
+**The now-marker.** Local time is read on the *same* 0-24 scale as the
+ring (`angleFor24Hour(hour + minute/60)`) to place a small accent dot
+directly on the hour ring — a halo marker, not a hand, so it stays
+subordinate to the big digital readout in the center while still tying
+the two together visually.
 
 **Timezone math.** Connect IQ devices don't ship a general IANA timezone
 database, so every city's offset is computed by hand: each city stores a
@@ -139,11 +144,12 @@ SDK, which isn't installed in this environment.
    round AMOLED device (e.g. `venu3`) and a round MIP device (e.g.
    `fenix7`) to sanity-check both display types, and check legibility on
    a smaller-screen device (e.g. `venusq`) given the label density.
-5. In the simulator, use the time-travel controls to spot-check: the hour
-   hand should point at roughly "now" on the 24-hour ring, and stepping
-   the simulated date across a DST boundary (e.g. the second Sunday of
-   March) should snap the affected city (e.g. NYC) one tick over without
-   moving any other city.
+5. In the simulator, use the time-travel controls to spot-check: the
+   now-marker dot should sit at roughly "now" on the 24-hour ring, the
+   digital time in the center should match the simulated clock, and
+   stepping the simulated date across a DST boundary (e.g. the second
+   Sunday of March) should snap the affected city (e.g. NYC) one tick over
+   without moving any other city.
 6. Take your Connect IQ Store screenshots directly from the simulator
    (File → Save Screenshot) once the face looks right — those are the
    images that must accompany the store listing, not `docs/design-mockup.png`.
@@ -196,7 +202,8 @@ newer watches (or drop ones you don't want to support).
 
 - Always-on (AOD) support via `onPartialUpdate` for AMOLED devices, with a
   clipped low-power redraw region.
-- A second hand, or a small day/night shading arc behind the city ring.
+- A filled day/night shading arc behind the city ring, instead of just
+  tinted ticks.
 - Tap/menu-button interaction to temporarily highlight one city's label
   (useful when the ring gets crowded).
 - Localized city names for non-English markets.
