@@ -112,6 +112,10 @@ Resolve a conflict by deleting the <<<<<<< and >>>>>>> lines.
 ====
 PROSE
 git -C "$marker_prose_repo" add NOTES.md
-run_scan "$marker_prose_repo"
+if ! run_scan "$marker_prose_repo"; then
+  printf 'merge-marker detector fired on prose that contains no marker:\n' >&2
+  cat "$marker_prose_repo/report.md" >&2
+  exit 1
+fi
 
 printf 'repository policy scanner tests passed\n'

@@ -286,6 +286,61 @@ test('Gate wiring - every test script under scripts/ is wired to a runner', () =
 });
 
 /**
+ * A scanner whose *unit tests* run is not a scanner that has looked at this
+ * repository, and the two are easy to mistake for each other in a PASSED list.
+ *
+ * `scripts/security/scan-repository.sh` refuses tracked secrets, private-key
+ * material, literal Terraform credentials and unresolved merge markers. Until
+ * 2026-08-08 the only entry naming it in `scripts/test-ci.sh` was
+ * `test-scan-repository.sh` — its logic tests, run against `mktemp` fixture
+ * repositories. The scanner itself was invoked only by
+ * `.gitea/workflows/security.yml` (after a push) and the Dagger security suite,
+ * so on the path a local merge takes, nothing asked it about the tree.
+ *
+ * On 2026-08-08 commit 30f9ab40 merged `agent/gate-wiring-and-sec-ids` with the
+ * conflict unresolved, leaving `<<<<<<< HEAD` / `>>>>>>>` in
+ * `platform/ci/test/security-audit-log-integrity.test.mjs`. That file stopped
+ * parsing, so nine security-audit-log checks silently executed none of
+ * themselves; the markers survived six commits. The scanner detects this exact
+ * shape and would have said so in one line.
+ *
+ * The orphan check above cannot see this, because it only considers files named
+ * `test-*.sh`. This is the same question asked of the control rather than of its
+ * test.
+ */
+test('Gate wiring - the repository policy scan is run against this repository', () => {
+  const runner = fs.readFileSync(path.join(REPO_ROOT, 'scripts/test-ci.sh'), 'utf8');
+
+  const registrations = runner
+    .split('\n')
+    .filter((line) => !/^\s*#/.test(line))
+    .filter((line) => /^\s*run_ci_test\s+"[^"]+"/.test(line))
+    .filter((line) => line.includes('scripts/security/scan-repository.sh'));
+
+  assert.equal(
+    registrations.length,
+    1,
+    '`scripts/test-ci.sh` must register `scripts/security/scan-repository.sh` as exactly one ' +
+      'named gate. Running only `test-scan-repository.sh` exercises the scanner against ' +
+      'temporary fixtures and leaves this repository unscanned on the path a merge takes — ' +
+      'which is how unresolved conflict markers reached `main` at 30f9ab40 and stayed for six ' +
+      `commits. Found ${registrations.length} registration(s).`
+  );
+
+  // The default report argument is `security-scan-report.md`, which is tracked.
+  // A gate that rewrites a tracked file as a side effect of measuring is how
+  // `pytest` came to mutate SECURITY_ROADMAP.md, and it makes the working tree
+  // dirty for whoever runs the suite next.
+  assert.ok(
+    !/run_ci_test\s+"[^"]+"\s+bash\s+"\$\{REPO_ROOT\}\/scripts\/security\/scan-repository\.sh"\s*$/.test(
+      registrations[0]
+    ),
+    'the repository policy scan must be given an explicit report path outside the tree; with no ' +
+      'argument it writes the tracked `security-scan-report.md` every time the suite runs'
+  );
+});
+
+/**
  * The third half: a runner that registers the same gate twice is counting its
  * own coverage wrong. Found on the 2026-08-04c merge, where `test-ci.sh` ran
  * the scanner contract twice under one name and the component-verification
