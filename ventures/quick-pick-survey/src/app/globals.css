@@ -19,12 +19,24 @@
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/*
+ * `--background` and `--foreground` are deliberately driven by `:root.dark`
+ * alone, and never by `prefers-color-scheme`.
+ *
+ * Line 3 makes the `dark:` variant strictly class-based, so every `dark:`
+ * utility in the app keys off `.dark` on the root element, which the blocking
+ * script in `layout.tsx` sets from `localStorage.pairwise_theme` — falling back
+ * to the OS preference only when the user has expressed none. A media query
+ * here answered a different question from the one the utilities answer, and the
+ * two disagreed for any user whose stored choice contradicted their OS: with
+ * `pairwise_theme = "light"` on a dark-mode device, `.dark` is absent so every
+ * `dark:` utility stays off and text keeps its light-scheme colour, while this
+ * block still repainted the page surface `#0a0a0a`. Dark text on a near-black
+ * background, reachable from the theme toggle in `ProfileView`. It also broke
+ * with JavaScript disabled, where `.dark` is never applied at all.
+ *
+ * `stylesheetTheming.test.ts` holds this to one source of truth.
+ */
 
 body {
   background: var(--background);
