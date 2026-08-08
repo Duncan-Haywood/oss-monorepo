@@ -18,30 +18,33 @@ using Toybox.Time.Gregorian as Gregorian;
 //
 module CityData {
 
-    // index -> { :name, :offset (seconds, standard time), :dst (symbol) }
+    // index -> { :name, :abbr (<=4 chars, for dense grid rows), :offset
+    // (seconds, standard time), :dst (symbol) }
     const CITIES = [
-        { :name => "Pago Pago",  :offset => -11 * 3600,        :dst => :none },
-        { :name => "Honolulu",   :offset => -10 * 3600,        :dst => :none },
-        { :name => "Anchorage",  :offset => -9 * 3600,         :dst => :us },
-        { :name => "Los Angeles",:offset => -8 * 3600,         :dst => :us },
-        { :name => "Denver",     :offset => -7 * 3600,         :dst => :us },
-        { :name => "Chicago",    :offset => -6 * 3600,         :dst => :us },
-        { :name => "New York",   :offset => -5 * 3600,         :dst => :us },
-        { :name => "Sao Paulo",  :offset => -3 * 3600,         :dst => :none },
-        { :name => "London",     :offset => 0,                 :dst => :eu },
-        { :name => "Paris",      :offset => 1 * 3600,          :dst => :eu },
-        { :name => "Athens",     :offset => 2 * 3600,          :dst => :eu },
-        { :name => "Moscow",     :offset => 3 * 3600,          :dst => :none },
-        { :name => "Dubai",      :offset => 4 * 3600,          :dst => :none },
-        { :name => "Delhi",      :offset => 5 * 3600 + 1800,   :dst => :none },
-        { :name => "Dhaka",      :offset => 6 * 3600,          :dst => :none },
-        { :name => "Bangkok",    :offset => 7 * 3600,          :dst => :none },
-        { :name => "Beijing",    :offset => 8 * 3600,          :dst => :none },
-        { :name => "Tokyo",      :offset => 9 * 3600,          :dst => :none },
-        { :name => "Sydney",     :offset => 10 * 3600,         :dst => :au },
-        { :name => "Honiara",    :offset => 11 * 3600,         :dst => :none },
-        { :name => "Auckland",   :offset => 12 * 3600,         :dst => :nz },
-        { :name => "Nukualofa",  :offset => 13 * 3600,         :dst => :none }
+        { :name => "Pago Pago",   :abbr => "PPG", :offset => -11 * 3600,      :dst => :none },
+        { :name => "Honolulu",    :abbr => "HNL", :offset => -10 * 3600,      :dst => :none },
+        { :name => "Anchorage",   :abbr => "ANC", :offset => -9 * 3600,       :dst => :us },
+        { :name => "Los Angeles", :abbr => "LAX", :offset => -8 * 3600,       :dst => :us },
+        { :name => "Denver",      :abbr => "DEN", :offset => -7 * 3600,       :dst => :us },
+        { :name => "Chicago",     :abbr => "CHI", :offset => -6 * 3600,       :dst => :us },
+        { :name => "New York",    :abbr => "NYC", :offset => -5 * 3600,       :dst => :us },
+        { :name => "Halifax",     :abbr => "HFX", :offset => -4 * 3600,       :dst => :us },
+        { :name => "Sao Paulo",   :abbr => "SAO", :offset => -3 * 3600,       :dst => :none },
+        { :name => "London",      :abbr => "LON", :offset => 0,               :dst => :eu },
+        { :name => "Paris",       :abbr => "PAR", :offset => 1 * 3600,        :dst => :eu },
+        { :name => "Athens",      :abbr => "ATH", :offset => 2 * 3600,        :dst => :eu },
+        { :name => "Moscow",      :abbr => "MOW", :offset => 3 * 3600,        :dst => :none },
+        { :name => "Dubai",       :abbr => "DXB", :offset => 4 * 3600,        :dst => :none },
+        { :name => "Karachi",     :abbr => "KHI", :offset => 5 * 3600,        :dst => :none },
+        { :name => "Delhi",       :abbr => "DEL", :offset => 5 * 3600 + 1800, :dst => :none },
+        { :name => "Dhaka",       :abbr => "DAC", :offset => 6 * 3600,        :dst => :none },
+        { :name => "Bangkok",     :abbr => "BKK", :offset => 7 * 3600,        :dst => :none },
+        { :name => "Beijing",     :abbr => "PEK", :offset => 8 * 3600,        :dst => :none },
+        { :name => "Tokyo",       :abbr => "TYO", :offset => 9 * 3600,        :dst => :none },
+        { :name => "Sydney",      :abbr => "SYD", :offset => 10 * 3600,       :dst => :au },
+        { :name => "Honiara",     :abbr => "HIR", :offset => 11 * 3600,       :dst => :none },
+        { :name => "Auckland",    :abbr => "AKL", :offset => 12 * 3600,       :dst => :nz },
+        { :name => "Nukualofa",   :abbr => "TBU", :offset => 13 * 3600,       :dst => :none }
     ];
 
     function size() {
@@ -51,6 +54,11 @@ module CityData {
     function nameAt(index) {
         var i = normalizeIndex(index);
         return CITIES[i][:name];
+    }
+
+    function abbrAt(index) {
+        var i = normalizeIndex(index);
+        return CITIES[i][:abbr];
     }
 
     // Returns a Gregorian.Info (FORMAT_SHORT) for the given city's current

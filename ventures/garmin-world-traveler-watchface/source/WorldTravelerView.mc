@@ -10,13 +10,30 @@ using Toybox.Application.Properties as Properties;
 // adapts to round, semi-round and rectangular displays purely from
 // dc.getWidth()/dc.getHeight() -- no per-device resource variants needed.
 //
+// Layout: a compact local time/date header up top, then a 2-column x
+// 8-row grid of 16 user-selectable world-city clocks below it -- a real
+// world-traveler reference, not just a couple of favorites.
+//
 class WorldTravelerView extends Ui.WatchFace {
 
-    // Property keys for the four user-selectable world-city slots.
-    var citySlotKeys = [ "City1Index", "City2Index", "City3Index", "City4Index" ];
+    var citySlotKeys = [
+        "City1Index", "City2Index", "City3Index", "City4Index",
+        "City5Index", "City6Index", "City7Index", "City8Index",
+        "City9Index", "City10Index", "City11Index", "City12Index",
+        "City13Index", "City14Index", "City15Index", "City16Index"
+    ];
 
-    // Default city indices into CityData.CITIES: London, New York, Tokyo, Sydney.
-    var defaultCityIndices = [ 8, 6, 17, 18 ];
+    // Defaults into CityData.CITIES, chosen for broad global spread:
+    // Honolulu, LA, Denver, Chicago, New York, Sao Paulo, London, Paris,
+    // Athens, Moscow, Dubai, Delhi, Bangkok, Beijing, Tokyo, Sydney.
+    var defaultCityIndices = [
+        1, 3, 4, 5,
+        6, 8, 9, 10,
+        11, 12, 13, 15,
+        17, 18, 19, 20
+    ];
+
+    var columns = 2;
 
     function initialize() {
         WatchFace.initialize();
@@ -50,10 +67,9 @@ class WorldTravelerView extends Ui.WatchFace {
         var is24Hour = Sys.getDeviceSettings().is24Hour;
         var localInfo = Gregorian.info(now, Time.FORMAT_MEDIUM);
 
-        drawDate(dc, width, height, theme, localInfo);
-        drawMainClock(dc, width, height, clock, is24Hour);
+        drawHeader(dc, width, height, theme, clock, is24Hour, localInfo);
         drawDivider(dc, width, height, theme);
-        drawCityRows(dc, width, height, theme, now, localInfo, is24Hour);
+        drawCityGrid(dc, width, height, theme, now, localInfo, is24Hour);
         drawBattery(dc, width, height, theme);
     }
 
@@ -65,59 +81,56 @@ class WorldTravelerView extends Ui.WatchFace {
         return value;
     }
 
-    function drawDate(dc, width, height, theme, info) {
-        var text = info.day_of_week + " " + info.month + " " + info.day.format("%d");
-        dc.setColor(theme[:muted], Gfx.COLOR_TRANSPARENT);
-        dc.drawText(width / 2, height * 0.14, Gfx.FONT_SMALL, text, Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
-    }
-
-    function drawMainClock(dc, width, height, clock, is24Hour) {
-        var text = formatTime(clock.hour, clock.min, is24Hour);
+    function drawHeader(dc, width, height, theme, clock, is24Hour, info) {
+        var timeText = formatTime(clock.hour, clock.min, is24Hour);
         dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
-        dc.drawText(width / 2, height * 0.31, Gfx.FONT_NUMBER_MEDIUM, text, Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(width / 2, height * 0.115, Gfx.FONT_NUMBER_MILD, timeText, Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
+
+        var dateText = info.day_of_week + " " + info.month + " " + info.day.format("%d");
+        dc.setColor(theme[:muted], Gfx.COLOR_TRANSPARENT);
+        dc.drawText(width / 2, height * 0.205, Gfx.FONT_XTINY, dateText, Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
     }
 
     function drawDivider(dc, width, height, theme) {
-        var y = height * 0.47;
-        var halfWidth = width * 0.22;
+        var y = height * 0.245;
+        var halfWidth = width * 0.20;
         dc.setColor(theme[:accent], Gfx.COLOR_TRANSPARENT);
         dc.setPenWidth(2);
         dc.drawLine(width / 2 - halfWidth, y, width / 2 + halfWidth, y);
         dc.setPenWidth(1);
     }
 
-    function drawCityRows(dc, width, height, theme, now, localInfo, is24Hour) {
-        var rowFont = (width < 220) ? Gfx.FONT_XTINY : Gfx.FONT_SMALL;
-        var yStart = height * 0.56;
-        var yEnd = height * 0.90;
-        var rowCount = citySlotKeys.size();
+    // 2 columns x 8 rows of "ABBR HH:MM" cells, kept away from the round
+    // bezel edges by staying within a conservative horizontal band that
+    // narrows for the outer columns at the bottom-most rows.
+    function drawCityGrid(dc, width, height, theme, now, localInfo, is24Hour) {
+        var rowCount = citySlotKeys.size() / columns;
+        var yStart = height * 0.30;
+        var yEnd = height * 0.85;
         var spacing = (yEnd - yStart) / (rowCount - 1);
-        var leftX = width * 0.20;
-        var rightX = width * 0.80;
+        var colX = [ width * 0.18, width * 0.50 ];
 
-        for (var row = 0; row < rowCount; row++) {
-            var cityIndex = readProperty(citySlotKeys[row], defaultCityIndices[row]);
+        for (var slot = 0; slot < citySlotKeys.size(); slot++) {
+            var col = slot % columns;
+            var row = slot / columns;
+
+            var cityIndex = readProperty(citySlotKeys[slot], defaultCityIndices[slot]);
             var cityInfo = CityData.localInfoAt(cityIndex, now);
             var y = yStart + (spacing * row);
 
-            dc.setColor(theme[:accent], Gfx.COLOR_TRANSPARENT);
-            dc.drawText(leftX, y, rowFont, CityData.nameAt(cityIndex), Gfx.TEXT_JUSTIFY_LEFT | Gfx.TEXT_JUSTIFY_VCENTER);
-
             var timeText = formatTime(cityInfo.hour, cityInfo.min, is24Hour);
             var badge = dayOffsetBadge(cityInfo, localInfo);
-            if (!badge.equals("")) {
-                timeText = timeText + " " + badge;
-            }
+            var cellText = CityData.abbrAt(cityIndex) + " " + timeText + badge;
 
-            dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
-            dc.drawText(rightX, y, rowFont, timeText, Gfx.TEXT_JUSTIFY_RIGHT | Gfx.TEXT_JUSTIFY_VCENTER);
+            dc.setColor(theme[:accent], Gfx.COLOR_TRANSPARENT);
+            dc.drawText(colX[col], y, Gfx.FONT_XTINY, cellText, Gfx.TEXT_JUSTIFY_LEFT | Gfx.TEXT_JUSTIFY_VCENTER);
         }
     }
 
     function drawBattery(dc, width, height, theme) {
         var battery = Sys.getSystemStats().battery;
         dc.setColor(theme[:muted], Gfx.COLOR_TRANSPARENT);
-        dc.drawText(width / 2, height * 0.97, Gfx.FONT_XTINY, battery.format("%d") + "%", Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(width / 2, height * 0.955, Gfx.FONT_XTINY, battery.format("%d") + "%", Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
     }
 
     // hour24 is always 0-23 (Sys.getClockTime()/Gregorian hour fields); this
@@ -137,10 +150,10 @@ class WorldTravelerView extends Ui.WatchFace {
         return hour12.format("%d") + ":" + minuteText + suffix;
     }
 
-    // Best-effort "day is ahead/behind mine" badge from the two Gregorian
-    // day-of-month fields. Handles the common one-day-apart case, including
-    // the month-boundary wraparound, but is not exact for the rare city
-    // pairing that is a full two calendar days apart.
+    // Best-effort single-character "day is ahead/behind mine" marker from
+    // the two Gregorian day-of-month fields. Handles the common one-day-
+    // apart case, including the month-boundary wraparound, but is not exact
+    // for the rare city pairing that is a full two calendar days apart.
     function dayOffsetBadge(cityInfo, localInfo) {
         var cd = cityInfo.day;
         var ld = localInfo.day;
@@ -149,16 +162,16 @@ class WorldTravelerView extends Ui.WatchFace {
             return "";
         }
         if (cd == ld + 1) {
-            return "+1";
+            return "+";
         }
         if (cd == ld - 1) {
-            return "-1";
+            return "-";
         }
         if (cd <= 3 && ld >= 28) {
-            return "+1";
+            return "+";
         }
         if (ld <= 3 && cd >= 28) {
-            return "-1";
+            return "-";
         }
         return "";
     }

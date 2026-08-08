@@ -9,21 +9,23 @@
             <listEntry value="4">Denver</listEntry>
             <listEntry value="5">Chicago</listEntry>
             <listEntry value="6">New York</listEntry>
-            <listEntry value="7">Sao Paulo</listEntry>
-            <listEntry value="8">London</listEntry>
-            <listEntry value="9">Paris</listEntry>
-            <listEntry value="10">Athens</listEntry>
-            <listEntry value="11">Moscow</listEntry>
-            <listEntry value="12">Dubai</listEntry>
-            <listEntry value="13">Delhi</listEntry>
-            <listEntry value="14">Dhaka</listEntry>
-            <listEntry value="15">Bangkok</listEntry>
-            <listEntry value="16">Beijing</listEntry>
-            <listEntry value="17">Tokyo</listEntry>
-            <listEntry value="18">Sydney</listEntry>
-            <listEntry value="19">Honiara</listEntry>
-            <listEntry value="20">Auckland</listEntry>
-            <listEntry value="21">Nukualofa</listEntry>
+            <listEntry value="7">Halifax</listEntry>
+            <listEntry value="8">Sao Paulo</listEntry>
+            <listEntry value="9">London</listEntry>
+            <listEntry value="10">Paris</listEntry>
+            <listEntry value="11">Athens</listEntry>
+            <listEntry value="12">Moscow</listEntry>
+            <listEntry value="13">Dubai</listEntry>
+            <listEntry value="14">Karachi</listEntry>
+            <listEntry value="15">Delhi</listEntry>
+            <listEntry value="16">Dhaka</listEntry>
+            <listEntry value="17">Bangkok</listEntry>
+            <listEntry value="18">Beijing</listEntry>
+            <listEntry value="19">Tokyo</listEntry>
+            <listEntry value="20">Sydney</listEntry>
+            <listEntry value="21">Honiara</listEntry>
+            <listEntry value="22">Auckland</listEntry>
+            <listEntry value="23">Nukualofa</listEntry>
         </settingConfig>
     </setting>
     <setting propertyKey="@Properties.City2Index" title="@Strings.City2Title">
@@ -35,21 +37,23 @@
             <listEntry value="4">Denver</listEntry>
             <listEntry value="5">Chicago</listEntry>
             <listEntry value="6">New York</listEntry>
-            <listEntry value="7">Sao Paulo</listEntry>
-            <listEntry value="8">London</listEntry>
-            <listEntry value="9">Paris</listEntry>
-            <listEntry value="10">Athens</listEntry>
-            <listEntry value="11">Moscow</listEntry>
-            <listEntry value="12">Dubai</listEntry>
-            <listEntry value="13">Delhi</listEntry>
-            <listEntry value="14">Dhaka</listEntry>
-            <listEntry value="15">Bangkok</listEntry>
-            <listEntry value="16">Beijing</listEntry>
-            <listEntry value="17">Tokyo</listEntry>
-            <listEntry value="18">Sydney</listEntry>
-            <listEntry value="19">Honiara</listEntry>
-            <listEntry value="20">Auckland</listEntry>
-            <listEntry value="21">Nukualofa</listEntry>
+            <listEntry value="7">Halifax</listEntry>
+            <listEntry value="8">Sao Paulo</listEntry>
+            <listEntry value="9">London</listEntry>
+            <listEntry value="10">Paris</listEntry>
+            <listEntry value="11">Athens</listEntry>
+            <listEntry value="12">Moscow</listEntry>
+            <listEntry value="13">Dubai</listEntry>
+            <listEntry value="14">Karachi</listEntry>
+            <listEntry value="15">Delhi</listEntry>
+            <listEntry value="16">Dhaka</listEntry>
+            <listEntry value="17">Bangkok</listEntry>
+            <listEntry value="18">Beijing</listEntry>
+            <listEntry value="19">Tokyo</listEntry>
+            <listEntry value="20">Sydney</listEntry>
+            <listEntry value="21">Honiara</listEntry>
+            <listEntry value="22">Auckland</listEntry>
+            <listEntry value="23">Nukualofa</listEntry>
         </settingConfig>
     </setting>
     <setting propertyKey="@Properties.City3Index" title="@Strings.City3Title">
@@ -61,21 +65,23 @@
             <listEntry value="4">Denver</listEntry>
             <listEntry value="5">Chicago</listEntry>
             <listEntry value="6">New York</listEntry>
-            <listEntry value="7">Sao Paulo</listEntry>
-            <listEntry value="8">London</listEntry>
-            <listEntry value="9">Paris</listEntry>
-            <listEntry value="10">Athens</listEntry>
-            <listEntry value="11">Moscow</listEntry>
-            <listEntry value="12">Dubai</listEntry>
-            <listEntry value="13">Delhi</listEntry>
-            <listEntry value="14">Dhaka</listEntry>
-            <listEntry value="15">Bangkok</listEntry>
-            <listEntry value="16">Beijing</listEntry>
-            <listEntry value="17">Tokyo</listEntry>
-            <listEntry value="18">Sydney</listEntry>
-            <listEntry value="19">Honiara</listEntry>
-            <listEntry value="20">Auckland</listEntry>
-            <listEntry value="21">Nukualofa</listEntry>
+            <listEntry value="7">Halifax</listEntry>
+            <listEntry value="8">Sao Paulo</listEntry>
+            <listEntry value="9">London</listEntry>
+            <listEntry value="10">Paris</listEntry>
+            <listEntry value="11">Athens</listEntry>
+            <listEntry value="12">Moscow</listEntry>
+            <listEntry value="13">Dubai</listEntry>
+            <listEntry value="14">Karachi</listEntry>
+            <listEntry value="15">Delhi</listEntry>
+            <listEntry value="16">Dhaka</listEntry>
+            <listEntry value="17">Bangkok</listEntry>
+            <listEntry value="18">Beijing</listEntry>
+            <listEntry value="19">Tokyo</listEntry>
+            <listEntry value="20">Sydney</listEntry>
+            <listEntry value="21">Honiara</listEntry>
+            <listEntry value="22">Auckland</listEntry>
+            <listEntry value="23">Nukualofa</listEntry>
         </settingConfig>
     </setting>
     <setting propertyKey="@Properties.City4Index" title="@Strings.City4Title">
@@ -87,21 +93,359 @@
             <listEntry value="4">Denver</listEntry>
             <listEntry value="5">Chicago</listEntry>
             <listEntry value="6">New York</listEntry>
-            <listEntry value="7">Sao Paulo</listEntry>
-            <listEntry value="8">London</listEntry>
-            <listEntry value="9">Paris</listEntry>
-            <listEntry value="10">Athens</listEntry>
-            <listEntry value="11">Moscow</listEntry>
-            <listEntry value="12">Dubai</listEntry>
-            <listEntry value="13">Delhi</listEntry>
-            <listEntry value="14">Dhaka</listEntry>
-            <listEntry value="15">Bangkok</listEntry>
-            <listEntry value="16">Beijing</listEntry>
-            <listEntry value="17">Tokyo</listEntry>
-            <listEntry value="18">Sydney</listEntry>
-            <listEntry value="19">Honiara</listEntry>
-            <listEntry value="20">Auckland</listEntry>
-            <listEntry value="21">Nukualofa</listEntry>
+            <listEntry value="7">Halifax</listEntry>
+            <listEntry value="8">Sao Paulo</listEntry>
+            <listEntry value="9">London</listEntry>
+            <listEntry value="10">Paris</listEntry>
+            <listEntry value="11">Athens</listEntry>
+            <listEntry value="12">Moscow</listEntry>
+            <listEntry value="13">Dubai</listEntry>
+            <listEntry value="14">Karachi</listEntry>
+            <listEntry value="15">Delhi</listEntry>
+            <listEntry value="16">Dhaka</listEntry>
+            <listEntry value="17">Bangkok</listEntry>
+            <listEntry value="18">Beijing</listEntry>
+            <listEntry value="19">Tokyo</listEntry>
+            <listEntry value="20">Sydney</listEntry>
+            <listEntry value="21">Honiara</listEntry>
+            <listEntry value="22">Auckland</listEntry>
+            <listEntry value="23">Nukualofa</listEntry>
+        </settingConfig>
+    </setting>
+    <setting propertyKey="@Properties.City5Index" title="@Strings.City5Title">
+        <settingConfig type="list">
+            <listEntry value="0">Pago Pago</listEntry>
+            <listEntry value="1">Honolulu</listEntry>
+            <listEntry value="2">Anchorage</listEntry>
+            <listEntry value="3">Los Angeles</listEntry>
+            <listEntry value="4">Denver</listEntry>
+            <listEntry value="5">Chicago</listEntry>
+            <listEntry value="6">New York</listEntry>
+            <listEntry value="7">Halifax</listEntry>
+            <listEntry value="8">Sao Paulo</listEntry>
+            <listEntry value="9">London</listEntry>
+            <listEntry value="10">Paris</listEntry>
+            <listEntry value="11">Athens</listEntry>
+            <listEntry value="12">Moscow</listEntry>
+            <listEntry value="13">Dubai</listEntry>
+            <listEntry value="14">Karachi</listEntry>
+            <listEntry value="15">Delhi</listEntry>
+            <listEntry value="16">Dhaka</listEntry>
+            <listEntry value="17">Bangkok</listEntry>
+            <listEntry value="18">Beijing</listEntry>
+            <listEntry value="19">Tokyo</listEntry>
+            <listEntry value="20">Sydney</listEntry>
+            <listEntry value="21">Honiara</listEntry>
+            <listEntry value="22">Auckland</listEntry>
+            <listEntry value="23">Nukualofa</listEntry>
+        </settingConfig>
+    </setting>
+    <setting propertyKey="@Properties.City6Index" title="@Strings.City6Title">
+        <settingConfig type="list">
+            <listEntry value="0">Pago Pago</listEntry>
+            <listEntry value="1">Honolulu</listEntry>
+            <listEntry value="2">Anchorage</listEntry>
+            <listEntry value="3">Los Angeles</listEntry>
+            <listEntry value="4">Denver</listEntry>
+            <listEntry value="5">Chicago</listEntry>
+            <listEntry value="6">New York</listEntry>
+            <listEntry value="7">Halifax</listEntry>
+            <listEntry value="8">Sao Paulo</listEntry>
+            <listEntry value="9">London</listEntry>
+            <listEntry value="10">Paris</listEntry>
+            <listEntry value="11">Athens</listEntry>
+            <listEntry value="12">Moscow</listEntry>
+            <listEntry value="13">Dubai</listEntry>
+            <listEntry value="14">Karachi</listEntry>
+            <listEntry value="15">Delhi</listEntry>
+            <listEntry value="16">Dhaka</listEntry>
+            <listEntry value="17">Bangkok</listEntry>
+            <listEntry value="18">Beijing</listEntry>
+            <listEntry value="19">Tokyo</listEntry>
+            <listEntry value="20">Sydney</listEntry>
+            <listEntry value="21">Honiara</listEntry>
+            <listEntry value="22">Auckland</listEntry>
+            <listEntry value="23">Nukualofa</listEntry>
+        </settingConfig>
+    </setting>
+    <setting propertyKey="@Properties.City7Index" title="@Strings.City7Title">
+        <settingConfig type="list">
+            <listEntry value="0">Pago Pago</listEntry>
+            <listEntry value="1">Honolulu</listEntry>
+            <listEntry value="2">Anchorage</listEntry>
+            <listEntry value="3">Los Angeles</listEntry>
+            <listEntry value="4">Denver</listEntry>
+            <listEntry value="5">Chicago</listEntry>
+            <listEntry value="6">New York</listEntry>
+            <listEntry value="7">Halifax</listEntry>
+            <listEntry value="8">Sao Paulo</listEntry>
+            <listEntry value="9">London</listEntry>
+            <listEntry value="10">Paris</listEntry>
+            <listEntry value="11">Athens</listEntry>
+            <listEntry value="12">Moscow</listEntry>
+            <listEntry value="13">Dubai</listEntry>
+            <listEntry value="14">Karachi</listEntry>
+            <listEntry value="15">Delhi</listEntry>
+            <listEntry value="16">Dhaka</listEntry>
+            <listEntry value="17">Bangkok</listEntry>
+            <listEntry value="18">Beijing</listEntry>
+            <listEntry value="19">Tokyo</listEntry>
+            <listEntry value="20">Sydney</listEntry>
+            <listEntry value="21">Honiara</listEntry>
+            <listEntry value="22">Auckland</listEntry>
+            <listEntry value="23">Nukualofa</listEntry>
+        </settingConfig>
+    </setting>
+    <setting propertyKey="@Properties.City8Index" title="@Strings.City8Title">
+        <settingConfig type="list">
+            <listEntry value="0">Pago Pago</listEntry>
+            <listEntry value="1">Honolulu</listEntry>
+            <listEntry value="2">Anchorage</listEntry>
+            <listEntry value="3">Los Angeles</listEntry>
+            <listEntry value="4">Denver</listEntry>
+            <listEntry value="5">Chicago</listEntry>
+            <listEntry value="6">New York</listEntry>
+            <listEntry value="7">Halifax</listEntry>
+            <listEntry value="8">Sao Paulo</listEntry>
+            <listEntry value="9">London</listEntry>
+            <listEntry value="10">Paris</listEntry>
+            <listEntry value="11">Athens</listEntry>
+            <listEntry value="12">Moscow</listEntry>
+            <listEntry value="13">Dubai</listEntry>
+            <listEntry value="14">Karachi</listEntry>
+            <listEntry value="15">Delhi</listEntry>
+            <listEntry value="16">Dhaka</listEntry>
+            <listEntry value="17">Bangkok</listEntry>
+            <listEntry value="18">Beijing</listEntry>
+            <listEntry value="19">Tokyo</listEntry>
+            <listEntry value="20">Sydney</listEntry>
+            <listEntry value="21">Honiara</listEntry>
+            <listEntry value="22">Auckland</listEntry>
+            <listEntry value="23">Nukualofa</listEntry>
+        </settingConfig>
+    </setting>
+    <setting propertyKey="@Properties.City9Index" title="@Strings.City9Title">
+        <settingConfig type="list">
+            <listEntry value="0">Pago Pago</listEntry>
+            <listEntry value="1">Honolulu</listEntry>
+            <listEntry value="2">Anchorage</listEntry>
+            <listEntry value="3">Los Angeles</listEntry>
+            <listEntry value="4">Denver</listEntry>
+            <listEntry value="5">Chicago</listEntry>
+            <listEntry value="6">New York</listEntry>
+            <listEntry value="7">Halifax</listEntry>
+            <listEntry value="8">Sao Paulo</listEntry>
+            <listEntry value="9">London</listEntry>
+            <listEntry value="10">Paris</listEntry>
+            <listEntry value="11">Athens</listEntry>
+            <listEntry value="12">Moscow</listEntry>
+            <listEntry value="13">Dubai</listEntry>
+            <listEntry value="14">Karachi</listEntry>
+            <listEntry value="15">Delhi</listEntry>
+            <listEntry value="16">Dhaka</listEntry>
+            <listEntry value="17">Bangkok</listEntry>
+            <listEntry value="18">Beijing</listEntry>
+            <listEntry value="19">Tokyo</listEntry>
+            <listEntry value="20">Sydney</listEntry>
+            <listEntry value="21">Honiara</listEntry>
+            <listEntry value="22">Auckland</listEntry>
+            <listEntry value="23">Nukualofa</listEntry>
+        </settingConfig>
+    </setting>
+    <setting propertyKey="@Properties.City10Index" title="@Strings.City10Title">
+        <settingConfig type="list">
+            <listEntry value="0">Pago Pago</listEntry>
+            <listEntry value="1">Honolulu</listEntry>
+            <listEntry value="2">Anchorage</listEntry>
+            <listEntry value="3">Los Angeles</listEntry>
+            <listEntry value="4">Denver</listEntry>
+            <listEntry value="5">Chicago</listEntry>
+            <listEntry value="6">New York</listEntry>
+            <listEntry value="7">Halifax</listEntry>
+            <listEntry value="8">Sao Paulo</listEntry>
+            <listEntry value="9">London</listEntry>
+            <listEntry value="10">Paris</listEntry>
+            <listEntry value="11">Athens</listEntry>
+            <listEntry value="12">Moscow</listEntry>
+            <listEntry value="13">Dubai</listEntry>
+            <listEntry value="14">Karachi</listEntry>
+            <listEntry value="15">Delhi</listEntry>
+            <listEntry value="16">Dhaka</listEntry>
+            <listEntry value="17">Bangkok</listEntry>
+            <listEntry value="18">Beijing</listEntry>
+            <listEntry value="19">Tokyo</listEntry>
+            <listEntry value="20">Sydney</listEntry>
+            <listEntry value="21">Honiara</listEntry>
+            <listEntry value="22">Auckland</listEntry>
+            <listEntry value="23">Nukualofa</listEntry>
+        </settingConfig>
+    </setting>
+    <setting propertyKey="@Properties.City11Index" title="@Strings.City11Title">
+        <settingConfig type="list">
+            <listEntry value="0">Pago Pago</listEntry>
+            <listEntry value="1">Honolulu</listEntry>
+            <listEntry value="2">Anchorage</listEntry>
+            <listEntry value="3">Los Angeles</listEntry>
+            <listEntry value="4">Denver</listEntry>
+            <listEntry value="5">Chicago</listEntry>
+            <listEntry value="6">New York</listEntry>
+            <listEntry value="7">Halifax</listEntry>
+            <listEntry value="8">Sao Paulo</listEntry>
+            <listEntry value="9">London</listEntry>
+            <listEntry value="10">Paris</listEntry>
+            <listEntry value="11">Athens</listEntry>
+            <listEntry value="12">Moscow</listEntry>
+            <listEntry value="13">Dubai</listEntry>
+            <listEntry value="14">Karachi</listEntry>
+            <listEntry value="15">Delhi</listEntry>
+            <listEntry value="16">Dhaka</listEntry>
+            <listEntry value="17">Bangkok</listEntry>
+            <listEntry value="18">Beijing</listEntry>
+            <listEntry value="19">Tokyo</listEntry>
+            <listEntry value="20">Sydney</listEntry>
+            <listEntry value="21">Honiara</listEntry>
+            <listEntry value="22">Auckland</listEntry>
+            <listEntry value="23">Nukualofa</listEntry>
+        </settingConfig>
+    </setting>
+    <setting propertyKey="@Properties.City12Index" title="@Strings.City12Title">
+        <settingConfig type="list">
+            <listEntry value="0">Pago Pago</listEntry>
+            <listEntry value="1">Honolulu</listEntry>
+            <listEntry value="2">Anchorage</listEntry>
+            <listEntry value="3">Los Angeles</listEntry>
+            <listEntry value="4">Denver</listEntry>
+            <listEntry value="5">Chicago</listEntry>
+            <listEntry value="6">New York</listEntry>
+            <listEntry value="7">Halifax</listEntry>
+            <listEntry value="8">Sao Paulo</listEntry>
+            <listEntry value="9">London</listEntry>
+            <listEntry value="10">Paris</listEntry>
+            <listEntry value="11">Athens</listEntry>
+            <listEntry value="12">Moscow</listEntry>
+            <listEntry value="13">Dubai</listEntry>
+            <listEntry value="14">Karachi</listEntry>
+            <listEntry value="15">Delhi</listEntry>
+            <listEntry value="16">Dhaka</listEntry>
+            <listEntry value="17">Bangkok</listEntry>
+            <listEntry value="18">Beijing</listEntry>
+            <listEntry value="19">Tokyo</listEntry>
+            <listEntry value="20">Sydney</listEntry>
+            <listEntry value="21">Honiara</listEntry>
+            <listEntry value="22">Auckland</listEntry>
+            <listEntry value="23">Nukualofa</listEntry>
+        </settingConfig>
+    </setting>
+    <setting propertyKey="@Properties.City13Index" title="@Strings.City13Title">
+        <settingConfig type="list">
+            <listEntry value="0">Pago Pago</listEntry>
+            <listEntry value="1">Honolulu</listEntry>
+            <listEntry value="2">Anchorage</listEntry>
+            <listEntry value="3">Los Angeles</listEntry>
+            <listEntry value="4">Denver</listEntry>
+            <listEntry value="5">Chicago</listEntry>
+            <listEntry value="6">New York</listEntry>
+            <listEntry value="7">Halifax</listEntry>
+            <listEntry value="8">Sao Paulo</listEntry>
+            <listEntry value="9">London</listEntry>
+            <listEntry value="10">Paris</listEntry>
+            <listEntry value="11">Athens</listEntry>
+            <listEntry value="12">Moscow</listEntry>
+            <listEntry value="13">Dubai</listEntry>
+            <listEntry value="14">Karachi</listEntry>
+            <listEntry value="15">Delhi</listEntry>
+            <listEntry value="16">Dhaka</listEntry>
+            <listEntry value="17">Bangkok</listEntry>
+            <listEntry value="18">Beijing</listEntry>
+            <listEntry value="19">Tokyo</listEntry>
+            <listEntry value="20">Sydney</listEntry>
+            <listEntry value="21">Honiara</listEntry>
+            <listEntry value="22">Auckland</listEntry>
+            <listEntry value="23">Nukualofa</listEntry>
+        </settingConfig>
+    </setting>
+    <setting propertyKey="@Properties.City14Index" title="@Strings.City14Title">
+        <settingConfig type="list">
+            <listEntry value="0">Pago Pago</listEntry>
+            <listEntry value="1">Honolulu</listEntry>
+            <listEntry value="2">Anchorage</listEntry>
+            <listEntry value="3">Los Angeles</listEntry>
+            <listEntry value="4">Denver</listEntry>
+            <listEntry value="5">Chicago</listEntry>
+            <listEntry value="6">New York</listEntry>
+            <listEntry value="7">Halifax</listEntry>
+            <listEntry value="8">Sao Paulo</listEntry>
+            <listEntry value="9">London</listEntry>
+            <listEntry value="10">Paris</listEntry>
+            <listEntry value="11">Athens</listEntry>
+            <listEntry value="12">Moscow</listEntry>
+            <listEntry value="13">Dubai</listEntry>
+            <listEntry value="14">Karachi</listEntry>
+            <listEntry value="15">Delhi</listEntry>
+            <listEntry value="16">Dhaka</listEntry>
+            <listEntry value="17">Bangkok</listEntry>
+            <listEntry value="18">Beijing</listEntry>
+            <listEntry value="19">Tokyo</listEntry>
+            <listEntry value="20">Sydney</listEntry>
+            <listEntry value="21">Honiara</listEntry>
+            <listEntry value="22">Auckland</listEntry>
+            <listEntry value="23">Nukualofa</listEntry>
+        </settingConfig>
+    </setting>
+    <setting propertyKey="@Properties.City15Index" title="@Strings.City15Title">
+        <settingConfig type="list">
+            <listEntry value="0">Pago Pago</listEntry>
+            <listEntry value="1">Honolulu</listEntry>
+            <listEntry value="2">Anchorage</listEntry>
+            <listEntry value="3">Los Angeles</listEntry>
+            <listEntry value="4">Denver</listEntry>
+            <listEntry value="5">Chicago</listEntry>
+            <listEntry value="6">New York</listEntry>
+            <listEntry value="7">Halifax</listEntry>
+            <listEntry value="8">Sao Paulo</listEntry>
+            <listEntry value="9">London</listEntry>
+            <listEntry value="10">Paris</listEntry>
+            <listEntry value="11">Athens</listEntry>
+            <listEntry value="12">Moscow</listEntry>
+            <listEntry value="13">Dubai</listEntry>
+            <listEntry value="14">Karachi</listEntry>
+            <listEntry value="15">Delhi</listEntry>
+            <listEntry value="16">Dhaka</listEntry>
+            <listEntry value="17">Bangkok</listEntry>
+            <listEntry value="18">Beijing</listEntry>
+            <listEntry value="19">Tokyo</listEntry>
+            <listEntry value="20">Sydney</listEntry>
+            <listEntry value="21">Honiara</listEntry>
+            <listEntry value="22">Auckland</listEntry>
+            <listEntry value="23">Nukualofa</listEntry>
+        </settingConfig>
+    </setting>
+    <setting propertyKey="@Properties.City16Index" title="@Strings.City16Title">
+        <settingConfig type="list">
+            <listEntry value="0">Pago Pago</listEntry>
+            <listEntry value="1">Honolulu</listEntry>
+            <listEntry value="2">Anchorage</listEntry>
+            <listEntry value="3">Los Angeles</listEntry>
+            <listEntry value="4">Denver</listEntry>
+            <listEntry value="5">Chicago</listEntry>
+            <listEntry value="6">New York</listEntry>
+            <listEntry value="7">Halifax</listEntry>
+            <listEntry value="8">Sao Paulo</listEntry>
+            <listEntry value="9">London</listEntry>
+            <listEntry value="10">Paris</listEntry>
+            <listEntry value="11">Athens</listEntry>
+            <listEntry value="12">Moscow</listEntry>
+            <listEntry value="13">Dubai</listEntry>
+            <listEntry value="14">Karachi</listEntry>
+            <listEntry value="15">Delhi</listEntry>
+            <listEntry value="16">Dhaka</listEntry>
+            <listEntry value="17">Bangkok</listEntry>
+            <listEntry value="18">Beijing</listEntry>
+            <listEntry value="19">Tokyo</listEntry>
+            <listEntry value="20">Sydney</listEntry>
+            <listEntry value="21">Honiara</listEntry>
+            <listEntry value="22">Auckland</listEntry>
+            <listEntry value="23">Nukualofa</listEntry>
         </settingConfig>
     </setting>
     <setting propertyKey="@Properties.ThemeIndex" title="@Strings.ThemeTitle">

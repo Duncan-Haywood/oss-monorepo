@@ -1,8 +1,8 @@
 # World Traveler — a Garmin Connect IQ watch face
 
-A stylish watch face for frequent travelers: your device's local time front
-and center, plus four customizable world-city clocks so you can tell what
-time it is almost anywhere, at a glance.
+A stylish watch face for frequent travelers: your device's local time up
+top, plus a dense grid of 16 customizable world-city clocks so you can
+tell what time it is across most of the globe's time zones at a glance.
 
 ![Design mockup](docs/design-mockup.png)
 
@@ -13,12 +13,15 @@ simulator screenshots.)*
 
 ## Features
 
-- Big local time, with the device's own 12/24-hour preference respected.
-- Four world-city rows, each independently configurable from a catalog of
-  22 cities spanning UTC-11 through UTC+13 (see `source/CityData.mc`).
+- Compact local time + date header, with the device's own 12/24-hour
+  preference respected.
+- 16 world-city cells in a 2-column grid, each independently configurable
+  from a catalog of 24 cities spanning UTC-11 through UTC+13 (see
+  `source/CityData.mc`) — enough to keep a distinct, recognizable city on
+  screen for nearly every populated UTC offset in the world at once.
 - Automatic, self-contained DST handling for US, EU, Australian and New
   Zealand rules — no network access or bundled timezone database needed.
-- A "+1 / -1" badge on a city row when that city's calendar day differs
+- A "+"/"-" marker on a city cell when that city's calendar day differs
   from your local day.
 - Four selectable color themes (Midnight, Aurora, Sand, Mono).
 - Battery percentage readout.
@@ -43,6 +46,8 @@ resources/
   drawables/                     Launcher icon
   strings/                       App name + settings labels
   settings/                      properties.xml (defaults) + settings.xml (on-device settings UI)
+scripts/
+  gen_settings.py                Regenerates settings.xml/properties.xml from the city catalog
 docs/
   design-mockup.png              Layout preview (not a simulator capture)
 ```
@@ -66,19 +71,24 @@ at 01:00 UTC for the EU; first Sunday of October / April for Australia;
 last Sunday of September / first Sunday of April for New Zealand) rather
 than hard-coded dates, so the face stays correct year over year.
 
-**Known limitation:** the "+1/-1" day badge is a best-effort comparison of
+**Known limitation:** the "+"/"-" day marker is a best-effort comparison of
 calendar day-of-month between two cities and does not handle the rare case
 where a pair of selected cities is a full two calendar days apart. The
-underlying *time* shown is unaffected — only the badge is cosmetic.
+underlying *time* shown is unaffected — only the marker is cosmetic.
 
 ## Customizing cities & theme
 
-Users edit the four `World City N` settings and the `Color Theme` setting
-from the Garmin Connect mobile app (or Garmin Express) once the face is
-installed on a device, the same as any other Connect IQ app setting. The
-available city list and defaults live in `resources/settings/settings.xml`
-and `resources/settings/properties.xml`; keep their city ordering in sync
-with `CityData.CITIES` if you add or reorder cities.
+Users edit the sixteen `World City N` settings and the `Color Theme`
+setting from the Garmin Connect mobile app (or Garmin Express) once the
+face is installed on a device, the same as any other Connect IQ app
+setting. The available city list and defaults live in
+`resources/settings/settings.xml` and `resources/settings/properties.xml`;
+keep their city ordering in sync with `CityData.CITIES` if you add or
+reorder cities. Want fewer/more cities on screen, or a different grid
+shape? Adjust `citySlotKeys`/`defaultCityIndices`/`columns` in
+`WorldTravelerView.mc`, update the matching constants at the top of
+`scripts/gen_settings.py`, and run `python3 scripts/gen_settings.py` from
+this directory to regenerate `settings.xml` and `properties.xml`.
 
 ## Building & testing
 
@@ -154,7 +164,8 @@ newer watches (or drop ones you don't want to support).
 
 - Always-on (AOD) support via `onPartialUpdate` for AMOLED devices, with a
   clipped low-power redraw region.
-- A 5th/6th city slot on larger rectangular displays.
+- A "zones shown" density setting (e.g. 12/16/20) instead of a fixed 16, or
+  a 3rd column on larger rectangular displays.
 - Per-city custom labels (e.g. "Mum's House" instead of a city name).
 - Localized strings for non-English markets.
 
