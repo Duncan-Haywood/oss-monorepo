@@ -50,7 +50,7 @@ budget:
   # This dimension is not gameable the way `max_unshipped_commits` is. Adding
   # commits does not lower it; only merging does, and merging is the behaviour
   # the number exists to ask for.
-  max_unintegrated_tips: 3
+  max_unintegrated_tips: 2
 
   # Below `max_unintegrated_tips - slack_tips` the budget above is stale and
   # must be lowered. The band is 3..3: a converged repository stays green.
