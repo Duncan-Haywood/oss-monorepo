@@ -1,11 +1,12 @@
 # World Traveler — a Garmin Connect IQ watch face
 
 A worldtimer-bezel watch face, in the style of classic GMT/world-time
-travel watches: a fixed 24-hour ring runs around the rim, and the 24
-major cities of the world — one per standard time zone — sit at whatever
-position on that ring matches their current local hour. Your own local
-time is digital, big and centered, framed by a sub-dial ring; a small
-accent marker on the outer ring ties it back to the world-time bezel.
+travel watches: a fixed 24-hour ring runs around the rim, and 42
+recognizable major cities of the world sit at whatever position on that
+ring matches their current local hour, across two concentric label
+tiers. Your own local time is digital, big and centered, framed by a
+sub-dial ring; a small accent marker on the outer ring ties it back to
+the world-time bezel.
 
 ![Design mockup](docs/design-mockup.png)
 
@@ -19,11 +20,16 @@ simulator screenshots.)*
 - A fixed 24-hour reference ring around the rim (0 at top/midnight,
   clockwise, hour numbers every 3 hours, tick marks every hour in between)
   that never moves — it's what everything else is read against.
-- All 24 standard whole-hour time zones (UTC-11 through UTC+12) shown at
-  once, each as a 3-letter city code positioned at the angle matching that
-  city's *own current local hour* on the fixed ring — so as the day
-  progresses, the whole ring of cities visually sweeps around together,
-  the same way a real worldtimer watch bezel does.
+- 42 cities across every standard time zone (UTC-11 through UTC+12, plus
+  UTC+5:30 for India) shown at once, each as a 3-letter code positioned at
+  the angle matching that city's *own current local hour* on the fixed
+  ring — so as the day progresses, the whole ring of cities visually
+  sweeps around together, the same way a real worldtimer watch bezel does.
+  A primary city per zone draws on an outer ring in the accent color; a
+  second well-known city at zones with more than one famous option (e.g.
+  Paris alongside Lagos, Athens alongside Cairo, Tokyo alongside Seoul)
+  draws on an inner ring in a muted tone, so same-offset pairs never
+  overlap.
 - Big digital local time + date in the center, respecting the device's
   12/24-hour preference, framed by a thin sub-dial ring.
 - A small accent "now" marker sitting directly on the hour ring at your
@@ -46,16 +52,26 @@ simulator screenshots.)*
 
 ## The city list
 
-Exactly one city per standard whole-hour UTC offset, from -11 to +12 (24
-zones — UTC-12 is skipped, it has no permanent population). Each pick is
-the *largest* city that observes that offset as standard time, not
-necessarily the most touristed one — see `source/CityData.mc` for the
-full list and reasoning (e.g. Lagos outsizes Paris at UTC+1, Shanghai
-outsizes Beijing at UTC+8, Jakarta outsizes Bangkok at UTC+7). UTC-2 has
-no real city (mid-Atlantic islands only); Fernando de Noronha is used as
-the token IANA-recognized anchor for that zone. This is a fixed reference
-list, not user-configurable per slot — the point of the design is to show
-the whole world at once, like a real worldtimer bezel.
+One anchor city per standard whole-hour UTC offset from -11 to +12 (24
+zones — UTC-12 is skipped, it has no permanent population), plus a
+second, well-known city at zones with more than one globally recognizable
+option, and one half-hour zone (UTC+5:30, Delhi/Mumbai) for India — 42
+cities total. See `source/CityData.mc` for the full list.
+
+Picks favor *recognizability* over strict population — e.g. Denver over
+Phoenix at UTC-7, Beijing+Singapore over Shanghai alone at UTC+8, Bangkok
+alongside Jakarta at UTC+7 — while still keeping a real, large city at
+every offset. UTC-2 has no real city (mid-Atlantic islands only);
+Fernando de Noronha is used as the token IANA-recognized anchor for that
+zone. This is a fixed reference list, not user-configurable per slot —
+the point of the design is to show the whole world at once, like a real
+worldtimer bezel; if you want to swap a specific pick, edit
+`CityData.CITIES` directly.
+
+Two cities sharing an offset are drawn on different label-ring tiers
+(`:ring => 0` outer/primary, `:ring => 1` inner/secondary) so they don't
+overlap even when neither is mid-DST and they land on the exact same
+angle — see "The ring mechanic" below.
 
 ## Project layout
 
@@ -65,7 +81,7 @@ monkey.jungle                   Build configuration
 source/
   WorldTravelerApp.mc            App entry point
   WorldTravelerView.mc            Radial ring + digital-center drawing logic
-  CityData.mc                    24-zone catalog + timezone/DST math
+  CityData.mc                    42-city catalog + timezone/DST math
   Themes.mc                      Color themes (accent/muted/dim per theme)
 resources/
   drawables/                     Launcher icon
@@ -78,16 +94,18 @@ docs/
 ## How it works
 
 **The ring mechanic.** The rim carries a *fixed* 24-hour scale (0 at top,
-clockwise, matching a classic 24-hour dial layout). For each of the 24
-cities, `CityData.localInfoAt()` computes that city's current local hour
-and minute (fully DST-aware), and `WorldTravelerView` converts that
-fractional hour into an angle on the same fixed scale via
-`angleFor24Hour()`. Because every city's angle is recomputed from its own
-current time on every draw — not from a single shared "ring rotation"
-variable — the whole set of labels moves together in the aggregate (all
-24 hours advance at the same real-world rate) while still being exactly
-correct through individual DST transitions, which a single rotating disc
-cannot represent.
+clockwise, matching a classic 24-hour dial layout). For each city,
+`CityData.localInfoAt()` computes that city's current local hour and
+minute (fully DST-aware), and `WorldTravelerView` converts that fractional
+hour into an angle on the same fixed scale via `angleFor24Hour()`. Because
+every city's angle is recomputed from its own current time on every draw
+— not from a single shared "ring rotation" variable — the whole set of
+labels moves together in the aggregate (all hours advance at the same
+real-world rate) while still being exactly correct through individual DST
+transitions, which a single rotating disc cannot represent. Cities are
+drawn on one of two radii per `CityData.ringAt()` (outer/accent for
+primary, inner/muted for secondary) purely for legibility and to keep a
+same-offset pair from landing on top of each other.
 
 **The now-marker.** Local time is read on the *same* 0-24 scale as the
 ring (`angleFor24Hour(hour + minute/60)`) to place a small accent dot
@@ -110,13 +128,15 @@ EU; first Sunday of October / April for Australia; last Sunday of
 September / first Sunday of April for New Zealand) rather than
 hard-coded dates, so it stays correct year over year.
 
-**Known limitation:** with 24 labels sharing a rim, city codes can sit
-close together, especially on smaller round displays — real watch bezels
-with this many markers are tightly packed too. `FONT_XTINY` and the
-accent color are used throughout for maximum legibility at that density;
-if it's still too tight on a given device, the fix is lowering
-`numberRadius`/`radius` a touch in `WorldTravelerView` or dropping to
-every-4th-hour numbering, not adding more visual elements.
+**Known limitation:** with 42 labels split across two rings, city codes
+can still sit close together in busy zones (e.g. the UTC+7/+8/+9 cluster),
+especially on smaller round displays — real watch bezels with this many
+markers are tightly packed too. `FONT_XTINY` and a two-tier color scheme
+(accent for primary, muted for secondary) are used throughout for maximum
+legibility at that density; if it's still too tight on a given device,
+the fix is nudging `outerRadius`/`innerRadius` apart a touch in
+`drawCityRing()`, or dropping a secondary city from a crowded zone in
+`CityData.CITIES`, not adding more visual elements.
 
 ## Customizing the theme
 
@@ -143,7 +163,7 @@ SDK, which isn't installed in this environment.
    a `.prg` with `monkeyc`). Pick a target device from the picker — try a
    round AMOLED device (e.g. `venu3`) and a round MIP device (e.g.
    `fenix7`) to sanity-check both display types, and check legibility on
-   a smaller-screen device (e.g. `venusq`) given the label density.
+   a smaller-screen device (e.g. `venusq`) given the 42-city label density.
 5. In the simulator, use the time-travel controls to spot-check: the
    now-marker dot should sit at roughly "now" on the 24-hour ring, the
    digital time in the center should match the simulated clock, and

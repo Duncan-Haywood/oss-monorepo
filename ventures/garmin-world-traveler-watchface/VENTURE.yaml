@@ -1,5 +1,5 @@
 name: garmin-world-traveler-watchface
-description: A Garmin Connect IQ worldtimer-bezel watch face -- a fixed 24-hour ring around the rim with all 24 major world time-zone cities positioned at their current hour, plus a big digital local-time readout in the center, for frequent travelers.
+description: A Garmin Connect IQ worldtimer-bezel watch face -- a fixed 24-hour ring around the rim with 42 recognizable world cities positioned at their current hour across two label tiers, plus a big digital local-time readout in the center, for frequent travelers.
 stage: prototype
 
 owner: duncan

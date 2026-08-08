@@ -8,15 +8,18 @@ using Toybox.Math;
 
 //
 // A worldtimer-bezel style face: a fixed 24-hour ring runs around the rim
-// (0 at top/midnight, clockwise, matching a classic 24-hour dial), and all
-// 24 CityData zones are drawn as 3-letter labels positioned at the angle
-// matching THEIR OWN current local hour on that same ring. Every city is
-// computed independently via CityData.localInfoAt() (fully DST-aware), so
-// in effect the whole city ring rotates together over the course of a day
-// -- exactly like a real GMT/worldtimer watch bezel -- except a city's
-// label additionally "hops" a notch on its own DST transition day rather
-// than drifting the whole ring out of alignment, which is more accurate
-// than what the mechanical version of this complication can do.
+// (0 at top/midnight, clockwise, matching a classic 24-hour dial), and
+// every CityData entry is drawn as a 3-letter label positioned at the
+// angle matching THAT CITY'S OWN current local hour on that same ring.
+// Every city is computed independently via CityData.localInfoAt() (fully
+// DST-aware), so in effect the whole city ring rotates together over the
+// course of a day -- exactly like a real GMT/worldtimer watch bezel --
+// except a city's label additionally "hops" a notch on its own DST
+// transition day rather than drifting the whole ring out of alignment,
+// which is more accurate than what the mechanical version of this
+// complication can do. Cities are split across two concentric radii (see
+// drawCityRing()) both to fit more of them and so a pair sharing the
+// exact same offset doesn't draw on top of itself.
 //
 // Local time itself is digital (big HH:MM + date in the center), not
 // hands -- a small accent dot on the ring marks where "now" sits on the
@@ -127,18 +130,26 @@ class WorldTravelerView extends Ui.WatchFace {
     // Each city's label sits at the angle for ITS OWN current local hour
     // (fractional, DST-aware) on the same 24-hour scale as the fixed ring
     // above -- so a city's label always lines up with its correct current
-    // hour on that ring.
+    // hour on that ring. Cities are split across two concentric radii by
+    // CityData.ringAt() (0 = outer/primary in accent color, 1 =
+    // inner/secondary in muted color) so that two cities sharing an exact
+    // offset -- which would otherwise land on the exact same angle -- don't
+    // draw on top of each other.
     function drawCityRing(dc, cx, cy, minDim, theme, now) {
-        var radius = minDim * 0.33;
+        var outerRadius = minDim * 0.36;
+        var innerRadius = minDim * 0.315;
         var count = CityData.size();
 
         for (var i = 0; i < count; i++) {
             var info = CityData.localInfoAt(i, now);
             var hourFraction = info.hour + (info.min / 60.0);
             var angle = angleFor24Hour(hourFraction);
+            var isPrimary = (CityData.ringAt(i) == 0);
+            var radius = isPrimary ? outerRadius : innerRadius;
             var p = pointOnCircle(cx, cy, radius, angle);
+            var color = isPrimary ? theme[:accent] : theme[:muted];
 
-            dc.setColor(theme[:accent], Gfx.COLOR_TRANSPARENT);
+            dc.setColor(color, Gfx.COLOR_TRANSPARENT);
             dc.drawText(p[0], p[1], Gfx.FONT_XTINY, CityData.abbrAt(i), Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
         }
     }
@@ -163,7 +174,7 @@ class WorldTravelerView extends Ui.WatchFace {
     function drawSubDial(dc, cx, cy, minDim, theme) {
         dc.setColor(theme[:dim], Gfx.COLOR_TRANSPARENT);
         dc.setPenWidth(1);
-        dc.drawCircle(cx, cy, minDim * 0.29);
+        dc.drawCircle(cx, cy, minDim * 0.27);
     }
 
     function drawCenter(dc, cx, cy, minDim, theme, clock, is24Hour, info) {
