@@ -4,7 +4,7 @@ metadata:
   name: quick-pick-survey-web-service
   namespace: web-services
   annotations:
-    pairwise.marisstella.dev/revision: "537120263f3531b79f83f2a8efbbff3f156d8170"
+    pairwise.marisstella.dev/revision: "fec093b66bc71fac07cbbdfc1745c430717f00d"
   labels:
     app.kubernetes.io/name: web-service
     app.kubernetes.io/instance: quick-pick-survey
@@ -26,7 +26,7 @@ spec:
   template:
     metadata:
       annotations:
-        pairwise.marisstella.dev/revision: "537120263f3531b79f83f2a8efbbff3f156d8170"
+        pairwise.marisstella.dev/revision: "fec093b66bc71fac07cbbdfc1745c430717f00d"
       labels:
         app.kubernetes.io/name: web-service
         app.kubernetes.io/instance: quick-pick-survey
