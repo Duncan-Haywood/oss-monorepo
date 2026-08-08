@@ -121,6 +121,16 @@ function readNested(source: Record<string, unknown>, key: string): string {
  * `receipt_email` on the PaymentIntent, and `billing_details.email` on a
  * charge. None of them is `metadata`, which is what the fulfillment adapters
  * read, so without this the buyer's own address never reached them.
+ *
+ * Every branch below is a *reader*. None of them fires on the object this
+ * venture's webhook actually receives: an unexpanded PaymentIntent from
+ * `payment_intent.succeeded` has a null `receipt_email` (a Checkout Session
+ * cannot set one), no `customer_details` (a Session field), no `charges`
+ * (removed from the PaymentIntent in API version 2022-11-15), and a
+ * `latest_charge` that is a bare id string rather than the charge. Reaching the
+ * email there takes a retrieval with `expand[]=latest_charge`, which
+ * `stripe-payment-intent.ts` performs and then hands back through here — the
+ * expanded object is the `latest_charge`-as-record case below.
  */
 function extractStripeBuyerEmail(paymentObject: Record<string, unknown>): string {
   const direct = readNested(paymentObject, "receipt_email");
