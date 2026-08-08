@@ -83,6 +83,13 @@ from typing import Any, Dict, List, Optional, Sequence, Set, Tuple
 
 import yaml
 
+# Sibling module. Explicit rather than relying on `sys.path[0]`, so this keeps
+# working when the file is imported rather than executed.
+if str(Path(__file__).resolve().parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from baseline_trust import BaselineTrust, describe as describe_trust, trust_findings, verify_baseline
+
 BUDGET_PATH = "platform/integration-debt-budget.yaml"
 
 REQUIRED_TOP_FIELDS = ("baseline_ref", "owner", "issue", "expires", "budget", "rationale")
@@ -142,6 +149,7 @@ class Measurement:
     dropped: List[DroppedArtifact] = field(default_factory=list)
     observable: bool = True
     observability_note: str = ""
+    trust: Optional[BaselineTrust] = None
 
 
 @dataclass
@@ -386,8 +394,31 @@ def _not_ignored(repo_root: Path, paths: Sequence[str]) -> List[str]:
     return [path for path in paths if path not in ignored]
 
 
-def measure(repo_root: Path, baseline_ref: str) -> Measurement:
-    """Measure the shape of the undelivered pile. Fails closed."""
+def measure(repo_root: Path, baseline_ref: str, verify: bool = True) -> Measurement:
+    """Measure the shape of the undelivered pile. Fails closed.
+
+    The baseline is checked against the remote here rather than in the CLI, for
+    the reason `release_lag.measure` gives: the CLI is not what gates this
+    repository — `tests/test_integration_debt.py` is, and it calls `measure` and
+    `evaluate` directly. A check that lived only in `main()` would leave the gate
+    reading a ref nobody verified.
+
+    Why this control needs it at all, measured 2026-08-08. Every tip count here
+    is "work not in `baseline_ref`", read out of `refs/remotes/origin/main` — a
+    local file any process may write, and one written by hand in this repository
+    four times (`scripts/ci/baseline_trust.py` carries the reflog). This module
+    was the only `origin/main`-baselined control that never verified it, while
+    `release_lag.py`, `branch_collisions.py` and `deployment_lag.py` all did. One
+    `git update-ref refs/remotes/origin/main <local merge of every tip>` moved
+    the measurement from 2 tips to 0, and the gate did not merely miss it: 0
+    against a declared budget of 2 lands in the `budget-stale` branch, whose
+    message instructs the reader to *lower* `max_unintegrated_tips` to the forged
+    number. Comply once and the honest state is red for good. So a forged
+    baseline here bought a permanent weakening of the ratchet, which is the
+    `budget-aligned-to-the-pile` failure driven by fabricated input.
+    """
+    trust = verify_baseline(repo_root, baseline_ref) if verify else None
+
     # A shallow clone has no branch topology: `actions/checkout` fetches one ref
     # at depth 1, so "one tip" and "no branches at all" are the same number
     # there. Reported as a third state, never as a pass — the subject of the
@@ -398,6 +429,7 @@ def measure(repo_root: Path, baseline_ref: str) -> Measurement:
             baseline_sha="",
             candidate_refs=0,
             distinct_commits=0,
+            trust=trust,
             observable=False,
             observability_note=(
                 "shallow clone: branch topology is not present, so integration debt "
@@ -429,6 +461,7 @@ def measure(repo_root: Path, baseline_ref: str) -> Measurement:
         baseline_sha=baseline_sha[:12],
         candidate_refs=len(candidates),
         distinct_commits=len(distinct),
+        trust=trust,
         tips=tips,
         tip_names=tip_names,
         absorbed_refs=len([1 for _, sha in candidates if sha not in set(tips)]),
@@ -529,6 +562,26 @@ def evaluate(
     """Compare the measurement to the declared budget. Two-directional."""
     findings: List[Finding] = []
 
+    # The baseline's trustworthiness is checked before anything is compared to
+    # it. Not asking is itself a finding: the arrangement that let a hand-written
+    # ref stand in for the remote was that no control here looked.
+    if measurement.trust is None:
+        findings.append(
+            Finding(
+                check="baseline-unverified",
+                message=(
+                    f"the baseline {measurement.baseline_ref} was never checked against the "
+                    f"remote, so this tip count rests on a local file any process may write. "
+                    f"Measure with verify=True."
+                ),
+            )
+        )
+    else:
+        findings.extend(
+            Finding(check=check, message=message)
+            for check, message in trust_findings(measurement.trust)
+        )
+
     if budget_data["expires"] < today:
         findings.append(
             Finding(
@@ -560,16 +613,41 @@ def evaluate(
             )
         )
     elif measured < declared - slack:
-        findings.append(
-            Finding(
-                check="budget-stale",
-                message=(
-                    f"{measured} independent tips measured against a declared budget of "
-                    f"{declared} (slack {slack}). The pile converged and the budget did "
-                    f"not follow. Lower `max_unintegrated_tips` to {measured}."
-                ),
+        # Only a trustworthy baseline may ask for the ceiling to come down.
+        # Lowering the budget is irreversible in practice — this control treats a
+        # raise as a weakening — so the one finding that instructs a ratchet is
+        # also the one a forged baseline profits from. Pointing `origin/main` at a
+        # local merge of every tip drives `measured` to 0, and the message below
+        # would then read "Lower `max_unintegrated_tips` to 0", locking the honest
+        # state red. The trust findings above already fail the run; this refuses
+        # to name a new ceiling on top of them.
+        trusted = measurement.trust is not None and measurement.trust.verified
+        if trusted:
+            findings.append(
+                Finding(
+                    check="budget-stale",
+                    message=(
+                        f"{measured} independent tips measured against a declared budget of "
+                        f"{declared} (slack {slack}). The pile converged and the budget did "
+                        f"not follow. Lower `max_unintegrated_tips` to {measured}."
+                    ),
+                )
             )
-        )
+        else:
+            findings.append(
+                Finding(
+                    check="budget-stale-unverifiable",
+                    message=(
+                        f"{measured} independent tips is below the declared budget of "
+                        f"{declared} (slack {slack}), but the baseline "
+                        f"{measurement.baseline_ref} is not verified against the remote, so "
+                        f"this run will not name a lower ceiling. A baseline that already "
+                        f"contains the pile reports no pile. Fix the baseline "
+                        f"(`git fetch origin`) and re-run; do not lower "
+                        f"`max_unintegrated_tips` to fit this number."
+                    ),
+                )
+            )
 
     registered = {
         (entry["path"], entry["branch"]) for entry in (budget_data.get("dropped_artifacts") or [])
@@ -606,7 +684,12 @@ def evaluate(
 def format_report(
     measurement: Measurement, budget_data: Dict[str, Any], findings: Sequence[Finding]
 ) -> str:
-    lines = ["=== Integration debt ==="]
+    trust_line = (
+        describe_trust(measurement.trust)
+        if measurement.trust is not None
+        else "Baseline UNVERIFIED: never checked against the remote"
+    )
+    lines = ["=== Integration debt ===", trust_line]
 
     if not measurement.observable:
         lines.append(f"Baseline:            {measurement.baseline_ref}")
@@ -697,6 +780,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             # a clean one.
             "ok": bool(measurement.observable and not findings),
             "observable": measurement.observable,
+            # Explicit rather than left for a consumer to derive from the nested
+            # trust record: an absent baseline check reads as `null` in
+            # `measurement.trust`, and `null` is too easy to skip past.
+            "baseline_verified": bool(
+                measurement.trust is not None and measurement.trust.verified
+            ),
             "measurement": asdict(measurement),
             "budget": {
                 k: (v.isoformat() if isinstance(v, date) else v) for k, v in budget_data.items()
