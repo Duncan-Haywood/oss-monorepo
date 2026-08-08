@@ -46,9 +46,12 @@ export default function PrivacyPage() {
         <li>
           <strong>Limited first-party usage events</strong> used to find where people get held up:
           page visits and time on page, self/partner mode, survey topic, core actions, their order, operation
-          duration, whether an operation succeeded, and the HTTP status of failed operations when available. A random browser-session identifier is stored
-          only as a one-way digest. Events use a fixed vocabulary, never include your card choices or
-          feedback text, and are deleted after 30 days.
+          duration, whether an operation succeeded, and the HTTP status of failed operations when available.
+          Core actions include reaching your insights, copying or sharing an insight, and creating,
+          sharing or entering a partner invite code — that an invite was created or entered, never who
+          it was sent to and never the message itself. A random browser-session identifier is stored
+          only as a one-way digest, and nothing identifies you across sessions. Events use a fixed
+          vocabulary, never include your card choices or feedback text, and are deleted after 30 days.
         </li>
       </ul>
 

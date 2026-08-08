@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { ShareInsightModal } from "./ShareInsightModal";
+import { recordUsage } from "@/lib/usageClient";
 
 type Row = { label: string; a: number; b: number; gap: number };
 type Comparison = {
@@ -159,13 +160,21 @@ export function CoupleView() {
   async function createInvite() {
     setBusy(true);
     setError(null);
+    let statusCode: number | undefined;
+    let ok = false;
     try {
       const res = await fetch("/api/couple/create", { method: "POST" });
+      statusCode = res.status;
+      ok = res.ok;
       if (!res.ok) setError((await res.json())?.error ?? "Couldn't create an invite.");
       else await load();
     } catch {
       setError("Couldn't create an invite.");
     }
+    // The head of the referral loop. Without it the join rate below has no
+    // denominator, and an invite that fails to mint is indistinguishable from
+    // one nobody asked for.
+    recordUsage("couple_invite_created", { domain: "couple", statusCode, success: ok });
     setBusy(false);
   }
 
@@ -173,12 +182,16 @@ export function CoupleView() {
     e.preventDefault();
     setBusy(true);
     setError(null);
+    let statusCode: number | undefined;
+    let ok = false;
     try {
       const res = await fetch("/api/couple/join", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ inviteCode: code }),
       });
+      statusCode = res.status;
+      ok = res.ok;
       const d = await res.json().catch(() => ({}));
       if (!res.ok) setError(d?.error ?? "Couldn't join.");
       else {
@@ -188,6 +201,10 @@ export function CoupleView() {
     } catch {
       setError("Couldn't join.");
     }
+    // Recorded on failure too: a wrong or expired code is the most likely
+    // place a referral dies, and a success-only counter would report that
+    // as nobody having tried.
+    recordUsage("couple_joined", { domain: "couple", statusCode, success: ok });
     setBusy(false);
   }
 
@@ -206,13 +223,18 @@ export function CoupleView() {
       await navigator.clipboard.writeText(message);
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
+      recordUsage("card_shared", { domain: "couple-invite-copy", success: true });
     } catch (e) {
       console.error("Clipboard copy failed", e);
+      recordUsage("card_shared", { domain: "couple-invite-copy", success: false });
     }
   }
 
   async function handleShareNative() {
     const { url, message } = getShareInfo();
+    // The fallback delegates to `handleCopyMessage`, which records its own
+    // event — so only the native branch records here. Emitting in both would
+    // double-count every share on a browser without `navigator.share`.
     if (navigator.share) {
       try {
         await navigator.share({
@@ -220,8 +242,13 @@ export function CoupleView() {
           text: message,
           url,
         });
+        recordUsage("card_shared", { domain: "couple-invite-native", success: true });
       } catch (e) {
         console.log("Share cancelled or failed", e);
+        // `navigator.share` rejects both when the sheet is dismissed and when
+        // the share fails, and the API gives no way to tell them apart. Read
+        // `success: false` here as "did not complete", not as an error rate.
+        recordUsage("card_shared", { domain: "couple-invite-native", success: false });
       }
     } else {
       handleCopyMessage();

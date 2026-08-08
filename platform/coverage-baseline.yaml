@@ -222,14 +222,28 @@ components:
     # file count rose 112 -> 113 because the retention guard is a new module;
     # it arrives exercised, which is why the unexercised count fell rather than
     # holding.
+    #
+    # Re-measured 2026-08-06 on the same Node and vitest, 61 test files / 510
+    # tests, after the usage-vocabulary work: five previously dead telemetry
+    # events gained emitters in InsightsView, CoupleView and ShareInsightModal,
+    # and nine tests were added to drive them. The three percentages rose
+    # because those emitters sit on branches the suite now reaches — the
+    # clipboard-refused path and the invite-refused path among them — and the
+    # ratchet demanded this edit rather than permitting it.
+    #
+    # `unexercised` holds at 57: the new control is a test file, and every
+    # module it touches was already loaded by some test. That is the number to
+    # read. A rise of about a point in the other three does not mean a
+    # meaningfully better-tested venture; 57 of 113 files are still loaded by
+    # no test at all.
     baseline:
       unexercised: 57
-      lines: 54.29
-      functions: 54.96
-      branches: 46.08
+      lines: 55.39
+      functions: 56.06
+      branches: 47.08
     measured:
       files: 112
-      lines: 4045
+      lines: 4078
     tolerance:
       lines: 0.5
       functions: 0.5

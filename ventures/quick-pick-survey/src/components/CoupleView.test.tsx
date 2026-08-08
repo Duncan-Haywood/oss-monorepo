@@ -18,6 +18,16 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { CoupleView } from "@/components/CoupleView";
+import { recordUsage } from "@/lib/usageClient";
+
+// See the note in InsightsView.test.tsx: the transport batches and flushes on
+// a timer, so the call is what binds this component's behaviour.
+vi.mock("@/lib/usageClient", () => ({
+  recordUsage: vi.fn(),
+  flushUsage: vi.fn(),
+  getUsageSessionKey: () => "testsessionkey123456",
+  createUsageId: () => "testusageid1234567890",
+}));
 
 const LINKED = {
   couple: { inviteCode: "ABCD-EFGH", partner: { id: "u2", firstName: "Sam" } },
@@ -48,6 +58,8 @@ function sectionFor(heading: RegExp) {
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
+  // See ShareInsightModal.test.tsx: the module mock's calls outlive cleanup.
+  vi.clearAllMocks();
 });
 
 describe("CoupleView locked sections", () => {
@@ -350,3 +362,112 @@ describe("CoupleView enhanced features & partner quiz", () => {
   });
 });
 
+
+/**
+ * The referral loop, which is the growth path this venture's couples tier
+ * rests on, and which measured nothing at all until 2026-08-06: invite
+ * created, invite joined and invite shared were three names in the telemetry
+ * vocabulary with no caller anywhere in the application. A join rate needs
+ * both ends, and both ends need their failures, because a mistyped or expired
+ * code is the likeliest place a referral dies and a success-only counter
+ * reports that as nobody having tried.
+ *
+ * See src/lib/usageVocabulary.test.ts for the control that stops the
+ * vocabulary drifting away from the emitters again.
+ */
+describe("CoupleView referral telemetry", () => {
+  const UNLINKED = { couple: null };
+
+  function stubSequence(responses: { ok: boolean; status: number; payload: unknown }[]) {
+    let call = 0;
+    const mock = vi.fn(async () => {
+      const next = responses[Math.min(call, responses.length - 1)];
+      call += 1;
+      return { ok: next.ok, status: next.status, json: async () => next.payload } as Response;
+    });
+    vi.stubGlobal("fetch", mock);
+    return mock;
+  }
+
+  it("records a created invite", async () => {
+    stubSequence([
+      { ok: true, status: 200, payload: UNLINKED },
+      { ok: true, status: 200, payload: { inviteCode: "ABCD-EFGH" } },
+      { ok: true, status: 200, payload: LINKED },
+    ]);
+
+    render(<CoupleView />);
+
+    fireEvent.click(await screen.findByRole("button", { name: /Create an invite code/i }));
+
+    await waitFor(() =>
+      expect(recordUsage).toHaveBeenCalledWith(
+        "couple_invite_created",
+        expect.objectContaining({ success: true, statusCode: 200 }),
+      ),
+    );
+  });
+
+  it("records a refused invite rather than staying silent about it", async () => {
+    stubSequence([
+      { ok: true, status: 200, payload: UNLINKED },
+      { ok: false, status: 500, payload: { error: "Couldn't create an invite." } },
+    ]);
+
+    render(<CoupleView />);
+
+    fireEvent.click(await screen.findByRole("button", { name: /Create an invite code/i }));
+
+    await waitFor(() =>
+      expect(recordUsage).toHaveBeenCalledWith(
+        "couple_invite_created",
+        expect.objectContaining({ success: false, statusCode: 500 }),
+      ),
+    );
+  });
+
+  it("records both a joined and a rejected code", async () => {
+    stubSequence([
+      { ok: true, status: 200, payload: UNLINKED },
+      { ok: false, status: 404, payload: { error: "That code doesn't exist." } },
+    ]);
+
+    render(<CoupleView />);
+
+    const input = await screen.findByPlaceholderText("ABCD-EFGH");
+    fireEvent.change(input, { target: { value: "wxyz-1234" } });
+    fireEvent.click(screen.getByRole("button", { name: "Join" }));
+
+    // The far end of the loop, and the one that tells an owner whether the
+    // invite text or the code entry is where people are lost.
+    await waitFor(() =>
+      expect(recordUsage).toHaveBeenCalledWith(
+        "couple_joined",
+        expect.objectContaining({ success: false, statusCode: 404 }),
+      ),
+    );
+  });
+
+  it("counts a shared invite once, not once per code path", async () => {
+    // Invite minted, partner not yet joined — the only state in which the
+    // share controls are on screen.
+    stubSequence([
+      { ok: true, status: 200, payload: { couple: { inviteCode: "ABCD-EFGH", partner: null } } },
+    ]);
+    const writeText = vi.fn(async () => {});
+    Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText } });
+    // No `navigator.share` here, so the native button falls through to the
+    // copy path. Both recording would double every share on a desktop browser.
+    Object.defineProperty(navigator, "share", { configurable: true, value: undefined });
+
+    render(<CoupleView />);
+
+    fireEvent.click(await screen.findByRole("button", { name: /Share Invite Link & Message/i }));
+
+    await waitFor(() => expect(writeText).toHaveBeenCalled());
+    const shares = (recordUsage as unknown as { mock: { calls: unknown[][] } }).mock.calls.filter(
+      (call) => call[0] === "card_shared",
+    );
+    expect(shares).toHaveLength(1);
+  });
+});
