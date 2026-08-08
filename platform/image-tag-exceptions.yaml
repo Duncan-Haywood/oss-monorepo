@@ -285,9 +285,27 @@ exceptions:
       digest had, with one difference that is the whole point of this entry — this
       state is counted and expires, and the digest was silent.
 
+  - id: IMG-012
+    path: platform/k8s/apps/ai-engineering-academy/deployment.yaml
+    count: 1
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
+    expires: 2026-12-15
+    reason: >-
+      `newTag: latest`, and — like IMG-009 and IMG-011 — an image that exists.
+      `.gitea/workflows/ai-engineering-academy-image.yml` verifies the venture
+      through the shared component gate, builds the deployable image and publishes
+      `ai-engineering-academy:${sha}` on main, deliberately declining to push `:latest`.
+      What is missing is the promotion step to rewrite this overlay to the published
+      digest.
+    compensating_control: >-
+      Not reachable: `links.production` is `null` and no `:latest` is published for
+      this name, so the tag resolves to nothing and a sync would fail at pull time
+      rather than run unidentified code.
+
   - id: IMG-001
     path: platform/k8s/apps/*/deployment.yaml
-    count: 3
+    count: 2
     owner: duncan
     issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
     expires: 2027-01-15
@@ -301,7 +319,7 @@ exceptions:
       # instead of when someone happens to re-read it.
       no_build_path: true
     reason: >-
-      real-estate-photo-app and retail-pilot-intel. None of the three can be
+      real-estate-photo-app and retail-pilot-intel. Neither of the two can be
       pinned today, because for each of them nothing in this repository builds
       and pushes the image the manifest names — there is no Dockerfile and no
       workflow that publishes any of them. Writing a digest now would pin these
@@ -313,11 +331,10 @@ exceptions:
       The tag is a symptom of the missing image pipeline, and it is the pipeline
       that has to land first.
       Lowered 6 -> 4 on 2026-08-05 when print-atelier and marisstella-homepage
-      gained producers and moved to IMG-009 and IMG-010 — a lower count here is
-      the pipeline landing, not the exception shrinking by argument.
-      Lowered 4 -> 3 later the same day for a different and better reason:
-      ai-first-markets' manifests were deleted in 33025739 rather than built.
-      That venture ships to Cloudflare, so its Deployment was a phantom surface
+      gained producers and moved to IMG-009 and IMG-010.
+      Lowered 4 -> 3 later the same day when ai-first-markets' manifests were deleted.
+      Lowered 3 -> 2 on 2026-08-08 when ai-engineering-academy gained a producer
+      and moved to IMG-012.
       describing a service Kubernetes never ran — the one case where the honest
       fix is that the deployment stops existing, not that it gains a pipeline.
     compensating_control: >-

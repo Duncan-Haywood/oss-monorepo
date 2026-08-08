@@ -1,0 +1,103 @@
+# Builds the container image platform/k8s/apps/ai-engineering-academy/ has always
+# pointed at and nothing could produce.
+#
+# This workflow deliberately stops at publishing an immutable tag. It does not
+# push `:latest` and it does not promote anything to the cluster.
+name: AI Engineering Academy image
+
+on:
+  pull_request:
+    paths:
+      - "ventures/ai-engineering-academy/**"
+      - ".gitea/workflows/ai-engineering-academy-image.yml"
+      - "platform/k8s/apps/ai-engineering-academy/**"
+      - "scripts/ci/verify-component.sh"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/ai-engineering-academy/**"
+      - ".gitea/workflows/ai-engineering-academy-image.yml"
+      - "platform/k8s/apps/ai-engineering-academy/**"
+      - "scripts/ci/verify-component.sh"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: ai-engineering-academy-image-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify through the shared component gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ventures/ai-engineering-academy/site/package-lock.json
+
+      - name: Run the shared verify-component gate
+        env:
+          CI_INSTALL_DEPENDENCIES: "1"
+        run: scripts/ci/verify-component.sh ai-engineering-academy
+
+  container:
+    name: Build and smoke test the deployable image
+    needs: verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Build the exact deployable image
+        env:
+          IMAGE: git.marisstella.dev/giteaadmin/ai-engineering-academy:${{ github.sha }}
+        working-directory: ventures/ai-engineering-academy
+        run: |
+          docker build \
+            --file Dockerfile \
+            --tag "$IMAGE" .
+
+      - name: Smoke test the exact deployable image
+        env:
+          IMAGE: git.marisstella.dev/giteaadmin/ai-engineering-academy:${{ github.sha }}
+        run: |
+          docker run --detach --name ai-engineering-academy-smoke "$IMAGE"
+          status=1
+          for _ in $(seq 1 30); do
+            if docker exec ai-engineering-academy-smoke \
+              wget --quiet --spider http://127.0.0.1:80/; then
+              status=0
+              break
+            fi
+            sleep 1
+          done
+          if [ "$status" -ne 0 ]; then
+            docker logs ai-engineering-academy-smoke
+          fi
+          docker rm --force ai-engineering-academy-smoke >/dev/null
+          exit "$status"
+
+      - name: Publish immutable main image
+        if: github.ref == 'refs/heads/main'
+        env:
+          IMAGE: git.marisstella.dev/giteaadmin/ai-engineering-academy:${{ github.sha }}
+          REGISTRY_TOKEN: ${{ secrets.AI_ENGINEERING_ACADEMY_REGISTRY_TOKEN || secrets.PAIRWISE_REGISTRY_TOKEN }}
+        run: |
+          printf '%s' "$REGISTRY_TOKEN" |
+            docker login git.marisstella.dev \
+              --username giteaadmin \
+              --password-stdin
+          docker push "$IMAGE"
