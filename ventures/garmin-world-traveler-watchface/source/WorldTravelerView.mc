@@ -4,36 +4,24 @@ using Toybox.System as Sys;
 using Toybox.Time;
 using Toybox.Time.Gregorian as Gregorian;
 using Toybox.Application.Properties as Properties;
+using Toybox.Math;
 
 //
-// Draws the whole face programmatically (no layout.xml) so the same code
-// adapts to round, semi-round and rectangular displays purely from
-// dc.getWidth()/dc.getHeight() -- no per-device resource variants needed.
+// A worldtimer-bezel style face: a fixed 24-hour ring runs around the rim
+// (0 at top/midnight, clockwise, matching a classic 24-hour dial), and all
+// 24 CityData zones are drawn as 3-letter labels positioned at the angle
+// matching THEIR OWN current local hour on that same ring. Every city is
+// computed independently via CityData.localInfoAt() (fully DST-aware), so
+// in effect the whole city ring rotates together over the course of a day
+// -- exactly like a real GMT/worldtimer watch bezel -- except a city's
+// label additionally "hops" a notch on its own DST transition day rather
+// than drifting the whole ring out of alignment, which is more accurate
+// than what the mechanical version of this complication can do.
 //
-// Layout: a compact local time/date header up top, then a 2-column x
-// 8-row grid of 16 user-selectable world-city clocks below it -- a real
-// world-traveler reference, not just a couple of favorites.
+// Local time is read off the same 24-hour ring by a pair of analog hands
+// pivoting at the center, plus a small date line.
 //
 class WorldTravelerView extends Ui.WatchFace {
-
-    var citySlotKeys = [
-        "City1Index", "City2Index", "City3Index", "City4Index",
-        "City5Index", "City6Index", "City7Index", "City8Index",
-        "City9Index", "City10Index", "City11Index", "City12Index",
-        "City13Index", "City14Index", "City15Index", "City16Index"
-    ];
-
-    // Defaults into CityData.CITIES, chosen for broad global spread:
-    // Honolulu, LA, Denver, Chicago, New York, Sao Paulo, London, Paris,
-    // Athens, Moscow, Dubai, Delhi, Bangkok, Beijing, Tokyo, Sydney.
-    var defaultCityIndices = [
-        1, 3, 4, 5,
-        6, 8, 9, 10,
-        11, 12, 13, 15,
-        17, 18, 19, 20
-    ];
-
-    var columns = 2;
 
     function initialize() {
         WatchFace.initialize();
@@ -58,19 +46,25 @@ class WorldTravelerView extends Ui.WatchFace {
         var width = dc.getWidth();
         var height = dc.getHeight();
         var theme = Themes.get(readProperty("ThemeIndex", 0));
+        var cx = width / 2.0;
+        var cy = height / 2.0;
+        var minDim = (width < height) ? width : height;
 
         dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_BLACK);
         dc.clear();
 
         var now = Time.now();
         var clock = Sys.getClockTime();
-        var is24Hour = Sys.getDeviceSettings().is24Hour;
         var localInfo = Gregorian.info(now, Time.FORMAT_MEDIUM);
 
-        drawHeader(dc, width, height, theme, clock, is24Hour, localInfo);
-        drawDivider(dc, width, height, theme);
-        drawCityGrid(dc, width, height, theme, now, localInfo, is24Hour);
-        drawBattery(dc, width, height, theme);
+        drawHourRing(dc, cx, cy, minDim, theme);
+        drawCityRing(dc, cx, cy, minDim, theme, now);
+        drawDate(dc, cx, cy, minDim, theme, localInfo);
+
+        var localHourFraction = clock.hour + (clock.min / 60.0);
+        drawHand(dc, cx, cy, angleFor24Hour(localHourFraction), minDim * 0.22, minDim * 0.045, minDim * 0.035);
+        drawHand(dc, cx, cy, angleForMinute(clock.min), minDim * 0.27, minDim * 0.03, minDim * 0.02);
+        drawPivot(dc, cx, cy, minDim, theme);
     }
 
     function readProperty(key, fallback) {
@@ -81,99 +75,99 @@ class WorldTravelerView extends Ui.WatchFace {
         return value;
     }
 
-    function drawHeader(dc, width, height, theme, clock, is24Hour, info) {
-        var timeText = formatTime(clock.hour, clock.min, is24Hour);
-        dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
-        dc.drawText(width / 2, height * 0.115, Gfx.FONT_NUMBER_MILD, timeText, Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
-
-        var dateText = info.day_of_week + " " + info.month + " " + info.day.format("%d");
-        dc.setColor(theme[:muted], Gfx.COLOR_TRANSPARENT);
-        dc.drawText(width / 2, height * 0.205, Gfx.FONT_XTINY, dateText, Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
+    // 0 = top (midnight), clockwise, one full turn per 24 hours.
+    function angleFor24Hour(hourFraction) {
+        return (hourFraction / 24.0) * 2 * Math.PI;
     }
 
-    function drawDivider(dc, width, height, theme) {
-        var y = height * 0.245;
-        var halfWidth = width * 0.20;
-        dc.setColor(theme[:accent], Gfx.COLOR_TRANSPARENT);
-        dc.setPenWidth(2);
-        dc.drawLine(width / 2 - halfWidth, y, width / 2 + halfWidth, y);
-        dc.setPenWidth(1);
+    // 0 = top (:00), clockwise, one full turn per 60 minutes.
+    function angleForMinute(minute) {
+        return (minute / 60.0) * 2 * Math.PI;
     }
 
-    // 2 columns x 8 rows of "ABBR HH:MM" cells, kept away from the round
-    // bezel edges by staying within a conservative horizontal band that
-    // narrows for the outer columns at the bottom-most rows.
-    function drawCityGrid(dc, width, height, theme, now, localInfo, is24Hour) {
-        var rowCount = citySlotKeys.size() / columns;
-        var yStart = height * 0.30;
-        var yEnd = height * 0.85;
-        var spacing = (yEnd - yStart) / (rowCount - 1);
-        var colX = [ width * 0.18, width * 0.50 ];
+    function pointOnCircle(cx, cy, radius, angle) {
+        var x = cx + (radius * Math.sin(angle));
+        var y = cy - (radius * Math.cos(angle));
+        return [x, y];
+    }
 
-        for (var slot = 0; slot < citySlotKeys.size(); slot++) {
-            var col = slot % columns;
-            var row = slot / columns;
+    // Fixed reference scale: every hour gets a tick, every 3rd hour a
+    // number (0, 3, 6 .. 21), all at static positions -- this ring never
+    // moves, it's what the city labels and hands are read against.
+    function drawHourRing(dc, cx, cy, minDim, theme) {
+        var tickInner = minDim * 0.40;
+        var tickOuter = minDim * 0.44;
+        var numberRadius = minDim * 0.455;
 
-            var cityIndex = readProperty(citySlotKeys[slot], defaultCityIndices[slot]);
-            var cityInfo = CityData.localInfoAt(cityIndex, now);
-            var y = yStart + (spacing * row);
+        for (var h = 0; h < 24; h++) {
+            var angle = angleFor24Hour(h);
+            if (h % 3 == 0) {
+                var p = pointOnCircle(cx, cy, numberRadius, angle);
+                dc.setColor(theme[:muted], Gfx.COLOR_TRANSPARENT);
+                dc.drawText(p[0], p[1], Gfx.FONT_XTINY, h.format("%d"), Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
+            } else {
+                var pInner = pointOnCircle(cx, cy, tickInner, angle);
+                var pOuter = pointOnCircle(cx, cy, tickOuter, angle);
+                dc.setColor(theme[:muted], Gfx.COLOR_TRANSPARENT);
+                dc.drawLine(pInner[0], pInner[1], pOuter[0], pOuter[1]);
+            }
+        }
+    }
 
-            var timeText = formatTime(cityInfo.hour, cityInfo.min, is24Hour);
-            var badge = dayOffsetBadge(cityInfo, localInfo);
-            var cellText = CityData.abbrAt(cityIndex) + " " + timeText + badge;
+    // Each city's label sits at the angle for ITS OWN current local hour
+    // (fractional, DST-aware) on the same 24-hour scale as the fixed ring
+    // above -- so a city's label always lines up with its correct current
+    // hour on that ring.
+    function drawCityRing(dc, cx, cy, minDim, theme, now) {
+        var radius = minDim * 0.33;
+        var count = CityData.size();
+
+        for (var i = 0; i < count; i++) {
+            var info = CityData.localInfoAt(i, now);
+            var hourFraction = info.hour + (info.min / 60.0);
+            var angle = angleFor24Hour(hourFraction);
+            var p = pointOnCircle(cx, cy, radius, angle);
 
             dc.setColor(theme[:accent], Gfx.COLOR_TRANSPARENT);
-            dc.drawText(colX[col], y, Gfx.FONT_XTINY, cellText, Gfx.TEXT_JUSTIFY_LEFT | Gfx.TEXT_JUSTIFY_VCENTER);
+            dc.drawText(p[0], p[1], Gfx.FONT_XTINY, CityData.abbrAt(i), Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
         }
     }
 
-    function drawBattery(dc, width, height, theme) {
-        var battery = Sys.getSystemStats().battery;
+    function drawDate(dc, cx, cy, minDim, theme, info) {
+        var text = info.day_of_week + " " + info.month + " " + info.day.format("%d");
         dc.setColor(theme[:muted], Gfx.COLOR_TRANSPARENT);
-        dc.drawText(width / 2, height * 0.955, Gfx.FONT_XTINY, battery.format("%d") + "%", Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(cx, cy + (minDim * 0.13), Gfx.FONT_XTINY, text, Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
     }
 
-    // hour24 is always 0-23 (Sys.getClockTime()/Gregorian hour fields); this
-    // renders it per the device's 12/24-hour display preference.
-    function formatTime(hour24, minute, is24Hour) {
-        var minuteText = minute.format("%02d");
-
-        if (is24Hour) {
-            return hour24.format("%02d") + ":" + minuteText;
+    // Tapered rectangular hand via a rotation matrix applied to a template
+    // pointing straight up, matching the angle convention of
+    // angleFor24Hour()/angleForMinute() (0 = up, clockwise).
+    function drawHand(dc, cx, cy, angle, length, width, tail) {
+        var cosA = Math.cos(angle);
+        var sinA = Math.sin(angle);
+        var half = width / 2.0;
+        var template = [
+            [-half, tail],
+            [-half, -length],
+            [half, -length],
+            [half, tail]
+        ];
+        var points = new [4];
+        for (var i = 0; i < 4; i++) {
+            var lx = template[i][0];
+            var ly = template[i][1];
+            var x = (lx * cosA) - (ly * sinA);
+            var y = (lx * sinA) + (ly * cosA);
+            points[i] = [ cx + x, cy + y ];
         }
 
-        var hour12 = hour24 % 12;
-        if (hour12 == 0) {
-            hour12 = 12;
-        }
-        var suffix = (hour24 < 12) ? "A" : "P";
-        return hour12.format("%d") + ":" + minuteText + suffix;
+        dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
+        dc.fillPolygon(points);
     }
 
-    // Best-effort single-character "day is ahead/behind mine" marker from
-    // the two Gregorian day-of-month fields. Handles the common one-day-
-    // apart case, including the month-boundary wraparound, but is not exact
-    // for the rare city pairing that is a full two calendar days apart.
-    function dayOffsetBadge(cityInfo, localInfo) {
-        var cd = cityInfo.day;
-        var ld = localInfo.day;
-
-        if (cd == ld) {
-            return "";
-        }
-        if (cd == ld + 1) {
-            return "+";
-        }
-        if (cd == ld - 1) {
-            return "-";
-        }
-        if (cd <= 3 && ld >= 28) {
-            return "+";
-        }
-        if (ld <= 3 && cd >= 28) {
-            return "-";
-        }
-        return "";
+    function drawPivot(dc, cx, cy, minDim, theme) {
+        dc.setColor(theme[:accent], Gfx.COLOR_TRANSPARENT);
+        dc.fillCircle(cx, cy, minDim * 0.022);
     }
 
 }

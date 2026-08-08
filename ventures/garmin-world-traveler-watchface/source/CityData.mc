@@ -18,66 +18,59 @@ using Toybox.Time.Gregorian as Gregorian;
 //
 module CityData {
 
-    // index -> { :name, :abbr (<=4 chars, for dense grid rows), :offset
-    // (seconds, standard time), :dst (symbol) }
+    // Exactly one entry per whole-hour UTC offset from -11 to +12 (24 zones
+    // -- the standard "24 time zones of the world" set; UTC-12 is skipped
+    // since it has no permanent population). Each city is the single
+    // largest city that observes that offset as its *standard* (winter)
+    // time, not necessarily the most touristed one -- e.g. Lagos (UTC+1)
+    // outsizes Paris, Shanghai (UTC+8) outsizes Beijing, Jakarta (UTC+7)
+    // outsizes Bangkok. UTC-2 has no real city (mid-Atlantic islands only);
+    // Fernando de Noronha is used as the token IANA-recognized zone anchor.
+    //
+    // index -> { :name, :abbr (3 letters, drawn on the rotating ring),
+    // :offset (seconds, standard time), :dst (symbol) }
     const CITIES = [
-        { :name => "Pago Pago",   :abbr => "PPG", :offset => -11 * 3600,      :dst => :none },
-        { :name => "Honolulu",    :abbr => "HNL", :offset => -10 * 3600,      :dst => :none },
-        { :name => "Anchorage",   :abbr => "ANC", :offset => -9 * 3600,       :dst => :us },
-        { :name => "Los Angeles", :abbr => "LAX", :offset => -8 * 3600,       :dst => :us },
-        { :name => "Denver",      :abbr => "DEN", :offset => -7 * 3600,       :dst => :us },
-        { :name => "Chicago",     :abbr => "CHI", :offset => -6 * 3600,       :dst => :us },
-        { :name => "New York",    :abbr => "NYC", :offset => -5 * 3600,       :dst => :us },
-        { :name => "Halifax",     :abbr => "HFX", :offset => -4 * 3600,       :dst => :us },
-        { :name => "Sao Paulo",   :abbr => "SAO", :offset => -3 * 3600,       :dst => :none },
-        { :name => "London",      :abbr => "LON", :offset => 0,               :dst => :eu },
-        { :name => "Paris",       :abbr => "PAR", :offset => 1 * 3600,        :dst => :eu },
-        { :name => "Athens",      :abbr => "ATH", :offset => 2 * 3600,        :dst => :eu },
-        { :name => "Moscow",      :abbr => "MOW", :offset => 3 * 3600,        :dst => :none },
-        { :name => "Dubai",       :abbr => "DXB", :offset => 4 * 3600,        :dst => :none },
-        { :name => "Karachi",     :abbr => "KHI", :offset => 5 * 3600,        :dst => :none },
-        { :name => "Delhi",       :abbr => "DEL", :offset => 5 * 3600 + 1800, :dst => :none },
-        { :name => "Dhaka",       :abbr => "DAC", :offset => 6 * 3600,        :dst => :none },
-        { :name => "Bangkok",     :abbr => "BKK", :offset => 7 * 3600,        :dst => :none },
-        { :name => "Beijing",     :abbr => "PEK", :offset => 8 * 3600,        :dst => :none },
-        { :name => "Tokyo",       :abbr => "TYO", :offset => 9 * 3600,        :dst => :none },
-        { :name => "Sydney",      :abbr => "SYD", :offset => 10 * 3600,       :dst => :au },
-        { :name => "Honiara",     :abbr => "HIR", :offset => 11 * 3600,       :dst => :none },
-        { :name => "Auckland",    :abbr => "AKL", :offset => 12 * 3600,       :dst => :nz },
-        { :name => "Nukualofa",   :abbr => "TBU", :offset => 13 * 3600,       :dst => :none }
+        { :name => "Pago Pago",           :abbr => "PPG", :offset => -11 * 3600, :dst => :none },
+        { :name => "Honolulu",            :abbr => "HNL", :offset => -10 * 3600, :dst => :none },
+        { :name => "Anchorage",           :abbr => "ANC", :offset => -9 * 3600,  :dst => :us },
+        { :name => "Los Angeles",         :abbr => "LAX", :offset => -8 * 3600,  :dst => :us },
+        { :name => "Phoenix",             :abbr => "PHX", :offset => -7 * 3600,  :dst => :none },
+        { :name => "Mexico City",         :abbr => "MEX", :offset => -6 * 3600,  :dst => :none },
+        { :name => "New York",            :abbr => "NYC", :offset => -5 * 3600,  :dst => :us },
+        { :name => "Santiago",            :abbr => "SCL", :offset => -4 * 3600,  :dst => :none },
+        { :name => "Sao Paulo",           :abbr => "SAO", :offset => -3 * 3600,  :dst => :none },
+        { :name => "Fernando de Noronha", :abbr => "FEN", :offset => -2 * 3600,  :dst => :none },
+        { :name => "Praia",               :abbr => "PRA", :offset => -1 * 3600,  :dst => :none },
+        { :name => "London",              :abbr => "LON", :offset => 0,          :dst => :eu },
+        { :name => "Lagos",               :abbr => "LOS", :offset => 1 * 3600,   :dst => :none },
+        { :name => "Cairo",               :abbr => "CAI", :offset => 2 * 3600,   :dst => :none },
+        { :name => "Moscow",              :abbr => "MOW", :offset => 3 * 3600,   :dst => :none },
+        { :name => "Dubai",               :abbr => "DXB", :offset => 4 * 3600,   :dst => :none },
+        { :name => "Karachi",             :abbr => "KHI", :offset => 5 * 3600,   :dst => :none },
+        { :name => "Dhaka",               :abbr => "DAC", :offset => 6 * 3600,   :dst => :none },
+        { :name => "Jakarta",             :abbr => "JKT", :offset => 7 * 3600,   :dst => :none },
+        { :name => "Shanghai",            :abbr => "SHA", :offset => 8 * 3600,   :dst => :none },
+        { :name => "Tokyo",               :abbr => "TYO", :offset => 9 * 3600,   :dst => :none },
+        { :name => "Sydney",              :abbr => "SYD", :offset => 10 * 3600,  :dst => :au },
+        { :name => "Honiara",             :abbr => "HIR", :offset => 11 * 3600,  :dst => :none },
+        { :name => "Auckland",            :abbr => "AKL", :offset => 12 * 3600,  :dst => :nz }
     ];
 
     function size() {
         return CITIES.size();
     }
 
-    function nameAt(index) {
-        var i = normalizeIndex(index);
-        return CITIES[i][:name];
-    }
-
     function abbrAt(index) {
-        var i = normalizeIndex(index);
-        return CITIES[i][:abbr];
+        return CITIES[index][:abbr];
     }
 
     // Returns a Gregorian.Info (FORMAT_SHORT) for the given city's current
     // local wall-clock time, DST-adjusted for "now" (a Time.Moment, UTC).
     function localInfoAt(index, nowUtc) {
-        var i = normalizeIndex(index);
-        var city = CITIES[i];
+        var city = CITIES[index];
         var offset = effectiveOffsetSeconds(city, nowUtc);
         var shifted = nowUtc.add(new Time.Duration(offset));
         return Gregorian.utcInfo(shifted, Time.FORMAT_SHORT);
-    }
-
-    function normalizeIndex(index) {
-        var n = CITIES.size();
-        var i = index % n;
-        if (i < 0) {
-            i += n;
-        }
-        return i;
     }
 
     function effectiveOffsetSeconds(city, nowUtc) {

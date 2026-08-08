@@ -2,23 +2,6 @@
 <strings>
     <string id="AppName">World Traveler</string>
 
-    <string id="City1Title">World City 1</string>
-    <string id="City2Title">World City 2</string>
-    <string id="City3Title">World City 3</string>
-    <string id="City4Title">World City 4</string>
-    <string id="City5Title">World City 5</string>
-    <string id="City6Title">World City 6</string>
-    <string id="City7Title">World City 7</string>
-    <string id="City8Title">World City 8</string>
-    <string id="City9Title">World City 9</string>
-    <string id="City10Title">World City 10</string>
-    <string id="City11Title">World City 11</string>
-    <string id="City12Title">World City 12</string>
-    <string id="City13Title">World City 13</string>
-    <string id="City14Title">World City 14</string>
-    <string id="City15Title">World City 15</string>
-    <string id="City16Title">World City 16</string>
-
     <string id="ThemeTitle">Color Theme</string>
     <string id="ThemeMidnight">Midnight</string>
     <string id="ThemeAurora">Aurora</string>
