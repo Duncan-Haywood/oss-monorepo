@@ -13,15 +13,62 @@ each human step lands in.
 
 ---
 
+## Update, 2026-08-08 — `buyerEmail` is fixed; the supply gap is the only stop
+
+This is a dated trace and the body below is left as it was written. Two things
+have changed since, both verified at `811d5468`.
+
+**1. `buyerEmail` is no longer a break.** Commit `11ead07f` ("resolve the buyer
+email Stripe never puts on the event") added `src/lib/stripe-payment-intent.ts`
+and the retrieval at `src/app/api/stripe/webhook/route.ts`, which expands
+`latest_charge` and reads `billing_details.email`, failing closed with a 503 —
+not a 200 — when the retrieval is retryable. So hop 3 and hop 5 in the table
+below, "Yes, except `buyerEmail`", and human step 3, "Decide how the buyer's
+email reaches fulfillment", are **done**. That commit did not update this file.
+
+**2. The chain behind the print file is complete, and measured.** Run
+2026-08-08 with a single master supplied to `midnight-coast` and nothing else
+changed — no validator relaxed, no URL seeded:
+
+| Stage | Result |
+| --- | --- |
+| `validateCheckoutLineItem` | `eligible: true`, no blockers |
+| `addArtworkToCheckoutCart` (qty 2) | accepted |
+| `buildCheckoutSessionPayload` | `artworkUrl_0` = the master; `lineItemQuantities` `2`; `lineItemUnitAmounts` `8500` |
+| `buildStripeCheckoutCreateParams` | `payment_intent_data.metadata.artworkUrl_0` carries it to the PaymentIntent |
+| `recordOrderFromPaymentWebhook` | `fulfillment_queued`, partner `printful` |
+| `queuePrintfulFulfillmentFromOrder` | **`queued`** — `files[0].url` the master, `quantity` 2, `retail_price` `"85.00"`, recipient and packing-slip email correct |
+
+Without the buyer email lifted from the charge the same order is `blocked` on
+`buyerEmail` alone, which is the guard working, not a gap.
+
+So **the print-ready master is now the only thing standing between this venture
+and a shipped order.** It remains off-repo: obtaining and hosting a file is
+human step 1–2 below, and nothing in this repository can substitute for it.
+
+**Do not build a writer for `printFileUrl` to close it.** An operator route, a
+`PRINT_ATELIER_PRINT_FILES` env map or a slug-keyed store would each be a second
+source that `tests/catalog-print-file-provenance.test.ts` does not read — its
+three original tests iterate `catalogArtworks` — so a fabricated URL would reach
+a POD partner with the host check, the `public/` check and the empty-set check
+all passing over a population it was never in. Verified 2026-08-08 by adding
+exactly that module: **948 of 950 tests stayed green.** The two that failed are
+the scope contracts added to that file in the same change, which now pin the set
+of modules on the print-file surface and every expression assigned to a
+`printFileUrl` field. Extend the provenance tests to read any new source before
+adding one.
+
+---
+
 ## Hop-by-hop: is there a writer for every field the next hop reads?
 
 | # | Hop | Writer for the next hop's fields? |
 | - | --- | --- |
 | 1 | Artwork/listing → cart | **Partial.** `printFileUrl` has **no writer** |
 | 2 | Cart → checkout session | Yes |
-| 3 | Session → Stripe metadata | Yes, except `buyerEmail` |
+| 3 | Session → Stripe metadata | Yes (`buyerEmail` fixed 2026-08-08) |
 | 4 | Webhook → order record | Yes |
-| 5 | Order → partner request | Yes, except `buyerEmail` |
+| 5 | Order → partner request | Yes (`buyerEmail` fixed 2026-08-08) |
 | 6 | Order → artist payout | **No.** Reader reads a store nothing writes |
 
 ### 1. Listing definition — `printFileUrl` has no writer anywhere
@@ -90,7 +137,8 @@ resolvers in `fulfillment-order-inputs.ts` have no defaults, and
 `queuePrintfulFulfillmentFromOrder:342` fails closed *before* the dry-run
 branch so a blocked order never enters the queue looking submittable.
 
-**`buyerEmail` is the sharpest break on this hop.** The writer exists —
+**`buyerEmail` was the sharpest break on this hop** (fixed 2026-08-08 by
+`11ead07f`; see the update at the top). The writer exists —
 `extractStripeBuyerEmail` (`buyer-shipping.ts:125-151`) — but cannot produce a
 value from the event actually handled:
 
@@ -203,7 +251,9 @@ and instead of it.
 
 ## Not fixed, and why
 
-- **`buyerEmail` (hop 5).** The remedy is either subscribing to
+- **`buyerEmail` (hop 5).** *Fixed 2026-08-08 by `11ead07f`, which took the
+  second option below — retrieving the charge with `expand[]=latest_charge`.
+  The original reasoning is kept as written:* The remedy is either subscribing to
   `checkout.session.completed` or expanding/retrieving the charge — both are
   design decisions with a double-recording hazard against a vendor payload this
   repository cannot verify from here. Guessing at the shape of a Stripe event
@@ -248,7 +298,8 @@ the repository can substitute for any of them.
      `ventures/print-atelier/public/` — that directory does not exist yet, and
      the test at `:83-101` requires it.
 
-3. **Decide how the buyer's email reaches fulfillment.** Until this is done
+3. ~~**Decide how the buyer's email reaches fulfillment.**~~ **DONE 2026-08-08**
+   (`11ead07f`, second option below). Original text: Until this is done
    every order is recorded `blocked` with `canRetry: false`, even with masters
    uploaded. Two options:
    - subscribe to `checkout.session.completed` and record from it —
