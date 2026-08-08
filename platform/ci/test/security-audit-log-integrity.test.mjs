@@ -54,6 +54,7 @@ function matrixRows(source) {
   }));
 }
 
+<<<<<<< HEAD
 // `### SEC-021 — Low — The Homepage Container Published Its Own Configuration`
 // The heading carries the id and, between the first two em dashes, the severity.
 function detailSections(source) {
@@ -72,8 +73,19 @@ function normalizeSeverity(value) {
     .toLowerCase();
 }
 
+=======
+function detailSections(source) {
+  // `### SEC-001 — High — Password-Reset Token Race`
+  return [...source.matchAll(/^###\s+(SEC-\d+)\s+—\s*(.*)$/gm)].map((match) => ({
+    id: match[1],
+    heading: match[2].trim(),
+    line: source.slice(0, match.index).split('\n').length,
+  }));
+}
+
+>>>>>>> agent/gate-wiring-and-sec-ids
 function detailIds(source) {
-  return [...source.matchAll(/^###\s+(SEC-\d+)\s+—/gm)].map((match) => match[1]);
+  return detailSections(source).map((section) => section.id);
 }
 
 test('Security audit log - every documented finding is tracked in the matrix', () => {
@@ -122,6 +134,7 @@ test('Security audit log - identifiers are unique and contiguous', () => {
   }
 });
 
+<<<<<<< HEAD
 test('Security audit log - no identifier is defined twice on any surface', () => {
   const source = readLog();
 
@@ -196,6 +209,35 @@ test('Security audit log - the matrix and the detail agree on severity', () => {
         'different finding that happens to share the identifier.',
     );
   }
+=======
+test('Security audit log - no identifier is claimed by two write-ups', () => {
+  const sections = detailSections(readLog());
+
+  assert.ok(sections.length > 0, `${LOG} must contain detailed findings`);
+
+  const firstUse = new Map();
+  const collisions = [];
+  for (const section of sections) {
+    const earlier = firstUse.get(section.id);
+    if (earlier) {
+      collisions.push(
+        `${section.id} is used at line ${earlier.line} for "${earlier.heading}" and again at ` +
+          `line ${section.line} for "${section.heading}"`,
+      );
+      continue;
+    }
+    firstUse.set(section.id, section);
+  }
+
+  assert.deepEqual(
+    collisions,
+    [],
+    `${LOG} gives one identifier to two different findings:\n  ${collisions.join('\n  ')}\n` +
+      'The matrix has one row per id, so the second finding inherits the first\'s severity, ' +
+      'status and remediation and stops being tracked on its own terms. Renumber the later ' +
+      'write-up to the next free identifier and give it its own matrix row.',
+  );
+>>>>>>> agent/gate-wiring-and-sec-ids
 });
 
 test('Security audit log - every tracked finding carries a status', () => {

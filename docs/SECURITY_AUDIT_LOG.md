@@ -38,7 +38,7 @@ This log records all identified application, infrastructure, container, and CI s
 | **SEC-026** | Medium | Application | `ventures/print-atelier/src/lib/stripe-webhook-server.ts` | Webhook signature timestamp tolerance defaulted to `0`, which meant "skip the replay check" | **[x] Fixed** |
 | **SEC-027** | High | Supply chain | `.gitea/workflows/security.yml` | The dependency-audit matrix covered 4 of 10 committed lockfiles; the 6 unaudited ones held 32 high-severity advisories | **Coverage fixed; 46 of 47 advisories open** |
 | **SEC-028** | High | Supply chain | `scripts/security-scan.sh`, three `package.json` | Unsatisfiable `overrides` made three packages uninstallable, dropping them from the audit; the completeness guard counted only packages it reached, so a one-package scan published `CLEAN` over 23 open HIGH advisories | **Fixed; 23 HIGH restored to the roadmap and open** |
-| **SEC-029** | Medium | Application | `ventures/local-site-studio/src/lib/security/rate-limit.ts`, `ventures/quick-pick-survey/src/lib/http.ts` | Rate limiters bucket on the leftmost `x-forwarded-for` entry, which the caller supplies, so rotating the header yields a fresh bucket per value | **Open — needs the trusted-proxy count, an off-repo deployment fact** |
+| **SEC-029** | Medium | Application | `ventures/local-site-studio/src/lib/security/rate-limit.ts`, `ventures/quick-pick-survey/src/lib/http.ts` | Anonymous rate limits bucket on the leftmost `x-forwarded-for` entry, which the caller supplies, so rotating the header yields a fresh bucket per value | **Auth half fixed (f1f60d03); proxy-trust keying open pending an off-repo deployment fact** |
 
 ---
 
@@ -601,10 +601,8 @@ This log records all identified application, infrastructure, container, and CI s
 - **Identifier note**: filed as `SEC-021` when it was written, an id this log had
   already given to the homepage container finding. Two unrelated findings then
   shared one row in the matrix, and that row described the *other* one — so this
-  finding was untracked while every integrity check passed, because the check
-  that refuses an undocumented finding asks only whether the id appears in the
-  matrix, and it did. `docs/INTEGRATION-REPORT-2026-08-04b.md` recorded the
-  collision on 2026-08-04 and proposed `SEC-028`, which was taken in the
+  finding was untracked while every integrity check passed. `docs/INTEGRATION-REPORT-2026-08-04b.md`
+  recorded the collision on 2026-08-04 and proposed `SEC-028`, which was taken in the
   meantime. Renumbered to `SEC-029` here, and the uniqueness contract in
   `platform/ci/test/security-audit-log-integrity.test.mjs` now reads both
   surfaces on which an id can be defined rather than the matrix alone.
@@ -670,12 +668,31 @@ This log records all identified application, infrastructure, container, and CI s
   `pairwise.marisstella.dev` is a deployment fact not recorded in the
   repository. Determining that is the first remediation step, not a code
   change.
-- **Fix**: none applied, deliberately. The correct fix is to count trusted
-  proxies and index from the right, and the correct count is exactly the
+- **Fix**: none applied to the keying, deliberately. The correct fix is to count
+  trusted proxies and index from the right, and the correct count is exactly the
   off-repo fact above — guessing it either leaves the bypass open or collapses
   every caller into one bucket and breaks rate limiting outright. Recorded
   rather than corrected, consistent with how this repository treats controls
   whose inputs it cannot yet observe.
+- **Update, 2026-08-06 — the auth half of the composition is closed**: commit
+  `f1f60d03` gave `operatorAuthMode()` a third mode. A production build with no
+  usable `OPERATOR_DASHBOARD_PASSWORD` is now `locked-out` rather than
+  `open-demo`, and `requireOperatorAuth` refuses unconditionally there, so the
+  billed `POST /api/marketing/generate` path and `POST
+  /api/stripe/bootstrap-prices` no longer answer anonymous callers on a
+  misconfigured deploy. `ventures/local-site-studio/src/lib/auth/operator-fail-closed.test.ts`
+  holds it. `{ ok: true }` for an unset password survives only in `open-demo` —
+  a non-production build — which is the documented `next dev` affordance and not
+  a deployed surface. What this finding still describes, and what keeps it open,
+  is the *keying*: the limiter half is unchanged on both ventures, and on
+  quick-pick-survey the anonymous surface has no operator password in front of
+  it at all. The `marketing/generate/route.ts` comment quoted above under "What
+  is actually new here" outlived the fix and was read as a live fail-open more
+  than once afterwards, so it is corrected in place; the quotation above is left
+  intact as the record of what the code said when the finding was written. The
+  `rate-limit.ts:18` comment is left alone because it is still true — the key
+  really does derive from a header the client controls, which is the half of
+  this finding that remains open.
 - **Evidence**: `ventures/quick-pick-survey/src/lib/routeAuthPosture.test.ts`
   now declares all 32 handlers, of which 15 are `public` and 9 are
   `capability` — 24 handlers reachable without a session, which is the surface
