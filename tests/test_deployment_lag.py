@@ -28,6 +28,7 @@ CI_DIR = REPO_ROOT / "scripts" / "ci"
 if str(CI_DIR) not in sys.path:
     sys.path.insert(0, str(CI_DIR))
 
+import json
 import os
 import subprocess
 import tempfile
@@ -47,8 +48,28 @@ from deployment_lag import (
     measure,
     recorded_revision,
 )
+from baseline_trust import STATE_VERIFIED, BaselineTrust
 
 TODAY = date(2026, 8, 5)
+
+
+def verified_trust(sha="abc1234567890abc1234567890abc1234567890a"):
+    """A baseline the remote confirmed.
+
+    Same helper and same reason as `tests/test_release_lag.py` and
+    `tests/test_integration_debt.py`. `Measurement.trust` defaults to `None` and
+    `None` is a finding, so a test about the lag budget has to state that the
+    baseline half was satisfied rather than inherit a silent pass.
+    """
+    return BaselineTrust(
+        ref="origin/main",
+        remote="origin",
+        branch="main",
+        local_sha=sha,
+        remote_sha=sha,
+        state=STATE_VERIFIED,
+        detail="test fixture: remote agreed",
+    )
 
 
 def budget_doc(**overrides):
@@ -357,8 +378,13 @@ class TestEvaluation(unittest.TestCase):
     currently sit on."""
 
     @staticmethod
-    def measurement(services, observable=True):
-        return Measurement(services=services, observable=observable, baseline_sha="abc1234")
+    def measurement(services, observable=True, trust=...):
+        return Measurement(
+            services=services,
+            observable=observable,
+            baseline_sha="abc1234",
+            trust=verified_trust() if trust is ... else trust,
+        )
 
     def test_within_budget_yields_no_findings(self):
         m = self.measurement(
@@ -485,6 +511,79 @@ class TestBudgetDocument(unittest.TestCase):
         _write_yaml(tmp / deployment_lag.BUDGET_PATH, budget_doc(budget={"max_commits_behind": True}))
         with self.assertRaises(DeploymentLagError):
             load_budget(tmp)
+
+
+class TestBaselineTrust(unittest.TestCase):
+    """Every distance here is measured *from* `origin/main`, so that ref is checked.
+
+    Until 2026-08-08 this module named `scripts/ci/baseline_trust.py` in a comment
+    — as the reason the GitOps ref must be a remote ref — and never imported it.
+    So the control that exists to say "production is 436 commits behind" computed
+    that number from a `refs/remotes/origin/main` nobody had verified, and a ref
+    pointed at the deployed commit would have reported every service exactly up to
+    date. A comment citing a control is not the control.
+
+    Found by `tests/test_gate_wiring.py::test_every_baseline_measuring_gate_verifies_its_baseline`,
+    which derives the obligation from source rather than from the `imported_by`
+    list that had gone stale around it.
+    """
+
+    @staticmethod
+    def measurement(trust, **kw):
+        return Measurement(
+            services=[
+                Service("a", ["a.example"], revision="r" * 40, commits_behind=0, deployed_age_days=1)
+            ],
+            observable=True,
+            baseline_sha="abc1234",
+            trust=trust,
+            **kw,
+        )
+
+    def test_a_measurement_with_no_baseline_check_is_a_finding(self):
+        m = self.measurement(None)
+        self.assertIn("baseline-unverified", [f.check for f in evaluate(m, budget_doc(), TODAY)])
+
+    def test_an_unverified_baseline_never_asks_for_a_lower_budget(self):
+        # A baseline pointed at the deployed commit makes `commits_behind` 0 for
+        # every service, which is the direction that lands in `lag-budget-stale`
+        # and asks for the budget to come down. That request must not be reachable
+        # from a baseline nobody confirmed.
+        m = self.measurement(None)
+        findings = evaluate(m, budget_doc(), TODAY)
+        checks = [f.check for f in findings]
+
+        self.assertIn("baseline-unverified", checks)
+        self.assertNotIn("lag-budget-stale", checks)
+        self.assertNotIn("lower the budget", " ".join(f.message for f in findings))
+
+    def test_a_verified_baseline_still_asks_for_a_lower_budget(self):
+        # The other direction, so the guard cannot be satisfied by deleting the
+        # advice: a genuinely shipped portfolio on a confirmed baseline must still
+        # say the budget has gone stale.
+        m = self.measurement(verified_trust())
+        findings = evaluate(m, budget_doc(), TODAY)
+        self.assertIn("lag-budget-stale", [f.check for f in findings])
+
+    def test_the_report_names_the_baseline_it_could_not_verify(self):
+        m = self.measurement(None)
+        report = format_report(m, budget_doc(), evaluate(m, budget_doc(), TODAY))
+        self.assertIn("UNVERIFIED", report)
+        self.assertNotIn("PASS", report)
+
+    def test_measure_verifies_by_default(self):
+        # `verify=False` is for callers that have already verified, and it cannot
+        # buy a clean run: the absent record is itself a finding.
+        m = measure(REPO_ROOT, verify=False)
+        self.assertIsNone(m.trust)
+        self.assertIn("baseline-unverified", [f.check for f in evaluate(m, budget_doc(), TODAY)])
+        self.assertIsNotNone(measure(REPO_ROOT).trust)
+
+    def test_the_json_output_states_whether_the_baseline_was_verified(self):
+        m = self.measurement(None)
+        payload = json.loads(deployment_lag.to_json(m, budget_doc(), evaluate(m, budget_doc(), TODAY)))
+        self.assertIn("baseline_verified", payload)
+        self.assertFalse(payload["baseline_verified"])
 
 
 class TestReport(unittest.TestCase):

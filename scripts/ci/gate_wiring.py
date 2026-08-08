@@ -182,13 +182,23 @@ REGISTERED_UNWIRED: Tuple[Registration, ...] = (
         owner="duncan",
         issue="docs/EXCEPTION-REGISTER.md#gate-wiring",
         expires="2027-01-31",
-        imported_by=("scripts/ci/release_lag.py", "scripts/ci/branch_collisions.py"),
+        imported_by=(
+            "scripts/ci/release_lag.py",
+            "scripts/ci/branch_collisions.py",
+            "scripts/ci/deployment_lag.py",
+            "scripts/ci/integration_debt.py",
+        ),
         why=(
-            "not a gate. It declares no `__main__`, and exists so that the two controls "
-            "which measure against a baseline ref can agree on when that ref is "
+            "not a gate. It declares no `__main__`, and exists so that every control "
+            "which measures against a baseline ref can agree on when that ref is "
             "untrustworthy — an unreachable remote, a diverged baseline, a ref written by "
-            "hand rather than by a fetch. Both importers execute it on every run of their "
-            "own contract, so wiring it separately would measure nothing new."
+            "hand rather than by a fetch. Each importer executes it on every run of its "
+            "own contract, so wiring it separately would measure nothing new. The list is "
+            "no longer the definition of who must import it: that is derived from source "
+            "by `tests/test_gate_wiring.py::test_every_baseline_measuring_gate_verifies_"
+            "its_baseline`, because this tuple said `release_lag` and `branch_collisions` "
+            "while `deployment_lag` had joined them unlisted and `integration_debt` "
+            "measured against `origin/main` importing nothing at all."
         ),
     ),
     Registration(

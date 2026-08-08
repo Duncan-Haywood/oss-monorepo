@@ -87,10 +87,25 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 BUDGET_PATH = Path("platform/deployment-lag-budget.yaml")
 APPS_DIR = Path("platform/k8s/apps")
 
+# Sibling module. Explicit rather than relying on `sys.path[0]`, so this keeps
+# working when the file is imported rather than executed.
+if str(Path(__file__).resolve().parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from baseline_trust import BaselineTrust, describe as describe_trust, trust_findings, verify_baseline
+
 # The GitOps branch is the desired state of the cluster. It is a remote ref on
 # purpose: a local branch of the same name is a file any process may write, and
 # `scripts/ci/baseline_trust.py` exists because exactly that was done by hand
 # four times to `refs/remotes/origin/main`.
+#
+# Until 2026-08-08 this comment was the *only* thing in this module that
+# mentioned that: it named `baseline_trust.py` as the reason the ref must be
+# remote and then never imported it, so every lag here was computed against a
+# `refs/remotes/origin/main` nobody had checked. A comment citing a control is
+# not the control. Found by
+# `tests/test_gate_wiring.py::test_every_baseline_measuring_gate_verifies_its_baseline`,
+# which derives the obligation from source instead of from a list.
 GITOPS_REF = "origin/gitops-production"
 
 # The upstream ref production is measured *against*. Kept identical to
@@ -176,6 +191,7 @@ class Measurement:
     observable: bool
     observability_note: str = ""
     baseline_sha: str = ""
+    trust: Optional[BaselineTrust] = None
 
     @property
     def public_services(self) -> List[Service]:
@@ -282,7 +298,8 @@ def recorded_revision(blob: str, path_for_errors: str) -> Optional[str]:
     return None
 
 
-def measure(repo_root: Path) -> Measurement:
+def measure(repo_root: Path, verify: bool = True) -> Measurement:
+    trust = verify_baseline(repo_root, BASELINE_REF) if verify else None
     apps_dir = repo_root / APPS_DIR
     if not apps_dir.is_dir():
         raise DeploymentLagError(
@@ -303,6 +320,7 @@ def measure(repo_root: Path) -> Measurement:
         return Measurement(
             services=services,
             observable=False,
+            trust=trust,
             observability_note=(
                 f"{GITOPS_REF} is not present in this clone, so what is deployed cannot be read. "
                 f"Fetch it (`git fetch origin gitops-production`) to measure."
@@ -312,6 +330,7 @@ def measure(repo_root: Path) -> Measurement:
         return Measurement(
             services=services,
             observable=False,
+            trust=trust,
             observability_note=(
                 f"{BASELINE_REF} is not present in this clone, so there is nothing to measure the "
                 f"deployed revision against."
@@ -359,7 +378,7 @@ def measure(repo_root: Path) -> Measurement:
             deployed_at = datetime.fromtimestamp(int(stamped.stdout.strip()), tz=timezone.utc)
             service.deployed_age_days = max(0, (today - deployed_at).days)
 
-    return Measurement(services=services, observable=True, baseline_sha=baseline_sha)
+    return Measurement(services=services, observable=True, baseline_sha=baseline_sha, trust=trust)
 
 
 def load_budget(repo_root: Path) -> Dict[str, Any]:
@@ -442,6 +461,24 @@ def budget_findings(data: Dict[str, Any], today: date) -> List[Finding]:
 def evaluate(measurement: Measurement, data: Dict[str, Any], today: date) -> List[Finding]:
     findings = budget_findings(data, today)
 
+    # Every distance in this module is measured *from* `BASELINE_REF`, so a
+    # baseline nobody checked makes "436 commits behind" and "up to date"
+    # indistinguishable. Checked before the comparisons and outside the
+    # observability guard: whether the baseline is trustworthy is a fact about the
+    # repository, like the budget document, not about whether the GitOps branch
+    # happens to be fetched here.
+    if measurement.trust is None:
+        findings.append(
+            Finding(
+                "baseline-unverified",
+                f"the baseline {BASELINE_REF} was never checked against the remote, so every lag "
+                f"below is measured from a local file any process may write. Measure with "
+                f"verify=True.",
+            )
+        )
+    else:
+        findings.extend(Finding(check, message) for check, message in trust_findings(measurement.trust))
+
     # The budget document is checked everywhere, because it is a property of the
     # repository. The lag comparisons are not, because their subject is absent.
     if not measurement.observable:
@@ -497,7 +534,20 @@ def evaluate(measurement: Measurement, data: Dict[str, Any], today: date) -> Lis
                 f"the older code, including any correction merged since.",
             )
         )
-    elif measurement.measured_any and budget["max_commits_behind"] - worst > budget["slack_commits"]:
+    elif (
+        measurement.measured_any
+        # The same reasoning as `measured_any` one line up, extended to the input
+        # rather than the subject. That guard exists because a lag of 0 measured
+        # over nothing would "demand the budget be lowered on the strength of a
+        # measurement that never happened"; a lag of 0 measured from a forged
+        # baseline is the same demand on the strength of an input nobody checked,
+        # and it is cheaper to produce — pointing `origin/main` at the deployed
+        # commit makes every service exactly up to date. This is the only finding
+        # here computed *from* the baseline, so it is the only one guarded.
+        and measurement.trust is not None
+        and measurement.trust.verified
+        and budget["max_commits_behind"] - worst > budget["slack_commits"]
+    ):
         findings.append(
             Finding(
                 "lag-budget-stale",
@@ -527,7 +577,12 @@ def evaluate(measurement: Measurement, data: Dict[str, Any], today: date) -> Lis
 
 def format_report(measurement: Measurement, data: Dict[str, Any], findings: Sequence[Finding]) -> str:
     budget = data["budget"]
-    lines = ["=== Deployment lag ==="]
+    lines = [
+        "=== Deployment lag ===",
+        describe_trust(measurement.trust)
+        if measurement.trust is not None
+        else "Baseline UNVERIFIED: never checked against the remote",
+    ]
 
     if not measurement.observable:
         lines.append(f"NOT MEASURABLE HERE: {measurement.observability_note}")
@@ -590,6 +645,8 @@ def to_json(measurement: Measurement, data: Dict[str, Any], findings: Sequence[F
             "observability_note": measurement.observability_note,
             "baseline_ref": BASELINE_REF,
             "baseline_sha": measurement.baseline_sha,
+            "baseline_verified": bool(measurement.trust is not None and measurement.trust.verified),
+            "baseline_trust": asdict(measurement.trust) if measurement.trust else None,
             "gitops_ref": GITOPS_REF,
             "budget": data["budget"],
             "services": [asdict(s) for s in measurement.services],
