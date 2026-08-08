@@ -60,8 +60,13 @@ vi.mock("@/lib/db", () => ({
 
 const syncCommerceCatalogToStripe = vi.fn();
 
+// Named, not inline: semgrep's TS grammar rejects a dynamic `import(...)` type
+// inside a type argument list and stops parsing the file there. See the note in
+// `generate-client-voice-pack-action.test.ts`.
+type CommerceModule = typeof import("@/lib/commerce");
+
 vi.mock("@/lib/commerce", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/commerce")>();
+  const actual = await importOriginal<CommerceModule>();
   return {
     ...actual,
     syncCommerceCatalogToStripe: (...args: unknown[]) =>

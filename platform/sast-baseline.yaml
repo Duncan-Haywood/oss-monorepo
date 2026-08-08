@@ -65,8 +65,19 @@
 # set exactly; before the timeout was disabled, the same tree produced 53, 53,
 # 56 and 54, 55, 53. Re-measure in a clean clone — a working tree carries
 # untracked and generated files that are not what this register describes.
+#
+# Re-measured 2026-08-08 in a clean clone at load average 300-420: three
+# consecutive runs with `--timeout=0` produced byte-identical sets; the same
+# tree with the default timeout restored produced 64 files. Twelve files of the
+# difference were machine load, not grammar.
+#
+# `semgrep_unparsed_max` is cap-ratcheted as of 2026-08-08 — it is watched by
+# `scripts/ci/cap_ratchet.py` and may only ever fall. If a run reports a file
+# that is not on this list, fix the file; raising this number is refused, and
+# the refusal is the point. It went 49 -> 53 on 2026-08-05 while nothing was
+# watching, which is why it is watched now.
 coverage:
-  semgrep_unparsed_max: 52
+  semgrep_unparsed_max: 49
   semgrep_unparsed:
     - .gitea/workflows/deploy-services.yml
     - platform/terraform/helm/web-service/templates/deployment.yaml
@@ -80,9 +91,6 @@ coverage:
     - ventures/local-site-studio/.github/workflows/gemini-scheduled.yml
     - ventures/local-site-studio/.github/workflows/grok-scheduled.yml
     - ventures/local-site-studio/.github/workflows/opencode-scheduled.yml
-    - ventures/local-site-studio/src/app/dashboard/leads/generate-client-voice-pack-action.test.ts
-    - ventures/local-site-studio/src/app/dashboard/leads/generate-marketing-pack-action.test.ts
-    - ventures/local-site-studio/src/app/dashboard/leads/sync-commerce-catalog-to-stripe-action.test.ts
     - ventures/local-site-studio/src/components/preview/category-preview.tsx
     - ventures/mat-470-real-analysis/site/index.html
     - ventures/print-atelier/src/app/admin-portal/page.tsx

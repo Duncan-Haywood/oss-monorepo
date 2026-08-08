@@ -61,8 +61,16 @@ vi.mock("@/lib/db", () => ({
 
 const generate = vi.fn();
 
+// Named rather than written inline as `importOriginal<typeof import("@/lib/voice")>()`.
+// Semgrep's TypeScript grammar rejects a dynamic `import(...)` type inside a type
+// argument list and stops parsing the file there, so everything below this line
+// left SAST coverage while the job stayed green. Naming the type keeps the
+// inference exactly — an `as` cast would parse too, and would silence real type
+// errors to do it. See `coverage.semgrep_unparsed` in `platform/sast-baseline.yaml`.
+type VoiceModule = typeof import("@/lib/voice");
+
 vi.mock("@/lib/voice", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/voice")>();
+  const actual = await importOriginal<VoiceModule>();
   return {
     ...actual,
     getClientVoiceGenerator: () => ({

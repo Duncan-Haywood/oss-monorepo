@@ -15,10 +15,12 @@ remembers to.
 
 import importlib.util
 import json
+import re
 import sys
 import tempfile
 import unittest
 from datetime import date, timedelta
+from collections import Counter
 from pathlib import Path
 
 import yaml
@@ -189,6 +191,141 @@ class ReconcileTests(unittest.TestCase):
 
     def test_clean_scan_against_an_empty_baseline_passes(self):
         self.assertEqual(reconcile([], []), [])
+
+
+class LowCountReMeasurementTests(unittest.TestCase):
+    """The gate must not turn a contended measurement into a register edit.
+
+    Measured 2026-08-08 on one byte-identical tree at load average 387-406.
+    Two full scans whose *unparsed sets were byte-identical* still disagreed on
+    the counts: `unsafe-formatstring` in the Stripe webhook route came back 13
+    then 7, and `detect-child-process` in `platform/ci/src/pipeline.mjs` 3 then
+    4. Semgrep raised neither an error nor a warning. Scanning the webhook
+    route alone, three times, at the same load: 13, 13, 13.
+
+    So the low number was the machine, and the message the gate printed for it
+    was "occurs 7x but the baseline reserves 13. Lower the count." — a one-line
+    edit that permanently under-reserves a real finding and goes green.
+    """
+
+    def test_a_low_count_that_does_not_reproduce_is_not_reported(self):
+        # Full scan says 1, the file on its own says 2, register reserves 2.
+        # The register was right and the run was contended: say nothing.
+        problems = reconcile([located(line=1)], [entry(count=2)], recount=lambda f: 2)
+        self.assertEqual(
+            problems,
+            [],
+            "a count the isolated re-measurement contradicts must not be reported; "
+            "reporting it is what invites lowering the register to it",
+        )
+
+    def test_a_low_count_that_does_reproduce_is_still_reported(self):
+        # The ratchet in the other direction has to survive: if the finding
+        # really was fixed, the stale waiver must still be struck.
+        problems = reconcile([located(line=1)], [entry(count=2)], recount=lambda f: 1)
+        self.assertTrue(
+            any("stale baseline entry" in p and "occurs 1x" in p for p in problems), problems
+        )
+
+    def test_a_vanished_finding_confirmed_absent_is_still_reported(self):
+        problems = reconcile([], [entry(count=1)], recount=lambda f: 0)
+        self.assertTrue(any("no longer" in p for p in problems), problems)
+
+    def test_re_measurement_finding_more_than_the_register_fails(self):
+        # Contention hid a real new occurrence. This must not pass quietly just
+        # because the full scan happened to report fewer.
+        problems = reconcile([located(line=1)], [entry(count=2)], recount=lambda f: 5)
+        self.assertTrue(any("occurs 5x when re-measured" in p for p in problems), problems)
+
+    def test_an_unverifiable_tool_falls_back_to_the_full_scan_number(self):
+        # `recount` returns None for bandit; behaviour must be exactly what it
+        # was before this path existed.
+        problems = reconcile([located(tool="bandit", line=1)], [entry(tool="bandit", count=2)],
+                             recount=lambda f: None)
+        self.assertTrue(any("stale baseline entry" in p for p in problems), problems)
+
+    def test_high_counts_are_never_re_measured(self):
+        """The suppressing path must be unreachable from the failing direction.
+
+        A finding occurring *more* often than the register reserves is a new
+        occurrence. If `recount` could be consulted there, a contended
+        re-measurement could erase it — so it is never called at all, and this
+        pins that rather than trusting the branch to stay where it is.
+        """
+        calls = []
+
+        def recount(finding):
+            calls.append(finding)
+            return 0
+
+        problems = reconcile(
+            [located(line=1), located(line=9)], [entry(count=1)], recount=recount
+        )
+        self.assertEqual(calls, [], "the over-count direction must never be re-measured")
+        self.assertTrue(any("now occurs 2x" in p for p in problems), problems)
+
+    def test_non_reproducible_re_measurement_raises_rather_than_choosing(self):
+        """Two isolated measurements that disagree are not evidence.
+
+        `isolated_recount` raises `ScanError` here; `main` turns that into
+        exit 2, "could not run", rather than exit 1, "found something". The
+        alternative — reporting the lower of the two — is precisely how the
+        register gets ratcheted down by machine load.
+        """
+        def recount(finding):
+            raise ScanError("re-measuring produced different counts")
+
+        with self.assertRaises(ScanError):
+            reconcile([located(line=1)], [entry(count=2)], recount=recount)
+
+
+class IsolatedRecountTests(unittest.TestCase):
+    """`isolated_recount` itself — the part that decides what counts as evidence."""
+
+    def setUp(self):
+        self._real = sast_scan.semgrep_counts_for_file
+        self.addCleanup(setattr, sast_scan, "semgrep_counts_for_file", self._real)
+        self.calls = []
+
+    def _stub(self, *results):
+        queue = list(results)
+
+        def fake(root, relative):
+            self.calls.append(relative)
+            return Counter(queue.pop(0))
+
+        sast_scan.semgrep_counts_for_file = fake
+
+    def test_two_agreeing_measurements_are_believed(self):
+        self._stub({"rule.a": 13}, {"rule.a": 13})
+        recount = sast_scan.isolated_recount(Path("/repo"))
+        self.assertEqual(recount(Finding(tool="semgrep", rule="rule.a", path="src/x.ts")), 13)
+        self.assertEqual(len(self.calls), 2, "the file must be measured twice, not once")
+
+    def test_two_disagreeing_measurements_raise(self):
+        self._stub({"rule.a": 13}, {"rule.a": 7})
+        recount = sast_scan.isolated_recount(Path("/repo"))
+        with self.assertRaises(ScanError) as caught:
+            recount(Finding(tool="semgrep", rule="rule.a", path="src/x.ts"))
+        self.assertIn("13 then 7", str(caught.exception))
+
+    def test_a_rule_absent_from_the_file_counts_zero(self):
+        self._stub({"rule.a": 2}, {"rule.a": 2})
+        recount = sast_scan.isolated_recount(Path("/repo"))
+        self.assertEqual(recount(Finding(tool="semgrep", rule="other", path="src/x.ts")), 0)
+
+    def test_bandit_is_not_re_measured(self):
+        self._stub()
+        recount = sast_scan.isolated_recount(Path("/repo"))
+        self.assertIsNone(recount(Finding(tool="bandit", rule="B108", path="src/x.py")))
+        self.assertEqual(self.calls, [], "bandit has no observed flap and no semgrep to re-run")
+
+    def test_one_file_is_measured_once_however_many_rules_ask(self):
+        self._stub({"rule.a": 1, "rule.b": 2}, {"rule.a": 1, "rule.b": 2})
+        recount = sast_scan.isolated_recount(Path("/repo"))
+        recount(Finding(tool="semgrep", rule="rule.a", path="src/x.ts"))
+        recount(Finding(tool="semgrep", rule="rule.b", path="src/x.ts"))
+        self.assertEqual(len(self.calls), 2, "cached per file, so two rules cost one pair of scans")
 
 
 class ParseCoverageTests(unittest.TestCase):
@@ -592,6 +729,41 @@ class RepositoryContractTests(unittest.TestCase):
             len(declared) + len(marginal),
             coverage["semgrep_unparsed_max"],
             "the declared unparsed set is over its own ceiling",
+        )
+
+    def test_docs_sast_states_the_real_size_of_the_unparsed_set(self):
+        """`docs/SAST.md`'s "N files are only partially parsed" must be N.
+
+        That sentence is the only place a reader learns how much of this
+        repository SAST does not fully cover, and until now nothing checked it
+        against the register it describes. `docs/SAST.md` says so itself, about
+        the neighbouring prose: "Nothing checks prose in this file against the
+        register." A number in a document that drifts from the number in the
+        register is the shape this repository has already been bitten by —
+        a required-but-unread field going quietly false while every count stays
+        green — so the load-bearing sentence is bound to the register here.
+
+        Deliberately the size and not the whole list: the list is in the
+        register, one path per line, and duplicating it in prose would be a
+        second copy to drift. The size is the claim a reader acts on.
+        """
+        declared = self.document["coverage"].get("semgrep_unparsed") or []
+        source = (REPO_ROOT / "docs" / "SAST.md").read_text(encoding="utf-8")
+        stated = re.findall(r"\*\*(\d+) files are only partially parsed\.\*\*", source)
+        self.assertEqual(
+            len(stated),
+            1,
+            "docs/SAST.md must carry exactly one `**N files are only partially "
+            "parsed.**` sentence for this contract to bind; found "
+            f"{len(stated)}. If the wording changes, change this test with it "
+            "rather than letting the claim go unchecked.",
+        )
+        self.assertEqual(
+            int(stated[0]),
+            len(declared),
+            f"docs/SAST.md says {stated[0]} files are only partially parsed, but "
+            f"`coverage.semgrep_unparsed` declares {len(declared)}. The register "
+            "is the measurement; update the sentence to match it.",
         )
 
     def test_every_waived_path_still_exists(self):

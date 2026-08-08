@@ -119,28 +119,70 @@ def platform_budget_files() -> list:
     return sorted(f"platform/{name}" for name in found)
 
 
+def _numeric_leaves(node, prefix: str, leaves: list) -> None:
+    """Collect dotted paths of every numeric (non-bool) leaf under `node`."""
+    if isinstance(node, dict):
+        for key, value in node.items():
+            _numeric_leaves(value, f"{prefix}.{key}" if prefix else str(key), leaves)
+    elif isinstance(node, bool):
+        return
+    elif isinstance(node, (int, float)):
+        leaves.append(prefix)
+
+
+def _is_bound_shaped(dotted: str) -> bool:
+    """Does this key's own name declare it to be a ceiling or a floor?
+
+    `max_unshipped_commits`, `semgrep_unparsed_max`, `min_retention_factor`.
+    Not `count`, `version`, `port` — those are quantities, not bounds, and
+    sweeping them in would make the contract so noisy that the honest response
+    to it would be a blanket exemption. This repository has already been bitten
+    by an exemption that covered a whole directory; the enumeration has to stay
+    narrow enough that every entry is worth arguing one at a time.
+    """
+    leaf = dotted.rsplit(".", 1)[-1]
+    return (
+        leaf.startswith(("max_", "min_"))
+        or leaf.endswith(("_max", "_min"))
+        or leaf in ("max", "min")
+    )
+
+
 def numeric_budget_leaves(source: str) -> list:
-    """Every numeric leaf under a top-level `budget:` mapping, dotted."""
+    """Every declared bound in a `platform/*.yaml`, dotted.
+
+    Two sources, and the second one is here because the first was a guess.
+
+    Everything under a top-level `budget:` mapping, because a file that
+    declares a budget means every number in it as a budget — including ones
+    whose names say nothing, like `slack`.
+
+    Plus any `max_*`/`*_max`/`min_*`/`*_min` key anywhere else in the document.
+    That half was missing until 2026-08-08 and it cost a real control: the SAST
+    parse-coverage ceiling lives at `coverage.semgrep_unparsed_max` in
+    `platform/sast-baseline.yaml`, a file with no `budget:` mapping at all, so
+    this contract enumerated nothing for it and passed. The number was raised
+    49 -> 53 on 2026-08-05 and nothing said so. The contract had been reading
+    a guessed surface — the top-level key name — rather than the shape of the
+    number it exists to find.
+    """
     try:
         data = yaml.safe_load(source)
     except yaml.YAMLError:
         return []
-    if not isinstance(data, dict) or not isinstance(data.get("budget"), dict):
+    if not isinstance(data, dict):
         return []
 
-    leaves = []
+    leaves: list = []
+    if isinstance(data.get("budget"), dict):
+        _numeric_leaves(data["budget"], "budget", leaves)
 
-    def walk(node: dict, prefix: str) -> None:
-        for key, value in node.items():
-            dotted = f"{prefix}.{key}"
-            if isinstance(value, dict):
-                walk(value, dotted)
-            elif isinstance(value, bool):
-                continue
-            elif isinstance(value, (int, float)):
-                leaves.append(dotted)
-
-    walk(data["budget"], "budget")
+    elsewhere: list = []
+    for key, value in data.items():
+        if key == "budget":
+            continue
+        _numeric_leaves(value, str(key), elsewhere)
+    leaves.extend(dotted for dotted in elsewhere if _is_bound_shaped(dotted))
     return leaves
 
 
@@ -977,6 +1019,73 @@ class RepositoryContractTests(unittest.TestCase):
             "carrying the reason: " + ", ".join(missing),
         )
 
+    def test_a_bound_outside_a_budget_mapping_is_enumerated(self):
+        """The hole that hid `coverage.semgrep_unparsed_max` for two days.
+
+        `platform/sast-baseline.yaml` has no `budget:` mapping, so an
+        enumeration keyed on that name returned nothing for it and the contract
+        above passed vacuously over the file. Meanwhile the ceiling inside it
+        went 49 -> 53 unremarked. The document below is that file's shape,
+        reduced: a ceiling and a list under a top-level key called something
+        else, next to numbers that are quantities rather than bounds.
+        """
+        source = (
+            "coverage:\n"
+            "  semgrep_unparsed_max: 52\n"
+            "  semgrep_unparsed:\n"
+            "    - a/b.tsx\n"
+            "baseline:\n"
+            "  - id: SAST-001\n"
+            "    count: 31\n"
+        )
+        leaves = numeric_budget_leaves(source)
+        self.assertIn(
+            "coverage.semgrep_unparsed_max",
+            leaves,
+            "a `*_max` ceiling outside a `budget:` mapping must still be enumerated, "
+            "or it can be raised and nothing would say so",
+        )
+        # And not the quantities beside it. Sweeping every number in would make
+        # the contract noisy enough that the honest response is a blanket
+        # exemption, which is the failure mode one level down.
+        self.assertNotIn("baseline.0.count", leaves)
+        self.assertEqual(
+            [leaf for leaf in leaves if not _is_bound_shaped(leaf)],
+            [],
+            "only bound-shaped keys are enumerated outside `budget:`",
+        )
+
+    def test_budget_mapping_numbers_are_still_enumerated_whatever_they_are_called(self):
+        # The other half: under `budget:` the file has declared that every
+        # number in it is a budget, so `slack` counts even though its name
+        # says nothing. Broadening the search outside `budget:` must not
+        # narrow it inside.
+        leaves = numeric_budget_leaves("budget:\n  slack: 4\n  max_thing: 12\n")
+        self.assertEqual(sorted(leaves), ["budget.max_thing", "budget.slack"])
+
+    def test_sast_parse_coverage_ceiling_is_watched_downward(self):
+        """`coverage.semgrep_unparsed_max` is a cap, and is held to its floor.
+
+        Named explicitly rather than left to the enumeration above, because
+        this is the one number whose weakening this repository has already
+        performed: every file on `coverage.semgrep_unparsed` is scanned only up
+        to the construct semgrep cannot parse, so raising the ceiling buys a
+        green SAST job by giving back scanning coverage.
+        """
+        matching = [
+            w
+            for w in WATCHES
+            if w.path == "platform/sast-baseline.yaml"
+            and w.locator == "coverage.semgrep_unparsed_max"
+        ]
+        self.assertEqual(len(matching), 1, "the SAST parse-coverage ceiling must be watched once")
+        self.assertEqual(matching[0].kind, "yaml-path")
+        self.assertEqual(
+            matching[0].direction,
+            "down",
+            "it is a debt ceiling: it may fall forever and may never rise",
+        )
+
     def test_every_exemption_still_names_a_real_budget_number(self):
         # An exemption that outlives the key it excuses is a register nobody
         # reads, and it silently widens the contract above: the pair would sit
@@ -1015,8 +1124,8 @@ class RepositoryContractTests(unittest.TestCase):
                 self.assertNotIn("*", exemption.path)
                 self.assertNotIn("*", exemption.locator)
                 self.assertTrue(
-                    exemption.locator.startswith("budget.") and exemption.locator != "budget.",
-                    "an exemption names one key under `budget:`, not the mapping",
+                    "." in exemption.locator and not exemption.locator.endswith("."),
+                    "an exemption names one dotted key, not a mapping",
                 )
                 self.assertGreater(len(exemption.why), 80, "the reason has to be a reason")
                 key = (exemption.path, exemption.locator)
