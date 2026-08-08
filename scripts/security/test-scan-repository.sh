@@ -64,8 +64,20 @@ printf 'password = var.database_password\n' >"$variable_repo/main.tf"
 git -C "$variable_repo" add main.tf
 run_scan "$variable_repo"
 
+# Every fixture below is ASSEMBLED rather than written out, and that is a
+# requirement rather than a style: `scan-repository.sh` scans every tracked file
+# in the repository, this file included. A fixture containing a literal
+# private-key header or a literal conflict marker makes the scanner report
+# itself, so the gate in `scripts/test-ci.sh` that runs it against the tree would
+# be red from the moment these cases were added. The alternative — exempting the
+# scanner's own tests — puts a hole in a security control to make its tests fit,
+# which is the trade this repository refuses. Splitting the literal costs two
+# lines and leaves the detector matching everything it did before.
+dashes='-----'
+key_header="${dashes}BEGIN OPENSSH PRIVATE"' KEY'"${dashes}"
+
 key_repo="$(new_repo private-key)"
-printf -- '-----BEGIN OPENSSH PRIVATE KEY-----\nnot-real\n' >"$key_repo/notes.txt"
+printf -- '%s\nnot-real\n' "$key_header" >"$key_repo/notes.txt"
 git -C "$key_repo" add notes.txt
 if run_scan "$key_repo"; then
   printf 'expected private-key material to fail\n' >&2
@@ -85,15 +97,18 @@ grep -q 'Private-key material detected' "$key_repo/report.md"
 # same function, which is what makes this failure so quiet — the file looks like
 # code, and the duplicate-definition scan reports it as a *different* defect.
 conflict_repo="$(new_repo merge-conflict)"
-cat >"$conflict_repo/module.mjs" <<'CONFLICTED'
-export function shared() {
-<<<<<<< HEAD
-  return 'ours';
-=======
-  return 'theirs';
->>>>>>> agent/some-branch
-}
-CONFLICTED
+ours_marker="$(printf '<%.0s' 1 2 3 4 5 6 7)"
+split_marker="$(printf '=%.0s' 1 2 3 4 5 6 7)"
+theirs_marker="$(printf '>%.0s' 1 2 3 4 5 6 7)"
+{
+  printf 'export function shared() {\n'
+  printf '%s HEAD\n' "$ours_marker"
+  printf "  return 'ours';\n"
+  printf '%s\n' "$split_marker"
+  printf "  return 'theirs';\n"
+  printf '%s agent/some-branch\n' "$theirs_marker"
+  printf '}\n'
+} >"$conflict_repo/module.mjs"
 git -C "$conflict_repo" add module.mjs
 if run_scan "$conflict_repo"; then
   printf 'expected an unresolved merge marker to fail\n' >&2
@@ -106,11 +121,11 @@ grep -q 'Unresolved merge marker' "$conflict_repo/report.md"
 # words that name the markers in prose must all pass, or the first document that
 # explains this control turns its own gate red and invites someone to delete it.
 marker_prose_repo="$(new_repo merge-marker-prose)"
-cat >"$marker_prose_repo/NOTES.md" <<'PROSE'
-Resolve a conflict by deleting the <<<<<<< and >>>>>>> lines.
-| a ======= b |
-====
-PROSE
+{
+  printf 'Resolve a conflict by deleting the %s and %s lines.\n' "$ours_marker" "$theirs_marker"
+  printf '| a %s b |\n' "$split_marker"
+  printf '====\n'
+} >"$marker_prose_repo/NOTES.md"
 git -C "$marker_prose_repo" add NOTES.md
 if ! run_scan "$marker_prose_repo"; then
   printf 'merge-marker detector fired on prose that contains no marker:\n' >&2
