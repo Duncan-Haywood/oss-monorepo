@@ -44,6 +44,7 @@ CI_DIR = REPO_ROOT / "scripts" / "ci"
 if str(CI_DIR) not in sys.path:
     sys.path.insert(0, str(CI_DIR))
 
+import re
 import subprocess
 import tempfile
 import textwrap
@@ -66,6 +67,18 @@ from cap_ratchet import (
     extract_yaml_path,
     measure,
     module_constants,
+)
+from cap_ratchet import (
+    PINS,
+    UNENROLLED_VENTURE_CONSTANTS,
+    VENTURE_PREDICATES,
+    Pin,
+    declared_ts_bound_constants,
+    evaluate_pins,
+    extract_ts_constant,
+    fold_ts_number,
+    ts_module_constants,
+    venture_ts_sources,
 )
 
 # The one watch whose declared direction disagrees with its name, and the whole
@@ -905,7 +918,12 @@ class RepositoryContractTests(unittest.TestCase):
         for watch in WATCHES:
             with self.subTest(watch=f"{watch.path}:{watch.locator}"):
                 leaf = watch.locator.rsplit(".", 1)[-1]
-                if watch.kind == "python-constant":
+                # Constants are SHOUT_CASE in both Python and TypeScript, so
+                # both read their direction from the same prefix list. YAML keys
+                # are lowercase and read from `min_`. Before `ts-constant`
+                # existed this branched on "python or not", which would have
+                # silently expected DOWN for every TypeScript floor.
+                if watch.kind in ("python-constant", "ts-constant"):
                     expected = DOWN if leaf.startswith(PREFIXES_MEANING_CEILING) else UP
                 else:
                     expected = UP if leaf.startswith("min_") else DOWN
@@ -1013,6 +1031,509 @@ class RepositoryContractTests(unittest.TestCase):
         for watch in WATCHES:
             with self.subTest(watch=watch.locator):
                 self.assertGreater(len(watch.why), 20)
+
+
+class TypeScriptReaderTests(unittest.TestCase):
+    """The reader that made `ventures/` reachable at all.
+
+    Held to the same standard as the Python reader above: it never executes the
+    source, it refuses anything it cannot resolve to a single number, and
+    "refuses" means None, which every caller turns into a failure.
+    """
+
+    def test_reads_a_plain_constant(self):
+        self.assertEqual(extract_ts_constant("const MAX_X = 12;\n", "MAX_X"), 12)
+
+    def test_reads_an_exported_constant(self):
+        self.assertEqual(extract_ts_constant("export const MAX_X = 12;\n", "MAX_X"), 12)
+
+    def test_reads_a_typed_constant(self):
+        self.assertEqual(extract_ts_constant("export const MAX_X: number = 12;\n", "MAX_X"), 12)
+
+    def test_reads_numeric_separators(self):
+        self.assertEqual(extract_ts_constant("const MAX_X = 1_000_000_00;\n", "MAX_X"), 100000000)
+
+    def test_folds_pure_arithmetic(self):
+        # `30 * 24 * 60 * 60 * 1000` names a unit conversion. Forcing it to be
+        # retyped as a magic number to satisfy the reader would be the control
+        # making the code worse in order to measure it.
+        self.assertEqual(
+            extract_ts_constant("export const MAX_SNOOZE_MS = 30 * 24 * 60 * 60 * 1000;\n", "MAX_SNOOZE_MS"),
+            2592000000,
+        )
+
+    def test_an_expression_naming_another_constant_is_unreadable(self):
+        # The Python side's rule: you cannot launder a bound through
+        # `MAX_X = BASE * 4`, because then the number that binds is elsewhere.
+        self.assertIsNone(extract_ts_constant("const MAX_X = BASE * 4;\n", "MAX_X"))
+
+    def test_an_object_literal_is_unreadable(self):
+        self.assertIsNone(
+            extract_ts_constant("export const MAX_LENGTH = { title: 80 } as const;\n", "MAX_LENGTH")
+        )
+
+    def test_a_string_is_not_a_number(self):
+        self.assertIsNone(extract_ts_constant('const MAX_X = "12";\n', "MAX_X"))
+
+    def test_a_constant_inside_a_function_is_not_module_level(self):
+        source = "function f() {\n  const MAX_X = 12;\n}\n"
+        self.assertIsNone(extract_ts_constant(source, "MAX_X"))
+
+    def test_a_constant_declared_twice_is_unreadable_rather_than_its_first_value(self):
+        # Same rule as the Python reader. `MAX_X = 5` then `MAX_X = 9999` is not
+        # a cap of 5, and reading it as one is worse than refusing to read it.
+        source = "const MAX_X = 5;\nconst MAX_X = 9999;\n"
+        self.assertIsNone(extract_ts_constant(source, "MAX_X"))
+
+    def test_absent_constant_is_none(self):
+        self.assertIsNone(extract_ts_constant("const OTHER = 1;\n", "MAX_X"))
+
+    def test_a_comment_is_not_folded_as_integer_division(self):
+        # `//` means a comment in TypeScript and integer division in Python.
+        # Resolving it as either would be a guess.
+        self.assertIsNone(fold_ts_number("12 // a comment"))
+
+    def test_the_module_is_never_executed_to_read_it(self):
+        # There is no TypeScript runtime here, but the shape matters: the reader
+        # must not shell out or import. A source that would throw if run still
+        # reads fine.
+        source = "throw new Error('boom');\nexport const MAX_X = 7;\n"
+        self.assertEqual(extract_ts_constant(source, "MAX_X"), 7)
+
+    def test_bound_named_constants_are_enumerated_with_their_direction(self):
+        source = "export const MAX_A = 1;\nconst MIN_B = 2;\nconst OTHER = 3;\n"
+        found = {c.name: c.expected_direction for c in declared_ts_bound_constants(source)}
+        self.assertEqual(found, {"MAX_A": DOWN, "MIN_B": UP})
+        # `OTHER` is still a constant, just not one whose name bounds anything.
+        self.assertIn("OTHER", ts_module_constants(source))
+
+
+class PinBehaviourTests(unittest.TestCase):
+    """A pin has to fail in three separate ways, and each is tested here.
+
+    Checking only the value would have called this venture healthy while the
+    artist split was copied to a fourteenth site computing it from a different
+    base. The count is as load-bearing as the number.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        self.addCleanup(self.tmp.cleanup)
+
+    def _write(self, rel, text):
+        path = self.root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(textwrap.dedent(text), encoding="utf-8")
+
+    def test_a_pinned_constant_at_its_declared_value_passes(self):
+        self._write("a.ts", "export const MAX_X = 300;\n")
+        pin = Pin(path="a.ts", kind="ts-constant", locator="MAX_X", value=300, why="a bound")
+        self.assertEqual(evaluate_pins(self.root, [pin]), [])
+
+    def test_a_pinned_constant_that_changed_fails(self):
+        self._write("a.ts", "export const MAX_X = 900;\n")
+        pin = Pin(path="a.ts", kind="ts-constant", locator="MAX_X", value=300, why="a bound")
+        findings = evaluate_pins(self.root, [pin])
+        self.assertEqual([f.check for f in findings], ["pin-changed"])
+
+    def test_lowering_a_pinned_constant_also_fails(self):
+        # Deliberately not a ratchet. For a number whose correct value is a
+        # business decision, both directions are a decision, and the control's
+        # job is to make the decision visible rather than to permit one side.
+        self._write("a.ts", "export const MAX_X = 10;\n")
+        pin = Pin(path="a.ts", kind="ts-constant", locator="MAX_X", value=300, why="a bound")
+        self.assertEqual([f.check for f in evaluate_pins(self.root, [pin])], ["pin-changed"])
+
+    def test_a_deleted_pinned_constant_fails_rather_than_passing(self):
+        self._write("a.ts", "export const SOMETHING_ELSE = 300;\n")
+        pin = Pin(path="a.ts", kind="ts-constant", locator="MAX_X", value=300, why="a bound")
+        self.assertEqual([f.check for f in evaluate_pins(self.root, [pin])], ["pin-unreadable"])
+
+    def test_a_missing_pinned_file_fails_rather_than_passing(self):
+        pin = Pin(path="gone.ts", kind="ts-constant", locator="MAX_X", value=300, why="a bound")
+        self.assertEqual([f.check for f in evaluate_pins(self.root, [pin])], ["pin-file-missing"])
+
+    def test_an_unknown_pin_kind_fails(self):
+        self._write("a.ts", "const x = 1;\n")
+        pin = Pin(path="a.ts", kind="invented", locator="MAX_X", value=1, why="a bound")
+        self.assertEqual([f.check for f in evaluate_pins(self.root, [pin])], ["pin-unknown-kind"])
+
+    def test_a_source_literal_at_its_declared_value_passes(self):
+        self._write("m.ts", "const artistShare = round(netProfit * 0.3);\n")
+        pin = Pin(
+            path="m.ts",
+            kind="source-literal",
+            locator=r"netProfit \* ([0-9.]+)",
+            value=0.3,
+            why="the artist split",
+        )
+        self.assertEqual(evaluate_pins(self.root, [pin]), [])
+
+    def test_a_changed_money_literal_fails(self):
+        self._write("m.ts", "const artistShare = round(netProfit * 0.25);\n")
+        pin = Pin(
+            path="m.ts",
+            kind="source-literal",
+            locator=r"netProfit \* ([0-9.]+)",
+            value=0.3,
+            why="the artist split",
+        )
+        findings = evaluate_pins(self.root, [pin])
+        self.assertEqual([f.check for f in findings], ["pin-changed"])
+        self.assertIn("0.25", findings[0].message)
+
+    def test_a_deleted_money_literal_fails(self):
+        self._write("m.ts", "const artistShare = round(netProfit * rate);\n")
+        pin = Pin(
+            path="m.ts",
+            kind="source-literal",
+            locator=r"netProfit \* ([0-9.]+)",
+            value=0.3,
+            why="the artist split",
+        )
+        findings = evaluate_pins(self.root, [pin])
+        self.assertEqual([f.check for f in findings], ["pin-anchor-moved"])
+        self.assertIn("deleted or rewritten", findings[0].message)
+
+    def test_a_money_literal_copied_to_a_new_site_fails(self):
+        # The defect this venture actually has: the same split re-typed at a new
+        # site, correct on the day it was written and free to drift after.
+        self._write(
+            "m.ts",
+            """\
+            const artistShare = round(netProfit * 0.3);
+            const otherShare = round(netProfit * 0.3);
+            """,
+        )
+        pin = Pin(
+            path="m.ts",
+            kind="source-literal",
+            locator=r"netProfit \* ([0-9.]+)",
+            value=0.3,
+            why="the artist split",
+        )
+        findings = evaluate_pins(self.root, [pin])
+        self.assertEqual([f.check for f in findings], ["pin-anchor-moved"])
+        self.assertIn("copied to a new site", findings[0].message)
+
+    def test_a_declared_multi_site_pin_holds_every_site(self):
+        # Two occurrences are declared, so two is correct — but both must carry
+        # the pinned value, or the sites have drifted apart.
+        self._write(
+            "m.ts",
+            """\
+            const a = netProfit * 0.3;
+            const b = netProfit * 0.4;
+            """,
+        )
+        pin = Pin(
+            path="m.ts",
+            kind="source-literal",
+            locator=r"netProfit \* ([0-9.]+)",
+            value=0.3,
+            why="the artist split",
+            occurrences=2,
+        )
+        findings = evaluate_pins(self.root, [pin])
+        self.assertEqual([f.check for f in findings], ["pin-changed"])
+
+
+class LiteralCensusTests(unittest.TestCase):
+    """The check that catches a copy the anchored pins cannot see.
+
+    Written because mutation-testing the anchored pins found them green against
+    the mutation that matters most: copying `netProfit * 0.3` to a line with a
+    different variable name does not match an anchor keyed on
+    `const artistShare = ...`, and renaming as it goes is exactly what each of
+    this venture's fourteen existing copies did.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        self.addCleanup(self.tmp.cleanup)
+
+    def _pin(self, count):
+        return Pin(
+            path="m.ts",
+            kind="literal-census",
+            locator=r"(?<![0-9.])0\.(?:3|30|7|70)(?![0-9])",
+            value=count,
+            why="how many times this file re-types the split",
+        )
+
+    def _write(self, text):
+        (self.root / "m.ts").write_text(textwrap.dedent(text), encoding="utf-8")
+
+    def test_the_declared_number_of_occurrences_passes(self):
+        self._write("const a = netProfit * 0.3;\nconst b = netProfit * 0.7;\n")
+        self.assertEqual(evaluate_pins(self.root, [self._pin(2)]), [])
+
+    def test_a_copy_under_a_different_name_fails(self):
+        self._write(
+            """\
+            const a = netProfit * 0.3;
+            const b = netProfit * 0.7;
+            const sneaky = grossProfit * 0.3;
+            """
+        )
+        findings = evaluate_pins(self.root, [self._pin(2)])
+        self.assertEqual([f.check for f in findings], ["pin-census-changed"])
+        self.assertIn("no pin", findings[0].message)
+
+    def test_a_removed_occurrence_also_fails(self):
+        self._write("const a = netProfit * 0.3;\n")
+        findings = evaluate_pins(self.root, [self._pin(2)])
+        self.assertEqual([f.check for f in findings], ["pin-census-changed"])
+
+    def test_comments_are_not_counted(self):
+        # Otherwise the census depends on how well the split is documented, and
+        # falls the moment someone improves a comment about it.
+        self._write(
+            """\
+            // the artist takes 0.3 and the platform keeps 0.7
+            /* historically this was 0.3 too */
+            const a = netProfit * 0.3;
+            """
+        )
+        self.assertEqual(evaluate_pins(self.root, [self._pin(1)]), [])
+
+    def test_stripping_comments_preserves_line_structure(self):
+        # A multi-line block comment must not collapse the lines around it, or
+        # every line number this control reports afterwards is wrong.
+        source = "a\n/* x\ny */\nb\n"
+        stripped = cap_ratchet.strip_ts_comments(source)
+        self.assertEqual(stripped.count("\n"), source.count("\n"))
+        self.assertNotIn("x", stripped)
+        self.assertIn("b", stripped)
+
+    def test_a_longer_decimal_is_not_miscounted(self):
+        # `0.35` is the AI compute cost and `0.03` the payment fee rate; both
+        # sit beside the split in these files and neither is it.
+        self._write("const a = cost * 0.35;\nconst b = fee * 0.03;\nconst c = netProfit * 0.3;\n")
+        self.assertEqual(evaluate_pins(self.root, [self._pin(1)]), [])
+
+
+class VentureEnrollmentContractTests(unittest.TestCase):
+    """Watched, pinned, or registered — over the live repository.
+
+    The naive version of this change would have been a `.ts` glob matching
+    `MAX_*`/`MIN_*` identifiers, and it would have missed everything that
+    mattered. The Stripe replay window is called
+    `STRIPE_WEBHOOK_MAX_AGE_SECONDS`, so no `MAX_`-prefix rule reaches it; the
+    artist payout split has no name at all. A bigger regex is not the control.
+    The contract is: enumerate the population mechanically, and refuse to let a
+    member of it be neither held nor argued about.
+    """
+
+    def test_every_bound_named_venture_constant_is_watched_pinned_or_registered(self):
+        watched = {(w.path, w.locator) for w in WATCHES if w.kind == "ts-constant"}
+        pinned = {(p.path, p.locator) for p in PINS if p.kind == "ts-constant"}
+        exempt = {(e.path, e.locator) for e in UNENROLLED_VENTURE_CONSTANTS}
+
+        missing = []
+        unreadable = []
+        for rel in venture_ts_sources(REPO_ROOT):
+            source = (REPO_ROOT / rel).read_text(encoding="utf-8")
+            for const in declared_ts_bound_constants(source):
+                key = (rel, const.name)
+                if key in watched or key in pinned or key in exempt:
+                    continue
+                if const.value is None:
+                    unreadable.append(f"{rel}:{const.name} (line {const.lineno})")
+                else:
+                    missing.append(f"{rel}:{const.name}")
+
+        self.assertEqual(
+            unreadable,
+            [],
+            "These name a bound but do not resolve to one number, so nothing can hold them. "
+            "Declare each as a plain numeric literal, or register it in "
+            "UNENROLLED_VENTURE_CONSTANTS with a predicate: " + ", ".join(unreadable),
+        )
+        self.assertEqual(
+            missing,
+            [],
+            "These bound something in a venture and nothing holds them. Add each to WATCHES "
+            "(if one direction is unambiguously the weak one), to PINS (if any change should be "
+            "a visible decision), or to UNENROLLED_VENTURE_CONSTANTS with a predicate: "
+            + ", ".join(missing),
+        )
+
+    def test_the_enumeration_actually_finds_something(self):
+        """A contract over an empty population is a contract over nothing.
+
+        `venture_ts_sources` reads `git ls-files`, and the failure mode that
+        matters is it returning nothing — a vacuous glob is a passing gate, and
+        this repository has shipped one before.
+        """
+        sources = venture_ts_sources(REPO_ROOT)
+        self.assertGreater(len(sources), 100, "the venture source enumeration collapsed")
+        found = 0
+        for rel in sources:
+            found += len(declared_ts_bound_constants((REPO_ROOT / rel).read_text(encoding="utf-8")))
+        self.assertGreater(found, 20, "the bound-constant enumeration collapsed")
+
+    def test_the_enumeration_skips_dependencies_and_build_output(self):
+        for rel in venture_ts_sources(REPO_ROOT):
+            self.assertNotIn("node_modules", rel)
+            self.assertNotIn("/dist/", rel)
+
+    def test_removing_any_one_registration_leaves_its_constant_unheld(self):
+        """Each entry is individually load-bearing.
+
+        The register could otherwise grow entries that hold nothing, which reads
+        as coverage and provides none.
+        """
+        registered = (
+            [("watch", w.path, w.locator) for w in WATCHES if w.kind == "ts-constant"]
+            + [("pin", p.path, p.locator) for p in PINS if p.kind == "ts-constant"]
+            + [("exempt", e.path, e.locator) for e in UNENROLLED_VENTURE_CONSTANTS]
+        )
+        self.assertGreater(len(registered), 0)
+
+        # Every module-level constant, not only the bound-named ones. A pin may
+        # legitimately hold a constant the name-based enumeration cannot see —
+        # `STRIPE_WEBHOOK_MAX_AGE_SECONDS` is the reason this register exists at
+        # all, and no `MAX_`-prefix rule reaches it. What must not happen is an
+        # entry naming a constant that is no longer there.
+        live = set()
+        for rel in venture_ts_sources(REPO_ROOT):
+            source = (REPO_ROOT / rel).read_text(encoding="utf-8")
+            for name in ts_module_constants(source):
+                live.add((rel, name))
+
+        for kind, path, locator in registered:
+            with self.subTest(entry=f"{kind} {path}:{locator}"):
+                self.assertIn(
+                    (path, locator),
+                    live,
+                    f"{path}:{locator} is registered as a {kind} but is not a module-level "
+                    f"constant there any more, so the entry holds nothing",
+                )
+
+    def test_no_venture_constant_is_held_twice(self):
+        keys = (
+            [(w.path, w.locator) for w in WATCHES if w.kind == "ts-constant"]
+            + [(p.path, p.locator) for p in PINS if p.kind == "ts-constant"]
+            + [(e.path, e.locator) for e in UNENROLLED_VENTURE_CONSTANTS]
+        )
+        duplicates = sorted({k for k in keys if keys.count(k) > 1})
+        self.assertEqual(
+            duplicates,
+            [],
+            "a constant that is both held and excused is a register that disagrees with itself",
+        )
+
+    def test_every_exemption_carries_a_registered_predicate_that_still_holds(self):
+        """The reason is data a test re-runs, not a sentence nobody rechecks.
+
+        A required-but-unread field drifts: this repository has already had a
+        register entry whose stated reason had gone false while every count
+        stayed green.
+        """
+        for exemption in UNENROLLED_VENTURE_CONSTANTS:
+            with self.subTest(exemption=f"{exemption.path}:{exemption.locator}"):
+                self.assertIn(
+                    exemption.predicate,
+                    VENTURE_PREDICATES,
+                    "an exemption must name a predicate that exists",
+                )
+                broken = VENTURE_PREDICATES[exemption.predicate](
+                    REPO_ROOT, exemption.path, exemption.locator
+                )
+                self.assertIsNone(
+                    broken,
+                    f"the reason this exemption rests on no longer holds: {broken}",
+                )
+
+    def test_every_registered_predicate_is_used(self):
+        used = {e.predicate for e in UNENROLLED_VENTURE_CONSTANTS}
+        self.assertEqual(
+            sorted(used),
+            sorted(VENTURE_PREDICATES),
+            "an unused predicate is a check nobody is subject to",
+        )
+
+    def test_every_exemption_is_one_constant_and_argues_its_case(self):
+        seen = set()
+        for exemption in UNENROLLED_VENTURE_CONSTANTS:
+            with self.subTest(exemption=exemption.locator):
+                self.assertTrue(exemption.path.startswith("ventures/"))
+                self.assertNotIn("*", exemption.path)
+                self.assertNotIn("*", exemption.locator)
+                # Earned one constant at a time. A directory-level exemption is
+                # a region where "every load-bearing number is held" may quietly
+                # be untrue, which is the shape this repository's claims controls
+                # have already been bitten by.
+                self.assertGreater(
+                    len(exemption.why), 200, "the reason has to argue the case, not label it"
+                )
+                key = (exemption.path, exemption.locator)
+                self.assertNotIn(key, seen, "declared twice")
+                seen.add(key)
+
+
+class PinRegisterContractTests(unittest.TestCase):
+    """Contracts over PINS itself, over the live repository."""
+
+    def test_every_pin_resolves_and_holds_today(self):
+        self.assertEqual(
+            [f.message for f in evaluate_pins(REPO_ROOT)],
+            [],
+            "a pin that does not resolve is a number nobody is guarding",
+        )
+
+    def test_no_pin_is_declared_twice(self):
+        keys = [(p.path, p.kind, p.locator) for p in PINS]
+        self.assertEqual(len(keys), len(set(keys)))
+
+    def test_every_pin_explains_what_the_number_is(self):
+        for pin in PINS:
+            with self.subTest(pin=f"{pin.path}:{pin.locator}"):
+                self.assertGreater(len(pin.why), 20)
+
+    def test_every_pin_names_a_venture_file(self):
+        # The ratchet above governs `scripts/ci` and `platform`. Pins exist for
+        # the numbers those kinds cannot reach, and pinning a repo control here
+        # would be a way to swap a ratchet for a weaker check.
+        for pin in PINS:
+            with self.subTest(pin=pin.path):
+                self.assertTrue(pin.path.startswith("ventures/"))
+
+    def test_every_source_literal_pin_captures_exactly_one_number(self):
+        for pin in PINS:
+            if pin.kind != "source-literal":
+                continue
+            with self.subTest(pin=f"{pin.path}:{pin.locator}"):
+                self.assertEqual(
+                    re.compile(pin.locator).groups,
+                    1,
+                    "a source-literal anchor holds exactly one capture group, the number",
+                )
+                self.assertGreaterEqual(pin.occurrences, 1)
+
+    def test_the_artist_payout_split_is_held_on_every_path_that_pays(self):
+        """The named half of the assignment behind this register.
+
+        Not a restatement of `PINS` — this asserts that the specific files that
+        move money for an artist each carry a pin, so deleting one from the
+        register is a failure here rather than a silent narrowing.
+        """
+        pays_an_artist = {
+            "ventures/print-atelier/src/lib/marketplace.ts",
+            "ventures/print-atelier/src/lib/stripe-connect.ts",
+            "ventures/print-atelier/src/lib/pod-routing-optimizer.ts",
+            "ventures/print-atelier/src/lib/global-pricing.ts",
+            "ventures/print-atelier/src/lib/artist-terms.ts",
+        }
+        held = {p.path for p in PINS if p.kind == "source-literal" and p.value in (0.3, 0.7)}
+        self.assertEqual(
+            sorted(pays_an_artist - held),
+            [],
+            "these compute an artist payout from a bare 0.3/0.7 and carry no pin",
+        )
 
 
 if __name__ == "__main__":

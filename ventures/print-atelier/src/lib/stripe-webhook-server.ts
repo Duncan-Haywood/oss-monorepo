@@ -27,11 +27,17 @@ import { createHmac, timingSafeEqual } from "node:crypto";
  * queues real Gelato/Printful fulfillment, so accepting a replay is more
  * expensive than rejecting a delivery.
  *
- * TypeScript constants in `ventures/` are not reachable by
- * `scripts/ci/cap_ratchet.py` (it reads `python-constant` and `yaml-path`
- * watches only). The stand-in is
- * `tests/stripe-webhook.test.ts` → "the accepted replay window is bounded",
- * which fails if this number grows.
+ * This number is held in two places, deliberately not one.
+ *
+ *   - `tests/stripe-webhook.test.ts` → "the accepted replay window is bounded"
+ *     refuses a value above Stripe's own 300s tolerance, and allows lowering,
+ *     which is the safe direction.
+ *   - `scripts/ci/cap_ratchet.py` pins it at exactly 300. As of 2026-08-06 that
+ *     control reads `ts-constant` watches and pins as well as `python-constant`
+ *     and `yaml-path` ones, so the note that used to sit here — that a
+ *     TypeScript constant under `ventures/` was reachable by none of its kinds
+ *     — is no longer true. Changing this number now means changing the pin in
+ *     the same diff, which is the review this file was asking for.
  */
 export const STRIPE_WEBHOOK_MAX_AGE_SECONDS = 300;
 

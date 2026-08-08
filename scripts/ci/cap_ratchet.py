@@ -108,6 +108,45 @@ that was always too generous stays too generous — this only refuses to let it
 grow. Tightening one is the portfolio owner's call, and doing so needs no
 permission from this file.
 
+Three ways to be held, because a ratchet is the wrong shape for a product
+-------------------------------------------------------------------------
+Until 2026-08-06 every watch here named a file in `scripts/ci/` or `platform/`,
+and roughly eighty load-bearing numbers under `ventures/` were held by nothing.
+The venture said so itself: `stripe-webhook-server.ts` carried a comment reading
+"TypeScript constants in `ventures/` are not reachable by
+`scripts/ci/cap_ratchet.py`", appointing a test in its own suite as the stand-in.
+
+Closing that hole is not a matter of adding a `.ts` glob, for two reasons.
+
+The first is that a name-based rule misses the numbers that matter. The Stripe
+replay window is called `STRIPE_WEBHOOK_MAX_AGE_SECONDS`, which no `MAX_` prefix
+rule reaches; the artist payout split has no name at all, and is re-typed as a
+bare `* 0.3` at fourteen sites. So the contract is an *enrollment* one — the
+population is enumerated mechanically and every member must be held or argued
+about — rather than a bigger regex. `tests/test_cap_ratchet.py` enforces it.
+
+The second is that a ratchet needs one direction to be unambiguously the weak
+one. That is true of debt budgets and safety minimums. It is false of
+`MAX_RD = 349`, a constant of the Glicko-2 rating algorithm, and of
+`MAX_COMMERCE_SKUS = 50`, a number sold to customers — for those, *both*
+directions are a decision, and ratcheting them would fail on ordinary product
+work. A gate that fails on ordinary work is one that gets widened, which this
+file already says out loud in the exemption for `budget.max_unintegrated_tips`.
+
+So a venture number is held in one of three ways:
+
+    WATCHES                        ratcheted, when a direction is clearly weak
+    PINS                           held at an exact value, so any change is a
+                                   two-file diff under review
+    UNENROLLED_VENTURE_CONSTANTS   registered, with a predicate re-run each time
+
+A pin is prevention by visibility rather than by refusal. Lowering the artist
+split from 30% to 25% stays entirely permitted — it just cannot happen without a
+line in this file changing beside it. Pins also fail closed when the guarded line
+is deleted, and when it is *copied*, which is the drift this venture already
+has: `fulfillment-cost-router.ts` takes 30% of retail while `marketplace.ts`
+takes 30% of net profit, and both were correct on the day they were written.
+
 Usage:
     python3 scripts/ci/cap_ratchet.py              # audit, exit 1 on failure
     python3 scripts/ci/cap_ratchet.py --report     # measure, always exit 0
@@ -120,6 +159,7 @@ import argparse
 import ast
 import json
 import os
+import re
 import subprocess
 import sys
 from dataclasses import asdict, dataclass, field
@@ -156,7 +196,7 @@ class Watch:
     """
 
     path: str
-    kind: str  # "python-constant" | "yaml-path"
+    kind: str  # "python-constant" | "yaml-path" | "ts-constant"
     locator: str
     why: str
     direction: str = DOWN
@@ -557,6 +597,50 @@ WATCHES: Tuple[Watch, ...] = (
         ),
         direction=UP,
     ),
+    # 2026-08-06. The first watches to reach outside `scripts/ci` and
+    # `platform/`, and deliberately only two of them.
+    #
+    # A ratchet needs a direction that is unambiguously the weak one. Almost no
+    # product constant has that property — see the `PINS` block below for why
+    # ratcheting `MAX_RD` or `MAX_COMMERCE_SKUS` would be wrong rather than
+    # merely strict. These two do have it: both are safety minimums whose whole
+    # function is to be at least something, so raising either is free and
+    # lowering either is the weakening the ratchet exists to refuse.
+    Watch(
+        path="ventures/quick-pick-survey/src/lib/retentionWindow.ts",
+        kind="ts-constant",
+        locator="MIN_RETENTION_FACTOR",
+        why=(
+            "the least a rate limiter's retention may exceed its own window by. Every DB-backed "
+            "limiter in that venture is checked against it at module load, so lowering it lets "
+            "the reaper delete attempts that are still inside the window and every limiter "
+            "silently starts failing open"
+        ),
+        direction=UP,
+    ),
+    Watch(
+        path="ventures/print-atelier/src/lib/b2b-trade.ts",
+        kind="ts-constant",
+        locator="MIN_PLATFORM_NET_MARGIN_PCT",
+        why=(
+            "the least net margin the platform will quote a B2B trade order at. Lowering it is "
+            "how a discount ladder ends up selling below cost, which is the direction that "
+            "loses money rather than the direction that refuses a sale"
+        ),
+        direction=UP,
+    ),
+    Watch(
+        path="ventures/quick-pick-survey/src/lib/auth.ts",
+        kind="ts-constant",
+        locator="PRODUCTION_BCRYPT_ROUNDS",
+        why=(
+            "the bcrypt cost every production password is hashed at. Lowering it is a weakening "
+            "with no upside and no way to notice from outside — the sibling constant "
+            "`TEST_BCRYPT_ROUNDS = 4` is deliberately cheap and deliberately not watched, so the "
+            "cheap value already exists in this file for a lowering to be copied from"
+        ),
+        direction=UP,
+    ),
 )
 
 
@@ -606,6 +690,608 @@ UNWATCHED_BUDGET_KEYS: Tuple[BudgetExemption, ...] = (
             "the defect this ratchet exists to refuse. What a venture may spend is the "
             "portfolio owner's call, measured against `portfolio/ledger/` by "
             "`scripts/ci/kill_criteria_ratchet.py` and `scripts/ci/stopping_rule_review.py`."
+        ),
+    ),
+)
+
+
+# ---------------------------------------------------------------------------
+# Pins — for the numbers under `ventures/` where no direction is the safe one.
+#
+# The ratchet above works because every number it holds has a weak direction and
+# a strong one: debt may only fall, a safety minimum may only rise. Most
+# load-bearing numbers in a *product* are not like that. `MAX_RD = 349` is a
+# constant of the Glicko-2 rating algorithm; `MAX_COMMERCE_SKUS = 50` is a
+# number sold to customers; the artist payout split is a number two parties
+# agreed on. Raising any of them is not a weakening and lowering any of them is
+# not a strengthening — they are simply not allowed to change by accident.
+#
+# Ratcheting them anyway would be the worst available option. A gate that fires
+# on ordinary product work is a gate that gets widened, and this repository has
+# already written that lesson down: `budget.max_unintegrated_tips` is exempt
+# above for precisely that reason ("a gate that fails on ordinary work is one
+# that gets widened").
+#
+# So a pin holds the value where it is and demands that changing it be a two-file
+# diff: the venture source, and this register. That is prevention by visibility
+# rather than prevention by refusal, and for a number whose correct value is a
+# business decision it is the strongest honest control. Lowering the artist
+# split from 30% to 25% remains entirely permitted — it just cannot happen
+# without a line in this file changing next to it, under review.
+#
+# A pin fails closed in three separate ways, which is the point of matching on
+# source text rather than on a line number:
+#
+#   - the value changed          -> the number no longer matches
+#   - the guarded line was deleted -> the anchor matches zero times
+#   - the guarded line was copied  -> the anchor matches more times than declared
+#
+# The third is not a theoretical concern here. The artist split is re-typed as a
+# bare literal at fourteen sites across this one venture, and the sites have
+# already drifted apart in meaning: `fulfillment-cost-router.ts` takes 30% of
+# *retail* while `marketplace.ts` takes 30% of *net profit*. A control that only
+# checked the value would have called that healthy.
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class Pin:
+    """A number held at exactly the value recorded here.
+
+    `kind="ts-constant"`: `locator` is a module-level TypeScript constant name,
+    read with the same reader the enrollment contract enumerates with.
+
+    `kind="source-literal"`: `locator` is a regular expression with exactly one
+    capture group holding the number. It must match `occurrences` times, and
+    every match must carry `value`.
+    """
+
+    path: str
+    kind: str
+    locator: str
+    value: float
+    why: str
+    occurrences: int = 1
+
+
+# The artist payout split, and the fee constants beside it on the same money
+# path. These are the numbers the assignment behind this change called out as
+# "money-bearing magic numbers": not named constants at all, so no name-based
+# rule could ever have reached them, and no amount of widening the enrollment
+# regex would have helped.
+_SPLIT_WHY = (
+    "the artist share of net profit on the print checkout path — the number that "
+    "decides what an artist is actually paid"
+)
+_PLATFORM_WHY = "the platform's retained share of the same net profit, which must stay the complement of the artist share"
+
+PINS: Tuple[Pin, ...] = (
+    # --- print-atelier: the 30/70 artist payout split -----------------------
+    # `calculatePrintEconomics` is the canonical site: its output reaches
+    # `calculateCheckoutTotals` -> `artistTransferTotal` in the Stripe session
+    # metadata -> the webhook -> `orders.ts`. A buyer is charged and an artist is
+    # transferred on the strength of these two lines.
+    Pin(
+        path="ventures/print-atelier/src/lib/marketplace.ts",
+        kind="source-literal",
+        locator=r"const artistShare = roundCurrency\(netProfit \* ([0-9.]+)\)",
+        value=0.3,
+        why=_SPLIT_WHY,
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/marketplace.ts",
+        kind="source-literal",
+        locator=r"const platformShare = roundCurrency\(netProfit \* ([0-9.]+)\)",
+        value=0.7,
+        why=_PLATFORM_WHY,
+    ),
+    # The same split recomputed for the B2B quote path, further down the file.
+    Pin(
+        path="ventures/print-atelier/src/lib/marketplace.ts",
+        kind="source-literal",
+        locator=r"const artistPayoutTotal = roundCurrency\(netProfitBeforePayout \* ([0-9.]+)\)",
+        value=0.3,
+        why=_SPLIT_WHY + ", on the B2B quote path",
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/marketplace.ts",
+        kind="source-literal",
+        locator=r"const platformNetProfit = roundCurrency\(netProfitBeforePayout \* ([0-9.]+)\)",
+        value=0.7,
+        why=_PLATFORM_WHY + ", on the B2B quote path",
+    ),
+    # The two overridable copies. `occurrences=2` is load-bearing: these are the
+    # only sites where the split is a parameter rather than a literal, and a
+    # third one appearing means a caller can now argue the split somewhere the
+    # register does not know about.
+    Pin(
+        path="ventures/print-atelier/src/lib/marketplace.ts",
+        kind="source-literal",
+        locator=r"^  artistShareRate = ([0-9.]+),$",
+        value=0.3,
+        why="the default artist share for the two calculators that let a caller override it",
+        occurrences=2,
+    ),
+    # The inverse of the split, used to derive the minimum listing price. It is
+    # hard-wired to 0.3 while the function around it takes `artistShareRate` as
+    # a parameter — overriding the rate silently does not reach this line. Pinned
+    # as found; correcting the divergence is a behaviour change and is left to
+    # the venture's owner, but it can no longer drift unnoticed.
+    Pin(
+        path="ventures/print-atelier/src/lib/marketplace.ts",
+        kind="source-literal",
+        locator=r"targetArtistPayoutPerOrder / ([0-9.]+) \+ costBase",
+        value=0.3,
+        why="the inverse of the artist split, which sets the minimum price a listing may be sold at",
+    ),
+    # `stripe-connect.ts` computes the split a second time on a different cost
+    # basis (Stripe's fee rather than `paymentFeeRate`), so it can disagree with
+    # `marketplace.ts` for the same order. Nothing pinned either side before this.
+    Pin(
+        path="ventures/print-atelier/src/lib/stripe-connect.ts",
+        kind="source-literal",
+        locator=r"const artistTransfer = roundCurrency\(Math\.max\(netProfitAfterStripe, 0\) \* ([0-9.]+)\)",
+        value=0.3,
+        why=_SPLIT_WHY + ", as recomputed on the Stripe Connect transfer path",
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/stripe-connect.ts",
+        kind="source-literal",
+        locator=r"const platformRetained = roundCurrency\(Math\.max\(netProfitAfterStripe, 0\) \* ([0-9.]+)\)",
+        value=0.7,
+        why=_PLATFORM_WHY + ", on the Stripe Connect transfer path",
+    ),
+    # `0.3` here is thirty cents, not thirty percent — the Stripe fixed fee,
+    # sitting four lines from a `* 0.3` that means the split. Pinned so the
+    # collision cannot be resolved in the wrong direction by a careless edit.
+    Pin(
+        path="ventures/print-atelier/src/lib/stripe-connect.ts",
+        kind="source-literal",
+        locator=r"^const STRIPE_FIXED = ([0-9.]+);$",
+        value=0.3,
+        why="Stripe's fixed per-charge fee in dollars, which is 30 cents and not the 30% split",
+    ),
+    # The remaining unpinned copies of the split.
+    Pin(
+        path="ventures/print-atelier/src/lib/pod-routing-optimizer.ts",
+        kind="source-literal",
+        locator=r"Math\.max\(0, grossProfitUsd \* ([0-9.]+)\)",
+        value=0.3,
+        why=_SPLIT_WHY + ", as applied when routing an order to a print provider",
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/global-pricing.ts",
+        kind="source-literal",
+        locator=r"Math\.round\(grossProfitLocal \* ([0-9.]+)\)",
+        value=0.3,
+        why=_SPLIT_WHY + ", as applied to an order priced in a non-USD currency",
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/artist-terms.ts",
+        kind="source-literal",
+        locator=r"const artistPayout = Math\.round\(netProfit \* ([0-9.]+) \* 100\) / 100",
+        value=0.3,
+        why="the split as quoted back to the artist in the terms explainer, which must agree with what is paid",
+    ),
+    Pin(
+        path="ventures/print-atelier/src/components/FinancialProjections.tsx",
+        kind="source-literal",
+        locator=r"const artistShare = netProfit \* ([0-9.]+);",
+        value=0.3,
+        why="the split as shown in the investor-facing projection, recomputed rather than read from the model",
+    ),
+    Pin(
+        path="ventures/print-atelier/src/components/FinancialProjections.tsx",
+        kind="source-literal",
+        locator=r"const platformShare = netProfit \* ([0-9.]+);",
+        value=0.7,
+        why=_PLATFORM_WHY + ", as shown in the investor-facing projection",
+    ),
+    # --- the census over every file that computes the split -----------------
+    # Mutation testing of the anchored pins above found the hole these close.
+    # Copying `netProfit * 0.3` to a line that renames the variable does not
+    # match an anchor keyed on `const artistShare = ...`, and renaming is
+    # exactly what the fourteen existing copies did. So each money file also
+    # declares how many times the split literal may appear in it at all.
+    #
+    # `value` here is a count of occurrences, not a value the code holds. The
+    # pattern deliberately matches `0.3`, `0.30`, `0.7` and `0.70` and nothing
+    # else, and comments are stripped before counting so the prose explaining
+    # the split does not inflate its own number.
+    #
+    # This is the check that fails when a fifteenth copy appears.
+    *(
+        Pin(
+            path=f"ventures/print-atelier/src/{rel}",
+            kind="literal-census",
+            locator=r"(?<![0-9.])0\.(?:3|30|7|70)(?![0-9])",
+            value=count,
+            why=(
+                "the number of places this file re-types the 30/70 artist payout split as a bare "
+                "literal. A new one is a site that can drift away from every other"
+            ),
+        )
+        for rel, count in (
+            ("lib/marketplace.ts", 7),
+            ("lib/stripe-connect.ts", 3),
+            ("lib/pod-routing-optimizer.ts", 1),
+            ("lib/global-pricing.ts", 1),
+            ("lib/artist-terms.ts", 1),
+            ("components/FinancialProjections.tsx", 2),
+            ("lib/b2b-trade.ts", 1),
+            ("lib/b2b-trade-calculator.ts", 1),
+            ("lib/fulfillment-cost-router.ts", 1),
+            ("lib/wholesale-margin-optimizer.ts", 1),
+        )
+    ),
+    # --- named venture constants that are not ratchetable -------------------
+    # Enrolled as pins rather than watches because their safe direction is not
+    # knowable from their names: a bigger `MAX_RD` is not "more debt", and a
+    # smaller `MAX_COMMERCE_SKUS` is a broken customer promise, not a saving.
+    Pin(
+        path="ventures/print-atelier/src/lib/stripe-webhook-server.ts",
+        kind="ts-constant",
+        locator="STRIPE_WEBHOOK_MAX_AGE_SECONDS",
+        value=300,
+        why="the replay window a Stripe webhook signature is accepted within, and the ceiling any caller may ask for",
+    ),
+    # Money and retention constants whose names no prefix rule reaches, found by
+    # reading the venture rather than by grepping for `MAX_`. Several had no
+    # test of any kind; two were imported by a test and never used in an
+    # assertion, which reads as coverage and provides none.
+    Pin(
+        path="ventures/print-atelier/src/lib/orders.ts",
+        kind="ts-constant",
+        locator="IN_MEMORY_ORDER_STORE_CAPACITY",
+        value=10000,
+        why=(
+            "how many paid orders the process-local store holds before it refuses a write. No "
+            "test referenced it at all"
+        ),
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/fulfillment-submission-store.ts",
+        kind="ts-constant",
+        locator="IN_MEMORY_FULFILLMENT_STORE_CAPACITY",
+        value=10000,
+        why=(
+            "the same bound for fulfillment submissions. Its suite asserts `>= 10_000`, which is "
+            "a floor and holds the direction that matters; this holds the value itself"
+        ),
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/order-persistence.ts",
+        kind="ts-constant",
+        locator="PERSISTED_STORE_CAPACITY",
+        value=500,
+        why=(
+            "the persisted order store's capacity, twenty times smaller than the in-memory store "
+            "it backs, module-private and referenced by no test"
+        ),
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/influencer-attribution.ts",
+        kind="ts-constant",
+        locator="MINIMUM_PAYOUT_THRESHOLD_CENTS",
+        value=5000,
+        why="the least an influencer must earn before a payout is released; no test referenced it",
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/payout-fx-optimizer.ts",
+        kind="ts-constant",
+        locator="BATCH_THRESHOLD_USD_CENTS",
+        value=5000,
+        why="the amount at which payouts are batched to save FX fees; no test referenced it",
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/payout-tax-ledger.ts",
+        kind="ts-constant",
+        locator="TAX_REPORTING_THRESHOLD_USD_CENTS",
+        value=60000,
+        why=(
+            "the $600 reporting threshold in cents. Its test imports it and never uses it in an "
+            "assertion, so the import reads as coverage and is none"
+        ),
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/artist-tax-withholding.ts",
+        kind="ts-constant",
+        locator="IRS_1099_THRESHOLD_USD",
+        value=600.0,
+        why=(
+            "the statutory 1099 threshold — a number set by the IRS rather than by this venture, "
+            "so any change to it is either a legal update or a mistake. Also a dead test import"
+        ),
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/artist-tax-withholding.ts",
+        kind="ts-constant",
+        locator="IRS_BACKUP_WITHHOLDING_RATE",
+        value=0.24,
+        why=(
+            "the statutory backup-withholding rate, deducted from a real artist payment. Its "
+            "test derives the expected withholding from this constant, so that assertion would "
+            "hold at any rate"
+        ),
+    ),
+    Pin(
+        path="ventures/local-site-studio/src/lib/commerce/types.ts",
+        kind="ts-constant",
+        locator="MAX_COMMERCE_SKUS",
+        value=50,
+        why="the catalog size sold to a commerce customer, so lowering it breaks a promise and raising it changes the product",
+    ),
+    Pin(
+        path="ventures/local-site-studio/src/lib/commerce/types.ts",
+        kind="ts-constant",
+        locator="MAX_SKU_NAME_LENGTH",
+        value=80,
+        why="the longest SKU name an operator may enter",
+    ),
+    Pin(
+        path="ventures/local-site-studio/src/lib/commerce/types.ts",
+        kind="ts-constant",
+        locator="MAX_SKU_DESCRIPTION_LENGTH",
+        value=280,
+        why="the longest SKU description an operator may enter",
+    ),
+    Pin(
+        path="ventures/local-site-studio/src/lib/commerce/types.ts",
+        kind="ts-constant",
+        locator="MAX_SKU_PRICE_CENTS",
+        value=100000000,
+        why="the ceiling on an operator-entered price that is sent to Stripe as a real `unit_amount`",
+    ),
+    Pin(
+        path="ventures/local-site-studio/src/app/api/stripe/checkout/route.ts",
+        kind="ts-constant",
+        locator="MAX_METADATA_BUSINESS_NAME",
+        value=200,
+        why="the truncation applied to a business name before it is written into Stripe checkout metadata",
+    ),
+    Pin(
+        path="ventures/local-site-studio/src/lib/inquiries/reply.ts",
+        kind="ts-constant",
+        locator="MAX_INQUIRY_REPLY_LENGTH",
+        value=4000,
+        why="the longest operator reply body accepted for an inquiry",
+    ),
+    Pin(
+        path="ventures/local-site-studio/src/lib/leads/csv-import.ts",
+        kind="ts-constant",
+        locator="MAX_ROWS",
+        value=100,
+        why="the number of rows accepted from an uploaded lead CSV, which bounds the work one upload can cause",
+    ),
+    Pin(
+        path="ventures/local-site-studio/src/lib/leads/notes.ts",
+        kind="ts-constant",
+        locator="MAX_OPERATOR_NOTES_LENGTH",
+        value=2000,
+        why="the longest operator note stored against a lead",
+    ),
+    Pin(
+        path="ventures/local-site-studio/src/lib/leads/snooze.ts",
+        kind="ts-constant",
+        locator="MAX_SNOOZE_MS",
+        value=2592000000,
+        why="the longest a lead may be hidden from the pipeline, which is how long revenue can sit unworked",
+    ),
+    Pin(
+        path="ventures/quick-pick-survey/src/app/api/auth/signup/route.ts",
+        kind="ts-constant",
+        locator="MAX_SIGNUPS_PER_IP",
+        value=8,
+        why="how many accounts one address may create before it is refused",
+    ),
+    Pin(
+        path="ventures/quick-pick-survey/src/app/api/feedback/route.ts",
+        kind="ts-constant",
+        locator="MAX_FEEDBACK_PER_IP",
+        value=60,
+        why="the anonymous feedback write quota per address",
+    ),
+    Pin(
+        path="ventures/quick-pick-survey/src/app/api/insights/route.ts",
+        kind="ts-constant",
+        locator="MAX_ENTRIES",
+        value=20,
+        why="the bound on the in-memory insights cache, which is what stops one caller growing it without limit",
+    ),
+    Pin(
+        path="ventures/quick-pick-survey/src/app/api/report/route.ts",
+        kind="ts-constant",
+        locator="MAX_REPORTS_PER_IP",
+        value=10,
+        why="the anonymous report write quota per address",
+    ),
+    Pin(
+        path="ventures/quick-pick-survey/src/app/api/session/start/route.ts",
+        kind="ts-constant",
+        locator="MAX_STARTS_PER_IP",
+        value=40,
+        why="how many sessions one address may start before it is refused",
+    ),
+    Pin(
+        path="ventures/quick-pick-survey/src/app/api/session/status/route.ts",
+        kind="ts-constant",
+        locator="MAX_ENTRIES",
+        value=20,
+        why="the bound on the in-memory session-status cache",
+    ),
+    Pin(
+        path="ventures/quick-pick-survey/src/app/api/trials/skip/route.ts",
+        kind="ts-constant",
+        locator="MAX_CLIENT_MS",
+        value=120000,
+        why="the clamp on a client-reported trial duration, which is untrusted input",
+    ),
+    Pin(
+        path="ventures/quick-pick-survey/src/app/api/usage/route.ts",
+        kind="ts-constant",
+        locator="MAX_BATCHES_PER_IP",
+        value=60,
+        why="the telemetry ingest quota per address",
+    ),
+    Pin(
+        path="ventures/quick-pick-survey/src/lib/auth.ts",
+        kind="ts-constant",
+        locator="MAX_ACTIVE_SESSIONS",
+        value=10,
+        why="how many sessions one account may hold at once",
+    ),
+    Pin(
+        path="ventures/quick-pick-survey/src/lib/auth.ts",
+        kind="ts-constant",
+        locator="MAX_FAILURES_PER_EMAIL",
+        value=8,
+        why="failed sign-ins tolerated for one address before it is locked out",
+    ),
+    Pin(
+        path="ventures/quick-pick-survey/src/lib/auth.ts",
+        kind="ts-constant",
+        locator="MAX_FAILURES_PER_IP",
+        value=20,
+        why="failed sign-ins tolerated from one network address before it is locked out",
+    ),
+    Pin(
+        path="ventures/quick-pick-survey/src/lib/conjoint.ts",
+        kind="ts-constant",
+        locator="MAX_ITERATIONS",
+        value=60,
+        why="the iteration ceiling on the conjoint solver, which bounds the work one request can cause",
+    ),
+    Pin(
+        path="ventures/quick-pick-survey/src/lib/couples.ts",
+        kind="ts-constant",
+        locator="MAX_RD",
+        value=349,
+        why="the Glicko-2 rating-deviation ceiling; a constant of the algorithm, not a budget",
+    ),
+    Pin(
+        path="ventures/quick-pick-survey/src/lib/couples.ts",
+        kind="ts-constant",
+        locator="MIN_ITEMS_FOR_CROSS_PERSON",
+        value=8,
+        why="the smallest sample a cross-person comparison may be published from",
+    ),
+    Pin(
+        path="ventures/quick-pick-survey/src/lib/couples.ts",
+        kind="ts-constant",
+        locator="MIN_OVERLAP_FOR_ROWS",
+        value=5,
+        why="the smallest overlap a comparison row may be shown from",
+    ),
+    Pin(
+        path="ventures/quick-pick-survey/src/lib/couples.ts",
+        kind="ts-constant",
+        locator="MIN_OVERLAP_FOR_AGREEMENT",
+        value=8,
+        why="the smallest overlap an agreement score may be published from",
+    ),
+    Pin(
+        path="ventures/quick-pick-survey/src/lib/couples.ts",
+        kind="ts-constant",
+        locator="MIN_RELIABILITY",
+        value=0.5,
+        why="the reliability below which a couples result is suppressed rather than shown",
+    ),
+    Pin(
+        path="ventures/quick-pick-survey/src/lib/glicko2.ts",
+        kind="ts-constant",
+        locator="MIN_RD",
+        value=30,
+        why="the Glicko-2 rating-deviation floor that stops an item reading as fully certain",
+    ),
+    Pin(
+        path="ventures/quick-pick-survey/src/lib/insightBreaks.ts",
+        kind="ts-constant",
+        locator="MIN_ANSWERS_BETWEEN_BREAKS",
+        value=15,
+        why="how many answers a respondent gives between interruptions",
+    ),
+    Pin(
+        path="ventures/quick-pick-survey/src/lib/pooling.ts",
+        kind="ts-constant",
+        locator="MAX_RD",
+        value=349,
+        why="the second copy of the Glicko-2 ceiling, which must not drift from the one in couples.ts",
+    ),
+    Pin(
+        path="ventures/quick-pick-survey/src/lib/usageClient.ts",
+        kind="ts-constant",
+        locator="MAX_BATCH",
+        value=25,
+        why="the client telemetry batch size",
+    ),
+    Pin(
+        path="ventures/quick-pick-survey/src/lib/usageClient.ts",
+        kind="ts-constant",
+        locator="MAX_PENDING",
+        value=100,
+        why="the client telemetry queue bound",
+    ),
+)
+
+
+@dataclass(frozen=True)
+class VentureExemption:
+    """A bound-named venture constant deliberately neither watched nor pinned.
+
+    Modelled on `EnrollmentExemption` in `scripts/ci/coverage_ratchet.py` rather
+    than on `BudgetExemption` above: the reason names a `predicate` that is
+    re-run against the live tree, so an exemption cannot outlive the condition
+    that justified it. A prose-only reason goes false silently, and this
+    repository has already had a register entry whose `reason` was untrue while
+    every count stayed green.
+    """
+
+    path: str
+    locator: str
+    predicate: str
+    why: str
+
+
+def _predicate_not_a_number(repo_root: Path, path: str, locator: str) -> Optional[str]:
+    """Holds while the declaration is genuinely not a single number.
+
+    A constant bound to an object, array or computed expression has no one value
+    to pin. If it ever becomes a plain number, this returns a reason and the
+    exemption fails — which is the whole point of a predicate over a sentence.
+    """
+    source = (repo_root / path).read_text(encoding="utf-8")
+    const = ts_module_constants(source).get(locator)
+    if const is None:
+        return f"`{locator}` is no longer declared in {path}, so this exemption excuses nothing"
+    if const.value is not None:
+        return (
+            f"`{locator}` now resolves to the plain number {_fmt(const.value)}, so it can be "
+            f"pinned or watched and no longer needs an exemption"
+        )
+    return None
+
+
+VENTURE_PREDICATES: Dict[str, Any] = {
+    "declaration-is-not-a-single-number": _predicate_not_a_number,
+}
+
+
+UNENROLLED_VENTURE_CONSTANTS: Tuple[VentureExemption, ...] = (
+    VentureExemption(
+        path="ventures/quick-pick-survey/src/lib/ogCardFields.ts",
+        locator="MAX_LENGTH",
+        predicate="declaration-is-not-a-single-number",
+        why=(
+            "declared as `{ title: 80, score: 12, names: 80, insight: 220 } as const` — four "
+            "truncation bounds under one name, not one number. Neither a watch nor a pin has "
+            "anything to hold: `extract_ts_constant` resolves it to None, which every other path "
+            "in this file turns into a failure. Splitting it into four named constants would "
+            "enroll it, and that is a change to the venture's source that the venture's owner "
+            "should make deliberately rather than one this control forces in order to measure "
+            "something. The bounds truncate user-supplied text into an Open Graph card, so the "
+            "exposure of a wrong value is a malformed preview image rather than money or access. "
+            "The predicate re-reads the declaration on every run and fails the moment it becomes "
+            "a single number, so this cannot quietly become a way to hide one."
         ),
     ),
 )
@@ -785,11 +1471,184 @@ def extract_yaml_path(source: str, dotted: str) -> Optional[float]:
     return float(cursor)
 
 
+# ---------------------------------------------------------------------------
+# TypeScript, and the numbers under `ventures/` that no kind above can reach.
+#
+# `stripe-webhook-server.ts` says it in its own docstring: "TypeScript constants
+# in `ventures/` are not reachable by `scripts/ci/cap_ratchet.py` (it reads
+# `python-constant` and `yaml-path` watches only)", and appoints a test in the
+# venture's own suite as the stand-in. That is an honest note about a real hole,
+# and it is the hole this section closes.
+#
+# There is no TypeScript parser here and there will not be one — a control that
+# needs `tsc` to audit a constant is a control that stops running the day the
+# toolchain moves. What follows reads the source as text, and is deliberately
+# stricter than a parser would be: a declaration this reader cannot resolve to a
+# plain number is a *failure*, never a guess and never a skip.
+# ---------------------------------------------------------------------------
+
+# A module-level `const NAME = ...` in TypeScript. Anchored at column zero
+# because that is what module level looks like in this repository's TS: a
+# `const` indented inside a function body is a local, and enrolling locals would
+# make the register unreadable without making anything safer.
+TS_CONST_DECL = re.compile(
+    r"^(?:export[ \t]+)?const[ \t]+([A-Za-z_$][A-Za-z0-9_$]*)[ \t]*"
+    r"(?::[^=\n]+?)?[ \t]*=[ \t]*([^;\n]+?)[ \t]*(?:;|$)",
+    re.M,
+)
+
+# Only digits, separators and arithmetic. An expression containing any
+# identifier resolves to None and therefore to a failure, exactly as the Python
+# reader refuses `MAX_X = BASE * 4`. Folding pure arithmetic is not a weakening
+# of that rule — `30 * 24 * 60 * 60 * 1000` names a unit conversion, and forcing
+# it to be retyped as `2592000000` would trade a readable declaration for an
+# unreadable one to satisfy a reader, which is the tail wagging the dog.
+TS_SAFE_ARITHMETIC = re.compile(r"^[0-9_.\+\-\*/() \t]+$")
+
+
+def _eval_ts_node(node: ast.AST) -> float:
+    if isinstance(node, ast.Expression):
+        return _eval_ts_node(node.body)
+    if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)) and not isinstance(node.value, bool):
+        return float(node.value)
+    if isinstance(node, ast.UnaryOp):
+        operand = _eval_ts_node(node.operand)
+        if isinstance(node.op, ast.UAdd):
+            return operand
+        if isinstance(node.op, ast.USub):
+            return -operand
+    if isinstance(node, ast.BinOp):
+        left = _eval_ts_node(node.left)
+        right = _eval_ts_node(node.right)
+        if isinstance(node.op, ast.Add):
+            return left + right
+        if isinstance(node.op, ast.Sub):
+            return left - right
+        if isinstance(node.op, ast.Mult):
+            return left * right
+        if isinstance(node.op, ast.Div):
+            return left / right
+    raise ValueError("Unsupported AST node")
+
+
+def fold_ts_number(expression: str) -> Optional[float]:
+    """A TypeScript numeric literal or pure-arithmetic expression, or None.
+
+    None means "this reader will not guess", and every caller turns that into a
+    failure rather than a skip.
+    """
+    text = expression.strip()
+    text = re.sub(r"\bas[ \t]+const\b", "", text).strip()
+    if not text or not TS_SAFE_ARITHMETIC.match(text):
+        return None
+    # `//` is integer division in Python and a comment in TypeScript. Neither
+    # meaning is wanted here, so refuse rather than resolve it as either.
+    if "//" in text:
+        return None
+    try:
+        tree = ast.parse(text.replace("_", ""), mode="eval")
+        value = _eval_ts_node(tree)
+    except Exception:
+        return None
+    return float(value)
+
+
+parse_ts_numeric_expression = fold_ts_number
+
+
+
+
+def strip_ts_comments(source: str) -> str:
+    """Blank out `/* */` and `//` spans, preserving line structure.
+
+    A census counts what the code *does*, and this file's own comments discuss
+    the very literals being counted — the prose explaining the 30/70 split
+    contains "0.3" repeatedly. Counting those would make the number depend on
+    how well the code is documented, and would fall the moment someone improved
+    a comment.
+    """
+    source = re.sub(r"/\*.*?\*/", lambda m: re.sub(r"[^\n]", " ", m.group(0)), source, flags=re.S)
+    return re.sub(r"//[^\n]*", "", source)
+
+
+def ts_module_constants(source: str) -> Dict[str, DeclaredConstant]:
+    """Every module-level `const NAME = ...` in a TypeScript source.
+
+    Same contract as `module_constants` for Python, including the rule that a
+    name declared twice resolves to None rather than to its first value.
+    """
+    found: Dict[str, DeclaredConstant] = {}
+    rebound: set = set()
+    for match in TS_CONST_DECL.finditer(source):
+        name = match.group(1)
+        if name in found:
+            rebound.add(name)
+        found[name] = DeclaredConstant(
+            name=name,
+            value=fold_ts_number(match.group(2)),
+            lineno=source[: match.start()].count("\n") + 1,
+        )
+    for name in rebound:
+        found[name] = DeclaredConstant(name=name, value=None, lineno=found[name].lineno)
+    return found
+
+
+def declared_ts_bound_constants(source: str) -> List[DeclaredConstant]:
+    """The module-level TS constants whose names say they bound something."""
+    return [
+        const
+        for const in ts_module_constants(source).values()
+        if const.name.startswith(BOUND_NAME_PREFIXES)
+    ]
+
+
+def extract_ts_constant(source: str, name: str) -> Optional[float]:
+    const = ts_module_constants(source).get(name)
+    return None if const is None else const.value
+
+
+# Directories whose contents are not this repository's source: dependencies,
+# build output and coverage reports. A number in `node_modules` is somebody
+# else's number, and a number in `dist/` is a copy of one already enrolled.
+VENTURE_SKIP_DIRS = ("node_modules", "dist", "build", ".next", "coverage", "out", "vendor")
+
+# Test sources are excluded from *enrollment* because a constant in a test is
+# the test's own fixture, not a number the product runs on. They are not
+# excluded from being watched: a watch may name any path.
+VENTURE_TEST_FILE = re.compile(r"\.(test|spec)\.[cm]?[jt]sx?$")
+
+
+def venture_ts_sources(repo_root: Path) -> List[str]:
+    """Every tracked, non-test TypeScript source under `ventures/`, sorted.
+
+    Read from `git ls-files` rather than by walking the filesystem: a
+    `readdirSync`-style scan in this repository has already been found counting
+    a developer's build output, which made the control's number differ between
+    the working tree and a clean clone. Tracked files are the same set
+    everywhere.
+    """
+    out = _git(repo_root, "ls-files", "--", "ventures/")
+    paths = []
+    for line in out.splitlines():
+        rel = line.strip()
+        if not rel.endswith((".ts", ".tsx")):
+            continue
+        parts = rel.split("/")
+        if any(part in VENTURE_SKIP_DIRS for part in parts):
+            continue
+        if VENTURE_TEST_FILE.search(rel):
+            continue
+        paths.append(rel)
+    return sorted(paths)
+
+
 def extract(watch: Watch, source: str) -> Optional[float]:
     if watch.kind == "python-constant":
         return extract_python_constant(source, watch.locator)
     if watch.kind == "yaml-path":
         return extract_yaml_path(source, watch.locator)
+    if watch.kind == "ts-constant":
+        return extract_ts_constant(source, watch.locator)
     raise CapError(f"{watch.path}: unknown watch kind {watch.kind!r}")
 
 
@@ -1035,11 +1894,152 @@ def evaluate(measurement: Measurement) -> List[Finding]:
     return findings
 
 
+def evaluate_pins(repo_root: Path, pins: Sequence[Pin] = PINS) -> List[Finding]:
+    """Refuse any pinned number that moved, vanished, or acquired a twin.
+
+    Fails closed on every reading error rather than skipping it: a missing file
+    or an unresolvable declaration is reported as a finding, because "the number
+    I was guarding is not where I left it" is exactly the state a money constant
+    must not pass in.
+    """
+    findings: List[Finding] = []
+    for pin in pins:
+        on_disk = repo_root / pin.path
+        if not on_disk.is_file():
+            findings.append(
+                Finding(
+                    check="pin-file-missing",
+                    message=(
+                        f"{pin.path}: pinned file is missing, so `{pin.locator}` is unguarded. "
+                        f"It is {pin.why}. If the file moved, move the pin in "
+                        f"scripts/ci/cap_ratchet.py with it."
+                    ),
+                )
+            )
+            continue
+        source = on_disk.read_text(encoding="utf-8")
+
+        if pin.kind == "ts-constant":
+            value = extract_ts_constant(source, pin.locator)
+            if value is None:
+                findings.append(
+                    Finding(
+                        check="pin-unreadable",
+                        message=(
+                            f"{pin.path}: `{pin.locator}` is missing, or is no longer a plain "
+                            f"number this reader will resolve. It is {pin.why}."
+                        ),
+                    )
+                )
+            elif value != pin.value:
+                findings.append(
+                    Finding(
+                        check="pin-changed",
+                        message=(
+                            f"{pin.path}: `{pin.locator}` is {_fmt(value)}, but is pinned at "
+                            f"{_fmt(pin.value)}. It is {pin.why}. Changing it is allowed and may "
+                            f"well be right — but the pin in scripts/ci/cap_ratchet.py has to "
+                            f"change in the same diff, so that the new value is something someone "
+                            f"chose rather than something that drifted."
+                        ),
+                    )
+                )
+            continue
+
+        if pin.kind == "literal-census":
+            # `value` is the declared number of occurrences, not a number the
+            # code holds. See the comment above `PINS`: an anchored pin only
+            # notices a copy that reuses its variable name, and the copy that
+            # actually happens in this venture renames as it goes.
+            body = strip_ts_comments(source)
+            seen = len(re.findall(pin.locator, body, re.M))
+            if seen != pin.value:
+                findings.append(
+                    Finding(
+                        check="pin-census-changed",
+                        message=(
+                            f"{pin.path}: /{pin.locator}/ occurs {seen} time(s) outside comments, "
+                            f"but {_fmt(pin.value)} are declared. It is {pin.why}. "
+                            + (
+                                "A new occurrence means this number was re-typed at a site no pin "
+                                "and no test knows about — which is how this venture came to "
+                                "compute the same split from two different bases. "
+                                if seen > pin.value
+                                else "A missing occurrence means a site that used to carry it no "
+                                "longer does. "
+                            )
+                            + "If the change is intended, update the census in "
+                            "scripts/ci/cap_ratchet.py in the same diff."
+                        ),
+                    )
+                )
+            continue
+
+        if pin.kind != "source-literal":
+            findings.append(
+                Finding(
+                    check="pin-unknown-kind",
+                    message=f"{pin.path}: pin `{pin.locator}` declares unknown kind {pin.kind!r}.",
+                )
+            )
+            continue
+
+        matches = re.findall(pin.locator, source, re.M)
+        if len(matches) != pin.occurrences:
+            findings.append(
+                Finding(
+                    check="pin-anchor-moved",
+                    message=(
+                        f"{pin.path}: the pinned expression /{pin.locator}/ matches "
+                        f"{len(matches)} time(s), not {pin.occurrences}. It is {pin.why}. "
+                        + (
+                            "Zero matches means the guarded line was deleted or rewritten. "
+                            if not matches
+                            else "More matches than declared means the number was copied to a new "
+                            "site that no test and no register knows about, which is how this "
+                            "venture ended up computing the same split from two different bases. "
+                        )
+                        + "Update the pin in scripts/ci/cap_ratchet.py to describe what the code "
+                        "now does."
+                    ),
+                )
+            )
+            continue
+        for raw in matches:
+            found = fold_ts_number(raw if isinstance(raw, str) else raw[0])
+            if found is None:
+                findings.append(
+                    Finding(
+                        check="pin-unreadable",
+                        message=(
+                            f"{pin.path}: /{pin.locator}/ captured {raw!r}, which is not a number "
+                            f"this reader will resolve. It is {pin.why}."
+                        ),
+                    )
+                )
+            elif found != pin.value:
+                findings.append(
+                    Finding(
+                        check="pin-changed",
+                        message=(
+                            f"{pin.path}: /{pin.locator}/ now reads {_fmt(found)}, but is pinned "
+                            f"at {_fmt(pin.value)}. It is {pin.why}. If the change is intended, "
+                            f"change the pin in scripts/ci/cap_ratchet.py in the same diff."
+                        ),
+                    )
+                )
+    return findings
+
+
 def _fmt(value: float) -> str:
     return str(int(value)) if float(value).is_integer() else str(value)
 
 
-def format_report(measurement: Measurement, findings: Sequence[Finding]) -> str:
+def format_report(
+    measurement: Measurement,
+    findings: Sequence[Finding],
+    pins: Sequence[Pin] = PINS,
+) -> str:
     lines = ["=== Cap ratchet ==="]
     width = max((len(f"{r.watch.path}:{r.watch.locator}") for r in measurement.readings), default=0)
     for reading in measurement.readings:
@@ -1073,7 +2073,8 @@ def format_report(measurement: Measurement, findings: Sequence[Finding]) -> str:
         floors = len(measurement.readings) - caps
         lines.append(
             f"PASS: {caps} caps, none above its historical floor; "
-            f"{floors} floors, none below its historical maximum."
+            f"{floors} floors, none below its historical maximum; "
+            f"{len(pins)} pinned venture numbers, each at its declared value."
         )
     return "\n".join(lines)
 
@@ -1092,6 +2093,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     try:
         measurement = measure(repo_root)
         findings = evaluate(measurement)
+        # Pins are evaluated in the same run and share the exit code: a moved
+        # money constant is the same class of event as a raised cap, and giving
+        # it a separate gate would make it a separate thing to forget to run.
+        findings.extend(evaluate_pins(repo_root))
     except CapError as exc:
         if args.json:
             print(json.dumps({"error": str(exc), "ok": False, "measured": False}, indent=2))
