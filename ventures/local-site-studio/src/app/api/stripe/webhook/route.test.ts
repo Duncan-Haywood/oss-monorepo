@@ -381,7 +381,23 @@ describe("POST /api/stripe/webhook", () => {
       expect(sendEmail).toHaveBeenCalledTimes(1);
     });
 
-    it("does not mark the receipt sent when sendReceiptEmail resolves success:false (suppressed), so redelivery retries it", async () => {
+    /**
+     * This case used to say "(suppressed) … so redelivery retries it", and both
+     * halves were wrong. `@/lib/email/resend` is mocked here, so it asserted
+     * nothing about whether a suppressed buyer can be refused a receipt — the
+     * real module did refuse one, for the entire life of this suite. And the
+     * route returns 200, so nothing retries automatically; the unwritten marker
+     * only helps a *manual* Stripe redelivery (planBundleWebhookSideEffects
+     * → redelivery_recovery).
+     *
+     * A suppressed receipt is no longer reachable at all: sendReceiptEmail is
+     * `kind: "transactional"` and skips the suppression list. The behaviour
+     * still worth pinning is the marker discipline for a genuine refusal — a
+     * Resend outage or a CAN-SPAM env block — so the input is one of those. The
+     * suppression contract itself is tested against the real module in
+     * src/lib/email/transactional-suppression.test.ts.
+     */
+    it("does not mark the receipt sent when sendReceiptEmail resolves success:false, so a manual Stripe redelivery can recover it", async () => {
       const session = checkoutSession({
         metadata: { slug: "demo-cafe", tier: "growth" },
         customer_details: { email: "owner@demo-cafe.test" },
@@ -389,7 +405,10 @@ describe("POST /api/stripe/webhook", () => {
       constructEvent.mockReturnValue(completedEvent(session));
       recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
-      sendReceiptEmail.mockResolvedValue({ success: false, reason: "suppressed" });
+      sendReceiptEmail.mockResolvedValue({
+        success: false,
+        error: "Refusing to send: the CAN-SPAM footer cannot be built.",
+      });
       updateDeployHandoffStatus.mockImplementation(
         async (_slug: string, status: string, notes: string[]) => ({
           ...existingHandoff({ status: status as DeployHandoff["status"] }),
@@ -438,6 +457,39 @@ describe("POST /api/stripe/webhook", () => {
         expect.anything(),
         [expect.stringContaining("Buyer receipt email sent")],
         { requireConvex: true },
+      );
+    });
+
+    /**
+     * The go-live DNS instructions are how the buyer receives what they paid
+     * for, so this call site must classify itself transactional — otherwise the
+     * cold-outreach suppression list eats it for exactly the buyers who reached
+     * checkout through outreach and unsubscribed first. `@/lib/email/resend` is
+     * mocked in this file, so this asserts only that the *call site* declares
+     * the classification; that the classification then bypasses suppression is
+     * tested against the real module in
+     * src/lib/email/transactional-suppression.test.ts.
+     */
+    it("classifies the post-payment DNS go-live email as transactional", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth" },
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
+      sendReceiptEmail.mockResolvedValue({ success: true });
+      sendEmail.mockResolvedValue({ success: true });
+      updateDeployHandoffStatus.mockResolvedValue(existingHandoff());
+      const { POST } = await import("./route");
+
+      await POST(webhookRequest());
+
+      expect(sendEmail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: "owner@demo-cafe.test",
+          kind: "transactional",
+        }),
       );
     });
 

@@ -91,6 +91,7 @@ describe("suppression read is fail-closed", () => {
       to: "someone@example.com",
       subject: "Ready for more customers?",
       html: "<p>upsell</p>",
+      kind: "marketing",
     });
 
     expect(sendCalls).toBe(0);
@@ -108,6 +109,7 @@ describe("suppression read is fail-closed", () => {
       to: "someone@example.com",
       subject: "Ready for more customers?",
       html: "<p>upsell</p>",
+      kind: "marketing",
     });
 
     expect(sendCalls).toBe(1);
@@ -122,6 +124,7 @@ describe("suppression read is fail-closed", () => {
       to: "someone@example.com",
       subject: "Ready for more customers?",
       html: "<p>upsell</p>",
+      kind: "marketing",
     });
 
     expect(sendCalls).toBe(0);
@@ -135,7 +138,12 @@ describe("suppression read is fail-closed", () => {
     isEmailSuppressed.mockRejectedValue(new TypeError("email.toLowerCase is not a function"));
 
     await expect(
-      sendEmail({ to: "someone@example.com", subject: "s", html: "<p>h</p>" }),
+      sendEmail({
+        to: "someone@example.com",
+        subject: "s",
+        html: "<p>h</p>",
+        kind: "marketing",
+      }),
     ).rejects.toBeInstanceOf(TypeError);
     expect(sendCalls).toBe(0);
   });

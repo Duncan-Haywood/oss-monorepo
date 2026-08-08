@@ -139,6 +139,11 @@ export async function POST(request: Request, context: RouteContext) {
       const safeInquiryId = escapeHtmlForEmail(outcome.inquiryId);
       const sent = await sendEmail({
         to: notifyTo,
+        // Marketing: notifyTo is `lead.email || support`, and a lead here can
+        // be a free-preview prospect who never transacted with us. No prior
+        // transaction means no §7702(17) relationship to rely on, so the
+        // outreach suppression list still governs this notification.
+        kind: "marketing",
         subject: `New website inquiry for ${businessName}`,
         leadSlug: slug,
         html: `

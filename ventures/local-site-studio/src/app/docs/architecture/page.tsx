@@ -231,10 +231,20 @@ export default function ArchitectureDocPage() {
         <code>daily-digest.test.ts</code> alone does not cover that glue.
       </p>
       <p>
-        Every automated send (outreach Email 1-3, daily digest, marketing/voice pack email,
-        Starter upsell, abandoned-checkout recovery) calls <code>sendEmail</code> (
-        <code>src/lib/email/resend.ts</code>), which checks the CAN-SPAM unsubscribe suppression
-        list before sending and <code>GET /api/unsubscribe</code> writes to it. The unsubscribe
+        Every automated send calls <code>sendEmail</code> (
+        <code>src/lib/email/resend.ts</code>) and must declare a{" "}
+        <code>kind</code>. <code>kind: &quot;marketing&quot;</code> (outreach Email 1-3,
+        marketing/voice pack email, Starter upsell, abandoned-checkout recovery, Commerce
+        client receipt, contact-form notify) is checked against the CAN-SPAM unsubscribe
+        suppression list before sending, and <code>GET /api/unsubscribe</code> writes to it.{" "}
+        <code>kind: &quot;transactional&quot;</code> skips that list — currently only the
+        bundle receipt (<code>sendReceiptEmail</code>) and the post-payment DNS go-live
+        instructions, both of which confirm or deliver a purchase the recipient already paid
+        for (15 U.S.C. §7702(17)(A)), where the opt-out obligation does not apply and
+        withholding the message is itself the harm. The list is scoped to commercial mail, not
+        to all mail; the roster of transactional senders is pinned by{" "}
+        <code>src/lib/email/transactional-suppression.test.ts</code>. The CAN-SPAM footer gate
+        below refuses <em>both</em> kinds when the env is unconfigured. The unsubscribe
         link embeds an HMAC token (<code>signUnsubscribeToken</code> /{" "}
         <code>verifyUnsubscribeToken</code>, <code>src/lib/email/unsubscribe-token.ts</code>,
         keyed on <code>RESEND_API_KEY</code>) bound to that recipient&apos;s address — the route
