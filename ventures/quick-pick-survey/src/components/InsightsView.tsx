@@ -147,7 +147,7 @@ export function InsightsView() {
         <div className="rounded-2xl border-2 border-amber-300/70 bg-amber-50 p-4 dark:border-amber-400/30 dark:bg-amber-950/40">
           <div className="flex items-baseline justify-between">
             <span className="text-lg font-bold text-amber-700 dark:text-amber-300">⭐ Level {data.level}</span>
-            <span className="text-xs font-medium text-amber-800/80 dark:text-amber-300/70">
+            <span className="text-xs font-medium text-amber-800 dark:text-amber-300/70">
               {readyCount} of {INSIGHTS.length} insights ready
             </span>
           </div>

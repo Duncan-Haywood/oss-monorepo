@@ -374,7 +374,7 @@ export function CoupleView() {
               </button>
             </div>
 
-            <p className="mt-3 text-xs text-amber-800/80 dark:text-amber-300/70">
+            <p className="mt-3 text-xs text-amber-800 dark:text-amber-300/70">
               Waiting for them to join…
             </p>
           </div>
@@ -628,7 +628,7 @@ export function CoupleView() {
         <h2 className="font-bold text-amber-900 dark:text-amber-200">
           What actually makes {partnerName} happy
         </h2>
-        <p className="mt-0.5 text-xs text-amber-800/80 dark:text-amber-300/70">
+        <p className="mt-0.5 text-xs text-amber-800 dark:text-amber-300/70">
           Their highest-rated things you can actually do. Start at the top.
         </p>
         {data.makeThemHappy && data.makeThemHappy.length > 0 ? (
@@ -841,7 +841,7 @@ export function CoupleView() {
           <h2 className="font-bold text-amber-900 dark:text-amber-200 flex items-center gap-2">
             <span>🎯</span> Weekly Action Challenge for {partnerName}
           </h2>
-          <p className="mt-0.5 text-xs text-amber-800/80 dark:text-amber-300/70">
+          <p className="mt-0.5 text-xs text-amber-800 dark:text-amber-300/70">
             Pick one action item to surprise {partnerName} with this week.
           </p>
           <div className="mt-3 flex flex-col gap-2">
@@ -1004,7 +1004,7 @@ export function CoupleView() {
             <span className="text-xl">🌟</span>
             <div>
               <h2 className="font-semibold text-amber-950 dark:text-amber-100">Top Shared Answer Favorites</h2>
-              <p className="text-xs text-amber-800/80 dark:text-amber-300/80">
+              <p className="text-xs text-amber-800 dark:text-amber-300/80">
                 Exact options you both placed in your highest percentile tiers.
               </p>
             </div>
