@@ -296,6 +296,82 @@ function satisfiesSimpleRange(version, range) {
 }
 
 /**
+ * `minimatch@3` -> {name: 'minimatch', range: '3'}; `minimatch` -> range null.
+ * `lastIndexOf` rather than `indexOf` so a scoped name keeps its leading `@`.
+ */
+function parseOverrideKey(key) {
+  const at = key.lastIndexOf('@');
+  if (at <= 0) return { name: key, range: null };
+  return { name: key.slice(0, at), range: key.slice(at + 1) };
+}
+
+/**
+ * The partial ranges an override *key* is written in — `3`, `8.0`, `^3.1.2`.
+ * Missing components are wildcards. Returns null when unreadable, so the
+ * caller reports it rather than assuming the rule applied.
+ */
+function matchesKeyRange(version, rangeSpec) {
+  if (rangeSpec == null) return true;
+  const want = /^(\^|~|>=|=)?v?(\d+)(?:\.(\d+))?(?:\.(\d+))?$/.exec(String(rangeSpec).trim());
+  const got = /^v?(\d+)\.(\d+)\.(\d+)$/.exec(String(version).trim());
+  if (!want || !got) return null;
+  if (Number(got[1]) !== Number(want[2])) return false;
+  if (want[3] !== undefined && Number(got[2]) !== Number(want[3])) return false;
+  if (want[4] !== undefined && Number(got[3]) !== Number(want[4])) return false;
+  return true;
+}
+
+/** `node_modules/a/node_modules/b` -> `node_modules/a/`; `node_modules/b` -> ``. */
+const enclosingPrefix = (treePath) => treePath.slice(0, treePath.lastIndexOf('node_modules/'));
+
+/** The basename a lockfile path installs, or null when it is not a tree entry. */
+function installedName(treePath) {
+  const at = treePath.lastIndexOf('node_modules/');
+  if (at < 0) return null;
+  return treePath.slice(at + 'node_modules/'.length);
+}
+
+/**
+ * Which scoped rules govern the instance at `treePath`.
+ *
+ * npm resolves a dependency of P by walking up from P's own directory, so a
+ * rule written `parent@range: {child: spec}` governs the copy of `child` that
+ * `parent` actually reaches: either the one beside `parent` (the placement npm
+ * picks when it has to fork the version) or the one nested inside it. A rule
+ * only claims an instance when a matching `parent` entry is really there —
+ * otherwise the flat override keeps the instance, and the sweep does not
+ * quietly lose it.
+ */
+function scopedClaims(treePath, child, rules, packages, unchecked) {
+  const claims = [];
+  const prefix = enclosingPrefix(treePath);
+  for (const rule of rules) {
+    if (rule.child !== child) continue;
+    // The sibling placement only exists inside another package's tree. At the
+    // top level `node_modules/<child>` is the copy everything else reaches, so
+    // a scoped rule never claims it — npm forks a nested copy for the parent
+    // instead, and that nested copy is the second candidate.
+    const candidates = prefix ? [`${prefix}node_modules/${rule.parent}`] : [];
+    if (prefix.endsWith(`node_modules/${rule.parent}/`)) candidates.push(prefix.slice(0, -1));
+    for (const parentPath of candidates) {
+      const parent = packages[parentPath];
+      if (typeof parent?.version !== 'string') continue;
+      const applies = matchesKeyRange(parent.version, rule.range);
+      if (applies === null) {
+        unchecked.push(
+          `override key "${rule.key}" is in a range syntax this test cannot evaluate against ` +
+            `${parentPath}@${parent.version}`
+        );
+      } else if (applies) {
+        claims.push(rule);
+      }
+      break;
+    }
+  }
+  return claims;
+}
+
+/**
  * CLASS 2, third half — the one that catches an override added without a
  * regenerated lockfile. Every resolved instance of an overridden package must
  * satisfy the override, at any depth, because that is what an override means.
@@ -303,6 +379,16 @@ function satisfiesSimpleRange(version, range) {
  * `unchecked` carries the specs and versions the comparator could not read. It
  * is asserted empty rather than ignored: an override in a syntax this does not
  * implement is an override nothing is checking.
+ *
+ * That principle is why this models npm's *scoped* overrides rather than
+ * skipping them. `{"minimatch@3": {"brace-expansion": "^1.1.12"}}` beside a
+ * flat `"brace-expansion": "^5.0.9"` is not a contradiction: it pins the one
+ * copy minimatch v3 reaches, because brace-expansion v5 drops the CommonJS
+ * `expand` export that minimatch v3 calls. Reading only the flat entry, this
+ * sweep called the correctly-forked copies violations and told the author to
+ * regenerate a lockfile that `npm ci` already installs cleanly — while the
+ * scoped rules themselves went unread, the exact hole `unchecked` exists to
+ * refuse.
  *
  * `bundled` carries the one exclusion: dependencies shipped inside another
  * package's tarball (`inBundle`). npm does not rewrite those — the publisher
@@ -320,28 +406,79 @@ function overrideResolutionViolations(manifest, lock) {
   const packages = lock?.packages;
   if (!packages) return { violations, unchecked, bundled };
 
-  for (const [name, value] of Object.entries(manifest.overrides || {})) {
+  // Pass one: split the block into the flat rules that govern every copy of a
+  // package and the scoped rules that govern one parent's copy of it.
+  //
+  // Every spec is parsed here rather than where it is applied, because an
+  // override for a package the lockfile has no entry for still has to be
+  // reported. Parsing at the point of use would let `"next": "$next"` pass
+  // silently the moment nothing resolved to compare it against, which is the
+  // opposite of what `unchecked` is for.
+  const flat = new Map();
+  const scoped = [];
+  for (const [key, value] of Object.entries(manifest.overrides || {})) {
     const spec = typeof value === 'string' ? value : value?.['.'];
-    if (typeof spec !== 'string') continue;
-    const range = parseSimpleRange(spec);
-    if (!range) {
-      unchecked.push(`override ${name}@"${spec}" is in a range syntax this test cannot evaluate`);
-      continue;
-    }
-    for (const [treePath, entry] of Object.entries(packages)) {
-      if (!treePath.includes('node_modules/')) continue;
-      if (treePath.slice(treePath.lastIndexOf('node_modules/') + 'node_modules/'.length) !== name) {
-        continue;
+    if (typeof spec === 'string') {
+      const range = parseSimpleRange(spec);
+      if (!range) {
+        unchecked.push(`override ${key}@"${spec}" is in a range syntax this test cannot evaluate`);
       }
-      if (typeof entry?.version !== 'string') continue;
-      const satisfied = satisfiesSimpleRange(entry.version, range);
+      flat.set(key, { spec, range, label: `overrides.${key}` });
+    }
+    if (value && typeof value === 'object') {
+      const { name: parent, range: parentRange } = parseOverrideKey(key);
+      for (const [child, childSpec] of Object.entries(value)) {
+        if (child === '.') continue;
+        if (typeof childSpec !== 'string') {
+          unchecked.push(`override "${key}".${child} is not a version spec this test can read`);
+          continue;
+        }
+        const range = parseSimpleRange(childSpec);
+        if (!range) {
+          unchecked.push(
+            `override "${key}".${child} is "${childSpec}", a range syntax this test cannot evaluate`
+          );
+        }
+        scoped.push({
+          key,
+          parent,
+          range: parentRange,
+          child,
+          spec: childSpec,
+          parsed: range,
+          label: `overrides["${key}"].${child}`,
+        });
+      }
+    }
+  }
+
+  // Pass two: every instance of an overridden package, checked against the
+  // rule that actually governs it.
+  const governed = new Set([...flat.keys(), ...scoped.map((r) => r.child)]);
+  for (const [treePath, entry] of Object.entries(packages)) {
+    const name = installedName(treePath);
+    if (name === null || !governed.has(name)) continue;
+    if (typeof entry?.version !== 'string') continue;
+
+    const claims = scopedClaims(treePath, name, scoped, packages, unchecked);
+    const applicable = claims.length
+      ? claims.map((r) => ({ spec: r.spec, range: r.parsed, label: r.label }))
+      : flat.has(name)
+        ? [flat.get(name)]
+        : [];
+
+    for (const rule of applicable) {
+      // Already reported once, in pass one, against the override rather than
+      // against each instance it would have been compared to.
+      if (!rule.range) continue;
+      const satisfied = satisfiesSimpleRange(entry.version, rule.range);
       if (satisfied === null) {
         unchecked.push(`${treePath} resolves ${name}@${entry.version}, which this test cannot compare`);
       } else if (!satisfied) {
         if (entry.inBundle) {
-          bundled.push(`${treePath}@${entry.version} is bundled, outside overrides.${name} "${spec}"`);
+          bundled.push(`${treePath}@${entry.version} is bundled, outside ${rule.label} "${rule.spec}"`);
         } else {
-          violations.push({ name, spec, treePath, version: entry.version });
+          violations.push({ name, spec: rule.spec, treePath, version: entry.version, label: rule.label });
         }
       }
     }
@@ -350,7 +487,7 @@ function overrideResolutionViolations(manifest, lock) {
 }
 
 const describeResolutionViolation = (file, f) =>
-  `${file}: overrides.${f.name} is "${f.spec}" but the lockfile still resolves ${f.treePath} ` +
+  `${file}: ${f.label || `overrides.${f.name}`} is "${f.spec}" but the lockfile still resolves ${f.treePath} ` +
   `at ${f.version} — the override was added without regenerating the lockfile, so \`npm ci\` ` +
   'refuses the package and it drops out of `npm audit`. Run `npm install --package-lock-only` ' +
   'in that directory and commit the result.';
