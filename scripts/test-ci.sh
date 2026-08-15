@@ -79,6 +79,41 @@ run_ci_test "Dagger CI Engine Unit Tests" node --test "${REPO_ROOT}/platform/ci/
 
 # 3. Security Policy Scanner Unit Tests
 run_ci_test "Security Policy Scanner Logic Unit Tests" bash "${REPO_ROOT}/scripts/security/test-scan-repository.sh"
+# ...and the scanner asked about *this* repository, which is a different
+# question from the line above and was answered by nothing on the path a merge
+# actually takes.
+#
+# `scan-repository.sh` refuses tracked secrets, private-key material, literal
+# Terraform credentials and unresolved merge markers. It was invoked in exactly
+# two places: `.gitea/workflows/security.yml`, which runs after a push, and
+# `platform/ci/src/pipeline.mjs`'s security suite. The runner every agent and
+# pre-push hook uses ran its *unit tests* against scratch fixtures and never
+# pointed it at the tree — the shape `scripts/ci/gate_wiring.py` describes, where
+# a control is exercised entirely against `tmp_path` skeletons and never once
+# asked about this repository.
+#
+# What that cost, on 2026-08-08: commit 30f9ab40 merged
+# `agent/gate-wiring-and-sec-ids` with the conflict unresolved, leaving literal
+# `<<<<<<< HEAD` / `>>>>>>>` markers in
+# `platform/ci/test/security-audit-log-integrity.test.mjs`. The file stopped
+# parsing, so the security-audit-log contract — nine checks over SEC-id
+# uniqueness and severity agreement — executed zero of them, and platform-ci's
+# coverage gate went red naming a coverage command rather than a broken merge.
+# `scripts/ci/duplicate_definitions.py` did fail, but on `detailSections` being
+# defined twice, which reads as a criss-cross merge artifact and not as an
+# unresolved conflict. Three gates reacted; none of them said what was wrong.
+# The markers survived six commits and were removed under the subject
+# "deploy(quick-pick-survey): record 30f9ab40 revision annotation".
+#
+# The scan was verified to be silent on a clean tree before being registered
+# here (0 findings at 811d5468), so this is a gate that can fail rather than one
+# that starts red. The report goes to a temporary file: the default argument is
+# `security-scan-report.md`, which is tracked, and a gate that rewrites a tracked
+# file as a side effect of measuring is how `pytest` came to mutate
+# SECURITY_ROADMAP.md.
+POLICY_SCAN_REPORT="$(mktemp "${TMPDIR:-/tmp}/repository-policy-scan.XXXXXX.md")"
+trap 'rm -f "${POLICY_SCAN_REPORT}"' EXIT
+run_ci_test "Repository Security Policy Scan" bash "${REPO_ROOT}/scripts/security/scan-repository.sh" "${POLICY_SCAN_REPORT}"
 run_ci_test "Vulnerability Roadmap Scanner Contract Tests" bash "${REPO_ROOT}/scripts/security/test-security-scan.sh"
 run_ci_test "Repository Engineering Policy Contract" bash "${REPO_ROOT}/scripts/ci/test-engineering-policy.sh"
 # The contract test for scripts/ci/verify-component.sh — the shared fail-closed

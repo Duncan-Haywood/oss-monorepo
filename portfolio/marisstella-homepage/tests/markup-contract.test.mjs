@@ -175,18 +175,71 @@ test('every interactive control has an accessible name', () => {
   }
 });
 
+/** Every same-origin file index.html asks the server for, deduplicated. */
+function requestedLocalAssets() {
+  const refs = [...html.matchAll(/(?:href|src)="([^"#:]+)"/g)]
+    .map((m) => m[1])
+    .filter((ref) => !ref.startsWith('//') && !ref.startsWith('data:'));
+  return [...new Set(refs)];
+}
+
+/** The ConfigMap keys platform/ci/deploy-homepage.sh mounts over the web root. */
+function publishedKeys() {
+  const script = fs.readFileSync(
+    path.join(SITE_ROOT, '..', '..', 'platform', 'ci', 'deploy-homepage.sh'),
+    'utf8'
+  );
+  return [...script.matchAll(/--from-file="([^=]+)=/g)].map((m) => m[1]);
+}
+
 test('every local asset the page requests is in the repository', () => {
-  const refs = [
-    ...[...html.matchAll(/(?:href|src)="([^"#:]+)"/g)].map((m) => m[1]),
-  ].filter((ref) => !ref.startsWith('//') && !ref.startsWith('data:'));
+  const refs = requestedLocalAssets();
 
   assert.ok(refs.length > 0);
-  for (const ref of new Set(refs)) {
+  for (const ref of refs) {
     assert.ok(
       fs.existsSync(path.join(SITE_ROOT, ref)),
       `index.html requests ${ref}, which does not exist — the container would serve a 404`
     );
   }
+});
+
+test('every local asset the page requests is published to the web root', () => {
+  // The test above proves the file is in the repository. That is not the same
+  // claim as "the visitor receives it", and the two came apart in exactly the
+  // direction that matters: production does not serve the image's web root, it
+  // serves the ConfigMap platform/ci/deploy-homepage.sh builds from an explicit
+  // --from-file list, mounted whole over /usr/share/nginx/html.
+  //
+  // So a reference to a file that exists here but is absent from that list is a
+  // hard 404 on marisstella.dev with every other contract green. The sibling
+  // test below compares the *image* web root to the publish list, and cannot
+  // see this case either: anything `.dockerignore` excludes is dropped from
+  // both sides of its equality before it is compared. Verified 2026-08-08 by
+  // adding `<link rel="apple-touch-icon" href="homepage-desktop.png">` to
+  // index.html — `*.png` is a .dockerignore entry, so the whole 48-test suite
+  // stayed green over an asset the live site could not have served.
+  //
+  // Anchored first, because a publish list this cannot parse would otherwise
+  // make the assertion below vacuously true.
+  const published = publishedKeys();
+  assert.ok(
+    published.length > 0,
+    'no --from-file keys parsed from deploy-homepage.sh; this test can no longer see what production serves'
+  );
+
+  const refs = requestedLocalAssets();
+  assert.ok(refs.length > 0, 'index.html requests no local asset; the parser has lost the page');
+
+  const unpublished = refs.filter((ref) => !published.includes(ref));
+  assert.deepEqual(
+    unpublished,
+    [],
+    'index.html requests an asset that platform/ci/deploy-homepage.sh never publishes. ' +
+      'The ConfigMap is the public web root, so the request 404s on marisstella.dev ' +
+      'however present the file is in this repository. Add it to the --from-file list ' +
+      '(and to the preflight loop above it) or stop requesting it'
+  );
 });
 
 /**
@@ -244,11 +297,7 @@ test('the container publishes exactly the files the site is made of', () => {
   // --from-file list and mounts it over the web root, so the cluster serves
   // that set no matter what the image contains. The two paths disagreeing
   // means the image and the running site are different sites.
-  const deployScript = fs.readFileSync(
-    path.join(SITE_ROOT, '..', '..', 'platform', 'ci', 'deploy-homepage.sh'),
-    'utf8'
-  );
-  const served = [...deployScript.matchAll(/--from-file="([^=]+)=/g)].map((m) => m[1]).sort();
+  const served = publishedKeys().sort();
 
   assert.ok(served.length > 0, 'no --from-file entries found; this contract has lost its reference point');
   assert.deepEqual(

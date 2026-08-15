@@ -124,6 +124,15 @@ jobs:
     needs: [verify, journeys]
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # The digest the registry assigned, so the candidate suite below tests the
+    # exact bytes this job published rather than whatever the `:${sha}` tag
+    # resolves to when that job happens to pull. A tag is a mutable pointer
+    # even when the name contains a commit SHA — ENGINEERING-PRINCIPLES.md:70
+    # asks for the digest to be recorded and that exact digest to be used. This
+    # mirrors the `image_digest` output pairwise-ci.yml's `container` job
+    # already produces.
+    outputs:
+      image_digest: ${{ steps.publish.outputs.digest }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -184,6 +193,7 @@ jobs:
       # gated `deploy` job below instead. platform/ci/test/production-ui-promotion-policy.test.mjs
       # fails closed if it moves back here.
       - name: Publish immutable main image
+        id: publish
         if: github.ref == 'refs/heads/main'
         env:
           IMAGE: git.marisstella.dev/giteaadmin/marisstella-homepage:${{ github.sha }}
@@ -194,26 +204,283 @@ jobs:
               --username giteaadmin \
               --password-stdin
           docker push "$IMAGE"
+          # Read back from the registry rather than from the local build, so the
+          # digest names what a puller would actually receive. An unparseable or
+          # absent digest fails here; the `candidate` job below refuses to run
+          # without one rather than falling back to the tag.
+          digest="$(
+            docker manifest inspect --verbose "$IMAGE" |
+              jq -r '
+                if type == "array"
+                then .[0].Descriptor.digest
+                else .Descriptor.digest // .digest
+                end
+              '
+          )"
+          [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]] || {
+            echo "Registry returned an invalid digest: $digest" >&2
+            exit 1
+          }
+          echo "digest=$digest" >> "${GITHUB_OUTPUT:-$GITEA_OUTPUT}"
+
+  candidate:
+    name: Critical browser journeys against the published candidate
+    needs: container
+    # The second of the two runs docs/QUALITY-ENGINEERING.md:63-64 asks for:
+    # "Critical journeys run on every relevant pull request and on the exact
+    # release candidate." The `journeys` job above is the first — it drives the
+    # working tree through e2e/static-server.mjs. This one drives the image
+    # `container` published, by digest, through the real nginx.conf. Same
+    # specs: playwright.config.ts switches its `webServer` off and takes
+    # `PLAYWRIGHT_BASE_URL` instead, and nothing under e2e/ imports site code,
+    # so pointing the suite at a URL is the whole difference.
+    #
+    # `if:` is a branch scope, not a skip. The candidate is an artifact that
+    # only exists once `container` has pushed it, and that push is itself
+    # `if: github.ref == 'refs/heads/main'` — on a pull request there is no
+    # candidate for this job to have an opinion about. Everything *inside* the
+    # job fails closed: a missing digest, an image that will not pull, a
+    # container that never serves, a URL that is not the container, and a suite
+    # that collects nothing are each an error and none of them is a skip
+    # (docs/QUALITY-ENGINEERING.md:138-140).
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: portfolio/marisstella-homepage
+    env:
+      CANDIDATE_CONTAINER: marisstella-homepage-candidate
+      CANDIDATE_PORT: "8081"
+      CANDIDATE_REPOSITORY: git.marisstella.dev/giteaadmin/marisstella-homepage
+      # Set at job level so it is set for every step, including the collection
+      # check. If this were unset or empty, playwright.config.ts would start
+      # e2e/static-server.mjs and this job would report a green "candidate" run
+      # having tested the working tree — the exact failure this job exists to
+      # rule out. "Prove the URL under test is the candidate" below refuses to
+      # continue unless the response carries a header only nginx.conf sets.
+      PLAYWRIGHT_BASE_URL: http://127.0.0.1:8081
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          # Same reason as `journeys`: a job holding write credentials is
+          # classified as a production mutation by
+          # platform/ci/test/production-ui-promotion-policy.test.mjs. This job
+          # reads a published artifact and runs tests; it releases nothing.
+          persist-credentials: false
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: portfolio/marisstella-homepage/package-lock.json
+
+      - name: Refuse to run without a published candidate digest
+        env:
+          IMAGE_DIGEST: ${{ needs.container.outputs.image_digest }}
+        run: |
+          [[ "$IMAGE_DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]] || {
+            echo "The container job published no usable digest (got: '${IMAGE_DIGEST}')." >&2
+            echo "There is no release candidate to test, so this gate cannot pass." >&2
+            exit 1
+          }
+          echo "Candidate digest: ${IMAGE_DIGEST}"
+
+      - name: Pull the exact published candidate by digest
+        env:
+          IMAGE_DIGEST: ${{ needs.container.outputs.image_digest }}
+          REGISTRY_TOKEN: ${{ secrets.HOMEPAGE_REGISTRY_TOKEN || secrets.PAIRWISE_REGISTRY_TOKEN }}
+        run: |
+          printf '%s' "$REGISTRY_TOKEN" |
+            docker login git.marisstella.dev \
+              --username giteaadmin \
+              --password-stdin
+          docker pull "${CANDIDATE_REPOSITORY}@${IMAGE_DIGEST}"
+
+      - name: Start the candidate
+        env:
+          IMAGE_DIGEST: ${{ needs.container.outputs.image_digest }}
+        run: |
+          docker run --detach \
+            --name "$CANDIDATE_CONTAINER" \
+            --publish "127.0.0.1:${CANDIDATE_PORT}:8080" \
+            "${CANDIDATE_REPOSITORY}@${IMAGE_DIGEST}"
+
+      # Two probes, because they fail for different reasons and the first real
+      # run needs to be diagnosable. This one runs *inside* the container — the
+      # only container-probing shape this repository has ever proven, the one
+      # pairwise-ci.yml's smoke test uses — so it isolates "the image does not
+      # serve the site" from "the runner cannot reach it".
+      - name: Wait for the candidate to serve its own web root
+        run: |
+          # Short flags: this image is FROM nginx:alpine, so `wget` is busybox's
+          # applet, and its long-option support is a build-time option. The
+          # `--quiet --output-document=-` spelling pairwise-ci.yml uses is fine
+          # in that venture's Debian-based image and is not portable here.
+          for _ in $(seq 1 60); do
+            if docker exec "$CANDIDATE_CONTAINER" \
+              wget -q -O - http://127.0.0.1:8080/ |
+                grep -Fq 'venture-card'; then
+              echo "The candidate serves the portfolio from inside the container."
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "The published candidate never served its web root." >&2
+          docker logs "$CANDIDATE_CONTAINER" >&2 || true
+          exit 1
+
+      # The second probe, and the one that decides whether the suite is allowed
+      # to start. Two things are checked here and a failure of either is a
+      # failure of the job:
+      #
+      #   1. The runner can reach the published port at all. No job in this
+      #      repository had ever reached a container over the network before
+      #      this one — the three existing smoke tests all probe from inside
+      #      with `docker exec` — so if the runner's Docker shape does not
+      #      publish to the runner's own loopback, this step says so in those
+      #      words rather than letting Playwright report a connection refused.
+      #   2. The URL is the container and not e2e/static-server.mjs. That
+      #      fixture deliberately does not reproduce nginx.conf's response
+      #      headers ("a second implementation of those headers here would be a
+      #      copy that can agree with the test while disagreeing with
+      #      production"), so the Content-Security-Policy header nginx.conf
+      #      sets is present on the candidate and absent on the fixture. It is
+      #      the cheapest available proof that this job is testing the artifact
+      #      rather than the working tree it also has checked out.
+      - name: Prove the URL under test is the candidate
+        run: |
+          [[ "$PLAYWRIGHT_BASE_URL" == "http://127.0.0.1:${CANDIDATE_PORT}" ]] || {
+            echo "PLAYWRIGHT_BASE_URL ('${PLAYWRIGHT_BASE_URL}') does not address the" >&2
+            echo "published candidate port (${CANDIDATE_PORT}); they have drifted apart." >&2
+            exit 1
+          }
+
+          headers=""
+          for _ in $(seq 1 60); do
+            if headers="$(curl --silent --show-error --fail \
+              --dump-header - --output /dev/null "${PLAYWRIGHT_BASE_URL}/")"; then
+              break
+            fi
+            headers=""
+            sleep 1
+          done
+
+          [[ -n "$headers" ]] || {
+            echo "The runner could not reach the candidate at ${PLAYWRIGHT_BASE_URL}." >&2
+            echo "The container is serving (the previous step proved it from inside)," >&2
+            echo "so the published port is not reachable from the job. Fix the" >&2
+            echo "networking shape; do not point this suite at anything else." >&2
+            docker logs "$CANDIDATE_CONTAINER" >&2 || true
+            exit 1
+          }
+
+          grep -iq '^content-security-policy:' <<<"$headers" || {
+            echo "${PLAYWRIGHT_BASE_URL} answered without the Content-Security-Policy" >&2
+            echo "header portfolio/marisstella-homepage/nginx.conf sets, so it is not" >&2
+            echo "the candidate container. Refusing to report a candidate run over" >&2
+            echo "something else." >&2
+            printf '%s\n' "$headers" >&2
+            exit 1
+          }
+          echo "The candidate answers on ${PLAYWRIGHT_BASE_URL} with its own nginx headers."
+
+      - name: Install locked dependencies without package lifecycle scripts
+        run: npm ci --ignore-scripts --no-audit --fund=false
+
+      # Same reason as `journeys`: `--ignore-scripts` suppresses the browser
+      # download, and a suite that cannot launch a browser must fail rather
+      # than skip.
+      - name: Install the Chromium build Playwright expects
+        run: npx playwright install --with-deps chromium
+
+      # This repository has a documented history of gates that pass over zero
+      # work, so the count is asserted before the run rather than inferred from
+      # its exit code. Playwright does exit 1 on "No tests found" today, but
+      # that is its behaviour and not this gate's guarantee, and a suite that
+      # silently shrank to one spec would still exit 0.
+      - name: Refuse a candidate suite that collects nothing
+        run: |
+          set -o pipefail
+          listing="$(npx playwright test --list --reporter=list)"
+          printf '%s\n' "$listing"
+          total="$(
+            printf '%s\n' "$listing" |
+              sed -n 's/^Total: \([0-9][0-9]*\) test.*/\1/p' |
+              tail -n 1
+          )"
+          [[ "$total" =~ ^[0-9]+$ ]] || {
+            echo "Could not read a test count from the Playwright listing." >&2
+            echo "The collection check cannot vouch for this run, so it fails." >&2
+            exit 1
+          }
+          [[ "$total" -gt 0 ]] || {
+            echo "The candidate suite collected 0 tests. A gate that runs nothing" >&2
+            echo "is not a gate; failing instead of reporting a green candidate." >&2
+            exit 1
+          }
+          echo "Candidate suite collects ${total} tests."
+
+      - name: Critical journeys against the published candidate
+        run: npm run test:e2e
+
+      - name: Retain candidate failure evidence
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: homepage-candidate-journey-evidence
+          path: |
+            portfolio/marisstella-homepage/e2e-report
+            portfolio/marisstella-homepage/e2e-results
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Stop the candidate
+        if: always()
+        run: docker rm --force "$CANDIDATE_CONTAINER" >/dev/null 2>&1 || true
 
   deploy:
     name: Deploy to production cluster
-    needs: container
-    # Still blocked, and the reason has narrowed rather than gone away.
+    needs: [container, candidate]
+    # Still blocked, and the two runs docs/QUALITY-ENGINEERING.md:63-64 asks
+    # for are now both wired: `journeys` on the pull request, and `candidate`
+    # on the exact release candidate. This job waits on both.
     #
-    # The browser suite now exists and gates the build in `journeys` above, but
-    # docs/QUALITY-ENGINEERING.md asks for two runs, not one: on the pull
-    # request, and "on the exact release candidate". Only the first is wired.
-    # portfolio/marisstella-homepage/playwright.config.ts takes
-    # PLAYWRIGHT_BASE_URL for the second, so what remains is a job between
-    # `container` and this one that starts the published :${sha} image and runs
-    # the same specs against it — not new specs.
+    # That does **not** lift the block, and the note this replaces was wrong
+    # about why. It said test 3 of
+    # platform/ci/test/production-ui-promotion-policy.test.mjs was the
+    # constraint — that the `quality_exception:` inputs above and the six
+    # conditions below "have to be removed together" because test 3 fails when
+    # a workflow declares the inputs while no job classifies as a promotion.
+    # Measured 2026-08-08 by deleting both and running the control: test 3
+    # passes and test **4** fails, with
     #
-    # Lifting the block is an owner decision about the portfolio's only live
-    # customer surface, and it is not a one-line change: test 3 of
-    # platform/ci/test/production-ui-promotion-policy.test.mjs fails if this
-    # workflow still declares `quality_exception:` inputs while no job
-    # classifies as a promotion, so the inputs above and the six conditions
-    # below have to be removed together.
+    #   .gitea/workflows/homepage-ci.yml deploy declares `environment:
+    #   production` and mutates production, so it must not run automatically
+    #   while its candidate browser gate is missing
+    #
+    # Test 4 applies the six conditions to *every* classified promotion job,
+    # unconditionally. The control has no "unless a candidate browser suite
+    # exists" branch anywhere, and this job stays classified with every
+    # `:latest` line removed — via platform/ci/deploy-homepage.sh and
+    # secrets.HETZNER_KUBECONFIG_B64. So adding `candidate` was worth doing on
+    # its own merits and buys nothing here on its own.
+    #
+    # Relaxing the promotion gate is therefore a separate, reviewed change to
+    # the control itself, and an owner decision about the portfolio's only live
+    # customer surface. Adding a bypass branch to a control in order to pass it
+    # is the shape this repository has been burned by before; it is not done
+    # here.
+    #
+    # One more thing a reader of this job should know: the artifact `candidate`
+    # verifies is not quite the artifact this job releases. platform/ci/deploy-
+    # homepage.sh never reads $IMAGE — it builds a ConfigMap from index.html,
+    # style.css and app.js in the *checkout* and mounts it over the image's web
+    # root. The candidate run is still the right check, because
+    # portfolio/marisstella-homepage/tests/markup-contract.test.mjs requires
+    # the image's web root and that --from-file set to be the same files, and
+    # the image additionally carries the real nginx.conf. But the coupling is a
+    # contract test, not a build artifact.
     if: >-
       github.ref == 'refs/heads/main' &&
       github.event_name == 'workflow_dispatch' &&

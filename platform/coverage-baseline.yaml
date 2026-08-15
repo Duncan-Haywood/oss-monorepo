@@ -227,14 +227,25 @@ components:
     # always have: the declared set is the `sources` glob, the measured set is
     # what the v8 provider emitted. The prose above this block previously said
     # 113 declared beside a measured 112 for the same reason.
+    # Re-measured 2026-08-16 on the same toolchain, after the stylesheet and
+    # lint-toolchain controls landed (`lib/stylesheetDelivery.test.ts`,
+    # `lib/stylesheetTheming.test.ts`, `lib/contrastOptimism.test.ts`,
+    # `lib/lintToolchain.test.ts`). The ratchet went red `baseline-stale` on all
+    # three percentages, which is what it is for: the new tests exercise code
+    # the old floor no longer describes.
+    #
+    # `unexercised` held at 57 of 115 — every one of these tests binds a file
+    # some other test already loaded, so none of them moved the number that
+    # matters. Read that, not the percentages: see the note above and
+    # `docs/COVERAGE-RATCHET.md`.
     baseline:
       unexercised: 57
-      lines: 54.70
-      functions: 55.67
-      branches: 46.84
+      lines: 55.71
+      functions: 56.50
+      branches: 47.63
     measured:
       files: 114
-      lines: 4077
+      lines: 4100
     tolerance:
       lines: 0.5
       functions: 0.5
@@ -265,14 +276,21 @@ components:
     # tests passing. 64 of 173 declared source files are loaded by no test, and
     # the whole of src/app/checkout/ is among them — the surface that takes a
     # payment is exercised by nothing.
+    # Re-measured 2026-08-16, after `lib/stylesheetDelivery.test.ts` and
+    # `lib/lintToolchain.test.ts` landed with the postcss restore.
+    #
+    # `unexercised` moved 64 -> 63, the direction the ratchet exists to hold:
+    # one previously untested source file is now loaded by a test. The whole of
+    # src/app/checkout/ remains among the 63 — the surface that takes a payment
+    # is still exercised by nothing, and none of this change touches that.
     baseline:
-      unexercised: 64
-      lines: 65.47
-      functions: 55.73
-      branches: 61.45
+      unexercised: 63
+      lines: 67.24
+      functions: 57.25
+      branches: 62.18
     measured:
       files: 173
-      lines: 4866
+      lines: 4881
     tolerance:
       lines: 0.5
       functions: 0.5
