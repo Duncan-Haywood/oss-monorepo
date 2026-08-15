@@ -23,12 +23,43 @@ AUDITED_COUNT=0
 # offline waiver can key on evidence the scan actually produced.
 SECRET_COUNT=0
 
+# How many times to probe the registry before concluding the run is offline.
+# Overridable so the contract tests can exercise both directions without paying
+# the retry delay.
+REGISTRY_PROBE_ATTEMPTS="${SECURITY_SCAN_PROBE_ATTEMPTS:-3}"
+
+# One resolver call decides whether *every* package is audited, and a single
+# failed lookup is not evidence that the registry is unreachable. Measured on
+# 2026-08-08: on a loaded host one blip put the scan into the offline branch,
+# all 18 packages were recorded as gaps, "Packages audited: 0" was printed, and
+# because scripts/verify-all.sh defaults SECURITY_SCAN_ALLOW_OFFLINE=1 the gate
+# still reported "Vulnerability & Secret Audit PASSED". The registry answered
+# normally seconds later. A transient failure must therefore cost a retry, not
+# the entire dependency audit.
+#
+# Only a run where every attempt fails is treated as offline. This deliberately
+# cannot make the scan *more* permissive: it only ever moves a run from the
+# skip-everything branch onto the branch that actually audits.
+registry_is_reachable() {
+  local attempt=1
+  while [ "${attempt}" -le "${REGISTRY_PROBE_ATTEMPTS}" ]; do
+    if node -e 'require("dns").lookup("registry.npmjs.org", (err) => process.exit(err ? 1 : 0))' >/dev/null 2>&1; then
+      return 0
+    fi
+    if [ "${attempt}" -lt "${REGISTRY_PROBE_ATTEMPTS}" ]; then
+      sleep 2
+    fi
+    attempt=$((attempt + 1))
+  done
+  return 1
+}
+
 IS_OFFLINE=0
 if [ -n "${SECURITY_SCAN_OFFLINE+x}" ]; then
   IS_OFFLINE="${SECURITY_SCAN_OFFLINE}"
-elif ! node -e 'require("dns").lookup("registry.npmjs.org", (err) => process.exit(err ? 1 : 0))' >/dev/null 2>&1; then
+elif ! registry_is_reachable; then
   IS_OFFLINE=1
-  echo "ℹ Network access to registry.npmjs.org is unavailable (offline/sandboxed environment)."
+  echo "ℹ Network access to registry.npmjs.org is unavailable after ${REGISTRY_PROBE_ATTEMPTS} attempt(s) (offline/sandboxed environment)."
   echo "  Skipping remote dependency audit; running local secret exposure audit..."
 fi
 
