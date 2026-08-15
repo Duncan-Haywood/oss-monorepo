@@ -280,10 +280,12 @@ ENROLLED: Tuple[Enrollment, ...] = (
     Enrollment(
         register="platform/exception-register.yaml",
         entry_id="EXC-013",
-        claim="claude_unset_is_conditional",
+        claim="claude_unsets_unconditionally",
         why=(
-            "said all three workflows unset the provider key; the Claude one unsets "
-            "it only when an OAuth token is also present"
+            "said all three workflows unset the provider key; the Claude one unset "
+            "it only when an OAuth token was also present until 2026-08-16, when the "
+            "unset became unconditional and `claude_unset_is_conditional` went red "
+            "as designed; this is its successor"
         ),
     ),
 )
