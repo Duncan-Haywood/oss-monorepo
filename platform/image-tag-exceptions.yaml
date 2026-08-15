@@ -468,28 +468,65 @@ exceptions:
       # door and not here. The `absent` claim below is deliberately the shape
       # that goes red when someone fixes it: adding the validation is the
       # remedy, and it must rewrite this entry rather than pass under it.
+      #
+      # Fixed 2026-08-16. The validation was written, so `absent:
+      # '^\s*validation\s*\{'` went red exactly as designed. It is replaced —
+      # not deleted — by three claims that assert what the sentence now says,
+      # each one standing on a different way the fix could be quietly undone:
+      # `validation_refuses_a_moving_tag` on the rule itself,
+      # `validation_binds_every_service_tag` on the rule being applied to
+      # `var.services` rather than to a constant, and `validation_is_conjunctive`
+      # on `alltrue` — swapping it for `anytrue` would leave the other two green
+      # over a check one passing service satisfies for the whole map.
       tag_is_a_required_field:
         sentence: >-
           `tag` is a required `string`
         present:
           path: platform/terraform/variables.tf
           pattern: '^\s+tag\s+=\s+string\s*$'
-      no_validation_constrains_the_value:
+      validation_refuses_a_moving_tag:
         sentence: >-
-          nothing validates the value
-        absent:
+          refuses any `tag` that is not a `sha256:` digest or a version
+        present:
           path: platform/terraform/variables.tf
-          pattern: '^\s*validation\s*\{'
+          pattern: 'can\(regex\("\^\(sha256:\[0-9a-f\]\{64\}\|.+\)\$",\s*service\.tag\)\)'
+      validation_binds_every_service_tag:
+        sentence: >-
+          applied over every entry in the map rather than one
+        precedes:
+          path: platform/terraform/variables.tf
+          after: 'can\(regex\(.*,\s*service\.tag\)\)'
+          before: '^\s*for\s+name,\s+service\s+in\s+var\.services\s*:\s*$'
+          within: 1
+          equals: 1
+      validation_is_conjunctive:
+        sentence: >-
+          every service has to pass it, not one of them
+        present:
+          path: platform/terraform/variables.tf
+          pattern: '^\s*condition\s*=\s*alltrue\(\[\s*$'
     reason: >-
       `each.value.image` / `each.value.tag` on `helm_release.web_service`.
       Evaluated from `var.services` map which is populated at deploy time via
       tfvars.
     compensating_control: >-
       Weaker than it read until 2026-08-06, when this said "Overrides are
-      validated at deploy time". They are not. What is true is that `tag` is a
-      required `string` in the object type — it was `optional(string, "latest")`
-      until 2026-08-04 — so a service that declares no tag fails `terraform
-      plan` at review time instead of floating. Beyond that, nothing validates
-      the value: `variables.tf` carries no `validation` block, so `latest` is
-      accepted here as readily as a digest. The remedy is the regex
-      `code_server_image_tag` already uses in `agent_platform.tf`.
+      validated at deploy time". They were not, and since 2026-08-16 they are.
+      Two things hold now. `tag` is a required `string` in the object type — it
+      was `optional(string, "latest")` until 2026-08-04 — so a service that
+      declares no tag fails `terraform plan` at review time instead of floating.
+      And `variables.tf` carries a `validation` block that refuses any `tag`
+      that is not a `sha256:` digest or a version, applied over every entry in
+      the map rather than one, so every service has to pass it, not one of them.
+      It is the same rule `code_server_image_tag` already used next door in
+      `agent_platform.tf` and `scripts/ci/image_tags.py:is_immutable_tag`
+      applies to every other surface, and it was measured against a real
+      `terraform plan` on the day it was written: a version planned, `latest`
+      failed, and a map holding one digest and one `latest` failed too.
+      Between 2026-08-06 and 2026-08-16 this entry recorded the opposite — that
+      nothing validated the value, so `latest` was accepted here as readily as
+      a digest — and the `absent` claim that recorded it was deliberately
+      shaped to go red on the fix rather than pass under it.
+      What this entry still cannot say is which permitted value a deploy
+      supplies: `var.services` is populated from tfvars at apply time, and no
+      tracked file names the tags the cluster is running.
