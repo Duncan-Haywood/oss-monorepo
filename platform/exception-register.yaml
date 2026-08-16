@@ -298,16 +298,18 @@ exceptions:
   - id: EXC-013
     kind: agent-permission-bypass
     path: ventures/local-site-studio/.github/workflows/*-scheduled.yml
-    count: 3
+    count: 6
     owner: duncan
     expires: 2026-10-29
     issue: docs/EXCEPTION-REGISTER.md#exc-013
     reason: >-
-      The Claude, Gemini and Grok scheduled workflows each start their CLI with
-      every confirmation gate disabled (`--dangerously-skip-permissions` with
-      `--permission-mode bypassPermissions`, `--yolo`, and `--always-approve`
-      respectively). Unattended agents cannot answer a prompt, so a scheduled
-      run either bypasses the gates or does nothing.
+      Five of the six scheduled agent workflows start their CLI with every
+      confirmation gate disabled: Claude with `--dangerously-skip-permissions`
+      and `--permission-mode bypassPermissions`, Gemini with `--yolo`, Grok with
+      `--always-approve`, Codex with `--sandbox danger-full-access` and
+      `--ask-for-approval never` on two lines, and Cursor with `-p --force`.
+      Unattended agents cannot answer a prompt, so a scheduled run either
+      bypasses the gates or does nothing.
     claims:
       # Corrected 2026-08-06. This said "the workflows unset the provider API
       # keys before handing control to the agent", of three workflows, and it
@@ -321,6 +323,17 @@ exceptions:
       # workflows implement into one all three were credited with — over the
       # single entry in this file whose own text calls it "the weakest
       # compensating control in the register".
+      #
+      # Count corrected 2026-08-16, 3 -> 6. The 3 was never the number of
+      # unattended agents running without confirmation gates; it was the number
+      # of bypasses the old flag denylist in `scripts/ci/audit_exceptions.py`
+      # had a pattern for. `codex-scheduled.yml` (`--sandbox danger-full-access`
+      # and `--ask-for-approval never`) and `cursor-scheduled.yml`
+      # (`ARGS=(-p --force)`) were bypassing their gates the whole time, in the
+      # glob this entry already covers, and the detector reported nothing. The
+      # detector is now an enrollment contract over every tracked
+      # `*-scheduled.yml`, so an unrecognised form yields
+      # `agent-invocation-unclassified` (see EXC-017) instead of silence.
       gemini_and_grok_unset_unconditionally:
         sentence: >-
           The Gemini and Grok workflows unset their provider key unconditionally
@@ -348,6 +361,27 @@ exceptions:
         absent:
           path: ventures/local-site-studio/.github/workflows/*-scheduled.yml
           pattern: 'runs-on:.*self-hosted'
+      cursor_key_is_live_in_the_bypassed_step:
+        sentence: >-
+          `CURSOR_API_KEY` is in the environment of the `-p --force` step
+        precedes:
+          path: ventures/local-site-studio/.github/workflows/cursor-scheduled.yml
+          after: 'ARGS=\(-p --force\)'
+          before: '^\s+CURSOR_API_KEY:\s+\$\{\{\s*secrets\.CURSOR_API_KEY\s*\}\}'
+          within: 12
+          equals: 1
+      cursor_never_unsets_its_key:
+        sentence: >-
+          there is no `unset` of it anywhere in the file
+        absent:
+          path: ventures/local-site-studio/.github/workflows/cursor-scheduled.yml
+          pattern: '\bunset\s+CURSOR_API_KEY\b'
+      codex_step_carries_no_provider_key:
+        sentence: >-
+          The Codex workflow puts no provider credential in the bypassed step
+        absent:
+          path: ventures/local-site-studio/.github/workflows/codex-scheduled.yml
+          pattern: '^\s+(OPENAI_API_KEY|CODEX_API_KEY):'
     compensating_control: >-
       Runs are non-interactive on ephemeral GitHub-hosted runners. The Gemini
       and Grok workflows unset their provider key unconditionally before handing
@@ -360,12 +394,20 @@ exceptions:
       any credential was supplied at all. Until 2026-08-06 this entry claimed
       all three workflows unset the key.
 
+      The two workflows this entry only started covering on 2026-08-16 split the
+      same way. The Codex workflow puts no provider credential in the bypassed
+      step — it authenticates from a cached `auth.json` and its run step carries
+      only `GH_TOKEN`. The Cursor workflow is worse than the Claude one:
+      `CURSOR_API_KEY` is in the environment of the `-p --force` step
+      unconditionally, on every path, and there is no `unset` of it anywhere in
+      the file.
+
       This is the weakest compensating control in the register and the reason
       this entry expires in 90 days rather than 180: the bypass is real, the
       blast radius is a writable checkout plus whatever the workflow token can
-      reach plus — on that one path — a provider credential, and
+      reach plus — on two of those paths — a provider credential, and
       `ventures/ubuntu-agent-server` already documents a narrower per-tool
-      allowlist as the pattern these three should adopt.
+      allowlist as the pattern these five should adopt.
 
   - id: EXC-014
     kind: lint-suppression
@@ -435,4 +477,44 @@ exceptions:
       The memoized value feeds a pure comparison function with no side effects,
       so a stale or recomputed result changes render cost and nothing else. The
       component's behaviour is covered by tests/product-detail-preview.test.ts.
+
+  - id: EXC-017
+    kind: agent-invocation-unclassified
+    path: ventures/local-site-studio/.github/workflows/opencode-scheduled.yml
+    count: 1
+    owner: duncan
+    issue: docs/EXCEPTION-REGISTER.md#exc-017
+    expires: 2026-11-14
+    reason: >-
+      `opencode-scheduled.yml` is the sixth scheduled agent workflow and the one
+      whose confirmation gates cannot be read from this repository at all. It
+      does not invoke a CLI; it delegates to the pinned third-party action
+      `anomalyco/opencode/github`, passing only `model`, `prompt` and
+      `use_github_token`. Whether that action runs the agent with tool
+      confirmation enabled is a property of the action, not of any file here.
+      This entry exists because the audit now fails closed on an enrolled agent
+      workflow it cannot classify, rather than reporting nothing — which is what
+      it did for this file, and for Codex and Cursor, until 2026-08-16.
+    claims:
+      no_gate_flag_is_passed_to_the_action:
+        sentence: >-
+          passing only `model`, `prompt` and `use_github_token`
+        absent:
+          path: ventures/local-site-studio/.github/workflows/opencode-scheduled.yml
+          pattern: '^\s+(yolo|auto_approve|permission|approval|sandbox|force):'
+      the_action_is_pinned_to_a_commit:
+        sentence: >-
+          the pinned third-party action `anomalyco/opencode/github`
+        present:
+          path: ventures/local-site-studio/.github/workflows/opencode-scheduled.yml
+          pattern: 'uses:\s+anomalyco/opencode/github@[0-9a-f]{40}\b'
+    compensating_control: >-
+      The action is pinned to a full commit SHA, so what runs cannot change
+      under the workflow without a diff. Runs are non-interactive on ephemeral
+      GitHub-hosted runners, and the OAuth material the step uses is scoped to
+      OpenCode. The provider API keys in the step environment are the real blast
+      radius and are the reason this entry gets 90 days rather than 180: the
+      remedy is to read what the action does with tool confirmation and either
+      reclassify this file under EXC-013 with the honest answer, or replace the
+      action with a CLI invocation whose flags this repository can see.
 
