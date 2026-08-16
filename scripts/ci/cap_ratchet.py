@@ -1008,6 +1008,42 @@ PINS: Tuple[Pin, ...] = (
         value=0.7,
         why=_PLATFORM_WHY + ", as shown in the investor-facing projection",
     ),
+    # --- the framing quote, which pays a second, different artist royalty ---
+    # `framing-dynamic-pricing.ts` appears in neither the pins above nor the
+    # census below, and it is not the 30/70 split: it pays the artist 15% of
+    # the framing profit, on top of whatever the print itself earns them. It
+    # was found by running the bare-literal detector from the abandoned
+    # `agent/cap-enrollment-ts` branch over the current sources — that branch's
+    # remedy (hoist every literal into a shared module) is incompatible with
+    # the anchored-pin approach this file settled on, but its *finding* here
+    # was real and is held below by this file's own mechanism instead.
+    #
+    # Both numbers are pinned because they compose: `0.55` sets the retail
+    # price the royalty is a fraction of, so moving it silently changes what an
+    # artist is paid without touching the royalty rate at all. Neither
+    # direction is safely "weaker" — a smaller royalty underpays an artist, a
+    # larger margin raises a customer's price — so these are decisions to be
+    # made visibly rather than bounds to ratchet.
+    Pin(
+        path="ventures/print-atelier/src/lib/framing-dynamic-pricing.ts",
+        kind="source-literal",
+        locator=r"const artistFramingRoyaltyUsd = parseFloat\(\(\(suggestedRetailPriceUsd - totalWholesaleCostUsd\) \* ([0-9.]+)\)",
+        value=0.15,
+        why=(
+            "the artist's share of framing profit — a second, separate royalty from the 30/70 "
+            "print split, paid on the same order and pinned by no other entry here"
+        ),
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/framing-dynamic-pricing.ts",
+        kind="source-literal",
+        locator=r"const targetRetail = totalWholesaleCostUsd / \(1 - ([0-9.]+)\);",
+        value=0.55,
+        why=(
+            "the target retail margin the framing quote is priced to, which sets both the "
+            "customer's price and the base the artist's framing royalty is taken from"
+        ),
+    ),
     # --- the census over every file that computes the split -----------------
     # Mutation testing of the anchored pins above found the hole these close.
     # Copying `netProfit * 0.3` to a line that renames the variable does not
