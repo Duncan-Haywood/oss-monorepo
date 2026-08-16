@@ -72,8 +72,27 @@ function normalizeSeverity(value) {
     .toLowerCase();
 }
 
+// Every `### SEC-xxx` heading, whatever follows the id. This must NOT be
+// `detailSections(...).map(id)`: detailSections needs two em dashes to read a
+// severity, so delegating to it makes a heading written without them vanish
+// from the uniqueness check, from "every documented finding is tracked", and
+// from the `unparsed` guard below — which, computed off a strict list against
+// the same strict list, could never fire at all.
+//
+// It *was* delegating, on 2026-08-16, under a comment three lines long
+// asserting the opposite. A mutation adding `### SEC-021 Duplicate With No
+// Severity` to the log left all six checks green. So the id is matched on `\b`
+// alone here, and the severity is read separately by detailSections; a heading
+// that only one of the two patterns accepts is now a failure rather than a
+// finding nothing looks at.
 function detailIds(source) {
-  return detailSections(source).map((section) => section.id);
+  return [...source.matchAll(/^###\s+(SEC-\d+)\b/gm)].map((match) => match[1]);
+}
+
+// Every id the log *mentions*, including prose cross-references. Not a
+// definition surface — used only to check that references resolve.
+function referencedIds(source) {
+  return [...new Set([...source.matchAll(/SEC-\d+/g)].map((match) => match[0]))];
 }
 
 test('Security audit log - every documented finding is tracked in the matrix', () => {
@@ -196,6 +215,35 @@ test('Security audit log - the matrix and the detail agree on severity', () => {
         'different finding that happens to share the identifier.',
     );
   }
+});
+
+// Two branches each writing up "the next" finding both pick the same id. If
+// both land, the uniqueness check above fails and someone renumbers — that is
+// the loud case, and it is covered. The quiet case is the second merge
+// resolving the conflict by keeping one write-up, which silently discards the
+// other finding and leaves no duplicate behind to detect.
+//
+// What it does leave behind is dangling prose: cross-references to the dropped
+// id elsewhere in the log ("see SEC-030", an "Identifier note", a residual-risk
+// paragraph) survive the resolution because they sit in untouched hunks. So a
+// reference to an id with no `### SEC-xxx` section is the readable trace of a
+// finding this log used to document and no longer does. This is not a complete
+// detector of a lost finding — nothing in one file can be — but it is the cheap
+// half, and it fails closed on the trace the merge actually leaves.
+test('Security audit log - every identifier the log mentions is a defined finding', () => {
+  const source = readLog();
+  const defined = new Set(detailIds(source));
+  const dangling = referencedIds(source).filter((id) => !defined.has(id));
+
+  assert.deepEqual(
+    dangling,
+    [],
+    `${LOG} refers to ${dangling.join(', ')} but documents no "### ${dangling[0]} — ..." ` +
+      'section. Either the reference is a typo, or a finding that existed was dropped — the ' +
+      'shape a cross-branch id collision leaves when the second merge resolves the conflict ' +
+      'by keeping one of the two write-ups. Restore the finding or correct the reference; do ' +
+      'not delete the reference to make this pass.',
+  );
 });
 
 test('Security audit log - every tracked finding carries a status', () => {
