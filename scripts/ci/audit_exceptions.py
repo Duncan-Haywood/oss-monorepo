@@ -43,7 +43,7 @@ import subprocess
 import sys
 from dataclasses import dataclass, asdict, field
 from datetime import date, timedelta
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any, Dict, Iterable, List, Optional, Sequence
 
 import yaml
@@ -172,20 +172,145 @@ DETECTORS: Sequence[Detector] = (
         extensions=frozenset(SH_EXTENSIONS | YAML_EXTENSIONS),
         description="ShellCheck rule disabled inline",
     ),
-    # Scoped to workflow YAML on purpose. The same flag names appear in shell
-    # comments in `ventures/ubuntu-agent-server` that explain why that host
-    # refuses to use them, and registering a warning against its own footgun
-    # would invert the meaning of the entry.
+)
+
+
+# --- Scheduled agent workflows: an enrollment contract, not a flag denylist ---
+#
+# This check used to be one regex over all workflow YAML holding the four bypass
+# spellings somebody had happened to see. A denylist reports a clean result for
+# every form it does not know, and it did. Measured at 5fa7f376, the repository
+# ran six `*-scheduled.yml` agent workflows and the regex saw three of them:
+#
+#   * `codex-scheduled.yml` disables its sandbox and its approval prompt with
+#     `--sandbox danger-full-access --ask-for-approval never`;
+#   * `cursor-scheduled.yml` does it with `ARGS=(-p --force)`;
+#   * `opencode-scheduled.yml` hands the decision to a third-party action, where
+#     no flag appears in this repository at all.
+#
+# EXC-013's `count: 3` was exactly right about what the regex could see and
+# wrong about the world, and `docs/EXCEPTION-REGISTER.md` had said so in prose
+# while every gate stayed green. A number that is only true of its own detector
+# is the shape this file exists to refuse.
+#
+# So the set is enrolled rather than sniffed. Enrollment comes from
+# `git ls-files`, so a seventh scheduled agent enrolls itself. Every enrolled
+# file must end up CLASSIFIED: either a known bypass form is found in it, or it
+# yields one `agent-invocation-unclassified` occurrence, which is unregistered
+# and therefore an error until a human reads the file and records what it does.
+# A renamed flag, a new agent CLI, or a runner that buries the decision inside
+# an action all land in the second bucket instead of vanishing. "The list did
+# not match" and "the agent asks before it acts" are not the same statement,
+# and only the enrollment contract can tell them apart.
+#
+# Residual scope limit, stated rather than papered over: enrollment is by
+# filename. An unattended agent workflow named something other than
+# `*-scheduled.yml` is outside this contract, and the repository's naming
+# convention is what keeps that honest.
+
+AGENT_BYPASS_KIND = "agent-permission-bypass"
+AGENT_UNCLASSIFIED_KIND = "agent-invocation-unclassified"
+
+_SCHEDULED_WORKFLOW_NAME = re.compile(r"-scheduled\.ya?ml$")
+_WORKFLOW_ROOT_DIRS = frozenset({".github", ".gitea"})
+
+
+@dataclass(frozen=True)
+class BypassForm:
+    pattern: str
+    description: str
+    #: Spellings that are ordinary outside an agent invocation. `--force` is
+    #: `docker buildx` and `git push` in five other workflows in this
+    #: repository, so matching it everywhere would bury the signal; inside an
+    #: enrolled agent workflow it is the Cursor CLI's confirmation bypass.
+    enrolled_only: bool = False
+
+    def compiled(self) -> re.Pattern:
+        return re.compile(self.pattern)
+
+
+AGENT_BYPASS_FORMS: Sequence[BypassForm] = (
+    BypassForm(
+        r"--dangerously-skip-permissions\b",
+        "Claude Code runs with every confirmation gate disabled",
+    ),
+    BypassForm(
+        r"\bbypassPermissions\b",
+        "Claude Code permission mode set to bypass",
+    ),
+    BypassForm(
+        r"--dangerously-bypass-approvals-and-sandbox\b",
+        "Codex approvals and sandbox both disabled",
+    ),
+    BypassForm(
+        r"--sandbox[=\s]+danger-full-access\b",
+        "Codex sandbox disabled: the agent has full host access",
+    ),
+    BypassForm(
+        r"--ask-for-approval[=\s]+never\b",
+        "Codex never asks for approval",
+    ),
+    BypassForm(
+        r"--full-auto\b",
+        "Codex runs fully automatically",
+    ),
+    BypassForm(
+        r"--yolo\b",
+        "Gemini CLI auto-approves every tool call",
+    ),
+    BypassForm(
+        r"--approval-mode[=\s]+(?:yolo|auto[-_]edit)\b",
+        "Gemini CLI approval mode set to auto-approve",
+    ),
+    BypassForm(
+        r"--always-approve\b",
+        "Grok CLI auto-approves every tool call",
+    ),
+    BypassForm(
+        r"--auto-approve\b",
+        "agent auto-approves every tool call",
+    ),
+    BypassForm(
+        r"--trust-all-tools\b",
+        "agent trusts every tool without confirmation",
+    ),
+    BypassForm(
+        r"--force\b",
+        "Cursor agent edits files and runs commands without confirmation",
+        enrolled_only=True,
+    ),
+)
+
+# Workflow YAML that is *not* an enrolled scheduled agent still gets the
+# unambiguous forms, so a bypass in a dispatch-only or reusable workflow is not
+# free. Scoped to YAML on purpose: the same flag names appear in shell comments
+# in `ventures/ubuntu-agent-server` that explain why that host refuses to use
+# them, and registering a warning against its own footgun would invert the
+# meaning of the entry.
+DETECTORS = tuple(DETECTORS) + (
     Detector(
-        kind="agent-permission-bypass",
-        pattern=(
-            r"--dangerously-skip-permissions\b|bypassPermissions\b"
-            r"|--yolo\b|--always-approve\b"
+        kind=AGENT_BYPASS_KIND,
+        pattern="|".join(
+            form.pattern for form in AGENT_BYPASS_FORMS if not form.enrolled_only
         ),
         extensions=frozenset(YAML_EXTENSIONS),
         description="unattended agent runs with its confirmation gates disabled",
     ),
 )
+
+
+def is_enrolled_agent_workflow(relative_path: str) -> bool:
+    """True for a scheduled agent workflow, by structure rather than by a list.
+
+    Enrollment is derived from the repository-relative path so that the set
+    grows with `git ls-files` and never needs editing here.
+    """
+    parts = PurePosixPath(relative_path).parts
+    if len(parts) < 3:
+        return False
+    if not _SCHEDULED_WORKFLOW_NAME.search(parts[-1]):
+        return False
+    return parts[-2] == "workflows" and parts[-3] in _WORKFLOW_ROOT_DIRS
 
 
 @dataclass
@@ -284,10 +409,57 @@ def tracked_files(repo_root: Path) -> List[str]:
     return [name for name in result.stdout.decode("utf-8").split("\0") if name]
 
 
+def classify_agent_workflow(relative_path: str, content: str) -> List[Occurrence]:
+    """Classify one enrolled scheduled agent workflow, failing closed.
+
+    A file in which no known bypass form appears yields an
+    `agent-invocation-unclassified` occurrence rather than nothing. That
+    occurrence has to be registered like any other, so a bypass form nobody has
+    written a pattern for costs a register entry with an owner and an expiry
+    instead of costing the control.
+    """
+    occurrences: List[Occurrence] = []
+    for line_number, line in enumerate(content.splitlines(), start=1):
+        for form in AGENT_BYPASS_FORMS:
+            if form.compiled().search(line):
+                occurrences.append(
+                    Occurrence(
+                        path=relative_path,
+                        line=line_number,
+                        kind=AGENT_BYPASS_KIND,
+                        text=line.strip()[:200],
+                        description=form.description,
+                    )
+                )
+                break  # One occurrence per line: two flags is still one step.
+    if occurrences:
+        return occurrences
+    return [
+        Occurrence(
+            path=relative_path,
+            line=1,
+            kind=AGENT_UNCLASSIFIED_KIND,
+            text=f"{PurePosixPath(relative_path).name}: no recognised confirmation-gate flag",
+            description=(
+                "scheduled agent workflow whose confirmation gates cannot be "
+                "read from the file"
+            ),
+        )
+    ]
+
+
 def scan_file(repo_root: Path, relative_path: str) -> List[Occurrence]:
     suffix = Path(relative_path).suffix
-    applicable = [d for d in DETECTORS if suffix in d.extensions]
-    if not applicable:
+    enrolled = is_enrolled_agent_workflow(relative_path)
+    # Enrolled files are classified by `classify_agent_workflow`, which knows
+    # strictly more forms than the generic detector; running both would double
+    # count every line they agree on.
+    applicable = [
+        d
+        for d in DETECTORS
+        if suffix in d.extensions and not (enrolled and d.kind == AGENT_BYPASS_KIND)
+    ]
+    if not applicable and not enrolled:
         return []
 
     absolute = repo_root / relative_path
@@ -309,6 +481,8 @@ def scan_file(repo_root: Path, relative_path: str) -> List[Occurrence]:
                         description=detector.description,
                     )
                 )
+    if enrolled:
+        occurrences.extend(classify_agent_workflow(relative_path, content))
     return occurrences
 
 

@@ -150,6 +150,157 @@ class TestDetection(unittest.TestCase):
         self.assertEqual(self.scan_source("README.md", "Use `# type: ignore` here.\n"), [])
 
 
+class TestScheduledAgentWorkflowEnrollment(unittest.TestCase):
+    """The agent-bypass check must be an enrollment contract, not a flag list.
+
+    Every case here is fed SYNTHETIC workflow source. A test that only read the
+    six real `*-scheduled.yml` files would pass identically against a parser
+    that matched nothing new, because the register would have been written to
+    whatever that parser happened to report — which is exactly how `count: 3`
+    survived two unregistered bypasses. The invented flags below appear in no
+    tracked workflow, so nothing but the contract can make them pass.
+    """
+
+    ENROLLED = "ventures/demo/.github/workflows/aider-scheduled.yml"
+
+    def scan_source(self, filename, source):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            target = root / filename
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(source, encoding="utf-8")
+            return scan_file(root, filename)
+
+    def workflow(self, run_line):
+        return (
+            "name: Aider scheduled agents\n"
+            "on:\n"
+            "  schedule:\n"
+            '    - cron: "0 * * * *"\n'
+            "jobs:\n"
+            "  run:\n"
+            "    runs-on: ubuntu-latest\n"
+            "    steps:\n"
+            "      - name: Run the agent\n"
+            "        run: |\n"
+            f"          {run_line}\n"
+        )
+
+    def test_enrollment_is_structural_and_comes_from_the_path(self):
+        enrolled = audit_exceptions.is_enrolled_agent_workflow
+        self.assertTrue(enrolled(self.ENROLLED))
+        self.assertTrue(enrolled(".github/workflows/claude-scheduled.yml"))
+        self.assertTrue(enrolled("a/b/.gitea/workflows/x-scheduled.yaml"))
+        self.assertFalse(enrolled("ventures/demo/.github/workflows/release.yml"))
+        self.assertFalse(enrolled("ventures/demo/.github/workflows/agent-grok.yml"))
+        self.assertFalse(enrolled("docs/claude-scheduled.yml"))
+
+    def test_a_bypass_form_nobody_wrote_a_pattern_for_fails_closed(self):
+        # The whole point. `--never-ask-me-anything` is invented; no denylist
+        # can match it, and reporting nothing for it is the defect.
+        found = self.scan_source(
+            self.ENROLLED, self.workflow("aider --never-ask-me-anything \"$PROMPT\"")
+        )
+        self.assertEqual([o.kind for o in found], ["agent-invocation-unclassified"])
+        self.assertEqual(found[0].line, 1)
+
+    def test_a_gate_preserving_workflow_is_also_unclassified(self):
+        # Fail-closed cuts both ways: "the agent asks before it acts" is a claim
+        # somebody has to make in the register, not something absence proves.
+        found = self.scan_source(
+            self.ENROLLED, self.workflow("aider --confirm-every-edit \"$PROMPT\"")
+        )
+        self.assertEqual([o.kind for o in found], ["agent-invocation-unclassified"])
+
+    def test_a_workflow_delegating_to_an_action_is_unclassified(self):
+        source = (
+            "name: OpenCode scheduled agents\n"
+            "jobs:\n"
+            "  run:\n"
+            "    steps:\n"
+            "      - uses: vendor/agent/github@0123456789abcdef0123456789abcdef01234567\n"
+            "        with:\n"
+            "          prompt: do the thing\n"
+        )
+        found = self.scan_source(self.ENROLLED, source)
+        self.assertEqual([o.kind for o in found], ["agent-invocation-unclassified"])
+
+    def test_codex_sandbox_and_approval_flags_are_bypasses(self):
+        source = self.workflow(
+            "codex exec --sandbox danger-full-access --ask-for-approval never \"$P\""
+        )
+        found = self.scan_source(self.ENROLLED, source)
+        self.assertEqual([o.kind for o in found], ["agent-permission-bypass"])
+
+    def test_each_line_of_a_multi_line_invocation_is_counted_once(self):
+        source = (
+            "jobs:\n"
+            "  run:\n"
+            "    steps:\n"
+            "      - run: |\n"
+            "          codex exec \\\n"
+            "            --sandbox danger-full-access \\\n"
+            "            --ask-for-approval never \\\n"
+            '            "$PROMPT"\n'
+        )
+        found = self.scan_source(self.ENROLLED, source)
+        self.assertEqual([o.kind for o in found], ["agent-permission-bypass"] * 2)
+        self.assertEqual([o.line for o in found], [6, 7])
+
+    def test_cursor_force_flag_is_a_bypass_inside_an_enrolled_workflow(self):
+        found = self.scan_source(self.ENROLLED, self.workflow("ARGS=(-p --force)"))
+        self.assertEqual([o.kind for o in found], ["agent-permission-bypass"])
+
+    def test_force_outside_an_enrolled_workflow_is_not_a_bypass(self):
+        # `--force` is `git push` and `docker buildx` in five other workflows
+        # here. Matching it everywhere would bury the signal this raises.
+        found = self.scan_source(
+            "ventures/demo/.github/workflows/release.yml",
+            self.workflow("git push --force origin main"),
+        )
+        self.assertEqual(found, [])
+
+    def test_the_original_four_forms_are_still_bypasses(self):
+        for flag in (
+            "--dangerously-skip-permissions",
+            "--permission-mode bypassPermissions",
+            "--yolo",
+            "--always-approve",
+        ):
+            with self.subTest(flag=flag):
+                found = self.scan_source(self.ENROLLED, self.workflow(f"agent {flag}"))
+                self.assertEqual([o.kind for o in found], ["agent-permission-bypass"])
+
+    def test_unambiguous_forms_still_apply_to_unenrolled_workflow_yaml(self):
+        # A dispatch-only or reusable workflow is outside the enrolled set, but
+        # a bypass in one must not become free.
+        found = self.scan_source(
+            "ventures/demo/.github/workflows/manual.yml", self.workflow("agent --yolo")
+        )
+        self.assertEqual([o.kind for o in found], ["agent-permission-bypass"])
+
+    def test_an_unclassified_workflow_must_be_registered(self):
+        unclassified = occurrence(
+            path=self.ENROLLED,
+            kind="agent-invocation-unclassified",
+            text="aider-scheduled.yml: no recognised confirmation-gate flag",
+        )
+        findings = audit([unclassified], [], today=TODAY)
+        self.assertEqual(codes(findings), ["unregistered-suppression"])
+
+    def test_a_bypass_entry_does_not_silently_cover_an_unclassified_one(self):
+        entry = complete_entry(
+            kind="agent-permission-bypass",
+            path="ventures/demo/.github/workflows/*-scheduled.yml",
+            count=1,
+        )
+        unclassified = occurrence(
+            path=self.ENROLLED, kind="agent-invocation-unclassified"
+        )
+        findings = audit([unclassified], [entry], today=TODAY)
+        self.assertIn("unregistered-suppression", codes(findings))
+
+
 class TestAuditFailsClosed(unittest.TestCase):
 
     def test_clean_repository_and_matching_register_pass(self):
@@ -280,6 +431,7 @@ class TestEndToEndOnATrackedFile(unittest.TestCase):
             "PATH": os.environ.get("PATH", ""),
         }
         subprocess.run(["git", "init", "-q"], cwd=root, env=env, check=True)
+        (root / filename).parent.mkdir(parents=True, exist_ok=True)
         (root / filename).write_text(source, encoding="utf-8")
         subprocess.run(["git", "add", filename], cwd=root, env=env, check=True)
         return root
@@ -295,6 +447,21 @@ class TestEndToEndOnATrackedFile(unittest.TestCase):
         (root / "scratch.ts").write_text("// @ts-ignore\n", encoding="utf-8")
         scanned = {o.path for o in scan_repository(root)}
         self.assertEqual(scanned, {"suite.test.ts"})
+
+    def test_a_new_scheduled_agent_with_an_unknown_bypass_fails_the_audit(self):
+        # The seam that matters: a seventh agent workflow enrols itself from
+        # `git ls-files` and is red until somebody records what it does. No
+        # edit to the detector is involved.
+        workflow = "ventures/new/.github/workflows/aider-scheduled.yml"
+        root = self.build_repo(
+            workflow,
+            "on:\n  schedule:\n    - cron: \"0 * * * *\"\n"
+            "jobs:\n  run:\n    steps:\n"
+            '      - run: aider --never-ask-me-anything "$PROMPT"\n',
+        )
+        findings = audit(scan_repository(root), [], today=TODAY)
+        self.assertEqual(codes(findings), ["unregistered-suppression"])
+        self.assertIn(f"{workflow}:1", findings[0].where)
 
 
 class TestRepositoryContract(unittest.TestCase):
@@ -342,6 +509,34 @@ class TestRepositoryContract(unittest.TestCase):
 
     def test_audit_entrypoint_exits_zero_on_the_real_repository(self):
         self.assertEqual(audit_exceptions.main([]), 0)
+
+    def test_every_enrolled_agent_workflow_is_classified(self):
+        # The contract, measured against the tree rather than a fixture. If a
+        # refactor drops the enrollment pass this goes red even though every
+        # count still balances, which is the failure the old denylist had.
+        enrolled = [
+            path
+            for path in audit_exceptions.tracked_files(REPO_ROOT)
+            if audit_exceptions.is_enrolled_agent_workflow(path)
+        ]
+        self.assertGreaterEqual(
+            len(enrolled), 6, "Expected the scheduled agent workflows to be enrolled."
+        )
+        occurrences = scan_repository(REPO_ROOT)
+        classified = {
+            o.path
+            for o in occurrences
+            if o.kind
+            in {
+                audit_exceptions.AGENT_BYPASS_KIND,
+                audit_exceptions.AGENT_UNCLASSIFIED_KIND,
+            }
+        }
+        self.assertEqual(
+            [],
+            sorted(set(enrolled) - classified),
+            "Enrolled scheduled agent workflows that produced no classification.",
+        )
 
 
 if __name__ == "__main__":

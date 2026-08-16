@@ -160,6 +160,21 @@ Being honest about what this does **not** cover:
   string literal or a comment is reported (see [EXC-009](#exc-009)). That is the
   safe direction to be wrong in: a false positive costs one register entry, a
   false negative costs the control.
+- **Scheduled agent workflows are the one exception to that, and are enrolled
+  rather than matched.** Every construct above is found by looking for it, which
+  means a form nobody wrote a pattern for is reported as absent. For agent
+  permission bypasses that failed: see the correction on [EXC-013](#exc-013).
+  So `is_enrolled_agent_workflow` in `scripts/ci/audit_exceptions.py` takes the
+  set of tracked `*-scheduled.yml` files under a `.github/`/`.gitea/`
+  `workflows/` directory — from `git ls-files`, so a seventh agent enrols
+  itself — and requires each one to be **classified**: either a known bypass
+  form appears in it, or it yields an `agent-invocation-unclassified`
+  occurrence, which must be registered like any other. A renamed flag, a new
+  agent CLI, or a runner that hides the decision inside a third-party action
+  ([EXC-017](#exc-017)) all fail closed instead of reporting clean.
+  The residual limit, stated rather than papered over: enrolment is by filename.
+  An unattended agent workflow not named `*-scheduled.yml` is outside the
+  contract, and the naming convention is what keeps that honest.
 
 ## Remediation plan
 
@@ -282,17 +297,19 @@ surfaces. Remove the disable when ShellCheck learns to follow `trap`.
 
 ### EXC-013
 
-**Three agent permission bypasses in `local-site-studio` scheduled workflows —
-expires 2026-10-29.** The shortest expiry in the register, and the entry whose
-own text calls it the weakest compensating control here. The Claude, Gemini and
-Grok scheduled workflows each start their CLI with every confirmation gate
+**Six agent permission bypasses across five `local-site-studio` scheduled
+workflows — expires 2026-10-29.** The shortest expiry in the register, and the
+entry whose own text calls it the weakest compensating control here. Claude,
+Gemini, Grok, Codex and Cursor each start their CLI with every confirmation gate
 disabled — `--dangerously-skip-permissions` with
-`--permission-mode bypassPermissions`, `--yolo`, and `--always-approve`
+`--permission-mode bypassPermissions`, `--yolo`, `--always-approve`,
+`--sandbox danger-full-access` plus `--ask-for-approval never`, and `-p --force`
 respectively. An unattended agent cannot answer a prompt, so a scheduled run
-either bypasses the gates or does nothing.
+either bypasses the gates or does nothing. The count is 6 rather than 5 because
+Codex spells its bypass on two lines and the audit counts lines.
 
-Two open items, both recorded as checked `claims:` on the register entry so they
-cannot go stale the way this entry's compensating control did:
+Three open items, all recorded as checked `claims:` on the register entry so
+they cannot go stale the way this entry's compensating control did:
 
 1. **The Claude workflow's key handling.** It injects `ANTHROPIC_API_KEY` into
    the environment of the bypassed step and unsets it only inside the branch
@@ -302,16 +319,23 @@ cannot go stale the way this entry's compensating control did:
    provider key unconditionally and never place it in the step environment;
    this one should match them, which means deciding whether the API-key
    fallback is still wanted at all.
-2. **The narrower pattern already exists.** `ventures/ubuntu-agent-server`
-   documents a per-tool allowlist. Adopting it in these three workflows is the
+2. **The Cursor workflow's key handling is the same defect, unconditional.**
+   `CURSOR_API_KEY` sits in the environment of the `-p --force` step on every
+   path and is never unset. Codex is the clean one: its run step carries only
+   `GH_TOKEN`.
+3. **The narrower pattern already exists.** `ventures/ubuntu-agent-server`
+   documents a per-tool allowlist. Adopting it in these five workflows is the
    remedy that removes the entry rather than renewing it.
 
-Out of scope for this entry and worth naming: the glob covers six
-`*-scheduled.yml` files, and `codex-scheduled.yml` (`--ask-for-approval never`)
-and `cursor-scheduled.yml` (`-p --force`) bypass their gates through flags no
-detector in `scripts/ci/audit_exceptions.py` matches. The count of 3 is correct
-for what the detectors see; it is not the number of unattended agents running
-without confirmation gates, which is 5.
+**Corrected 2026-08-16, count 3 → 6.** Until then this section said the glob
+covered six `*-scheduled.yml` files while `codex-scheduled.yml` and
+`cursor-scheduled.yml` bypassed their gates "through flags no detector in
+`scripts/ci/audit_exceptions.py` matches", and that the count of 3 "is correct
+for what the detectors see". That is a true sentence about a false number, and
+writing it down changed nothing: the detector was a flag denylist, the register
+recorded what the denylist could see, and every gate stayed green over two
+unregistered bypasses. The detector is now an enrollment contract — see
+[Deliberate scope limits](#deliberate-scope-limits) and [EXC-017](#exc-017).
 
 ### EXC-014
 
@@ -345,3 +369,24 @@ Compiler declining to optimise the component, not a defect report. The `useMemo`
 is hand-written with a complete dependency array. Remove the disable when a
 compiler release compiles the component, or when the memo is restructured into
 something it can prove.
+
+### EXC-017
+
+**One unclassifiable scheduled agent workflow —
+`opencode-scheduled.yml`, expires 2026-11-14.** The sixth scheduled agent, and
+the only one whose confirmation gates are not decided by anything in this
+repository. It runs no CLI: it delegates to the pinned third-party action
+`anomalyco/opencode/github`, passing `model`, `prompt` and `use_github_token`
+and nothing else. Whether the agent asks before it acts is a property of that
+action.
+
+This entry is the enrollment contract doing its job. Before 2026-08-16 the audit
+reported nothing for this file — not "gates enabled", not "unknown", nothing —
+because the flag denylist found no flag, and a denylist that finds nothing looks
+exactly like a clean result. Enrollment inverts that: the file is in the set, it
+must be classified, and "cannot be classified" is a finding with an owner and an
+expiry rather than silence.
+
+Remove it by reading what the action does with tool confirmation and then either
+reclassifying the file under [EXC-013](#exc-013) with the honest answer, or
+replacing the action with a CLI invocation whose flags this repository can see.
