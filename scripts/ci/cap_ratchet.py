@@ -880,6 +880,98 @@ PINS: Tuple[Pin, ...] = (
         value=0.3,
         why="Stripe's fixed per-charge fee in dollars, which is 30 cents and not the 30% split",
     ),
+    # --- the rest of the fee, payout and withholding path -------------------
+    # The pin above holds one constant in one file. `checkout.ts` declares its
+    # own `STRIPE_RATE`/`STRIPE_FIXED` pair with the same two values and uses
+    # them at `checkout.ts:484` to quote a processing fee, so the venture types
+    # Stripe's fee schedule in two places and — until this block — held it in
+    # one. Editing either copy alone makes the quoted fee and the reconciled
+    # fee disagree, and no test in the venture pins a value: this is the
+    # [naming-a-constant-does-not-enroll-it] shape on the money path.
+    #
+    # None of these names carry a `MAX_`/`MIN_`/`THRESHOLD_` prefix, so the
+    # bound-name enrollment contract cannot reach any of them. They are pinned
+    # rather than watched because neither direction is safely "weaker": a lower
+    # withholding rate under-remits to a tax authority and a higher one
+    # over-deducts from an artist, and both are the venture owner's decision to
+    # make visibly.
+    Pin(
+        path="ventures/print-atelier/src/lib/checkout.ts",
+        kind="ts-constant",
+        locator="STRIPE_RATE",
+        value=0.029,
+        why="Stripe's percentage fee as quoted at checkout, and the twin of the `stripe-connect.ts` copy that reconciles it",
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/checkout.ts",
+        kind="ts-constant",
+        locator="STRIPE_FIXED",
+        value=0.3,
+        why="Stripe's fixed per-charge fee in dollars at the checkout quote — 30 cents, not the 30% split, and the second copy of the constant pinned above",
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/stripe-connect.ts",
+        kind="ts-constant",
+        locator="STRIPE_RATE",
+        value=0.029,
+        why="Stripe's percentage fee on the Connect reconciliation path; its `STRIPE_FIXED` sibling was pinned and this was not",
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/payout-tax-ledger.ts",
+        kind="ts-constant",
+        locator="US_BACKUP_WITHHOLDING_RATE",
+        value=24,
+        why="the IRS backup withholding percentage deducted from a US artist's payout, where a wrong value is a mis-remittance to a tax authority",
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/payout-tax-ledger.ts",
+        kind="ts-constant",
+        locator="NON_RESIDENT_DEFAULT_WITHHOLDING_RATE",
+        value=30,
+        why="the default withholding percentage for a non-resident artist absent a treaty rate, deducted from money owed to a person",
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/payout-reserve-health.ts",
+        kind="ts-constant",
+        locator="DEFAULT_CHARGEBACK_RESERVE_RATE",
+        value=0.05,
+        why="the share of revenue held back against chargebacks, which is money withheld from artists and released later",
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/payout-reserve-health.ts",
+        kind="ts-constant",
+        locator="DEFAULT_CONNECT_FEE_RATE",
+        value=0.0025,
+        why="the Stripe Connect percentage fee assumed when projecting reserve health",
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/payout-reserve-health.ts",
+        kind="ts-constant",
+        locator="DEFAULT_CONNECT_FEE_FIXED_CENTS",
+        value=25,
+        why="the Stripe Connect fixed fee in cents assumed when projecting reserve health",
+    ),
+    Pin(
+        path="ventures/print-atelier/src/lib/creator-affiliate-tiers.ts",
+        kind="ts-constant",
+        locator="DEFAULT_MINIMUM_PAYOUT_THRESHOLD_CENTS",
+        value=5000,
+        why="the balance an affiliate must reach before being paid at all; raising it silently defers every small creator's payout",
+    ),
+    Pin(
+        path="ventures/quick-pick-survey/src/lib/adminAuth.ts",
+        kind="ts-constant",
+        locator="RATE_LIMIT_MAX_FAILURES",
+        value=8,
+        why="failed admin logins tolerated before lockout — an access control, and the one venture here that serves customers",
+    ),
+    Pin(
+        path="ventures/quick-pick-survey/src/lib/adminAuth.ts",
+        kind="ts-constant",
+        locator="RATE_LIMIT_WINDOW_MS",
+        value=900000,
+        why="the window the admin login failure count is measured over; widening the window with a fixed count loosens the lockout",
+    ),
     # The remaining unpinned copies of the split.
     Pin(
         path="ventures/print-atelier/src/lib/pod-routing-optimizer.ts",
@@ -1323,6 +1415,94 @@ UNENROLLED_VENTURE_CONSTANTS: Tuple[VentureExemption, ...] = (
             "a single number, so this cannot quietly become a way to hide one."
         ),
     ),
+    # --- money-named constants that hold no number --------------------------
+    # The money-name enrollment contract below enumerates by name, and a name
+    # like `STRIPE_API_VERSION` says nothing about the declaration's shape.
+    # Each of these resolves to None, so a watch or a pin would have nothing to
+    # hold. The same predicate that guards `MAX_LENGTH` guards them: it re-reads
+    # the declaration every run and fails the moment one becomes a single
+    # number, which is exactly when it would start carrying a value worth
+    # holding. Registering them is what stops the contract being satisfied by
+    # deleting the enumeration instead.
+    VentureExemption(
+        path="ventures/print-atelier/src/lib/stripe-payment-intent.ts",
+        locator="STRIPE_API_VERSION",
+        predicate="declaration-is-not-a-single-number",
+        why=(
+            "a dated API version string such as `2024-06-20`, not a quantity. Pinning it would "
+            "assert that upgrading Stripe's API is a ratchet violation, which is the wrong shape "
+            "for a version: the safe direction is forward, and the compatibility question it "
+            "raises is not one a numeric floor can answer."
+        ),
+    ),
+    VentureExemption(
+        path="ventures/print-atelier/src/lib/stripe-payment-intent.ts",
+        locator="STRIPE_PAYMENT_INTENTS_ENDPOINT",
+        predicate="declaration-is-not-a-single-number",
+        why=(
+            "the Stripe REST URL the venture posts a PaymentIntent to — a string. It is "
+            "load-bearing on the money path, but what protects it is that it must be Stripe's "
+            "host, which is a different assertion from a number that may not fall, and belongs "
+            "to the route-posture and SAST controls rather than to a ratchet."
+        ),
+    ),
+    VentureExemption(
+        path="ventures/print-atelier/src/lib/influencer-attribution.ts",
+        locator="TIER_COMMISSION_RATES",
+        predicate="declaration-is-not-a-single-number",
+        why=(
+            "a per-tier map of commission rates, not one rate — the same shape as `MAX_LENGTH` "
+            "above, and money-bearing rather than cosmetic. Splitting it into named constants "
+            "would enroll every rate individually and is the right fix, but it changes the "
+            "venture's source and is the owner's call, not one this control forces in order to "
+            "obtain something to measure. The predicate fails the moment it collapses to a "
+            "single number, so it cannot become a hiding place for one."
+        ),
+    ),
+    VentureExemption(
+        path="ventures/local-site-studio/src/lib/pricing/stripe-core-env-readiness.ts",
+        locator="STRIPE_CORE_ENV_NAMES",
+        predicate="declaration-is-not-a-single-number",
+        why=(
+            "the list of environment variable names Stripe configuration is read from — strings, "
+            "and matched by the money-name enumeration only because it begins `STRIPE_`. There is "
+            "no quantity here to ratchet; that the list is complete is asserted by the venture's "
+            "own readiness contract."
+        ),
+    ),
+    VentureExemption(
+        path="ventures/local-site-studio/src/lib/security/rate-limit.ts",
+        locator="DEFAULT_RATE_LIMIT",
+        predicate="declaration-is-not-a-single-number",
+        why=(
+            "an object carrying a window and a maximum together rather than one number. Both "
+            "components are security-bearing, and splitting them into two named constants would "
+            "enroll both — again a change to the venture's source that its owner should make. "
+            "The predicate fails if it ever becomes a single number."
+        ),
+    ),
+    *(
+        VentureExemption(
+            path=path,
+            locator=locator,
+            predicate="declaration-is-not-a-single-number",
+            why=(
+                "a currency-keyed map of foreign exchange rates, not one rate. A ratchet is the "
+                "wrong instrument for these even once split: an FX rate is supposed to move, and "
+                "a floor under it would fail on every ordinary revision while saying nothing "
+                "about whether the number is right. What matters for these is staleness and "
+                "provenance — whether a live rate was fetched at all — which is a different "
+                "control from this one. The predicate still fails if the declaration collapses "
+                "to a single number, at which point it is a rate someone hardcoded and this "
+                "register should argue about it again."
+            ),
+        )
+        for path, locator in (
+            ("ventures/print-atelier/src/lib/global-pricing.ts", "DEFAULT_EXCHANGE_RATES"),
+            ("ventures/print-atelier/src/lib/global-pricing.ts", "DEFAULT_FX_RATES"),
+            ("ventures/print-atelier/src/lib/payout-fx-optimizer.ts", "DEFAULT_FX_RATES"),
+        )
+    ),
 )
 
 
@@ -1669,6 +1849,63 @@ def venture_ts_sources(repo_root: Path) -> List[str]:
             continue
         paths.append(rel)
     return sorted(paths)
+
+
+MONEY_CONSTANT_NAME = re.compile(
+    r"(?:^|_)(?:STRIPE|FEE|FEES|RATE|RATES|SHARE|SPLIT|MARGIN|COMMISSION|PAYOUT"
+    r"|WITHHOLDING|DISCOUNT|DEPOSIT|RESERVE|REFUND|CHARGEBACK)(?:_|$)"
+)
+
+
+def money_named_venture_constants(repo_root: Path) -> List[Tuple[str, str]]:
+    """Every module-level venture constant whose *name* puts it on the money path.
+
+    The sibling enumeration keyed on `MAX_`/`MIN_`/`THRESHOLD_` prefixes holds
+    100% of the population it can see, and sees none of this one: `STRIPE_RATE`,
+    `US_BACKUP_WITHHOLDING_RATE` and `DEFAULT_CHARGEBACK_RESERVE_RATE` carry no
+    bound-shaped prefix, so a prefix rule reports full coverage over a set that
+    excludes every fee and every deduction the venture applies to an artist's
+    money.
+
+    This is deliberately a *derived* population, not a curated list. The census
+    of split literals it sits beside is curated, and the hole that leaves is
+    that nothing fails when an eleventh money file appears — the list simply
+    does not mention it. Enumerating from `git ls-files` means a new money
+    constant is enrolled by existing, or not at all.
+    """
+    found: List[Tuple[str, str]] = []
+    for rel in venture_ts_sources(repo_root):
+        source = (repo_root / rel).read_text(encoding="utf-8")
+        for name in ts_module_constants(source):
+            if MONEY_CONSTANT_NAME.search(name):
+                found.append((rel, name))
+    return sorted(found)
+
+
+def holders_of(path: str, name: str) -> List[str]:
+    """How `path:name` is held, if it is.
+
+    A pin may hold a constant either by naming it (`ts-constant`) or by
+    anchoring a regex on its declaration (`source-literal`) — `stripe-connect.ts`'s
+    `STRIPE_FIXED` is held the second way. A contract that only understood the
+    first would demand a second pin for it and report a real hole where there is
+    none, so both are recognised here.
+    """
+    holders: List[str] = []
+    for watch in WATCHES:
+        if watch.kind == "ts-constant" and (watch.path, watch.locator) == (path, name):
+            holders.append("watch")
+    for pin in PINS:
+        if pin.path != path:
+            continue
+        if pin.kind == "ts-constant" and pin.locator == name:
+            holders.append("pin")
+        elif pin.kind == "source-literal" and name in pin.locator:
+            holders.append("pin")
+    for exemption in UNENROLLED_VENTURE_CONSTANTS:
+        if (exemption.path, exemption.locator) == (path, name):
+            holders.append("exemption")
+    return holders
 
 
 def extract(watch: Watch, source: str) -> Optional[float]:
