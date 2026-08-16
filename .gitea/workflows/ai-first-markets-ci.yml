@@ -43,3 +43,56 @@ jobs:
       - name: Run the same fail-closed application gate used locally
         working-directory: ${{ github.workspace }}
         run: bash scripts/ci/verify-component.sh ai-first-markets
+
+  journeys:
+    name: Critical browser journeys
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          # Not a convenience. platform/ci/test/production-ui-promotion-policy.test.mjs
+          # classifies any job carrying write credentials as a production
+          # mutation, which would then require this job to carry the full
+          # dispatch gate. A test job must not hold the credentials.
+          persist-credentials: false
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: ventures/ai-first-markets/package-lock.json
+
+      - name: Install locked dependencies without package lifecycle scripts
+        run: npm ci --ignore-scripts --no-audit --fund=false
+
+      # `npm ci --ignore-scripts` suppresses the browser download, so it is done
+      # here explicitly rather than left to the lifecycle script the install
+      # deliberately skips. Without this the suite would fail to launch, which
+      # docs/QUALITY-ENGINEERING.md requires to be a failure and not a skip:
+      # "Required checks fail closed when tooling, browsers, fixtures,
+      # baselines, services, or reports are missing."
+      - name: Install the Chromium build Playwright expects
+        run: npx playwright install --with-deps chromium
+
+      # playwright.config.ts starts the suite's server with `npx next start`,
+      # which serves a build rather than producing one. Without this step the
+      # `webServer` block times out instead of reporting a journey result.
+      - name: Build the production bundle the journeys run against
+        run: npm run build
+
+      - name: Critical journeys
+        run: npm run test:e2e
+
+      # A red journey with no trace becomes a re-run, and a re-run is how a real
+      # failure turns into a flake. The evidence is part of the gate.
+      - name: Retain failure evidence
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ai-first-markets-journey-evidence
+          path: |
+            ventures/ai-first-markets/e2e-report
+            ventures/ai-first-markets/e2e-results
+          retention-days: 14
+          if-no-files-found: ignore
