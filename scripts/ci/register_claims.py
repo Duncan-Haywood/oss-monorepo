@@ -322,6 +322,31 @@ ENROLLED: Tuple[Enrollment, ...] = (
         claim="runners_are_github_hosted",
     ),
     Enrollment(
+        register="platform/exception-register.yaml",
+        entry_id="EXC-013",
+        claim="cursor_key_is_live_in_the_bypassed_step",
+    ),
+    Enrollment(
+        register="platform/exception-register.yaml",
+        entry_id="EXC-013",
+        claim="cursor_never_unsets_its_key",
+    ),
+    Enrollment(
+        register="platform/exception-register.yaml",
+        entry_id="EXC-013",
+        claim="codex_step_carries_no_provider_key",
+    ),
+    Enrollment(
+        register="platform/exception-register.yaml",
+        entry_id="EXC-017",
+        claim="no_gate_flag_is_passed_to_the_action",
+    ),
+    Enrollment(
+        register="platform/exception-register.yaml",
+        entry_id="EXC-017",
+        claim="the_action_is_pinned_to_a_commit",
+    ),
+    Enrollment(
         register="platform/image-tag-exceptions.yaml",
         entry_id="IMG-005",
         claim="helm_releases_total",
