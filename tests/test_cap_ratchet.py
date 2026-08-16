@@ -77,6 +77,9 @@ from cap_ratchet import (
     evaluate_pins,
     extract_ts_constant,
     fold_ts_number,
+    holders_of,
+    money_named_venture_constants,
+    source_literal_pins_declaration,
     ts_module_constants,
     venture_ts_sources,
 )
@@ -1468,6 +1471,100 @@ class VentureEnrollmentContractTests(unittest.TestCase):
             "(if one direction is unambiguously the weak one), to PINS (if any change should be "
             "a visible decision), or to UNENROLLED_VENTURE_CONSTANTS with a predicate: "
             + ", ".join(missing),
+        )
+
+    def test_every_money_named_venture_constant_is_held(self):
+        """The fee, payout and withholding path, enumerated rather than listed.
+
+        Its sibling above holds every constant whose name starts `MAX_`, `MIN_`
+        or `THRESHOLD_`, and reports 100% coverage while seeing none of
+        `STRIPE_RATE`, `US_BACKUP_WITHHOLDING_RATE` or
+        `DEFAULT_CHARGEBACK_RESERVE_RATE`. A prefix rule cannot reach the money
+        path, because money constants are not named after bounds.
+
+        The literal census this sits beside is the other half of the same hole
+        and is curated by hand: ten print-atelier files declare how many bare
+        split literals they contain, and nothing fails when an eleventh money
+        file appears, because the list simply does not mention it. This
+        population is derived from `git ls-files` on every run, so a new money
+        constant is enrolled by existing.
+        """
+        unheld = [
+            f"{path}:{name}"
+            for path, name in money_named_venture_constants(REPO_ROOT)
+            if not holders_of(path, name)
+        ]
+        self.assertEqual(
+            unheld,
+            [],
+            "These name something on the money path and nothing holds them, so any value "
+            "change is invisible. Add each to PINS (if a change should be a visible decision) "
+            "or to UNENROLLED_VENTURE_CONSTANTS with a predicate (if it holds no single "
+            "number): " + ", ".join(unheld),
+        )
+
+    def test_the_money_enumeration_actually_finds_something(self):
+        """A derived population that collapses to nothing is a passing gate.
+
+        This repository has shipped a vacuous glob before. The floor is set
+        below the population at the time of writing so ordinary deletions do
+        not trip it, and far above zero so a broken enumeration does.
+        """
+        population = money_named_venture_constants(REPO_ROOT)
+        self.assertGreater(
+            len(population), 15, "the money-named constant enumeration collapsed"
+        )
+        self.assertTrue(
+            any("print-atelier" in path for path, _ in population),
+            "the enumeration no longer reaches the venture that takes payments",
+        )
+
+    def test_no_money_named_constant_is_held_twice(self):
+        """A constant both pinned and excused is a register disagreeing with itself.
+
+        `holders_of` deliberately recognises a `source-literal` pin anchored on
+        a constant's declaration as holding it — `stripe-connect.ts`'s
+        `STRIPE_FIXED` is held that way. Without that, the contract above would
+        demand a second pin for it and this test is what stops the pair being
+        added.
+        """
+        for path, name in money_named_venture_constants(REPO_ROOT):
+            with self.subTest(constant=f"{path}:{name}"):
+                self.assertLessEqual(
+                    len(holders_of(path, name)),
+                    1,
+                    f"{path}:{name} is held {len(holders_of(path, name))} times",
+                )
+
+    def test_a_source_literal_pin_only_holds_what_it_declares(self):
+        """Mentioning a constant is not pinning it.
+
+        The test above lets a `source-literal` pin count as a holder. That
+        concession is only sound while "holder" means *anchored on the
+        declaration*. A locator anchored on a line that merely uses the
+        constant — `total \\* STRIPE_RATE \\+ STRIPE_FIXED` is exactly such a
+        line, at `checkout.ts:484` — captures a number somewhere else entirely,
+        so accepting it would let the enrollment contract report full coverage
+        over a declaration nothing pins. That is the same shape as a control
+        reading a guessed surface, and it is cheap to refuse here.
+        """
+        usage = r"const stripeProcessingFee = roundCurrency\(total \* STRIPE_RATE \+ STRIPE_FIXED\)"
+        for name in ("STRIPE_RATE", "STRIPE_FIXED"):
+            with self.subTest(name=name):
+                self.assertIn(name, usage, "the fixture stopped naming the constant")
+                self.assertFalse(
+                    source_literal_pins_declaration(usage, name),
+                    f"a locator anchored on a *use* of {name} was counted as pinning it",
+                )
+
+        # The real pin this concession exists for must keep working, or the
+        # refusal above is bought by re-opening the hole it was added to close.
+        declaration = r"^const STRIPE_FIXED = ([0-9.]+);$"
+        self.assertTrue(source_literal_pins_declaration(declaration, "STRIPE_FIXED"))
+        self.assertEqual(
+            holders_of("ventures/print-atelier/src/lib/stripe-connect.ts", "STRIPE_FIXED"),
+            ["pin"],
+            "stripe-connect.ts's declaration-anchored STRIPE_FIXED pin stopped being seen",
         )
 
     def test_the_enumeration_actually_finds_something(self):
