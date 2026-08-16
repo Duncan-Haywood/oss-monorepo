@@ -82,6 +82,21 @@ Predicates, deliberately few:
                  matching `before` within `within` lines above it. This is the
                  shape "each suppression sits behind a guard", which no
                  line-at-a-time predicate can say.
+  * `admits`   — exactly `equals` sites match `extract`, whose one capture group
+                 is a *regex written in the source*; that regex is compiled and
+                 run against `permits` and `refuses`. It must match every value
+                 in `permits` and none in `refuses`.
+
+`admits` exists because the other five read text, and a claim about what a
+validation *allows* cannot be checked by reading the text of the rule. The claim
+`IMG-008.validation_refuses_a_moving_tag` was the demonstration: it grepped the
+Terraform for `"^(sha256:[0-9a-f]{64}|.+)$"` with the predicate's own `.+` sitting
+where the version alternative belongs, so weakening the real rule to
+`^(sha256:[0-9a-f]{64}|.*)$` — accepting `latest` on a public ingress, which is
+exactly the sentence's negation — left the claim green. It checked the half of its
+sentence that was not load-bearing. `admits` runs the rule instead: `latest` in
+`refuses` goes red the moment the rule stops refusing it, whatever the rule is
+spelled as.
 
 Paths are globbed against `git ls-files`, never the filesystem. A control that
 walks the working tree counts the developer's build output and reports a
@@ -427,7 +442,7 @@ ENROLLED: Tuple[Enrollment, ...] = (
 )
 
 
-PREDICATE_KINDS = ("present", "absent", "count", "no_file", "precedes")
+PREDICATE_KINDS = ("present", "absent", "count", "no_file", "precedes", "admits")
 
 #: Fields a claim mapping may carry beside its single predicate.
 CLAIM_META_FIELDS = ("sentence",)
@@ -573,6 +588,65 @@ def matching_lines(
     return hits
 
 
+#: HCL's escape sequences inside a quoted string literal. The regex `admits`
+#: compiles is the value Terraform sees, not the bytes on the line: HCL turns
+#: `\\` into one backslash before `regex()` is ever called, so reading the
+#: literal without undoing that compiles a *different* regex from the one the
+#: cluster enforces — and the difference is silent, because `\\.` is a valid
+#: pattern too. It just means something else.
+_HCL_ESCAPES = {"\\": "\\", '"': '"', "n": "\n", "r": "\r", "t": "\t"}
+
+UNESCAPERS = ("hcl",)
+
+
+def unescape_hcl(where: str, name: str, literal: str) -> str:
+    out: List[str] = []
+    index = 0
+    while index < len(literal):
+        char = literal[index]
+        if char != "\\":
+            out.append(char)
+            index += 1
+            continue
+        if index + 1 >= len(literal):
+            raise ClaimError(
+                f"{where}: claim `{name}` extracted a string literal ending in a "
+                "lone backslash, which HCL cannot parse"
+            )
+        following = literal[index + 1]
+        if following not in _HCL_ESCAPES:
+            raise ClaimError(
+                f"{where}: claim `{name}` extracted the escape `\\{following}`, "
+                f"which this unescaper does not know. Known: "
+                f"{', '.join(sorted(_HCL_ESCAPES))}. Guessing at it would compile "
+                "a regex the source does not contain"
+            )
+        out.append(_HCL_ESCAPES[following])
+        index += 2
+    return "".join(out)
+
+
+def _require_strings(where: str, name: str, spec: Dict[str, Any], key: str) -> List[str]:
+    """A non-empty list of sample values. Empty is refused on purpose.
+
+    `refuses: []` would satisfy "none of them match" for free, which is the
+    vacuous-glob failure wearing a different field name.
+    """
+    value = spec.get(key)
+    if not isinstance(value, list) or not value:
+        raise ClaimError(
+            f"{where}: claim `{name}` needs a non-empty list `{key}`"
+        )
+    for item in value:
+        if not isinstance(item, str):
+            raise ClaimError(
+                f"{where}: claim `{name}` `{key}` holds {item!r}; every sample "
+                "value must be a string, so the rule is run on what a deploy "
+                "would actually supply"
+            )
+    return value
+
+
 def _require_int(where: str, name: str, spec: Dict[str, Any], key: str, default: Any):
     if key not in spec:
         if default is None:
@@ -584,6 +658,103 @@ def _require_int(where: str, name: str, spec: Dict[str, Any], key: str, default:
             f"{where}: claim `{name}` `{key}` must be a non-negative integer"
         )
     return value
+
+
+def _evaluate_admits(
+    repo_root: Path,
+    files: Sequence[str],
+    where: str,
+    name: str,
+    glob: str,
+    spec: Dict[str, Any],
+) -> Optional[str]:
+    """Run a regex the source declares against values it must and must not admit.
+
+    The other predicates ask what the source *says*. This one asks what the rule
+    *does*, which is the only question a sentence like "refuses any tag that is
+    not a digest or a version" is actually making. The distinction is not
+    academic: a `present` pattern permissive enough to match the rule is also
+    permissive enough to match the rule's negation.
+
+    `extract` is matched against the whole file rather than line by line — a
+    Terraform `validation` block is routinely wrapped so that the regex literal
+    and the value it guards sit on different lines, and a per-line read would
+    have to drop one of them. Dropping the value is the expensive half: it is
+    what binds the rule to the variable a deploy supplies.
+    """
+    unknown = set(spec) - {
+        "path",
+        "extract",
+        "unescape",
+        "permits",
+        "refuses",
+        "equals",
+    }
+    if unknown:
+        raise ClaimError(
+            f"{where}: claim `{name}` `admits` has unrecognised field(s): "
+            + ", ".join(sorted(unknown))
+        )
+
+    extract = compile_pattern(where, name, spec.get("extract"))
+    if extract.groups != 1:
+        raise ClaimError(
+            f"{where}: claim `{name}` `extract` has {extract.groups} capture "
+            "group(s); exactly one is required, around the regex literal the "
+            "source declares"
+        )
+    unescape = spec.get("unescape")
+    if unescape is not None and unescape not in UNESCAPERS:
+        raise ClaimError(
+            f"{where}: claim `{name}` `unescape` is {unescape!r}; use one of "
+            f"{', '.join(UNESCAPERS)}, or omit it when the literal carries no "
+            "escapes"
+        )
+    permits = _require_strings(where, name, spec, "permits")
+    refuses = _require_strings(where, name, spec, "refuses")
+    expected = _require_int(where, name, spec, "equals", 1)
+
+    sites: List[Tuple[str, str]] = []
+    for relative in files:
+        # `read_lines` for the UTF-8 refusal it carries; rejoined with the
+        # newlines it dropped so `extract` cannot match across a line break that
+        # is not there, and so the reported line number is the real one.
+        text = "\n".join(read_lines(repo_root, relative))
+        for match in extract.finditer(text):
+            line_number = text.count("\n", 0, match.start()) + 1
+            sites.append((f"{relative}:{line_number}", match.group(1)))
+
+    if len(sites) != expected:
+        return (
+            f"expected exactly {expected} site(s) matching `{extract.pattern}` "
+            f"under `{glob}`, found {len(sites)}"
+            + (f": {', '.join(location for location, _ in sites[:5])}" if sites else "")
+        )
+
+    problems: List[str] = []
+    for location, literal in sites:
+        source = unescape_hcl(where, name, literal) if unescape == "hcl" else literal
+        try:
+            rule = re.compile(source)
+        except re.error as error:
+            raise ClaimError(
+                f"{where}: claim `{name}` extracted `{source}` at {location}, "
+                f"which is not a regex this checker can run: {error}. An "
+                "unevaluable rule is not a rule that passed"
+            )
+        admitted = [value for value in refuses if rule.search(value)]
+        if admitted:
+            problems.append(
+                f"the rule at {location} admits {', '.join(repr(v) for v in admitted)}, "
+                "which this claim says it refuses"
+            )
+        rejected = [value for value in permits if not rule.search(value)]
+        if rejected:
+            problems.append(
+                f"the rule at {location} refuses {', '.join(repr(v) for v in rejected)}, "
+                "which this claim says it permits"
+            )
+    return "; ".join(problems) if problems else None
 
 
 def evaluate_predicate(
@@ -657,6 +828,9 @@ def evaluate_predicate(
                 + ", ".join(unguarded[:5])
             )
         return "; ".join(problems) if problems else None
+
+    if kind == "admits":
+        return _evaluate_admits(repo_root, files, where, name, glob, spec)
 
     pattern = compile_pattern(where, name, spec.get("pattern"))
     hits = matching_lines(repo_root, files, pattern)
