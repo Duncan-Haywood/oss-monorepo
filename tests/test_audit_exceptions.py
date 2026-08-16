@@ -195,6 +195,103 @@ class TestScheduledAgentWorkflowEnrollment(unittest.TestCase):
         self.assertFalse(enrolled("ventures/demo/.github/workflows/agent-grok.yml"))
         self.assertFalse(enrolled("docs/claude-scheduled.yml"))
 
+    # --- The two enrollment arms, each pinned on a case the other misses ---
+    #
+    # These four tests are the reason enrollment is a union. Measured by
+    # mutation on 2026-08-16, a naming-only contract reported a clean result for
+    # `nightly-agent.yml`, and a content-only contract reported a clean result
+    # for a scheduled workflow running a CLI its list had never met. Each arm
+    # alone is a denylist wearing a different hat.
+
+    UNCONVENTIONAL = "ventures/demo/.github/workflows/nightly-agent.yml"
+
+    def test_content_arm_enrolls_a_workflow_the_naming_arm_cannot_see(self):
+        # Abandons `*-scheduled.yml` AND spells its bypass in an invented form,
+        # so neither the filename nor any flag pattern can reach it. The cron
+        # trigger and the command line still can.
+        found = self.scan_source(
+            self.UNCONVENTIONAL, self.workflow('gemini --approve-everything -p "x"')
+        )
+        self.assertEqual([o.kind for o in found], ["agent-invocation-unclassified"])
+
+    def test_naming_arm_enrolls_a_runner_the_content_arm_cannot_see(self):
+        # `hypothetical-agent` is in no CLI list here, so the content arm is
+        # blind to it. The naming convention still enrolls the file.
+        source = self.workflow('hypothetical-agent --no-confirm-everything -p "x"')
+        self.assertFalse(audit_exceptions.runs_an_agent(source))
+        found = self.scan_source(self.ENROLLED, source)
+        self.assertEqual([o.kind for o in found], ["agent-invocation-unclassified"])
+
+    def test_a_scheduled_workflow_that_runs_no_agent_is_not_enrolled(self):
+        # Over-enrollment would make the contract noise. A nightly build has no
+        # agent in it and must stay out.
+        source = (
+            "name: Nightly build\n"
+            "on:\n"
+            "  schedule:\n"
+            '    - cron: "0 3 * * *"\n'
+            "jobs:\n"
+            "  build:\n"
+            "    steps:\n"
+            "      - run: npm run build --force\n"
+        )
+        self.assertFalse(
+            audit_exceptions.is_enrolled_agent_workflow(self.UNCONVENTIONAL, source)
+        )
+        # `--force` here is `npm`, not a Cursor confirmation bypass, and the
+        # enrolled-only form must not fire outside an enrolled workflow.
+        self.assertEqual(self.scan_source(self.UNCONVENTIONAL, source), [])
+
+    def test_a_dispatch_only_agent_workflow_is_not_enrolled_by_content(self):
+        # No cron means a human is at the other end of the prompt, which is the
+        # thing that makes a bypass an unattended one.
+        source = (
+            "name: Manual agent\n"
+            "on:\n"
+            "  workflow_dispatch:\n"
+            "jobs:\n"
+            "  run:\n"
+            "    steps:\n"
+            '      - run: gemini -p "$PROMPT"\n'
+        )
+        self.assertFalse(
+            audit_exceptions.is_enrolled_agent_workflow(self.UNCONVENTIONAL, source)
+        )
+
+    def test_a_comment_naming_an_agent_does_not_enroll(self):
+        source = (
+            "name: Nightly build\n"
+            "on:\n"
+            "  schedule:\n"
+            '    - cron: "0 3 * * *"\n'
+            "jobs:\n"
+            "  build:\n"
+            "    steps:\n"
+            "      # codex used to run here; it does not any more\n"
+            "      - run: npm run build\n"
+        )
+        self.assertFalse(audit_exceptions.runs_an_agent(source))
+        self.assertFalse(
+            audit_exceptions.is_enrolled_agent_workflow(self.UNCONVENTIONAL, source)
+        )
+
+    def test_content_arm_enrolls_a_vendor_action_on_a_schedule(self):
+        source = (
+            "name: Nightly agent\n"
+            "on:\n"
+            "  schedule:\n"
+            '    - cron: "0 3 * * *"\n'
+            "jobs:\n"
+            "  run:\n"
+            "    steps:\n"
+            "      - uses: anomalyco/opencode/github@"
+            "0123456789abcdef0123456789abcdef01234567\n"
+            "        with:\n"
+            "          prompt: do the thing\n"
+        )
+        found = self.scan_source(self.UNCONVENTIONAL, source)
+        self.assertEqual([o.kind for o in found], ["agent-invocation-unclassified"])
+
     def test_a_bypass_form_nobody_wrote_a_pattern_for_fails_closed(self):
         # The whole point. `--never-ask-me-anything` is invented; no denylist
         # can match it, and reporting nothing for it is the defect.

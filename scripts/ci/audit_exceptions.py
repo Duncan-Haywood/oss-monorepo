@@ -203,16 +203,54 @@ DETECTORS: Sequence[Detector] = (
 # not match" and "the agent asks before it acts" are not the same statement,
 # and only the enrollment contract can tell them apart.
 #
-# Residual scope limit, stated rather than papered over: enrollment is by
-# filename. An unattended agent workflow named something other than
-# `*-scheduled.yml` is outside this contract, and the repository's naming
-# convention is what keeps that honest.
+# Enrollment has two arms and a file is enrolled if EITHER says so, because
+# each arm was measured green on a case the other caught:
+#
+#   naming   a tracked `*-scheduled.yml` under a `workflows/` directory.
+#            Blind to `nightly-agent.yml`.
+#   content  a tracked workflow carrying a cron trigger that starts an agent.
+#            Blind to an agent CLI or a vendor action nobody has named below —
+#            which is the same denylist shape one level up, so it cannot be
+#            the only arm either.
+#
+# Neither is sufficient and the union is strictly stronger than both. A seventh
+# agent that keeps the naming convention enrolls even if it runs something this
+# file has never heard of; one that abandons the convention enrolls on its cron
+# trigger and its command line. `tests/test_audit_exceptions.py` pins both
+# directions with source neither arm's patterns can match by accident.
+#
+# Residual scope limit, stated rather than papered over: a workflow that both
+# abandons the naming convention AND starts its agent through a runner named
+# nowhere below is outside the contract. That is a smaller hole than either arm
+# leaves alone, and it is not zero.
 
 AGENT_BYPASS_KIND = "agent-permission-bypass"
 AGENT_UNCLASSIFIED_KIND = "agent-invocation-unclassified"
 
 _SCHEDULED_WORKFLOW_NAME = re.compile(r"-scheduled\.ya?ml$")
 _WORKFLOW_ROOT_DIRS = frozenset({".github", ".gitea"})
+
+# `on: schedule:` is the trigger that makes a run unattended. A workflow only a
+# human dispatches has a human at the other end of the prompt.
+_CRON_TRIGGER = re.compile(r"^\s*-?\s*cron:\s*['\"]?[\d*]", re.MULTILINE)
+
+# Agent CLIs this repository runs unattended. Matched in command position — at
+# the start of a line or after a shell separator — so a venture named after an
+# agent, or a comment mentioning one, is not an invocation.
+_AGENT_CLI_INVOCATION = re.compile(
+    r"(?:^|[\s&|;(])(?:claude|cursor-agent|codex|gemini|grok|opencode|aider)"
+    r"(?=[\s\\\"']|$)"
+)
+
+# Vendor actions that run an agent for us. There is no command line here, which
+# is exactly why no flag list can see them.
+_AGENT_ACTION = re.compile(
+    r"^\s*(?:-\s+)?uses:\s*(?:anomalyco/opencode|anthropics/claude-code-action"
+    r"|google-github-actions/run-gemini-cli)"
+)
+
+# `$AGENT_BIN`-style indirection, as in cursor-scheduled.yml.
+_AGENT_BIN_INVOCATION = re.compile(r"\"?\$\{?AGENT_BIN\}?\"?")
 
 
 @dataclass(frozen=True)
@@ -299,18 +337,60 @@ DETECTORS = tuple(DETECTORS) + (
 )
 
 
-def is_enrolled_agent_workflow(relative_path: str) -> bool:
-    """True for a scheduled agent workflow, by structure rather than by a list.
-
-    Enrollment is derived from the repository-relative path so that the set
-    grows with `git ls-files` and never needs editing here.
-    """
+def is_workflow_path(relative_path: str) -> bool:
+    """True for a tracked CI workflow file, by structure rather than by a list."""
     parts = PurePosixPath(relative_path).parts
     if len(parts) < 3:
         return False
-    if not _SCHEDULED_WORKFLOW_NAME.search(parts[-1]):
+    if Path(relative_path).suffix not in YAML_EXTENSIONS:
         return False
     return parts[-2] == "workflows" and parts[-3] in _WORKFLOW_ROOT_DIRS
+
+
+def has_scheduled_agent_name(relative_path: str) -> bool:
+    """Enrollment arm 1: the repository's `*-scheduled.yml` naming convention."""
+    if not is_workflow_path(relative_path):
+        return False
+    return bool(_SCHEDULED_WORKFLOW_NAME.search(PurePosixPath(relative_path).parts[-1]))
+
+
+def runs_an_agent(content: str) -> bool:
+    """True when some non-comment line of the workflow starts an agent.
+
+    Comments are dropped first: `opencode-scheduled.yml` carries a fourteen-line
+    comment about provider keys, and a workflow that only *talks* about an agent
+    is not one that runs one.
+    """
+    for raw in content.splitlines():
+        if _AGENT_ACTION.search(raw):
+            return True
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        if _AGENT_BIN_INVOCATION.search(line) or _AGENT_CLI_INVOCATION.search(line):
+            return True
+    return False
+
+
+def starts_an_agent_on_a_schedule(content: str) -> bool:
+    """Enrollment arm 2: a cron trigger plus an agent invocation, from content."""
+    return bool(_CRON_TRIGGER.search(content)) and runs_an_agent(content)
+
+
+def is_enrolled_agent_workflow(
+    relative_path: str, content: Optional[str] = None
+) -> bool:
+    """True for a scheduled agent workflow, by structure rather than by a list.
+
+    The union of the two arms documented above. `content` is optional so that
+    the naming arm can be asked about a path alone; when it is supplied the
+    content arm can enroll a file the naming convention does not reach.
+    """
+    if has_scheduled_agent_name(relative_path):
+        return True
+    if content is None or not is_workflow_path(relative_path):
+        return False
+    return starts_an_agent_on_a_schedule(content)
 
 
 @dataclass
@@ -450,16 +530,11 @@ def classify_agent_workflow(relative_path: str, content: str) -> List[Occurrence
 
 def scan_file(repo_root: Path, relative_path: str) -> List[Occurrence]:
     suffix = Path(relative_path).suffix
-    enrolled = is_enrolled_agent_workflow(relative_path)
-    # Enrolled files are classified by `classify_agent_workflow`, which knows
-    # strictly more forms than the generic detector; running both would double
-    # count every line they agree on.
-    applicable = [
-        d
-        for d in DETECTORS
-        if suffix in d.extensions and not (enrolled and d.kind == AGENT_BYPASS_KIND)
-    ]
-    if not applicable and not enrolled:
+    candidates = [d for d in DETECTORS if suffix in d.extensions]
+    # The content arm of enrollment needs the file itself, so a workflow is read
+    # even when no detector applies to it. Same single read either way: the arm
+    # costs no extra pass over the tree.
+    if not candidates and not is_workflow_path(relative_path):
         return []
 
     absolute = repo_root / relative_path
@@ -467,6 +542,14 @@ def scan_file(repo_root: Path, relative_path: str) -> List[Occurrence]:
         content = absolute.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
         return []
+
+    enrolled = is_enrolled_agent_workflow(relative_path, content)
+    # Enrolled files are classified by `classify_agent_workflow`, which knows
+    # strictly more forms than the generic detector; running both would double
+    # count every line they agree on.
+    applicable = [
+        d for d in candidates if not (enrolled and d.kind == AGENT_BYPASS_KIND)
+    ]
 
     occurrences: List[Occurrence] = []
     for line_number, line in enumerate(content.splitlines(), start=1):
