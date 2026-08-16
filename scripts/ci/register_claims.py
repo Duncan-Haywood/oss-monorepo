@@ -82,6 +82,21 @@ Predicates, deliberately few:
                  matching `before` within `within` lines above it. This is the
                  shape "each suppression sits behind a guard", which no
                  line-at-a-time predicate can say.
+  * `admits`   — exactly `equals` sites match `extract`, whose one capture group
+                 is a *regex written in the source*; that regex is compiled and
+                 run against `permits` and `refuses`. It must match every value
+                 in `permits` and none in `refuses`.
+
+`admits` exists because the other five read text, and a claim about what a
+validation *allows* cannot be checked by reading the text of the rule. The claim
+`IMG-008.validation_refuses_a_moving_tag` was the demonstration: it grepped the
+Terraform for `"^(sha256:[0-9a-f]{64}|.+)$"` with the predicate's own `.+` sitting
+where the version alternative belongs, so weakening the real rule to
+`^(sha256:[0-9a-f]{64}|.*)$` — accepting `latest` on a public ingress, which is
+exactly the sentence's negation — left the claim green. It checked the half of its
+sentence that was not load-bearing. `admits` runs the rule instead: `latest` in
+`refuses` goes red the moment the rule stops refusing it, whatever the rule is
+spelled as.
 
 Paths are globbed against `git ls-files`, never the filesystem. A control that
 walks the working tree counts the developer's build output and reports a
@@ -109,6 +124,7 @@ import os
 import re
 import subprocess
 import sys
+import textwrap
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
@@ -202,61 +218,53 @@ DERIVED_CLAIMS: Tuple[DerivedClaim, ...] = (
 
 @dataclass(frozen=True)
 class Enrollment:
-    """An entry whose sentence was found false, and the claim that caught it.
+    """One claim, pinned by name, that this repository is not free to drop.
 
-    `MIN_CHECKED_CLAIMS` is an aggregate and an aggregate has slack: with 27
-    claims standing, deleting one entry's still leaves the floor met. That is
-    the move this refuses. Every id below is a sentence that was live and untrue
-    on 2026-08-06 — the places where the temptation to clear a red by deleting
-    the claim is concentrated, because the claim is the only thing that ever
-    noticed.
+    `MIN_CHECKED_CLAIMS` is an aggregate and an aggregate has slack: at the 27
+    claims standing on 2026-08-16 against a floor of 14, thirteen could be
+    deleted one at a time and every gate would stay green. Until that date only
+    eight specific pairs were pinned here, so the other nineteen had exactly
+    that slack — and the experiment confirmed it: removing
+    `IMG-006.no_network_restriction_exists` left `register_claims.py`,
+    `image_tags.py`, `cap_ratchet.py` and all 37 tests green, with the sentence
+    it stood behind still sitting unread in `compensating_control`.
 
-    Earned one entry at a time, deliberately, rather than "every entry must
-    carry a claim": a blanket rule would be a region in which the claim may
-    quietly be untrue, and would push the next author toward a decorative
-    predicate to satisfy it.
+    So enrollment is now *closed over the registers*, checked in both
+    directions by `audit`:
+
+      * A row here whose claim is gone from the register fails
+        (`enrolled-claim-removed`) — deleting a claim is refused.
+      * A claim in a register with no row here fails (`claim-not-enrolled`) —
+        the list cannot silently fall behind, which is the failure mode a
+        hand-maintained baseline has. Adding a claim is a two-line act; that is
+        the point, not friction to route around.
+
+    It follows that removing a claim takes an explicit edit *to this control*,
+    in a different file from the register, showing up in the diff as a deleted
+    named row rather than as four vanished lines of YAML. Regenerate with
+    `register_claims.py --emit-enrollment`, which reads the registers; do not
+    hand-type rows, and do not regenerate to silence a red. If a claim went
+    false, the entry's argument stopped being true — correct the entry.
+
+    `why` is set only where the sentence was found *live and untrue* on
+    2026-08-06 (the eight that founded this list, two of them since carried
+    across a rename by their successor claim); those rows say so in the remedy.
+    The rest carry none rather than a manufactured one — an invented
+    justification on thirty rows would be the decorative half of exactly the
+    pattern this file exists to end.
     """
 
     register: str
     entry_id: str
     claim: str
-    why: str
+    why: str = ""
+
+    @property
+    def key(self) -> Tuple[str, str]:
+        return (self.register, self.entry_id)
 
 
 ENROLLED: Tuple[Enrollment, ...] = (
-    Enrollment(
-        register="platform/image-tag-exceptions.yaml",
-        entry_id="IMG-005",
-        claim="helm_releases_rendering_this_chart",
-        why="said every `helm_release` renders this chart; five of fourteen do",
-    ),
-    Enrollment(
-        register="platform/image-tag-exceptions.yaml",
-        entry_id="IMG-006",
-        claim="ingress_is_public",
-        why="said 'internal cluster admin access' of a public `code.marisstella.dev`",
-    ),
-    Enrollment(
-        register="platform/image-tag-exceptions.yaml",
-        entry_id="IMG-007",
-        claim="ingress_is_public",
-        why="the same sentence, on a public `opencode.marisstella.dev`",
-    ),
-    Enrollment(
-        register="platform/image-tag-exceptions.yaml",
-        entry_id="IMG-008",
-        claim="no_validation_constrains_the_value",
-        why="claimed a deploy-time validation `variables.tf` has never contained",
-    ),
-    Enrollment(
-        register="platform/image-tag-exceptions.yaml",
-        entry_id="IMG-010",
-        claim="argocd_reconciles_this_manifest",
-        why=(
-            "said the public site does not come from this image, of a manifest Argo "
-            "CD syncs with `selfHeal` behind the apex ingress"
-        ),
-    ),
     Enrollment(
         register="platform/exception-register.yaml",
         entry_id="EXC-001",
@@ -268,23 +276,198 @@ ENROLLED: Tuple[Enrollment, ...] = (
     ),
     Enrollment(
         register="platform/exception-register.yaml",
+        entry_id="EXC-001",
+        claim="eslint_is_not_a_dependency",
+    ),
+    Enrollment(
+        register="platform/exception-register.yaml",
+        entry_id="EXC-001",
+        claim="generator_is_outside_the_typecheck_program",
+    ),
+    Enrollment(
+        register="platform/exception-register.yaml",
+        entry_id="EXC-001",
+        claim="generator_runs_before_every_build",
+    ),
+    Enrollment(
+        register="platform/exception-register.yaml",
+        entry_id="EXC-001",
+        claim="build_typechecks_the_generated_output",
+    ),
+    Enrollment(
+        register="platform/exception-register.yaml",
         entry_id="EXC-007",
         claim="every_ignore_sits_behind_a_raising_guard",
         why="said all eight raise `AnalysisLoaderError`; two do",
     ),
     Enrollment(
         register="platform/exception-register.yaml",
+        entry_id="EXC-007",
+        claim="two_of_the_eight_raise_analysis_loader_error",
+    ),
+    Enrollment(
+        register="platform/exception-register.yaml",
         entry_id="EXC-013",
-        claim="claude_unset_is_conditional",
+        claim="gemini_and_grok_unset_unconditionally",
+    ),
+    Enrollment(
+        register="platform/exception-register.yaml",
+        entry_id="EXC-013",
+        claim="no_provider_key_reaches_the_bypassed_step",
+    ),
+    Enrollment(
+        register="platform/exception-register.yaml",
+        entry_id="EXC-013",
+        claim="claude_unsets_unconditionally",
         why=(
-            "said all three workflows unset the provider key; the Claude one unsets "
-            "it only when an OAuth token is also present"
+            "said all three workflows unset the provider key; the Claude one unset it "
+            "only when an OAuth token was also present until 2026-08-16, when the "
+            "unset became unconditional and `claude_unset_is_conditional` went red as "
+            "designed; this is its successor"
         ),
+    ),
+    Enrollment(
+        register="platform/exception-register.yaml",
+        entry_id="EXC-013",
+        claim="opencode_action_holds_no_provider_key",
+    ),
+    Enrollment(
+        register="platform/exception-register.yaml",
+        entry_id="EXC-013",
+        claim="runners_are_github_hosted",
+    ),
+    Enrollment(
+        register="platform/exception-register.yaml",
+        entry_id="EXC-013",
+        claim="cursor_key_is_live_in_the_bypassed_step",
+    ),
+    Enrollment(
+        register="platform/exception-register.yaml",
+        entry_id="EXC-013",
+        claim="cursor_never_unsets_its_key",
+    ),
+    Enrollment(
+        register="platform/exception-register.yaml",
+        entry_id="EXC-013",
+        claim="codex_step_carries_no_provider_key",
+    ),
+    Enrollment(
+        register="platform/exception-register.yaml",
+        entry_id="EXC-017",
+        claim="no_gate_flag_is_passed_to_the_action",
+    ),
+    Enrollment(
+        register="platform/exception-register.yaml",
+        entry_id="EXC-017",
+        claim="the_action_is_pinned_to_a_commit",
+    ),
+    Enrollment(
+        register="platform/image-tag-exceptions.yaml",
+        entry_id="IMG-005",
+        claim="helm_releases_total",
+    ),
+    Enrollment(
+        register="platform/image-tag-exceptions.yaml",
+        entry_id="IMG-005",
+        claim="helm_releases_rendering_this_chart",
+        why="said every `helm_release` renders this chart; five of fourteen do",
+    ),
+    Enrollment(
+        register="platform/image-tag-exceptions.yaml",
+        entry_id="IMG-005",
+        claim="every_render_overrides_image",
+    ),
+    Enrollment(
+        register="platform/image-tag-exceptions.yaml",
+        entry_id="IMG-010",
+        claim="argocd_reconciles_this_manifest",
+        why=(
+            "said the public site does not come from this image, of a manifest Argo "
+            "CD syncs with `selfHeal` behind the apex ingress"
+        ),
+    ),
+    Enrollment(
+        register="platform/image-tag-exceptions.yaml",
+        entry_id="IMG-010",
+        claim="workflow_moves_the_tag",
+    ),
+    Enrollment(
+        register="platform/image-tag-exceptions.yaml",
+        entry_id="IMG-010",
+        claim="manifest_is_behind_the_apex_ingress",
+    ),
+    Enrollment(
+        register="platform/image-tag-exceptions.yaml",
+        entry_id="IMG-001",
+        claim="no_build_path",
+    ),
+    Enrollment(
+        register="platform/image-tag-exceptions.yaml",
+        entry_id="IMG-006",
+        claim="ingress_is_public",
+        why="said 'internal cluster admin access' of a public `code.marisstella.dev`",
+    ),
+    Enrollment(
+        register="platform/image-tag-exceptions.yaml",
+        entry_id="IMG-006",
+        claim="gate_is_a_password_not_the_network",
+    ),
+    Enrollment(
+        register="platform/image-tag-exceptions.yaml",
+        entry_id="IMG-006",
+        claim="no_network_restriction_exists",
+    ),
+    Enrollment(
+        register="platform/image-tag-exceptions.yaml",
+        entry_id="IMG-006",
+        claim="tag_variable_is_validated_immutable",
+    ),
+    Enrollment(
+        register="platform/image-tag-exceptions.yaml",
+        entry_id="IMG-007",
+        claim="ingress_is_public",
+        why="the same sentence, on a public `opencode.marisstella.dev`",
+    ),
+    Enrollment(
+        register="platform/image-tag-exceptions.yaml",
+        entry_id="IMG-007",
+        claim="gate_is_a_password_not_the_network",
+    ),
+    Enrollment(
+        register="platform/image-tag-exceptions.yaml",
+        entry_id="IMG-007",
+        claim="tag_variable_is_validated_immutable",
+    ),
+    Enrollment(
+        register="platform/image-tag-exceptions.yaml",
+        entry_id="IMG-008",
+        claim="tag_is_a_required_field",
+    ),
+    Enrollment(
+        register="platform/image-tag-exceptions.yaml",
+        entry_id="IMG-008",
+        claim="validation_refuses_a_moving_tag",
+        why=(
+            "claimed a deploy-time validation `variables.tf` did not contain, then "
+            "recorded that absence as an `absent` claim until 2026-08-16, when the "
+            "validation was written and the claim went red as designed; this is its "
+            "successor and asserts the rule is still there"
+        ),
+    ),
+    Enrollment(
+        register="platform/image-tag-exceptions.yaml",
+        entry_id="IMG-008",
+        claim="validation_binds_every_service_tag",
+    ),
+    Enrollment(
+        register="platform/image-tag-exceptions.yaml",
+        entry_id="IMG-008",
+        claim="validation_is_conjunctive",
     ),
 )
 
 
-PREDICATE_KINDS = ("present", "absent", "count", "no_file", "precedes")
+PREDICATE_KINDS = ("present", "absent", "count", "no_file", "precedes", "admits")
 
 #: Fields a claim mapping may carry beside its single predicate.
 CLAIM_META_FIELDS = ("sentence",)
@@ -313,6 +496,11 @@ class Measurement:
     entries: int = 0
     issue_refs: int = 0
     claims_by_entry: Dict[str, List[str]] = field(default_factory=dict)
+    #: The same claims keyed by `(register path, entry id)`. `claims_by_entry`
+    #: is keyed by id alone, which two registers may collide on; enrollment is
+    #: matched against this so a row can never be satisfied by a same-named
+    #: entry in a different file.
+    claims_by_key: Dict[Tuple[str, str], List[str]] = field(default_factory=dict)
 
 
 def tracked_files(repo_root: Path) -> List[str]:
@@ -425,6 +613,65 @@ def matching_lines(
     return hits
 
 
+#: HCL's escape sequences inside a quoted string literal. The regex `admits`
+#: compiles is the value Terraform sees, not the bytes on the line: HCL turns
+#: `\\` into one backslash before `regex()` is ever called, so reading the
+#: literal without undoing that compiles a *different* regex from the one the
+#: cluster enforces — and the difference is silent, because `\\.` is a valid
+#: pattern too. It just means something else.
+_HCL_ESCAPES = {"\\": "\\", '"': '"', "n": "\n", "r": "\r", "t": "\t"}
+
+UNESCAPERS = ("hcl",)
+
+
+def unescape_hcl(where: str, name: str, literal: str) -> str:
+    out: List[str] = []
+    index = 0
+    while index < len(literal):
+        char = literal[index]
+        if char != "\\":
+            out.append(char)
+            index += 1
+            continue
+        if index + 1 >= len(literal):
+            raise ClaimError(
+                f"{where}: claim `{name}` extracted a string literal ending in a "
+                "lone backslash, which HCL cannot parse"
+            )
+        following = literal[index + 1]
+        if following not in _HCL_ESCAPES:
+            raise ClaimError(
+                f"{where}: claim `{name}` extracted the escape `\\{following}`, "
+                f"which this unescaper does not know. Known: "
+                f"{', '.join(sorted(_HCL_ESCAPES))}. Guessing at it would compile "
+                "a regex the source does not contain"
+            )
+        out.append(_HCL_ESCAPES[following])
+        index += 2
+    return "".join(out)
+
+
+def _require_strings(where: str, name: str, spec: Dict[str, Any], key: str) -> List[str]:
+    """A non-empty list of sample values. Empty is refused on purpose.
+
+    `refuses: []` would satisfy "none of them match" for free, which is the
+    vacuous-glob failure wearing a different field name.
+    """
+    value = spec.get(key)
+    if not isinstance(value, list) or not value:
+        raise ClaimError(
+            f"{where}: claim `{name}` needs a non-empty list `{key}`"
+        )
+    for item in value:
+        if not isinstance(item, str):
+            raise ClaimError(
+                f"{where}: claim `{name}` `{key}` holds {item!r}; every sample "
+                "value must be a string, so the rule is run on what a deploy "
+                "would actually supply"
+            )
+    return value
+
+
 def _require_int(where: str, name: str, spec: Dict[str, Any], key: str, default: Any):
     if key not in spec:
         if default is None:
@@ -436,6 +683,103 @@ def _require_int(where: str, name: str, spec: Dict[str, Any], key: str, default:
             f"{where}: claim `{name}` `{key}` must be a non-negative integer"
         )
     return value
+
+
+def _evaluate_admits(
+    repo_root: Path,
+    files: Sequence[str],
+    where: str,
+    name: str,
+    glob: str,
+    spec: Dict[str, Any],
+) -> Optional[str]:
+    """Run a regex the source declares against values it must and must not admit.
+
+    The other predicates ask what the source *says*. This one asks what the rule
+    *does*, which is the only question a sentence like "refuses any tag that is
+    not a digest or a version" is actually making. The distinction is not
+    academic: a `present` pattern permissive enough to match the rule is also
+    permissive enough to match the rule's negation.
+
+    `extract` is matched against the whole file rather than line by line — a
+    Terraform `validation` block is routinely wrapped so that the regex literal
+    and the value it guards sit on different lines, and a per-line read would
+    have to drop one of them. Dropping the value is the expensive half: it is
+    what binds the rule to the variable a deploy supplies.
+    """
+    unknown = set(spec) - {
+        "path",
+        "extract",
+        "unescape",
+        "permits",
+        "refuses",
+        "equals",
+    }
+    if unknown:
+        raise ClaimError(
+            f"{where}: claim `{name}` `admits` has unrecognised field(s): "
+            + ", ".join(sorted(unknown))
+        )
+
+    extract = compile_pattern(where, name, spec.get("extract"))
+    if extract.groups != 1:
+        raise ClaimError(
+            f"{where}: claim `{name}` `extract` has {extract.groups} capture "
+            "group(s); exactly one is required, around the regex literal the "
+            "source declares"
+        )
+    unescape = spec.get("unescape")
+    if unescape is not None and unescape not in UNESCAPERS:
+        raise ClaimError(
+            f"{where}: claim `{name}` `unescape` is {unescape!r}; use one of "
+            f"{', '.join(UNESCAPERS)}, or omit it when the literal carries no "
+            "escapes"
+        )
+    permits = _require_strings(where, name, spec, "permits")
+    refuses = _require_strings(where, name, spec, "refuses")
+    expected = _require_int(where, name, spec, "equals", 1)
+
+    sites: List[Tuple[str, str]] = []
+    for relative in files:
+        # `read_lines` for the UTF-8 refusal it carries; rejoined with the
+        # newlines it dropped so `extract` cannot match across a line break that
+        # is not there, and so the reported line number is the real one.
+        text = "\n".join(read_lines(repo_root, relative))
+        for match in extract.finditer(text):
+            line_number = text.count("\n", 0, match.start()) + 1
+            sites.append((f"{relative}:{line_number}", match.group(1)))
+
+    if len(sites) != expected:
+        return (
+            f"expected exactly {expected} site(s) matching `{extract.pattern}` "
+            f"under `{glob}`, found {len(sites)}"
+            + (f": {', '.join(location for location, _ in sites[:5])}" if sites else "")
+        )
+
+    problems: List[str] = []
+    for location, literal in sites:
+        source = unescape_hcl(where, name, literal) if unescape == "hcl" else literal
+        try:
+            rule = re.compile(source)
+        except re.error as error:
+            raise ClaimError(
+                f"{where}: claim `{name}` extracted `{source}` at {location}, "
+                f"which is not a regex this checker can run: {error}. An "
+                "unevaluable rule is not a rule that passed"
+            )
+        admitted = [value for value in refuses if rule.search(value)]
+        if admitted:
+            problems.append(
+                f"the rule at {location} admits {', '.join(repr(v) for v in admitted)}, "
+                "which this claim says it refuses"
+            )
+        rejected = [value for value in permits if not rule.search(value)]
+        if rejected:
+            problems.append(
+                f"the rule at {location} refuses {', '.join(repr(v) for v in rejected)}, "
+                "which this claim says it permits"
+            )
+    return "; ".join(problems) if problems else None
 
 
 def evaluate_predicate(
@@ -510,6 +854,9 @@ def evaluate_predicate(
             )
         return "; ".join(problems) if problems else None
 
+    if kind == "admits":
+        return _evaluate_admits(repo_root, files, where, name, glob, spec)
+
     pattern = compile_pattern(where, name, spec.get("pattern"))
     hits = matching_lines(repo_root, files, pattern)
 
@@ -578,6 +925,10 @@ def check_claims(
     derived_by_name = {claim.name: claim for claim in DERIVED_CLAIMS}
     findings: List[Finding] = []
 
+    def record(name: str) -> None:
+        measurement.claims_by_entry.setdefault(identifier, []).append(name)
+        measurement.claims_by_key.setdefault((spec.path, identifier), []).append(name)
+
     for name, value in claims.items():
         # The derived form the `claims:` key was introduced with. Its evidence
         # lives in another module; all this file checks is that the module still
@@ -585,7 +936,7 @@ def check_claims(
         if name in derived_by_name:
             derived = derived_by_name[name]
             measurement.derived_claims += 1
-            measurement.claims_by_entry.setdefault(identifier, []).append(name)
+            record(name)
             deriver = repo_root / derived.derived_by
             if not deriver.is_file():
                 findings.append(
@@ -642,9 +993,9 @@ def check_claims(
             continue
 
         measurement.checked_claims += 1
-        measurement.claims_by_entry.setdefault(identifier, []).append(name)
+        record(name)
 
-        kinds = [kind for kind in PREDICATE_KINDS if kind in value]
+        kinds =[kind for kind in PREDICATE_KINDS if kind in value]
         unknown = set(value) - set(PREDICATE_KINDS) - set(CLAIM_META_FIELDS)
         if unknown:
             findings.append(
@@ -813,6 +1164,152 @@ def check_issue(
     return []
 
 
+def _founding_note(enrollment: "Enrollment") -> str:
+    """The sentence-was-untrue history, for the eight rows that have one."""
+    if not enrollment.why.strip():
+        return ""
+    return f" This entry {enrollment.why}, and that claim is what caught it."
+
+
+def check_enrollment(measurement: Measurement) -> List[Finding]:
+    """Close `ENROLLED` over the registers, in both directions.
+
+    Deleting a claim is the cheapest way to clear a red one, and against an
+    aggregate floor with slack it is free. Every claim the registers carry is
+    named in `ENROLLED`, so a deletion leaves a row pointing at nothing and
+    fails; and a claim added without a row fails too, so the list cannot drift
+    behind the registers into the vacuous state a hand-kept baseline decays to.
+    """
+
+    findings: List[Finding] = []
+    seen: Dict[Tuple[str, str], set] = {}
+
+    for enrollment in ENROLLED:
+        declared = measurement.claims_by_key.get(enrollment.key)
+        seen.setdefault(enrollment.key, set()).add(enrollment.claim)
+        if declared is None:
+            findings.append(
+                Finding(
+                    severity="error",
+                    code="enrolled-entry-missing",
+                    where=f"{enrollment.register} ({enrollment.entry_id})",
+                    message=(
+                        f"is enrolled for claim `{enrollment.claim}` but the entry "
+                        "carries no claims, or no longer exists"
+                    ),
+                    remedy=(
+                        "If the exception is gone, remove its ENROLLED row in "
+                        "`scripts/ci/register_claims.py` in the same change and say "
+                        "so in the message; if it is still here, restore the claim."
+                        + _founding_note(enrollment)
+                    ),
+                )
+            )
+        elif enrollment.claim not in declared:
+            findings.append(
+                Finding(
+                    severity="error",
+                    code="enrolled-claim-removed",
+                    where=f"{enrollment.register} ({enrollment.entry_id})",
+                    message=(
+                        f"no longer declares `{enrollment.claim}`; it declares "
+                        + (", ".join(sorted(declared)) or "nothing")
+                    ),
+                    remedy=(
+                        "Deleting a claim to clear a red returns the sentence it "
+                        "quotes to being unread prose, which is the state this "
+                        "control exists to end. Correct the entry instead. If the "
+                        "sentence itself is gone from `reason` and "
+                        "`compensating_control`, delete the ENROLLED row in "
+                        "`scripts/ci/register_claims.py` in the same change and say "
+                        "why." + _founding_note(enrollment)
+                    ),
+                )
+            )
+
+    for key, declared in sorted(measurement.claims_by_key.items()):
+        register, entry_id = key
+        for name in declared:
+            if name in seen.get(key, ()):
+                continue
+            findings.append(
+                Finding(
+                    severity="error",
+                    code="claim-not-enrolled",
+                    where=f"{register} ({entry_id})",
+                    message=f"declares `{name}`, which no ENROLLED row names",
+                    remedy=(
+                        "Enrollment is closed over the registers: an unenrolled "
+                        "claim may be deleted again tomorrow and nothing would go "
+                        "red. Add the row — `register_claims.py --emit-enrollment` "
+                        "prints the list derived from the registers — so this claim "
+                        "cannot be dropped without an explicit edit to the control."
+                    ),
+                )
+            )
+
+    return findings
+
+
+def _format_why(why: str) -> List[str]:
+    """Render a `why` the way this file is written, so emitted rows paste in.
+
+    A generator whose output has to be reflowed by hand is a generator people
+    stop using, and a hand-kept list is the thing this closure exists to avoid.
+    """
+
+    if not why.strip():
+        return []
+    single = f"        why={json.dumps(why)},"
+    if len(single) <= 88:
+        return [single]
+    lines = ["        why=("]
+    chunks = textwrap.wrap(why, width=72, break_long_words=False)
+    for index, chunk in enumerate(chunks):
+        text = chunk if index == len(chunks) - 1 else chunk + " "
+        lines.append(f"            {json.dumps(text)}")
+    lines.append("        ),")
+    return lines
+
+
+def emit_enrollment(repo_root: Path) -> str:
+    """Print `ENROLLED` as it would be, derived from the registers on disk.
+
+    Derived, never hand-typed: a baseline written by hand reports what its
+    author wanted. This reads the registers and preserves each existing row's
+    `why`, so regenerating cannot quietly launder away the history on the eight
+    founding rows — only a deliberate deletion can, and that shows in the diff.
+    """
+
+    reasons = {
+        (row.register, row.entry_id, row.claim): row.why for row in ENROLLED
+    }
+    lines = ["ENROLLED: Tuple[Enrollment, ...] = ("]
+    for spec in REGISTERS:
+        document = yaml.safe_load(
+            (repo_root / spec.path).read_text(encoding="utf-8")
+        ) or {}
+        for index, entry in enumerate(document.get(spec.entries_key) or []):
+            if not isinstance(entry, dict):
+                continue
+            identifier = str(
+                entry.get("id")
+                or entry.get("venture")
+                or entry.get("criterion")
+                or f"entry[{index}]"
+            )
+            for name in entry.get("claims") or {}:
+                lines.append("    Enrollment(")
+                lines.append(f'        register="{spec.path}",')
+                lines.append(f'        entry_id="{identifier}",')
+                lines.append(f'        claim="{name}",')
+                why = reasons.get((spec.path, identifier, name), "")
+                lines.extend(_format_why(why))
+                lines.append("    ),")
+    lines.append(")")
+    return "\n".join(lines)
+
+
 def audit(repo_root: Path) -> Tuple[List[Finding], Measurement]:
     tracked = tracked_files(repo_root)
     tracked_set = frozenset(tracked)
@@ -875,42 +1372,7 @@ def audit(repo_root: Path) -> Tuple[List[Finding], Measurement]:
                 )
             )
 
-    for enrollment in ENROLLED:
-        declared = measurement.claims_by_entry.get(enrollment.entry_id)
-        if declared is None:
-            findings.append(
-                Finding(
-                    severity="error",
-                    code="enrolled-entry-missing",
-                    where=f"{enrollment.register} ({enrollment.entry_id})",
-                    message=(
-                        f"is enrolled for claim `{enrollment.claim}` but the entry "
-                        "carries no claims, or no longer exists"
-                    ),
-                    remedy=(
-                        f"This entry {enrollment.why}. If the exception is gone, "
-                        "remove its ENROLLED row in the same change and say so; if "
-                        "it is still here, restore the claim."
-                    ),
-                )
-            )
-        elif enrollment.claim not in declared:
-            findings.append(
-                Finding(
-                    severity="error",
-                    code="enrolled-claim-removed",
-                    where=f"{enrollment.register} ({enrollment.entry_id})",
-                    message=(
-                        f"no longer declares `{enrollment.claim}`; it declares "
-                        + ", ".join(sorted(declared))
-                    ),
-                    remedy=(
-                        f"This entry {enrollment.why}, and that claim is what caught "
-                        "it. Deleting a claim to clear a red returns the sentence to "
-                        "being unread. Correct the entry instead."
-                    ),
-                )
-            )
+    findings.extend(check_enrollment(measurement))
 
     total = measurement.checked_claims + measurement.derived_claims
     if total < MIN_CHECKED_CLAIMS:
@@ -954,7 +1416,16 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
     )
     parser.add_argument("--report", action="store_true", help="Measure, exit 0.")
     parser.add_argument("--json", action="store_true", help="Emit findings as JSON.")
+    parser.add_argument(
+        "--emit-enrollment",
+        action="store_true",
+        help="Print ENROLLED derived from the registers, for pasting into this file.",
+    )
     args = parser.parse_args(list(argv) if argv is not None else None)
+
+    if args.emit_enrollment:
+        print(emit_enrollment(REPO_ROOT))
+        return 0
 
     try:
         findings, measurement = audit(REPO_ROOT)

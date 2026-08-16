@@ -57,7 +57,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           them to anyone who loads it, and rendering a configured value into
           the markup is how a server variable ends up in the HTML.
         */}
-        <p className="mt-6 text-center text-xs text-zinc-500">
+        <p className="mt-6 text-center text-xs text-zinc-400">
           Only addresses on this deployment&apos;s allowlist can sign in.
         </p>
 

@@ -1,11 +1,11 @@
 name: Claude Code scheduled agents
 
 # Claude Code subscription OAuth (not ANTHROPIC_API_KEY).
-# Preferred CI secret: CLAUDE_CODE_OAUTH_TOKEN from `claude setup-token`
+# Required CI secret: CLAUDE_CODE_OAUTH_TOKEN from `claude setup-token`
 #   gh secret set CLAUDE_CODE_OAUTH_TOKEN
-# Fallback: ANTHROPIC_API_KEY (Console /login managed key).
-# Optional file seed (Linux layout): CLAUDE_CREDENTIALS_JSON → ~/.claude/.credentials.json
+# Or file seed (Linux layout): CLAUDE_CREDENTIALS_JSON → ~/.claude/.credentials.json
 #   On macOS, interactive login stores tokens in Keychain, so use setup-token for CI.
+# ANTHROPIC_API_KEY is deliberately NOT accepted here — see the run step below.
 # Do not pass --bare (it skips OAuth / CLAUDE_CODE_OAUTH_TOKEN).
 # Runs both repo prompts hourly (stagger :50).
 
@@ -86,22 +86,22 @@ jobs:
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           CLAUDE_CREDENTIALS_JSON: ${{ secrets.CLAUDE_CREDENTIALS_JSON }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           chmod +x .github/scripts/restore-oauth-auth.sh
           mkdir -p "$HOME/.claude"
           if [ -n "${CLAUDE_CREDENTIALS_JSON:-}" ]; then
             .github/scripts/restore-oauth-auth.sh "$HOME/.claude/.credentials.json" CLAUDE_CREDENTIALS_JSON
           fi
-          if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ] && [ ! -s "$HOME/.claude/.credentials.json" ] && [ -z "${ANTHROPIC_API_KEY:-}" ]; then
-            echo "::error::Set CLAUDE_CODE_OAUTH_TOKEN (from \`claude setup-token\`), CLAUDE_CREDENTIALS_JSON (Linux ~/.claude/.credentials.json), or ANTHROPIC_API_KEY."
+          # Fail here rather than let the run step start without a credential.
+          # ANTHROPIC_API_KEY used to satisfy this check and then travel into the
+          # bypassed step as the fallback credential; the whole point of the
+          # change is that it no longer goes there, so accepting it here would
+          # only move the failure later and make it harder to read.
+          if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ] && [ ! -s "$HOME/.claude/.credentials.json" ]; then
+            echo "::error::Set CLAUDE_CODE_OAUTH_TOKEN (from \`claude setup-token\`) or CLAUDE_CREDENTIALS_JSON (Linux ~/.claude/.credentials.json). ANTHROPIC_API_KEY is not accepted: this job runs the CLI with every confirmation gate disabled, so a provider key in that step is readable by the agent it is supervising."
             exit 1
           fi
-          if [ -n "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
-            echo "CLAUDE_CODE_OAUTH_TOKEN is set for this job."
-          elif [ -n "${ANTHROPIC_API_KEY:-}" ]; then
-            echo "Using ANTHROPIC_API_KEY fallback (no CLAUDE_CODE_OAUTH_TOKEN)."
-          fi
+          echo "Claude OAuth credential is present for this job."
 
       - name: Prepare prompt
         run: |
@@ -119,17 +119,23 @@ jobs:
       - name: Run Claude Code (headless, OAuth)
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MODEL_INPUT: ${{ github.event.inputs.model || '' }}
         run: |
           set -euo pipefail
-          # Prefer subscription OAuth token when present; otherwise allow API key fallback.
-          if [ -n "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
-            unset ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN || true
-          else
-            unset ANTHROPIC_AUTH_TOKEN || true
-          fi
+          # No provider API key reaches this step. It runs the CLI with every
+          # confirmation gate disabled, so anything in its environment is
+          # readable by the agent it is supervising, and a Console API key is a
+          # standing charge on an account rather than one repository's token.
+          # This is the unconditional shape the Gemini and Grok workflows use;
+          # until 2026-08-16 the unset here fired only inside
+          # `if [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ]`, so on the API-key fallback
+          # path — the one the file's own header documented — the key stayed
+          # live in the bypassed process. The fallback is gone with it: the
+          # credential is the subscription OAuth token or the seeded
+          # ~/.claude/.credentials.json, and the seed step above refuses to
+          # start the job without one.
+          unset ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN || true
           PROMPT="$(cat "$PROMPT_FILE")"
           ARGS=(-p --dangerously-skip-permissions --permission-mode bypassPermissions)
           if [ -n "${MODEL_INPUT:-}" ]; then

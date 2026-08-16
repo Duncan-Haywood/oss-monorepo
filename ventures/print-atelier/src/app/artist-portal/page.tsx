@@ -157,7 +157,7 @@ export default function ArtistPortal() {
                       });
 
                       return (
-                      <div key={sale.slug} className="px-6 py-4 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-gray-750">
+                      <div key={sale.slug} className="px-6 py-4 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-gray-700">
                         <div className="flex items-center gap-4">
                           <div className="w-12 h-12 bg-stone-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
                             <ImageIcon className="w-6 h-6 text-stone-400" />
@@ -233,7 +233,7 @@ export default function ArtistPortal() {
                     <h3 className="font-bold text-stone-900 dark:text-white">Payout History</h3>
                   </div>
                   <table className="min-w-full text-sm">
-                    <thead className="bg-stone-50 dark:bg-gray-750">
+                    <thead className="bg-stone-50 dark:bg-gray-700">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase">Date</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase">Prints</th>

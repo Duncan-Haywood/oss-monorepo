@@ -265,19 +265,28 @@ exceptions:
     kind: lint-suppression
     path: scripts/*
     code: shellcheck disable=SC2016
-    count: 3
+    count: 4
     owner: duncan
     issue: docs/EXCEPTION-REGISTER.md#exc-011
     expires: 2027-01-27
     reason: >-
-      SC2016 warns that single-quoted `$` and backticks do not expand. These
-      three scripts emit Markdown reports where backticks and dollar signs are
-      literal output, so the non-expansion is the intent rather than the bug.
+      SC2016 warns that single-quoted `$` and backticks do not expand. Two
+      distinct shapes need that, and both are the intent rather than the bug.
+      Three occurrences emit Markdown reports where backticks and dollar signs
+      are literal output. The fourth, `write_flaky_node_stub` in
+      `scripts/security/test-security-scan.sh`, printf-writes the *source text*
+      of a `node` stub: `$*`, `$n` and `$(cat ...)` must reach the generated
+      file unexpanded and be evaluated when the stub itself runs, while only the
+      `%s` placeholders interpolate this script's values.
     compensating_control: >-
-      All three are covered by ShellCheck for every other rule, and
-      `scripts/security/test-security-scan.sh` asserts against the generated
-      report text, so a genuinely broken interpolation changes the output the
-      tests compare.
+      All four are covered by ShellCheck for every other rule. The three report
+      emitters are asserted against their generated report text by
+      `scripts/security/test-security-scan.sh`, so a genuinely broken
+      interpolation changes the output the tests compare. The stub writer is
+      stronger still: its output is executed as the `node` on PATH by the two
+      registry-probe retry cases, which pin both directions of the retry, so an
+      expansion that leaked at write time would break the probe count those
+      cases assert on rather than passing quietly.
 
   - id: EXC-012
     kind: lint-suppression
@@ -298,16 +307,18 @@ exceptions:
   - id: EXC-013
     kind: agent-permission-bypass
     path: ventures/local-site-studio/.github/workflows/*-scheduled.yml
-    count: 3
+    count: 6
     owner: duncan
     expires: 2026-10-29
     issue: docs/EXCEPTION-REGISTER.md#exc-013
     reason: >-
-      The Claude, Gemini and Grok scheduled workflows each start their CLI with
-      every confirmation gate disabled (`--dangerously-skip-permissions` with
-      `--permission-mode bypassPermissions`, `--yolo`, and `--always-approve`
-      respectively). Unattended agents cannot answer a prompt, so a scheduled
-      run either bypasses the gates or does nothing.
+      Five of the six scheduled agent workflows start their CLI with every
+      confirmation gate disabled: Claude with `--dangerously-skip-permissions`
+      and `--permission-mode bypassPermissions`, Gemini with `--yolo`, Grok with
+      `--always-approve`, Codex with `--sandbox danger-full-access` and
+      `--ask-for-approval never` on two lines, and Cursor with `-p --force`.
+      Unattended agents cannot answer a prompt, so a scheduled run either
+      bypasses the gates or does nothing.
     claims:
       # Corrected 2026-08-06. This said "the workflows unset the provider API
       # keys before handing control to the agent", of three workflows, and it
@@ -321,6 +332,30 @@ exceptions:
       # workflows implement into one all three were credited with — over the
       # single entry in this file whose own text calls it "the weakest
       # compensating control in the register".
+      #
+      # Count corrected 2026-08-16, 3 -> 6. The 3 was never the number of
+      # unattended agents running without confirmation gates; it was the number
+      # of bypasses the old flag denylist in `scripts/ci/audit_exceptions.py`
+      # had a pattern for. `codex-scheduled.yml` (`--sandbox danger-full-access`
+      # and `--ask-for-approval never`) and `cursor-scheduled.yml`
+      # (`ARGS=(-p --force)`) were bypassing their gates the whole time, in the
+      # glob this entry already covers, and the detector reported nothing. The
+      # detector is now an enrollment contract over every tracked
+      # `*-scheduled.yml`, so an unrecognised form yields
+      # `agent-invocation-unclassified` (see EXC-017) instead of silence.
+      #
+      # Also fixed 2026-08-16, on the credential half. `ANTHROPIC_API_KEY` no
+      # longer appears anywhere in `claude-scheduled.yml`: the unset is
+      # unconditional, and the API-key fallback it was the credential for is
+      # gone, so the seed step refuses to start the job without an OAuth
+      # credential. The two claims that recorded the exposure —
+      # `claude_injects_the_api_key_into_the_bypassed_step` (`count: 2`) and
+      # `claude_unset_is_conditional` — went red on the fix, as they were shaped
+      # to. They are replaced by their successors below rather than deleted, and
+      # `platform/ci/test/agent-credential-exposure.test.mjs` now enforces the
+      # same rule structurally over every tracked workflow, which is what makes
+      # a *new* bypassed step with a key in it fail rather than only these files
+      # staying clean.
       gemini_and_grok_unset_unconditionally:
         sentence: >-
           The Gemini and Grok workflows unset their provider key unconditionally
@@ -328,44 +363,96 @@ exceptions:
           path: ventures/local-site-studio/.github/workflows/*-scheduled.yml
           pattern: '^\s+unset (GEMINI_API_KEY|XAI_API_KEY)\b'
           at_least: 2
-      claude_injects_the_api_key_into_the_bypassed_step:
+      no_provider_key_reaches_the_bypassed_step:
         sentence: >-
-          injects `ANTHROPIC_API_KEY` into two steps, one of them the bypassed
-          one
+          the Claude workflow no longer names `ANTHROPIC_API_KEY` in any step's
+          environment
+        absent:
+          path: ventures/local-site-studio/.github/workflows/claude-scheduled.yml
+          pattern: '^\s+ANTHROPIC_API_KEY:\s+\$\{\{\s*secrets\.'
+      claude_unsets_unconditionally:
+        sentence: >-
+          clears it before the CLI starts on every path, not only the OAuth one
         count:
           path: ventures/local-site-studio/.github/workflows/claude-scheduled.yml
-          pattern: '^\s+ANTHROPIC_API_KEY:\s+\$\{\{\s*secrets\.ANTHROPIC_API_KEY\s*\}\}'
-          equals: 2
-      claude_unset_is_conditional:
+          pattern: '^\s+unset ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN \|\| true\s*$'
+          equals: 1
+      opencode_action_holds_no_provider_key:
         sentence: >-
-          unsets it only when an OAuth token is also present
-        present:
-          path: ventures/local-site-studio/.github/workflows/claude-scheduled.yml
-          pattern: '^\s+unset ANTHROPIC_AUTH_TOKEN \|\| true'
+          the OpenCode action step holds no provider key either
+        absent:
+          path: ventures/local-site-studio/.github/workflows/opencode-scheduled.yml
+          pattern: '^\s+[A-Z0-9_]*API_KEY:\s+\$\{\{\s*secrets\.'
       runners_are_github_hosted:
         sentence: >-
           non-interactive on ephemeral GitHub-hosted runners
         absent:
           path: ventures/local-site-studio/.github/workflows/*-scheduled.yml
           pattern: 'runs-on:.*self-hosted'
+      cursor_key_is_live_in_the_bypassed_step:
+        sentence: >-
+          `CURSOR_API_KEY` is in the environment of the `-p --force` step
+        precedes:
+          path: ventures/local-site-studio/.github/workflows/cursor-scheduled.yml
+          after: 'ARGS=\(-p --force\)'
+          before: '^\s+CURSOR_API_KEY:\s+\$\{\{\s*secrets\.CURSOR_API_KEY\s*\}\}'
+          within: 12
+          equals: 1
+      cursor_never_unsets_its_key:
+        sentence: >-
+          there is no `unset` of it anywhere in the file
+        absent:
+          path: ventures/local-site-studio/.github/workflows/cursor-scheduled.yml
+          pattern: '\bunset\s+CURSOR_API_KEY\b'
+      codex_step_carries_no_provider_key:
+        sentence: >-
+          The Codex workflow puts no provider credential in the bypassed step
+        absent:
+          path: ventures/local-site-studio/.github/workflows/codex-scheduled.yml
+          pattern: '^\s+(OPENAI_API_KEY|CODEX_API_KEY):'
     compensating_control: >-
       Runs are non-interactive on ephemeral GitHub-hosted runners. The Gemini
       and Grok workflows unset their provider key unconditionally before handing
       control to the agent, and never place it in the step's environment at all.
-      The Claude workflow does not: it injects `ANTHROPIC_API_KEY` into two
-      steps, one of them the bypassed one, and unsets it only when an OAuth
-      token is also present, so on the API-key fallback path the key is live in
-      a process running with every confirmation gate disabled. The other
-      injection is the OAuth-seeding step, which needs it only to decide whether
-      any credential was supplied at all. Until 2026-08-06 this entry claimed
-      all three workflows unset the key.
+      Since 2026-08-16 the Claude workflow matches them: it clears it before the
+      CLI starts on every path, not only the OAuth one, and the Claude workflow
+      no longer names `ANTHROPIC_API_KEY` in any step's environment — the
+      API-key fallback it was the credential for is gone, and the seed step
+      fails the job when no OAuth credential is configured rather than falling
+      back to a key that would travel into the bypassed process. Between
+      2026-08-06 and 2026-08-16 this entry recorded the exposure honestly: the
+      key was injected into two steps, one of them the bypassed one, and unset
+      only when an OAuth token was also present, so on the API-key fallback path
+      it was live in a process running with every confirmation gate disabled.
+      Until 2026-08-06 the entry instead claimed all three workflows unset the
+      key, which was true of two. On the same day the OpenCode workflow was
+      cleaned up: the OpenCode action step holds no provider key either, where
+      it had carried three — the seeded `auth.json` was already mandatory, so
+      the keys the comment called fallbacks were never reachable as fallbacks.
 
-      This is the weakest compensating control in the register and the reason
-      this entry expires in 90 days rather than 180: the bypass is real, the
-      blast radius is a writable checkout plus whatever the workflow token can
-      reach plus — on that one path — a provider credential, and
+      The two workflows this entry only started covering on 2026-08-16 split the
+      same way. The Codex workflow puts no provider credential in the bypassed
+      step — it authenticates from a cached `auth.json` and its run step carries
+      only `GH_TOKEN`. The Cursor workflow is worse than the Claude one:
+      `CURSOR_API_KEY` is in the environment of the `-p --force` step
+      unconditionally, on every path, and there is no `unset` of it anywhere in
+      the file.
+
+      What no register entry can do is keep this true of the *next* workflow, so
+      `platform/ci/test/agent-credential-exposure.test.mjs` enumerates every
+      tracked workflow file and fails when a step that disables its
+      confirmation gates also declares a provider API key in `env:`. It records
+      the two `cursor-agent` steps as the remaining sites, because
+      `CURSOR_API_KEY` is that CLI's only credential and removing it would stop
+      the workflow rather than harden it; that is a stated position with an
+      exact count behind it, not an exemption that grows.
+
+      This is still the weakest compensating control in the register and the
+      reason this entry expires in 90 days rather than 180: the bypass is real,
+      the blast radius is a writable checkout plus whatever the workflow token
+      can reach plus — on two of those paths — a provider credential, and
       `ventures/ubuntu-agent-server` already documents a narrower per-tool
-      allowlist as the pattern these three should adopt.
+      allowlist as the pattern these five should adopt.
 
   - id: EXC-014
     kind: lint-suppression
@@ -435,4 +522,44 @@ exceptions:
       The memoized value feeds a pure comparison function with no side effects,
       so a stale or recomputed result changes render cost and nothing else. The
       component's behaviour is covered by tests/product-detail-preview.test.ts.
+
+  - id: EXC-017
+    kind: agent-invocation-unclassified
+    path: ventures/local-site-studio/.github/workflows/opencode-scheduled.yml
+    count: 1
+    owner: duncan
+    issue: docs/EXCEPTION-REGISTER.md#exc-017
+    expires: 2026-11-14
+    reason: >-
+      `opencode-scheduled.yml` is the sixth scheduled agent workflow and the one
+      whose confirmation gates cannot be read from this repository at all. It
+      does not invoke a CLI; it delegates to the pinned third-party action
+      `anomalyco/opencode/github`, passing only `model`, `prompt` and
+      `use_github_token`. Whether that action runs the agent with tool
+      confirmation enabled is a property of the action, not of any file here.
+      This entry exists because the audit now fails closed on an enrolled agent
+      workflow it cannot classify, rather than reporting nothing — which is what
+      it did for this file, and for Codex and Cursor, until 2026-08-16.
+    claims:
+      no_gate_flag_is_passed_to_the_action:
+        sentence: >-
+          passing only `model`, `prompt` and `use_github_token`
+        absent:
+          path: ventures/local-site-studio/.github/workflows/opencode-scheduled.yml
+          pattern: '^\s+(yolo|auto_approve|permission|approval|sandbox|force):'
+      the_action_is_pinned_to_a_commit:
+        sentence: >-
+          the pinned third-party action `anomalyco/opencode/github`
+        present:
+          path: ventures/local-site-studio/.github/workflows/opencode-scheduled.yml
+          pattern: 'uses:\s+anomalyco/opencode/github@[0-9a-f]{40}\b'
+    compensating_control: >-
+      The action is pinned to a full commit SHA, so what runs cannot change
+      under the workflow without a diff. Runs are non-interactive on ephemeral
+      GitHub-hosted runners, and the OAuth material the step uses is scoped to
+      OpenCode. The provider API keys in the step environment are the real blast
+      radius and are the reason this entry gets 90 days rather than 180: the
+      remedy is to read what the action does with tool confirmation and either
+      reclassify this file under EXC-013 with the honest answer, or replace the
+      action with a CLI invocation whose flags this repository can see.
 

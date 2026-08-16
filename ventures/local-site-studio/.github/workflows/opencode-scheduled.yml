@@ -98,10 +98,17 @@ jobs:
         uses: anomalyco/opencode/github@a105350812f05f914c768e468559dbd6bd508d8e # v1.18.13
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # OAuth auth.json is primary; optional API keys are fallbacks only.
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+          # Three provider API keys — OPENAI_API_KEY, ANTHROPIC_API_KEY and
+          # GOOGLE_GENERATIVE_AI_API_KEY — were declared here until 2026-08-16,
+          # commented "optional API keys are fallbacks only". They were never
+          # fallbacks: the seed step above calls restore-oauth-auth.sh, which
+          # exits 1 when OPENCODE_AUTH is unset and no cached auth.json exists,
+          # so the job cannot reach this step without the OAuth credential the
+          # comment calls primary. What they were was three account-level
+          # credentials handed to an unattended third-party agent action, in a
+          # step whose `run:` is somebody else's code and where no `unset` is
+          # even possible — the Claude, Gemini and Grok steps at least get to
+          # clear their own environment before the agent starts.
         with:
           model: ${{ github.event.inputs.model || 'opencode/deepseek-v4-flash' }}
           prompt: ${{ steps.prompt.outputs.body }}

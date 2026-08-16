@@ -157,7 +157,7 @@ function PathTo100kReport() {
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-sm text-zinc-500">
+                      <span className="font-mono text-sm text-zinc-400">
                         #{idea.rank100k}
                       </span>
                       <Link
@@ -178,19 +178,19 @@ function PathTo100kReport() {
 
                 <div className="mt-4 grid gap-4 sm:grid-cols-3">
                   <div>
-                    <p className="text-xs text-zinc-500">Target customers</p>
+                    <p className="text-xs text-zinc-400">Target customers</p>
                     <p className="text-sm text-zinc-300">
                       {plan.customerCount.count} {plan.customerCount.unit}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-zinc-500">Realistic timeline</p>
+                    <p className="text-xs text-zinc-400">Realistic timeline</p>
                     <p className="text-sm text-zinc-300">
                       {monthsLabel(plan.timelineMonths.realistic)}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-zinc-500">Pricing</p>
+                    <p className="text-xs text-zinc-400">Pricing</p>
                     <p className="text-sm text-zinc-300">{plan.pricing.model}</p>
                   </div>
                 </div>
@@ -252,7 +252,7 @@ function PathTo1mReport() {
               >
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <span className="font-mono text-sm text-zinc-500">
+                    <span className="font-mono text-sm text-zinc-400">
                       #{idea.rank1m}
                     </span>
                     <Link
@@ -272,7 +272,7 @@ function PathTo1mReport() {
                     {verdictLabel(plan.verdict)}
                   </span>
                 </div>
-                <p className="mt-3 text-sm text-zinc-500">
+                <p className="mt-3 text-sm text-zinc-400">
                   Realistic: {monthsLabel(plan.timelineMonths.realistic)} ·
                   Key unlock: {plan.keyMilestones[plan.keyMilestones.length - 1]}
                 </p>
@@ -412,7 +412,7 @@ function AutomationPlaybookReport() {
               className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4"
             >
               <p className="text-sm font-medium text-zinc-200">{item.layer}</p>
-              <p className="mt-1 text-sm text-zinc-500">{item.tools}</p>
+              <p className="mt-1 text-sm text-zinc-400">{item.tools}</p>
             </div>
           ))}
         </div>
@@ -480,7 +480,7 @@ function ScoringMethodologyReport() {
           >
             <div className="flex items-center justify-between">
               <h3 className="font-medium text-zinc-200">{dim.name}</h3>
-              <span className="text-xs text-zinc-500">{dim.weight}</span>
+              <span className="text-xs text-zinc-400">{dim.weight}</span>
             </div>
             <p className="mt-2 text-sm text-zinc-400">{dim.desc}</p>
           </div>
@@ -559,7 +559,7 @@ function CategoryAnalysisReport() {
                 className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900/50 px-4 py-3 transition hover:border-zinc-700"
               >
                 <span className="text-zinc-200">{idea.name}</span>
-                <span className="text-sm text-zinc-500">
+                <span className="text-sm text-zinc-400">
                   #{idea.rank100k} at $100k · #{idea.rank1m} at $1M
                 </span>
               </Link>

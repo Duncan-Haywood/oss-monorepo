@@ -442,6 +442,81 @@ grep -q 'not a git work tree' "$ungit_fixture/stderr.log" ||
 grep -qF "$recorded_row" "$ungit_fixture/SECURITY_ROADMAP.md" ||
   fail "a scan outside a git work tree must not overwrite the recorded findings"
 
+# A single failed DNS lookup is not evidence that the registry is unreachable.
+# Measured on 2026-08-08: one blip on a loaded host sent the scan down the
+# offline branch, recorded all 18 packages as gaps, printed "Packages audited:
+# 0", and — because scripts/verify-all.sh defaults SECURITY_SCAN_ALLOW_OFFLINE=1
+# — still reported "✔ Vulnerability & Secret Audit PASSED". The registry
+# answered normally seconds later. So the probe retries, and the two cases below
+# pin both directions: the retry cannot be dropped, and it cannot be made
+# unconditional either, or a genuinely offline runner would hang on the audit
+# instead of recording gaps.
+real_node="$(command -v node)"
+
+# Stub `node` so the reachability probe fails a set number of times and then
+# succeeds, delegating every other `node` call to the real interpreter. The
+# probe is the only call in the scanner that mentions `dns`.
+#
+# shellcheck disable=SC2016 # the printf bodies are the stub's source text, not
+# this script's: `$*`, `$n` and `$(cat ...)` must reach the generated file
+# unexpanded and be evaluated when the stub runs. Only the `%s` placeholders
+# interpolate, and those carry this script's values deliberately.
+write_flaky_node_stub() {
+  local root="$1" fail_times="$2"
+  {
+    printf '#!/usr/bin/env bash\n'
+    printf 'if [[ "$*" == *dns* ]]; then\n'
+    printf '  n=$(cat "%s/dns-probe-count" 2>/dev/null || echo 0)\n' "$root"
+    printf '  n=$((n + 1))\n'
+    printf '  printf "%%s" "$n" >"%s/dns-probe-count"\n' "$root"
+    printf '  if [ "$n" -le %s ]; then exit 1; fi\n' "$fail_times"
+    printf '  exit 0\n'
+    printf 'fi\n'
+    printf 'exec %s "$@"\n' "$real_node"
+  } >"$root/bin/node"
+  chmod +x "$root/bin/node"
+}
+
+probe_count() {
+  cat "$1/dns-probe-count" 2>/dev/null || printf '0'
+}
+
+# One failed lookup, then success: the package must actually be audited.
+flaky_fixture="$(new_fixture flaky-registry-probe "$(audit_json 0 0 0 '{}')" lockfile)"
+write_flaky_node_stub "$flaky_fixture" 1
+git -C "$flaky_fixture" add -A >/dev/null 2>&1 || true
+if env -u SECURITY_SCAN_OFFLINE SECURITY_SCAN_ALLOW_OFFLINE=0 SECURITY_SCAN_PROBE_ATTEMPTS=3 \
+  PATH="$flaky_fixture/bin:$PATH" bash "$flaky_fixture/scripts/security-scan.sh" \
+  >"$flaky_fixture/stdout.log" 2>"$flaky_fixture/stderr.log"; then
+  if grep -q 'registry unreachable' "$flaky_fixture/stderr.log"; then
+    fail "one failed lookup should not skip the dependency audit"
+  fi
+  grep -q 'Packages audited: 1' "$flaky_fixture/stdout.log" ||
+    fail "once the probe retries, the package should actually be audited"
+else
+  fail "a transient lookup failure should not fail the scan"
+fi
+[ "$(probe_count "$flaky_fixture")" -ge 2 ] ||
+  fail "the reachability probe should be retried after a failed lookup"
+
+# Every attempt fails: the run is genuinely offline, records gaps, and refuses.
+# Without this case the retry could be turned into an unconditional "reachable".
+exhausted_fixture="$(new_fixture exhausted-registry-probe "$(audit_json 0 0 0 '{}')" lockfile)"
+write_flaky_node_stub "$exhausted_fixture" 99
+printf '%s\n' "$recorded_row" >"$exhausted_fixture/SECURITY_ROADMAP.md"
+git -C "$exhausted_fixture" add -A >/dev/null 2>&1 || true
+if env -u SECURITY_SCAN_OFFLINE SECURITY_SCAN_ALLOW_OFFLINE=0 SECURITY_SCAN_PROBE_ATTEMPTS=2 \
+  PATH="$exhausted_fixture/bin:$PATH" bash "$exhausted_fixture/scripts/security-scan.sh" \
+  >"$exhausted_fixture/stdout.log" 2>"$exhausted_fixture/stderr.log"; then
+  fail "a run whose every lookup fails should exit non-zero"
+fi
+grep -q 'registry unreachable' "$exhausted_fixture/stderr.log" ||
+  fail "an exhausted probe should record each unaudited package as an audit gap"
+grep -qF "$recorded_row" "$exhausted_fixture/SECURITY_ROADMAP.md" ||
+  fail "an exhausted probe must not overwrite the recorded findings"
+[ "$(probe_count "$exhausted_fixture")" -eq 2 ] ||
+  fail "the probe should stop after the configured number of attempts"
+
 if [ "$failures" -ne 0 ]; then
   printf 'security-scan contract tests failed: %d\n' "$failures" >&2
   exit 1

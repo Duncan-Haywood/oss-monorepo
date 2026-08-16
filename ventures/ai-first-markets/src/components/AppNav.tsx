@@ -18,7 +18,7 @@ export function AppNav() {
           </div>
           <div>
             <p className="text-sm font-semibold text-zinc-50">AI-First Markets</p>
-            <p className="text-xs text-zinc-500">Markets · Ideas · Execution</p>
+            <p className="text-xs text-zinc-400">Markets · Ideas · Execution</p>
           </div>
         </Link>
 
