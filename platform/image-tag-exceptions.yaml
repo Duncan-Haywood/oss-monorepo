@@ -381,12 +381,38 @@ exceptions:
         absent:
           path: platform/terraform/*.tf
           pattern: '(?i)networkpolicy|ipallowlist|ipwhitelist|sourceRange'
+      # Same correction as `IMG-008.validation_refuses_a_moving_tag`, on
+      # 2026-08-16 and for the same reason. This was a `present` grep for
+      # `sha256:\[0-9a-f\]\{64\}` — it asked only whether the digest alternative
+      # was spelled out anywhere in the file, and the sentence it stands behind
+      # is about what the rule refuses, which is a statement about the *other*
+      # alternative entirely. Measured: rewriting the condition to
+      # `^(sha256:[0-9a-f]{64}|.*)$`, so a public remote shell would accept
+      # `latest`, left this claim green. `admits` runs the rule.
       tag_variable_is_validated_immutable:
         sentence: >-
           refuses any value that is not a digest or a version
-        present:
+        admits:
           path: platform/terraform/agent_platform.tf
-          pattern: 'sha256:\[0-9a-f\]\{64\}'
+          extract: 'regex\(\s*"((?:[^"\\]|\\.)*)"\s*,\s*var\.code_server_image_tag\s*\)'
+          unescape: hcl
+          refuses:
+            - latest
+            - stable
+            - main
+            - edge
+            - nightly
+            # An un-anchoring probe. Terraform's `regex` searches rather than
+            # matches, so a rule that drops `^...$` while still spelling out
+            # both alternatives admits this — the version half matches the
+            # `1.0` inside it. `latest` alone would not catch that edit.
+            - latest-1.0
+            - ''
+          permits:
+            - 'sha256:3f79bb7b435b05321651daefd374cdc681dc06faa65e374e38337b88ca046dea'
+            - '4.20.0'
+            - 'v4.20.0'
+            - '4.20.0-rc.1'
     reason: >-
       `codercom/code-server` on `helm_release.code_server`.
       `tag = var.code_server_image_tag` is unresolved from tracked sources, so
@@ -484,12 +510,43 @@ exceptions:
         present:
           path: platform/terraform/variables.tf
           pattern: '^\s+tag\s+=\s+string\s*$'
+      # Was a `present` grep for the rule's own text until 2026-08-16, and that
+      # grep could not fail: its pattern read
+      # `"\^\(sha256:\[0-9a-f\]\{64\}\|.+\)\$"`, with `.+` standing where the
+      # version alternative belongs. `.+` matches `.*`, so rewriting the rule to
+      # `^(sha256:[0-9a-f]{64}|.*)$` — which accepts `latest`, the exact negation
+      # of the sentence below — left the claim green. Measured: with that one
+      # character changed the audit still exited 0 and 152 tests still passed.
+      # It checked that the digest half was spelled out and said nothing about
+      # what else got in, which is the whole of what the sentence claims.
+      #
+      # `admits` runs the rule instead of reading it. `latest` and friends are
+      # supplied to the regex the file actually declares; the claim is red the
+      # moment one of them gets in, however the rule is spelled.
       validation_refuses_a_moving_tag:
         sentence: >-
           refuses any `tag` that is not a `sha256:` digest or a version
-        present:
+        admits:
           path: platform/terraform/variables.tf
-          pattern: 'can\(regex\("\^\(sha256:\[0-9a-f\]\{64\}\|.+\)\$",\s*service\.tag\)\)'
+          extract: 'regex\(\s*"((?:[^"\\]|\\.)*)"\s*,\s*service\.tag\s*\)'
+          unescape: hcl
+          refuses:
+            - latest
+            - stable
+            - main
+            - edge
+            - nightly
+            # An un-anchoring probe. Terraform's `regex` searches rather than
+            # matches, so a rule that drops `^...$` while still spelling out
+            # both alternatives admits this — the version half matches the
+            # `1.0` inside it. `latest` alone would not catch that edit.
+            - latest-1.0
+            - ''
+          permits:
+            - 'sha256:3f79bb7b435b05321651daefd374cdc681dc06faa65e374e38337b88ca046dea'
+            - '1.4.2'
+            - 'v2.0.0'
+            - '1.4.2-rc.1'
       validation_binds_every_service_tag:
         sentence: >-
           applied over every entry in the map rather than one

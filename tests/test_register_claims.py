@@ -33,6 +33,7 @@ if str(CI_DIR) not in sys.path:
     sys.path.insert(0, str(CI_DIR))
 
 import register_claims as rc
+import yaml
 
 
 # Built rather than written out. `scripts/ci/audit_exceptions.py` scans tracked
@@ -194,6 +195,221 @@ class PredicateTests(unittest.TestCase):
         )
         self.assertEqual(codes, ["claim-false"])
         self.assertIn("found 2", findings[0].message)
+
+
+#: A Terraform `validation` in the shape `variables.tf` and `agent_platform.tf`
+#: both carry: a regex literal, and the value it guards, inside `can(regex(...))`.
+#: `{rule}` is the regex as HCL spells it — doubled backslashes and all.
+TF_VALIDATION = """variable "services" {{
+  validation {{
+    condition = alltrue([
+      for name, service in var.services :
+      can(regex("{rule}", service.tag))
+    ])
+  }}
+}}
+"""
+
+IMMUTABLE_RULE = (
+    "^(sha256:[0-9a-f]{64}|v?[0-9]+(\\\\.[0-9]+)*"
+    "([-_.+][A-Za-z0-9][A-Za-z0-9._+-]*)?)$"
+)
+
+#: The one-character weakening. `.*` where the version alternative was: the rule
+#: still names a digest, still sits on the same line, still reads as a check —
+#: and admits `latest` on a public ingress.
+PERMISSIVE_RULE = "^(sha256:[0-9a-f]{64}|.*)$"
+
+DIGEST = "sha256:" + "3f79bb7b435b05321651daefd374cdc681dc06faa65e374e38337b88ca046dea"
+
+
+class AdmitsTests(unittest.TestCase):
+    """`admits` runs the rule the source declares, rather than reading it.
+
+    Every other predicate is a grep, and a grep cannot check a sentence about
+    what a validation *allows*: the pattern loose enough to match the rule is
+    loose enough to match the rule's negation. `IMG-008` was exactly that until
+    2026-08-16 — its `present` pattern held `.+` where the version alternative
+    belongs, so `.*` matched it and `latest` got in under a green claim.
+    """
+
+    def setUp(self) -> None:
+        self._tmp = __import__("tempfile").TemporaryDirectory()
+        self.root = Path(self._tmp.name)
+        self.addCleanup(self._tmp.cleanup)
+        self.tracked = ["src/variables.tf"]
+
+    def write_rule(self, rule: str) -> None:
+        write(self.root / "src/variables.tf", TF_VALIDATION.format(rule=rule))
+
+    def entry(self, claims):
+        return {
+            "id": "FIX-001",
+            "reason": "refuses any tag that is not a digest or a version",
+            "compensating_control": "",
+            "claims": claims,
+        }
+
+    def claim(self, **overrides):
+        spec = {
+            "path": "src/*.tf",
+            "extract": r'regex\(\s*"((?:[^"\\]|\\.)*)"\s*,\s*service\.tag\s*\)',
+            "unescape": "hcl",
+            "refuses": ["latest", "stable", "latest-1.0", ""],
+            "permits": [DIGEST, "1.4.2", "v2.0.0"],
+        }
+        spec.update(overrides)
+        return {
+            "sentence": "refuses any tag that is not a digest or a version",
+            "admits": spec,
+        }
+
+    def run_one(self, **overrides):
+        return run_claims(self.root, self.tracked, self.entry({"c": self.claim(**overrides)}))
+
+    def test_the_real_rule_holds(self):
+        self.write_rule(IMMUTABLE_RULE)
+        codes, findings, _ = self.run_one()
+        self.assertEqual(codes, [], [f.message for f in findings])
+
+    def test_a_rule_that_admits_a_moving_tag_is_red(self):
+        # The mutation the old `present` predicate could not see.
+        self.write_rule(PERMISSIVE_RULE)
+        codes, findings, _ = self.run_one()
+        self.assertEqual(codes, ["claim-false"])
+        self.assertIn("admits 'latest'", findings[0].message)
+
+    def test_dot_plus_is_red_too(self):
+        # `.+` is the character the old predicate itself contained. It refuses
+        # only the empty string, which is not what the sentence says.
+        self.write_rule("^(sha256:[0-9a-f]{64}|.+)$")
+        codes, findings, _ = self.run_one()
+        self.assertEqual(codes, ["claim-false"])
+        self.assertIn("admits 'latest'", findings[0].message)
+
+    def test_a_rule_that_refuses_everything_is_red(self):
+        # `refuses` alone would be satisfied by a rule matching nothing, which
+        # is a broken deploy rather than a kept promise. `permits` is what
+        # stops "check nothing" from reading as "refuse everything".
+        self.write_rule("^$")
+        codes, findings, _ = self.run_one()
+        self.assertEqual(codes, ["claim-false"])
+        self.assertIn("refuses", findings[0].message)
+        self.assertIn("1.4.2", findings[0].message)
+
+    def test_an_unanchored_rule_is_red(self):
+        # Terraform's `regex` is a search, not a match: without `^...$` a rule
+        # that still spells out both alternatives admits `latest-1.0`, because
+        # the version half matches the `1.0` inside it. `refuses` carries that
+        # value for exactly this reason — `latest` alone would not catch it.
+        self.write_rule("(sha256:[0-9a-f]{64}|v?[0-9]+(\\\\.[0-9]+)*)")
+        codes, findings, _ = self.run_one()
+        self.assertEqual(codes, ["claim-false"])
+        self.assertIn("latest-1.0", findings[0].message)
+
+    def test_a_renamed_anchor_is_red_not_vacuous(self):
+        # The rule is intact but no longer guards `service.tag`. A predicate
+        # that shrugged at zero sites would let the validation be moved off the
+        # value it protects without a word.
+        write(
+            self.root / "src/variables.tf",
+            TF_VALIDATION.format(rule=IMMUTABLE_RULE).replace(
+                "service.tag", "service.image"
+            ),
+        )
+        codes, findings, _ = self.run_one()
+        self.assertEqual(codes, ["claim-false"])
+        self.assertIn("found 0", findings[0].message)
+
+    def test_a_second_site_is_red(self):
+        # Two validations where the claim asserts one: the reader cannot tell
+        # which of them the sentence is about, and only one need be strict.
+        write(
+            self.root / "src/variables.tf",
+            TF_VALIDATION.format(rule=IMMUTABLE_RULE)
+            + TF_VALIDATION.format(rule=PERMISSIVE_RULE),
+        )
+        codes, findings, _ = self.run_one()
+        self.assertEqual(codes, ["claim-false"])
+        self.assertIn("found 2", findings[0].message)
+
+    def test_hcl_escapes_are_undone_before_compiling(self):
+        # `\\.` on the line is `\.` to Terraform. Compiling the raw bytes would
+        # run a regex the cluster never sees — where `\\` is a literal
+        # backslash and `.` is any character.
+        self.write_rule(IMMUTABLE_RULE)
+        codes, _, _ = self.run_one(permits=["1.4.2"], refuses=["1x4x2"])
+        self.assertEqual(codes, [])
+
+    def test_an_empty_refuses_list_is_refused(self):
+        # `refuses: []` satisfies "none of them get in" for free — the vacuous
+        # glob failure wearing a different field name.
+        self.write_rule(IMMUTABLE_RULE)
+        codes, findings, _ = self.run_one(refuses=[])
+        self.assertEqual(codes, ["malformed-claim"])
+        self.assertIn("non-empty list `refuses`", findings[0].message)
+
+    def test_an_extract_without_exactly_one_group_is_refused(self):
+        self.write_rule(IMMUTABLE_RULE)
+        codes, findings, _ = self.run_one(extract=r'regex\("(.*)",\s*(service\.tag)\)')
+        self.assertEqual(codes, ["malformed-claim"])
+        self.assertIn("capture group", findings[0].message)
+
+    def test_an_uncompilable_rule_is_refused_not_passed(self):
+        self.write_rule("^(sha256:[0-9a-f]{64}|v?[0-9]+$")
+        codes, findings, _ = self.run_one()
+        self.assertEqual(codes, ["malformed-claim"])
+        self.assertIn("not a regex this checker can run", findings[0].message)
+
+    def test_an_unknown_escape_is_refused_not_guessed(self):
+        # One backslash in the file, not two: `\\\\` is an escape the unescaper
+        # knows and would resolve, leaving `\\q` for `re` to reject. This is the
+        # other path — a sequence HCL itself would not accept, refused here
+        # rather than guessed at.
+        self.write_rule("^\\q(sha256:[0-9a-f]{64})$")
+        codes, findings, _ = self.run_one()
+        self.assertEqual(codes, ["malformed-claim"])
+        self.assertIn("does not know", findings[0].message)
+
+    def test_a_glob_matching_nothing_is_red(self):
+        self.write_rule(IMMUTABLE_RULE)
+        codes, findings, _ = self.run_one(path="gone/*.tf")
+        self.assertEqual(codes, ["claim-false"])
+        self.assertIn("matches no tracked file", findings[0].message)
+
+
+class LiveRegisterAdmitsTests(unittest.TestCase):
+    """The two live `admits` claims, against the Terraform they actually read.
+
+    `AdmitsTests` proves the predicate; this proves it is pointed at the right
+    file. A predicate that works on a fixture and matches nothing in the tree is
+    the failure it was written to end.
+    """
+
+    def test_both_terraform_rules_refuse_a_moving_tag(self):
+        root = Path(rc.__file__).resolve().parents[2]
+        tracked = rc.tracked_files(root)
+        entries = {
+            "IMG-006": ("tag_variable_is_validated_immutable",),
+            "IMG-008": ("validation_refuses_a_moving_tag",),
+        }
+        register = yaml.safe_load(
+            (root / "platform/image-tag-exceptions.yaml").read_text(encoding="utf-8")
+        )
+        by_id = {entry["id"]: entry for entry in register["exceptions"]}
+        for identifier, names in entries.items():
+            for name in names:
+                spec = by_id[identifier]["claims"][name]
+                self.assertIn("admits", spec, f"{identifier}.{name}")
+                # Runs against the working tree, so a weakening of either
+                # `.tf` file surfaces here as well as in the audit.
+                self.assertIsNone(
+                    rc.evaluate_predicate(
+                        root, tracked, identifier, name, "admits", spec["admits"]
+                    ),
+                    f"{identifier}.{name}",
+                )
+                self.assertIn("latest", spec["admits"]["refuses"])
 
 
 class RefusalTests(unittest.TestCase):
