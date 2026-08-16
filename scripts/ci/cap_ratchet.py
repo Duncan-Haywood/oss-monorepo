@@ -1882,6 +1882,28 @@ def money_named_venture_constants(repo_root: Path) -> List[Tuple[str, str]]:
     return sorted(found)
 
 
+def source_literal_pins_declaration(locator: str, name: str) -> bool:
+    """Is this `source-literal` locator anchored on `name`'s *declaration*?
+
+    `name in locator` was too weak to answer this. A `source-literal` pin whose
+    regex merely *mentions* the constant is usually anchored on a line that
+    *uses* it — `total \\* STRIPE_RATE \\+ STRIPE_FIXED` names both constants and
+    pins the value of neither, because the capture group is somewhere else
+    entirely. Counting such a pin as a holder is how an enrollment contract
+    reports full coverage over an unpinned declaration: the substring is there,
+    so nothing asks for a real pin, and the number is free to drift.
+
+    So the locator has to contain `const <name> =` — the shape `extract` needs a
+    declaration to have. The spacing is written tolerantly because a locator is
+    regex source, where a literal space may appear as `\\s+` or `\\s*`.
+    """
+    gap = r"(?:[ \t]|\\s[+*]?)"
+    return (
+        re.search(r"const" + gap + r"+" + re.escape(name) + gap + r"*\\?=", locator)
+        is not None
+    )
+
+
 def holders_of(path: str, name: str) -> List[str]:
     """How `path:name` is held, if it is.
 
@@ -1890,6 +1912,9 @@ def holders_of(path: str, name: str) -> List[str]:
     `STRIPE_FIXED` is held the second way. A contract that only understood the
     first would demand a second pin for it and report a real hole where there is
     none, so both are recognised here.
+
+    Only a *declaration* anchor counts for the second way; see
+    `source_literal_pins_declaration` for why a mention is not enough.
     """
     holders: List[str] = []
     for watch in WATCHES:
@@ -1900,7 +1925,9 @@ def holders_of(path: str, name: str) -> List[str]:
             continue
         if pin.kind == "ts-constant" and pin.locator == name:
             holders.append("pin")
-        elif pin.kind == "source-literal" and name in pin.locator:
+        elif pin.kind == "source-literal" and source_literal_pins_declaration(
+            pin.locator, name
+        ):
             holders.append("pin")
     for exemption in UNENROLLED_VENTURE_CONSTANTS:
         if (exemption.path, exemption.locator) == (path, name):

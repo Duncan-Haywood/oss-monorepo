@@ -79,6 +79,7 @@ from cap_ratchet import (
     fold_ts_number,
     holders_of,
     money_named_venture_constants,
+    source_literal_pins_declaration,
     ts_module_constants,
     venture_ts_sources,
 )
@@ -1534,6 +1535,37 @@ class VentureEnrollmentContractTests(unittest.TestCase):
                     1,
                     f"{path}:{name} is held {len(holders_of(path, name))} times",
                 )
+
+    def test_a_source_literal_pin_only_holds_what_it_declares(self):
+        """Mentioning a constant is not pinning it.
+
+        The test above lets a `source-literal` pin count as a holder. That
+        concession is only sound while "holder" means *anchored on the
+        declaration*. A locator anchored on a line that merely uses the
+        constant — `total \\* STRIPE_RATE \\+ STRIPE_FIXED` is exactly such a
+        line, at `checkout.ts:484` — captures a number somewhere else entirely,
+        so accepting it would let the enrollment contract report full coverage
+        over a declaration nothing pins. That is the same shape as a control
+        reading a guessed surface, and it is cheap to refuse here.
+        """
+        usage = r"const stripeProcessingFee = roundCurrency\(total \* STRIPE_RATE \+ STRIPE_FIXED\)"
+        for name in ("STRIPE_RATE", "STRIPE_FIXED"):
+            with self.subTest(name=name):
+                self.assertIn(name, usage, "the fixture stopped naming the constant")
+                self.assertFalse(
+                    source_literal_pins_declaration(usage, name),
+                    f"a locator anchored on a *use* of {name} was counted as pinning it",
+                )
+
+        # The real pin this concession exists for must keep working, or the
+        # refusal above is bought by re-opening the hole it was added to close.
+        declaration = r"^const STRIPE_FIXED = ([0-9.]+);$"
+        self.assertTrue(source_literal_pins_declaration(declaration, "STRIPE_FIXED"))
+        self.assertEqual(
+            holders_of("ventures/print-atelier/src/lib/stripe-connect.ts", "STRIPE_FIXED"),
+            ["pin"],
+            "stripe-connect.ts's declaration-anchored STRIPE_FIXED pin stopped being seen",
+        )
 
     def test_the_enumeration_actually_finds_something(self):
         """A contract over an empty population is a contract over nothing.
