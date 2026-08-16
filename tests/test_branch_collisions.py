@@ -16,6 +16,7 @@ than report zero collisions.
 No test here is skipped or conditionally skipped, and none should be.
 """
 
+import os
 import sys
 from pathlib import Path
 
@@ -56,6 +57,12 @@ class GitRepoTestCase(unittest.TestCase):
         return self.scratch.git(*args)
 
     def setUp(self):
+        orig_offline = os.environ.pop("BASELINE_TRUST_ALLOW_OFFLINE", None)
+        if orig_offline is not None:
+            self.addCleanup(lambda: os.environ.__setitem__("BASELINE_TRUST_ALLOW_OFFLINE", orig_offline))
+        orig_sec_offline = os.environ.pop("SECURITY_SCAN_ALLOW_OFFLINE", None)
+        if orig_sec_offline is not None:
+            self.addCleanup(lambda: os.environ.__setitem__("SECURITY_SCAN_ALLOW_OFFLINE", orig_sec_offline))
         self.scratch = ScratchRemote()
         self.addCleanup(self.scratch.cleanup)
         self.repo = self.scratch.work
@@ -186,11 +193,17 @@ class TestBaselineTrust(GitRepoTestCase):
         self.git("checkout", "-q", "-b", "agent/two")
         self.commit("scripts/ci/thing.py", "version two, written independently")
 
-    def cli(self, *args):
+    def cli(self, *args, env=None):
+        sub_env = dict(os.environ)
+        sub_env.pop("BASELINE_TRUST_ALLOW_OFFLINE", None)
+        sub_env.pop("SECURITY_SCAN_ALLOW_OFFLINE", None)
+        if env:
+            sub_env.update(env)
         return subprocess.run(
             [sys.executable, str(CI_DIR / "branch_collisions.py"), "--repo-root", str(self.repo), *args],
             capture_output=True,
             text=True,
+            env=sub_env,
         )
 
     def test_a_verified_baseline_measures_normally(self):

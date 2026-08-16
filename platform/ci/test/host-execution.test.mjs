@@ -400,18 +400,23 @@ test('Host Verifier - verifySwiftHost handles missing swift CLI or SDK mismatch'
   };
 
   const origPath = process.env.PATH;
+  const origSwiftAllow = process.env.ALLOW_SWIFT_TOOLCHAIN_MISMATCH;
   process.env.PATH = `${binDirNoSwift}`;
+  delete process.env.ALLOW_SWIFT_TOOLCHAIN_MISMATCH;
   try {
     assert.equal(quietly(() => verifySwiftHost(component, root)), false);
   } finally {
     process.env.PATH = origPath;
+    process.env.ALLOW_SWIFT_TOOLCHAIN_MISMATCH = origSwiftAllow;
   }
 
   process.env.PATH = `${binDirMismatch}:${origPath}`;
+  delete process.env.ALLOW_SWIFT_TOOLCHAIN_MISMATCH;
   try {
     assert.equal(quietly(() => verifySwiftHost(component, root)), false);
   } finally {
     process.env.PATH = origPath;
+    process.env.ALLOW_SWIFT_TOOLCHAIN_MISMATCH = origSwiftAllow;
   }
 });
 
@@ -435,70 +440,106 @@ test('Host Verifier - verifySwiftHost handles swift test failure, module redefin
   };
 
   const origPath = process.env.PATH;
+  const origSwiftAllow = process.env.ALLOW_SWIFT_TOOLCHAIN_MISMATCH;
+  delete process.env.ALLOW_SWIFT_TOOLCHAIN_MISMATCH;
 
-  // 1. swift test fails with "redefinition of module"
-  fs.writeFileSync(
-    mockSwiftPath,
-    '#!/bin/sh\nif [ "$1" = "package" ]; then exit 0; fi\necho "redefinition of module Foo" >&2\nexit 1',
-    { mode: 0o755 }
-  );
-  process.env.PATH = `${binDir}:${origPath}`;
   try {
-    assert.equal(quietly(() => verifySwiftHost(component, root)), false);
-  } finally {
-    process.env.PATH = origPath;
-  }
+    // 1. swift test fails with "redefinition of module"
+    fs.writeFileSync(
+      mockSwiftPath,
+      '#!/bin/sh\nif [ "$1" = "package" ]; then exit 0; fi\necho "redefinition of module Foo" >&2\nexit 1',
+      { mode: 0o755 }
+    );
+    process.env.PATH = `${binDir}:${origPath}`;
+    try {
+      assert.equal(quietly(() => verifySwiftHost(component, root)), false);
+    } finally {
+      process.env.PATH = origPath;
+    }
 
-  // 2. swift test fails with "Invalid manifest"
-  fs.writeFileSync(
-    mockSwiftPath,
-    '#!/bin/sh\nif [ "$1" = "package" ]; then exit 0; fi\necho "Invalid manifest" >&2\nexit 1',
-    { mode: 0o755 }
-  );
-  process.env.PATH = `${binDir}:${origPath}`;
-  try {
-    assert.equal(quietly(() => verifySwiftHost(component, root)), false);
-  } finally {
-    process.env.PATH = origPath;
-  }
+    // 2. swift test fails with "Invalid manifest"
+    fs.writeFileSync(
+      mockSwiftPath,
+      '#!/bin/sh\nif [ "$1" = "package" ]; then exit 0; fi\necho "Invalid manifest" >&2\nexit 1',
+      { mode: 0o755 }
+    );
+    process.env.PATH = `${binDir}:${origPath}`;
+    try {
+      assert.equal(quietly(() => verifySwiftHost(component, root)), false);
+    } finally {
+      process.env.PATH = origPath;
+    }
 
-  // 3. swift test fails with "Operation not permitted"
-  fs.writeFileSync(
-    mockSwiftPath,
-    '#!/bin/sh\nif [ "$1" = "package" ]; then exit 0; fi\necho "Operation not permitted" >&2\nexit 1',
-    { mode: 0o755 }
-  );
-  process.env.PATH = `${binDir}:${origPath}`;
-  try {
-    assert.equal(quietly(() => verifySwiftHost(component, root)), false);
-  } finally {
-    process.env.PATH = origPath;
-  }
+    // 3. swift test fails with "Operation not permitted"
+    fs.writeFileSync(
+      mockSwiftPath,
+      '#!/bin/sh\nif [ "$1" = "package" ]; then exit 0; fi\necho "Operation not permitted" >&2\nexit 1',
+      { mode: 0o755 }
+    );
+    process.env.PATH = `${binDir}:${origPath}`;
+    try {
+      assert.equal(quietly(() => verifySwiftHost(component, root)), false);
+    } finally {
+      process.env.PATH = origPath;
+    }
 
-  // 4. swift test fails with generic test failure (returns false)
-  fs.writeFileSync(
-    mockSwiftPath,
-    '#!/bin/sh\nif [ "$1" = "package" ]; then exit 0; fi\necho "Test Suite Failed" >&2\nexit 1',
-    { mode: 0o755 }
-  );
-  process.env.PATH = `${binDir}:${origPath}`;
-  try {
-    assert.equal(quietly(() => verifySwiftHost(component, root)), false);
-  } finally {
-    process.env.PATH = origPath;
-  }
+    // 4. swift test fails with generic test failure (returns false)
+    fs.writeFileSync(
+      mockSwiftPath,
+      '#!/bin/sh\nif [ "$1" = "package" ]; then exit 0; fi\necho "Test Suite Failed" >&2\nexit 1',
+      { mode: 0o755 }
+    );
+    process.env.PATH = `${binDir}:${origPath}`;
+    try {
+      assert.equal(quietly(() => verifySwiftHost(component, root)), false);
+    } finally {
+      process.env.PATH = origPath;
+    }
 
-  // 5. dump-package fails with unhandled error status, failing closed
-  fs.writeFileSync(
-    mockSwiftPath,
-    '#!/bin/sh\nif [ "$1" = "package" ]; then echo "unknown dump error" >&2; exit 1; fi\nexit 0',
-    { mode: 0o755 }
-  );
-  process.env.PATH = `${binDir}:${origPath}`;
-  try {
-    assert.equal(quietly(() => verifySwiftHost(component, root)), false);
+    // 5. dump-package fails with unhandled error status, failing closed
+    fs.writeFileSync(
+      mockSwiftPath,
+      '#!/bin/sh\nif [ "$1" = "package" ]; then echo "unknown dump error" >&2; exit 1; fi\nexit 0',
+      { mode: 0o755 }
+    );
+    process.env.PATH = `${binDir}:${origPath}`;
+    try {
+      assert.equal(quietly(() => verifySwiftHost(component, root)), false);
+    } finally {
+      process.env.PATH = origPath;
+    }
+
+    // 6. dump-package fails with known Swift environment issue (SDK mismatch / sandbox constraint)
+    fs.writeFileSync(
+      mockSwiftPath,
+      '#!/bin/sh\nif [ "$1" = "package" ]; then echo "error: SDK is not supported" >&2; exit 1; fi\nexit 0',
+      { mode: 0o755 }
+    );
+    process.env.PATH = `${binDir}:${origPath}`;
+    try {
+      assert.equal(quietly(() => verifySwiftHost(component, root)), false);
+    } finally {
+      process.env.PATH = origPath;
+    }
+
+    // 7. dump-package fails with redefinition of module
+    fs.writeFileSync(
+      mockSwiftPath,
+      '#!/bin/sh\nif [ "$1" = "package" ]; then echo "redefinition of module Foo" >&2; exit 1; fi\nexit 0',
+      { mode: 0o755 }
+    );
+    process.env.PATH = `${binDir}:${origPath}`;
+    try {
+      assert.equal(quietly(() => verifySwiftHost(component, root)), false);
+    } finally {
+      process.env.PATH = origPath;
+    }
   } finally {
-    process.env.PATH = origPath;
+    if (origSwiftAllow !== undefined) {
+      process.env.ALLOW_SWIFT_TOOLCHAIN_MISMATCH = origSwiftAllow;
+    } else {
+      delete process.env.ALLOW_SWIFT_TOOLCHAIN_MISMATCH;
+    }
   }
 });
 

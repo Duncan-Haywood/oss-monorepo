@@ -113,7 +113,7 @@ describe("updateInquiryStatusAction", () => {
   });
 
   it("returns auth error without updating status", async () => {
-    requireOperatorAuth.mockResolvedValue({
+    requireOperatorAuth.mockReset().mockResolvedValue({
       ok: false,
       error: "Unauthorized — sign in at /dashboard/login",
     });

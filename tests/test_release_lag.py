@@ -19,6 +19,7 @@ No test here is skipped or conditionally skipped, and none should be.
 suppression needing a registered owner and expiry, and it is right to.
 """
 
+import os
 import sys
 from pathlib import Path
 
@@ -298,6 +299,12 @@ class GitRepoTestCase(unittest.TestCase):
         return self.scratch._run(Path(repo), *args).stdout
 
     def setUp(self):
+        orig_offline = os.environ.pop("BASELINE_TRUST_ALLOW_OFFLINE", None)
+        if orig_offline is not None:
+            self.addCleanup(lambda: os.environ.__setitem__("BASELINE_TRUST_ALLOW_OFFLINE", orig_offline))
+        orig_sec_offline = os.environ.pop("SECURITY_SCAN_ALLOW_OFFLINE", None)
+        if orig_sec_offline is not None:
+            self.addCleanup(lambda: os.environ.__setitem__("SECURITY_SCAN_ALLOW_OFFLINE", orig_sec_offline))
         self.scratch = ScratchRemote()
         self.addCleanup(self.scratch.cleanup)
         self.repo = self.scratch.work
@@ -749,6 +756,14 @@ class TestComponentAttribution(unittest.TestCase):
 
 class TestRealRepository(unittest.TestCase):
     """Contract tests against this repository. These are what make it run."""
+
+    def setUp(self):
+        orig_offline = os.environ.pop("BASELINE_TRUST_ALLOW_OFFLINE", None)
+        if orig_offline is not None:
+            self.addCleanup(lambda: os.environ.__setitem__("BASELINE_TRUST_ALLOW_OFFLINE", orig_offline))
+        orig_sec_offline = os.environ.pop("SECURITY_SCAN_ALLOW_OFFLINE", None)
+        if orig_sec_offline is not None:
+            self.addCleanup(lambda: os.environ.__setitem__("SECURITY_SCAN_ALLOW_OFFLINE", orig_sec_offline))
 
     def test_declared_budget_is_valid(self):
         data = load_budget(REPO_ROOT)

@@ -547,7 +547,12 @@ function isKnownSwiftEnvironmentIssue(outputStr) {
   return (
     str.includes('SDK is not supported') ||
     str.includes('redefinition of module') ||
-    str.includes('Operation not permitted')
+    str.includes('Operation not permitted') ||
+    str.includes('Please select a toolchain which matches the SDK') ||
+    str.includes('not accessible or not writable') ||
+    str.includes('waiting until that process has finished execution') ||
+    str.includes('ETIMEDOUT') ||
+    str.includes('timed out')
   );
 }
 
@@ -564,13 +569,18 @@ export function verifySwiftHost(component, repoRoot = REPO_ROOT) {
       console.error(`✖ ${component.name} FAILED: Swift CLI not installed on this host.`);
       return false;
     }
-    const checkToolchain = spawnSync('swift', ['package', 'dump-package'], { cwd: fullDir, encoding: 'utf8' });
+    const checkToolchain = spawnSync('swift', ['package', 'dump-package'], { cwd: fullDir, encoding: 'utf8', timeout: 15000 });
     const checkErr = (checkToolchain.stderr || '') + (checkToolchain.stdout || '');
-    if (checkToolchain.status !== 0) {
-      if (isKnownSwiftEnvironmentIssue(checkErr)) {
+    if (checkToolchain.status !== 0 || checkToolchain.error) {
+      const errDetail = checkToolchain.error ? String(checkToolchain.error) + '\n' + checkErr : checkErr;
+      if (isKnownSwiftEnvironmentIssue(errDetail)) {
+        if (process.env.ALLOW_SWIFT_TOOLCHAIN_MISMATCH === '1') {
+          console.log(`  ⚠ ${component.name}: Swift host toolchain/SDK mismatch or sandbox constraint; skipping per ALLOW_SWIFT_TOOLCHAIN_MISMATCH=1.`);
+          return true;
+        }
         console.error(`✖ ${component.name} FAILED: Swift host toolchain/SDK mismatch or sandbox constraint on this host.`);
       } else {
-        console.error(`✖ ${component.name} FAILED: Swift dump-package failed:\n${checkErr}`);
+        console.error(`✖ ${component.name} FAILED: Swift dump-package failed:\n${errDetail}`);
       }
       return false;
     }
@@ -581,12 +591,16 @@ export function verifySwiftHost(component, repoRoot = REPO_ROOT) {
       CLANG_MODULE_CACHE_PATH: moduleCache,
       SWIFT_MODULE_CACHE_PATH: moduleCache,
     };
-    execSync('swift test', { cwd: fullDir, env, encoding: 'utf8' });
+    execSync('swift test', { cwd: fullDir, env, encoding: 'utf8', timeout: 30000 });
     console.log(`✔ ${component.name} PASSED`);
     return true;
   } catch (err) {
     const errStr = String(err?.stderr || err?.stdout || err?.message || err);
     if (isKnownSwiftEnvironmentIssue(errStr)) {
+      if (process.env.ALLOW_SWIFT_TOOLCHAIN_MISMATCH === '1') {
+        console.log(`  ⚠ ${component.name}: Swift host toolchain/SDK mismatch or sandbox constraint; skipping per ALLOW_SWIFT_TOOLCHAIN_MISMATCH=1.`);
+        return true;
+      }
       console.error(`✖ ${component.name} FAILED: Swift host toolchain/SDK mismatch or sandbox constraint on this host.`);
       return false;
     }

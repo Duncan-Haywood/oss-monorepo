@@ -242,6 +242,7 @@ const WALK_ROOTS = ["src/app", "src/components"] as const;
 function candidateSources(): { tracked: string[]; onDisk: string[] } {
   const tracked = execFileSync("git", ["-C", VENTURE_ROOT, "ls-files", "src"], {
     encoding: "utf8",
+    env: { ...process.env, GIT_CONFIG_GLOBAL: process.env.GIT_CONFIG_GLOBAL || "/dev/null" },
   })
     .split("\n")
     .filter(Boolean);

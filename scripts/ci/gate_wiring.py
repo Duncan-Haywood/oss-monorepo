@@ -80,7 +80,7 @@ WORKFLOW_DIR = ".gitea/workflows"
 #: control without one of these is a path filter, a comment or prose — the
 #: `deploy-services.yml` `paths:` list names `scripts/ci/terraform_images.py`
 #: twice and runs it never, which is the false positive this exists to refuse.
-INTERPRETERS: Tuple[str, ...] = ("python3", "python")
+INTERPRETERS: Tuple[str, ...] = ("python3", "python", '"$PYTHON_CMD"', "$PYTHON_CMD", "PYTHON_CMD")
 
 #: The ceiling on how many controls may sit unwired-but-registered. A register
 #: that can absorb the whole directory is not a register. Watched downward by
@@ -285,7 +285,7 @@ def strip_comment(line: str) -> str:
 
 def _invocation_pattern(basename: str) -> re.Pattern:
     escaped = re.escape(basename)
-    interpreters = "|".join(INTERPRETERS)
+    interpreters = "|".join(re.escape(i) for i in INTERPRETERS)
     return re.compile(rf"(?:^|[\s/\"']|\b)(?:{interpreters})\s[^\n]*{escaped}(?![\w.])")
 
 
@@ -371,7 +371,7 @@ def pytest_is_registered(repo_root: Path) -> bool:
         return False
     for raw in runner.read_text(encoding="utf-8", errors="replace").split("\n"):
         line = strip_comment(raw)
-        if re.search(r'^\s*run_ci_test\s+"[^"]+"\s+pytest\b', line):
+        if re.search(r'^\s*run_ci_test\s+"[^"]+"\s+(?:(?:env\s+.*?)*pytest\b|"\$PYTEST_CMD"|\$PYTEST_CMD|"\$\{PYTEST_CMD\[@\]\}")', line):
             return True
     return False
 

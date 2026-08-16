@@ -1,6 +1,6 @@
 # Repository security policy scan
 
-Commit: `87d95f21f1a0a8d5a66b0c80c3cda0854a0caf0d`
+Commit: `5fa7f3768e170257be70f8f4461de524a20841be`
 
 ## Blocking findings
 

@@ -284,10 +284,10 @@ components:
     # src/app/checkout/ remains among the 63 — the surface that takes a payment
     # is still exercised by nothing, and none of this change touches that.
     baseline:
-      unexercised: 63
-      lines: 67.24
-      functions: 57.25
-      branches: 62.18
+      unexercised: 59
+      lines: 67.79
+      functions: 57.64
+      branches: 62.97
     measured:
       files: 173
       lines: 4881

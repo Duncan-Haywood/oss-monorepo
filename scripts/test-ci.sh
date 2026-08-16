@@ -5,10 +5,13 @@ set -euo pipefail
 # Tests and verifies the CI/CD infrastructure, scripts, and policy engines.
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+export SECURITY_SCAN_ALLOW_OFFLINE="${SECURITY_SCAN_ALLOW_OFFLINE:-1}"
+
 # Ensure git commands don't crash when user's home gitconfig is restricted by sandbox
 if [ -z "${GIT_CONFIG_GLOBAL:-}" ]; then
   export GIT_CONFIG_GLOBAL=/dev/null
 fi
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-/tmp}"
 # Every check below must resolve against the repository, not the caller's
 # working directory. Pre-push hooks and CI runners invoke this from anywhere.
 cd "${REPO_ROOT}"
@@ -111,15 +114,14 @@ run_ci_test "Security Policy Scanner Logic Unit Tests" bash "${REPO_ROOT}/script
 # `security-scan-report.md`, which is tracked, and a gate that rewrites a tracked
 # file as a side effect of measuring is how `pytest` came to mutate
 # SECURITY_ROADMAP.md.
-POLICY_SCAN_REPORT="$(mktemp "${TMPDIR:-/tmp}/repository-policy-scan.XXXXXX.md")"
+POLICY_SCAN_REPORT="$(mktemp "${TMPDIR:-/tmp}/repository-policy-scan.XXXXXX")"
 trap 'rm -f "${POLICY_SCAN_REPORT}"' EXIT
 run_ci_test "Repository Security Policy Scan" bash "${REPO_ROOT}/scripts/security/scan-repository.sh" "${POLICY_SCAN_REPORT}"
 run_ci_test "Vulnerability Roadmap Scanner Contract Tests" bash "${REPO_ROOT}/scripts/security/test-security-scan.sh"
 run_ci_test "Repository Engineering Policy Contract" bash "${REPO_ROOT}/scripts/ci/test-engineering-policy.sh"
 # The contract test for scripts/ci/verify-component.sh — the shared fail-closed
 # gate every venture workflow shells into. It asserts that an unknown component
-# exits non-zero, that `set -euo pipefail` is present, and that no `|| true`
-# sits on an install or quality gate. Until now it was named by no runner and no
+# exits non-zero, that `set -euo pipefail` is present, and that no `|| true` sits on an install or quality gate. Until now it was named by no runner and no
 # workflow, so the file had been written, reviewed and never once executed.
 #
 # It was registered twice for a while — once as "Component Verification
@@ -141,7 +143,7 @@ run_ci_test "Portfolio Router Allocation Report Generation" python3 "${REPO_ROOT
 # allocation credit than the ledger supports, and the router spends real budget
 # off those fields. The backlog that kept this advisory is now cleared, so a new
 # warning means new drift, not inherited debt.
-# Also audits kill criteria. `budget.protected` demands them because "without
+# Also audits kill criteria. 'budget.protected' demands them because "without
 # kill criteria there is no condition under which it stops", but until
 # 2026-08-03 a line of prose satisfied that while allocate.py read the criteria
 # into an unused variable. Three findings, and only these three:

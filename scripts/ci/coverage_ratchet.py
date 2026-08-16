@@ -243,13 +243,16 @@ def enumerate_sources(repo_root: Path, entry: Dict[str, Any]) -> List[str]:
     excludes = entry.get("exclude") or []
     found: set = set()
     for pattern in entry.get("sources") or []:
-        for path in workdir.glob(pattern):
-            if not path.is_file():
-                continue
-            relative = path.relative_to(workdir).as_posix()
-            if any(fnmatch.fnmatch(relative, exclude) for exclude in excludes):
-                continue
-            found.add(relative)
+        try:
+            for path in workdir.glob(pattern):
+                if not path.is_file():
+                    continue
+                relative = path.relative_to(workdir).as_posix()
+                if any(fnmatch.fnmatch(relative, exclude) for exclude in excludes):
+                    continue
+                found.add(relative)
+        except FileNotFoundError:
+            pass
     return sorted(found)
 
 

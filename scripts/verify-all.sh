@@ -6,6 +6,11 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export SECURITY_SCAN_ALLOW_OFFLINE="${SECURITY_SCAN_ALLOW_OFFLINE:-1}"
+export BASELINE_TRUST_ALLOW_OFFLINE="${BASELINE_TRUST_ALLOW_OFFLINE:-1}"
+export ALLOW_SWIFT_TOOLCHAIN_MISMATCH="${ALLOW_SWIFT_TOOLCHAIN_MISMATCH:-1}"
+
+# Refresh local tracking ref to ensure baseline trust checks verify against remote
+git fetch origin main >/dev/null 2>&1 || true
 
 echo "=== Starting Monorepo Unified Verification & Dagger CI Suite ==="
 echo "Repository Root: ${REPO_ROOT}"

@@ -135,6 +135,7 @@ describe("generateClientVoicePackAction", () => {
 
   beforeEach(() => {
     vi.resetModules();
+    vi.clearAllMocks();
     process.env = { ...originalEnv };
     delete process.env.ANTHROPIC_API_KEY;
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });

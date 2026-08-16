@@ -1,0 +1,44 @@
+name: Pull GitHub agent branches into Gitea
+
+# Cloud agents can only write to GitHub, so their branches/PRs land there.
+# This polls GitHub and mirrors every non-main branch into Gitea under a
+# github/ prefix (never overwriting Gitea's own agent/* branches), so those
+# branches go through the same merge/gate path as the local worktree fleet.
+# Assumes agent branches live in this repo (not forks) — PRs from forks would
+# need refs/pull/*/head instead.
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pull-github-agent-branches
+  cancel-in-progress: true
+
+jobs:
+  pull:
+    name: Sync GitHub branches into Gitea
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Fetch GitHub branches and mirror into Gitea under github/ prefix
+        env:
+          GITHUB_MIRROR_TOKEN: ${{ secrets.GITHUB_MIRROR_TOKEN }}
+        run: |
+          set -euo pipefail
+          git remote add github "https://x-access-token:${GITHUB_MIRROR_TOKEN}@github.com/Duncan-Haywood/monorepo-projects.git"
+          git fetch github 'refs/heads/*:refs/remotes/github/*'
+
+          for ref in $(git for-each-ref --format='%(refname:short)' refs/remotes/github | grep -v '^github/main$'); do
+            branch="${ref#github/}"
+            git push origin "refs/remotes/${ref}:refs/heads/github/${branch}" --force
+          done

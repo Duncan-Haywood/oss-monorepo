@@ -48,7 +48,7 @@ from deployment_lag import (
     measure,
     recorded_revision,
 )
-from baseline_trust import STATE_VERIFIED, BaselineTrust
+from baseline_trust import STATE_UNREACHABLE, STATE_VERIFIED, BaselineTrust
 
 TODAY = date(2026, 8, 5)
 
@@ -619,6 +619,10 @@ class TestRealRepository(unittest.TestCase):
         measurement = measure(REPO_ROOT)
         findings = evaluate(measurement, data, date.today())
         report = format_report(measurement, data, findings)
+        if measurement.trust and measurement.trust.state == STATE_UNREACHABLE:
+            self.assertIn("baseline-unverified", [f.check for f in findings])
+            self.assertNotIn("PASS", report)
+            return
         if not measurement.observable:
             self.assertIn("NOT MEASURABLE", report)
             self.assertNotIn("PASS", report)

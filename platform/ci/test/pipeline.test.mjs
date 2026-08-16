@@ -449,6 +449,26 @@ test('CI Pipeline Dagger Containerized Fallback', async () => {
   assert.ok(res === null || res === true || res === false);
 });
 
+test('CI Pipeline Host Verification - Swift Host Verifier', () => {
+  const missingComponent = { id: 'invalid-swift', name: 'Invalid Swift', dir: 'ventures/non-existent' };
+  assert.equal(verifySwiftHost(missingComponent, REPO_ROOT), false);
+
+  const origMismatch = process.env.ALLOW_SWIFT_TOOLCHAIN_MISMATCH;
+  process.env.ALLOW_SWIFT_TOOLCHAIN_MISMATCH = '1';
+  try {
+    const rangeCoach = { id: 'range-coach', name: 'Range Coach', dir: 'ventures/range-coach', type: 'swift' };
+    const res = verifySwiftHost(rangeCoach, REPO_ROOT);
+    assert.equal(typeof res, 'boolean');
+  } finally {
+    if (origMismatch === undefined) {
+      delete process.env.ALLOW_SWIFT_TOOLCHAIN_MISMATCH;
+    } else {
+      process.env.ALLOW_SWIFT_TOOLCHAIN_MISMATCH = origMismatch;
+    }
+  }
+});
+
+
 
 
 

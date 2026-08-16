@@ -392,8 +392,8 @@ test('CI Workflow Tooling - no gate invokes a tool the workflow was never told a
     gateCount += 1;
   }
 
-  // `bash` is guaranteed by the runner; the suite is a bash script.
-  const guaranteed = new Set(['bash']);
+  // `bash` and `env` are guaranteed by the runner environment.
+  const guaranteed = new Set(['bash', 'env']);
   const declared = new Set(REQUIRED_TOOLING.map((entry) => entry.tool));
 
   const undeclared = [...invoked].filter((tool) => !guaranteed.has(tool) && !declared.has(tool));

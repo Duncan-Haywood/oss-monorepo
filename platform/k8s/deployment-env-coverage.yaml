@@ -77,7 +77,7 @@ no_application_source:
 registered:
   - app: local-site-studio
     source: ventures/local-site-studio
-    runtime_env_reads: 15
+    runtime_env_reads: 16
     reason: >-
       The largest gap in the portfolio and the only one on a money path. The
       venture holds a complete Stripe integration — checkout, webhook, billing

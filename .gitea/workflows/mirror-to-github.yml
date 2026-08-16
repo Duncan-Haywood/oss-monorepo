@@ -1,0 +1,37 @@
+name: Mirror main to GitHub
+
+# Gitea is the single source of truth for `main`. This job reasserts that on
+# every push so GitHub's copy is always a fast-moving read replica that cloud
+# agents can branch from — GitHub's `main` must never be edited directly.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mirror-to-github
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    name: Push main + tags to GitHub
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout complete history
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Push main and tags to GitHub
+        env:
+          GITHUB_MIRROR_TOKEN: ${{ secrets.GITHUB_MIRROR_TOKEN }}
+        run: |
+          set -euo pipefail
+          git remote add github "https://x-access-token:${GITHUB_MIRROR_TOKEN}@github.com/Duncan-Haywood/monorepo-projects.git"
+          git push github refs/heads/main:refs/heads/main --force
+          git push github 'refs/tags/*:refs/tags/*' --force
