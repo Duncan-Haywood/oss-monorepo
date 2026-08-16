@@ -1,7 +1,7 @@
 # Security Roadmap & Vulnerability Log
 
 > **Automated Security Scanning & Governance Status**
-> - **Last Scan Execution**: `2026-08-12 17:25:49 UTC`
+> - **Last Scan Execution**: `2026-08-16 22:21:40 UTC`
 > - **CI Pipeline Scanner**: Enabled (`.gitea/workflows/security.yml`)
 > - **Audit Coverage**: 12 package(s) audited. A scan that cannot
 >   audit every package refuses to rewrite this file, so a clean dashboard always
@@ -15,7 +15,7 @@
 | Severity | Active Issues | Target SLA | Mitigation Priority |
 | :--- | :--- | :--- | :--- |
 | 🚨 **CRITICAL** | **0** | Immediate (24h) | Block Release |
-| ⚠️ **HIGH** | **13** | 7 Days | Sprint Backlog |
+| ⚠️ **HIGH** | **18** | 7 Days | Sprint Backlog |
 | 🟡 **MEDIUM** | **4** | 30 Days | Scheduled Update |
 | 🔵 **LOW** | **2** | 90 Days | Maintenance Window |
 
@@ -25,7 +25,11 @@
 
 | Component / File | Package / Target | Severity | Range | Issue / Vulnerability | Recommended Fix | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| ventures/photo-editing/docs-site | `nanoid` | **HIGH** | <3.3.18 | nanoid: custom generators can loop indefinitely when size is zero | npm audit fix | [ ] Scheduled |
 | ventures/print-atelier | `esbuild` | **LOW** | 0.27.3 - 0.28.0 | esbuild allows arbitrary file read when running the development server on Windows | npm audit fix | [ ] Scheduled |
+| ventures/print-atelier | `nanoid` | **HIGH** | <3.3.18 | nanoid: custom generators can loop indefinitely when size is zero | npm audit fix | [ ] Scheduled |
+| ventures/real-estate-agent-photo-app/docs-site | `nanoid` | **HIGH** | <3.3.18 | nanoid: custom generators can loop indefinitely when size is zero | npm audit fix | [ ] Scheduled |
+| ventures/real-estate-agent-photo-app/research | `nanoid` | **HIGH** | <3.3.18 | nanoid: custom generators can loop indefinitely when size is zero | npm audit fix | [ ] Scheduled |
 | ventures/retail-pilot-intel | `esbuild` | **LOW** | >=0.27.3 <0.28.1 | esbuild allows arbitrary file read when running the development server on Windows | Upgrade esbuild to >=0.28.1 | [ ] Scheduled |
 | ventures/retail-pilot-intel | `brace-expansion` | **HIGH** | <1.1.16 | brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups | Upgrade brace-expansion to >=1.1.16 | [ ] Scheduled |
 | ventures/retail-pilot-intel | `brace-expansion` | **HIGH** | >=3.0.0 <5.0.7 | brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups | Upgrade brace-expansion to >=5.0.7 | [ ] Scheduled |
@@ -34,7 +38,6 @@
 | ventures/retail-pilot-intel | `react-router` | **MODERATE** | >=7.11.0 <7.18.0 | React Router: RSCErrorHandler Missing Protocol Validation (XSS) | Upgrade react-router to >=7.18.0 | [ ] Scheduled |
 | ventures/retail-pilot-intel | `react-router` | **MODERATE** | >=6.4.0 <7.18.0 | React Router: Arbitrary Constructor Injection via deserializeErrors() in React Router SSR Hydration | Upgrade react-router to >=7.18.0 | [ ] Scheduled |
 | ventures/retail-pilot-intel | `react-router` | **HIGH** | >=7.0.0 <7.18.0 | React Router: Unauthenticated Denial of Service via Inefficient Route Matching | Upgrade react-router to >=7.18.0 | [ ] Scheduled |
-| ventures/retail-pilot-intel | `postcss` | **HIGH** | <=8.5.17 | PostCSS: Path Traversal in Previous Source Map Auto-Loading (sourceMappingURL) leads to Arbitrary .map File Disclosure | Upgrade postcss to >=8.5.18 | [ ] Scheduled |
 | ventures/retail-pilot-intel | `brace-expansion` | **HIGH** | <1.1.17 | brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash | Upgrade brace-expansion to >=1.1.17 | [ ] Scheduled |
 | ventures/retail-pilot-intel | `brace-expansion` | **HIGH** | >=4.0.0 <5.0.8 | brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash | Upgrade brace-expansion to >=5.0.8 | [ ] Scheduled |
 | ventures/retail-pilot-intel | `postcss` | **MODERATE** | <=8.5.22 | PostCSS: incomplete fix of GHSA-6g55-p6wh-862q — attacker-controlled sourceMappingURL reads arbitrary .map files when `from` is unset | Upgrade postcss to >=8.5.23 | [ ] Scheduled |
@@ -43,7 +46,9 @@
 | ventures/retail-pilot-intel | `js-yaml` | **HIGH** | >=4.0.0 <4.3.1 | JS-YAML: Quadratic CPU consumption in !!omap resolution (3.x and 4.x) — CVE-2026-59870 fix not backported | Upgrade js-yaml to >=4.3.1 | [ ] Scheduled |
 | ventures/retail-pilot-intel | `react-router` | **HIGH** | >=7.12.0 <7.18.2 | React Router: RSC Mode CSRF Bypass Allows Action Execution Before 400 Response | Upgrade react-router to >=7.18.2 | [ ] Scheduled |
 | ventures/retail-pilot-intel | `nanoid` | **HIGH** | <3.3.16 | nanoid: non-secure generators can loop indefinitely with negative size | Upgrade nanoid to >=3.3.16 | [ ] Scheduled |
-| ventures/retail-pilot-intel | `nanoid` | **HIGH** | <3.3.17 | nanoid: custom generators can loop indefinitely when size is zero | Upgrade nanoid to >=3.3.17 | [ ] Scheduled |
+| ventures/retail-pilot-intel | `nanoid` | **HIGH** | <3.3.18 | nanoid: custom generators can loop indefinitely when size is zero | Upgrade nanoid to >=3.3.18 | [ ] Scheduled |
+| ventures/retail-pilot-intel | `postcss` | **HIGH** | <=8.5.17 | PostCSS: Path Traversal in Previous Source Map Auto-Loading (sourceMappingURL) leads to Arbitrary .map File Disclosure | Upgrade postcss to >=8.5.18 | [ ] Scheduled |
+| `platform/ci/test/agent-credential-exposure.test.mjs` | Hardcoded Credential Pattern | **HIGH** | File Search | Potential hardcoded credential pattern detected | Rotate and migrate to environment variables | [ ] Action Required |
 
 ---
 

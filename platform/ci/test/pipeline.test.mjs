@@ -453,12 +453,31 @@ test('CI Pipeline Host Verification - Swift Host Verifier', () => {
   const missingComponent = { id: 'invalid-swift', name: 'Invalid Swift', dir: 'ventures/non-existent' };
   assert.equal(verifySwiftHost(missingComponent, REPO_ROOT), false);
 
+  // No environment waiver may turn a Swift host failure into a pass.
+  //
+  // `ALLOW_SWIFT_TOOLCHAIN_MISMATCH=1` used to `return true` from both the
+  // toolchain check and the catch, and `scripts/verify-all.sh` exported it as
+  // `1` by default — so a component nothing verified reported PASSED, which is
+  // this repository's recorded defect class. The test that shipped with it
+  // asserted only `typeof res === 'boolean'`, which `true` and `false` both
+  // satisfy: coverage of the bypass with no contract on it.
+  //
+  // The assertion is that the waiver changes *nothing*, which is host
+  // independent — it holds whether or not a Swift toolchain is installed here,
+  // so it cannot decay into a skip on a machine without one.
+  const rangeCoach = { id: 'range-coach', name: 'Range Coach', dir: 'ventures/range-coach', type: 'swift' };
   const origMismatch = process.env.ALLOW_SWIFT_TOOLCHAIN_MISMATCH;
-  process.env.ALLOW_SWIFT_TOOLCHAIN_MISMATCH = '1';
   try {
-    const rangeCoach = { id: 'range-coach', name: 'Range Coach', dir: 'ventures/range-coach', type: 'swift' };
-    const res = verifySwiftHost(rangeCoach, REPO_ROOT);
-    assert.equal(typeof res, 'boolean');
+    delete process.env.ALLOW_SWIFT_TOOLCHAIN_MISMATCH;
+    const withoutWaiver = verifySwiftHost(rangeCoach, REPO_ROOT);
+    process.env.ALLOW_SWIFT_TOOLCHAIN_MISMATCH = '1';
+    const withWaiver = verifySwiftHost(rangeCoach, REPO_ROOT);
+    assert.equal(
+      withWaiver,
+      withoutWaiver,
+      'ALLOW_SWIFT_TOOLCHAIN_MISMATCH=1 changed the Swift host verdict; a waiver may soften ' +
+        'reporting but may never convert an unverified component into a pass',
+    );
   } finally {
     if (origMismatch === undefined) {
       delete process.env.ALLOW_SWIFT_TOOLCHAIN_MISMATCH;
