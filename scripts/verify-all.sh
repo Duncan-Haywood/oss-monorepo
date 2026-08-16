@@ -6,8 +6,11 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export SECURITY_SCAN_ALLOW_OFFLINE="${SECURITY_SCAN_ALLOW_OFFLINE:-1}"
-export BASELINE_TRUST_ALLOW_OFFLINE="${BASELINE_TRUST_ALLOW_OFFLINE:-1}"
-export ALLOW_SWIFT_TOOLCHAIN_MISMATCH="${ALLOW_SWIFT_TOOLCHAIN_MISMATCH:-1}"
+# No BASELINE_TRUST_ALLOW_OFFLINE / ALLOW_SWIFT_TOOLCHAIN_MISMATCH default here.
+# Both were added on 2026-08-17 defaulted to 1, and an escape hatch defaulted on
+# is not an escape hatch, it is the new behaviour. `baseline_trust.py` no longer
+# reads either name (tests/test_baseline_trust_offline.py pins that), and the
+# Swift host check fails closed rather than returning a pass it did not earn.
 
 # Refresh local tracking ref to ensure baseline trust checks verify against remote
 git fetch origin main >/dev/null 2>&1 || true
