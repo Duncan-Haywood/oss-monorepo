@@ -70,6 +70,36 @@ function trackedShellScripts() {
 }
 
 /**
+ * Blank out the comment part of a shell line, so prose is never read as a call.
+ *
+ * The rule above has to be stated somewhere, and the natural place is a comment
+ * beside the line that got it wrong — `scripts/test-ci.sh` does exactly that.
+ * But a sweep that reads its own explanation as a violation makes deleting the
+ * explanation the cheapest way to get green, which is the one outcome this
+ * control exists to prevent. Today that file passes only because its comment
+ * happens to wrap before the word `mktemp` meets the bad template; re-flowing
+ * the paragraph turns the gate red with no change to any code. Verified
+ * 2026-08-16 by joining them onto one line — `every mktemp template ends in its
+ * X run` failed.
+ *
+ * The fix is not an exemption for that file. Exempting it would blind the sweep
+ * in the single place already known to have had this defect (cf.
+ * `fixture-assembles-prohibited-strings`: assemble the marker, never exempt the
+ * file). A `#` comment simply is not an invocation.
+ *
+ * Full-line comments go entirely. A trailing comment goes only when the quotes
+ * ahead of it are balanced, so a `#` inside a string literal is left alone.
+ */
+export function stripShellComment(line) {
+  if (/^\s*#/.test(line)) return '';
+  const hash = line.search(/\s#/);
+  if (hash === -1) return line;
+  const before = line.slice(0, hash);
+  const balanced = (quote) => (before.split(quote).length - 1) % 2 === 0;
+  return balanced('"') && balanced("'") ? before : line;
+}
+
+/**
  * Pull the template argument out of every `mktemp` invocation on a line.
  *
  * Deliberately literal: it does not parse bash. A template is any argument
@@ -124,7 +154,7 @@ function findings() {
       continue;
     }
     source.split('\n').forEach((line, index) => {
-      for (const { raw, template } of mktempTemplatesOnLine(line)) {
+      for (const { raw, template } of mktempTemplatesOnLine(stripShellComment(line))) {
         invocations.push({ file: rel, line: index + 1, raw, template });
         if (!TRAILING_X.test(template)) {
           violations.push({ file: rel, line: index + 1, template: raw, reason: 'x-not-trailing' });
@@ -224,4 +254,34 @@ test('probes the platform: only a trailing X run yields two distinct temporary f
   } finally {
     fs.rmSync(scratch, { recursive: true, force: true });
   }
+});
+
+test('prose about the broken shape is read as prose, not as a call to it', () => {
+  // The comment beside the fixed line in scripts/test-ci.sh must be free to say
+  // what the broken form was. Without this, the sweep reports its own
+  // documentation and the cheapest green is to delete the warning.
+  const documented = '# Never write mktemp "${TMPDIR:-/tmp}/scan.XXXXXX.md" — the X run must end it.';
+  assert.deepEqual(mktempTemplatesOnLine(stripShellComment(documented)), []);
+
+  // Trailing comments too, which is how these paragraphs usually get re-flowed.
+  const trailing = 'd="$(mktemp -d "${TMPDIR:-/tmp}/scan.XXXXXX")"  # not scan.XXXXXX.md';
+  assert.deepEqual(
+    mktempTemplatesOnLine(stripShellComment(trailing)).map((f) => f.template),
+    ['${TMPDIR:-/tmp}/scan.XXXXXX'],
+  );
+
+  // But a real call is still caught on a line that merely ends in a comment,
+  // and a `#` inside a string must not truncate the line.
+  assert.deepEqual(
+    mktempTemplatesOnLine(stripShellComment('f=$(mktemp /tmp/a.XXXXXX.md)  # report')).map(
+      (f) => f.template,
+    ),
+    ['/tmp/a.XXXXXX.md'],
+  );
+  assert.deepEqual(
+    mktempTemplatesOnLine(stripShellComment('f=$(mktemp "/tmp/c#1.XXXXXX.md")')).map(
+      (f) => f.template,
+    ),
+    ['/tmp/c#1.XXXXXX.md'],
+  );
 });
