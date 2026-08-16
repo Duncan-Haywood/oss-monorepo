@@ -383,57 +383,161 @@ class RepositoryContractTests(unittest.TestCase):
     def test_the_control_runs_green_from_the_command_line(self):
         self.assertEqual(rc.main([]), 0)
 
-    def test_every_enrolled_entry_still_declares_its_claim(self):
-        """Deleting a claim is the cheapest way to clear a red one.
+    def _census(self):
+        """Every (register, entry, claim) the registers carry, read from YAML.
 
-        The aggregate floor refuses removing claims in bulk and has slack for
-        removing one; `ENROLLED` refuses removing the specific ones that caught
-        a sentence which had already gone false, where the temptation is
-        concentrated. Re-derived from the register here rather than trusted from
-        the audit, so an `ENROLLED` row naming an entry that does not exist
-        fails instead of passing vacuously.
+        Re-derived from the registers rather than trusted from the audit, so an
+        `ENROLLED` row naming an entry that does not exist fails instead of
+        passing vacuously.
         """
         import yaml
 
-        documents = {}
-        for enrollment in rc.ENROLLED:
-            if enrollment.register not in documents:
-                documents[enrollment.register] = yaml.safe_load(
-                    (REPO_ROOT / enrollment.register).read_text(encoding="utf-8")
-                )
-            entries = documents[enrollment.register]["exceptions"]
-            by_id = {entry.get("id"): entry for entry in entries}
-            self.assertIn(enrollment.entry_id, by_id, enrollment.register)
-            declared = set(by_id[enrollment.entry_id].get("claims") or {})
-            self.assertIn(
-                enrollment.claim,
-                declared,
-                f"{enrollment.register} {enrollment.entry_id} lost "
-                f"`{enrollment.claim}` — it {enrollment.why}",
+        census = set()
+        for spec in rc.REGISTERS:
+            document = (
+                yaml.safe_load((REPO_ROOT / spec.path).read_text(encoding="utf-8"))
+                or {}
             )
+            for index, entry in enumerate(document.get(spec.entries_key) or []):
+                identifier = str(
+                    entry.get("id")
+                    or entry.get("venture")
+                    or entry.get("criterion")
+                    or f"entry[{index}]"
+                )
+                for name in entry.get("claims") or {}:
+                    census.add((spec.path, identifier, name))
+        return census
 
-    def test_removing_an_enrolled_claim_fails_the_gate_itself(self):
-        """Not only the pytest contract: the shell-wired control must refuse it.
+    def test_enrollment_is_closed_over_the_registers(self):
+        """Every claim is pinned by name, and every pin names a real claim.
 
-        Measured directly rather than by mutating the tracked register, so the
-        assertion holds without a working tree the test has to put back.
+        The aggregate floor has slack — 27 claims against a floor of 14 — so
+        before this closure any of the 19 unenrolled claims could be deleted
+        one at a time with every gate green. Both directions are asserted: a
+        register claim with no row would be droppable tomorrow, and a row with
+        no claim would be a pin that has already been defeated.
         """
-        measurement = rc.Measurement()
-        measurement.claims_by_entry["IMG-006"] = ["gate_is_a_password_not_the_network"]
-        findings = []
-        for enrollment in rc.ENROLLED:
-            if enrollment.entry_id != "IMG-006":
-                continue
-            declared = measurement.claims_by_entry.get(enrollment.entry_id)
-            self.assertNotIn(enrollment.claim, declared)
-            findings.append(enrollment.claim)
-        self.assertEqual(findings, ["ingress_is_public"])
+        enrolled = {(row.register, row.entry_id, row.claim) for row in rc.ENROLLED}
+        census = self._census()
+        self.assertEqual(
+            sorted(census - enrolled),
+            [],
+            "register claims that no ENROLLED row names",
+        )
+        self.assertEqual(
+            sorted(enrolled - census),
+            [],
+            "ENROLLED rows naming a claim the registers no longer carry",
+        )
+        self.assertEqual(len(rc.ENROLLED), len(enrolled), "duplicate ENROLLED rows")
 
-    def test_enrolled_rows_name_distinct_entries_of_real_registers(self):
+    def test_removing_any_claim_at_all_fails_the_gate(self):
+        """Not one privileged subset: every claim, one at a time.
+
+        Exercised through `check_enrollment` on a measurement with the claim
+        taken out, rather than by mutating the tracked registers, so the
+        assertion needs no working tree to put back. The audit builds the same
+        structure, and `test_the_real_audit_surfaces_a_missing_claim` proves
+        `audit` is actually wired to this function rather than computing it
+        into a variable nobody reads.
+        """
+        _, baseline = rc.audit(REPO_ROOT)
+        self.assertTrue(baseline.claims_by_key)
+        for key, declared in sorted(baseline.claims_by_key.items()):
+            for name in declared:
+                measurement = rc.Measurement()
+                measurement.claims_by_key = {
+                    other: [c for c in names if not (other == key and c == name)]
+                    for other, names in baseline.claims_by_key.items()
+                }
+                codes = [f.code for f in rc.check_enrollment(measurement)]
+                self.assertEqual(
+                    codes,
+                    ["enrolled-claim-removed"],
+                    f"deleting {key[0]} {key[1]}.{name} left the gate green",
+                )
+
+    def test_a_claim_added_without_a_row_is_refused(self):
+        """The closure's other direction, which keeps the list from decaying.
+
+        A list that may quietly fall behind the registers is the state this
+        control was in: new claims arrive unenrolled and are free to leave.
+        """
+        _, baseline = rc.audit(REPO_ROOT)
+        key = ("platform/image-tag-exceptions.yaml", "IMG-006")
+        measurement = rc.Measurement()
+        measurement.claims_by_key = dict(baseline.claims_by_key)
+        measurement.claims_by_key[key] = list(baseline.claims_by_key[key]) + [
+            "a_claim_nobody_enrolled"
+        ]
+        findings = rc.check_enrollment(measurement)
+        self.assertEqual([f.code for f in findings], ["claim-not-enrolled"])
+        self.assertIn("a_claim_nobody_enrolled", findings[0].message)
+
+    def test_the_real_audit_surfaces_a_missing_claim(self):
+        """The shell-wired path, not only the helper.
+
+        A row naming a claim the register does not carry is the exact state a
+        deletion produces, so this asserts `audit` — and therefore `main`, and
+        therefore the gate `scripts/test-ci.sh` runs — goes red on it.
+        """
+        import unittest.mock
+
+        patched = rc.ENROLLED + (
+            rc.Enrollment(
+                register="platform/image-tag-exceptions.yaml",
+                entry_id="IMG-006",
+                claim="a_claim_this_entry_does_not_carry",
+            ),
+        )
+        with unittest.mock.patch.object(rc, "ENROLLED", patched):
+            findings, _ = rc.audit(REPO_ROOT)
+            self.assertEqual([f.code for f in findings], ["enrolled-claim-removed"])
+            self.assertEqual(rc.main([]), 1)
+        self.assertEqual(rc.main([]), 0)
+
+    def test_the_emitted_enrollment_matches_the_declared_one(self):
+        """`--emit-enrollment` is the way to regenerate, so it must be exact.
+
+        A generator that disagrees with the list it generates is how a baseline
+        becomes hand-written again.
+        """
+        import ast
+
+        module = ast.parse(rc.emit_enrollment(REPO_ROOT))
+        assignment = module.body[0]
+        rows = []
+        for call in assignment.value.elts:
+            self.assertEqual(call.func.id, "Enrollment")
+            rows.append(
+                rc.Enrollment(
+                    **{kw.arg: ast.literal_eval(kw.value) for kw in call.keywords}
+                )
+            )
+        self.assertEqual(tuple(rows), rc.ENROLLED)
+
+    def test_enrolled_rows_name_real_registers_and_keep_their_history(self):
         known = {spec.path for spec in rc.REGISTERS}
+        founding = {
+            ("platform/image-tag-exceptions.yaml", "IMG-005"),
+            ("platform/image-tag-exceptions.yaml", "IMG-006"),
+            ("platform/image-tag-exceptions.yaml", "IMG-007"),
+            ("platform/image-tag-exceptions.yaml", "IMG-008"),
+            ("platform/image-tag-exceptions.yaml", "IMG-010"),
+            ("platform/exception-register.yaml", "EXC-001"),
+            ("platform/exception-register.yaml", "EXC-007"),
+            ("platform/exception-register.yaml", "EXC-013"),
+        }
+        with_history = set()
         for enrollment in rc.ENROLLED:
             self.assertIn(enrollment.register, known)
-            self.assertTrue(enrollment.why.strip(), enrollment.entry_id)
+            if enrollment.why.strip():
+                with_history.add(enrollment.key)
+        # The eight sentences found live and untrue on 2026-08-06 each keep the
+        # note saying so; losing one would leave the remedy generic exactly
+        # where the history is the argument.
+        self.assertEqual(with_history, founding)
 
     def test_the_floor_is_not_above_what_the_registers_carry(self):
         _, measurement = rc.audit(REPO_ROOT)
