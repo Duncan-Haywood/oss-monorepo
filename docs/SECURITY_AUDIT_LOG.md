@@ -39,6 +39,7 @@ This log records all identified application, infrastructure, container, and CI s
 | **SEC-027** | High | Supply chain | `.gitea/workflows/security.yml` | The dependency-audit matrix covered 4 of 10 committed lockfiles; the 6 unaudited ones held 32 high-severity advisories | **Coverage fixed; 46 of 47 advisories open** |
 | **SEC-028** | High | Supply chain | `scripts/security-scan.sh`, three `package.json` | Unsatisfiable `overrides` made three packages uninstallable, dropping them from the audit; the completeness guard counted only packages it reached, so a one-package scan published `CLEAN` over 23 open HIGH advisories | **Fixed; 23 HIGH restored to the roadmap and open** |
 | **SEC-029** | Medium | Application | `ventures/local-site-studio/src/lib/security/rate-limit.ts`, `ventures/quick-pick-survey/src/lib/http.ts` | Anonymous rate limits bucket on the leftmost `x-forwarded-for` entry, which the caller supplies, so rotating the header yields a fresh bucket per value | **Auth half fixed (f1f60d03); proxy-trust keying open pending an off-repo deployment fact** |
+| **SEC-030** | Low | CI / Security | `platform/ci/test/security-audit-log-integrity.test.mjs` | The id-uniqueness contract read headings through the strict severity pattern, so a `### SEC-xxx` heading without one escaped every check in the file — including the guard added to catch that | **Fixed** |
 
 ---
 
@@ -785,6 +786,88 @@ This log records all identified application, infrastructure, container, and CI s
 
 - **Status**: **Fixed**. The 23 HIGH are restored to the roadmap and remain
   open; they are tracked debt, not resolved.
+
+---
+
+### SEC-030 — Low — The Uniqueness Contract Read Headings Through the Pattern That Could Reject Them
+
+- **Found**: 2026-08-16, mutation-testing the contract that closed the SEC-021
+  collision, to check it was not vacuous. Two of three mutations turned it red.
+  The third did not.
+- **Location**: `platform/ci/test/security-audit-log-integrity.test.mjs`,
+  `detailIds`.
+- **What it was**: an id is defined on two surfaces in this log — a matrix row
+  and a `### SEC-xxx — Severity — Title` heading. After SEC-029, uniqueness was
+  asserted on both. But the heading surface was enumerated by
+
+  ```js
+  function detailIds(source) {
+    return detailSections(source).map((section) => section.id);
+  }
+  ```
+
+  and `detailSections` matches `^###\s+(SEC-\d+)\s+—\s*([^—]+?)\s*—`, which
+  needs a second em dash to read the severity. A heading missing it is not
+  parsed as a malformed heading; it is not parsed at all. So the id in it was
+  invisible to `detailIds`, and therefore to every check built on `detailIds`.
+- **What makes this its own finding rather than a rough edge**: the three lines
+  of comment directly above that function said it was written the other way, and
+  said why —
+
+  > `detailIds`, not `detailSections`: the looser pattern. detailSections needs
+  > a second em dash to read the severity off the heading, so a heading written
+  > without one would drop out of it — and a check that a malformed heading can
+  > fall out of is not a uniqueness check.
+
+  The reasoning was correct and the code did the opposite. A reviewer reading
+  the file top to bottom is told the hole is closed at the exact line where it
+  is open.
+- **Impact**: three checks, one of them added specifically against this:
+  - **Uniqueness** — a second finding under an existing id evaded it entirely.
+    This is the SEC-021 collision shape, which is what the contract exists for.
+  - **"Every documented finding is tracked in the matrix"** — a finding written
+    with such a heading is not compared against the matrix, so it can be
+    documented and tracked nowhere. That is the original SEC-020/SEC-021 defect,
+    reachable again.
+  - **The `unparsed` guard** — added in `279e91d3` to fail when a heading cannot
+    be parsed for severity, it computes
+    `detailIds(...).filter(id => !sections.some(...))`. With `detailIds`
+    delegating to `detailSections`, that is a strict list filtered against
+    itself: structurally empty, for any input. It could not fail. A guard whose
+    predicate is unsatisfiable is not a weak guard, it is decoration.
+
+  Rated Low: it is a detection gap in a documentation-integrity control, not a
+  reachable weakness in a running service, and a heading has to be malformed
+  before anything hides behind it — accident rather than adversary. It is
+  recorded because the failure mode is the one this log keeps rediscovering: a
+  control that reads a narrower surface than the one it claims to cover.
+- **Evidence — the mutation**: appending
+
+  ```
+  ### SEC-021 Duplicate With No Severity
+  ```
+
+  to this log, a second definition of an id already in use, left the suite at
+  **6 passed, 0 failed, exit 0**. The same duplicate written with the em dashes
+  turned two checks red. The control's verdict turned on the punctuation of the
+  heading rather than on the duplicate.
+- **Fix**: `detailIds` now matches `^###\s+(SEC-\d+)\b` independently of
+  `detailSections`. The two patterns are deliberately no longer nested, so a
+  heading only one of them accepts fails the `unparsed` guard instead of
+  vanishing. After the fix the same mutation is **6 passed, 1 failed, exit 1**,
+  and reverting it returns the suite to green.
+- **Also added — the cross-branch case**: two branches each writing up "the next
+  finding" pick the same id, and if both land the uniqueness check fails loudly.
+  The quiet case is the second merge resolving that conflict by keeping one
+  write-up, which discards the other finding and leaves no duplicate behind to
+  detect. What it does leave is prose: cross-references to the dropped id in
+  untouched hunks elsewhere in this file. A `SEC-xxx` mentioned with no `###`
+  section is now a failure. This is the cheap half of that detector, not a
+  complete one — nothing inside a single file can prove a finding once existed.
+- **Status**: **Fixed**. Both the uniqueness repair and the dangling-reference
+  check are in `platform/ci/test/security-audit-log-integrity.test.mjs`, which
+  `scripts/test-ci.sh` runs via the whole-directory glob over
+  `platform/ci/test/*.test.mjs`.
 
 ---
 
