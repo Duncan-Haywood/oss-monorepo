@@ -249,14 +249,27 @@ not. -->
 
 ### EXC-011
 
-**Three `shellcheck disable=SC2016` in `scripts/` — expires 2027-01-27.**
-SC2016 warns that `$` and backticks inside single quotes do not expand. These
-three scripts emit Markdown reports in which both are literal output, so the
-non-expansion is the intent. Every other ShellCheck rule still applies to all
-three, and `scripts/security/test-security-scan.sh` asserts against the
-generated report text, so a genuinely broken interpolation changes the output
-the tests compare. Remove the disables if the report generation moves to a
-heredoc or a templating step where the quoting question does not arise.
+**Four `shellcheck disable=SC2016` in `scripts/` — expires 2027-01-27.**
+SC2016 warns that `$` and backticks inside single quotes do not expand. Two
+distinct shapes need exactly that, and in both the non-expansion is the intent.
+
+Three of the four emit Markdown reports in which `$` and backticks are literal
+output. `scripts/security/test-security-scan.sh` asserts against the generated
+report text, so a genuinely broken interpolation changes the output the tests
+compare.
+
+The fourth is `write_flaky_node_stub` in `scripts/security/test-security-scan.sh`,
+which printf-writes the *source text* of a `node` stub rather than a report:
+`$*`, `$n` and `$(cat ...)` have to reach the generated file unexpanded and be
+evaluated when the stub itself runs, while only the `%s` placeholders
+interpolate the writing script's values. Its compensating control is stronger
+than the other three — the stub is executed as the `node` on PATH by the two
+registry-probe retry cases, so an expansion that leaked at write time breaks the
+probe count those cases assert on instead of passing quietly.
+
+Every other ShellCheck rule still applies to all four. Remove a disable if its
+generation moves to a heredoc or a templating step where the quoting question
+does not arise.
 
 ### EXC-012
 

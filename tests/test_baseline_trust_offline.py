@@ -48,7 +48,7 @@ CI_DIR = REPO_ROOT / "scripts" / "ci"
 if str(CI_DIR) not in sys.path:
     sys.path.insert(0, str(CI_DIR))
 
-from baseline_trust import (  # noqa: E402
+from baseline_trust import (
     STATE_VERIFIED,
     verify_baseline,
 )

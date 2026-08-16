@@ -265,19 +265,28 @@ exceptions:
     kind: lint-suppression
     path: scripts/*
     code: shellcheck disable=SC2016
-    count: 3
+    count: 4
     owner: duncan
     issue: docs/EXCEPTION-REGISTER.md#exc-011
     expires: 2027-01-27
     reason: >-
-      SC2016 warns that single-quoted `$` and backticks do not expand. These
-      three scripts emit Markdown reports where backticks and dollar signs are
-      literal output, so the non-expansion is the intent rather than the bug.
+      SC2016 warns that single-quoted `$` and backticks do not expand. Two
+      distinct shapes need that, and both are the intent rather than the bug.
+      Three occurrences emit Markdown reports where backticks and dollar signs
+      are literal output. The fourth, `write_flaky_node_stub` in
+      `scripts/security/test-security-scan.sh`, printf-writes the *source text*
+      of a `node` stub: `$*`, `$n` and `$(cat ...)` must reach the generated
+      file unexpanded and be evaluated when the stub itself runs, while only the
+      `%s` placeholders interpolate this script's values.
     compensating_control: >-
-      All three are covered by ShellCheck for every other rule, and
-      `scripts/security/test-security-scan.sh` asserts against the generated
-      report text, so a genuinely broken interpolation changes the output the
-      tests compare.
+      All four are covered by ShellCheck for every other rule. The three report
+      emitters are asserted against their generated report text by
+      `scripts/security/test-security-scan.sh`, so a genuinely broken
+      interpolation changes the output the tests compare. The stub writer is
+      stronger still: its output is executed as the `node` on PATH by the two
+      registry-probe retry cases, which pin both directions of the retry, so an
+      expansion that leaked at write time would break the probe count those
+      cases assert on rather than passing quietly.
 
   - id: EXC-012
     kind: lint-suppression

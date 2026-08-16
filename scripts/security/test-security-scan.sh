@@ -456,6 +456,11 @@ real_node="$(command -v node)"
 # Stub `node` so the reachability probe fails a set number of times and then
 # succeeds, delegating every other `node` call to the real interpreter. The
 # probe is the only call in the scanner that mentions `dns`.
+#
+# shellcheck disable=SC2016 # the printf bodies are the stub's source text, not
+# this script's: `$*`, `$n` and `$(cat ...)` must reach the generated file
+# unexpanded and be evaluated when the stub runs. Only the `%s` placeholders
+# interpolate, and those carry this script's values deliberately.
 write_flaky_node_stub() {
   local root="$1" fail_times="$2"
   {
