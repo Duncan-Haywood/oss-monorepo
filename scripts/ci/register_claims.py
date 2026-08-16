@@ -245,8 +245,13 @@ ENROLLED: Tuple[Enrollment, ...] = (
     Enrollment(
         register="platform/image-tag-exceptions.yaml",
         entry_id="IMG-008",
-        claim="no_validation_constrains_the_value",
-        why="claimed a deploy-time validation `variables.tf` has never contained",
+        claim="validation_refuses_a_moving_tag",
+        why=(
+            "claimed a deploy-time validation `variables.tf` did not contain, then "
+            "recorded that absence as an `absent` claim until 2026-08-16, when the "
+            "validation was written and the claim went red as designed; this is its "
+            "successor and asserts the rule is still there"
+        ),
     ),
     Enrollment(
         register="platform/image-tag-exceptions.yaml",
@@ -275,10 +280,12 @@ ENROLLED: Tuple[Enrollment, ...] = (
     Enrollment(
         register="platform/exception-register.yaml",
         entry_id="EXC-013",
-        claim="claude_unset_is_conditional",
+        claim="claude_unsets_unconditionally",
         why=(
-            "said all three workflows unset the provider key; the Claude one unsets "
-            "it only when an OAuth token is also present"
+            "said all three workflows unset the provider key; the Claude one unset "
+            "it only when an OAuth token was also present until 2026-08-16, when the "
+            "unset became unconditional and `claude_unset_is_conditional` went red "
+            "as designed; this is its successor"
         ),
     ),
 )

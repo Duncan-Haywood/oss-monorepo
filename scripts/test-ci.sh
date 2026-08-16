@@ -111,7 +111,19 @@ run_ci_test "Security Policy Scanner Logic Unit Tests" bash "${REPO_ROOT}/script
 # `security-scan-report.md`, which is tracked, and a gate that rewrites a tracked
 # file as a side effect of measuring is how `pytest` came to mutate
 # SECURITY_ROADMAP.md.
-POLICY_SCAN_REPORT="$(mktemp "${TMPDIR:-/tmp}/repository-policy-scan.XXXXXX.md")"
+#
+# The `X`s must be the last characters of the template. This line carried a
+# `.md` after them until 2026-08-16, and neither mktemp substitutes there:
+# BSD/macOS takes the whole template literally, creating the fixed, world-known
+# path `$TMPDIR/repository-policy-scan.XXXXXX.md` on the first run and failing
+# `mkstemp failed … File exists` on every run after it, which `set -euo
+# pipefail` turns into the entire verification aborting; GNU refuses a template
+# whose `X`s are not trailing outright. So the one line written to keep a
+# security report out of a tracked file was instead writing it to a predictable
+# shared-temp path, and then breaking the runner for everyone who verified
+# twice. `platform/ci/test/mktemp-template.test.mjs` now holds the shape for
+# every tracked shell script.
+POLICY_SCAN_REPORT="$(mktemp "${TMPDIR:-/tmp}/repository-policy-scan.XXXXXX")"
 trap 'rm -f "${POLICY_SCAN_REPORT}"' EXIT
 run_ci_test "Repository Security Policy Scan" bash "${REPO_ROOT}/scripts/security/scan-repository.sh" "${POLICY_SCAN_REPORT}"
 run_ci_test "Vulnerability Roadmap Scanner Contract Tests" bash "${REPO_ROOT}/scripts/security/test-security-scan.sh"

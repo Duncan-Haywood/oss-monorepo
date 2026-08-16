@@ -321,6 +321,18 @@ exceptions:
       # workflows implement into one all three were credited with — over the
       # single entry in this file whose own text calls it "the weakest
       # compensating control in the register".
+      #
+      # Fixed 2026-08-16. `ANTHROPIC_API_KEY` no longer appears anywhere in
+      # `claude-scheduled.yml`: the unset is unconditional, and the API-key
+      # fallback it was the credential for is gone, so the seed step refuses to
+      # start the job without an OAuth credential. The two claims that recorded
+      # the exposure — `claude_injects_the_api_key_into_the_bypassed_step`
+      # (`count: 2`) and `claude_unset_is_conditional` — went red on the fix, as
+      # they were shaped to. They are replaced by their successors below rather
+      # than deleted, and `platform/ci/test/agent-credential-exposure.test.mjs`
+      # now enforces the same rule structurally over every tracked workflow,
+      # which is what makes a *new* bypassed step with a key in it fail rather
+      # than only these three files staying clean.
       gemini_and_grok_unset_unconditionally:
         sentence: >-
           The Gemini and Grok workflows unset their provider key unconditionally
@@ -328,20 +340,26 @@ exceptions:
           path: ventures/local-site-studio/.github/workflows/*-scheduled.yml
           pattern: '^\s+unset (GEMINI_API_KEY|XAI_API_KEY)\b'
           at_least: 2
-      claude_injects_the_api_key_into_the_bypassed_step:
+      no_provider_key_reaches_the_bypassed_step:
         sentence: >-
-          injects `ANTHROPIC_API_KEY` into two steps, one of them the bypassed
-          one
+          the Claude workflow no longer names `ANTHROPIC_API_KEY` in any step's
+          environment
+        absent:
+          path: ventures/local-site-studio/.github/workflows/claude-scheduled.yml
+          pattern: '^\s+ANTHROPIC_API_KEY:\s+\$\{\{\s*secrets\.'
+      claude_unsets_unconditionally:
+        sentence: >-
+          clears it before the CLI starts on every path, not only the OAuth one
         count:
           path: ventures/local-site-studio/.github/workflows/claude-scheduled.yml
-          pattern: '^\s+ANTHROPIC_API_KEY:\s+\$\{\{\s*secrets\.ANTHROPIC_API_KEY\s*\}\}'
-          equals: 2
-      claude_unset_is_conditional:
+          pattern: '^\s+unset ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN \|\| true\s*$'
+          equals: 1
+      opencode_action_holds_no_provider_key:
         sentence: >-
-          unsets it only when an OAuth token is also present
-        present:
-          path: ventures/local-site-studio/.github/workflows/claude-scheduled.yml
-          pattern: '^\s+unset ANTHROPIC_AUTH_TOKEN \|\| true'
+          the OpenCode action step holds no provider key either
+        absent:
+          path: ventures/local-site-studio/.github/workflows/opencode-scheduled.yml
+          pattern: '^\s+[A-Z0-9_]*API_KEY:\s+\$\{\{\s*secrets\.'
       runners_are_github_hosted:
         sentence: >-
           non-interactive on ephemeral GitHub-hosted runners
@@ -352,20 +370,36 @@ exceptions:
       Runs are non-interactive on ephemeral GitHub-hosted runners. The Gemini
       and Grok workflows unset their provider key unconditionally before handing
       control to the agent, and never place it in the step's environment at all.
-      The Claude workflow does not: it injects `ANTHROPIC_API_KEY` into two
-      steps, one of them the bypassed one, and unsets it only when an OAuth
-      token is also present, so on the API-key fallback path the key is live in
-      a process running with every confirmation gate disabled. The other
-      injection is the OAuth-seeding step, which needs it only to decide whether
-      any credential was supplied at all. Until 2026-08-06 this entry claimed
-      all three workflows unset the key.
+      Since 2026-08-16 the Claude workflow matches them: it clears it before the
+      CLI starts on every path, not only the OAuth one, and the Claude workflow
+      no longer names `ANTHROPIC_API_KEY` in any step's environment — the
+      API-key fallback it was the credential for is gone, and the seed step
+      fails the job when no OAuth credential is configured rather than falling
+      back to a key that would travel into the bypassed process. Between
+      2026-08-06 and 2026-08-16 this entry recorded the exposure honestly: the
+      key was injected into two steps, one of them the bypassed one, and unset
+      only when an OAuth token was also present, so on the API-key fallback path
+      it was live in a process running with every confirmation gate disabled.
+      Until 2026-08-06 the entry instead claimed all three workflows unset the
+      key, which was true of two. On the same day the OpenCode workflow was
+      cleaned up: the OpenCode action step holds no provider key either, where
+      it had carried three — the seeded `auth.json` was already mandatory, so
+      the keys the comment called fallbacks were never reachable as fallbacks.
 
-      This is the weakest compensating control in the register and the reason
-      this entry expires in 90 days rather than 180: the bypass is real, the
-      blast radius is a writable checkout plus whatever the workflow token can
-      reach plus — on that one path — a provider credential, and
-      `ventures/ubuntu-agent-server` already documents a narrower per-tool
-      allowlist as the pattern these three should adopt.
+      What no register entry can do is keep this true of the *next* workflow, so
+      `platform/ci/test/agent-credential-exposure.test.mjs` enumerates every
+      tracked workflow file and fails when a step that disables its
+      confirmation gates also declares a provider API key in `env:`. It records
+      the two `cursor-agent` steps as the remaining sites, because
+      `CURSOR_API_KEY` is that CLI's only credential and removing it would stop
+      the workflow rather than harden it; that is a stated position with an
+      exact count behind it, not an exemption that grows.
+
+      This is still the weakest compensating control in the register and the
+      reason this entry expires in 90 days rather than 180: the bypass is real
+      and the blast radius is a writable checkout plus whatever the workflow
+      token can reach, and `ventures/ubuntu-agent-server` already documents a
+      narrower per-tool allowlist as the pattern these three should adopt.
 
   - id: EXC-014
     kind: lint-suppression
