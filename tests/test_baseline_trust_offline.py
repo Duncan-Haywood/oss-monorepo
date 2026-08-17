@@ -37,6 +37,7 @@ suppression needing a registered owner and expiry.
 """
 
 import os
+import stat
 import subprocess
 import sys
 import tempfile
@@ -49,6 +50,7 @@ if str(CI_DIR) not in sys.path:
     sys.path.insert(0, str(CI_DIR))
 
 from baseline_trust import (
+    STATE_UNREACHABLE,
     STATE_VERIFIED,
     verify_baseline,
 )
@@ -165,6 +167,85 @@ class TestUnreachableBaselineNeverVerifies(UnreachableRemoteTestCase):
             self.set_waiver(name)
         trust = verify_baseline(self.repo, "origin/main", timeout=30)
         self.assertNotEqual(trust.state, STATE_VERIFIED)
+        self.assertFalse(trust.verified)
+        self.assertNotEqual(trust.remote_sha, self.local_sha)
+
+
+class HangingRemoteTestCase(UnreachableRemoteTestCase):
+    """A remote that never answers, so `ls-remote` *times out* instead of failing.
+
+    `verify_baseline` has two offline exits, not one: `subprocess.TimeoutExpired`
+    and a non-zero return code. The fixture above reaches only the second — its
+    docstring says so, and deliberately, to avoid a suite that depends on DNS
+    timing. That left the timeout branch pinned by nothing, and it is the branch
+    this fleet actually hits: pushes to the Gitea remote have been observed
+    taking 75s to connect while an unrelated request to the same host answers
+    immediately.
+
+    Measured, on 2026-08-17: re-adding the forgery to the timeout branch alone
+    left all four tests in this file green. Re-adding it to the return-code
+    branch turned two red. One of two paths was held.
+
+    `ext::` runs a local command as the transport, so the hang is produced by
+    `sleep` on this machine rather than by a network that may or may not be
+    slow today — deterministic, and no DNS. `protocol.ext.allow` is set in the
+    fixture's own repository config, never globally.
+    """
+
+    def setUp(self):
+        super().setUp()
+        helper = self.repo.parent / "never-answers.sh"
+        helper.write_text("#!/bin/sh\n# The transport for a remote that accepts and then says nothing.\nsleep 60\n")
+        helper.chmod(helper.stat().st_mode | stat.S_IEXEC)
+        self.git("config", "protocol.ext.allow", "always")
+        self.git("remote", "set-url", "origin", f"ext::{helper}")
+
+    def test_the_fixture_reaches_the_timeout_branch_and_not_the_other_one(self):
+        """Without this, the three tests below could silently be duplicates.
+
+        If `ext::` ever stops hanging — the helper is removed, the transport is
+        refused, git changes how it invokes it — `ls-remote` returns non-zero
+        instead, the fixture lands on the branch the class above already covers,
+        and these tests pass while testing nothing. The timeout branch is the
+        only exit whose detail says "did not answer within".
+        """
+        trust = verify_baseline(self.repo, "origin/main", timeout=2)
+        self.assertEqual(trust.state, STATE_UNREACHABLE, trust.detail)
+        self.assertIn("did not answer within", trust.detail)
+
+    def test_a_timing_out_remote_does_not_verify(self):
+        """The honest behaviour of the timeout branch, pinned as the reference point."""
+        trust = verify_baseline(self.repo, "origin/main", timeout=2)
+        self.assertNotEqual(trust.state, STATE_VERIFIED, trust.detail)
+        self.assertFalse(trust.verified)
+        self.assertNotEqual(trust.remote_sha, self.local_sha)
+
+    def test_no_offline_waiver_can_buy_a_verified_baseline_on_timeout(self):
+        for name in OFFLINE_WAIVERS:
+            with self.subTest(waiver=name):
+                self.set_waiver(name)
+                try:
+                    trust = verify_baseline(self.repo, "origin/main", timeout=2)
+                    self.assertNotEqual(
+                        trust.state,
+                        STATE_VERIFIED,
+                        f"{name}=1 made a remote that never answered report {STATE_VERIFIED!r}; "
+                        f"detail was {trust.detail!r}",
+                    )
+                    self.assertFalse(trust.verified, f"{name}=1 set verified on a baseline nothing answered")
+                    self.assertNotEqual(
+                        trust.remote_sha,
+                        self.local_sha,
+                        f"{name}=1 made the control adopt the local sha as the remote's answer",
+                    )
+                finally:
+                    os.environ.pop(name, None)
+
+    def test_all_offline_waivers_set_at_once_still_do_not_verify_on_timeout(self):
+        for name in OFFLINE_WAIVERS:
+            self.set_waiver(name)
+        trust = verify_baseline(self.repo, "origin/main", timeout=2)
+        self.assertNotEqual(trust.state, STATE_VERIFIED, trust.detail)
         self.assertFalse(trust.verified)
         self.assertNotEqual(trust.remote_sha, self.local_sha)
 
