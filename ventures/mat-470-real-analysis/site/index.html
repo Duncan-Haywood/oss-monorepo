@@ -47,7 +47,7 @@
         </button>
         <button id="nav-mastery" class="nav-btn highlight-nav-btn" data-tab="mastery-section" aria-selected="false">
           <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-          Mastery Pass ($14.99/mo)
+          Mastery Pass (proposed)
         </button>
       </nav>
     </header>
@@ -379,56 +379,92 @@
         </div>
       </section>
 
-      <!-- Section 7: Real Analysis Mastery Pass & Concierge Membership -->
+      <!-- Section 7: Mastery Pass — a tier we are considering, not a product on sale -->
       <section id="mastery-section" class="tab-pane" aria-labelledby="nav-mastery">
         <div class="panel-header">
           <div class="panel-title-group">
-            <span class="tag tag-gold">Concierge Membership</span>
+            <span class="tag tag-gold">Proposed tier</span>
             <h2>MAT 470 Real Analysis Mastery Pass</h2>
           </div>
           <p class="panel-desc">
-            Unlock complete step-by-step video proof breakdowns, 1-on-1 PhD proof reviews, and practice exam solutions for Stephen Abbott's *Understanding Analysis*.
+            A paid tier we are weighing up on top of the free explorer: recorded proof
+            breakdowns, written feedback on proofs you submit, and solved practice exams
+            for Stephen Abbott's <em>Understanding Analysis</em>. None of it is built.
+          </p>
+        </div>
+
+        <div class="notice notice-preview" id="mastery-notice">
+          <strong>Nothing here is for sale.</strong>
+          <p>
+            This site is a static page with no server behind it. There is no way to pay, no
+            account system, and no subscription — the $14.99 / month figure below is a price
+            we are testing, not a price being charged, and you will not be charged anything.
+            The form asks for no email address and stores nothing about you. It opens a
+            pre-filled message in your own mail app, which reaches us only if you choose to
+            send it.
           </p>
         </div>
 
         <div class="sandbox-grid">
-          <!-- Pricing & Perks Card -->
+          <!-- What exists today, and what is only proposed -->
           <div class="card control-card highlight-card">
-            <div class="card-badge">Most Popular for Math Majors</div>
+            <div class="card-badge badge-planned">Not built</div>
             <h3>Mastery Pass Perks</h3>
+
+            <p class="tier-label">Free today, and staying free:</p>
             <ul class="prop-list">
-              <li><strong>🎥 50+ HD Video Proof Breakdown:</strong> Visual walkthroughs for Abbott Chapters 1–7.</li>
-              <li><strong>✍️ 1-on-1 Proof Feedback:</strong> Submit your written proofs for direct feedback from Real Analysis tutors.</li>
-              <li><strong>📄 Midterm & Final Exam Bank:</strong> Solved practice exams with step-by-step grading rubrics.</li>
-              <li><strong>⚡ Interactive Sandbox Pro Features:</strong> Unlimited $\varepsilon$-$\delta$ function customizers and series analyzers.</li>
+              <li><strong>ε-δ Limit Explorer:</strong> Adjustable $\varepsilon$ and $\delta$ over the worked example functions.</li>
+              <li><strong>Sequence Convergence Plotter:</strong> Tail behaviour and cutoff index for each sequence.</li>
+              <li><strong>Supremum &amp; Infimum Sandbox:</strong> Bounds drawn over the set you choose.</li>
+              <li><strong>Pathological Function Gallery:</strong> Dirichlet, Thomae, Weierstrass and Cantor renderers.</li>
+              <li><strong>Guided Proof Builder:</strong> Step-by-step reconstruction of four named theorems.</li>
+              <li><strong>Abbott Companion Quiz:</strong> Chapter-linked questions with worked explanations.</li>
+            </ul>
+
+            <p class="tier-label">Proposed, and not built — nobody has any of this:</p>
+            <ul class="prop-list tier-planned">
+              <li>◦ Video proof breakdowns for Abbott Chapters 1–7</li>
+              <li>◦ Written feedback on proofs you submit</li>
+              <li>◦ A bank of solved midterm and final papers</li>
+              <li>◦ Saved work across sessions and devices</li>
             </ul>
 
             <div class="price-box">
               <span class="price-val">$14.99</span> <span class="price-period">/ month</span>
-              <p class="price-sub">Cancel anytime. 7-day money-back guarantee.</p>
+              <p class="price-sub">A price we are testing. You will not be charged — there is no payment path here to charge you through.</p>
             </div>
           </div>
 
-          <!-- Subscription Enrollment Form -->
+          <!-- Price-sensitivity feedback, handed to your own mail app -->
           <div class="card visualizer-card">
-            <h3>Reserve Early Access & Student Discount</h3>
-            <p>Enter your university email to request student access and unlock an instant $5/month discount ($9.99/mo locked in).</p>
+            <h3>Tell us what it would be worth</h3>
+            <p>
+              The number above is a guess. We are also weighing a lower $9.99 / month student
+              price. If a tier like this would be useful to you, the figure you would actually
+              pay is the only thing that tells us whether to build it. No account is created,
+              no price is held for you, and there is nothing to pay.
+            </p>
 
             <form id="mastery-form" class="enrollment-form">
               <div class="form-group">
-                <label for="mastery-email-input">University Student Email (.edu or .ac.uk):</label>
-                <input type="email" id="mastery-email-input" class="form-control" placeholder="math_major@university.edu" required />
-              </div>
-
-              <div class="form-group">
-                <label for="mastery-course-input">Target Course / Textbook:</label>
+                <label for="mastery-course-input">Your course / textbook:</label>
                 <input type="text" id="mastery-course-input" class="form-control" placeholder="e.g. MAT 470 / Abbott Understanding Analysis" value="MAT 470 Real Analysis (Abbott)" />
               </div>
 
+              <div class="form-group">
+                <label for="mastery-worth-input">What would it be worth to you per month, in dollars?</label>
+                <input type="number" id="mastery-worth-input" class="form-control" min="0" max="500" step="1" value="10" />
+              </div>
+
               <button type="submit" id="mastery-signup-btn" class="btn primary-btn btn-lg">
-                Unlock Student Pass & Claim Discount ($9.99/mo)
+                Open a pre-filled email with this feedback
               </button>
             </form>
+
+            <p class="form-note">
+              We ask for no address of yours: your mail app supplies it, and only when you press
+              send there. Nothing on this page is recorded in your browser either.
+            </p>
 
             <div id="mastery-status-msg" class="status-banner hidden"></div>
           </div>
