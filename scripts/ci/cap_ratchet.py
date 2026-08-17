@@ -140,6 +140,16 @@ So a venture number is held in one of three ways:
                                    two-file diff under review
     UNENROLLED_VENTURE_CONSTANTS   registered, with a predicate re-run each time
 
+The split has no name to enumerate by, so it gets a fourth register of its own.
+`PINS` entries of kind `literal-census` declare how many bare `0.3`/`0.7`
+literals a print-atelier file contains, and `DECLINED_SPLIT_LITERALS` records
+the files where that shape is something else — a sitemap priority, a score
+weight — saying what the number actually is and how many of them there are.
+Which files those two registers must between them cover is *derived*, by
+`split_literal_population`, from `git ls-files`. Until 2026-08-17 it was a
+curated list of ten, and this file's own docstring named the hole that left:
+nothing failed when an eleventh money file appeared. Ten had.
+
 A pin is prevention by visibility rather than by refusal. Lowering the artist
 split from 30% to 25% stays entirely permitted — it just cannot happen without a
 line in this file changing beside it. Pins also fail closed when the guarded line
