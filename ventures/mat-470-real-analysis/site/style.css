@@ -745,3 +745,74 @@ select {
   padding: 0.875rem 1.5rem;
   font-size: 1rem;
 }
+
+/* --- Disclosure that nothing on this page can be bought ---------------------
+ *
+ * The tier section shows a price. These rules exist so the sentence saying it
+ * is not being charged reads as prominently as the price does — an accurate
+ * disclosure set in muted 0.75rem body text is a disclosure in name only.
+ * `--accent-amber` is the palette's attention colour, already used by
+ * `.card-badge`, and is carried here at full contrast against the surface.
+ */
+.notice {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.15rem;
+  margin: 0 0 1.5rem;
+  background: var(--bg-surface);
+}
+
+.notice-preview {
+  border-left: 4px solid var(--accent-amber);
+  background: rgba(251, 191, 36, 0.08);
+}
+
+.notice-preview strong {
+  display: block;
+  color: var(--accent-amber);
+  font-size: 1rem;
+  margin-bottom: 0.4rem;
+}
+
+.notice-preview p {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* A badge for a tier that does not exist. Deliberately not the amber used by
+ * `.card-badge` for promotional flags — this one is a caveat, not a boast. */
+.card-badge.badge-planned {
+  background: var(--bg-surface-hover);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.tier-label {
+  margin: 1rem 0 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+/* Proposed items are dimmed relative to the ones that work today, so the two
+ * lists cannot be skimmed as one list of features.
+ *
+ * `--text-secondary` (#94a3b8), not `--text-muted` (#64748b): muted measures
+ * 3.55:1 against `--bg-card` and this is normal-size body text, so it would sit
+ * under the 4.5:1 floor. Secondary measures 6.6:1. The visual separation from
+ * the working-feature list above is carried by the `◦` markers and the section
+ * label, which do not cost contrast. */
+.prop-list.tier-planned li {
+  color: var(--text-secondary);
+}
+
+.form-note {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}

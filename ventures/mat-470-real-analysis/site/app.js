@@ -878,46 +878,69 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('quiz-next-btn').disabled = true;
   });
 
-  // --- 8. Mastery Pass Subscription Enrollment Engine ---
+  // --- 8. Mastery Pass price-sensitivity feedback ---
+  //
+  // This block used to save the visitor's email to localStorage and then tell
+  // them to look in their inbox for an access key. There is no server here, no
+  // mail sender and no access key, so that sentence was false at the moment it
+  // rendered, and the address never left the browser. Both are gone.
+  //
+  // The banned phrasing is deliberately not repeated verbatim anywhere in this
+  // file: `tests/test_mat470_site.py` scans the real source for it, and a
+  // comment quoting the string would force an exemption on the one file the
+  // control exists to read.
+  //
+  // What replaces it hands the message to the visitor's own mail client via a
+  // mailto: link. Nothing is stored and no address of theirs is read — their
+  // mail app supplies the sender, and only if they choose to press send.
   const masteryForm = document.getElementById('mastery-form');
-  const masteryEmailInput = document.getElementById('mastery-email-input');
   const masteryCourseInput = document.getElementById('mastery-course-input');
+  const masteryWorthInput = document.getElementById('mastery-worth-input');
   const masteryStatusMsg = document.getElementById('mastery-status-msg');
+  const MASTERY_FEEDBACK_TO = 'duncan.andrew.haywood@gmail.com';
 
   if (masteryForm) {
     masteryForm.addEventListener('submit', e => {
       e.preventDefault();
-      const email = masteryEmailInput ? masteryEmailInput.value.trim() : '';
       const course = masteryCourseInput ? masteryCourseInput.value.trim() : '';
+      const worthRaw = masteryWorthInput ? masteryWorthInput.value.trim() : '';
+      const worth = Number.parseFloat(worthRaw);
 
-      if (!email || !email.includes('@')) {
+      if (!Number.isFinite(worth) || worth < 0) {
         if (masteryStatusMsg) {
           masteryStatusMsg.className = 'status-banner invalid';
-          masteryStatusMsg.textContent = 'Please provide a valid student or university email address.';
+          masteryStatusMsg.textContent = 'Enter a monthly figure in dollars — 0 is a valid answer.';
           masteryStatusMsg.classList.remove('hidden');
         }
         return;
       }
 
-      // Save subscriber lead to localStorage
-      try {
-        const existingLeads = JSON.parse(localStorage.getItem('mat470_mastery_leads') || '[]');
-        existingLeads.push({
-          email,
-          course: course || 'MAT 470 Real Analysis',
-          registeredAt: new Date().toISOString(),
-          discountClaimed: true
-        });
-        localStorage.setItem('mat470_mastery_leads', JSON.stringify(existingLeads));
-      } catch (err) {}
+      const subject = 'MAT 470 Mastery Pass — what it would be worth';
+      const body = [
+        'Course / textbook: ' + (course || '(not given)'),
+        'Would pay per month: $' + worth.toFixed(2),
+        '',
+        'Anything else worth knowing:',
+        '',
+      ].join('\n');
+      const href =
+        'mailto:' + MASTERY_FEEDBACK_TO +
+        '?subject=' + encodeURIComponent(subject) +
+        '&body=' + encodeURIComponent(body);
 
       if (masteryStatusMsg) {
         masteryStatusMsg.className = 'status-banner valid';
-        masteryStatusMsg.innerHTML = `🎉 Success! Student pass discount locked for <strong>${email}</strong> ($9.99/mo). Check your inbox for your access key!`;
+        // Deliberately describes only what has happened. Whether the mail app
+        // opened, and whether anything is sent, is not something this page can
+        // observe — so it does not claim either.
+        masteryStatusMsg.innerHTML =
+          'Your mail app should now have a draft addressed to us, saying you would pay ' +
+          '<strong>$' + worth.toFixed(2) + '</strong> a month. It is not sent until you send it. ' +
+          'Nothing was saved here and no account was created.';
         masteryStatusMsg.classList.remove('hidden');
       }
 
-      if (masteryEmailInput) masteryEmailInput.value = '';
+      window.location.href = href;
     });
   }
 
