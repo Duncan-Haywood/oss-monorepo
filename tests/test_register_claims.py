@@ -773,10 +773,6 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertIn("MIN_CHECKED_CLAIMS", ratchet)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class ImageRegisterGuardTests(unittest.TestCase):
     """The image register's own claim-name guard, extended not loosened.
 
@@ -822,3 +818,7 @@ class ImageRegisterGuardTests(unittest.TestCase):
         self.assertEqual(
             self.image_tags._declarative_predicates(), rc.PREDICATE_KINDS
         )
+
+
+if __name__ == "__main__":
+    unittest.main()
