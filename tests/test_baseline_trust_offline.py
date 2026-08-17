@@ -36,6 +36,7 @@ No test here is skipped or conditionally skipped, and none should be.
 suppression needing a registered owner and expiry.
 """
 
+import ast
 import os
 import subprocess
 import sys
@@ -167,6 +168,91 @@ class TestUnreachableBaselineNeverVerifies(UnreachableRemoteTestCase):
         self.assertNotEqual(trust.state, STATE_VERIFIED)
         self.assertFalse(trust.verified)
         self.assertNotEqual(trust.remote_sha, self.local_sha)
+
+
+class TestNoEnvironmentReadDecidesTrust(unittest.TestCase):
+    """The closure `OFFLINE_WAIVERS` cannot provide, because it is a denylist.
+
+    The comment above `OFFLINE_WAIVERS` says adding a new waiver name to the
+    product code without adding it here "is the gap this list exists to close".
+    A list of five names cannot close that gap: it is exactly the shape this
+    repository has already corrected once, where a bypass detector enumerated
+    the flags it knew and missed three of six agents. A sixth waiver called
+    anything else — `CI_ALLOW_OFFLINE_BASELINE`, `OFFLINE` — passes every
+    behavioural test above, because those tests can only set names they know.
+
+    So the rule is stated over the source instead, where it is closed: nothing
+    in `baseline_trust.py` may *branch* on an environment variable. Reading the
+    environment is still allowed where it is not a decision — `_run` copies
+    `os.environ` to hand git a `GIT_TERMINAL_PROMPT`, and must keep doing so —
+    which is why the rule is about conditions rather than about reads.
+
+    This is not hypothetical either. `39d2d89d` re-added two such conditions as
+    part of a commit titled "chore(ci): commit staged improvements across
+    workflow tooling, tests, and venture verification", and every gate that
+    could have caught it was simply not run before it landed.
+    """
+
+    #: An environment read, in the shapes Python offers.
+    def _reads_environment(self, node: ast.AST) -> bool:
+        for child in ast.walk(node):
+            # `os.environ[...]`, `os.environ.get(...)`, `environ[...]`
+            if isinstance(child, ast.Attribute) and child.attr in ("environ", "getenv"):
+                return True
+            if isinstance(child, ast.Name) and child.id in ("environ", "getenv"):
+                return True
+        return False
+
+    def test_no_condition_in_baseline_trust_reads_the_environment(self):
+        source = (CI_DIR / "baseline_trust.py").read_text(encoding="utf-8")
+        tree = ast.parse(source)
+
+        offenders = []
+        for node in ast.walk(tree):
+            tests = []
+            if isinstance(node, (ast.If, ast.While)):
+                tests = [node.test]
+            elif isinstance(node, ast.IfExp):
+                tests = [node.test]
+            elif isinstance(node, ast.comprehension):
+                tests = list(node.ifs)
+            for test in tests:
+                if self._reads_environment(test):
+                    offenders.append(f"line {getattr(test, 'lineno', '?')}")
+
+        self.assertEqual(
+            offenders,
+            [],
+            "scripts/ci/baseline_trust.py branches on an environment variable at "
+            + ", ".join(offenders)
+            + ". Whether a remote answered is not something the environment may be asked. "
+            "A waiver may excuse an exit code; it may never change this control's answer.",
+        )
+
+    def test_the_source_rule_can_actually_fail(self):
+        """A source rule that matches nothing is a passing gate.
+
+        The test above reads the real module and would pass identically if
+        `_reads_environment` were broken to always return False. This feeds it
+        the code that was removed, so a broken matcher is caught here rather
+        than the next time someone re-adds the hatch.
+        """
+        reintroduced = ast.parse(
+            'if os.environ.get("BASELINE_TRUST_ALLOW_OFFLINE") == "1":\n'
+            "    pass\n"
+        )
+        branch = next(n for n in ast.walk(reintroduced) if isinstance(n, ast.If))
+        self.assertTrue(
+            self._reads_environment(branch.test),
+            "the matcher no longer recognises the exact condition 39d2d89d added",
+        )
+
+        benign = ast.parse("env = dict(os.environ)\nif result.returncode != 0:\n    pass\n")
+        branch = next(n for n in ast.walk(benign) if isinstance(n, ast.If))
+        self.assertFalse(
+            self._reads_environment(branch.test),
+            "the matcher flags a condition that reads no environment variable",
+        )
 
 
 class TestReachableBaselineStillVerifies(unittest.TestCase):
