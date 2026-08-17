@@ -152,6 +152,61 @@ const CAPTURE_CAPABILITY_CLAIMS: ReadonlyArray<{ pattern: RegExp; why: string }>
 ];
 
 /**
+ * Packages that would constitute an actual Convex deployment.
+ *
+ * Same bar as `IMAGE_PIPELINE_PROVIDERS`: declared in `dependencies` or
+ * `devDependencies`, and imported under `src/`. A `convex/` directory alone is
+ * not enough — this venture has none, but a schema file with no client behind
+ * it would still write nothing.
+ */
+const CONVEX_PROVIDERS = ["convex", "@convex-dev"];
+
+/**
+ * Copy that asserts a database is provisioned, live, or in sync.
+ *
+ * The claim that forced this: `PartnerCredentialVault.tsx` rendered a
+ * "Convex Database Persistence Sync / **Live Schema & Record Health**" panel
+ * with a green "6/6 Tables Synced" pill and six cards each naming a table and
+ * an index count — every one a hardcoded JSX literal with no data source, on
+ * `/partner-setup`, which is unauthenticated. This venture has no Convex
+ * client, no `convex` dependency and no `convex/` directory; the six "tables"
+ * are process-local arrays. `src/lib/convex-sync-status.ts` says so in its own
+ * comment, and nothing outside `tests/` imports it.
+ *
+ * Aimed at asserted *state*, not at the word "Convex". A roadmap line, a
+ * refusal, or a note about what happens once Convex ships must keep passing:
+ * `CheckoutLab` writes "until Convex order records ship" and that is honest.
+ * A count of indexes or a "synced" pill is a measurement, and a measurement
+ * has to come from somewhere.
+ */
+const DATABASE_STATE_CLAIMS: ReadonlyArray<{ pattern: RegExp; why: string }> = [
+  {
+    pattern: /\b\d+\s*\/\s*\d+\s+tables?\s+(synced|live|healthy|online)\b/i,
+    why: "reports a table sync count as a measured fact",
+  },
+  {
+    pattern: /\btables?\s+(synced|in\s+sync)\b/i,
+    why: "states that database tables are in sync",
+  },
+  {
+    pattern: /\blive\s+(schema|database|db|tables?)\b/i,
+    why: "describes a schema or database as live",
+  },
+  {
+    pattern: /\b\d+\s+indexes\b/i,
+    why: "states an index count, which is a fact about a database that must be read from one",
+  },
+  {
+    pattern: /\b(schema|record|database|db)\s+health\b/i,
+    why: "presents database health as something being reported",
+  },
+  {
+    pattern: /\bconvex\b[^.!?]{0,30}\b(connected|synced|provisioned|healthy|is\s+live)\b/i,
+    why: "claims a Convex deployment is connected",
+  },
+];
+
+/**
  * Copy roots. Both are rendered to a human: `src/app` is every route and
  * `src/components` is what those routes compose. There is no middleware in
  * this venture — `find ventures/print-atelier -name "middleware*"` outside
@@ -219,6 +274,36 @@ function rel(file: string): string {
   return path.relative(VENTURE_ROOT, file);
 }
 
+/**
+ * A copy file as a reader sees it: comments blanked, line structure kept.
+ *
+ * A comment is not copy. Nothing in `{/* … *\/}` or after `//` is rendered to a
+ * visitor, and the comments in these files are largely the explanations of why
+ * a claim was removed — which quote the claim. Scanning them makes the control
+ * answer questions about its own documentation: the first version of
+ * `DATABASE_STATE_CLAIMS` failed on the comment left in
+ * `PartnerCredentialVault.tsx` explaining that "6/6 Tables Synced" had been
+ * deleted, which would have forced the explanation to be reworded until the
+ * scanner could no longer see it. The standing rule here is to strip comments,
+ * never to exempt the file or edit the prose — see `strip_ts_comments` in
+ * `scripts/ci/cap_ratchet.py` and `stripShellComment` in
+ * `platform/ci/test/mktemp-template.test.mjs`.
+ *
+ * Blocks are blanked rather than deleted so reported line numbers stay right.
+ * The `//` rule refuses to fire after a `:`, because `href="https://…"` is copy
+ * and the rest of that line must stay visible.
+ */
+export function stripCommentsPreservingLines(source: string): string {
+  const withoutBlocks = source.replace(/\/\*[\s\S]*?\*\//g, (span) =>
+    span.replace(/[^\n]/g, " "),
+  );
+  return withoutBlocks.replace(/(^|[^:])\/\/[^\n]*/g, (_match, before: string) => before);
+}
+
+function copyLines(file: string): string[] {
+  return stripCommentsPreservingLines(readFileSync(file, "utf8")).split("\n");
+}
+
 /** True when `lines[index]` sits within the label window of an honesty marker. */
 export function labelNear(lines: string[], index: number): boolean {
   const from = Math.max(0, index - LABEL_PROXIMITY_LINES);
@@ -260,6 +345,29 @@ function imagePipelineIntegrated(): boolean {
       new RegExp(`from\\s+["']${p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`).test(body),
     );
   });
+}
+
+/**
+ * Whether Convex is both declared and used. Split like `providerDeclaredIn` so
+ * the manifest half can be exercised against a hand-built manifest.
+ */
+export function convexDeclaredIn(manifest: PackageManifest): boolean {
+  const declared = Object.keys({ ...manifest.dependencies, ...manifest.devDependencies });
+  return declared.some((name) =>
+    CONVEX_PROVIDERS.some((p) => name === p || name.startsWith(`${p}/`)),
+  );
+}
+
+function convexIntegrated(): boolean {
+  const manifest = JSON.parse(
+    readFileSync(path.join(VENTURE_ROOT, "package.json"), "utf8"),
+  ) as PackageManifest;
+  if (!convexDeclaredIn(manifest)) return false;
+
+  // A dependency nothing imports stores no orders.
+  return walk(SRC).some((file) =>
+    /from\s+["'](convex|@convex-dev)(\/|["'])/.test(readFileSync(file, "utf8")),
+  );
 }
 
 describe("capability claims", () => {
@@ -370,7 +478,7 @@ describe("capability claims", () => {
 
     const offences: string[] = [];
     for (const file of copyFiles()) {
-      const lines = readFileSync(file, "utf8").split("\n");
+      const lines = copyLines(file);
       lines.forEach((line, index) => {
         for (const { pattern, why } of CAPTURE_CAPABILITY_CLAIMS) {
           if (!pattern.test(line)) continue;
@@ -389,6 +497,136 @@ describe("capability claims", () => {
         "file metadata in localStorage and never reads the file. Either integrate a " +
         "pipeline, describe what ships, or label the claim as planned next to where it " +
         `is made (within ${LABEL_PROXIMITY_LINES} lines).\n\n${offences.join("\n")}`,
+    );
+  });
+
+  it("scans what a reader sees, not the comments explaining it", () => {
+    // The failure this prevents, exactly: the comment left where the fabricated
+    // panel used to be quotes the pill it replaced, and the first version of
+    // this control reported that comment as an offence — which would have
+    // forced the explanation to be reworded until the scanner went blind.
+    const explained = [
+      "      {/*",
+      '        A green "6/6 Tables Synced" pill stood here, with six cards each',
+      "        naming a table and an index count. All hardcoded.",
+      "      */}",
+      "      <p>Partner credential vault</p>",
+    ].join("\n");
+    const stripped = stripCommentsPreservingLines(explained);
+    assert.equal(
+      DATABASE_STATE_CLAIMS.some((c) => c.pattern.test(stripped)),
+      false,
+      "a comment describing the removed claim is still visible to the scanner",
+    );
+    assert.equal(
+      stripped.split("\n").length,
+      explained.split("\n").length,
+      "block comments must be blanked, not deleted, or reported line numbers drift",
+    );
+    assert.ok(stripped.includes("<p>Partner credential vault</p>"), "live copy was eaten");
+
+    // Rendered copy on the same line as a URL survives: `//` after `:` is not a
+    // comment, and treating it as one would blind the scanner to the rest of
+    // the line.
+    const withUrl = '<a href="https://example.com">6/6 Tables Synced</a>';
+    assert.ok(
+      DATABASE_STATE_CLAIMS.some((c) =>
+        c.pattern.test(stripCommentsPreservingLines(withUrl)),
+      ),
+      "a claim after a URL on the same line was stripped away with the URL",
+    );
+
+    // A real line comment still goes.
+    assert.equal(
+      stripCommentsPreservingLines("const x = 1; // 6/6 Tables Synced").trim(),
+      "const x = 1;",
+    );
+  });
+
+  it("has a database-state detector that matches the panel it was built for", () => {
+    const wasRendered = [
+      "6/6 Tables Synced",
+      "Live Schema &amp; Record Health",
+      "<h4>Live Schema & Record Health</h4>",
+      "5 Indexes",
+      "3 Indexes",
+      "Convex is connected",
+      "All tables in sync",
+    ];
+    for (const claim of wasRendered) {
+      assert.ok(
+        DATABASE_STATE_CLAIMS.some((c) => c.pattern.test(claim)),
+        `no pattern matched a claim this control exists for: ${claim}`,
+      );
+    }
+  });
+
+  it("does not match honest copy about a database that has not shipped", () => {
+    const stillTrue = [
+      "Cart persists in localStorage until Convex order records ship",
+      "Orders are held in a process-local array and are lost on restart",
+      "The figures below are not live",
+      "Convex order records ship in phase 2",
+      "Set NEXT_PUBLIC_CONVEX_URL to enable durable persistence",
+      "Partner credential vault",
+      "3 orders in the last 90 days",
+    ];
+    for (const line of stillTrue) {
+      const hit = DATABASE_STATE_CLAIMS.find((c) => c.pattern.test(line));
+      assert.equal(hit, undefined, `pattern "${hit?.why}" wrongly matched honest copy: ${line}`);
+    }
+  });
+
+  it("counts Convex only where it is a real dependency", () => {
+    assert.equal(convexDeclaredIn({ dependencies: { convex: "^1.0.0" } }), true);
+    assert.equal(convexDeclaredIn({ devDependencies: { "@convex-dev/react": "^1" } }), true);
+    assert.equal(convexDeclaredIn({ dependencies: { "convex-helpers": "^1" } }), false);
+    assert.equal(convexDeclaredIn({ overrides: { convex: "^1.0.0" } }), false);
+    assert.equal(convexDeclaredIn({ dependencies: { next: "16.2.12" } }), false);
+
+    // And the real manifest must still be in the "not integrated" state, so a
+    // reader of this file is not misled about why the contract below passes.
+    const manifest = JSON.parse(
+      readFileSync(path.join(VENTURE_ROOT, "package.json"), "utf8"),
+    ) as PackageManifest;
+    assert.equal(
+      convexDeclaredIn(manifest),
+      false,
+      "convex is now a real dependency — check whether it is actually wired, then this " +
+        "control should start permitting database-state copy",
+    );
+  });
+
+  it("does not present a database as live while none is integrated", () => {
+    if (convexIntegrated()) {
+      // The database landed. What it reports is now a measurement, and the
+      // panel may say so — through a guarded route, not a server render on an
+      // unauthenticated page.
+      return;
+    }
+
+    const offences: string[] = [];
+    for (const file of copyFiles()) {
+      const lines = copyLines(file);
+      lines.forEach((line, index) => {
+        for (const { pattern, why } of DATABASE_STATE_CLAIMS) {
+          if (!pattern.test(line)) continue;
+          if (labelNear(lines, index)) continue;
+          offences.push(`${rel(file)}:${index + 1} — ${why}\n    ${line.trim()}`);
+        }
+      });
+    }
+
+    assert.deepEqual(
+      offences,
+      [],
+      "Copy reports database state, and no Convex client is both declared in package.json " +
+        "dependencies and imported under src/. Every persistence module in src/lib/ writes " +
+        "to a process-local array; src/lib/convex-sync-status.ts is the only thing that " +
+        "would compute this honestly and nothing outside tests/ imports it. A status a " +
+        "reader cannot distinguish from a measurement must be measured — and /partner-setup, " +
+        "/ops and /b2b-portal are anonymously reachable, so it must be measured behind " +
+        `requireOperator.\n\n${offences.join("\n")}`,
     );
   });
 });
