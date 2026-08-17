@@ -392,8 +392,14 @@ test('CI Workflow Tooling - no gate invokes a tool the workflow was never told a
     gateCount += 1;
   }
 
-  // `bash` and `env` are guaranteed by the runner environment.
-  const guaranteed = new Set(['bash', 'env']);
+  // `bash` is guaranteed by the runner; the suite is a bash script.
+  //
+  // `env` was added here on 2026-08-17 and removed again: no gate uses it as its
+  // command word, and admitting it means a future `run_ci_test "x" env FOO=1
+  // sometool` records `env` as the invoked tool while `sometool` becomes
+  // invisible to this check. The guarantee list is what the runner provides, not
+  // a place to park wrappers.
+  const guaranteed = new Set(['bash']);
   const declared = new Set(REQUIRED_TOOLING.map((entry) => entry.tool));
 
   const undeclared = [...invoked].filter((tool) => !guaranteed.has(tool) && !declared.has(tool));

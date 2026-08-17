@@ -287,6 +287,25 @@ def verify_baseline(
     """Ask the remote what `baseline_ref` should be, and compare.
 
     Read-only. Does not fetch, does not update any ref, does not push.
+
+    No environment variable may buy `STATE_VERIFIED`, and none is read here.
+    `verified` is a statement that a remote answered and its sha matched; if the
+    remote could not be asked, the honest answer is `STATE_UNREACHABLE` and the
+    four gates that divide by it (release lag, integration debt, deployment lag,
+    the cap ratchet) must fail closed. A waiver may soften how a *caller* reacts
+    to `unreachable`. It may never change the answer.
+
+    This has now been landed twice — most recently by `39d2d89d` on 2026-08-17,
+    which returned `verified` with `remote_sha = local_sha` whenever `ls-remote`
+    timed out or exited non-zero and either `BASELINE_TRUST_ALLOW_OFFLINE=1` or
+    `SECURITY_SCAN_ALLOW_OFFLINE=1` was set. The second name is the trap: it is
+    the dependency audit's own narrow waiver, exported defaulted to `1` by both
+    `scripts/verify-all.sh` and `scripts/test-ci.sh`, so the hatch was on by
+    default under both runners and every one of those four gates would have
+    reported a baseline `verified` against a ref no remote ever confirmed.
+    `tests/test_baseline_trust_offline.py` forbids exactly this and was already
+    committed when the hatch landed on top of it; read that file before adding
+    any offline handling here.
     """
     if local_sha is None:
         local_sha = _local_sha(repo_root, baseline_ref)

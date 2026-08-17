@@ -94,6 +94,13 @@ const NOT_CONTAINER_SUPPLIABLE = [
   /^NODE_ENV$/,
   /^CI$/,
   /^PORT$/,
+  // Supplied by git and by the test runner, never by a container. It appeared
+  // in local-site-studio on 2026-08-17 through a test-isolation fix
+  // (`tier-price-binding.test.ts` pins it to /dev/null so `git ls-files` cannot
+  // read the developer's ~/.gitconfig), and the register's ceiling for that
+  // venture was raised 15 -> 16 to absorb it. A number that is meant to measure
+  // the deployment gap should not move because a test hardened itself.
+  /^GIT_CONFIG_GLOBAL$/,
 ];
 
 function read(file) {

@@ -181,7 +181,14 @@ check() {
   local name="$1" mode="$2" expected="$3"
   start_stub "${mode}"
 
-  local out
+  # `actual` must be local, and so re-declared per call. Without this it is a
+  # global that is never reset, and `${actual:-0}` only defaults when the
+  # variable is unset or empty — so once any check leaves it at 1, every later
+  # check whose `||` never fires reads that stale 1 and reports `ok`. The three
+  # negative cases run last, so the two that matter most — a redirect to a
+  # non-Access host, and `leaky-403` (a 403 that still serves the content) —
+  # could not fail.
+  local out actual
   if [[ "${CAN_BIND}" -eq 0 ]]; then
     out=$(PATH="${MOCK_DIR}:${PATH}" \
       STUB_MODE="${mode}" \

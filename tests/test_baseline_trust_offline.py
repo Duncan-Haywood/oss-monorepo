@@ -255,6 +255,8 @@ class TestNoEnvironmentReadDecidesTrust(unittest.TestCase):
             self._reads_environment(branch.test),
             "the matcher flags a condition that reads no environment variable",
         )
+
+
 class HangingRemoteTestCase(UnreachableRemoteTestCase):
     """A remote that never answers, so `ls-remote` *times out* instead of failing.
 

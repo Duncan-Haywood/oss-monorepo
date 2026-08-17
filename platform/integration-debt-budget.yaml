@@ -40,20 +40,30 @@ budget:
   # docs/INTEGRATION-REPORT-2026-08-03.md is that measurement written longhand,
   # and it was stale within a day.
   #
-  # Declared at 6 rather than 1 because agent sessions run concurrently and a
-  # handful of branches genuinely in flight is normal working state, not debt.
-  # 1 is today's number, not a sustainable ceiling: the day before, the same
-  # measurement over docs/INTEGRATION-REPORT-2026-08-03.md's 39 branches would
-  # have been about 12. Declaring 1 would fail on any ordinary fan-out, and a
-  # gate that fails on ordinary work gets widened rather than obeyed.
+  # It was first declared at 6 rather than 1 because agent sessions run
+  # concurrently and a handful of branches genuinely in flight is normal working
+  # state, not debt. That reasoning still holds for the *direction* the ceiling
+  # is set from — it is ratcheted down to what has actually converged, never set
+  # to an aspiration — and the record since is 8 -> 4 -> 3 -> 4 -> 3 -> 2.
   #
   # This dimension is not gameable the way `max_unshipped_commits` is. Adding
   # commits does not lower it; only merging does, and merging is the behaviour
   # the number exists to ask for.
-  max_unintegrated_tips: 3
+  #
+  # Back to 2, re-measured 2026-08-17 in the real repository: `main` and
+  # `agent/cap-enrollment-ts` are the two independent tips, with 22 refs absorbed
+  # into them. It was ratcheted to 2 on 2026-08-08 by 9e77b434 and raised 2 -> 3
+  # on 2026-08-17 by 39d2d89d, a 28-file commit titled "chore(ci): commit staged
+  # improvements across workflow tooling, tests, and venture verification" that
+  # named neither this file nor this number. Nothing had fragmented; the
+  # measurement was 2 then and is 2 now, so the raise made the gate red from the
+  # stale direction and left it red at main's HEAD. Raising this to absorb a
+  # measurement is the widening the two-directional band exists to catch, and
+  # `slack_tips: 0` is what caught it.
+  max_unintegrated_tips: 2
 
   # Below `max_unintegrated_tips - slack_tips` the budget above is stale and
-  # must be lowered. The band is 3..3: a converged repository stays green.
+  # must be lowered. The band is 2..2: a converged repository stays green.
   slack_tips: 0
 
 # Files that some branch added and that no release candidate carries. Each one
