@@ -794,6 +794,14 @@ _SPLIT_WHY = (
 )
 _PLATFORM_WHY = "the platform's retained share of the same net profit, which must stay the complement of the artist share"
 
+# The one definition of "split-shaped literal", used by three things that have
+# to agree or the census means nothing: the census pins below, the register of
+# files that carry the shape and are *not* the split, and the enumeration that
+# derives the population both must cover. Written once here so a change to the
+# shape cannot move the pins without moving the population with them —
+# `tests/test_cap_ratchet.py` asserts every census locator is this string.
+SPLIT_LITERAL_LOCATOR = r"(?<![0-9.])0\.(?:3|30|7|70)(?![0-9])"
+
 PINS: Tuple[Pin, ...] = (
     # --- print-atelier: the 30/70 artist payout split -----------------------
     # `calculatePrintEconomics` is the canonical site: its output reaches
@@ -1057,11 +1065,19 @@ PINS: Tuple[Pin, ...] = (
     # the split does not inflate its own number.
     #
     # This is the check that fails when a fifteenth copy appears.
+    #
+    # The *population* below is no longer this list. Until 2026-08-17 it was:
+    # ten files declared a count, and a new money file carrying the split was
+    # simply not mentioned, so nothing failed. `split_literal_population`
+    # enumerates every tracked print-atelier source carrying the shape, and
+    # `evaluate_census_population` refuses any member that is neither censused
+    # here nor declined in `DECLINED_SPLIT_LITERALS` with a reason naming what
+    # the number actually is.
     *(
         Pin(
             path=f"ventures/print-atelier/src/{rel}",
             kind="literal-census",
-            locator=r"(?<![0-9.])0\.(?:3|30|7|70)(?![0-9])",
+            locator=SPLIT_LITERAL_LOCATOR,
             value=count,
             why=(
                 "the number of places this file re-types the 30/70 artist payout split as a bare "
@@ -1538,6 +1554,141 @@ UNENROLLED_VENTURE_CONSTANTS: Tuple[VentureExemption, ...] = (
             ("ventures/print-atelier/src/lib/global-pricing.ts", "DEFAULT_FX_RATES"),
             ("ventures/print-atelier/src/lib/payout-fx-optimizer.ts", "DEFAULT_FX_RATES"),
         )
+    ),
+)
+
+
+@dataclass(frozen=True)
+class CensusDecline:
+    """A print-atelier file that carries the split *shape* and not the split.
+
+    `0.3` and `0.7` are ordinary numbers. A sitemap priority, a score weight and
+    a conversion-rate assumption all look exactly like an artist payout to a
+    regex, and censusing them as split copies would be a false statement in the
+    register that the next reader would have to re-derive.
+
+    So a file may leave the census — but only by saying what its number is. The
+    `count` is enforced exactly as a census count is: a decline is not a licence
+    for the file, it is a licence for *that many* non-split occurrences. Add a
+    real split copy to `seo.ts` and its count goes 1 -> 2 and this fails, which
+    is the difference between a reasoned decline and a blanket exemption.
+    """
+
+    path: str
+    count: int
+    why: str
+
+
+# Every print-atelier source that carries a split-shaped literal which is not
+# the 30/70 artist payout split. Each was read at 2026-08-17 and traced: none
+# reaches a charge, a Stripe transfer or a ledger row as an artist's share.
+#
+# Two of these (`seo.ts`, `outreach.ts`) had been declined in conversation and
+# nowhere in the code; the other eight had never been looked at, because an
+# unenrolled file produced no output at all. That is the hole this register and
+# `evaluate_census_population` close: declining is now a line in this file.
+DECLINED_SPLIT_LITERALS: Tuple[CensusDecline, ...] = (
+    CensusDecline(
+        path="ventures/print-atelier/src/lib/ad-catalog.ts",
+        count=2,
+        why=(
+            "two weights in a composite health score: `feedHealthScore * 0.4 + adReadiness.score "
+            "* 0.3 + healthyFraction * 100 * 0.3`. The three weights sum to 1.0, which is what "
+            "they are — a weighted average of three 0-100 scores rendered on an operator "
+            "dashboard. No money is computed from them and none of the three inputs is currency"
+        ),
+    ),
+    CensusDecline(
+        path="ventures/print-atelier/src/lib/art-fair-presale-catalog.ts",
+        count=1,
+        why=(
+            "the assumed conversion rate of a SILVER-tier VIP collector, one of four tier "
+            "assumptions (0.65 / 0.45 / 0.30 / 0.15) averaged into `projectedConversionRate`. It "
+            "multiplies a *forecast* of presale revenue that is displayed, never charged, and it "
+            "is a probability rather than a share of anyone's money"
+        ),
+    ),
+    CensusDecline(
+        path="ventures/print-atelier/src/lib/art-glass-degradation.ts",
+        count=1,
+        why=(
+            "the weight on light transmission in `opticalClarityScore = "
+            "lightTransmissionPercentage * 0.7 + (10 - reflectionPercentage) * 3.0` — a glazing "
+            "physics score in arbitrary units, on no money path at all"
+        ),
+    ),
+    CensusDecline(
+        path="ventures/print-atelier/src/lib/capi-dedup-reporter.ts",
+        count=2,
+        why=(
+            "two identical data-quality thresholds: if more than 30% of conversion events lack a "
+            "hashed email, or lack an external id, a recommendation *string* is appended to a "
+            "report. The comparison decides whether advice is printed and nothing else"
+        ),
+    ),
+    CensusDecline(
+        path="ventures/print-atelier/src/lib/channel-budget-plans.ts",
+        count=1,
+        why=(
+            "an assumed 30% contribution margin on gross ad-channel revenue — `grossRevenue * "
+            "0.3 - actualSpend` — where `grossRevenue` is itself `orders * 45`, a hardcoded "
+            "average-order-value benchmark. This is the closest call in this register: it is a "
+            "30% of a revenue figure, and the drift the census exists to catch is exactly "
+            "'same number, different base'. It is declined because it pays nobody: the result is "
+            "`netContribution`, which only sets a channel's active/held/scaled status in a weekly "
+            "budget plan. Every censused site instead assigns an `artistPayout`/`artistShare`. "
+            "If this ever becomes an input to a payout, census it"
+        ),
+    ),
+    CensusDecline(
+        path="ventures/print-atelier/src/lib/checkout.ts",
+        count=1,
+        why=(
+            "`const STRIPE_FIXED = 0.3` — Stripe's fixed 30 cents per charge, not a share of "
+            "anything. It is genuinely money-bearing and it is already held, by the "
+            "`checkout.ts:STRIPE_FIXED` pin above; `holders_of` reports it as pinned. Censusing "
+            "it as a split copy would say something untrue about a number that is correctly "
+            "guarded elsewhere"
+        ),
+    ),
+    CensusDecline(
+        path="ventures/print-atelier/src/lib/corporate-art-leasing.ts",
+        count=2,
+        why=(
+            "two rates in the corporate leasing quote: a 30% annual lease rate for a 24-month "
+            "commitment (against 36% base and 25% for 36 months), and a 30% security deposit for "
+            "a subprime credit tier (against 5% prime, 15% standard). Both bill a corporate "
+            "lessee rather than paying an artist, so neither is the payout split — but both are "
+            "unheld money numbers in their own right, which the census cannot express and a pin "
+            "should. See the note in the report this change was made under"
+        ),
+    ),
+    CensusDecline(
+        path="ventures/print-atelier/src/lib/outreach.ts",
+        count=1,
+        why=(
+            "the medium-confidence boundary in a classifier: `confidenceScore >= 0.85 ? 'high' : "
+            "confidenceScore >= 0.7 ? 'medium' : 'low'`. A label on an outreach classification, "
+            "with no currency anywhere in the function"
+        ),
+    ),
+    CensusDecline(
+        path="ventures/print-atelier/src/lib/seo.ts",
+        count=1,
+        why=(
+            "a sitemap `priority: 0.7` on `/capture`, one of a descending list (0.85 / 0.8 / "
+            "0.75 / 0.7). It is a crawler hint in the range sitemaps.org defines, and the only "
+            "thing that reads it is a search engine"
+        ),
+    ),
+    CensusDecline(
+        path="ventures/print-atelier/src/lib/trade-credit-inspector.ts",
+        count=1,
+        why=(
+            "the 0.7x credit multiplier applied when a trade account's prompt-payment score is "
+            "below 70, beside 1.2x and 1.0x. It scales a recommended *credit limit* — how much a "
+            "buyer may owe — not a share of profit paid out"
+        ),
     ),
 )
 
