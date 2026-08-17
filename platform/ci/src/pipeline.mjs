@@ -556,6 +556,13 @@ function isKnownSwiftEnvironmentIssue(outputStr) {
   );
 }
 
+// Every path out of this function returns `true` only after `swift test` has
+// actually run and exited zero. `ALLOW_SWIFT_TOOLCHAIN_MISMATCH=1` used to short
+// -circuit two of them to `true` (added by 39d2d89d on 2026-08-17, and exported
+// defaulted to 1 by verify-all.sh in the same commit, so on that day every Swift
+// component reported PASSED without being verified). A host that cannot run the
+// suite has not verified the component; `isKnownSwiftEnvironmentIssue` exists to
+// say *why* the run failed, never to convert the failure into a pass.
 export function verifySwiftHost(component, repoRoot = REPO_ROOT) {
   const fullDir = path.join(repoRoot, component.dir);
   if (!fs.existsSync(path.join(fullDir, 'Package.swift'))) {
@@ -574,10 +581,6 @@ export function verifySwiftHost(component, repoRoot = REPO_ROOT) {
     if (checkToolchain.status !== 0 || checkToolchain.error) {
       const errDetail = checkToolchain.error ? String(checkToolchain.error) + '\n' + checkErr : checkErr;
       if (isKnownSwiftEnvironmentIssue(errDetail)) {
-        if (process.env.ALLOW_SWIFT_TOOLCHAIN_MISMATCH === '1') {
-          console.log(`  ⚠ ${component.name}: Swift host toolchain/SDK mismatch or sandbox constraint; skipping per ALLOW_SWIFT_TOOLCHAIN_MISMATCH=1.`);
-          return true;
-        }
         console.error(`✖ ${component.name} FAILED: Swift host toolchain/SDK mismatch or sandbox constraint on this host.`);
       } else {
         console.error(`✖ ${component.name} FAILED: Swift dump-package failed:\n${errDetail}`);
@@ -597,10 +600,6 @@ export function verifySwiftHost(component, repoRoot = REPO_ROOT) {
   } catch (err) {
     const errStr = String(err?.stderr || err?.stdout || err?.message || err);
     if (isKnownSwiftEnvironmentIssue(errStr)) {
-      if (process.env.ALLOW_SWIFT_TOOLCHAIN_MISMATCH === '1') {
-        console.log(`  ⚠ ${component.name}: Swift host toolchain/SDK mismatch or sandbox constraint; skipping per ALLOW_SWIFT_TOOLCHAIN_MISMATCH=1.`);
-        return true;
-      }
       console.error(`✖ ${component.name} FAILED: Swift host toolchain/SDK mismatch or sandbox constraint on this host.`);
       return false;
     }
