@@ -129,6 +129,7 @@ import shlex
 import subprocess
 import sys
 from dataclasses import asdict, dataclass, field
+from datetime import date, datetime
 from pathlib import Path
 from typing import Dict, FrozenSet, Iterable, List, Optional, Sequence, Set, Tuple
 
@@ -260,6 +261,16 @@ def budget_constant_name(project: str) -> str:
     return "MAX_UNREACHABLE_" + re.sub(r"[^A-Za-z0-9]+", "_", stem).upper()
 
 
+#: The furthest ahead a `PINS_ON_UNREACHABLE_MODULES` row may be dated.
+#:
+#: An expiry field nothing bounds is an expiry field someone writes 2099 into,
+#: and this repository has the version of that defect where the required field
+#: was never read at all. `evaluate` fails on a row past its date and on a row
+#: dated further out than this, so the registry has to be re-argued rather than
+#: renewed once. Watched in `cap_ratchet.WATCHES` like every other bound here.
+MAX_REGISTRATION_DAYS = 180
+
+
 @dataclass(frozen=True)
 class PinOnUnreachableModule:
     """A cap_ratchet pin standing on a module nothing loads, and the argument for it.
@@ -280,14 +291,178 @@ class PinOnUnreachableModule:
 
 #: Registered pairings, one path at a time.
 #:
-#: Every row below is the *defect*, recorded rather than waived: a money number
-#: guarded at an exact value inside a file no entrypoint reaches. The right
-#: resolution for each is either to wire the module into the checkout path it
-#: was written for, or to delete it and drop its pin — both of which lower
+#: Every row below is the *defect*, recorded rather than waived: a number
+#: `cap_ratchet` guards at an exact value, inside a file no entrypoint reaches.
+#: Each was checked individually — the module read, and every importer of it
+#: listed — and in all fifteen cases the file has exactly one importer and that
+#: importer is its own test. A blanket "print-atelier lib is dead" entry would
+#: have been shorter and would have stopped saying anything the moment one of
+#: them got wired up.
+#:
+#: The right resolution for each is either to wire the module into the money
+#: path it was written for, or to delete it with its pin — both of which lower
 #: `MAX_UNREACHABLE_PRINT_ATELIER` and shorten this list in the same diff.
 #: Until one of those happens the pairing is at least visible, which is more
-#: than the PASS line said before.
-PINS_ON_UNREACHABLE_MODULES: Tuple[PinOnUnreachableModule, ...] = ()
+#: than `cap_ratchet`'s PASS line said before.
+_UNWIRED = (
+    "its only importer is its own test suite, so the pinned number is a spend control over a "
+    "calculation no request reaches"
+)
+
+PINS_ON_UNREACHABLE_MODULES: Tuple[PinOnUnreachableModule, ...] = (
+    PinOnUnreachableModule(
+        path="ventures/print-atelier/src/lib/art-fair-presale-catalog.ts",
+        owner="duncan",
+        expires="2027-02-13",
+        why=(
+            "tiers VIP collectors and prices presale offers, producing `presalePriceUsd` and a "
+            f"projected presale revenue; {_UNWIRED}. No page or route imports it"
+        ),
+    ),
+    PinOnUnreachableModule(
+        path="ventures/print-atelier/src/lib/art-glass-degradation.ts",
+        owner="duncan",
+        expires="2027-02-13",
+        why=(
+            "models UV/lux degradation of glazing and carries no currency field at all, so what "
+            "cap_ratchet holds here is a physical constant that reached the money census by "
+            f"sitting in the same directory; {_UNWIRED}"
+        ),
+    ),
+    PinOnUnreachableModule(
+        path="ventures/print-atelier/src/lib/b2b-trade-calculator.ts",
+        owner="duncan",
+        expires="2027-02-13",
+        why=(
+            "resolves a trade tier from annual spend and quotes `totalTradePriceUsd`, beside the "
+            "reachable `b2b-trade.ts` whose `MIN_PLATFORM_NET_MARGIN_PCT` is separately watched — "
+            f"two B2B pricing engines, one of them live; {_UNWIRED}"
+        ),
+    ),
+    PinOnUnreachableModule(
+        path="ventures/print-atelier/src/lib/capi-dedup-reporter.ts",
+        owner="duncan",
+        expires="2027-02-13",
+        why=(
+            "scores Meta CAPI event match quality against an in-memory store that no server "
+            f"process instantiates, so the deduplication rate it reports is of nothing; {_UNWIRED}"
+        ),
+    ),
+    PinOnUnreachableModule(
+        path="ventures/print-atelier/src/lib/channel-budget-plans.ts",
+        owner="duncan",
+        expires="2027-02-13",
+        why=(
+            "the file this repository already recorded once as the dead allocator sitting beside "
+            "the live `marketplace.ts` one. It still plans weekly per-channel ad spend into "
+            f"localStorage and is still reached by nothing; {_UNWIRED}"
+        ),
+    ),
+    PinOnUnreachableModule(
+        path="ventures/print-atelier/src/lib/corporate-art-leasing.ts",
+        owner="duncan",
+        expires="2027-02-13",
+        why=(
+            "computes `monthlyLeaseRateUsd`, a residual buyout and a deposit for corporate leases; "
+            f"there is no leasing route in `src/app` for it to be quoted from, and {_UNWIRED}"
+        ),
+    ),
+    PinOnUnreachableModule(
+        path="ventures/print-atelier/src/lib/creator-affiliate-tiers.ts",
+        owner="duncan",
+        expires="2027-02-13",
+        why=(
+            "gates creator payouts on a $50 threshold and a tax-form check and returns "
+            "`eligiblePayoutAmountCents`. Nothing calls it, so no creator has ever been paid or "
+            f"withheld by this rule; {_UNWIRED}"
+        ),
+    ),
+    PinOnUnreachableModule(
+        path="ventures/print-atelier/src/lib/framing-dynamic-pricing.ts",
+        owner="duncan",
+        expires="2027-02-13",
+        why=(
+            "prices custom framing from united inches and moulding grade to a "
+            "`suggestedRetailPriceUsd`; the checkout path prices prints through "
+            f"`marketplace.ts` and never consults this; {_UNWIRED}"
+        ),
+    ),
+    PinOnUnreachableModule(
+        path="ventures/print-atelier/src/lib/influencer-attribution.ts",
+        owner="duncan",
+        expires="2027-02-13",
+        why=(
+            "attributes order GMV to promo codes and accrues `commissionUsdCents` against a "
+            "5000-cent payout minimum; no order route calls it, so no order has ever been "
+            f"attributed; {_UNWIRED}"
+        ),
+    ),
+    PinOnUnreachableModule(
+        path="ventures/print-atelier/src/lib/payout-fx-optimizer.ts",
+        owner="duncan",
+        expires="2027-02-13",
+        why=(
+            "picks spot, batched or hedged FX per artist payout and reports the fee saving "
+            "against the unoptimised route. The payout path in `stripe-connect.ts` transfers "
+            f"without ever asking it; {_UNWIRED}"
+        ),
+    ),
+    PinOnUnreachableModule(
+        path="ventures/print-atelier/src/lib/payout-tax-ledger.ts",
+        owner="duncan",
+        expires="2027-02-13",
+        why=(
+            "applies the 1099-K/W-8BEN thresholds and backup withholding and blocks "
+            "non-compliant disbursements. This is the entry on this list with the sharpest "
+            "consequence: the withholding rule exists, is pinned, is tested, and is enforced on "
+            f"no disbursement, because {_UNWIRED}"
+        ),
+    ),
+    PinOnUnreachableModule(
+        path="ventures/print-atelier/src/lib/pod-routing-optimizer.ts",
+        owner="duncan",
+        expires="2027-02-13",
+        why=(
+            "scores print-on-demand facilities on cost, tariff and speed and reports "
+            "`costSavingsVsDefaultUsd`. Fulfilment actually routes through the reachable "
+            f"`fulfillment-cost-router.ts`, so this is the second routing engine; {_UNWIRED}"
+        ),
+    ),
+    PinOnUnreachableModule(
+        path="ventures/print-atelier/src/lib/trade-credit-inspector.ts",
+        owner="duncan",
+        expires="2027-02-13",
+        why=(
+            "sets B2B credit limits and Net-15/30/60/90 terms and authorises invoiced purchases "
+            "against `availableCreditCents`. No route authorises anything through it, so the "
+            f"credit hold it can place has never been placed; {_UNWIRED}"
+        ),
+    ),
+    PinOnUnreachableModule(
+        path="ventures/print-atelier/src/lib/wholesale-margin-optimizer.ts",
+        owner="duncan",
+        expires="2027-02-13",
+        why=(
+            "applies bulk discounts up to 32% while enforcing a 30% artist net-payout floor — a "
+            "third re-typing of the split, guarding a quote nothing issues. The live 30% is "
+            f"`marketplace.ts`'s; {_UNWIRED}"
+        ),
+    ),
+    PinOnUnreachableModule(
+        path="ventures/quick-pick-survey/src/lib/pooling.ts",
+        owner="duncan",
+        expires="2027-02-13",
+        why=(
+            "the one row here that is a decision rather than a defect: "
+            "`docs/decisions/0006-no-pooling-across-perspectives.md` records that pooling a "
+            "person's ratings across perspectives removes the egocentric-bias signal the "
+            "blind-spots screen exists to detect, so the module is deliberately not wired in. "
+            "The pin is still doing work — it keeps the unwired implementation from drifting "
+            "before that decision is revisited — and the expiry is when the decision gets "
+            "re-read, not when the wiring is due"
+        ),
+    ),
+)
 
 
 class ReachabilityError(Exception):
@@ -472,7 +647,16 @@ SPECIFIER_RE = re.compile(
     re.M | re.X,
 )
 
-COMPUTED_IMPORT_RE = re.compile(r"(?:^|[^.\w$])import\s*\(\s*(?![\"'\)])")
+#: A dynamic `import()` whose argument is not a string literal.
+#:
+#: The negative lookahead spans the whitespace itself rather than sitting after
+#: a `\s*` the engine can backtrack through. Written the other way it reported
+#: local-site-studio's Stripe webhook — which wraps a perfectly literal
+#: `await import(\n  "@/lib/email/resend"\n)` across three lines — as a computed
+#: specifier, because `\s*` gave back characters until the lookahead landed on a
+#: space. A false positive here reads as "this control cannot see part of the
+#: graph", which is an invitation to stop believing the number.
+COMPUTED_IMPORT_RE = re.compile(r"(?:^|[^.\w$])import\s*\((?!\s*[\"'\)])")
 
 BLOCK_COMMENT_RE = re.compile(r"/\*[\s\S]*?\*/")
 
@@ -725,6 +909,13 @@ def measure(repo_root: Path) -> Measurement:
     return measurement
 
 
+def _parse_expiry(value: str) -> Optional[date]:
+    try:
+        return datetime.strptime(value, "%Y-%m-%d").date()
+    except (TypeError, ValueError):
+        return None
+
+
 def pinned_paths() -> List[str]:
     """Every path `cap_ratchet` guards a number in.
 
@@ -742,9 +933,11 @@ def evaluate(
     budgets: Optional[Dict[str, int]] = None,
     registered: Sequence[PinOnUnreachableModule] = PINS_ON_UNREACHABLE_MODULES,
     pins: Optional[Sequence[str]] = None,
+    today: Optional[date] = None,
 ) -> List[Finding]:
     budgets = BUDGETS if budgets is None else budgets
     pins = pinned_paths() if pins is None else list(pins)
+    today = date.today() if today is None else today
     findings: List[Finding] = []
     projects = measurement.by_path()
 
@@ -831,6 +1024,40 @@ def evaluate(
 
     pinned = set(pins)
     for entry in registered:
+        expiry = _parse_expiry(entry.expires)
+        if expiry is None:
+            findings.append(
+                Finding(
+                    check="registration-undated",
+                    message=(
+                        f"{entry.path}: `expires` is {entry.expires!r}, which is not a "
+                        f"YYYY-MM-DD date. A row that cannot expire does not expire."
+                    ),
+                )
+            )
+        elif expiry < today:
+            findings.append(
+                Finding(
+                    check="registration-expired",
+                    message=(
+                        f"{entry.path}: the argument for pinning a number in an unreachable "
+                        f"module expired on {entry.expires} and {entry.owner} owns it. Wire the "
+                        f"module in, delete it with its pin, or re-argue the row with a new date."
+                    ),
+                )
+            )
+        elif (expiry - today).days > MAX_REGISTRATION_DAYS:
+            findings.append(
+                Finding(
+                    check="registration-too-far-out",
+                    message=(
+                        f"{entry.path}: `expires` is {entry.expires}, "
+                        f"{(expiry - today).days} days out, above MAX_REGISTRATION_DAYS "
+                        f"({MAX_REGISTRATION_DAYS}). An expiry nothing bounds is an expiry "
+                        f"someone writes 2099 into."
+                    ),
+                )
+            )
         if entry.path not in pinned:
             findings.append(
                 Finding(

@@ -686,6 +686,16 @@ WATCHES: Tuple[Watch, ...] = (
     Watch(
         path="scripts/ci/module_reachability.py",
         kind="python-constant",
+        locator="MAX_REGISTRATION_DAYS",
+        why=(
+            "the furthest ahead a row in that control's `PINS_ON_UNREACHABLE_MODULES` may be "
+            "dated. Raising it is how a registry of known defects turns into a permanent one"
+        ),
+        direction=DOWN,
+    ),
+    Watch(
+        path="scripts/ci/module_reachability.py",
+        kind="python-constant",
         locator="MAX_UNREACHABLE_AI_FIRST_MARKETS",
         why="the number of ventures/ai-first-markets source modules no entrypoint reaches",
         direction=DOWN,
