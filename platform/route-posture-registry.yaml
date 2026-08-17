@@ -64,8 +64,8 @@ ventures:
   - venture: quick-pick-survey
     contract: ventures/quick-pick-survey/src/lib/routeAuthPosture.test.ts
     execution: venture-test-gate
-    route_files: 31
-    handlers: 32
+    route_files: 32
+    handlers: 34
     owner: duncan
 
   - venture: local-site-studio

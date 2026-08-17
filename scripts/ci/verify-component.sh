@@ -56,7 +56,7 @@ case "$component" in
   range-coach)
     (
       cd "$repo_root/ventures/range-coach"
-      swift test
+      swift test --disable-sandbox
     )
     ;;
   marisstella-homepage)

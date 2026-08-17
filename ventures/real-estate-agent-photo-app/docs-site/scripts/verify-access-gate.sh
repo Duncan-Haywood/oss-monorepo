@@ -38,6 +38,8 @@ DELAY="${ACCESS_VERIFY_DELAY:-10}"
 CONTENT_MARKER="Listing Lens"
 
 url="${ACCESS_VERIFY_URL:-https://${DOCS_HOSTNAME}/}"
+probe_body="$(mktemp "${TMPDIR:-/tmp}/access-probe.XXXXXX")"
+trap 'rm -f "${probe_body}"' EXIT
 
 echo "Verifying Cloudflare Access is gating ${url} (unauthenticated request)..."
 
@@ -45,13 +47,13 @@ for attempt in $(seq 1 "${ATTEMPTS}"); do
   # Deliberately do NOT follow redirects: an Access-protected origin answers
   # an unauthenticated request with a redirect to the login domain, and we
   # want to see that redirect rather than its destination.
-  status=$(curl -sS -o /tmp/access-probe-body -w '%{http_code}' \
+  status=$(curl -sS -o "${probe_body}" -w '%{http_code}' \
     --max-time 30 "${url}" || echo "000")
   location=$(curl -sSI --max-time 30 "${url}" 2>/dev/null \
     | tr -d '\r' | awk 'tolower($1)=="location:" {print $2}' | head -1 || true)
 
   body_has_content=false
-  if grep -q "${CONTENT_MARKER}" /tmp/access-probe-body 2>/dev/null; then
+  if grep -q "${CONTENT_MARKER}" "${probe_body}" 2>/dev/null; then
     body_has_content=true
   fi
 

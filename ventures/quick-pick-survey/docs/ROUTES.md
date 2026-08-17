@@ -59,6 +59,7 @@ participant may only be read or changed by that signed-in account.
 | `auth/reset-password` | POST | none | `User`, `PasswordResetToken` | per-IP, single-use token | — |
 | `auth/signup` | POST | none | `User`, `UserSession` | 8 successful signups per IP per 15 min | unit |
 | `couple/challenge` | GET, POST | session | `CoupleChallenge` | paired couples | unit |
+| `couple/challenge/[code]` | GET, POST | GET: none, POST: session | `CoupleChallenge` | none | unit |
 | `couple/compare` | GET | session | no | — | integration |
 | `couple/create` | POST | session | `Couple` | one couple per user | integration |
 | `couple/join` | POST | session | no | claimable once, conditionally | integration |

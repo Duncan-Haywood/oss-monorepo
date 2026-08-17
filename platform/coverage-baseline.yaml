@@ -240,12 +240,12 @@ components:
     # `docs/COVERAGE-RATCHET.md`.
     baseline:
       unexercised: 57
-      lines: 55.71
-      functions: 56.50
-      branches: 47.63
+      lines: 56.40
+      functions: 57.43
+      branches: 48.60
     measured:
-      files: 114
-      lines: 4100
+      files: 118
+      lines: 4205
     tolerance:
       lines: 0.5
       functions: 0.5

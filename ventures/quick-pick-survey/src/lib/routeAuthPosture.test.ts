@@ -123,6 +123,7 @@ const POSTURE: Record<string, { posture: Posture; reason: string }> = {
   "/api/couple/join POST": { posture: "session", reason: "Attaches the caller to a couple." },
   "/api/couple/challenge POST": { posture: "session", reason: "Issues a challenge as the caller." },
   "/api/couple/challenge GET": { posture: "session", reason: "Lists the caller's challenges." },
+  "/api/couple/challenge/[code] POST": { posture: "session", reason: "Accepts a challenge on behalf of the signed-in caller's couple." },
   "/api/couple/compare GET": { posture: "session", reason: "Returns a couple comparison." },
 
   // --- Owner-scoped answering --------------------------------------------
@@ -167,6 +168,11 @@ const POSTURE: Record<string, { posture: Posture; reason: string }> = {
     posture: "public",
     reason:
       "Survey title and description for the landing screen, which has to render before anyone has identified themselves. It selects four presentational columns of a survey definition and no participant data of any kind.",
+  },
+  "/api/couple/challenge/[code] GET": {
+    posture: "public",
+    reason:
+      "Anonymous lookup of double-date challenge details (first names and deck title) so recipients can view who challenged them before authenticating or joining.",
   },
   "/api/health GET": {
     posture: "public",
