@@ -312,16 +312,11 @@ def verify_baseline(
     try:
         result = _run(["ls-remote", "--exit-code", remote, f"refs/heads/{branch}"], repo_root, timeout=timeout)
     except subprocess.TimeoutExpired:
-        if os.environ.get("BASELINE_TRUST_ALLOW_OFFLINE") == "1" or os.environ.get("SECURITY_SCAN_ALLOW_OFFLINE") == "1":
-            return BaselineTrust(
-                ref=baseline_ref,
-                remote=remote,
-                branch=branch,
-                local_sha=local_sha,
-                remote_sha=local_sha,
-                state=STATE_VERIFIED,
-                detail=f"Offline baseline verification permitted per BASELINE_TRUST_ALLOW_OFFLINE=1; assumed local tracking ref {local_sha[:12] or '(none)'}.",
-            )
+        # No offline waiver is read here, deliberately. See the module note
+        # above `verify_baseline` and `tests/test_baseline_trust_offline.py`:
+        # a waiver may excuse an *exit code*, never the answer to "did a remote
+        # answer". `STATE_UNREACHABLE` is the honest state, and it is what the
+        # four lag gates need in order to refuse rather than to read zero.
         return BaselineTrust(
             ref=baseline_ref,
             remote=remote,
@@ -348,16 +343,8 @@ def verify_baseline(
         )
 
     if result.returncode != 0:
-        if os.environ.get("BASELINE_TRUST_ALLOW_OFFLINE") == "1" or os.environ.get("SECURITY_SCAN_ALLOW_OFFLINE") == "1":
-            return BaselineTrust(
-                ref=baseline_ref,
-                remote=remote,
-                branch=branch,
-                local_sha=local_sha,
-                remote_sha=local_sha,
-                state=STATE_VERIFIED,
-                detail=f"Offline baseline verification permitted per BASELINE_TRUST_ALLOW_OFFLINE=1; assumed local tracking ref {local_sha[:12] or '(none)'}.",
-            )
+        # Same reasoning as the timeout branch above: an unanswered remote is
+        # `unreachable`, whatever the environment says.
         return BaselineTrust(
             ref=baseline_ref,
             remote=remote,
