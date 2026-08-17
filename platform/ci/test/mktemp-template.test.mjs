@@ -58,6 +58,7 @@ function git(args) {
   return execFileSync('git', ['-C', REPO_ROOT, ...args], {
     encoding: 'utf8',
     maxBuffer: 32 * 1024 * 1024,
+    env: { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1' },
   });
 }
 

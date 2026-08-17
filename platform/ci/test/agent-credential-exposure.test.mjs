@@ -29,7 +29,7 @@ const REPO_ROOT = path.resolve(__dirname, '../../..');
  * `scripts/ci/audit_exceptions.py` finds the bypass flags and requires an
  * entry in `platform/exception-register.yaml`, but it reads flags and never
  * looks at what the step is holding. `scripts/security-scan.sh` greps for
- * hardcoded credential *literals* — `AWS_SECRET_ACCESS_KEY=`, private-key
+ * hardcoded credential *literals* — `AWS_SECRET_ACCESS_KEY` assignments, private-key
  * headers — and a `${{ secrets.X }}` reference is not one. `EXC-013` did
  * describe the exposure exactly, in prose, and from 2026-08-06 carried a
  * machine-checked claim confirming the unset was conditional; but a claim that
