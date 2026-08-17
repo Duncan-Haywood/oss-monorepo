@@ -107,11 +107,23 @@ different reason. The control test holds this list and re-checks the reason.
   variables read by `src/lib/partner-credentials.ts:234-237`. They are never set
   on this cluster and their absence is exactly how the code detects "not on
   Vercel".
-- `CONVEX_URL` — its only consumer is
-  `src/lib/convex-sync-status.ts`, where the configured/unconfigured branch is
-  `isConvexConfigured ? "synced" : "synced"`. Setting it changes no behaviour.
-  The control test asserts that no-op is still there, so if Convex is ever
-  wired for real the exemption breaks rather than silently persisting.
+- `CONVEX_URL` — nothing in a running pod can observe it. Its only consumer is
+  `src/lib/convex-sync-status.ts`, and no file under
+  `ventures/print-atelier/src` references that module; it is reachable from
+  tests only. This venture has no Convex client, no `convex` dependency and no
+  `convex/` directory, so populating the key would buy nothing except flipping
+  that module from `"unconfigured"` to a `"synced"` it does not measure.
+  **Do not add it to the Secret without fixing that first.**
+
+  *Re-grounded 2026-08-17.* The reason here used to be that the module collapsed
+  both branches to the same literal, checked by a regex for
+  `isConvexConfigured ? "synced" : "synced"`. The module stopped collapsing them
+  and the check did not fire, because the comment above the corrected line
+  quotes the old expression — the predicate was matching the prose describing
+  the fix. The control now strips comments before grepping TypeScript
+  (`stripTsComments`, mirroring `strip_ts_comments` in `scripts/ci/cap_ratchet.py`)
+  and checks reachability instead, so it fires on any wiring at all, including
+  one that keeps the branches collapsed.
 
 ## Creating the Secret
 
