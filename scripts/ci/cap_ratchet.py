@@ -2038,6 +2038,182 @@ def venture_ts_sources(repo_root: Path) -> List[str]:
     return sorted(paths)
 
 
+# The venture whose split literals are censused. A census is a statement about
+# one venture's money path, so it names that venture rather than pretending to
+# be portfolio-wide and quietly covering nothing anywhere else.
+CENSUS_ROOT = "ventures/print-atelier/src"
+
+# Deliberately wider than `venture_ts_sources`, which reads `.ts`/`.tsx` only. A
+# `* 0.3` in a `.js` or `.mjs` file under the same tree pays exactly as much
+# money, and the population an enrollment contract derives should never be
+# narrower than the population the hole can appear in.
+CENSUS_SOURCE_SUFFIXES = (
+    ".ts",
+    ".tsx",
+    ".mts",
+    ".cts",
+    ".js",
+    ".jsx",
+    ".mjs",
+    ".cjs",
+)
+
+
+def census_sources(repo_root: Path) -> List[str]:
+    """Every tracked, non-test source file under the censused venture, sorted.
+
+    Read from `git ls-files` for the same reason `venture_ts_sources` is: a
+    filesystem walk in this repository has already been found counting a
+    developer's `dist/`, which makes a control's number differ between the
+    working tree and a clean clone. Tracked files are the same set everywhere.
+    """
+    out = _git(repo_root, "ls-files", "--", CENSUS_ROOT)
+    paths = []
+    for line in out.splitlines():
+        rel = line.strip()
+        if not rel.endswith(CENSUS_SOURCE_SUFFIXES):
+            continue
+        if any(part in VENTURE_SKIP_DIRS for part in rel.split("/")):
+            continue
+        if VENTURE_TEST_FILE.search(rel):
+            continue
+        paths.append(rel)
+    return sorted(paths)
+
+
+def split_literal_population(repo_root: Path) -> List[Tuple[str, int]]:
+    """Every censused-venture source carrying a split-shaped literal, and how many.
+
+    This is the population the census must cover, and it is *derived* rather
+    than listed. Until 2026-08-17 the census was a hand-written tuple of ten
+    `(file, count)` pairs, and the file's own docstring named the hole that
+    left: nothing failed when an eleventh money file appeared, because the list
+    simply did not mention it. Measured at the time of that change, ten further
+    files carried the shape and no output anywhere said so.
+
+    Counted with the census's own pattern over the census's own comment-stripped
+    body, so the population and the pins cannot disagree about what a split
+    literal is. Comments are stripped first for the reason `strip_ts_comments`
+    gives: otherwise the number depends on how well the split is documented.
+    """
+    found: List[Tuple[str, int]] = []
+    for rel in census_sources(repo_root):
+        body = strip_ts_comments((repo_root / rel).read_text(encoding="utf-8"))
+        count = len(re.findall(SPLIT_LITERAL_LOCATOR, body, re.M))
+        if count:
+            found.append((rel, count))
+    return found
+
+
+def evaluate_census_population(
+    repo_root: Path,
+    pins: Sequence[Pin] = PINS,
+    declines: Sequence[CensusDecline] = DECLINED_SPLIT_LITERALS,
+) -> List[Finding]:
+    """Refuse a split-shaped literal in a file the census does not mention.
+
+    The census pins answer "did this file's count change". They cannot answer
+    "is there a file here at all", because a pin only exists for a path someone
+    thought to write down. This answers the second question from `git ls-files`,
+    so an eleventh money file is enrolled by existing.
+
+    Both registers are checked in both directions. An unregistered member is a
+    finding; so is a register entry for a path that carries no split literal any
+    more, or none that was ever there — a fabricated decline for a file that
+    does not exist must not read as coverage. A file in both registers is a
+    register contradicting itself. And a population that collapses to nothing is
+    a passing gate, so zero is a finding too.
+    """
+    findings: List[Finding] = []
+    population = dict(split_literal_population(repo_root))
+    censused = {pin.path for pin in pins if pin.kind == "literal-census"}
+    declined = {decline.path: decline for decline in declines}
+
+    if not population:
+        findings.append(
+            Finding(
+                check="census-population-empty",
+                message=(
+                    f"the split-literal census enumerated no files at all under {CENSUS_ROOT}. "
+                    f"Fourteen copies of the 30/70 split were counted there when this control "
+                    f"was written, so an empty population means the enumeration broke — a "
+                    f"renamed directory, a changed pattern, or a `git ls-files` that returned "
+                    f"nothing — not that the venture stopped computing the split. A control "
+                    f"measuring an empty set passes forever."
+                ),
+            )
+        )
+
+    for path in sorted(population):
+        if path in censused and path in declined:
+            findings.append(
+                Finding(
+                    check="census-double-registered",
+                    message=(
+                        f"{path}: is both censused as carrying the artist split and declined as "
+                        f"not carrying it. The register contradicts itself; keep whichever is "
+                        f"true and delete the other."
+                    ),
+                )
+            )
+            continue
+        if path in censused or path in declined:
+            continue
+        findings.append(
+            Finding(
+                check="census-unenrolled",
+                message=(
+                    f"{path}: carries /{SPLIT_LITERAL_LOCATOR}/ "
+                    f"{population[path]} time(s) outside comments and the split-literal census "
+                    f"does not mention it. This is the file appearing, not its count changing, "
+                    f"so no census pin can report it. Either add it to the census in "
+                    f"scripts/ci/cap_ratchet.py (if the number is the 30/70 artist payout "
+                    f"split), or add a CensusDecline naming what the number actually is (if it "
+                    f"is not). Declining is allowed; being absent is not."
+                ),
+            )
+        )
+
+    for decline in declines:
+        if decline.path not in population:
+            findings.append(
+                Finding(
+                    check="census-decline-stale",
+                    message=(
+                        f"{decline.path}: is declined from the split-literal census, but the "
+                        f"derived population does not contain it — the file is untracked or "
+                        f"gone, or it no longer carries a split-shaped literal. It was declined "
+                        f"because it is {decline.why}. A decline for a file that is not in the "
+                        f"population excuses nothing and reads as coverage; delete it."
+                    ),
+                )
+            )
+            continue
+        seen = population[decline.path]
+        if seen != decline.count:
+            findings.append(
+                Finding(
+                    check="census-decline-count-changed",
+                    message=(
+                        f"{decline.path}: /{SPLIT_LITERAL_LOCATOR}/ occurs {seen} time(s) "
+                        f"outside comments, but {decline.count} are declined. The decline says "
+                        f"it is {decline.why}. "
+                        + (
+                            "A new occurrence is not covered by that reason — it may be a real "
+                            "split copy hiding behind a file that was excused for a different "
+                            "number. Read the new one and either census this file or restate "
+                            "the decline. "
+                            if seen > decline.count
+                            else "One of the declined occurrences is gone. "
+                        )
+                        + "A decline licenses a count, not a file."
+                    ),
+                )
+            )
+
+    return findings
+
+
 MONEY_CONSTANT_NAME = re.compile(
     r"(?:^|_)(?:STRIPE|FEE|FEES|RATE|RATES|SHARE|SPLIT|MARGIN|COMMISSION|PAYOUT"
     r"|WITHHOLDING|DISCOUNT|DEPOSIT|RESERVE|REFUND|CHARGEBACK)(?:_|$)"
@@ -2054,11 +2230,16 @@ def money_named_venture_constants(repo_root: Path) -> List[Tuple[str, str]]:
     excludes every fee and every deduction the venture applies to an artist's
     money.
 
-    This is deliberately a *derived* population, not a curated list. The census
-    of split literals it sits beside is curated, and the hole that leaves is
-    that nothing fails when an eleventh money file appears — the list simply
-    does not mention it. Enumerating from `git ls-files` means a new money
-    constant is enrolled by existing, or not at all.
+    This is deliberately a *derived* population, not a curated list.
+
+    The census of split literals it sits beside used to be the counter-example
+    here: it was curated, and the hole that left was that nothing failed when an
+    eleventh money file appeared, because the list simply did not mention it.
+    Ten such files existed, measured on 2026-08-17. Since then that census
+    derives its membership the same way, in `split_literal_population`, and a
+    file leaves it only through a `CensusDecline` that states what its number
+    is. Enumerating from `git ls-files` means a new money constant, and a new
+    money file, is enrolled by existing, or not at all.
     """
     found: List[Tuple[str, str]] = []
     for rel in venture_ts_sources(repo_root):
@@ -2519,6 +2700,7 @@ def format_report(
     measurement: Measurement,
     findings: Sequence[Finding],
     pins: Sequence[Pin] = PINS,
+    census_population: Optional[Sequence[Tuple[str, int]]] = None,
 ) -> str:
     lines = ["=== Cap ratchet ==="]
     width = max((len(f"{r.watch.path}:{r.watch.locator}") for r in measurement.readings), default=0)
@@ -2543,6 +2725,16 @@ def format_report(
         lines.append(f"  {label}  {_fmt(reading.current):>6}  [{arrow}] {state}")
     for note in measurement.notes:
         lines.append(f"NOTE: {note}")
+    if census_population is not None:
+        # Printed whether the run passes or fails: a derived population is only
+        # trustworthy if its size is visible, since the failure mode of an
+        # enumeration is to quietly return nothing.
+        censused = sum(1 for pin in pins if pin.kind == "literal-census")
+        lines.append(
+            f"NOTE: split-literal census covers {len(census_population)} derived file(s) under "
+            f"{CENSUS_ROOT} — {censused} censused as split copies, "
+            f"{len(DECLINED_SPLIT_LITERALS)} declined with a stated reason."
+        )
     lines.append("")
     if findings:
         lines.append(f"FAIL: {len(findings)} finding(s)")
@@ -2577,6 +2769,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         # money constant is the same class of event as a raised cap, and giving
         # it a separate gate would make it a separate thing to forget to run.
         findings.extend(evaluate_pins(repo_root))
+        # The census pins hold the counts of the files someone wrote down; this
+        # holds the *membership* of the census against `git ls-files`. Same exit
+        # code for the same reason: a split literal in a file nobody censused is
+        # the same event as one appearing in a file somebody did.
+        findings.extend(evaluate_census_population(repo_root))
+        census_population = split_literal_population(repo_root)
     except CapError as exc:
         if args.json:
             print(json.dumps({"error": str(exc), "ok": False, "measured": False}, indent=2))
@@ -2594,13 +2792,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                         {**asdict(r), "watch": asdict(r.watch)} for r in measurement.readings
                     ],
                     "notes": measurement.notes,
+                    "split_literal_population": [
+                        {"path": path, "count": count} for path, count in census_population
+                    ],
                     "findings": [asdict(f) for f in findings],
                 },
                 indent=2,
             )
         )
     else:
-        print(format_report(measurement, findings))
+        print(format_report(measurement, findings, census_population=census_population))
 
     if args.report:
         return 0
