@@ -794,6 +794,28 @@ _SPLIT_WHY = (
 )
 _PLATFORM_WHY = "the platform's retained share of the same net profit, which must stay the complement of the artist share"
 
+#: The shape a bare 30/70 split literal takes in source: `0.3`, `0.30`, `0.7`
+#: or `0.70`, and nothing else. The lookaround stops `0.35` and `10.3` from
+#: counting.
+#:
+#: Written once, here, because two readers need it and they must not drift:
+#: the `literal-census` pins below count occurrences with it, and
+#: `split_literal_census_population` derives *which files must be censused at
+#: all* with it. A contract that greps for a rule with its own second copy of
+#: the rule's pattern checks its copy, not the rule.
+SPLIT_LITERAL_PATTERN = r"(?<![0-9.])0\.(?:3|30|7|70)(?![0-9])"
+
+#: The tree the split census covers. Named so the scope is a value the closure
+#: contract reads, rather than a sentence in a comment that nothing compares
+#: against the pins. The split is print-atelier's artist payout; widening this
+#: to every venture would enroll unrelated `0.3`s across the portfolio.
+SPLIT_CENSUS_ROOT = "ventures/print-atelier/src/"
+
+_CENSUS_SPLIT_WHY = (
+    "the number of places this file re-types the 30/70 artist payout split as a bare "
+    "literal. A new one is a site that can drift away from every other"
+)
+
 PINS: Tuple[Pin, ...] = (
     # --- print-atelier: the 30/70 artist payout split -----------------------
     # `calculatePrintEconomics` is the canonical site: its output reaches
@@ -1044,41 +1066,126 @@ PINS: Tuple[Pin, ...] = (
             "customer's price and the base the artist's framing royalty is taken from"
         ),
     ),
-    # --- the census over every file that computes the split -----------------
+    # --- the census over every file carrying a split-shaped literal ---------
     # Mutation testing of the anchored pins above found the hole these close.
     # Copying `netProfit * 0.3` to a line that renames the variable does not
     # match an anchor keyed on `const artistShare = ...`, and renaming is
-    # exactly what the fourteen existing copies did. So each money file also
-    # declares how many times the split literal may appear in it at all.
+    # exactly what the fourteen existing copies did. So each file also declares
+    # how many times a split-shaped literal may appear in it at all.
     #
     # `value` here is a count of occurrences, not a value the code holds. The
-    # pattern deliberately matches `0.3`, `0.30`, `0.7` and `0.70` and nothing
-    # else, and comments are stripped before counting so the prose explaining
-    # the split does not inflate its own number.
+    # pattern is `SPLIT_LITERAL_PATTERN`, shared with the closure contract, and
+    # comments are stripped before counting so the prose explaining the split
+    # does not inflate its own number.
     #
-    # This is the check that fails when a fifteenth copy appears.
+    # **The heading used to read "every file that computes the split", and that
+    # was false in both directions.** The list held ten files; running its own
+    # pattern with its own comment-stripper over `git ls-files` found twenty
+    # carrying the literal, and ten of the twenty do not compute the split at
+    # all — they carry a scoring weight, an alert threshold or a sitemap
+    # priority that happens to be 0.3 or 0.7. The curated list was therefore
+    # neither complete nor the thing it said it was. Worse, the comment below
+    # it claimed "this is the check that fails when a fifteenth copy appears",
+    # and a fifteenth copy in an *unlisted* file left the gate green with
+    # byte-identical output — measured, not assumed.
+    #
+    # Both halves are fixed by enumerating instead of listing:
+    # `split_literal_census_population` derives the set of files that must be
+    # censused from `git ls-files` on every run, so a new file carrying the
+    # literal is enrolled by existing. What stays curated is only the *count*
+    # and the *reason*, which is the part a human has to look at.
+    #
+    # Because the population is now every file matching the shape rather than
+    # every file on the money path, each entry says what its own literals
+    # actually are. A shared sentence calling all twenty "the artist payout
+    # split" would put a false claim on ten of them.
     *(
         Pin(
             path=f"ventures/print-atelier/src/{rel}",
             kind="literal-census",
-            locator=r"(?<![0-9.])0\.(?:3|30|7|70)(?![0-9])",
+            locator=SPLIT_LITERAL_PATTERN,
             value=count,
-            why=(
-                "the number of places this file re-types the 30/70 artist payout split as a bare "
-                "literal. A new one is a site that can drift away from every other"
-            ),
+            why=why,
         )
-        for rel, count in (
-            ("lib/marketplace.ts", 7),
-            ("lib/stripe-connect.ts", 3),
-            ("lib/pod-routing-optimizer.ts", 1),
-            ("lib/global-pricing.ts", 1),
-            ("lib/artist-terms.ts", 1),
-            ("components/FinancialProjections.tsx", 2),
-            ("lib/b2b-trade.ts", 1),
-            ("lib/b2b-trade-calculator.ts", 1),
-            ("lib/fulfillment-cost-router.ts", 1),
-            ("lib/wholesale-margin-optimizer.ts", 1),
+        for rel, count, why in (
+            # The ten that genuinely re-type the 30/70 artist payout split.
+            ("lib/marketplace.ts", 7, _CENSUS_SPLIT_WHY),
+            ("lib/stripe-connect.ts", 3, _CENSUS_SPLIT_WHY),
+            ("lib/pod-routing-optimizer.ts", 1, _CENSUS_SPLIT_WHY),
+            ("lib/global-pricing.ts", 1, _CENSUS_SPLIT_WHY),
+            ("lib/artist-terms.ts", 1, _CENSUS_SPLIT_WHY),
+            ("components/FinancialProjections.tsx", 2, _CENSUS_SPLIT_WHY),
+            ("lib/b2b-trade.ts", 1, _CENSUS_SPLIT_WHY),
+            ("lib/b2b-trade-calculator.ts", 1, _CENSUS_SPLIT_WHY),
+            ("lib/fulfillment-cost-router.ts", 1, _CENSUS_SPLIT_WHY),
+            ("lib/wholesale-margin-optimizer.ts", 1, _CENSUS_SPLIT_WHY),
+            # The ten the curated list did not mention. None of these is the
+            # artist split today; each is censused so that a copy of the split
+            # arriving in one of them cannot hide behind a number that was
+            # already there. The count is what is held — not the meaning.
+            (
+                "lib/checkout.ts",
+                1,
+                "Stripe's fixed per-charge fee, thirty cents, whose value is separately pinned as "
+                "`STRIPE_FIXED`. The census holds the count so that a `* 0.3` split arriving in "
+                "the checkout module cannot pass as the fee that is already there",
+            ),
+            (
+                "lib/corporate-art-leasing.ts",
+                2,
+                "the discounted two-year annual lease rate and the poor-credit deposit share. Both "
+                "are money the customer pays, both are 0.30, and neither is the artist split — the "
+                "collision is exactly why this file needs a count",
+            ),
+            (
+                "lib/capi-dedup-reporter.ts",
+                2,
+                "the two match-quality alert thresholds, above which missing emails or external "
+                "ids are reported as a Conversions API problem. Not money; the count keeps a split "
+                "copy from arriving unremarked",
+            ),
+            (
+                "lib/ad-catalog.ts",
+                2,
+                "two weights in the ad-readiness composite score. They sum with a 0.4 to make 1.0, "
+                "so a change here silently re-weights the score rather than paying anyone",
+            ),
+            (
+                "lib/channel-budget-plans.ts",
+                1,
+                "the contribution margin in the *unreferenced* twin of `allocateWeeklyChannelBudget`, "
+                "which has no production caller. Censused rather than value-pinned: pinning a dead "
+                "function's number registers it as a live spend control",
+            ),
+            (
+                "lib/art-fair-presale-catalog.ts",
+                1,
+                "a weighted-conversion increment in the presale forecast, which drives a projection "
+                "rather than a payment",
+            ),
+            (
+                "lib/art-glass-degradation.ts",
+                1,
+                "the light-transmission weight in the glazing quality score, a physical-properties "
+                "coefficient that shares the shape of the split and nothing else",
+            ),
+            (
+                "lib/trade-credit-inspector.ts",
+                1,
+                "the payment multiplier applied to a trade account scoring below 70. It scales a "
+                "credit limit, so it is money-adjacent, and it is not the artist split",
+            ),
+            (
+                "lib/outreach.ts",
+                1,
+                "the confidence score above which an outreach match is graded `medium`",
+            ),
+            (
+                "lib/seo.ts",
+                1,
+                "a sitemap `priority` for the capture route, which is a crawler hint and not a "
+                "number anyone is paid from",
+            ),
         )
     ),
     # --- named venture constants that are not ratchetable -------------------
@@ -1916,6 +2023,57 @@ def money_named_venture_constants(repo_root: Path) -> List[Tuple[str, str]]:
             if MONEY_CONSTANT_NAME.search(name):
                 found.append((rel, name))
     return sorted(found)
+
+
+def split_literal_census_population(repo_root: Path) -> List[Tuple[str, int]]:
+    """Every file that must carry a `literal-census` pin, and how many hits it has.
+
+    Derived from `git ls-files` on every run, with the census's *own*
+    `SPLIT_LITERAL_PATTERN` and its *own* comment-stripper. Both of those are
+    deliberate. A contract that re-typed the pattern would check its copy of
+    the rule rather than the rule, and one that counted raw source would count
+    the paragraphs explaining the split — which is the inflation
+    `strip_ts_comments` exists to prevent, and it has to apply on both sides or
+    the two numbers cannot be compared at all.
+
+    Why derived rather than listed: the census was a hand-kept list of ten
+    files whose heading said "every file that computes the split". Running this
+    function against that list found twenty files carrying the literal, so the
+    list was 50% complete while claiming completeness, and a *fifteenth copy of
+    the split in an unlisted file left the gate green* — verified by adding one
+    and reading byte-identical output. A curated population cannot fail on the
+    member it omits; that is the whole of the defect.
+
+    Scope is `SPLIT_CENSUS_ROOT`, not every venture: the 30/70 split is
+    print-atelier's, and enrolling the portfolio's unrelated `0.3`s would buy
+    noise rather than coverage. Test sources are excluded on the same grounds
+    as every other enrollment here — a literal in a test is the test's fixture.
+    """
+    pattern = re.compile(SPLIT_LITERAL_PATTERN)
+    found: List[Tuple[str, int]] = []
+    for rel in venture_ts_sources(repo_root):
+        if not rel.startswith(SPLIT_CENSUS_ROOT):
+            continue
+        body = strip_ts_comments((repo_root / rel).read_text(encoding="utf-8"))
+        hits = len(pattern.findall(body))
+        if hits:
+            found.append((rel, hits))
+    return sorted(found)
+
+
+def split_census_pins() -> Dict[str, Pin]:
+    """The `literal-census` pins keyed by path, for comparison with the population.
+
+    Keyed on path because the closure contract asks a question about *files*:
+    which of them are censused at all. Two census pins on one path would make
+    that ambiguous, so the contract checks for duplicates separately rather
+    than letting this mapping silently drop one.
+    """
+    return {
+        pin.path: pin
+        for pin in PINS
+        if pin.kind == "literal-census" and pin.locator == SPLIT_LITERAL_PATTERN
+    }
 
 
 def source_literal_pins_declaration(locator: str, name: str) -> bool:

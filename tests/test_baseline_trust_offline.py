@@ -36,7 +36,9 @@ No test here is skipped or conditionally skipped, and none should be.
 suppression needing a registered owner and expiry.
 """
 
+import ast
 import os
+import stat
 import subprocess
 import sys
 import tempfile
@@ -49,6 +51,7 @@ if str(CI_DIR) not in sys.path:
     sys.path.insert(0, str(CI_DIR))
 
 from baseline_trust import (
+    STATE_UNREACHABLE,
     STATE_VERIFIED,
     verify_baseline,
 )
@@ -165,6 +168,168 @@ class TestUnreachableBaselineNeverVerifies(UnreachableRemoteTestCase):
             self.set_waiver(name)
         trust = verify_baseline(self.repo, "origin/main", timeout=30)
         self.assertNotEqual(trust.state, STATE_VERIFIED)
+        self.assertFalse(trust.verified)
+        self.assertNotEqual(trust.remote_sha, self.local_sha)
+
+
+class TestNoEnvironmentReadDecidesTrust(unittest.TestCase):
+    """The closure `OFFLINE_WAIVERS` cannot provide, because it is a denylist.
+
+    The comment above `OFFLINE_WAIVERS` says adding a new waiver name to the
+    product code without adding it here "is the gap this list exists to close".
+    A list of five names cannot close that gap: it is exactly the shape this
+    repository has already corrected once, where a bypass detector enumerated
+    the flags it knew and missed three of six agents. A sixth waiver called
+    anything else — `CI_ALLOW_OFFLINE_BASELINE`, `OFFLINE` — passes every
+    behavioural test above, because those tests can only set names they know.
+
+    So the rule is stated over the source instead, where it is closed: nothing
+    in `baseline_trust.py` may *branch* on an environment variable. Reading the
+    environment is still allowed where it is not a decision — `_run` copies
+    `os.environ` to hand git a `GIT_TERMINAL_PROMPT`, and must keep doing so —
+    which is why the rule is about conditions rather than about reads.
+
+    This is not hypothetical either. `39d2d89d` re-added two such conditions as
+    part of a commit titled "chore(ci): commit staged improvements across
+    workflow tooling, tests, and venture verification", and every gate that
+    could have caught it was simply not run before it landed.
+    """
+
+    #: An environment read, in the shapes Python offers.
+    def _reads_environment(self, node: ast.AST) -> bool:
+        for child in ast.walk(node):
+            # `os.environ[...]`, `os.environ.get(...)`, `environ[...]`
+            if isinstance(child, ast.Attribute) and child.attr in ("environ", "getenv"):
+                return True
+            if isinstance(child, ast.Name) and child.id in ("environ", "getenv"):
+                return True
+        return False
+
+    def test_no_condition_in_baseline_trust_reads_the_environment(self):
+        source = (CI_DIR / "baseline_trust.py").read_text(encoding="utf-8")
+        tree = ast.parse(source)
+
+        offenders = []
+        for node in ast.walk(tree):
+            tests = []
+            if isinstance(node, (ast.If, ast.While)):
+                tests = [node.test]
+            elif isinstance(node, ast.IfExp):
+                tests = [node.test]
+            elif isinstance(node, ast.comprehension):
+                tests = list(node.ifs)
+            for test in tests:
+                if self._reads_environment(test):
+                    offenders.append(f"line {getattr(test, 'lineno', '?')}")
+
+        self.assertEqual(
+            offenders,
+            [],
+            "scripts/ci/baseline_trust.py branches on an environment variable at "
+            + ", ".join(offenders)
+            + ". Whether a remote answered is not something the environment may be asked. "
+            "A waiver may excuse an exit code; it may never change this control's answer.",
+        )
+
+    def test_the_source_rule_can_actually_fail(self):
+        """A source rule that matches nothing is a passing gate.
+
+        The test above reads the real module and would pass identically if
+        `_reads_environment` were broken to always return False. This feeds it
+        the code that was removed, so a broken matcher is caught here rather
+        than the next time someone re-adds the hatch.
+        """
+        reintroduced = ast.parse(
+            'if os.environ.get("BASELINE_TRUST_ALLOW_OFFLINE") == "1":\n'
+            "    pass\n"
+        )
+        branch = next(n for n in ast.walk(reintroduced) if isinstance(n, ast.If))
+        self.assertTrue(
+            self._reads_environment(branch.test),
+            "the matcher no longer recognises the exact condition 39d2d89d added",
+        )
+
+        benign = ast.parse("env = dict(os.environ)\nif result.returncode != 0:\n    pass\n")
+        branch = next(n for n in ast.walk(benign) if isinstance(n, ast.If))
+        self.assertFalse(
+            self._reads_environment(branch.test),
+            "the matcher flags a condition that reads no environment variable",
+        )
+class HangingRemoteTestCase(UnreachableRemoteTestCase):
+    """A remote that never answers, so `ls-remote` *times out* instead of failing.
+
+    `verify_baseline` has two offline exits, not one: `subprocess.TimeoutExpired`
+    and a non-zero return code. The fixture above reaches only the second — its
+    docstring says so, and deliberately, to avoid a suite that depends on DNS
+    timing. That left the timeout branch pinned by nothing, and it is the branch
+    this fleet actually hits: pushes to the Gitea remote have been observed
+    taking 75s to connect while an unrelated request to the same host answers
+    immediately.
+
+    Measured, on 2026-08-17: re-adding the forgery to the timeout branch alone
+    left all four tests in this file green. Re-adding it to the return-code
+    branch turned two red. One of two paths was held.
+
+    `ext::` runs a local command as the transport, so the hang is produced by
+    `sleep` on this machine rather than by a network that may or may not be
+    slow today — deterministic, and no DNS. `protocol.ext.allow` is set in the
+    fixture's own repository config, never globally.
+    """
+
+    def setUp(self):
+        super().setUp()
+        helper = self.repo.parent / "never-answers.sh"
+        helper.write_text("#!/bin/sh\n# The transport for a remote that accepts and then says nothing.\nsleep 60\n")
+        helper.chmod(helper.stat().st_mode | stat.S_IEXEC)
+        self.git("config", "protocol.ext.allow", "always")
+        self.git("remote", "set-url", "origin", f"ext::{helper}")
+
+    def test_the_fixture_reaches_the_timeout_branch_and_not_the_other_one(self):
+        """Without this, the three tests below could silently be duplicates.
+
+        If `ext::` ever stops hanging — the helper is removed, the transport is
+        refused, git changes how it invokes it — `ls-remote` returns non-zero
+        instead, the fixture lands on the branch the class above already covers,
+        and these tests pass while testing nothing. The timeout branch is the
+        only exit whose detail says "did not answer within".
+        """
+        trust = verify_baseline(self.repo, "origin/main", timeout=2)
+        self.assertEqual(trust.state, STATE_UNREACHABLE, trust.detail)
+        self.assertIn("did not answer within", trust.detail)
+
+    def test_a_timing_out_remote_does_not_verify(self):
+        """The honest behaviour of the timeout branch, pinned as the reference point."""
+        trust = verify_baseline(self.repo, "origin/main", timeout=2)
+        self.assertNotEqual(trust.state, STATE_VERIFIED, trust.detail)
+        self.assertFalse(trust.verified)
+        self.assertNotEqual(trust.remote_sha, self.local_sha)
+
+    def test_no_offline_waiver_can_buy_a_verified_baseline_on_timeout(self):
+        for name in OFFLINE_WAIVERS:
+            with self.subTest(waiver=name):
+                self.set_waiver(name)
+                try:
+                    trust = verify_baseline(self.repo, "origin/main", timeout=2)
+                    self.assertNotEqual(
+                        trust.state,
+                        STATE_VERIFIED,
+                        f"{name}=1 made a remote that never answered report {STATE_VERIFIED!r}; "
+                        f"detail was {trust.detail!r}",
+                    )
+                    self.assertFalse(trust.verified, f"{name}=1 set verified on a baseline nothing answered")
+                    self.assertNotEqual(
+                        trust.remote_sha,
+                        self.local_sha,
+                        f"{name}=1 made the control adopt the local sha as the remote's answer",
+                    )
+                finally:
+                    os.environ.pop(name, None)
+
+    def test_all_offline_waivers_set_at_once_still_do_not_verify_on_timeout(self):
+        for name in OFFLINE_WAIVERS:
+            self.set_waiver(name)
+        trust = verify_baseline(self.repo, "origin/main", timeout=2)
+        self.assertNotEqual(trust.state, STATE_VERIFIED, trust.detail)
         self.assertFalse(trust.verified)
         self.assertNotEqual(trust.remote_sha, self.local_sha)
 
