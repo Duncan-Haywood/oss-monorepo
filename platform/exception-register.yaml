@@ -389,21 +389,45 @@ exceptions:
         absent:
           path: ventures/local-site-studio/.github/workflows/*-scheduled.yml
           pattern: 'runs-on:.*self-hosted'
-      cursor_key_is_live_in_the_bypassed_step:
+      # Fixed 2026-08-17, on the last provider-key exposure in the set.
+      # `cursor_key_is_live_in_the_bypassed_step` (a `precedes` predicate
+      # pinning `CURSOR_API_KEY` to within 12 lines of `ARGS=(-p --force)`) and
+      # `cursor_never_unsets_its_key` both went red on the fix, as they were
+      # shaped to, and are replaced by their successors below rather than
+      # deleted. The remedy this entry had prescribed since 2026-08-16 — a
+      # seeded auth file "the way the other five agents have one" — was already
+      # in the file: `CURSOR_CLI_CONFIG` restores `~/.cursor/cli-config.json`
+      # two steps above, and the file's own header called that the preferred
+      # path. The key was surplus on the OAuth path and granted on it anyway.
+      # `platform/ci/test/agent-credential-exposure.test.mjs` had accepted the
+      # site on the stated ground that "the step exits 1 without it", which is
+      # true of `cursor-agent-grok.yml` and was never true of this file.
+      cursor_step_holds_no_provider_key:
         sentence: >-
-          `CURSOR_API_KEY` is in the environment of the `-p --force` step
-        precedes:
-          path: ventures/local-site-studio/.github/workflows/cursor-scheduled.yml
-          after: 'ARGS=\(-p --force\)'
-          before: '^\s+CURSOR_API_KEY:\s+\$\{\{\s*secrets\.CURSOR_API_KEY\s*\}\}'
-          within: 12
-          equals: 1
-      cursor_never_unsets_its_key:
-        sentence: >-
-          there is no `unset` of it anywhere in the file
+          the Cursor workflow no longer names `CURSOR_API_KEY` in any step's
+          environment
         absent:
           path: ventures/local-site-studio/.github/workflows/cursor-scheduled.yml
-          pattern: '\bunset\s+CURSOR_API_KEY\b'
+          pattern: '^\s+CURSOR_API_KEY:\s+\$\{\{\s*secrets\.'
+      cursor_unsets_unconditionally:
+        sentence: >-
+          it clears the key before the CLI starts rather than on one auth path
+        count:
+          path: ventures/local-site-studio/.github/workflows/cursor-scheduled.yml
+          pattern: '^\s+unset CURSOR_API_KEY \|\| true\s*$'
+          equals: 1
+      cursor_seed_step_refuses_without_an_oauth_credential:
+        sentence: >-
+          its seed step fails the job when no OAuth credential is configured
+        present:
+          path: ventures/local-site-studio/.github/workflows/cursor-scheduled.yml
+          pattern: 'CURSOR_API_KEY is not accepted'
+      cursor_dispatch_workflow_still_holds_its_key:
+        sentence: >-
+          `cursor-agent-grok.yml` still holds `CURSOR_API_KEY` in its agent step
+        present:
+          path: ventures/local-site-studio/.github/workflows/cursor-agent-grok.yml
+          pattern: '^\s+CURSOR_API_KEY:\s+\$\{\{\s*secrets\.'
       codex_step_carries_no_provider_key:
         sentence: >-
           The Codex workflow puts no provider credential in the bypassed step
@@ -433,10 +457,28 @@ exceptions:
       The two workflows this entry only started covering on 2026-08-16 split the
       same way. The Codex workflow puts no provider credential in the bypassed
       step — it authenticates from a cached `auth.json` and its run step carries
-      only `GH_TOKEN`. The Cursor workflow is worse than the Claude one:
-      `CURSOR_API_KEY` is in the environment of the `-p --force` step
-      unconditionally, on every path, and there is no `unset` of it anywhere in
-      the file.
+      only `GH_TOKEN`. The Cursor workflow was worse than the Claude one:
+      `CURSOR_API_KEY` was in the environment of the `-p --force` step
+      unconditionally, on every path, with no `unset` of it anywhere in the file,
+      so unlike the Claude defect there was no branch on which it was absent.
+
+      Fixed 2026-08-17, which closes the credential half of this entry for every
+      scheduled workflow. The Cursor workflow now matches the other five: the
+      Cursor workflow no longer names `CURSOR_API_KEY` in any step's environment,
+      it clears the key before the CLI starts rather than on one auth path, and
+      its seed step fails the job when no OAuth credential is configured rather
+      than accepting a key that would travel into the bypassed process. The
+      credential is the seeded `~/.cursor/cli-config.json` the file already
+      restored from `CURSOR_CLI_CONFIG` and already called its preferred path.
+
+      One accepted site remains and it is outside this entry's glob:
+      `cursor-agent-grok.yml` still holds `CURSOR_API_KEY` in its agent step. It
+      runs only on `workflow_dispatch`, so a human is at the other end of the
+      prompt, and it has no seeded auth path at all — its own guard exits 1
+      without the key, so removing it would stop the workflow rather than harden
+      it. `platform/ci/test/agent-credential-exposure.test.mjs` carries it as the
+      single line of `KNOWN_EXPOSURES`, and the claim above keeps this paragraph
+      honest if that ever changes.
 
       What no register entry can do is keep this true of the *next* workflow, so
       `platform/ci/test/agent-credential-exposure.test.mjs` enumerates every
