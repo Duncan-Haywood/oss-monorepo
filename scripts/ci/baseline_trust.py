@@ -312,16 +312,6 @@ def verify_baseline(
     try:
         result = _run(["ls-remote", "--exit-code", remote, f"refs/heads/{branch}"], repo_root, timeout=timeout)
     except subprocess.TimeoutExpired:
-        if os.environ.get("BASELINE_TRUST_ALLOW_OFFLINE") == "1" or os.environ.get("SECURITY_SCAN_ALLOW_OFFLINE") == "1":
-            return BaselineTrust(
-                ref=baseline_ref,
-                remote=remote,
-                branch=branch,
-                local_sha=local_sha,
-                remote_sha=local_sha,
-                state=STATE_VERIFIED,
-                detail=f"Offline baseline verification permitted per BASELINE_TRUST_ALLOW_OFFLINE=1; assumed local tracking ref {local_sha[:12] or '(none)'}.",
-            )
         return BaselineTrust(
             ref=baseline_ref,
             remote=remote,
@@ -348,16 +338,6 @@ def verify_baseline(
         )
 
     if result.returncode != 0:
-        if os.environ.get("BASELINE_TRUST_ALLOW_OFFLINE") == "1" or os.environ.get("SECURITY_SCAN_ALLOW_OFFLINE") == "1":
-            return BaselineTrust(
-                ref=baseline_ref,
-                remote=remote,
-                branch=branch,
-                local_sha=local_sha,
-                remote_sha=local_sha,
-                state=STATE_VERIFIED,
-                detail=f"Offline baseline verification permitted per BASELINE_TRUST_ALLOW_OFFLINE=1; assumed local tracking ref {local_sha[:12] or '(none)'}.",
-            )
         return BaselineTrust(
             ref=baseline_ref,
             remote=remote,
