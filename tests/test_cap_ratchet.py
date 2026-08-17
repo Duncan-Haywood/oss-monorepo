@@ -973,7 +973,14 @@ class RepositoryContractTests(unittest.TestCase):
                 # existed this branched on "python or not", which would have
                 # silently expected DOWN for every TypeScript floor.
                 if watch.kind in ("python-constant", "ts-constant"):
-                    expected = DOWN if leaf.startswith(PREFIXES_MEANING_CEILING) else UP
+                    upper = leaf.upper()
+                    is_ceiling = (
+                        upper.startswith(PREFIXES_MEANING_CEILING)
+                        or "_MAX_" in upper
+                        or upper.endswith(("_MAX", "_LIMIT", "_MAX_AGE", "_MAX_AGE_SEC"))
+                        or "BUDGET" in upper
+                    )
+                    expected = DOWN if is_ceiling else UP
                 else:
                     expected = UP if leaf.startswith("min_") else DOWN
                 if (watch.path, watch.locator) in INVERTED_DIRECTIONS:
