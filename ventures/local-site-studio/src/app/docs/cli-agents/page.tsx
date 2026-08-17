@@ -149,14 +149,16 @@ export default function CliAgentsDocPage() {
         </li>
         <li>
           <code>CURSOR_CLI_CONFIG</code> — contents of{" "}
-          <code>~/.cursor/cli-config.json</code> after <code>agent login</code> (preferred
-          OAuth path). Alternatively set <code>CURSOR_API_KEY</code> from Dashboard → API
-          Keys (official CI fallback).
+          <code>~/.cursor/cli-config.json</code> after <code>agent login</code>. Required:
+          the scheduled workflow does not accept <code>CURSOR_API_KEY</code> and fails
+          without an OAuth seed. (<code>CURSOR_API_KEY</code> is still used by the
+          dispatch-only <code>cursor-agent-grok.yml</code>.)
         </li>
         <li>
           <code>CLAUDE_CODE_OAUTH_TOKEN</code> — long-lived OAuth token from{" "}
-          <code>claude setup-token</code> (preferred CI path; macOS Keychain login is not
-          portable). Fallback: <code>ANTHROPIC_API_KEY</code>. Optionally also set{" "}
+          <code>claude setup-token</code> (macOS Keychain login is not portable).
+          Required: the scheduled workflow does not accept{" "}
+          <code>ANTHROPIC_API_KEY</code>. Optionally also set{" "}
           <code>CLAUDE_CREDENTIALS_JSON</code> to the contents of Linux{" "}
           <code>~/.claude/.credentials.json</code> for file+cache restore.
         </li>
@@ -185,14 +187,15 @@ gh secret set GROK_AUTH_JSON < ~/.grok/auth.json
 # Cursor Agent
 agent login
 gh secret set CURSOR_CLI_CONFIG < ~/.cursor/cli-config.json
-# or: gh secret set CURSOR_API_KEY
+# CURSOR_API_KEY is NOT a fallback for the scheduled workflow: it runs the CLI
+# with every confirmation gate disabled, so a provider key in that step is
+# readable by the agent it supervises. Only cursor-agent-grok.yml uses it.
 
 # Claude Code (subscription OAuth for CI)
 claude setup-token
 # copy the printed token, then:
 gh secret set CLAUDE_CODE_OAUTH_TOKEN
-# or API key fallback:
-# gh secret set ANTHROPIC_API_KEY
+# ANTHROPIC_API_KEY is NOT a fallback, for the same reason.
 # optional Linux file seed:
 # gh secret set CLAUDE_CREDENTIALS_JSON < ~/.claude/.credentials.json`}</code>
       </pre>

@@ -71,11 +71,33 @@ const REPO_ROOT = path.resolve(__dirname, '../../..');
  * `KNOWN_EXPOSURES` is compared with `deepEqual`, not treated as a skip list.
  * An entry that is fixed turns this red exactly as an entry that is added
  * does, so the list can only be changed deliberately and in the same commit as
- * the code. Both entries are `cursor-agent`, whose only credential is
- * `CURSOR_API_KEY` — the step exits 1 without it, so removing it stops the
- * workflow rather than hardening it. That is a stated position, and the way to
- * clear it is to give the Cursor CLI a seeded auth file the way the other five
- * agents have one.
+ * the code.
+ *
+ * That mechanism worked and the sentence justifying the two entries did not.
+ * Until 2026-08-17 this paragraph read: "Both entries are `cursor-agent`, whose
+ * only credential is `CURSOR_API_KEY` — the step exits 1 without it, so
+ * removing it stops the workflow rather than hardening it." That is true of
+ * `cursor-agent-grok.yml`, which does exit 1 on a missing key, and false of
+ * `cursor-scheduled.yml`, which restored `~/.cursor/cli-config.json` from
+ * `CURSOR_CLI_CONFIG` two steps earlier and named the OAuth path "preferred" in
+ * its own header. The remedy the paragraph then prescribed — "give the Cursor
+ * CLI a seeded auth file the way the other five agents have one" — was already
+ * present in the file it was written about. The key was surplus on the OAuth
+ * path and granted on it anyway, and one true half of a sentence held an
+ * unattended, hourly, gates-off exposure open for a day.
+ *
+ * So the remaining entry is the dispatch-only one, and the acceptance is stated
+ * per file rather than for a pair:
+ *
+ *   * `cursor-agent-grok.yml` runs only on `workflow_dispatch`, has no seeded
+ *     auth path at all, and its own guard exits 1 when `CURSOR_API_KEY` is
+ *     unset — removing the key stops the workflow rather than hardening it.
+ *     Clear it by giving that workflow the `CURSOR_CLI_CONFIG` seed the
+ *     scheduled one uses.
+ *
+ * A justification here covers exactly one line of `KNOWN_EXPOSURES`. Generalising
+ * one file's reason across a second file is the failure this paragraph is now an
+ * example of.
  */
 
 /** The two places this repository keeps workflows. Same roots as `workflow-action-pinning.test.mjs`. */
@@ -119,7 +141,6 @@ const PROVIDER_KEY_ENV = /^([A-Z][A-Z0-9_]*API_KEY)\s*:\s*\$\{\{\s*secrets\./;
  */
 const KNOWN_EXPOSURES = [
   'ventures/local-site-studio/.github/workflows/cursor-agent-grok.yml :: Run Cursor Agent :: CURSOR_API_KEY',
-  'ventures/local-site-studio/.github/workflows/cursor-scheduled.yml :: Run Cursor Agent (headless) :: CURSOR_API_KEY',
 ];
 
 /** Every tracked workflow file, discovered from the git index rather than a walk. */
@@ -338,10 +359,29 @@ test('Agent credentials - the sweep reads every workflow, not an empty directory
     bypassed.length >= 5,
     `expected the bypass detector to find the unattended agent steps, found ${bypassed.length}`
   );
+  // The env reader must still read. This floor was a literal `>= 2` until
+  // 2026-08-17, when fixing `cursor-scheduled.yml` removed one of the repo's
+  // two provider-key steps and turned this red — the ratchet-against-the-fix
+  // shape, where the only ways out are to bump a hand-written number or to
+  // revert the fix. It is now derived: the sweep must still see at least as
+  // many key-holding steps as there are accepted exposures, so it cannot pass
+  // while the reader has gone blind to a line `KNOWN_EXPOSURES` still asserts.
   const withKeys = steps.filter((step) => providerKeysInEnv(step.text).length > 0);
   assert.ok(
-    withKeys.length >= 2,
-    `expected the env reader to find provider keys somewhere, found ${withKeys.length}`
+    withKeys.length >= KNOWN_EXPOSURES.length,
+    `the env reader found ${withKeys.length} key-holding step(s) but ${KNOWN_EXPOSURES.length} ` +
+      'exposure(s) are accepted — the reader stopped seeing a line this file still vouches for'
+  );
+
+  // Derived floors go to zero when reality does, so non-vacuity is pinned to a
+  // fixture instead: if every workflow is cleaned up, this is what still proves
+  // `providerKeysInEnv` is a function that can return something.
+  assert.deepEqual(
+    providerKeysInEnv(
+      ['        env:', '          SOME_API_KEY: ${{ secrets.SOME_API_KEY }}'].join('\n')
+    ).map(({ key }) => key),
+    ['SOME_API_KEY'],
+    'the env reader reads an env block regardless of what the repository currently holds'
   );
 });
 

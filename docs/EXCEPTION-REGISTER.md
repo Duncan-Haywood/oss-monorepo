@@ -308,24 +308,47 @@ respectively. An unattended agent cannot answer a prompt, so a scheduled run
 either bypasses the gates or does nothing. The count is 6 rather than 5 because
 Codex spells its bypass on two lines and the audit counts lines.
 
-Three open items, all recorded as checked `claims:` on the register entry so
-they cannot go stale the way this entry's compensating control did:
+The credential half of this entry is closed as of 2026-08-17. All six scheduled
+workflows now authenticate from a seeded OAuth credential file and none of them
+puts a provider API key in the environment of its bypassed step. What remains
+open is the bypass itself:
 
-1. **The Claude workflow's key handling.** It injects `ANTHROPIC_API_KEY` into
-   the environment of the bypassed step and unsets it only inside the branch
-   taken when a `CLAUDE_CODE_OAUTH_TOKEN` is *also* present. On the API-key
-   fallback path the file's own header documents, the credential is live in a
-   process running with no confirmation gates. Gemini and Grok unset their
-   provider key unconditionally and never place it in the step environment;
-   this one should match them, which means deciding whether the API-key
-   fallback is still wanted at all.
-2. **The Cursor workflow's key handling is the same defect, unconditional.**
-   `CURSOR_API_KEY` sits in the environment of the `-p --force` step on every
-   path and is never unset. Codex is the clean one: its run step carries only
-   `GH_TOKEN`.
-3. **The narrower pattern already exists.** `ventures/ubuntu-agent-server`
+1. **The narrower pattern already exists.** `ventures/ubuntu-agent-server`
    documents a per-tool allowlist. Adopting it in these five workflows is the
    remedy that removes the entry rather than renewing it.
+2. **One accepted key exposure survives, outside this entry's glob.**
+   `cursor-agent-grok.yml` holds `CURSOR_API_KEY` in a step that passes
+   `--force`. It runs only on `workflow_dispatch`, so a human is at the other
+   end, and it has no seeded auth path at all — its guard exits 1 without the
+   key. It is the single line of `KNOWN_EXPOSURES` in
+   `platform/ci/test/agent-credential-exposure.test.mjs`, and a checked claim on
+   the register entry keeps it visible.
+
+**Corrected 2026-08-17, on the Cursor key.** Until then item 2 of this list read
+"The Cursor workflow's key handling is the same defect, unconditional.
+`CURSOR_API_KEY` sits in the environment of the `-p --force` step on every path
+and is never unset." That was accurate, and being accurate is all it did. The
+register carried two claims — `cursor_key_is_live_in_the_bypassed_step` and
+`cursor_never_unsets_its_key` — that machine-checked the *description* of the
+exposure, so the gates went green for as long as the exposure was described
+correctly and would have gone red the moment anyone fixed it. Meanwhile
+`agent-credential-exposure.test.mjs` accepted the site on the stated ground that
+"the step exits 1 without it", which is true of `cursor-agent-grok.yml` and was
+never true of `cursor-scheduled.yml`: that file seeded
+`~/.cursor/cli-config.json` from `CURSOR_CLI_CONFIG` two steps above and called
+the OAuth path preferred in its own header. The remedy both documents
+prescribed — a seeded auth file "the way the other five agents have one" — was
+already in the file. Only the surplus key had to go.
+
+**Corrected 2026-08-17, on item 1.** The list above said of the Claude workflow
+that it "injects `ANTHROPIC_API_KEY` into the environment of the bypassed step",
+in the present tense, for a day after that stopped being true: the fix landed
+2026-08-16 and updated `platform/exception-register.yaml`, whose `reason` and
+`compensating_control` are the only prose `scripts/ci/register_claims.py` reads.
+This Markdown file is not in that loop. A `claims:` sentence is checked against
+the YAML entry's own text, so the narrative here can drift from the register it
+narrates without failing anything — which is the same shape as everything else
+in this section, one document further out.
 
 **Corrected 2026-08-16, count 3 → 6.** Until then this section said the glob
 covered six `*-scheduled.yml` files while `codex-scheduled.yml` and

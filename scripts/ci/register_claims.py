@@ -339,12 +339,37 @@ ENROLLED: Tuple[Enrollment, ...] = (
     Enrollment(
         register="platform/exception-register.yaml",
         entry_id="EXC-013",
-        claim="cursor_key_is_live_in_the_bypassed_step",
+        # Replaces `cursor_key_is_live_in_the_bypassed_step` and
+        # `cursor_never_unsets_its_key`, both retired 2026-08-17. Those two
+        # recorded an exposure rather than refusing it, so they went red when
+        # the exposure was fixed — the shape they were deliberately given. The
+        # sentences they quoted are gone from `reason` and
+        # `compensating_control`, which is the one condition under which the
+        # control permits their rows to be removed, so the rows go with them and
+        # the four below take their place: two on the fix, one on the seed step
+        # failing closed, one holding the remaining dispatch-only site visible.
+        claim="cursor_step_holds_no_provider_key",
+        why=(
+            "said CURSOR_API_KEY sat in the environment of the `-p --force` step "
+            "on every path with no unset anywhere in the file, which was true, "
+            "and true for a day after the register prescribed the remedy that "
+            "the file already contained"
+        ),
     ),
     Enrollment(
         register="platform/exception-register.yaml",
         entry_id="EXC-013",
-        claim="cursor_never_unsets_its_key",
+        claim="cursor_unsets_unconditionally",
+    ),
+    Enrollment(
+        register="platform/exception-register.yaml",
+        entry_id="EXC-013",
+        claim="cursor_seed_step_refuses_without_an_oauth_credential",
+    ),
+    Enrollment(
+        register="platform/exception-register.yaml",
+        entry_id="EXC-013",
+        claim="cursor_dispatch_workflow_still_holds_its_key",
     ),
     Enrollment(
         register="platform/exception-register.yaml",
