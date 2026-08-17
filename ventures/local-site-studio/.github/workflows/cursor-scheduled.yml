@@ -1,7 +1,9 @@
 name: Cursor Agent scheduled agents
 
-# Cursor Agent CLI. Prefer OAuth cli-config from `agent login`
-# (CURSOR_CLI_CONFIG → ~/.cursor/cli-config.json). Fall back to CURSOR_API_KEY.
+# Cursor Agent CLI, authenticated by OAuth cli-config from `agent login`
+# (CURSOR_CLI_CONFIG → ~/.cursor/cli-config.json).
+#
+# CURSOR_API_KEY is deliberately NOT accepted here — see the run step below.
 # Runs both repo prompts hourly (stagger :40).
 
 on:
@@ -77,21 +79,27 @@ jobs:
           restore-keys: |
             cursor-oauth-auth-
 
-      - name: Seed Cursor auth (OAuth config and/or API key)
+      - name: Seed Cursor OAuth config
         env:
           CURSOR_CLI_CONFIG: ${{ secrets.CURSOR_CLI_CONFIG }}
-          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
         run: |
           chmod +x .github/scripts/restore-oauth-auth.sh
           mkdir -p "$HOME/.cursor"
           if [ -n "${CURSOR_CLI_CONFIG:-}" ]; then
             .github/scripts/restore-oauth-auth.sh "$HOME/.cursor/cli-config.json" CURSOR_CLI_CONFIG
-          elif [ -n "${CURSOR_API_KEY:-}" ]; then
-            echo "Using CURSOR_API_KEY (no CURSOR_CLI_CONFIG OAuth seed)."
-          else
-            echo "::error::Set CURSOR_CLI_CONFIG (from ~/.cursor/cli-config.json after agent login) or CURSOR_API_KEY."
+          fi
+          # Fail here rather than let the run step start without a credential.
+          # This is the shape `claude-scheduled.yml` was moved to on 2026-08-16
+          # and the reason is the same: CURSOR_API_KEY used to satisfy this
+          # check and then travel into the `-p --force` step as the fallback
+          # credential. It no longer goes there, so accepting it here would
+          # only move the failure later and make it harder to read. The cache
+          # restore above can supply either file, so a warm run needs no secret.
+          if [ ! -s "$HOME/.cursor/cli-config.json" ] && [ ! -s "$HOME/.cursor/auth.json" ]; then
+            echo "::error::Set CURSOR_CLI_CONFIG (from ~/.cursor/cli-config.json after \`agent login\`). CURSOR_API_KEY is not accepted: this job runs the CLI with every confirmation gate disabled, so a provider key in that step is readable by the agent it is supervising."
             exit 1
           fi
+          echo "Cursor OAuth credential is present for this job."
 
       - name: Prepare prompt
         run: |
@@ -108,11 +116,24 @@ jobs:
 
       - name: Run Cursor Agent (headless)
         env:
-          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MODEL_INPUT: ${{ github.event.inputs.model || '' }}
         run: |
           set -euo pipefail
+          # No provider API key reaches this step. `-p --force` is the Cursor
+          # CLI running with every confirmation gate disabled, so anything in
+          # this environment is readable by the agent it is supervising, and a
+          # dashboard API key is a standing charge on an account rather than one
+          # repository's token. Until 2026-08-17 `CURSOR_API_KEY` sat in this
+          # `env:` unconditionally, on every path, with no `unset` anywhere in
+          # the file — worse than the Claude defect that motivated the rule,
+          # because there was no branch on which it was absent. The credential
+          # is now the seeded ~/.cursor/cli-config.json alone, and the seed step
+          # above refuses to start the job without one. The `unset` is the
+          # unconditional shape the Gemini and Grok workflows use: it is
+          # defence in depth against a repository- or organisation-level
+          # variable of the same name, which no `env:` block here would show.
+          unset CURSOR_API_KEY || true
           command -v agent || command -v cursor-agent
           AGENT_BIN="$(command -v agent || command -v cursor-agent)"
           PROMPT="$(cat "$PROMPT_FILE")"
