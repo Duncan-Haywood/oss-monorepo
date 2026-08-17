@@ -72,7 +72,9 @@ from cap_ratchet import (
     PINS,
     UNENROLLED_VENTURE_CONSTANTS,
     VENTURE_PREDICATES,
+    PINS,
     Pin,
+    SPLIT_LITERAL_PATTERN,
     declared_ts_bound_constants,
     evaluate_pins,
     extract_ts_constant,
@@ -80,6 +82,8 @@ from cap_ratchet import (
     holders_of,
     money_named_venture_constants,
     source_literal_pins_declaration,
+    split_census_pins,
+    split_literal_census_population,
     ts_module_constants,
     venture_ts_sources,
 )
@@ -1427,6 +1431,113 @@ class LiteralCensusTests(unittest.TestCase):
         self.assertEqual(evaluate_pins(self.root, [self._pin(1)]), [])
 
 
+class SplitCensusPopulationTests(unittest.TestCase):
+    """The population reader, over source written here rather than over the repo.
+
+    The closure tests above read `REPO_ROOT`, and every one of them would pass
+    unchanged if `split_literal_census_population` matched nothing at all: an
+    empty population is a subset of the census, has no stale entries, and only
+    the deliberately-placed floor notices. So the reader's behaviour is pinned
+    against synthetic trees, where the expected answer is known independently
+    of what the repository happens to contain today.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        self.addCleanup(self.tmp.cleanup)
+        init_repo(self.root)
+
+    def _add(self, rel: str, body: str) -> None:
+        write_and_commit(self.root, rel, body, f"add {rel}")
+
+    def test_a_new_file_carrying_the_literal_joins_the_population(self):
+        """The mutant that was green before this contract existed.
+
+        A fifteenth copy of the split, in a file no curated list mentions.
+        """
+        self._add(
+            "ventures/print-atelier/src/lib/artist-settlement-v2.ts",
+            """\
+            export function settleArtist(netProfit: number): number {
+              return netProfit * 0.3;
+            }
+            """,
+        )
+        self.assertEqual(
+            split_literal_census_population(self.root),
+            [("ventures/print-atelier/src/lib/artist-settlement-v2.ts", 1)],
+        )
+
+    def test_a_file_without_the_literal_stays_out(self):
+        """Otherwise every file in the venture would demand a census entry."""
+        self._add(
+            "ventures/print-atelier/src/lib/plain.ts",
+            "export const RATIO = 0.45;\nexport const OTHER = 10.3;\n",
+        )
+        self.assertEqual(split_literal_census_population(self.root), [])
+
+    def test_a_comment_only_occurrence_does_not_enroll_a_file(self):
+        """Comment stripping has to apply on the population side too.
+
+        The counter strips comments before counting; if the population reader
+        did not, a file whose only `0.3` is in a sentence explaining the split
+        would be required to carry a census entry whose declared count is zero
+        — and the two readers would disagree about the same file.
+        """
+        self._add(
+            "ventures/print-atelier/src/lib/documented.ts",
+            """\
+            // The artist takes 0.3 of net profit; this module does not compute it.
+            /* Historically 0.7 stayed with the platform. */
+            export const NAME = "documented";
+            """,
+        )
+        self.assertEqual(split_literal_census_population(self.root), [])
+
+    def test_a_test_source_does_not_enroll(self):
+        """A literal in a test is the test's fixture, as everywhere else here."""
+        self._add(
+            "ventures/print-atelier/src/lib/split.test.ts",
+            "expect(share(100)).toBe(100 * 0.3);\n",
+        )
+        self.assertEqual(split_literal_census_population(self.root), [])
+
+    def test_a_file_outside_the_census_root_does_not_enroll(self):
+        """Scope is print-atelier's source, and it is enforced rather than described."""
+        self._add(
+            "ventures/quick-pick-survey/src/lib/scoring.ts",
+            "export const WEIGHT = 0.3;\n",
+        )
+        self.assertEqual(split_literal_census_population(self.root), [])
+
+    def test_the_count_is_the_number_of_occurrences(self):
+        """The population reports hits, so a mismatch names the right number."""
+        self._add(
+            "ventures/print-atelier/src/lib/many.ts",
+            """\
+            export const a = net * 0.3;
+            export const b = net * 0.70;
+            export const c = net * 0.35;
+            """,
+        )
+        self.assertEqual(
+            split_literal_census_population(self.root),
+            [("ventures/print-atelier/src/lib/many.ts", 2)],
+        )
+
+    def test_an_untracked_file_does_not_enroll(self):
+        """`git ls-files`, not a filesystem walk.
+
+        A control that walked the tree would enroll a developer's scratch file
+        and report a different population in a clean clone.
+        """
+        target = self.root / "ventures/print-atelier/src/lib/scratch.ts"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text("export const s = net * 0.3;\n", encoding="utf-8")
+        self.assertEqual(split_literal_census_population(self.root), [])
+
+
 class VentureEnrollmentContractTests(unittest.TestCase):
     """Watched, pinned, or registered — over the live repository.
 
@@ -1518,6 +1629,100 @@ class VentureEnrollmentContractTests(unittest.TestCase):
             any("print-atelier" in path for path, _ in population),
             "the enumeration no longer reaches the venture that takes payments",
         )
+
+    def test_every_file_carrying_a_split_literal_is_censused(self):
+        """The census's population, derived rather than curated.
+
+        The list this closes was ten hand-kept files under a heading reading
+        "every file that computes the split", beside a comment promising "this
+        is the check that fails when a fifteenth copy appears". Measured at
+        `609fcea7`: twenty files carried the literal, so the list was half the
+        population while claiming all of it, and adding a new file containing
+        `netProfit * 0.3` left `cap_ratchet.py` at EXIT=0 with byte-identical
+        output. A curated population cannot fail on the member it omits.
+        """
+        censused = split_census_pins()
+        uncensused = [
+            f"{path} ({hits} hit(s))"
+            for path, hits in split_literal_census_population(REPO_ROOT)
+            if path not in censused
+        ]
+        self.assertEqual(
+            uncensused,
+            [],
+            "These carry a split-shaped literal and no `literal-census` pin declares how many, "
+            "so a copy of the 30/70 artist split arriving here would be invisible. Add each to "
+            "the census in scripts/ci/cap_ratchet.py with a count and a reason saying what its "
+            "literals actually are: " + ", ".join(uncensused),
+        )
+
+    def test_no_census_pin_names_a_file_without_the_literal(self):
+        """The closure's other direction: a census entry that no longer measures anything.
+
+        `evaluate_pins` already fails a censused file whose count moves — but a
+        pin naming a *deleted* or now-literal-free file reads as coverage while
+        measuring nothing, which is how a register comes to describe a repository
+        it no longer matches.
+        """
+        population = {path for path, _ in split_literal_census_population(REPO_ROOT)}
+        stale = sorted(path for path in split_census_pins() if path not in population)
+        self.assertEqual(
+            stale,
+            [],
+            "These have a `literal-census` pin and no longer carry a split-shaped literal (or are "
+            "no longer tracked). Remove the entry in the same diff as the change that emptied it: "
+            + ", ".join(stale),
+        )
+
+    def test_the_census_population_actually_finds_something(self):
+        """A derived population that collapses to nothing is a passing gate.
+
+        Same floor reasoning as the money enumeration above: set below the
+        population at the time of writing so ordinary deletions do not trip it,
+        and far above zero so a broken reader does. Without this, deleting
+        `SPLIT_CENSUS_ROOT`'s contents — or breaking `venture_ts_sources` —
+        turns both closure directions green.
+        """
+        population = split_literal_census_population(REPO_ROOT)
+        self.assertGreater(
+            len(population), 12, "the split-literal census enumeration collapsed"
+        )
+
+    def test_every_census_pin_uses_the_shared_pattern(self):
+        """One pattern, read by the counter and by the population reader.
+
+        `split_census_pins` matches on `locator == SPLIT_LITERAL_PATTERN`, so a
+        census pin written with a hand-typed copy of the pattern would drop out
+        of the closure silently — it would still be counted by `evaluate_pins`
+        and would no longer be recognised as covering its file, and the closure
+        would then demand a second pin for a file that already has one.
+        """
+        divergent = sorted(
+            f"{pin.path}: {pin.locator}"
+            for pin in PINS
+            if pin.kind == "literal-census" and pin.locator != SPLIT_LITERAL_PATTERN
+        )
+        self.assertEqual(
+            divergent,
+            [],
+            "A `literal-census` pin must use SPLIT_LITERAL_PATTERN so the counter and the closure "
+            "read the same rule: " + ", ".join(divergent),
+        )
+
+    def test_no_file_is_censused_twice(self):
+        """Two census pins on one path make "is this file censused" ambiguous.
+
+        `split_census_pins` is a dict keyed by path and would silently keep the
+        last of a pair, so the closure could report coverage from an entry whose
+        count is never the one being enforced.
+        """
+        paths = [
+            pin.path
+            for pin in PINS
+            if pin.kind == "literal-census" and pin.locator == SPLIT_LITERAL_PATTERN
+        ]
+        duplicated = sorted({path for path in paths if paths.count(path) > 1})
+        self.assertEqual(duplicated, [], "censused twice: " + ", ".join(duplicated))
 
     def test_no_money_named_constant_is_held_twice(self):
         """A constant both pinned and excused is a register disagreeing with itself.
