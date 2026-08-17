@@ -69,12 +69,19 @@ from cap_ratchet import (
     module_constants,
 )
 from cap_ratchet import (
+    CENSUS_ROOT,
+    DECLINED_SPLIT_LITERALS,
     PINS,
+    SPLIT_LITERAL_LOCATOR,
     UNENROLLED_VENTURE_CONSTANTS,
     VENTURE_PREDICATES,
+    CensusDecline,
     Pin,
+    census_sources,
     declared_ts_bound_constants,
+    evaluate_census_population,
     evaluate_pins,
+    split_literal_population,
     extract_ts_constant,
     fold_ts_number,
     holders_of,
@@ -1425,6 +1432,258 @@ class LiteralCensusTests(unittest.TestCase):
         # sit beside the split in these files and neither is it.
         self._write("const a = cost * 0.35;\nconst b = fee * 0.03;\nconst c = netProfit * 0.3;\n")
         self.assertEqual(evaluate_pins(self.root, [self._pin(1)]), [])
+
+
+class CensusPopulationTests(unittest.TestCase):
+    """Membership of the census, not the counts inside it.
+
+    The census pins above answer "did this file's count change". They are blind
+    to the event that matters just as much: a *new* file computing the split.
+    Until 2026-08-17 the population was a hand-written tuple of ten paths, so an
+    eleventh money file produced no finding anywhere — the list simply did not
+    mention it. Ten print-atelier sources were in exactly that state.
+
+    Every test here builds a real git repository, because the population is read
+    from `git ls-files` and a fixture that walked the filesystem would prove the
+    control works in a shape it never runs in.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.repo = Path(self.tmp.name)
+        self.addCleanup(self.tmp.cleanup)
+        init_repo(self.repo)
+
+    def _add(self, rel, body):
+        write_and_commit(self.repo, f"{CENSUS_ROOT}/{rel}", body, f"add {rel}")
+
+    def _pin(self, rel, count):
+        return Pin(
+            path=f"{CENSUS_ROOT}/{rel}",
+            kind="literal-census",
+            locator=SPLIT_LITERAL_LOCATOR,
+            value=count,
+            why="how many times this file re-types the split",
+        )
+
+    def _decline(self, rel, count, why="a sitemap crawler priority"):
+        return CensusDecline(path=f"{CENSUS_ROOT}/{rel}", count=count, why=why)
+
+    def test_a_censused_file_is_enrolled(self):
+        self._add("lib/a.ts", "const artistShare = netProfit * 0.3;\n")
+        self.assertEqual(
+            evaluate_census_population(self.repo, [self._pin("lib/a.ts", 1)], ()),
+            [],
+        )
+
+    def test_a_new_unenrolled_money_file_fails(self):
+        """The hole this class exists to close.
+
+        `lib/b.ts` is a file nobody wrote down. No census pin mentions it, so
+        no census pin can report it, and before this control the whole run
+        stayed green.
+        """
+        self._add("lib/a.ts", "const artistShare = netProfit * 0.3;\n")
+        self._add("lib/b.ts", "const payout = grossProfit * 0.3;\n")
+        findings = evaluate_census_population(self.repo, [self._pin("lib/a.ts", 1)], ())
+        self.assertEqual([f.check for f in findings], ["census-unenrolled"])
+        self.assertIn("lib/b.ts", findings[0].message)
+        self.assertIn("Declining is allowed", findings[0].message)
+
+    def test_a_declined_file_is_enrolled(self):
+        self._add("lib/a.ts", "const artistShare = netProfit * 0.3;\n")
+        self._add("lib/seo.ts", "const priority = 0.7;\n")
+        self.assertEqual(
+            evaluate_census_population(
+                self.repo, [self._pin("lib/a.ts", 1)], (self._decline("lib/seo.ts", 1),)
+            ),
+            [],
+        )
+
+    def test_a_decline_licenses_a_count_not_a_file(self):
+        """Otherwise a decline is a blanket exemption on the file.
+
+        A file excused for its sitemap priority must not become somewhere a
+        real split copy can be added for free. This repository has had
+        exemptions whose stated reason stayed true while the thing they excused
+        grew underneath them.
+        """
+        self._add("lib/seo.ts", "const priority = 0.7;\nconst payout = net * 0.3;\n")
+        findings = evaluate_census_population(
+            self.repo, (), (self._decline("lib/seo.ts", 1),)
+        )
+        self.assertEqual([f.check for f in findings], ["census-decline-count-changed"])
+        self.assertIn("may be a real split copy", findings[0].message)
+
+    def test_a_decline_for_a_file_that_does_not_exist_fails(self):
+        """A fabricated register entry must not read as coverage.
+
+        The failure mode is specific and has happened here: an entry is written
+        for a path nobody checks, the register looks longer, and the gate is
+        happy. The population is derived, so an entry outside it is refused.
+        """
+        self._add("lib/a.ts", "const artistShare = netProfit * 0.3;\n")
+        findings = evaluate_census_population(
+            self.repo,
+            [self._pin("lib/a.ts", 1)],
+            (self._decline("lib/invented.ts", 1),),
+        )
+        self.assertEqual([f.check for f in findings], ["census-decline-stale"])
+        self.assertIn("excuses nothing", findings[0].message)
+
+    def test_a_decline_for_a_file_that_lost_its_literal_fails(self):
+        # Same check, the other way it goes false: the file is still there and
+        # the number it was excused for is gone.
+        self._add("lib/seo.ts", "const priority = 0.9;\n")
+        self._add("lib/a.ts", "const artistShare = netProfit * 0.3;\n")
+        findings = evaluate_census_population(
+            self.repo, [self._pin("lib/a.ts", 1)], (self._decline("lib/seo.ts", 1),)
+        )
+        self.assertEqual([f.check for f in findings], ["census-decline-stale"])
+
+    def test_a_file_both_censused_and_declined_fails(self):
+        self._add("lib/a.ts", "const artistShare = netProfit * 0.3;\n")
+        findings = evaluate_census_population(
+            self.repo, [self._pin("lib/a.ts", 1)], (self._decline("lib/a.ts", 1),)
+        )
+        self.assertEqual([f.check for f in findings], ["census-double-registered"])
+
+    def test_an_empty_population_fails(self):
+        """A control measuring nothing passes forever.
+
+        This repository has shipped a `node --test` over a glob matching zero
+        files and read the exit 0 as a pass. If the enumeration ever returns
+        nothing — a renamed venture, a broken pattern — that is the bug, not a
+        clean bill of health.
+        """
+        self._add("lib/a.ts", "const nothing = 1;\n")
+        findings = evaluate_census_population(self.repo, (), ())
+        self.assertEqual([f.check for f in findings], ["census-population-empty"])
+
+    def test_untracked_files_are_not_in_the_population(self):
+        # `git ls-files`, not a filesystem walk. A scan that walked the tree
+        # here has already counted a developer's build output, which made a
+        # control's number differ between the working tree and a clean clone.
+        self._add("lib/a.ts", "const artistShare = netProfit * 0.3;\n")
+        loose = self.repo / CENSUS_ROOT / "lib" / "scratch.ts"
+        loose.write_text("const x = net * 0.3;\n", encoding="utf-8")
+        self.assertEqual(
+            [path for path, _ in split_literal_population(self.repo)],
+            [f"{CENSUS_ROOT}/lib/a.ts"],
+        )
+
+    def test_build_output_and_tests_are_not_in_the_population(self):
+        self._add("lib/a.ts", "const artistShare = netProfit * 0.3;\n")
+        self._add("dist/a.js", "const artistShare = netProfit * 0.3;\n")
+        self._add("lib/a.test.ts", "expect(netProfit * 0.3).toBe(3);\n")
+        self.assertEqual(
+            [path for path, _ in split_literal_population(self.repo)],
+            [f"{CENSUS_ROOT}/lib/a.ts"],
+        )
+
+    def test_the_source_enumeration_skips_dependencies_and_output(self):
+        # A number in `node_modules` is somebody else's number, and one in
+        # `dist/` is a copy of one already enrolled. Asserted on the enumerator
+        # itself so the exclusion is not an accident of what carries a literal.
+        self._add("lib/a.ts", "const x = 1;\n")
+        self._add("node_modules/pkg/index.ts", "const x = 1;\n")
+        self._add("dist/a.js", "const x = 1;\n")
+        self._add("lib/a.spec.tsx", "const x = 1;\n")
+        self.assertEqual(census_sources(self.repo), [f"{CENSUS_ROOT}/lib/a.ts"])
+
+    def test_a_javascript_file_is_in_the_population(self):
+        # The population is deliberately wider than `venture_ts_sources`, which
+        # reads `.ts`/`.tsx` only. A `* 0.3` in a `.mjs` file pays exactly as
+        # much money, and a derived population must never be narrower than the
+        # set the hole can appear in.
+        self._add("lib/a.ts", "const artistShare = netProfit * 0.3;\n")
+        self._add("lib/legacy.mjs", "const payout = netProfit * 0.3;\n")
+        self.assertIn(
+            f"{CENSUS_ROOT}/lib/legacy.mjs",
+            [path for path, _ in split_literal_population(self.repo)],
+        )
+
+    def test_comments_do_not_put_a_file_in_the_population(self):
+        # Same rule as the counts: otherwise documenting the split enrolls the
+        # file that documents it.
+        self._add("lib/a.ts", "const artistShare = netProfit * 0.3;\n")
+        self._add("lib/notes.ts", "// the artist takes 0.3 of net profit\nconst x = 1;\n")
+        self.assertEqual(
+            [path for path, _ in split_literal_population(self.repo)],
+            [f"{CENSUS_ROOT}/lib/a.ts"],
+        )
+
+
+class CensusRegisterContractTests(unittest.TestCase):
+    """The derived population against the live repository's two registers."""
+
+    def test_every_file_carrying_a_split_literal_is_censused_or_declined(self):
+        """The enrollment contract itself, over the real tree.
+
+        Measured on 2026-08-17: twenty tracked non-test print-atelier sources
+        carry a split-shaped literal. Ten were censused; the other ten were
+        registered nowhere and produced no output of any kind.
+        """
+        self.assertEqual(
+            evaluate_census_population(REPO_ROOT),
+            [],
+            "a print-atelier source carries a split-shaped literal and neither register "
+            "mentions it",
+        )
+
+    def test_the_census_enumeration_actually_finds_something(self):
+        # A derived population that collapses is a passing gate. The floor is
+        # set below the population at the time of writing so ordinary deletions
+        # do not trip it, and far above zero so a broken enumeration does.
+        population = split_literal_population(REPO_ROOT)
+        self.assertGreater(len(population), 12, "the split-literal enumeration collapsed")
+        self.assertTrue(
+            any(path.endswith("lib/marketplace.ts") for path, _ in population),
+            "the enumeration no longer reaches the file that computes the canonical split",
+        )
+
+    def test_every_census_pin_uses_the_shared_pattern(self):
+        """The pins and the population must mean the same thing by "split literal".
+
+        If a census pin could carry its own regex, a file could be enrolled
+        against a pattern the population enumerator does not use, and the
+        membership check would be measuring a different set from the one it
+        reports on.
+        """
+        for pin in PINS:
+            if pin.kind == "literal-census":
+                with self.subTest(path=pin.path):
+                    self.assertEqual(pin.locator, SPLIT_LITERAL_LOCATOR)
+
+    def test_every_census_pin_is_inside_the_censused_venture(self):
+        for pin in PINS:
+            if pin.kind == "literal-census":
+                with self.subTest(path=pin.path):
+                    self.assertTrue(pin.path.startswith(CENSUS_ROOT + "/"))
+
+    def test_every_decline_states_what_the_number_actually_is(self):
+        """A decline is a claim, not a checkbox.
+
+        "not the split" is not a reason; it restates the conclusion. The reason
+        has to name the quantity, so the next reader can check it rather than
+        re-derive it. Length is a crude predicate for that and is deliberately
+        paired with the count enforcement above, which is the part that cannot
+        be satisfied by prose.
+        """
+        for decline in DECLINED_SPLIT_LITERALS:
+            with self.subTest(path=decline.path):
+                self.assertGreaterEqual(
+                    len(decline.why.split()),
+                    20,
+                    f"{decline.path}: the decline reason does not say what the number is",
+                )
+                self.assertGreater(decline.count, 0, "a decline of zero occurrences is not one")
+
+    def test_no_decline_names_a_file_the_census_also_names(self):
+        censused = {pin.path for pin in PINS if pin.kind == "literal-census"}
+        for decline in DECLINED_SPLIT_LITERALS:
+            with self.subTest(path=decline.path):
+                self.assertNotIn(decline.path, censused)
 
 
 class VentureEnrollmentContractTests(unittest.TestCase):
