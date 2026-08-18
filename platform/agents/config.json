@@ -1,0 +1,52 @@
+{
+  "agent": {
+    "name": "Repo Advancement Agent",
+    "version": "1.0.0",
+    "description": "Continuous repository improvement using Deepseek Flash V4 and OpenCode"
+  },
+  "deepseek": {
+    "baseUrl": "https://api.deepseek.com",
+    "model": "deepseek-chat",
+    "temperature": 0.7,
+    "maxTokens": 4000,
+    "timeout": 30000
+  },
+  "opencode": {
+    "baseUrl": "https://api.opencode.dev",
+    "timeout": 60000
+  },
+  "planning": {
+    "maxWorkItems": 10,
+    "focusAreas": [
+      "testing",
+      "documentation",
+      "code-quality",
+      "performance",
+      "bugs",
+      "dependencies"
+    ]
+  },
+  "implementation": {
+    "maxItemsPerRun": 3,
+    "priorityStrategy": "highest-impact",
+    "effortLimit": "medium"
+  },
+  "pullRequest": {
+    "draft": false,
+    "labels": [
+      "agent:advancement",
+      "type:automation"
+    ],
+    "requestReview": false
+  },
+  "schedule": {
+    "enabled": true,
+    "cron": "0 9 * * 1",
+    "description": "Every Monday at 9 AM UTC"
+  },
+  "logging": {
+    "level": "info",
+    "format": "text",
+    "destination": "stdout"
+  }
+}
