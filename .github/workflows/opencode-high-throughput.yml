@@ -30,7 +30,7 @@ on:
       model:
         description: OpenCode model ID (cheap/fast models recommended)
         required: false
-        default: "opencode/mixtral-8x7b"
+        default: "opencode/deepseek-v4-flash"
         type: string
 
 permissions:
@@ -132,6 +132,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
         with:
-          model: ${{ github.event.inputs.model || 'opencode/mixtral-8x7b' }}
+          model: ${{ github.event.inputs.model || 'opencode/deepseek-v4-flash' }}
           prompt: ${{ steps.prompt.outputs.body }}
           use_github_token: true
