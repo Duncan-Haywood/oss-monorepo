@@ -1,0 +1,28 @@
+name: quick-pick-survey
+description: A pairwise-comparison preference engine — shown two options, pick one, and after enough picks it infers a preference ordering including unstated trade-offs.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: Teams/researchers will pay for pairwise-comparison preference surveys over traditional Likert/ranking surveys.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 30
+  protected: true
+
+kill_criteria:
+  - No external (non-founder) user runs a real survey within 90 days of deployment being stable.
+  - The Postgres-backed deployment cannot stay reliably up on Vercel for 30 consecutive days.
+
+links:
+  production: null
+  analytics: null

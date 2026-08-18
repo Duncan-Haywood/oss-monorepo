@@ -1,10 +1,17 @@
 name: OpenCode high-throughput portfolio agents
 
-# Aggressive agent fleet: 20 parallel workers per hour using cheap OpenCode model.
+# Hourly agent fleet using the cheap OpenCode model.
 # Uses OPENCODE_API_KEY secret for API-based access.
 # Each agent independently consults the portfolio router and claims work from
 # the highest-priority venture.
-
+#
+# Default agent count is 10, down from an initial default of 20, as a
+# deliberate choice to run this at a smaller scale. Note: portfolio/router/
+# has no merged implementation yet (see PR #16) — until that merges, the
+# "consult the router" step in .github/prompts/portfolio-work.md has nothing
+# real to read, so agents fall back to their own judgment. Merging #16 first
+# is recommended so allocation is actually router-driven rather than 10
+# independent guesses.
 on:
   schedule:
     - cron: "0 * * * *"  # Every hour on the hour
@@ -13,12 +20,12 @@ on:
       num_agents:
         description: Number of parallel agents to spawn
         required: false
-        default: "20"
+        default: "10"
         type: string
       model:
         description: OpenCode model ID (cheap/fast models recommended)
         required: false
-        default: "opencode/mixtral-8x7b"
+        default: "opencode/deepseek-v4-flash"
         type: string
 
 permissions:
@@ -38,11 +45,11 @@ jobs:
         env:
           NUM_AGENTS_INPUT: ${{ github.event.inputs.num_agents }}
         run: |
-          # Resolve agent count (default 20, cap at 100 to avoid resource explosion)
-          num_agents="${NUM_AGENTS_INPUT:-20}"
+          # Resolve agent count (default 10, cap at 100 to avoid resource explosion)
+          num_agents="${NUM_AGENTS_INPUT:-10}"
           if ! [[ "$num_agents" =~ ^[0-9]+$ ]]; then
-            echo "::warning::Invalid num_agents '${num_agents}', using 20"
-            num_agents=20
+            echo "::warning::Invalid num_agents '${num_agents}', using 10"
+            num_agents=10
           fi
           if (( num_agents > 100 )); then
             echo "::warning::num_agents capped at 100 (requested ${num_agents})"
@@ -63,7 +70,7 @@ jobs:
     timeout-minutes: 120
     strategy:
       fail-fast: false
-      max-parallel: 20
+      max-parallel: 10
       matrix:
         agent_id: ${{ fromJSON(needs.resolve-config.outputs.agent_ids) }}
     concurrency:
@@ -120,6 +127,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
         with:
-          model: ${{ github.event.inputs.model || 'opencode/mixtral-8x7b' }}
+          model: ${{ github.event.inputs.model || 'opencode/deepseek-v4-flash' }}
           prompt: ${{ steps.prompt.outputs.body }}
           use_github_token: true

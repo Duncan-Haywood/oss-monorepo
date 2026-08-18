@@ -26,6 +26,14 @@ change.
 Venture directories are kept cleanly bounded so a venture can be extracted
 with `git filter-repo` if it is ever sold or spun off.
 
+`mat-470-real-analysis` (private personal coursework) and
+`ubuntu-agent-server` (shared agent-hosting infra, not itself
+revenue-seeking) intentionally have no `VENTURE.yaml` — neither is a
+business the router should allocate profit-seeking effort to. Worth a
+deliberate call on whether they belong under `ventures/` at all, or should
+move to `platform/`/elsewhere; not changed here since that's a structural
+decision, not a data-entry one.
+
 ### platform/
 
 The processes that are the same across ventures: agent definitions, skills,
