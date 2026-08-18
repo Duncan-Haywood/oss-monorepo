@@ -40,3 +40,11 @@ A ranked work queue. Each entry names a venture, a task, and a spend ceiling.
 
 Not implemented. The schema and the layout come first so that ventures start
 emitting the data the router will need.
+
+**Before starting new work here, check open PRs first.** As of 2026-08-18,
+four PRs (#3, #4, #5, #6) independently added the same "fill in missing
+VENTURE.yaml" work within about a minute of each other, and none of the
+repo's 6 open PRs have merged since 2026-08-08. Right now the router's
+actual constraint isn't missing inputs — it's that nothing merges, so the
+same gaps keep looking unfilled to each new run. Merge or close the backlog
+before adding more router-input work on top of it.

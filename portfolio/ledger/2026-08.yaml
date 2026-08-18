@@ -1,0 +1,10 @@
+period: 2026-08
+entries:
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - Set out to fill in the ventures still missing VENTURE.yaml, then found four other open PRs (#3, #4, #5, #6) already doing that same work, all opened within about a minute of each other on 2026-08-18 and still unmerged - a scheduling/concurrency duplication, not a legitimate gap. Dropped the redundant work rather than opening a fifth copy.
+      - "Real finding this run: nothing has merged into main since 2026-08-08 (10 days, 6 open PRs). The portfolio's actual bottleneck right now is merge throughput, not missing router inputs - the same failure mode already flagged inside quick-pick-survey's own 42-PR backlog, now visible at the portfolio level too."
+      - Added a status note to portfolio/router/README.md flagging the backlog so the next scheduled run checks open PRs before starting new work instead of repeating this.
+    mrr_end: null
