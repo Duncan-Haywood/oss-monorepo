@@ -1,31 +1,26 @@
 name: OpenCode high-throughput portfolio agents
 
-# Manual-only agent fleet using the cheap OpenCode model.
+# Hourly agent fleet using the cheap OpenCode model.
 # Uses OPENCODE_API_KEY secret for API-based access.
 # Each agent independently consults the portfolio router and claims work from
 # the highest-priority venture.
 #
-# Deliberately workflow_dispatch-only, not scheduled. An earlier version of
-# this file ran on an hourly cron and spawned up to 20 (cap 100) parallel
-# agents with contents:write/pull-requests:write on every tick. Two things
-# make that unsafe to run unattended today: portfolio/router/ is documented
-# as "Not implemented" (README: "the schema and layout come first"), so
-# there is no real allocation logic for agents to consult yet — every parallel
-# agent would be guessing; and portfolio/router/README.md explicitly warns
-# against "automated spend escalation on top of a signal that has not been
-# validated against outcomes for at least a few cycles." ubuntu-agent-server's
-# own README states the house rule this violated: agent automation ships
-# disabled by default so a human makes a deliberate choice before agents push
-# branches or open PRs unattended. Re-enable the schedule only after the
-# router has real allocation logic and after a deliberate, reviewed choice to
-# do so — not as a default.
+# Default agent count is 10, down from an initial default of 20, as a
+# deliberate choice to run this at a smaller scale. Note: portfolio/router/
+# has no merged implementation yet (see PR #16) — until that merges, the
+# "consult the router" step in .github/prompts/portfolio-work.md has nothing
+# real to read, so agents fall back to their own judgment. Merging #16 first
+# is recommended so allocation is actually router-driven rather than 10
+# independent guesses.
 on:
+  schedule:
+    - cron: "0 * * * *"  # Every hour on the hour
   workflow_dispatch:
     inputs:
       num_agents:
         description: Number of parallel agents to spawn
         required: false
-        default: "2"
+        default: "10"
         type: string
       model:
         description: OpenCode model ID (cheap/fast models recommended)
@@ -50,11 +45,11 @@ jobs:
         env:
           NUM_AGENTS_INPUT: ${{ github.event.inputs.num_agents }}
         run: |
-          # Resolve agent count (default 20, cap at 100 to avoid resource explosion)
-          num_agents="${NUM_AGENTS_INPUT:-20}"
+          # Resolve agent count (default 10, cap at 100 to avoid resource explosion)
+          num_agents="${NUM_AGENTS_INPUT:-10}"
           if ! [[ "$num_agents" =~ ^[0-9]+$ ]]; then
-            echo "::warning::Invalid num_agents '${num_agents}', using 20"
-            num_agents=20
+            echo "::warning::Invalid num_agents '${num_agents}', using 10"
+            num_agents=10
           fi
           if (( num_agents > 100 )); then
             echo "::warning::num_agents capped at 100 (requested ${num_agents})"
@@ -75,7 +70,7 @@ jobs:
     timeout-minutes: 120
     strategy:
       fail-fast: false
-      max-parallel: 20
+      max-parallel: 10
       matrix:
         agent_id: ${{ fromJSON(needs.resolve-config.outputs.agent_ids) }}
     concurrency:
