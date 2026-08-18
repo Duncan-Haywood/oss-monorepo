@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+export GIT_CONFIG_GLOBAL="${GIT_CONFIG_GLOBAL:-/dev/null}"
+export GIT_CONFIG_NOSYSTEM="${GIT_CONFIG_NOSYSTEM:-1}"
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-/dev/null}"
+
 : "${IMAGE_DIGEST:?IMAGE_DIGEST is required}"
 : "${RELEASE_REVISION:?RELEASE_REVISION is required}"
 

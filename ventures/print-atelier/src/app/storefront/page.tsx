@@ -8,15 +8,16 @@ import { calculatePrintEconomics, catalogArtworks } from "@/lib/marketplace";
 import { Search, Heart, Image as ImageIcon } from "lucide-react";
 
 type StorefrontPageProps = {
-  searchParams?: {
+  searchParams?: Promise<{
     style?: string;
-  };
+  }>;
 };
 
-export default function StorefrontPage({ searchParams }: StorefrontPageProps) {
+export default async function StorefrontPage({ searchParams }: StorefrontPageProps) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const liveArtworks = catalogArtworks.filter((artwork) => artwork.status === "Live");
   const filters = ["All", ...Array.from(new Set(liveArtworks.map((artwork) => artwork.style)))];
-  const requestedFilter = searchParams?.style;
+  const requestedFilter = resolvedSearchParams?.style;
   const activeFilter = filters.includes(requestedFilter ?? "") ? requestedFilter ?? "All" : "All";
   const visibleArtworks =
     activeFilter === "All"

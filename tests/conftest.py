@@ -1,11 +1,11 @@
 import os
 from pathlib import Path
 
-# Ensure git commands executed during tests do not crash when ~/.gitconfig is restricted by sandbox environment.
+# Ensure git commands executed during tests do not crash when ~/.gitconfig or system config is restricted by sandbox environment.
 if "GIT_CONFIG_GLOBAL" not in os.environ:
-    try:
-        global_config = Path(os.path.expanduser("~/.gitconfig"))
-        if not os.access(global_config, os.R_OK):
-            os.environ["GIT_CONFIG_GLOBAL"] = "/dev/null"
-    except OSError:
-        os.environ["GIT_CONFIG_GLOBAL"] = "/dev/null"
+    os.environ["GIT_CONFIG_GLOBAL"] = "/dev/null"
+if "GIT_CONFIG_NOSYSTEM" not in os.environ:
+    os.environ["GIT_CONFIG_NOSYSTEM"] = "1"
+if "XDG_CONFIG_HOME" not in os.environ:
+    os.environ["XDG_CONFIG_HOME"] = "/dev/null"
+

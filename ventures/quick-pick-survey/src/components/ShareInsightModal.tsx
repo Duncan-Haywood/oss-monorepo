@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { shareTargetFrom } from "@/lib/shareTarget";
 import { recordUsage } from "@/lib/usageClient";
 
 /** The origin never changes within a session, so there is nothing to subscribe to. */
 const noSubscribe = () => () => {};
-const clientOrigin = () => window.location.origin;
+const clientOrigin = () => (typeof window !== "undefined" ? window.location.origin : "");
 /** The server has no location; `null` keeps the two renders identical. */
 const serverOrigin = () => null;
 
@@ -37,6 +37,16 @@ export function ShareInsightModal({
   const [includeScore, setIncludeScore] = useState(true);
   const [includeArchetype, setIncludeArchetype] = useState(true);
   const [copied, setCopied] = useState(false);
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+    };
+  }, []);
+
   // Read through a store rather than during render, so the server render — which
   // has no location — and the client render agree instead of mismatching on
   // hydration. There is deliberately no literal fallback here; see `shareTarget`.
@@ -60,7 +70,8 @@ export function ShareInsightModal({
     try {
       await navigator.clipboard.writeText(shareText);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+      copyTimeoutRef.current = setTimeout(() => setCopied(false), 2500);
       recordUsage("insight_shared", { domain: "couple-insight-copy", success: true });
     } catch {
       // Fallback
@@ -198,3 +209,5 @@ export function ShareInsightModal({
     </div>
   );
 }
+
+export default ShareInsightModal;

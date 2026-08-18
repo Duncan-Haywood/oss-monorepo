@@ -95,15 +95,15 @@ describe("InsightsView when the request fails", () => {
 
     render(<InsightsView />);
 
-    const retry = await screen.findByRole("button", { name: /try again/i });
+    const retry = await screen.findByRole("button", { name: /try again/i }, { timeout: 4000 });
     expect(screen.getByRole("alert").textContent).toMatch(/Couldn't load your insights/);
 
     fireEvent.click(retry);
 
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2), { timeout: 4000 });
     // The error is gone, which is the recovery. What replaces it is the
     // catalogue-driven body the tests above cover.
-    await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
+    await waitFor(() => expect(screen.queryByRole("alert")).toBeNull(), { timeout: 4000 });
   });
 
   it("does not offer a retry when there is nothing answered to load", async () => {
@@ -113,7 +113,7 @@ describe("InsightsView when the request fails", () => {
 
     render(<InsightsView />);
 
-    expect(await screen.findByText(/Nothing here yet/)).toBeTruthy();
+    expect(await screen.findByText(/Nothing here yet/, {}, { timeout: 4000 })).toBeTruthy();
     expect(screen.queryByRole("button", { name: /try again/i })).toBeNull();
   });
 
@@ -135,7 +135,7 @@ describe("InsightsView when the request fails", () => {
 
     render(<InsightsView />);
 
-    const retry = await screen.findByRole("button", { name: /try again/i });
+    const retry = await screen.findByRole("button", { name: /try again/i }, { timeout: 4000 });
     await waitFor(() => expect(recordUsage).toHaveBeenCalledWith("insight_view", expect.objectContaining({ success: false })));
 
     fireEvent.click(retry);

@@ -41,21 +41,25 @@ test('committed generated docs match a fresh build from source', () => {
     'no committed generated output found — src/generated should be committed',
   );
 
-  // Regenerate into a scratch copy so the working tree is never mutated by a
-  // test run, then restore whatever was there before.
-  const backup = fs.mkdtempSync(path.join(os.tmpdir(), 'shootflow-docs-golden-'));
-  fs.cpSync(COMMITTED, backup, { recursive: true });
+  // Regenerate into scratch copies so the working tree is never mutated by a
+  // test run.
+  const scratchGenerated = fs.mkdtempSync(path.join(os.tmpdir(), 'shootflow-docs-gen-'));
+  const scratchApp = fs.mkdtempSync(path.join(os.tmpdir(), 'shootflow-docs-app-'));
   let rebuilt;
   try {
     execFileSync(process.execPath, [path.join(__dirname, 'build-docs.mjs')], {
       cwd: SITE_ROOT,
       stdio: 'pipe',
+      env: {
+        ...process.env,
+        DOCS_GENERATED_ROOT: scratchGenerated,
+        DOCS_APP_ROOT: scratchApp,
+      },
     });
-    rebuilt = readTree(COMMITTED);
+    rebuilt = readTree(scratchGenerated);
   } finally {
-    fs.rmSync(COMMITTED, { recursive: true, force: true });
-    fs.cpSync(backup, COMMITTED, { recursive: true });
-    fs.rmSync(backup, { recursive: true, force: true });
+    fs.rmSync(scratchGenerated, { recursive: true, force: true });
+    fs.rmSync(scratchApp, { recursive: true, force: true });
   }
 
   const stale = Object.keys(committed).filter((f) => committed[f] !== rebuilt[f]);

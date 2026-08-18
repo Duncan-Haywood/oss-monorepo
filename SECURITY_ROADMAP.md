@@ -1,7 +1,7 @@
 # Security Roadmap & Vulnerability Log
 
 > **Automated Security Scanning & Governance Status**
-> - **Last Scan Execution**: `2026-08-16 22:21:40 UTC`
+> - **Last Scan Execution**: `2026-08-18 16:13:18 UTC`
 > - **CI Pipeline Scanner**: Enabled (`.gitea/workflows/security.yml`)
 > - **Audit Coverage**: 12 package(s) audited. A scan that cannot
 >   audit every package refuses to rewrite this file, so a clean dashboard always
@@ -15,7 +15,7 @@
 | Severity | Active Issues | Target SLA | Mitigation Priority |
 | :--- | :--- | :--- | :--- |
 | 🚨 **CRITICAL** | **0** | Immediate (24h) | Block Release |
-| ⚠️ **HIGH** | **18** | 7 Days | Sprint Backlog |
+| ⚠️ **HIGH** | **17** | 7 Days | Sprint Backlog |
 | 🟡 **MEDIUM** | **4** | 30 Days | Scheduled Update |
 | 🔵 **LOW** | **2** | 90 Days | Maintenance Window |
 
@@ -48,7 +48,6 @@
 | ventures/retail-pilot-intel | `nanoid` | **HIGH** | <3.3.16 | nanoid: non-secure generators can loop indefinitely with negative size | Upgrade nanoid to >=3.3.16 | [ ] Scheduled |
 | ventures/retail-pilot-intel | `nanoid` | **HIGH** | <3.3.18 | nanoid: custom generators can loop indefinitely when size is zero | Upgrade nanoid to >=3.3.18 | [ ] Scheduled |
 | ventures/retail-pilot-intel | `postcss` | **HIGH** | <=8.5.17 | PostCSS: Path Traversal in Previous Source Map Auto-Loading (sourceMappingURL) leads to Arbitrary .map File Disclosure | Upgrade postcss to >=8.5.18 | [ ] Scheduled |
-| `platform/ci/test/agent-credential-exposure.test.mjs` | Hardcoded Credential Pattern | **HIGH** | File Search | Potential hardcoded credential pattern detected | Rotate and migrate to environment variables | [ ] Action Required |
 
 ---
 

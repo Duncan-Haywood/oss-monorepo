@@ -114,6 +114,8 @@ def _git(args: Sequence[str], repo_root: Path) -> str:
     env = dict(os.environ)
     env["GIT_CONFIG_GLOBAL"] = "/dev/null"
     env["GIT_CONFIG_SYSTEM"] = "/dev/null"
+    env["GIT_CONFIG_NOSYSTEM"] = "1"
+    env["XDG_CONFIG_HOME"] = "/dev/null"
     result = subprocess.run(["git", *args], cwd=str(repo_root), capture_output=True, text=True, env=env)
     if result.returncode != 0:
         raise CollisionError(f"git {' '.join(args)} failed ({result.returncode}): {result.stderr.strip()}")

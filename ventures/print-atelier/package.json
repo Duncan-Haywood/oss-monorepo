@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build --webpack",
+    "build": "rm -rf .next && next build --webpack",
     "start": "next start",
     "test": "node --import tsx --test tests/*.test.ts",
     "typecheck": "tsc --noEmit",

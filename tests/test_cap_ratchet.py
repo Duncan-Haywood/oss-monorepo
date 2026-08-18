@@ -114,6 +114,9 @@ def platform_budget_files() -> list:
     found = {p.name for p in (REPO_ROOT / "platform").glob("*.yaml") if p.is_file()}
     env = dict(sys.modules["os"].environ)
     env["GIT_CONFIG_GLOBAL"] = "/dev/null"
+    env["GIT_CONFIG_SYSTEM"] = "/dev/null"
+    env["GIT_CONFIG_NOSYSTEM"] = "1"
+    env["XDG_CONFIG_HOME"] = "/dev/null"
     listed = subprocess.run(
         ["git", "ls-files", "platform/*.yaml"],
         cwd=REPO_ROOT,
@@ -197,6 +200,8 @@ def git(repo: Path, *args: str) -> str:
     env = dict(sys.modules["os"].environ)
     env["GIT_CONFIG_GLOBAL"] = "/dev/null"
     env["GIT_CONFIG_SYSTEM"] = "/dev/null"
+    env["GIT_CONFIG_NOSYSTEM"] = "1"
+    env["XDG_CONFIG_HOME"] = "/dev/null"
     proc = subprocess.run(
         ["git", *args],
         cwd=repo,
@@ -802,6 +807,8 @@ class FailsClosedTests(unittest.TestCase):
         env = dict(sys.modules["os"].environ)
         env["GIT_CONFIG_GLOBAL"] = "/dev/null"
         env["GIT_CONFIG_SYSTEM"] = "/dev/null"
+        env["GIT_CONFIG_NOSYSTEM"] = "1"
+        env["XDG_CONFIG_HOME"] = "/dev/null"
         with tempfile.TemporaryDirectory() as shallow_dir:
             shallow = Path(shallow_dir) / "shallow"
             subprocess.run(
@@ -939,13 +946,7 @@ class RepositoryContractTests(unittest.TestCase):
         """
         deepest = []
         for path in sorted({w.path for w in WATCHES}):
-            revisions = subprocess.run(
-                ["git", "log", "--full-history", "--format=%H", "--", path],
-                cwd=REPO_ROOT,
-                capture_output=True,
-                text=True,
-                check=True,
-            ).stdout.split()
+            revisions = git(REPO_ROOT, "log", "--full-history", "--format=%H", "--", path).split()
             deepest.append((len(revisions), path))
         deepest.sort(reverse=True)
         count, path = deepest[0]

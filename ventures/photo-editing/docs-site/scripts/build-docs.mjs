@@ -10,9 +10,10 @@ import { marked } from "marked";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DOCS_ROOT = path.resolve(__dirname, "../../docs");
-const APP_ROOT = path.resolve(__dirname, "../src/app");
-const CONTENT_ROOT = path.resolve(__dirname, "../src/generated/doc-content");
-const MANIFEST_FILE = path.resolve(__dirname, "../src/generated/manifest.ts");
+const APP_ROOT = process.env.DOCS_APP_ROOT ? path.resolve(process.env.DOCS_APP_ROOT) : path.resolve(__dirname, "../src/app");
+const GENERATED_ROOT = process.env.DOCS_GENERATED_ROOT ? path.resolve(process.env.DOCS_GENERATED_ROOT) : path.resolve(__dirname, "../src/generated");
+const CONTENT_ROOT = path.resolve(GENERATED_ROOT, "doc-content");
+const MANIFEST_FILE = path.resolve(GENERATED_ROOT, "manifest.ts");
 
 const HTML_SLUGS = {
   "commercial-viability-report.html": "commercial-viability-assessment",

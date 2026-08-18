@@ -1,39 +1,34 @@
-import Testing
+import XCTest
 @testable import RangeCoachCore
 
-@Suite("Swing detection")
-struct SwingDetectionTests {
+final class SwingDetectionTests: XCTestCase {
     private let detector = SwingDetector()
 
-    @Test("detects a motion-and-impact sequence")
-    func detectsSwing() throws {
+    func testDetectsSwing() throws {
         let event = try detector.detect(in: validSwingSamples())
 
-        #expect(event != nil)
-        #expect(event?.impactAt == 0.3)
-        #expect(event?.peakAccelerationG == 4.2)
-        #expect(event?.confidence ?? 0 >= 0.58)
+        XCTAssertNotNil(event)
+        XCTAssertEqual(event?.impactAt, 0.3)
+        XCTAssertEqual(event?.peakAccelerationG, 4.2)
+        XCTAssertGreaterThanOrEqual(event?.confidence ?? 0, 0.58)
     }
 
-    @Test("does not label ordinary movement as a swing")
-    func rejectsOrdinaryMovement() throws {
+    func testRejectsOrdinaryMovement() throws {
         let samples = (0..<8).map { index in
             sample(Double(index) / 10, acceleration: 1.1, rotation: 1.0)
         }
-        #expect(try detector.detect(in: samples) == nil)
+        XCTAssertNil(try detector.detect(in: samples))
     }
 
-    @Test("rejects an impact spike without rotation")
-    func rejectsDroppedWatch() throws {
+    func testRejectsDroppedWatch() throws {
         var samples = (0..<8).map { index in
             sample(Double(index) / 10, acceleration: 1.0, rotation: 0.3)
         }
         samples[3] = sample(0.3, acceleration: 5.0, rotation: 0.4)
-        #expect(try detector.detect(in: samples) == nil)
+        XCTAssertNil(try detector.detect(in: samples))
     }
 
-    @Test("does not fuse temporally unrelated impact and rotation peaks")
-    func rejectsSeparatedPeaks() throws {
+    func testRejectsSeparatedPeaks() throws {
         let samples = [
             sample(0.0, acceleration: 1.0, rotation: 0.2),
             sample(0.1, acceleration: 1.6, rotation: 0.5),
@@ -43,36 +38,33 @@ struct SwingDetectionTests {
             sample(0.9, acceleration: 1.4, rotation: 4.0),
             sample(1.0, acceleration: 1.0, rotation: 0.2),
         ]
-        #expect(try detector.detect(in: samples) == nil)
+        XCTAssertNil(try detector.detect(in: samples))
     }
 
-    @Test("requires enough ordered sensor evidence")
-    func validatesSamples() {
-        #expect(throws: SwingDetectionError.insufficientSamples) {
-            try detector.detect(in: Array(validSwingSamples().prefix(4)))
+    func testValidatesSamples() {
+        XCTAssertThrowsError(try detector.detect(in: Array(validSwingSamples().prefix(4)))) { error in
+            XCTAssertEqual(error as? SwingDetectionError, .insufficientSamples)
         }
         var unordered = validSwingSamples()
         unordered[4] = sample(0.2, acceleration: 1.8, rotation: 3.2)
-        #expect(throws: SwingDetectionError.nonMonotonicTimestamps) {
-            try detector.detect(in: unordered)
+        XCTAssertThrowsError(try detector.detect(in: unordered)) { error in
+            XCTAssertEqual(error as? SwingDetectionError, .nonMonotonicTimestamps)
         }
         var nonFinite = validSwingSamples()
         nonFinite[2] = sample(.nan, acceleration: 2.0, rotation: 4.0)
-        #expect(throws: SwingDetectionError.invalidSample) {
-            try detector.detect(in: nonFinite)
+        XCTAssertThrowsError(try detector.detect(in: nonFinite)) { error in
+            XCTAssertEqual(error as? SwingDetectionError, .invalidSample)
         }
-        #expect(throws: SwingDetectionError.invalidConfiguration) {
-            try SwingDetector(movementThresholdG: -1).detect(in: validSwingSamples())
+        XCTAssertThrowsError(try SwingDetector(movementThresholdG: -1).detect(in: validSwingSamples())) { error in
+            XCTAssertEqual(error as? SwingDetectionError, .invalidConfiguration)
         }
     }
 }
 
-@Suite("Coaching decisions")
-struct CoachingEngineTests {
+final class CoachingEngineTests: XCTestCase {
     private let engine = CoachingEngine()
 
-    @Test("gives only one highest-priority cue")
-    func prioritizesTempo() {
+    func testPrioritizesTempo() {
         let cue = engine.cue(
             for: swing(confidence: 0.9),
             metrics: SwingMetrics(
@@ -82,29 +74,26 @@ struct CoachingEngineTests {
                 poseConfidence: 0.95
             )
         )
-        #expect(cue == .slowBackswing(ratio: 5.0 / 3.0))
+        XCTAssertEqual(cue, .slowBackswing(ratio: 5.0 / 3.0))
     }
 
-    @Test("does not coach from low-confidence evidence")
-    func rejectsLowConfidence() {
+    func testRejectsLowConfidence() {
         let cue = engine.cue(
             for: swing(confidence: 0.4),
             metrics: SwingMetrics(backswingDuration: 0.8, downswingDuration: 0.25)
         )
-        #expect(cue == .insufficientConfidence)
+        XCTAssertEqual(cue, .insufficientConfidence)
     }
 
-    @Test("rejects non-finite metrics")
-    func rejectsNonFiniteMetrics() {
+    func testRejectsNonFiniteMetrics() {
         let cue = engine.cue(
             for: swing(confidence: 0.9),
             metrics: SwingMetrics(backswingDuration: .infinity, downswingDuration: 0.25)
         )
-        #expect(cue == .insufficientConfidence)
+        XCTAssertEqual(cue, .insufficientConfidence)
     }
 
-    @Test("ignores uncertain camera pose metrics")
-    func ignoresUncertainPose() {
+    func testIgnoresUncertainPose() {
         let cue = engine.cue(
             for: swing(confidence: 0.9),
             metrics: SwingMetrics(
@@ -114,17 +103,19 @@ struct CoachingEngineTests {
                 poseConfidence: 0.5
             )
         )
-        #expect(cue == .balancedTempo(ratio: 3.2))
+        XCTAssertEqual(cue, .balancedTempo(ratio: 3.2))
     }
 
-    @Test("spoken cues are short and actionable", arguments: [
-        CoachingCue.slowBackswing(ratio: 1.8),
-        CoachingCue.steadyHead(movementCentimeters: 12),
-        CoachingCue.balancedTempo(ratio: 3),
-        CoachingCue.insufficientConfidence,
-    ])
-    func cueLength(cue: CoachingCue) {
-        #expect(cue.spokenText.split(separator: " ").count <= 14)
+    func testCueLength() {
+        let cues: [CoachingCue] = [
+            .slowBackswing(ratio: 1.8),
+            .steadyHead(movementCentimeters: 12),
+            .balancedTempo(ratio: 3),
+            .insufficientConfidence,
+        ]
+        for cue in cues {
+            XCTAssertLessThanOrEqual(cue.spokenText.split(separator: " ").count, 14)
+        }
     }
 }
 

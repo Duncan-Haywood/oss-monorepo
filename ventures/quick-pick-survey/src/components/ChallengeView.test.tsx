@@ -274,4 +274,93 @@ describe("ChallengeView", () => {
       expect(screen.getByText(/You cannot accept your own challenge/i)).toBeDefined();
     });
   });
+
+  it("handles 500 server error on load with generic error message", async () => {
+    const mockFetch = vi.fn().mockImplementation((url: string) => {
+      if (url.includes("/api/couple/challenge/CHAL-500")) {
+        return Promise.resolve({
+          ok: false,
+          status: 500,
+          json: async () => ({ error: "Internal Server Error" }),
+        });
+      }
+      return Promise.resolve({ ok: true, status: 200, json: async () => ({ user: null }) });
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<ChallengeView code="CHAL-500" />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Failed to load challenge details/i)).toBeDefined();
+    });
+  });
+
+  it("handles network failure exception on load", async () => {
+    const mockFetch = vi.fn().mockRejectedValue(new Error("Connection refused"));
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<ChallengeView code="CHAL-NET-ERR" />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Unable to connect to Pairwise/i)).toBeDefined();
+    });
+  });
+
+  it("handles network exception during accept action", async () => {
+    const mockFetch = vi.fn().mockImplementation((url: string, opts?: RequestInit) => {
+      if (url.includes("/api/couple/challenge/CHAL-NET-ACCEPT")) {
+        if (opts?.method === "POST") {
+          return Promise.reject(new Error("Network drop during POST"));
+        }
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: async () => ({
+            inviteCode: "CHAL-NET-ACCEPT",
+            deckId: "core-values",
+            createdAt: "2026-08-01T00:00:00Z",
+            isRedeemed: false,
+            challengerNames: "Taylor & Jordan",
+            challengedNames: null,
+          }),
+        });
+      }
+      if (url.includes("/api/auth/me")) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: async () => ({
+            user: { id: "u-net", firstName: "Morgan", email: "morgan@test.com" },
+          }),
+        });
+      }
+      if (url.includes("/api/couple/compare")) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: async () => ({
+            couple: { id: "c-net", inviteCode: "INV-NET", creatorId: "u-net", joinerId: "u-p" },
+            partner: { id: "u-p", firstName: "Parker" },
+          }),
+        });
+      }
+      return Promise.reject(new Error("Unknown URL"));
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<ChallengeView code="CHAL-NET-ACCEPT" />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Accept Showdown with Taylor & Jordan/i)).toBeDefined();
+    });
+
+    const acceptBtn = screen.getByRole("button", { name: /Accept Showdown with Taylor & Jordan/i });
+    fireEvent.click(acceptBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Network error while accepting challenge/i)).toBeDefined();
+    });
+  });
 });

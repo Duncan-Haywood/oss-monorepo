@@ -1823,6 +1823,8 @@ def _git(repo_root: Path, *args: str) -> str:
     env = dict(os.environ)
     env["GIT_CONFIG_GLOBAL"] = "/dev/null"
     env["GIT_CONFIG_SYSTEM"] = "/dev/null"
+    env["GIT_CONFIG_NOSYSTEM"] = "1"
+    env["XDG_CONFIG_HOME"] = "/dev/null"
     proc = subprocess.run(
         ["git", *args],
         cwd=repo_root,
@@ -2350,6 +2352,8 @@ def blob_at(repo_root: Path, sha: str, path: str) -> Optional[str]:
     env = dict(os.environ)
     env["GIT_CONFIG_GLOBAL"] = "/dev/null"
     env["GIT_CONFIG_SYSTEM"] = "/dev/null"
+    env["GIT_CONFIG_NOSYSTEM"] = "1"
+    env["XDG_CONFIG_HOME"] = "/dev/null"
     proc = subprocess.run(
         ["git", "show", f"{sha}:{path}"],
         cwd=repo_root,

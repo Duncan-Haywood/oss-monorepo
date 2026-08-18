@@ -182,7 +182,7 @@ const ZERO_SHA = /^0+$/;
 function commitExists(rev, repoRoot = REPO_ROOT) {
   const res = spawnSync('git', ['cat-file', '-e', `${rev}^{commit}`], {
     cwd: repoRoot,
-    env: { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1' },
+    env: { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1', XDG_CONFIG_HOME: process.env.XDG_CONFIG_HOME || '/dev/null' },
     stdio: 'ignore',
   });
   return res.status === 0;
@@ -271,7 +271,7 @@ export function getChangedFiles(env = process.env, repoRoot = REPO_ROOT) {
     const output = execSync(`git diff --name-only ${range}`, {
       cwd: repoRoot,
       encoding: 'utf8',
-      env: { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1' },
+      env: { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1', XDG_CONFIG_HOME: process.env.XDG_CONFIG_HOME || '/dev/null' },
       stdio: ['pipe', 'pipe', 'ignore'],
     });
 

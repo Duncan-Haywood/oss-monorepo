@@ -22,14 +22,14 @@ describe("App pages coverage exercises", () => {
     assert.equal(typeof AdminPortal, "function");
   });
 
-  it("renders ArtistOnboardPage with default parameters", () => {
-    const element = ArtistOnboardPage({ searchParams: {} });
+  it("renders ArtistOnboardPage with default parameters", async () => {
+    const element = await ArtistOnboardPage({ searchParams: Promise.resolve({}) });
     assert.ok(element);
   });
 
-  it("renders ArtistOnboardPage with prefilled outreach parameters", () => {
-    const element = ArtistOnboardPage({
-      searchParams: { source: "outreach", handle: "alex_j", name: "Alex Jenkins" },
+  it("renders ArtistOnboardPage with prefilled outreach parameters", async () => {
+    const element = await ArtistOnboardPage({
+      searchParams: Promise.resolve({ source: "outreach", handle: "alex_j", name: "Alex Jenkins" }),
     });
     assert.ok(element);
   });

@@ -4,11 +4,12 @@ import DemoNav from "@/components/shared/DemoNav";
 import { parseArtistOnboardingDeepLinkParams } from "@/lib/artist-onboarding";
 
 type ArtistOnboardPageProps = {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default function ArtistOnboardPage({ searchParams }: ArtistOnboardPageProps) {
-  const deepLink = parseArtistOnboardingDeepLinkParams(searchParams);
+export default async function ArtistOnboardPage({ searchParams }: ArtistOnboardPageProps) {
+  const resolvedSearchParams = await searchParams;
+  const deepLink = parseArtistOnboardingDeepLinkParams(resolvedSearchParams);
 
   return (
     <div className="min-h-screen bg-stone-50 dark:bg-gray-900">

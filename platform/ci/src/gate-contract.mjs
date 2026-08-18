@@ -109,7 +109,7 @@ export function parseVerifyComponentScript(repoRoot = REPO_ROOT) {
       continue;
     }
 
-    const swiftTest = /^swift\s+test$/.exec(line);
+    const swiftTest = /^swift\s+test(?:\s+.*)?$/.exec(line);
     if (swiftTest && current.workspaceDir) {
       current.gates.push({ dir: current.workspaceDir, gate: 'test', kind: 'swift' });
       continue;
