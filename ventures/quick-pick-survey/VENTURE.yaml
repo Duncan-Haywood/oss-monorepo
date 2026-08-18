@@ -1,0 +1,28 @@
+name: quick-pick-survey
+description: Pairwise-comparison preference engine (Glicko-2 discrete items, Bradley-Terry continuous attributes) for individual and linked-couple preference ranking.
+stage: launched
+
+owner: duncan
+
+hypotheses:
+  - claim: A pairwise-comparison survey converges to a statistically reliable preference ranking within an answer count real people will actually complete.
+    status: supported
+    checked: 2026-07-28
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 20
+  protected: true
+
+kill_criteria:
+  - The pull-request merge queue documented in IMPROVEMENT-PLAN.md is not resolved by the owner (merged, or the schedule that produces it paused) within 30 days — further agent-authored branches should not be added to it until that decision is made.
+  - CI (.github/workflows/ci.yml) continues to never allocate a runner for 90+ more days with no owner action on Settings → Actions / billing.
+
+links:
+  production: null
+  analytics: null

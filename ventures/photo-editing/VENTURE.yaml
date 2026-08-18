@@ -1,0 +1,28 @@
+name: photo-editing
+description: ShootFlow — safe media ingest plus an AI-assisted grading and Instagram-deliverable pipeline for photographers and videographers.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: Photographers and videographers will pay for an automated ingest-to-deliverable pipeline that safely handles source media and produces graded, Instagram-ready output.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 30
+  protected: true
+
+kill_criteria:
+  - No real photographer or videographer runs the pipeline end-to-end on a real shoot within 90 days.
+  - The render/production pipeline cannot be trusted to run unattended without data-loss risk to source media.
+
+links:
+  production: null
+  analytics: null

@@ -1,0 +1,28 @@
+name: real-estate-agent-photo-app
+description: Listing Lens — AI-first iPhone real estate photography workflow aiming for pro-level listing media in 30 minutes.
+stage: idea
+
+owner: duncan
+
+hypotheses:
+  - claim: Mid-market real estate agents will pay for an AI-assisted iPhone photography workflow that produces MLS-ready listing media in 30 minutes.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 20
+  protected: true
+
+kill_criteria:
+  - The two highest-leverage human blockers (first concierge delivery, Phase 1 interviews — see process/blockers.ts) remain unresolved for 90+ days with all agent-doable prep work already done and waiting.
+  - Once run, the Phase 1 interviews and the first concierge delivery do not support willingness to pay.
+
+links:
+  production: null
+  analytics: null
