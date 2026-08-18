@@ -11,9 +11,10 @@ Built with Next.js 15, TypeScript, Tailwind CSS, and deployable to **Cloudflare 
 ## Features
 
 - **AI-first market map** with ripeness signals, market tiers, and winning patterns
-- **8 evaluated business ideas** across devtools, vertical SaaS, AI agents, API infrastructure, and content automation
-- **6 analytical reports**: executive summary, $100k path, $1M path, automation playbook, scoring methodology, category analysis
+- **14 evaluated business ideas** across devtools, vertical SaaS, AI agents, API infrastructure, content automation, and data products
+- **7 analytical reports**: executive summary, $100k path, $1M path, automation playbook, scoring methodology, liability and ethics screen, category analysis
 - **Scoring framework** across AI leverage, zero-employee ops, time-to-revenue, margin, defensibility, and distribution
+- **Liability and ethics screen** on every idea — regulatory exposure, data sensitivity, entity and insurance posture, mitigations, and the things the business will not do
 - **Whitelist-only access** for `duncan.andrew.haywood@gmail.com`
 - **Cloudflare deployment** ready with OpenNext adapter
 
@@ -82,20 +83,28 @@ src/
 | Path to $100k ARR | Ranked ideas for first revenue milestone |
 | Path to $1M ARR | Scaling analysis and platform distribution patterns |
 | AI + Zero-Employee Playbook | Operational stack for solo AI-first SaaS |
-| Scoring Methodology | How ideas are evaluated |
+| Scoring Methodology | How ideas are evaluated, and how ranks are derived |
+| Liability and Ethics Screen | The gate applied before economics, plus what was rejected and why |
 | Category Analysis | Comparison across idea categories |
 
 ## Top recommendations
 
 **$100k ARR (strong fit):**
-1. AI PR Review Agent
-2. AI Receptionist for Trades
-3. LinkedIn Content Engine
-
-**$1M ARR (viable+):**
-1. AI QA for E-commerce
+1. LinkedIn Content Engine
 2. AI PR Review Agent
-3. API Uptime Intelligence
+3. AI Receptionist for Trades
+4. Accessibility Conformance CI
+5. Upgrade Agent
+
+**$1M ARR (viable — nothing rates strong at this milestone):**
+1. AI QA for E-commerce
+2. AI Receptionist for Trades
+3. AI PR Review Agent
+
+Ranks are derived from the milestone weights documented in the scoring
+methodology report, not assigned by hand. Liability sits outside the score: see
+the liability and ethics screen for the tiers and for the ideas rejected before
+scoring.
 
 ## License
 

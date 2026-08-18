@@ -1,0 +1,26 @@
+# Append, do not edit. Nulls mean "not measured", which the router treats
+# differently from a measured zero.
+period: 2026-08
+entries:
+  - venture: ai-first-markets
+    # Model spend for this run was not instrumented; recording a guess would
+    # corrupt the only signal the router has. Left null until spend tracking
+    # exists.
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - Screened new software/AI business ideas against the portfolio and added
+        six that were not already represented - accessibility conformance CI,
+        an upgrade/migration agent, an MCP supply-chain scanner, a chatbot
+        disclosure monitor, an API-to-MCP gateway, and a public-record signal
+        feed.
+      - Added a liability and ethics screen to the idea schema and filled it for
+        all fourteen ideas, including the original eight.
+      - Recorded nine idea categories rejected outright (employment screening,
+        consumer legal/medical advice, companion chat, PHI tooling, money
+        movement, scraped-data products, mass outreach, synthetic likeness,
+        contractor arbitrage) so they are not re-proposed on economics alone.
+      - Ranks are now derived from stated milestone weights rather than assigned
+        by hand, which moved several earlier positions.
+      - No customer contact, no revenue, no validation of any hypothesis.
+    mrr_end: null

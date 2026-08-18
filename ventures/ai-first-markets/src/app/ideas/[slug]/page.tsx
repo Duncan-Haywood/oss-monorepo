@@ -8,6 +8,8 @@ import {
   averageScore,
   categoryLabel,
   formatArr,
+  liabilityColor,
+  liabilityLabel,
   monthsLabel,
   verdictColor,
   verdictLabel,
@@ -42,6 +44,13 @@ export default async function IdeaDetailPage({ params }: IdeaPageProps) {
           </span>
           <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-xs text-emerald-400">
             Score: {score}/100
+          </span>
+          <span
+            className={`rounded-full bg-zinc-800 px-3 py-1 text-xs ${liabilityColor(
+              idea.riskProfile.liabilityTier,
+            )}`}
+          >
+            {liabilityLabel(idea.riskProfile.liabilityTier)}
           </span>
         </div>
         <h1 className="mt-4 text-3xl font-semibold text-zinc-50 sm:text-4xl">
@@ -92,6 +101,84 @@ export default async function IdeaDetailPage({ params }: IdeaPageProps) {
                   rationale={dim.rationale}
                 />
               ))}
+            </div>
+          </Section>
+
+          <Section title="Liability and ethics screen">
+            <p className="text-sm text-zinc-500">
+              What this business is exposed to once it is running, and the
+              structural choices that keep the exposure contained. See the{" "}
+              <Link
+                href="/reports/liability-and-ethics-screen"
+                className="text-emerald-400 hover:text-emerald-300"
+              >
+                liability screen report
+              </Link>{" "}
+              for how tiers are assigned.
+            </p>
+
+            <div className="mt-4 space-y-5">
+              <div>
+                <p className="text-xs font-medium uppercase text-zinc-500">
+                  Tier
+                </p>
+                <p
+                  className={`mt-1 text-sm ${liabilityColor(idea.riskProfile.liabilityTier)}`}
+                >
+                  {liabilityLabel(idea.riskProfile.liabilityTier)}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs font-medium uppercase text-zinc-500">
+                  Regulatory exposure
+                </p>
+                <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-zinc-400">
+                  {idea.riskProfile.regulatoryExposure.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <p className="text-xs font-medium uppercase text-zinc-500">
+                  Data sensitivity
+                </p>
+                <p className="mt-2 text-sm text-zinc-400">
+                  {idea.riskProfile.dataSensitivity}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs font-medium uppercase text-zinc-500">
+                  Entity and insurance
+                </p>
+                <p className="mt-2 text-sm text-zinc-400">
+                  {idea.riskProfile.entityAndInsurance}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs font-medium uppercase text-zinc-500">
+                  Mitigations
+                </p>
+                <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-zinc-400">
+                  {idea.riskProfile.mitigations.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <p className="text-xs font-medium uppercase text-zinc-500">
+                  Will not do
+                </p>
+                <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-zinc-400">
+                  {idea.riskProfile.ethicalGuardrails.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </Section>
 

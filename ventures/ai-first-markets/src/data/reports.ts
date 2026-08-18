@@ -39,6 +39,13 @@ export const reports: ReportMeta[] = [
     type: "deep-dive",
   },
   {
+    slug: "liability-and-ethics-screen",
+    title: "Liability and Ethics Screen",
+    description:
+      "The gate every idea passes before economics are considered: what regulates it, what data it touches, what it will not do, and what was rejected outright.",
+    type: "deep-dive",
+  },
+  {
     slug: "category-analysis",
     title: "Category Analysis",
     description:

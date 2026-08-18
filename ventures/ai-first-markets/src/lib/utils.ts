@@ -1,4 +1,4 @@
-import type { BusinessIdea, ScoreDimension } from "./types";
+import type { BusinessIdea, LiabilityTier, ScoreDimension } from "./types";
 
 export function averageScore(dimensions: ScoreDimension[]): number {
   if (dimensions.length === 0) return 0;
@@ -40,6 +40,36 @@ export function verdictColor(
       return "text-rose-400";
     default: {
       const _exhaustive: never = verdict;
+      return _exhaustive;
+    }
+  }
+}
+
+export function liabilityLabel(tier: LiabilityTier): string {
+  switch (tier) {
+    case "contained":
+      return "Contained liability";
+    case "moderate":
+      return "Moderate liability";
+    case "elevated":
+      return "Elevated liability";
+    default: {
+      const _exhaustive: never = tier;
+      return _exhaustive;
+    }
+  }
+}
+
+export function liabilityColor(tier: LiabilityTier): string {
+  switch (tier) {
+    case "contained":
+      return "text-emerald-400";
+    case "moderate":
+      return "text-amber-400";
+    case "elevated":
+      return "text-rose-400";
+    default: {
+      const _exhaustive: never = tier;
       return _exhaustive;
     }
   }
