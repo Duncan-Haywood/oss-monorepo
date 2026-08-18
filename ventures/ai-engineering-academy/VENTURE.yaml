@@ -1,0 +1,28 @@
+name: ai-engineering-academy
+description: An AI-mentored, project-first engineering education platform for undergraduate/graduate-level learners.
+stage: idea
+
+owner: duncan
+
+hypotheses:
+  - claim: Motivated learners will pay for an AI-mentored, project-first alternative to lectures and exams.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 30
+  protected: true
+
+kill_criteria:
+  - The constitution in docs/ cannot be narrowed into a buildable MVP scope within 90 days.
+  - No learner (paid or free pilot) completes a single project end-to-end within 90 days of an MVP existing.
+
+links:
+  production: null
+  analytics: null
