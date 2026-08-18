@@ -232,6 +232,30 @@ run_ci_test "Route Auth-Posture Contract Coverage" python3 "${REPO_ROOT}/scripts
 # has ever held. `tests/test_cap_ratchet.py` runs the same audit under pytest,
 # so this entry is the named gate rather than the only enforcement.
 run_ci_test "Cap Ratchet" python3 "${REPO_ROOT}/scripts/ci/cap_ratchet.py"
+# The ratchet above pins money constants in thirty print-atelier files and
+# reports "87 pinned venture numbers, each at its declared value". For fourteen
+# of those files the sentence is true and about nothing: no entrypoint of the
+# application reaches them, and their only importers are their own tests. A pin
+# is a spend control, and a spend control over a function nothing calls reports
+# a posture the venture does not have — the same false-register shape this
+# venture already corrected once, when a dead `channel-budget-plans.ts`
+# allocator was found sitting beside the live `marketplace.ts` one.
+#
+# This computes, per venture, the transitive closure of static imports from the
+# roots the framework actually loads — the App Router's file conventions,
+# `proxy`/`middleware`/`instrumentation`, root configs, `public/`, `convex/`,
+# `scripts/`, and files named in `package.json` scripts — and reports every
+# tracked non-test module outside it. Test files are removed from the graph
+# rather than filtered from the answer, which is the whole measurement: 151
+# print-atelier suites import the 63 modules below, and that is why every other
+# control reads them as healthy source.
+#
+# Direct-importer scans undercount, because dead code arrives in clusters: on
+# this tree a direct scan reports 58 unreachable print-atelier lib modules and
+# the closure reports 63. `tests/test_module_reachability.py` runs the same
+# audit under pytest, so this entry is the named gate rather than the only
+# enforcement.
+run_ci_test "Module Reachability" python3 "${REPO_ROOT}/scripts/ci/module_reachability.py"
 # The ratchet above counts ventures that have no brake. This one asks what
 # happens when a brake actually fires, which until 2026-08-03 was nothing: the
 # evaluation lived in `allocate.py`, which no pipeline runs, while `router.py` —
