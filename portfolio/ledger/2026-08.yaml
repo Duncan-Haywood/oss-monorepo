@@ -138,3 +138,52 @@ entries:
         mat-470-real-analysis/ubuntu-agent-server placement; #1/#2 remain
         low-risk to review whenever convenient.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per CLAUDE.md. Two more had landed since the
+        last cycle: #36 ("Consolidate six duplicate screening PRs into a
+        candidate pipeline") and #37 (a ledger-only pass that independently
+        re-verified #36, closed the superseded #17, and re-confirmed CI is
+        broken). Both are thorough and current — re-ran only spot checks
+        rather than redoing the work: `portfolio-validate.yml` still has 0
+        runs ever; of the 12 most recent runs on `main`, 11 are
+        `startup_failure` with empty name / path `BuildFailed`, workflow_id
+        337182028, which does not match any of the 5 currently-registered
+        workflow IDs. That confirms #37's correction of the 2026-08-18
+        cycle-3 entry above, which had concluded this workflow was a
+        harmless deleted leftover — it is not: new failing runs with that
+        same orphaned ID are still being created on every push, including
+        as recently as 22:53 UTC. No GitHub MCP tool available in this
+        session exposes branch-protection / required-status-check settings
+        to confirm the likely root cause (a required check still pointing
+        at a workflow name that no longer exists), so this remains a
+        repo-settings question for the Actions/Branches tabs, not something
+        fixable from a PR.
+      - >-
+        Did not open a new candidate/screening PR or re-verify #36 a third
+        time — nothing found here supersedes #36/#37, and redoing their work
+        would repeat the exact pattern this file exists to prevent. This
+        entry is ledger-only, same category as #37. Did not touch
+        #18/#20/#27/#30/#34 (app-side content judgment call, now flagged
+        four consecutive cycles running) or #19 (second unattended agent
+        fleet) or #1/#2 (stale, low-risk, untouched by this whole thread).
+      - >-
+        Sent a push notification directly to the account owner instead of
+        only recording this in the ledger again: ledger entries and PR
+        bodies alone have now flagged the same open decisions across four
+        cycles (this one included) without a merge, a settings change, or a
+        change to the recurring task that keeps generating duplicate
+        screening PRs — the loop is not converging on its own.
+      - >-
+        Still unresolved, needs the account owner: merge #36 (or not — it is
+        verified and internal-only); fix or disable GitHub Actions
+        (repo/org Actions settings, branch protection required checks, and
+        billing/quota all unverifiable from here); change or retire the
+        recurring "research new business projects" scheduled task, the
+        actual source of the duplicate-PR storm per #36; decide on
+        #18/#20/#27/#30/#34 and #19; #1/#2 remain low-risk to review
+        whenever convenient.
+    mrr_end: null
