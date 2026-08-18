@@ -1,0 +1,28 @@
+name: retail-pilot-intel
+description: Privacy-first retail analytics (door counts + POS join) for small-format pilot stores, initial target a ~10 sqm leather boutique in Italy.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: A small-format retail pilot store will pay for door+POS conversion analytics that pays back with one extra sale per month.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 50
+  protected: true
+
+kill_criteria:
+  - No pilot store agrees to run the door+POS join in production within 90 days.
+  - The pilot store's measured conversion/revenue lift does not cover the Core subscription cost after one full pilot cycle.
+
+links:
+  production: null
+  analytics: null

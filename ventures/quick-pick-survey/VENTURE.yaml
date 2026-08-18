@@ -1,0 +1,28 @@
+name: quick-pick-survey
+description: A pairwise-comparison preference engine that infers a person's (or linked couple's) preference ordering, including trade-offs, from repeated two-option picks.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: People will complete enough pairwise comparisons to produce a usable preference ranking, and linked couples find comparing their results valuable.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 30
+  protected: true
+
+kill_criteria:
+  - No respondent completes a full survey session within 90 days of the production deploy being live.
+  - GitHub Actions CI cannot be made to run (see README) and no equivalent gate replaces it within 90 days.
+
+links:
+  production: null
+  analytics: null

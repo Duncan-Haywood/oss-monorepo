@@ -1,0 +1,28 @@
+name: print-atelier
+description: An AI-first, software-driven marketplace that digitizes physical art, sells prints via print-on-demand, and pays artists 30% of net profit.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: Artists will supply work and buyers will purchase prints through a software-first, dual-sided marketplace with automated capture, cataloging, and outreach.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 50
+  protected: true
+
+kill_criteria:
+  - No artist signs up through the outreach flow within 90 days of the artist portal being live.
+  - No print sale closes through the storefront within 90 days of launch.
+
+links:
+  production: null
+  analytics: null
