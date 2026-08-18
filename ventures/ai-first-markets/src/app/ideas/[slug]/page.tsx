@@ -9,6 +9,8 @@ import {
   categoryLabel,
   formatArr,
   monthsLabel,
+  riskColor,
+  riskLabel,
   verdictColor,
   verdictLabel,
 } from "@/lib/utils";
@@ -92,6 +94,48 @@ export default async function IdeaDetailPage({ params }: IdeaPageProps) {
                   rationale={dim.rationale}
                 />
               ))}
+            </div>
+          </Section>
+
+          <Section title="Liability and ethics">
+            <p className="mb-4 text-sm text-zinc-500">
+              Residual exposure once the listed controls are in place —{" "}
+              <span className={riskColor(idea.liability.level)}>
+                {riskLabel(idea.liability.level)}
+              </span>
+              .
+            </p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
+                <p className="text-xs font-medium uppercase tracking-wide text-rose-400">
+                  Exposures
+                </p>
+                <ul className="mt-2 list-inside list-disc space-y-1.5 text-sm text-zinc-400">
+                  {idea.liability.exposures.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
+                <p className="text-xs font-medium uppercase tracking-wide text-emerald-400">
+                  Controls
+                </p>
+                <ul className="mt-2 list-inside list-disc space-y-1.5 text-sm text-zinc-400">
+                  {idea.liability.controls.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <div className="mt-4 rounded-lg border border-zinc-800 bg-zinc-950 p-4">
+              <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+                Will not do
+              </p>
+              <ul className="mt-2 list-inside list-disc space-y-1.5 text-sm text-zinc-400">
+                {idea.liability.redLines.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
             </div>
           </Section>
 

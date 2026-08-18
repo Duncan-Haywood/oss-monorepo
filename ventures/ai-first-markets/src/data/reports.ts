@@ -39,6 +39,13 @@ export const reports: ReportMeta[] = [
     type: "deep-dive",
   },
   {
+    slug: "liability-screen",
+    title: "Liability & Ethics Screen",
+    description:
+      "Residual legal exposure per idea, the controls that contain it, and the ideas that were researched and deliberately declined.",
+    type: "deep-dive",
+  },
+  {
     slug: "category-analysis",
     title: "Category Analysis",
     description:

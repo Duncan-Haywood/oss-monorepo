@@ -15,7 +15,24 @@ export interface ScoreDimension {
   label: string;
   score: number;
   maxScore: number;
+  /** Share of the composite score, in percent. Weights sum to 100. */
+  weight: number;
   rationale: string;
+}
+
+/**
+ * What could go wrong legally, and what stops it. `level` is the residual
+ * exposure once the listed controls are actually in place — not the raw
+ * exposure of the category.
+ */
+export interface LiabilityProfile {
+  level: RiskLevel;
+  /** Concrete ways this business could create legal or financial exposure. */
+  exposures: string[];
+  /** Design and operating choices that keep the exposure contained. */
+  controls: string[];
+  /** Things this business will not do, at any price. */
+  redLines: string[];
 }
 
 export interface MilestonePlan {
@@ -43,12 +60,28 @@ export interface BusinessIdea {
   aiLeverage: string[];
   zeroEmployeeOps: string[];
   dimensions: ScoreDimension[];
+  liability: LiabilityProfile;
   plans: MilestonePlan[];
   competitors: string[];
   moat: string;
   firstExperiment: string;
   rank100k: number;
   rank1m: number;
+}
+
+/**
+ * An idea that was researched and deliberately not carried forward. Kept so
+ * the same ground is not re-covered next cycle, and so the reasons stay
+ * falsifiable — a screened-out idea can be revived when its reason expires.
+ */
+export interface ScreenedIdea {
+  name: string;
+  category: IdeaCategory;
+  thesis: string;
+  reason: string;
+  /** What would have to change for this to be worth re-opening. */
+  revisitIf: string;
+  screen: "crowded" | "liability" | "capital" | "platform-risk" | "economics";
 }
 
 export interface ReportMeta {

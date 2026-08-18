@@ -8,6 +8,12 @@ hypotheses:
   - claim: A unified market map and idea-scoring system improves which AI-first venture to validate next.
     status: untested
     checked: null
+  - claim: Scoring liability containment as a weighted dimension changes the ranking enough to change a decision — if it never moves an idea, it is decoration.
+    status: untested
+    checked: null
+  - claim: Recording researched-and-declined ideas prevents the next evaluation cycle from re-deriving the same conclusions.
+    status: untested
+    checked: null
 
 economics:
   currency: USD

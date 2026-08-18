@@ -1,0 +1,18 @@
+# First ledger file. Append entries; do not edit past ones.
+#
+# agent_spend_usd is null where the session was not instrumented for cost.
+# Recording null is deliberate — per the router README, unmeasured is not zero,
+# and writing a plausible-looking number here would corrupt the only signal the
+# router has.
+period: 2026-08
+entries:
+  - venture: ai-first-markets
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - Added six evaluated business ideas (14 total), covering accessibility CI tooling, MCP gateway hosting, trademark conflict monitoring, public procurement intelligence, multi-location brand monitoring, and an AI-managed-contractor documentation service.
+      - Added liability containment as a seventh scored dimension at 12% weight, with an exposures/controls/red-lines profile on every idea including the original eight.
+      - Made the composite score actually weighted; it previously computed an unweighted mean while the methodology report published weights.
+      - Added a screening register of ten researched-and-declined ideas, each with a revisit condition.
+      - Re-ranked all 14 ideas for both milestones under the new scoring.
+    mrr_end: null

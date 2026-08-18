@@ -1,10 +1,49 @@
-import type { BusinessIdea, ScoreDimension } from "./types";
+import type { BusinessIdea, RiskLevel, ScoreDimension } from "./types";
 
+/**
+ * Composite score, 0–100, weighted by each dimension's declared weight. The
+ * methodology report publishes these weights; computing the mean instead would
+ * quietly contradict it.
+ */
 export function averageScore(dimensions: ScoreDimension[]): number {
   if (dimensions.length === 0) return 0;
-  const total = dimensions.reduce((sum, d) => sum + d.score, 0);
-  const max = dimensions.reduce((sum, d) => sum + d.maxScore, 0);
-  return Math.round((total / max) * 100);
+  const weighted = dimensions.reduce(
+    (sum, d) => sum + (d.score / d.maxScore) * d.weight,
+    0,
+  );
+  const totalWeight = dimensions.reduce((sum, d) => sum + d.weight, 0);
+  if (totalWeight === 0) return 0;
+  return Math.round((weighted / totalWeight) * 100);
+}
+
+export function riskLabel(level: RiskLevel): string {
+  switch (level) {
+    case "low":
+      return "Low residual risk";
+    case "medium":
+      return "Medium residual risk";
+    case "high":
+      return "High residual risk";
+    default: {
+      const _exhaustive: never = level;
+      return _exhaustive;
+    }
+  }
+}
+
+export function riskColor(level: RiskLevel): string {
+  switch (level) {
+    case "low":
+      return "text-emerald-400";
+    case "medium":
+      return "text-amber-400";
+    case "high":
+      return "text-rose-400";
+    default: {
+      const _exhaustive: never = level;
+      return _exhaustive;
+    }
+  }
 }
 
 export function verdictLabel(

@@ -11,9 +11,10 @@ Built with Next.js 15, TypeScript, Tailwind CSS, and deployable to **Cloudflare 
 ## Features
 
 - **AI-first market map** with ripeness signals, market tiers, and winning patterns
-- **8 evaluated business ideas** across devtools, vertical SaaS, AI agents, API infrastructure, and content automation
-- **6 analytical reports**: executive summary, $100k path, $1M path, automation playbook, scoring methodology, category analysis
-- **Scoring framework** across AI leverage, zero-employee ops, time-to-revenue, margin, defensibility, and distribution
+- **14 evaluated business ideas** across devtools, vertical SaaS, AI agents, API infrastructure, data products, and content automation
+- **7 analytical reports**: executive summary, $100k path, $1M path, automation playbook, scoring methodology, liability & ethics screen, category analysis
+- **Scoring framework** across AI leverage, zero-employee ops, time-to-revenue, margin, defensibility, distribution, and liability containment
+- **Screening register** of ideas researched and deliberately declined, each with the condition that would reopen it
 - **Whitelist-only access** for `duncan.andrew.haywood@gmail.com`
 - **Cloudflare deployment** ready with OpenNext adapter
 
@@ -83,19 +84,24 @@ src/
 | Path to $1M ARR | Scaling analysis and platform distribution patterns |
 | AI + Zero-Employee Playbook | Operational stack for solo AI-first SaaS |
 | Scoring Methodology | How ideas are evaluated |
+| Liability & Ethics Screen | Residual exposure per idea, standing rules, and declined ideas |
 | Category Analysis | Comparison across idea categories |
 
 ## Top recommendations
 
 **$100k ARR (strong fit):**
 1. AI PR Review Agent
-2. AI Receptionist for Trades
-3. LinkedIn Content Engine
+2. Accessibility Regression Gate
+3. AI Receptionist for Trades — strongest economics, heaviest legal exposure; do not start without its consent and emergency-handling controls in place
 
 **$1M ARR (viable+):**
 1. AI QA for E-commerce
 2. AI PR Review Agent
-3. API Uptime Intelligence
+3. Accessibility Regression Gate
+
+Ranks account for liability containment, which is why several ideas with
+attractive margins sit lower than their revenue case alone would suggest. The
+liability screen report explains each one.
 
 ## License
 
