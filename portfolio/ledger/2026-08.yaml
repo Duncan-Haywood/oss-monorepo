@@ -27,14 +27,30 @@ entries:
         Added CLAUDE.md instructing future sessions to check open PRs and
         consolidate rather than duplicate.
       - >-
-        Unresolved, needs the account owner: (1) merge this consolidated PR,
-        then close #3-#12 pointing to it (comments were left explaining
-        why); (2) decide whether the scheduler needs a concurrency guard so
-        simultaneous runs stop rediscovering the same gap; (3)
+        While this consolidation was in flight, three more independent
+        sessions each produced yet another version of the same fix: #13 and
+        #14 (plain VENTURE.yaml duplicates, both missing ubuntu-agent-server
+        and mat-470-real-analysis entirely) and #15 (a full consolidation
+        essentially identical in scope to this one — router v1, all missing
+        VENTURE.yaml, the same retail-pilot-intel/photo-editing fixes, its
+        own CLAUDE.md and ledger entry — opened 4 minutes before this PR).
+        At least 9 sessions touched this repo within roughly one hour today.
+        Closed #13, #14, and #15 as duplicates of this PR rather than let a
+        fourth near-identical PR sit alongside it — the whole point of
+        consolidating was not to keep making that mistake.
+      - >-
+        Unresolved, needs the account owner: (1) merge this consolidated PR
+        (#16) — everything else touching VENTURE.yaml/router/CLAUDE.md
+        (#3-#15) is now closed as superseded or explained by a comment; (2)
+        the scheduler firing 9+ sessions on this repo within an hour is the
+        proximate cause of the duplication and needs a concurrency guard,
+        independent of how well any individual session behaved; (3)
         real-estate-agent-photo-app's GitHub Actions has had zero runners
         assigned for over 10 days (billing/quota issue) — CI cannot run
         there at all until that's fixed; (4) PR #1 (Garmin watch face) and
         #2 (world-clock-widget app) are unrelated, source-only, untested
         (no Xcode/Connect IQ SDK available in-session) ventures sitting
-        unreviewed for 10 days.
+        unreviewed for 10 days; (5) PR #17 (business-candidate pipeline,
+        portfolio/pipeline/) is genuinely new work, unrelated to this
+        backlog, and worth a look on its own merits.
     mrr_end: null
