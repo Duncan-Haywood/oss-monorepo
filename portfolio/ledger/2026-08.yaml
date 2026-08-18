@@ -138,3 +138,58 @@ entries:
         mat-470-real-analysis/ubuntu-agent-server placement; #1/#2 remain
         low-risk to review whenever convenient.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per CLAUDE.md. PR #36, opened earlier the
+        same day (23:17), had already done the consolidation this backlog
+        needed: reconciled the ~36 candidates across #17/#18/#20/#27/#30/#34
+        into 7 in a new `portfolio/pipeline/` (a pre-`ventures/` candidate
+        stage, based on #17's directory, which is not deployed by any
+        venture's site) with hard liability/ethics gates, and left
+        #18/#20/#27/#30/#34 open by deliberate choice pending the account
+        owner's publication decision rather than closing them unilaterally.
+        Did not redo that work or open an eighth screening PR.
+      - >-
+        Independently verified PR #36 in a scratch git worktree rather than
+        trusting the diff or its own "verification" table: `validate.py`
+        clean (9/9 `VENTURE.yaml`), `test_allocate.py` 12/12 pass,
+        `allocate.py` runs against all 9 ventures, and all 7
+        `portfolio/pipeline/candidates.yaml` entries recompute correctly
+        (composite = mean of 8 scores, floor = min score) and pass the ≥5
+        liability_containment/ethical_robustness gates. All claims held up.
+      - >-
+        Independently confirmed PR #36's most consequential finding, which
+        corrects the previous cycle's ledger entry: GitHub Actions is
+        genuinely broken repo-wide, not a harmless deleted leftover. Pulled
+        the 30 most recent workflow runs directly from the Actions API —
+        all 30 have empty workflow name, path `BuildFailed`, conclusion
+        `startup_failure`, including two runs against `main` itself at
+        22:53 today (the merge of #35, the very ledger entry that concluded
+        this was already resolved). Workflow ID 337182028 is still actively
+        generating new failed runs on every push. So neither the router
+        schema check (#32) nor ai-first-markets CI has actually executed in
+        CI on any recent commit; every "verified" claim in this ledger has
+        meant locally verified only. Cause (billing, quota, org setting) is
+        not visible or fixable from an agent session.
+      - >-
+        Did not merge PR #36 or close/touch #17/#18/#20/#27/#30/#34/#19/#1/#2
+        — per CLAUDE.md, merging to main and picking a winner among
+        unverified regulatory content is the account owner's call, and PR
+        #36 already reasoned through why it left the five app-side PRs open.
+        Sent a notification covering both the ready-to-decide consolidation
+        PR and the CI finding: four consecutive scheduled cycles have now
+        reached "needs a human" on this same backlog, and the CI break went
+        uncaught by name for at least the last cycle.
+      - >-
+        Still unresolved, needs the account owner: (1) check why GitHub
+        Actions fails at startup on every run, including on `main` — look at
+        the repo's Actions tab / billing / quota; (2) decide whether to merge
+        PR #36 and, per its own recommendation, what to do with
+        #18/#20/#27/#30/#34 (close as superseded, or keep for their
+        unreproduced app-side content); (3) decide on #19 (second unattended
+        agent fleet); (4) #1/#2 remain low-risk, still untouched since first
+        flagged 10+ days ago.
+    mrr_end: null
