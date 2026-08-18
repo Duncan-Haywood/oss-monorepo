@@ -1,0 +1,28 @@
+name: quick-pick-survey
+description: Pairwise-comparison preference engine (Glicko-2 / Bradley-Terry) that infers a person's, and a linked couple's, real preference ordering from forced choices.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: Comparing a person's stated-for-self ranking against their partner's guess-of-partner ranking produces insight valuable enough that people will use it.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 20
+  protected: true
+
+kill_criteria:
+  - No returning or linked-couple usage is observed after a production deployment exists.
+  - The GitHub Actions runner-allocation problem and the unmerged pull-request queue documented in IMPROVEMENT-PLAN.md remain unresolved for 90+ days without the account owner acting — further unattended agent work should not resume on this venture until that governance question is answered.
+
+links:
+  production: null
+  analytics: null

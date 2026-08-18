@@ -1,0 +1,28 @@
+name: retail-pilot-intel
+description: Privacy-first retail analytics for small-format pilot stores (initial target ~10 m² leather boutique, Italy) — door and POS conversion, SKU desirability gap, and upsell signals.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: Door-count plus POS-join analytics identify a conversion or upsell lift worth at least one Core-subscription payment per month for a small-format retail pilot.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 40
+  protected: true
+
+kill_criteria:
+  - No pilot store signs on for the Italy leather-boutique pilot within 90 days of active outreach.
+  - The measured Phase 1 (door+POS) conversion/upsell lift does not exceed pilot subscription cost after one full measurement cycle.
+
+links:
+  production: null
+  analytics: null

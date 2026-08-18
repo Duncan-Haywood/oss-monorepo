@@ -1,0 +1,28 @@
+name: print-atelier
+description: AI-first, software-driven marketplace that digitizes physical art, sells prints via print-on-demand, and pays artists 30% of net profit.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: A dual-sided software-first marketplace can acquire both artists and buyers primarily through automated digital channels rather than manual sales effort.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 40
+  protected: true
+
+kill_criteria:
+  - No artist onboarded and no print sold within 90 days of launch.
+  - Automated artist prospecting and outreach fails to produce a meaningful response rate after the GTM phase-1 window closes.
+
+links:
+  production: null
+  analytics: null
