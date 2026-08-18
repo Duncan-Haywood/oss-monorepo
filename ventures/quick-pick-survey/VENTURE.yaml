@@ -1,0 +1,28 @@
+name: quick-pick-survey
+description: Pairwise-comparison preference engine (Glicko-2 for discrete items, Davidson tie-extended Bradley-Terry for continuous attributes) for individual and couple preference ranking, deployed and seeded on Vercel/Postgres.
+stage: launched
+
+owner: duncan
+
+hypotheses:
+  - claim: Adaptive pairwise comparison converges to a usable, confidence-scored preference ranking — including a couple's blind-spot comparison — that people find accurate and worth finishing.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 50
+  protected: true
+
+kill_criteria:
+  - No monetization path is evaluated within 180 days of the pairwise-ranking flow being stable.
+  - The open pull-request queue against main goes 90 more days without an account-owner merge decision, blocking further verified progress.
+
+links:
+  production: null
+  analytics: null

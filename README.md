@@ -26,6 +26,10 @@ change.
 Venture directories are kept cleanly bounded so a venture can be extracted
 with `git filter-repo` if it is ever sold or spun off.
 
+Not every directory under `ventures/` is a business. `mat-470-real-analysis`
+is private personal study material and intentionally carries no
+`VENTURE.yaml` — it isn't part of the router's allocation.
+
 ### platform/
 
 The processes that are the same across ventures: agent definitions, skills,

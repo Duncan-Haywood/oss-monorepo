@@ -1,0 +1,28 @@
+name: print-atelier
+description: AI-first, software-driven marketplace that digitizes physical art and sells prints via POD, paying artists 30% of net profit.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: Artists and buyers can both be acquired through software/AI-driven channels (automated prospecting, programmatic SEO, dynamic ads) at a 70/30 platform/artist split.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 50
+  protected: true
+
+kill_criteria:
+  - No artist and no buyer complete a real transaction through the platform within 90 days of the storefront accepting real payments.
+  - The hourly autonomous orchestrator produces no shippable change across 30 consecutive days.
+
+links:
+  production: null
+  analytics: null

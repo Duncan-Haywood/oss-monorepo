@@ -1,0 +1,28 @@
+name: photo-editing
+description: ShootFlow — resumable, checksum-verified media ingest plus dry-run production/render orchestration for photographers and videographers producing Instagram deliverables.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: Stateful checksum-verified ingest plus dependency-tracked production/render orchestration meaningfully cuts the manual file-wrangling time a solo creator spends turning a shoot into graded Instagram deliverables.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 50
+  protected: true
+
+kill_criteria:
+  - No real (non-dry-run) renderer adapter exists 90 days after the dry-run orchestration is complete.
+  - No creator, including the operator, uses the pipeline end-to-end on a real shoot within 90 days of a working renderer.
+
+links:
+  production: null
+  analytics: null

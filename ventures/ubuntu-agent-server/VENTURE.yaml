@@ -1,0 +1,28 @@
+name: ubuntu-agent-server
+description: Ansible-provisioned always-on host running sandboxed, PR-only unattended coding-agent orchestration (issue-triggered and self-directed) across the portfolio's repos. Internal platform infrastructure, not a customer-facing product.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: Sandboxed, secret-scanned, PR-only agent orchestration (never given merge or deploy authority) safely increases agent throughput across ventures without unacceptable risk.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 20
+  protected: true
+
+kill_criteria:
+  - Secret scanning or per-tool sandboxing fails to stop an unintended push or leak during initial trial runs.
+  - No repo has been trusted enough after 90 days of dry-run operation to flip dry_run to false.
+
+links:
+  production: null
+  analytics: null

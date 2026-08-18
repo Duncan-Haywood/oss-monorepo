@@ -1,0 +1,28 @@
+name: retail-pilot-intel
+description: Privacy-first retail analytics (door+POS conversion, SKU-desirability/upsell signals) for small-format pilot stores; initial target a ~10 m² leather boutique in Italy.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: A small-format pilot store will pay for door+POS conversion and SKU-desirability analytics once shown a working demo built on its own numbers.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 50
+  protected: true
+
+kill_criteria:
+  - No pilot store commits to a paid trial within 90 days of the sales demo being ready to show.
+  - The door+POS join cannot be validated against real pilot-store data.
+
+links:
+  production: null
+  analytics: null

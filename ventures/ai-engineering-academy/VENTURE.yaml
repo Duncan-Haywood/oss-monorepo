@@ -1,0 +1,28 @@
+name: ai-engineering-academy
+description: AI-mentored, project-first engineering education platform — learners build real products instead of sitting through lectures and exams.
+stage: idea
+
+owner: duncan
+
+hypotheses:
+  - claim: Project-first, AI-mentored learning — starting with an Electrical Engineering track — produces engineers learners believe are better prepared, and they will pay for it.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 20
+  protected: true
+
+kill_criteria:
+  - No MVP curriculum track is prototyped within 180 days.
+  - No prospective learner validates willingness to pay before the MVP build begins.
+
+links:
+  production: null
+  analytics: null
