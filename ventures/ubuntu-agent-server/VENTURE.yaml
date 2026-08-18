@@ -1,0 +1,28 @@
+name: ubuntu-agent-server
+description: Ansible playbook and orchestration system that provisions a 24/7 host running unattended coding agents (Claude Code, Codex, Antigravity, opencode) across the portfolio's repos. Shared infrastructure, not a revenue-facing product — tracked here because it consumes real compute/hosting budget and its own labeled-issue queue competes for agent effort like any venture.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: A guardrailed, PR-only (never auto-merge) unattended agent runner increases portfolio throughput without materially increasing risk, once dry_run is turned off per repo.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 20
+  protected: true
+
+kill_criteria:
+  - The playbook has not been run against a real host within 90 days (as of writing it has only been syntax-checked/lint-checked, never executed).
+  - After a real run, the secret-scan or sandbox guardrails fail to hold on a single observed incident — pause and fix before re-enabling dry_run: false anywhere.
+
+links:
+  production: null
+  analytics: null

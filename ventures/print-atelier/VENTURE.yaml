@@ -1,0 +1,28 @@
+name: print-atelier
+description: AI-first, software-driven print-on-demand art marketplace paying artists 30% of net profit; currently a business-plan and platform demo run through an hourly Cursor automation.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: A software-first, AI-first, dual-sided (artist supply + buyer demand) print marketplace can acquire both sides primarily through automated channels rather than headcount.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 30
+  protected: true
+
+kill_criteria:
+  - No real artist onboarded and no real print sold within 90 days of the storefront going live for real transactions.
+  - The hourly orchestrator produces no shippable increment for 2 consecutive weeks.
+
+links:
+  production: null
+  analytics: null

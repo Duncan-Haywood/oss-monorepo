@@ -1,0 +1,28 @@
+name: real-estate-agent-photo-app
+description: Listing Lens — AI-enhanced real estate listing photography concept for agents, currently in concierge market-validation stage.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: Mid-market real estate agents will pay for a concierge service that delivers AI-enhanced, MLS-ready listing photos within 30 minutes of a phone-based shoot.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 20
+  protected: true
+
+kill_criteria:
+  - No concierge listing is booked and shot within 90 days (agent-side prep is done and waiting on this per process/blockers.ts).
+  - Phase 1 problem interviews are not run within 60 days.
+
+links:
+  production: null
+  analytics: https://listing-lens-docs.pages.dev

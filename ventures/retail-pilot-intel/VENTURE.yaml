@@ -1,0 +1,28 @@
+name: retail-pilot-intel
+description: Privacy-first door + POS join analytics for small-format retail pilot stores, initial target a ~10m2 leather boutique in Italy.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: Privacy-first door-count and POS-join analytics deliver ROI-positive weekly decisions for a small-format retail pilot, justified before scaling sensor count or CV features.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 30
+  protected: true
+
+kill_criteria:
+  - No signed pilot store (with a DPIA where GDPR applies) within 90 days.
+  - The door+POS join (ranks 1-3 in the ROI matrix) does not ship a working conversion-rate readout within 60 days.
+
+links:
+  production: null
+  analytics: null

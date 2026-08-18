@@ -1,0 +1,28 @@
+name: local-site-studio
+description: Pre-built preview-before-you-buy websites for local businesses, $500 flat, operated by Maris Stella Labs.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: A $500 flat-fee, preview-before-you-buy website converts local businesses better than a custom-quote sales process.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 30
+  protected: true
+
+kill_criteria:
+  - Checkout (preview -> Stripe -> delivered site) cannot be completed end-to-end within 30 days.
+  - No paying customer within 90 days of checkout going live.
+
+links:
+  production: null
+  analytics: null

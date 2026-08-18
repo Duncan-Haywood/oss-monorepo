@@ -1,0 +1,28 @@
+name: photo-editing
+description: ShootFlow — resumable, checksum-verified media ingest and production-pipeline tooling for photographers and videographers producing Instagram deliverables.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: A resumable, checksum-verified, dry-run-first ingest and production pipeline meaningfully reduces failed or lost photo/video transfers and speeds up Instagram deliverable production.
+    status: supported
+    checked: 2026-07-29
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 20
+  protected: true
+
+kill_criteria:
+  - No renderer adapter beyond the dry-run/local-copy stand-ins ships within 90 days.
+  - No user besides the operator completes a full card-to-deliverable workflow within 6 months.
+
+links:
+  production: null
+  analytics: null
