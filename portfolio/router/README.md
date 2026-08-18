@@ -32,6 +32,10 @@ against outcomes for at least a few cycles.
 - `ventures/*/VENTURE.yaml` — stage, economics, budget caps, kill criteria
 - `portfolio/ledger/` — recorded spend and outcomes over time
 
+Candidates in `portfolio/pipeline/` are deliberately **not** an input. They have
+no `VENTURE.yaml`, so they receive no allocation; starting one is a decision a
+person makes, not an allocation the router discovers.
+
 ## Output
 
 A ranked work queue. Each entry names a venture, a task, and a spend ceiling.

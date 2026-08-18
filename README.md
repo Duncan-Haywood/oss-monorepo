@@ -13,7 +13,8 @@ directory that inherits the platform automatically.
 ```
 ventures/     one directory per business; each has a VENTURE.yaml
 platform/     shared agent definitions, skills, and CI — versioned once
-portfolio/    the ledger and the router that allocates agent effort
+portfolio/    the ledger, the candidate pipeline, and the router that
+              allocates agent effort
 ```
 
 ### ventures/
@@ -38,6 +39,11 @@ here instead.
 `router/` reads the ledger plus each `VENTURE.yaml` and decides where agent
 effort goes next. See [portfolio/router/README.md](portfolio/router/README.md)
 for how allocation works and why it is not a pure ROI maximizer.
+
+`pipeline/` holds researched-but-not-started businesses: scored candidates with
+an explicit verdict, plus the record of what was rejected and why. A candidate
+becomes a venture when someone writes its `VENTURE.yaml` — until then the router
+cannot see it. See [portfolio/pipeline/README.md](portfolio/pipeline/README.md).
 
 ## History
 
