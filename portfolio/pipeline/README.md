@@ -130,7 +130,10 @@ that does and does not tell us.
 
 The `VENTURE.yaml` backfill this pass originally flagged has since landed —
 every directory under `ventures/` now carries either that file or a
-`NOT-A-VENTURE` marker, enforced by `portfolio/router/validate.py` in CI. The
+`NOT-A-VENTURE` marker. A CI workflow to enforce that exists
+(`.github/workflows/portfolio-validate.yml`) but has **never successfully
+run**; see the ledger entry for 2026-08-18. Treat the invariant as verified
+locally, not as automatically enforced, until Actions is working. The
 underlying caution stands: economics are still `null` across the portfolio, so
 the router is allocating against stage and budget cap rather than measured
 return. Adding new ventures on top of an unmeasured portfolio is the more

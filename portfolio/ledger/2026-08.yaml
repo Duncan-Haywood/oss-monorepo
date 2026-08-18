@@ -207,12 +207,47 @@ entries:
         of effort is worth more spent testing one candidate against a real
         buyer than generating a tenth archetype.
       - >-
-        Still unresolved, needs the account owner: decide on the five
-        remaining app-side screening PRs (merge one, or close all as
-        superseded by portfolio/pipeline/); decide on #19 (second unattended
-        agent fleet); the hourly 10-agent fleet is still live and still the
-        mechanism generating this duplication — the open-PR guardrail added
-        in #33 did not prevent this cycle's sixth and seventh passes, which
-        is now two cycles of evidence that the guardrail alone is not
-        sufficient.
+        GitHub Actions is broken repo-wide and has been silently broken the
+        whole time. All 113 workflow runs on record — every branch including
+        main, spanning at least 21:27-23:17 on 2026-08-18 — have conclusion
+        `startup_failure`, with the placeholder path `BuildFailed` and an
+        empty workflow name. Zero runs of any real workflow exist:
+        `portfolio-validate.yml` is registered and active but has a run count
+        of 0, despite this branch touching `portfolio/router/**`, one of its
+        trigger paths. Consequence: the VENTURE.yaml schema check merged in
+        #32 and described in README.md as CI-enforced has never executed
+        once, and neither has ai-first-markets CI. Every "verified in CI"
+        claim in this repo currently means "verified locally by an agent."
+        This corrects the prior cycle's ledger entry, which investigated the
+        same `BuildFailed` status from a PR #30 comment and concluded it was
+        a deleted leftover that could not affect future commits — new
+        `BuildFailed` runs are still being created on every push, including
+        two on this branch. Needs the account owner to check the Actions tab;
+        a repo-wide startup_failure with no job ever starting most commonly
+        means Actions is disabled, over quota, or blocked by a spending
+        limit, none of which an agent can see or fix from here.
+      - >-
+        Root cause of the duplicate storm identified, and it is not the
+        OpenCode fleet. All six screening PRs plus this one are on branches
+        named claude/laughing-pasteur-* — the same scheduled Claude Code task
+        identity, firing repeatedly, each run starting fresh and re-deriving
+        the same brief. The hourly OpenCode Actions workflow that three prior
+        cycles treated as the culprit cannot have produced any of them,
+        because Actions has never successfully started a job. Prior cycles
+        attributed the waste to the wrong mechanism and therefore proposed
+        fixes (pausing the fleet, adding a check-open-PRs guardrail to
+        .github/prompts/portfolio-work.md) aimed at a workflow that does not
+        run. The guardrail in CLAUDE.md does reach these sessions and did
+        work this cycle — it is why this run consolidated instead of opening
+        a seventh screening PR — but it depends on each run choosing to
+        honour it, which the sixth and seventh runs show is not reliable.
+      - >-
+        Still unresolved, needs the account owner: (1) fix or disable GitHub
+        Actions — nothing in CI is running; (2) change or retire the
+        recurring "research new business projects" scheduled task, which is
+        the actual source of the duplication and will keep firing against an
+        already-answered brief; (3) decide on the five remaining app-side
+        screening PRs (merge one, or close all as superseded by
+        portfolio/pipeline/); (4) decide on #19 (second unattended agent
+        fleet), noting its workflow is already registered from its branch.
     mrr_end: null
