@@ -1,0 +1,24 @@
+period: 2026-08
+entries:
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session found 10 open PRs against main, none merged since
+        2026-08-08, several near-duplicates of each other (independent runs
+        each re-discovering "ventures missing VENTURE.yaml" and opening their
+        own PR: #3, #4, #5, #6, #7, #9, #10). PR #8 had already flagged this
+        exact backlog earlier the same day; two more duplicate PRs (#9, #10)
+        were opened after that warning, so the warning alone did not stop it.
+      - >-
+        Did not open another VENTURE.yaml PR. Added root CLAUDE.md instructing
+        future sessions to check open PRs before starting work, and to report
+        a growing backlog rather than add to it.
+      - >-
+        Unresolved: needs a human to pick one of #3/#4/#5/#6/#7 to merge (they
+        differ on stage/budget/kill-criteria judgment calls for the same
+        ventures) and close the rest, and to decide whether the scheduler
+        needs a concurrency guard to stop simultaneous runs from duplicating
+        work.
+    mrr_end: null
