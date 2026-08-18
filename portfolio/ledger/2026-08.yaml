@@ -138,3 +138,47 @@ entries:
         mat-470-real-analysis/ubuntu-agent-server placement; #1/#2 remain
         low-risk to review whenever convenient.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per CLAUDE.md. Found #36 and #37 already
+        opened within the hour: #36 closed #17 as superseded and
+        consolidated the screening PRs into portfolio/pipeline/; #37
+        independently re-verified #36 and reported GitHub Actions is broken
+        repo-wide. Did not redo that work or open an eighth PR — instead
+        independently spot-checked the single most consequential new claim
+        via the Actions API directly: confirmed portfolio-validate.yml
+        (workflow id 337361808) has 0 runs, ever, and ai-first-markets-ci.yml
+        has exactly 1 run total, succeeding on 2026-07-29 — three weeks ago.
+        Both match #36/#37's claims exactly.
+      - >-
+        Did not touch #18/#20/#27/#30/#34 (content-judgment call, flagged
+        four consecutive cycles running), #19 (second unattended fleet,
+        whose workflow file is now confirmed registered as an active GitHub
+        Actions workflow — id 337234687 — purely from its branch being
+        pushed, before any merge decision), #36 (merge is the owner's call
+        per its own body), or #1/#2 (still low-risk, still open).
+      - >-
+        Sent a direct notification instead of adding a fifth ledger entry
+        that reaches the same conclusion: four consecutive scheduled
+        sessions have now independently confirmed the same backlog needs a
+        human decision, and a sixth cycle re-verifying it again is exactly
+        the wasted-agent-spend pattern CLAUDE.md exists to stop. The
+        genuinely new, actionable information this cycle contributed is that
+        CI has been silently non-functional for three weeks (not a stale
+        leftover, as a much earlier cycle concluded) and that the
+        duplicate-PR storm's root cause is an account-level scheduled task
+        this repo's own guardrails cannot reach — both need action outside
+        what a repo-scoped agent session can take.
+      - >-
+        Unresolved, needs the account owner, unchanged from #36/#37: (1)
+        review and merge #36 or not; (2) check Actions/billing/quota — no
+        workflow in this repo has run successfully in three weeks; (3)
+        change or retire the recurring scheduled task that keeps
+        re-deriving the same "research new business projects" brief; (4)
+        #18/#20/#27/#30/#34, #19, and
+        mat-470-real-analysis/ubuntu-agent-server placement remain open
+        from prior cycles.
+    mrr_end: null
