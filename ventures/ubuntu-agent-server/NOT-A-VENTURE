@@ -1,0 +1,14 @@
+Shared agent-hosting infrastructure, not itself revenue-seeking.
+
+An Ansible playbook that provisions a box to run headless coding agents
+against this portfolio's own repositories. It exists to increase the
+portfolio's engineering throughput, not to be sold, so it has no customers,
+no MRR, and nothing for the portfolio router to allocate profit-seeking
+effort to.
+
+The top-level README already records this deliberate call. This file makes it
+machine-readable so `portfolio/router/validate.py` skips the directory rather
+than failing CI on a missing VENTURE.yaml.
+
+Whether this belongs under `ventures/` or under `platform/` is still the open
+structural question the README flags; this marker does not settle it.
