@@ -10,6 +10,7 @@ import {
   clearFulfillmentRouteStoreForTesting,
   type FulfillmentRegion,
 } from "../src/lib/fulfillment-cost-router";
+import { calculatePrintEconomics, roundCurrency } from "../src/lib/marketplace";
 
 describe("fulfillment-cost-router", () => {
   beforeEach(() => {
@@ -39,16 +40,40 @@ describe("fulfillment-cost-router", () => {
     const decision = optimizeFulfillmentRouting("midnight-coast", "EU", 120);
     assert.equal(decision.selectedProvider, "gelato");
     assert.ok(decision.costSavingsUsd > 0);
-    assert.equal(decision.artistPayoutUsd, 36.0); // 30% of $120
+    // 30% of NET PROFIT, not of retail. These two assertions are deliberately
+    // both here: the concrete value catches a drift in the inputs, and the
+    // notEqual catches the specific regression this test used to encode — it
+    // asserted 36.0, i.e. 30% of the $120 retail, which is the basis the router
+    // was fixed to stop using.
+    assert.equal(decision.artistPayoutUsd, 25.52);
+    assert.notEqual(decision.artistPayoutUsd, roundCurrency(120 * 0.3));
     assert.equal(decision.isArtistPayoutGuaranteed, true);
     assert.ok(decision.routingReason.includes("Gelato saves"));
   });
 
   it("optimizes routing toward Printful in US when total cost is lower", () => {
     const decision = optimizeFulfillmentRouting("midnight-coast", "US", 120);
-    assert.equal(decision.artistPayoutUsd, 36.0);
+    assert.equal(decision.artistPayoutUsd, 25.06);
+    assert.notEqual(decision.artistPayoutUsd, roundCurrency(120 * 0.3));
     assert.ok(decision.platformProfitUsd > 0);
     assert.equal(decision.isArtistPayoutGuaranteed, true);
+  });
+
+  it("pays the artist exactly what the marketplace engine says, on the selected provider's cost", () => {
+    // The basis, not the value. `optimizeFulfillmentRouting` used to re-type
+    // `* 0.3` on retail while `calculatePrintEconomics` took 30% of net profit,
+    // and both looked correct in isolation. This fails if the router ever again
+    // computes the split itself, whatever number it arrives at.
+    for (const region of ["US", "EU"] as FulfillmentRegion[]) {
+      const decision = optimizeFulfillmentRouting("midnight-coast", region, 120);
+      const selectedQuote =
+        decision.selectedProvider === "printful" ? decision.printfulQuote : decision.gelatoQuote;
+      const economics = calculatePrintEconomics({
+        retailPrice: 120,
+        fulfillmentCost: selectedQuote.totalFulfillmentCostUsd,
+      });
+      assert.equal(decision.artistPayoutUsd, Math.max(0, economics.artistShare));
+    }
   });
 
   it("flags when platform profit would be negative if retail price is too low", () => {
