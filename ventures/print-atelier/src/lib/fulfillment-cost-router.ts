@@ -211,8 +211,8 @@ export function optimizeFulfillmentRouting(
   // contains the payment fee, the POD fulfillment cost and the AI compute cost,
   // so 30% of retail is materially larger: on a $120 print, which routes to
   // Gelato in the US, it is $36.00 against a true share of $25.06 — a ~44%
-  // overstatement of
-  // what the artist is owed, and the same dollars understated as platform margin.
+  // overstatement of what the artist is owed, and the same dollars understated
+  // as platform margin.
   //
   // This is derived from `calculatePrintEconomics`, the one engine that owns this
   // split, rather than re-typing `* 0.3` here on a different basis. The two had
