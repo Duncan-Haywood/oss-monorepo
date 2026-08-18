@@ -1,0 +1,24 @@
+name: ubuntu-agent-server
+description: Ansible playbook provisioning a 24/7 Ubuntu host that runs coding agents (Claude Code, Codex, Antigravity, opencode) unattended against GitHub issues in this monorepo's repos. Shared infrastructure, not a commercial venture.
+stage: idea
+
+owner: duncan
+
+hypotheses: []
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 0
+  protected: false
+
+kill_criteria:
+  - Not applicable — this is internal infrastructure for running agents across the portfolio, not a revenue-seeking venture, and should be excluded from standard venture kill-criteria.
+
+links:
+  production: null
+  analytics: null

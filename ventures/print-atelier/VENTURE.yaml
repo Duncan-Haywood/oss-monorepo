@@ -1,0 +1,28 @@
+name: print-atelier
+description: Interactive Next.js business-plan and full-stack platform demo for an AI-first art-print marketplace; no real marketplace, artists, or transactions exist yet.
+stage: idea
+
+owner: duncan
+
+hypotheses:
+  - claim: An AI-automated, software-first capture-to-fulfillment pipeline can acquire artists and buyers cheaply enough to sustain a 70/30 marketplace split.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 20
+  protected: false
+
+kill_criteria:
+  - No real artist is onboarded and no real print sale occurs after the demo/business-plan build is complete.
+  - The unit economics (artist payout 30% of net) do not survive contact with real POD/fulfillment and ad-spend costs once modeled with real numbers instead of the interactive demo's assumed inputs.
+
+links:
+  production: null
+  analytics: null

@@ -1,0 +1,29 @@
+name: retail-pilot-intel
+description: Privacy-first retail analytics stack (door and POS conversion funnel) being built toward a pilot with a small-format leather boutique in Italy; not yet live with a real store.
+stage: idea
+
+owner: duncan
+
+hypotheses:
+  - claim: Door-count plus POS-join conversion analytics will identify enough profit-impacting actions (upsell, SKU gaps) to justify a Core subscription for a small-format retail pilot.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 20
+  protected: false
+
+kill_criteria:
+  - No real pilot store signs on (AGENTS.md explicitly forbids inventing pilot customers or revenue figures — none exist yet).
+  - packages/edge and packages/pos remain sample stubs and are never replaced with real camera/POS integrations for an actual store.
+  - GDPR/privacy compliance artifacts (e.g. a signed pilot DPIA) cannot be produced before a go-live gate is needed.
+
+links:
+  production: null
+  analytics: null

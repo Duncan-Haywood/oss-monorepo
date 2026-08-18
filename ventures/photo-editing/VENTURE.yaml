@@ -1,0 +1,29 @@
+name: photo-editing
+description: Stdlib-only Python media pipeline (ShootFlow) that turns a photographer's card dump into safety-verified ingest, grading, and Instagram-ready deliverables.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: A trusted, resumable ingest-to-render pipeline with strict manifests removes enough manual media-ops time that photographers/videographers would pay for it.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 20
+  protected: false
+
+kill_criteria:
+  - No real (non-synthetic) shoot completes the full card-dump-to-deliverable pipeline without a safety failure or manual repair.
+  - No target-ICP photographer/videographer agrees to trial the tool after outreach.
+  - The renderer/adapter layer cannot move past dry-run/placeholder outputs to real ffmpeg/Core Image grading within a reasonable build window.
+
+links:
+  production: null
+  analytics: null

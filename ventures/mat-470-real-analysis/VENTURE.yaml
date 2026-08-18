@@ -1,0 +1,24 @@
+name: mat-470-real-analysis
+description: Personal coursework repository (textbooks, notes, homework) for a Real Analysis course. Not a commercial venture; excluded from portfolio effort allocation.
+stage: idea
+
+owner: duncan
+
+hypotheses: []
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 0
+  protected: false
+
+kill_criteria:
+  - Not applicable — this is personal study material with no commercial intent and should never receive portfolio agent-spend.
+
+links:
+  production: null
+  analytics: null

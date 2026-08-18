@@ -1,0 +1,29 @@
+name: quick-pick-survey
+description: Deployed pairwise-comparison preference engine (Glicko-2 / Bradley-Terry based) for ranking preferences and comparing partners' perceptions.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: A pairwise-comparison survey engine can surface preference orderings and partner-perception mismatches that direct questioning cannot.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 20
+  protected: false
+
+kill_criteria:
+  - No real (non-test) users complete enough comparisons to produce a converged, usable ranking (see docs/CONVERGENCE.md).
+  - CI never actually runs (GitHub Actions never allocates a runner per README) and this is not resolved, leaving quality enforcement solely manual indefinitely.
+  - No linked-couple pair ever uses the partner-perception comparison feature that is the product's sharpest differentiator.
+
+links:
+  production: null
+  analytics: null

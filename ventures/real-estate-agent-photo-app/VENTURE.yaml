@@ -1,0 +1,32 @@
+name: real-estate-agent-photo-app
+description: Listing Lens — an AI-first iPhone workflow concept for agent-shot real-estate listing photos, currently at concierge-MVP/pre-revenue validation.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: Mid-market real estate agents will pay for a guided-capture-plus-AI-enhancement listing photo workflow over DIY or outsourced photography.
+    status: untested
+    checked: null
+  - claim: A $19/listing concierge offer can convert interviewed agents into paying users within a 90-day GTM window.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 20
+  protected: false
+
+kill_criteria:
+  - Fewer than 40% of interviewed agents say they would pay $49+/mo (per STRATEGY.md's own day-90 success bar).
+  - Fewer than 5 paying customers are landed without hand-holding by day 90.
+  - No human unblocks the outstanding human-owned items (book/shoot a concierge listing, run Phase 1 interviews), leaving the venture permanently stalled on agent-only work.
+
+links:
+  production: https://listing-lens-docs.pages.dev
+  analytics: null

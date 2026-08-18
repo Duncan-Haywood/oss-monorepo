@@ -1,0 +1,28 @@
+name: local-site-studio
+description: Next.js/Stripe platform (operated as Maris Stella Labs) for selling pre-built $500 flat-fee websites to local businesses; checkout and billing infrastructure exist but are stubbed/unconfigured for real sales.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: Local businesses will buy a pre-built, previewable $500 flat-fee website over a custom build or DIY site builder.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 20
+  protected: false
+
+kill_criteria:
+  - No real Stripe checkout completes for a paying customer once the checkout flow (currently a stub) is finished and launched.
+  - The preview-before-you-buy funnel produces no qualified leads after outreach/marketing automation is turned on.
+
+links:
+  production: null
+  analytics: null
