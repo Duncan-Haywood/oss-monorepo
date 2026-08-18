@@ -45,7 +45,6 @@ const GIT_ENV = { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOS
 const APP_DIR = path.join(REPO_ROOT, 'platform/k8s/apps/print-atelier');
 const DEPLOYMENT = path.join(APP_DIR, 'deployment.yaml');
 const VENTURE_DIR = path.join(REPO_ROOT, 'ventures/print-atelier');
-const SRC_DIR = path.join(VENTURE_DIR, 'src');
 const ENV_EXAMPLE = path.join(VENTURE_DIR, '.env.example');
 
 /** The one Secret every credential must come from. */
@@ -126,14 +125,29 @@ const EXCLUDED = [
   { name: 'VERCEL_PROJECT_ID', reason: 'Vercel platform variable, as VERCEL' },
   {
     name: 'CONVEX_URL',
+    // Re-grounded 2026-08-17. The previous reason was "its only consumer is
+    // convex-sync-status.ts, where the configured and unconfigured branches are
+    // the same literal, so setting it changes no behaviour", checked by a regex
+    // for `isConvexConfigured ? "synced" : "synced"`. That stopped being true —
+    // the module now answers "unconfigured" when Convex is not configured — and
+    // the check did not notice, because the comment above the fixed line quotes
+    // the old expression. See `stripTsComments`.
+    //
+    // With the comment stripped, the old predicate is false and the exclusion
+    // had to be re-argued from scratch rather than the guard relaxed. It does
+    // survive, on a narrower and stronger ground: the value is read, but by a
+    // module nothing in the venture calls, so no request to a running pod can
+    // observe it. That is now what the predicate checks, and it fires on any
+    // wiring at all — including a wiring that keeps the branches collapsed,
+    // which the old predicate would have let through.
     reason:
-      'its only consumer is convex-sync-status.ts, where the configured and unconfigured branches are the same literal, so setting it changes no behaviour',
-    stillTrue: () =>
-      /isConvexConfigured\s*\?\s*"synced"\s*:\s*"synced"/.test(
-        read(path.join(SRC_DIR, 'lib/convex-sync-status.ts'))
-      ),
+      'nothing in a running pod can observe it. Its only consumer is src/lib/convex-sync-status.ts, and no tracked source file under ventures/print-atelier/src references that module — it is reachable from tests only. Supplying the variable would ask an operator to populate a credential for a Convex deployment this venture has no client, dependency or convex/ directory for, and whose only effect would be to flip that module from "unconfigured" to a "synced" it does not measure.',
+    stillTrue: () => {
+      const { referencing, reading } = convexSyncStatusReach();
+      return referencing.length === 0 && reading.length === 0;
+    },
     stillTrueMessage:
-      'convex-sync-status.ts no longer collapses both branches to "synced", so CONVEX_URL now changes behaviour and must be supplied to the pod',
+      'ventures/print-atelier/src now reaches CONVEX_URL from a running code path — either a source file references convex-sync-status.ts, or one reads CONVEX_URL directly. Setting the variable is therefore observable and it must be supplied to the pod, or this entry re-argued. Note that convex-sync-status.ts derives "synced"/"healthy" from the variable alone, with no Convex client behind it, so a surface wired to it reports a sync that nothing performs: fix that before supplying the key.',
   },
 ];
 
@@ -158,6 +172,71 @@ const ENV_EXAMPLE_GAPS = [];
 
 function read(file) {
   return fs.readFileSync(file, 'utf8');
+}
+
+/**
+ * Blank out `/* *\/` and `//` spans, preserving line structure.
+ *
+ * A `stillTrue` predicate reads source to check whether a claim still holds, and
+ * source contains prose about the very thing being checked. The `CONVEX_URL`
+ * entry below is the worked example: its predicate used to be
+ *
+ *   /isConvexConfigured\s*\?\s*"synced"\s*:\s*"synced"/
+ *
+ * asserting that `convex-sync-status.ts` collapsed both branches to the same
+ * literal. The file stopped collapsing them — line 43 now reads
+ * `isConvexConfigured ? "synced" : "unconfigured"` — and the predicate stayed
+ * true anyway, because the comment above that line quotes the old expression
+ * verbatim while explaining the fix. The guard whose whole job was to expire the
+ * exclusion could no longer fire for any input, and the suite passed 10/10.
+ *
+ * So every predicate that greps TypeScript goes through here first. The same
+ * shape as `strip_ts_comments` in `scripts/ci/cap_ratchet.py`, and the same
+ * reason: a scanner must count what the code does, never how well it is
+ * documented. `platform/ci/test/mktemp-template.test.mjs` does the shell
+ * equivalent with `stripShellComment`.
+ *
+ * Deliberately not a parser, exactly as cap_ratchet is not: `"https://x"` inside
+ * a string literal loses its `//x`. That direction is safe here — it can only
+ * remove text from a predicate's view, and every predicate below is written so
+ * that seeing less makes it fail rather than pass.
+ */
+function stripTsComments(source) {
+  const withoutBlocks = source.replace(/\/\*[\s\S]*?\*\//g, (span) =>
+    span.replace(/[^\n]/g, ' ')
+  );
+  return withoutBlocks.replace(/\/\/[^\n]*/g, '');
+}
+
+/** A TypeScript source as a predicate must see it: code only, comments blanked. */
+function readTsSource(file) {
+  return stripTsComments(read(file));
+}
+
+const CONVEX_SYNC_STATUS = 'ventures/print-atelier/src/lib/convex-sync-status.ts';
+
+/**
+ * Tracked `ventures/print-atelier/src` files that mention `convex-sync-status`
+ * in code, and those that read `CONVEX_URL` in code — the module itself
+ * excluded from both, since it is the thing being asked about.
+ *
+ * Returned as `{ referencing, reading }` rather than a boolean so the failure
+ * message can name the file that broke the claim, and so the non-vacuity test
+ * below can check the scan reaches the source at all.
+ */
+function convexSyncStatusReach() {
+  const referencing = [];
+  const reading = [];
+  for (const file of trackedSourceFiles()) {
+    const rel = path.relative(REPO_ROOT, file);
+    if (rel === CONVEX_SYNC_STATUS) continue;
+    const code = readTsSource(file);
+    if (code.includes('convex-sync-status')) referencing.push(rel);
+    // `\b` before `CONVEX_URL` does not match inside `NEXT_PUBLIC_CONVEX_URL`
+    // (`_` is a word character), which is a separate entry with its own reason.
+    if (/\bCONVEX_URL\b/.test(code)) reading.push(rel);
+  }
+  return { referencing, reading };
 }
 
 /** Tracked source files, so build output and node_modules cannot reach the scan. */
@@ -343,6 +422,69 @@ test('print-atelier deployment env - the manifest parser sees the env list', () 
     names.length,
     `duplicate env names in ${path.relative(REPO_ROOT, DEPLOYMENT)}: the later entry wins silently in Kubernetes`
   );
+});
+
+test('print-atelier deployment env - a source predicate reads code, not the prose about it', () => {
+  // The defect this exists for, reproduced. The comment says one thing and the
+  // code says the opposite; a predicate that does not strip comments cannot
+  // tell them apart, and answers about the comment.
+  const fixed = [
+    'const now = new Date().toISOString();',
+    '// Was `isConvexConfigured ? "synced" : "synced"`, i.e. "synced" unconditionally,',
+    '// with `overallStatus` likewise pinned to "healthy".',
+    'const baseStatus = isConvexConfigured ? "synced" : "unconfigured";',
+  ].join('\n');
+  const collapsed = 'const baseStatus = isConvexConfigured ? "synced" : "synced";';
+  const collapsePattern = /isConvexConfigured\s*\?\s*"synced"\s*:\s*"synced"/;
+
+  assert.ok(
+    collapsePattern.test(fixed),
+    'the fixture no longer reproduces the defect: the raw text must match, or this test proves nothing'
+  );
+  assert.ok(
+    !collapsePattern.test(stripTsComments(fixed)),
+    'stripTsComments left a line comment behind, so a `stillTrue` predicate can still be answered by a ' +
+      'comment describing the bug it is meant to detect'
+  );
+  assert.ok(
+    collapsePattern.test(stripTsComments(collapsed)),
+    'stripTsComments removed live code. A stripper that eats the thing being checked turns every predicate ' +
+      'into a permanent false, which is a different way to stop measuring'
+  );
+
+  // Block comments blank rather than delete, so line numbers in any failure
+  // message still point at the right line.
+  const block = 'const a = 1;\n/* CONVEX_URL\n   convex-sync-status */\nconst b = 2;';
+  const strippedBlock = stripTsComments(block);
+  assert.equal(strippedBlock.split('\n').length, block.split('\n').length);
+  assert.ok(!/\bCONVEX_URL\b/.test(strippedBlock));
+  assert.ok(!strippedBlock.includes('convex-sync-status'));
+  assert.ok(strippedBlock.includes('const a = 1;') && strippedBlock.includes('const b = 2;'));
+});
+
+test('print-atelier deployment env - the convex-sync-status reach scan can see the source', () => {
+  const tracked = trackedSourceFiles().map((file) => path.relative(REPO_ROOT, file));
+  assert.ok(
+    tracked.includes(CONVEX_SYNC_STATUS),
+    `${CONVEX_SYNC_STATUS} is not in the tracked source list. The CONVEX_URL exemption is argued from "no ` +
+      'file references this module"; if the module itself is gone the scan is asking about nothing and the ' +
+      'exemption must be deleted rather than left to pass vacuously.'
+  );
+  assert.ok(
+    tracked.length >= 50,
+    `only ${tracked.length} tracked source file(s); the reach scan below runs over almost nothing and would ` +
+      'report "no file references it" for a repository it cannot see'
+  );
+
+  // The scan finds a reference when there is one to find. `convexSyncStatusReach`
+  // is asserted to be empty by the CONVEX_URL exemption, so without this the
+  // green could equally mean "the scan matches nothing, ever".
+  const referencingSource = 'import { checkConvexDatabaseSyncStatus } from "@/lib/convex-sync-status";';
+  const readingSource = 'const url = process.env.CONVEX_URL;';
+  assert.ok(stripTsComments(referencingSource).includes('convex-sync-status'));
+  assert.ok(/\bCONVEX_URL\b/.test(stripTsComments(readingSource)));
+  // …and does not fire on the neighbouring variable, which has its own entry.
+  assert.ok(!/\bCONVEX_URL\b/.test('const u = process.env.NEXT_PUBLIC_CONVEX_URL;'));
 });
 
 // ---------------------------------------------------------------------------
