@@ -1,0 +1,28 @@
+name: print-atelier
+description: AI-first, software-driven marketplace that digitizes physical art and sells prints via print-on-demand, paying artists 30% of net profit.
+stage: idea
+
+owner: duncan
+
+hypotheses:
+  - claim: Artists will supply work and buyers will purchase prints through an AI-automated, dual-sided print-on-demand marketplace.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 30
+  protected: true
+
+kill_criteria:
+  - No artist is onboarded, even informally, within 90 days.
+  - No real Stripe Connect payout completes within 120 days of first artist onboarding.
+
+links:
+  production: null
+  analytics: null
