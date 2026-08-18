@@ -1,4 +1,9 @@
-import { catalogArtworks, type CatalogArtwork } from "./marketplace";
+import {
+  catalogArtworks,
+  calculatePrintEconomics,
+  roundCurrency,
+  type CatalogArtwork,
+} from "./marketplace";
 import { resolvePrintfulVariantId, defaultPrintfulVariantMappings } from "./printful-variant-map";
 import { resolveGelatoProductUid, defaultGelatoVariantMappings } from "./gelato-variant-map";
 
@@ -168,9 +173,6 @@ export function optimizeFulfillmentRouting(
   const retailPriceUsd = overrideRetailPriceUsd ?? artwork?.retailPrice ?? 120;
   const artworkTitle = artwork?.title ?? catalogSlug;
 
-  // 30% net profit split promise to artist (30% of retail price)
-  const artistPayoutUsd = Math.round(retailPriceUsd * 0.3 * 100) / 100;
-
   const printfulQuote = getBaseFulfillmentQuote("printful", catalogSlug, region, retailPriceUsd);
   const gelatoQuote = getBaseFulfillmentQuote("gelato", catalogSlug, region, retailPriceUsd);
 
@@ -205,8 +207,34 @@ export function optimizeFulfillmentRouting(
       ? Math.max(0, Math.round((alternateQuote.totalFulfillmentCostUsd - selectedQuote.totalFulfillmentCostUsd) * 100) / 100)
       : 0;
 
-  const platformProfitUsd =
-    Math.round((retailPriceUsd - artistPayoutUsd - selectedQuote.totalFulfillmentCostUsd) * 100) / 100;
+  // The artist's 30% is a share of NET PROFIT, not of retail. Retail still
+  // contains the payment fee, the POD fulfillment cost and the AI compute cost,
+  // so 30% of retail is materially larger: on a $120 print, which routes to
+  // Gelato in the US, it is $36.00 against a true share of $25.06 — a ~44%
+  // overstatement of
+  // what the artist is owed, and the same dollars understated as platform margin.
+  //
+  // This is derived from `calculatePrintEconomics`, the one engine that owns this
+  // split, rather than re-typing `* 0.3` here on a different basis. The two had
+  // already drifted apart while both looked correct; see the artist payout pins
+  // in scripts/ci/cap_ratchet.py, which name this exact divergence.
+  //
+  // The fulfillment cost used is the SELECTED provider's, so the payout tracks
+  // the routing decision this function actually makes.
+  const economics = calculatePrintEconomics({
+    retailPrice: retailPriceUsd,
+    fulfillmentCost: selectedQuote.totalFulfillmentCostUsd,
+  });
+
+  // A loss-making order owes the artist nothing; it does not claw back from them.
+  // The loss stays with the platform below, and `isArtistPayoutGuaranteed`
+  // reports it. Mirrors the clamp `simulateStripeConnectPayout` already applies.
+  const artistPayoutUsd = Math.max(0, economics.artistShare);
+
+  // Net profit splits into exactly these two parts, so whatever the clamp above
+  // withholds from the artist is borne here rather than vanishing from the
+  // record. Where net profit is positive this equals `economics.platformShare`.
+  const platformProfitUsd = roundCurrency(economics.netProfit - artistPayoutUsd);
   const platformProfitMarginPct =
     retailPriceUsd > 0 ? Math.round((platformProfitUsd / retailPriceUsd) * 1000) / 10 : 0;
 
