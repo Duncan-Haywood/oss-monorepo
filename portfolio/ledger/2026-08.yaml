@@ -138,3 +138,58 @@ entries:
         mat-470-real-analysis/ubuntu-agent-server placement; #1/#2 remain
         low-risk to review whenever convenient.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per CLAUDE.md. Found #36, opened minutes
+        before this session started, which already did the consolidation
+        this backlog needed: bases on #17's internal `portfolio/pipeline/`
+        (not the deployed ai-first-markets site), reconciles ~36 candidates
+        from #17/#18/#20/#27/#30/#34 down to 7 that pass hard liability/
+        ethics gates, and deliberately leaves the five app-side PRs open
+        rather than closing them, since publishing to the live site is
+        still the account owner's call. Did not redo this work or open an
+        eighth screening PR.
+      - >-
+        Independently verified #36's most important claim rather than
+        trusting the PR body: queried the Actions API directly. Confirmed
+        GitHub Actions is genuinely broken repo-wide right now — every run
+        since 2026-08-18T21:30 UTC (116 runs, including direct pushes to
+        `main` and scheduled triggers) completes with conclusion
+        `startup_failure` and an empty workflow name, meaning no workflow
+        file is even being parsed. The only successful run on record for
+        any workflow in this repo is from 2026-07-29. This is new
+        information: the previous cycle's ledger entry investigated the
+        same symptom and concluded it was a harmless deleted-workflow
+        leftover that "cannot mark future commits red" — that conclusion
+        was wrong, #36 corrected it, and this cycle confirmed the
+        correction with fresh API data. Breakage started before
+        opencode-high-throughput.yml existed (created 21:42, failures
+        start 21:30), which rules out that workflow's file as the cause
+        and points at something account/quota-level instead. Re-verified
+        `validate.py` and the router test suite locally (still the only
+        working verification path) — 9/9 VENTURE.yaml valid, 12/12 tests
+        pass.
+      - >-
+        Did not touch #17/#18/#20/#27/#30/#34/#36 (content-judgment and
+        merge-timing call for the account owner, per #36's own PR body) or
+        #19 (second unattended agent fleet) or #1/#2 (untested, no
+        VENTURE.yaml, unrelated Swift/Garmin sources). Sent a notification
+        about the Actions outage specifically, since it is new, verified,
+        and blocks trusting any CI status in this repo until the account
+        owner checks the Actions/billing settings — something no agent
+        session can see or fix from here.
+      - >-
+        Still unresolved, needs the account owner: (1) check the repo's
+        GitHub Actions tab / billing / spending limit — Actions has been
+        completely non-functional since ~21:30 UTC today; (2) review and
+        merge #36 (or not) and decide the fate of #17/#18/#20/#27/#30/#34
+        per its consolidation memo; (3) decide on #19; (4) the recurring
+        "research new business projects" scheduled task is confirmed as
+        the actual source of the six-PR duplicate storm (not the OpenCode
+        fleet, which prior cycles blamed) and keeps firing against an
+        already-answered brief — worth changing its interval or prompt;
+        (5) #1/#2 remain low-risk to review whenever convenient.
+    mrr_end: null
