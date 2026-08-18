@@ -8,6 +8,8 @@ import {
   averageScore,
   categoryLabel,
   formatArr,
+  liabilityColor,
+  liabilityLabel,
   monthsLabel,
   verdictColor,
   verdictLabel,
@@ -42,6 +44,13 @@ export default async function IdeaDetailPage({ params }: IdeaPageProps) {
           </span>
           <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-xs text-emerald-400">
             Score: {score}/100
+          </span>
+          <span
+            className={`rounded-full bg-zinc-800 px-3 py-1 text-xs ${liabilityColor(
+              idea.liability.level,
+            )}`}
+          >
+            {liabilityLabel(idea.liability.level)}
           </span>
         </div>
         <h1 className="mt-4 text-3xl font-semibold text-zinc-50 sm:text-4xl">
@@ -92,6 +101,40 @@ export default async function IdeaDetailPage({ params }: IdeaPageProps) {
                   rationale={dim.rationale}
                 />
               ))}
+            </div>
+          </Section>
+
+          <Section title="Liability and risk controls">
+            <p className="text-zinc-400">
+              Rated{" "}
+              <span className={liabilityColor(idea.liability.level)}>
+                {liabilityLabel(idea.liability.level).toLowerCase()}
+              </span>{" "}
+              after the controls below are in place. The rating describes
+              exposure the operator carries, not how hard the business is to
+              build.
+            </p>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
+                <p className="text-xs font-medium uppercase text-zinc-500">
+                  Exposures
+                </p>
+                <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-zinc-400">
+                  {idea.liability.exposures.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
+                <p className="text-xs font-medium uppercase text-zinc-500">
+                  Controls
+                </p>
+                <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-zinc-400">
+                  {idea.liability.controls.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </Section>
 

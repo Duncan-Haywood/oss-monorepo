@@ -16,6 +16,9 @@ import {
   averageScore,
   categoryLabel,
   formatArr,
+  liabilityColor,
+  liabilityLabel,
+  liabilityWeight,
   monthsLabel,
   verdictColor,
   verdictLabel,
@@ -48,6 +51,8 @@ export default async function ReportPage({ params }: ReportPageProps) {
       return <AutomationPlaybookReport />;
     case "scoring-methodology":
       return <ScoringMethodologyReport />;
+    case "liability-screen":
+      return <LiabilityScreenReport />;
     case "category-analysis":
       return <CategoryAnalysisReport />;
     default:
@@ -67,14 +72,24 @@ function ExecutiveSummaryReport() {
   return (
     <ReportLayout
       title="Executive Summary"
-      description="Portfolio overview of 8 software-first, AI-first business ideas evaluated for solo-founder viability with zero employees."
+      description={`Portfolio overview of ${ideas.length} software-first, AI-first business ideas evaluated for solo-founder viability with zero employees.`}
       badge="Overview"
     >
       <Callout variant="success">
-        <strong>Bottom line:</strong> Three ideas have a &quot;strong&quot;
-        verdict for reaching $100k ARR within 14 months: AI PR Review Agent,
-        AI Receptionist for Trades, and LinkedIn Content Engine. For $1M ARR,
-        AI QA for E-commerce and AI PR Review Agent lead the portfolio.
+        <strong>Bottom line:</strong> {strong100k.length} ideas carry a
+        &quot;strong&quot; verdict for reaching $100k ARR:{" "}
+        {strong100k.map((i) => i.name).join(", ")}. For $1M ARR the leaders are{" "}
+        {getTopIdeasForMilestone("1m", 2)
+          .map((i) => i.name)
+          .join(" and ")}
+        . Every idea also carries a liability rating — see the{" "}
+        <Link
+          href="/reports/liability-screen"
+          className="text-emerald-400 hover:text-emerald-300"
+        >
+          risk screen
+        </Link>{" "}
+        before acting on a ranking.
       </Callout>
 
       <Section title="Evaluation criteria">
@@ -84,6 +99,13 @@ function ExecutiveSummaryReport() {
           defensibility, and distribution. Milestone plans include optimistic,
           realistic, and pessimistic timelines with specific customer counts and
           automation stacks.
+        </p>
+        <p className="mt-4 text-zinc-400">
+          Scores are not the whole decision. Each idea also carries a liability
+          rating — the legal and financial exposure left over after the
+          controls built into the product design. A high score with medium
+          exposure is a different proposition for a one-person operator than
+          the same score with low exposure.
         </p>
       </Section>
 
@@ -518,6 +540,147 @@ function ScoringMethodologyReport() {
           ))}
         </div>
       </Section>
+    </ReportLayout>
+  );
+}
+
+function LiabilityScreenReport() {
+  const ideas = [...getAllIdeas()].sort(
+    (a, b) =>
+      liabilityWeight(a.liability.level) - liabilityWeight(b.liability.level) ||
+      a.rank100k - b.rank100k,
+  );
+
+  const counts = ideas.reduce(
+    (acc, idea) => {
+      acc[idea.liability.level] += 1;
+      return acc;
+    },
+    { low: 0, medium: 0, high: 0 } as Record<string, number>,
+  );
+
+  return (
+    <ReportLayout
+      title="Liability & Risk Screen"
+      description="Every idea rated for the legal and financial exposure its operator carries, and the controls that hold the rating in place."
+      badge="Deep Dive"
+    >
+      <Callout variant="info">
+        <strong>What this rates:</strong> exposure that survives the listed
+        controls — not how hard the business is to build, and not regulatory
+        complexity in the abstract. An idea rated <em>medium</em> is not
+        disqualified; it has to earn the exposure with margin or defensibility
+        the low-risk ideas cannot match.
+      </Callout>
+
+      <Section title="Distribution">
+        <DataTable
+          headers={["Rating", "Ideas", "What it means for a one-person operator"]}
+          rows={[
+            [
+              "Low",
+              String(counts.low),
+              "Standard SaaS terms, a DPA, and disciplined scoping cover it.",
+            ],
+            [
+              "Medium",
+              String(counts.medium),
+              "Needs a specific control in the product design itself, not just in the contract.",
+            ],
+            [
+              "High",
+              String(counts.high),
+              "Needs insurance, a licensed party in the loop, or a narrowed buyer before launch.",
+            ],
+          ]}
+        />
+      </Section>
+
+      <Section title="Three controls that recur across the portfolio">
+        <ul className="list-inside list-disc space-y-2 text-zinc-400">
+          <li>
+            <strong className="text-zinc-200">Advise, do not act.</strong>{" "}
+            Products that open a pull request, draft a document, or send a
+            report leave the consequential action with the customer. Every
+            idea that auto-executes against production carries a materially
+            worse profile.
+          </li>
+          <li>
+            <strong className="text-zinc-200">
+              Stay out of the request path.
+            </strong>{" "}
+            Async ingestion and scheduled collection mean an outage here is not
+            an outage for the customer. This is a design decision, and it is
+            the difference between low and medium on several ideas.
+          </li>
+          <li>
+            <strong className="text-zinc-200">
+              Sell to someone who keeps the professional judgment.
+            </strong>{" "}
+            Where output is legal, medical, or safety-adjacent, the buyer
+            should be a platform or firm with a licensed human downstream —
+            never an end consumer relying on it directly.
+          </li>
+        </ul>
+      </Section>
+
+      <Section title="Rated ideas">
+        <div className="space-y-4">
+          {ideas.map((idea) => (
+            <div
+              key={idea.id}
+              className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5"
+            >
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                  <Link
+                    href={`/ideas/${idea.slug}`}
+                    className="text-lg font-semibold text-zinc-50 hover:text-emerald-400"
+                  >
+                    {idea.name}
+                  </Link>
+                  <p className="mt-1 text-sm text-zinc-500">
+                    {categoryLabel(idea.category)} · score{" "}
+                    {averageScore(idea.dimensions)}
+                  </p>
+                </div>
+                <span
+                  className={`text-sm font-medium ${liabilityColor(
+                    idea.liability.level,
+                  )}`}
+                >
+                  {liabilityLabel(idea.liability.level)}
+                </span>
+              </div>
+
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <div>
+                  <p className="text-xs font-medium uppercase text-zinc-500">
+                    Primary exposure
+                  </p>
+                  <p className="mt-1 text-sm text-zinc-400">
+                    {idea.liability.exposures[0]}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium uppercase text-zinc-500">
+                    Controlling design choice
+                  </p>
+                  <p className="mt-1 text-sm text-zinc-400">
+                    {idea.liability.controls[0]}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Callout variant="warning">
+        This screen is an operator&apos;s risk assessment, not legal advice.
+        Anything rated medium or high should be reviewed by a lawyer in the
+        relevant jurisdiction before the first customer, not after.
+      </Callout>
     </ReportLayout>
   );
 }

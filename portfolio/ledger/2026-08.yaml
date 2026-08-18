@@ -1,0 +1,18 @@
+period: 2026-08
+entries:
+  - venture: ai-first-markets
+    # Model spend for this cycle was not metered at the agent boundary, so it
+    # is unmeasured rather than zero. See portfolio/router/README.md on why
+    # the two must not be conflated.
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - Screened 25 candidate software businesses against hard filters for
+        solo-operator viability, capital, liability, and ethics.
+      - Advanced 6 candidates to full evaluation (14 ideas total); recorded
+        19 cuts with reasons in docs/research/2026-08-candidate-screen.md.
+      - Added a liability rating to the evaluation schema and backfilled all
+        8 pre-existing ideas; shipped a Liability & Risk Screen report.
+      - Recommended validating local-answer-visibility first; kill test is
+        20 manual reports for under $200 of model spend. Not yet run.
+    mrr_end: null

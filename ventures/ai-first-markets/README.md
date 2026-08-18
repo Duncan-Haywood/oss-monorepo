@@ -11,9 +11,10 @@ Built with Next.js 15, TypeScript, Tailwind CSS, and deployable to **Cloudflare 
 ## Features
 
 - **AI-first market map** with ripeness signals, market tiers, and winning patterns
-- **8 evaluated business ideas** across devtools, vertical SaaS, AI agents, API infrastructure, and content automation
-- **6 analytical reports**: executive summary, $100k path, $1M path, automation playbook, scoring methodology, category analysis
+- **14 evaluated business ideas** across devtools, vertical SaaS, AI agents, API infrastructure, content automation, and data products
+- **7 analytical reports**: executive summary, $100k path, $1M path, automation playbook, scoring methodology, liability screen, category analysis
 - **Scoring framework** across AI leverage, zero-employee ops, time-to-revenue, margin, defensibility, and distribution
+- **Liability rating** per idea — the exposure left after the controls built into the product design
 - **Whitelist-only access** for `duncan.andrew.haywood@gmail.com`
 - **Cloudflare deployment** ready with OpenNext adapter
 
@@ -83,7 +84,17 @@ src/
 | Path to $1M ARR | Scaling analysis and platform distribution patterns |
 | AI + Zero-Employee Playbook | Operational stack for solo AI-first SaaS |
 | Scoring Methodology | How ideas are evaluated |
+| Liability & Risk Screen | Exposure rating per idea and the controls behind it |
 | Category Analysis | Comparison across idea categories |
+
+## Research
+
+Screening memos live in [`docs/research/`](docs/research/). Each records the
+full candidate universe, including what was cut and why — a screen that only
+keeps its winners cannot be audited later.
+
+- [2026-08 candidate screen](docs/research/2026-08-candidate-screen.md) — six
+  new candidates advanced, nineteen cut, with the reasoning for each.
 
 ## Top recommendations
 
@@ -91,11 +102,17 @@ src/
 1. AI PR Review Agent
 2. AI Receptionist for Trades
 3. LinkedIn Content Engine
+4. Answer Engine Visibility for Local Services
 
 **$1M ARR (viable+):**
 1. AI QA for E-commerce
 2. AI PR Review Agent
-3. API Uptime Intelligence
+3. AI Receptionist for Trades
+
+**Validate next:** Answer Engine Visibility for Local Services — reuses the
+`local-site-studio` channel, and the kill test costs under $200 of model
+spend. See the [screening memo](docs/research/2026-08-candidate-screen.md) for
+why, and for what not to start yet.
 
 ## License
 

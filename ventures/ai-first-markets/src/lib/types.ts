@@ -10,6 +10,19 @@ export type IdeaCategory =
 
 export type RiskLevel = "low" | "medium" | "high";
 
+/**
+ * Legal and financial exposure carried by the business, and the design
+ * choices that hold it down. This is a screen, not a score: an idea with
+ * `high` liability is not disqualified, but it has to earn the exposure.
+ */
+export interface LiabilityProfile {
+  level: RiskLevel;
+  /** What could realistically go wrong legally or financially. */
+  exposures: string[];
+  /** Design and policy choices that keep the exposure at `level`. */
+  controls: string[];
+}
+
 export interface ScoreDimension {
   key: string;
   label: string;
@@ -43,6 +56,7 @@ export interface BusinessIdea {
   aiLeverage: string[];
   zeroEmployeeOps: string[];
   dimensions: ScoreDimension[];
+  liability: LiabilityProfile;
   plans: MilestonePlan[];
   competitors: string[];
   moat: string;

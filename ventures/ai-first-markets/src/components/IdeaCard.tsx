@@ -4,6 +4,8 @@ import {
   averageScore,
   categoryLabel,
   formatArr,
+  liabilityColor,
+  liabilityLabel,
   verdictColor,
   verdictLabel,
 } from "@/lib/utils";
@@ -31,6 +33,12 @@ export function IdeaCard({ idea, milestone = "100k" }: IdeaCardProps) {
             </span>
             <span className="text-xs text-zinc-500">
               {categoryLabel(idea.category)}
+            </span>
+            <span
+              className={`text-xs ${liabilityColor(idea.liability.level)}`}
+              title="Legal and financial exposure after the stated controls"
+            >
+              {liabilityLabel(idea.liability.level)}
             </span>
           </div>
           <h3 className="mt-2 text-lg font-semibold text-zinc-50 group-hover:text-emerald-400">

@@ -39,6 +39,13 @@ export const reports: ReportMeta[] = [
     type: "deep-dive",
   },
   {
+    slug: "liability-screen",
+    title: "Liability & Risk Screen",
+    description:
+      "Every idea rated for the legal and financial exposure its operator carries, and the controls that keep the rating where it is.",
+    type: "deep-dive",
+  },
+  {
     slug: "category-analysis",
     title: "Category Analysis",
     description:
