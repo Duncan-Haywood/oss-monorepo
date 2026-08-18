@@ -1,4 +1,4 @@
-import type { BusinessIdea, ScoreDimension } from "./types";
+import type { BusinessIdea, RiskLevel, ScoreDimension } from "./types";
 
 export function averageScore(dimensions: ScoreDimension[]): number {
   if (dimensions.length === 0) return 0;
@@ -40,6 +40,36 @@ export function verdictColor(
       return "text-rose-400";
     default: {
       const _exhaustive: never = verdict;
+      return _exhaustive;
+    }
+  }
+}
+
+export function riskLabel(level: RiskLevel): string {
+  switch (level) {
+    case "low":
+      return "Low liability";
+    case "medium":
+      return "Medium liability";
+    case "high":
+      return "High liability";
+    default: {
+      const _exhaustive: never = level;
+      return _exhaustive;
+    }
+  }
+}
+
+export function riskColor(level: RiskLevel): string {
+  switch (level) {
+    case "low":
+      return "text-emerald-400";
+    case "medium":
+      return "text-amber-400";
+    case "high":
+      return "text-rose-400";
+    default: {
+      const _exhaustive: never = level;
       return _exhaustive;
     }
   }

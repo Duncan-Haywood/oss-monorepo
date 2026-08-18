@@ -39,6 +39,13 @@ export const reports: ReportMeta[] = [
     type: "deep-dive",
   },
   {
+    slug: "venture-screen-2026-08",
+    title: "New Venture Screen — August 2026",
+    description:
+      "Six candidate businesses added after a liability-first screen, plus the categories deliberately rejected and why.",
+    type: "deep-dive",
+  },
+  {
     slug: "category-analysis",
     title: "Category Analysis",
     description:

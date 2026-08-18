@@ -17,6 +17,7 @@ import {
   categoryLabel,
   formatArr,
   monthsLabel,
+  riskLabel,
   verdictColor,
   verdictLabel,
 } from "@/lib/utils";
@@ -48,6 +49,8 @@ export default async function ReportPage({ params }: ReportPageProps) {
       return <AutomationPlaybookReport />;
     case "scoring-methodology":
       return <ScoringMethodologyReport />;
+    case "venture-screen-2026-08":
+      return <VentureScreen202608Report />;
     case "category-analysis":
       return <CategoryAnalysisReport />;
     default:
@@ -64,17 +67,33 @@ function ExecutiveSummaryReport() {
     (i) => i.plans.find((p) => p.milestone === "1m")?.verdict === "strong",
   );
 
+  const nameList = (list: typeof ideas) =>
+    list.map((i) => i.name).join(", ");
+
   return (
     <ReportLayout
       title="Executive Summary"
-      description="Portfolio overview of 8 software-first, AI-first business ideas evaluated for solo-founder viability with zero employees."
+      description={`Portfolio overview of ${ideas.length} software-first, AI-first business ideas evaluated for solo-founder viability with zero employees.`}
       badge="Overview"
     >
       <Callout variant="success">
-        <strong>Bottom line:</strong> Three ideas have a &quot;strong&quot;
-        verdict for reaching $100k ARR within 14 months: AI PR Review Agent,
-        AI Receptionist for Trades, and LinkedIn Content Engine. For $1M ARR,
-        AI QA for E-commerce and AI PR Review Agent lead the portfolio.
+        <strong>Bottom line:</strong> {strong100k.length} ideas carry a
+        &quot;strong&quot; verdict for reaching $100k ARR:{" "}
+        {nameList(strong100k)}. For $1M ARR,{" "}
+        {nameList(getTopIdeasForMilestone("1m", 2))} lead the portfolio.
+      </Callout>
+
+      <Callout variant="info">
+        <strong>Since the August 2026 screen:</strong> six candidates were added
+        under an explicit liability, capital, and autonomy filter, and eleven
+        categories were rejected outright — see the{" "}
+        <Link
+          href="/reports/venture-screen-2026-08"
+          className="underline hover:text-sky-100"
+        >
+          new venture screen
+        </Link>
+        .
       </Callout>
 
       <Section title="Evaluation criteria">
@@ -582,6 +601,271 @@ function CategoryAnalysisReport() {
           <strong>Highest risk:</strong> API infrastructure and legal AI —
           commoditization and liability concerns limit defensibility.
         </Callout>
+      </Section>
+    </ReportLayout>
+  );
+}
+
+const screenSources: { label: string; url: string }[] = [
+  {
+    label: "EU AI Act implementation timeline (artificialintelligenceact.eu)",
+    url: "https://artificialintelligenceact.eu/implementation-timeline/",
+  },
+  {
+    label: "AI Act update: changed rules and extended deadlines (Latham & Watkins)",
+    url: "https://www.lw.com/en/insights/ai-act-update-eu-resolves-to-change-rules-and-extend-deadlines",
+  },
+  {
+    label: "Proposed deferral of high-risk AI obligations (DLA Piper)",
+    url: "https://knowledge.dlapiper.com/dlapiperknowledge/globalemploymentlatestdevelopments/2026/The-Digital-AI-Omnibus-Proposed-deferral-of-high-risk-AI-obligations-under-the-AI-Act",
+  },
+  {
+    label: "California AI Transparency Act (SB 942) deadlines (National Law Review)",
+    url: "https://natlawreview.com/article/californias-ongoing-ai-regulation-key-deadlines-arriving-2026-and-beyond",
+  },
+  {
+    label: "MCP adoption and emerging monetization models (2026)",
+    url: "https://medium.com/mcp-server/the-rise-of-mcp-protocol-adoption-in-2026-and-emerging-monetization-models-cb03438e985c",
+  },
+  {
+    label: "AI Act compliance tooling: what exists today (Legiscope)",
+    url: "https://www.legiscope.com/blog/ai-act-compliance-tools.html",
+  },
+];
+
+/** First clause only — the table has one line per idea, the detail page has the rest. */
+function capitalHeadline(capitalNeed: string): string {
+  return capitalNeed.split(/[;—]/)[0].trim().replace(/,$/, "");
+}
+
+function VentureScreen202608Report() {
+  const screened = businessIdeas
+    .filter((idea) => idea.screenedAt === "2026-08")
+    .sort((a, b) => a.rank100k - b.rank100k);
+
+  return (
+    <ReportLayout
+      title="New Venture Screen — August 2026"
+      description="Candidate businesses evaluated for a portfolio that has to be run by agents: AI-heavy, no employees, low capital, and — the binding constraint — low liability."
+      badge="Deep Dive"
+    >
+      <Callout variant="info">
+        <strong>Why this screen exists:</strong> the original eight ideas were
+        scored on upside — AI leverage, margin, time to revenue. None of those
+        dimensions asks what happens when the product is wrong. For a business
+        with no employees and no legal team, that question decides which
+        markets are enterable at all, so it is now scored explicitly on every
+        new idea.
+      </Callout>
+
+      <Section title="The filters">
+        <DataTable
+          headers={["Filter", "Test applied", "What it rules out"]}
+          rows={[
+            [
+              "AI-heavy",
+              "The model does work a person would otherwise be paid for",
+              "Thin wrappers where the AI is a feature, not the product",
+            ],
+            [
+              "No employees",
+              "Delivery scales without headcount; contractors optional and agent-coordinated",
+              "Services businesses wearing a SaaS label",
+            ],
+            [
+              "Low liability",
+              "Being wrong costs a refund, not a lawsuit or a licence",
+              "Regulated advice, safety-critical decisions, decisions about people",
+            ],
+            [
+              "Low capital",
+              "Under roughly $5k to first revenue, excluding founder time",
+              "Inventory, hardware, prepaid data licences",
+            ],
+            [
+              "Agent-operable",
+              "Build, support, billing, and marketing all runnable unattended",
+              "Anything needing a demo call to close the first sale",
+            ],
+          ]}
+        />
+      </Section>
+
+      <Section title="What the regulatory calendar changed">
+        <p className="text-zinc-400">
+          Three dates shaped which categories stayed in scope. As of August 2026
+          the EU AI Act&apos;s Article 50 transparency duties apply, which means
+          any customer-facing bot must disclose that it is a bot, and synthetic
+          content marking follows in December 2026. Most standalone high-risk
+          obligations moved out to December 2027 under the digital omnibus
+          package — but AI used in employment contexts stayed on the earlier
+          track, which is precisely why nothing in this screen touches hiring,
+          monitoring, or promotion decisions. California&apos;s SB 942, as
+          amended by AB 853, became operative on the same August date but binds
+          providers above one million monthly users, so it constrains vendors
+          rather than anything in this portfolio.
+        </p>
+        <Callout variant="warning">
+          These dates come from secondary legal commentary gathered in August
+          2026 and the omnibus process was still moving. Verify against the
+          official timeline before any of them becomes load-bearing for a
+          launch decision.
+        </Callout>
+      </Section>
+
+      <Section title="Six candidates that passed">
+        <DataTable
+          headers={[
+            "Idea",
+            "Category",
+            "$100k verdict",
+            "Liability",
+            "Capital to first revenue",
+          ]}
+          rows={screened.map((idea) => [
+            idea.name,
+            categoryLabel(idea.category),
+            verdictLabel(
+              idea.plans.find((p) => p.milestone === "100k")!.verdict,
+            ),
+            riskLabel(idea.riskProfile!.liability),
+            capitalHeadline(idea.riskProfile!.capitalNeed),
+          ])}
+        />
+        <p className="mt-4 text-sm text-zinc-500">
+          Ranks are interleaved with the original eight rather than appended,
+          so the portfolio ordering stays comparable. One candidate — the
+          regulation diff feed — is marked <em>unlikely</em> at $1M and kept
+          anyway: it is the cheapest to run and the honest read is that its
+          ceiling, not its quality, is the problem.
+        </p>
+      </Section>
+
+      <Section title="Where to start">
+        <div className="grid gap-4 lg:grid-cols-3">
+          {screened.slice(0, 3).map((idea) => (
+            <IdeaCard key={idea.id} idea={idea} milestone="100k" />
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Rejected, and why">
+        <p className="mb-4 text-zinc-400">
+          These were considered and dropped. Most are profitable for someone —
+          they are wrong for an operator who cannot absorb a bad outcome.
+        </p>
+        <DataTable
+          headers={["Candidate", "Reason it was dropped"]}
+          rows={[
+            [
+              "AI hiring screens, worker monitoring, promotion scoring",
+              "The one high-risk category that did not get a deferral, and discrimination exposure lands on the vendor as well as the employer.",
+            ],
+            [
+              "Companion or mental-health chatbots",
+              "Duty-of-care and minor-safety exposure that no disclaimer covers. Not runnable unattended at any price.",
+            ],
+            [
+              "Symptom checkers and clinical decision support",
+              "Medical device pathway; certification cost and liability are both orders of magnitude past this portfolio.",
+            ],
+            [
+              "Credit scoring, insurance pricing, debt collection automation",
+              "High-risk classification plus consumer-finance licensing (ECOA, FDCPA analogues). Wrong answers harm individuals directly.",
+            ],
+            [
+              "Trading signals or automated financial advice",
+              "Adviser registration, and a loss the customer suffers is attributable to the product.",
+            ],
+            [
+              "Accessibility overlay widgets",
+              "Cheap to build and actively harmful — it hides failures from audits. Excluded on ethics, not economics; the remediation-PR product exists as the honest version.",
+            ],
+            [
+              "Scraped-data resale (social graphs, marketplace pricing)",
+              "Terms-of-service breach, GDPR basis problems, and access-control questions. A business that depends on nobody enforcing anything.",
+            ],
+            [
+              "Voice cloning and face-swap creative tools",
+              "Misuse rate too high to supervise with no staff, plus synthetic-content marking duties.",
+            ],
+            [
+              "Auto-DM growth and engagement bots",
+              "Platform bans, anti-spam law, and it degrades the channel for everyone. Fails the ethics filter outright.",
+            ],
+            [
+              "Student assignment writing",
+              "Sells academic dishonesty. Declined regardless of margin.",
+            ],
+            [
+              "Anything custodying customer funds",
+              "Money-transmission licensing and capital requirements. The gateway idea deliberately settles through a platform instead.",
+            ],
+          ]}
+        />
+      </Section>
+
+      <Section title="Operating rules the screen implies">
+        <ul className="list-inside list-disc space-y-2 text-zinc-400">
+          <li>
+            Any customer-facing bot discloses it is a bot, in-product, by
+            default — the Article 50 baseline, applied everywhere rather than
+            only in the EU.
+          </li>
+          <li>
+            Nothing auto-merges, auto-submits, or auto-sends on a customer&apos;s
+            behalf where being wrong is expensive. The customer keeps the last
+            click.
+          </li>
+          <li>
+            Errors-and-omissions cover is bought before the first paying
+            customer in any line where a miss has a downstream cost — the COI
+            tracker is the clearest case.
+          </li>
+          <li>
+            Contracts cap liability at fees paid and state plainly what the
+            product is not: not legal advice, not insurance advice, not a
+            compliance certificate.
+          </li>
+          <li>
+            Data minimisation is the default posture: no retention of proxied
+            payloads, no pooling of tenant content, no training on customer
+            data.
+          </li>
+        </ul>
+      </Section>
+
+      <Section title="What would change these rankings">
+        <DataTable
+          headers={["Idea", "The assumption that decides it", "Cheapest test"]}
+          rows={screened.map((idea) => [
+            idea.name,
+            idea.plans.find((p) => p.milestone === "100k")!.risks[0],
+            idea.firstExperiment,
+          ])}
+        />
+      </Section>
+
+      <Section title="Sources">
+        <ul className="list-inside list-disc space-y-2 text-sm text-zinc-500">
+          {screenSources.map((source) => (
+            <li key={source.url}>
+              <a
+                href={source.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-emerald-400 hover:text-emerald-300"
+              >
+                {source.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-4 text-sm text-zinc-500">
+          Market sizing and competitor lists were assembled from public sources
+          in August 2026. Nothing here has been validated with a customer yet —
+          every verdict on this page is a prior, not a finding.
+        </p>
       </Section>
     </ReportLayout>
   );

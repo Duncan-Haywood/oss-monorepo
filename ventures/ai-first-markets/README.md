@@ -11,9 +11,10 @@ Built with Next.js 15, TypeScript, Tailwind CSS, and deployable to **Cloudflare 
 ## Features
 
 - **AI-first market map** with ripeness signals, market tiers, and winning patterns
-- **8 evaluated business ideas** across devtools, vertical SaaS, AI agents, API infrastructure, and content automation
-- **6 analytical reports**: executive summary, $100k path, $1M path, automation playbook, scoring methodology, category analysis
+- **14 evaluated business ideas** across devtools, vertical SaaS, AI agents, API infrastructure, content automation, and data products
+- **7 analytical reports**: executive summary, $100k path, $1M path, automation playbook, scoring methodology, category analysis, and the August 2026 venture screen
 - **Scoring framework** across AI leverage, zero-employee ops, time-to-revenue, margin, defensibility, and distribution
+- **Liability screen** on every idea added from August 2026 onward: regulatory exposure, data sensitivity, capital to first revenue, agent operability, and ethical guardrails
 - **Whitelist-only access** for `duncan.andrew.haywood@gmail.com`
 - **Cloudflare deployment** ready with OpenNext adapter
 
@@ -84,18 +85,32 @@ src/
 | AI + Zero-Employee Playbook | Operational stack for solo AI-first SaaS |
 | Scoring Methodology | How ideas are evaluated |
 | Category Analysis | Comparison across idea categories |
+| New Venture Screen — August 2026 | Candidates added under a liability-first filter, and the categories rejected |
 
 ## Top recommendations
 
-**$100k ARR (strong fit):**
+**$100k ARR (ranked):**
 1. AI PR Review Agent
 2. AI Receptionist for Trades
-3. LinkedIn Content Engine
+3. Accessibility Remediation Bot *(added 2026-08)*
 
-**$1M ARR (viable+):**
+**$1M ARR (ranked):**
 1. AI QA for E-commerce
-2. AI PR Review Agent
-3. API Uptime Intelligence
+2. Insurance Certificate Tracker *(added 2026-08)*
+3. AI PR Review Agent
+
+Ranks from the August 2026 screen are interleaved with the original eight
+rather than appended, so a new candidate that scores better sits higher.
+
+## What is deliberately not here
+
+The August 2026 screen rejected eleven categories on liability or ethics
+grounds — AI hiring screens, companion chatbots, clinical decision support,
+credit and collections automation, accessibility overlays, scraped-data
+resale, voice cloning, engagement bots, and anything custodying customer
+funds among them. The reasoning is recorded in the
+[venture screen report](src/app/reports/[slug]/page.tsx) so the same ideas do
+not get re-proposed each cycle.
 
 ## License
 

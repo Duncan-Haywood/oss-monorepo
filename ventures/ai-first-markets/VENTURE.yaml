@@ -8,6 +8,13 @@ hypotheses:
   - claim: A unified market map and idea-scoring system improves which AI-first venture to validate next.
     status: untested
     checked: null
+  - claim: Scoring liability, capital, and agent-operability explicitly changes which ideas rank, not just how they are described.
+    status: supported
+    checked: 2026-08-18
+    note: >-
+      The 2026-08 screen rejected eleven categories outright on liability or
+      ethics grounds and moved two new candidates above five of the original
+      eight. Supported as a ranking effect; still untested against a customer.
 
 economics:
   currency: USD

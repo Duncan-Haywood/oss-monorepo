@@ -1,0 +1,13 @@
+period: 2026-08
+entries:
+  - venture: ai-first-markets
+    # Model spend for this session was not instrumented. Recorded as null rather
+    # than estimated — see portfolio/ledger/README.md rule 1.
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - Added a liability/capital/autonomy screen to the idea schema and scored six new candidates against it.
+      - Rejected eleven candidate categories on liability or ethics grounds, with reasoning recorded so they are not re-proposed.
+      - Re-ranked the portfolio so 2026-08 candidates interleave with the original eight instead of being appended.
+      - No customer contact, no revenue, no validated hypothesis. Every verdict on the new ideas is a prior.
+    mrr_end: null

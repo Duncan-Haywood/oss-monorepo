@@ -113,7 +113,7 @@ export default function DashboardPage() {
       <section>
         <h2 className="mb-6 text-xl font-semibold text-zinc-100">Reports</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {reports.slice(0, 6).map((report) => (
+          {reports.map((report) => (
             <ReportCard key={report.slug} report={report} />
           ))}
         </div>

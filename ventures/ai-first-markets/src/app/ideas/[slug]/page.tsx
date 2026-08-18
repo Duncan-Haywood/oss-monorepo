@@ -9,6 +9,8 @@ import {
   categoryLabel,
   formatArr,
   monthsLabel,
+  riskColor,
+  riskLabel,
   verdictColor,
   verdictLabel,
 } from "@/lib/utils";
@@ -111,6 +113,54 @@ export default async function IdeaDetailPage({ params }: IdeaPageProps) {
           <Section title="Moat">
             <p className="text-zinc-400">{idea.moat}</p>
           </Section>
+
+          {idea.riskProfile && (
+            <Section title="Liability, capital, and autonomy">
+              <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5">
+                <p
+                  className={`text-sm font-medium ${riskColor(idea.riskProfile.liability)}`}
+                >
+                  {riskLabel(idea.riskProfile.liability)}
+                </p>
+                <dl className="mt-4 space-y-4 text-sm">
+                  <div>
+                    <dt className="text-zinc-500">Regulatory exposure</dt>
+                    <dd className="mt-1 text-zinc-300">
+                      {idea.riskProfile.regulatoryExposure}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-zinc-500">Data sensitivity</dt>
+                    <dd className="mt-1 text-zinc-300">
+                      {idea.riskProfile.dataSensitivity}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-zinc-500">Capital to first revenue</dt>
+                    <dd className="mt-1 text-zinc-300">
+                      {idea.riskProfile.capitalNeed}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-zinc-500">Agent operability</dt>
+                    <dd className="mt-1 text-zinc-300">
+                      {idea.riskProfile.agentOperability}
+                    </dd>
+                  </div>
+                </dl>
+                <div className="mt-4 border-t border-zinc-800 pt-4">
+                  <p className="text-xs font-medium uppercase text-zinc-500">
+                    Ethical guardrails
+                  </p>
+                  <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-zinc-400">
+                    {idea.riskProfile.ethicalGuardrails.map((g) => (
+                      <li key={g}>{g}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </Section>
+          )}
         </div>
 
         <aside className="space-y-6">

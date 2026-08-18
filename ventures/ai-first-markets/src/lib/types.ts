@@ -30,6 +30,26 @@ export interface MilestonePlan {
   verdict: "strong" | "viable" | "stretch" | "unlikely";
 }
 
+/**
+ * Liability, capital, and autonomy screen. Optional because the original
+ * eight ideas predate it; every idea added from the 2026-08 screen onward
+ * carries one.
+ */
+export interface RiskProfile {
+  /** Exposure if the product is wrong, ranked for a solo operator with no legal team. */
+  liability: RiskLevel;
+  /** Which regimes bite, and why this idea sits outside the high-risk tiers. */
+  regulatoryExposure: string;
+  /** What customer data is touched, and what is deliberately not touched. */
+  dataSensitivity: string;
+  /** Cash needed before first revenue — excludes founder time. */
+  capitalNeed: string;
+  /** What agents can run unattended vs. what still needs a human decision. */
+  agentOperability: string;
+  /** Commitments that keep the business on the right side of the line. */
+  ethicalGuardrails: string[];
+}
+
 export interface BusinessIdea {
   id: string;
   slug: string;
@@ -49,6 +69,9 @@ export interface BusinessIdea {
   firstExperiment: string;
   rank100k: number;
   rank1m: number;
+  riskProfile?: RiskProfile;
+  /** YYYY-MM of the screen that added the idea. Absent for the original set. */
+  screenedAt?: string;
 }
 
 export interface ReportMeta {
