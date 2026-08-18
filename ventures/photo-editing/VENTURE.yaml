@@ -1,0 +1,28 @@
+name: photo-editing
+description: ShootFlow — safe SD-card/media ingest and AI-assisted color-grading/deliverable pipeline for photographers and videographers.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: A resumable, checksum-verified ingest-to-deliverable pipeline meaningfully reduces the time a photographer/videographer spends on file wrangling and cutting social deliverables.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 30
+  protected: true
+
+kill_criteria:
+  - No end-to-end run (real card ingest through a rendered Instagram deliverable) completed on real footage within 90 days.
+  - A dry-run/adapter boundary fails to hold once a real renderer (ffmpeg/Core Image/Metal) is wired in, i.e. source media is ever modified or deleted.
+
+links:
+  production: null
+  analytics: null

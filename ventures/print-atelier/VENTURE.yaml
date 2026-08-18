@@ -1,0 +1,28 @@
+name: print-atelier
+description: Print-on-demand art marketplace connecting independent artists to buyers, with AI-assisted capture, catalog, and outreach.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: An AI-first, software-only supply (artist outreach/onboarding) and demand (storefront/ads) loop can reach a first live paid order without manual sales effort.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 50
+  protected: true
+
+kill_criteria:
+  - No live paid order (real Stripe charge, real fulfillment) within 90 days.
+  - Artist payout economics fail the payout-guardrail comparison against POD royalty benchmarks for the core catalog.
+
+links:
+  production: null
+  analytics: null

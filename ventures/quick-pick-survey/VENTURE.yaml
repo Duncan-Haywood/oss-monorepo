@@ -1,0 +1,28 @@
+name: quick-pick-survey
+description: Two-phone couples preference survey (Glicko-2/Bradley-Terry measured) that surfaces honest agreement, blind spots, and compatibility signal.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: A statistically honest couples-preference survey produces insights (blind spots, compatibility) that are worth showing to real couples.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 20
+  protected: false
+
+kill_criteria:
+  - No real couple has completed the combined survey to a comparison-ready confidence level within 90 days.
+  - A privacy or data-integrity finding (see IMPROVEMENT-PLAN.md) recurs after being marked resolved.
+
+links:
+  production: null
+  analytics: null

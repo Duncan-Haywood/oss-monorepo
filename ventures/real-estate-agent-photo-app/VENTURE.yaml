@@ -1,0 +1,28 @@
+name: real-estate-agent-photo-app
+description: Listing Lens — guided iPhone capture and AI enhancement pipeline delivering MLS-ready real-estate listing photos in about 30 minutes.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: Mid-market real-estate agents will pay $49-99/mo (or $8-15/listing) for a guided-capture + AI-enhancement workflow that beats their current DIY photos.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 20
+  protected: false
+
+kill_criteria:
+  - No paying concierge customer after 90 days once the first real shoot is booked.
+  - Fewer than 40% of interviewed agents say they would pay $49+/mo.
+
+links:
+  production: null
+  analytics: https://listing-lens-docs.pages.dev
