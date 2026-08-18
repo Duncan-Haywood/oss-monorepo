@@ -1,0 +1,28 @@
+name: real-estate-agent-photo-app
+description: "Listing Lens — AI-first iPhone real estate photography: pro-level listing media in 30 minutes, guided capture, instant AI enhancement, MLS-ready delivery."
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: Mid-market real estate agents who already shoot some of their own listings will pay for guided-capture, AI-enhanced, MLS-ready listing photos.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 20
+  protected: true
+
+kill_criteria:
+  - At least 5 paying customers without hand-holding is not reached within the validation window (see STRATEGY.md).
+  - No real concierge listing is shot and delivered, leaving the core value proposition unvalidated.
+
+links:
+  production: null
+  analytics: null

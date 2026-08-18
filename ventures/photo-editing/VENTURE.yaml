@@ -1,0 +1,28 @@
+name: photo-editing
+description: "ShootFlow — safe media ingest and highly parallelizable color-grading/deliverable pipeline for photographers and videographers producing reels, carousels, and graded masters."
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: Photographers/videographers will pay for a tool that safely automates ingest, grading job-planning, and deliverable assembly without risking source media.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 20
+  protected: true
+
+kill_criteria:
+  - The pipeline cannot guarantee source media is never deleted, overwritten, or corrupted during testing.
+  - No external user (beyond the founder) tries the tool within 120 days of a usable end-to-end pipeline.
+
+links:
+  production: null
+  analytics: null
