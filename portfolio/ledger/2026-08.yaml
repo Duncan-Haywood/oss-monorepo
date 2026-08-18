@@ -222,10 +222,32 @@ entries:
         same `BuildFailed` status from a PR #30 comment and concluded it was
         a deleted leftover that could not affect future commits — new
         `BuildFailed` runs are still being created on every push, including
-        two on this branch. Needs the account owner to check the Actions tab;
-        a repo-wide startup_failure with no job ever starting most commonly
-        means Actions is disabled, over quota, or blocked by a spending
-        limit, none of which an agent can see or fix from here.
+        two on this branch.
+      - >-
+        Narrowed the Actions failure to a billing/quota cause by experiment
+        rather than inference. Dispatched portfolio-validate.yml manually on
+        main: the API accepted it (204 queued) and the run was created and
+        correctly attributed to the real workflow file, then went
+        startup_failure in the same second with zero jobs allocated (run
+        32197159797, created_at == updated_at == 2026-08-18T23:26:11Z). That
+        sequence rules out the three cheap explanations. Actions is not
+        disabled at repo level, or the dispatch would have returned 403. The
+        workflow YAML is not malformed — all four root workflow files parse
+        clean locally, and GitHub resolved this one to its real name and
+        path rather than the BuildFailed placeholder. Path filters are not
+        involved, since workflow_dispatch has none. The runner is plain
+        `ubuntu-latest` with stock checkout/setup-python actions, so it is
+        not an unavailable custom runner. What is left is that GitHub
+        accepts the run and then refuses to allocate a billable runner,
+        which on a private repo means Actions minutes exhausted, no valid
+        payment method, or a spending limit of zero. Note the repo is
+        private (confirmed via the API), so every minute is billable, and
+        minutes are pooled per account across all private repos — the quota
+        may have been consumed elsewhere, not here. Timeline fits: the last
+        and only successful run in this repo was ai-first-markets-ci on
+        2026-07-29 (~2 min, success); everything from 2026-08-18T17:23Z
+        onward fails at startup. The billing page is the one thing an agent
+        cannot read from here, so the owner has to confirm it.
       - >-
         Root cause of the duplicate storm identified, and it is not the
         OpenCode fleet. All six screening PRs plus this one are on branches
