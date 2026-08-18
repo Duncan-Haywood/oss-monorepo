@@ -1,0 +1,76 @@
+# Copy to ventures/<name>/VENTURE.yaml and fill in.
+# This file is the contract between a venture and the portfolio router.
+
+name: ubuntu-agent-server
+
+# NOTE: this is internal infrastructure/tooling (an Ansible playbook that
+# provisions a personal Ubuntu Server box to run coding agents unattended
+# against GitHub issues), not a customer-facing business. There is no
+# product being sold, no customer, and no pricing model — it exists to
+# support other ventures/repos in this portfolio, not to earn its own
+# revenue. Filed here for consistency with the portfolio's per-directory
+# contract convention, but it arguably doesn't belong under "ventures" in
+# spirit; consider moving it to platform/ or a dedicated infra/ area.
+description: >-
+  Internal Ansible tooling that provisions a single Ubuntu Server box to run
+  Claude Code / Codex / Antigravity / opencode headlessly against
+  GitHub-issue triggers, opening PRs for human review. No customer, no
+  product being sold — infrastructure for the portfolio's own agents, owner
+  Duncan only.
+
+# idea | prototype | launched | revenue | scaling | winding-down
+# Stage gates how much the router is willing to spend before demanding
+# an outcome signal.
+stage: prototype
+
+owner: duncan
+
+# What has to be true for this to be worth continuing. The router does not
+# read prose, but you do — keep these honest and dated.
+hypotheses:
+  - claim: >-
+      Running coding agents unattended on a dedicated box (headless,
+      issue-triggered, PR-only) produces useful, mergeable PRs with less
+      manual babysitting than running the same tools interactively.
+    status: untested        # untested | supported | refuted
+    checked: null           # YYYY-MM-DD
+  - claim: >-
+      The per-tool sandboxing (classifier-guarded auto mode, workspace-write
+      sandbox, nsjail, --auto) is sufficient to let this run unattended
+      against real repos without incident.
+    status: untested
+    checked: null
+
+# Where the money is. Nulls are fine early; the router treats an unmeasured
+# venture differently from one measured at zero.
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+# Caps agent spend so one venture cannot drain the portfolio.
+# Unit is USD of model spend per month.
+budget:
+  monthly_cap: 50
+  # Explore budget is protected: early ventures get funded even when their
+  # measured return is zero, otherwise the router starves everything new.
+  protected: true
+
+# Stop conditions. When one trips, the router stops allocating and flags it.
+kill_criteria:
+  - >-
+    No real run against a physical host within 60 days (as of writing, per
+    the README's own dev notes, none of agent_runner.py, the runner
+    scripts, or the Docker image have executed against a real box or repo —
+    only syntax-checked and unit-tested by hand).
+  - >-
+    After the first real deployment, if `dry_run: true` is never flipped to
+    `false` for any repo within 30 days of that deployment (i.e. the system
+    is provisioned but nobody trusts it enough to let it actually push a
+    branch or open a PR), treat the approach as not worth the maintenance
+    burden and wind it down.
+
+links:
+  production: null
+  analytics: null

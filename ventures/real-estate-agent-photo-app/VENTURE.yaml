@@ -1,0 +1,64 @@
+# Copy to ventures/<name>/VENTURE.yaml and fill in.
+# This file is the contract between a venture and the portfolio router.
+
+name: real-estate-agent-photo-app
+description: >-
+  Listing Lens — an AI-assisted iPhone workflow (guided capture, instant
+  enhancement, MLS-ready delivery, branded microsite) that turns an agent's
+  own phone into pro-level real-estate listing photos in about 30-40
+  minutes, sold to mid-market real estate agents ($19/listing concierge,
+  $29-99/mo subscription tiers) with Airbnb/STR hosts as a secondary
+  one-time-pack market.
+
+# idea | prototype | launched | revenue | scaling | winding-down
+# Stage gates how much the router is willing to spend before demanding
+# an outcome signal.
+stage: prototype
+
+owner: duncan
+
+# What has to be true for this to be worth continuing. The router does not
+# read prose, but you do — keep these honest and dated.
+hypotheses:
+  - claim: >-
+      Mid-market real estate agents will pay for a $19/listing concierge
+      photo-enhancement delivery (validation price toward an eventual
+      $29-99/mo subscription).
+    status: untested        # untested | supported | refuted
+    checked: null           # YYYY-MM-DD
+  - claim: >-
+      At least 40% of interviewed agents would pay $49+/mo for this
+      (STRATEGY.md's own day-90 success bar).
+    status: untested
+    checked: null
+
+# Where the money is. Nulls are fine early; the router treats an unmeasured
+# venture differently from one measured at zero.
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+# Caps agent spend so one venture cannot drain the portfolio.
+# Unit is USD of model spend per month.
+budget:
+  monthly_cap: 50
+  # Explore budget is protected: early ventures get funded even when their
+  # measured return is zero, otherwise the router starves everything new.
+  protected: true
+
+# Stop conditions. When one trips, the router stops allocating and flags it.
+kill_criteria:
+  - No paying customer (a single $19 concierge delivery) within 90 days of the first real outreach message actually being sent to a prospect.
+  - >-
+    Venture stays entirely blocked on human action (no concierge shoot
+    booked, no problem interviews run, zero entries in process/leads-log.ts)
+    for more than 120 days from repo bootstrap (2026-06-13) with no
+    real-world customer contact — already ~66 days in as of 2026-08-18
+    despite all agent-doable prep (pipeline, pricing, outreach copy,
+    booking link, payment collection) being built and ready.
+
+links:
+  production: null
+  analytics: null

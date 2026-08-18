@@ -1,0 +1,47 @@
+# This file is the contract between a venture and the portfolio router.
+
+name: shootflow
+description: Media-automation tool (safe SD/SSD ingest, color grading, and Instagram deliverable generation) for professional photographers/videographers with recurring client shoots.
+
+# idea | prototype | launched | revenue | scaling | winding-down
+# Stage gates how much the router is willing to spend before demanding
+# an outcome signal.
+stage: prototype
+
+owner: duncan
+
+# What has to be true for this to be worth continuing. The router does not
+# read prose, but you do — keep these honest and dated.
+hypotheses:
+  - claim: Professional photographers/videographers with recurring client shoots (wedding/event, portrait/editorial, real estate) will pay monthly for automated ingest-to-social-deliverable workflow.
+    status: untested        # untested | supported | refuted
+    checked: null           # YYYY-MM-DD
+
+  - claim: A "card dump to organized, graded, IG-ready draft package with safety guarantees" wedge is differentiated and trusted enough to convert vs. generic AI editing tools.
+    status: untested
+    checked: null
+
+# Where the money is. Nulls are fine early; the router treats an unmeasured
+# venture differently from one measured at zero.
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+# Caps agent spend so one venture cannot drain the portfolio.
+# Unit is USD of model spend per month.
+budget:
+  monthly_cap: 50
+  # Explore budget is protected: early ventures get funded even when their
+  # measured return is zero, otherwise the router starves everything new.
+  protected: true
+
+# Stop conditions. When one trips, the router stops allocating and flags it.
+kill_criteria:
+  - No real (non-synthetic, non-dry-run) end-to-end pilot workspace — real customer footage through real render/grade adapters, not the local placeholder/dry-run stand-ins — completed within 90 days.
+  - No paying customer or signed pilot commitment 90 days after the first real (non-dry-run) renderer adapter ships.
+
+links:
+  production: null
+  analytics: null

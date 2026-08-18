@@ -1,0 +1,63 @@
+# This file is the contract between a venture and the portfolio router.
+
+name: quick-pick-survey
+description: >-
+  A pairwise-comparison preference engine (Glicko-2 / Bradley-Terry) that
+  couples answer on their phones to surface preferences, shared ground, and
+  blind spots neither could state directly — built for couples first, usable
+  solo second.
+
+# idea | prototype | launched | revenue | scaling | winding-down
+# Stage gates how much the router is willing to spend before demanding
+# an outcome signal.
+# No production deployment is documented anywhere in the repo (README's
+# "Deploying" section is setup instructions, not confirmation of a live
+# site), main has 42+ unmerged PRs stacked behind it, and CI has never
+# actually run. The product itself is far along (full feature set, 262+
+# tests, real Postgres integration tests) but nothing has shipped to a
+# real user yet.
+stage: prototype
+
+owner: duncan
+
+# What has to be true for this to be worth continuing. The router does not
+# read prose, but you do — keep these honest and dated.
+hypotheses:
+  - claim: Couples will complete enough pairwise questions (~50 each) to reach
+      the confidence threshold needed for the actionable comparison screens
+      (shared ground, blind spots, "make them happy").
+    status: untested
+    checked: null
+  - claim: There is a monetizable audience for this — no pricing model,
+      target customer willingness-to-pay, or go-to-market plan is documented
+      anywhere in the repo.
+    status: untested
+    checked: null
+
+# Where the money is. Nulls are fine early; the router treats an unmeasured
+# venture differently from one measured at zero.
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+# Caps agent spend so one venture cannot drain the portfolio.
+# Unit is USD of model spend per month.
+budget:
+  monthly_cap: 50
+  # Explore budget is protected: early ventures get funded even when their
+  # measured return is zero, otherwise the router starves everything new.
+  protected: true
+
+# Stop conditions. When one trips, the router stops allocating and flags it.
+kill_criteria:
+  - No production deployment exists 60 days after this file is created (i.e.
+    the merge queue and CI-runner blockers remain unresolved and nothing is
+    live for a real user to try).
+  - No paying customer, and no documented monetization plan adopted, within
+    90 days of the first real production deployment going live.
+
+links:
+  production: null
+  analytics: null

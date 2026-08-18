@@ -1,0 +1,52 @@
+# Copy to ventures/<name>/VENTURE.yaml and fill in.
+# This file is the contract between a venture and the portfolio router.
+
+name: mat-470-real-analysis
+description: >
+  Personal coursework repository for MAT 470 (Real Analysis) — lecture notes,
+  textbook (Abbott's Understanding Analysis), and homework for Duncan's own
+  study. Not a commercial product; no customers, sales, or public
+  distribution are described anywhere in the docs.
+
+# idea | prototype | launched | revenue | scaling | winding-down
+# Stage gates how much the router is willing to spend before demanding
+# an outcome signal.
+stage: idea
+
+owner: duncan
+
+# What has to be true for this to be worth continuing. The router does not
+# read prose, but you do — keep these honest and dated.
+hypotheses:
+  - claim: This repository is useful as a personal study aid for completing MAT 470.
+    status: untested        # untested | supported | refuted
+    checked: null           # YYYY-MM-DD
+
+# Where the money is. Nulls are fine early; the router treats an unmeasured
+# venture differently from one measured at zero.
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+# Caps agent spend so one venture cannot drain the portfolio.
+# Unit is USD of model spend per month.
+budget:
+  monthly_cap: 50
+  # Explore budget is protected: early ventures get funded even when their
+  # measured return is zero, otherwise the router starves everything new.
+  protected: true
+
+# Stop conditions. When one trips, the router stops allocating and flags it.
+kill_criteria:
+  - No commercial or shareable intent has emerged (no notes/homework beyond
+    personal use, no plan to publish or sell) within 90 days — treat as
+    permanently personal and remove from the venture portfolio.
+  - Repository sees no new notes, homework, or activity for 180 days,
+    indicating the coursework has been abandoned or completed with no
+    follow-on product.
+
+links:
+  production: null
+  analytics: null
