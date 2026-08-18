@@ -1,0 +1,44 @@
+period: 2026-08
+entries:
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session found ~25 PRs opened against main within a few
+        hours on 2026-08-18, most from independent scheduled runs that could
+        not see each other's work. Recurring duplicate clusters: VENTURE.yaml
+        backfill (10+ PRs, now resolved on main), an unreviewed hourly
+        20-agent OpenCode fleet added straight to main without a PR (commit
+        f16fca5) and then independently flagged/paused/reverted by three
+        more sessions before the account owner reviewed it directly and
+        re-enabled it deliberately at 10 agents/hour (PR #24, merged), and
+        four separate ai-first-markets candidate-screening PRs (#17, #18,
+        #20, #27) that each added an overlapping set of new business ideas.
+      - >-
+        Implemented portfolio/router/allocate.py v1 (the piece this repo's
+        own README said was blocking on VENTURE.yaml data, which landed via
+        PR #24): reads every ventures/*/VENTURE.yaml and emits a ranked work
+        queue. Verified `python3 -m unittest test_allocate` (12/12 pass) and
+        `python3 allocate.py` against the real 9 covered ventures. Added
+        CLAUDE.md documenting the duplicate-work pattern above and the rule
+        that unattended, spend-capable automation is a human decision, not
+        something a session ships to main unreviewed.
+      - >-
+        Did not re-derive the VENTURE.yaml files, retail-pilot-intel test
+        additions, or ai-first-markets candidate research already sitting in
+        open PRs (#16, #26 for the former; #17/#18/#20/#27 for the latter) —
+        commented on the superseded ones instead of adding a fifth version.
+      - >-
+        Unresolved, needs the account owner: (1) decide which one of
+        #17/#18/#20/#27 to merge (they overlap; #20's own body already
+        recommends #18 as the strongest with three unique candidates to
+        lift from this one) — the losing ones should close, not merge, to
+        avoid duplicate/conflicting idea data in ai-first-markets; (2) PR
+        #19 proposes a second, independent automated agent fleet
+        (Deepseek+OpenCode) — worth the same cost/coordination scrutiny
+        already applied to the OpenCode fleet in #24 before enabling; (3)
+        PR #25 (small doc guardrail in local-site-studio) and #1/#2
+        (unrelated Swift/Garmin app sources, untested, 10+ days old) are
+        still open and low-risk to review whenever convenient.
+    mrr_end: null
