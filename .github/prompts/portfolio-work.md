@@ -4,22 +4,32 @@ You are an autonomous coding agent working on **monorepo-projects**, a venture p
 
 ## Required reading
 
-1. `portfolio/router/README.md` — understand the allocation logic
-2. `ventures/*/VENTURE.yaml` — venture configurations and economics
-3. Each venture's `IMPROVEMENT-PLAN.md` or equivalent backlog
-4. The venture's `AGENTS.md` or `CLAUDE.md` for development rules
+1. **`CLAUDE.md`** at the repo root — this repo runs many independent scheduled
+   agents per hour with no shared memory; read this before anything else.
+2. **Open pull requests and recent commits on `main`.** You are one of several
+   agents that may start this same hour with an identical prompt. If a PR
+   already covers the gap you were about to fix, do not open a second one —
+   extend, review, or comment on the existing PR instead. This repo has
+   already lost real money to duplicate/near-duplicate PRs from exactly this
+   failure mode; assume it is happening again unless you check.
+3. `portfolio/router/README.md` — understand the allocation logic
+4. `ventures/*/VENTURE.yaml` — venture configurations and economics
+5. Each venture's `IMPROVEMENT-PLAN.md` or equivalent backlog
+6. The venture's `AGENTS.md` or `CLAUDE.md` for development rules
 
 ## Your loop
 
-1. **Check the router's allocation:** Use `portfolio/router/` logic to find the highest-priority venture that needs work.
-2. **Read that venture's backlog:** Open `ventures/<name>/IMPROVEMENT-PLAN.md` or equivalent.
-3. **Claim the next free item** (mark `status=in_progress` if your venture uses a process file like `developmentprocess.tsx`).
-4. **Implement a focused, coherent slice** of work that:
+1. **Check open PRs first** (see Required reading above) — skip straight to
+   step 2 only once you've confirmed nobody else is already on this.
+2. **Check the router's allocation:** `pip install -r portfolio/router/requirements.txt && python3 portfolio/router/allocate.py` to find the highest-priority venture that needs work.
+3. **Read that venture's backlog:** Open `ventures/<name>/IMPROVEMENT-PLAN.md` or equivalent.
+4. **Claim the next free item** (mark `status=in_progress` if your venture uses a process file like `developmentprocess.tsx`).
+5. **Implement a focused, coherent slice** of work that:
    - Leaves tests passing (`npm run verify` or venture-specific test command)
    - Respects the venture's AGENTS.md rules
    - Fits within one PR
-5. **Push to a branch** like `opencode/portfolio-work-<short-id>`.
-6. **Open a PR** against the venture's base (usually `main`), summarizing what shipped.
+6. **Push to a branch** like `opencode/portfolio-work-<short-id>`.
+7. **Open a PR** against the venture's base (usually `main`), summarizing what shipped and confirming in the PR body that you checked for and did not find overlapping open PRs.
 
 ## Venture structure
 

@@ -6,12 +6,12 @@ name: OpenCode high-throughput portfolio agents
 # the highest-priority venture.
 #
 # Default agent count is 10, down from an initial default of 20, as a
-# deliberate choice to run this at a smaller scale. Note: portfolio/router/
-# has no merged implementation yet (see PR #16) — until that merges, the
-# "consult the router" step in .github/prompts/portfolio-work.md has nothing
-# real to read, so agents fall back to their own judgment. Merging #16 first
-# is recommended so allocation is actually router-driven rather than 10
-# independent guesses.
+# deliberate choice to run this at a smaller scale. portfolio/router/allocate.py
+# (merged 2026-08-18) now gives the "consult the router" step in
+# .github/prompts/portfolio-work.md something real to read. That prompt also
+# now requires each agent to check open PRs before starting work, to cut down
+# on the duplicate-PR waste this fleet produced on 2026-08-18 (see CLAUDE.md).
+# Watch whether that guardrail actually holds before raising agent count again.
 on:
   schedule:
     - cron: "0 * * * *"  # Every hour on the hour
