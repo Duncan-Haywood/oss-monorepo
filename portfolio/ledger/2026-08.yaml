@@ -1,0 +1,79 @@
+period: 2026-08
+entries:
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - Set out to fill in the ventures still missing VENTURE.yaml, then found four other open PRs (#3, #4, #5, #6) already doing that same work, all opened within about a minute of each other on 2026-08-18 and still unmerged - a scheduling/concurrency duplication, not a legitimate gap. Dropped the redundant work rather than opening a fifth copy.
+      - "Real finding this run: nothing has merged into main since 2026-08-08 (10 days, 6 open PRs). The portfolio's actual bottleneck right now is merge throughput, not missing router inputs - the same failure mode already flagged inside quick-pick-survey's own 42-PR backlog, now visible at the portfolio level too."
+      - Added a status note to portfolio/router/README.md flagging the backlog so the next scheduled run checks open PRs before starting new work instead of repeating this.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session found 10 open PRs against main, none merged since
+        2026-08-08, several near-duplicates of each other (independent runs
+        each re-discovering "ventures missing VENTURE.yaml" and opening their
+        own PR: #3, #4, #5, #6, #7, #9, #10). PR #8 had already flagged this
+        exact backlog earlier the same day; two more duplicate PRs (#9, #10)
+        were opened after that warning, so the warning alone did not stop it.
+      - >-
+        Did not open another VENTURE.yaml PR. Added root CLAUDE.md instructing
+        future sessions to check open PRs before starting work, and to report
+        a growing backlog rather than add to it.
+      - >-
+        Unresolved: needs a human to pick one of #3/#4/#5/#6/#7 to merge (they
+        differ on stage/budget/kill-criteria judgment calls for the same
+        ventures) and close the rest, and to decide whether the scheduler
+        needs a concurrency guard to stop simultaneous runs from duplicating
+        work.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        By the time this session ran, the backlog had grown to 11 open PRs
+        (#1-#11), still nothing merged since 2026-08-08. #8 and #11 had each
+        already written up the same "PRs are duplicating" finding without
+        merging anything, so a third write-up would have been the third
+        description of the same known problem rather than progress.
+      - >-
+        Instead, computed containment across the nine same-day branches
+        (#3-#11) with `git diff --stat <base> <branch>`: five (#3, #4, #5,
+        #6, #10) add only VENTURE.yaml files, all of which are a subset of
+        what #7 adds; #7 additionally implements portfolio/router/allocate.py
+        (the router v1 described in this file) with unit tests, all passing.
+        #9 adds VENTURE.yaml plus independent, non-overlapping work (a
+        photo-editing ruff/mypy cleanup and three new retail-pilot-intel
+        analytics unit tests). #8 and #11 both add process-guardrail notes;
+        #11 also adds a root CLAUDE.md.
+      - >-
+        Merged the non-redundant content of #7, #9, #8, and #11 onto this one
+        branch: router v1 + all nine VENTURE.yaml files (from #7), the
+        photo-editing lint fix and analytics tests (from #9, cherry-picked
+        file-by-file to avoid re-adding #7's VENTURE.yaml versions), the
+        CLAUDE.md guardrail (from #11), and this combined ledger entry (from
+        #8 and #11). Verified before pushing: `python3 -m unittest
+        portfolio/router/test_allocate.py` (12 pass), `ruff check` + `mypy`
+        clean on the touched photo-editing files, and `pnpm test` in
+        retail-pilot-intel's analytics package (12 pass). photo-editing's full
+        suite has 6 pre-existing sandbox-only failures (disk-space and
+        root-permission assumptions) unrelated to this change, documented in
+        its own AGENTS.md.
+      - >-
+        Did not touch #1 or #2 (world-clock-widget, Garmin watch face) - they
+        predate this storm (opened 2026-08-08), are unrelated in content, and
+        are ordinary feature PRs stuck for the same reason (nothing merges),
+        not duplicates of each other.
+      - >-
+        Unresolved, and now the only thing actually blocking: this is the
+        third session in one day to say a human needs to merge something.
+        Recommend merging this branch (it supersedes #3-#11 by content,
+        listed in this PR's description) and, separately, deciding whether
+        the scheduler that fires these sessions needs a concurrency guard -
+        nine sessions in about an hour on one repo is the proximate cause of
+        all of this.
+    mrr_end: null

@@ -56,3 +56,8 @@ It does not yet read `portfolio/ledger/` — there are no ledger entries yet to
 read — and it does not spend anything automatically. Per "Attribution
 honesty" above, treat its output as a heuristic worth arguing with, not a
 number to act on unreviewed.
+
+**The router's output is moot while the merge backlog stands.** A ranked work
+queue only matters if the ranked work lands; see [`../ledger/2026-08.yaml`](../ledger/2026-08.yaml)
+and root [`CLAUDE.md`](../../CLAUDE.md) for why nothing has merged into `main`
+since 2026-08-08 and what to check before adding more router-input work.

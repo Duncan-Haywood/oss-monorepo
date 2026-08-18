@@ -8,7 +8,6 @@ import unittest
 from shootflow.assembly import AssemblyPlan, RenderTask
 from shootflow.render_status import (
     OutputChecksum,
-    RenderStatusError,
     RenderStatusManifest,
     RenderStatusPreconditionError,
     RenderTaskStatus,

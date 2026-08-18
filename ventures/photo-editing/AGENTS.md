@@ -160,9 +160,35 @@ ruff check src/ tests/
 mypy src/shootflow/ --ignore-missing-imports
 ```
 
-Pre-existing findings:
-- `ruff`: 2 unused imports in test files (F401).
-- `mypy`: 8 dict-variance arg-type notes (harmless, `dict` invariance vs `Mapping`).
+Pre-existing findings (last checked 2026-08-18):
+- `ruff`: clean. The 2 unused imports in test files from an earlier check were
+  removed; a 3-import group in `pilot_authority.py` that looked unused
+  (F401) is actually a re-export consumed by `pilot_dashboard.py`,
+  `pilot_cohort_report.py`, and `pilot_cohort_brief.py` — it now has an
+  explicit `__all__` so ruff/`--fix` won't delete it again.
+- `mypy`: 31 arg-type/return-value errors across 10 files (up from the
+  8 dict-variance notes previously documented here) — re-run
+  `mypy src/shootflow/ --ignore-missing-imports` for the current list before
+  assuming it still matches this note. Most remain the harmless `dict`
+  vs `Mapping` invariance case, but several in `production_adapter.py`
+  (`Incompatible return value type`) and `demo_workspace.py`
+  (`Incompatible types in assignment`) look like they could reflect real
+  type drift, not just variance noise, and are worth a dedicated pass
+  rather than a blanket ignore.
+- `unittest discover -s tests`: 6 of 438 tests fail in disk/permission
+  -constrained sandboxes (e.g. a container with <64 GiB free on the temp
+  filesystem, or running as root) — not product bugs. Root cause:
+  `storage.py`'s destination-candidate heuristic requires
+  `free_bytes > 64 * 1024**3` to classify a path as a writable
+  destination, which a small sandbox disk never satisfies, so
+  `card-dump-workflow` tests that expect an auto-detected destination
+  (`ready_for_review`/`ingest_complete`, or a symlink-rejection exit code
+  reached only after a destination is found) see `blocked` instead; and
+  `test_unreadable_render_input_is_reported_for_review` `chmod(0)`s a file
+  to simulate an unreadable input, which root can still read. Confirmed
+  both before and after the ruff fix above (same 6 failures either way).
+  Verify on real hardware — or a sandbox with ≥64 GiB free and a non-root
+  user — before treating a red run as a regression.
 
 ### Platform note
 
