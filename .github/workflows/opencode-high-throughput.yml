@@ -4,10 +4,22 @@ name: OpenCode high-throughput portfolio agents
 # Uses OPENCODE_API_KEY secret for API-based access.
 # Each agent independently consults the portfolio router and claims work from
 # the highest-priority venture.
+#
+# PAUSED (2026-08-18): the hourly schedule is disabled. This workflow merged
+# straight to main with no human review and, combined with the separately
+# scheduled Claude Code routine hitting this same repo, produced 15+ open PRs
+# (11+ of them near-duplicates of each other) and zero merges to main in 10
+# days -- see PR #16 for the full writeup. Running 20 agents/hour on top of
+# that would have multiplied the duplication and spent OPENCODE_API_KEY
+# budget for no net output. Re-enable the `schedule` trigger only after a
+# human has: (1) merged the PR #16 consolidation, (2) added real
+# coordination (a lock/claim step so concurrent agents don't re-derive the
+# same work), and (3) reviewed that granting `contents: write` +
+# `pull-requests: write` to a third-party action (anomalyco/opencode) on an
+# hourly cron is an acceptable and intended risk. Until then, trigger
+# manually via workflow_dispatch.
 
 on:
-  schedule:
-    - cron: "0 * * * *"  # Every hour on the hour
   workflow_dispatch:
     inputs:
       num_agents:
