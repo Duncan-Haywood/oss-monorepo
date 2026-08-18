@@ -639,9 +639,28 @@ def alias_table(repo_root: Path, project: str, tracked: Sequence[str]) -> Dict[s
 #: A dynamic `import(variable)` is not matched — it cannot be, statically — and
 #: the contract test refuses one in the enrolled tree rather than letting this
 #: file quietly overestimate.
+#:
+#: Two details in the clause-gap are load-bearing, and the first version of this
+#: pattern had both wrong. Mutation testing found it: wiring a dead module into
+#: `page.tsx` with a side-effect `import "@/lib/payout-tax-ledger";` did not
+#: make it reachable, and the gate stayed green on a change that should have
+#: turned it red.
+#:
+#:   * `??` rather than `?`. A greedy optional prefers to *match*, so on
+#:     `import "./a";\nimport x from "./b";` the gap expanded across the first
+#:     statement to reach the ` from ` on the next line, and the whole
+#:     side-effect import was swallowed. A module imported only for its side
+#:     effects would have been reported dead. Preferring the group absent reads
+#:     `import "./a"` first and finds the `from` clause by backtracking when
+#:     there is one.
+#:   * `[^;'"]` rather than `[\s\S]`. The gap is a clause, not a licence to
+#:     cross statements: without it an `export const x = 1;` far above an
+#:     unrelated ` from ` still joins the two. A named import's braces,
+#:     identifiers and newlines contain neither a semicolon nor a quote, so the
+#:     class costs nothing real.
 SPECIFIER_RE = re.compile(
     r"""(?:^|[^.\w$])(?:import|export)\s*(?:type\s+)?
-        (?:[\s\S]*?\sfrom\s*)?["']([^"'\n]+)["']
+        (?:[^;'"]*?\sfrom\s*)??["']([^"'\n]+)["']
       | (?:^|[^.\w$])(?:import|require)\s*\(\s*["']([^"'\n]+)["']\s*\)
     """,
     re.M | re.X,
