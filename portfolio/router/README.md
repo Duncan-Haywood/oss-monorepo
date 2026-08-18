@@ -38,5 +38,21 @@ A ranked work queue. Each entry names a venture, a task, and a spend ceiling.
 
 ## Status
 
-Not implemented. The schema and the layout come first so that ventures start
-emitting the data the router will need.
+**v1: implemented, ledger not yet wired in.** Every venture under `ventures/`
+now carries a `VENTURE.yaml`, so `allocate.py` can read stage, economics, and
+budget for all of them and emit a ranked work queue:
+
+```bash
+pip install -r portfolio/router/requirements.txt
+python3 portfolio/router/allocate.py         # table
+python3 portfolio/router/allocate.py --json  # machine-readable work queue
+python3 -m unittest portfolio/router/test_allocate.py
+```
+
+v1 ranks by: ventures measured at $0 MRR past `revenue` stage first (they
+need a kill/fix decision, not more blind spend), then unmeasured ventures
+(protected explore budget), then everything else by stage and monthly cap.
+It does not yet read `portfolio/ledger/` — there are no ledger entries yet to
+read — and it does not spend anything automatically. Per "Attribution
+honesty" above, treat its output as a heuristic worth arguing with, not a
+number to act on unreviewed.
