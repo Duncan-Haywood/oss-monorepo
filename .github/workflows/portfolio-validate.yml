@@ -1,0 +1,40 @@
+name: Portfolio validate
+
+# Every venture must stay legible to the portfolio router: a valid
+# VENTURE.yaml, or an explicit NOT-A-VENTURE marker saying why the directory
+# is not a business.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ventures/**/VENTURE.yaml"
+      - "ventures/**/NOT-A-VENTURE"
+      - "portfolio/router/**"
+      - ".github/workflows/portfolio-validate.yml"
+  pull_request:
+    paths:
+      - "ventures/**/VENTURE.yaml"
+      - "ventures/**/NOT-A-VENTURE"
+      - "portfolio/router/**"
+      - ".github/workflows/portfolio-validate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r portfolio/router/requirements.txt
+
+      - name: Validate VENTURE.yaml schema
+        run: python3 portfolio/router/validate.py
