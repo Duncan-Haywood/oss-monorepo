@@ -1,0 +1,40 @@
+period: 2026-08
+entries:
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session found 12 open PRs against main, none merged since
+        2026-08-08 (10 days). At least eight were near-duplicates of each
+        other: independent runs each re-discovered "ventures missing
+        VENTURE.yaml" and opened their own PR (#3, #4, #5, #6, #7, #9, #10,
+        #12). Two more (#8, #11) correctly flagged this exact backlog as the
+        real blocker but themselves joined the unmerged pile instead of
+        fixing it — the warning alone did not stop the pattern.
+      - >-
+        Consolidated rather than adding a 13th duplicate PR: merged PR #7's
+        router implementation (portfolio/router/allocate.py + 12 passing
+        unit tests) and VENTURE.yaml for all 9 previously-uncovered
+        ventures, verified `python3 -m unittest test_allocate` (12/12 pass)
+        and `python3 portfolio/router/allocate.py` produce a sane ranked
+        queue across all 12 ventures. Layered in PR #9's unique, unrelated
+        value that would otherwise have been lost when its duplicate
+        VENTURE.yaml work was superseded: three new unit-test files for
+        retail-pilot-intel's `packages/analytics` (12/12 passing, wired into
+        `pnpm run ci`) and a small dead-import/lint fix in photo-editing
+        (verified with `ruff check` and the affected unittest modules).
+        Added CLAUDE.md instructing future sessions to check open PRs and
+        consolidate rather than duplicate.
+      - >-
+        Unresolved, needs the account owner: (1) merge this consolidated PR,
+        then close #3-#12 pointing to it (comments were left explaining
+        why); (2) decide whether the scheduler needs a concurrency guard so
+        simultaneous runs stop rediscovering the same gap; (3)
+        real-estate-agent-photo-app's GitHub Actions has had zero runners
+        assigned for over 10 days (billing/quota issue) — CI cannot run
+        there at all until that's fixed; (4) PR #1 (Garmin watch face) and
+        #2 (world-clock-widget app) are unrelated, source-only, untested
+        (no Xcode/Connect IQ SDK available in-session) ventures sitting
+        unreviewed for 10 days.
+    mrr_end: null

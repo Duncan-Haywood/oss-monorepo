@@ -26,6 +26,14 @@ change.
 Venture directories are kept cleanly bounded so a venture can be extracted
 with `git filter-repo` if it is ever sold or spun off.
 
+Not every directory under `ventures/` is a commercial business.
+`mat-470-real-analysis` is private personal study material and
+`ubuntu-agent-server` is shared agent-runner infrastructure used across the
+whole portfolio — both carry a `VENTURE.yaml` that says so explicitly (near-
+zero budget, non-revenue kill criteria) so the router doesn't misallocate
+spend to them and future sessions don't keep re-flagging them as "missing"
+their contract file.
+
 ### platform/
 
 The processes that are the same across ventures: agent definitions, skills,

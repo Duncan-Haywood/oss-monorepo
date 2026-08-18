@@ -5,3 +5,9 @@ from shootflow.workflow_authority import (
     observe_only_workflow_authority_to_dict,
     validate_observe_only_workflow_authority,
 )
+
+__all__ = [
+    "PilotAuthorityError",
+    "observe_only_workflow_authority_to_dict",
+    "validate_observe_only_workflow_authority",
+]
