@@ -143,9 +143,13 @@ So a venture number is held in one of three ways:
 A pin is prevention by visibility rather than by refusal. Lowering the artist
 split from 30% to 25% stays entirely permitted — it just cannot happen without a
 line in this file changing beside it. Pins also fail closed when the guarded line
-is deleted, and when it is *copied*, which is the drift this venture already
-has: `fulfillment-cost-router.ts` takes 30% of retail while `marketplace.ts`
-takes 30% of net profit, and both were correct on the day they were written.
+is deleted, and when it is *copied*, which is the drift this venture had:
+`fulfillment-cost-router.ts` took 30% of retail while `marketplace.ts` took 30%
+of net profit, and both were correct on the day they were written. That one is
+now closed — the router calls `calculatePrintEconomics` instead of re-typing the
+split — so it carries no split literal and is no longer censused. Re-typing
+`* 0.3` there would land it back in the derived population with no census pin,
+which the closure contract in tests/test_cap_ratchet.py fails on.
 
 Usage:
     python3 scripts/ci/cap_ratchet.py              # audit, exit 1 on failure
@@ -896,10 +900,12 @@ UNWATCHED_BUDGET_KEYS: Tuple[BudgetExemption, ...] = (
 #   - the guarded line was copied  -> the anchor matches more times than declared
 #
 # The third is not a theoretical concern here. The artist split is re-typed as a
-# bare literal at fourteen sites across this one venture, and the sites have
-# already drifted apart in meaning: `fulfillment-cost-router.ts` takes 30% of
-# *retail* while `marketplace.ts` takes 30% of *net profit*. A control that only
-# checked the value would have called that healthy.
+# bare literal at many sites across this one venture, and the sites had drifted
+# apart in meaning: `fulfillment-cost-router.ts` took 30% of *retail* while
+# `marketplace.ts` took 30% of *net profit*. A control that only checked the
+# value would have called that healthy. The router now derives its payout from
+# `calculatePrintEconomics`, so that pair agrees again; the remaining re-typings
+# are censused below, and each still owns its own basis.
 # ---------------------------------------------------------------------------
 
 
@@ -1248,7 +1254,16 @@ PINS: Tuple[Pin, ...] = (
             why=why,
         )
         for rel, count, why in (
-            # The ten that genuinely re-type the 30/70 artist payout split.
+            # The nine that genuinely re-type the 30/70 artist payout split.
+            #
+            # `lib/fulfillment-cost-router.ts` was a tenth until it was changed to
+            # derive the payout from `calculatePrintEconomics` rather than re-type
+            # `* 0.3` on retail. It now carries no split literal, so it is out of
+            # the derived population and its entry is removed here in the same
+            # diff — a census pin naming a file with nothing left to count reads
+            # as coverage while measuring nothing. If `* 0.3` is ever typed back
+            # into it, the file re-enters the population with no pin, and the
+            # closure contract fails until someone declares it again.
             ("lib/marketplace.ts", 7, _CENSUS_SPLIT_WHY),
             ("lib/stripe-connect.ts", 3, _CENSUS_SPLIT_WHY),
             ("lib/pod-routing-optimizer.ts", 1, _CENSUS_SPLIT_WHY),
@@ -1257,7 +1272,6 @@ PINS: Tuple[Pin, ...] = (
             ("components/FinancialProjections.tsx", 2, _CENSUS_SPLIT_WHY),
             ("lib/b2b-trade.ts", 1, _CENSUS_SPLIT_WHY),
             ("lib/b2b-trade-calculator.ts", 1, _CENSUS_SPLIT_WHY),
-            ("lib/fulfillment-cost-router.ts", 1, _CENSUS_SPLIT_WHY),
             ("lib/wholesale-margin-optimizer.ts", 1, _CENSUS_SPLIT_WHY),
             # The ten the curated list did not mention. None of these is the
             # artist split today; each is censused so that a copy of the split
