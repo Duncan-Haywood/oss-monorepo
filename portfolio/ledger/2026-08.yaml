@@ -91,3 +91,50 @@ entries:
         and ubuntu-agent-server belong under ventures/ at all now that they
         carry NOT-A-VENTURE markers (from #32) instead of VENTURE.yaml.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per CLAUDE.md. A sixth independent
+        ai-first-markets candidate-screening PR had appeared since the last
+        cycle (#34), and its author had already done the consolidation work
+        this backlog needed: checked out and re-ran real CI
+        (typecheck/lint/build) on #18/#20/#27/#30, mapped exactly what is
+        unique in each, identified concrete merge hazards (#20/#27 would
+        re-add the 20-agent-per-hour fleet workflow over main's reviewed
+        10/hour version; #30 would add/add-conflict six VENTURE.yaml files
+        already on main), and posted a consolidation memo plus
+        cross-reference comments on #18/#30 recommending #18 as the app-side
+        base with named pieces lifted from #34/#20/#30. That analysis is
+        thorough and current — did not redo it or post a seventh comment.
+      - >-
+        Merged #33 (router-guardrail wired into the actual hourly-fleet
+        prompt, plus the previous cycle's ledger entry) after confirming it
+        was docs/prompt/workflow-comment only, non-conflicting with main,
+        and carried no business content — continuing the established
+        pattern of merging additive, verified infra PRs directly rather
+        than leaving them to accumulate.
+      - >-
+        Chased down a red status mentioned in a PR #30 comment (workflow run
+        "BuildFailed", id 337182028): confirmed via the Actions API it is
+        already in `deleted` state — a leftover from a workflow file that
+        no longer exists on any branch — so it cannot mark future commits
+        red and needs no fix. Also confirmed `ai-first-markets-deploy.yml`
+        is `workflow_dispatch`-only, not auto-deployed on push to main, so
+        merging ai-first-markets content to main would not by itself publish
+        it to the live site — a manual deploy step still gates that.
+      - >-
+        Did not touch #17/#18/#20/#27/#30/#34 (the content-judgment call
+        already flagged twice as belonging to the account owner) or #19
+        (second unattended agent fleet) or #1/#2 (untested, no VENTURE.yaml).
+        Sent a notification flagging the backlog for a decision, since three
+        consecutive scheduled sessions have now reached the same "needs a
+        human" conclusion on the same six PRs without one being made.
+      - >-
+        Still unresolved, needs the account owner: same as last cycle — pick
+        a winner (or none) among #17/#18/#20/#27/#30/#34 and close the rest
+        per #34's consolidation memo; decide on #19; decide on
+        mat-470-real-analysis/ubuntu-agent-server placement; #1/#2 remain
+        low-risk to review whenever convenient.
+    mrr_end: null
