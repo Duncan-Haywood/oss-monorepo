@@ -138,3 +138,77 @@ entries:
         mat-470-real-analysis/ubuntu-agent-server placement; #1/#2 remain
         low-risk to review whenever convenient.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per CLAUDE.md. A seventh ai-first-markets-brief
+        PR had appeared since the last cycle (#36), but unlike the prior six it
+        is a consolidation, not another duplicate: it reconciles #17/#18/#20/
+        #27/#30/#34's ~36 candidates into 7 kept + ~20 recorded rejections in
+        a new portfolio/pipeline/ tree, and — critically — its author noticed
+        that #17 alone targeted portfolio/pipeline/ (an internal pre-venture
+        directory), not the deployed ai-first-markets site, so it carries none
+        of the legal-accuracy/publication risk the other five still do. Three
+        prior cycles had grouped #17 with the app-side five and inherited a
+        blocker that never applied to it.
+      - >-
+        Verified #36 independently rather than trusting its stated checks: ran
+        `portfolio/router/validate.py` (clean, 9/9), `test_allocate.py` (12/12
+        pass, run from portfolio/router/ per its own README), and
+        `allocate.py` (produces the ranked queue against all 9 ventures) on
+        its branch in a scratch worktree. Confirmed its diff against #17 is a
+        strict superset (same 6 candidates plus a 7th, plus screened-out.md
+        and convergence.md), so closed #17 as superseded with a comment
+        pointing to #36 — a safe cleanup, not the content-judgment call the
+        other five still are, since #36's own author already said #17's
+        content is fully carried over either way.
+      - >-
+        Independently confirmed #36's most consequential claim: GitHub
+        Actions is genuinely broken on main, not merely stale. Queried the
+        Actions API directly — of the last 12 runs on main, 11 are
+        `startup_failure` with empty name and path `BuildFailed` (workflow_id
+        337182028, which no longer appears in `list_workflows`), spanning
+        18:42 to 22:53 UTC on 2026-08-18; the only success on main is from
+        2026-07-29, three weeks earlier. `portfolio-validate.yml` (the
+        VENTURE.yaml schema check from #32) shows 0 total runs ever, despite
+        commits touching its trigger paths. This corrects the two prior
+        cycles' finding (from a PR #30 comment) that the BuildFailed run was
+        a harmless deleted leftover — new ones are still being created on
+        every push, and no CI is actually protecting main right now. Needs
+        the account owner to check the Actions tab / billing / quota; a
+        repo-wide startup_failure with no job ever starting is outside what
+        an agent session can diagnose or fix from here.
+      - >-
+        #36 also proposes a root-cause correction worth flagging on its own:
+        all seven screening PRs (#17/#18/#20/#27/#30/#34/#36) share the
+        claude/laughing-pasteur-* branch identity of one recurring scheduled
+        task ("research new business projects"), not the hourly OpenCode
+        fleet three prior cycles focused on — and since Actions has not
+        successfully started a single job all day, the OpenCode fleet cannot
+        have produced any of this cycle's duplicates regardless. The
+        CLAUDE.md guardrail does reach this scheduled task (it's why this
+        cycle consolidated instead of adding an eighth PR) but depends on
+        each run choosing to honor it, which six prior runs did not.
+      - >-
+        Did not merge #36 or anything else to main — that stays the account
+        owner's call per CLAUDE.md, and #36's own body already asks for it
+        explicitly. Did not touch #18/#20/#27/#30/#34 (app-side content,
+        still a legal-accuracy/publication judgment call) or #19 (second
+        unattended agent fleet) or #1/#2 (untested Swift/Garmin sources).
+      - >-
+        Unresolved, needs the account owner: (1) review and merge #36 (or
+        not) — it is verified, internal-only, and the strongest consolidation
+        of the screening backlog to date; closing #18/#20/#27/#30/#34 as
+        superseded once #36 is in is reasonable but is a publication-content
+        call, not an infra one; (2) GitHub Actions is not running any
+        workflow successfully as of this cycle — check repo/org Actions
+        settings, billing, and quota, since nothing in CI is currently
+        enforced despite README and PR bodies describing checks as
+        CI-enforced; (3) the recurring "research new business projects"
+        scheduled task is the actual source of the PR duplication and will
+        keep firing against an already-answered brief unless changed or
+        retired; (4) #19 and mat-470-real-analysis/ubuntu-agent-server
+        placement remain open from prior cycles.
+    mrr_end: null
