@@ -1,0 +1,28 @@
+name: photo-editing
+description: ShootFlow — safe media ingest plus AI-assisted color grading and Instagram deliverable pipeline for photographers and videographers.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: Photographers/videographers will pay to turn a shoot into graded Instagram-ready deliverables without manual file wrangling.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 50
+  protected: true
+
+kill_criteria:
+  - No end-to-end run (real ingest through real render, not dry-run) completes on a real shoot within 90 days.
+  - No external user other than the owner tries the pipeline once a real renderer adapter exists.
+
+links:
+  production: null
+  analytics: null

@@ -1,0 +1,28 @@
+name: retail-pilot-intel
+description: Privacy-first retail analytics (door + POS conversion, SKU desirability gap, upsell) for small-format pilot stores, initial target a ~10 m² leather boutique in Italy.
+stage: idea
+
+owner: duncan
+
+hypotheses:
+  - claim: A small-format retailer will pay for door+POS conversion and SKU-gap analytics once shown a working pilot with real store data.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 30
+  protected: true
+
+kill_criteria:
+  - No real pilot store (the Italy leather boutique or an equivalent) runs the door+POS join on real data within 120 days.
+  - The privacy-first (no-identity) data model cannot deliver the promised conversion/revenue-per-entry KPIs once tested against real traffic.
+
+links:
+  production: null
+  analytics: null

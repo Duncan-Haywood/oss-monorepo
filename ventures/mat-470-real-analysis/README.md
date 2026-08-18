@@ -15,3 +15,10 @@ available in `textbooks/` as both PDF and EPUB.
 
 > Course materials in this repository are for personal study only and are not
 > redistributed. This repository is private.
+
+## Not a venture
+
+This directory lives under `ventures/` for repo-layout convenience but is
+personal coursework, not a business — it deliberately carries no
+`VENTURE.yaml` and the portfolio router should not allocate agent effort to
+it.

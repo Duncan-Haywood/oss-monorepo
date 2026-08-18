@@ -1,0 +1,28 @@
+name: ubuntu-agent-server
+description: Ansible-provisioned always-on host that runs coding agents unattended against labeled GitHub issues across repos, opening PRs for human review. Portfolio infrastructure, not a revenue product itself.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: Unattended, guardrailed agent automation increases reviewed PR throughput across the portfolio without a human being the bottleneck.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 30
+  protected: true
+
+kill_criteria:
+  - The secret-scan or sandbox guardrails fail in a real run (a leaked secret or an out-of-scope file change reaches a pushed branch).
+  - No repo has been run against a real host with dry_run: false after 90 days of the playbook existing.
+
+links:
+  production: null
+  analytics: null
