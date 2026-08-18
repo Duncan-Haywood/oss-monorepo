@@ -1,0 +1,125 @@
+name: OpenCode high-throughput portfolio agents
+
+# Aggressive agent fleet: 20 parallel workers per hour using cheap OpenCode model.
+# Uses OPENCODE_API_KEY secret for API-based access.
+# Each agent independently consults the portfolio router and claims work from
+# the highest-priority venture.
+
+on:
+  schedule:
+    - cron: "0 * * * *"  # Every hour on the hour
+  workflow_dispatch:
+    inputs:
+      num_agents:
+        description: Number of parallel agents to spawn
+        required: false
+        default: "20"
+        type: string
+      model:
+        description: OpenCode model ID (cheap/fast models recommended)
+        required: false
+        default: "opencode/mixtral-8x7b"
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  resolve-config:
+    runs-on: ubuntu-latest
+    outputs:
+      num_agents: ${{ steps.config.outputs.num_agents }}
+      agent_ids: ${{ steps.config.outputs.agent_ids }}
+    steps:
+      - id: config
+        shell: bash
+        env:
+          NUM_AGENTS_INPUT: ${{ github.event.inputs.num_agents }}
+        run: |
+          # Resolve agent count (default 20, cap at 100 to avoid resource explosion)
+          num_agents="${NUM_AGENTS_INPUT:-20}"
+          if ! [[ "$num_agents" =~ ^[0-9]+$ ]]; then
+            echo "::warning::Invalid num_agents '${num_agents}', using 20"
+            num_agents=20
+          fi
+          if (( num_agents > 100 )); then
+            echo "::warning::num_agents capped at 100 (requested ${num_agents})"
+            num_agents=100
+          fi
+          echo "num_agents=${num_agents}" >> "$GITHUB_OUTPUT"
+
+          # Generate agent IDs as a JSON array (0..num_agents-1)
+          ids=()
+          for (( i=0; i<num_agents; i++ )); do
+            ids+=("$i")
+          done
+          printf '%s\n' "agent_ids=$(printf '%s\n' "${ids[@]}" | jq -R . | jq -s .)" >> "$GITHUB_OUTPUT"
+
+  opencode-agent:
+    needs: resolve-config
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        agent_id: ${{ fromJSON(needs.resolve-config.outputs.agent_ids) }}
+    concurrency:
+      # Per-agent concurrency: each agent has its own lock to avoid claiming conflicts
+      # but agents with different IDs can run in parallel
+      group: opencode-agent-portfolio-${{ matrix.agent_id }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Fetch latest main (for fresh router allocation)
+        run: |
+          git fetch origin main --depth=50
+
+      - name: Prepare prompt
+        id: prompt
+        run: |
+          chmod +x .github/scripts/prepare-agent-prompt.sh 2>/dev/null || true
+          if [[ -f .github/scripts/prepare-agent-prompt.sh ]]; then
+            .github/scripts/prepare-agent-prompt.sh \
+              ".github/prompts/portfolio-work.md" \
+              "opencode-agent-${{ matrix.agent_id }}" \
+              "portfolio-work"
+            PROMPT_PATH="${RUNNER_TEMP:-/tmp}/agent-prompt.md"
+          else
+            # Fallback if script doesn't exist yet
+            PROMPT_PATH="${RUNNER_TEMP:-/tmp}/agent-prompt.md"
+            {
+              cat ".github/prompts/portfolio-work.md"
+              echo
+              echo "## Run context"
+              echo
+              echo "- Agent: opencode-agent-${{ matrix.agent_id }}"
+              echo "- Prompt: portfolio-work"
+              echo "- Repository: ${GITHUB_REPOSITORY:-unknown}"
+              echo "- Workflow run: ${GITHUB_RUN_ID:-unknown}"
+              echo
+              echo "Start now. Consult the router, claim work, implement, verify, and open a PR."
+            } > "$PROMPT_PATH"
+          fi
+          {
+            echo "body<<PROMPT_EOF"
+            cat "$PROMPT_PATH"
+            echo "PROMPT_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Run OpenCode agent
+        uses: anomalyco/opencode/github@e5cc278dec9294a627a7b05f47ce6a564408c1a2 # v1.18.5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+        with:
+          model: ${{ github.event.inputs.model || 'opencode/mixtral-8x7b' }}
+          prompt: ${{ steps.prompt.outputs.body }}
+          use_github_token: true
