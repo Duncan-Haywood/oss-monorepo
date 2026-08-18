@@ -42,3 +42,52 @@ entries:
         (unrelated Swift/Garmin app sources, untested, 10+ days old) are
         still open and low-risk to review whenever convenient.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Verified and merged the three low-risk, additive infra PRs this
+        backlog was blocked on: #31 (portfolio/router/allocate.py v1 —
+        re-ran `python3 -m unittest test_allocate`, 12/12 pass, and
+        `python3 allocate.py` against all 9 ventures before merging), #32
+        (portfolio/router/validate.py + CI schema check — re-ran it clean
+        against all 9 VENTURE.yaml files before merging), and #25 (doc-only
+        guardrail in local-site-studio). All three were reviewed, tested
+        locally in a scratch worktree, and merged squash-style directly
+        to main; none touch business content or spend-capable automation.
+      - >-
+        Closed the loop the router/validator PRs opened: the hourly
+        OpenCode fleet's actual prompt (.github/prompts/portfolio-work.md)
+        did not yet carry the "check open PRs before starting" guardrail
+        that CLAUDE.md and PR #25 added elsewhere — only the CLAUDE.md and
+        one venture-local prompt had it. Added it as required reading and
+        as loop step 1, and pointed the router step at the now-real
+        `python3 portfolio/router/allocate.py` command. Also corrected the
+        stale comment in opencode-high-throughput.yml that still described
+        the router as unmerged (referencing since-closed PR #16).
+      - >-
+        Did not merge or close any of #17/#18/#20/#27/#30 (five overlapping
+        ai-first-markets candidate-screening PRs — #30 is a fifth,
+        independent pass not yet reflected in the prior cycle's note above).
+        These carry specific regulatory dates, fines, and market claims
+        gathered by web search and explicitly flagged by their own authors
+        as unverified against primary sources; picking a winner changes
+        content on a live site (ai-first-markets-deploy.yml) and is a
+        legal-accuracy and product judgment call for the account owner, not
+        something to resolve unilaterally even though it is the single
+        biggest remaining source of backlog and wasted agent spend. Left a
+        comment on each pointing at the others and at this ledger entry.
+      - >-
+        Did not touch #19 (second unattended, spend-capable agent fleet —
+        explicitly a human decision per CLAUDE.md) or #1/#2 (unrelated
+        Swift/Garmin app sources, 10+ days stale, no VENTURE.yaml, low risk
+        either way to leave open).
+      - >-
+        Still unresolved, needs the account owner: pick one of
+        #17/#18/#20/#27/#30 to merge as ai-first-markets content (or none —
+        the market-research claims may not be worth publishing unverified)
+        and close the rest; decide on #19; decide whether mat-470-real-analysis
+        and ubuntu-agent-server belong under ventures/ at all now that they
+        carry NOT-A-VENTURE markers (from #32) instead of VENTURE.yaml.
+    mrr_end: null
