@@ -8,10 +8,11 @@ Ship one focused, mergeable development iteration that improves the product, tes
 
 ## Required reading (do this first)
 
-1. `AGENTS.md` and `CLAUDE.md`
-2. `src/lib/process/prompt_process.tsx` — especially `AGENT_PROTOCOL` and `NEXT_STEPS`
-3. `/docs` pages relevant to the change (architecture, process, launch checklist)
-4. Open PRs and recent remote branches before claiming work
+1. **Review prior agents' work in open PRs** — start every task by checking for existing agent PRs, their status, CI results, and any pending reviews or comments
+2. `AGENTS.md` and `CLAUDE.md`
+3. `src/lib/process/prompt_process.tsx` — especially `AGENT_PROTOCOL` and `NEXT_STEPS`
+4. `/docs` pages relevant to the change (architecture, process, launch checklist)
+5. Open PRs and recent remote branches before claiming work
 
 ## Cooperation rules (non-negotiable)
 
