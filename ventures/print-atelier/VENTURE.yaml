@@ -1,0 +1,31 @@
+# Copy to ventures/<name>/VENTURE.yaml and fill in.
+# This file is the contract between a venture and the portfolio router.
+
+name: print-atelier
+description: AI-first, software-driven marketplace that digitizes physical art, sells prints via print-on-demand, and pays artists 30% of net profit.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: Artists will supply work to the marketplace for a 30%-of-net-profit payout, and buyers will purchase prints through the automated capture-to-storefront pipeline.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 20
+  protected: true
+
+kill_criteria:
+  - No real artist has been onboarded and paid through the Stripe Connect payout flow within 90 days.
+  - No real print sale has been made through the storefront within 90 days of artist onboarding.
+
+links:
+  production: null
+  analytics: null

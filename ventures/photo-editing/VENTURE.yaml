@@ -1,0 +1,31 @@
+# Copy to ventures/<name>/VENTURE.yaml and fill in.
+# This file is the contract between a venture and the portfolio router.
+
+name: photo-editing
+description: "ShootFlow: ingest, color-grade, and deliverable pipeline for photographers/videographers, producing cinematic reels, carousels, and graded masters without manual file wrangling."
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: Photographers and videographers will pay for an automated ingest-to-deliverable pipeline that saves them file-wrangling and grading time.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 20
+  protected: true
+
+kill_criteria:
+  - No renderer adapter beyond the dry-run local adapter produces a real deliverable within 90 days.
+  - No external (non-owner) user tries the pipeline on a real shoot once a real render backend exists.
+
+links:
+  production: null
+  analytics: null

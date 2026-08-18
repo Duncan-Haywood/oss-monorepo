@@ -1,0 +1,31 @@
+# Copy to ventures/<name>/VENTURE.yaml and fill in.
+# This file is the contract between a venture and the portfolio router.
+
+name: retail-pilot-intel
+description: Privacy-first retail analytics for small-format pilot stores, targeting a ~10 m² leather boutique in Italy as the first pilot.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: A small-format retail pilot store will pay for door+POS conversion analytics and SKU desirability/upsell insights that recover a Core subscription within one extra sale/month.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 20
+  protected: true
+
+kill_criteria:
+  - No pilot store (starting with the Italy leather boutique) has signed on to run the door+POS join within 90 days.
+  - The pilot store cannot attribute a measurable revenue lift to the ROI-ranked features (door+POS, desirability gap, upsell) after one full pilot cycle.
+
+links:
+  production: null
+  analytics: null
