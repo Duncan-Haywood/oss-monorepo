@@ -212,3 +212,56 @@ entries:
         retired; (4) #19 and mat-470-real-analysis/ubuntu-agent-server
         placement remain open from prior cycles.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per CLAUDE.md. Found the backlog itself had
+        started duplicating: six scheduled sessions (#37–#42) had each
+        independently opened a ledger-only PR in the same ten-minute window
+        (23:23–23:27 UTC), all reaching the same conclusion — verify #36's
+        consolidation, confirm GitHub Actions is broken repo-wide, recommend
+        the same four owner decisions — and five of the six recorded sending
+        their own push notification for it. This is the exact duplicate-PR
+        failure mode CLAUDE.md documents, now happening one layer up: at the
+        ledger/notification level instead of the business-content level.
+      - >-
+        Consolidated instead of adding a seventh: read all six diffs, picked
+        #37 as the strongest (it had already closed #17 as superseded, the
+        one genuinely safe cleanup action in the cluster), verified its
+        ledger YAML parses cleanly and merges without conflict, and merged it
+        to `main` (500d6b5) — additive, ledger-only, no business content,
+        consistent with the established pattern of merging this class of PR
+        directly rather than leaving it to accumulate (see #33/#31/#32 in
+        prior cycles). Closed #38–#42 with a comment on each pointing to the
+        merged #37 and explaining why no new notification was sent.
+      - >-
+        Deliberately did not send a sixth push notification. The two facts
+        every one of #37–#42 wanted to surface — GitHub Actions has been
+        completely non-functional repo-wide since ~21:30 UTC today, and #36
+        is a verified, ready-to-decide consolidation — have already reached
+        the account owner at least five times today. A sixth would be noise,
+        not signal.
+      - >-
+        Did not merge #36 or touch #18/#20/#27/#30/#34 (app-side
+        `ai-first-markets` content — still a legal-accuracy/publication call
+        for the account owner, now flagged five consecutive cycles running)
+        or #19 (second unattended agent fleet) or #1/#2 (untested, low-risk,
+        still stale). Did not attempt to locate or change the recurring
+        scheduled task that #36 identifies as the duplication's actual root
+        cause — it is account-level, not repo-level, and no tool available
+        in this session can see or modify another account-level schedule;
+        CronList/CronCreate here only manage this session's own in-memory
+        jobs, which durably expire in 7 days regardless and are unrelated to
+        the `claude/laughing-pasteur-*` task.
+      - >-
+        Still unresolved, needs the account owner, unchanged from #36/#37:
+        (1) check the repo/org Actions tab and billing/quota — no workflow
+        has run successfully on any branch since 2026-07-29; (2) review and
+        merge #36, and decide the fate of #18/#20/#27/#30/#34 per its
+        consolidation memo; (3) change or retire the recurring "research new
+        business projects" scheduled task before it produces an eighth round
+        of duplicates; (4) decide on #19; (5) #1/#2 remain low-risk to review
+        whenever convenient.
+    mrr_end: null
