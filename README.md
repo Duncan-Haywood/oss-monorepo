@@ -29,10 +29,21 @@ with `git filter-repo` if it is ever sold or spun off.
 `mat-470-real-analysis` (private personal coursework) and
 `ubuntu-agent-server` (shared agent-hosting infra, not itself
 revenue-seeking) intentionally have no `VENTURE.yaml` — neither is a
-business the router should allocate profit-seeking effort to. Worth a
-deliberate call on whether they belong under `ventures/` at all, or should
-move to `platform/`/elsewhere; not changed here since that's a structural
-decision, not a data-entry one.
+business the router should allocate profit-seeking effort to. Each carries a
+`NOT-A-VENTURE` file recording why. Whether they belong under `ventures/` at
+all, or should move to `platform/`/elsewhere, is still an open structural
+decision; the marker does not settle it.
+
+`VENTURE.yaml` is what the router reads, so it is schema-checked in CI:
+
+```
+pip install -r portfolio/router/requirements.txt
+python3 portfolio/router/validate.py
+```
+
+Every directory under `ventures/` must have either a valid `VENTURE.yaml` or
+a `NOT-A-VENTURE` file, so a new venture cannot go silently invisible to the
+router.
 
 ### platform/
 
