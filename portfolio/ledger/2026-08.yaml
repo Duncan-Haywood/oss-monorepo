@@ -138,3 +138,81 @@ entries:
         mat-470-real-analysis/ubuntu-agent-server placement; #1/#2 remain
         low-risk to review whenever convenient.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fourth consecutive scheduled session assigned "research new business
+        candidates" and fourth to find the answer already written six times
+        over. Broke the deadlock the previous three sessions left to the
+        account owner, by consolidating into portfolio/pipeline/ (internal
+        notes) rather than into ventures/ai-first-markets (live site). The
+        stated blocker each prior cycle was that picking a winner would
+        publish unverified regulatory claims to a deployed site; that
+        blocker applies to five of the six PRs but never applied to #17,
+        which alone targeted an internal directory. Consolidating there
+        needs no publication or legal-accuracy judgment, so it did not need
+        the owner first.
+      - >-
+        Consolidated PR #17's portfolio/pipeline/ as the base (repo-native
+        markdown+YAML, liability_containment and ethical_robustness as hard
+        gates rather than weights, screened-out record kept). Reconciled all
+        ~36 candidates proposed across #17/#18/#20/#27/#30/#34 down to 9
+        archetypes: kept 7 write-ups, added one new candidate
+        (mcp-supply-chain-watch, narrowed from #27/#34's scanner framing to
+        monitoring only servers the customer already connected), and
+        recorded the other ~20 in screened-out.md with a named reason each
+        so they are not re-derived next month. Added convergence.md
+        analysing what six independent runs agreeing does and does not tell
+        us, and an explicit "these claims are unverified internal notes"
+        status section.
+      - >-
+        Verified rather than trusted the diffs: re-ran
+        `python3 portfolio/router/validate.py` (all 9 VENTURE.yaml files
+        valid, 11 venture dirs covered counting the 2 NOT-A-VENTURE
+        markers), the router test suite (12/12 pass), and
+        `python3 portfolio/router/allocate.py` against all 9 ventures. Also
+        checked every composite/floor in candidates.yaml against its own
+        scores arithmetically (7/7 correct, all passing the >=5 ethics and
+        liability gates).
+      - >-
+        Fixed a real pre-existing bug found while verifying: the test command
+        documented in portfolio/router/README.md
+        (`python3 -m unittest portfolio/router/test_allocate.py`) fails from
+        the repo root with ModuleNotFoundError, because the test imports
+        `allocate` as a top-level module. Anyone following the README to
+        verify the router would have seen a failure unrelated to their
+        change. Replaced with the working
+        `python3 -m unittest discover -s portfolio/router -t portfolio/router`.
+      - >-
+        Corrected a stale claim inherited from #17: its README said nine of
+        eleven ventures/ directories lacked VENTURE.yaml. That backfill has
+        since landed and is CI-enforced, so the note was rewritten to the
+        caution that still holds — economics are null portfolio-wide, so the
+        router ranks on stage and budget cap, not measured return.
+      - >-
+        Did not close #18/#20/#27/#30/#34 despite CLAUDE.md's consolidate-and-
+        close guidance. They carry app-side work for ai-first-markets that
+        this PR does not supersede and does not reproduce; closing them would
+        discard content whose publication is still the owner's call. Left
+        them open deliberately rather than by omission.
+      - >-
+        Headline research finding, recorded because it is worth more than the
+        candidate list: none of the 36 proposed candidates came from a
+        customer, an inbound request, or a user of an existing venture. All
+        were things that could be built. Four of seven surviving candidates
+        score 4-5 on distribution. Six independent runs reproduced the
+        portfolio's real bottleneck instead of addressing it — the next unit
+        of effort is worth more spent testing one candidate against a real
+        buyer than generating a tenth archetype.
+      - >-
+        Still unresolved, needs the account owner: decide on the five
+        remaining app-side screening PRs (merge one, or close all as
+        superseded by portfolio/pipeline/); decide on #19 (second unattended
+        agent fleet); the hourly 10-agent fleet is still live and still the
+        mechanism generating this duplication — the open-PR guardrail added
+        in #33 did not prevent this cycle's sixth and seventh passes, which
+        is now two cycles of evidence that the guardrail alone is not
+        sufficient.
+    mrr_end: null
