@@ -674,7 +674,6 @@ WATCHES: Tuple[Watch, ...] = (
         ),
         direction=UP,
     ),
-<<<<<<< HEAD
     Watch(
         path="ventures/ai-first-markets/src/lib/auth.ts",
         kind="ts-constant",
@@ -815,7 +814,6 @@ WATCHES: Tuple[Watch, ...] = (
         why="minimum number of photo evidence files required before automatic damage claim processing",
         direction=UP,
     ),
-=======
     # --- module reachability: one budget per measured venture ---------------
     # `scripts/ci/module_reachability.py` measures, per venture, how many tracked
     # source modules the framework's entrypoints cannot reach. Each budget below
@@ -898,7 +896,6 @@ WATCHES: Tuple[Watch, ...] = (
         ),
         direction=DOWN,
     ),
->>>>>>> agent/module-reachability-2026-08-17
 )
 
 
