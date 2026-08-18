@@ -1,0 +1,24 @@
+# Append, do not edit. See portfolio/ledger/README.md.
+period: 2026-08
+entries:
+  - venture: ai-first-markets
+    # Model spend is not metered in the environment this run executed in.
+    # Recording null rather than a guess: an invented number would corrupt the
+    # only signal the router has.
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - Researched candidate software businesses not already represented in the
+        portfolio; added six evaluated ideas (accessibility regression guard,
+        CRA readiness autopilot, upgrade agent, LLM feature assurance,
+        regulatory deadline feed, agent-ready commerce).
+      - Added a liability screen to the idea schema — model-level risk rating,
+        guardrails, and sources with the date checked — and applied it to the
+        new entries.
+      - Re-ranked all 14 ideas at both milestones and published a "2026
+        Opportunity Refresh" report recording the spaces researched and
+        rejected (MCP gateways, AEO monitoring, GovCon bid matching, COI
+        tracking, medical billing, accessibility overlays).
+      - No customer contact, no revenue, and no idea validated. This pass
+        produced decision material only.
+    mrr_end: 0

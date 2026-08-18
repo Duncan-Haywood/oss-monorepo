@@ -10,6 +10,23 @@ export type IdeaCategory =
 
 export type RiskLevel = "low" | "medium" | "high";
 
+/**
+ * Legal and financial exposure carried by the business model itself, separate
+ * from execution risk. Ideas are only worth ranking if this stays containable
+ * for an operator with no employees and no legal department.
+ */
+export interface LiabilityProfile {
+  level: RiskLevel;
+  /** Concrete constraints that keep the model inside the stated level. */
+  guardrails: string[];
+}
+
+/** External reference backing a factual claim in an idea's write-up. */
+export interface SourceRef {
+  label: string;
+  url: string;
+}
+
 export interface ScoreDimension {
   key: string;
   label: string;
@@ -49,6 +66,12 @@ export interface BusinessIdea {
   firstExperiment: string;
   rank100k: number;
   rank1m: number;
+  /** Optional: present on ideas evaluated under the liability screen. */
+  liability?: LiabilityProfile;
+  /** Optional: sources behind the market claims, with the date they were checked. */
+  sources?: SourceRef[];
+  /** YYYY-MM-DD the market research behind this entry was last refreshed. */
+  researched?: string;
 }
 
 export interface ReportMeta {

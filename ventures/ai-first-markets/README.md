@@ -11,9 +11,10 @@ Built with Next.js 15, TypeScript, Tailwind CSS, and deployable to **Cloudflare 
 ## Features
 
 - **AI-first market map** with ripeness signals, market tiers, and winning patterns
-- **8 evaluated business ideas** across devtools, vertical SaaS, AI agents, API infrastructure, and content automation
-- **6 analytical reports**: executive summary, $100k path, $1M path, automation playbook, scoring methodology, category analysis
+- **14 evaluated business ideas** across devtools, vertical SaaS, AI agents, API infrastructure, content automation, and data products
+- **7 analytical reports**: executive summary, $100k path, $1M path, automation playbook, scoring methodology, category analysis, 2026 opportunity refresh
 - **Scoring framework** across AI leverage, zero-employee ops, time-to-revenue, margin, defensibility, and distribution
+- **Liability screen** on newer ideas: each carries a model-level risk rating, explicit guardrails, and sources with the date they were checked
 - **Whitelist-only access** for `duncan.andrew.haywood@gmail.com`
 - **Cloudflare deployment** ready with OpenNext adapter
 
@@ -84,18 +85,26 @@ src/
 | AI + Zero-Employee Playbook | Operational stack for solo AI-first SaaS |
 | Scoring Methodology | How ideas are evaluated |
 | Category Analysis | Comparison across idea categories |
+| 2026 Opportunity Refresh | Six candidates added under a liability-first screen, plus the spaces researched and rejected |
 
 ## Top recommendations
 
 **$100k ARR (strong fit):**
 1. AI PR Review Agent
-2. AI Receptionist for Trades
-3. LinkedIn Content Engine
+2. Accessibility Regression Guard
+3. AI Receptionist for Trades
+4. Upgrade Agent
+5. CRA Readiness Autopilot
 
 **$1M ARR (viable+):**
 1. AI QA for E-commerce
 2. AI PR Review Agent
-3. API Uptime Intelligence
+3. Upgrade Agent
+4. Accessibility Regression Guard
+
+Market and regulatory claims in the newer entries were gathered by search on
+2026-08-18 from secondary sources. Re-verify against the primary text before
+any of it reaches a landing page or a customer conversation.
 
 ## License
 

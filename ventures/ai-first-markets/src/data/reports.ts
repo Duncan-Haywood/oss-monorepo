@@ -39,6 +39,13 @@ export const reports: ReportMeta[] = [
     type: "deep-dive",
   },
   {
+    slug: "opportunity-refresh-2026",
+    title: "2026 Opportunity Refresh",
+    description:
+      "Six new candidates added under a legal and liability screen, plus the spaces that were researched and deliberately rejected.",
+    type: "deep-dive",
+  },
+  {
     slug: "category-analysis",
     title: "Category Analysis",
     description:

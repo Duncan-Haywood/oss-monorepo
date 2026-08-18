@@ -9,6 +9,8 @@ import {
   categoryLabel,
   formatArr,
   monthsLabel,
+  riskColor,
+  riskLabel,
   verdictColor,
   verdictLabel,
 } from "@/lib/utils";
@@ -111,6 +113,49 @@ export default async function IdeaDetailPage({ params }: IdeaPageProps) {
           <Section title="Moat">
             <p className="text-zinc-400">{idea.moat}</p>
           </Section>
+
+          {idea.liability ? (
+            <Section title="Legal and liability profile">
+              <p className="text-sm text-zinc-500">
+                Exposure carried by the business model itself, separate from
+                execution risk:{" "}
+                <span className={`font-medium ${riskColor(idea.liability.level)}`}>
+                  {riskLabel(idea.liability.level)}
+                </span>
+              </p>
+              <ul className="mt-4 list-inside list-disc space-y-2 text-zinc-400">
+                {idea.liability.guardrails.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </Section>
+          ) : null}
+
+          {idea.sources && idea.sources.length > 0 ? (
+            <Section title="Sources">
+              <ul className="space-y-2 text-sm">
+                {idea.sources.map((source) => (
+                  <li key={source.url}>
+                    <a
+                      href={source.url}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="text-emerald-400 hover:text-emerald-300"
+                    >
+                      {source.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              {idea.researched ? (
+                <p className="mt-4 text-xs text-zinc-500">
+                  Market claims checked {idea.researched}. Regulatory dates move
+                  — re-verify against the primary text before repeating any of
+                  them to a customer.
+                </p>
+              ) : null}
+            </Section>
+          ) : null}
         </div>
 
         <aside className="space-y-6">
