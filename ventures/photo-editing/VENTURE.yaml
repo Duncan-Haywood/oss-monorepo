@@ -1,0 +1,28 @@
+name: photo-editing
+description: ShootFlow — safe card ingest, AI-assisted grading, and automated production pipeline that turns a shoot into Instagram-ready reels, carousels, and photo sets for photographers and videographers.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: Photographers and videographers will pay for a tool that automates ingest-to-deliverable production and materially cuts editing time.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 30
+  protected: true
+
+kill_criteria:
+  - No real (non-synthetic) shoot is run end-to-end through the pipeline within 90 days.
+  - A photographer using the pipeline on a real shoot reports it does not save meaningful editing time.
+
+links:
+  production: null
+  analytics: null

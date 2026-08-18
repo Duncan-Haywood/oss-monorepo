@@ -1,0 +1,28 @@
+name: real-estate-agent-photo-app
+description: Listing Lens — AI-first iPhone real estate photography concept delivering pro-level, MLS-ready listing media in 30 minutes from an agent's phone.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: Mid-market real estate agents who already shoot some of their own listings will pay $8-15/listing or $49-99/mo for faster, better listing photos.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 20
+  protected: true
+
+kill_criteria:
+  - No concierge listing is booked and shot within 90 days (see process/blockers.ts — this is the top blocked item).
+  - Phase 1 problem interviews (process/interview-script.ts) find no meaningful pain point once run.
+
+links:
+  production: https://listing-lens-docs.pages.dev
+  analytics: null

@@ -1,0 +1,28 @@
+name: retail-pilot-intel
+description: Privacy-first retail analytics (door + POS conversion, SKU desirability gap, upsell signal) for small-format pilot stores, initial target a ~10m² leather boutique in Italy.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: A small-format retail store will pay for door+POS conversion analytics and SKU-gap/upsell signals once shown a measurable euro payback.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 30
+  protected: true
+
+kill_criteria:
+  - No pilot store (starting with the Italy leather boutique target) signs up for a live pilot within 90 days.
+  - A live pilot's measured conversion/upsell lift does not cover the cost of the Core subscription within one full pilot period.
+
+links:
+  production: null
+  analytics: null

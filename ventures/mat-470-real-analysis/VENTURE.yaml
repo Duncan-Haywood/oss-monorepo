@@ -1,0 +1,24 @@
+name: mat-470-real-analysis
+description: Personal coursework, notes, and reference material for MAT 470 (Real Analysis). Not a commercial venture — kept in ventures/ for repo layout consistency only.
+stage: idea
+
+owner: duncan
+
+hypotheses: []
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 0
+  protected: false
+
+kill_criteria:
+  - Not applicable — personal study material, not a business.
+
+links:
+  production: null
+  analytics: null
