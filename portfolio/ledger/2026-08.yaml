@@ -138,3 +138,59 @@ entries:
         mat-470-real-analysis/ubuntu-agent-server placement; #1/#2 remain
         low-risk to review whenever convenient.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per CLAUDE.md. A seventh screening-cluster PR
+        (#36) had appeared since the last cycle and had already done the
+        consolidation this backlog needed: based on #17 (the one candidate
+        PR that touched only `portfolio/pipeline/`, not the deployed
+        ai-first-markets site), reconciled ~36 candidates from six
+        independent PRs down to 7 kept + ~20 recorded rejections, and closed
+        #17 itself as fully absorbed. Left #18/#20/#27/#30/#34 open by
+        deliberate choice (unverified regulatory claims bound for a live
+        site — a legal-accuracy call for the owner, not this session's to
+        make). Did not redo that work; verified it instead.
+      - >-
+        Re-ran #36's local checks in a scratch worktree at its head
+        (d6cb1e2): `portfolio/router/validate.py` clean (9/9 VENTURE.yaml),
+        `python3 -m unittest test_allocate.py` 12/12 pass,
+        `portfolio/pipeline/` contents match what the PR describes. Posted
+        verification as a PR comment rather than re-deriving conclusions.
+      - >-
+        Independently confirmed and sharpened #36's biggest finding: pulled
+        the last 117 GitHub Actions workflow runs directly via the API —
+        100% are `startup_failure`, across every trigger type, including two
+        `event: schedule` runs of the hourly `opencode-high-throughput.yml`
+        10-agent fleet cron (2026-08-18T21:30 and 22:30 UTC on main). This
+        corrects two cycles ago's conclusion that a stray `BuildFailed` run
+        was a harmless deleted leftover — it was a symptom of Actions being
+        completely non-functional repo-wide, which also means the
+        VENTURE.yaml CI schema check (#32) and ai-first-markets CI have
+        never executed once, and the "reviewed 10 agents/hour" fleet
+        believed active has in fact never successfully started a job. Net
+        effect is not currently costing spend, but every "verified in CI"
+        claim in this repo to date has actually meant "verified locally by
+        an agent," and the Actions tab misleadingly shows the fleet as live.
+      - >-
+        Did not touch #18/#20/#27/#30/#34 (owner content/legal-accuracy
+        call, now four cycles running), #19 (second unattended agent fleet,
+        a human decision per CLAUDE.md), or #1/#2 (unrelated, low-risk,
+        still stale). Did not merge #36 — merging to main is the owner's
+        call per CLAUDE.md, and #36 says so explicitly in its own body.
+      - >-
+        Still unresolved, needs the account owner, ranked by #36's own
+        assessment (agreed with after independent verification): (1) look at
+        the Actions tab / billing — nothing in CI or the hourly fleet has
+        ever actually run, for reasons only dashboard access can diagnose;
+        (2) the recurring "research new business projects" scheduled task is
+        the actual source of the seven-PR screening storm (all on
+        `claude/laughing-pasteur-*` branches, one shared task identity
+        firing repeatedly) and will keep firing against an already-answered
+        brief until changed or retired — the CLAUDE.md guardrail helps but
+        depends on each run choosing to honor it; (3) pick a winner (or
+        none) among #18/#20/#27/#30/#34 and close the rest, now that #36
+        gives a ready base to merge into instead; (4) decide on #19.
+    mrr_end: null
