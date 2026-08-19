@@ -1700,3 +1700,34 @@ entries:
         the cost here was one wasted PR-open, not wasted spend on landed
         code.
     mrr_end: null
+  - venture: real-estate-agent-photo-app
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed missing ESLint config in `docs-site` and `research` (both
+        Next.js 14 apps whose `package.json` runs `next lint` with no
+        config present, so `npm run lint` drops into an interactive setup
+        prompt and hangs in any non-interactive context). Same root cause
+        already fixed for `print-atelier` and `photo-editing/docs-site`;
+        added `{"extends": "next/core-web-vitals"}` to each, mirroring that
+        pattern. `next build`'s internal lint pass is non-interactive and
+        was already passing, so this was a latent local/standalone gap, not
+        an active CI break.
+      - >-
+        Verified before merging: `npm run lint` clean in both directories,
+        `npm run build` still succeeds in both (9 and 2 pages respectively),
+        `python3 portfolio/router/validate.py` still 11/11, `git status
+        --porcelain` showed only the two new files. Additive, non-content,
+        non-automation engineering change — self-merged per the pattern
+        established for this category (e.g. #77, #80).
+      - >-
+        Did not touch #79 or #19 — both remain live and correctly left for
+        the account owner, unchanged since the prior entry. No new
+        information on the still-open items in that entry (Actions
+        billing/quota, #79 merge decision, #19 decision, payout rail,
+        standalone-repo exposure in quick-pick-survey/local-site-studio);
+        not repeating them here since nothing has changed. No push
+        notification sent — this cycle's only development is routine,
+        low-risk, additive engineering.
+    mrr_end: null
