@@ -42,7 +42,7 @@ export default function ArtistPitch() {
       <section>
         <h2 className="text-2xl font-semibold">The One-Liner</h2>
         <p className="text-xl italic text-gray-600 dark:text-gray-300">
-          "Upload a photo from your phone. Our AI creates museum-quality prints, markets them, and sends you 30% of the profits. You just keep painting."
+          &quot;Upload a photo from your phone. Our AI creates museum-quality prints, markets them, and sends you 30% of the profits. You just keep painting.&quot;
         </p>
       </section>
 

@@ -44,7 +44,7 @@ export default function RoomPreviewExperiment() {
                 Turn buyer confidence into CAC math before scaling ads.
               </h2>
               <p className="mt-4 max-w-lg text-sm leading-6 text-stone-300">
-                Model how a "view on my wall" interaction changes conversion rate, effective CAC, artist payout, and contribution after acquisition.
+                Model how a &quot;view on my wall&quot; interaction changes conversion rate, effective CAC, artist payout, and contribution after acquisition.
               </p>
             </div>
 

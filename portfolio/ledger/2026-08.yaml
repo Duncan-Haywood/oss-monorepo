@@ -656,3 +656,82 @@ entries:
         it does not silently reappear as "no one has audited this" in a
         future cycle.
     mrr_end: null
+  - venture: print-atelier
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per CLAUDE.md: two open (#53 — ninth firing
+        of the "research new business projects" brief, a superset of #44
+        adding an intake gate and a distribution-test finding on two
+        already-merged ventures, awaiting an account-owner merge decision;
+        #19 — second unattended agent-fleet proposal, also awaiting a
+        decision). Neither needed re-verification this cycle: #53 was
+        opened minutes before this session started and its own
+        verification table is current; #19 is unchanged since prior
+        cycles reviewed it. Re-confirmed GitHub Actions is still
+        `startup_failure` on every recent run (path "BuildFailed", empty
+        workflow name — consistent with the billing/quota theory already
+        recorded five times, not new information).
+      - >-
+        Rather than re-derive either open PR's work or add a redundant
+        "still stuck" ledger entry, used a background Explore agent to
+        scan for a small, safe, additive engineering fix unrelated to
+        both PRs' subject matter (no credentials, no content/governance
+        changes) — in the pattern of the retail-pilot-intel CSV importer
+        merged directly in an earlier cycle. Checked local-site-studio
+        (1207/1207 tests, lint clean) and quick-pick-survey (264/264
+        tests, typecheck and lint clean) — both healthy, nothing to do.
+        (The local-site-studio npm-audit fix above landed on main from a
+        separate concurrent session moments after this scan, which is why
+        it reads clean here.)
+      - >-
+        print-atelier's `npm run lint` was silently broken: no
+        `.eslintrc.json`/`eslint.config.mjs` existed for `next lint` to
+        read, so it dropped into an interactive "how would you like to
+        configure ESLint?" prompt instead of running — a dead script in
+        any unattended/CI context, unlike the sibling ventures which both
+        have working flat-config files. Added `.eslintrc.json` (`next
+        lint` with eslint ^8 + Next 14.2 uses the classic format, not
+        flat config, so copying a sibling's config would not have
+        worked). That surfaced 9 real `react/no-unescaped-entities`
+        errors across 6 components; fixed them by escaping literal quotes
+        and apostrophes to HTML entities. Left two pre-existing warnings
+        untouched (a `useMemo` exhaustive-deps warning that reads as an
+        intentional recompute-on-save dependency, and an `alt-text`
+        warning on what looks like a `lucide-react` icon rather than an
+        actual `<img>`) rather than guess at behavior changes.
+      - >-
+        Verified before opening the PR: `npm run lint` now exits 0
+        (previously hung), `npm test` still 128/128 pass, unchanged, and
+        `portfolio/router/validate.py` still 11/11 clean. Opened #58 on
+        the designated branch rather than merging directly — this
+        session's task instructions require pushing to the designated
+        branch and opening a PR, and did not establish this session's own
+        precedent for direct-to-main merges the way an earlier cycle did
+        under different instructions.
+      - >-
+        Merged main into this branch to resolve a real conflict: a
+        separate concurrent session's local-site-studio npm-audit-fix
+        ledger entry landed on main (#57) between this session's fetch and
+        push. Resolved by chronological ordering (portfolio/local-site-
+        studio entry first at 01:29 UTC, print-atelier entry second at
+        01:30 UTC), verified nothing dropped from either side.
+      - >-
+        Did not send a push notification. Nothing this cycle rises to
+        "needs the account owner's attention now": #53/#19/Actions-billing
+        are unchanged repeats already delivered multiple times, and the
+        print-atelier lint fix is routine, low-risk, additive engineering
+        that doesn't need an interrupt.
+      - >-
+        Still unresolved, needs the account owner, unchanged in substance
+        from prior cycles: (1) GitHub Actions billing/quota — no
+        successful run on any branch since 2026-07-29; (2) merge #53 (a
+        superset of #44) or neither; (3) decide on #19; (4) submit
+        garmin-world-traveler-watchface or world-clock-widget to their
+        respective app stores — both built, both blocked only on
+        developer-account credentials per #53's finding; (5) local-site-
+        studio still carries 3 high-severity advisories pending the Next
+        16.3.1 test-type regression fix, per #57; (6) retire or redirect
+        the recurring "research new business projects" scheduled task.
+    mrr_end: null
