@@ -365,11 +365,11 @@ describe("buildDailyDigest", () => {
       commerceCatalogs: [
         {
           leadSlug: "unsynced-shop",
-          items: [{ id: "a", priceCents: 100 }],
+          items: [{ stripePriceId: undefined }],
         },
         {
           leadSlug: "synced-shop",
-          items: [{ id: "b", priceCents: 200, stripePriceId: "price_b" }],
+          items: [{ stripePriceId: "price_b" }],
         },
       ],
       nowMs: NOW,
@@ -704,6 +704,7 @@ describe("buildDailyDigest", () => {
       amountPaidUsd: 40,
       stripeSessionId: "cs_old",
       createdAt: "2026-01-01T00:00:00.000Z",
+      paidOutAt: undefined as string | undefined,
     };
     const recentPaidOut = Array.from({ length: 5 }, (_, i) => ({
       id: `co_new_${i}`,
@@ -839,7 +840,7 @@ describe("renderDailyDigestHtml", () => {
       commerceCatalogs: [
         {
           leadSlug: "commerce-unsynced",
-          items: [{ id: "sku_1", priceCents: 1200 }],
+          items: [{ stripePriceId: undefined }],
         },
       ],
       clientVoicePacks: [],
