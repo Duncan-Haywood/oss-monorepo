@@ -265,3 +265,70 @@ entries:
         of duplicates; (4) decide on #19; (5) #1/#2 remain low-risk to review
         whenever convenient.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per CLAUDE.md. An eighth screening PR (#44)
+        had appeared since the last cycle, but — like #36 before it — it is
+        a consolidation, not another duplicate: it merges #36's
+        portfolio/pipeline/ tree wholesale, closes the five remaining
+        app-side screening PRs (#18/#20/#27/#30/#34) as superseded, and adds
+        one new thing none of the prior seven runs used: a distribution-first
+        selection criterion (portfolio/pipeline/distribution-first.md) plus
+        one channel-first candidate (shopify-a11y-evidence) found by
+        screening for an occupied, high-intent marketplace category with a
+        risky incumbent rather than generating another market idea from
+        scratch.
+      - >-
+        Independently verified #44 rather than trusting its stated checks:
+        added a git worktree at its branch head (3054d7b), confirmed HEAD
+        matched the PR's reported SHA, then ran portfolio/router/validate.py
+        (clean, 9/9 VENTURE.yaml), the router test suite (12/12 pass),
+        allocate.py (produces the ranked queue against all 9 ventures),
+        confirmed portfolio/ledger/2026-08.yaml parses (6 entries) and
+        portfolio/pipeline/candidates.yaml parses (8 candidates). Diffed
+        portfolio/pipeline/ between #36's branch and #44's branch directly
+        (not just read the PR body) and confirmed #44 is a strict
+        superset — every file #36 added is present unchanged in #44, plus
+        shopify-a11y-evidence.md, distribution-first.md, and expanded
+        README/candidates.yaml.
+      - >-
+        Closed #36 as superseded by #44 with a comment recording the
+        verification above. This is the same class of action as closing #17
+        two cycles ago: a safe cleanup of a PR whose content is fully
+        carried elsewhere and whose own mergeable_state was already dirty
+        against main, not the merge-to-main or app-side-content publication
+        decision that stays the account owner's call. Did not merge #44 (or
+        anything) to main.
+      - >-
+        Re-checked GitHub Actions directly rather than assuming the prior
+        finding still holds: the 15 most recent runs on main, through
+        2026-08-19T00:23Z, are still 100% startup_failure. Unchanged from
+        five prior cycles' finding — still needs the account owner's look at
+        the Actions/billing/quota settings, which is outside what any agent
+        session can see or fix from the API.
+      - >-
+        Did not touch #19 (second unattended, spend-capable agent fleet —
+        still a human decision per CLAUDE.md) or #1/#2 (untested Swift/Garmin
+        sources, still stale, still low-risk either way). Deliberately did
+        not send a push notification: the two substantive facts this cycle
+        confirms — GitHub Actions still broken, #44 ready to merge — have
+        already reached the account owner via at least five prior ledger
+        entries and notifications; a sixth would be noise, not new signal.
+        Also did not attempt to find or modify the recurring scheduled task
+        that produces these screening runs, for the same reason recorded
+        last cycle: it is account-level, not something visible or
+        modifiable from this session's tools.
+      - >-
+        Unresolved, needs the account owner, unchanged in substance from the
+        last two cycles: (1) check the repo/org Actions tab and
+        billing/quota — no workflow has run successfully on any branch since
+        2026-07-29; (2) review and merge #44 (now the strongest, most
+        current consolidation of the screening backlog, with #36 closed in
+        its favor); (3) change or retire the recurring "research new business
+        projects" scheduled task before it produces a ninth round; (4)
+        decide on #19; (5) #1/#2 remain low-risk to review whenever
+        convenient.
+    mrr_end: null
