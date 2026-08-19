@@ -19,3 +19,4 @@ private/
 .next/
 next-env.d.ts
 out/
+*.tsbuildinfo
