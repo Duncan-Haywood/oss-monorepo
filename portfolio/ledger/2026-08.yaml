@@ -5715,3 +5715,56 @@ entries:
         owner (#191's conflict) was already posted directly on #191 and
         #139 where it will be seen before any merge decision.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process, increase profit legally/ethically/reliably" run.
+        `git fetch origin main` first per CLAUDE.md; read issue #139 and
+        the ledger tail against tip `a013508` before touching anything.
+      - >-
+        Found **#201 was a duplicate of already-merged #202**: both PRs
+        fixed the identical two pre-existing CI bugs (`quick-pick-survey`
+        `ADMIN_KEY` env shadowing, `ubuntu-agent-server` missing
+        `types-PyYAML`) — two sessions raced on the same #192 review
+        comment within the same cycle. #202 merged first; closed #201
+        with a pointer, no unique content lost.
+      - >-
+        Found **#146**'s one-line `resolve-config` `GITHUB_OUTPUT` fix
+        (`jq -s .` → `jq -sc .`, fixing the multi-line-output parse
+        failure the account owner had hit on a manual `workflow_dispatch`
+        run) was still real and still unmerged — confirmed the bug is
+        still live on `main`'s `.github/workflows/opencode-high-
+        throughput.yml`. #139 flagged it as blocked only by a stale
+        ledger-file rebase, not by any decision. Rather than rebasing
+        someone else's branch, extracted just the workflow line (byte-
+        identical to #146's own diff) onto a fresh branch with no ledger
+        hunk. Verified locally before pushing: reproduced the multi-line
+        `jq -s .` output shape, confirmed `jq -sc .` produces a single
+        line (`agent_ids=["0","1","2"]`), re-validated the file as YAML.
+      - >-
+        Opened as #204, self-mergeable routine maintenance under the
+        same precedent as #200/#202/#195/#193/#184/#186/#187/#196. CI
+        came back green; self-merged (`dd98f6a`). Closed #146 in favor
+        of it.
+      - >-
+        Updated issue #139 in place (per its own "edit in place" rule)
+        to reflect both closes and #204's merge. Restarted this session's
+        designated branch (`claude/keen-knuth-ke2c2k`) from `origin/main`
+        after #204 merged, per CLAUDE.md's "PR already merged → treat
+        follow-up as a fresh change" rule, before writing this entry.
+      - >-
+        Did not touch #191 (Next.js consolidation, still owner's call,
+        conflict already flagged on the PR and #139), #166/#177
+        (monetization chain), #19/#144 (automation), #192's Dependabot
+        half, or #175 — all unchanged since the last entry. Did not
+        re-run the pipeline/research screening brief; the CLAUDE.md
+        intake gate still applies.
+      - >-
+        No push notification for this entry: a duplicate close and a
+        routine, already-green, self-mergeable maintenance fix are not
+        new decision surfaces for the owner — #139 (the one place the
+        owner needs to check) was updated in place instead.
+    mrr_end: null
