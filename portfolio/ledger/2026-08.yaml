@@ -2859,3 +2859,125 @@ entries:
         sibling #108 — both open, unreviewed, correctly left to the
         account owner, not touched this cycle.
     mrr_end: null
+  - venture: ai-first-markets
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per `CLAUDE.md`: only #79 (candidate
+        pipeline) and #19 (second unattended agent fleet) open, both
+        already thoroughly re-reviewed within the prior ~2 hours and
+        correctly left for the account owner — added nothing there.
+        GitHub Actions still shows `startup_failure` on every run as of
+        this session (confirmed via the API, most recent run
+        2026-08-19T06:38Z), unchanged from the standing account-level
+        blocker already on record; did not re-flag it a second time.
+      - >-
+        Router (`allocate.py`) ranks `ai-first-markets` #1 this cycle.
+        Its one hypothesis needs the account owner's own usage pattern to
+        test, not something an agent session can drive directly, so did a
+        development-process health pass instead: `npm audit` still showed
+        the 3 high-severity postcss/sharp advisories that #69's fix
+        deliberately deferred (breaking major-version bump, "needs its
+        own reviewed PR").
+      - >-
+        Verified the bump is safe for this venture specifically before
+        touching anything: `@opennextjs/cloudflare@1.20.2` (up from the
+        pinned `^1.0.0`) declares peer support for `next>=16.2.11`, so
+        upgraded `next` to `16.3.1` alongside `eslint-config-next` and
+        `wrangler`. `eslint.config.mjs` needed a matching fix — the old
+        `FlatCompat`-based config throws a circular-JSON error against
+        `eslint-config-next`'s new native flat configs — switched to
+        importing `eslint-config-next/core-web-vitals` and
+        `/typescript` directly.
+      - >-
+        Confirmed clean via a fresh `npm ci` (matching
+        `ai-first-markets-ci.yml`'s exact steps, since Actions itself
+        can't run them right now): typecheck, lint, 10/10 tests,
+        `next build`, and `opennextjs-cloudflare build` (the actual
+        Cloudflare Workers deploy path) all pass. `npm audit` now reports
+        0 vulnerabilities, was 3 high. Opened as PR #106, content-scoped
+        to just this venture's dependency files — left it unmerged per
+        `CLAUDE.md` (merging to `main` is the account owner's call), and
+        did not bundle this ledger entry into that PR so it stays
+        conflict-free while it waits, per the pattern #79 already
+        documented for why bundled ledger entries go stale.
+      - >-
+        Did not attempt the same upgrade on `local-site-studio`, whose
+        prior cycle already found a real Next 16.3.1 test regression
+        there — that is a different, unresolved problem, not something
+        this fix generalizes to. Did not send a push notification:
+        routine, low-risk, additive engineering with a verified, waiting
+        PR, nothing new for the account owner to act on beyond what has
+        already reached them.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain the development process" run.
+        `git fetch origin main` first per CLAUDE.md. Open PR backlog was
+        6 (#109, #108, #106, #103, #79, #19) — small and not growing,
+        unlike the 2026-08-18 spike this file already documents — so no
+        consolidation was needed beyond what #109 had already done
+        (closing #104/#107 as duplicates).
+      - >-
+        Merged #108 directly (squash, commit 847e2fa): a ledger-only entry
+        recording #106 (ai-first-markets Next 16.3.1 upgrade), kept
+        deliberately separate from #106 itself so the code PR stays
+        conflict-free while it waits on the account owner. Ledger-only
+        bookkeeping PRs with no code/behavior change are low enough risk
+        to self-merge, consistent with prior sessions' pattern for
+        additive, non-content, non-automation PRs (e.g. #105).
+      - >-
+        Left #109 (local-site-studio npm audit fix, consolidates
+        #104/#107) and #106 (ai-first-markets Next 16.3.1 upgrade)
+        unmerged for the account owner: both are mergeable and locally
+        verified (full test suites, typecheck, lint, build all green;
+        GitHub Actions itself still down account-wide), but both are
+        breaking major-version dependency bumps touching payment
+        (Stripe) and deploy (Cloudflare Workers) paths respectively —
+        real behavioral risk that a squash of local verification alone
+        doesn't fully cover, so this stays a sign-off decision rather
+        than a self-merge.
+      - >-
+        Added the ledger entry #103 deliberately deferred (its PR body:
+        "a ledger-only session can add it in one pass"). #103 is the
+        first actual experiment run against the 8-candidate pipeline in
+        #79 after fifteen screening firings: it tested candidate #3
+        (mcp-supply-chain-watch)'s own stated kill conditions. Neither
+        fired. (1) No MCP spec revision, including the current draft,
+        gives `Tool` a version/hash/signature/integrity field, and the
+        official registry stores no tool declarations at all (0/4,000
+        version records have `inputSchema`; 85% are remote endpoints
+        anyway) — the "gap closes upstream" ending hasn't happened.
+        (2) Diffing npm's own published tool-declaration history found a
+        69% tool-surface-change rate and 29% tool-removal rate across
+        49 adjacent-release pairs (86%/32% over full package lifetimes;
+        a separate 10-server sample gave 61%/13%) — the "base rate is
+        near zero" kill does not fire. Both are re-runnable, stdlib-only,
+        credential-free scripts committed in
+        `portfolio/research/mcp-tool-drift/`, not just claims.
+      - >-
+        This does not change #79's status: #103 is independent of it (no
+        `ventures/` dir, no `VENTURE.yaml`, no automation, nothing to
+        merge into #79's branch) and #79 itself is unchanged since the
+        fifteenth firing's comment on it. #79's merge/close decision —
+        now six rebuilds and fifteen research firings deep — remains the
+        single highest-value unresolved item in this backlog and is still
+        the account owner's call, not this session's.
+      - >-
+        #19 (Deepseek+OpenCode automation agent) unchanged: already
+        reviewed twice today and found non-functional as written
+        (implementation never writes its own output to disk; its
+        `api.opencode.dev` endpoint does not resolve) with a clear
+        recommendation to close rather than merge. Nothing new to check;
+        did not re-review.
+      - >-
+        No push notification sent: nothing here needed the account
+        owner's attention faster than the next time they check —
+        #109/#106 sign-off and #79's six-times-repeated merge/close
+        decision are already on record from today's earlier PR comments,
+        and this entry doesn't change either.
+    mrr_end: null
