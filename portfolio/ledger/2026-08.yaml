@@ -3781,3 +3781,121 @@ entries:
         owner for, and nothing here changes the standing decisions
         already in front of them.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Nineteenth firing of the "research and evaluate potential software
+        business projects that aren't already here" brief. `git fetch origin
+        main` first per CLAUDE.md; tip was `db35ba2` and unchanged for the
+        duration of the session. Read PR #79's pipeline, #126, and #130
+        before doing anything: #79's intake gate says screening is closed,
+        `distribution-first.md` says "do not generate more candidates," and
+        `convergence.md` already priced a twentieth archetype list at seven
+        runs / thirty-six candidates / nine archetypes / no customer. Did
+        not screen. Tested the pipeline's own load-bearing claim instead.
+      - >-
+        The claim: `channel-inventory.md` (in unmerged #79) argues that
+        "run a probe to a real buyer" is two actions, that only revenue
+        capture needs a payout rail, that WordPress.org / Open VSX /
+        npm+PyPI / GitHub Marketplace's free tier are "agent-listable," and
+        therefore that "the free half is not blocked at all" — making the
+        cheap owner ask mere *permission* to publish a free listing, an
+        approval that "costs nothing." That step was never measured. Its
+        sources are vendor blogs and search summaries, which the document
+        itself flags. #130 had already found one counterexample in passing
+        (`pypi.org` reachable, `upload.pypi.org` egress-denied) and left the
+        general case explicitly open: "that distinction was not tested for
+        every registry above."
+      - >-
+        Measured it. New directory `portfolio/research/publish-reachability/`:
+        44 targets, 24 hosts, 14 channels, each probed on up to three
+        *separate* surfaces — `read` (what #126/#130 measured), `register`
+        (account/token creation), `publish` (artifact upload) — because
+        those fail independently and one-surface probing hides it. Verdict
+        classifier is #126's and #130's unchanged, including #130's
+        `github api path is not available` fix, so all three result sets
+        read side by side. Read-only, stdlib only, no credentials sent.
+      - >-
+        Headline: every channel `channel-inventory.md` nominated to carry an
+        actual candidate is denied before any credential question arises.
+        WordPress.org — all five surfaces `EGRESS_DENIED`, including the SVN
+        host plugins are published through. It was the flagship: the free
+        channel for `eaa-remediation-pipeline`, the proxy measurement for
+        `shopify-a11y-evidence`, and the only agent-reachable channel whose
+        searcher is a business rather than a developer. Open VSX and VS Code
+        Marketplace `EGRESS_DENIED`. GitHub Marketplace `SCOPE_DENIED` on
+        both listing-creation and billing. PyPI publish `EGRESS_DENIED`
+        (confirms #130). npm is the instructive near-miss: publish route
+        answers 401 from the registry, but account creation sits on
+        `www.npmjs.com` behind a Cloudflare interstitial — registry
+        publishable, channel still not.
+      - >-
+        The other half, and the reason this is not purely negative: eight
+        channels ARE publishable end-to-end at the network layer — crates.io,
+        RubyGems, NuGet, Packagist, Hex, Docker Hub, ghcr.io, and the Go
+        module proxy — and none needs an egress change. The blocker on all
+        eight is an account, not a policy. Go needs no account at all (a
+        module is published by tagging a public repo). But cross-tabulated
+        against `distribution-first.md`'s own budget-holder test they
+        collapse to one sentence: the channels this environment can publish
+        to are exactly the ones whose searcher holds no budget, and the
+        channels whose searcher holds a budget are exactly the ones it
+        cannot reach. `channel-inventory.md` found its gradient had no
+        top-right cell; this is a second empty cell nobody had drawn.
+      - >-
+        Secondary finding on the shape of the denials: `NO_PROXY` names
+        `registry.npmjs.org`, `pypi.org`, `files.pythonhosted.org`,
+        `index.crates.io`, `proxy.golang.org` — the hosts a *build* contacts
+        to install dependencies — and omits their publish counterparts, most
+        visibly `upload.pypi.org` sitting denied beside a direct `pypi.org`.
+        This environment is provisioned as a build sandbox that installs
+        dependencies, not a station that publishes products. Recorded so a
+        future run reads the denials as the policy working rather than as a
+        misconfiguration to route around.
+      - >-
+        Consequence for the standing escalation: granting #79's ask (2) as
+        written now produces nothing, because permission is not the binding
+        constraint on any channel it was scoped against. Proposed a cheaper
+        ask not previously put to the owner — "Ask 0": one account on one
+        already-reachable registry plus a scoped publish token, or a Go
+        route needing no account. No egress change, no payout rail, no
+        company, card, or domain, and it is the only ask on the list that
+        yields a number rather than a capability. #130's narrow (GitHub app
+        scope) and broad (merchant-of-record + egress) asks are unaffected
+        and remain independent.
+      - >-
+        Also re-confirmed rather than lifted #79's own caveat: `docs.github.com`
+        is still egress-denied, so the GitHub Marketplace free/paid split and
+        the 100-installation minimum remain unverified against the primary
+        source; `developer.wordpress.org` is denied too, making the WordPress
+        publishing requirements equally unverified and now moot.
+      - >-
+        Limits stated in the write-up rather than buried, since overstating
+        exactly this is what #126 and #130 both warned about: an
+        `EGRESS_DENIED` publish host is conclusive and no credential fixes
+        it, but a `REACHABLE` publish host is permission-to-hope, not proof
+        an authenticated upload would succeed. Two probed publish paths
+        (`nuget` v2, `hex`) are stale URLs whose rows prove only that the
+        host answers. Email-verified account creation is a third gate this
+        run does not measure and nobody has costed.
+      - >-
+        Nothing was published, registered, or signed up for. No candidate
+        added, removed, or re-scored — amendments recorded in the style of
+        `distribution-first.md`'s table as input for the next scoring pass,
+        the most actionable being that `cra-evidence-desk`'s GitHub Action
+        route is scope-denied but its natural artifact ships fine as a
+        container on ghcr.io or Docker Hub. Opened as a PR rather than
+        self-merged: unlike the content-only doc fixes recent entries
+        self-merged, this changes what the account owner is being asked for.
+        Deliberately created under `portfolio/research/` as a sibling of
+        #126's and #130's directories rather than editing #79's unmerged
+        `portfolio/pipeline/`, so nothing here depends on an unmerged branch
+        — the failure mode #79's provenance section documents killing five
+        prior PRs.
+      - >-
+        Push notification sent: the finding invalidates an approval already
+        in front of the account owner and replaces it with a cheaper one, so
+        it changes a pending decision rather than being routine maintenance.
+    mrr_end: null
