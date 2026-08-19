@@ -11,6 +11,9 @@ on:
       - "ventures/quick-pick-survey/**"
       - ".github/workflows/quick-pick-survey-ci.yml"
 
+permissions:
+  contents: read
+
 # A second push to the same branch makes the first run irrelevant.
 concurrency:
   group: quick-pick-survey-ci-${{ github.ref }}

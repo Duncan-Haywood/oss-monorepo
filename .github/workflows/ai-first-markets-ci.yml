@@ -11,6 +11,9 @@ on:
       - "ventures/ai-first-markets/**"
       - ".github/workflows/ai-first-markets-ci.yml"
 
+permissions:
+  contents: read
+
 defaults:
   run:
     working-directory: ventures/ai-first-markets

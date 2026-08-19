@@ -12,6 +12,9 @@ on:
       - "ventures/retail-pilot-intel/**"
       - ".github/workflows/retail-pilot-intel-ci.yml"
 
+permissions:
+  contents: read
+
 concurrency:
   group: retail-pilot-intel-ci-${{ github.ref }}
   cancel-in-progress: true
