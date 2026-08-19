@@ -44,3 +44,18 @@ Per `portfolio/ledger/README.md`: record outcomes in the monthly ledger file
 even when the outcome is "nothing shipped" or "found wasted spend." That
 signal is what the portfolio router (`portfolio/router/README.md`) uses to
 allocate effort, so it only works if it's honest.
+
+The duplicate-PR pattern above recurs one layer up, at the ledger itself: on
+2026-08-19 six scheduled sessions each independently re-verified the same PR
+and opened their own ledger-only PR within a ten-minute window, and even
+after that was consolidated, further sessions (including concurrent runs of
+this very session) kept re-doing the identical verification and drafting
+near-identical entries within the same hour — because each was working from
+a `main` that was already stale by the time it looked. Before drafting a new
+entry, `git fetch origin main` and read the most recent entry/entries against
+the *current* remote tip, not the tip you started from. If the latest entry
+already covers your findings (same PR verified, same blocker re-confirmed, no
+new development) and is less than a few hours old, do not add another one —
+that repeats the exact waste this section exists to prevent. Only add a new
+entry when you have something the latest one doesn't: a new PR, a changed
+finding, or an action you actually took.
