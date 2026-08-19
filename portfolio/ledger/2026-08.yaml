@@ -324,3 +324,48 @@ entries:
         not a ninth screening pass; (4) decide on #19; (5) #1/#2 remain
         low-risk to review whenever convenient.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per CLAUDE.md, then did something the last
+        five cycles all deferred: actually reviewed and merged #1 and #2
+        (Garmin watch face, iOS/Mac world-clock widget), stale 11 days and
+        repeatedly logged as "low-risk to review whenever convenient" without
+        anyone doing it. Unlike the ai-first-markets screening PRs, these
+        carry no legal-accuracy or publication judgment call — each is a
+        purely additive new venture directory with its own VENTURE.yaml,
+        budget cap, and kill criteria, touches nothing else in the repo, and
+        triggers no automation or spend.
+      - >-
+        Verified before merging rather than trusting the PR bodies: fetched
+        both branches into a scratch worktree, merged each against current
+        main (clean, no conflicts), then merged them together (also clean),
+        and ran `portfolio/router/validate.py` against the combined tree —
+        11/11 VENTURE.yaml valid, up from 9. Squash-merged both directly to
+        main (8b3d745, 7f085db), consistent with the established pattern of
+        merging additive, non-content, non-automation PRs without waiting on
+        the account owner.
+      - >-
+        Re-ran `allocate.py` and the router test suite (12/12 pass) against
+        the post-merge tree: both new ventures now appear in the router's
+        ranked queue (garmin-world-traveler-watchface at #11, $10 cap;
+        world-clock-widget at #3, $50 cap), confirming the router picks up
+        new ventures automatically as designed and nothing broke.
+      - >-
+        Re-confirmed GitHub Actions is still broken (portfolio-validate.yml's
+        only run remains `startup_failure`, unchanged since last cycle) but
+        did not send a notification for it alone — it has been flagged
+        6+ times and nothing changed. Did not touch #44 (screening
+        consolidation) or #19 (second unattended agent fleet) — both remain
+        genuine account-owner calls per every prior cycle's judgment, and
+        neither had changed since the last cycle reviewed them.
+      - >-
+        Still unresolved, needs the account owner: (1) merge #44 (or not) —
+        unchanged recommendation from last cycle; (2) check Actions
+        billing/quota — over three weeks with zero successful workflow runs;
+        (3) change or retire the recurring "research new business projects"
+        scheduled task; (4) decide on #19. #1/#2 are now resolved — no
+        longer on this list.
+    mrr_end: null
