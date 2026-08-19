@@ -1300,6 +1300,19 @@ entries:
         cycles guessed before #55 (reasonably, but incorrectly) narrowed it
         to one file.
       - >-
+        A fourth concurrent session (PR #65) found a more direct refutation
+        of #55's specific claim and this entry folds it in too, independently
+        re-checked via `get_workflow` rather than trusted: the synthetic
+        `BuildFailed` phantom workflow every failing run is attributed to
+        (id `337182028`) has `created_at: 2026-08-18T20:23:11+03:00` —
+        2026-08-18T17:23:11Z UTC — which is **79 minutes before**
+        `opencode-high-throughput.yml` (id `337234310`,
+        2026-08-18T18:42:42Z UTC) existed at all. #55's claim that the two
+        timestamps matched "to the second" does not hold up against a
+        direct query of either workflow's own record. The phantom predating
+        the suspect file rules out even a coincidental correlation, on top
+        of the account-level evidence above.
+      - >-
         Also confirmed via the Actions API (workflow id `337234310`) that
         `opencode-high-throughput.yml` has zero runs ever recorded — not
         merely zero recent ones — meaning it has never actually executed a
