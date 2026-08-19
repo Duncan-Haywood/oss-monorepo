@@ -60,6 +60,19 @@ Indicative pricing: $29–$79/month, deliberately between the $9–$99 overlay t
 and the $400–$3,500/month source-code remediation platforms. The upgrade path out
 of the top tier is a fixed-price human-verified job — the remediation pipeline.
 
+## Buyer-segment note (2026-08-19, per ledger PR #96)
+
+Under EAA Art. 4(5) / BFSG §3, EU microenterprises *providing services*
+(<10 employees **and** turnover or balance sheet ≤ €2M) are exempt from the
+service accessibility requirements — see the fuller writeup in
+[eaa-remediation-pipeline](eaa-remediation-pipeline.md#buyer-segment-correction-2026-08-19-per-ledger-pr-96).
+Shopify's own merchant base skews toward this exempt segment, which weakens (but
+does not eliminate) the EAA-deadline framing as a marketing angle here — this
+product's honest-evidence positioning below is unaffected either way, since
+nothing on the page claims compliance or urgency-by-mandate. Worth checking
+before writing App Store copy that leans on the deadline: lead with "know what's
+broken and prove you tested it," not with the exemption-sensitive legal clock.
+
 ## Liability and ethics
 
 The same two hard rules as the services candidate, and they matter more here
