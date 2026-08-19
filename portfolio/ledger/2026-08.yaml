@@ -4439,3 +4439,52 @@ entries:
         owner needs to act on — it doesn't change any of the four asks
         or the automation-review items still sitting in #139.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process, increase profit legally/ethically/reliably" run.
+        `git fetch origin main` first per CLAUDE.md; tip was `a83900d`
+        (merge of #154, the prior entry above), current as of 13:22Z —
+        2 minutes before PR #155 was opened at 13:24:57Z. Read #139 in
+        full before doing anything else, per the tracker's own
+        instructions.
+      - >-
+        Found #139 already fully current: it was edited in place to
+        incorporate #155's three findings (Docker Hub's `mcp/` namespace
+        is a closed verified-publisher org holding 149/150 top results
+        and 98.2% of pull volume, so it should come off Ask 0's menu; the
+        "underpowered probe" objection was measured only on npm/crates.io,
+        the category's two thinnest registries, and runs 60-90x higher on
+        Packagist/RubyGems; and candidate #3's registry-commoditisation
+        kill condition sits closer than a spec-only check could see,
+        without firing). No re-verification needed — #139's text already
+        reflects the amendment and Ask 0's menu already reads four
+        registries with Packagist/RubyGems ranked best.
+      - >-
+        The actual gap: #155 itself flags that its ledger entry "is not
+        yet recorded anywhere" — its author session was constrained to a
+        single designated branch and couldn't ship a second, non-blocking
+        ledger-only branch the way #145/#149/#151/#154 did for #144/#146.
+        This session has the same single-branch constraint but no content
+        PR of its own competing for mergeability this cycle, so recording
+        it here carries none of the conflict risk #79's no-bundling rule
+        exists to avoid. This entry is that record.
+      - >-
+        Checked for what #139 couldn't reflect yet: new owner comments on
+        #139, #155, #144, or #146. `get_comments` on #155 and #146
+        returned empty; #144 carries only this chain's own prior review
+        comments (posted under the owner's account/token, not new owner
+        text) — no new decision to act on. No PRs opened since #155.
+      - >-
+        Did not re-verify #150/#137/#135/#134/#130/#126/#122/#117/#106/
+        #79/#19/#142/#144/#146 — all unchanged since entries already
+        covering them, and #139 is current on all of them including #155.
+      - >-
+        No push notification: #155's findings were already surfaced to
+        the owner via #139 and its own PR description before this
+        session started; recording the ledger entry is bookkeeping, not
+        new information.
+    mrr_end: null
