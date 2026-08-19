@@ -11,83 +11,91 @@ export function CommercialViabilityDeepDive8600Content() {
           <header>
             <h1>ShootFlow Commercial Viability Deep Dive</h1>
             <p className="subtitle">Rigorous assessment of profitability, scalability, and pursuit-worthiness for a media automation platform targeting photographers &amp; videographers</p>
-            <div className="meta">Generated: 2026-06-04 • Branch: cursor/commercial-viability-assessment-8600 • Based on 438 passing tests, full CLI surface, production/render scheduler v3, pilot analytics v2, and workflow_authority observe-only contracts</div>
+            <div className="meta">Generated: 2026-06-04 &bull; Branch: cursor/commercial-viability-assessment-8600 &bull; Based on 438 passing tests, full CLI surface, production/render scheduler v3, pilot analytics v2, and workflow_authority observe-only contracts</div>
           </header>
+
           <div className="verdict">
-            <div style={{fontSize: '0.95rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94a3b8'}}>Overall Commercial Viability Score</div>
+            <div style={{ fontSize: "0.95rem", textTransform: "uppercase", letterSpacing: "0.08em", color: "#94a3b8" }}>Overall Commercial Viability Score</div>
             <div className="score moderate">68/100</div>
-            <p style={{maxWidth: 620, margin: '1rem auto 0', color: '#cbd5e1'}}><strong>Conditionally viable with strong engineering foundation.</strong> Worth pursuing as a focused Mac-first tool for high-volume IG/social creators, but requires native app, real AI adapters, and hybrid monetization to reach meaningful revenue. Bootstrap-friendly path exists; not a unicorn but a durable niche business.</p>
+            <p style={{ maxWidth: 620, margin: "1rem auto 0", color: "#cbd5e1" }}><strong>Conditionally viable with strong engineering foundation.</strong> Worth pursuing as a focused Mac-first tool for high-volume IG/social creators, but requires native app, real AI adapters, and hybrid monetization to reach meaningful revenue. Bootstrap-friendly path exists; not a unicorn but a durable niche business.</p>
           </div>
+
           <h2>1. Market &amp; Problem Analysis</h2>
           <div className="grid">
             <div className="card">
               <h3>Target Market Size</h3>
-              <p>US professional photographers/videographers: ~120k–180k active. High-volume social content creators (wedding, editorial, real-estate, influencer teams): ~25–40k addressable in NA/EU initially.</p>
-              <p className="metric">TAM slice: $180–320M annual spend on post-production tools &amp; services</p>
-              <p>IG Reels/Carousels growth: 40%+ YoY demand for fast turnaround. Outsource editing costs $200–800/wk per creator; time cost 8–18 hrs/wk.</p>
+              <p>US professional photographers/videographers: ~120k&ndash;180k active. High-volume social content creators (wedding, editorial, real-estate, influencer teams): ~25&ndash;40k addressable in NA/EU initially.</p>
+              <p className="metric">TAM slice: $180&ndash;320M annual spend on post-production tools &amp; services</p>
+              <p>IG Reels/Carousels growth: 40%+ YoY demand for fast turnaround. Outsource editing costs $200&ndash;800/wk per creator; time cost 8&ndash;18 hrs/wk.</p>
             </div>
             <div className="card">
               <h3>Problem Intensity</h3>
-              <p>Core pain is <strong>not creative</strong> — it's operational: safe card offload, manifest tracking, consistent color across 200–2000 assets, repeatable IG packaging without data loss.</p>
+              <p>Core pain is <strong>not creative</strong> &mdash; it&apos;s operational: safe card offload, manifest tracking, consistent color across 200&ndash;2000 assets, repeatable IG packaging without data loss.</p>
               <p>Existing tools (Lightroom, Capture One, DaVinci, Adobe Premiere) excel at editing but treat ingest/file ops as afterthought. No strong manifest + non-destructive + parallel scheduler story in market.</p>
             </div>
           </div>
+
           <h2>2. Product Differentiation &amp; Current State</h2>
           <div className="callout positive">
             <strong>Exceptional engineering discipline:</strong> 438 tests, strict manifest fingerprinting, production/render status with lease expiration, single-task compare/write guards, observe-only <code>workflow_authority</code> contract everywhere. This is production-grade safety that pros will pay for. Dry-run + metadata + proxy + analysis + scene + look + grade + story + package local adapters already prove the full pipeline contract without real media mutation.
           </div>
+
           <table>
             <tbody><tr><th>Dimension</th><th>ShootFlow Today</th><th>Competitive Edge</th></tr>
-              <tr><td>Safety / Trust</td><td>Never delete source, no-overwrite, checksum every step, immutable manifests, review-required routing</td><td>Best-in-class; competitors allow destructive ops or silent overwrites</td></tr>
-              <tr><td>Scalability Architecture</td><td>Adapter registry, dependency-aware schedulers, pilot dashboard/cohort metrics, resumable status</td><td>Ready for multi-worker, cloud, or team without rewrite</td></tr>
-              <tr><td>Platform</td><td>Pure Python stdlib, macOS/Linux only, CLI + JSON handoffs</td><td>Strong for trust/audit; weak for adoption (needs native Mac app)</td></tr>
-              <tr><td>AI / Intelligence</td><td>Placeholder VLM, deterministic local adapters, scene/look/storyline scaffolding</td><td>Contract proven; real models not yet integrated</td></tr>
-              <tr><td>Monetization Surface</td><td>None (open core on main)</td><td>Wide open: desktop license, usage-based cloud render, premium adapters</td></tr>
-            </tbody></table>
+            <tr><td>Safety / Trust</td><td>Never delete source, no-overwrite, checksum every step, immutable manifests, review-required routing</td><td>Best-in-class; competitors allow destructive ops or silent overwrites</td></tr>
+            <tr><td>Scalability Architecture</td><td>Adapter registry, dependency-aware schedulers, pilot dashboard/cohort metrics, resumable status</td><td>Ready for multi-worker, cloud, or team without rewrite</td></tr>
+            <tr><td>Platform</td><td>Pure Python stdlib, macOS/Linux only, CLI + JSON handoffs</td><td>Strong for trust/audit; weak for adoption (needs native Mac app)</td></tr>
+            <tr><td>AI / Intelligence</td><td>Placeholder VLM, deterministic local adapters, scene/look/storyline scaffolding</td><td>Contract proven; real models not yet integrated</td></tr>
+            <tr><td>Monetization Surface</td><td>None (open core on main)</td><td>Wide open: desktop license, usage-based cloud render, premium adapters</td></tr>
+          </tbody></table>
+
           <h2>3. Profitability Assessment</h2>
           <div className="pros-cons">
             <div className="card pros">
               <h3>Realistic Revenue Levers (High Confidence)</h3>
               <ul>
-                <li><strong>One-time Mac app license</strong> $149–299 (core safety + local adapters) — high conversion from pain</li>
-                <li><strong>Subscription</strong> $19–49/mo for cloud VLM/grading/render queue + priority support</li>
+                <li><strong>One-time Mac app license</strong> $149&ndash;299 (core safety + local adapters) &mdash; high conversion from pain</li>
+                <li><strong>Subscription</strong> $19&ndash;49/mo for cloud VLM/grading/render queue + priority support</li>
                 <li><strong>Usage / overage</strong> for heavy shoots (per-GB render or per-asset analysis)</li>
-                <li><strong>Studio / team seats</strong> $99–299/mo with cohort dashboard + shared workspaces</li>
-                <li><strong>Marketplace</strong> paid looks, scene templates, custom graders (20–40% take)</li>
+                <li><strong>Studio / team seats</strong> $99&ndash;299/mo with cohort dashboard + shared workspaces</li>
+                <li><strong>Marketplace</strong> paid looks, scene templates, custom graders (20&ndash;40% take)</li>
                 <li><strong>White-label / OEM</strong> for camera brands or storage vendors (SanDisk, LaCie bundles)</li>
               </ul>
-              <p><strong>Projected LTV:</strong> $450–1,200 per pro user (2–4 yr retention). CAC likely $80–180 via content/creator partnerships.</p>
+              <p><strong>Projected LTV:</strong> $450&ndash;1,200 per pro user (2&ndash;4 yr retention). CAC likely $80&ndash;180 via content/creator partnerships.</p>
             </div>
             <div className="card cons">
               <h3>Profitability Risks (Medium)</h3>
               <ul>
                 <li>Long sales cycle for B2B studio adoption (pilots required)</li>
                 <li>High support burden initially (media workflows are idiosyncratic)</li>
-                <li>Real AI quality needed before premium tier converts — current placeholders won't close deals</li>
+                <li>Real AI quality needed before premium tier converts &mdash; current placeholders won&apos;t close deals</li>
                 <li>Local-only keeps CAC low but limits scale vs pure SaaS</li>
                 <li>Platform risk: Apple App Store review, notarization, future macOS changes</li>
               </ul>
             </div>
           </div>
+
           <h2>4. Scalability Assessment</h2>
           <p><strong>Strong architectural scalability (8/10)</strong>, weaker go-to-market scalability today (5/10).</p>
           <ul>
-            <li>Production &amp; render schedulers already handle parallel waves, stale-lease expiration, retry review gates — designed for 10–100 concurrent jobs per workspace.</li>
-            <li>Pilot dashboard + cohort report + brief give ops visibility into activation, intervention rate, first-draft output % across many workspaces — exactly what a growing business needs for support triage and upsell.</li>
+            <li>Production &amp; render schedulers already handle parallel waves, stale-lease expiration, retry review gates &mdash; designed for 10&ndash;100 concurrent jobs per workspace.</li>
+            <li>Pilot dashboard + cohort report + brief give ops visibility into activation, intervention rate, first-draft output % across many workspaces &mdash; exactly what a growing business needs for support triage and upsell.</li>
             <li>Adapter capability registry means new backends (Metal, ffmpeg, hosted VLM, DaVinci scripting) plug in without scheduler changes.</li>
-            <li>observe-only authority contract prevents rogue agents from mutating files — critical when selling to enterprises or running background launchd agents.</li>
+            <li>observe-only authority contract prevents rogue agents from mutating files &mdash; critical when selling to enterprises or running background launchd agents.</li>
             <li>Blockers to scale: no multi-user auth, no cloud object storage integration, no billing, pure-Python limits Windows reach, no real-time collaboration.</li>
           </ul>
+
           <h2>5. Is This a Business Worth Pursuing?</h2>
           <div className="callout">
-            <strong>Yes — with caveats.</strong> This is not a "spray and pray" consumer app. It is a high-trust, high-value, narrow-wedge tool that solves expensive operational risk for a paying audience that already budgets for software and editors. The 438-test discipline, manifest immutability, and workflow_authority design show founder intent for a durable business, not a demo.
+            <strong>Yes &mdash; with caveats.</strong> This is not a &quot;spray and pray&quot; consumer app. It is a high-trust, high-value, narrow-wedge tool that solves expensive operational risk for a paying audience that already budgets for software and editors. The 438-test discipline, manifest immutability, and workflow_authority design show founder intent for a durable business, not a demo.
           </div>
-          <p><strong>Realistic 3-year outcome if executed well:</strong> $1.8–4.2M ARR with 1,800–3,500 paying users (mix of solo pros + small studios). 65–75% gross margin once native app + 2–3 cloud adapters ship. Bootstrap to $500k ARR possible; seed round accelerates native + first VLM integration.</p>
+          <p><strong>Realistic 3-year outcome if executed well:</strong> $1.8&ndash;4.2M ARR with 1,800&ndash;3,500 paying users (mix of solo pros + small studios). 65&ndash;75% gross margin once native app + 2&ndash;3 cloud adapters ship. Bootstrap to $500k ARR possible; seed round accelerates native + first VLM integration.</p>
           <p><strong>Not worth pursuing if:</strong> founder unwilling to ship native Mac app in next 6 months, or expects pure-SaaS margins without local execution, or wants consumer/viral growth instead of creator/studio sales.</p>
+
           <h2>6. Actionable Suggestions for a More Successful Business</h2>
           <div className="grid">
             <div className="card">
-              <h3>Immediate (0–3 mo)</h3>
+              <h3>Immediate (0&ndash;3 mo)</h3>
               <ul>
                 <li>Ship a minimal native Mac app (SwiftUI + embedded Python or PyObjC bridge) that surfaces the existing CLI JSON handoffs and workflow_authority controls. This is the #1 blocker to paid users.</li>
                 <li>Implement first real local analysis adapter (Apple Vision / Core ML or llama.cpp) that produces schema-compliant VLM JSON so story/scene pipelines become credible.</li>
@@ -96,16 +104,16 @@ export function CommercialViabilityDeepDive8600Content() {
               </ul>
             </div>
             <div className="card">
-              <h3>Short-term (3–9 mo)</h3>
+              <h3>Short-term (3&ndash;9 mo)</h3>
               <ul>
                 <li>Hybrid cloud render queue (AWS/GCP spot + local Metal) with signed URL delivery; usage billing for heavy users.</li>
                 <li>Creator partnership program: free seats + rev-share for top IG accounts that generate case studies.</li>
                 <li>Public marketplace for custom shoot_look.json profiles and scene_group templates.</li>
-                <li>Automated pilot-cohort onboarding: the create-pilot-cohort-demo command already exists — productize it into a "try 5 sample workspaces" flow.</li>
+                <li>Automated pilot-cohort onboarding: the create-pilot-cohort-demo command already exists &mdash; productize it into a &quot;try 5 sample workspaces&quot; flow.</li>
               </ul>
             </div>
             <div className="card">
-              <h3>Medium-term (9–18 mo)</h3>
+              <h3>Medium-term (9&ndash;18 mo)</h3>
               <ul>
                 <li>Team workspace + shared ingest_manifest + production_status with ACLs and audit logs.</li>
                 <li>Integration with storage vendors (direct card offload APIs) and camera tethering (Canon, Sony SDKs).</li>
@@ -117,24 +125,26 @@ export function CommercialViabilityDeepDive8600Content() {
               <h3>Strategic Bets</h3>
               <ul>
                 <li>Acquire or partner with one strong VLM-for-media startup instead of building from scratch.</li>
-                <li>Position as "the safe ingest + manifest layer" that other AI editing tools can call (open adapter spec).</li>
-                <li>Launch "ShootFlow Certified" hardware bundles with SSD + reader vendors — high margin, trust signal.</li>
+                <li>Position as &quot;the safe ingest + manifest layer&quot; that other AI editing tools can call (open adapter spec).</li>
+                <li>Launch &quot;ShootFlow Certified&quot; hardware bundles with SSD + reader vendors &mdash; high margin, trust signal.</li>
                 <li>Build a lightweight web viewer for clients to review graded storylines without full app install.</li>
               </ul>
             </div>
           </div>
+
           <h2>7. Risk Register &amp; Mitigations</h2>
           <table>
             <tbody><tr><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th></tr>
-              <tr><td>Native Mac app delayed &gt;6mo</td><td>Medium</td><td>High</td><td>Hire/contract Swift engineer immediately; use existing JSON handoffs as MVP contract</td></tr>
-              <tr><td>Real AI quality lags expectations</td><td>Medium-High</td><td>High</td><td>Ship deterministic local adapters first; partner with hosted VLM; human review gates always present</td></tr>
-              <tr><td>Platform lock-in (macOS only)</td><td>High</td><td>Medium</td><td>PyInstaller Windows build + docs; later Electron or Tauri wrapper if needed</td></tr>
-              <tr><td>Competition from Adobe + new AI tools</td><td>High</td><td>Medium</td><td>Differentiate relentlessly on safety + manifests; Adobe rarely prioritizes ingest safety</td></tr>
-              <tr><td>Support load explodes at 500 users</td><td>Medium</td><td>Medium</td><td>Self-serve diagnostics via workspace-health + pilot dashboards; paid priority support tier</td></tr>
-            </tbody></table>
+            <tr><td>Native Mac app delayed &gt;6mo</td><td>Medium</td><td>High</td><td>Hire/contract Swift engineer immediately; use existing JSON handoffs as MVP contract</td></tr>
+            <tr><td>Real AI quality lags expectations</td><td>Medium-High</td><td>High</td><td>Ship deterministic local adapters first; partner with hosted VLM; human review gates always present</td></tr>
+            <tr><td>Platform lock-in (macOS only)</td><td>High</td><td>Medium</td><td>PyInstaller Windows build + docs; later Electron or Tauri wrapper if needed</td></tr>
+            <tr><td>Competition from Adobe + new AI tools</td><td>High</td><td>Medium</td><td>Differentiate relentlessly on safety + manifests; Adobe rarely prioritizes ingest safety</td></tr>
+            <tr><td>Support load explodes at 500 users</td><td>Medium</td><td>Medium</td><td>Self-serve diagnostics via workspace-health + pilot dashboards; paid priority support tier</td></tr>
+          </tbody></table>
+
           <div className="footer">
             <p><strong>Conclusion:</strong> ShootFlow has a genuinely differentiated, technically excellent foundation that addresses a painful, expensive workflow gap. It is realistically profitable at modest scale and architecturally scalable. The missing pieces (native UI, first credible AI adapter, monetization) are standard early-stage execution tasks, not fundamental flaws. Pursue it if the founder is committed to a focused, high-trust creator/studio product rather than broad consumer play. Merge this assessment into main as the current strategic baseline.</p>
-            <p style={{marginTop: '1.5rem'}}>— Assessment synthesized from full codebase review, 438-test suite, all CLI surfaces, production/render/pilot schemas, and existing BUSINESS_PLAN.md / PRODUCT_STRATEGY.md.</p>
+            <p style={{ marginTop: "1.5rem" }}>&mdash; Assessment synthesized from full codebase review, 438-test suite, all CLI surfaces, production/render/pilot schemas, and existing BUSINESS_PLAN.md / PRODUCT_STRATEGY.md.</p>
           </div>
         </div>
       </div>

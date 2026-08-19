@@ -5,66 +5,93 @@ export function WorkflowAuthorityContent() {
     <>
       <div className="ingested-markdown">
         <h1>Workflow Authority Contract</h1>
-          <p>ShootFlow JSON handoffs often describe useful next steps for a Mac shell,
-            automation runner, or future agent. Those descriptions are presentation aids;
-            they are not permission to copy, retry, materialize, clean up, overwrite, or
-            delete files.</p>
-          <h2>Observe-only authority</h2>
-          <p>Current UI/agent handoff JSON uses a root <code>workflow_authority</code> object:</p>
-          <pre><code className="language-json">{"{"}{"\n"}{"  "}"mode": "observe_only",{"\n"}{"  "}"handoff_kind": "presentation_only",{"\n"}{"  "}"permits_file_mutation": false,{"\n"}{"  "}"permits_copy": false,{"\n"}{"  "}"permits_retry": false,{"\n"}{"  "}"permits_cleanup": false,{"\n"}{"  "}"permits_overwrite": false,{"\n"}{"  "}"permits_materialization": false,{"\n"}{"  "}"permits_deletion": false{"\n"}{"}"}{"\n"}</code></pre>
-          <p>This object means the payload can be displayed or summarized, but it cannot be
-            used as the authority source for file-changing controls.</p>
-          <p>Persisted render and production scheduler reports also emit this root object.
-            Those reports may list materialized outputs, retryable work, blocked work, or
-            review-required IDs, but the report remains post-operation evidence only. It
-            does not authorize a shell or agent to retry, clean up, overwrite, materialize,
-            delete, or mutate files.</p>
-          <h2>Native-shell reader</h2>
-          <p>Python consumers can call:</p>
-          <pre><code className="language-python">from shootflow.workflow_authority import observe_only_handoff_controls_to_dict{"\n"}{"\n"}controls = observe_only_handoff_controls_to_dict(payload, field_label="payload"){"\n"}</code></pre>
-          <p>The function validates the root <code>workflow_authority</code> object and returns:</p>
-          <pre><code className="language-json">{"{"}{"\n"}{"  "}"file_mutation_enabled": false,{"\n"}{"  "}"copy_enabled": false,{"\n"}{"  "}"retry_enabled": false,{"\n"}{"  "}"cleanup_enabled": false,{"\n"}{"  "}"overwrite_enabled": false,{"\n"}{"  "}"materialization_enabled": false,{"\n"}{"  "}"deletion_enabled": false{"\n"}{"}"}{"\n"}</code></pre>
-          <p>Consumers should bind native controls to those booleans, not to <code>next_actions</code>,
-            <code>next_steps</code>, <code>writes_files</code>, <code>agent_handoff</code>, or prose. If a payload is missing
-            the observe-only object or attempts to set one of the authority booleans to
-            <code>true</code>, the reader raises <code>WorkflowAuthorityError</code> and the UI should fail
-            closed.</p>
-          <h2>CLI validation bridge</h2>
-          <p>Shell/native integrations can validate a saved handoff without reimplementing
-            the Python reader:</p>
-          <pre><code className="language-bash">PYTHONPATH=src python3 -m shootflow.cli handoff-controls \{"\n"}{"  "}--handoff-json &lt;saved-handoff.json&gt;{"\n"}</code></pre>
-          <p>The command is read-only. It loads the saved JSON, rejects missing or
-            authorizing root authority, and prints schema v2 observe-only JSON containing
-            the disabled <code>handoff_controls</code> map. Its output is still a presentation
-            surface; it does not authorize copy, retry, cleanup, overwrite,
-            materialization, deletion, or any other file mutation.</p>
-          <h2>Package handoff bridge</h2>
-          <p>Native shells that need a package-specific readout can call:</p>
-          <pre><code className="language-bash">PYTHONPATH=src python3 -m shootflow.cli package-handoff-brief \{"\n"}{"  "}--ingest-manifest &lt;shoot&gt;/ingest_manifest.json{"\n"}</code></pre>
-          <p>The command is read-only. It rebuilds the trusted production plan from the
-            ingest manifest, validates <code>production_status.json</code>, loads the matching
-            <code>production_scheduler_report.json</code>, summarizes package job readiness and
-            materialized package outputs, and derives disabled copy/retry/materialization
-            controls from the scheduler report's observe-only authority. It is a UI bridge,
-            not a retry, render, export, cleanup, overwrite, publication, or deletion
-            contract.</p>
-          <h2>Persisted scheduler reports</h2>
-          <p>Production and render scheduler reports are trusted run records because they are
-            validated against the final status manifests they summarize. They still do not
-            grant workflow authority. Newly written scheduler reports use schema v3 and
-            include the same root observe-only <code>workflow_authority</code> object as UI summaries.
-            Loaders synthesize observe-only authority for legacy schema v1/v2 scheduler
-            reports so saved demo and pilot workspaces remain readable without becoming
-            file-operation authority.</p>
-          <p>Native shells may display scheduler report state after validation, but copy,
-            retry, cleanup, overwrite, materialization, deletion, and other file-changing
-            controls still require a separate explicit invocation or future reviewed action
-            contract.</p>
-          <h2>Future action contracts</h2>
-          <p>Write-capable actions require a separate explicit invocation or a future
-            reviewed action contract. Until such a contract exists, observe-only summaries
-            may say what a human could review next, but they must not unlock copy, retry,
-            cleanup, overwrite, materialization, deletion, or arbitrary file mutation.</p>
+        <p>ShootFlow JSON handoffs often describe useful next steps for a Mac shell,
+        automation runner, or future agent. Those descriptions are presentation aids;
+        they are not permission to copy, retry, materialize, clean up, overwrite, or
+        delete files.</p>
+        <h2>Observe-only authority</h2>
+        <p>Current UI/agent handoff JSON uses a root <code>workflow_authority</code> object:</p>
+        <pre><code className="language-json">{"{"}
+          &quot;mode&quot;: &quot;observe_only&quot;,
+          &quot;handoff_kind&quot;: &quot;presentation_only&quot;,
+          &quot;permits_file_mutation&quot;: false,
+          &quot;permits_copy&quot;: false,
+          &quot;permits_retry&quot;: false,
+          &quot;permits_cleanup&quot;: false,
+          &quot;permits_overwrite&quot;: false,
+          &quot;permits_materialization&quot;: false,
+          &quot;permits_deletion&quot;: false
+        {"}"}
+        </code></pre>
+        <p>This object means the payload can be displayed or summarized, but it cannot be
+        used as the authority source for file-changing controls.</p>
+        <p>Persisted render and production scheduler reports also emit this root object.
+        Those reports may list materialized outputs, retryable work, blocked work, or
+        review-required IDs, but the report remains post-operation evidence only. It
+        does not authorize a shell or agent to retry, clean up, overwrite, materialize,
+        delete, or mutate files.</p>
+        <h2>Native-shell reader</h2>
+        <p>Python consumers can call:</p>
+        <pre><code className="language-python">from shootflow.workflow_authority import observe_only_handoff_controls_to_dict
+
+        controls = observe_only_handoff_controls_to_dict(payload, field_label=&quot;payload&quot;)
+        </code></pre>
+        <p>The function validates the root <code>workflow_authority</code> object and returns:</p>
+        <pre><code className="language-json">{"{"}
+          &quot;file_mutation_enabled&quot;: false,
+          &quot;copy_enabled&quot;: false,
+          &quot;retry_enabled&quot;: false,
+          &quot;cleanup_enabled&quot;: false,
+          &quot;overwrite_enabled&quot;: false,
+          &quot;materialization_enabled&quot;: false,
+          &quot;deletion_enabled&quot;: false
+        {"}"}
+        </code></pre>
+        <p>Consumers should bind native controls to those booleans, not to <code>next_actions</code>,
+        <code>next_steps</code>, <code>writes_files</code>, <code>agent_handoff</code>, or prose. If a payload is missing
+        the observe-only object or attempts to set one of the authority booleans to
+        <code>true</code>, the reader raises <code>WorkflowAuthorityError</code> and the UI should fail
+        closed.</p>
+        <h2>CLI validation bridge</h2>
+        <p>Shell/native integrations can validate a saved handoff without reimplementing
+        the Python reader:</p>
+        <pre><code className="language-bash">PYTHONPATH=src python3 -m shootflow.cli handoff-controls \
+          --handoff-json &lt;saved-handoff.json&gt;
+        </code></pre>
+        <p>The command is read-only. It loads the saved JSON, rejects missing or
+        authorizing root authority, and prints schema v2 observe-only JSON containing
+        the disabled <code>handoff_controls</code> map. Its output is still a presentation
+        surface; it does not authorize copy, retry, cleanup, overwrite,
+        materialization, deletion, or any other file mutation.</p>
+        <h2>Package handoff bridge</h2>
+        <p>Native shells that need a package-specific readout can call:</p>
+        <pre><code className="language-bash">PYTHONPATH=src python3 -m shootflow.cli package-handoff-brief \
+          --ingest-manifest &lt;shoot&gt;/ingest_manifest.json
+        </code></pre>
+        <p>The command is read-only. It rebuilds the trusted production plan from the
+        ingest manifest, validates <code>production_status.json</code>, loads the matching
+        <code>production_scheduler_report.json</code>, summarizes package job readiness and
+        materialized package outputs, and derives disabled copy/retry/materialization
+        controls from the scheduler report&apos;s observe-only authority. It is a UI bridge,
+        not a retry, render, export, cleanup, overwrite, publication, or deletion
+        contract.</p>
+        <h2>Persisted scheduler reports</h2>
+        <p>Production and render scheduler reports are trusted run records because they are
+        validated against the final status manifests they summarize. They still do not
+        grant workflow authority. Newly written scheduler reports use schema v3 and
+        include the same root observe-only <code>workflow_authority</code> object as UI summaries.
+        Loaders synthesize observe-only authority for legacy schema v1/v2 scheduler
+        reports so saved demo and pilot workspaces remain readable without becoming
+        file-operation authority.</p>
+        <p>Native shells may display scheduler report state after validation, but copy,
+        retry, cleanup, overwrite, materialization, deletion, and other file-changing
+        controls still require a separate explicit invocation or future reviewed action
+        contract.</p>
+        <h2>Future action contracts</h2>
+        <p>Write-capable actions require a separate explicit invocation or a future
+        reviewed action contract. Until such a contract exists, observe-only summaries
+        may say what a human could review next, but they must not unlock copy, retry,
+        cleanup, overwrite, materialization, deletion, or arbitrary file mutation.</p>
       </div>
     </>
   );
