@@ -73,6 +73,15 @@ jobs:
         env:
           POSTGRES_PRISMA_URL: postgresql://postgres:postgres@127.0.0.1:5432/integration?schema=public
           POSTGRES_URL_NON_POOLING: postgresql://postgres:postgres@127.0.0.1:5432/integration?schema=public
+          # The job-level ADMIN_KEY above is a placeholder for the build/lint
+          # steps, which only need it present and well-formed. This step's
+          # tests actually authenticate against it, so it needs the real
+          # value `src/test/integration/env.ts` expects — that file's
+          # `??=` only fills in a default when nothing is already set, and
+          # the job-level placeholder would otherwise win and desync from
+          # what the tests send.
+          ADMIN_KEY: integration-admin-key
+          ADMIN_SESSION_SECRET: integration-session-secret
 
       # A schema edit with no migration behind it deploys cleanly and then
       # fails on the first query, so it is worth catching here even though it
