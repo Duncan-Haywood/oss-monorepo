@@ -3962,3 +3962,70 @@ entries:
         needs to act on right now — it can wait for them to open the
         tracker on their own schedule.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process, increase profit legally/ethically/reliably" run.
+        `git fetch origin main` first per CLAUDE.md; tip was `db35ba2`
+        at the start of this session's survey (moved to `8718bc2` by the
+        time this entry was written — read the intervening five commits,
+        all ledger-only, before adding this one). The prior entry in this
+        file (the #139-tracker session) had just swept
+        `ai-engineering-academy` and `garmin-world-traveler-watchface`
+        for gaps and concluded "every dependency/security sweep already
+        landed for the ventures that had one" — that conclusion missed
+        one venture, found below.
+      - >-
+        Ran `npm audit --omit=dev` across every npm project under
+        `ventures/` not already covered by an open PR or a merged
+        sweep. `photo-editing/docs-site` was still on `next ^15.2.4`
+        with 3 high-severity advisories (postcss XSS/path-traversal +
+        sharp/libvips CVEs, both fixed only by `next@16.3.1`) — the one
+        venture the `next@16.3.1` series (#106, #117, #122, #134, #135)
+        hadn't reached yet. `local-site-studio`'s equivalent gap is
+        already covered by open #122, so left that one alone.
+      - >-
+        Fixed it the same mechanical way as the rest of the series:
+        `next`/`eslint-config-next` 15.2.4 -> 16.3.1 (exact-pinned).
+        Along the way, Next 16's removal of `next lint` and
+        `eslint-config-next@16`'s move to native flat-config exports
+        broke the venture's existing `eslint.config.mjs` (a `FlatCompat`
+        wrapper around `"next/core-web-vitals"` now throws "Converting
+        circular structure to JSON" against the new plugin object) —
+        switched to importing `eslint-config-next/core-web-vitals` and
+        `/typescript` directly, dropped the now-unused `@eslint/eslintrc`
+        devDependency, and changed the lint script to `eslint .`.
+        `tsconfig.json`/`next-env.d.ts` changes are Next 16's own
+        mandatory auto-rewrite (`jsx: react-jsx`, a new
+        `root-params.d.ts` reference), committed as generated.
+      - >-
+        Independently re-verified before opening the PR: `npm audit
+        --omit=dev` 0 (was 3 high), `npm run lint` 0 errors (15
+        pre-existing style warnings, unchanged), `npm run build`
+        succeeds across all 20 routes, `portfolio/router/validate.py`
+        11/11, `test_allocate` 21/21. Left the 14 vulnerabilities
+        (6 moderate, 6 high, 2 critical) in `htmltojsx`'s own transitive
+        chain untouched — pre-existing, already flagged in #77 as
+        out of scope, and `npm audit --omit=dev` is what confirms they're
+        unrelated to this change (0 before and after).
+      - >-
+        Opened as #142, referencing the open-PR backlog it doesn't
+        touch (#137, #135, #134, #130, #126, #122, #117, #106, #79,
+        #19). Not self-merged — same breaking-major-version-bump
+        category #106/#117/#122/#134/#135 are already gated on the
+        account owner for.
+      - >-
+        Did not re-derive or re-verify #137/#134/#130/#126/#122/#117/
+        #106/#79/#19/#139 — all unchanged since the prior entry's
+        review, nothing new to add there. GitHub Actions account-wide
+        `startup_failure` outage: not re-checked this session (confirmed
+        twice already today, no reason to expect it changed).
+      - >-
+        No push notification: #142 is routine dependency-upgrade
+        maintenance of the exact kind five prior PRs in this same series
+        already established as non-interrupting, and it changes no
+        standing decision in front of the account owner.
+    mrr_end: null
