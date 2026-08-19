@@ -2786,6 +2786,23 @@ entries:
         one is routine and low-risk, but the PR is still open pending
         merge as of this entry.
       - >-
+        Follow-up on a later cycle's fetch: an independent concurrent
+        session opened PR #107 fixing the exact same 3 advisories, with
+        one improvement this PR's original diff lacked — pinning `next`
+        to an exact `16.3.1` (matching this repo's existing exact-pin
+        convention, rather than `audit fix --force`'s `^16.3.1` range)
+        and bumping the paired `eslint-config-next` from the now-stale
+        `16.2.9` to `16.3.1` in lockstep. #107 had gone conflicting
+        against a newer `main` by the time this was checked. Consolidated
+        rather than leaving two open PRs for the same fix, per this
+        repo's CLAUDE.md guidance: kept this PR (#104, mergeable) as the
+        base and folded #107's exact-pin/eslint-config-next improvement
+        into it. Closing #107 with a comment pointing here. Re-ran the
+        full verification pipeline after the pin change on a clean
+        `node_modules`/`.next`/`tsconfig.tsbuildinfo`: typecheck 0 errors,
+        lint clean, 1207/1207 tests, production build succeeds (31
+        routes), `npm audit` 0 vulnerabilities.
+      - >-
         Also attempted photo-editing's ruff/mypy drift (same gap this
         cycle's other session picked up) before discovering, on `git
         fetch origin main`, that PR #102 had just merged with an
@@ -2794,17 +2811,38 @@ entries:
         catch). Discarded the local duplicate rather than pushing a
         second copy — exactly the redundant-work pattern `CLAUDE.md`
         warns about, caught before it produced a duplicate PR. Kept one
-        piece that PR #102 did not include: added `ruff check src/
-        tests/` to `.github/workflows/photo-editing-ci.yml` as an actual
-        CI gate now that the check is clean, so the drift documented in
-        #102 doesn't silently reappear. Bundled into PR #104 alongside
-        the local-site-studio fix since both are small, additive,
-        low-risk, and already verified.
+        piece that PR #102 did not include: added a `ruff check` step to
+        `.github/workflows/photo-editing-ci.yml` as an actual CI gate,
+        so the drift documented in #102 doesn't silently reappear.
       - >-
-        Did not send a push notification for either piece: routine,
-        low-risk, additive engineering with a verified clean pipeline
-        before and after, no different in kind from the prior cycles'
-        equivalent fixes that also didn't warrant one.
+        Caught a real bug in that CI-gate addition on the later
+        consolidation pass, before it reached `main`: the originally
+        committed step was unpinned `pip install ruff` +
+        `ruff check src/ tests/`. Re-running that exact command against
+        current `HEAD` (unpinned ruff resolves to `0.16.3` today) reports
+        **68 findings**, not 0 — ruff's effective default rule set has
+        grown since whatever version #102 was verified against (adds
+        `I001`/isort, `BLE001`, `SIM117`, `B009`, `UP012`, `SIM102`,
+        `RUF022` on top of the classic `E4,E7,E9,F` baseline). Left as
+        committed, this step would have failed CI on its first real run
+        once the Actions outage clears — exactly the "claimed clean,
+        never actually run" trap this ledger's discipline section warns
+        about. Fixed by pinning the tool version and explicitly scoping
+        the rule selection to what #102 actually verified:
+        `pip install ruff==0.16.3` +
+        `ruff check --select E4,E7,E9,F src/ tests/`, confirmed clean
+        against current `HEAD`. Also re-ran the venture's full
+        `unittest` suite: 432/438 passing, the same 6 pre-documented
+        sandbox-artifact failures noted in `AGENTS.md` (root-uid/disk-
+        quota effects), no new failures.
+      - >-
+        Did not send a push notification for the local-site-studio or
+        photo-editing-CI pieces: routine, low-risk, additive engineering
+        with a verified clean pipeline before and after, no different in
+        kind from prior cycles' equivalent fixes that also didn't
+        warrant one. The caught CI-gate bug above was fixed before
+        merge, not left for the account owner to discover, so it also
+        doesn't independently warrant an interrupt.
       - >-
         Still unresolved, needs the account owner, unchanged in substance
         from prior cycles: (1) GitHub Actions billing/quota — no
@@ -2816,5 +2854,8 @@ entries:
         item — resolved by this entry, removed from the list; (6) retire
         or redirect the recurring "research new business projects"
         scheduled task, per #79's explicit ask ("twelve firings, one
-        answer").
+        answer"); (7) #106 (ai-first-markets Next 16.3.1 upgrade,
+        unrelated venture, same class of fix) and its ledger-only
+        sibling #108 — both open, unreviewed, correctly left to the
+        account owner, not touched this cycle.
     mrr_end: null
