@@ -241,7 +241,7 @@ function ArtistPortalDemo() {
                 </div>
                 <div>
                   <div className="font-bold text-gray-900">Proof Approval Required</div>
-                  <div className="text-sm text-gray-600">"Autumn Canopy" has been digitized and needs your approval.</div>
+                  <div className="text-sm text-gray-600">&quot;Autumn Canopy&quot; has been digitized and needs your approval.</div>
                 </div>
               </div>
               <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50">
