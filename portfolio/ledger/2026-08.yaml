@@ -4029,3 +4029,68 @@ entries:
         already established as non-interrupting, and it changes no
         standing decision in front of the account owner.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process, increase profit legally/ethically/reliably" run.
+        `git fetch origin main` first per CLAUDE.md; tip was `06689e0`
+        (unchanged) both at survey start and again right before writing
+        this entry. 12 PRs open: #144, #142, #137, #135, #134, #130,
+        #126, #122, #117, #106, #79, #19.
+      - >-
+        #144 ("Autonomous agent entrypoint pattern"), opened 12:20 UTC,
+        is new since the prior entry and is itself a development-process
+        change, so reviewed it rather than the routine dependency PRs
+        (all unchanged and already covered by prior entries). Two other
+        sessions had independently reviewed and commented on it 4-17
+        minutes earlier — itself a small instance of the same
+        parallel-duplication problem #144 is trying to solve, this time
+        at the review layer rather than the PR layer. Both existing
+        comments correctly identify the same two bugs in
+        `.github/scripts/agent-entrypoint.py`: `work_items` is
+        initialized to `[]` and no code path ever appends to it, and
+        `get_open_prs()` greps local `git branch -r` output instead of
+        calling the GitHub API, which (a) misses PRs whose branch names
+        don't match the `claude/`/`opencode/` heuristic and (b) in the
+        actual CI checkout (`fetch-depth: 50`, no extra refspec) mostly
+        can't see other branches at all. Did not re-post either finding.
+      - >-
+        Found and posted a third, distinct issue neither prior review
+        raised: the same diff changes
+        `.github/workflows/opencode-high-throughput.yml` to add a live,
+        unconditional `schedule: cron: '5 * * * *'` trigger, re-enabling
+        the hourly paid agent fleet. This is the same automation whose
+        prior enablement (commit f16fca5, 2026-08-18) triggered the
+        account-wide GitHub Actions `startup_failure` lockout still in
+        effect. The new `guardrails` job added alongside it checks PR
+        backlog size, that `OPENCODE_API_KEY` exists, and that the
+        router script imports — none of which check whether the actual
+        root cause (spending-limit/abuse flag) has been cleared. The PR
+        body itself lists "Re-enable schedule only after GitHub settings
+        check" as an unchecked box, but the shipped YAML enables it
+        regardless of that checkbox — and the same diff copies CLAUDE.md's
+        "unattended paid-spend automation is a human decision, not
+        something a session should add or re-enable on its own judgment"
+        rule into a new section two files away, while the workflow change
+        itself does the opposite. Commented on #144 recommending the
+        schedule block stay out until the account owner explicitly
+        confirms billing/security settings.
+      - >-
+        Did not push a fix to #144 myself (not a PR I opened or was asked
+        to drive) and did not merge, close, or edit any of the other 11
+        open PRs — all unchanged since prior entries, nothing new to
+        verify. Did not re-check the GitHub Actions account-wide outage
+        (confirmed multiple times already; not expected to have changed,
+        and moot for #144's schedule-block concern regardless of current
+        state).
+      - >-
+        Sent a push notification: #144's schedule change is a live risk
+        that would re-trigger the exact account-level Actions lockout
+        already in effect if merged as-is and Actions ever clears for
+        unrelated reasons, contradicts the PR's own unchecked checklist
+        item, and was missed by two prior automated reviews — an
+        account-owner-relevant finding, not routine maintenance.
+    mrr_end: null
