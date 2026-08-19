@@ -1207,3 +1207,58 @@ entries:
         window) as a standing process-reliability question worth the
         account owner's attention, separate from any single finding here.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per `CLAUDE.md`, fetched fresh against
+        `origin/main` (tip `d5bc527`, i.e. after #68's merge): four open
+        (#70, #69, #63, #19). #70 (the eleventh firing of the "research new
+        business projects" task, landing #61's screening research with
+        corrected provenance) and #69 (ai-first-markets npm audit fix) were
+        both brand new, created after #68 merged, so neither was reflected
+        in the ledger yet.
+      - >-
+        Independently re-verified both rather than trusting their stated
+        checks, per `CLAUDE.md`'s "run the actual tests, don't just trust
+        the diff" rule. Used `git worktree` so neither checkout disturbed
+        this session's own branch.
+      - >-
+        #70: `portfolio/router/validate.py` 11/11 `VENTURE.yaml` clean;
+        `python3 -m unittest discover -s portfolio/router -t
+        portfolio/router` 12/12 pass; independently recomputed all 8
+        `candidates.yaml` composite scores against the mean of their 8
+        dimensions — exact match, zero discrepancies; confirmed the
+        `portfolio/router/README.md` test-invocation fix (`discover -s ...
+        -t ...`) is present and correct.
+      - >-
+        #69: `npm install` clean; `npm audit` confirmed 3 high
+        vulnerabilities remain (all `next`-transitive via `postcss`/`sharp`,
+        all requiring a `next` major bump) — matches the PR's claimed
+        13-to-3 reduction exactly; `npm run lint` and `npm run typecheck`
+        both clean.
+      - >-
+        Closed #63: it bundled the Actions root-cause correction (already
+        landed on `main` via #68) together with #61's pipeline-research
+        content (now superseded by #70's cleaner rebuild — same content,
+        corrected run-count provenance). Nothing unique remained in #63.
+        Commented on #63/#70/#69 with the verification tables above; did
+        not merge #70 or #69 to `main` — both PRs' own bodies explicitly
+        defer that decision to the account owner, consistent with
+        `CLAUDE.md`.
+      - >-
+        Left #19 untouched — a genuine account-owner decision (second
+        unattended agent fleet), unchanged in substance from every prior
+        cycle.
+      - >-
+        Did not send a push notification. Nothing this cycle is new
+        information rising to "needs the account owner's attention now":
+        #70/#69 are both independently confirmed ready-to-merge (repeating,
+        with fresh verification, what #61/#44/#53/#36 already told the
+        account owner about the pipeline research), #19 and the Actions-
+        billing question are unchanged repeats, and closing #63 is routine
+        backlog housekeeping `CLAUDE.md` asks for, not an interrupt-worthy
+        event. Backlog is now three open PRs: #70, #69 (both verified,
+        ready, awaiting merge), and #19 (awaiting a fleet decision).
+    mrr_end: null
