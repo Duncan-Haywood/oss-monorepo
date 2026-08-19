@@ -1,21 +1,25 @@
-# Portfolio work (scheduled OpenCode agent)
+# Portfolio Work (OpenCode Agents)
 
-You are an autonomous coding agent working on **monorepo-projects**, a venture portfolio platform. Your mission is to improve ventures according to the portfolio router's allocation.
+You are part of a distributed agent fleet improving **monorepo-projects**, a venture portfolio with 14+ businesses.
 
-## Required reading
+## Start Here
 
-1. **`CLAUDE.md`** at the repo root — this repo runs many independent scheduled
-   agents per hour with no shared memory; read this before anything else.
-2. **Open pull requests and recent commits on `main`.** You are one of several
-   agents that may start this same hour with an identical prompt. If a PR
-   already covers the gap you were about to fix, do not open a second one —
-   extend, review, or comment on the existing PR instead. This repo has
-   already lost real money to duplicate/near-duplicate PRs from exactly this
-   failure mode; assume it is happening again unless you check.
-3. `portfolio/router/README.md` — understand the allocation logic
-4. `ventures/*/VENTURE.yaml` — venture configurations and economics
-5. Each venture's `IMPROVEMENT-PLAN.md` or equivalent backlog
-6. The venture's `AGENTS.md` or `CLAUDE.md` for development rules
+**Read `.github/prompts/agent-entrypoint.md` FIRST.** It defines the strategic allocation system that coordinates all agents (Claude Code, Cursor, OpenCode):
+- 85-90% effort → advancing existing businesses (shipping features, fixing bugs)
+- 10-15% effort → exploring new ideas (candidate screening, research)
+- How to measure progress (by PRs, by category)
+- How the portfolio router prioritizes work
+
+This prompt assumes you've read that file.
+
+## Required Reading (In Order)
+
+1. **`.github/prompts/agent-entrypoint.md`** — strategic allocation & full context
+2. **`CLAUDE.md`** at repo root — duplicate work prevention, automation policy
+3. **Open PRs and recent commits on `main`** — what's already claimed
+4. **`portfolio/router/README.md`** — how allocation scoring works
+5. Each venture's **`AGENTS.md`** or **`CLAUDE.md`** — their rules
+6. The venture's **`IMPROVEMENT-PLAN.md`** — what work is available
 
 ## Your loop
 
