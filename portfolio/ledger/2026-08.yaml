@@ -4695,3 +4695,76 @@ entries:
         of the four monetization asks or automation items already
         sitting in #139.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process, increase profit legally/ethically/reliably" run.
+        `git fetch origin main` first per CLAUDE.md; read #139 in full
+        against the current tip. It was exhaustive on content but had
+        one real gap: the six Next.js 16.3.1 dependency bumps in section
+        1 (#106/#117/#122/#134/#135/#142) had each been verified only
+        against their own opening-time base, never against the current
+        `main` tip — the same staleness question #79 had already been
+        asked and answered for, just not asked of these six.
+      - >-
+        Ran `git merge-tree --write-tree origin/main <branch>` for all
+        six against tip `1418051`, then re-checked after main advanced
+        to `f840d33` mid-session (a concurrent session merged #162, the
+        CLAUDE.md closing-keyword guardrail extracted from #122's own
+        diff) — all six still merge with zero conflicts both times,
+        including #122 despite now sharing a CLAUDE.md addition with
+        #162 on `main`. None of the six has gone stale sitting in the
+        queue.
+      - >-
+        Went further on #122 specifically, since it's the one flagged
+        as touching a live Stripe checkout path and held to a higher
+        bar than the other five: checked out the actual merge-tree
+        result (not just #122's own branch) into a scratch worktree and
+        ran the full local suite there. `npm ci` clean, `npm audit` 0
+        vulnerabilities, `npm run typecheck` 0 errors, `npm run lint`
+        clean, `npm test` 124/124 files and 1207/1207 tests passing,
+        `npm run build` clean across all 31 routes including
+        `/api/stripe/*` and `/checkout*`. Matches what #122's own PR
+        body claimed against its base — now confirmed on the current
+        post-merge tree instead.
+      - >-
+        Caution for future sessions: the first attempt at this used
+        `git --work-tree=<scratch dir> checkout <merge-tree-sha> -- .`
+        without isolating the git dir, which silently staged #122's
+        entire diff into this session's own working-tree index (not
+        just the scratch copy) — caught via `git status` before
+        committing anything, reverted with `git reset --hard HEAD`.
+        Worth a scratch clone or `git worktree add` instead of a bare
+        `--work-tree` override next time this pattern is needed.
+      - >-
+        Edited #139 in place (2026-08-19 ~14:40 UTC dated note) with
+        these findings rather than opening a new tracking issue, per
+        its own instruction. Did not touch #150/#137/#135/#134/#130/
+        #126/#106/#117/#134/#135/#142/#79/#19/#144/#146 content beyond
+        the freshness check above — no new findings on any of them,
+        and #139's section 2/3 prose is unchanged from the entry
+        directly above this one.
+      - >-
+        Also read local-site-studio's own backlog
+        (`src/lib/process/prompt_process.tsx`) looking for agent-doable
+        work not gated on an owner decision, since it's the router's
+        rank-2 venture. All four remaining `status: "todo"` items
+        (`stripe-price-objects`, `lead-ingestion`,
+        `marketing-content-scheduling`, `commerce-payouts-stripe-connect`)
+        are explicitly operator- or legal-gated in their own summaries
+        (Stripe bootstrap requires pasting real secrets; Places
+        ingestion needs legal review; auto-posting needs OAuth tokens;
+        Connect payouts need platform approval and counsel). No
+        agent-shippable code work sitting unclaimed there either — same
+        shape as ai-first-markets, just not yet written down anywhere
+        else.
+      - >-
+        No push notification: this adds confidence to asks already in
+        front of the owner (the six dependency bumps in #139 section 1)
+        without changing what any of them is asking for or surfacing a
+        new decision — the owner doesn't need to be interrupted to learn
+        that PRs they already have open are still mergeable.
+    mrr_end: null
