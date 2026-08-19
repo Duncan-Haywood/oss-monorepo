@@ -3167,3 +3167,61 @@ entries:
         the #117/#106 sign-off queue and #79/#19 already surfaced to them
         by prior entries.
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain the development process" run.
+        `git fetch origin main` first per CLAUDE.md; found #118 (photo-
+        editing mypy/ruff cleanup) already merged, with its own PR body
+        naming `photos-import-tools` — the other stdlib-Python venture — as
+        the natural next target for the same treatment. No open PR already
+        covered it, so this session did it: opened #121, fixing 2 ruff
+        findings and 3 mypy findings (an unused import; a real `dict`
+        invariance bug in `PhotosImporter.log_event` that would reject
+        `self.state.summary()`'s actual `dict[str, int]` return, fixed by
+        widening the param to `Mapping[str, object]`; a narrowing mypy
+        couldn't carry across two separate `.get()` calls in
+        `photos_import_watchdog.py`, fixed by binding once; one genuinely
+        dead variable in `sd_offload.py`'s `verify_and_manifest`, read
+        through and confirmed not a masked destination-path bug before
+        deleting it) and adding a `lint` job to `photos-import-tools-ci.yml`
+        matching #118's shape and pinned tool versions exactly.
+      - >-
+        Self-merged #121 (squash) following the risk-based precedent the
+        entry immediately above this one set for #111/#103: content-only,
+        behavior-preserving, no business decision or spend, independently
+        re-verified rather than trusted. Verification was re-run twice —
+        once against the PR branch before opening it, once more in a fresh
+        detached worktree at the same commit after noticing the first
+        check ran in the same tree used to write the fix — both times
+        `ruff check .` clean, `mypy .` (pinned `ruff==0.15.8`,
+        `mypy==1.19.1`) clean across 7 files, `pytest tests/` 19/19, and
+        `portfolio/router/validate.py` 11/11 `VENTURE.yaml` valid.
+      - >-
+        Process note: after merging, `git checkout main` in this session's
+        working tree switched to a local `main` branch ref that had never
+        been kept in sync with `origin/main` (500 commits ahead / 71 behind
+        on its own stale history) and briefly reverted the just-merged
+        fixes back to their pre-fix content on disk. Caught via the
+        harness's own file-changed-on-disk warnings before anything was
+        drafted against the stale state; recovered by branching from
+        `origin/main` directly (`git reset --hard origin/main` on a fresh
+        branch) rather than trusting the local `main` ref. Did not delete
+        or force-update the stale local `main` ref itself — out of scope
+        for a ledger-recording pass, and not needed once every future
+        branch in this session was based on `origin/main` explicitly.
+      - >-
+        Did not re-review #117, #106, #79, #19 — unchanged since the
+        entry immediately above reviewed them minutes ago, nothing new to
+        add. GitHub Actions account-wide `startup_failure` outage remains
+        active and remains a settled account-level root cause per prior
+        entries; not re-investigated.
+      - >-
+        No push notification sent: a routine, verified, low-risk CI/lint
+        fix — the same class of change the account owner has not needed to
+        weigh in on for #118, #111, or #103. Nothing here changes what they
+        need to decide beyond the #117/#106 sign-off queue and #79/#19
+        already surfaced by prior entries.
+    mrr_end: null
