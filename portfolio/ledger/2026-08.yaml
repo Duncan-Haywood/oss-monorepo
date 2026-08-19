@@ -894,3 +894,79 @@ entries:
         #53/#19 items, which are repeats), it's a real unattended-spend
         exposure question, and it can only be resolved outside this repo.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per `CLAUDE.md`, against a fresh
+        `git fetch origin main` (tip `13dd67e`, this branch cut from the
+        same commit): four open — #19 (unattended agent fleet, explicit
+        account-owner decision, correctly untouched), #60 and #61 (ledger/
+        research PRs awaiting the account owner's merge call per this
+        repo's own convention of not self-merging ledger entries, both
+        correctly left alone), and #55 (root-caused the repo-wide Actions
+        `startup_failure`, still open). No duplicate-PR backlog to
+        consolidate this cycle — down from the ~25-PR pile on 2026-08-18.
+      - >-
+        Re-investigated #55's Actions diagnosis rather than trusting it,
+        since it's the one open item this session could still add evidence
+        to. #55 attributed the `startup_failure` to
+        `.github/workflows/opencode-high-throughput.yml` on a timestamp
+        match between that file's creation and a synthetic failing
+        workflow. That specific theory doesn't hold up: querying the
+        Actions API directly, the real `opencode-high-throughput.yml`
+        workflow (id `337234310`) was created 2026-08-18T18:42:42Z UTC, but
+        the workflow every failing run is actually attributed to (id
+        `337182028`, path `BuildFailed`, name empty, `state: deleted`) was
+        created 2026-08-18T17:23:11Z UTC — **79 minutes earlier**. The
+        suspect file did not exist yet when the phantom workflow was
+        created, so it cannot be the cause.
+      - >-
+        This doesn't contradict the portfolio's overall conclusion, only
+        the specific-file theory: a same-day local-site-studio session
+        (#57, merged as commit `9dfae79`, landed after #55 was opened)
+        had already independently ruled out a workflow-syntax bug by
+        confirming all 5 real workflow files parse as valid YAML and show
+        `state: active`. This cycle's finding sharpens that into positive
+        evidence rather than an absence of one: the failures all trace to
+        one synthetic, already-deleted, unnamed workflow entry with 0 jobs
+        scheduled on every run — including a `schedule`-triggered run at
+        2026-08-19T01:40Z, confirming the hourly cron is firing but still
+        not spending, no live spend leak right now — the signature GitHub
+        Actions shows when a run is rejected at the account/repo level
+        (spend cap or billing block) before any real workflow is ever
+        evaluated, not when one specific workflow file fails to parse.
+        Reconfirmed current status is unchanged: still `startup_failure`
+        on every run as of the latest push (2026-08-19T02:23Z).
+      - >-
+        Closed #55 with a pointer here: its #53 re-verification is moot
+        now that #53 is closed (superseded by #61), and its root-cause
+        theory is superseded by the finding above. Left a comment
+        crediting what it got right (confirming the failure is repo-wide,
+        not one PR's problem) and explaining the correction. Did not touch
+        `opencode-high-throughput.yml` itself — there is no remaining
+        evidence implicating it, and editing or disabling it on a theory
+        this cycle just disproved would be exactly the kind of unreviewed
+        automation change `CLAUDE.md` reserves for the account owner.
+      - >-
+        Decision that needs the account owner, sharpened rather than
+        repeated verbatim: check this repository's (or account's) GitHub
+        Actions billing / spending-limit settings specifically — Settings →
+        Billing and plans → Plans and usage, or Settings → Actions →
+        General — for a $0 spending limit, a lapsed payment method, or an
+        exhausted included-minutes quota. Eighth cycle to flag Actions as
+        broken, but the first with direct evidence narrowing it to a
+        billing/quota block rather than any specific workflow file, so no
+        workflow edit is the fix here.
+      - >-
+        Everything else unresolved is an unchanged repeat, carried forward
+        for continuity only: (1) merge #60 (ledger consolidation) and #61
+        (channel-first research, supersedes #53) or neither, at the account
+        owner's discretion; (2) decide on #19 (second unattended agent
+        fleet); (3) submit `garmin-world-traveler-watchface` or
+        `world-clock-widget` to their respective stores — both built,
+        blocked only on developer-account credentials; (4) local-site-
+        studio's standalone-repo dormant-workflow question from the prior
+        entry, still needs the account owner to check directly.
+    mrr_end: null
