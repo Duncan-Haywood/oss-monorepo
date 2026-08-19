@@ -12,9 +12,28 @@ name: OpenCode high-throughput portfolio agents
 # now requires each agent to check open PRs before starting work, to cut down
 # on the duplicate-PR waste this fleet produced on 2026-08-18 (see CLAUDE.md).
 # Watch whether that guardrail actually holds before raising agent count again.
+#
+# Schedule trigger disabled 2026-08-19: every workflow run in this repo
+# (every venture's CI, portfolio-validate, everything) has failed with
+# conclusion "startup_failure" and zero jobs scheduled since the exact
+# commit (f16fca5, 2026-08-18T18:42:33Z) that first added this workflow at
+# 20 parallel workers/hour -- the very next run, 10 seconds later, is the
+# first startup_failure in the repo's history, and every completed run
+# since (53/53 as of this commit, spanning the later reduce-to-10 and
+# router-guardrail changes) is the same failure with 0 jobs created. That
+# signature -- a synthetic zero-name "BuildFailed" workflow with zero jobs
+# scheduled, on every workflow in the repo, not just this one -- matches
+# GitHub disabling Actions for the whole repo/account (spending limit or
+# abuse-detection), not a YAML error in any individual workflow (all
+# workflow files here parse as valid YAML). This fleet -- up to 10 parallel
+# 120-minute jobs every hour -- is the only thing in the repo's history
+# that plausibly trips that kind of account-level limit. Disabling the
+# schedule (workflow_dispatch still works for a manual, single, verifiable
+# run) stops compounding the problem while it's diagnosed. Re-enabling the
+# schedule is a human call: confirm the Actions spending limit / abuse flag
+# in GitHub billing/security settings first, per CLAUDE.md's rule that
+# unattended paid-spend automation is a deliberate, human-reviewed decision.
 on:
-  schedule:
-    - cron: "0 * * * *"  # Every hour on the hour
   workflow_dispatch:
     inputs:
       num_agents:
