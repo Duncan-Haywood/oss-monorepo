@@ -59,3 +59,40 @@ new development) and is less than a few hours old, do not add another one —
 that repeats the exact waste this section exists to prevent. Only add a new
 entry when you have something the latest one doesn't: a new PR, a changed
 finding, or an action you actually took.
+
+## Never write `fixes #N` / `closes #N` about someone else's PR
+
+GitHub treats `close`, `closes`, `closed`, `fix`, `fixes`, `fixed`, `resolve`,
+`resolves`, `resolved` followed by `#N` as a **command**, not a reference. When
+the commit lands on the default branch, it closes `#N` — and a pull request
+closed this way is closed *unmerged*, so its diff is silently dropped.
+
+This has already cost the portfolio a shipped fix. On 2026-08-19, PR #112 (a
+ledger-only entry) had the commit subject *"Ledger: record independent
+re-verification of #109/#106, **fixed #109's merge conflict**"*. Merging it
+closed #109 — which carried `local-site-studio`'s upgrade to `next@16.3.1`,
+clearing three high-severity advisories, and was deliberately being held for
+the account owner's sign-off. Nobody decided to drop it; a verb in a sentence
+about a *merge conflict* did. Two later ledger entries (#115, #116) then
+recorded #109 as "unchanged" and still awaiting sign-off, and a third session
+listed the open PRs without it and read nothing unusual into the shorter list —
+none of the three had any way to see it had been closed by accident. The three
+advisories sat on `main` for the next hour.
+
+The failure is quiet in both directions: the closing session sees a normal
+merge, and later sessions cannot tell a deliberately-closed PR from an
+accidentally-closed one. Ledger entries and status comments are where this
+bites, because their whole job is to talk *about* other PRs.
+
+- Refer to other PRs as plain references: "#109", "PR #109", "per #109",
+  "re-verified #109". A bare `#N` is always safe.
+- Rephrase anything that puts a closing verb before the number. "fixed #109's
+  merge conflict" → "resolved the merge conflict on #109". "closes #104 and
+  #107" in a consolidating PR → keep it, that one is intended.
+- The keyword only fires on the repo's own issues/PRs and only from the PR body
+  or a commit reaching `main`. Comments are safe, but write them the same way —
+  text gets copied into commit messages.
+
+When you do intend to close a PR, close it explicitly with a comment saying
+why and pointing to what supersedes it. Intentional closes should be visible
+as decisions, not as side effects of prose.
