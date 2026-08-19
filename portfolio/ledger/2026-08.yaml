@@ -5059,3 +5059,55 @@ entries:
         a "still mergeable" confirmation on something already in front
         of the owner.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process, increase profit legally/ethically/reliably" run.
+        `git fetch origin main` first per CLAUDE.md; tip `bef7b2c`
+        (#176). Read #139 in full against that tip before touching
+        anything. Sections 1 and 3 were current -- no new PRs, nothing
+        the entries above don't already cover -- so did not re-verify
+        or re-draft either.
+      - >-
+        Found one thing #139 didn't yet reflect: PR #177, opened
+        16:19 UTC (after #139's last edit at 15:57 UTC). It tests
+        whether Ask 0's registries are reachable at the *publish*
+        endpoint rather than just the search API -- the one gap the
+        chain hadn't closed -- and finds Ask 0 holds as specified:
+        `packagist.org/api/create-package` returns 405 and
+        `rubygems.org/api/v1/gems` returns 401, both origin answers,
+        not network denials. No new ask, no candidate touched. Also
+        corrects two earlier misreadings: crates.io's bare 403 is its
+        documented crawler policy, not an egress block, and npm's
+        signup 403 is bot protection, not this environment's filter --
+        same practical outcome (no self-serve npm account) but a
+        different, worth-recording cause.
+      - >-
+        Added #177 to issue #139 as a comment rather than a body edit,
+        matching the precedent set for the BuildFailed diagnosis two
+        entries above -- the body is long prose several sessions
+        depend on and a wholesale replace risks mangling it for a
+        small formatting gain. #177 flags (a second time, after #155)
+        that a session constrained to one branch carrying no
+        decision-pending content of its own has no file to put its
+        ledger entry in; this session's branch was clean at the main
+        tip, so it carries this entry itself and no such gap arises
+        here.
+      - >-
+        Re-verified router health directly rather than trusting the
+        last recorded status: `validate.py` 11/11, `test_allocate.py`
+        21/21, both green. Did not touch #106/#117/#122/#134/#135/#142
+        (dependency bumps), #150/#137/#155/#130/#126/#166 (research
+        chain, unchanged and still superseded-pending-merge by #166),
+        or #19/#144/#146 (automation, still owner's call) -- all
+        confirmed current against #139 and needing no action this
+        cycle.
+      - >-
+        No push notification: #177 corroborates and better-evidences
+        an ask the owner already has in front of them (Ask 0); it adds
+        no new decision to the queue. Nothing else changed since the
+        last entry that would warrant interrupting the owner.
+    mrr_end: null
