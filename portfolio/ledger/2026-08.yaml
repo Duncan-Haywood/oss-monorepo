@@ -1370,3 +1370,147 @@ entries:
         external cron status, and retiring/redirecting the business-research
         scheduled task).
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per `CLAUDE.md`. Started with three (#70,
+        #69, #19); while working, six more concurrent scheduled sessions
+        opened PRs within about 15 minutes (#71-#76) — two near-duplicate
+        ledger-only verifications of #70/#69 (#71, #72), three overlapping
+        `quick-pick-survey` npm-audit-fix PRs (#73, #74, #75, with #75 also
+        touching `print-atelier` and #74 also adding `photos-import-tools`
+        CI), and one `photo-editing` docs fix (#76) — the exact concurrent-
+        duplication pattern `CLAUDE.md` documents, now visibly happening in
+        real time within a single session's run.
+      - >-
+        Independently verified #69 (ai-first-markets npm audit fix) in a
+        scratch worktree rather than trusting its stated checks: `npm run
+        lint`/`typecheck`/`build` clean, `npm audit` 13→3 (remaining 3 need
+        a `next` major bump, matching the PR), `validate.py` 11/11,
+        router tests 12/12, ledger parses (19 entries matching the PR's
+        count). Squash-merged directly — routine, additive, non-content,
+        non-automation, matching this repo's established direct-merge
+        pattern for dependency patches.
+      - >-
+        Independently verified #70 (the pipeline-research consolidation,
+        carries #61/#53/#44/#36 onto current `main`) in a separate scratch
+        worktree: `validate.py` 11/11, router tests 12/12, all 8
+        `candidates.yaml` composites and floors recomputed from raw scores
+        by hand — exact match, all 8 clear the liability/ethics gates, 0
+        broken relative links across the 17 new `portfolio/pipeline/*`
+        files. A trial merge against current `main` conflicts only in the
+        ledger's append point (routine, not a real conflict). Did **not**
+        merge it — per `CLAUDE.md` and every one of the ~10 prior cycles
+        that reached this same PR lineage, landing business/candidate
+        content on `main` is the account owner's call, not a scheduled
+        session's, even though the content itself is internal-only and
+        the engineering diff is clean. Left #19 untouched for the same
+        reason (second unattended agent-fleet proposal).
+      - >-
+        Merged #76 (photo-editing: documents 6 known sandbox-artifact test
+        failures in `AGENTS.md`, doc-only, no code touched) directly —
+        zero functional risk.
+      - >-
+        Consolidated the `quick-pick-survey`/`photos-import-tools`/
+        `print-atelier` cluster (#73/#74/#75) instead of merging three
+        overlapping diffs. #74 is a strict superset of #73 (same
+        `quick-pick-survey` `npm audit fix`, 6→3 vulnerabilities, plus
+        `photos-import-tools-ci.yml`, which #73 lacks); #75 adds a
+        `print-atelier` `npm audit fix` (9→5) that neither #73 nor #74
+        has, plus a `quick-pick-survey` fix identical to #74's. This
+        session's branch policy only allows pushing to its own designated
+        branch (not #74's or #75's), so rather than leave either stale or
+        re-derive their diffs from scratch, cherry-picked #74's exact
+        commit and independently re-applied #75's unique `print-atelier`
+        piece here, verifying each before combining: `quick-pick-survey`
+        `npm run lint`/`typecheck`/`test` (264/264)/`build` clean before
+        and after, `npm audit` 6→3 confirmed; `photos-import-tools`
+        `pytest` 19/19 confirmed, new CI workflow YAML valid, minimal
+        permissions (`contents: read`, no cron, no secrets); `print-atelier`
+        `npm run lint`/`build` clean before and after, `npm audit` 9→5
+        confirmed, only `package-lock.json` changed. Resolved the routine
+        ledger-append conflict from the cherry-pick by hand, verified via
+        `yaml.safe_load` that no outcome content was dropped.
+      - >-
+        While verifying `photo-editing` (this cycle's own top-ranked
+        Explore target per `allocate.py`, complementing #76's health check
+        rather than duplicating it), found docs-site's `npm run lint`
+        (`next lint`) had **no ESLint config and no `eslint` devDependency
+        at all**, so it dropped into the same interactive setup prompt
+        already fixed for `print-atelier` in an earlier cycle — a dead
+        script in any unattended context. Added `eslint`/
+        `eslint-config-next`/`@eslint/eslintrc` devDependencies and a flat
+        `eslint.config.mjs` matching `ai-first-markets`'s pattern (same
+        `next` major range). Verified `npm run lint` now exits 0 (six
+        pre-existing warnings only) and `npm run build` stays clean. Also
+        ran `npm audit fix` (no `--force`) in docs-site: 18→17
+        vulnerabilities (a safe `next` patch-version bump within its
+        stated range); the remaining 17 all route through the `htmltojsx`
+        devDependency's `request`/`jsdom` chain, which `scripts/
+        build-docs.mjs` actively imports — not removable as a mechanical
+        fix, left as a larger, separately-reviewed decision. Added
+        `.github/workflows/photo-editing-ci.yml` running the venture's
+        438-test `PYTHONPATH=src python3 -m unittest` suite on PR/push
+        (no cron, no secrets, `contents: read` only) — it had zero CI
+        coverage anywhere in the repo before this.
+      - >-
+        **New finding, not previously reported:** `ventures/quick-pick-
+        survey/IMPROVEMENT-PLAN.md` (unmodified since the venture's
+        2026-07-29 `git subtree` merge into this monorepo — confirmed via
+        `git log`) describes, as of that date, a **standalone external
+        repository** for this venture with 42 stacked, unmerged pull
+        requests, a scheduled task that kept adding to the pile across at
+        least 13 write-ups of the same "merge or pause" finding, and —
+        most importantly — a real **unauthenticated read of any
+        account-linked participant's full ranking** (originally PR #35 in
+        that repo), fixed with tests but carried forward unmerged inside
+        the stack rather than landed. That repo is not `Duncan-Haywood/
+        monorepo-projects` — no matching PR numbers exist here, `git log`
+        shows no activity on `IMPROVEMENT-PLAN.md` since the subtree
+        merge, and this session's GitHub access is scoped to this
+        repository only, so the finding could not be re-verified against
+        current state and may be three weeks stale (resolved, or worse).
+        This is the same shape of exposure as the `local-site-studio`
+        dormant-standalone-repo-crons finding from an earlier cycle, but
+        with a live, specific, unauthenticated-data-access security bug
+        attached rather than a generic spend-governance question.
+      - >-
+        Pushed this cycle's work (the #69 and #76 merges, the consolidated
+        #74+#75 cherry-pick, the photo-editing lint/audit/CI work, and this
+        entry) via this session's designated branch and PR, then merged it
+        directly — consistent with the established pattern for additive,
+        non-content, non-automation engineering changes. Closed #71, #72
+        (superseded by this entry's own independent #70/#69 verification),
+        #73 (strict subset of #74), #74 and #75 (carried onto `main` via
+        this PR, cherry-picked/re-derived and independently re-verified
+        rather than trusted) with comments pointing here.
+      - >-
+        Sent a push notification for the quick-pick-survey standalone-repo
+        finding: it is new, it names a specific unauthenticated
+        participant-data exposure sitting unmerged for at least two days
+        (as of three weeks ago, per stale internal docs) rather than a
+        generic "PRs are piling up" observation, and it is entirely outside
+        this session's ability to check or act on further.
+      - >-
+        Still unresolved, needs the account owner: (1) merge #70 (pipeline
+        research, supersedes #61/#53/#44/#36) or none of the chain; (2)
+        decide on #19 (second unattended agent fleet); (3) GitHub Actions
+        billing/quota — no successful run on any branch since 2026-07-29,
+        most consistent with an account-level cause; (4) retire or redirect
+        the recurring "research new business projects" scheduled task —
+        #70 documents eleven firings against one landed (still unmerged)
+        result; (5) submit `garmin-world-traveler-watchface` or
+        `world-clock-widget` to their stores, both built, blocked only on
+        developer-account credentials; (6) whether `local-site-studio`'s
+        standalone repo still has 6 dormant scheduled-workflow crons live
+        with provider secrets configured; (7) **new** — check whether
+        `quick-pick-survey`'s standalone repo is still accumulating
+        unmerged PRs and, specifically, whether the unauthenticated
+        participant-ranking-read fix described in its `IMPROVEMENT-PLAN.md`
+        has been merged; if that repo still has live scheduled automation
+        and paid API keys, the same spend-governance question raised for
+        `local-site-studio` applies here too, plus an unresolved security
+        bug.
+    mrr_end: null
