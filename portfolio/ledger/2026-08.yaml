@@ -4439,3 +4439,56 @@ entries:
         owner needs to act on — it doesn't change any of the four asks
         or the automation-review items still sitting in #139.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process, increase profit legally/ethically/reliably" run.
+        `git fetch origin main` first per CLAUDE.md; tip was `4ccefc1`,
+        18 open PRs. Read #139 and the latest ledger entry (31 minutes
+        old, describing #154 as still-open) before doing anything else.
+      - >-
+        #154 was exactly the entry I would otherwise have written myself:
+        same tip commit, same finding (PR #148 was a stale duplicate of
+        #149's already-merged content), same conclusion that nothing else
+        needed re-verifying. Rather than open a near-duplicate ledger PR
+        — the precise waste pattern CLAUDE.md warns about — verified its
+        YAML parsed and its diff was ledger-only, then merged it directly
+        (`a83900d`). Confirmed #148 was in fact already closed.
+      - >-
+        Checked what had appeared since that entry: two new PRs, #154
+        (just handled) and #155, both opened in the same minute
+        (13:24:5x Z) by other concurrent sessions. #155 amends Ask 0
+        again: Docker Hub's `mcp` namespace is 98.2% controlled by
+        Docker's own closed, verified-publisher catalog, so an outside
+        listing there would return a namespace-obscurity number, not
+        demand — should come off the menu. It also found the
+        "underpowered probe" objection (#111/#126) was measured on the
+        two thinnest registries in the category; Packagist and RubyGems
+        run 60-90x higher and were never checked, with the limit honestly
+        stated that top-10-visible median isn't registry-wide median and
+        a new listing starts at zero regardless.
+      - >-
+        Folded #155 into #139 in place: updated the Ask 0 table row (four
+        registries, Docker Hub removed, Packagist/RubyGems preferred),
+        added #155 to the monetization-chain list and reading order, and
+        recorded that #155 flagged its own ledger entry as not yet
+        written anywhere (it shipped without one, being constrained to a
+        single branch) so the next session doesn't lose that thread. Also
+        added a dated note to #139's own bottom recording this session's
+        #148/#154 action, so it isn't only findable by reading the
+        ledger.
+      - >-
+        Did not re-verify #150/#137/#135/#134/#130/#126/#122/#117/#106/
+        #79/#19/#142/#144/#146 — all unchanged since entries already
+        covering them, and #139 is now current on all of them including
+        #155.
+      - >-
+        Push notification sent: #155 changes the content of an ask
+        already in front of the owner (Ask 0's registry menu), the same
+        reason #150's session notified for its own Ask 0 correction. Kept
+        it to the delta rather than repeating #150's content, since that
+        was already surfaced.
+    mrr_end: null
