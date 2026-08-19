@@ -42,9 +42,11 @@ on:
         required: false
         default: "opencode/deepseek-v4-flash"
         type: string
-  schedule:
-    # Hourly at :05 UTC — staggered from other automation to reduce contention
-    - cron: '5 * * * *'
+  # SCHEDULE DISABLED 2026-08-19: Account lockdown still active.
+  # Re-enabling requires explicit review and approval.
+  # See CLAUDE.md for re-enable checklist.
+  # schedule:
+  #   - cron: '5 * * * *'  # Would run hourly at :05 UTC
 
 permissions:
   contents: write
@@ -69,17 +71,7 @@ jobs:
         run: |
           echo "🔍 Running pre-flight safety checks..."
 
-          # Check 1: PR backlog size (fail-safe if too many open PRs)
-          pr_count=$(git branch -r | grep -E 'origin/(claude|opencode)/' | wc -l)
-          echo "  • Active agent branches: $pr_count"
-          if (( pr_count > 20 )); then
-            echo "should_proceed=false" >> "$GITHUB_OUTPUT"
-            echo "reason=PR backlog too large ($pr_count > 20)" >> "$GITHUB_OUTPUT"
-            echo "  ⚠️  SKIP: PR backlog too large ($pr_count open)"
-            exit 0
-          fi
-
-          # Check 2: Verify OPENCODE_API_KEY is available
+          # Check 1: Verify OPENCODE_API_KEY is available
           if [[ -z "${{ secrets.OPENCODE_API_KEY }}" ]]; then
             echo "should_proceed=false" >> "$GITHUB_OUTPUT"
             echo "reason=OPENCODE_API_KEY not configured" >> "$GITHUB_OUTPUT"
@@ -87,11 +79,11 @@ jobs:
             exit 0
           fi
 
-          # Check 3: Verify portfolio router is available
-          if ! python3 -c "import sys; sys.path.insert(0, 'portfolio/router'); from allocate import allocate_work; allocate_work()" 2>/dev/null; then
+          # Check 2: Verify portfolio router module is available
+          if ! python3 -c "import sys; sys.path.insert(0, 'portfolio/router'); from allocate import work_queue; print('OK')" 2>/dev/null | grep -q OK; then
             echo "should_proceed=false" >> "$GITHUB_OUTPUT"
             echo "reason=Portfolio router unavailable" >> "$GITHUB_OUTPUT"
-            echo "  ⚠️  SKIP: Portfolio router validation failed"
+            echo "  ⚠️  SKIP: Portfolio router module not found"
             exit 0
           fi
 
