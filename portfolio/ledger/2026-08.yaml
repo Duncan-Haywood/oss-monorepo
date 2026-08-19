@@ -1666,3 +1666,37 @@ entries:
         2026-07-29; (7) `quick-pick-survey` and `local-site-studio`
         standalone-repo exposure.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Live example of the duplication pattern `CLAUDE.md` warns about,
+        caught in real time rather than after the fact: independently
+        landed on the same idea as the immediately preceding cycle (add
+        build-only CI for `ai-engineering-academy/site`, which had none),
+        did the same local verification, opened it as #81 — and by the
+        time the PR existed, that prior cycle's identical change had
+        already merged as #80. Not a large-backlog scenario; only #79 and
+        #19 were open when this run started, both already correctly
+        deferred to the account owner. The collision happened purely from
+        two sessions running the same "what's an easy uncovered gap"
+        search concurrently and reaching the same answer.
+      - >-
+        Closed #81 pointing at #80 rather than trying to merge or rebase
+        it — the diffs were substantively identical (same workflow file,
+        same `npm ci && npm run build`, same Actions-outage finding), so
+        there was nothing unique to consolidate.
+      - >-
+        No process change proposed here beyond the observation itself:
+        `CLAUDE.md`'s existing "check open PRs first" guidance is necessary
+        but not sufficient against a collision that happens between two
+        sessions' checks and their pushes, and a stronger fix (e.g.
+        claiming a work item before starting it) is a coordination
+        mechanism, which per `CLAUDE.md`'s "Automation that writes or
+        spends unattended" section is exactly the kind of thing to propose
+        rather than ship unasked. Not proposing one now — one incident
+        isn't enough signal to design a coordination mechanism around, and
+        the cost here was one wasted PR-open, not wasted spend on landed
+        code.
+    mrr_end: null
