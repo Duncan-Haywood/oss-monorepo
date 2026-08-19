@@ -11,6 +11,7 @@ from pathlib import Path
 from allocate import (
     Venture,
     count_ledger_entries,
+    count_portfolio_mentions,
     load_ventures,
     next_task,
     rank,
@@ -132,6 +133,23 @@ class WorkQueueTests(unittest.TestCase):
         v = make("v")
         self.assertEqual(v.ledger_entries, 0)
 
+    def test_portfolio_mentions_defaults_to_zero(self):
+        v = make("v")
+        self.assertEqual(v.portfolio_mentions, 0)
+
+    def test_queue_entries_carry_portfolio_mentions_count(self):
+        v = Venture(
+            name="v",
+            stage="prototype",
+            mrr=None,
+            monthly_cost=None,
+            monthly_cap=10,
+            protected=True,
+            portfolio_mentions=5,
+        )
+        queue = work_queue([v])
+        self.assertEqual(queue[0]["portfolio_mentions_this_period"], 5)
+
 
 class CountLedgerEntriesTests(unittest.TestCase):
     def test_counts_per_venture_across_files(self):
@@ -165,6 +183,73 @@ class CountLedgerEntriesTests(unittest.TestCase):
         self.assertIsInstance(counts, dict)
 
 
+class CountPortfolioMentionsTests(unittest.TestCase):
+    def test_counts_whole_word_slug_mentions_in_portfolio_entries(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            ledger_dir = Path(tmp)
+            (ledger_dir / "2026-08.yaml").write_text(
+                "period: 2026-08\n"
+                "entries:\n"
+                "  - venture: portfolio\n"
+                "    outcomes:\n"
+                "      - Reviewed alpha-venture's landing page copy.\n"
+                "  - venture: portfolio\n"
+                "    outcomes:\n"
+                "      - Nothing venture-specific this pass.\n"
+                "  - venture: alpha-venture\n"
+                "    outcomes: [direct entry, should not be double-counted]\n"
+            )
+            counts = count_portfolio_mentions(["alpha-venture", "beta-venture"], ledger_dir)
+        self.assertEqual(counts["alpha-venture"], 1)
+        self.assertEqual(counts["beta-venture"], 0)
+
+    def test_does_not_match_substring_inside_a_longer_slug(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            ledger_dir = Path(tmp)
+            (ledger_dir / "2026-08.yaml").write_text(
+                "period: 2026-08\n"
+                "entries:\n"
+                "  - venture: portfolio\n"
+                "    outcomes:\n"
+                "      - Worked on alpha-venture-extended only, no other venture.\n"
+            )
+            counts = count_portfolio_mentions(["alpha-venture"], ledger_dir)
+        # "alpha-venture" is a substring of "alpha-venture-extended", but a
+        # plain \b boundary would still match at the second hyphen -- '-'
+        # must be treated as part of the slug for boundary purposes so this
+        # does not falsely count as a mention of "alpha-venture".
+        self.assertEqual(counts["alpha-venture"], 0)
+
+    def test_multiple_portfolio_entries_mentioning_same_venture_all_count(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            ledger_dir = Path(tmp)
+            (ledger_dir / "2026-08.yaml").write_text(
+                "period: 2026-08\n"
+                "entries:\n"
+                "  - venture: portfolio\n"
+                "    outcomes: [Touched gamma-venture once.]\n"
+            )
+            (ledger_dir / "2026-09.yaml").write_text(
+                "period: 2026-09\n"
+                "entries:\n"
+                "  - venture: portfolio\n"
+                "    outcomes: [Touched gamma-venture again.]\n"
+            )
+            counts = count_portfolio_mentions(["gamma-venture"], ledger_dir)
+        self.assertEqual(counts["gamma-venture"], 2)
+
+    def test_missing_ledger_dir_returns_zero_counts(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            missing = Path(tmp) / "does-not-exist"
+            counts = count_portfolio_mentions(["alpha-venture"], missing)
+        self.assertEqual(counts["alpha-venture"], 0)
+
+    def test_real_ledger_dir_parses_without_raising(self):
+        counts = count_portfolio_mentions(["ai-first-markets"], LEDGER_DIR)
+        self.assertIsInstance(counts["ai-first-markets"], int)
+        self.assertGreaterEqual(counts["ai-first-markets"], 0)
+
+
 class LoadRealVenturesTests(unittest.TestCase):
     """Sanity check against the real repo layout, not just synthetic data."""
 
@@ -187,6 +272,12 @@ class LoadRealVenturesTests(unittest.TestCase):
         for v in ventures:
             self.assertIsInstance(v.ledger_entries, int)
             self.assertGreaterEqual(v.ledger_entries, 0)
+
+    def test_portfolio_mentions_are_non_negative_ints(self):
+        ventures = load_ventures(VENTURES_DIR)
+        for v in ventures:
+            self.assertIsInstance(v.portfolio_mentions, int)
+            self.assertGreaterEqual(v.portfolio_mentions, 0)
 
 
 if __name__ == "__main__":

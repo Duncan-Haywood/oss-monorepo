@@ -7,13 +7,23 @@ budget, and treating an unmeasured venture differently from one measured at
 zero. It is a read-only report over the current VENTURE.yaml files; it does
 not spend anything or write anything back.
 
-It now also reads portfolio/ledger/*.yaml to surface an informational
-`ledger_entries` count per venture (how many entries this month were
-recorded with `venture: <name>`). This is a display-only signal, not part of
-`rank()` — it undercounts ventures whose work was recorded under an
-aggregated `venture: portfolio` survey entry rather than their own name, so
-it is not reliable enough to drive ranking yet. See README.md's "Attribution
-honesty" section for why that next step is deliberately not automated yet.
+It now also reads portfolio/ledger/*.yaml to surface two informational,
+display-only counts per venture — neither is part of `rank()`:
+
+- `ledger_entries` — entries this month recorded with `venture: <name>`
+  directly. A reliable count, but as of 2026-08 only ~1 in 5 entries use it;
+  most sessions record an aggregated `venture: portfolio` survey entry
+  instead, so this alone undercounts most ventures' actual coverage.
+- `portfolio_mentions` — entries recorded under `venture: portfolio` whose
+  outcome text names this venture by its exact slug. A heuristic, not a
+  precise touch count (prose can mention a venture without any work
+  happening, or describe work without using its exact slug), but a
+  whole-word slug match against a known, distinctive set of venture names
+  has a low false-positive/negative rate and is far better than the zero
+  these entries otherwise contribute.
+
+Neither count drives ranking yet — see README.md's "Attribution honesty"
+section for why that next step is deliberately not automated.
 
 Usage:
     python3 portfolio/router/allocate.py           # table
@@ -23,6 +33,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -53,6 +64,7 @@ class Venture:
     kill_criteria: list = field(default_factory=list)
     hypotheses: list = field(default_factory=list)
     ledger_entries: int = 0
+    portfolio_mentions: int = 0
 
     @property
     def untested_hypothesis(self) -> Optional[str]:
@@ -105,19 +117,68 @@ def count_ledger_entries(ledger_dir: Path = LEDGER_DIR) -> dict[str, int]:
     return counts
 
 
+def count_portfolio_mentions(
+    venture_names: list[str], ledger_dir: Path = LEDGER_DIR
+) -> dict[str, int]:
+    """Count `venture: portfolio` entries whose outcome text names each venture.
+
+    `count_ledger_entries` only counts entries filed directly under a
+    venture's own name, which as of 2026-08 is a small minority (~20%) of
+    entries -- most sessions that touch several ventures in one pass record
+    a single aggregated `venture: portfolio` entry instead, and those
+    contribute nothing to the per-venture count. This recovers a heuristic
+    signal from that majority: for each `venture: portfolio` entry, a
+    venture is counted once if its exact slug appears as a whole word
+    anywhere in that entry's `outcomes` text. Venture slugs
+    (`ai-first-markets`, `retail-pilot-intel`, ...) are distinctive enough
+    that false-positive substring matches are unlikely; this is still a
+    heuristic, not a precise touch count, which is why it is reported
+    separately from `ledger_entries` rather than merged into it.
+    """
+    counts: dict[str, int] = {name: 0 for name in venture_names}
+    # Venture slugs are hyphenated (e.g. "ai-first-markets"), and a plain
+    # \b boundary treats '-' as a non-word character -- it would match
+    # "alpha-venture" inside "alpha-venture-extended" at the second hyphen.
+    # Treat '-' as part of the "word" for boundary purposes instead, so a
+    # slug only matches when it is not itself part of a longer slug.
+    patterns = {
+        name: re.compile(r"(?<![\w-])" + re.escape(name) + r"(?![\w-])")
+        for name in venture_names
+    }
+    if not ledger_dir.is_dir():
+        return counts
+    for ledger_path in sorted(ledger_dir.glob("*.yaml")):
+        data = yaml.safe_load(ledger_path.read_text()) or {}
+        for entry in data.get("entries") or []:
+            if entry.get("venture") != "portfolio":
+                continue
+            text = "\n".join(str(o) for o in entry.get("outcomes") or [])
+            for name, pattern in patterns.items():
+                if pattern.search(text):
+                    counts[name] += 1
+    return counts
+
+
 def load_ventures(
     ventures_dir: Path = VENTURES_DIR, ledger_dir: Path = LEDGER_DIR
 ) -> list[Venture]:
     ledger_counts = count_ledger_entries(ledger_dir)
-    ventures = []
-    for venture_dir in sorted(p for p in ventures_dir.iterdir() if p.is_dir()):
+    venture_dirs = sorted(p for p in ventures_dir.iterdir() if p.is_dir())
+    names = []
+    parsed = []
+    for venture_dir in venture_dirs:
         yaml_path = venture_dir / "VENTURE.yaml"
         if not yaml_path.is_file():
             continue
         data = yaml.safe_load(yaml_path.read_text()) or {}
+        name = data.get("name", venture_dir.name)
+        names.append(name)
+        parsed.append((name, data))
+    mention_counts = count_portfolio_mentions(names, ledger_dir)
+    ventures = []
+    for name, data in parsed:
         economics = data.get("economics") or {}
         budget = data.get("budget") or {}
-        name = data.get("name", venture_dir.name)
         ventures.append(
             Venture(
                 name=name,
@@ -129,6 +190,7 @@ def load_ventures(
                 kill_criteria=data.get("kill_criteria") or [],
                 hypotheses=data.get("hypotheses") or [],
                 ledger_entries=ledger_counts.get(name, 0),
+                portfolio_mentions=mention_counts.get(name, 0),
             )
         )
     return ventures
@@ -180,6 +242,7 @@ def work_queue(ventures: list[Venture]) -> list[dict]:
             "task": next_task(v),
             "spend_ceiling_usd": v.monthly_cap,
             "ledger_entries_this_period": v.ledger_entries,
+            "portfolio_mentions_this_period": v.portfolio_mentions,
         }
         for v in rank(ventures)
     ]
@@ -197,12 +260,16 @@ def print_table(ventures: list[Venture], queue: list[dict]) -> None:
         f"Target split per README.md: {EXPLORE_SPLIT_LATER:.0%} later-stage / "
         f"{EXPLORE_SPLIT_EARLY:.0%} early-stage\n"
     )
-    print(f"{'#':<3}{'venture':<32}{'stage':<12}{'cap':>6}{'ledger':>8}  task")
+    print(
+        f"{'#':<3}{'venture':<32}{'stage':<12}{'cap':>6}"
+        f"{'ledger':>8}{'mentions':>10}  task"
+    )
     for i, item in enumerate(queue, 1):
         print(
             f"{i:<3}{item['venture']:<32}{item['stage']:<12}"
             f"{item['spend_ceiling_usd']:>6.0f}"
-            f"{item['ledger_entries_this_period']:>8}  {item['task']}"
+            f"{item['ledger_entries_this_period']:>8}"
+            f"{item['portfolio_mentions_this_period']:>10}  {item['task']}"
         )
 
 
