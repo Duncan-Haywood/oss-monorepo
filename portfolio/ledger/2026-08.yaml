@@ -6526,3 +6526,67 @@ entries:
         are agent-coordination housekeeping, not new owner-facing
         decisions or CI failures.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        fresh branch with no PR of its own. `git fetch origin main`
+        first; tip `7e2c814` (#228, the current ledger/#139 state),
+        confirmed unchanged before touching anything. Read the 15 open
+        PRs and issue #139's current body against that tip.
+      - >-
+        Found two PRs opened in the ~2 minutes before this session
+        started, neither reflected in #139 yet: **#229** (advances the
+        #218/#219/#225 probe chain by measuring the funnel's *exit*
+        rather than its entrance) and **#230** (router tooling: recovers
+        per-venture signal from `venture: portfolio` aggregated ledger
+        entries, which the router previously couldn't attribute at all).
+      - >-
+        Verified both directly rather than trusting their descriptions.
+        #229: three-dot diff against `main`
+        (`git diff origin/main...origin/claude/laughing-pasteur-qvk1n3`)
+        confirms 3 new files only, no ledger touch — a naive two-dot
+        diff misleadingly shows a 53-line ledger deletion because the
+        branch predates several since-merged ledger PRs, but the
+        three-dot diff against the actual merge-base is clean. Finding:
+        ~92% of npm listings reaching top-decile discovery have no
+        price, statistically indistinguishable from the control group
+        (7.5% vs 10.0% commercial, overlapping 95% CIs) — discovery does
+        not raise the odds a listing can charge, and 11 of the 15
+        winners that do charge are companies with pre-existing
+        distribution, not independent listings like this portfolio's
+        candidates. Reinforces #219's "no revenue path without Ask 2"
+        rather than revising any ranking.
+      - >-
+        #230: checked out the branch in a worktree and ran the tests
+        myself rather than trusting the PR's reported numbers —
+        `python3 -m unittest discover -s portfolio/router -t
+        portfolio/router` → 29/29 pass, `python3
+        portfolio/router/validate.py` → all 11 `VENTURE.yaml` valid.
+        Read the full `allocate.py` diff: `rank()` is genuinely
+        untouched, this only adds a `portfolio_mentions` display
+        field/JSON key via whole-slug-token matching. Low risk, but it's
+        router code, not doc/CI-wiring/dependency-audit — left as the
+        owner's call, matching the PR's own explicit flag rather than
+        self-merging on this session's own judgment.
+      - >-
+        Posted both as a comment on #139 rather than a body edit, per
+        the same-minute concurrent-edit collision this issue has hit
+        repeatedly today (its own top note already warns of this).
+      - >-
+        Did not touch #191/#208/#222 (Next.js chain, still the owner's
+        merge call), #19/#144/#192/#175 (automation/spend proposals,
+        unchanged), #166/#177/#207/#218/#219/#225 (monetization chain,
+        unchanged), or Asks 0-7 on #139 (all still owner-blocked,
+        unchanged — neither #229 nor #230 changes any ask or ranking).
+        Did not re-run the pipeline/research screening brief — the
+        `CLAUDE.md` intake gate still applies and #229 adds no
+        candidate.
+      - >-
+        No push notification for this entry: verifying two new PRs and
+        confirming neither changes any ranking or ask is routine tracker
+        upkeep, not a new owner-facing decision or CI failure.
+    mrr_end: null
