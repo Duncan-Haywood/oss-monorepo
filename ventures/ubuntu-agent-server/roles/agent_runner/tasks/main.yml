@@ -12,12 +12,10 @@
     suites: stable
     components: main
     signed_by: "https://cli.github.com/packages/githubcli-archive-keyring.gpg"
-  register: ghcli_repo
+  notify: Update apt cache after adding GitHub CLI repo
 
-- name: Update apt cache after adding GitHub CLI repo
-  ansible.builtin.apt:
-    update_cache: true
-  when: ghcli_repo.changed
+- name: Flush handlers so the just-added apt repo is usable immediately
+  ansible.builtin.meta: flush_handlers
 
 - name: Install gh CLI
   ansible.builtin.apt:
@@ -26,7 +24,7 @@
 
 - name: Check whether gitleaks is already installed
   ansible.builtin.command: gitleaks version
-  register: gitleaks_check
+  register: agent_runner_gitleaks_check
   failed_when: false
   changed_when: false
 
@@ -39,19 +37,19 @@
 # should be in a few months; this is a reasonable default today, not a
 # permanent choice.
 - name: Install gitleaks (secret scan before any push — see agent_runner.py)
-  when: (gitleaks_check.rc | default(1)) != 0
+  when: (agent_runner_gitleaks_check.rc | default(1)) != 0
   block:
     - name: Resolve latest gitleaks release
       ansible.builtin.uri:
         url: https://api.github.com/repos/gitleaks/gitleaks/releases/latest
         return_content: true
-      register: gitleaks_latest
+      register: agent_runner_gitleaks_latest
 
     - name: Download gitleaks
       ansible.builtin.get_url:
         url: >-
-          https://github.com/gitleaks/gitleaks/releases/download/{{ gitleaks_latest.json.tag_name }}/gitleaks_{{
-          gitleaks_latest.json.tag_name | regex_replace('^v', '') }}_linux_x64.tar.gz
+          https://github.com/gitleaks/gitleaks/releases/download/{{ agent_runner_gitleaks_latest.json.tag_name }}/gitleaks_{{
+          agent_runner_gitleaks_latest.json.tag_name | regex_replace('^v', '') }}_linux_x64.tar.gz
         dest: /tmp/gitleaks.tar.gz
         mode: "0644"
 
@@ -157,7 +155,7 @@
   ansible.builtin.command: gh auth status
   become: true
   become_user: "{{ agent_user }}"
-  register: gh_auth_status
+  register: agent_runner_gh_auth_status
   changed_when: false
   failed_when: false
 
@@ -168,11 +166,11 @@
       can't create PRs or read issues until you fix that. SSH in and run
       `gh auth login` (device-code flow works fine over SSH), then
       `gh auth setup-git` so plain `git clone`/`push` also use it.
-  when: "'Logged in' not in gh_auth_status.stdout"
+  when: "'Logged in' not in agent_runner_gh_auth_status.stdout"
 
 - name: Load repos.yml for status reporting
   ansible.builtin.set_fact:
-    configured_repos: "{{ (lookup('file', playbook_dir + '/config/repos.yml') | from_yaml).repos | default([]) }}"
+    agent_runner_configured_repos: "{{ (lookup('file', playbook_dir + '/config/repos.yml') | from_yaml).repos | default([]) }}"
 
 - name: Repos.yml status
   ansible.builtin.debug:
@@ -180,7 +178,7 @@
       config/repos.yml (in this repo) currently has no repos configured —
       the agent runner has nothing to do until you add some there and
       re-run this playbook.
-  when: configured_repos | length == 0
+  when: agent_runner_configured_repos | length == 0
 
 - name: Kill switch status
   ansible.builtin.debug:

@@ -1,0 +1,4 @@
+---
+- name: Update apt cache after adding NodeSource repo
+  ansible.builtin.apt:
+    update_cache: true

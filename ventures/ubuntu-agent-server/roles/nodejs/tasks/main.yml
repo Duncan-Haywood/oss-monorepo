@@ -7,12 +7,10 @@
     suites: nodistro
     components: main
     signed_by: "https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key"
-  register: nodesource_repo
+  notify: Update apt cache after adding NodeSource repo
 
-- name: Update apt cache after adding NodeSource repo
-  ansible.builtin.apt:
-    update_cache: true
-  when: nodesource_repo.changed
+- name: Flush handlers so the just-added apt repo is usable immediately
+  ansible.builtin.meta: flush_handlers
 
 - name: Install Node.js
   ansible.builtin.apt:
@@ -31,14 +29,14 @@
   ansible.builtin.command: npm config get prefix
   become: true
   become_user: "{{ agent_user }}"
-  register: npm_prefix
+  register: nodejs_npm_prefix
   changed_when: false
 
 - name: Point npm's global prefix at the user-writable dir
   ansible.builtin.command: "npm config set prefix /home/{{ agent_user }}/.npm-global"
   become: true
   become_user: "{{ agent_user }}"
-  when: npm_prefix.stdout.strip() != '/home/' + agent_user + '/.npm-global'
+  when: nodejs_npm_prefix.stdout.strip() != '/home/' + agent_user + '/.npm-global'
   changed_when: true
 
 - name: Add npm global bin to PATH in .profile
