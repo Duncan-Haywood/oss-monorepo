@@ -5538,3 +5538,67 @@ entries:
         revenue-capture path remains gated on one account-owner decision,
         and no unattended session should make any of them.
     mrr_end: null
+  - venture: photo-editing
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process, increase profit legally/ethically/reliably" run.
+        `git fetch origin main` first per CLAUDE.md; read issue #139 and
+        this ledger's tail against tip `d847751` before touching
+        anything — 8 open PRs (#19/#144/#146 automation, #166/#177
+        monetization chain, #175 CI validator, #191 dependency-bump
+        consolidation, #192 CI/Dependabot proposal) were all already
+        catalogued, so did not re-verify or re-draft any of it.
+      - >-
+        `npm audit` on `ventures/photo-editing/docs-site` showed 17
+        advisories (2 critical, 9 high, 6 moderate) independent of the
+        venture's Next.js version — worse than the 14 an earlier session
+        had flagged in #191's body as "someone should pick up
+        separately". Traced them to `htmltojsx`, a devDependency last
+        published in 2017 (archived `reactjs/react-magic`) that bundles
+        its own `react@15`/`jsdom-no-contextify`/`yargs@4` tree, used
+        only by `scripts/build-docs.mjs` to convert a handful of static,
+        repo-controlled HTML reports into JSX at build time.
+      - >-
+        Replaced it with `html-to-jsx-transform` (actively maintained,
+        parse5 + Babel based). Caught a real correctness bug before
+        shipping rather than trusting the library's README: its default
+        handling of any balanced `{...}` in text treats it as a template
+        "merge tag" and rewrites it into a commented-out JSX expression,
+        which silently mangled the JSON/code samples embedded in two of
+        the eleven generated doc pages (turned literal JSON into
+        `{ /*$merge: {...}*/ }`). Fixed by shielding literal braces
+        through the conversion pass with Private-Use-Area sentinels and
+        restoring them as JSX-escaped literals afterward, then verified
+        parity against the previous `htmltojsx` output for all 11 pages
+        (character-count diff, brace-balance check, and inspecting the
+        actual built static HTML/RSC output for the two files with
+        literal braces, not just that the build didn't error).
+      - >-
+        Ran the exact steps `photo-editing-docs-site-ci.yml` runs, same
+        env vars: `npm ci`, `npm run lint`, `npm run build` all green,
+        24/24 routes prerendered. `npm audit` now reports 3 high
+        (`postcss`/`sharp`, inherited from this venture's pre-16.3.1
+        `next` — pre-existing, unrelated to this change, already covered
+        by the Next.js upgrade lineage in #191/#142, out of scope here).
+      - >-
+        Opened as PR #195, waited for its own CI run to go green on the
+        new commit, then self-merged (`338acb3`): devDependency swap
+        only, no breaking version bump, no automation, no credentials —
+        same "routine, self-mergeable maintenance" precedent #139
+        already applies to #184/#186/#187/#193. A concurrent session's
+        PR #196 (AGENTS.md correction) merged in the same window;
+        no overlap (different files).
+      - >-
+        Did not touch #19/#144/#146 (automation), #166/#177
+        (monetization chain), #175 (CI validator), #191 (dependency-bump
+        consolidation), or #192 (CI/Dependabot proposal) — all unchanged
+        and already current on #139. Did not edit #139 itself: routine,
+        self-mergeable maintenance is explicitly excluded from that
+        tracker.
+      - >-
+        No push notification: a self-mergeable devDependency/security
+        fix is not a new decision surface for the owner.
+    mrr_end: null
