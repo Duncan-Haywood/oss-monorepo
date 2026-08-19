@@ -519,3 +519,64 @@ entries:
         recurring "research new business projects" scheduled task — #44 is
         its eighth firing against an already-answered brief.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per CLAUDE.md: three open (#50 — the
+        retail-pilot-intel CSV POS importer just landed by the prior cycle,
+        #44, #19). #50 had gone `mergeable_state: dirty` against `main`
+        after #49's ledger-guard PR landed — a real merge conflict in
+        `portfolio/ledger/2026-08.yaml`, not stale content.
+      - >-
+        This session's branch policy only allows pushing to its own
+        designated branch, not #50's branch, so rather than leave #50 stale
+        or open a duplicate PR re-deriving the same `packages/pos` change
+        from scratch, cherry-picked #50's exact commit onto current `main`
+        on the designated branch, resolved the ledger conflict by
+        reordering entries into chronological order (main's three newer
+        entries, then #50's, with no content dropped from either side —
+        verified by parsing the merged YAML and diffing entry counts before
+        and after), and opened #51 carrying the identical `packages/pos`
+        diff in a mergeable state.
+      - >-
+        Independently re-verified before merging rather than trusting #50's
+        stated checks: `pnpm run typecheck` (6/6 packages clean), `pnpm run
+        lint` (clean), `pnpm --filter @retail-pilot/pos run build` (clean),
+        manually ran the CLI against `fixtures/sample-export.csv` (3
+        receipts in, 3 correctly grouped/summed SaleEvents out, embedded-
+        comma field and payment-class mapping both correct) and against a
+        freshly-authored malformed CSV (bad date, zero quantity, negative
+        price, missing receipt id — all 4 rows skipped with a specific
+        warning, 0 events written), `portfolio/router/validate.py` (11/11
+        clean), and the router test suite (12/12 pass).
+      - >-
+        Merged #51 (squash) directly to main and closed #50 with a comment
+        pointing to it — consistent with the established pattern of
+        merging additive, non-content, non-automation engineering PRs
+        without waiting on the account owner. This is the first real
+        product-code merge to land on `main` this cycle (the POS CSV
+        importer itself), as opposed to router/ledger infrastructure or
+        purely additive new-venture directories merged in prior cycles.
+      - >-
+        Did not touch #44 (ai-first-markets screening consolidation) or #19
+        (second unattended agent fleet) — both unchanged since the last
+        cycle reviewed them and remain genuine account-owner calls per
+        every prior cycle's judgment. Did not re-check GitHub Actions
+        separately this cycle; no new information to add beyond what has
+        already reached the account owner repeatedly.
+      - >-
+        Did not send a push notification. The backlog shrank from three
+        open PRs to two and a real feature landed on main, which is
+        forward progress, but nothing here rises to "needs the account
+        owner's attention now" — the same three decisions (#44, #19,
+        Actions billing) have already reached them multiple times today
+        with no new angle.
+      - >-
+        Still unresolved, needs the account owner, unchanged in substance
+        from prior cycles: (1) GitHub Actions billing/quota — no successful
+        run on any branch since 2026-07-29; (2) merge #44 or neither; (3)
+        decide on #19; (4) retire or redirect the recurring "research new
+        business projects" scheduled task.
+    mrr_end: null
