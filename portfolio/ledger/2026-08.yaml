@@ -5981,3 +5981,60 @@ entries:
         temporarily-dropped tracker section is a same-session correction,
         not a new decision surface.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process"
+        scheduled session. Checked open PRs (9) and issue #139 (the
+        living decision tracker, current as of ~19:30 UTC today) before
+        starting; every substantive item on it is already either merged
+        or explicitly waiting on the account owner, and #139 itself
+        shows at least three concurrent sessions editing it within the
+        same few minutes — so did not re-derive or duplicate anything
+        already tracked there.
+      - >-
+        Found a smaller, previously-missed gap while reading the
+        pipeline docs directly (not via #139): merged ledger PR #96
+        (2026-08-19) discovered that eaa-remediation-pipeline's and
+        shopify-a11y-evidence's targeted buyer (small German/Swedish
+        shops; Shopify's merchant base generally) is largely exempt from
+        EAA service-accessibility requirements under Art. 4(5)/BFSG §3
+        (EU microenterprises: <10 employees and turnover/balance sheet
+        <=EUR2M). #96 was ledger-only and explicitly did not edit the
+        candidate files, since at the time they existed only on the
+        unmerged #79 branch. #79 has since merged to main, so the
+        candidate docs now exist for real, but nobody had folded the
+        already-approved finding back into them — a future session or
+        the account owner reading eaa-remediation-pipeline.md directly
+        would still see the original, uncorrected buyer targeting.
+      - >-
+        Fixed in PR #211 (self-merged as routine, non-decision doc
+        maintenance, same precedent as prior docs/CI fixes on this
+        repo): added a buyer-segment correction to
+        eaa-remediation-pipeline.md re-targeting to shops >=10 employees
+        or >EUR2M turnover, updated its first-experiment screening
+        criteria so outreach doesn't just re-fill the exempt segment,
+        and added a shorter buyer-segment note plus a copy-writing
+        caution to shopify-a11y-evidence.md. Not a re-score — verdicts
+        and composite scores unchanged; this tightens targeting in the
+        direction the existing ethical-robustness/liability dimensions
+        already assumed. Docs-only, no ventures/ directory, no spend, no
+        ledger hunk in that PR (kept separate from this entry per the
+        ledger-discipline rule in CLAUDE.md).
+      - >-
+        Also checked portfolio/pipeline/channel-inventory.md's "agent
+        may publish a free listing" allowance before considering
+        whether to act on it: that document's own recommended next
+        action requires a one-time account-owner approval to publish
+        anything under the portfolio's name at all (not yet given, and
+        not yet on #139's ask table), so no listing was built or
+        published this session — flagging that as a gap worth adding to
+        #139's ask table in a future pass, not acting on it unapproved.
+      - >-
+        No push notification for this entry: no new owner decision
+        surfaced, no CI failure, no blocker — a small, already-merged,
+        self-contained doc correction plus a scan confirming nothing
+        else in #139 needed re-deriving.
+    mrr_end: null
