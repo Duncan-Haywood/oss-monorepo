@@ -1279,36 +1279,58 @@ entries:
         merge, +4 outcomes from #55, +5 outcomes from #60, +6 outcomes from
         this entry — no content dropped from any of the three).
       - >-
-        Independently re-confirmed the Actions `startup_failure` is still
-        live and unchanged in cause: pulled the last 8 workflow runs on
-        `main` directly (not from a prior cycle's summary) — all 8 are
-        `BuildFailed` / `startup_failure`, spanning 2026-08-19T00:28Z
-        through 01:57Z. One of those 8 has `event: schedule` (the
-        01:40:34Z run), which is new information refining #55's finding:
-        the suspect hourly cron is not merely present but is actually
-        firing on schedule and failing at startup every time, not just on
-        push/PR events as the sample #55 checked showed. Still did not
-        disable or edit `opencode-high-throughput.yml` — same reasoning as
-        every prior cycle: this is exactly the human-reviewed,
-        unattended-paid-automation decision CLAUDE.md reserves for the
-        account owner, and three consecutive cycles choosing not to
-        override that on their own judgment is itself a signal worth
-        preserving, not grounds to be the fourth to second-guess it.
+        Correction, superseding this entry's earlier draft and #55's
+        central claim: while two other sessions were consolidating the same
+        three PRs concurrently (see next entry), one of them (PR #62)
+        found evidence that refutes the "`opencode-high-throughput.yml`'s
+        pinned third-party action" root-cause theory this entry and #55 had
+        carried. Independently re-verified rather than trusted:
+        `.github/workflows/portfolio-validate.yml` — a workflow created
+        *after* `opencode-high-throughput.yml` (2026-08-19T01:25:37+03:00
+        vs. 2026-08-18T21:42:42+03:00), using only official, unpinned
+        actions (`actions/checkout@v4`, `actions/setup-python@v5`), no
+        third-party reference at all — has exactly one run on record, id
+        `32197159797`, triggered by `workflow_dispatch` (the account owner
+        manually running it, not a cron), and it too shows `conclusion:
+        startup_failure`. A workflow file with no plausible syntax or
+        action-resolution problem, manually dispatched by the account owner
+        themselves, failing identically rules out a bad reference in any
+        one file and points at an account-level cause instead — Actions
+        billing, quota, or a repo/org-level Actions restriction, as earlier
+        cycles guessed before #55 (reasonably, but incorrectly) narrowed it
+        to one file.
       - >-
-        Did not send a push notification for the Actions finding alone —
-        it refines rather than changes #55's already-delivered root-cause
-        report (same suspect file, same conclusion, one more data point).
+        Also confirmed via the Actions API (workflow id `337234310`) that
+        `opencode-high-throughput.yml` has zero runs ever recorded — not
+        merely zero recent ones — meaning it has never actually executed a
+        job, scheduled or otherwise, since it was added. Combined with the
+        above, there is no evidence of live unattended spend from this
+        workflow, and no evidence it is the cause of the outage either.
+        Still did not disable or edit it unilaterally: whether to pause,
+        fix, or remove already-live paid automation remains the
+        human-reviewed decision CLAUDE.md's automation-governance section
+        reserves for the account owner, independent of whether it turns out
+        to be the Actions outage's cause.
       - >-
-        Still unresolved, needs the account owner, unchanged in substance
-        from prior cycles: (1) GitHub Actions blocked repo-wide, very
-        likely by `.github/workflows/opencode-high-throughput.yml` firing
-        hourly and failing at startup every time — recommend checking the
-        Actions tab for the actual GitHub-rendered parse error, or pausing
-        its `schedule` trigger, to confirm and fix; (2) merge this PR
-        (supersedes #53, #55, #60, and #61) or none of them; (3) decide on
-        #19; (4) whether an agent session may publish a free channel
-        listing per #61's proposal, and whether to establish one payout
-        rail, both per #61; (5) submit `garmin-world-traveler-watchface` or
-        `world-clock-widget` to their respective app stores, both built,
-        blocked only on developer-account credentials.
+        Sent a push notification for this correction: it reverses a
+        specific, actionable claim (which file to check/disable) that had
+        already been delivered to the account owner once as fact, with a
+        more accurate one (account-level, not file-level) — allowing a
+        wrong diagnosis to stand uncorrected would waste the account
+        owner's time checking the wrong file.
+      - >-
+        Still unresolved, needs the account owner, corrected from prior
+        cycles' file-specific guess: (1) GitHub Actions has not run
+        successfully on any branch, via any trigger including manual
+        `workflow_dispatch`, since 2026-07-29 — ruled out a specific
+        workflow file as the cause; most consistent with account-level
+        Actions billing, quota, or a repo/org Actions restriction, needs
+        the Actions tab or billing page directly, nothing further to
+        diagnose from inside a session; (2) merge this PR (supersedes #53,
+        #55, #60, and #61) or none of them; (3) decide on #19; (4) whether
+        an agent session may publish a free channel listing per #61's
+        proposal, and whether to establish one payout rail, both per #61;
+        (5) submit `garmin-world-traveler-watchface` or `world-clock-widget`
+        to their respective app stores, both built, blocked only on
+        developer-account credentials.
     mrr_end: null
