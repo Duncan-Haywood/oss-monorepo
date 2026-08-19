@@ -2686,3 +2686,60 @@ entries:
         surfaced (check GitHub Settings → Billing/Security), so a second
         phone ping would not give the account owner anything new to act on.
     mrr_end: null
+  - venture: local-site-studio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain the development process,
+        strategic" run. `git fetch origin main` first — 2 open PRs (#79,
+        #19), both re-checked within the last ~hour per the immediately
+        preceding ledger entries and unchanged (still correctly left to
+        the account owner); did not re-verify or re-comment on either.
+      - >-
+        Item (5) from the standing unresolved list — this venture's 3
+        remaining high-severity npm audit advisories (next/postcss/sharp,
+        transitive via a pinned `next@16.2.9`) — has been carried forward
+        across multiple cycles as blocked on "the Next 16.3.1 test-type
+        regression fix there specifically" (Stripe-typed test fixtures
+        broke on that exact bump in an earlier cycle). Re-attempted it
+        directly instead of re-flagging it again.
+      - >-
+        Verified the baseline first: `npm install`, `npm run typecheck`
+        (0 errors), `npm test` (1207/1207 passing, 124 files), `npm run
+        lint` (clean) all green on the pinned `next@16.2.9`. Ran `npm
+        audit fix --force` (bumps `next` to `16.3.1`, same jump that
+        regressed this venture before) and re-ran the full pipeline:
+        typecheck clean, lint clean, 1207/1207 tests still passing,
+        `npm run build` production build succeeds (31 routes, including
+        the Stripe-touching `/api/stripe/*` and `/checkout*` routes).
+        `npm audit` now reports 0 vulnerabilities (was 3 high). The
+        previously-reproducing Stripe-typed test fixture regression did
+        not reproduce this time — most likely a transitive Stripe-types
+        dependency has since picked up a compatible patch release; not
+        independently root-caused beyond confirming the full pipeline is
+        clean before and after. Diff is minimal and mechanical:
+        `package.json` (one line) and `package-lock.json` (dependency
+        resolution only), matching the same pattern already applied to
+        `quick-pick-survey` in #100. Opened as its own PR rather than
+        bundled with this ledger entry, per the ledger-discipline rule
+        `CLAUDE.md` now carries (from #79) about not bundling an
+        append-only ledger file into a PR that might need to wait.
+      - >-
+        Did not send a push notification: routine, low-risk, additive
+        security-patch engineering with a verified clean pipeline before
+        and after, no different in kind from the `quick-pick-survey` fix
+        that also didn't warrant one.
+      - >-
+        Still unresolved, needs the account owner, unchanged in substance
+        from prior cycles: (1) GitHub Actions billing/quota — no
+        successful run on any branch since 2026-07-29, confirmed still
+        broken as of commit 77ce6cc after #99 merged; (2) merge #79
+        (candidate pipeline) or decide not to; (3) decide on #19; (4)
+        whether local-site-studio's standalone repo still has dormant
+        scheduled agent-fleet crons live with provider secrets configured,
+        per an earlier cycle's finding; (5) now resolved by this entry —
+        removed from the list; (6) retire or redirect the recurring
+        "research new business projects" scheduled task, per #79's
+        explicit ask ("twelve firings, one answer").
+    mrr_end: null
