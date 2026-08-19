@@ -22,3 +22,8 @@ Two rules that keep this useful:
    signal the router has.
 2. **Record outcomes even when they are nothing.** "Spent $80, nothing shipped"
    is the single most valuable row in this file.
+
+See `CLAUDE.md`'s "Ledger discipline" section for two situations this file
+alone doesn't cover: never bundling an entry into a PR that's waiting on the
+account owner, and what a session constrained to a single such branch should
+do instead of skipping the record entirely.

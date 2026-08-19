@@ -120,6 +120,21 @@ that repeats the exact waste this section exists to prevent. Only add a new
 entry when you have something the latest one doesn't: a new PR, a changed
 finding, or an action you actually took.
 
+**Single-branch sessions with a decision-pending PR: record on the tracker
+issue, not the ledger.** A session constrained to one designated branch that
+already carries a PR waiting on the account owner cannot append a ledger
+hunk without violating the rule above (it would make that PR un-mergeable
+within the hour). This was hit twice — PRs #155 and #177 — and each flagged
+it as an open question ("worth deciding whether single-branch sessions get
+an exemption, a second branch, or a different record surface") rather than
+an answered one. It is answered: comment the outcome on the living
+decision-tracker issue (#139 as of 2026-08-19) instead of writing a ledger
+entry, and say so explicitly in the PR body, the way PR #175's session did.
+A later session with ledger-writing room folds the comment into a proper
+entry during its next pass, the same way PR #176 folded in #175's finding.
+Do not re-flag this as an unresolved structural question — it is a standing
+answer, not a gap to escalate again.
+
 ## Never write `fixes #N` / `closes #N` about someone else's PR
 
 GitHub treats `close`, `closes`, `closed`, `fix`, `fixes`, `fixed`, `resolve`,
