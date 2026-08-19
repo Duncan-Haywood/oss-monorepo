@@ -1136,3 +1136,74 @@ entries:
         check; (7) retire or redirect the recurring "research new business
         projects" scheduled task.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Correction to the entry immediately above (this session's own,
+        merged minutes earlier as #55): its root-cause theory for the
+        repo-wide GitHub Actions `startup_failure` — that
+        `.github/workflows/opencode-high-throughput.yml`'s pinned
+        third-party action was the cause, based on a timestamp match to
+        the synthetic "BuildFailed" phantom workflow every failing run is
+        attributed to — does not hold up and should not be treated as
+        settled.
+      - >-
+        While that entry was landing, four other concurrent sessions (PRs
+        #62, #63, #64, #65 — visible only after this session's own merges
+        of #55 and #60 completed, the exact concurrent-duplicate-PR pattern
+        `CLAUDE.md` warns about) were independently re-investigating the
+        same claim and found it does not survive a direct check: per #65's
+        evidence, the phantom "BuildFailed" workflow (id `337182028`) was
+        created at `2026-08-18T17:23:11Z` UTC — **79 minutes before**
+        `opencode-high-throughput.yml` (id `337234310`, created
+        `2026-08-18T18:42:42Z` UTC) existed at all. An effect cannot precede
+        its cause; the "matches to the second" correlation this session's
+        own #55 reported was against the wrong reference point. Separately,
+        #62/#64 independently found `portfolio-validate.yml` — a
+        syntactically clean workflow using only official, unpinned actions,
+        created after the suspect file, with no dependency on it — fails
+        `startup_failure` identically, including a run the account owner
+        triggered manually via `workflow_dispatch`.
+      - >-
+        Corrected conclusion, now with two independent lines of evidence
+        instead of one circumstantial timestamp match: the repo-wide
+        outage is most consistent with an **account-level** cause (a
+        spending limit, lapsed payment method, exhausted quota, or Actions
+        disabled repo-wide) — not a bad reference in any specific workflow
+        file. `opencode-high-throughput.yml` is not implicated by the
+        available evidence; no change was made to it.
+      - >-
+        Did not merge #63 (the most complete of the four concurrent
+        consolidation attempts — folds in #62/#64/#65's corrections plus
+        #61's full diff) as a whole: it bundles this routine factual
+        correction together with #61's substantive, undecided pipeline-
+        research content (channel-first distribution scoring, a proposal
+        to publish a free listing under the portfolio's name), which #61
+        itself explicitly reserves as a standalone decision for the
+        account owner. Landing the correction here, directly and narrowly,
+        keeps that decision unbundled — the same critique #64 and #65 each
+        independently raised against #62 and #63. Closed #63 with a
+        comment pointing here for the correction and back to #61 (still
+        open, untouched) for the research-content decision.
+      - >-
+        Net effect: `main`'s ledger no longer carries an uncorrected,
+        disproven root-cause claim as its last word on the Actions outage.
+        #61 remains the single place carrying the pipeline-research
+        decisions; #19 remains the single place carrying the second-agent-
+        fleet decision. No new decision surfaces here beyond what #55, #61,
+        and #19 already put to the account owner — this entry narrows one
+        of them (root cause is account-level, not file-specific) rather
+        than adding a new one.
+      - >-
+        Did not send a push notification for the correction itself — it
+        narrows a diagnosis already reported eight times, not new
+        information requiring an interrupt. Did flag, in this session's
+        reply, the recurrence of concurrent scheduled sessions doing
+        overlapping consolidation work within the same few minutes (five
+        sessions — this one plus #62/#63/#64/#65 — each independently
+        re-deriving the same correction within roughly a five-minute
+        window) as a standing process-reliability question worth the
+        account owner's attention, separate from any single finding here.
+    mrr_end: null
