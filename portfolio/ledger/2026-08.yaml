@@ -2686,14 +2686,72 @@ entries:
         surfaced (check GitHub Settings → Billing/Security), so a second
         phone ping would not give the account owner anything new to act on.
     mrr_end: null
+  - venture: photo-editing
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain the development process" run.
+        `git fetch origin main` first per CLAUDE.md; unchanged since the
+        prior entry (#101, recording that pausing the OpenCode fleet did
+        not resolve the Actions outage). Open PRs unchanged (#79, #19),
+        both already reviewed in prior entries with nothing new to add;
+        re-confirmed GitHub Actions is still `startup_failure` on every
+        run through the current main tip (58 most recent runs checked),
+        unchanged since it was root-caused as account-level in #101 — not
+        re-notified, since that fact has already reached the account owner
+        multiple times.
+      - >-
+        Picked up a gap an earlier cycle flagged and deferred: this
+        venture's `AGENTS.md` documented lint state (2 unused imports, 8
+        mypy notes) had drifted from reality. `ruff check src/ tests/`
+        found 5 F401 findings: 2 genuinely dead test imports (removed),
+        and 3 in `src/shootflow/pilot_authority.py` that turned out to be
+        a deliberate re-export shim consumed by `pilot_dashboard.py`,
+        `pilot_cohort_report.py`, and `pilot_cohort_brief.py` — confirmed
+        via grep before touching anything, since blind `ruff --fix` would
+        have deleted them and broken those three importers. Made the
+        re-export explicit via `__all__` instead. `ruff check` now reports
+        0 findings, was 5.
+      - >-
+        Left the 31 `mypy` errors (also drifted from AGENTS.md's stale "8"
+        count) unfixed — refreshed the documented count and file breakdown
+        instead of attempting a mechanical pass, since most are `dict`
+        invariance noise but a few (`production_adapter.py`,
+        `demo_workspace.py`) are genuine return-type mismatches that need
+        per-case review. Not wired into any CI gate, so nothing currently
+        enforces it either way.
+      - >-
+        Verified before and after: full test suite 432/438 pass both
+        times, the same 6 pre-documented sandbox-artifact failures
+        (root-uid bypasses `chmod 0`; this sandbox's disk-quota allowance
+        is under the 64GB destination-capacity threshold) already recorded
+        in `AGENTS.md` from an earlier cycle's diagnosis — unrelated to
+        this change. Opened as PR #102 (per this session's task
+        instructions to route through a designated branch/PR rather than
+        push directly), then merged it directly to main (squash, 1139aab)
+        once verified — consistent with the established pattern of
+        self-merging additive, non-content, non-automation PRs of this
+        kind rather than leaving them to accumulate in the backlog.
+      - >-
+        Did not touch #79 or #19 (both unchanged, correctly left for the
+        account owner) or attempt the 31 mypy errors beyond documenting
+        them. No push notification sent: routine, low-risk, additive
+        engineering work with no new information the account owner is
+        waiting on, and the standing blockers (#79 merge decision, #19,
+        GitHub Actions billing/quota, the recurring screening task) are
+        unchanged from what has already reached them multiple times today.
+    mrr_end: null
   - venture: local-site-studio
     agent_spend_usd: null
     human_hours: 0
     outcomes:
       - >-
-        Scheduled "continue work / maintain the development process,
-        strategic" run. `git fetch origin main` first — 2 open PRs (#79,
-        #19), both re-checked within the last ~hour per the immediately
+        Concurrent "continue work / maintain the development process,
+        strategic" run — landed independently around the same time as the
+        photo-editing entry immediately above (different session, same
+        cycle). `git fetch origin main` first — 2 open PRs (#79, #19),
+        both re-checked within the last ~hour per the immediately
         preceding ledger entries and unchanged (still correctly left to
         the account owner); did not re-verify or re-comment on either.
       - >-
@@ -2721,25 +2779,42 @@ entries:
         clean before and after. Diff is minimal and mechanical:
         `package.json` (one line) and `package-lock.json` (dependency
         resolution only), matching the same pattern already applied to
-        `quick-pick-survey` in #100. Opened as its own PR rather than
-        bundled with this ledger entry, per the ledger-discipline rule
-        `CLAUDE.md` now carries (from #79) about not bundling an
-        append-only ledger file into a PR that might need to wait.
+        `quick-pick-survey` in #100. Opened as PR #104 rather than
+        bundled unmerged with this ledger entry, per the ledger-discipline
+        rule `CLAUDE.md` now carries (from #79) about not bundling an
+        append-only ledger file into a PR that might need to wait — this
+        one is routine and low-risk, but the PR is still open pending
+        merge as of this entry.
       - >-
-        Did not send a push notification: routine, low-risk, additive
-        security-patch engineering with a verified clean pipeline before
-        and after, no different in kind from the `quick-pick-survey` fix
-        that also didn't warrant one.
+        Also attempted photo-editing's ruff/mypy drift (same gap this
+        cycle's other session picked up) before discovering, on `git
+        fetch origin main`, that PR #102 had just merged with an
+        identical fix (same 2 dead test imports, same
+        `pilot_authority.py` `__all__` re-export fix, same false-positive
+        catch). Discarded the local duplicate rather than pushing a
+        second copy — exactly the redundant-work pattern `CLAUDE.md`
+        warns about, caught before it produced a duplicate PR. Kept one
+        piece that PR #102 did not include: added `ruff check src/
+        tests/` to `.github/workflows/photo-editing-ci.yml` as an actual
+        CI gate now that the check is clean, so the drift documented in
+        #102 doesn't silently reappear. Bundled into PR #104 alongside
+        the local-site-studio fix since both are small, additive,
+        low-risk, and already verified.
+      - >-
+        Did not send a push notification for either piece: routine,
+        low-risk, additive engineering with a verified clean pipeline
+        before and after, no different in kind from the prior cycles'
+        equivalent fixes that also didn't warrant one.
       - >-
         Still unresolved, needs the account owner, unchanged in substance
         from prior cycles: (1) GitHub Actions billing/quota — no
-        successful run on any branch since 2026-07-29, confirmed still
-        broken as of commit 77ce6cc after #99 merged; (2) merge #79
+        successful run on any branch since 2026-07-29; (2) merge #79
         (candidate pipeline) or decide not to; (3) decide on #19; (4)
         whether local-site-studio's standalone repo still has dormant
         scheduled agent-fleet crons live with provider secrets configured,
-        per an earlier cycle's finding; (5) now resolved by this entry —
-        removed from the list; (6) retire or redirect the recurring
-        "research new business projects" scheduled task, per #79's
-        explicit ask ("twelve firings, one answer").
+        per an earlier cycle's finding; (5) local-site-studio's npm audit
+        item — resolved by this entry, removed from the list; (6) retire
+        or redirect the recurring "research new business projects"
+        scheduled task, per #79's explicit ask ("twelve firings, one
+        answer").
     mrr_end: null
