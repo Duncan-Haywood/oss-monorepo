@@ -5634,3 +5634,84 @@ entries:
         (its CI failure) is not something that should give the owner
         pause when reviewing it.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process, increase profit legally/ethically/reliably" run.
+        `git fetch origin main` first; tip was `338acb3` (#195/#196).
+        Read issue #139 in full against that tip, including the 18:24
+        comment confirming #195 merged, before touching anything.
+      - >-
+        Found #191 now conflicts with `main`, and it is not the routine
+        append-only pattern the ledger already documents: #195 (merged
+        after #191 was opened) swapped `htmltojsx` → `html-to-jsx-
+        transform` in `ventures/photo-editing/docs-site` to clear the
+        advisories #191's own body flags as pre-existing/out of scope.
+        `git merge-tree` against current `main` shows a real 3-way
+        conflict on that venture's `package.json`/`package-lock.json` —
+        a naive "take theirs" resolution would silently reintroduce the
+        vulnerable package. Posted the detail as a comment on #191
+        directly (not pushed — that branch isn't mine) and on #139.
+      - >-
+        Split #192's routine permissions-hardening half into #200 (7
+        workflow files gain `permissions: contents: read` where none
+        existed, no functional change), per #192's own offer to do so.
+        CI green, self-merged under the #184/#186/#187/#188/#193/#196
+        precedent. #192 now covers only the Dependabot proposal, still
+        the owner's call.
+      - >-
+        Merging #200 was the first time in a while `ubuntu-agent-server
+        CI` and `quick-pick-survey CI` had actually run (both path-
+        filtered to their venture plus the workflow file, so a routine
+        permissions-only change is one of the few things that triggers
+        them) — both came back red. Root-caused both rather than
+        assuming noise, per the pattern this ledger already established
+        for the `photo-editing` capacity-gate tests: confirmed identical
+        failures on #192's branch (same 3-line diff to these two files),
+        so neither was caused by the permissions change itself.
+      - >-
+        `ubuntu-agent-server`'s mypy step failed with "Library stubs not
+        installed for yaml" — `ignore_missing_imports` in `pyproject.toml`
+        suppresses `import-not-found`, not `import-untyped`, a different
+        error class. Reproduced in a fresh venv; `types-PyYAML` added to
+        the job's pip install line fixes it, confirmed locally before
+        pushing (`Success: no issues found in 3 source files`).
+      - >-
+        `quick-pick-survey`'s integration suite failed 4 of 106 tests,
+        all "login" tests expecting 200 and getting 401. Root cause
+        traced through source rather than guessed: the job-level
+        `ADMIN_KEY: ci-placeholder` (there for the Typecheck/Lint/Build
+        steps, which only need something well-formed present) leaks into
+        the Integration tests step too, since step-level `env:` adds to
+        job-level env rather than replacing it. `applyTestEnv()`'s
+        `??=` then can't override it, so the app compares the test's
+        real key (22 bytes) against the placeholder (15 bytes) and
+        rejects on length before checking content. Fixed by overriding
+        `ADMIN_KEY`/`ADMIN_SESSION_SECRET` in that step's own `env:`
+        block, the same way it already overrides `POSTGRES_*` for the
+        identical reason. No docker/postgres available in this sandbox
+        to run the integration suite directly, so verified by full
+        source trace, then confirmed on the PR's own CI before merging.
+      - >-
+        Both fixes shipped as #202 (2 commits, workflow-file-only, no
+        application code touched), CI green on all 5 checks including
+        the previously-failing `python` and `verify` jobs, self-merged
+        under the same precedent. Net this session: #200 and #202
+        merged, #192 narrowed to one decision, #191 flagged with a
+        conflict that would otherwise have been discovered only by
+        whoever tries to merge it.
+      - >-
+        Did not touch #166/#177 (monetization chain), #19/#144/#146
+        (automation/spend), or #175 — all unchanged and still the
+        owner's call. Did not re-run the pipeline/research screening
+        brief; the CLAUDE.md intake gate still applies.
+      - >-
+        No push notification for this entry: three self-mergeable,
+        already-flagged, already-green fixes are routine maintenance,
+        not new decision surfaces — the one new information for the
+        owner (#191's conflict) was already posted directly on #191 and
+        #139 where it will be seen before any merge decision.
+    mrr_end: null
