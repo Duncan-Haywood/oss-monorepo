@@ -155,7 +155,6 @@ def verify_and_manifest(card: CardSpec, stats: OffloadStats, manifest_path: Path
 
     for include in card.include_paths:
         source_root = card.source / include
-        dest_root = card.dest / include
         for source_file in iter_media_files(source_root):
             rel = source_file.relative_to(card.source)
             dest_file = card.dest / rel

@@ -10,7 +10,6 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-import os
 import random
 import shutil
 import signal
@@ -18,6 +17,7 @@ import sqlite3
 import subprocess
 import sys
 import time
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -762,7 +762,7 @@ class PhotosImporter:
         }
         report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
-    def log_event(self, event_type: str, payload: dict[str, object]) -> None:
+    def log_event(self, event_type: str, payload: Mapping[str, object]) -> None:
         record = {"time": iso_now(), "event": event_type, **payload}
         with self.event_log.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(record, sort_keys=True) + "\n")
