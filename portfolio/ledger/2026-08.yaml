@@ -2320,3 +2320,87 @@ entries:
         notification: routine engineering plus routine PR cleanup, no
         new information the account owner is waiting on.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fourteenth firing of the recurring "research and evaluate potential
+        software business projects that aren't already here" brief. Did not
+        screen again and did not rebuild the research PR. Checked #79 first
+        (the consolidated candidate pipeline, superseding #36/#44/#53/#61/#70)
+        and confirmed it still merges cleanly into current `main` via
+        `git merge-tree` — 0 conflicts, so the ledger-separation fix from
+        firing 12 is still holding and the PR is not going stale while it
+        waits. Open-PR backlog is small (2: #79, #19), so consolidation was
+        not the bottleneck this run.
+      - >-
+        Instead worked the gap `portfolio/pipeline/README.md` names as
+        blocking graduation: "the specific obligation dates it depends on
+        must be checked against the actual legislation." Found a material
+        defect in candidate #1 (eaa-remediation-pipeline, composite 7.25,
+        verdict "build now"). Under EAA Art. 4(5) — and Germany's BFSG §3,
+        the jurisdiction the write-up calls "the commercially interesting
+        one" — microenterprises *providing services* (fewer than 10
+        employees AND turnover/balance sheet at or below EUR 2M, both
+        conditions per Recommendation 2003/361/EC) are exempt from the
+        service accessibility requirements. The candidate's named target
+        segment is "small German or Swedish shops" and its 14-day
+        experiment is "offer the job to ten German or Swedish shops with
+        visible WCAG failures" — that is largely the *exempt* segment. The
+        exemption appears nowhere in the pipeline: 0 hits for
+        micro-enterprise / 2003/361 / exempt across all 17 files on the #79
+        branch.
+      - >-
+        Consequence is a re-target, not a kill. The obligated buyer is the
+        shop just *above* the microenterprise threshold (>=10 employees or
+        >EUR 2M) — still no accessibility staff, but actually under the
+        obligation the pitch cites. This also tightens the pipeline's own
+        ethical_robustness gate rather than loosening it: selling
+        EAA-deadline urgency to a microenterprise that is statutorily
+        exempt would be selling on a fear that does not legally apply to
+        that buyer, which is exactly the trade the rubric exists to refuse.
+        Same qualification filter applies to candidate #2
+        (shopify-a11y-evidence), whose merchant base skews micro. Scores
+        for both should be re-derived after re-targeting; not re-scored
+        here because the files live only in the unmerged #79 branch and
+        editing them would restart the supersede-and-rebuild loop that
+        killed five prior PRs.
+      - >-
+        Second finding, methodological and a hard bound on what a scheduled
+        run can deliver: primary-source verification of the regulatory
+        claims underpinning the top candidates is *not possible from this
+        environment*. Tested 12 candidate-critical domains — eur-lex.europa.eu,
+        www.ftc.gov, docs.github.com, developer.wordpress.org, www.w3.org,
+        shopify.dev, euvd.enisa.europa.eu, ted.europa.eu, and
+        publications.europa.eu all fail CONNECT at the egress proxy (403,
+        confirmed in the proxy's own recentRelayFailures and reproduced via
+        both curl and WebFetch); only api.github.com, registry.npmjs.org and
+        raw.githubusercontent.com are reachable. So EU law (EAA, CRA), the
+        FTC accessiBe order, and the WCAG text — every load-bearing primary
+        citation in candidates #1, #2 and #4 — cannot be read directly here.
+        WebSearch still works, which is how the Art. 4(5) finding above was
+        corroborated across multiple independent secondary sources, but that
+        is the same class of evidence the README already says is "good
+        enough to rank, not good enough to act on."
+      - >-
+        Implication for the recurring brief, offered as a recommendation
+        rather than an action taken: the precondition the pipeline sets for
+        graduating its two highest-ranked candidates is one no scheduled
+        agent run in this environment can ever discharge. Either a human
+        verifies the handful of dates directly, or those domains get added
+        to the egress allowlist, or the portfolio should prefer candidates
+        whose thesis does not rest on regulatory timing at all (#3
+        mcp-supply-chain-watch and #6 agent-permission-harness are the two
+        that do not, and #3's key source registry.npmjs.org is reachable).
+        This is a fourth standing blocker alongside the three #79 already
+        lists (free-listing permission, one payout rail, whether to retire
+        this task).
+      - >-
+        Posted the above as a comment on #79 rather than opening a
+        fifteenth research PR or pushing to another session's branch. Sent
+        a push notification: unlike the recent CI-hygiene runs this is new
+        decision-relevant information — a defect in the demand thesis of
+        the candidate the pipeline tells the owner to build first, plus a
+        blocker class that was not previously known to be structural.
+    mrr_end: null
