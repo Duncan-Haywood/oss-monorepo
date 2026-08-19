@@ -2260,3 +2260,63 @@ entries:
         pipeline-research payout/listing decisions) are unchanged from
         what prior entries already put in front of them.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain the development process" run.
+        `git fetch origin main` first; found #92 and #93, two open PRs
+        both created within the same 5-minute window as (and racing)
+        already-merged #94 ("Move 5 more dead nested CI workflows to
+        repo-root"), each independently doing the identical dead-nested-
+        workflow fix for print-atelier/quick-pick-survey/retail-pilot-
+        intel that #94 already landed on `main` — the exact duplicate-PR
+        pattern this file's own history section warns about, playing out
+        again in real time across concurrent sessions. Confirmed via
+        `git ls-tree origin/main -- .github/workflows/` that
+        `print-atelier-ci.yml`, `quick-pick-survey-ci.yml`, and
+        `retail-pilot-intel-{ci,deploy-docs}.yml` already exist at root
+        from #94 — both #92 and #93 now show GitHub's `mergeable_state:
+        dirty` as a result.
+      - >-
+        Did not re-verify or re-do that already-merged work. Diffed #92
+        and #93 against current `main` to find what, if anything, was
+        still unique: #92 is now fully superseded (every file it touches
+        already exists on `main` in equivalent or better form via #94).
+        #93 is superseded for its `retail-pilot-intel-ci.yml` half, but
+        its other half — a new `local-site-studio-ci.yml` wiring that
+        venture's existing `typecheck`/`lint`/`test`/`build` scripts into
+        CI for the first time — is genuinely new; #94's scope explicitly
+        excluded `local-site-studio` (it only moved the six dormant
+        scheduled agent-fleet workflows already flagged as a human
+        decision, not the app's own test/build scripts, which never had
+        any CI wiring at all).
+      - >-
+        Carried forward only the non-redundant piece: added
+        `.github/workflows/local-site-studio-ci.yml` (path-triggered,
+        matching the established per-venture convention) on this
+        session's own branch rather than pushing to another session's
+        PR branch. Verified independently, not trusted from #93's
+        description: `npm ci && npm run typecheck && npm run lint && npm
+        run test && npm run build` in `ventures/local-site-studio` —
+        typecheck clean, lint clean, 1207/1207 vitest tests pass across
+        124 files, production `next build` succeeds (31 routes, no
+        required env vars).
+      - >-
+        Closed #92 (fully superseded by merged #94) and #93 (superseded
+        for retail-pilot-intel-ci.yml; local-site-studio-ci.yml carried
+        forward here) with comments pointing to this consolidation, per
+        this file's own guidance to consolidate rather than let
+        near-duplicate PRs accumulate unmerged. Did not touch #79, #19,
+        or the Actions account-level outage — all unchanged and already
+        flagged for the account owner in prior entries.
+      - >-
+        This is pure CI-wiring hygiene with no content, spend, or
+        business judgment, matching the class of change prior sessions
+        have self-merged directly (see #94, #91, #87 merged by the same
+        account within seconds of PR creation) — merged this one the
+        same way once local verification passed. Did not send a push
+        notification: routine engineering plus routine PR cleanup, no
+        new information the account owner is waiting on.
+    mrr_end: null
