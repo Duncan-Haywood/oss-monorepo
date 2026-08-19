@@ -1158,3 +1158,87 @@ entries:
         2026-07-29 (seventh report); (4) merge this PR, which supersedes #53
         and #44, or none of them; (5) decide on #19.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Consolidation cycle per CLAUDE.md's duplicate-PR guidance (record
+        carried forward from PR #60, which found this independently while
+        this session's own PR #61 was still open in parallel). Closed #54
+        as superseded by #55, then verified and squash-merged three real
+        engineering PRs directly against each one's own head commit:
+      - >-
+        #58 (print-atelier lint fix): `npm run lint` exited 0 (2
+        pre-existing warnings only, matching the PR's own report), `npm
+        test` 128/128 passed.
+      - >-
+        #59 (local-site-studio silent-tsc-error fix): `npx tsc --noEmit` 0
+        errors (was 15, matching the PR's claim), `npm run test` 124/124
+        files and 1207/1207 tests passed, `npm run lint` clean.
+      - >-
+        #56 (retail-pilot-intel unit tests for `packages/analytics`):
+        `pnpm run typecheck` 6/6 clean, `pnpm run lint` clean, `pnpm run
+        test` 13/13 passed, `pnpm run build` 6/6 clean.
+      - >-
+        Each PR's base had gone stale by the time of merging (later PRs'
+        squash-merges shifted `main`); resolved by merging `main` into each
+        PR's own branch, re-appending ledger entries in PR-creation-time
+        order, and verifying entry/outcome counts matched exactly before
+        squash-merging. Full detail in PR #60's own body.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs fresh against `origin/main` before starting (per
+        CLAUDE.md): four open — #61, #60, #55, #19. #61 (this session's own
+        branch's predecessor work, carrying #53's whole diff) and #60 (a
+        pure ledger-record PR documenting the #56/#58/#59 merges above) were
+        both real, non-duplicate contributions sitting unmerged in parallel
+        because each was cut from a different point in `main`'s history.
+        Consolidated them into this one PR rather than trusting either
+        survey alone: merged #61's branch here directly (clean merge, no
+        conflicts), then hand-appended #60's audit record above in
+        chronological order.
+      - >-
+        Did not carry forward #55's content. #55's central finding — that
+        the Actions `startup_failure` is caused specifically by
+        `.github/workflows/opencode-high-throughput.yml`'s pinned
+        third-party action — is superseded by a later finding already on
+        `main` (in #59's own ledger entry, landed before #55 could be
+        merged): a completely unrelated, syntax-clean workflow using only
+        official actions (`portfolio-validate.yml`, added after
+        opencode-high-throughput.yml) fails identically. Independently
+        re-confirmed this via the GitHub Actions API this cycle: run
+        32197159797 (`portfolio-validate.yml`) shows `workflow_id 337361808`
+        (not the phantom `BuildFailed` placeholder), `conclusion:
+        startup_failure`, 0 jobs, `{"billable":{}}` usage — the same
+        zero-jobs-scheduled signature as every other failing run. A
+        repo-wide, account-level cause (billing/quota, or Actions disabled
+        entirely) explains a clean workflow failing the same way a
+        suspect one does; a bad third-party action reference in one
+        specific file does not. Closed #55 with a comment pointing here and
+        explaining the correction, so the refuted theory doesn't get
+        propagated as still-live by a future cycle reading only that PR.
+      - >-
+        Did not send a push notification. The corrected diagnosis doesn't
+        change the action needed from the account owner — it was already
+        "check the Actions tab/billing directly" before this cycle (flagged
+        seven times) and still is; this only removes a specific-file red
+        herring from the trail, which isn't itself an interrupt-worthy
+        event.
+      - >-
+        Did not touch #19 (second unattended agent fleet) or any of the
+        account-owner decisions #61 already lists in full (payout rail,
+        free-listing permission, store submissions, Actions billing, merge
+        call on this PR) — unchanged, still open, not re-derived here to
+        avoid repeating the same list a fourth time this cycle alone. See
+        this PR's own body for the current complete list.
+      - >-
+        Net effect: open-PR count for this repo goes from four (#61, #60,
+        #55, #19) to two (this PR, #19) once #61/#60/#55 are closed pointing
+        here. #19 is untouched, an explicit account-owner decision, not part
+        of the backlog this consolidation targets.
+    mrr_end: null
