@@ -125,3 +125,67 @@ evidence is not lost.
 All secondary, gathered 2026-08-19, unverified against primary sources — the same
 status as everything else in this directory. Several are published by vendors
 selling remediation services, who have an interest in the overlay comparison.
+
+---
+
+## Amendment, ninth run (2026-08-19): the portfolio already holds two of these channels
+
+Recorded by the ninth firing of the screening brief. This section adds no
+candidate. It applies the rule above to information the rule's own author could
+not have had: `garmin-world-traveler-watchface` and `world-clock-widget` were
+merged to `main` *after* this document was written, and neither was ever scored
+against the distribution test it proposes.
+
+Run that test on them:
+
+| | Connect IQ Store | Apple App Store |
+|---|---|---|
+| Buyer already searches the category | Yes — "world time", "worldtimer" are browsed categories | Yes — "world clock widget" is a search people perform |
+| Payment method already attached | Yes | Yes |
+| Listable without permission | Yes, subject to review | Yes, subject to review |
+| Cost to list | Free | $99/yr developer program |
+
+Both pass. Under this document's own criterion they are the only distribution
+the portfolio currently holds that is a listing rather than a sales motion —
+including in comparison to [shopify-a11y-evidence](candidates/shopify-a11y-evidence.md),
+whose channel is equally real but where nothing is built yet.
+
+**The honest counterweight, so this is not read as better news than it is.**
+The test above measures access to intent, not revenue per unit of it, and
+consumer stores are where those two diverge most:
+
+- Connect IQ watch faces are overwhelmingly free or donation-supported. A
+  listing there buys installs and ratings, not meaningful revenue. Its
+  venture's own kill criterion is stated in installs for exactly this reason.
+- App Store widget utilities are a low-ARPU, high-churn category with a paid
+  tier that has to earn its way past a free default that ships with the OS.
+- Neither product's buyer is a budget-holder. The rule above says a
+  marketplace is distribution "when the person searching it controls a budget";
+  a consumer controls a wallet, which is weaker, and both ventures' economics
+  are still `null`.
+
+So this does not make either venture a better business than the compliance
+candidates. It makes them the **cheapest available test of the one variable
+that has blocked every candidate in this directory** — whether a listing this
+portfolio publishes gets found at all. That variable is currently untested at
+any price, and here it can be tested with software that already exists.
+
+### What follows from it
+
+1. **The "one probe to a real buyer" this directory has asked for four times
+   over does not require a new build.** It requires submitting one of two
+   finished codebases to a store. That is a smaller unit of work than any
+   candidate here and it produces the same missing datum.
+2. **Both submissions need the account owner**, and this is the reason to say
+   so rather than to keep screening: store submission requires a Garmin
+   developer account and an Apple Developer Program membership with signing
+   identity, neither of which an unattended agent holds or should hold. This
+   is a credential blocker, not an engineering one.
+3. **Measure the listing, not the product.** Whatever ships first should have
+   its install count, search-term impressions, and rating recorded in the
+   ledger against a date. That number is the portfolio's first real
+   distribution measurement, and it is what should re-score the distribution
+   column for every candidate in this directory — upward if a cold listing
+   gets found, downward if it does not.
+4. **Screening is closed until then.** A tenth pass has nothing to learn that
+   this measurement would not teach it better.

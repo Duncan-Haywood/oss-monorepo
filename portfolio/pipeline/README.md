@@ -139,6 +139,18 @@ candidates, and adds the single candidate that rule produces
 ([shopify-a11y-evidence](candidates/shopify-a11y-evidence.md), found by starting
 from a channel rather than from a market).
 
+A ninth run on 2026-08-19 was assigned the same brief again. It added no
+candidate. It landed the consolidation above onto a `main` that had moved
+underneath it, and recorded one amendment that the eighth run could not have
+made: two marketplace-native products —
+`ventures/garmin-world-traveler-watchface` and `ventures/world-clock-widget` —
+were merged to `main` *after* `distribution-first.md` was written, and both
+pass that document's own distribution test while nothing in this directory is
+built. See the ninth-run amendment at the end of
+[distribution-first.md](distribution-first.md). It also added an intake gate to
+[CLAUDE.md](../../CLAUDE.md) so a tenth run is redirected here before it
+screens.
+
 ## Portfolio note recorded during this pass
 
 The `VENTURE.yaml` backfill this pass originally flagged has since landed —

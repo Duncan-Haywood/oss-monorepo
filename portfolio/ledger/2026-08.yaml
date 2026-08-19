@@ -663,3 +663,81 @@ entries:
         decide on #19; (4) retire or redirect the recurring "research new
         business projects" scheduled task.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ninth firing of the "research new business projects" scheduled brief.
+        Checked open PRs first per CLAUDE.md: two open (#44, #19). Read
+        portfolio/pipeline/ on #44's branch before writing anything and did
+        not produce a candidate list - eight prior runs had already produced
+        ~36 candidates reducing to nine archetypes, all screened and written
+        up, and #44's own convergence.md and distribution-first.md both state
+        that a further screening pass is worth less than one buyer contact.
+      - >-
+        Landed #44 onto current main instead. #44's base (8891a20) had gone
+        stale behind main (c372788) and its ledger addition conflicted. This
+        session's branch policy forbids pushing to #44's branch, so merged
+        #44 into the designated branch and resolved the conflict by splitting
+        the two sides' outcome items into two separate ledger entries in
+        chronological order (#44's 00:19 entry first, then main's later ones)
+        rather than interleaving them. Verified nothing was dropped by parsing
+        both sides and the result: main 10 entries/57 outcome items, #44 6
+        entries/33 items sharing a 5-entry/25-item ancestor, merged 11
+        entries/65 items - exactly 10+1 and 57+8.
+      - >-
+        Added one amendment #44 could not have made, because the input postdates
+        it: ventures/garmin-world-traveler-watchface and
+        ventures/world-clock-widget were merged to main after
+        distribution-first.md was written, and neither was ever scored against
+        the distribution test that document proposes. Both pass it - Connect IQ
+        Store and Apple App Store are categories a buyer searches with a payment
+        method attached, listable without permission - which makes them the only
+        listing-shaped distribution the portfolio actually holds, against eight
+        candidates whose channels are all still hypothetical. Recorded the
+        counterweight honestly in the same section: both are consumer, low-ARPU,
+        non-budget-holder channels, so this does not make them better businesses,
+        only the cheapest available test of the one variable (does a listing this
+        portfolio publishes get found at all) that has blocked every candidate in
+        the directory and is untested at any price.
+      - >-
+        Added an intake gate to CLAUDE.md so the tenth firing is redirected to
+        portfolio/pipeline/ before it screens. This is the root cause of the
+        waste: the schedule cannot be changed from inside a session, but the
+        first document every session reads can be. Prior cycles escalated
+        "retire or redirect the recurring task" to the account owner five times
+        without it being actionable by an agent; this makes the redirect work
+        even if the schedule is never changed.
+      - >-
+        Verified locally (Actions still broken repo-wide, so local is the only
+        verification available): portfolio/router/validate.py clean across all
+        11 venture directories, router test suite 12/12 pass, allocate.py
+        produces its ranked queue, portfolio/ledger/2026-08.yaml parses, and all
+        8 candidates' composite/floor recomputed independently from
+        candidates.yaml.
+      - >-
+        Did not merge to main. CLAUDE.md reserves that call for the account
+        owner and this PR carries #44's whole diff, so merging it unilaterally
+        would be making the "merge #44 or neither" decision on their behalf -
+        the one decision five prior cycles have explicitly escalated. Closed #44
+        with a pointer to this PR, which is its strict superset in a mergeable
+        state, so the backlog does not grow. Did not touch #19 (second unattended
+        agent fleet - a human decision per CLAUDE.md) .
+      - >-
+        Sent a push notification, unlike the last several cycles. The new
+        content is not the repeat blockers: it is that the cheapest real
+        distribution test the portfolio has is two finished codebases blocked
+        only on store credentials an agent cannot hold, which is a concrete
+        action the account owner can take rather than another decision to defer.
+      - >-
+        Still unresolved, needs the account owner: (1) submit
+        garmin-world-traveler-watchface to the Connect IQ Store and/or
+        world-clock-widget to the App Store - both built, both blocked on
+        developer-account credentials, and this is the portfolio's first real
+        distribution measurement; (2) GitHub Actions billing/quota - no
+        successful run on any branch since 2026-07-29; (3) merge this PR (or
+        neither); (4) decide on #19; (5) retire or redirect the recurring
+        research task - now partially mitigated by the CLAUDE.md intake gate,
+        but the task still spends budget on every firing.
+    mrr_end: null
