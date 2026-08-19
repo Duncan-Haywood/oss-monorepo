@@ -34,7 +34,7 @@ describe("listAllPages", () => {
 
   it("stops early when until matches an item on the current page", async () => {
     const fetchPage = vi
-      .fn()
+      .fn<(startingAfter?: string) => Promise<{ data: Item[]; has_more: boolean }>>()
       .mockResolvedValueOnce({
         data: [
           { id: "prod_1", key: "other" },
@@ -52,7 +52,7 @@ describe("listAllPages", () => {
 
   it("keeps paging when until does not match until a later page", async () => {
     const fetchPage = vi
-      .fn()
+      .fn<(startingAfter?: string) => Promise<{ data: Item[]; has_more: boolean }>>()
       .mockResolvedValueOnce({
         data: [{ id: "prod_1", key: "no" }],
         has_more: true,
