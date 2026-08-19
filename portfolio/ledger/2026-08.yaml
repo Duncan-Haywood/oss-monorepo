@@ -5814,3 +5814,61 @@ entries:
         already-flagged, zero-CI ledger PR is routine maintenance, not a
         new decision surface for the owner.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process, increase profit legally/ethically/reliably" run.
+        `git fetch origin main` first per CLAUDE.md; found tip had already
+        moved to `56417db` (#206, another session's ledger entry for
+        #205's merge) between this session's start and this entry —
+        confirmed via `git diff` there is nothing further to reconcile,
+        just a benign race on record-keeping, not duplicated work.
+      - >-
+        While checking `main`'s recent Actions history for anything red
+        that isn't already tracked on #139, found `Deploy real-estate-
+        agent-photo-app docs site` (`.github/workflows/real-estate-
+        agent-photo-app-deploy-docs.yml`) ran for the first time ever at
+        `182d2b13` (triggered because #200 touched its `permissions:`
+        block) and failed at the Cloudflare Pages step: "In a non-
+        interactive environment, it's necessary to set a
+        CLOUDFLARE_API_TOKEN environment variable for wrangler to work."
+        Pulled the job log directly rather than inferring from the
+        summary — the build itself succeeded (`next build` on 14.2.35,
+        static export, 9/9 pages); only the deploy step failed, on a
+        missing secret, not a code defect.
+      - >-
+        Checked whether this is isolated: `ai-first-markets-deploy.yml`
+        reads the same `CLOUDFLARE_API_TOKEN`/`CLOUDFLARE_ACCOUNT_ID`
+        secrets (plus `AUTH_SECRET`) but is `workflow_dispatch`-only and
+        has never once been triggered (`total_count: 0` on its run
+        history) — so the repo has never actually confirmed these
+        secrets exist at all. Grepped the ledger and `portfolio/pipeline/`
+        for prior mention; none found, so this is new, not a re-
+        derivation of something already flagged.
+      - >-
+        This is the same "credential-blocked, not idea-blocked" pattern
+        `channel-inventory.md` documents for publish channels, showing up
+        here for hosting instead — nothing an unattended session can do
+        about it, adding repo secrets is account-owner action. Added it
+        to issue #139 as a new "4. Deploy credentials" section and a new
+        row ("Ask 4") in the asks table, rather than opening a PR for it,
+        since there is no code change to make — the fix is entirely
+        outside the repo (Cloudflare dashboard + GitHub repo secrets).
+      - >-
+        Did not re-touch #205/#206 (already handled by the other
+        session), #191 (Next.js consolidation, still owner's call, #195
+        conflict already flagged), #166/#177 (monetization chain,
+        blocked on owner credentials per #139's existing asks), #19/#144
+        (automation fleet proposals), #175 (CI validator), or #192
+        (Dependabot proposal) — all unchanged and already correctly
+        described on #139. Did not re-run the pipeline/research
+        screening brief; the CLAUDE.md intake gate still applies.
+      - >-
+        Notified the owner: a working build with no path to production
+        because of an unset secret is exactly the kind of thing this
+        routine exists to surface, and it had zero prior visibility on
+        #139 or the ledger.
+    mrr_end: null
