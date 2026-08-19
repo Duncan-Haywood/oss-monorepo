@@ -2686,3 +2686,79 @@ entries:
         surfaced (check GitHub Settings → Billing/Security), so a second
         phone ping would not give the account owner anything new to act on.
     mrr_end: null
+  - venture: local-site-studio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain the development process" run.
+        `git fetch origin main` first: tip was this file's own prior entry
+        (#101, Actions-outage re-confirmation), ~45 minutes old at fetch
+        time. Reproduced that same check independently (30/30 recent
+        workflow runs still `startup_failure`) and found it added nothing
+        new, so did not file a duplicate entry for it. Open PRs unchanged
+        (#79, #19), both already reviewed in prior entries and correctly
+        left to the account owner.
+      - >-
+        Instead closed out a concretely-tracked, non-account-owner-blocked
+        gap from this file's own outstanding list: local-site-studio's 3
+        remaining high-severity `npm audit` advisories (next/postcss/sharp),
+        pending since an earlier cycle's finding that `npm audit fix
+        --force` bumps `next` 16.2.9 → 16.3.1 and that bump broke ~20
+        TypeScript checks in Stripe-typed test fixtures (`OrderRecord`,
+        `stripePriceId`, mock generic inference).
+      - >-
+        Re-verified the baseline first: `npm run typecheck`/`lint`/`test`
+        (124 files, 1207 tests)/`build` all green on the pinned `next@16.2.9`
+        after a clean `rm -rf .next tsconfig.tsbuildinfo` and fresh
+        `npm install`. Then ran `npm audit fix --force` (same bump to
+        `next@16.3.1` as before) and re-ran the full pipeline against a
+        clean cache: typecheck, lint, all 1207 tests, and production build
+        all passed clean this time — the Stripe-typed test-fixture
+        regression documented in the earlier cycle did not reproduce.
+        `npm audit` now reports 0 vulnerabilities (previously 3 high).
+      - >-
+        Pinned `next` back to an exact version (`16.3.1`, matching this
+        repo's existing exact-pin convention rather than the `^16.3.1`
+        range `audit fix --force` writes) and bumped the paired
+        `eslint-config-next` from `16.2.9` to `16.3.1` to keep the two in
+        lockstep, then re-ran the full pipeline once more to confirm that
+        edit didn't reintroduce anything. Grepped `src/` for stale
+        `16.2.9` doc references; none found. Diff is mechanical:
+        `package.json` (2 lines) and `package-lock.json` (dependency
+        resolution only) — no source files touched.
+      - >-
+        Did not investigate why the previously-documented regression no
+        longer reproduces (a later 16.3.x patch fixing its own type
+        declarations is the likely explanation, since the resolved version
+        is the same `16.3.1` as before) — the pipeline is verifiably green
+        now, which is what matters for shipping the fix; re-deriving the
+        upstream root cause would not change the outcome.
+      - >-
+        Opened PR #102 with this change rather than pushing straight to
+        `main`, since this repo currently has no working CI to verify
+        against (Actions outage) — local verification is documented in the
+        PR body so a human or a future session can sanity-check the claim
+        once Actions recovers, per this file's discipline of not claiming
+        untested success.
+      - >-
+        Did not send a push notification: this is routine, low-risk,
+        already-tracked security-patch engineering with a fully verified
+        clean pipeline before and after, the same pattern used for
+        local-site-studio's and quick-pick-survey's earlier `npm audit fix`
+        cycles, neither of which warranted an interrupt either.
+      - >-
+        Still unresolved, needs the account owner, unchanged in substance
+        from prior cycles: (1) GitHub Actions billing/quota — no successful
+        run on any branch since 2026-07-29; (2) merge #79 (candidate
+        pipeline) or decide not to; (3) decide on #19; (4) whether
+        local-site-studio's standalone repo still has dormant scheduled
+        agent-fleet crons live with provider secrets configured (out of
+        this session's GitHub access scope — this repo's own copy of those
+        workflow files, checked this cycle, lives under
+        `ventures/local-site-studio/.github/workflows/` rather than the
+        repo root, so GitHub Actions does not execute them here; the open
+        question is specifically about the separate standalone repo);
+        (5) retire or redirect the recurring "research new business
+        projects" scheduled task.
+    mrr_end: null
