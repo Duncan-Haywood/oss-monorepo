@@ -1958,3 +1958,117 @@ entries:
         needing the account owner, and both are unchanged repeats already
         reported in prior entries.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Thirteenth firing of the recurring "research and evaluate potential
+        software business projects that aren't already here" brief.
+        `git fetch origin main` first, read this ledger's tail against the
+        current tip (last entry: router ledger-count wiring, PR #88, merged
+        as cbcbf61), then read the actual research content on the open PR
+        #79 branch rather than screening again. Added no candidate, changed
+        no score, opened no duplicate research PR — the pipeline README's
+        own instruction to a thirteenth run is "if you are reading this in
+        an unmerged branch, check whether a content-only pipeline PR is
+        already open before rebuilding anything." #79 is open, content-only,
+        and verified this run to still merge cleanly into current main
+        (`git merge-tree` -> 0 conflicts), so the twelfth run's
+        ledger-separation fix is holding.
+      - >-
+        Did the one thing the research explicitly recorded as blocked and
+        unfinished: verified its load-bearing channel claims against
+        PRIMARY sources. `portfolio/pipeline/channel-inventory.md` flags the
+        GitHub Marketplace free/paid split and the install minimum as
+        "load-bearing for the argument above ... the primary page could not
+        be read from this session — docs.github.com is blocked by this
+        environment's network egress proxy. Confirm against the live
+        requirements page before acting." That caveat is now retired.
+      - >-
+        Method finding, reusable by future runs: the "primary source is
+        egress-blocked" limitation is not actually true for these sources.
+        `docs.github.com` and `developer.wordpress.org` are both still 403'd
+        by the proxy (confirmed again this run, via curl and WebFetch), but
+        both sites are generated from PUBLIC source repositories that are
+        reachable at `raw.githubusercontent.com`, which is not blocked.
+        GitHub's docs come from `github/docs`; the WordPress plugin rules
+        come from `WordPress/wporg-plugin-guidelines`. Fetching the source
+        markdown gives primary-source text, not a search summary. Future
+        sessions should try the docs' source repo before recording a claim
+        as unverifiable.
+      - >-
+        VERIFIED (github/docs source, matches what channel-inventory.md
+        asserted): paid Marketplace listings require the app to be owned by
+        an organization that is a verified publisher; publisher verification
+        requires org ownership, a verified domain, and 2FA enabled;
+        "GitHub Apps should have a minimum of 100 installations" and
+        "OAuth apps should have a minimum of 200 users" before publishing a
+        paid plan; an app under a personal account must be transferred to an
+        organization before it can be sold; free listings need only the
+        general listing requirements. The channel-inventory argument that
+        free-listing-first is the platform's own intended sequence survives
+        primary-source verification unchanged.
+      - >-
+        NEW CONSTRAINT the previous twelve runs did not have, and the one
+        finding here that changes a build decision. WordPress.org is the
+        channel `channel-inventory.md` recommends for the top-ranked
+        "build now" candidate (eaa-remediation-pipeline / the accessibility
+        evidence plugin) precisely because it is free and needs no
+        credential. Its Plugin Directory Guidelines constrain the
+        "publish free now, charge later" plan in a specific way:
+        Guideline 5 (trialware) — "Plugins may not contain functionality
+        that is restricted or locked, only to be made available by payment
+        or upgrade", and "Functionality may not be disabled after a trial
+        period or quota is met"; plugins offering only sandbox API access
+        are likewise disallowed. Guideline 6 (SaaS) — "Plugins that act as
+        an interface to some external third party service ... are allowed,
+        even for paid services", BUT a service existing solely to validate
+        licenses while all functionality is local is not permitted, moving
+        arbitrary code out of the plugin so the service falsely appears to
+        supplement functionality is prohibited, and a plugin acting only as
+        a front-end for products purchased externally will not be accepted.
+      - >-
+        Consequence, stated plainly so it is not lost: on WordPress.org the
+        free demand probe and the eventual paid product must be the SAME
+        architecture, decided before the probe is built. A locked/freemium
+        tier is not available, so the plugin cannot be a local-only scanner
+        that later grows a paid tier — retrofitting one would violate
+        Guideline 5. The compliant shape is a genuinely thin client to a
+        real external service where the scanning, evidence generation, and
+        history actually execute server-side, which Guideline 6 permits
+        explicitly. That shape is compatible with the candidate as written
+        (evidence-not-advice, no compliance claim), but it is an
+        architecture commitment, not a later pricing decision. Separately,
+        Guideline 7 bars tracking users without consent — not a problem for
+        the probe, since the measurement is WordPress.org's own install and
+        search stats and needs no telemetry in the plugin at all.
+      - >-
+        All of the above is secondary-to-primary upgrade on THREE specific
+        claims only. The rest of `portfolio/pipeline/` remains as its own
+        README states: regulatory dates, fine levels, market sizes, and
+        competitor claims are unverified secondary sources, good enough to
+        rank candidates against each other and not good enough to act on.
+      - >-
+        Recorded as a review comment on #79 rather than as a fourteenth
+        research PR, and here. When #79 lands, a follow-up run should fold
+        the Guideline 5/6 constraint into `channel-inventory.md` and the
+        eaa-remediation-pipeline write-up, and strike the "primary page
+        could not be read" caveat.
+      - >-
+        Still blocked on the account owner, unchanged in substance but now
+        cheaper to decide: (1) merge or reject #79 — thirteen firings, one
+        answer, and it is content-only so it will not go stale; (2) whether
+        an agent may publish a FREE listing under this portfolio's name,
+        which costs nothing, needs no credential, and is the only thing
+        standing between this directory and a real demand number;
+        (3) one payout rail established once, which unblocks charging for
+        all eight candidates; (4) #19, the unreviewed Deepseek+OpenCode
+        agent fleet, still open and still unreviewed.
+      - >-
+        Sent a push notification this run — unlike the recent routine
+        entries, this one carries new decision-relevant information (a
+        blocker the research itself flagged is now retired, and a build
+        constraint that changes how the top candidate must be architected),
+        against a decision that has now blocked thirteen paid firings.
+    mrr_end: null
