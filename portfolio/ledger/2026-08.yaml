@@ -3781,3 +3781,62 @@ entries:
         owner for, and nothing here changes the standing decisions
         already in front of them.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process" run. `git fetch origin main` first per CLAUDE.md; tip was
+        `db35ba2`, unchanged for the session. Checked open PRs: #137
+        (publish-reachability) had opened one minute before this session
+        started and was not yet independently verified by anyone, so that
+        became the session's task rather than re-deriving the backlog
+        review `db35ba2` had just finished.
+      - >-
+        Independently re-verified #137's claims from a fresh checkout
+        (`git worktree add` at its head commit) rather than trusting the
+        PR body: `portfolio/router/validate.py` (11/11 `VENTURE.yaml`
+        clean) and `python3 -m unittest test_allocate` (21/21 pass, run
+        directly inside `portfolio/router/` after the bare `-m
+        unittest portfolio.router.test_allocate` import path failed).
+      - >-
+        Also re-probed three of the PR's network claims live, with plain
+        `curl` rather than its Python script, to see if the same
+        environment gives the same answer by an independent method:
+        `wordpress.org/plugins/` and `upload.pypi.org` both denied at the
+        gateway (matches "EGRESS_DENIED"); `pypi.org` reachable (matches).
+      - >-
+        One live check initially looked like a contradiction and is worth
+        recording as a methodology note for future probes: bare `curl
+        https://crates.io/api/v1/crates/serde` returned 403, while the
+        PR's results file marks that exact URL `REACHABLE` (200). Not a
+        proxy denial or a changed policy — the 403 carried Heroku's own
+        `nel`/`reporting-endpoints` headers, i.e. it was crates.io's own
+        origin rejecting the request, and the probe script sends a
+        descriptive `User-Agent` (`monorepo-projects-publish-probe/1.0
+        (portfolio research; read-only)`) that a bare `curl` does not.
+        Re-ran with `-A` set to a similar UA and got 200, confirming the
+        PR's result was correct and the mismatch was in the verification
+        method, not the finding. Recorded so a future spot-check does not
+        misread crates.io's UA policy as a network-reachability regression.
+      - >-
+        Did not duplicate #137's own ledger entry (already included in its
+        diff, unlike #130/#133's split pattern) or send a second push
+        notification (#137's entry already states one was sent this
+        session for the same finding). Did not touch #134/#126/#122/#117/
+        #106/#79/#19 — all reviewed and unchanged as of `db35ba2`, nothing
+        new to add. GitHub Actions account-wide `startup_failure` outage:
+        reconfirmed still active (checked `#137`'s own CI run, same
+        result), unchanged since the account-level-block escalation
+        earlier today; not re-escalated, no new information.
+      - >-
+        `portfolio/router/allocate.py`'s top-ranked task (`ai-first-
+        markets`, "test the untested hypothesis...") requires actual
+        customer contact, which #126/#130/#137 have now shown this
+        session type mostly cannot reach unattended — consistent with
+        those entries' conclusion that the next unit of profit-relevant
+        work here is a decision for the account owner, not a task an
+        agent session can execute solo. No code change beyond this
+        ledger entry; no new PR opened besides the one recording it.
+    mrr_end: null
