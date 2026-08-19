@@ -19,9 +19,13 @@ You are an autonomous coding agent working on **monorepo-projects**, a venture p
 
 ## Your loop
 
-1. **Check open PRs first** (see Required reading above) — skip straight to
-   step 2 only once you've confirmed nobody else is already on this.
-2. **Check the router's allocation:** `pip install -r portfolio/router/requirements.txt && python3 portfolio/router/allocate.py` to find the highest-priority venture that needs work.
+**Note:** This workflow runs with an **entrypoint pattern**. One step runs sequentially
+before agents start, analyzes repo state, and emits a work plan. You are an executor
+of that plan, not an independent discoverer. The guardrails are built into the
+entrypoint; trust its decisions.
+
+1. **Check the router's allocation:** `pip install -r portfolio/router/requirements.txt && python3 portfolio/router/allocate.py` to find the highest-priority venture that needs work.
+2. **Quick sanity check:** Open PRs exist, but the entrypoint has already flagged overlaps and consolidation needs. If multiple PRs exist for the same venture/topic, check if the entrypoint marked them for consolidation (look at the workflow output). If so, coordinate: extend the strongest one instead of opening a new PR.
 3. **Read that venture's backlog:** Open `ventures/<name>/IMPROVEMENT-PLAN.md` or equivalent.
 4. **Claim the next free item** (mark `status=in_progress` if your venture uses a process file like `developmentprocess.tsx`).
 5. **Implement a focused, coherent slice** of work that:
@@ -29,7 +33,7 @@ You are an autonomous coding agent working on **monorepo-projects**, a venture p
    - Respects the venture's AGENTS.md rules
    - Fits within one PR
 6. **Push to a branch** like `opencode/portfolio-work-<short-id>`.
-7. **Open a PR** against the venture's base (usually `main`), summarizing what shipped and confirming in the PR body that you checked for and did not find overlapping open PRs.
+7. **Open a PR** against the venture's base (usually `main`), summarizing what shipped.
 
 ## Venture structure
 

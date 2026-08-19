@@ -38,6 +38,39 @@ something a session should add or re-enable on its own judgment. If you
 think one would help, propose it in a PR and say so plainly — don't ship it
 straight to `main`.
 
+## Autonomous agent architecture
+
+When multiple agents run in parallel (e.g., the OpenCode fleet), the race
+condition is real: agent A checks open PRs (empty), opens PR for work X;
+agent B checks PRs 5 seconds later (A's PR not yet visible), opens duplicate
+PR for work X. Telling each agent "check open PRs" does not prevent duplicates
+— it makes each one independently discover a stale view.
+
+The fix: **Entrypoint pattern.** One decision step runs sequentially before
+parallel agents start, analyzes current state, and outputs a deterministic
+work plan. Agents then execute that plan instead of discovering work independently.
+
+**Entrypoint responsibility:**
+- Fetch current open PRs, recent commits, router allocation
+- Flag work already covered ("skip: #123 covers this")
+- Flag overlapping PRs to consolidate ("#A and #B touch the same code")
+- Assign specific work items to agents (or "no work this hour")
+- Output machine-readable decision tree
+
+**Agent responsibility (after entrypoint):**
+- Read the entrypoint decision
+- Execute the assigned work item (or do nothing if assigned "no work")
+- Do not re-discover work or check whether other agents are working on it
+- Trust the entrypoint has already made that decision
+
+For example, `.github/workflows/opencode-high-throughput.yml`:
+1. Step 1 (sequential): Run entrypoint script → outputs JSON work plan
+2. Step 2 (parallel): Dispatch N agents, each gets assigned work from plan
+3. Each agent: implement assigned work item, open 1 PR per item
+
+This converts the race condition into a deterministic queue. The entrypoint is
+the only place that reads global state; agents are stateless executors.
+
 ## Ledger discipline
 
 Per `portfolio/ledger/README.md`: record outcomes in the monthly ledger file
