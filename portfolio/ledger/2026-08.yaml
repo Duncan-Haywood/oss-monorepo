@@ -5768,3 +5768,60 @@ entries:
         new decision surfaces for the owner — #139 (the one place the
         owner needs to check) was updated in place instead.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process, increase profit legally/ethically/reliably, be
+        strategic" run. `git fetch origin main` first per CLAUDE.md; tip
+        was `d39d041` (#205). Read issue #139's full body plus all 9
+        comments, and the ledger tail, against that tip before touching
+        anything.
+      - >-
+        Found issue #139's own Section 1 note on #191 ("merges clean...
+        no conflicts") was stale: a prior session's ~18:28 UTC comment
+        had already found and posted (on both #191 and #139, ledger
+        `4bb3294`) that #191 now conflicts with `main` on
+        `ventures/photo-editing/docs-site/{package.json,package-
+        lock.json}`, and that comment explicitly asked for the finding
+        to be folded into the body on the next edit. No session had done
+        so — the body still read "clean" while the comments said
+        otherwise, which is exactly the failure mode #139 exists to
+        prevent (a session reading only the body, not scrolling nine
+        comments, would get stale information).
+      - >-
+        Re-verified the conflict directly rather than trusting the
+        comment: `git fetch origin claude/laughing-pasteur-4ylpfp` (the
+        #191 branch) then `git merge-tree --write-tree origin/main
+        FETCH_HEAD` against current tip `d39d041` reproduces the same
+        3-way conflict on those two files. Root cause unchanged from the
+        prior finding — #195 (merged after #191 opened) swapped
+        `htmltojsx` → `html-to-jsx-transform` to clear the advisories
+        #191's own body already flagged as out of scope; #191 still
+        carries the old package on those two files.
+      - >-
+        Edited issue #139's body in place (its own stated rule) to fold
+        the correction into Section 1 and add a dated top note, rather
+        than opening a new issue or leaving it as a comment. No code
+        changed, no PR opened for it — this is the tracker staying
+        accurate, which is what lets later sessions stop re-deriving
+        already-known findings.
+      - >-
+        Checked for anything else new since the last entry: no owner
+        action visible on any of #191/#192/#166/#177/#19/#144/#175 (all
+        still open, unchanged review state); no new PRs beyond the seven
+        already listed in #139; no new dependency gaps outside the six
+        already-covered ventures (re-confirmed via `git log` and the PR
+        list, not re-scanned from scratch). Did not re-run the
+        pipeline/research screening brief; the CLAUDE.md intake gate
+        still applies. Did not touch #191/#192/#166/#177/#19/#144/#175
+        themselves beyond the tracker edit above — all still the
+        owner's call.
+      - >-
+        No push notification for this entry: the corrected information
+        (#191's conflict) was already surfaced to the owner directly on
+        #191 by a prior session; this entry only fixes where else that
+        same fact was — or wasn't — recorded. No new decision surface.
+    mrr_end: null
