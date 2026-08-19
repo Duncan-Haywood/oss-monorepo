@@ -4159,3 +4159,113 @@ entries:
         already today, #144's commits independently reconfirm the same
         root cause).
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business
+        projects that aren't already here" run — the recurring brief
+        PR #79's intake gate exists to redirect. `git fetch origin main`
+        first per CLAUDE.md; tip was `06689e0` at survey time and moved
+        to `a032fbd` (#145, #149 — both recording review of PR #144)
+        while this session worked. Read those before writing this entry;
+        they cover #144 and are not re-derived here.
+      - >-
+        Followed the intake gate rather than screening. Read
+        `portfolio/pipeline/` (README, screened-out, distribution-first,
+        channel-inventory) on #79's branch plus the #126 -> #130 -> #137
+        reachability chain and issue #139. **No new candidate proposed
+        and no score changed** — a further archetype list is the failure
+        mode CLAUDE.md and `convergence.md` both price at negative value.
+      - >-
+        Took the gate's first named useful move — advance a probe already
+        specified — by testing the load-bearing claim of the *newest*
+        ask on the owner's desk, the same move #137 made against #79 an
+        hour earlier. #137's "Ask 0" says one registry account is
+        "sufficient for a free artifact to be published and its installs
+        counted." It measured `register` and `publish`. Nobody had
+        measured the surface where the count is read back.
+      - >-
+        Measured it: 27 targets, 13 channels, paced read-only GETs,
+        stdlib only, no credentials sent to any third party, nothing
+        published or registered. Of Ask 0's eight channels five work
+        (crates.io, RubyGems, Packagist, Hex, Docker Hub — live counts
+        read for third-party packages) and three cannot produce a number.
+        NuGet fails on this environment: `api.nuget.org` REACHABLE,
+        `azuresearch-usnc.nuget.org` EGRESS_DENIED — publish host
+        permitted, statistics host refused, same channel. ghcr.io and the
+        Go module proxy fail on the channel itself: neither publishes a
+        public download count at any permission level.
+      - >-
+        The consequential row is Go. #137 singled it out as the one
+        channel needing no account of any kind, and Ask 0 offers it as
+        the free option — "or confirm a Go-module route where no account
+        is needed." Taking it satisfies Ask 0's letter and produces no
+        measurement at all: it is the cheapest-looking item on the
+        decision queue and the only one guaranteed to return nothing.
+      - >-
+        Second finding, a channel class no prior probe enumerated:
+        channels published via a git repo or a pull request (Homebrew,
+        Raycast, Obsidian, Zed, winget, HACS). First class measured whose
+        searcher is not a developer — the empty cell #137 identified.
+        Blocked twice, at two different kinds of gate: submission is
+        SCOPE_DENIED (`codeload.github.com` answers "sessions are bound
+        to their configured repositories" — a credential scope, #130's
+        Ask 1 category, not egress), and all four storefronts are
+        EGRESS_DENIED, so even reading public competitor install counts —
+        which needs no account and no submission — is unavailable. Honest
+        limit recorded in the write-up: those platforms' extensions are
+        free and the platforms monetize their own products, so the class
+        yields a demand number from a non-developer audience and still no
+        revenue. #137's empty top-right cell stands.
+      - >-
+        Third finding recorded so the five working channels aren't
+        oversold: registry download totals count CI, mirrors, and
+        dependency resolution, not humans choosing an artifact. At #130's
+        projected "tens-to-low-hundreds of downloads" the number may not
+        distinguish "nobody wants this" from "twelve robots fetched it."
+        Not a reason to skip the measurement — a reason to write down what
+        counts as demand before the number exists and becomes arguable.
+      - >-
+        Verified before opening: two controls (`pypi.org` known
+        REACHABLE, `wordpress.org` known EGRESS_DENIED) reproduced their
+        #130/#137 verdicts, so this run's classifier is comparable to
+        those runs rather than merely self-consistent; `--recompute-from`
+        reproduces the same partition offline with no network;
+        `portfolio/router/validate.py` 11/11 and `test_allocate` 21/21
+        still pass. No third-party repository was read — the two GitHub
+        rows use bare non-repo paths deliberately and the scope boundary
+        is quoted from the gateway's own refusal, not found by testing
+        what it forbids.
+      - >-
+        Opened as #150, content-only and deliberately carrying **no
+        ledger hunk** (this entry ships separately) per the rule #79 adds
+        to CLAUDE.md — a ledger hunk is what made five prior
+        decision-pending PRs conflict within the hour. Amends Ask 0 to
+        name the five registries that actually work, and adds Ask 3:
+        read-only egress for four storefront hosts, the cheapest item
+        ever added to this queue — no account, no write access, nothing
+        published, cannot spend money. Also notes #130's Ask 1 is worth
+        more than it was credited, since it is what would unblock
+        submission to the git/PR-based channels at all.
+      - >-
+        Updated issue #139 in place rather than opening anything new, as
+        that tracker's own instructions ask: added #150 to the chain,
+        marked #137's Ask 0 as amended, added a cheapest-first table of
+        the four live asks, and folded in #142, #144 (with the prior
+        sessions' finding that it shouldn't merge as-is) and #146. The
+        point is that the next session reads one place instead of
+        re-deriving the queue.
+      - >-
+        Did not re-verify #137/#135/#134/#130/#126/#122/#117/#106/#79/
+        #19/#142/#144/#146 — all unchanged and #139 now current on all of
+        them. GitHub Actions account-wide `startup_failure` outage: not
+        re-checked (confirmed repeatedly today in prior entries).
+      - >-
+        Push notification sent. Unlike the routine maintenance this chain
+        has correctly not interrupted the owner for, this changes the
+        content of an ask already in front of them: Ask 0's free option
+        would be granted against a channel that cannot return a number,
+        and the correction is only useful before they act on it.
+    mrr_end: null
