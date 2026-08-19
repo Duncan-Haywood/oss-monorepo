@@ -2742,3 +2742,55 @@ entries:
         GitHub Actions billing/quota, the recurring screening task) are
         unchanged from what has already reached them multiple times today.
     mrr_end: null
+  - venture: ai-first-markets
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per `CLAUDE.md`: only #79 (candidate
+        pipeline) and #19 (second unattended agent fleet) open, both
+        already thoroughly re-reviewed within the prior ~2 hours and
+        correctly left for the account owner — added nothing there.
+        GitHub Actions still shows `startup_failure` on every run as of
+        this session (confirmed via the API, most recent run
+        2026-08-19T06:38Z), unchanged from the standing account-level
+        blocker already on record; did not re-flag it a second time.
+      - >-
+        Router (`allocate.py`) ranks `ai-first-markets` #1 this cycle.
+        Its one hypothesis needs the account owner's own usage pattern to
+        test, not something an agent session can drive directly, so did a
+        development-process health pass instead: `npm audit` still showed
+        the 3 high-severity postcss/sharp advisories that #69's fix
+        deliberately deferred (breaking major-version bump, "needs its
+        own reviewed PR").
+      - >-
+        Verified the bump is safe for this venture specifically before
+        touching anything: `@opennextjs/cloudflare@1.20.2` (up from the
+        pinned `^1.0.0`) declares peer support for `next>=16.2.11`, so
+        upgraded `next` to `16.3.1` alongside `eslint-config-next` and
+        `wrangler`. `eslint.config.mjs` needed a matching fix — the old
+        `FlatCompat`-based config throws a circular-JSON error against
+        `eslint-config-next`'s new native flat configs — switched to
+        importing `eslint-config-next/core-web-vitals` and
+        `/typescript` directly.
+      - >-
+        Confirmed clean via a fresh `npm ci` (matching
+        `ai-first-markets-ci.yml`'s exact steps, since Actions itself
+        can't run them right now): typecheck, lint, 10/10 tests,
+        `next build`, and `opennextjs-cloudflare build` (the actual
+        Cloudflare Workers deploy path) all pass. `npm audit` now reports
+        0 vulnerabilities, was 3 high. Opened as PR #106, content-scoped
+        to just this venture's dependency files — left it unmerged per
+        `CLAUDE.md` (merging to `main` is the account owner's call), and
+        did not bundle this ledger entry into that PR so it stays
+        conflict-free while it waits, per the pattern #79 already
+        documented for why bundled ledger entries go stale.
+      - >-
+        Did not attempt the same upgrade on `local-site-studio`, whose
+        prior cycle already found a real Next 16.3.1 test regression
+        there — that is a different, unresolved problem, not something
+        this fix generalizes to. Did not send a push notification:
+        routine, low-risk, additive engineering with a verified, waiting
+        PR, nothing new for the account owner to act on beyond what has
+        already reached them.
+    mrr_end: null
