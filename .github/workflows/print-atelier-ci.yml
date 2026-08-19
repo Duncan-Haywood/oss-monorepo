@@ -12,6 +12,9 @@ on:
       - "ventures/print-atelier/**"
       - ".github/workflows/print-atelier-ci.yml"
 
+permissions:
+  contents: read
+
 defaults:
   run:
     working-directory: ventures/print-atelier

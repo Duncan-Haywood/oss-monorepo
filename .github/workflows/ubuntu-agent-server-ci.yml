@@ -17,6 +17,9 @@ on:
       - "ventures/ubuntu-agent-server/**"
       - ".github/workflows/ubuntu-agent-server-ci.yml"
 
+permissions:
+  contents: read
+
 defaults:
   run:
     working-directory: ventures/ubuntu-agent-server
