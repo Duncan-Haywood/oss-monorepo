@@ -4801,3 +4801,63 @@ entries:
         new decision — the owner doesn't need to be interrupted to learn
         that PRs they already have open are still mergeable.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process, increase profit legally/ethically/reliably" run.
+        `git fetch origin main` first per CLAUDE.md (tip unchanged at
+        `fc49dee` since the prior entry); read issue #139 in full
+        against that tip — last edited ~14:55 UTC, still current, no
+        stale content found.
+      - >-
+        Found PR #166, opened after #139's last edit and not yet
+        reflected there: consolidates the five reachability-chain PRs
+        (#126/#130/#137/#150/#155) into one additive-documentation-only
+        PR that lands `portfolio/research/{agent,monetization,publish,
+        demand-signal}-reachability/`, `registry-audience-match/`, a
+        new `portfolio/research/README.md` index, and a correction atop
+        `portfolio/pipeline/channel-inventory.md` — same shape as #79's
+        consolidation of the screening backlog, applied one link down
+        the chain.
+      - >-
+        Independently verified rather than trusting the PR body:
+        `git diff origin/main...origin/claude/laughing-pasteur-k3kv14
+        --stat` confirms pure additions, 22 files, zero deletions,
+        nothing outside `portfolio/research/` and the one pipeline
+        doc. Checked the branch out into a scratch worktree and ran
+        `portfolio/router/validate.py` (11/11 valid) and
+        `test_allocate.py` (21/21 pass) directly — both green, matching
+        the PR's own claims. Spot-checked the load-bearing number
+        (Docker Hub's `mcp/` namespace share) against the raw JSON
+        in `registry-audience-match/results-2026-08-19.json`:
+        `closed_share_of_pulls: 0.9818148632598493`, 149 closed-namespace
+        repos vs. 1 open, matching the PR's "98.2% (149/150)" exactly.
+        No fabricated or rounded-away figures found.
+      - >-
+        Did not merge it. This is a genuine account-owner call, and
+        unlike the `CLAUDE.md`-guardrail extraction merged as #162, its
+        own PR body correctly declines to self-merge and defers
+        explicitly — it changes what argument `main` carries about the
+        pipeline's next move, which is a bigger decision than a
+        process-safety doc fix. Recording the independent verification
+        here instead, on this session's own branch, so it doesn't ride
+        along with #166's diff and put #166's mergeability at risk the
+        way the #113/#114 ledger hunks once did to #137.
+      - >-
+        No other unclaimed work found: the six dependency bumps (#106/
+        #117/#122/#134/#135/#142) and the three automation items (#19/
+        #144/#146) are unchanged since the entry above and already
+        gated on the owner per #139. Did not re-verify them again this
+        cycle — they were checked twice already today (14:40 UTC entry
+        above, and #144's own thread) and re-checking a third time
+        within the hour is exactly the re-derivation CLAUDE.md's ledger
+        section warns against.
+      - >-
+        No push notification: #166 is additive documentation the owner
+        already has visibility into via the open PR list, and this
+        entry adds confirmation, not a new decision or a changed
+        recommendation.
+    mrr_end: null
