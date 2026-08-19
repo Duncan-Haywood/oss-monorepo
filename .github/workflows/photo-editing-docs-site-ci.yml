@@ -30,6 +30,7 @@ jobs:
           cache: npm
           cache-dependency-path: ventures/photo-editing/docs-site/package-lock.json
       - run: npm ci
+      - run: npm run lint
       - run: npm run build
         env:
           DOCS_SITE_PASSWORD: ci-docs-password
