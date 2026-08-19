@@ -16,7 +16,24 @@ mean:
 
 ## Open
 
-### P0 — Forty-two parallel pull requests, none merged — *one merge closes all of them*
+### P0 → resolved by migration — Forty-two parallel pull requests, none merged — *one merge closes all of them*
+
+**Resolved.** This item describes a standalone `quick-pick-survey` repository
+that predates this monorepo. Commit `4935cc7` ("Merge quick-pick-survey into
+ventures/") folded that repo's final consolidated state into
+`monorepo-projects` as a single commit, which is why `src/lib/participantAccess.ts`,
+`src/lib/originCheck.ts` and the rest of the fixes described below are already
+present in the tree. The standalone repo's own `main` (stuck at `b887731`) and
+its 42-PR queue no longer exist as a separate thing to merge or drain — they
+were superseded by the migration itself, not by an account-owner decision on
+the old repo. This monorepo has its own, much smaller, open-PR situation,
+tracked in `portfolio/ledger/` and `CLAUDE.md` at the repo root, not here.
+Left the rest of this write-up below unedited as the historical record the
+file's own "Closed" section philosophy asks for — the dispositions in
+`docs/PULL-REQUEST-BACKLOG.md` and the lessons in `docs/UNATTENDED-SESSIONS.md`
+are still accurate about what happened, just no longer about a live decision.
+
+**Original write-up, kept for the record:**
 
 **This branch is the forty-third, and it extends the forty-second rather than
 starting beside it.** Every commit below #42's head is carried forward

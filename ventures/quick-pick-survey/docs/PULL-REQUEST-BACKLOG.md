@@ -1,5 +1,14 @@
 # The open pull requests, and what to do with each
 
+**Resolved by migration, not by a merge decision.** This document describes a
+standalone `quick-pick-survey` repository that predates this monorepo; commit
+`4935cc7` ("Merge quick-pick-survey into ventures/") folded its final
+consolidated state into `monorepo-projects`, which is why the fixes below are
+already in the tree. The queue and the `main` this document refers to no
+longer exist as separate things — see the note at the top of the matching item
+in `../IMPROVEMENT-PLAN.md`. Kept below as the record of how the dispositions
+were computed, in case that method is useful again.
+
 Forty-two scheduled sessions have opened forty-two pull requests against
 `main`, and this branch is the forty-third. **None has been merged.** `main`
 is still at `b887731`, where it has been for two days.
