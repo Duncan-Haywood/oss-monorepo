@@ -1158,3 +1158,157 @@ entries:
         2026-07-29 (seventh report); (4) merge this PR, which supersedes #53
         and #44, or none of them; (5) decide on #19.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Carried forward from PR #55 (created 2026-08-19T01:25Z, consolidated
+        into this branch rather than merged separately — see this cycle's
+        final entry below for why). Checked open PRs first per CLAUDE.md:
+        two open at the time (#53, #19), down from three the prior cycle —
+        no duplicate-PR backlog to consolidate that pass.
+      - >-
+        Independently re-verified #53 in an isolated worktree at its exact
+        head commit rather than trusting its stated checks:
+        `portfolio/router/validate.py` (11/11 `VENTURE.yaml` clean),
+        `pytest portfolio/router/test_allocate.py` (12/12 pass),
+        `allocate.py` (ranks all 11 ventures), and
+        `portfolio/ledger/2026-08.yaml` parsed at that commit (12 entries,
+        73 outcome items — exact match to the PR's stated counts). All
+        claims held. Did not merge #53 itself — that decision belongs to
+        the account owner per the PR's own body.
+      - >-
+        New finding at the time, not previously reported: root-caused the
+        "GitHub Actions broken" line every recent cycle had repeated as a
+        bare "billing/quota" guess. `main`'s last successful Actions run
+        was `ai-first-markets-ci.yml` on 2026-07-29T00:34Z; after that, zero
+        runs of any kind for three weeks (consistent with Actions being
+        disabled repo-wide, e.g. a spend cap) — then, starting exactly
+        2026-08-18T18:42:43Z, every push/PR event on every branch comes back
+        `startup_failure` under a synthetic, already-`state:deleted` phantom
+        workflow (id 337182028, path `BuildFailed`, empty name, zero jobs,
+        no logs). That phantom workflow's own creation timestamp
+        (2026-08-18T18:42:42Z UTC) matches the first `startup_failure` run
+        to the second, and matches `.github/workflows/opencode-high-
+        throughput.yml`'s own creation timestamp — the unattended hourly
+        OpenCode agent-swarm cron added and re-enabled across several
+        commits that day (`f16fca5`, `5665a36`, `ec3aa0d`, `c127d32`). That
+        file pins a third-party action
+        (`anomalyco/opencode/github@e5cc278...`) and is the prime suspect
+        for whatever is now making Actions reject every workflow file
+        repo-wide at parse/registration time, before any job or log exists
+        to show GitHub's exact schema error.
+      - >-
+        Did not disable or edit `opencode-high-throughput.yml` unilaterally
+        at the time — per CLAUDE.md, unattended paid-agent automation
+        already live on `main` is a human-reviewed decision either way, not
+        something a session should touch on its own judgment, even to
+        disable it.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Carried forward from PR #60 (created 2026-08-19T01:59Z, consolidated
+        into this branch rather than merged separately — see this cycle's
+        final entry below). That cycle's own consolidation pass: closed #54
+        ("Ledger: confirm PR #53 supersedes #44") as superseded by #55
+        (a strict superset — same #53 re-verification plus the Actions
+        root-cause finding above, which #54 lacked). Left a comment on #54
+        pointing to #55; did not merge or close #55 itself.
+      - >-
+        Verified and merged #58 (print-atelier lint fix) against the PR's
+        own head commit: `npm run lint` exited 0 (2 pre-existing warnings
+        only, matching the PR's own report), `npm test` 128/128 passed.
+      - >-
+        Verified and merged #59 (local-site-studio silent-tsc-error fix):
+        `npx tsc --noEmit` 0 errors (was 15, matching the PR's claim),
+        `npm run test` 124/124 files and 1207/1207 tests passed, `npm run
+        lint` clean. Resolved a ledger-only merge conflict against #58 by
+        re-appending both PRs' entries in PR-creation-time order, verified
+        entry/outcome counts before and after matched exactly (11/64 base +
+        7 + 7 = 13/78).
+      - >-
+        Verified and merged #56 (retail-pilot-intel unit tests for
+        `packages/analytics`): `pnpm run typecheck` 6/6 clean, `pnpm run
+        lint` clean, `pnpm run test` 13/13 passed, `pnpm run build` 6/6
+        clean. Resolved the same class of stale-base ledger conflict the
+        same way, counts matched exactly (10/57 base + 8 + 7 + 7 + 7 =
+        14/86).
+      - >-
+        Net result of that cycle: main gained #56, #58, and #59 (three
+        additive, non-content, non-automation engineering fixes, each
+        independently re-verified rather than trusted from the PR body);
+        the #54/#55 ledger-only duplicate was consolidated to one (#55);
+        #53 and #19 were left exactly as they were, untouched, per
+        CLAUDE.md's automation-governance section.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        This cycle's own work: checked open PRs first per CLAUDE.md and
+        found three overlapping ledger-focused PRs open in a roughly one-
+        hour window — #55 (01:25Z, Actions root-cause finding), #60 (01:59Z,
+        recorded merging #56/#58/#59 and closing #54), and #61 (02:16Z,
+        carries #53's diff plus new `portfolio/pipeline/` distribution
+        research and a proposal to publish a free channel listing as a
+        demand-measurement experiment). All three add distinct,
+        non-overlapping `portfolio/ledger/2026-08.yaml` entries on top of
+        the same `main` tip (`13dd67e`); none conflict in venture code.
+      - >-
+        Per CLAUDE.md's consolidation guidance, picked #61 as the strongest
+        PR (most complete: carries #53, adds real research content, already
+        independently verified per its own checks table) and built this
+        branch as #61's branch merged cleanly, plus #55's and #60's outcome
+        entries appended above (this file's chronological-append convention
+        broke down inside #61 itself, which had to interleave entries
+        mid-file to resolve a real conflict with #53 — rather than disturb
+        that resolution, #55's and #60's entries are appended here at file
+        end, out of strict creation-time order relative to #61's internal
+        content, but lossless and self-timestamped in their own prose).
+      - >-
+        Re-verified independently rather than trusting any of the three
+        PRs' stated checks: `portfolio/router/validate.py` (11/11
+        `VENTURE.yaml` clean), `pytest portfolio/router/test_allocate.py`
+        (12/12 pass), and this file parses with 20 entries / 128 outcome
+        items after all three merges plus this entry (17/113 from #61's
+        merge, +4 outcomes from #55, +5 outcomes from #60, +6 outcomes from
+        this entry — no content dropped from any of the three).
+      - >-
+        Independently re-confirmed the Actions `startup_failure` is still
+        live and unchanged in cause: pulled the last 8 workflow runs on
+        `main` directly (not from a prior cycle's summary) — all 8 are
+        `BuildFailed` / `startup_failure`, spanning 2026-08-19T00:28Z
+        through 01:57Z. One of those 8 has `event: schedule` (the
+        01:40:34Z run), which is new information refining #55's finding:
+        the suspect hourly cron is not merely present but is actually
+        firing on schedule and failing at startup every time, not just on
+        push/PR events as the sample #55 checked showed. Still did not
+        disable or edit `opencode-high-throughput.yml` — same reasoning as
+        every prior cycle: this is exactly the human-reviewed,
+        unattended-paid-automation decision CLAUDE.md reserves for the
+        account owner, and three consecutive cycles choosing not to
+        override that on their own judgment is itself a signal worth
+        preserving, not grounds to be the fourth to second-guess it.
+      - >-
+        Did not send a push notification for the Actions finding alone —
+        it refines rather than changes #55's already-delivered root-cause
+        report (same suspect file, same conclusion, one more data point).
+      - >-
+        Still unresolved, needs the account owner, unchanged in substance
+        from prior cycles: (1) GitHub Actions blocked repo-wide, very
+        likely by `.github/workflows/opencode-high-throughput.yml` firing
+        hourly and failing at startup every time — recommend checking the
+        Actions tab for the actual GitHub-rendered parse error, or pausing
+        its `schedule` trigger, to confirm and fix; (2) merge this PR
+        (supersedes #53, #55, #60, and #61) or none of them; (3) decide on
+        #19; (4) whether an agent session may publish a free channel
+        listing per #61's proposal, and whether to establish one payout
+        rail, both per #61; (5) submit `garmin-world-traveler-watchface` or
+        `world-clock-widget` to their respective app stores, both built,
+        blocked only on developer-account credentials.
+    mrr_end: null
