@@ -1241,3 +1241,66 @@ entries:
         dependency hygiene). Flagging as still open for the account owner
         or a future session with more room to do that work.
     mrr_end: null
+  - venture: photo-editing
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per `CLAUDE.md`: only #70 and #19 open
+        (#69's ai-first-markets audit fix merged as #69 while this session
+        was running), both already reserved for account-owner decisions,
+        no photo-editing work in flight. Router ties photo-editing's
+        Explore slot with several other prototypes; picked it since it had
+        not had a health check yet this cycle.
+      - >-
+        Ran the documented test command
+        (`PYTHONPATH=src python3 -m unittest discover -s tests`) and got 6
+        failures out of 438. Root-caused all 6 by direct reproduction
+        rather than assuming environment noise: this session's sandbox
+        runs as uid 0, so `os.chmod(path, 0)` doesn't actually block a
+        read (breaks
+        `test_unreadable_render_input_is_reported_for_review`), and the
+        sandbox's writable-disk allowance is capped under 64GB, which is
+        the exact free-space threshold `storage.py`'s `_rank_candidate`
+        requires before classifying any path as an import destination —
+        so every card-dump-workflow test that expects a route to be found
+        gets `blocked` instead (5 tests). Confirmed by reproducing the
+        route-selection call directly outside the test harness and reading
+        the `writable_capacity` check in source.
+      - >-
+        This is a real, previously-undocumented risk to the development
+        process, not just a one-off curiosity: every scheduled session in
+        this repo runs in the same root-uid, quota-capped sandbox profile,
+        so any future session running this venture's tests would hit the
+        same 6 failures and could easily either misdiagnose them as a
+        regression, or worse, "fix" them by loosening the 64GB capacity
+        gate or the permission check — both of which exist for genuine
+        data-safety reasons (don't recommend importing onto too-small a
+        destination; don't claim a file is readable when the OS says it
+        isn't). Documented the 6 test names and both root causes directly
+        in `ventures/photo-editing/AGENTS.md`, next to the existing
+        test-running instructions, so this doesn't get re-diagnosed from
+        scratch. No source or test code was changed — the failures are
+        sandbox artifacts, not bugs, so there was nothing in the actual
+        product to fix.
+      - >-
+        Also spot-checked `quick-pick-survey` (`npm audit`, `next`
+        dependency): same shape of finding as this cycle's ai-first-markets
+        entry above — 4 high-severity vulnerabilities, all requiring a
+        `next` major-version bump to clear (`sharp`/`postcss` transitively).
+        Did not open a separate PR for this alone since it's the same
+        already-established "breaking bump needs its own reviewed PR, not
+        an unattended patch" call, not new information.
+      - >-
+        Did not send a push notification. Nothing here is time-sensitive
+        or blocking — it's process documentation that saves future agent
+        cycles from redoing this diagnosis, not a finding the account
+        owner needs to act on right now.
+      - >-
+        Unresolved, unchanged from prior entries, still needs the account
+        owner: the seven items listed in the ledger entry above the Actions
+        root-cause correction (publish/payout decision, #70 and #19 merge
+        decisions, the two finished-but-unlisted apps, local-site-studio's
+        external cron status, and retiring/redirecting the business-research
+        scheduled task).
+    mrr_end: null
