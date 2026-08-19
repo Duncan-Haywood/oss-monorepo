@@ -1,0 +1,30 @@
+name: photos-import-tools CI
+
+on:
+  pull_request:
+    paths:
+      - "ventures/photos-import-tools/**"
+      - ".github/workflows/photos-import-tools-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/photos-import-tools/**"
+      - ".github/workflows/photos-import-tools-ci.yml"
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: ventures/photos-import-tools
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt pytest
+      - run: python3 -m pytest tests/ -q

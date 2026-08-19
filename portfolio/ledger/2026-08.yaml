@@ -1241,6 +1241,72 @@ entries:
         dependency hygiene). Flagging as still open for the account owner
         or a future session with more room to do that work.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per `CLAUDE.md`: three open (#70, #69, #19),
+        down sharply from the multi-dozen backlog described in the repo's
+        own history. All three already correctly defer their merge/spend
+        decision to the account owner and needed no consolidation — #70
+        (screening-research pipeline, strongest of four re-derivations)
+        and #69 (ai-first-markets audit fixes) both say "merge is your
+        call"; #19 (a second unattended agent fleet) is untouched pending
+        an explicit spend decision. Left all three exactly as found — this
+        session does not merge to `main` itself, per `CLAUDE.md`.
+      - >-
+        Router's `allocate.py` ranks every venture "no economics signal
+        yet"; the two top-ranked ventures with open dependency/process gaps
+        not already covered by an in-flight PR were `quick-pick-survey`
+        (untouched since VENTURE.yaml backfill) and `photos-import-tools`
+        (never checked this cycle). Did a development-process health pass
+        on both rather than duplicate #69's already-open audit-fix pattern
+        on `ai-first-markets` again.
+      - >-
+        `quick-pick-survey`: `npm audit` found 6 high-severity
+        vulnerabilities. Ran `npm audit fix` (no `--force`) — resolved 3
+        (`brace-expansion`, `js-yaml`, `nanoid`), only `package-lock.json`
+        changed. Left 3 (`postcss`, `sharp`, transitively via `next`)
+        unfixed: forcing them bumps `next` to a version outside its stated
+        range, a breaking change for its own reviewed PR. Verified clean
+        before and after: `npm run lint`, `npm run typecheck`, `npm test`
+        (264/264 passing across 28 files), `npm run build`.
+      - >-
+        `photos-import-tools`: has a real `tests/` suite (19 unittest-style
+        cases across CSV/watchdog/resumable-import error handling) but no
+        CI workflow runs it — regressions would go uncaught. Added
+        `.github/workflows/photos-import-tools-ci.yml` on the same pattern
+        as the existing `ai-first-markets-ci.yml`/`portfolio-validate.yml`
+        (official `actions/checkout`+`actions/setup-python`, no cron, no
+        secrets, triggered only on push-to-main/PR touching the venture's
+        own paths) — this is routine test-on-PR CI, not the kind of
+        unattended-spend automation `CLAUDE.md` reserves for the account
+        owner. Verified locally first: `pip install -r requirements.txt
+        pytest && python3 -m pytest tests/ -q` → 19/19 pass.
+      - >-
+        Also verified portfolio-wide health while here:
+        `portfolio/router/validate.py` — 11/11 `VENTURE.yaml` clean;
+        `python3 -m unittest discover -s portfolio/router -t
+        portfolio/router` — 12/12 pass; `portfolio/pipeline/` still does
+        not exist on `main` (confirms #70's account is current — nothing
+        to duplicate there).
+      - >-
+        Did not touch the still-open, still account-owner-gated items
+        (repeated verbatim from prior cycles, unchanged): merge/spend
+        decisions on #70/#69/#19; the repo-wide Actions `startup_failure`,
+        last root-caused as account-level (billing/quota), not
+        file-specific; publishing the two finished apps
+        (`garmin-world-traveler-watchface`, `world-clock-widget`) blocked
+        on developer-account credentials; whether to retire the recurring
+        "research new business projects" scheduled task now that #70
+        documents its outcome (11 firings, 1 usable unmerged result).
+      - >-
+        Did not send a push notification — routine, low-risk, additive
+        engineering (a lockfile audit-fix and a new test-only CI workflow),
+        nothing new for the account owner to act on beyond what #70/#69/#19
+        already put in front of them.
+    mrr_end: null
   - venture: photo-editing
     agent_spend_usd: null
     human_hours: 0
