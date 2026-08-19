@@ -1,0 +1,67 @@
+name: real-estate-agent-photo-app CI
+
+on:
+  pull_request:
+    paths:
+      - "ventures/real-estate-agent-photo-app/**"
+      - ".github/workflows/real-estate-agent-photo-app-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/real-estate-agent-photo-app/**"
+      - ".github/workflows/real-estate-agent-photo-app-ci.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: real-estate-agent-photo-app-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pipeline:
+    name: pipeline/ tests + typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: ventures/real-estate-agent-photo-app/pipeline/package-lock.json
+      - working-directory: ventures/real-estate-agent-photo-app/pipeline
+        run: npm ci
+      - working-directory: ventures/real-estate-agent-photo-app/pipeline
+        run: npm test
+      - working-directory: ventures/real-estate-agent-photo-app/pipeline
+        run: npx tsc --noEmit
+
+  docs-site:
+    name: docs-site/ build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: ventures/real-estate-agent-photo-app/docs-site/package-lock.json
+      - working-directory: ventures/real-estate-agent-photo-app/docs-site
+        run: npm ci
+      - working-directory: ventures/real-estate-agent-photo-app/docs-site
+        run: npm run build
+
+  research:
+    name: research/ build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: ventures/real-estate-agent-photo-app/research/package-lock.json
+      - working-directory: ventures/real-estate-agent-photo-app/research
+        run: npm ci
+      - working-directory: ventures/real-estate-agent-photo-app/research
+        run: npm run build

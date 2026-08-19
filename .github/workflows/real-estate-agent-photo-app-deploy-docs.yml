@@ -1,16 +1,16 @@
-name: Deploy docs site
+name: Deploy real-estate-agent-photo-app docs site
 
 on:
   push:
     branches: [main]
     paths:
-      - "docs-site/**"
-      - "process/**"
-      - ".github/workflows/deploy-docs.yml"
+      - "ventures/real-estate-agent-photo-app/docs-site/**"
+      - "ventures/real-estate-agent-photo-app/process/**"
+      - ".github/workflows/real-estate-agent-photo-app-deploy-docs.yml"
   workflow_dispatch:
 
 concurrency:
-  group: deploy-docs
+  group: real-estate-agent-photo-app-deploy-docs
   cancel-in-progress: true
 
 jobs:
@@ -29,14 +29,14 @@ jobs:
         with:
           node-version: "20"
           cache: npm
-          cache-dependency-path: docs-site/package-lock.json
+          cache-dependency-path: ventures/real-estate-agent-photo-app/docs-site/package-lock.json
 
       - name: Install dependencies
-        working-directory: docs-site
+        working-directory: ventures/real-estate-agent-photo-app/docs-site
         run: npm ci
 
       - name: Build static site
-        working-directory: docs-site
+        working-directory: ventures/real-estate-agent-photo-app/docs-site
         run: npm run build
 
       - name: Deploy to Cloudflare Pages
@@ -45,7 +45,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy out --project-name=listing-lens-docs --branch=main
-          workingDirectory: docs-site
+          workingDirectory: ventures/real-estate-agent-photo-app/docs-site
 
   apply-access:
     name: Apply Cloudflare Access policy
@@ -61,4 +61,4 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           DOCS_HOSTNAME: listing-lens-docs.pages.dev
-        run: docs-site/scripts/setup-cloudflare-access.sh
+        run: ventures/real-estate-agent-photo-app/docs-site/scripts/setup-cloudflare-access.sh

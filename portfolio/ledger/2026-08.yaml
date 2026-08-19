@@ -1731,3 +1731,58 @@ entries:
         notification sent — this cycle's only development is routine,
         low-risk, additive engineering.
     mrr_end: null
+  - venture: real-estate-agent-photo-app
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Independently found the same lint gap as the immediately preceding
+        cycle's entry above (`git fetch origin main` mid-session surfaced
+        it already merged as #82) but also found something that cycle
+        didn't: `.github/workflows/ci.yml` and `deploy-docs.yml` for this
+        venture lived nested under `ventures/real-estate-agent-photo-
+        app/.github/workflows/` rather than the repo-root `.github/
+        workflows/` that GitHub Actions actually reads — confirmed via
+        `find` that no `real-estate-agent-photo-app`-named workflow
+        existed at repo root, so these two files have never once run
+        since the venture's subtree merge, independent of the
+        account-level Actions outage.
+      - >-
+        Rebased onto #82 rather than duplicating it: discarded the local
+        `docs-site/.eslintrc.json` already written before the merge (byte-
+        identical to #82's), kept only the net-new fix. Moved both
+        workflow files to repo root as `real-estate-agent-photo-app-
+        ci.yml` / `-deploy-docs.yml`, following the exact naming/path-
+        filter/`working-directory` convention already used by
+        `ai-first-markets-ci.yml`, `photo-editing-ci.yml` and (this same
+        cycle) `ai-engineering-academy-ci.yml`, with internal paths
+        re-prefixed to `ventures/real-estate-agent-photo-app/...`.
+      - >-
+        Independently re-ran every job the new workflow specifies rather
+        than trusting the moved YAML: `pipeline/` `npm test` (5/5 suites
+        pass) and `npx tsc --noEmit` (clean), `docs-site/` `npm run
+        build` and `npm run lint` (both clean, confirming #82's fix
+        composes with this one), `research/` `npm run build` (succeeds).
+        Did not attempt the `npm audit` findings already present in all
+        three subprojects (1 high in `pipeline`, 17 in `docs-site`, 11 in
+        `research`) — `npm audit fix --dry-run` confirms none are
+        fixable without `--force`/major version bumps (sharp, wrangler
+        3→4, next 14→16), so left as a larger, separately-reviewed
+        decision, same treatment as the equivalent finding already
+        recorded for `docs-site` (ai-first-markets) and `research`
+        (real-estate-agent-photo-app) in prior entries.
+      - >-
+        Note this fix does not itself turn the check green: GitHub
+        Actions is still returning `startup_failure` on every run across
+        every branch as of this session (re-confirmed, last 10 runs
+        fetched, all `startup_failure`, spanning `main` and multiple
+        `claude/*` branches) — the account-level cause already recorded
+        upstream, unchanged. The workflow is now correctly positioned to
+        run once that is resolved.
+      - >-
+        `python3 portfolio/router/validate.py` 11/11 and
+        `test_allocate.py` 12/12 both still pass; `yaml.safe_load`
+        confirms this append parses. Did not touch #79 or #19. Nothing
+        new to add to the "still unresolved, needs the account owner"
+        list two entries above — unchanged.
+    mrr_end: null
