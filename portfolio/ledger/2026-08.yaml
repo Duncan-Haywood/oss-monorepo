@@ -580,3 +580,79 @@ entries:
         decide on #19; (4) retire or redirect the recurring "research new
         business projects" scheduled task.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs and the ledger tip first per CLAUDE.md: PR #53
+        (closes the screening loop, lands #44, adds an intake gate, scores
+        the Connect IQ/App Store distribution channels) had been opened five
+        minutes before this session started and already carries every open
+        decision — merging #53, #19, GitHub Actions billing/quota, and
+        submitting a finished app to a store. Re-verified it is mergeable
+        and re-derives nothing already in its diff or PR body rather than
+        opening a competing PR. The ledger's own tip (the #51 merge) was
+        ~26 minutes old at fetch time and already covered by a fresh
+        independent finding below, so this entry adds new material rather
+        than repeating it.
+      - >-
+        Confirmed GitHub Actions is still failing `startup_failure` on every
+        recent run across branches (checked at 2026-08-19T01:2x UTC) — same
+        billing/quota blocker flagged in prior cycles, no new information.
+      - >-
+        Looked for genuine engineering work not blocked on an account-owner
+        decision, since the router's own top-ranked items (ai-first-markets,
+        local-site-studio, world-clock-widget — all "push toward first real
+        measurement") all resolve to buyer outreach, developer-account
+        credentials, or a live payment account, none of which an unattended
+        agent should hold. Found one: `ventures/local-site-studio` had 6
+        high-severity npm advisories (brace-expansion, js-yaml, nanoid,
+        postcss, sharp, and Next.js itself — including two SSRF and a DoS
+        advisory) that had never been audited, since Actions has not run
+        successfully since 2026-07-29 and nothing else checks this locally.
+      - >-
+        Applied `npm audit fix` (no `--force`): fixed the brace-expansion,
+        js-yaml, and nanoid advisories plus the standalone dev-tooling
+        postcss copy, all dev-only build/lint tooling with no production
+        code path. Verified clean: `npm run lint` (clean), `npm test`
+        (124 files / 1207 tests pass), `npm run build` (clean production
+        build, verified after `rm -rf .next tsconfig.tsbuildinfo` to rule
+        out cache reuse).
+      - >-
+        Deliberately did not force the remaining fix. `npm audit fix
+        --force` bumps `next` 16.2.9 → 16.3.1 (patches the SSRF/DoS
+        advisories) but that bump alone — confirmed by isolating it, then
+        reverting and re-testing against a clean cache both ways — makes
+        `next build`'s TypeScript check fail with ~20 new errors, all in
+        `*.test.ts` files touching Stripe types (`OrderRecord`,
+        `stripePriceId`, mock generic inference going to `never`), while
+        `next 16.2.9` builds clean on the identical source. This is a real
+        regression surfaced by the patch release, not a pre-existing issue
+        masked by Actions being down (verified against a clean checkout of
+        `next@16.2.9` first). Shipping it unattended would trade a
+        dependency advisory for a broken production build on a venture
+        whose entire premise is a working Stripe checkout — worse, and not
+        a call an unattended agent should make silently. Left `next` and
+        `eslint-config-next` pinned at 16.2.9.
+      - >-
+        Did not send a push notification. Nothing here is new information
+        that needs the account owner's attention *now*: the security fix
+        applied is low-risk and self-contained, and the one item that does
+        need a human (upgrading Next.js past 16.3.0 to close the SSRF/DoS
+        advisories requires fixing ~20 test-file type errors first, or
+        accepting the advisories a while longer) is routine engineering
+        backlog, not urgent — the app is not currently exposed to any of the
+        newly-disclosed CVEs via a live deployment (`links.production` is
+        still `null`).
+      - >-
+        Still unresolved, needs the account owner, unchanged in substance
+        from prior cycles: (1) GitHub Actions billing/quota; (2) merge #53
+        (superset of #44) or neither; (3) decide on #19; (4) submit
+        `garmin-world-traveler-watchface` or `world-clock-widget` to its
+        store, per #53. New from this cycle: (5) `local-site-studio` still
+        carries 3 high-severity advisories (next/postcss/sharp) pending a
+        real fix for the Next 16.3.1 test-type regression — tracked here so
+        it does not silently reappear as "no one has audited this" in a
+        future cycle.
+    mrr_end: null
