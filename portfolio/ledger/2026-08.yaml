@@ -894,3 +894,89 @@ entries:
         #53/#19 items, which are repeats), it's a real unattended-spend
         exposure question, and it can only be resolved outside this repo.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Consolidation cycle per CLAUDE.md's duplicate-PR guidance. Listed
+        open PRs fresh rather than trusting a prior survey: found #53 (left
+        untouched, its own body reserves the merge decision for the account
+        owner), #19 (left untouched, second unattended-agent-fleet proposal,
+        already an account-owner decision), #54 and #55 (near-duplicate
+        ledger-only PRs both re-verifying #53), and three real engineering
+        PRs (#56, #58, #59).
+      - >-
+        Closed #54 ("Ledger: confirm PR #53 supersedes #44, sharpen
+        CI-broken diagnosis") as superseded by #55 ("Ledger: verify PR #53,
+        root-cause the Actions startup_failure") — #55 is a strict superset:
+        it re-verifies #53's checks the same way #54 does, plus root-causes
+        the GitHub Actions `startup_failure` to a specific suspect file
+        (`opencode-high-throughput.yml`) with timestamp-matching evidence
+        that #54 lacks. Left a comment pointing to #55 and did not close or
+        merge #55 itself, matching this cycle's brief.
+      - >-
+        Verified and merged #58 (print-atelier lint fix) directly against
+        the PR's own head commit: `npm run lint` exited 0 (2 pre-existing
+        warnings only, matching the PR's own report), `npm test` (`tsx
+        --test`) 128/128 passed. Squash-merged via the GitHub API.
+      - >-
+        Verified and merged #59 (local-site-studio silent-tsc-error fix):
+        `npx tsc --noEmit` 0 errors (was 15, matching the PR's claim),
+        `npm run test` (vitest) 124/124 files and 1207/1207 tests passed,
+        `npm run lint` clean. After #58 landed, GitHub recomputed
+        `mergeable_state` to `dirty` — the only conflict was
+        `portfolio/ledger/2026-08.yaml` (both PRs appended entries on the
+        same base). Resolved locally by merging main into the PR's own
+        branch and re-appending in PR-creation-time chronological order
+        (print-atelier #58 created 01:29:43Z before local-site-studio #59
+        created 01:37:45Z), pushed the merge commit to the PR's existing
+        branch, confirmed `mergeable_state` returned to `clean`, then
+        squash-merged. Verified no ledger content was dropped by comparing
+        entry/outcome counts before and after (base 11 entries/64 outcomes
+        + 7 + 7 = merged 13 entries/78 outcomes, matching exactly).
+      - >-
+        Verified and merged #56 (retail-pilot-intel unit tests for
+        `packages/analytics`) inside the venture's own pnpm workspace:
+        `pnpm run typecheck` 6/6 packages clean, `pnpm run lint` clean,
+        `pnpm run test` 13/13 passed (only `packages/analytics` ran, as
+        intended), `pnpm run build` 6/6 packages clean. Its base
+        (`c372788`) was stale by three merges (#57, #58, #59); resolved the
+        same kind of ledger-only conflict the same way — merged main in,
+        re-appended in PR-creation-time order (retail-pilot-intel #56
+        created 01:26:13Z, before portfolio/#57 at 01:28:57Z, before
+        print-atelier/#58 at 01:29:43Z, before local-site-studio/#59 at
+        01:37:45Z), verified counts (base 10 entries/57 outcomes + 8 + 7 +
+        7 + 7 = merged 14 entries/86 outcomes, matching exactly), pushed to
+        the PR's own branch, confirmed `mergeable_state: clean`, then
+        squash-merged.
+      - >-
+        Net result this cycle: main gained #56, #58, and #59 (three
+        additive, non-content, non-automation engineering fixes, each
+        independently re-verified against its own claims rather than
+        trusted from the PR body), the #54/#55 ledger-only duplicate was
+        consolidated down to one (#55, still open, untouched), and #53/#19
+        remain exactly as they were — open, unmerged, unclosed,
+        account-owner decisions per their own PR bodies and CLAUDE.md's
+        "Automation that writes or spends unattended" section. Did not
+        merge or close either.
+      - >-
+        Did not send a push notification. Nothing this cycle surfaces new
+        information beyond what #53/#19/Actions-billing already carry
+        (reported many times); the three merges are routine, low-risk,
+        additive engineering, and the #54/#55 consolidation is exactly the
+        kind of housekeeping CLAUDE.md asks for, not an interrupt-worthy
+        event.
+      - >-
+        Still unresolved, needs the account owner, unchanged in substance
+        from prior cycles: (1) GitHub Actions billing/quota — no successful
+        run on any branch since 2026-07-29; (2) merge #53 (supersedes #44)
+        or neither; (3) decide on #19; (4) submit
+        garmin-world-traveler-watchface or world-clock-widget to their
+        respective app stores, per #53's finding; (5) whether
+        local-site-studio's standalone repo still has its 6 dormant
+        scheduled-workflow crons live with provider secrets configured,
+        per #59's finding — outside this session's GitHub access scope to
+        check; (6) retire or redirect the recurring "research new business
+        projects" scheduled task.
+    mrr_end: null
