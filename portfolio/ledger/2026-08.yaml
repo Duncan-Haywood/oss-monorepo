@@ -265,3 +265,62 @@ entries:
         of duplicates; (4) decide on #19; (5) #1/#2 remain low-risk to review
         whenever convenient.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per CLAUDE.md. An eighth screening-brief PR
+        (#44) had appeared since the last cycle, and — unlike #37-#42's
+        ledger-only duplication — it did real consolidation work: merged
+        #36's whole `portfolio/pipeline/` tree into itself, closed #18/#20/
+        #27/#30/#34 (the five app-side `ai-first-markets` PRs prior cycles
+        had deferred as a publication-content call) with the reasoning that
+        closing neither deletes the branch nor makes the publish decision,
+        and added one new channel-first candidate (`shopify-a11y-evidence`)
+        instead of a ninth speculative batch. Confirmed all five closures
+        actually took effect via direct per-PR lookups, not just trusting
+        the PR body.
+      - >-
+        Independently re-verified #44 rather than trusting its stated
+        checks: checked out its branch in a scratch worktree and re-ran
+        `portfolio/router/validate.py` (9/9 clean), the router test suite
+        (12/12 pass), and `allocate.py` (produces the ranked queue across
+        all 9 ventures). Recomputed composite, floor, and the liability/
+        ethics gates independently from raw scores for all 8 candidates in
+        `candidates.yaml` — 8/8 composite and floor values matched exactly,
+        all 8 clear both gates (liability_containment and ethical_robustness
+        >=5). No discrepancies found.
+      - >-
+        Re-confirmed GitHub Actions is still completely broken: the one
+        `portfolio-validate.yml` run on record (workflow_dispatch, 2026-08-18
+        23:26 UTC) is `startup_failure`, consistent with every prior cycle's
+        finding back to 2026-07-29. Three-plus weeks with no workflow
+        starting a single job on any branch; still outside what an agent
+        session can diagnose from the API.
+      - >-
+        Did not merge #44 or #36, or close either — #44's own body already
+        defers "merge this or #36" to the account owner, consistent with
+        every prior cycle's judgment that ai-first-markets-adjacent content
+        decisions are the account owner's call even when (as here) the
+        target is the internal `portfolio/pipeline/` directory rather than
+        the deployed site. Did not touch #19 (second unattended fleet) or
+        #1/#2 (unchanged, still stale).
+      - >-
+        Sent one push notification: the backlog genuinely collapsed this
+        cycle from six overlapping PRs to a single verified choice (#44,
+        which is a strict superset of #36), which is new, actionable
+        progress rather than a repeat of an already-delivered message. Also
+        carried the still-unresolved three-week CI outage forward, since it
+        remains unfixed and nothing in this repo's CI is currently enforced.
+      - >-
+        Still unresolved, needs the account owner: (1) merge #44 (recommended
+        over #36 — it is a verified superset with one additional, gate-
+        cleared candidate) or neither; (2) check the repo/org Actions tab,
+        billing, and quota — zero successful workflow runs since 2026-07-29;
+        (3) change or retire the recurring "research new business projects"
+        scheduled task — this was its eighth firing and #44's own distribution
+        finding argues the next unit of effort belongs in a real buyer probe,
+        not a ninth screening pass; (4) decide on #19; (5) #1/#2 remain
+        low-risk to review whenever convenient.
+    mrr_end: null
