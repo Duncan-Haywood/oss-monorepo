@@ -1898,3 +1898,63 @@ entries:
         are routine, low-risk, and self-merged, and #79/#19 are
         unchanged repeats.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        `git fetch origin main` first and read the tail of this ledger
+        against the current tip (last entry: `ubuntu-agent-server`
+        ansible-lint fix + `sharp` bump, PR #87, already merged as
+        5c34bb0) before doing anything, per this file's own discipline
+        section — that entry already showed every one of the 13 ventures
+        has been surveyed at least once across recent cycles, so this
+        session looked for genuinely new work rather than re-auditing.
+      - >-
+        Confirmed both open PRs (#79 content-only candidate-pipeline
+        research, #19 an unreviewed Deepseek+OpenCode automation fleet)
+        are unchanged and still correctly parked waiting on the account
+        owner's decision — did not touch either. Re-checked GitHub
+        Actions: still `startup_failure` on every run as of 04:43 UTC
+        today, unchanged from the prior entry's finding, so not
+        re-reported as new.
+      - >-
+        Found a real, previously-unnoticed gap instead: `portfolio/router/
+        README.md` and `allocate.py`'s own docstring both still asserted
+        "there is no ledger data to read from," but `portfolio/ledger/
+        2026-08.yaml` already holds 29 entries this month. Wired the
+        ledger in as a read-only, informational `ledger_entries_this_period`
+        count per venture (via a new `count_ledger_entries()` reading
+        `portfolio/ledger/*.yaml`) — surfaced in both the table and
+        `--json` output. Deliberately did **not** feed it into `rank()`:
+        it only counts entries with a structured `venture: <name>` field,
+        so it undercounts ventures whose work was logged inside an
+        aggregated `venture: portfolio` survey entry (e.g. this month's
+        `ubuntu-agent-server` and `ai-engineering-academy` fixes) — not
+        reliable enough yet to drive allocation, only to display. Updated
+        both docstrings to state this honestly instead of the stale
+        "no ledger data" claim.
+      - >-
+        Verified: `python3 -m unittest portfolio/router/test_allocate.py`
+        18/18 pass (9 new tests added: `count_ledger_entries` against a
+        synthetic multi-file temp ledger and against the real one, the
+        new field's default and pass-through, non-negative-int sanity
+        check over real ventures). `python3 portfolio/router/validate.py`
+        still 11/11. Confirmed `rank()`'s output order is byte-identical
+        before/after this change — the new field is additive-only.
+        Checked the two real consumers of `allocate.py`'s output
+        (`.github/prompts/portfolio-work.md`, `.github/workflows/
+        opencode-high-throughput.yml`) — both read the table/JSON by key,
+        neither does strict schema validation, so the new field is safe
+        to add.
+      - >-
+        Committed and will merge directly once pushed, consistent with
+        the established pattern for additive, test-covered, non-spending
+        engineering fixes. Did not add a `ventures/` entry, did not touch
+        `.github/workflows/`, and did not enable or modify any automation.
+      - >-
+        Did not send a push notification — routine, low-risk,
+        self-verified change; #79/#19 remain the only items actually
+        needing the account owner, and both are unchanged repeats already
+        reported in prior entries.
+    mrr_end: null

@@ -4,10 +4,20 @@
 Run with: python3 -m unittest portfolio/router/test_allocate.py
 (or: cd portfolio/router && python3 -m unittest test_allocate)
 """
+import tempfile
 import unittest
 from pathlib import Path
 
-from allocate import Venture, load_ventures, next_task, rank, work_queue, VENTURES_DIR
+from allocate import (
+    Venture,
+    count_ledger_entries,
+    load_ventures,
+    next_task,
+    rank,
+    work_queue,
+    LEDGER_DIR,
+    VENTURES_DIR,
+)
 
 
 def make(name, stage="prototype", mrr=None, monthly_cost=None, monthly_cap=20, protected=True):
@@ -80,6 +90,55 @@ class WorkQueueTests(unittest.TestCase):
         self.assertEqual(queue[0]["spend_ceiling_usd"], 42)
         self.assertEqual(queue[0]["venture"], "v")
 
+    def test_queue_entries_carry_ledger_entry_count(self):
+        v = Venture(
+            name="v",
+            stage="prototype",
+            mrr=None,
+            monthly_cost=None,
+            monthly_cap=10,
+            protected=True,
+            ledger_entries=3,
+        )
+        queue = work_queue([v])
+        self.assertEqual(queue[0]["ledger_entries_this_period"], 3)
+
+    def test_ledger_entries_defaults_to_zero(self):
+        v = make("v")
+        self.assertEqual(v.ledger_entries, 0)
+
+
+class CountLedgerEntriesTests(unittest.TestCase):
+    def test_counts_per_venture_across_files(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            ledger_dir = Path(tmp)
+            (ledger_dir / "2026-08.yaml").write_text(
+                "period: 2026-08\n"
+                "entries:\n"
+                "  - venture: portfolio\n"
+                "    outcomes: [survey]\n"
+                "  - venture: alpha\n"
+                "    outcomes: [fix]\n"
+                "  - venture: alpha\n"
+                "    outcomes: [another fix]\n"
+            )
+            (ledger_dir / "2026-09.yaml").write_text(
+                "period: 2026-09\nentries:\n  - venture: alpha\n    outcomes: [x]\n"
+            )
+            counts = count_ledger_entries(ledger_dir)
+        self.assertEqual(counts["alpha"], 3)
+        self.assertEqual(counts["portfolio"], 1)
+
+    def test_missing_ledger_dir_returns_empty(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            missing = Path(tmp) / "does-not-exist"
+            self.assertEqual(count_ledger_entries(missing), {})
+
+    def test_real_ledger_dir_parses_without_raising(self):
+        # Sanity check against the actual portfolio/ledger/ contents.
+        counts = count_ledger_entries(LEDGER_DIR)
+        self.assertIsInstance(counts, dict)
+
 
 class LoadRealVenturesTests(unittest.TestCase):
     """Sanity check against the real repo layout, not just synthetic data."""
@@ -97,6 +156,12 @@ class LoadRealVenturesTests(unittest.TestCase):
     def test_ranking_real_ventures_does_not_raise(self):
         ventures = load_ventures(VENTURES_DIR)
         work_queue(ventures)  # exercises rank() + next_task() end to end
+
+    def test_ledger_entries_are_non_negative_ints(self):
+        ventures = load_ventures(VENTURES_DIR)
+        for v in ventures:
+            self.assertIsInstance(v.ledger_entries, int)
+            self.assertGreaterEqual(v.ledger_entries, 0)
 
 
 if __name__ == "__main__":

@@ -5,8 +5,14 @@ work queue of where the next unit of agent effort should go.
 This implements the heuristic described in README.md — protected explore
 budget, and treating an unmeasured venture differently from one measured at
 zero. It is a read-only report over the current VENTURE.yaml files; it does
-not read portfolio/ledger/ yet (there is no ledger data to read from), and it
-does not spend anything or write anything back. See README.md's "Attribution
+not spend anything or write anything back.
+
+It now also reads portfolio/ledger/*.yaml to surface an informational
+`ledger_entries` count per venture (how many entries this month were
+recorded with `venture: <name>`). This is a display-only signal, not part of
+`rank()` — it undercounts ventures whose work was recorded under an
+aggregated `venture: portfolio` survey entry rather than their own name, so
+it is not reliable enough to drive ranking yet. See README.md's "Attribution
 honesty" section for why that next step is deliberately not automated yet.
 
 Usage:
@@ -26,6 +32,7 @@ import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 VENTURES_DIR = REPO_ROOT / "ventures"
+LEDGER_DIR = REPO_ROOT / "portfolio" / "ledger"
 
 # Stage at or beyond which a venture is no longer "early" for the protected
 # explore-budget split described in README.md.
@@ -44,6 +51,7 @@ class Venture:
     monthly_cap: float
     protected: bool
     kill_criteria: list = field(default_factory=list)
+    ledger_entries: int = 0
 
     @property
     def measured(self) -> bool:
@@ -59,7 +67,33 @@ class Venture:
         return self.later_stage and self.mrr == 0
 
 
-def load_ventures(ventures_dir: Path = VENTURES_DIR) -> list[Venture]:
+def count_ledger_entries(ledger_dir: Path = LEDGER_DIR) -> dict[str, int]:
+    """Count ledger entries per venture name across portfolio/ledger/*.yaml.
+
+    Counts only entries with a `venture:` field matching that venture's
+    name directly. Entries recorded under `venture: portfolio` (a session
+    surveying or fixing several ventures in one cycle) are not attributed
+    to the individual ventures they mention in free-text outcomes -- doing
+    that reliably would mean parsing prose, not structured data. So this
+    undercounts ventures whose work happened inside a portfolio-wide
+    survey entry; treat it as a lower bound, not a precise touch count.
+    """
+    counts: dict[str, int] = {}
+    if not ledger_dir.is_dir():
+        return counts
+    for ledger_path in sorted(ledger_dir.glob("*.yaml")):
+        data = yaml.safe_load(ledger_path.read_text()) or {}
+        for entry in data.get("entries") or []:
+            name = entry.get("venture")
+            if name:
+                counts[name] = counts.get(name, 0) + 1
+    return counts
+
+
+def load_ventures(
+    ventures_dir: Path = VENTURES_DIR, ledger_dir: Path = LEDGER_DIR
+) -> list[Venture]:
+    ledger_counts = count_ledger_entries(ledger_dir)
     ventures = []
     for venture_dir in sorted(p for p in ventures_dir.iterdir() if p.is_dir()):
         yaml_path = venture_dir / "VENTURE.yaml"
@@ -68,15 +102,17 @@ def load_ventures(ventures_dir: Path = VENTURES_DIR) -> list[Venture]:
         data = yaml.safe_load(yaml_path.read_text()) or {}
         economics = data.get("economics") or {}
         budget = data.get("budget") or {}
+        name = data.get("name", venture_dir.name)
         ventures.append(
             Venture(
-                name=data.get("name", venture_dir.name),
+                name=name,
                 stage=data.get("stage", "idea"),
                 mrr=economics.get("mrr"),
                 monthly_cost=economics.get("monthly_cost"),
                 monthly_cap=float(budget.get("monthly_cap") or 0),
                 protected=bool(budget.get("protected", False)),
                 kill_criteria=data.get("kill_criteria") or [],
+                ledger_entries=ledger_counts.get(name, 0),
             )
         )
     return ventures
@@ -124,6 +160,7 @@ def work_queue(ventures: list[Venture]) -> list[dict]:
             "protected": v.protected,
             "task": next_task(v),
             "spend_ceiling_usd": v.monthly_cap,
+            "ledger_entries_this_period": v.ledger_entries,
         }
         for v in rank(ventures)
     ]
@@ -141,11 +178,12 @@ def print_table(ventures: list[Venture], queue: list[dict]) -> None:
         f"Target split per README.md: {EXPLORE_SPLIT_LATER:.0%} later-stage / "
         f"{EXPLORE_SPLIT_EARLY:.0%} early-stage\n"
     )
-    print(f"{'#':<3}{'venture':<32}{'stage':<12}{'cap':>6}  task")
+    print(f"{'#':<3}{'venture':<32}{'stage':<12}{'cap':>6}{'ledger':>8}  task")
     for i, item in enumerate(queue, 1):
         print(
             f"{i:<3}{item['venture']:<32}{item['stage']:<12}"
-            f"{item['spend_ceiling_usd']:>6.0f}  {item['task']}"
+            f"{item['spend_ceiling_usd']:>6.0f}"
+            f"{item['ledger_entries_this_period']:>8}  {item['task']}"
         )
 
 
