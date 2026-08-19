@@ -229,8 +229,10 @@ def run_watchdog(
         current_phase = phase
         summary = read_summary(phase.db_path)
         importer_status = read_status_file(phase.status_path)
-        errors = importer_status.get("errors", {}) if isinstance(importer_status.get("errors"), dict) else {}
-        progress = importer_status.get("progress", {}) if isinstance(importer_status.get("progress"), dict) else {}
+        errors_raw = importer_status.get("errors")
+        errors = errors_raw if isinstance(errors_raw, dict) else {}
+        progress_raw = importer_status.get("progress")
+        progress = progress_raw if isinstance(progress_raw, dict) else {}
         consecutive_failures = int(progress.get("consecutive_failures", 0) or 0)
         error_count_1h = int(errors.get("error_count_1h", 0) or 0)
 

@@ -1,0 +1,11 @@
+# Lint configuration only. photos-import-tools stays stdlib-plus-tenacity and
+# unpackaged, so there is deliberately no [project] or [build-system] table
+# here — nothing installs this directory, `ruff check .` and `mypy .` just
+# need a shared root to run from.
+
+[tool.ruff]
+target-version = "py312"
+
+[tool.mypy]
+python_version = "3.12"
+files = "."
