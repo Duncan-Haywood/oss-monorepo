@@ -49,6 +49,9 @@ writing anything:
   the market
 - `portfolio/pipeline/distribution-first.md` — the screening rule, and why
   candidate supply is not the bottleneck
+- `portfolio/pipeline/channel-inventory.md` — which channels this portfolio can
+  list in and what each costs in credentials, including which ones an agent can
+  publish to for $0 without any account belonging to a legal person
 
 The finding every run reproduces is that **the bottleneck is distribution and
 customer contact, not idea generation**. Every candidate in that directory is
@@ -61,7 +64,10 @@ that is already specified in `portfolio/pipeline/`; ship or unblock something
 already built (see the ninth-run amendment in `distribution-first.md` — two
 finished products are sitting unlisted in stores the portfolio can list in);
 or, if both are blocked on the account owner, say so, record it in the ledger,
-notify, and stop. Adding a genuinely new candidate is legitimate only when you
+notify, and stop. Before concluding you are blocked, check
+`channel-inventory.md`: the tenth run found that the demand measurement every
+pass asks for is *not* credential-blocked, only revenue capture is, so "blocked
+on the owner" is a narrower claim than five prior cycles made it. Adding a genuinely new candidate is legitimate only when you
 can name what in `screened-out.md` it is *not* — and it belongs as an amendment
 to that directory, not as a new list.
 

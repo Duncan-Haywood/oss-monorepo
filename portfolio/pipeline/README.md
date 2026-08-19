@@ -98,6 +98,8 @@ Considered and rejected: [screened-out.md](screened-out.md).
 What six independent screening runs agreed on: [convergence.md](convergence.md).
 Why the next pass should screen channel-first:
 [distribution-first.md](distribution-first.md).
+Which channels this portfolio can actually list in, and what each costs in
+credentials: [channel-inventory.md](channel-inventory.md).
 
 ## Status of the claims in these write-ups
 
@@ -150,6 +152,17 @@ built. See the ninth-run amendment at the end of
 [distribution-first.md](distribution-first.md). It also added an intake gate to
 [CLAUDE.md](../../CLAUDE.md) so a tenth run is redirected here before it
 screens.
+
+A tenth run on 2026-08-19 was assigned the same brief again, hit that intake
+gate, and added no candidate. It carried the ninth run's whole diff onto a
+`main` that had moved again, and did the one thing
+[distribution-first.md](distribution-first.md) asked for that nobody had done:
+enumerate the channels. [channel-inventory.md](channel-inventory.md) is the
+result. Its finding is that "run one probe to a real buyer" is two actions —
+demand measurement and revenue capture — and only the second needs the
+developer-account credentials that have blocked this for four cycles. The
+first is free, needs no credential, and is available on a channel three of the
+eight candidates above can reach.
 
 ## Portfolio note recorded during this pass
 

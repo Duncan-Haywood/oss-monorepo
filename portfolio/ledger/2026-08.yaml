@@ -1055,3 +1055,106 @@ entries:
         #53/#19 items, which are repeats), it's a real unattended-spend
         exposure question, and it can only be resolved outside this repo.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Tenth firing of the "research new business projects" scheduled brief.
+        Checked open PRs first per CLAUDE.md: four open (#60, #55, #53, #19).
+        #60 and #55 are ledger-consolidation PRs from concurrent sessions and
+        were left alone rather than competing with them. #19 is the second
+        unattended-agent-fleet PR, still a human call. #53 is the screening
+        lane, which is this brief's lane, so this cycle worked there.
+      - >-
+        Added no candidate, and this was the main decision of the cycle.
+        Read portfolio/pipeline/ on #53's branch before writing anything: nine
+        prior runs had already produced ~36 candidates reducing to nine
+        archetypes, all screened, and the directory's own convergence.md,
+        distribution-first.md and the CLAUDE.md intake gate all state that a
+        tenth screening pass has negative value. Generating a tenth list is
+        the exact failure mode CLAUDE.md exists to prevent, so it was not done.
+      - >-
+        Consolidated rather than growing the backlog, per CLAUDE.md: #53 had
+        gone stale (its base c372788 was three commits behind main's 13dd67e)
+        and its ledger addition conflicted again — the same staleness #53
+        itself had to fix for #44. Merged #53 into this branch onto current
+        main and resolved the conflict by splitting the two sides' entries
+        into separate chronological entries rather than interleaving them.
+        Verified nothing dropped by parsing all four versions: main 14
+        entries/86 outcome items, #53 12/73, common ancestor 10/57, merged
+        16/102 — exactly the union (10+4+2 entries, 57+29+16 items), no
+        duplication and no loss.
+      - >-
+        The new work: portfolio/pipeline/channel-inventory.md, which does the
+        one thing distribution-first.md explicitly asked the next pass to do
+        ("screen channel-first") and that no run had done — enumerate the
+        channels rather than the markets. Eleven channels scored on the
+        operationally load-bearing question nobody had asked: can a listing be
+        completed without an artifact belonging to a legal person (payment
+        card, government ID, domain, bank account)?
+      - >-
+        The finding, which is why this cycle produced something instead of
+        stopping: "run one probe to a real buyer" is two actions, not one —
+        demand measurement and revenue capture — and only the second needs the
+        developer-account credentials that have blocked this for four
+        consecutive cycles. WordPress.org, Open VSX, npm/PyPI and GitHub
+        Marketplace's free tier are all free to list in and need no card and
+        no ID; none of them can take money. So the variable the directory says
+        is untested (does a cold listing from this portfolio get found at all)
+        is answerable now, at zero cost, without the account owner. Three of
+        the eight candidates on file have such a channel — notably
+        eaa-remediation-pipeline, whose accessibility-evidence tool fits the
+        WordPress.org directory and whose buyer is the same site owner
+        local-site-studio targets, which is a real alternative to the
+        "borrow a lead pipeline that does not exist yet" channel its
+        distribution score of 8 currently assumes.
+      - >-
+        Corollary that reshapes the standing owner ask: every gated channel
+        and every merchant-of-record option resolves to the same prerequisite,
+        a legal seller with a bank account and tax identity. That is one owner
+        artifact, established once, shared by all eight candidates — not a
+        per-product blocker. So the ask escalated for four cycles ("submit
+        world-clock-widget to the App Store at $99/yr", "submit the watch face
+        to Connect IQ") is the more expensive shape of the request, on the two
+        products the directory itself concedes are low-ARPU consumer plays.
+        Supporting evidence that the free-first sequence is real rather than a
+        workaround: GitHub Marketplace will not let an app charge until it has
+        reached a minimum install count (reported as 100 installs / 200 OAuth
+        users), i.e. the platform mandates publish-free-then-monetise.
+      - >-
+        Deliberately did not act on the finding beyond writing it up. Publishing
+        a free listing needs no credential but is still a public artifact
+        carrying this portfolio's name, so the decision to publish at all is
+        the account owner's and is recorded as such rather than assumed. The
+        document states plainly what it does and does not license.
+      - >-
+        Verified locally (Actions still broken, so local is the only
+        verification available): validate.py clean 11/11 VENTURE.yaml;
+        test_allocate 12/12 pass; ledger parses at 16 entries/102 outcome
+        items; candidates.yaml parses and all 8 composites/floors recompute
+        correctly with ethics and liability gates clear 8/8; 0 broken relative
+        links across the new and edited pipeline docs.
+      - >-
+        Claim confidence recorded honestly: the channel facts are secondary
+        sources gathered 2026-08-19 and unverified against primary ones, same
+        standard as the rest of the directory. One specific caveat worth
+        carrying forward for other sessions — docs.github.com is blocked by
+        this environment's network egress proxy, so the GitHub Marketplace
+        free/paid split and the install minimum, which are load-bearing for
+        the argument, could only be read via search summaries.
+      - >-
+        Sent a push notification. The reframing is new information that
+        materially changes what the account owner is being asked for — it
+        converts a four-cycle-old blocked escalation into one cheap approval
+        plus one one-time setup — rather than a repeat of the Actions-billing
+        or merge-#53 items.
+      - >-
+        Still unresolved, needs the account owner: (1) may an agent session
+        publish a free listing under this portfolio's name, which alone
+        unblocks the demand measurement at zero cost; (2) establish one payout
+        rail, which unblocks charging for all eight candidates; (3) GitHub
+        Actions billing/quota, no successful run on any branch since
+        2026-07-29 (seventh report); (4) merge this PR, which supersedes #53
+        and #44, or none of them; (5) decide on #19.
+    mrr_end: null

@@ -189,3 +189,22 @@ any price, and here it can be tested with software that already exists.
    gets found, downward if it does not.
 4. **Screening is closed until then.** A tenth pass has nothing to learn that
    this measurement would not teach it better.
+
+---
+
+## Amendment, tenth run (2026-08-19): the measurement is not actually blocked
+
+The tenth firing accepted the ruling above — it added no candidate — and then
+found that point 2 of the ninth-run amendment ("both submissions need the
+account owner") over-claims, in a way that has cost four cycles.
+
+Store *submission* needs the owner. **Demand measurement does not.** Several
+channels — WordPress.org, Open VSX, npm/PyPI, GitHub Marketplace's free tier —
+are free to list in and require no payment method and no identity document, and
+they answer exactly the question this document says is untested: does a cold
+listing from this portfolio get found. What they cannot do is take money, and
+taking money is the only part that genuinely requires the owner.
+
+See [channel-inventory.md](channel-inventory.md) for the full inventory, the
+credential gradient, and the mapping of the eight candidates onto channels an
+agent can publish into for $0.
