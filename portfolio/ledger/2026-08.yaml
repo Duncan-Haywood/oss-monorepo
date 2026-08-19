@@ -3225,3 +3225,88 @@ entries:
         need to decide beyond the #117/#106 sign-off queue and #79/#19
         already surfaced by prior entries.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain the development process" run.
+        `git fetch origin main` first per CLAUDE.md. Found a real loss, not
+        a duplicate-work finding: PR #109 (local-site-studio's upgrade to
+        next 16.3.1, clearing 3 high-severity npm audit advisories) is
+        closed *unmerged*, and nobody decided to close it. Its single
+        `closed` event names `commit_id: 06d46ff` — the merge commit of
+        #112, an unrelated ledger-only entry, whose commit subject read
+        "Ledger: record independent re-verification of #109/#106, fixed
+        #109's merge conflict". GitHub parses a closing verb immediately
+        before an issue number as a command rather than a reference, so
+        that sentence — which meant "repaired the merge conflict *on* #109"
+        — closed it. A PR closed that way is closed unmerged and its diff
+        is silently discarded.
+      - >-
+        The failure is silent in both directions, which is why it survived
+        an hour and three sessions: the merging session sees an ordinary
+        merge, and later sessions cannot distinguish a deliberate close
+        from an accidental one — they only see a shorter PR list. #115's
+        entry (08:35 UTC) recorded #109 as "unchanged since #110/#112's
+        reviews"; #116's (08:42 UTC) recorded "#109, #106, #103, #79, #19
+        unchanged — not re-reviewed"; #118's body (08:55 UTC) enumerated
+        the open PRs as "#117, #111, #106, #103, #79, #19" and read nothing
+        unusual into #109's absence. All three were reasonable given what
+        they could observe. Every prior ledger entry that has celebrated
+        the backlog shrinking should be read with this in mind — a PR
+        leaving the open list is not evidence its work landed.
+      - >-
+        Opened #122 restoring the dependency change (package.json +
+        lockfile only), and left a comment on #109 explaining it was closed
+        by accident rather than by decision, so a future session reading
+        the closed-PR list does not treat it as a rejected approach.
+        Deliberately did not carry over two parts of #109's diff: its
+        photo-editing ruff CI step (superseded by #118, merged since, which
+        added a pinned ruff+mypy `lint` job at the venture root — re-adding
+        the narrower `--select E4,E7,E9,F` step would now duplicate it),
+        and its ledger entry (this one, kept separate — #122 must wait for
+        sign-off, and a ledger hunk would make it un-mergeable within the
+        hour, which is exactly how #109's own predecessors kept dying).
+      - >-
+        Verification, run from scratch rather than trusted from #109's
+        body: clean node_modules/.next/tsconfig.tsbuildinfo, `npm ci`
+        clean, `npm audit` 0 vulnerabilities, `npm run typecheck` 0 errors,
+        `npm run lint` clean, `npm test` 124 files / 1207 tests passing,
+        `npm run build` clean across all 31 routes including the
+        Stripe-touching /api/stripe/* and /checkout* paths. The "was 3
+        high" baseline was re-confirmed independently by auditing main's
+        own package.json/package-lock.json in a scratch directory rather
+        than quoting the closed PR: postcss XSS plus three
+        path-traversal/sourceMappingURL advisories, and sharp/libvips
+        CVE-2026-33327/33328/35590/35591, all resolving to next 16.3.1.
+      - >-
+        Added a CLAUDE.md section on the closing-keyword hazard — the more
+        durable half of #122, since the dependency bump is a one-time
+        repair while the hazard stays armed otherwise. It bites ledger
+        entries and status comments specifically, because their whole job
+        is to talk *about* other PRs and this repo generates several per
+        hour. Rule: refer to other PRs as bare `#N` and rephrase anything
+        putting fix/close/resolve directly before the number; intentional
+        closes should be explicit decisions with a comment naming what
+        supersedes the PR. Appended at the end of CLAUDE.md on purpose, so
+        it does not conflict with #79, which edits two earlier sections of
+        the same file. Caught the identical pattern in this session's own
+        first commit message for #122 (it quoted #112's subject verbatim)
+        and amended it before pushing.
+      - >-
+        Left #121, #117, #106, #79, #19 untouched — unchanged since the
+        entry immediately above, nothing to add. Backlog is genuinely
+        clearing (#103, #111, #118, #121 merged within the hour), but that
+        signal is now known to be partly unreliable per the second outcome
+        above. GitHub Actions account-wide `startup_failure` still active,
+        already tracked since #99/#101, not re-investigated.
+      - >-
+        Sent a push notification, unlike the recent routine CI-hygiene
+        runs: this is not another item for the existing sign-off queue but
+        a new class of finding — a verified security fix was silently
+        dropped by a mechanism no session could observe, three subsequent
+        sessions recorded the repo state incorrectly as a result, and the
+        same hazard has been latent in every ledger entry this repo
+        produces.
+    mrr_end: null
