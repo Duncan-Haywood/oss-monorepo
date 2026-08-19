@@ -369,3 +369,61 @@ entries:
         scheduled task; (4) decide on #19. #1/#2 are now resolved — no
         longer on this list.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per CLAUDE.md, then independently verified
+        #44 (fetched both branches, diffed `portfolio/pipeline/` between #36
+        and #44 directly — confirmed a strict superset: 329 insertions, 8
+        deletions that are all README table renumbering, zero content
+        removed from #36's candidate write-ups; `validate.py` 9/9 clean, the
+        router test suite 12/12 pass, `allocate.py` produced the ranked
+        queue, and all 8 candidates' composite/floor/floor_dimension
+        recomputed from raw scores matched exactly).
+      - >-
+        While doing that verification, `main` moved three times out from
+        under this session: #1/#2 merged, #36 closed as superseded, and a
+        concurrent session (#45) landed a ledger entry recording essentially
+        the same #44 verification just performed here, with a third
+        near-duplicate (#47) closed as redundant — all within about an
+        hour, mirroring the six-duplicate-ledger-PR episode from earlier the
+        same day. Dropped the drafted entry rather than add a fourth
+        near-identical write-up.
+      - >-
+        Root cause: `CLAUDE.md`'s check-open-PRs guardrail stops duplicate
+        *PRs* but nothing told sessions to check the ledger's own freshness
+        against the *current* `main` tip before drafting a new entry, so
+        concurrent sessions kept re-verifying the same PR and drafting
+        near-identical entries from a `main` that was already stale by the
+        time each looked. Added a paragraph to the Ledger discipline section
+        (PR #49): fetch `main` and skip a new entry when the latest one,
+        checked against the live tip, already covers the same finding with
+        no new development.
+      - >-
+        Reviewed #1/#2 rather than deferring on faith: both already carried
+        `VENTURE.yaml`, were self-contained, and were genuinely unverifiable
+        in this Linux container (no Xcode/Swift toolchain, no Connect IQ
+        SDK) — consistent with why prior cycles left them alone. A
+        concurrent session merged both before this one reached that
+        decision (#48); did not revert or second-guess it — its reasoning
+        (purely additive, no legal/publication call, each gated by its own
+        budget cap) is sound and merging to main is explicitly a call this
+        repo lets any session make for additive, non-content PRs.
+      - >-
+        Re-confirmed GitHub Actions is still `startup_failure` on every run,
+        including the just-merged #1/#2 commits — unchanged since
+        2026-07-29, ~3 weeks now. Did not touch #19 (second unattended,
+        spend-capable agent fleet — still the account owner's call). No push
+        notification sent: nothing here is new information beyond what has
+        already reached the account owner multiple times today.
+      - >-
+        Still unresolved, needs the account owner: (1) check the Actions tab
+        / billing / quota; (2) merge #44 (recommended, verified superset of
+        the now-closed #36) or decide not to publish it; (3) change or
+        retire the recurring "research new business projects" scheduled
+        task — this cycle's fix reduces ledger-level waste but the task
+        itself is account-level and out of reach from here; (4) decide on
+        #19.
+    mrr_end: null
