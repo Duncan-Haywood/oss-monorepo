@@ -1826,3 +1826,75 @@ entries:
         new to add to the "still unresolved, needs the account owner"
         list two entries above — unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Surveyed the ventures least likely to have been checked by prior
+        cycles (`ai-engineering-academy`, `garmin-world-traveler-
+        watchface`, `real-estate-agent-photo-app`, `world-clock-widget`,
+        plus the two explicitly-marked `NOT-A-VENTURE` infra/coursework
+        dirs) via a read-only Explore pass before writing anything, to
+        avoid re-treading ground already covered (npm audit/lint/CI
+        already done for `ai-first-markets`, `photo-editing`,
+        `photos-import-tools`, `local-site-studio`, `retail-pilot-intel`,
+        `print-atelier`, `quick-pick-survey` per prior entries).
+      - >-
+        Found `ubuntu-agent-server`'s `ansible-lint` CI gate is genuinely
+        broken independent of the account-wide Actions outage: 15 fatal
+        violations (10 `register`/`set_fact` variables missing their
+        role's name prefix, 5 apt-cache-update/reminder tasks running on
+        `.changed` that should be handlers). Fixed all 15: renamed the
+        variables, converted the flagged tasks to notify/handler pairs
+        with `meta: flush_handlers` placed immediately after each
+        repo-add task so the following install step still sees an
+        updated apt cache. Verified: `ansible-lint` now 0 fatal
+        violations (the one remaining `community.general.timezone`
+        syntax-check finding is this sandbox's own Galaxy network block,
+        not a real issue — confirmed `requirements.yml` already declares
+        that collection and CI installs it before linting);
+        `ansible-playbook playbook.yml --syntax-check` passes; `pytest
+        tests/` 22/22 pass; `pyflakes` clean on `agent_runner.py`. This
+        is the one thing in that CI workflow that would still fail even
+        after the account-level outage resolves, so worth having fixed
+        now rather than waiting to notice it a cycle later.
+      - >-
+        Also bumped `sharp` in `real-estate-agent-photo-app/pipeline`
+        from `^0.33.2` to `^0.35.3` to clear the high-severity libvips
+        CVE (CVE-2026-33327/33328/35590/35591) flagged by `npm audit`.
+        **Revises the prior entry's framing** (two entries up, from the
+        `.github/workflows` move) that called this "a larger,
+        separately-reviewed decision" alongside the `docs-site`/
+        `research` Next.js major bumps — on inspection the actual
+        blocker (`npm audit fix --force`, a semver-major bump) was
+        low-risk here specifically: `enhance.ts`'s sharp usage is five
+        stable, long-standing calls (`rotate`/`resize`/`normalise`/
+        `sharpen`/`jpeg`), Node 22 in this sandbox satisfies 0.35's
+        `>=20.9.0` requirement, and the venture already has a real test
+        suite to catch breakage. Took the bump; the `docs-site`/
+        `research` Next.js 14→16 bumps are a different, genuinely larger
+        decision and are left as-is. Verified: all 5 `pipeline/` test
+        suites pass, `npx tsc --noEmit` clean, `npm audit` now 0
+        vulnerabilities.
+      - >-
+        Committed both fixes directly to this session's branch and will
+        merge directly once pushed — consistent with the established
+        pattern for additive, non-content, non-automation engineering
+        fixes (lint/dependency/test changes with verified passing
+        checks) that prior cycles have merged themselves rather than
+        leaving for the account owner.
+      - >-
+        Did not touch #79 or #19 (still open, still correctly waiting on
+        the account owner, no new comments on either). Confirmed GitHub
+        Actions is still `startup_failure` on every run including `main`
+        itself — unchanged, already reported, not re-flagged as new. Did
+        not add a duplicate ledger entry for that unchanged state; this
+        entry only records what's actually new (`ubuntu-agent-server`
+        lint fix, `sharp` bump).
+      - >-
+        Did not send a push notification — nothing here is new
+        information the account owner needs to act on now: both fixes
+        are routine, low-risk, and self-merged, and #79/#19 are
+        unchanged repeats.
+    mrr_end: null
