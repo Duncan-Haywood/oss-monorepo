@@ -2930,3 +2930,70 @@ entries:
         decision remain exactly what #110 already surfaced, this entry
         just adds independent verification and keeps #109 mergeable.
     mrr_end: null
+  - venture: print-atelier
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain the development process" run.
+        `git fetch origin main` first per CLAUDE.md; found the two
+        immediately preceding entries (#110, #112) both under an hour old
+        and already covering the open-PR backlog in depth (#109/#106
+        independently re-verified and correctly left as sign-off
+        decisions, not self-merges, since both are breaking major-version
+        bumps on payment/deploy-critical paths; #79/#19/#103 unchanged) —
+        did not re-review any of that from scratch.
+      - >-
+        Instead checked whether the same npm-audit gap those two PRs are
+        closing (`next<16.3.1`'s transitive postcss/SSRF/cache-confusion
+        advisories) also existed anywhere still unaddressed. It did:
+        `print-atelier` was untouched by any prior cycle, still pinned to
+        `next@^14.2.3` — two majors behind, not one — with 5 high-severity
+        `npm audit` findings on a clean baseline. Same risk class as
+        ai-first-markets/local-site-studio: this venture has a live Stripe
+        checkout path (`src/lib/stripe-checkout-server.ts`,
+        `/api/stripe/checkout`, `/api/stripe/webhook`), not just decorative
+        UI referencing Stripe.
+      - >-
+        Fixed it: bumped `next`/`eslint-config-next` to 16.3.1 (exact-pinned,
+        matching repo convention). This forced three knock-on fixes the
+        smaller single-major bumps elsewhere didn't need: `eslint` 8 -> 9
+        (a hard peer-dep requirement of `eslint-config-next@16.3.1`) with a
+        matching `.eslintrc.json` -> flat `eslint.config.mjs` migration
+        (`next lint` itself was removed in Next 16, so `package.json`'s
+        `lint` script now calls `eslint .` directly); `tsconfig.json` needed
+        `allowImportingTsExtensions: true`, which `next build`'s typecheck
+        now enforces against the test suite's explicit `.ts` import
+        extensions (required by `tsx --test`'s native ESM loader — always
+        technically needed, Next 14's older bundled TypeScript just didn't
+        enforce it); and 5 files newly flagged by
+        `@next/next/no-html-link-for-pages` (plain `<a href="/">` back-links)
+        fixed by switching to `next/link`'s `Link`.
+      - >-
+        Two newly-flagged findings were pre-existing patterns unrelated to
+        the audit fix (a `setState` call inside a `useEffect` doing
+        localStorage hydration, in 3 components; a React Compiler
+        memoization bailout in 1 component) — left as explicit `warn`
+        overrides in `eslint.config.mjs` with a comment rather than
+        silently changing component behavior inside a security-fix PR.
+      - >-
+        Verified locally, clean `node_modules`/`.next`/`tsconfig.tsbuildinfo`
+        (GitHub Actions still account-wide `startup_failure`, unrelated,
+        confirmed still active on the latest run as of this session):
+        `npm run lint` 0 errors (7 pre-existing warnings, unchanged in
+        kind), `npm run test` 128/128, `npm run build` clean (all routes
+        incl. `/api/stripe/*` and `/checkout`), `npm audit` 0
+        vulnerabilities (was 5 high).
+      - >-
+        Opened as PR #113 rather than self-merged, for the same reason
+        #110/#112 gave for #106/#109: a live Stripe checkout path plus a
+        breaking major-version bump is real behavioral risk a green local
+        suite doesn't fully cover, so this is a sign-off decision for the
+        account owner, not this session's to make unilaterally.
+      - >-
+        Did not touch #79, #19, #103, #106, or #109 — all unchanged since
+        #110/#112's reviews minutes ago, nothing new to add. No push
+        notification sent: this adds one more item to the same "PRs
+        awaiting sign-off" bucket the account owner already has visibility
+        into from #110/#112, not a new class of finding or a blocker.
+    mrr_end: null
