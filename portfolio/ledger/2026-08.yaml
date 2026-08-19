@@ -980,3 +980,82 @@ entries:
         check; (6) retire or redirect the recurring "research new business
         projects" scheduled task.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per CLAUDE.md: two open (#53, #19), down from
+        three last cycle. #53 is a strict superset of #44 (already merged
+        #44's diff onto current `main` and closed #44 with a pointer), so it
+        did not need re-deriving or consolidating — reviewed and
+        independently re-verified it instead of trusting its stated checks.
+      - >-
+        Independent verification of #53, in an isolated git worktree at its
+        exact head commit rather than trusting the PR body: `python3
+        portfolio/router/validate.py` (11/11 `VENTURE.yaml` clean),
+        `pytest portfolio/router/test_allocate.py` (12/12 pass),
+        `allocate.py` (ranks all 11 ventures), and parsed
+        `portfolio/ledger/2026-08.yaml` at that commit (12 entries, 73
+        outcome items — exact match to the PR's stated counts). All claims
+        held. Did not merge — the PR itself reserves that decision for the
+        account owner, consistent with CLAUDE.md, and `main` has not moved
+        since #53 was opened so there is nothing new for a merge decision to
+        wait on.
+      - >-
+        New finding, not previously reported: root-caused the "GitHub
+        Actions broken" line every recent cycle has repeated as a bare
+        "billing/quota" guess. It is not that. `main`'s last successful
+        Actions run was `ai-first-markets-ci.yml` on 2026-07-29T00:34Z; after
+        that, zero runs of any kind on `main` for three weeks (consistent
+        with Actions being disabled repo-wide, e.g. a spend cap) — then
+        every push/PR event on every branch since exactly
+        2026-08-18T18:42:43Z comes back `startup_failure` under a synthetic,
+        already-`state:deleted` phantom workflow (id 337182028, path
+        `BuildFailed`, empty name, zero jobs, no logs). That phantom
+        workflow's creation timestamp (2026-08-18T18:42:42Z UTC) matches the
+        first `startup_failure` run to the second, and matches
+        `.github/workflows/opencode-high-throughput.yml`'s own creation
+        timestamp — the unattended hourly OpenCode agent-swarm cron added
+        and re-enabled over several commits on 2026-08-18 (`f16fca5`,
+        `5665a36`, `ec3aa0d`, `c127d32`). That file uses a pinned third-party
+        action (`anomalyco/opencode/github@e5cc278...`) and is the prime
+        suspect for whatever is now making Actions reject every workflow
+        file repo-wide at parse/registration time, before any job or log
+        exists to confirm the exact schema error GitHub's UI would show.
+      - >-
+        Did not disable or edit `opencode-high-throughput.yml` unilaterally.
+        Per CLAUDE.md, unattended paid-agent automation on `main` is a
+        human-reviewed decision either way, and this file is exactly that
+        automation — already live on `main` with an hourly cron, not sitting
+        in a PR awaiting review. Checked whether it is actually spending
+        while broken: no `schedule`-triggered runs appear anywhere in the
+        last ~30 Actions runs (all `push`/`pull_request`), so the
+        `startup_failure` appears to block its own cron trigger too — no
+        evidence of live hourly spend right now, but this should be
+        confirmed directly (Actions tab or billing), not inferred from a
+        sample.
+      - >-
+        Did not touch #19 (second unattended agent fleet) — unchanged, still
+        a human decision per CLAUDE.md, same as every prior cycle.
+      - >-
+        Sent a push notification this cycle, unlike the last several: the
+        Actions root cause is new, actionable information (a specific
+        workflow file, not an unspecified billing issue) and the file
+        responsible is the same class of unattended-spend automation
+        CLAUDE.md says should not run without explicit review — worth an
+        interrupt now rather than folding into another "still broken, still
+        unresolved" line.
+      - >-
+        Still unresolved, needs the account owner: (1) `main`'s Actions is
+        blocked repo-wide, very likely by
+        `.github/workflows/opencode-high-throughput.yml` — recommend
+        checking the Actions tab for the actual GitHub-rendered parse error
+        on that file (or on the repo's Actions permissions/allowlist for
+        third-party actions) and disabling its cron until reviewed; (2)
+        merge #53 (carries #44) or neither; (3) decide on #19; (4) submit
+        `garmin-world-traveler-watchface` or `world-clock-widget` to its
+        store — both built, blocked only on developer-account credentials;
+        (5) retire or redirect the recurring "research new business
+        projects" scheduled task.
+    mrr_end: null
