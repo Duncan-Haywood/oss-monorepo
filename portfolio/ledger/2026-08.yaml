@@ -4029,3 +4029,78 @@ entries:
         already established as non-interrupting, and it changes no
         standing decision in front of the account owner.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process" run. `git fetch origin main` first per CLAUDE.md; tip
+        was `06689e0` (the #142 ledger-merge commit) both at the start of
+        this session and unchanged when re-checked before writing this
+        entry, so no intervening commits to read.
+      - >-
+        Open-PR survey (13 open, `list_pull_requests` sorted by updated):
+        #144, #142(now merged as of tip, stale in the list), #134, #137,
+        #135, #130, #79, #126, #122, #117, #106, #19 — all but #144
+        already reviewed and recorded unchanged across the prior several
+        entries in this file. #144 ("Autonomous agent entrypoint pattern
+        to prevent duplicate work", opened 2026-08-19T12:20Z) is new
+        since the last entry and is itself a proposal for unattended
+        automation (a new `guardrails`/`entrypoint` pair of jobs plus a
+        re-enabled `schedule:` trigger on `opencode-high-throughput.yml`)
+        — exactly the category CLAUDE.md requires stay a PR, reviewed by
+        the account owner, not merged by a session. Reviewed it as a
+        normal code review instead of merging it.
+      - >-
+        Found two concrete, verified correctness bugs in the PR's new
+        `.github/scripts/agent-entrypoint.py` and the `guardrails` job it
+        feeds: (1) `get_router_allocation()` and the guardrails' Check 3
+        both do `from allocate import allocate_work`, but
+        `portfolio/router/allocate.py` has no such function (confirmed by
+        grepping its `def` lines: `count_ledger_entries`, `load_ventures`,
+        `rank`, `next_task`, `work_queue`, `print_table`, `main` — no
+        `allocate_work`). In `agent-entrypoint.py` this fails silently
+        (empty list); in the guardrails job it is not silent — it makes
+        `should_proceed` unconditionally `false` with the misleading
+        reason "Portfolio router unavailable", which would permanently
+        block the whole fleet (`entrypoint`, `resolve-config`,
+        `opencode-agent` all gate on it) from ever running again, even
+        after the account owner clears the GitHub Actions spending
+        lockdown and re-enables the schedule. (2) The PR backlog check
+        (`git branch -r | grep -E 'origin/(claude|opencode)/' | wc -l`)
+        doesn't measure open PRs at all: verified locally that after a
+        full unshallow fetch there are 134 remote `claude/*` branches
+        (most already merged/closed, since branches aren't deleted on
+        merge in this repo) against 13 actually-open PRs right now, while
+        on an `actions/checkout@v4` runner with `fetch-depth: 50` the same
+        command would see close to zero other branches (checkout only
+        fetches history for the target ref) — the heuristic wildly
+        overcounts locally and wildly undercounts in CI, neither number
+        tracking real open/closed state. `gh pr list --state open` (`gh`
+        is pre-installed on `ubuntu-latest` and works read-only with the
+        default `GITHUB_TOKEN`) or the REST API would give the actual
+        count the script's own docstring says it wants.
+      - >-
+        Posted these findings as a single PR comment on #144 rather than
+        pushing a fix myself: it's the account owner's automation
+        decision to make, per CLAUDE.md, and the bugs are in the
+        not-yet-reviewed proposal, not on a branch I own. Offered to push
+        the fix as a follow-up if wanted. Did not touch main or the
+        workflow file directly.
+      - >-
+        Did not re-derive or re-verify #134/#137/#135/#130/#79/#126/#122/
+        #117/#106/#19 — all unchanged since the prior entries' reviews,
+        nothing new to add there. Did not re-check the GitHub Actions
+        account-wide `startup_failure` outage this session (confirmed
+        multiple times already in prior entries today, and #144 itself
+        keeps the schedule commented out pending that same human check,
+        so there's nothing new to observe there regardless).
+      - >-
+        No push notification: this is a code-quality finding on an
+        unmerged, already-correctly-gated proposal — the account owner
+        was never going to run it without checking GitHub billing/security
+        settings first per its own PR body, and nothing here is urgent or
+        live. Left as a normal PR comment for them to see on their own
+        schedule.
+    mrr_end: null
