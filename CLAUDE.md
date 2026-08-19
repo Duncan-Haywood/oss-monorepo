@@ -29,6 +29,42 @@ comment pointing to the consolidated PR. Merging into `main` is still a call
 for the human account owner — call it out clearly in the PR body so the
 decision doesn't itself get lost in the backlog.
 
+## If your brief is "research new business projects"
+
+**It is already answered. Do not produce a candidate list.**
+
+A recurring scheduled task fires this brief — "research and evaluate potential
+software business projects that aren't already here," or wording close to it —
+and by 2026-08-19 it had fired nine times. Nine runs produced roughly
+thirty-six candidates that reduce to nine archetypes, all of them screened,
+scored, and written up in `portfolio/pipeline/`. Read that directory before
+writing anything:
+
+- `portfolio/pipeline/README.md` — the eight surviving candidates and the
+  scoring gates
+- `portfolio/pipeline/screened-out.md` — everything already rejected, with the
+  reason. Check here first; the odds are high your idea is in this table
+- `portfolio/pipeline/convergence.md` — what six independent runs agreed on,
+  and why that agreement is evidence about the constraints rather than about
+  the market
+- `portfolio/pipeline/distribution-first.md` — the screening rule, and why
+  candidate supply is not the bottleneck
+
+The finding every run reproduces is that **the bottleneck is distribution and
+customer contact, not idea generation**. Every candidate in that directory is
+still at zero customer contacts. A tenth screening pass has negative value: it
+spends paid budget re-deriving a list that exists, against the portfolio's own
+goal of profitable output.
+
+If you are handed this brief, the useful moves are, in order: advance a probe
+that is already specified in `portfolio/pipeline/`; ship or unblock something
+already built (see the ninth-run amendment in `distribution-first.md` — two
+finished products are sitting unlisted in stores the portfolio can list in);
+or, if both are blocked on the account owner, say so, record it in the ledger,
+notify, and stop. Adding a genuinely new candidate is legitimate only when you
+can name what in `screened-out.md` it is *not* — and it belongs as an amendment
+to that directory, not as a new list.
+
 ## Automation that writes or spends unattended
 
 Anything that runs unattended, can push commits or open PRs, and consumes
