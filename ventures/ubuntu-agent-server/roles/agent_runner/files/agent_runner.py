@@ -171,7 +171,7 @@ def list_candidate_issues(repo: str, trigger_label: str, log: RunLog) -> list[di
     issues = json.loads(result.stdout)
     candidates = []
     for issue in issues:
-        labels = {l["name"] for l in issue.get("labels", [])}
+        labels = {label["name"] for label in issue.get("labels", [])}
         if labels & DONE_LABELS:
             continue  # already claimed, already has a PR, or already failed — skip
         candidates.append(issue)
@@ -270,9 +270,9 @@ def choose_model_tier(cfg: dict, issue: dict) -> str:
     override = cfg.get("model_tier")
     if override in ("low", "high"):
         return override
-    if LABEL_SELF_DIRECTED in {l.get("name") if isinstance(l, dict) else l for l in issue.get("labels", [])}:
+    if LABEL_SELF_DIRECTED in {label.get("name") if isinstance(label, dict) else label for label in issue.get("labels", [])}:
         return "high"  # open-ended judgment calls get the stronger model
-    if any((l.get("name") if isinstance(l, dict) else l) == "agent:deep" for l in issue.get("labels", [])):
+    if any((label.get("name") if isinstance(label, dict) else label) == "agent:deep" for label in issue.get("labels", [])):
         return "high"
     body_len = len(issue.get("body") or "")
     return "high" if body_len > 800 else "low"

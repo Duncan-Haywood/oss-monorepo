@@ -72,7 +72,7 @@ def test_self_directed_issue_flows_to_high_tier(agent_runner, monkeypatch, fake_
 
     issue = agent_runner.create_self_directed_issue("someowner/somerepo", "agent", fake_log)
     assert issue["number"] == 42
-    label_names = {l["name"] for l in issue["labels"]}
+    label_names = {label["name"] for label in issue["labels"]}
     assert agent_runner.LABEL_SELF_DIRECTED in label_names
     assert "agent" in label_names
 
