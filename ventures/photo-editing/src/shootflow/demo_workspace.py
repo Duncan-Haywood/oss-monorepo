@@ -177,7 +177,7 @@ def create_pilot_cohort_cli_demo_workspace(
         content=_json_payload(pilot_cohort_report_to_dict(cohort_report)),
         label="pilot cohort report",
     )
-    demo = PilotCohortCliDemoWorkspace(
+    cohort_demo = PilotCohortCliDemoWorkspace(
         workspace_root=root,
         shoot_workspaces=shoot_workspaces,
         dashboard_json_paths=dashboard_paths,
@@ -189,8 +189,8 @@ def create_pilot_cohort_cli_demo_workspace(
             "pilot cohort demo reports do not grant copy, retry, cleanup, overwrite, materialization, or deletion authority",
         ),
     )
-    _validate_pilot_cohort_cli_demo_workspace(demo)
-    return demo
+    _validate_pilot_cohort_cli_demo_workspace(cohort_demo)
+    return cohort_demo
 
 
 def create_card_dump_cli_demo_workspace(

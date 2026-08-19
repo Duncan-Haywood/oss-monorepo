@@ -9,6 +9,7 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TypeVar
 
 from shootflow.analysis import AnalysisLoaderError, load_asset_analyses
 from shootflow.production import ProductionJob, ProductionPlan
@@ -107,6 +108,11 @@ class StoryProductionAdapterResult(ProductionAdapterResult):
 @dataclass(frozen=True)
 class PackageProductionAdapterResult(ProductionAdapterResult):
     """Result from the deterministic local package adapter."""
+
+
+_ProductionAdapterResultT = TypeVar(
+    "_ProductionAdapterResultT", bound=ProductionAdapterResult
+)
 
 
 @dataclass(frozen=True)
@@ -795,8 +801,8 @@ def _run_production_action(
     expected_adapter: str,
     materialize_outputs,
     retryable_error_message,
-    result_type,
-) -> ProductionAdapterResult:
+    result_type: type[_ProductionAdapterResultT],
+) -> _ProductionAdapterResultT:
     _validate_action(action, expected_adapter=expected_adapter)
     _validate_action_matches_trusted_plan(action, trusted_plan=trusted_plan)
     _validate_timestamp(started_at, "started_at")

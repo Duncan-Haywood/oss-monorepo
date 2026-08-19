@@ -19,6 +19,7 @@ from shootflow.production_adapter import (
     supported_production_adapter_names,
 )
 from shootflow.production_status import (
+    ProductionJobStatus,
     ProductionStatusError,
     ProductionStatusManifest,
     load_production_status_manifest,
@@ -977,17 +978,15 @@ def _validate_report(
 
 def _validate_report_blocked_jobs(
     report: DryRunProductionSchedulerReport,
-    manifest_statuses: dict[str, object],
+    manifest_statuses: Mapping[str, ProductionJobStatus],
 ) -> None:
     for job_id in report.blocked_job_ids:
-        status = manifest_statuses[job_id]
-        if getattr(status, "state") not in {"pending", "retryable"}:
+        if manifest_statuses[job_id].state not in {"pending", "retryable"}:
             raise DryRunProductionSchedulerError(
                 "Production scheduler report blocked_job_ids conflict with final status"
             )
     for job_id in report.skipped_retryable_job_ids:
-        status = manifest_statuses[job_id]
-        if getattr(status, "state") != "retryable":
+        if manifest_statuses[job_id].state != "retryable":
             raise DryRunProductionSchedulerError(
                 "Production scheduler report skipped_retryable_job_ids conflict with final status"
             )
@@ -1142,14 +1141,12 @@ def _validate_report_shape(report: DryRunProductionSchedulerReport) -> None:
 def _report_workflow_authority(raw_report: Mapping[str, object]) -> dict[str, object]:
     if "workflow_authority" not in raw_report:
         return observe_only_workflow_authority_to_dict()
-    authority = raw_report["workflow_authority"]
-    _validate_report_workflow_authority(authority)
-    return dict(authority)
+    return dict(_validate_report_workflow_authority(raw_report["workflow_authority"]))
 
 
-def _validate_report_workflow_authority(authority: object) -> None:
+def _validate_report_workflow_authority(authority: object) -> Mapping[str, object]:
     try:
-        validate_observe_only_workflow_authority(
+        return validate_observe_only_workflow_authority(
             authority,
             field_label="Production scheduler report workflow_authority",
         )
