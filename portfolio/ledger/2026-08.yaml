@@ -580,3 +580,80 @@ entries:
         decide on #19; (4) retire or redirect the recurring "research new
         business projects" scheduled task.
     mrr_end: null
+  - venture: local-site-studio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per CLAUDE.md (only #53, #19 open, both
+        correctly left for the account owner per their own bodies — no
+        action needed there), then used `portfolio/router/allocate.py` to
+        pick where to spend this cycle's effort rather than re-deriving
+        another candidate list: local-site-studio and ai-first-markets tied
+        for the top cap, ai-first-markets was just closed out by #53, so
+        this cycle worked local-site-studio.
+      - >-
+        `npm run test` (vitest) was 124/124 files, 1207/1207 tests green,
+        but `npx tsc --noEmit` — which nothing in package.json or CI runs —
+        failed with 15 real type errors, 100% confined to `*.test.ts`
+        fixtures (a Vitest 3-vs-4 `vi.fn()` generic-signature change, a few
+        TS "weak type" object-literal mismatches, one missing required
+        field, one missing optional field). Production source had zero
+        errors. This was silent: the test suite reported fully green while
+        part of it didn't actually type-check.
+      - >-
+        Fixed every fixture against its real production type (checked each
+        one against the actual type definition before changing it; did not
+        touch production source, did not add `@ts-ignore`/`@ts-expect-error`,
+        did not loosen tsconfig) and added `"typecheck": "tsc --noEmit"` to
+        package.json so this can't regress silently again. Re-verified after:
+        `tsc --noEmit` 0 errors, same 124/124 test files and 1207/1207 tests
+        still passing (no count drift), `npm run lint` clean. Committed
+        directly (test-fixture typing only, zero product-behavior risk) —
+        commit 9ae5e8a on this session's branch.
+      - >-
+        Separately, and more importantly: found that local-site-studio
+        carries 6 scheduled GitHub Actions workflows —
+        `.github/workflows/{claude,codex,cursor,cursor-agent-grok,gemini,
+        grok,opencode}-scheduled.yml` (7 files, 6 distinct hourly crons
+        staggered 10 minutes apart: :00/:10/:20/:30/:40/:50) — each capable
+        of `contents: write` + `pull-requests: write` and each keyed to a
+        different provider's paid API (Claude, Codex/OpenAI, Cursor, Gemini,
+        Grok, OpenCode). `git log` shows these arrived in one shot via the
+        2026-07-29 03:02 `git-subtree` merge that brought local-site-studio's
+        standalone repo into this monorepo (commit a2baec4) — they were never
+        added by a session working in this repo, so no PR proposed them per
+        this repo's own automation-governance rule.
+      - >-
+        Verified (via `list_workflows` — only 5 workflows are registered for
+        this monorepo, none of the 6 local-site-studio ones among them, and
+        none of the other 6 checked ventures with a `.github/workflows/`
+        directory have any `schedule:` trigger) that these 6 are inert here:
+        GitHub Actions only scans `.github/workflows/` at the repo root, not
+        inside `ventures/*/`. They do not run, and are not the cause of this
+        repo's own Actions being broken (also independently re-checked that
+        cause this cycle: every run since 2026-07-29 is `startup_failure`
+        with 0 jobs scheduled across all 5 real workflows, all of which parse
+        as valid YAML and show `state: active` — ruling out a workflow-syntax
+        bug and leaving account-level Actions billing/quota, as prior cycles
+        concluded, the remaining explanation).
+      - >-
+        What's unresolved and is a genuinely new item, not a repeat: whether
+        local-site-studio's *standalone* repo (per this repo's own README,
+        "still exists and was not deleted") is still live with these 6
+        crons active and their provider secrets configured. If so, that's
+        six unattended, spend-capable agent fleets running every 10 minutes,
+        completely outside this portfolio's ledger/router/CLAUDE.md
+        governance — the exact pattern CLAUDE.md's "Automation that writes
+        or spends unattended" section exists to prevent, just surfacing in a
+        repo this session can't see rather than in a PR to this one. Not
+        something an agent session can check or fix from here (out of this
+        session's GitHub access scope, which is this monorepo only) — needs
+        the account owner to check that repo's Actions tab/secrets/billing
+        directly.
+      - >-
+        Sent a push notification for this finding — it's new information the
+        account owner has not seen before (unlike the Actions-billing and
+        #53/#19 items, which are repeats), it's a real unattended-spend
+        exposure question, and it can only be resolved outside this repo.
+    mrr_end: null
