@@ -4801,3 +4801,63 @@ entries:
         new decision — the owner doesn't need to be interrupted to learn
         that PRs they already have open are still mergeable.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process, increase profit legally/ethically/reliably" run.
+        `git fetch origin main` first per CLAUDE.md; tip was `fc49dee`
+        (#165, the prior session's own ledger entry for #79's merge).
+        Read #139 in full against that tip before doing anything else,
+        per its own instruction to check one place rather than
+        re-scanning the whole PR list.
+      - >-
+        Found one genuinely new item #139 didn't yet cover: PR #166,
+        opened this session's own wall-clock (15:20:41Z) by the
+        fourteenth firing of the recurring screening brief. It lands
+        #126/#130/#137/#150/#155 — the five reachability-measurement
+        PRs already tracked in #139 section 2 — as one clean,
+        byte-identical diff, plus a new `portfolio/research/README.md`
+        index and an in-place amendment to
+        `portfolio/pipeline/channel-inventory.md` warning against its
+        own superseded "publish free to WordPress.org/Open VSX/GitHub
+        Marketplace" recommendation, which is still the live text on
+        `main` and could mislead a session that reads only that file.
+      - >-
+        Independently re-verified #166 rather than trusting its body:
+        `git merge-tree --write-tree origin/main
+        origin/claude/laughing-pasteur-k3kv14` against fetched tip
+        `fc49dee` resolved with no conflict markers; `git diff --stat`
+        confirms all 22 changed files sit under `portfolio/pipeline/`
+        and `portfolio/research/` (no router or venture code touched,
+        so the router test suite is unaffected by this diff and wasn't
+        re-run); read the full `channel-inventory.md` amendment diff
+        and cross-checked its refutation table and Ask 0 wording
+        against what #139 section 2 already says — matches.
+      - >-
+        Added #166 to #139 section 2 as the recommended single
+        read/merge entry point, with the verification above stated
+        inline so the owner isn't asked to trust an unverified PR body.
+        Left #126/#130/#137/#150/#155 open, matching #166's own
+        stated reasoning (closing them before #166 merges would lose
+        their content if #166 is rejected instead). Did not merge #166
+        itself — it changes the "official" published recommendation in
+        `portfolio/pipeline/`, a materially different call than the
+        narrow ledger-entry and single-section doc extractions this
+        session's established self-merge precedent (#154/#158/#159/
+        #160/#162) covers, so left as the owner's decision per #166's
+        own framing.
+      - >-
+        Did not touch #106/#117/#122/#134/#135/#142/#19/#144/#146 —
+        all unchanged since #139's last freshness check (~14:40 UTC,
+        under an hour before this session), no new information to add.
+      - >-
+        Push notification sent: unlike the routine freshness-check
+        entries above, this surfaces a new, ready-to-merge PR that
+        fixes incorrect guidance currently live on `main` — worth the
+        owner's attention now rather than waiting for the next PR-list
+        scan, per the pattern CLAUDE.md documents of decision-pending
+        research sitting unmerged and costing further cycles.
+    mrr_end: null
