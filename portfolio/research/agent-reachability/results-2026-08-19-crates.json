@@ -1,0 +1,1558 @@
+{
+  "generated_by": "portfolio/research/agent-reachability/measure_crates_concentration.py",
+  "registry": "crates.io",
+  "demand_metric": "recent_downloads (trailing 90d) / 3 = monthly rate",
+  "population": "leaf crates only (zero reverse dependencies)",
+  "compare_with": "PR #111, portfolio/research/free-listing-demand (npm)",
+  "categories": {
+    "sbom-cra-evidence": {
+      "candidates": [
+        "cra-evidence-desk"
+      ],
+      "queries": [
+        "sbom",
+        "cyclonedx",
+        "spdx",
+        "dependency audit"
+      ],
+      "n_distinct_crates_examined": 150,
+      "dropped": {
+        "reverse_deps_unknown": 0,
+        "non_leaf": 58
+      },
+      "stats": {
+        "n": 92,
+        "total_monthly_downloads": 106129,
+        "p25": 6.3,
+        "median": 41.3,
+        "p75": 100.0,
+        "p90": 314.3,
+        "top_1pct_share": 72.7,
+        "top_5pct_share": 93.9,
+        "top_1pct_is_single_listing": true,
+        "top_5pct_n_listings": 5,
+        "n_too_small_for_concentration": false,
+        "half_of_demand_goes_to": {
+          "n_listings": 1,
+          "pct_of_listings": 1.09
+        },
+        "largest_listing": 77152,
+        "largest_share": 72.7
+      },
+      "sensitivity_drop_top_1": {
+        "n": 91,
+        "total_monthly_downloads": 28977,
+        "p25": 6.3,
+        "median": 40.7,
+        "p75": 100.0,
+        "p90": 302.3,
+        "top_1pct_share": 64.5,
+        "top_5pct_share": 79.6,
+        "top_1pct_is_single_listing": true,
+        "top_5pct_n_listings": 5,
+        "n_too_small_for_concentration": false,
+        "half_of_demand_goes_to": {
+          "n_listings": 1,
+          "pct_of_listings": 1.1
+        },
+        "largest_listing": 18681,
+        "largest_share": 64.5
+      },
+      "sensitivity_drop_top_5": {
+        "n": 87,
+        "total_monthly_downloads": 6522,
+        "p25": 6.3,
+        "median": 32.7,
+        "p75": 72.3,
+        "p90": 200.0,
+        "top_1pct_share": 9.3,
+        "top_5pct_share": 29.9,
+        "top_1pct_is_single_listing": true,
+        "top_5pct_n_listings": 4,
+        "n_too_small_for_concentration": false,
+        "half_of_demand_goes_to": {
+          "n_listings": 9,
+          "pct_of_listings": 10.34
+        },
+        "largest_listing": 609,
+        "largest_share": 9.3
+      },
+      "top_10_listings": [
+        {
+          "name": "cargo-auditable",
+          "monthly_downloads": 77152.0
+        },
+        {
+          "name": "cargo-sbom",
+          "monthly_downloads": 18681.7
+        },
+        {
+          "name": "provenant-cli",
+          "monthly_downloads": 1808.0
+        },
+        {
+          "name": "axon-lang",
+          "monthly_downloads": 1105.7
+        },
+        {
+          "name": "sqlglot-rust",
+          "monthly_downloads": 859.3
+        },
+        {
+          "name": "purl_validator",
+          "monthly_downloads": 609.7
+        },
+        {
+          "name": "svccat",
+          "monthly_downloads": 528.7
+        },
+        {
+          "name": "denoize",
+          "monthly_downloads": 443.7
+        },
+        {
+          "name": "feluda",
+          "monthly_downloads": 369.7
+        },
+        {
+          "name": "coreason-manifest",
+          "monthly_downloads": 314.3
+        }
+      ],
+      "rows": [
+        {
+          "name": "sbom",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 19,
+          "monthly_downloads": 6.3,
+          "downloads_all_time": 1435,
+          "created_at": "2025-03-07T09:41:17.193059Z",
+          "updated_at": "2025-03-07T10:35:28.654348Z"
+        },
+        {
+          "name": "uv-sbom",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 150,
+          "monthly_downloads": 50.0,
+          "downloads_all_time": 321,
+          "created_at": "2026-01-04T09:21:17.641680Z",
+          "updated_at": "2026-08-09T02:23:25.943415Z"
+        },
+        {
+          "name": "sbom-tools",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 698,
+          "monthly_downloads": 232.7,
+          "downloads_all_time": 1570,
+          "created_at": "2026-02-04T05:05:10.632700Z",
+          "updated_at": "2026-08-01T02:19:27.334223Z"
+        },
+        {
+          "name": "cargo-sbom",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 56045,
+          "monthly_downloads": 18681.7,
+          "downloads_all_time": 211629,
+          "created_at": "2023-07-04T13:53:06.721348Z",
+          "updated_at": "2025-06-17T00:31:59.917872Z"
+        },
+        {
+          "name": "bitvex",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 133,
+          "monthly_downloads": 44.3,
+          "downloads_all_time": 133,
+          "created_at": "2026-05-29T17:24:04.177496Z",
+          "updated_at": "2026-05-31T15:19:13.081157Z"
+        },
+        {
+          "name": "sbom-auditor",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 128,
+          "monthly_downloads": 42.7,
+          "downloads_all_time": 128,
+          "created_at": "2026-08-03T15:50:06.403599Z",
+          "updated_at": "2026-08-11T14:49:12.269395Z"
+        },
+        {
+          "name": "sbom-diff",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 380,
+          "monthly_downloads": 126.7,
+          "downloads_all_time": 711,
+          "created_at": "2026-01-25T20:28:58.182929Z",
+          "updated_at": "2026-08-17T14:11:08.657460Z"
+        },
+        {
+          "name": "feluda",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 1109,
+          "monthly_downloads": 369.7,
+          "downloads_all_time": 14398,
+          "created_at": "2025-01-14T22:16:29.206878Z",
+          "updated_at": "2026-07-25T16:25:36.857486Z"
+        },
+        {
+          "name": "sbomsleuth-cli",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 37,
+          "monthly_downloads": 12.3,
+          "downloads_all_time": 8608,
+          "created_at": "2024-10-08T12:13:53.128057Z",
+          "updated_at": "2024-10-10T08:19:04.660014Z"
+        },
+        {
+          "name": "bomdrift",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 21,
+          "monthly_downloads": 7.0,
+          "downloads_all_time": 29,
+          "created_at": "2026-05-01T03:51:52.228019Z",
+          "updated_at": "2026-05-01T03:51:52.228019Z"
+        },
+        {
+          "name": "sbomr",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 8,
+          "monthly_downloads": 2.7,
+          "downloads_all_time": 24,
+          "created_at": "2026-03-18T08:04:27.179459Z",
+          "updated_at": "2026-03-18T08:04:27.179459Z"
+        },
+        {
+          "name": "shieldbom",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 36,
+          "monthly_downloads": 12.0,
+          "downloads_all_time": 80,
+          "created_at": "2026-03-19T02:34:53.132850Z",
+          "updated_at": "2026-08-03T20:45:08.537322Z"
+        },
+        {
+          "name": "artifact-keeper-client",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 475,
+          "monthly_downloads": 158.3,
+          "downloads_all_time": 693,
+          "created_at": "2026-02-08T15:31:31.294809Z",
+          "updated_at": "2026-08-14T01:14:57.123491Z"
+        },
+        {
+          "name": "sbom-cli",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 225,
+          "monthly_downloads": 75.0,
+          "downloads_all_time": 63305,
+          "created_at": "2023-09-21T07:36:46.504861Z",
+          "updated_at": "2026-04-29T08:49:18.494791Z"
+        },
+        {
+          "name": "shieldbom-cli",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 4,
+          "monthly_downloads": 1.3,
+          "downloads_all_time": 15,
+          "created_at": "2026-04-03T11:17:04.622498Z",
+          "updated_at": "2026-04-03T11:17:04.622498Z"
+        },
+        {
+          "name": "forge-guard",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 369,
+          "monthly_downloads": 123.0,
+          "downloads_all_time": 369,
+          "created_at": "2026-07-26T05:19:27.256914Z",
+          "updated_at": "2026-08-17T13:05:47.720388Z"
+        },
+        {
+          "name": "scanr-cli",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 8,
+          "monthly_downloads": 2.7,
+          "downloads_all_time": 23,
+          "created_at": "2026-03-03T18:01:35.967393Z",
+          "updated_at": "2026-03-03T18:01:35.967393Z"
+        },
+        {
+          "name": "cargo-auditable",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 231456,
+          "monthly_downloads": 77152.0,
+          "downloads_all_time": 932012,
+          "created_at": "2022-07-31T18:44:22.522756Z",
+          "updated_at": "2026-06-28T18:45:52.604991Z"
+        },
+        {
+          "name": "gravedigger",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 83,
+          "monthly_downloads": 27.7,
+          "downloads_all_time": 83,
+          "created_at": "2026-06-23T08:26:38.750210Z",
+          "updated_at": "2026-06-25T13:32:36.258729Z"
+        },
+        {
+          "name": "sqlglot-rust",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 2578,
+          "monthly_downloads": 859.3,
+          "downloads_all_time": 3644,
+          "created_at": "2026-03-16T16:00:11.592087Z",
+          "updated_at": "2026-08-08T16:23:12.770833Z"
+        },
+        {
+          "name": "eb_stack",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 18,
+          "monthly_downloads": 6.0,
+          "downloads_all_time": 18,
+          "created_at": "2026-07-21T19:45:30.338512Z",
+          "updated_at": "2026-07-21T19:45:30.338512Z"
+        },
+        {
+          "name": "inspektr_cli",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 54,
+          "monthly_downloads": 18.0,
+          "downloads_all_time": 216,
+          "created_at": "2026-03-24T23:26:20.567105Z",
+          "updated_at": "2026-05-01T02:48:30.625028Z"
+        },
+        {
+          "name": "sbom-ghr",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 5,
+          "monthly_downloads": 1.7,
+          "downloads_all_time": 1570,
+          "created_at": "2022-06-26T07:24:55.293508Z",
+          "updated_at": "2022-06-26T07:24:55.293508Z"
+        },
+        {
+          "name": "sigmate",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 11,
+          "monthly_downloads": 3.7,
+          "downloads_all_time": 371,
+          "created_at": "2025-09-13T17:57:18.271356Z",
+          "updated_at": "2025-09-13T17:57:18.271356Z"
+        },
+        {
+          "name": "mnemo-rs",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 208,
+          "monthly_downloads": 69.3,
+          "downloads_all_time": 208,
+          "created_at": "2026-08-03T04:25:33.571639Z",
+          "updated_at": "2026-08-17T20:43:06.586737Z"
+        },
+        {
+          "name": "soma-player",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 31,
+          "monthly_downloads": 10.3,
+          "downloads_all_time": 1352,
+          "created_at": "2025-06-30T09:00:35.604845Z",
+          "updated_at": "2026-04-28T13:42:14.870045Z"
+        },
+        {
+          "name": "santh-skera",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 17,
+          "monthly_downloads": 5.7,
+          "downloads_all_time": 17,
+          "created_at": "2026-08-02T01:52:39.165469Z",
+          "updated_at": "2026-08-02T01:52:39.165469Z"
+        },
+        {
+          "name": "scala-dep-scan",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 10,
+          "monthly_downloads": 3.3,
+          "downloads_all_time": 30,
+          "created_at": "2026-03-08T04:51:09.422113Z",
+          "updated_at": "2026-03-08T04:51:09.422113Z"
+        },
+        {
+          "name": "provenant-cli",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 5424,
+          "monthly_downloads": 1808.0,
+          "downloads_all_time": 8105,
+          "created_at": "2026-03-18T23:20:53.267139Z",
+          "updated_at": "2026-08-17T20:52:35.460270Z"
+        },
+        {
+          "name": "rastray",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 418,
+          "monthly_downloads": 139.3,
+          "downloads_all_time": 418,
+          "created_at": "2026-06-13T11:34:27.706207Z",
+          "updated_at": "2026-07-22T07:39:52.631667Z"
+        },
+        {
+          "name": "nabla-cli",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 22,
+          "monthly_downloads": 7.3,
+          "downloads_all_time": 1916,
+          "created_at": "2025-07-31T04:01:10.267101Z",
+          "updated_at": "2025-08-05T11:18:22.008809Z"
+        },
+        {
+          "name": "cargo-packer",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 18,
+          "monthly_downloads": 6.0,
+          "downloads_all_time": 18,
+          "created_at": "2026-08-17T02:31:37.811086Z",
+          "updated_at": "2026-08-17T02:31:37.811086Z"
+        },
+        {
+          "name": "cargo-spdx",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 17,
+          "monthly_downloads": 5.7,
+          "downloads_all_time": 2108,
+          "created_at": "2022-05-10T23:48:57.014140Z",
+          "updated_at": "2022-05-10T23:48:57.014140Z"
+        },
+        {
+          "name": "cargo-who",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 10,
+          "monthly_downloads": 3.3,
+          "downloads_all_time": 26,
+          "created_at": "2026-03-06T19:55:01.959428Z",
+          "updated_at": "2026-03-06T19:55:01.959428Z"
+        },
+        {
+          "name": "call-shield",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 9,
+          "monthly_downloads": 3.0,
+          "downloads_all_time": 21,
+          "created_at": "2026-04-28T14:33:57.889858Z",
+          "updated_at": "2026-04-28T14:33:57.889858Z"
+        },
+        {
+          "name": "ssg",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 907,
+          "monthly_downloads": 302.3,
+          "downloads_all_time": 40759,
+          "created_at": "2023-03-14T18:46:09.037949Z",
+          "updated_at": "2026-08-18T17:30:27.549955Z"
+        },
+        {
+          "name": "relay-knowledge",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 334,
+          "monthly_downloads": 111.3,
+          "downloads_all_time": 433,
+          "created_at": "2026-05-17T10:36:53.956885Z",
+          "updated_at": "2026-08-03T10:13:46.879709Z"
+        },
+        {
+          "name": "crypton-sweep",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 19,
+          "monthly_downloads": 6.3,
+          "downloads_all_time": 19,
+          "created_at": "2026-07-20T09:40:43.559660Z",
+          "updated_at": "2026-07-20T09:40:43.559660Z"
+        },
+        {
+          "name": "rivox",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 17,
+          "monthly_downloads": 5.7,
+          "downloads_all_time": 17,
+          "created_at": "2026-08-10T17:49:51.678462Z",
+          "updated_at": "2026-08-10T17:49:51.678462Z"
+        },
+        {
+          "name": "sbomsmith",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 9,
+          "monthly_downloads": 3.0,
+          "downloads_all_time": 9,
+          "created_at": "2026-08-18T23:27:53.197889Z",
+          "updated_at": "2026-08-18T23:27:53.197889Z"
+        },
+        {
+          "name": "wasmshield-cli",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 8,
+          "monthly_downloads": 2.7,
+          "downloads_all_time": 864,
+          "created_at": "2025-01-20T13:24:29.536860Z",
+          "updated_at": "2025-01-20T13:24:29.536860Z"
+        },
+        {
+          "name": "hashavatar",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 364,
+          "monthly_downloads": 121.3,
+          "downloads_all_time": 651,
+          "created_at": "2026-03-31T12:04:39.716456Z",
+          "updated_at": "2026-07-21T09:26:58.793647Z"
+        },
+        {
+          "name": "taudit",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 334,
+          "monthly_downloads": 111.3,
+          "downloads_all_time": 1028,
+          "created_at": "2026-04-09T01:20:42.866780Z",
+          "updated_at": "2026-08-05T03:14:44.364367Z"
+        },
+        {
+          "name": "cargo-tribute",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 281,
+          "monthly_downloads": 93.7,
+          "downloads_all_time": 281,
+          "created_at": "2026-07-04T12:07:32.299252Z",
+          "updated_at": "2026-07-27T06:47:18.873323Z"
+        },
+        {
+          "name": "RavenClaws",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 167,
+          "monthly_downloads": 55.7,
+          "downloads_all_time": 167,
+          "created_at": "2026-06-27T21:12:47.912149Z",
+          "updated_at": "2026-08-13T15:37:01.117656Z"
+        },
+        {
+          "name": "usg-est-client",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 144,
+          "monthly_downloads": 48.0,
+          "downloads_all_time": 144,
+          "created_at": "2026-06-25T15:05:02.854465Z",
+          "updated_at": "2026-07-28T00:00:24.355742Z"
+        },
+        {
+          "name": "narsil-mcp",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 141,
+          "monthly_downloads": 47.0,
+          "downloads_all_time": 693,
+          "created_at": "2025-12-24T02:05:52.033562Z",
+          "updated_at": "2026-05-13T07:46:02.731369Z"
+        },
+        {
+          "name": "rpmoci",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 45,
+          "monthly_downloads": 15.0,
+          "downloads_all_time": 6471,
+          "created_at": "2023-11-28T11:01:21.916769Z",
+          "updated_at": "2025-07-01T10:49:23.155294Z"
+        },
+        {
+          "name": "cargo-rustinel",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 37,
+          "monthly_downloads": 12.3,
+          "downloads_all_time": 37,
+          "created_at": "2026-06-08T11:18:16.904840Z",
+          "updated_at": "2026-06-08T11:18:16.904840Z"
+        },
+        {
+          "name": "jhol",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 12,
+          "monthly_downloads": 4.0,
+          "downloads_all_time": 45,
+          "created_at": "2026-02-10T08:04:39.165466Z",
+          "updated_at": "2026-02-14T07:52:06.339671Z"
+        },
+        {
+          "name": "hatto",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 9,
+          "monthly_downloads": 3.0,
+          "downloads_all_time": 1551,
+          "created_at": "2022-08-06T09:12:46.012789Z",
+          "updated_at": "2022-08-06T09:12:46.012789Z"
+        },
+        {
+          "name": "shippo-release",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 8,
+          "monthly_downloads": 2.7,
+          "downloads_all_time": 29,
+          "created_at": "2025-12-15T18:31:11.791362Z",
+          "updated_at": "2025-12-15T18:31:11.791362Z"
+        },
+        {
+          "name": "pocket-server",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 7,
+          "monthly_downloads": 2.3,
+          "downloads_all_time": 19,
+          "created_at": "2026-04-28T14:34:04.254805Z",
+          "updated_at": "2026-04-28T14:34:04.254805Z"
+        },
+        {
+          "name": "purl_validator",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 1829,
+          "monthly_downloads": 609.7,
+          "downloads_all_time": 3598,
+          "created_at": "2025-11-12T11:41:27.041423Z",
+          "updated_at": "2026-08-19T01:05:21.227639Z"
+        },
+        {
+          "name": "rsfulmen",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 815,
+          "monthly_downloads": 271.7,
+          "downloads_all_time": 3526,
+          "created_at": "2026-01-08T14:13:04.329722Z",
+          "updated_at": "2026-06-06T12:00:54.814031Z"
+        },
+        {
+          "name": "droidsaw",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 269,
+          "monthly_downloads": 89.7,
+          "downloads_all_time": 282,
+          "created_at": "2026-04-14T00:57:30.968895Z",
+          "updated_at": "2026-06-11T07:46:19.608306Z"
+        },
+        {
+          "name": "omnibor-cli",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 187,
+          "monthly_downloads": 62.3,
+          "downloads_all_time": 4987,
+          "created_at": "2024-03-08T20:04:55.322643Z",
+          "updated_at": "2025-06-18T16:37:23.957796Z"
+        },
+        {
+          "name": "gitoid",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 178,
+          "monthly_downloads": 59.3,
+          "downloads_all_time": 21870,
+          "created_at": "2022-09-07T23:12:42.503115Z",
+          "updated_at": "2025-01-29T23:25:55.510607Z"
+        },
+        {
+          "name": "mcptest",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 166,
+          "monthly_downloads": 55.3,
+          "downloads_all_time": 181,
+          "created_at": "2026-05-13T05:48:12.691838Z",
+          "updated_at": "2026-07-29T06:04:17.324279Z"
+        },
+        {
+          "name": "vexshield",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 101,
+          "monthly_downloads": 33.7,
+          "downloads_all_time": 332,
+          "created_at": "2025-12-05T02:35:46.742100Z",
+          "updated_at": "2025-12-05T02:35:46.742100Z"
+        },
+        {
+          "name": "modelo-cli",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 71,
+          "monthly_downloads": 23.7,
+          "downloads_all_time": 71,
+          "created_at": "2026-08-12T08:42:45.855344Z",
+          "updated_at": "2026-08-14T15:18:15.542208Z"
+        },
+        {
+          "name": "hipcheck",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 62,
+          "monthly_downloads": 20.7,
+          "downloads_all_time": 12828,
+          "created_at": "2024-05-09T22:52:56.850402Z",
+          "updated_at": "2024-10-10T16:56:11.270779Z"
+        },
+        {
+          "name": "cbom",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 57,
+          "monthly_downloads": 19.0,
+          "downloads_all_time": 57,
+          "created_at": "2026-07-16T09:32:31.321649Z",
+          "updated_at": "2026-07-21T15:57:57.038959Z"
+        },
+        {
+          "name": "lockfiles",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 19,
+          "monthly_downloads": 6.3,
+          "downloads_all_time": 19,
+          "created_at": "2026-06-22T10:18:56.731139Z",
+          "updated_at": "2026-06-22T10:18:56.731139Z"
+        },
+        {
+          "name": "gitbom",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 12,
+          "monthly_downloads": 4.0,
+          "downloads_all_time": 9492,
+          "created_at": "2022-02-23T03:41:34.524093Z",
+          "updated_at": "2023-02-03T18:03:32.872030Z"
+        },
+        {
+          "name": "axon-lang",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 3317,
+          "monthly_downloads": 1105.7,
+          "downloads_all_time": 4101,
+          "created_at": "2026-04-30T16:27:06.536799Z",
+          "updated_at": "2026-08-17T22:24:15.504904Z"
+        },
+        {
+          "name": "denoize",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 1331,
+          "monthly_downloads": 443.7,
+          "downloads_all_time": 1331,
+          "created_at": "2026-07-19T04:37:36.677824Z",
+          "updated_at": "2026-08-15T23:13:56.016260Z"
+        },
+        {
+          "name": "cardano",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 124,
+          "monthly_downloads": 41.3,
+          "downloads_all_time": 124,
+          "created_at": "2026-07-02T08:35:50.534796Z",
+          "updated_at": "2026-07-29T13:26:28.594269Z"
+        },
+        {
+          "name": "a3s-use",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 98,
+          "monthly_downloads": 32.7,
+          "downloads_all_time": 98,
+          "created_at": "2026-08-05T18:41:42.904432Z",
+          "updated_at": "2026-08-18T22:42:57.930867Z"
+        },
+        {
+          "name": "grackle",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 91,
+          "monthly_downloads": 30.3,
+          "downloads_all_time": 91,
+          "created_at": "2026-07-21T19:48:26.583628Z",
+          "updated_at": "2026-08-04T12:05:14.581317Z"
+        },
+        {
+          "name": "pyscan",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 88,
+          "monthly_downloads": 29.3,
+          "downloads_all_time": 10585,
+          "created_at": "2023-05-16T07:15:02.707460Z",
+          "updated_at": "2026-06-03T08:26:06.257917Z"
+        },
+        {
+          "name": "fleetreach-cli",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 51,
+          "monthly_downloads": 17.0,
+          "downloads_all_time": 51,
+          "created_at": "2026-06-28T11:14:19.463256Z",
+          "updated_at": "2026-06-28T22:16:27.894662Z"
+        },
+        {
+          "name": "openapi-github",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 51,
+          "monthly_downloads": 17.0,
+          "downloads_all_time": 1493,
+          "created_at": "2024-11-22T13:44:28.765279Z",
+          "updated_at": "2024-11-22T13:44:28.765279Z"
+        },
+        {
+          "name": "declawd",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 38,
+          "monthly_downloads": 12.7,
+          "downloads_all_time": 38,
+          "created_at": "2026-08-12T22:49:41.581530Z",
+          "updated_at": "2026-08-16T09:15:35.331151Z"
+        },
+        {
+          "name": "ipakeep",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 30,
+          "monthly_downloads": 10.0,
+          "downloads_all_time": 30,
+          "created_at": "2026-06-20T07:42:02.630597Z",
+          "updated_at": "2026-06-20T07:42:02.630597Z"
+        },
+        {
+          "name": "aikido-api-client",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 14,
+          "monthly_downloads": 4.7,
+          "downloads_all_time": 62,
+          "created_at": "2025-12-11T11:04:26.077070Z",
+          "updated_at": "2025-12-11T11:04:26.077070Z"
+        },
+        {
+          "name": "dsfb-oil-gas",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 10,
+          "monthly_downloads": 3.3,
+          "downloads_all_time": 24,
+          "created_at": "2026-04-13T10:01:09.969794Z",
+          "updated_at": "2026-04-13T10:01:09.969794Z"
+        },
+        {
+          "name": "svccat",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 1586,
+          "monthly_downloads": 528.7,
+          "downloads_all_time": 1828,
+          "created_at": "2026-05-16T02:45:09.554566Z",
+          "updated_at": "2026-07-26T09:20:38.731220Z"
+        },
+        {
+          "name": "coreason-manifest",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 943,
+          "monthly_downloads": 314.3,
+          "downloads_all_time": 2187,
+          "created_at": "2026-04-13T17:18:59.668054Z",
+          "updated_at": "2026-05-23T17:33:52.170133Z"
+        },
+        {
+          "name": "anodizer",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 851,
+          "monthly_downloads": 283.7,
+          "downloads_all_time": 891,
+          "created_at": "2026-04-20T15:05:10.491218Z",
+          "updated_at": "2026-07-29T02:03:35.448164Z"
+        },
+        {
+          "name": "winx-code-agent",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 600,
+          "monthly_downloads": 200.0,
+          "downloads_all_time": 615,
+          "created_at": "2026-05-08T16:19:30.333248Z",
+          "updated_at": "2026-08-18T22:29:19.024923Z"
+        },
+        {
+          "name": "axond",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 556,
+          "monthly_downloads": 185.3,
+          "downloads_all_time": 556,
+          "created_at": "2026-08-11T23:54:23.213401Z",
+          "updated_at": "2026-08-15T17:47:25.004993Z"
+        },
+        {
+          "name": "gen-secattest",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 300,
+          "monthly_downloads": 100.0,
+          "downloads_all_time": 300,
+          "created_at": "2026-07-07T08:48:49.489655Z",
+          "updated_at": "2026-08-05T06:05:07.318030Z"
+        },
+        {
+          "name": "tr300-tui",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 217,
+          "monthly_downloads": 72.3,
+          "downloads_all_time": 231,
+          "created_at": "2026-05-11T03:57:58.976258Z",
+          "updated_at": "2026-07-25T08:30:32.661697Z"
+        },
+        {
+          "name": "pinner",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 210,
+          "monthly_downloads": 70.0,
+          "downloads_all_time": 210,
+          "created_at": "2026-06-09T19:43:10.429313Z",
+          "updated_at": "2026-08-12T11:09:34.510291Z"
+        },
+        {
+          "name": "pliego-ssg",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 173,
+          "monthly_downloads": 57.7,
+          "downloads_all_time": 173,
+          "created_at": "2026-07-16T22:14:42.483138Z",
+          "updated_at": "2026-07-30T17:54:14.539965Z"
+        },
+        {
+          "name": "hyalo-cli",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 161,
+          "monthly_downloads": 53.7,
+          "downloads_all_time": 267,
+          "created_at": "2026-04-01T06:39:06.843687Z",
+          "updated_at": "2026-07-19T20:43:17.100477Z"
+        },
+        {
+          "name": "pqrascv-cli",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 160,
+          "monthly_downloads": 53.3,
+          "downloads_all_time": 160,
+          "created_at": "2026-05-23T18:12:10.368488Z",
+          "updated_at": "2026-06-11T13:48:31.136485Z"
+        },
+        {
+          "name": "pqrascv-hardware",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 152,
+          "monthly_downloads": 50.7,
+          "downloads_all_time": 152,
+          "created_at": "2026-05-23T18:11:53.738359Z",
+          "updated_at": "2026-06-11T13:48:25.097205Z"
+        },
+        {
+          "name": "mosskeys-witness",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 144,
+          "monthly_downloads": 48.0,
+          "downloads_all_time": 144,
+          "created_at": "2026-07-29T15:47:57.653104Z",
+          "updated_at": "2026-08-08T21:09:09.063912Z"
+        },
+        {
+          "name": "pliego-cli",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 127,
+          "monthly_downloads": 42.3,
+          "downloads_all_time": 127,
+          "created_at": "2026-07-16T22:24:48.612705Z",
+          "updated_at": "2026-07-30T17:55:44.973931Z"
+        },
+        {
+          "name": "pg_tviews",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 122,
+          "monthly_downloads": 40.7,
+          "downloads_all_time": 133,
+          "created_at": "2026-04-19T10:15:26.377765Z",
+          "updated_at": "2026-07-24T10:26:39.094888Z"
+        }
+      ]
+    },
+    "accessibility-evidence": {
+      "candidates": [
+        "eaa-remediation-pipeline",
+        "shopify-a11y-evidence"
+      ],
+      "queries": [
+        "accessibility",
+        "a11y",
+        "wcag"
+      ],
+      "n_distinct_crates_examined": 150,
+      "dropped": {
+        "reverse_deps_unknown": 0,
+        "non_leaf": 146
+      },
+      "stats": {
+        "n": 4,
+        "total_monthly_downloads": 530152,
+        "p25": 108650.3,
+        "median": 123450.3,
+        "p75": 123450.3,
+        "p90": 233784.3,
+        "top_1pct_share": 44.1,
+        "top_5pct_share": 44.1,
+        "top_1pct_is_single_listing": true,
+        "top_5pct_n_listings": 1,
+        "n_too_small_for_concentration": true,
+        "half_of_demand_goes_to": {
+          "n_listings": 2,
+          "pct_of_listings": 50.0
+        },
+        "largest_listing": 233784,
+        "largest_share": 44.1
+      },
+      "sensitivity_drop_top_1": {
+        "n": 3,
+        "total_monthly_downloads": 296368,
+        "p25": 64268.0,
+        "median": 108650.3,
+        "p75": 123450.3,
+        "p90": 123450.3,
+        "top_1pct_share": 41.7,
+        "top_5pct_share": 41.7,
+        "top_1pct_is_single_listing": true,
+        "top_5pct_n_listings": 1,
+        "n_too_small_for_concentration": true,
+        "half_of_demand_goes_to": {
+          "n_listings": 2,
+          "pct_of_listings": 66.67
+        },
+        "largest_listing": 123450,
+        "largest_share": 41.7
+      },
+      "sensitivity_drop_top_5": {},
+      "top_10_listings": [
+        {
+          "name": "twapi-v2",
+          "monthly_downloads": 233784.3
+        },
+        {
+          "name": "mmap-sync",
+          "monthly_downloads": 123450.3
+        },
+        {
+          "name": "dtokenz",
+          "monthly_downloads": 108650.3
+        },
+        {
+          "name": "vfio-ioctls",
+          "monthly_downloads": 64268.0
+        }
+      ],
+      "rows": [
+        {
+          "name": "mmap-sync",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 370351,
+          "monthly_downloads": 123450.3,
+          "downloads_all_time": 1575956,
+          "created_at": "2023-06-15T16:41:05.538121Z",
+          "updated_at": "2026-04-09T16:50:38.663818Z"
+        },
+        {
+          "name": "twapi-v2",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 701353,
+          "monthly_downloads": 233784.3,
+          "downloads_all_time": 2797246,
+          "created_at": "2023-04-19T23:47:13.537588Z",
+          "updated_at": "2026-06-15T03:34:29.652756Z"
+        },
+        {
+          "name": "vfio-ioctls",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 192804,
+          "monthly_downloads": 64268.0,
+          "downloads_all_time": 567044,
+          "created_at": "2021-12-20T12:16:34.142424Z",
+          "updated_at": "2026-08-18T19:40:59.860503Z"
+        },
+        {
+          "name": "dtokenz",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 325951,
+          "monthly_downloads": 108650.3,
+          "downloads_all_time": 662217,
+          "created_at": "2026-03-04T00:32:58.563228Z",
+          "updated_at": "2026-03-06T20:17:47.454461Z"
+        }
+      ]
+    },
+    "mcp-supply-chain": {
+      "candidates": [
+        "mcp-supply-chain-watch"
+      ],
+      "queries": [
+        "mcp",
+        "model context protocol"
+      ],
+      "n_distinct_crates_examined": 150,
+      "dropped": {
+        "reverse_deps_unknown": 0,
+        "non_leaf": 108
+      },
+      "stats": {
+        "n": 42,
+        "total_monthly_downloads": 73292,
+        "p25": 281.3,
+        "median": 330.7,
+        "p75": 491.3,
+        "p90": 937.0,
+        "top_1pct_share": 72.8,
+        "top_5pct_share": 77.3,
+        "top_1pct_is_single_listing": true,
+        "top_5pct_n_listings": 2,
+        "n_too_small_for_concentration": false,
+        "half_of_demand_goes_to": {
+          "n_listings": 1,
+          "pct_of_listings": 2.38
+        },
+        "largest_listing": 53358,
+        "largest_share": 72.8
+      },
+      "sensitivity_drop_top_1": {
+        "n": 41,
+        "total_monthly_downloads": 19933,
+        "p25": 281.3,
+        "median": 330.7,
+        "p75": 488.0,
+        "p90": 742.0,
+        "top_1pct_share": 16.5,
+        "top_5pct_share": 23.9,
+        "top_1pct_is_single_listing": true,
+        "top_5pct_n_listings": 2,
+        "n_too_small_for_concentration": false,
+        "half_of_demand_goes_to": {
+          "n_listings": 10,
+          "pct_of_listings": 24.39
+        },
+        "largest_listing": 3291,
+        "largest_share": 16.5
+      },
+      "sensitivity_drop_top_5": {
+        "n": 37,
+        "total_monthly_downloads": 13234,
+        "p25": 278.7,
+        "median": 311.3,
+        "p75": 382.0,
+        "p90": 557.7,
+        "top_1pct_share": 5.6,
+        "top_5pct_share": 10.8,
+        "top_1pct_is_single_listing": true,
+        "top_5pct_n_listings": 2,
+        "n_too_small_for_concentration": false,
+        "half_of_demand_goes_to": {
+          "n_listings": 14,
+          "pct_of_listings": 37.84
+        },
+        "largest_listing": 742,
+        "largest_share": 5.6
+      },
+      "top_10_listings": [
+        {
+          "name": "tauri-plugin-mcp-bridge",
+          "monthly_downloads": 53358.7
+        },
+        {
+          "name": "lean-ctx",
+          "monthly_downloads": 3291.7
+        },
+        {
+          "name": "katana-markdown-linter",
+          "monthly_downloads": 1472.3
+        },
+        {
+          "name": "tokensave",
+          "monthly_downloads": 998.3
+        },
+        {
+          "name": "dirge-agent",
+          "monthly_downloads": 937.0
+        },
+        {
+          "name": "remem-ai",
+          "monthly_downloads": 742.0
+        },
+        {
+          "name": "bamboo-agent",
+          "monthly_downloads": 684.0
+        },
+        {
+          "name": "trustee",
+          "monthly_downloads": 634.7
+        },
+        {
+          "name": "trusty-search",
+          "monthly_downloads": 623.3
+        },
+        {
+          "name": "cedar-policy-mcp-schema-generator",
+          "monthly_downloads": 557.7
+        }
+      ],
+      "rows": [
+        {
+          "name": "mcp",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 85,
+          "monthly_downloads": 28.3,
+          "downloads_all_time": 4527,
+          "created_at": "2018-03-09T04:52:03.253609Z",
+          "updated_at": "2018-03-09T04:56:19.956160Z"
+        },
+        {
+          "name": "confluence-dc-mcp",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 742,
+          "monthly_downloads": 247.3,
+          "downloads_all_time": 742,
+          "created_at": "2026-07-05T15:16:45.091443Z",
+          "updated_at": "2026-08-01T15:11:10.223827Z"
+        },
+        {
+          "name": "bamboo-mcp-rs",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 774,
+          "monthly_downloads": 258.0,
+          "downloads_all_time": 774,
+          "created_at": "2026-07-05T10:49:45.234836Z",
+          "updated_at": "2026-08-01T14:20:16.695230Z"
+        },
+        {
+          "name": "bitbucket-dc-mcp",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 1048,
+          "monthly_downloads": 349.3,
+          "downloads_all_time": 1048,
+          "created_at": "2026-07-05T16:07:14.190134Z",
+          "updated_at": "2026-08-01T14:24:24.193365Z"
+        },
+        {
+          "name": "jira-dc-mcp",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 844,
+          "monthly_downloads": 281.3,
+          "downloads_all_time": 844,
+          "created_at": "2026-07-05T14:50:28.156245Z",
+          "updated_at": "2026-08-01T15:27:55.186047Z"
+        },
+        {
+          "name": "gen-orb-mcp",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 758,
+          "monthly_downloads": 252.7,
+          "downloads_all_time": 2254,
+          "created_at": "2026-01-26T06:24:46.867613Z",
+          "updated_at": "2026-07-25T07:21:20.683083Z"
+        },
+        {
+          "name": "anda_brain",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 930,
+          "monthly_downloads": 310.0,
+          "downloads_all_time": 961,
+          "created_at": "2026-05-21T11:33:33.218003Z",
+          "updated_at": "2026-08-07T04:45:07.695904Z"
+        },
+        {
+          "name": "tokensave",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 2995,
+          "monthly_downloads": 998.3,
+          "downloads_all_time": 4748,
+          "created_at": "2026-03-24T12:56:24.951437Z",
+          "updated_at": "2026-08-08T13:08:09.997469Z"
+        },
+        {
+          "name": "oxhivemind",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 742,
+          "monthly_downloads": 247.3,
+          "downloads_all_time": 742,
+          "created_at": "2026-06-18T02:46:25.620884Z",
+          "updated_at": "2026-08-10T08:24:06.307591Z"
+        },
+        {
+          "name": "turul-mcp-client",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 1262,
+          "monthly_downloads": 420.7,
+          "downloads_all_time": 11413,
+          "created_at": "2025-09-02T23:37:20.144653Z",
+          "updated_at": "2026-08-16T00:40:37.160857Z"
+        },
+        {
+          "name": "patchloom",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 1198,
+          "monthly_downloads": 399.3,
+          "downloads_all_time": 1198,
+          "created_at": "2026-06-04T17:22:28.616492Z",
+          "updated_at": "2026-08-14T02:09:30.957716Z"
+        },
+        {
+          "name": "algocline",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 792,
+          "monthly_downloads": 264.0,
+          "downloads_all_time": 1586,
+          "created_at": "2026-03-13T03:25:47.424880Z",
+          "updated_at": "2026-08-14T23:37:17.486992Z"
+        },
+        {
+          "name": "tauri-plugin-mcp-bridge",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 160076,
+          "monthly_downloads": 53358.7,
+          "downloads_all_time": 240237,
+          "created_at": "2025-11-27T04:18:49.188220Z",
+          "updated_at": "2026-07-06T00:28:25.768861Z"
+        },
+        {
+          "name": "crw-mcp",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 876,
+          "monthly_downloads": 292.0,
+          "downloads_all_time": 1300,
+          "created_at": "2026-03-03T13:26:30.999737Z",
+          "updated_at": "2026-08-18T15:40:42.641850Z"
+        },
+        {
+          "name": "xbp",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 1046,
+          "monthly_downloads": 348.7,
+          "downloads_all_time": 6469,
+          "created_at": "2025-03-31T15:37:56.375557Z",
+          "updated_at": "2026-08-02T14:47:21.531219Z"
+        },
+        {
+          "name": "mentedb-mcp",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 985,
+          "monthly_downloads": 328.3,
+          "downloads_all_time": 1689,
+          "created_at": "2026-04-05T11:49:07.009387Z",
+          "updated_at": "2026-07-29T05:06:39.176197Z"
+        },
+        {
+          "name": "cedar-policy-mcp-schema-generator",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 1673,
+          "monthly_downloads": 557.7,
+          "downloads_all_time": 1908,
+          "created_at": "2025-12-05T18:45:58.581066Z",
+          "updated_at": "2026-05-26T21:59:51.581209Z"
+        },
+        {
+          "name": "katana-markdown-linter",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 4417,
+          "monthly_downloads": 1472.3,
+          "downloads_all_time": 7338,
+          "created_at": "2026-04-24T02:01:44.713386Z",
+          "updated_at": "2026-05-23T07:22:11.407944Z"
+        },
+        {
+          "name": "rmcp-soddygo",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 934,
+          "monthly_downloads": 311.3,
+          "downloads_all_time": 1556,
+          "created_at": "2026-03-12T10:45:27.141927Z",
+          "updated_at": "2026-07-20T05:39:22.639885Z"
+        },
+        {
+          "name": "text-to-cypher",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 890,
+          "monthly_downloads": 296.7,
+          "downloads_all_time": 2568,
+          "created_at": "2025-12-23T06:04:40.745081Z",
+          "updated_at": "2026-07-26T09:52:53.392166Z"
+        },
+        {
+          "name": "rag-rat",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 1078,
+          "monthly_downloads": 359.3,
+          "downloads_all_time": 1078,
+          "created_at": "2026-06-08T17:53:44.718475Z",
+          "updated_at": "2026-08-17T08:21:52.438083Z"
+        },
+        {
+          "name": "task-journal-mcp",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 831,
+          "monthly_downloads": 277.0,
+          "downloads_all_time": 1290,
+          "created_at": "2026-05-01T05:26:34.768489Z",
+          "updated_at": "2026-06-29T13:54:13.864413Z"
+        },
+        {
+          "name": "lean-ctx",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 9875,
+          "monthly_downloads": 3291.7,
+          "downloads_all_time": 17042,
+          "created_at": "2026-03-23T19:46:32.814016Z",
+          "updated_at": "2026-08-18T14:09:43.927943Z"
+        },
+        {
+          "name": "trustee",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 1904,
+          "monthly_downloads": 634.7,
+          "downloads_all_time": 2649,
+          "created_at": "2025-11-06T12:18:22.107789Z",
+          "updated_at": "2026-08-19T06:34:42.429403Z"
+        },
+        {
+          "name": "assay-cli",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 836,
+          "monthly_downloads": 278.7,
+          "downloads_all_time": 1494,
+          "created_at": "2025-12-28T00:20:21.179778Z",
+          "updated_at": "2026-08-19T08:03:11.373358Z"
+        },
+        {
+          "name": "spider_mcp",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 1474,
+          "monthly_downloads": 491.3,
+          "downloads_all_time": 4517,
+          "created_at": "2026-03-25T21:01:08.664915Z",
+          "updated_at": "2026-08-18T00:31:06.051608Z"
+        },
+        {
+          "name": "trusty-memory",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 921,
+          "monthly_downloads": 307.0,
+          "downloads_all_time": 1092,
+          "created_at": "2026-05-15T22:16:53.915135Z",
+          "updated_at": "2026-08-15T18:26:06.369613Z"
+        },
+        {
+          "name": "remem-ai",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 2226,
+          "monthly_downloads": 742.0,
+          "downloads_all_time": 2271,
+          "created_at": "2026-03-25T10:39:37.050698Z",
+          "updated_at": "2026-08-16T10:45:58.912948Z"
+        },
+        {
+          "name": "basemind",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 1132,
+          "monthly_downloads": 377.3,
+          "downloads_all_time": 1132,
+          "created_at": "2026-06-08T15:30:43.908264Z",
+          "updated_at": "2026-08-08T06:43:20.707321Z"
+        },
+        {
+          "name": "chematic-mcp",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 866,
+          "monthly_downloads": 288.7,
+          "downloads_all_time": 866,
+          "created_at": "2026-06-15T14:08:13.316214Z",
+          "updated_at": "2026-08-17T21:24:21.621889Z"
+        },
+        {
+          "name": "bitrouter-mcp",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 862,
+          "monthly_downloads": 287.3,
+          "downloads_all_time": 1030,
+          "created_at": "2026-03-24T12:46:22.383126Z",
+          "updated_at": "2026-07-18T20:39:22.749381Z"
+        },
+        {
+          "name": "dirge-agent",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 2811,
+          "monthly_downloads": 937.0,
+          "downloads_all_time": 2811,
+          "created_at": "2026-05-29T21:57:45.827252Z",
+          "updated_at": "2026-08-15T17:59:49.285876Z"
+        },
+        {
+          "name": "greentic-mcp",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 1464,
+          "monthly_downloads": 488.0,
+          "downloads_all_time": 3380,
+          "created_at": "2025-11-02T12:30:59.550465Z",
+          "updated_at": "2026-08-19T07:08:00.560765Z"
+        },
+        {
+          "name": "greentic-mcp-dev",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 1008,
+          "monthly_downloads": 336.0,
+          "downloads_all_time": 1110,
+          "created_at": "2026-04-26T10:41:44.575651Z",
+          "updated_at": "2026-08-19T07:08:09.439449Z"
+        },
+        {
+          "name": "renso-code-graph-mcp",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 995,
+          "monthly_downloads": 331.7,
+          "downloads_all_time": 995,
+          "created_at": "2026-05-24T23:47:30.699396Z",
+          "updated_at": "2026-07-10T19:59:34.701607Z"
+        },
+        {
+          "name": "bamboo-agent",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 2052,
+          "monthly_downloads": 684.0,
+          "downloads_all_time": 3481,
+          "created_at": "2026-02-23T13:52:22.740547Z",
+          "updated_at": "2026-08-19T04:28:46.911787Z"
+        },
+        {
+          "name": "greentic-mcp-exec-dev",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 992,
+          "monthly_downloads": 330.7,
+          "downloads_all_time": 1090,
+          "created_at": "2026-04-26T10:41:27.747890Z",
+          "updated_at": "2026-08-19T07:07:52.354031Z"
+        },
+        {
+          "name": "task-journal-cli",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 821,
+          "monthly_downloads": 273.7,
+          "downloads_all_time": 1268,
+          "created_at": "2026-05-01T05:25:48.214950Z",
+          "updated_at": "2026-06-29T13:53:33.092995Z"
+        },
+        {
+          "name": "alaya",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 714,
+          "monthly_downloads": 238.0,
+          "downloads_all_time": 948,
+          "created_at": "2026-03-02T05:59:59.790473Z",
+          "updated_at": "2026-04-18T01:08:13.162416Z"
+        },
+        {
+          "name": "trusty-search",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 1870,
+          "monthly_downloads": 623.3,
+          "downloads_all_time": 2532,
+          "created_at": "2026-05-11T12:19:05.658736Z",
+          "updated_at": "2026-08-15T16:11:27.048359Z"
+        },
+        {
+          "name": "leankg",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 1146,
+          "monthly_downloads": 382.0,
+          "downloads_all_time": 2204,
+          "created_at": "2026-03-25T16:01:36.683102Z",
+          "updated_at": "2026-08-10T06:01:02.158825Z"
+        },
+        {
+          "name": "truecalc-mcp",
+          "reverse_dependencies": 0,
+          "recent_downloads_90d": 933,
+          "monthly_downloads": 311.0,
+          "downloads_all_time": 1320,
+          "created_at": "2026-04-18T08:40:16.156949Z",
+          "updated_at": "2026-08-14T21:41:16.869994Z"
+        }
+      ]
+    }
+  }
+}

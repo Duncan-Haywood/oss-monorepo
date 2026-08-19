@@ -2,6 +2,16 @@
 
 Added 2026-08-19 by the tenth firing of the screening brief.
 
+> ⚠️ **Read the amendment at the end of this file before acting on the
+> "Recommended next action" section below.** That section tells an agent
+> session it may publish a free listing to WordPress.org, Open VSX, or GitHub
+> Marketplace at zero cost and with no credential. **Five subsequent runs
+> measured those channels directly and all three are unreachable from this
+> environment.** The recommendation is superseded, not merely dated — acting on
+> it as written produces nothing. See
+> [Amendment: the free channels were measured, and the plan does not
+> survive](#amendment-the-free-channels-were-measured-and-the-plan-does-not-survive).
+
 **This document adds no candidate.** Per the intake gate in
 [CLAUDE.md](../../CLAUDE.md) and the closing instruction in
 [distribution-first.md](distribution-first.md) — *"screening is closed"* — a
@@ -186,3 +196,103 @@ Two specific cautions:
 - [Shopify — App Store requirements](https://shopify.dev/docs/apps/launch/shopify-app-store/app-store-requirements)
 - [Shopify — revenue share for App Store developers](https://shopify.dev/docs/apps/launch/distribution/revenue-share)
 - [Lemon Squeezy — merchant of record](https://docs.lemonsqueezy.com/help/payments/merchant-of-record)
+
+---
+
+## Amendment: the free channels were measured, and the plan does not survive
+
+Added 2026-08-19 by the fourteenth firing of the screening brief. **No candidate
+added, no score changed** — the intake gate in [CLAUDE.md](../../CLAUDE.md)
+applies to this run and was obeyed.
+
+This document's central move was to split "run a probe to a real buyer" into
+demand measurement (free, uncredentialed) and revenue capture (gated), then
+observe that the free half "is not blocked at all." That decomposition is
+correct and remains the most useful idea in this directory. **Its factual
+premise is not.** Every channel it nominated was assumed reachable from a
+secondary source; none was probed. Five runs then probed them.
+
+The corrections below are primary measurements taken from this environment on
+2026-08-19, recorded in `portfolio/research/` alongside the probe scripts and
+raw results. They supersede the table and the recommended-next-action section
+above wherever they conflict.
+
+### What was refuted
+
+| Claim above | Measured |
+|---|---|
+| WordPress.org — "free, agent-listable, **Yes**" | `EGRESS_DENIED` on all three of its read, register, and publish hosts |
+| Open VSX — "free, agent-listable, **Yes**" | `EGRESS_DENIED` |
+| VS Code Marketplace — "**Mostly**" | `EGRESS_DENIED` |
+| GitHub Marketplace free tier — "**Yes**, may be listed by individuals" | `SCOPE_DENIED` — the host answers; this session's GitHub app scope is bound to `duncan-haywood/monorepo-projects` and refuses the route |
+| npm / PyPI — "free, agent-listable, **Yes**" | npm's account cannot be created from here; PyPI's publish host is denied, and its API returns `-1` for every download field (counts disabled upstream) |
+| The four payout rails, "interchangeable for this purpose" | All four `EGRESS_DENIED`. Extended to 13 rails: 11 egress-denied, 2 scope-denied, **0 usable** |
+
+So the sentence *"an agent can publish here today"* was true of no channel in the
+top gradient, and *"(2) alone is enough to produce the measurement, and (2) costs
+nothing"* is the load-bearing error: permission was never the binding constraint.
+Granting it as written would have bought nothing.
+
+### What replaced it
+
+The same runs found channels that *are* reachable, and narrowed the ask four
+times. The current version is materially cheaper than the one this document
+proposed, and it is tracked as **Ask 0** in
+[issue #139](https://github.com/Duncan-Haywood/monorepo-projects/issues/139),
+the account owner's decision queue:
+
+> **Ask 0 (amended).** One free account signup and a scoped publish token on
+> **Packagist or RubyGems** (preferred), or crates.io / Hex. **Not Docker Hub** —
+> 98.2% of its `mcp` category pulls sit in Docker's own closed, verified-publisher
+> `mcp/` namespace, so an outside listing would measure namespace obscurity
+> rather than demand. **Not** NuGet (publish host reachable, statistics host
+> denied) and **not** the Go-module route (no download count exists to read, at
+> any permission level). No egress change, no payment rail, no card, no domain.
+
+Two general rules came out of this that belong in the next scoring pass:
+
+- **Score a channel on its `publish` surface, not its `read` surface.** A
+  registry that answers a metadata query is not a channel. The upload host and
+  the account-creation host routinely differ, and in this environment they
+  routinely differ in verdict.
+- **Then score it on its `stats` surface, and check the count exists at all.** A
+  channel you can publish to but cannot measure is a distribution channel, not a
+  probe. Two channels this portfolio was ready to spend its measurement on
+  publish no number, and no permission grant changes that.
+
+### One correction that cuts the other way
+
+`EGRESS_DENIED` is a **setting the account owner controls**, not a structural
+impossibility. Twenty-four of the thirty-one hosts probed are one allowlist entry
+away. Several things earlier runs recorded as "impossible" are better described
+as *unapproved*, and the distinction is what makes the asks in issue #139 costable
+rather than aspirational.
+
+### Where the evidence lives
+
+| Run | Directory | Established |
+|---|---|---|
+| #126 | `portfolio/research/agent-reachability/` | 33 targets probed; the payout-rail ask is under-specified — a credential without a paired egress change buys nothing |
+| #130 | `portfolio/research/monetization-reachability/` | 0 of 13 rails usable, failing on two distinct switches; GitHub's two fail on the cheaper one |
+| #137 | `portfolio/research/publish-reachability/` | Every nominated free channel denied; 8 others publishable; proposed Ask 0 |
+| #150 | `portfolio/research/demand-signal-reachability/` | Publishing is not measuring — 3 of Ask 0's 8 channels cannot produce the number; adds Ask 3 |
+| #155 | `portfolio/research/registry-audience-match/` | Ask 0's registries are not interchangeable; Docker Hub off the menu |
+
+Each directory carries its probe script and raw results. The scripts are
+read-only, stdlib-only, take no credentials, and support `--recompute-from` so
+the summary can be re-derived from saved data with no network access.
+
+### The caution this run would pass on
+
+This document was written from secondary sources and labelled as such, and then
+five runs spent their budget discovering that its cheerful half was wrong. The
+labelling worked exactly as intended — nothing was spent on the bad premise
+except the measurement that caught it. What did not work is that the correction
+sat in five unmerged pull requests while the refuted recommendation was the
+version on `main`. A fresh session reading this directory would have acted on
+the version that does not work.
+
+That is the same failure the provenance section of
+[README.md](README.md) records at length: **research that never lands leaves the
+next run no way to know the question was answered.** It cost thirteen firings
+once. This amendment exists so it does not cost more.

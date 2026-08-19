@@ -1,0 +1,987 @@
+{
+  "docker_namespace_concentration": {
+    "closed_namespace": "mcp/",
+    "closed_share_of_pulls": 0.9818148632598493,
+    "open_namespace_examples": [
+      {
+        "name": "penpotapp/mcp",
+        "pulls": 246692
+      }
+    ],
+    "pulls_in_closed_namespace": 13318892,
+    "pulls_in_open_namespaces": 246692,
+    "registry": "hub.docker.com",
+    "repos_in_closed_namespace": 149,
+    "repos_in_open_namespaces": 1,
+    "results_examined": 150
+  },
+  "docker_namespace_owner": {
+    "badge": "verified_publisher",
+    "date_joined": "2024-12-19T17:06:26.203495Z",
+    "orgname": "mcp",
+    "repositories": 245,
+    "type": "Organization",
+    "verdict": "REACHABLE"
+  },
+  "queries": [
+    "mcp",
+    "model context protocol",
+    "agent tools"
+  ],
+  "rows": [
+    {
+      "examined_at_10": 10,
+      "fuzzy_total": 7675,
+      "in_category_at_10": 9,
+      "language": "Rust",
+      "offered_in_ask0": true,
+      "query": "mcp",
+      "registry": "crates.io",
+      "top_results": [
+        {
+          "downloads": 4528,
+          "name": "mcp"
+        },
+        {
+          "downloads": 236450,
+          "name": "rust-mcp-sdk"
+        },
+        {
+          "downloads": 3868,
+          "name": "brontes"
+        },
+        {
+          "downloads": 742,
+          "name": "confluence-dc-mcp"
+        },
+        {
+          "downloads": 774,
+          "name": "bamboo-mcp-rs"
+        },
+        {
+          "downloads": 1048,
+          "name": "bitbucket-dc-mcp"
+        },
+        {
+          "downloads": 844,
+          "name": "jira-dc-mcp"
+        },
+        {
+          "downloads": 771813,
+          "name": "rust-mcp-schema"
+        },
+        {
+          "downloads": 2254,
+          "name": "gen-orb-mcp"
+        },
+        {
+          "downloads": 81246,
+          "name": "pmcp"
+        }
+      ],
+      "url": "https://crates.io/api/v1/crates?q=mcp&per_page=20",
+      "verdict": "REACHABLE"
+    },
+    {
+      "examined_at_10": 10,
+      "fuzzy_total": 3908,
+      "in_category_at_10": 7,
+      "language": "Rust",
+      "offered_in_ask0": true,
+      "query": "model context protocol",
+      "registry": "crates.io",
+      "top_results": [
+        {
+          "downloads": 3556,
+          "name": "model-context-protocol"
+        },
+        {
+          "downloads": 771813,
+          "name": "rust-mcp-schema"
+        },
+        {
+          "downloads": 2568,
+          "name": "text-to-cypher"
+        },
+        {
+          "downloads": 1116,
+          "name": "ebook-rs"
+        },
+        {
+          "downloads": 7461,
+          "name": "mcp-attr"
+        },
+        {
+          "downloads": 5740,
+          "name": "mcp-types"
+        },
+        {
+          "downloads": 232582,
+          "name": "rust-mcp-transport"
+        },
+        {
+          "downloads": 13711,
+          "name": "turul-mcp-protocol"
+        },
+        {
+          "downloads": 5246,
+          "name": "mcp-attr-macros"
+        },
+        {
+          "downloads": 5944,
+          "name": "mcp_rust_schema"
+        }
+      ],
+      "url": "https://crates.io/api/v1/crates?q=model%20context%20protocol&per_page=20",
+      "verdict": "REACHABLE"
+    },
+    {
+      "examined_at_10": 10,
+      "fuzzy_total": 9930,
+      "in_category_at_10": 1,
+      "language": "Rust",
+      "offered_in_ask0": true,
+      "query": "agent tools",
+      "registry": "crates.io",
+      "top_results": [
+        {
+          "downloads": 2309,
+          "name": "motosan-agent-tool"
+        },
+        {
+          "downloads": 1570,
+          "name": "llmy-agent-tools"
+        },
+        {
+          "downloads": 2234,
+          "name": "atomr-agents-tool"
+        },
+        {
+          "downloads": 1609,
+          "name": "rho-agent-tools"
+        },
+        {
+          "downloads": 8304,
+          "name": "bevy_brp_extras"
+        },
+        {
+          "downloads": 3406,
+          "name": "agent-sdk-tools"
+        },
+        {
+          "downloads": 2298,
+          "name": "opencrabs"
+        },
+        {
+          "downloads": 2106,
+          "name": "agentic-tools-macros"
+        },
+        {
+          "downloads": 3282,
+          "name": "agentic-tools-mcp"
+        },
+        {
+          "downloads": 5351,
+          "name": "agentic-tools-core"
+        }
+      ],
+      "url": "https://crates.io/api/v1/crates?q=agent%20tools&per_page=20",
+      "verdict": "REACHABLE"
+    },
+    {
+      "examined_at_10": 10,
+      "fuzzy_total": 30,
+      "in_category_at_10": 10,
+      "language": "Ruby",
+      "offered_in_ask0": true,
+      "query": "mcp",
+      "registry": "rubygems.org",
+      "top_results": [
+        {
+          "downloads": 8866463,
+          "name": "mcp"
+        },
+        {
+          "downloads": 2360720,
+          "name": "fast-mcp"
+        },
+        {
+          "downloads": 79719,
+          "name": "mcp-rb"
+        },
+        {
+          "downloads": 15645,
+          "name": "mcp_authorization"
+        },
+        {
+          "downloads": 46259,
+          "name": "mcp_ui_server"
+        },
+        {
+          "downloads": 307312,
+          "name": "ruby-mcp-client"
+        },
+        {
+          "downloads": 253144,
+          "name": "rails-mcp-server"
+        },
+        {
+          "downloads": 240375,
+          "name": "ruby_llm-mcp"
+        },
+        {
+          "downloads": 5659,
+          "name": "mcp_toolkit"
+        },
+        {
+          "downloads": 200084,
+          "name": "fast-mcp-annotations"
+        }
+      ],
+      "url": "https://rubygems.org/api/v1/search.json?query=mcp",
+      "verdict": "REACHABLE"
+    },
+    {
+      "examined_at_10": 10,
+      "fuzzy_total": 30,
+      "in_category_at_10": 7,
+      "language": "Ruby",
+      "offered_in_ask0": true,
+      "query": "model context protocol",
+      "registry": "rubygems.org",
+      "top_results": [
+        {
+          "downloads": 9632,
+          "name": "model-context-protocol-rb"
+        },
+        {
+          "downloads": 2360720,
+          "name": "fast-mcp"
+        },
+        {
+          "downloads": 555,
+          "name": "model_context_protocol_riccardo"
+        },
+        {
+          "downloads": 8866463,
+          "name": "mcp"
+        },
+        {
+          "downloads": 307312,
+          "name": "ruby-mcp-client"
+        },
+        {
+          "downloads": 14145,
+          "name": "active_mcp"
+        },
+        {
+          "downloads": 104261,
+          "name": "actionmcp"
+        },
+        {
+          "downloads": 79719,
+          "name": "mcp-rb"
+        },
+        {
+          "downloads": 200084,
+          "name": "fast-mcp-annotations"
+        },
+        {
+          "downloads": 1783,
+          "name": "mcp-sdk"
+        }
+      ],
+      "url": "https://rubygems.org/api/v1/search.json?query=model%20context%20protocol",
+      "verdict": "REACHABLE"
+    },
+    {
+      "examined_at_10": 10,
+      "fuzzy_total": 30,
+      "in_category_at_10": 0,
+      "language": "Ruby",
+      "offered_in_ask0": true,
+      "query": "agent tools",
+      "registry": "rubygems.org",
+      "top_results": [
+        {
+          "downloads": 478588,
+          "name": "bosh_agent"
+        },
+        {
+          "downloads": 13576,
+          "name": "triglav-agent"
+        },
+        {
+          "downloads": 7020,
+          "name": "rails-markup"
+        },
+        {
+          "downloads": 11627,
+          "name": "ssh-locate"
+        },
+        {
+          "downloads": 11071,
+          "name": "triglav-agent-bigquery"
+        },
+        {
+          "downloads": 57056,
+          "name": "koma"
+        },
+        {
+          "downloads": 9083,
+          "name": "triglav-agent-hdfs"
+        },
+        {
+          "downloads": 4154,
+          "name": "omni_agent"
+        },
+        {
+          "downloads": 7126,
+          "name": "triglav-agent-vertica"
+        },
+        {
+          "downloads": 6715,
+          "name": "helicone-rb"
+        }
+      ],
+      "url": "https://rubygems.org/api/v1/search.json?query=agent%20tools",
+      "verdict": "REACHABLE"
+    },
+    {
+      "examined_at_10": 10,
+      "fuzzy_total": 536,
+      "in_category_at_10": 10,
+      "language": "PHP",
+      "offered_in_ask0": true,
+      "query": "mcp",
+      "registry": "packagist.org",
+      "top_results": [
+        {
+          "downloads": 30532411,
+          "name": "laravel/mcp"
+        },
+        {
+          "downloads": 2655422,
+          "name": "mcp/sdk"
+        },
+        {
+          "downloads": 339115,
+          "name": "wordpress/mcp-adapter"
+        },
+        {
+          "downloads": 680210,
+          "name": "php-mcp/server"
+        },
+        {
+          "downloads": 1646539,
+          "name": "symfony/mcp-bundle"
+        },
+        {
+          "downloads": 151435,
+          "name": "logiscape/mcp-sdk-php"
+        },
+        {
+          "downloads": 201507,
+          "name": "php-mcp/laravel"
+        },
+        {
+          "downloads": 237028,
+          "name": "wordpress/php-mcp-schema"
+        },
+        {
+          "downloads": 68986,
+          "name": "opgginc/laravel-mcp-server"
+        },
+        {
+          "downloads": 36733,
+          "name": "hn/typo3-mcp-server"
+        }
+      ],
+      "url": "https://packagist.org/search.json?q=mcp",
+      "verdict": "REACHABLE"
+    },
+    {
+      "examined_at_10": 10,
+      "fuzzy_total": 182,
+      "in_category_at_10": 8,
+      "language": "PHP",
+      "offered_in_ask0": true,
+      "query": "model context protocol",
+      "registry": "packagist.org",
+      "top_results": [
+        {
+          "downloads": 2655422,
+          "name": "mcp/sdk"
+        },
+        {
+          "downloads": 339115,
+          "name": "wordpress/mcp-adapter"
+        },
+        {
+          "downloads": 680210,
+          "name": "php-mcp/server"
+        },
+        {
+          "downloads": 201507,
+          "name": "php-mcp/laravel"
+        },
+        {
+          "downloads": 1646539,
+          "name": "symfony/mcp-bundle"
+        },
+        {
+          "downloads": 151435,
+          "name": "logiscape/mcp-sdk-php"
+        },
+        {
+          "downloads": 237028,
+          "name": "wordpress/php-mcp-schema"
+        },
+        {
+          "downloads": 38336,
+          "name": "vizra/vizra-adk"
+        },
+        {
+          "downloads": 309518,
+          "name": "symfony/ai-mate"
+        },
+        {
+          "downloads": 606961,
+          "name": "php-mcp/schema"
+        }
+      ],
+      "url": "https://packagist.org/search.json?q=model%20context%20protocol",
+      "verdict": "REACHABLE"
+    },
+    {
+      "examined_at_10": 10,
+      "fuzzy_total": 217,
+      "in_category_at_10": 1,
+      "language": "PHP",
+      "offered_in_ask0": true,
+      "query": "agent tools",
+      "registry": "packagist.org",
+      "top_results": [
+        {
+          "downloads": 9514391,
+          "name": "laravel/pao"
+        },
+        {
+          "downloads": 662828,
+          "name": "nunomaduro/pao"
+        },
+        {
+          "downloads": 38336,
+          "name": "vizra/vizra-adk"
+        },
+        {
+          "downloads": 36824,
+          "name": "anilcancakir/laravel-agent-mcp"
+        },
+        {
+          "downloads": 3720,
+          "name": "martinkup/symfony-profiler-optimization-advisor-bundle"
+        },
+        {
+          "downloads": 6825,
+          "name": "ipgeolocation/ipgeolocation-php-sdk"
+        },
+        {
+          "downloads": 33063,
+          "name": "anilcancakir/laravel-ai-sdk-skills"
+        },
+        {
+          "downloads": 70315,
+          "name": "artisan-build/agent-os-installer"
+        },
+        {
+          "downloads": 21912,
+          "name": "symfony/ai-similarity-search-tool"
+        },
+        {
+          "downloads": 1136,
+          "name": "alidaaer/laravel-ai-agent"
+        }
+      ],
+      "url": "https://packagist.org/search.json?q=agent%20tools",
+      "verdict": "REACHABLE"
+    },
+    {
+      "examined_at_10": 10,
+      "fuzzy_total": 78,
+      "in_category_at_10": 4,
+      "language": "Elixir/Erlang",
+      "offered_in_ask0": true,
+      "query": "mcp",
+      "registry": "hex.pm",
+      "top_results": [
+        {
+          "downloads": 67635,
+          "name": "agens"
+        },
+        {
+          "downloads": 111,
+          "name": "agentsea_mcp"
+        },
+        {
+          "downloads": 11853,
+          "name": "agent_workshop"
+        },
+        {
+          "downloads": 202656,
+          "name": "aide"
+        },
+        {
+          "downloads": 115136,
+          "name": "aide_generator"
+        },
+        {
+          "downloads": 636,
+          "name": "annotai"
+        },
+        {
+          "downloads": 341063,
+          "name": "anubis_mcp"
+        },
+        {
+          "downloads": 133,
+          "name": "arke_ai"
+        },
+        {
+          "downloads": 568,
+          "name": "atp_mcp"
+        },
+        {
+          "downloads": 2634,
+          "name": "attesto_mcp"
+        }
+      ],
+      "url": "https://hex.pm/api/packages?search=mcp",
+      "verdict": "REACHABLE"
+    },
+    {
+      "examined_at_10": 10,
+      "fuzzy_total": 100,
+      "in_category_at_10": 0,
+      "language": "Elixir/Erlang",
+      "offered_in_ask0": true,
+      "query": "model context protocol",
+      "registry": "hex.pm",
+      "top_results": [
+        {
+          "downloads": 96608,
+          "name": "a2a"
+        },
+        {
+          "downloads": 5141,
+          "name": "a2a_elixir_sdk"
+        },
+        {
+          "downloads": 301,
+          "name": "a2a_engine"
+        },
+        {
+          "downloads": 77641,
+          "name": "a2a_ex"
+        },
+        {
+          "downloads": 46850,
+          "name": "a2ui"
+        },
+        {
+          "downloads": 44298,
+          "name": "aba_model"
+        },
+        {
+          "downloads": 184382,
+          "name": "abt_did_elixir"
+        },
+        {
+          "downloads": 16366,
+          "name": "accrue"
+        },
+        {
+          "downloads": 74324,
+          "name": "acmex"
+        },
+        {
+          "downloads": 17426,
+          "name": "acpex"
+        }
+      ],
+      "url": "https://hex.pm/api/packages?search=model%20context%20protocol",
+      "verdict": "REACHABLE"
+    },
+    {
+      "examined_at_10": 10,
+      "fuzzy_total": 100,
+      "in_category_at_10": 0,
+      "language": "Elixir/Erlang",
+      "offered_in_ask0": true,
+      "query": "agent tools",
+      "registry": "hex.pm",
+      "top_results": [
+        {
+          "downloads": 96608,
+          "name": "a2a"
+        },
+        {
+          "downloads": 5141,
+          "name": "a2a_elixir_sdk"
+        },
+        {
+          "downloads": 43946,
+          "name": "aba_cli"
+        },
+        {
+          "downloads": 601607,
+          "name": "absinthe_extra"
+        },
+        {
+          "downloads": 17426,
+          "name": "acpex"
+        },
+        {
+          "downloads": 19003,
+          "name": "active_ex"
+        },
+        {
+          "downloads": 19661,
+          "name": "adify"
+        },
+        {
+          "downloads": 23988,
+          "name": "adk"
+        },
+        {
+          "downloads": 12247,
+          "name": "adk_ex"
+        },
+        {
+          "downloads": 558363,
+          "name": "admin_elf"
+        }
+      ],
+      "url": "https://hex.pm/api/packages?search=agent%20tools",
+      "verdict": "REACHABLE"
+    },
+    {
+      "examined_at_10": 10,
+      "fuzzy_total": 20568,
+      "in_category_at_10": 10,
+      "language": "any (container)",
+      "offered_in_ask0": true,
+      "query": "mcp",
+      "registry": "hub.docker.com",
+      "top_results": [
+        {
+          "downloads": 239026,
+          "name": "mcp/clickhouse"
+        },
+        {
+          "downloads": 236601,
+          "name": "mcp/notion"
+        },
+        {
+          "downloads": 71471,
+          "name": "mcp/hackernews-mcp"
+        },
+        {
+          "downloads": 150486,
+          "name": "mcp/dockerhub"
+        },
+        {
+          "downloads": 493077,
+          "name": "mcp/context7"
+        },
+        {
+          "downloads": 53983,
+          "name": "mcp/api-gateway"
+        },
+        {
+          "downloads": 286528,
+          "name": "mcp/dynatrace-mcp-server"
+        },
+        {
+          "downloads": 136145,
+          "name": "mcp/markitdown"
+        },
+        {
+          "downloads": 1773469,
+          "name": "mcp/fetch"
+        },
+        {
+          "downloads": 115525,
+          "name": "mcp/aws-core-mcp-server"
+        }
+      ],
+      "url": "https://hub.docker.com/v2/search/repositories/?query=mcp&page_size=20",
+      "verdict": "REACHABLE"
+    },
+    {
+      "examined_at_10": 10,
+      "fuzzy_total": 47425,
+      "in_category_at_10": 10,
+      "language": "any (container)",
+      "offered_in_ask0": true,
+      "query": "model context protocol",
+      "registry": "hub.docker.com",
+      "top_results": [
+        {
+          "downloads": 1822945,
+          "name": "grafana/mcp-grafana"
+        },
+        {
+          "downloads": 493077,
+          "name": "mcp/context7"
+        },
+        {
+          "downloads": 30154,
+          "name": "mcp/openapi-schema"
+        },
+        {
+          "downloads": 15521,
+          "name": "mcp/hackle"
+        },
+        {
+          "downloads": 10485,
+          "name": "grafana/mcp-k6"
+        },
+        {
+          "downloads": 16072,
+          "name": "mcp/gyazo"
+        },
+        {
+          "downloads": 18168,
+          "name": "mcp/handwriting-ocr"
+        },
+        {
+          "downloads": 15752,
+          "name": "mcp/iaptic"
+        },
+        {
+          "downloads": 46850,
+          "name": "acuvity/mcp-server-chart"
+        },
+        {
+          "downloads": 68167,
+          "name": "mcp/markdownify"
+        }
+      ],
+      "url": "https://hub.docker.com/v2/search/repositories/?query=model%20context%20protocol&page_size=20",
+      "verdict": "REACHABLE"
+    },
+    {
+      "examined_at_10": 10,
+      "fuzzy_total": 135574,
+      "in_category_at_10": 0,
+      "language": "any (container)",
+      "offered_in_ask0": true,
+      "query": "agent tools",
+      "registry": "hub.docker.com",
+      "top_results": [
+        {
+          "downloads": 1217240,
+          "name": "octopusdeploy/kubernetes-agent-tools-base"
+        },
+        {
+          "downloads": 154183915,
+          "name": "rancher/rke-tools"
+        },
+        {
+          "downloads": 32183,
+          "name": "tools4homeautomation/tmobile-exporter"
+        },
+        {
+          "downloads": 61137850,
+          "name": "temporalio/admin-tools"
+        },
+        {
+          "downloads": 11253170800,
+          "name": "datadog/agent"
+        },
+        {
+          "downloads": 12281,
+          "name": "tools4homeautomation/solix-exporter"
+        },
+        {
+          "downloads": 18119190,
+          "name": "octopusdeploy/worker-tools"
+        },
+        {
+          "downloads": 97238,
+          "name": "solace/event-management-agent"
+        },
+        {
+          "downloads": 5399221,
+          "name": "rancher/k3d-tools"
+        },
+        {
+          "downloads": 34478,
+          "name": "agentcatalog/pirate"
+        }
+      ],
+      "url": "https://hub.docker.com/v2/search/repositories/?query=agent%20tools&page_size=20",
+      "verdict": "REACHABLE"
+    },
+    {
+      "examined_at_10": 10,
+      "fuzzy_total": 99699,
+      "in_category_at_10": 10,
+      "language": "JavaScript",
+      "offered_in_ask0": false,
+      "query": "mcp",
+      "registry": "registry.npmjs.org",
+      "top_results": [
+        {
+          "downloads": null,
+          "name": "@upstash/context7-mcp"
+        },
+        {
+          "downloads": null,
+          "name": "@playwright/mcp"
+        },
+        {
+          "downloads": null,
+          "name": "chrome-devtools-mcp"
+        },
+        {
+          "downloads": null,
+          "name": "@hono/mcp"
+        },
+        {
+          "downloads": null,
+          "name": "@mcp-ui/client"
+        },
+        {
+          "downloads": null,
+          "name": "mcp-proxy"
+        },
+        {
+          "downloads": null,
+          "name": "@mcp-ui/server"
+        },
+        {
+          "downloads": null,
+          "name": "@storybook/mcp"
+        },
+        {
+          "downloads": null,
+          "name": "@pandacss/mcp"
+        },
+        {
+          "downloads": null,
+          "name": "@langchain/mcp-adapters"
+        }
+      ],
+      "url": "https://registry.npmjs.org/-/v1/search?text=mcp&size=20",
+      "verdict": "REACHABLE"
+    },
+    {
+      "examined_at_10": 10,
+      "fuzzy_total": 262830,
+      "in_category_at_10": 5,
+      "language": "JavaScript",
+      "offered_in_ask0": false,
+      "query": "model context protocol",
+      "registry": "registry.npmjs.org",
+      "top_results": [
+        {
+          "downloads": null,
+          "name": "@modelcontextprotocol/sdk"
+        },
+        {
+          "downloads": null,
+          "name": "@modelcontextprotocol/server"
+        },
+        {
+          "downloads": null,
+          "name": "@modelcontextprotocol/client"
+        },
+        {
+          "downloads": null,
+          "name": "@modelcontextprotocol/inspector"
+        },
+        {
+          "downloads": null,
+          "name": "@traceloop/instrumentation-mcp"
+        },
+        {
+          "downloads": null,
+          "name": "@langchain/mcp-adapters"
+        },
+        {
+          "downloads": null,
+          "name": "@modelcontextprotocol/core"
+        },
+        {
+          "downloads": null,
+          "name": "@payloadcms/plugin-mcp"
+        },
+        {
+          "downloads": null,
+          "name": "mcp-handler"
+        },
+        {
+          "downloads": null,
+          "name": "@remotion/mcp"
+        }
+      ],
+      "url": "https://registry.npmjs.org/-/v1/search?text=model%20context%20protocol&size=20",
+      "verdict": "REACHABLE"
+    },
+    {
+      "examined_at_10": 10,
+      "fuzzy_total": 258159,
+      "in_category_at_10": 0,
+      "language": "JavaScript",
+      "offered_in_ask0": false,
+      "query": "agent tools",
+      "registry": "registry.npmjs.org",
+      "top_results": [
+        {
+          "downloads": null,
+          "name": "@rozenite/agent-bridge"
+        },
+        {
+          "downloads": null,
+          "name": "plugins"
+        },
+        {
+          "downloads": null,
+          "name": "@ff-labs/fff-bun"
+        },
+        {
+          "downloads": null,
+          "name": "@ff-labs/fff-node"
+        },
+        {
+          "downloads": null,
+          "name": "@dbx-tools/email"
+        },
+        {
+          "downloads": null,
+          "name": "@harperfast/agent-tools"
+        },
+        {
+          "downloads": null,
+          "name": "@sperax/agent-tools-core"
+        },
+        {
+          "downloads": null,
+          "name": "maplibre-gl-geoagent"
+        },
+        {
+          "downloads": null,
+          "name": "@longzai-intelligence-agent-tools/cli"
+        },
+        {
+          "downloads": null,
+          "name": "@dbx-tools/search"
+        }
+      ],
+      "url": "https://registry.npmjs.org/-/v1/search?text=agent%20tools&size=20",
+      "verdict": "REACHABLE"
+    }
+  ]
+}
