@@ -270,6 +270,89 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Eighth scheduled run of the "research new business projects" brief,
+        2026-08-19. Checked open PRs first per CLAUDE.md and did not produce
+        a candidate list: seven prior runs had already generated ~36
+        candidates reducing to nine archetypes, and #36 had consolidated
+        them into portfolio/pipeline/. A ninth list would have been the
+        documented failure mode.
+      - >-
+        Consolidated instead: merged #36's branch into this one, so a single
+        PR now carries the pipeline directory plus this pass's additions.
+        Resolved the one conflict (portfolio/ledger/2026-08.yaml) in favour
+        of main, whose entry is strictly later and already records #36's
+        findings; #36's own ledger prose was dropped as superseded, not
+        lost.
+      - >-
+        Acted on the finding the seven prior runs reached but never used —
+        that distribution, not capability, is what kills these candidates
+        (four of seven scored 4-5 there). Added
+        portfolio/pipeline/distribution-first.md turning it into a selection
+        rule: distribution is only high when the buyer already searches a
+        marketplace we can list in without permission, with a payment method
+        attached. Evidence both ways — the Shopify App Store carries real
+        buying intent (~13k apps, ~$890M/yr developer revenue, no revenue
+        share below $1M lifetime) while its median app earns under
+        $1k/month; MCP directories do not yet (20k+ servers, under 5% earn
+        anything), which is direct evidence against the agent-facing
+        candidates' distribution assumptions.
+      - >-
+        Second finding recorded: the ethics gate is doing selection work,
+        not only exclusion work. screened-out.md rejected accessibility
+        overlays on ethics, correctly, without noticing the rejection points
+        at an opening — the overlay vendors hold the high-intent Shopify
+        accessibility category at $9-99/month while the FTC has ordered the
+        largest of them to pay $1M and barred it from claiming WCAG
+        compliance, roughly 40% of businesses sued in 2025 already had an
+        overlay installed, and the honest alternative is only sold at
+        $400-3,500/month. Categories whose dominant product is dishonest are
+        worth screening into when the honest version fits the channel's
+        price point.
+      - >-
+        Added exactly one candidate, found channel-first rather than
+        market-first: shopify-a11y-evidence (composite 7.25, floor 4 on
+        defensibility, both gates cleared at 7 and 9). It composes with
+        eaa-remediation-pipeline rather than competing — that candidate's
+        distribution score of 8 rests on a local-site-studio lead pipeline
+        that has no customers, and the app's scan output is the qualified
+        lead list it lacks. Its first experiment measures the channel before
+        the product is built, and its kill criterion (under 25 installs in
+        30 days, or under 2% paid conversion) would also downgrade every
+        marketplace-native candidate in the directory.
+      - >-
+        Verified locally rather than assumed, which per the standing Actions
+        failure is the only verification available: validate.py clean (9/9
+        VENTURE.yaml), test_allocate.py 12/12, allocate.py produces the
+        ranked queue, and all eight candidates' composites, floors,
+        floor_dimensions, and gate thresholds recomputed from their own
+        scores by an independent script - 8/8 correct.
+      - >-
+        Closed #18/#20/#27/#30/#34 as superseded, which five prior cycles
+        deferred. CLAUDE.md gives standing instruction to consolidate and
+        close; the deferral rested on their app-side ai-first-markets
+        content being a publication call, but closing a PR neither deletes
+        its branch nor makes the decision - every candidate they proposed is
+        already recorded with a reason in screened-out.md, and any of them
+        can be reopened in one click. Left #36 open and commented rather
+        than closing it: this PR is its superset, so it is the account
+        owner's choice which to merge. Did not touch #19 (second unattended
+        agent fleet - a human decision per CLAUDE.md) or #1/#2.
+      - >-
+        Still unresolved, needs the account owner: (1) GitHub Actions has
+        not run successfully on any branch since 2026-07-29 - nothing in CI
+        is enforced despite README and PR bodies describing checks as
+        CI-enforced; (2) merge this PR or #36; (3) change or retire the
+        recurring "research new business projects" scheduled task - this is
+        its eighth firing against an already-answered brief, and the answer
+        recorded this pass is that the next unit of effort belongs in one
+        probe to a real buyer, not a ninth screening run; (4) #19 and
+        #1/#2 remain open from prior cycles.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Checked open PRs first per CLAUDE.md. An eighth screening-brief PR
         (#44) had appeared since the last cycle, and — unlike #37-#42's
         ledger-only duplication — it did real consolidation work: merged
