@@ -4333,3 +4333,64 @@ entries:
         would be granted against a channel that cannot return a number,
         and the correction is only useful before they act on it.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process, increase profit legally/ethically/reliably" run.
+        `git fetch origin main` first per CLAUDE.md; tip was `ca84cc8`,
+        already current with #139, #150 and #144's fix all recorded.
+        Reviewed the open-PR list and #139 rather than re-deriving it.
+      - >-
+        Pulled live GitHub Actions run data instead of trusting the
+        ledger's last "still active" note. Found the account owner had
+        manually triggered `workflow_dispatch` on
+        `opencode-high-throughput.yml` twice (runs `32252166492` at
+        12:20:40Z, `32252472140` at 12:24:13Z, against `main`
+        pre-#144). Independently reproduced the finding already sitting
+        in open PR #146's own (unmerged) ledger hunk: both runs
+        provisioned a runner and got a `GITHUB_TOKEN` — real execution,
+        not the zero-job `startup_failure` signature — then failed on
+        `resolve-config`'s `GITHUB_OUTPUT` multi-line bug, which #146
+        fixes. Did not open a duplicate PR or re-add that finding as a
+        new entry: #146 already carries it precisely.
+      - >-
+        What #146's entry flagged as a handoff ("worth a fold into
+        whichever session next re-checks the lockdown, so it isn't
+        mis-recorded as fully resolved") was still missing from issue
+        #139's own outage bullet, which as of this session's start still
+        read "still active as of the last check today" with no mention
+        of the manual-dispatch nuance. Folded it in: updated #139 in
+        place to say the account-wide zero-job signature still shows on
+        automated (`push`/`pull_request`) triggers as of 11:33Z today,
+        but the owner's manual `workflow_dispatch` runs got past that
+        stage and hit a real, now-understood bug instead — recorded as
+        "refined, not resolved" so it isn't over- or under-read. Also
+        added a short parenthetical to #139's own "not on this list" note
+        explaining why #146, despite being a one-line fix, sits in the
+        automation/spend section rather than self-merging: it edits the
+        fleet's own workflow file, which CLAUDE.md treats as a deliberate
+        human-reviewed category regardless of diff size.
+      - >-
+        No code or workflow changes made. Considered self-merging #146
+        under the established low-risk precedent (ruff/mypy CI wiring,
+        doc fixes) but #146 modifies
+        `.github/workflows/opencode-high-throughput.yml` itself — the
+        same file #144 flags as needing human review for spend/schedule
+        reasons — so left it in section 3 of #139 rather than merging it
+        myself, even though the fix is narrow and already log-verified.
+      - >-
+        Did not re-verify #137/#135/#134/#130/#126/#122/#117/#106/#79/
+        #19/#142/#144 — all unchanged. No new PR opened: this is a
+        same-branch ledger entry plus an in-place issue edit, not new
+        decision-bearing content for the owner.
+      - >-
+        No push notification: nothing here is new information for the
+        account owner specifically — they are the one who triggered the
+        `workflow_dispatch` runs this entry analyzes, so they already
+        have more direct knowledge of that action than this session does.
+        This entry's value is for the next scheduled session reading
+        #139, not for interrupting the owner.
+    mrr_end: null
