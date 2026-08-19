@@ -5774,6 +5774,63 @@ entries:
     outcomes:
       - >-
         Scheduled "continue work, maintain and improve the development
+        process, increase profit legally/ethically/reliably, be
+        strategic" run. `git fetch origin main` first per CLAUDE.md; tip
+        was `d39d041` (#205). Read issue #139's full body plus all 9
+        comments, and the ledger tail, against that tip before touching
+        anything.
+      - >-
+        Found issue #139's own Section 1 note on #191 ("merges clean...
+        no conflicts") was stale: a prior session's ~18:28 UTC comment
+        had already found and posted (on both #191 and #139, ledger
+        `4bb3294`) that #191 now conflicts with `main` on
+        `ventures/photo-editing/docs-site/{package.json,package-
+        lock.json}`, and that comment explicitly asked for the finding
+        to be folded into the body on the next edit. No session had done
+        so — the body still read "clean" while the comments said
+        otherwise, which is exactly the failure mode #139 exists to
+        prevent (a session reading only the body, not scrolling nine
+        comments, would get stale information).
+      - >-
+        Re-verified the conflict directly rather than trusting the
+        comment: `git fetch origin claude/laughing-pasteur-4ylpfp` (the
+        #191 branch) then `git merge-tree --write-tree origin/main
+        FETCH_HEAD` against current tip `d39d041` reproduces the same
+        3-way conflict on those two files. Root cause unchanged from the
+        prior finding — #195 (merged after #191 opened) swapped
+        `htmltojsx` → `html-to-jsx-transform` to clear the advisories
+        #191's own body already flagged as out of scope; #191 still
+        carries the old package on those two files.
+      - >-
+        Edited issue #139's body in place (its own stated rule) to fold
+        the correction into Section 1 and add a dated top note, rather
+        than opening a new issue or leaving it as a comment. No code
+        changed, no PR opened for it — this is the tracker staying
+        accurate, which is what lets later sessions stop re-deriving
+        already-known findings.
+      - >-
+        Checked for anything else new since the last entry: no owner
+        action visible on any of #191/#192/#166/#177/#19/#144/#175 (all
+        still open, unchanged review state); no new PRs beyond the seven
+        already listed in #139; no new dependency gaps outside the six
+        already-covered ventures (re-confirmed via `git log` and the PR
+        list, not re-scanned from scratch). Did not re-run the
+        pipeline/research screening brief; the CLAUDE.md intake gate
+        still applies. Did not touch #191/#192/#166/#177/#19/#144/#175
+        themselves beyond the tracker edit above — all still the
+        owner's call.
+      - >-
+        No push notification for this entry: the corrected information
+        (#191's conflict) was already surfaced to the owner directly on
+        #191 by a prior session; this entry only fixes where else that
+        same fact was — or wasn't — recorded. No new decision surface.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
         process, increase profit legally/ethically/reliably" run.
         `git fetch origin main` first per CLAUDE.md; tip was `dd98f6a`
         (#204 merged). Read issue #139 and the ledger tail against that
@@ -5871,4 +5928,56 @@ entries:
         because of an unset secret is exactly the kind of thing this
         routine exists to surface, and it had zero prior visibility on
         #139 or the ledger.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same session as the entry above two positions up (#191 stale-
+        conflict-note fix). After pushing that entry's PR (#210) and
+        opening it, re-checked #139's comments before finishing and
+        found a problem this session itself caused: an earlier edit in
+        this same run (the "folding in the 18:28/18:27 conflict
+        finding" body update) had been built from a body fetched before
+        a concurrent session added a new "4. Deploy credentials"
+        section, and the PUT overwrote that section without meaning to.
+        GitHub issue bodies have no merge, only last-write-wins, and at
+        least three sessions were editing #139 within the same few
+        minutes.
+      - >-
+        Fixed by restoring the dropped section verbatim from the ledger
+        text above (the Cloudflare deploy-secret gap, Ask 4) and, while
+        already re-reading comments, found two more concurrent sessions'
+        work had also landed and wasn't reflected yet: **#208** (a
+        third session's resolution of #191's conflict — `git merge` of
+        #191's branch into current `main` with the one real conflict
+        hand-resolved, keeping `html-to-jsx-transform` and layering the
+        `next` 16.3.1 bump on top, verified 0 audit vulnerabilities) and
+        **#207** (a fourth session advancing the `mcp-supply-chain-watch`
+        pipeline probe — alert-fatigue kill condition did not fire,
+        AI-leverage rescored 7→6 by measurement, no new candidate).
+      - >-
+        Folded all three into one corrected edit of #139: restored
+        section 4, pointed section 1 at #208 instead of #191 for
+        mergeable state, added #207 to section 2, and added an explicit
+        note asking future editors to re-fetch immediately before
+        writing given the demonstrated race. No code changed by this
+        entry; #208 and #207 were opened by other sessions, not this
+        one — this only fixed how #139 describes them.
+      - >-
+        The structural point worth keeping: this is the same
+        duplicate/wasted-coordination pattern CLAUDE.md documents for
+        PRs, one layer up, on a single mutable resource with no
+        optimistic-locking primitive exposed through the tools available
+        here. A body edit should re-GET immediately before it PUTs, not
+        rely on a read from earlier in the same session — this bit once
+        today already before this entry's own fix.
+      - >-
+        No push notification for this entry: the Cloudflare deploy-
+        credentials finding was already pushed by the session that found
+        it; #208 and #207 are routine-maintenance/research items each
+        already self-describing on their own PRs; restoring a
+        temporarily-dropped tracker section is a same-session correction,
+        not a new decision surface.
     mrr_end: null
