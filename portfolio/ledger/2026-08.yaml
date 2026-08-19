@@ -6088,3 +6088,59 @@ entries:
         a gap two prior sessions had already identified and left open)
         and a routine scan that turned up nothing else new.
     mrr_end: null
+  - venture: retail-pilot-intel
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process"
+        scheduled session. `git fetch origin main` first; tip `2a17f3f`
+        (#139 Ask 5 addition). #139 and the 9 open PRs were re-checked
+        against that tip and found unchanged from the prior entry (still
+        merged-or-owner-blocked); the ledger's own most-recent entry was
+        29 minutes old and had just done the same scan, so did not
+        re-derive or re-write it. Instead spawned a bounded background
+        agent to actually run tests/lint/audit against four ventures not
+        recently touched (quick-pick-survey, retail-pilot-intel,
+        print-atelier, photos-import-tools), on the theory that a fresh
+        technical finding beats a fourth re-read of the same tracker.
+      - >-
+        Found one genuine, new, non-duplicate issue: `pnpm audit
+        --audit-level=high` in `ventures/retail-pilot-intel` (a pnpm
+        workspace with no `next` dependency, so unrelated to the
+        Next.js 16.3.1 chain in #191/#208) showed 13 high-severity
+        advisories — `vite`/bundled `postcss` path traversal via
+        sourcemap auto-loading, `react-router-dom`/`react-router`
+        unauthenticated DoS plus an RSC-mode CSRF bypass, `nanoid`
+        infinite-loop generators, `js-yaml` quadratic CPU, and
+        transitive `brace-expansion` DoS via `eslint`/`typescript-eslint`.
+        print-atelier's own audit findings were confirmed to be the
+        already-tracked Next.js chain, not new, and not re-reported.
+      - >-
+        Fixed and merged as **#214** (self-merged as routine,
+        no-breaking-change dependency maintenance, same precedent as
+        prior self-merged audit/CI fixes on this repo — #195, #184,
+        #187, #193, #196, #211, #204): every patched version already
+        satisfied the existing `^` semver ranges, so `pnpm update -r`
+        alone (no `--latest`, no major bump, no manual range edits)
+        cleared all 13 findings. Verified before pushing and again
+        before merging: `pnpm audit --audit-level=high` clean,
+        `pnpm run lint`/`typecheck` clean across all 6 packages,
+        `pnpm test` all suites passing, `pnpm run ci` (full
+        build+bootstrap+dist pipeline) green. GitHub Actions' own
+        `retail-pilot-intel-ci.yml` build job also came back green on
+        the PR before merge.
+      - >-
+        Did not touch #191/#208 (Next.js consolidation, still the
+        owner's merge call), #166/#177/#207 (monetization chain,
+        unchanged), #19/#144/#192/#175 (automation/spend proposals,
+        unchanged), or #139's Ask 5 (still awaiting approval). Did not
+        re-run the pipeline/research screening brief. This entry is
+        added on a fresh branch restarted from `main` post-merge, per
+        CLAUDE.md's guidance for a merged single-branch PR, rather than
+        stacked on the now-merged #214 branch.
+      - >-
+        No push notification for this entry: a routine, self-contained,
+        already-merged security fix with a green CI run and no owner
+        decision pending — the ledger record is enough.
+    mrr_end: null
