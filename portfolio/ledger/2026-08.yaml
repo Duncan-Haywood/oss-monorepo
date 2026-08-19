@@ -4164,6 +4164,70 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Scheduled "continue work, maintain and improve the development
+        process, increase profit legally/ethically/reliably" run.
+        `git fetch origin main` first per CLAUDE.md; found tip already at
+        `a032fbd`, recording the prior session's push notification about
+        PR #144 re-enabling and expanding the paid hourly fleet schedule
+        while under active review. Read that entry and the four PR
+        comments before touching anything, rather than re-deriving them.
+      - >-
+        Follow-up, not a new finding: PR #144 got one more commit
+        (`fc60d97`, "fix: address critical bugs in agent entrypoint +
+        workflow") after the escalation entry above was written. Checked
+        it against the PR head directly rather than trusting the commit
+        message. It does what it says: removes the live `schedule: cron:
+        '5 * * * *'` block (back to commented-out, workflow_dispatch
+        only), fixes `allocate_work` -> `work_queue` in both the
+        entrypoint script and the guardrails job's router check, and
+        relabels `work_items: []` as a documented v1 limitation instead
+        of silently-empty output. Ran both the pre-fix and post-fix
+        script locally (correct relative path, from repo root, not /tmp)
+        to confirm rather than read the diff and assume: router import
+        now succeeds (`Router available: True`, was `False`/silently
+        caught before).
+      - >-
+        One residual issue, non-critical: `count_open_prs()` now fetches
+        `refs/pull/*/head` and counts all of them, which returned 149
+        against a true open-PR count of ~12 — it counts every PR ever
+        opened (closed and merged included), not just open ones, still
+        not real GitHub API state. Unlike the pre-fix version this fails
+        *safe*: 149 > 20 trips the existing "backlog too large" guard and
+        recommends 0 agents, the opposite direction from the original
+        bug (which recommended full throttle against a real 12-PR
+        backlog). Left it alone — not worth a comment for a heuristic
+        that over-throttles rather than under-throttles, and the PR body
+        already flags real PR visibility as deferred pending GitHub API
+        access.
+      - >-
+        Net effect: the specific danger the last entry escalated (the
+        fleet's schedule re-enabling itself, unattended, while contradicting
+        four review comments and CLAUDE.md's paid-automation policy) is
+        resolved as of `fc60d97` — schedule is inert again, guardrails
+        check the right function name, and the PR no longer risks merging
+        into a working state it claims but doesn't have. Did not merge or
+        approve it myself: whether the v1-honest, schedule-off version is
+        good enough to merge is still the account owner's call, not a bug
+        to fix for them.
+      - >-
+        Did not re-verify #137/#134/#130/#126/#122/#117/#106/#79/#19/#142
+        — all unchanged. No new comment posted on #144: the fix speaks
+        for itself in the diff and nothing here contradicts what's
+        already on the PR.
+      - >-
+        No push notification: the prior entry already paged the account
+        owner about the live risk on #144; this entry reports that the
+        specific thing they were paged about is no longer true. That is
+        useful to have on the record but does not itself require
+        pulling their attention a second time for the same PR within the
+        same hour — they can read this whenever they next open the
+        ledger or the PR.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Scheduled "research and evaluate potential software business
         projects that aren't already here" run — the recurring brief
         PR #79's intake gate exists to redirect. `git fetch origin main`
