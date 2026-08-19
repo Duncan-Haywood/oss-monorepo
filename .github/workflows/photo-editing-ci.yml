@@ -1,0 +1,29 @@
+name: photo-editing CI
+
+on:
+  pull_request:
+    paths:
+      - "ventures/photo-editing/**"
+      - ".github/workflows/photo-editing-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/photo-editing/**"
+      - ".github/workflows/photo-editing-ci.yml"
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: ventures/photo-editing
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: PYTHONPATH=src python3 -m unittest discover -s tests
