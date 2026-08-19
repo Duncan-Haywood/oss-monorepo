@@ -1207,3 +1207,74 @@ entries:
         window) as a standing process-reliability question worth the
         account owner's attention, separate from any single finding here.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Eleventh firing of the recurring "research and evaluate potential
+        software business projects that aren't already here" scheduled task.
+        Produced no new candidate and changed no score, because the brief is
+        already answered — and found the reason it keeps being re-asked.
+      - >-
+        The finding: **none of the accumulated screening research has ever
+        been on `main`.** Runs seven through ten each built a version of
+        `portfolio/pipeline/` and each was closed unmerged — #36
+        (consolidated six earlier runs, #17/#18/#20/#27/#30/#34, into a
+        candidate pipeline), #44 (added the distribution-first screening
+        rule), #53 (added an intake gate), #61 (added the channel
+        inventory). Every one of those runs correctly diagnosed the
+        duplication and wrote its diagnosis into a branch that did not land.
+        So each subsequent run started from a checkout with no
+        `portfolio/pipeline/` and no intake gate in `CLAUDE.md`, and had no
+        way to discover the question was answered. The loop was sustained by
+        the research never landing, not by any run failing to notice it.
+        That is a different failure from the one `CLAUDE.md` already
+        describes: not duplicate PRs opened in parallel, but a correct
+        consolidation re-derived four times because nothing merged it.
+      - >-
+        Action taken: carried #61's diff — the strongest and a strict
+        superset of #36/#44/#53 — onto current `main` and opened it as a
+        single consolidation PR. Content is the tenth run's work, unchanged:
+        8 scored candidates, `screened-out.md`, `convergence.md`,
+        `distribution-first.md`, `channel-inventory.md`, plus the `CLAUDE.md`
+        intake gate that redirects future firings of this brief to the
+        directory instead of re-screening.
+      - >-
+        Verified rather than trusted, per `CLAUDE.md`: `validate.py` passes
+        on all 11 `VENTURE.yaml` files; router tests run 12/12 OK;
+        `allocate.py` emits its ranked queue; `candidates.yaml` parses and
+        its 8 stated composites each match the mean of their 8 dimensions
+        exactly; every candidate clears the liability >=5 and ethics >=5
+        gates; all 40+ relative links across the pipeline docs resolve.
+      - >-
+        Carried one real bug fix found in #61 and independently reproduced
+        here: `portfolio/router/README.md` documented
+        `python3 -m unittest portfolio/router/test_allocate.py`, which errors
+        and runs 1 test. The corrected
+        `python3 -m unittest discover -s portfolio/router -t portfolio/router`
+        runs all 12 and passes. Anyone following the README to check the
+        router was getting a false failure.
+      - >-
+        Decision for the account owner, and the point of this entry: **this
+        scheduled task should be retired or redirected.** Eleven firings have
+        produced one directory of usable research and ten discarded
+        re-derivations of it. Item (7) of the #55 entry already raised this;
+        it remains the single highest-value unmade decision here, and it
+        cannot be made by a scheduled session. Merging this PR makes the
+        intake gate enforceable, which caps the damage if the task keeps
+        firing, but it does not stop the spend.
+      - >-
+        Standing blocker unchanged and re-confirmed: every candidate in the
+        pipeline is still at zero customer contacts, and the portfolio's
+        bottleneck is distribution, not idea supply. Per
+        `channel-inventory.md`, the demand measurement is *not*
+        credential-blocked — only revenue capture is. Two finished products
+        (`garmin-world-traveler-watchface`, `world-clock-widget`) remain
+        built and unlisted, blocked only on developer-account credentials.
+      - >-
+        Sent a push notification for this one, unlike the recent ledger-only
+        entries: it is not a re-verification of a known finding but a new
+        root cause for a loop that has now consumed eleven scheduled runs,
+        and it asks the owner for a decision only they can make.
+    mrr_end: null

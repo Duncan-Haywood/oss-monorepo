@@ -1,0 +1,203 @@
+# Scored candidates, machine-readable.
+#
+# Not ventures. A candidate becomes a venture when someone writes
+# ventures/<name>/VENTURE.yaml; only then does the router see it.
+#
+# Scores are 0-10 on the eight dimensions described in README.md. `composite`
+# is their mean and `floor` is the lowest single dimension — the floor is
+# usually the thing that actually decides, so it is stored rather than derived.
+#
+# Gates (see README.md): liability_containment or ethical_robustness below 5
+# rejects a candidate regardless of composite. Any dimension at 4 or below
+# requires a named mitigation before graduation.
+
+scored: 2026-08-18
+scored_by: agent
+rubric_version: 1
+
+candidates:
+  - slug: eaa-remediation-pipeline
+    name: EAA remediation pipeline
+    doc: candidates/eaa-remediation-pipeline.md
+    verdict: build-now
+    graduate_as: product-line
+    host_venture: local-site-studio
+    scores:
+      ai_leverage: 8
+      autonomous_ops: 6
+      time_to_revenue: 9
+      gross_margin: 7
+      defensibility: 5
+      distribution: 8
+      liability_containment: 6
+      ethical_robustness: 9
+    composite: 7.25
+    floor: 5
+    floor_dimension: defensibility
+    mitigation: Re-test archive and per-platform fix library accrue with each job; sold as fixed-price work, not as a defensible platform.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 300
+
+  - slug: mcp-supply-chain-watch
+    name: MCP supply-chain watch
+    doc: candidates/mcp-supply-chain-watch.md
+    verdict: probe
+    graduate_as: venture
+    host_venture: null
+    scores:
+      ai_leverage: 7
+      autonomous_ops: 9
+      time_to_revenue: 7
+      gross_margin: 9
+      defensibility: 4
+      distribution: 6
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 7.125
+    floor: 4
+    floor_dimension: defensibility
+    mitigation: Only the retained per-customer pin history accrues; the diffing mechanism is assumed copyable and is not the sale.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 150
+
+  - slug: cra-evidence-desk
+    name: CRA evidence desk
+    doc: candidates/cra-evidence-desk.md
+    verdict: build-now
+    graduate_as: venture
+    host_venture: null
+    scores:
+      ai_leverage: 8
+      autonomous_ops: 8
+      time_to_revenue: 7
+      gross_margin: 9
+      defensibility: 4
+      distribution: 6
+      liability_containment: 6
+      ethical_robustness: 8
+    composite: 7.0
+    floor: 4
+    floor_dimension: defensibility
+    mitigation: EUVD matching plus per-customer inventory history is the durable part; SBOM generation is treated as commodity and not charged for.
+    first_experiment_days: 10
+    first_experiment_budget_usd: 200
+
+  - slug: shopify-a11y-evidence
+    name: Shopify accessibility evidence app
+    doc: candidates/shopify-a11y-evidence.md
+    scored: 2026-08-19
+    verdict: probe
+    graduate_as: venture
+    host_venture: null
+    scores:
+      ai_leverage: 7
+      autonomous_ops: 9
+      time_to_revenue: 5
+      gross_margin: 9
+      defensibility: 4
+      distribution: 8
+      liability_containment: 7
+      ethical_robustness: 9
+    composite: 7.25
+    floor: 4
+    floor_dimension: defensibility
+    mitigation: Scan detection is treated as commodity and is not the sale; per-store re-test history and the Liquid fix library are what accrue. The probe measures the channel before the product is built.
+    note: >-
+      Selected channel-first rather than market-first — see
+      distribution-first.md. Composes with eaa-remediation-pipeline rather
+      than competing with it: the app's scan output is the qualified lead
+      list that candidate's channel currently lacks.
+    first_experiment_days: 28
+    first_experiment_budget_usd: 400
+
+  - slug: public-record-watch
+    name: Public-record watch
+    doc: candidates/public-record-watch.md
+    verdict: probe
+    graduate_as: venture
+    host_venture: null
+    scores:
+      ai_leverage: 6
+      autonomous_ops: 9
+      time_to_revenue: 6
+      gross_margin: 9
+      defensibility: 5
+      distribution: 4
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 7.0
+    floor: 4
+    floor_dimension: distribution
+    mitigation: Probe tests distribution first, not the product — fifty reachable buyers in one vertical inside a week, or move to the next vertical.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 150
+
+  - slug: agent-permission-harness
+    name: Agent permission harness
+    doc: candidates/agent-permission-harness.md
+    verdict: park
+    revisit: 2027-01
+    graduate_as: venture
+    host_venture: null
+    scores:
+      ai_leverage: 9
+      autonomous_ops: 8
+      time_to_revenue: 4
+      gross_margin: 9
+      defensibility: 5
+      distribution: 4
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 7.0
+    floor: 4
+    floor_dimension: time_to_revenue
+    mitigation: Build internally for this portfolio's own agents so the attack corpus compounds at near-zero cost while the market matures.
+    unpark_conditions:
+      - An existing venture's customer asks for it.
+      - A compliance regime starts requiring agent-level testing evidence specifically.
+      - The portfolio's internal corpus becomes worth selling access to.
+
+  - slug: tender-radar
+    name: Tender radar
+    doc: candidates/tender-radar.md
+    verdict: park
+    graduate_as: venture
+    host_venture: null
+    scores:
+      ai_leverage: 8
+      autonomous_ops: 7
+      time_to_revenue: 6
+      gross_margin: 8
+      defensibility: 4
+      distribution: 5
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 6.625
+    floor: 4
+    floor_dimension: defensibility
+    mitigation: None found. Parked pending a trade-association or community channel partner, which is the only variable that changes the outcome.
+    unpark_conditions:
+      - A trade association or vertical community agrees to introduce it to members.
+
+  - slug: einvoice-preflight
+    name: E-invoice preflight
+    doc: candidates/einvoice-preflight.md
+    verdict: reject-broad-conditional-narrow
+    graduate_as: null
+    host_venture: null
+    scores:
+      ai_leverage: 5
+      autonomous_ops: 8
+      time_to_revenue: 5
+      gross_margin: 9
+      defensibility: 4
+      distribution: 5
+      liability_containment: 5
+      ethical_robustness: 8
+    composite: 6.125
+    floor: 4
+    floor_dimension: defensibility
+    note: >-
+      Transmission or filing versions fail the liability gate outright. The
+      validate-and-explain version clears it at 5 but is a thin utility against
+      free open-source validators. Recorded so the reasoning is not re-derived.
