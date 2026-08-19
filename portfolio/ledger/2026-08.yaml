@@ -1731,3 +1731,43 @@ entries:
         notification sent — this cycle's only development is routine,
         low-risk, additive engineering.
     mrr_end: null
+  - venture: ai-first-markets
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Router's #1-ranked venture this cycle (no economics signal yet).
+        Health check found everything else already clean —
+        `typecheck`/`lint`/`build`/`cf:build` all passed with no changes
+        needed, and the 3 open `npm audit` findings (postcss/sharp,
+        transitive via `next`) remain unfixable short of a breaking
+        `next` 15→16 bump already flagged in #69. The one real gap: no
+        test framework and no tests anywhere in the package, despite
+        `src/lib/evaluation.ts` holding the pure idea-ranking/scoring
+        logic every page depends on.
+      - >-
+        Added `vitest`, a minimal config resolving the `@/*` alias, and
+        10 tests for `getAllIdeas`/`getIdeaBySlug`/
+        `getTopIdeasForMilestone`/`buildPortfolioSummary`. Expected values
+        are recomputed independently in the tests rather than mirrored
+        from the implementation, so a logic bug wouldn't be masked by a
+        tautological test. Wired `npm run test` into the venture's CI
+        workflow.
+      - >-
+        Verified before merging: `npm ci`, `typecheck`, `lint`, `test`
+        (10/10), `build`, `cf:build` all pass; `npm audit` unchanged (3
+        high, `--force`-only). Additive, non-content, non-automation
+        engineering change — self-merged as #84 per the pattern
+        established for this category (e.g. #77, #80, #82).
+      - >-
+        Did not touch #79 or #19 — both remain live and correctly left for
+        the account owner, unchanged since the prior entries. No new
+        information on the still-open items (Actions billing/quota still
+        100% `startup_failure` as of this cycle's re-check, #79 merge
+        decision, #19 decision, payout rail, standalone-repo exposure in
+        quick-pick-survey/local-site-studio); not repeating the full list
+        here since nothing has changed. No push notification sent — this
+        cycle's only development is routine, low-risk, additive
+        engineering, and the Actions-outage re-confirmation is a repeat of
+        already-delivered information.
+    mrr_end: null
