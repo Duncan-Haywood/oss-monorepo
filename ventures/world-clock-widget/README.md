@@ -87,10 +87,14 @@ not a rewrite.
   real sunrise/sunset by a minute or two in mountainous cities.
 - No city in the catalog sits inside the polar circles, so the "sun never rises/sets" case
   (`SolarCalculator` returns `nil`) is exercised in tests but not in the shipped UI.
-- Not compiled or run in this environment — there's no macOS/Xcode/Swift toolchain available
-  where this was written. Everything here follows documented SwiftUI/WidgetKit/AppIntents APIs
-  and the XcodeGen spec format, but you should open it in Xcode, run `WorldClockCoreTests`, and
-  smoke-test the widget on a simulator before relying on it.
+- `WorldClockCore` (the platform-agnostic logic — city catalog, sunrise/sunset math,
+  formatting, shared store) now builds and its unit tests run on every push/PR via
+  `.github/workflows/world-clock-widget-ci.yml`, using the `Package.swift` in this directory
+  (a Linux-CI-only SPM manifest alongside `project.yml`; it doesn't replace the XcodeGen flow
+  above). `WorldClockApp` and `WorldClockWidgetExtension` depend on SwiftUI/WidgetKit/AppIntents
+  and still have no macOS/Xcode toolchain available where this was written or in CI — they
+  follow documented APIs but are unverified. Open the project in Xcode and smoke-test the app
+  and widget on a simulator before relying on them.
 
 ## Tests
 
