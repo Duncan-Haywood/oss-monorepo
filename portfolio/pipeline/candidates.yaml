@@ -82,6 +82,34 @@ candidates:
     first_experiment_days: 10
     first_experiment_budget_usd: 200
 
+  - slug: shopify-a11y-evidence
+    name: Shopify accessibility evidence app
+    doc: candidates/shopify-a11y-evidence.md
+    scored: 2026-08-19
+    verdict: probe
+    graduate_as: venture
+    host_venture: null
+    scores:
+      ai_leverage: 7
+      autonomous_ops: 9
+      time_to_revenue: 5
+      gross_margin: 9
+      defensibility: 4
+      distribution: 8
+      liability_containment: 7
+      ethical_robustness: 9
+    composite: 7.25
+    floor: 4
+    floor_dimension: defensibility
+    mitigation: Scan detection is treated as commodity and is not the sale; per-store re-test history and the Liquid fix library are what accrue. The probe measures the channel before the product is built.
+    note: >-
+      Selected channel-first rather than market-first — see
+      distribution-first.md. Composes with eaa-remediation-pipeline rather
+      than competing with it: the app's scan output is the qualified lead
+      list that candidate's channel currently lacks.
+    first_experiment_days: 28
+    first_experiment_budget_usd: 400
+
   - slug: public-record-watch
     name: Public-record watch
     doc: candidates/public-record-watch.md

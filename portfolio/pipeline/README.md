@@ -78,22 +78,26 @@ than any market analysis did:
 
 ## Current candidates
 
-Scored 2026-08-18. Composite is the mean of eight dimensions; `floor` is the
-lowest single dimension, which is usually the thing that actually decides.
+Scored 2026-08-18 unless noted. Composite is the mean of eight dimensions;
+`floor` is the lowest single dimension, which is usually the thing that actually
+decides.
 
 | # | Candidate | Composite | Floor | Verdict |
 |---|---|---|---|---|
 | 1 | [EAA remediation pipeline](candidates/eaa-remediation-pipeline.md) | 7.25 | 5 | Build now, as a `local-site-studio` product line |
-| 2 | [MCP supply-chain watch](candidates/mcp-supply-chain-watch.md) | 7.125 | 4 | Cheap probe — measure the drift base rate first |
-| 3 | [CRA evidence desk](candidates/cra-evidence-desk.md) | 7.0 | 4 | Build now, narrow scope |
-| 4 | [Public-record watch](candidates/public-record-watch.md) | 7.0 | 4 | Cheap probe — one vertical, two weeks |
-| 5 | [Agent permission harness](candidates/agent-permission-harness.md) | 7.0 | 4 | Park; revisit 2027-Q1 |
-| 6 | [Tender radar](candidates/tender-radar.md) | 6.625 | 4 | Park; needs a channel partner |
-| 7 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
+| 2 | [Shopify accessibility evidence app](candidates/shopify-a11y-evidence.md) | 7.25 | 4 | Probe the channel — scored 2026-08-19 |
+| 3 | [MCP supply-chain watch](candidates/mcp-supply-chain-watch.md) | 7.125 | 4 | Cheap probe — measure the drift base rate first |
+| 4 | [CRA evidence desk](candidates/cra-evidence-desk.md) | 7.0 | 4 | Build now, narrow scope |
+| 5 | [Public-record watch](candidates/public-record-watch.md) | 7.0 | 4 | Cheap probe — one vertical, two weeks |
+| 6 | [Agent permission harness](candidates/agent-permission-harness.md) | 7.0 | 4 | Park; revisit 2027-Q1 |
+| 7 | [Tender radar](candidates/tender-radar.md) | 6.625 | 4 | Park; needs a channel partner |
+| 8 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
 
 Machine-readable scores: [candidates.yaml](candidates.yaml).
 Considered and rejected: [screened-out.md](screened-out.md).
 What six independent screening runs agreed on: [convergence.md](convergence.md).
+Why the next pass should screen channel-first:
+[distribution-first.md](distribution-first.md).
 
 ## Status of the claims in these write-ups
 
@@ -125,6 +129,15 @@ them. Those reduce to nine archetypes; this directory keeps the write-ups that
 cleared the gates and records the rest in [screened-out.md](screened-out.md).
 [convergence.md](convergence.md) analyses what the six runs agreed on and what
 that does and does not tell us.
+
+A further scheduled run on 2026-08-19 was assigned the same brief again. Rather
+than produce a thirty-seventh candidate, it acted on the finding those six runs
+had already reached but not used — that distribution, not capability, is what
+kills these candidates. [distribution-first.md](distribution-first.md) turns that
+into a selection rule, records marketplace evidence for and against the existing
+candidates, and adds the single candidate that rule produces
+([shopify-a11y-evidence](candidates/shopify-a11y-evidence.md), found by starting
+from a channel rather than from a market).
 
 ## Portfolio note recorded during this pass
 
