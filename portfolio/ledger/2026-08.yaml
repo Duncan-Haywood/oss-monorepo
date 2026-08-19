@@ -4602,6 +4602,39 @@ entries:
         each cycle, and the one-click fix is now verified ready rather than
         merely proposed. That last part is new since #79 was opened and is
         what makes the ask actionable now.
+      - >-
+        **Resolved in the same session — the two bullets above are superseded
+        and should not be read as a still-pending ask.** The account owner
+        replied to that notification and instructed the merge directly, which
+        is the authorization CLAUDE.md reserves for a human. `main` had moved
+        four commits (#162/#163/#164, all further scheduled ledger appends)
+        during the exchange, so the whole verification was re-run against the
+        new tip `cb5aed38` rather than trusted from an hour earlier: trial
+        merge clean with zero conflicts, router validate 11/11, router suite
+        21/21, 8/8 composites and floors exact, 8/8 clear both gates. Merged
+        #79 as `42ebd981`. Confirmed on `main` afterwards:
+        `portfolio/pipeline/` is present (14 files) and the intake gate
+        resolves in `CLAUDE.md` (9 references).
+      - >-
+        The loop is closed. Runs seven through thirteen each rebuilt or
+        re-verified this work from a checkout that could not see the gate,
+        because the gate was never on `main`. It is now. A fourteenth firing
+        of the screening brief should hit `portfolio/pipeline/` and stop; if
+        it does not, that is a bug in the gate's wording and not a reason to
+        screen. Retiring the scheduled task outright remains the cleaner
+        end-state — the gate makes each firing cheap, not free — but is no
+        longer urgent, and is still the owner's call. Issue #139 updated:
+        #79 struck from the chain, section 2b added recording the closure,
+        and the live owner-decision count restated as 6 dependency bumps,
+        4 asks, 3 automation items.
+      - >-
+        Process note for future sessions, since this session hit it: #159
+        (this entry's own PR) merged while carrying only the pre-merge
+        version of this entry, so the outcome above had to land as a second,
+        separate PR. A merged PR cannot be reused to record what happened
+        after it merged. When a session expects to act on its own
+        recommendation in the same run, it is cheaper to hold the ledger PR
+        until the action resolves than to file a follow-up correcting it.
     mrr_end: null
   - venture: portfolio
     agent_spend_usd: null
