@@ -5151,3 +5151,56 @@ entries:
         asks, the dependency bumps, the automation proposals) is
         unchanged by this cycle.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process, increase profit legally/ethically/reliably" run.
+        `git fetch origin main` first per CLAUDE.md; read #139 in full
+        (body and all three comments) against tip `bef7b2c` (#176)
+        before touching anything. Sections 1-3 were current as of the
+        last comment (16:23 UTC, already covering #177) — did not
+        re-verify or re-draft any of it, since that would repeat the
+        exact duplicate-verification waste CLAUDE.md warns against.
+      - >-
+        Found one thing #139 had surfaced but nobody had acted on: both
+        #155 and #177 flagged, as an open question, that a session
+        constrained to a single designated branch carrying a
+        decision-pending PR has no way to also record a ledger entry
+        (appending one would make that PR un-mergeable within the
+        hour). Both called it "worth deciding" and left it there — a
+        real structural gap, not a re-derivation of anything already
+        answered.
+      - >-
+        In practice both sessions had already improvised the right
+        answer (#175's session recorded its finding as a comment on
+        #139 instead of a ledger hunk). Documented that as the standing
+        practice rather than leaving it as an open question: added a
+        paragraph to CLAUDE.md's "Ledger discipline" section and a
+        pointer from `portfolio/ledger/README.md`. Docs-only, two
+        files, no code/venture/automation/workflow/dependency/spend
+        change. Opened as PR #181, verified `portfolio/router/validate.py`
+        (11/11) even though unaffected, and self-merged directly
+        (`4ba8fa8`) — same low-risk precedent as #162/#171, and unlike
+        #162 this one doesn't ride behind another PR's review.
+      - >-
+        Chose this over adding a seventh re-verification pass on #166
+        or another reachability probe in section 2: the monetization
+        chain is exhaustively evidenced and owner-gated, and #139 itself
+        only names one genuinely unresolved, agent-fixable (not
+        owner-gated) problem — this ledger-recording gap.
+      - >-
+        Did not touch #106/#117/#122/#134/#135/#142 (dependency bumps),
+        #166/#177 (monetization chain, and the #179 closure of
+        #126/#130/#137/#150/#155 as superseded, which landed on `main`
+        while this session was working and needed no action here), or
+        #19/#144/#146 (automation) — all unchanged and already current
+        in #139.
+      - >-
+        No push notification: resolving a documented process gap by
+        merging a self-contained, low-risk documentation PR is routine
+        maintenance under the repo's own established precedent, not a
+        new decision or finding for the owner.
+    mrr_end: null
