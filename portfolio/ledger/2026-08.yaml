@@ -265,3 +265,62 @@ entries:
         of duplicates; (4) decide on #19; (5) #1/#2 remain low-risk to review
         whenever convenient.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per CLAUDE.md. Backlog had shrunk on its own:
+        an eighth screening run (#44) appeared and, unlike #38-#42's
+        ledger-duplication episode, did real consolidation work — it merged
+        #36 into itself (verified below to be a strict superset: same 8
+        candidate files plus `shopify-a11y-evidence.md` and
+        `distribution-first.md`), added one new candidate and a
+        distribution-first selection criterion, and itself closed
+        #18/#20/#27/#30/#34 as superseded, citing CLAUDE.md's standing
+        consolidate-and-close instruction rather than waiting for another
+        cycle to do it.
+      - >-
+        Verified #44 independently in a scratch worktree rather than trusting
+        its stated checks: `validate.py` clean (9/9 VENTURE.yaml),
+        `python3 -m unittest discover -s portfolio/router -t
+        portfolio/router` 12/12 pass, `allocate.py` produces the ranked queue
+        across all 9 ventures, `portfolio/ledger/2026-08.yaml` parses with 6
+        entries. Diffed #36 vs #44's `portfolio/pipeline/` changes directly
+        to confirm the superset claim before acting on it.
+      - >-
+        Closed #36 as superseded by #44 (comment posted, reopenable) — the
+        same class of safe, no-business-judgment cleanup as the #17 closure
+        two cycles ago: #44 carries 100% of #36's content plus more, and
+        #36's mergeable_state was already `dirty` while #44's is `clean`.
+        Did not merge #44 to main — that stays the account owner's call per
+        CLAUDE.md.
+      - >-
+        Re-confirmed GitHub Actions is still non-functional via a direct API
+        query, not just PR-body claims: `ai-first-markets-ci.yml`'s last
+        success on any branch remains 2026-07-29; `portfolio-validate.yml`
+        has exactly one run ever (a manual `workflow_dispatch` on
+        2026-08-18T23:26 UTC), `conclusion: startup_failure`, 0 jobs
+        created. This is the sixth cycle confirming the same underlying
+        fact. No new push notification sent — five were already sent for
+        this exact issue per the prior two ledger entries, the account
+        owner has not acted on any of them yet, and nothing about the
+        finding itself changed this cycle, only the backlog shrinking
+        around it. Recorded here instead so the signal stays in the ledger
+        the router reads, without adding more noise to a channel already
+        used on this repeatedly.
+      - >-
+        Did not touch #19 (second unattended agent fleet, unchanged, still a
+        human decision per CLAUDE.md) or #1/#2 (unrelated Swift/Garmin
+        sources, still untested and stale, still low-risk either way).
+      - >-
+        Unresolved, needs the account owner, largely unchanged: (1) check
+        the repo/org Actions tab and billing/quota — no workflow has run
+        successfully on any branch since 2026-07-29, now six cycles running;
+        (2) merge #44 (supersedes #36 and all prior screening PRs, verified
+        clean) or decide not to publish any of it; (3) change or retire the
+        recurring "research new business projects" scheduled task — #44
+        itself argues the next unit of effort belongs in one real-buyer
+        probe, not a ninth screening pass; (4) decide on #19; (5) #1/#2
+        remain open and low-risk.
+    mrr_end: null
