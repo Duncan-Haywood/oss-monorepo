@@ -6240,3 +6240,94 @@ entries:
         tracker comment is enough for the owner to see at their own
         pace.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session.
+        `git fetch origin main` first; tip `38ee486` (#217, the Ask 6
+        ledger entry just above), re-confirmed unchanged immediately
+        before this edit. Read the 11 open PRs and issue #139's body
+        plus all 15 comments against that tip before touching anything.
+        Every substantive item is already merged, already recorded, or
+        explicitly owner-blocked (Asks 0-6); a fresh check of `main`'s
+        recent Actions history against #139's own comments found no CI
+        failure that isn't already tracked there (the two `Deploy *`
+        secret/settings gaps, the pre-#19-branch `startup_failure`
+        noise, and one `ubuntu-agent-server CI` transient already fixed
+        by a same-cycle push all match prior notes exactly; nothing new).
+      - >-
+        This branch started this session with no PR of its own — unlike
+        most recent sessions, which were single-branch-with-a-decision-
+        pending-PR and therefore, per `CLAUDE.md`'s ledger-discipline
+        rule, could only record findings as a comment on #139. Two such
+        findings were never folded into this file: **#218** and **#219**,
+        both posted within the hour before this session started. Folding
+        them in now is the same move #176 made for #175 and #211/#212
+        made for a ledger-only finding — this file is where the router
+        actually reads from, and a comment on #139 does not update it.
+      - >-
+        **#218** (`portfolio/research/publisher-audience/`) tested the
+        untested claim `free-listing-demand` closed on — "publishing is
+        not distribution, the scarce thing is a referral path." Result:
+        softened, not confirmed. A cold npm publisher's odds of reaching
+        a category's top decile are 4.9%, vs 16.2% for a publisher who
+        already has a package with real usage (984 publishers looked up,
+        3.3× pooled handicap, 54 of 198 top-decile listings sampled were
+        cold publishers). The handicap varies 2.6× (accessibility) to
+        8.5× (SBOM/CRA) by category, so for a cold-by-definition
+        portfolio, category choice matters more than listing polish, and
+        `cra-evidence-desk` — already the pipeline's defensibility floor
+        — is the worst category to be found in. Also measured actual
+        channel reachability: of the four free channels
+        `channel-inventory.md` names, only npm and PyPI answer from this
+        sandbox; `api.wordpress.org`, `open-vsx.org`,
+        `marketplace.visualstudio.com`, `docs.github.com`, and both EUVD/
+        OSV endpoints all 403 at the egress proxy.
+      - >-
+        **#219** (`portfolio/research/free-listing-economics/`) put a
+        revenue number on Asks 2 and 5, closing the gap #218 and
+        `free-listing-demand` both left open ("no pricing signal").
+        Method inverts the unknown — reports the revenue-per-download
+        each percentile of the *measured* demand distribution would need
+        to clear a bar, instead of assuming a conversion rate. Result:
+        expected revenue for a free listing published cold is
+        $16-$145/month at central assumptions across the three
+        candidates ($1-$7 pessimistic, $156-$1,448 optimistic) — Ask 5
+        buys a rounding error, not the demand signal the pipeline has
+        treated it as for five cycles, and at those figures Ask 2's
+        merchant-of-record/tax surface isn't justified by these three
+        candidates either. What does change the arithmetic is the buyer:
+        on WordPress.org, `active_installs` turns the weakest number in
+        the model (a ~2% conversion guess) into a ~1 observation, and
+        listed prices run 2-3× higher than npm's implied willingness to
+        pay — same model, ~$980/month at 1,000 installs, from a hundredth
+        of npm's required reach. So the WordPress.org read-only-egress
+        ask #218 flagged is, on this analysis, worth more than either
+        Ask 2 or Ask 5 and should be prioritized above both — re-flagging
+        here since neither #218 nor #219 edited #139's ask table
+        themselves (both left it as a comment, citing the same
+        concurrent-edit clobbering risk #139's own header warns about).
+        Also worth recording: `agent_spend_usd` is `null` for every
+        entry in this file, including this one, so no analysis of this
+        shape can yet be checked against the portfolio's actual cost
+        floor — the $1,000/month bar #219 used is a placeholder.
+      - >-
+        Did not touch #191/#208 (Next.js consolidation, still the
+        owner's merge call), #166/#177/#207 (monetization chain,
+        unchanged), #19/#144/#192/#175 (automation/spend proposals,
+        unchanged), or Asks 0/1/3/4/6 (all unchanged since their own
+        notes). Did not edit #139's body — read-only for this session,
+        given the documented clobbering risk and that both findings
+        already have their own comments there. Did not re-run the
+        pipeline/research screening brief; the `CLAUDE.md` intake gate
+        still applies and neither #218 nor #219 added a candidate.
+      - >-
+        No push notification for this entry: no CI failure, no new
+        owner-facing decision beyond what #218's and #219's own PR
+        bodies and #139 comments already surfaced individually — this
+        record's only job is making sure the router sees findings that
+        would otherwise exist only in PR prose.
+    mrr_end: null
