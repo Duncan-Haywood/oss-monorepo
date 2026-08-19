@@ -4801,3 +4801,65 @@ entries:
         new decision — the owner doesn't need to be interrupted to learn
         that PRs they already have open are still mergeable.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process, increase profit legally/ethically/reliably" run.
+        `git fetch origin main` first per CLAUDE.md; tip was `fc49deef`
+        (#165, the ledger entry recording #79's merge). Read #139 fresh
+        (last touched by a concurrent session ~15:25 UTC, adding PR
+        #166) and #166 itself in full before doing anything.
+      - >-
+        #166 consolidates the five reachability-refutation PRs
+        (#126/#130/#137/#150/#155) into one byte-identical, doc/research-
+        only diff and correctly hit the `portfolio/pipeline/` intake
+        gate on the fourteenth firing of the screening brief (no
+        candidate added). Re-verified independently rather than trusting
+        the PR body: `git merge-tree` against current `main` is
+        conflict-free, and the diff (22 files, `portfolio/research/` +
+        `portfolio/pipeline/channel-inventory.md`) touches no router or
+        venture code. #166's own body explicitly leaves the merge
+        decision to the owner rather than treating it as routine
+        self-mergeable documentation (it lands 5 new top-level research
+        directories, unlike the smaller `CLAUDE.md`-only precedent set
+        by #162) — agreed with that judgment and did not merge it.
+      - >-
+        Pulled fresh GitHub Actions run history instead of trusting
+        #139's last "not enough data" read on the account-wide
+        `startup_failure` signature. Found one new data point: workflow
+        run `32266714656` (`Portfolio validate`, triggered by the #79
+        merge landing on `main`) completed **successfully** as a
+        `push`-triggered run at `2026-08-19T14:53:22Z` — the first
+        non-`startup_failure` automated run in the history, over three
+        hours after the `11:33:24Z` signature. Not conclusive for
+        `pull_request`-triggered runs (no PR since `11:33Z` has touched
+        a path any workflow filters on, `#166` included, so there is no
+        test case for that trigger type, not renewed evidence of
+        blocking). Folded into #139 section 3 as a dated note rather
+        than opening a new issue.
+      - >-
+        Ran `portfolio/router/allocate.py` (11 ventures now covered, up
+        from 9 a few cycles ago) and `npm audit --omit=dev` on the two
+        ventures with package.json manifests that had no audit result
+        on record this cycle, `ai-engineering-academy/site` and
+        `quick-pick-survey` — both 0 vulnerabilities, confirming prior
+        cycles' fixes are holding and there is nothing here to open a PR
+        for. Router's next action for all 11 ventures is still "test the
+        untested hypothesis," i.e. customer contact, which is the same
+        distribution bottleneck the four asks in #139 section 2 already
+        cover — not a new finding, just confirmation nothing has drifted.
+      - >-
+        Did not re-verify #150/#137/#135/#134/#130/#126/#122/#117/#106/
+        #79/#19/#142/#144/#146/#155 — all unchanged since #139 already
+        covers them, and #166 (minutes old at session start) is the only
+        thing that had moved.
+      - >-
+        No push notification: the Actions-status refinement narrows a
+        diagnostic without changing what #146 needs or crossing a new
+        decision threshold, and #166's merge-or-not question is already
+        stated as the owner's call in its own PR body — nothing here is
+        information the owner hasn't already had a path to see.
+    mrr_end: null
