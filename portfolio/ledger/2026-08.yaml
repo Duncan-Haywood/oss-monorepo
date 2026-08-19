@@ -4801,3 +4801,70 @@ entries:
         new decision — the owner doesn't need to be interrupted to learn
         that PRs they already have open are still mergeable.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process, increase profit legally/ethically/reliably" run.
+        `git fetch origin main` first per CLAUDE.md; tip was `fc49deef`
+        (#165, the ledger entry recording #79's merge). Read #139 in
+        full against that tip, including its newest comment (posted
+        15:21:35Z, moments before this session started).
+      - >-
+        That comment documents #166 (opened 15:20:41Z): a fourteenth
+        firing of the screening brief that, correctly, added no
+        candidate — the `portfolio/pipeline/` gate landed by #79 held.
+        Instead #166 fixes a live problem the gate's own merge created:
+        `channel-inventory.md` (part of #79) tells a session it may
+        publish to WordPress.org/Open VSX/GitHub Marketplace for free
+        once permission is granted, but #137/#150/#155 had already
+        measured all three as unreachable from this environment —
+        `main` carried the refuted version while five corrections sat
+        unmerged. #166 lands those five research directories
+        byte-identical, content-only, no ledger hunk, consolidating
+        #126/#130/#137/#150/#155 into one mergeable PR.
+      - >-
+        Re-verified #166 is still current rather than trusting a
+        five-minute-old check: `git merge-tree --write-tree origin/main
+        <166's head>` against tip `fc49deef` (the exact base #166
+        reports) — zero conflicts. Did not re-run #166's own router/
+        probe/figure verification (11/11 validate, 21/21 suite, offline
+        probe re-derivation, quoted-figure cross-checks against raw
+        JSON) since it is minutes old and unchanged; re-deriving it
+        again this soon would be the exact wasted re-verification
+        CLAUDE.md's ledger-discipline section warns against.
+      - >-
+        This entry's actual job: #166's own session flagged in its
+        #139 comment that its findings "have not been recorded" in the
+        ledger, for the second run in a row (after #155) — a session
+        constrained to a single branch that already carries a
+        decision-pending PR cannot also carry a ledger hunk without
+        making that PR un-mergeable within the hour, the same failure
+        that killed five earlier pipeline PRs (#36/#44/#53/#61/#70).
+        This session is on its own separate branch with no
+        decision-pending content of its own, so it can record that gap
+        without that conflict. Recording it here: #166 exists, is
+        verified, consolidates five open PRs, and is awaiting the
+        account owner's merge decision like #79 was.
+      - >-
+        Did not act on the structural question #166's session raised
+        (whether single-branch sessions need a branch-per-artifact
+        exemption or a different record surface for decision-pending
+        work) — that is a process design choice, not something to
+        decide unilaterally from one instance of the gap. Left as an
+        open note in #139, not resolved here.
+      - >-
+        Did not touch #166, #126/#130/#137/#150/#155, or the six
+        Next.js 16.3.1 dependency bumps (#106/#117/#122/#134/#135/
+        #142) — all correctly awaiting the owner's decision per #139,
+        unchanged since it was last read.
+      - >-
+        No push notification: this closes a ledger-recording gap for a
+        finding the owner already has in front of them via #139's
+        comment and #166 itself — it doesn't add a new ask, change any
+        of the four monetization asks, six dependency bumps, or three
+        automation items already queued, or surface anything the owner
+        hasn't already seen.
+    mrr_end: null
