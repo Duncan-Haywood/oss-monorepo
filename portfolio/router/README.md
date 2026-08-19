@@ -47,7 +47,7 @@ queue:
 pip install -r portfolio/router/requirements.txt
 python3 portfolio/router/allocate.py         # table
 python3 portfolio/router/allocate.py --json  # machine-readable work queue
-python3 -m unittest portfolio/router/test_allocate.py
+python3 -m unittest discover -s portfolio/router -t portfolio/router
 ```
 
 v1 ranks by: ventures measured at $0 MRR past `revenue` stage first (they
