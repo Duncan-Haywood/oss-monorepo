@@ -22,42 +22,52 @@ PYTHONPATH=src python3 -m unittest discover -s tests
 All committed tests use `unittest` (stdlib). No pytest, no test dependencies.
 The `PYTHONPATH=src` prefix is required so `import shootflow` resolves.
 
-#### Known false failures when running as root in a disk-quota-capped sandbox
+#### The one known false failure: running as root
 
-If you're running inside a root-uid, disk-quota-capped agent sandbox (the
-profile of this repo's own scheduled Claude Code sessions), expect exactly
-6 of 438 tests to fail even on a clean, unmodified checkout:
+If you're running as uid 0 (the profile of this repo's own scheduled Claude
+Code sessions), expect exactly **1 of 438** tests to fail on a clean,
+unmodified checkout:
 
-- `test_cli.py::ShootFlowCliTests::test_plan_import_route_command_discovers_capacity_gated_route_from_estimated_source`
-- `test_cli.py::ShootFlowCardDumpWorkflowCliTests::test_card_dump_workflow_confirm_ingests_and_reports_production`
-- `test_cli.py::ShootFlowCardDumpWorkflowCliTests::test_card_dump_workflow_previews_route_without_copying`
-- `test_cli.py::ShootFlowCardDumpWorkflowCliTests::test_card_dump_workflow_rejects_broken_symlinked_destination_subfolder`
-- `test_cli.py::ShootFlowCardDumpWorkflowCliTests::test_card_dump_workflow_rejects_symlinked_destination_subfolder_before_preview`
 - `test_workspace_health.py::WorkspaceHealthTests::test_unreadable_render_input_is_reported_for_review`
 
-Two unrelated environment effects cause these, both confirmed by direct
-reproduction rather than assumed:
+**Permission bits don't restrict a root process.** The test `os.chmod(path, 0)`
+to simulate an unreadable file, then finds it readable anyway, because uid 0
+bypasses the permission check the production code correctly relies on. That is
+a property of the sandbox, not a product bug: on GitHub's non-root
+`ubuntu-latest` runner this test passes, so `photo-editing-ci.yml` is unaffected.
 
-1. **Permission bits don't restrict a root process.** Tests that
-   `os.chmod(path, 0)` to simulate an unreadable file (e.g.
-   `test_unreadable_render_input_is_reported_for_review`) find the file
-   readable anyway, because uid 0 bypasses the permission check the
-   production code correctly relies on.
-2. **The capacity-gate destination heuristic requires >64GB free**
-   (`_rank_candidate`'s `writable_capacity` check in `src/shootflow/storage.py`).
-   A sandbox whose writable disk allowance is capped below that (this one's
-   `df` reports ~30GB avail) can never classify any path as a `destination`
-   candidate, so every card-dump-workflow test that expects a route to be
-   found comes back `blocked` instead — not because routing logic regressed,
-   but because no candidate in the sandbox clears the real-world threshold.
+Anything else that fails is real. Don't extend this list speculatively, and
+don't loosen the permission checks to make it pass — they exist to refuse to
+read a file the OS says isn't readable.
 
-Neither is a product bug — they're artifacts of the sandbox not looking like
-a real workstation with real removable volumes and non-root permissions. If
-you see a *different* test fail, treat it as real; don't extend this list
-speculatively, and don't loosen the 64GB threshold or the permission checks
-to make these 6 pass, since both exist for genuine data-safety reasons
-(preventing an import onto too-small a destination; refusing to read a file
-the OS says isn't readable).
+#### Correction: the five capacity-gated CLI tests were a real bug, now fixed
+
+This section previously listed five more `test_cli.py` failures alongside the
+one above and attributed them to the same cause — a sandbox whose writable
+disk allowance sits below the capacity gate. **That attribution was wrong**, and
+it is recorded here rather than deleted because it hid a genuine defect for
+several sessions.
+
+`_rank_candidate`'s `writable_capacity` check (`src/shootflow/storage.py:154`)
+only classifies a volume as a `destination` once `free_bytes > 64 GiB`, and
+`storage_discovery.py` reads that figure from `os.statvfs` against the **real
+host**, while the tests build their volumes under `tempfile.TemporaryDirectory()`.
+So those five tests silently depended on whatever the machine happened to have
+free. That fails in a capped sandbox *and* on GitHub's `ubuntu-latest` runner,
+which is well under 64 GiB — a hermeticity bug that would have hit any
+disk-constrained CI runner or contributor machine, not an artifact of this
+environment.
+
+Fixed in `2aa9078` (PR #193) by supplying the hint the code already supports:
+the tests call `_write_ample_destination_metadata()` and pass
+`--volume-metadata-json`, the same mechanism
+`test_plan_import_route_command_uses_native_volume_metadata_json` already
+exercised. No production code and no threshold changed.
+
+**The rule this leaves for new tests:** a test that needs a volume classified as
+a `destination` must supply volume metadata explicitly. Never let an assertion
+depend on the host's real free space, and never lower the 64 GiB gate to make a
+test pass — it exists to prevent an import onto too small a destination.
 
 ### Running the CLI
 
