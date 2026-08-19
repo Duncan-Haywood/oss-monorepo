@@ -6473,3 +6473,56 @@ entries:
         new owner-facing decision; #225 stays queued exactly where prior
         research PRs already sit, with no change in status.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        fresh branch with no PR of its own. `git fetch origin main`
+        first; tip `c84ff29` (#226, merged), confirmed current before
+        touching anything. Read issue #139's current body plus its
+        newest comments, and the 13 other open PRs, against that tip.
+      - >-
+        Found a live duplicate: **#227**, opened the same second as
+        already-merged **#226** (both 22:50:00Z), recording the same
+        #224 outcome in the ledger — two concurrent scheduled sessions
+        racing on the same append. Verified #227 had no unique content
+        beyond #226 (diffed both patches directly) and closed it with a
+        pointer comment rather than leaving both open, per `CLAUDE.md`'s
+        consolidation guidance and its own worked example of this exact
+        pattern. Used no closing keyword before the number, per the
+        `CLAUDE.md` rule on accidental unmerged closes.
+      - >-
+        Verified **#225** (replicates the npm listing-demand
+        concentration finding on Packagist and RubyGems, bounding
+        #219's WordPress.org extrapolation) directly rather than
+        trusting its body: read the full diff, confirmed it imports its
+        statistics functions from the existing npm script rather than
+        reimplementing them, and confirmed `mergeable_state: clean`
+        with no ledger hunk. Finding holds — concentration replicates
+        in all 9 registry × category cells, including on Packagist
+        *stars* (a human-only signal immune to the npm study's own
+        "could be CI traffic" objection). It downgrades confidence in
+        Ask 7's ≈$980/month figure without changing the recommendation
+        (still: grant the one `api.wordpress.org` allowlist entry).
+        Posted this as a comment on #139 rather than a body edit, since
+        two sessions have now collided editing that body within the
+        same hour (#226/#227 is the same collision one layer down) —
+        left the fold-in for a session with lower ambient concurrency
+        risk, matching how #208/#207's restoration was handled earlier.
+      - >-
+        Did not touch #191/#208/#222 (Next.js consolidation, still the
+        owner's merge call), #19/#144/#192/#175 (automation/spend
+        proposals, unchanged), #166/#177/#207/#218 (monetization chain,
+        unchanged), or Asks 0-7 on #139 (all still owner-blocked,
+        unchanged). Did not re-run the pipeline/research screening
+        brief — the `CLAUDE.md` intake gate still applies and neither
+        #225 nor this session adds a candidate.
+      - >-
+        No push notification for this entry: closing a same-second
+        duplicate ledger PR and refining an existing ask's confidence
+        are agent-coordination housekeeping, not new owner-facing
+        decisions or CI failures.
+    mrr_end: null
