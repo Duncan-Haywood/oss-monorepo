@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<strings>
+    <string id="AppName">World Traveler</string>
+
+    <string id="ThemeTitle">Color Theme</string>
+    <string id="ThemeMidnight">Midnight</string>
+    <string id="ThemeAurora">Aurora</string>
+    <string id="ThemeSand">Sand</string>
+    <string id="ThemeMono">Mono</string>
+</strings>

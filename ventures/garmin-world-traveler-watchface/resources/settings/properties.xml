@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Default theme: Midnight(0), see Themes.THEMES in source/Themes.mc for
+     the full list. The ring of 24 world-city zones itself is fixed (see
+     source/CityData.mc) and is not a user setting. -->
+<properties>
+    <property id="ThemeIndex" type="number">0</property>
+</properties>

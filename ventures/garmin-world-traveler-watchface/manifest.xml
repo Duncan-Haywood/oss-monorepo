@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Connect IQ application manifest.
+
+  id: a locally-unique identifier for this project during development/sideloading.
+      It is NOT the Connect IQ Store listing id (that is assigned when you register
+      the app at apps.garmin.com). You may regenerate it with `uuidgen` if you fork
+      this project into a new app.
+
+  iq:products: a starter list of long-lived, high-volume device ids across the
+      round-AMOLED, round-MIP and rectangular form factors this face is designed
+      for. Device ids are added/renamed by Garmin over time, so before building,
+      open this file in the Connect IQ VS Code extension ("Edit Products" command,
+      or right-click manifest.xml > "Monkey C: Edit Application") and refresh the
+      list against your installed SDK's current device catalog, see
+      README.md "Expanding device support".
+-->
+<iq:manifest xmlns:iq="http://www.garmin.com/xml/connectiq" version="3">
+    <iq:application
+        id="378eee0c-532b-45c4-b886-ad6e250e809d"
+        type="watchface"
+        name="@Strings.AppName"
+        entry="WorldTravelerApp"
+        launcherIcon="@Drawables.LauncherIcon"
+        minSdkVersion="3.2.0">
+
+        <iq:products>
+            <!-- fenix 7 family (round MIP/solar) -->
+            <iq:product id="fenix7"/>
+            <iq:product id="fenix7s"/>
+            <iq:product id="fenix7x"/>
+            <iq:product id="fenix7pro"/>
+            <iq:product id="fenix7spro"/>
+            <iq:product id="fenix7xpro"/>
+
+            <!-- fenix 6 family -->
+            <iq:product id="fenix6"/>
+            <iq:product id="fenix6s"/>
+            <iq:product id="fenix6x"/>
+            <iq:product id="fenix6pro"/>
+            <iq:product id="fenix6spro"/>
+            <iq:product id="fenix6xpro"/>
+
+            <!-- epix (round AMOLED) -->
+            <iq:product id="epix2"/>
+            <iq:product id="epix2pro42mm"/>
+            <iq:product id="epix2pro47mm"/>
+            <iq:product id="epix2pro51mm"/>
+
+            <!-- venu family (round AMOLED) -->
+            <iq:product id="venu"/>
+            <iq:product id="venu2"/>
+            <iq:product id="venu2s"/>
+            <iq:product id="venu3"/>
+            <iq:product id="venu3s"/>
+            <iq:product id="venusq"/>
+            <iq:product id="venusq2"/>
+
+            <!-- vivoactive family (round AMOLED) -->
+            <iq:product id="vivoactive3"/>
+            <iq:product id="vivoactive4"/>
+            <iq:product id="vivoactive4s"/>
+            <iq:product id="vivoactive5"/>
+
+            <!-- forerunner family (round) -->
+            <iq:product id="fr245"/>
+            <iq:product id="fr255"/>
+            <iq:product id="fr265"/>
+            <iq:product id="fr265s"/>
+            <iq:product id="fr945"/>
+            <iq:product id="fr955"/>
+            <iq:product id="fr965"/>
+
+            <!-- marq / descent (round, premium) -->
+            <iq:product id="marqadventurer"/>
+            <iq:product id="descentmk2"/>
+            <iq:product id="descentmk3_51mm"/>
+        </iq:products>
+
+        <iq:languages>
+            <iq:language>eng</iq:language>
+        </iq:languages>
+
+        <iq:barrels/>
+    </iq:application>
+</iq:manifest>

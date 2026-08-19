@@ -1,0 +1,28 @@
+name: garmin-world-traveler-watchface
+description: A Garmin Connect IQ worldtimer-bezel watch face -- a fixed 24-hour ring around the rim with 42 recognizable world cities positioned at their current hour across two label tiers, plus a big digital local-time readout in the center, for frequent travelers.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: A well-designed, accurate multi-city world-clock watch face is compelling enough to frequent travelers to earn meaningful Connect IQ Store downloads/ratings.
+    status: untested
+    checked: 2026-08-08
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 10
+  protected: false
+
+kill_criteria:
+  - The Connect IQ Store submission is rejected and cannot be brought into compliance within two revision cycles.
+  - Fewer than 50 installs and no positive rating within 90 days of the store listing going live.
+
+links:
+  production: null
+  analytics: null

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+    <setting propertyKey="@Properties.ThemeIndex" title="@Strings.ThemeTitle">
+        <settingConfig type="list">
+            <listEntry value="0">@Strings.ThemeMidnight</listEntry>
+            <listEntry value="1">@Strings.ThemeAurora</listEntry>
+            <listEntry value="2">@Strings.ThemeSand</listEntry>
+            <listEntry value="3">@Strings.ThemeMono</listEntry>
+        </settingConfig>
+    </setting>
+</settings>
