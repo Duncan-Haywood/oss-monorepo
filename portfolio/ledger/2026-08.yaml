@@ -580,3 +580,78 @@ entries:
         decide on #19; (4) retire or redirect the recurring "research new
         business projects" scheduled task.
     mrr_end: null
+  - venture: retail-pilot-intel
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per CLAUDE.md (only #53 and #19 open; #53
+        supersedes #44/#36 and already lays out the account-owner decisions
+        needed, #19 is the second unattended-fleet PR already flagged as a
+        human call). Re-fetched `origin/main` before touching the ledger,
+        confirmed the tip (`c372788`) matched the branch's own base, so no
+        rebase or stale-ledger risk this cycle.
+      - >-
+        Re-checked GitHub Actions directly rather than trusting the last
+        report: still 100% `startup_failure` across the 30 most recent runs
+        on every branch including `main`, unchanged since 2026-07-29. Not
+        re-notified — this exact fact has now reached the account owner
+        six times with no new angle.
+      - >-
+        Looked for agent-actionable engineering work per this session's
+        "continue work, maintain and improve the development process"
+        brief, same approach as the prior cycle that shipped the POS CSV
+        importer. `retail-pilot-intel/docs/BACKLOG.md`'s own highest-ROI
+        ready item was "Add unit tests for packages/analytics
+        (dailySummary, syncInbox, schema inserts)" — the package had zero
+        test coverage and the whole venture had no test convention at all.
+      - >-
+        Added 13 unit tests across three new files
+        (`packages/analytics/src/__tests__/{db,report,sync-inbox}.test.ts`
+        plus a shared fixture helper) covering `openDb` idempotency,
+        `insertAggregate`/`insertSale` column mapping and upsert-on-conflict
+        behavior and their default-null handling, `dailySummary`'s
+        conversion-rate math (including the zero-entries no-NaN case and
+        4-decimal rounding) and day-boundary filtering, and `syncInbox`'s
+        file-glob/skip/missing-directory behavior — using Node 22's
+        built-in `node:test` + `node:assert/strict` run through the
+        already-present `tsx`, so zero new runtime or CI-risk dependencies
+        were introduced (only `tsx` itself moved from an implicit hoisted
+        resolution to an explicit devDependency of the package that now
+        uses it directly).
+      - >-
+        Wired it into the existing pipeline rather than leaving it a
+        one-off: added `"test": "tsx --test src/__tests__/*.test.ts"` to
+        `packages/analytics/package.json`, a root `"test": "pnpm -r
+        --if-present run test"` script (so packages without a test script
+        are skipped, not failed), and a `pnpm run test` step in
+        `scripts/ci.ts` between lint and build. Verified the full chain
+        locally end to end: `pnpm run typecheck` (6/6 packages clean),
+        `pnpm run lint` (clean), `pnpm run test` (13/13 pass, only the
+        analytics package ran as intended), `pnpm run build` (6/6 packages
+        clean, including compiling the new test files without error).
+        Marked the backlog item done.
+      - >-
+        Did not touch #53 or #19 — both unchanged account-owner decisions,
+        nothing new to add. Did not re-derive #53's own content (screening
+        brief, distribution-channel finding) since it already covers that
+        ground exhaustively and this cycle found no new information to
+        contribute there.
+      - >-
+        Did not send a push notification. Nothing this cycle rises to
+        "needs the account owner's attention now" — Actions-broken and the
+        #53/#19 decisions are repeats already delivered multiple times, and
+        the analytics test suite is routine, low-risk, additive engineering
+        that doesn't need an interrupt. Opened a PR on the designated
+        branch rather than merging directly, since (unlike the previous
+        cycle's POS importer) this changes the shared CI pipeline
+        definition (`scripts/ci.ts`) as well as one package, which is
+        slightly wider surface than a pure content addition.
+      - >-
+        Still unresolved, needs the account owner, unchanged in substance
+        from prior cycles: (1) GitHub Actions billing/quota — no successful
+        run on any branch since 2026-07-29 (sixth report); (2) merge #53
+        (which supersedes #44/#36) or neither; (3) decide on #19; (4)
+        retire or redirect the recurring "research new business projects"
+        scheduled task.
+    mrr_end: null

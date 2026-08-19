@@ -10,7 +10,6 @@ Status: `ready` | `in_progress` | `done`
 
 ### [platform] Persistence & pipeline
 
-- [ ] **ready** — Add unit tests for `packages/analytics` (`dailySummary`, `syncInbox`, schema inserts)
 - [ ] **ready** — Extend `dailySummary` with revenue cents + revenue per entrant from `sale_events`
 - [ ] **ready** — Hourly rollup table + CLI `report --hour` for same-day ops
 - [ ] **ready** — Archive processed inbox JSON after sync (idempotent ingest)
@@ -47,6 +46,7 @@ _(empty — orchestrator assigns when a run starts themed work)_
 
 ## Done
 
+- [x] **done** — Unit tests for `packages/analytics` (`dailySummary`, `syncInbox`, schema inserts) — `node:test` via `tsx`, wired into `pnpm run test` / `pnpm run ci`
 - [x] **done** — M0: TSX docs site + commercial viability pages + CI (`pnpm run ci`)
 - [x] **done** — Event schemas + SQLite schema + inbox sync path
 - [x] **done** — Sales portal with illustrative Milano boutique data + presenter guides
