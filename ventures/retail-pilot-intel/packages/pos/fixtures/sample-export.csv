@@ -1,0 +1,5 @@
+receipt_id,closed_at,sku,quantity,unit_price_cents,currency,description,payment_method
+RCP-1001,2026-08-19T10:15:00Z,LEATHER-BAG-01,1,28500,EUR,Hand-stitched shoulder bag,Visa credit
+RCP-1001,2026-08-19T10:15:00Z,CARE-KIT-01,1,1800,EUR,Leather care kit,Visa credit
+RCP-1002,2026-08-19T11:02:00Z,BELT-02,1,9500,EUR,Full-grain belt,Cash
+RCP-1003,2026-08-19T13:47:00Z,LEATHER-BAG-03,2,32000,EUR,"Tote, tan",Mastercard debit
