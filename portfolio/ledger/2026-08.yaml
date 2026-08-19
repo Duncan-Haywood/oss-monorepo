@@ -1579,3 +1579,90 @@ entries:
         `local-site-studio` standalone-repo exposure, per the previous
         entry.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs and the ledger tip first per CLAUDE.md: `git fetch
+        origin main` confirmed this branch's base (`27045a2`, the prior
+        cycle's root-cause entry) is the live tip, so no stale-ledger risk.
+        Only two PRs open: #79 (the content-only `portfolio/pipeline/`
+        research, opened minutes before this session by the immediately
+        prior cycle, already carrying its own independent verification and
+        explicitly deferring the merge decision to the account owner) and
+        #19 (second unattended agent fleet, unchanged, same account-owner
+        decision flagged in every cycle since it opened). Neither needed
+        re-verification or re-notification — both are current, correctly
+        scoped, and nothing about them has changed.
+      - >-
+        Re-checked GitHub Actions directly rather than trust the last
+        report: the 15 most recent runs across `main` and every open
+        branch, including ones created in the last 15 minutes, are still
+        100% `startup_failure`. Unchanged since 2026-07-29 — not
+        re-reported, since this exact fact has already reached the account
+        owner many times with no new angle.
+      - >-
+        Looked for agent-actionable engineering work outside the two
+        account-owner-blocked PRs and outside the top-ranked ventures
+        (`allocate.py` ranks ai-first-markets/local-site-studio/
+        world-clock-widget/photo-editing/retail-pilot-intel highest, but
+        all of them resolve to "push toward a real customer touchpoint" —
+        buyer outreach or credentials, a human call per every prior cycle's
+        judgment, not an engineering one). Surveyed the ventures no prior
+        cycle had touched: `mat-470-real-analysis` and `ubuntu-agent-server`
+        confirmed to still carry no `VENTURE.yaml` (not portfolio
+        ventures); `real-estate-agent-photo-app` has no code, docs only;
+        `ai-engineering-academy` has a real buildable static site
+        (`site/build.mjs` + `marked`) with zero CI coverage anywhere in the
+        repo.
+      - >-
+        Verified the site actually builds before adding CI for it (not
+        assumed): `rm -rf node_modules dist && npm ci && npm run build`
+        succeeded cleanly, producing all 8 pages with 0 vulnerabilities in
+        the single `marked` dependency. Added
+        `.github/workflows/ai-engineering-academy-ci.yml` matching this
+        repo's established per-venture CI pattern (`photo-editing-ci.yml`,
+        `photos-import-tools-ci.yml`): path-scoped to
+        `ventures/ai-engineering-academy/site/**`, `contents: read` only,
+        no cron, no secrets, `npm ci && npm run build`. It will not
+        actually run until the account-level Actions outage above is
+        resolved, but the same was true when the photo-editing and
+        photos-import-tools CI files were added in earlier cycles, and
+        having it in place means the build is checked automatically the
+        moment Actions recovers instead of needing a fourteenth cycle to
+        notice.
+      - >-
+        Verified before committing: workflow YAML parses
+        (`yaml.safe_load`), `python3 portfolio/router/validate.py` (11/11
+        `VENTURE.yaml` clean), `test_allocate.py` via `python3 -m
+        unittest` (12/12 pass, run from `portfolio/router/` per its own
+        README since no `pytest` module is installed in this environment).
+        Committed directly to this session's designated branch (`git
+        status --porcelain` clean apart from the one new workflow file;
+        `node_modules`/`dist` correctly gitignored, nothing untracked
+        leaked in).
+      - >-
+        Did not touch #79 or #19 — both are live, current, and correctly
+        left for the account owner. Did not re-derive or duplicate the
+        `quick-pick-survey`/`local-site-studio` standalone-repo exposure
+        findings, both already flagged and both outside this session's
+        GitHub access scope to check further.
+      - >-
+        Did not send a push notification. Nothing this cycle is new
+        information the account owner hasn't already seen: Actions-broken,
+        #79-ready-to-decide, and #19 are all repeats delivered many times
+        today, and the ai-engineering-academy CI addition is routine,
+        low-risk, additive engineering that doesn't need an interrupt.
+      - >-
+        Still unresolved, needs the account owner, unchanged in substance
+        from the prior cycle: (1) merge #79 (content-only, supersedes
+        #36/#44/#53/#61/#70) or decline the chain outright; (2) retire or
+        redirect the recurring "research new business projects" scheduled
+        task — twelve firings, zero landed; (3) decide on #19; (4) approve
+        or refuse an agent publishing a free listing under this portfolio's
+        name, per #79's `channel-inventory.md`; (5) establish one payout
+        rail; (6) GitHub Actions billing/quota, no successful run since
+        2026-07-29; (7) `quick-pick-survey` and `local-site-studio`
+        standalone-repo exposure.
+    mrr_end: null
