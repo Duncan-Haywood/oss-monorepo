@@ -6196,3 +6196,47 @@ entries:
         clean-scan record whose only value is stopping a future session
         from re-running the same checks on the same 5 ventures.
     mrr_end: null
+  - venture: retail-pilot-intel
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Continuation of the same "continue work / maintain the
+        development process" scheduled session, same tip (`7e98c46`,
+        the #216 clean-scan entry). Checked recent GitHub Actions
+        history on `main` for anything red not already tracked in
+        issue #139, the same method the prior session's ~19:1x UTC
+        Ask-4 note used, and found one genuinely new item: `Deploy
+        retail-pilot-intel docs` failed its `deploy` job (build step
+        passed) with `Error: Failed to create deployment (status:
+        404)... Ensure GitHub Pages has been enabled`. Confirmed by
+        job log this is the standard `actions/deploy-pages@v4` error
+        for a repo with no GitHub Pages site configured with source
+        "GitHub Actions" — a repo-settings gap, not a code defect, and
+        distinct from Ask 4 (a missing `CLOUDFLARE_API_TOKEN` secret
+        on a *different* venture's *Cloudflare* Pages step, re-checked
+        and confirmed still exactly that, not the same root cause).
+      - >-
+        Checked all 18 workflows in the repo for the same failure
+        shape; only these two `Deploy *` workflows exist and no others
+        are silently failing the same way. Recorded as new **Ask 6** in
+        the decision-queue tracker (issue #139, posted as a comment,
+        not a body edit, per that issue's own "re-fetch before you
+        PUT" warning about concurrent-session clobbering): enable
+        GitHub Pages for this repo (Settings → Pages → Source: "GitHub
+        Actions") → unblocks retail-pilot-intel's docs deploy, whose
+        build already passes. Account-owner action only; no agent
+        credential can flip this repo setting via the API available
+        here.
+      - >-
+        No code change and no PR: this is a settings-only gap, so
+        nothing to land beyond the tracker comment and this record.
+        Did not touch #191/#208, #166/#177/#207, #19/#144/#192/#175,
+        or Asks 0/3/4/5 — all unchanged since the last note.
+      - >-
+        No push notification for this entry: a single unlisted docs
+        site for one venture, same low-urgency shape as Ask 4 when it
+        was first found (which also didn't page the owner) — the
+        tracker comment is enough for the owner to see at their own
+        pace.
+    mrr_end: null
