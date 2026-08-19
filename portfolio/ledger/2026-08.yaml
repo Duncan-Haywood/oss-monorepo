@@ -1207,3 +1207,59 @@ entries:
         window) as a standing process-reliability question worth the
         account owner's attention, separate from any single finding here.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs fresh against current `main` before starting, per
+        `CLAUDE.md`. Found four open: #70 (carries #61's pipeline research
+        onto current `main`, cleanly), #69 (ai-first-markets npm audit
+        fixes), #19 (second unattended agent-fleet proposal), and #63 — the
+        latter three days stale relative to `main`'s tip, since #68 had
+        already merged #63's routine ledger-correction content and
+        explicitly deferred the rest (#61's pipeline-research decision) as
+        its own item.
+      - >-
+        Closed #63. Diffed it directly against #70 rather than trusting
+        either PR's description: both carry byte-identical content on all
+        17 `portfolio/pipeline/*` files (0 differences). The only
+        differences are in `CLAUDE.md` and the ledger entry, where #70's
+        version is strictly more accurate — correct firing count (eleven,
+        not nine/ten) and an added explanation of why the loop recurred.
+        Independently re-verified #70's stated checks on its branch before
+        recommending it: `validate.py` 11/11, router tests 12/12,
+        `2026-08.yaml` parses (19 entries, 123 outcome items). Left #70 and
+        #69 open for the account owner — merging is their call, not a
+        scheduled session's, per `CLAUDE.md`.
+      - >-
+        Separately, ran the same safe-dependency-patch pattern used for
+        ai-first-markets (#69, unmerged) and local-site-studio (#57,
+        merged) on the two remaining npm ventures that hadn't had it done:
+        print-atelier and quick-pick-survey. Both needed `npm install`
+        first — neither had `node_modules` checked out, so their prior
+        lint/typecheck/build state was untested, not actually clean.
+      - >-
+        print-atelier: baseline lint/build clean after install. `npm audit`
+        found 9 vulnerabilities (1 low, 8 high). `npm audit fix` (no
+        `--force`) resolved 4 high + the low; only `package-lock.json`
+        changed, `package.json` untouched. Re-verified lint/build both
+        still clean. Left 5 high vulnerabilities (all Next.js/postcss,
+        requiring a `next` major bump to `16.3.1`) unfixed — that's a
+        breaking-change decision, not a safe patch.
+      - >-
+        quick-pick-survey: baseline lint/typecheck/test (264/264)/build all
+        clean after install. `npm audit` found 6 high vulnerabilities.
+        `npm audit fix` resolved 3; only `package-lock.json` changed.
+        Re-verified all four checks still clean afterward. Left 3 high
+        vulnerabilities (Next.js/postcss/sharp, same `next` major-bump
+        requirement) unfixed for the same reason.
+      - >-
+        Did not touch retail-pilot-intel — it uses pnpm workspaces, not
+        `npm audit`, so this pattern doesn't directly apply; would need its
+        own check, not attempted this cycle.
+      - >-
+        No push notification sent: nothing here needs the account owner's
+        attention beyond what #70's and #69's own PR bodies already put to
+        them, and no blocker or anomaly was found.
+    mrr_end: null
