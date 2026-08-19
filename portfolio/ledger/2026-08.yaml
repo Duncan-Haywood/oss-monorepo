@@ -2409,6 +2409,66 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Scheduled "continue work, maintain and improve the development
+        process, strategic" run. `git fetch origin main` first (tip
+        unchanged at `79b5fa2`, ~3 minutes old at session start); only #79
+        and #19 open, both re-verified within the last hour by the prior
+        cycle with no new development since, so per this file's own ledger-
+        discipline rule did not re-verify or re-notify on either — that
+        would repeat the exact waste this section exists to prevent.
+      - >-
+        Looked for genuinely strategic work rather than another routine
+        test/lint pass, since almost every venture has already had that
+        pass done in prior cycles. Ran `portfolio/router/allocate.py` and
+        noticed a real gap in the router itself: every one of the 11
+        ventures is unmeasured (`economics.mrr: null`), so the "next task"
+        column printed the identical generic string
+        ("Explore: no economics signal yet...") for all 11 rows — not
+        actually a useful work queue despite each `VENTURE.yaml` already
+        recording a specific, structured `hypotheses` list (`claim` +
+        `status`) that the router was reading for nothing but validation.
+      - >-
+        Fixed it: `next_task()` now surfaces the first `status: untested`
+        hypothesis's own claim text for an unmeasured venture instead of
+        the placeholder, falling back to the generic message only when a
+        venture has no untested hypothesis left (checked against the real
+        data — `photos-import-tools` is the one venture whose sole
+        hypothesis is already `supported`, and it correctly still gets the
+        generic line). This makes the router's output what it was always
+        supposed to be: a ranked queue naming, per venture, the specific
+        thing to go learn next, sourced from that venture's own record
+        rather than a template.
+      - >-
+        Verified before committing: `python3 -m unittest test_allocate`
+        (21/21 pass, 4 new: claim-surfaced, falls-back-when-only-supported,
+        picks-first-untested-not-second, existing-Explore-substring-still-
+        holds so no downstream consumer of that string breaks),
+        `portfolio/router/validate.py` (11/11 `VENTURE.yaml` still valid —
+        this change only reads an existing field, adds no new required
+        schema), and a real run of `allocate.py` against all 11 ventures
+        confirmed each row now names its own hypothesis. Documented the
+        change in `portfolio/router/README.md` next to the existing
+        ledger-attribution caveat it sits beside.
+      - >-
+        Did not touch #79 or #19 (both unchanged, correctly left for the
+        account owner per their own PR bodies and prior cycles' judgment)
+        or re-check GitHub Actions (unchanged `startup_failure`, already
+        root-caused and reported repeatedly). This is pure tooling/process
+        improvement — no content, no spend, no publication — so opened it
+        as a PR on the designated branch rather than merging directly,
+        consistent with this session's task instructions.
+      - >-
+        Did not send a push notification: this is routine, low-risk,
+        additive tooling work with no new information the account owner is
+        waiting on, and the standing blockers (#79 merge decision, #19,
+        GitHub Actions billing/quota, the recurring screening task) are
+        unchanged from what has already reached them multiple times today.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Scheduled "continue work / maintain the development process" run.
         `git fetch origin main` first; the latest entry (EAA microenterprise
         finding, this same file) landed only ~3 minutes before this session
@@ -2539,6 +2599,61 @@ entries:
         fixed the same class of issue in a different venture with no such
         regression); (6) retire or redirect the recurring "research new
         business projects" scheduled task.
+    mrr_end: null
+  - venture: world-clock-widget
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain the development process" run.
+        `git fetch origin main` first (unchanged since the prior entry, no
+        stale-tip risk); open-PR backlog was 2 (#79, #19), both reviewed
+        within the prior ~hour with nothing new to add — re-read #79 and
+        #19's existing comments rather than re-verifying either from
+        scratch, confirmed #19's fix/close decision and #79's merge
+        decision are both unchanged and still correctly left to the
+        account owner, and did not re-comment on either.
+      - >-
+        Worked a gap outside that loop instead: this venture's README
+        stated plainly that the code "Not compiled or run in this
+        environment — there's no macOS/Xcode/Swift toolchain available
+        where this was written," and it had zero CI. Read all of
+        `WorldClockCore` (city catalog, sunrise/sunset math, formatting,
+        the App-Group shared store) and confirmed it imports only
+        `Foundation`/`XCTest`, no SwiftUI/WidgetKit/AppIntents, and
+        already follows SPM's standard `Sources/<Module>`/
+        `Tests/<Module>Tests` layout.
+      - >-
+        Opened PR #98: added `ventures/world-clock-widget/Package.swift`
+        (an SPM manifest scoped to just `WorldClockCore` +
+        `WorldClockCoreTests`, additive alongside the existing
+        `project.yml`/XcodeGen flow for the real app+widget, not a
+        replacement) and `.github/workflows/world-clock-widget-ci.yml`
+        (`swift build && swift test` on `ubuntu-latest`, matching this
+        repo's established per-venture path-triggered CI convention).
+        Updated the README's "never compiled" limitation to say what's
+        now covered (`WorldClockCore`) versus what still isn't
+        (`WorldClockApp`/`WorldClockWidgetExtension`, which need Xcode).
+      - >-
+        Could not verify the Swift code actually compiles before
+        pushing — no Swift toolchain is available in this session's
+        environment either, so this is the first real compile attempt
+        of this code anywhere, deferred to GitHub's own CI runner rather
+        than claimed as tested. Both check runs on PR #98
+        (`pull_request` and `push`, commit `1e56341`) came back
+        `startup_failure` before any job step ran; confirmed this is not
+        specific to the new workflow by checking the 8 most recent runs
+        on `main` itself, which show the identical `startup_failure`
+        pattern on unrelated commits and workflows. This is the same
+        account-level Actions outage already on record as a standing
+        blocker, not a defect introduced here. Posted that finding as a
+        PR comment rather than pushing speculative workflow-YAML fixes
+        for a failure that reproduces on `main`. Subscribed to PR #98's
+        activity to re-check once Actions recovers.
+      - >-
+        Did not send a push notification: no decision-relevant finding
+        for the account owner here, just incremental CI-hygiene work
+        blocked on the same already-known infrastructure outage.
     mrr_end: null
   - venture: portfolio
     agent_spend_usd: null

@@ -1,0 +1,41 @@
+name: world-clock-widget CI
+
+on:
+  pull_request:
+    paths:
+      - "ventures/world-clock-widget/Package.swift"
+      - "ventures/world-clock-widget/Sources/WorldClockCore/**"
+      - "ventures/world-clock-widget/Tests/**"
+      - ".github/workflows/world-clock-widget-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/world-clock-widget/Package.swift"
+      - "ventures/world-clock-widget/Sources/WorldClockCore/**"
+      - "ventures/world-clock-widget/Tests/**"
+      - ".github/workflows/world-clock-widget-ci.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: world-clock-widget-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/world-clock-widget
+
+jobs:
+  test-core:
+    # Only WorldClockCore (pure Foundation) is covered here. WorldClockApp and
+    # WorldClockWidgetExtension depend on SwiftUI/WidgetKit/AppIntents and need Xcode + a
+    # simulator, so they still require a manual build via the XcodeGen project (see README.md).
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: "5.9"
+      - run: swift build
+      - run: swift test
