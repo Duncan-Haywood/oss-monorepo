@@ -58,6 +58,16 @@ class PilotCohortBriefReadinessBlockers:
 
 
 @dataclass(frozen=True)
+class _WorkspaceConsistencyMetrics:
+    metrics_available_count: int
+    metrics_unavailable_count: int
+    ready_count: int
+    output_count: int
+    intervention_rates: tuple[int, ...]
+    readiness_blockers: PilotCohortBriefReadinessBlockers
+
+
+@dataclass(frozen=True)
 class PilotCohortBriefSummary:
     dashboard_count: int
     metrics_available_dashboard_count: int
@@ -327,15 +337,15 @@ def _validate_saved_report_consistency(
     if summary.pilot_ready_workspace_count > summary.metrics_available_dashboard_count:
         raise PilotCohortBriefError("cohort ready count cannot exceed metrics-available count")
     workspace_metrics = _workspace_consistency_metrics(workspaces, path=path)
-    if workspace_metrics["metrics_available_count"] != summary.metrics_available_dashboard_count:
+    if workspace_metrics.metrics_available_count != summary.metrics_available_dashboard_count:
         raise PilotCohortBriefError("cohort metrics-available count disagrees with workspace evidence")
-    if workspace_metrics["metrics_unavailable_count"] != summary.metrics_unavailable_dashboard_count:
+    if workspace_metrics.metrics_unavailable_count != summary.metrics_unavailable_dashboard_count:
         raise PilotCohortBriefError("cohort metrics-unavailable count disagrees with workspace evidence")
-    if workspace_metrics["ready_count"] != summary.pilot_ready_workspace_count:
+    if workspace_metrics.ready_count != summary.pilot_ready_workspace_count:
         raise PilotCohortBriefError("cohort ready count disagrees with workspace evidence")
-    if workspace_metrics["output_count"] != summary.first_draft_output_count:
+    if workspace_metrics.output_count != summary.first_draft_output_count:
         raise PilotCohortBriefError("cohort output count disagrees with workspace evidence")
-    if workspace_metrics["readiness_blockers"] != summary.readiness_blockers:
+    if workspace_metrics.readiness_blockers != summary.readiness_blockers:
         raise PilotCohortBriefError("cohort readiness blocker counts disagree with workspace evidence")
     expected_ready_rate = _ready_rate_basis_points(
         ready_count=summary.pilot_ready_workspace_count,
@@ -349,7 +359,7 @@ def _validate_saved_report_consistency(
     if declared_ready_rate != expected_ready_rate:
         raise PilotCohortBriefError("cohort ready rate disagrees with workspace evidence")
     expected_intervention_median = _median_basis_points(
-        workspace_metrics["intervention_rates"]
+        workspace_metrics.intervention_rates
     )
     declared_intervention_median = _optional_basis_points(
         cohort,
@@ -371,7 +381,7 @@ def _workspace_consistency_metrics(
     workspaces: Sequence[object],
     *,
     path: Path,
-) -> dict[str, object]:
+) -> _WorkspaceConsistencyMetrics:
     available_count = 0
     unavailable_count = 0
     ready_count = 0
@@ -417,14 +427,14 @@ def _workspace_consistency_metrics(
             readiness_blockers,
             _workspace_readiness_blockers(workspace, path=path),
         )
-    return {
-        "metrics_available_count": available_count,
-        "metrics_unavailable_count": unavailable_count,
-        "ready_count": ready_count,
-        "output_count": output_count,
-        "intervention_rates": tuple(intervention_rates),
-        "readiness_blockers": readiness_blockers,
-    }
+    return _WorkspaceConsistencyMetrics(
+        metrics_available_count=available_count,
+        metrics_unavailable_count=unavailable_count,
+        ready_count=ready_count,
+        output_count=output_count,
+        intervention_rates=tuple(intervention_rates),
+        readiness_blockers=readiness_blockers,
+    )
 
 
 def _ready_rate_basis_points(*, ready_count: int, metrics_available_count: int) -> int | None:

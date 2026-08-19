@@ -190,28 +190,18 @@ show how to create these programmatically.
 
 ### Linting
 
-No lint configuration is committed. For ad-hoc checking:
+`pyproject.toml` holds ruff/mypy configuration (lint only — ShootFlow is
+stdlib-only and is deliberately not packaged, so there is no `[project]` or
+`[build-system]` table). Run both from the venture root with no arguments:
 
 ```bash
-ruff check src/ tests/
-mypy src/shootflow/ --ignore-missing-imports
+ruff check .
+mypy
 ```
 
-Pre-existing findings:
-- `ruff`: clean (0 findings). The 5 unused-import findings recorded here
-  previously (2 in test files, plus 3 in `pilot_authority.py`) are fixed —
-  the test-file ones were genuinely dead; `pilot_authority.py`'s three were
-  a deliberate re-export shim (`pilot_dashboard.py`, `pilot_cohort_report.py`,
-  and `pilot_cohort_brief.py` import from it), now made explicit via
-  `__all__` instead of removed.
-- `mypy`: 31 errors across 10 files (`production_status.py`, `assembly.py`,
-  `render_status.py`, `production_handoff.py`, `production_adapter.py`,
-  `render_scheduler.py`, `production_scheduler.py`, `demo_workspace.py`).
-  Not fixed — mostly `dict` invariance (`dict[str, X]` passed where
-  `dict[object, object]`/`Mapping` is expected) and a few genuine
-  return-type/assignment mismatches in `production_adapter.py` and
-  `demo_workspace.py` that need case-by-case review, not a mechanical
-  pass. Not wired into any CI gate, so nothing currently enforces this.
+Both are clean and both are enforced by the `lint` job in
+`.github/workflows/photo-editing-ci.yml`, so a new finding fails CI. Keep
+them at zero rather than appending to a known-findings list here.
 
 ### Platform note
 

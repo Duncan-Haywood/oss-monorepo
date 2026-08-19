@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -836,35 +837,35 @@ def _render_task_from_json(raw_task: object) -> RenderTask:
     )
 
 
-def _required_manifest_string(raw_manifest: dict[object, object], key: str) -> str:
+def _required_manifest_string(raw_manifest: Mapping[str, object], key: str) -> str:
     value = raw_manifest.get(key)
     if not isinstance(value, str) or not value.strip():
         raise AssemblyPlanError(f"Render task manifest field must be a non-empty string: {key}")
     return value
 
 
-def _required_task_string(raw_task: dict[object, object], key: str) -> str:
+def _required_task_string(raw_task: Mapping[str, object], key: str) -> str:
     value = raw_task.get(key)
     if not isinstance(value, str) or not value.strip():
         raise AssemblyPlanError(f"Render task field must be a non-empty string: {key}")
     return value
 
 
-def _required_sequence_name(raw_task: dict[object, object]) -> SequenceName:
+def _required_sequence_name(raw_task: Mapping[str, object]) -> SequenceName:
     value = _required_task_string(raw_task, "sequence_name")
     if value not in _SEQUENCE_ORDER:
         raise AssemblyPlanError(f"Unknown render task sequence: {value}")
     return value  # type: ignore[return-value]
 
 
-def _required_string_tuple(raw_task: dict[object, object], key: str) -> tuple[str, ...]:
+def _required_string_tuple(raw_task: Mapping[str, object], key: str) -> tuple[str, ...]:
     value = raw_task.get(key)
     if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
         raise AssemblyPlanError(f"Render task field must be a list of strings: {key}")
     return tuple(value)
 
 
-def _required_task_bool(raw_task: dict[object, object], key: str) -> bool:
+def _required_task_bool(raw_task: Mapping[str, object], key: str) -> bool:
     value = raw_task.get(key)
     if not isinstance(value, bool):
         raise AssemblyPlanError(f"Render task field must be boolean: {key}")
@@ -872,7 +873,7 @@ def _required_task_bool(raw_task: dict[object, object], key: str) -> bool:
 
 
 def _validate_exact_keys(
-    raw_object: dict[object, object],
+    raw_object: Mapping[str, object],
     *,
     allowed_keys: frozenset[str],
     label: str,

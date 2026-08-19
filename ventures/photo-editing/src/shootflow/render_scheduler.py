@@ -18,6 +18,7 @@ from shootflow.render_adapter import (
 )
 from shootflow.render_status import (
     RenderStatusManifest,
+    RenderTaskStatus,
     load_render_status_manifest,
     render_plan_fingerprint,
     validate_render_status_manifest,
@@ -893,17 +894,15 @@ def _validate_report(
 
 def _validate_report_blocked_tasks(
     report: DryRunRenderSchedulerReport,
-    manifest_statuses: dict[str, object],
+    manifest_statuses: Mapping[str, RenderTaskStatus],
 ) -> None:
     for task_id in report.blocked_task_ids:
-        status = manifest_statuses[task_id]
-        if getattr(status, "state") not in {"pending", "retryable"}:
+        if manifest_statuses[task_id].state not in {"pending", "retryable"}:
             raise DryRunRenderSchedulerError(
                 "Render scheduler report blocked_task_ids conflict with final status"
             )
     for task_id in report.skipped_retryable_task_ids:
-        status = manifest_statuses[task_id]
-        if getattr(status, "state") != "retryable":
+        if manifest_statuses[task_id].state != "retryable":
             raise DryRunRenderSchedulerError(
                 "Render scheduler report skipped_retryable_task_ids conflict with final status"
             )
@@ -1022,14 +1021,12 @@ def _validate_report_shape(report: DryRunRenderSchedulerReport) -> None:
 def _report_workflow_authority(raw_report: Mapping[str, object]) -> dict[str, object]:
     if "workflow_authority" not in raw_report:
         return observe_only_workflow_authority_to_dict()
-    authority = raw_report["workflow_authority"]
-    _validate_report_workflow_authority(authority)
-    return dict(authority)
+    return dict(_validate_report_workflow_authority(raw_report["workflow_authority"]))
 
 
-def _validate_report_workflow_authority(authority: object) -> None:
+def _validate_report_workflow_authority(authority: object) -> Mapping[str, object]:
     try:
-        validate_observe_only_workflow_authority(
+        return validate_observe_only_workflow_authority(
             authority,
             field_label="Render scheduler report workflow_authority",
         )
