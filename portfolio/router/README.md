@@ -38,9 +38,10 @@ A ranked work queue. Each entry names a venture, a task, and a spend ceiling.
 
 ## Status
 
-**v1: implemented, ledger not yet wired in.** Every venture under `ventures/`
-now carries a `VENTURE.yaml`, so `allocate.py` can read stage, economics, and
-budget for all of them and emit a ranked work queue:
+**v1: implemented; ledger read for display only, not yet for ranking.** Every
+venture under `ventures/` now carries a `VENTURE.yaml`, so `allocate.py` can
+read stage, economics, and budget for all of them and emit a ranked work
+queue:
 
 ```bash
 pip install -r portfolio/router/requirements.txt
@@ -52,7 +53,14 @@ python3 -m unittest portfolio/router/test_allocate.py
 v1 ranks by: ventures measured at $0 MRR past `revenue` stage first (they
 need a kill/fix decision, not more blind spend), then unmeasured ventures
 (protected explore budget), then everything else by stage and monthly cap.
-It does not yet read `portfolio/ledger/` — there are no ledger entries yet to
-read — and it does not spend anything automatically. Per "Attribution
-honesty" above, treat its output as a heuristic worth arguing with, not a
+It now also reads `portfolio/ledger/*.yaml` and prints an informational
+`ledger` / `ledger_entries_this_period` count per venture — how many entries
+this month were logged with `venture: <name>` directly. That count is a
+lower bound, not a reliable recency signal: a session that surveys or fixes
+several ventures in one cycle typically logs a single `venture: portfolio`
+entry describing all of them in prose, which this count does not attribute
+back to the individual ventures mentioned. Because of that gap it is not yet
+used inside `rank()` — it does not spend anything automatically. Per
+"Attribution honesty" above, treat its output as a heuristic worth arguing
+with, not a
 number to act on unreviewed.
