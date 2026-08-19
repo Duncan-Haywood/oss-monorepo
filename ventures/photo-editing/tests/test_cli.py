@@ -56,6 +56,32 @@ DISABLED_NATIVE_CONTROLS = {
 }
 
 
+def _write_ample_destination_metadata(workspace: Path, destination: Path) -> Path:
+    """Write a volume-metadata JSON hinting ``destination`` has ample free space.
+
+    Discovery falls back to the real filesystem's free space when no hint is
+    given, which makes destination-role classification depend on how much
+    disk the test happens to run with (candidates need >64GiB free to rank as
+    a destination). An explicit hint keeps these tests hermetic.
+    """
+    metadata_path = workspace / f"{destination.name}_volume_metadata.json"
+    metadata_path.write_text(
+        json.dumps(
+            {
+                "volumes": [
+                    {
+                        "path": str(destination),
+                        "free_bytes": 900 * 1024**3,
+                        "total_bytes": 2 * 1024**4,
+                    },
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    return metadata_path
+
+
 class ShootFlowCliTests(unittest.TestCase):
     def test_handoff_controls_command_derives_disabled_controls(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -1406,6 +1432,7 @@ class ShootFlowCliTests(unittest.TestCase):
             ssd.mkdir(parents=True)
             (card / "DCIM" / "100CANON" / "A001.MOV").write_bytes(b"video-bytes")
             (card / "DCIM" / "100CANON" / "A001.JPG").write_bytes(b"photo-bytes")
+            metadata_path = _write_ample_destination_metadata(workspace, ssd)
             stdout = io.StringIO()
 
             exit_code = main(
@@ -1417,6 +1444,8 @@ class ShootFlowCliTests(unittest.TestCase):
                     "--headroom-bytes",
                     "0",
                     "--print-candidates",
+                    "--volume-metadata-json",
+                    str(metadata_path),
                 ],
                 stdout=stdout,
             )
@@ -3010,6 +3039,7 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
             ssd.mkdir(parents=True)
             photo.write_bytes(b"photo-bytes")
             video.write_bytes(b"video-bytes")
+            metadata_path = _write_ample_destination_metadata(workspace, ssd)
             stdout = io.StringIO()
 
             exit_code = main(
@@ -3025,6 +3055,8 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
                     "ShootFlow",
                     "--headroom-bytes",
                     "0",
+                    "--volume-metadata-json",
+                    str(metadata_path),
                 ],
                 stdout=stdout,
             )
@@ -3089,6 +3121,7 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
             jpeg.write_bytes(b"jpeg-bytes")
             clip.write_bytes(b"video-bytes")
             audio.write_bytes(b"scratch-audio")
+            metadata_path = _write_ample_destination_metadata(workspace, ssd)
             stdout = io.StringIO()
 
             exit_code = main(
@@ -3105,6 +3138,8 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
                     "--headroom-bytes",
                     "0",
                     "--confirm-ingest",
+                    "--volume-metadata-json",
+                    str(metadata_path),
                 ],
                 stdout=stdout,
             )
@@ -3219,6 +3254,7 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
             outside.mkdir()
             (ssd / "ShootFlow").symlink_to(outside, target_is_directory=True)
             photo.write_bytes(b"photo-bytes")
+            metadata_path = _write_ample_destination_metadata(workspace, ssd)
             stdout = io.StringIO()
             stderr = io.StringIO()
 
@@ -3235,6 +3271,8 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
                     "ShootFlow",
                     "--headroom-bytes",
                     "0",
+                    "--volume-metadata-json",
+                    str(metadata_path),
                 ],
                 stdout=stdout,
                 stderr=stderr,
@@ -3257,6 +3295,7 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
             ssd.mkdir(parents=True)
             (ssd / "ShootFlow").symlink_to(ssd / "missing-library", target_is_directory=True)
             photo.write_bytes(b"photo-bytes")
+            metadata_path = _write_ample_destination_metadata(workspace, ssd)
             stdout = io.StringIO()
             stderr = io.StringIO()
 
@@ -3273,6 +3312,8 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
                     "ShootFlow",
                     "--headroom-bytes",
                     "0",
+                    "--volume-metadata-json",
+                    str(metadata_path),
                 ],
                 stdout=stdout,
                 stderr=stderr,
