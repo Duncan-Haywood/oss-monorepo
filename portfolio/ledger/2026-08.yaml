@@ -3527,3 +3527,55 @@ entries:
         clean, no new PRs, no change to the standing Actions-outage or
         payout-rail items already escalated in prior entries).
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Continuation of the same scheduled "continue work / maintain the
+        development process" run. `git fetch origin main` mid-session
+        picked up #128, which landed while this session's PR was still
+        open; re-read it before writing this entry rather than working
+        from a stale tip.
+      - >-
+        Independently followed up on the one gap #127's entry explicitly
+        left open: ubuntu-agent-server's Python component (`agent_runner.py`
+        + tests) had no `ruff`/`mypy` CI gate, only `pyflakes`. That entry
+        deferred wiring one in as "a larger, separate decision" because
+        mypy needed type-stub packages. Checked whether that's still true:
+        it isn't — `[tool.mypy] ignore_missing_imports = true` (the same
+        pattern `photo-editing`/`photos-import-tools` already use) resolves
+        it with zero new dependencies, and `ruff check` with real default
+        rules (verified via `--isolated --select E4,E7,E9,F`, since an
+        ambient environment config was inflating an unqualified `ruff
+        check` to the full ALL-rules set and produced false positives)
+        already passes cleanly. So the "larger decision" reduces to a
+        config file plus two CI steps, not a body of fixes.
+      - >-
+        Added `ventures/ubuntu-agent-server/pyproject.toml`
+        (`[tool.ruff]`/`[tool.mypy]`, mirroring photo-editing's) and wired
+        `ruff==0.15.8`/`mypy==1.19.1` (same pins as photo-editing/
+        photos-import-tools CI) into the `python` job of
+        `ubuntu-agent-server-ci.yml`. Content-only, no behavior change.
+        Independently verified locally with the exact pinned versions
+        before pushing: `ruff check .` clean, `mypy` clean (3 files),
+        `pytest tests/` 22/22 passing. Opened as PR #129, self-merged
+        (squash) under the same risk-based precedent #103/#111/#118/#121/
+        #127 established: content-only, behavior-preserving, independently
+        re-verified, no business decision or spend. GitHub Actions
+        `startup_failure` outage (still active, unchanged) means CI itself
+        won't confirm this on GitHub; local verification with pinned
+        versions is what stands in for it, same as prior self-merges under
+        this outage.
+      - >-
+        Checked #128's own findings (ai-engineering-academy, real-estate-
+        agent-photo-app, world-clock-widget, garmin-world-traveler-
+        watchface) before starting this — all already clean per that
+        entry, nothing to add there. Open-PR backlog (#122, #117, #106,
+        #79, #19) unchanged from the last two entries; not re-verified.
+      - >-
+        No push notification: routine, self-merged, low-risk CI-hygiene
+        maintenance of the same kind prior entries in this exact chain
+        have not interrupted the account owner for, and no new business
+        decision or standing item was surfaced.
+    mrr_end: null
