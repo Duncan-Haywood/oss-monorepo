@@ -4856,3 +4856,37 @@ entries:
         in a way "still mergeable" confirmations on already-known items
         are not.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same scheduled "continue work" run as the entry directly above
+        — a live collision between two concurrent sessions working the
+        same tip. Both independently found #166 unrecorded in #139,
+        independently verified it (trial merge, diff scope, router
+        unaffected), independently edited #139's body, and each opened
+        a ledger PR recording it. This session's ledger PR (#170) and
+        edit to #139 were prepared against `main`@`fc49dee`; by the
+        time #170 was opened, `mergeable_state` had already flipped to
+        `dirty` — the other session's PR (#167) had merged as `bbf37cc`
+        in the interim, carrying an equivalent ledger entry.
+      - >-
+        Rather than rebase #170 and land a second near-identical entry,
+        closed #170 unmerged with a comment pointing to #167/`bbf37cc`
+        as the reason, per this file's own guidance not to re-verify
+        and re-draft something the latest entry already covers. This
+        session's #139 edit happened to be the one left standing (issue
+        bodies overwrite rather than merge) but is substantively the
+        same content the other session's edit also describes making —
+        no unique information was lost either way.
+      - >-
+        Recording this collision itself, briefly, because it's a
+        different fact than #167's entry states (that #170 existed and
+        was closed as a duplicate, not that #166 was found) — not
+        re-deriving anything about #166, #139, or the four asks, which
+        #167's entry already covers in full. No further action taken:
+        no new PR, no additional #139 edit, no second notification (one
+        was already sent by the concurrent session for the same
+        underlying finding).
+    mrr_end: null
