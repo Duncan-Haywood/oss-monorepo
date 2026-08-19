@@ -8,761 +8,806 @@ export function CommercialViabilityAssessmentContent() {
       <style dangerouslySetInnerHTML={{ __html: PAGE_STYLES }} />
       <div className="ingested-html">
         <nav className="toc">
-            <strong>Contents</strong>
-            <ol>
-              <li><a href="#executive-summary">Executive summary</a></li>
-              <li><a href="#product-state">What exists today</a></li>
-              <li><a href="#market">Market opportunity</a></li>
-              <li><a href="#competition">Competitive landscape</a></li>
-              <li><a href="#differentiation">Differentiation &amp; moat</a></li>
-              <li><a href="#business-model">Business model &amp; unit economics</a></li>
-              <li><a href="#scalability">Scalability analysis</a></li>
-              <li><a href="#scoring">Viability scoring matrix</a></li>
-              <li><a href="#risks">Risk register</a></li>
-              <li><a href="#recommendations">Recommendations for a more successful business</a></li>
-              <li><a href="#decision">Go / pivot / stop decision framework</a></li>
-            </ol>
-          </nav>
-          <section id="executive-summary">
-            <h2>1. Executive summary</h2>
-            <div className="verdict">
-              <div className="verdict-card primary">
-                <div className="verdict-label">Overall commercial viability (today)</div>
-                <div className="verdict-value conditional">Conditional — 4.2 / 10</div>
-                <div className="verdict-note">
-                  Strong engineering foundation and credible market pain, but no shippable
-                  product, no customers, and no validated willingness to pay yet.
+              <strong>Contents</strong>
+              <ol>
+                <li><a href="#executive-summary">Executive summary</a></li>
+                <li><a href="#product-state">What exists today</a></li>
+                <li><a href="#market">Market opportunity</a></li>
+                <li><a href="#competition">Competitive landscape</a></li>
+                <li><a href="#differentiation">Differentiation &amp; moat</a></li>
+                <li><a href="#business-model">Business model &amp; unit economics</a></li>
+                <li><a href="#scalability">Scalability analysis</a></li>
+                <li><a href="#scoring">Viability scoring matrix</a></li>
+                <li><a href="#risks">Risk register</a></li>
+                <li><a href="#recommendations">Recommendations for a more successful business</a></li>
+                <li><a href="#decision">Go / pivot / stop decision framework</a></li>
+              </ol>
+            </nav>
+
+            <section id="executive-summary">
+              <h2>1. Executive summary</h2>
+
+              <div className="verdict">
+                <div className="verdict-card primary">
+                  <div className="verdict-label">Overall commercial viability (today)</div>
+                  <div className="verdict-value conditional">Conditional &mdash; 4.2 / 10</div>
+                  <div className="verdict-note">
+                    Strong engineering foundation and credible market pain, but no shippable
+                    product, no customers, and no validated willingness to pay yet.
+                  </div>
+                </div>
+                <div className="verdict-card">
+                  <div className="verdict-label">Viability if Phase 1 ships (12&ndash;18 months)</div>
+                  <div className="verdict-value moderate">Moderate &mdash; 6.5 / 10</div>
+                  <div className="verdict-note">
+                    Achievable niche SaaS if Mac UI + real culling/grading + pilot customers
+                    land before well-funded incumbents absorb the full pipeline wedge.
+                  </div>
                 </div>
               </div>
-              <div className="verdict-card">
-                <div className="verdict-label">Viability if Phase 1 ships (12–18 months)</div>
-                <div className="verdict-value moderate">Moderate — 6.5 / 10</div>
-                <div className="verdict-note">
-                  Achievable niche SaaS if Mac UI + real culling/grading + pilot customers
-                  land before well-funded incumbents absorb the full pipeline wedge.
+
+              <div className="callout warn">
+                <strong>Bottom line:</strong> ShootFlow is not a business yet &mdash; it is an
+                unusually rigorous <em>workflow orchestration engine</em> with excellent
+                safety contracts, pilot analytics, and business documentation. The pain it
+                targets is real and growing. The wedge (&quot;card dump &rarr; safe ingest &rarr; graded
+                social drafts&quot;) is differentiated on paper. But the repo today delivers
+                almost none of the customer-visible value that photographers pay for:
+                no native Mac app, no real AI culling, no real color grading, no real
+                video rendering, and no paying users.
+              </div>
+
+              <p>
+                <strong>Is it worth pursuing?</strong> Yes, but only with eyes open about
+                what remains. This is a high-upside, high-execution-risk opportunity in a
+                market already served by funded competitors (Aftershoot, Imagen, Narrative,
+                FilterPixel). The project&apos;s unusual depth in safety, resumability, and
+                pilot measurement is a genuine strategic asset &mdash; but only if converted
+                into a product photographers can install and feel within months, not years.
+              </p>
+
+              <p>
+                <strong>Is it realistically profitable and scalable?</strong>
+                <em>Eventually, possibly.</em> The addressable market is large enough
+                (~$720M photography studio software in 2025, growing ~13.5% CAGR per industry
+                reports). Pro photographers already spend $100&ndash;$1,000+/week on editing or
+                lose 10&ndash;20 hours/week on post-production &mdash; enough headroom for $30&ndash;$80/month
+                SaaS if ShootFlow saves measurable time. Scalability is favorable once real
+                compute adapters exist: per-asset work parallelizes, local-first defaults
+                keep COGS low, and optional cloud burst can be margin-protected. Today,
+                scalability of <em>revenue</em> is zero because there is nothing to sell.
+              </p>
+            </section>
+
+            <section id="product-state">
+              <h2>2. What exists today &mdash; honest product maturity</h2>
+
+              <h3>Engineering maturity: unusually strong for pre-product stage</h3>
+              <table>
+                <thead>
+                  <tr><th>Dimension</th><th>Evidence</th><th>Assessment</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Test coverage</td>
+                    <td>438 unittest tests, all passing; 28 test modules</td>
+                    <td><span className="pill green">Strong</span></td>
+                  </tr>
+                  <tr>
+                    <td>Codebase size</td>
+                    <td>~40,034 lines across src + tests; 32 Python modules; 429 commits</td>
+                    <td><span className="pill green">Substantial</span></td>
+                  </tr>
+                  <tr>
+                    <td>Architecture</td>
+                    <td>Deterministic job graphs, checksum manifests, resumable status, adapter registry, observe-only workflow authority</td>
+                    <td><span className="pill green">Production-grade design</span></td>
+                  </tr>
+                  <tr>
+                    <td>Business planning</td>
+                    <td>PRODUCT_STRATEGY.md, BUSINESS_PLAN.md, TERMS draft, pilot metrics, cohort reporting</td>
+                    <td><span className="pill green">Above average</span></td>
+                  </tr>
+                  <tr>
+                    <td>Shippable product</td>
+                    <td>CLI-only Python core; no Mac app, no installer, no UI</td>
+                    <td><span className="pill red">Not shippable</span></td>
+                  </tr>
+                  <tr>
+                    <td>Core AI/color value</td>
+                    <td>All production adapters are deterministic stand-ins (placeholders, byte-copy proxies, fake VLM JSON)</td>
+                    <td><span className="pill red">Not built</span></td>
+                  </tr>
+                  <tr>
+                    <td>Real rendering</td>
+                    <td>dry-run-local adapter only; no ffmpeg, Core Image, Metal, or Resolve integration</td>
+                    <td><span className="pill red">Not built</span></td>
+                  </tr>
+                  <tr>
+                    <td>Market validation</td>
+                    <td>No pilots, no revenue, no user interviews recorded in repo</td>
+                    <td><span className="pill red">Unvalidated</span></td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <h3>Pipeline completion map</h3>
+              <div className="timeline">
+                <div className="timeline-item done">
+                  <strong>Safe ingest + manifests</strong> &mdash; Checksum copy, no-delete, conflict detection, CLI preview/confirm flow. Real and tested.
+                </div>
+                <div className="timeline-item done">
+                  <strong>Storage discovery &amp; route recommendation</strong> &mdash; Mounted volume scan, macOS metadata adapter, capacity gating. Real contracts; native UI not wired.
+                </div>
+                <div className="timeline-item done">
+                  <strong>Production/render orchestration</strong> &mdash; Status manifests, schedulers, stale-lease recovery, adapter registry, bounded parallelism. Exceptionally thorough.
+                </div>
+                <div className="timeline-item done">
+                  <strong>Pilot analytics layer</strong> &mdash; Dashboard, cohort report, cohort brief, acceptance thresholds (90% completion, &le;20% intervention). Built before customers exist.
+                </div>
+                <div className="timeline-item partial">
+                  <strong>Storyline selection logic</strong> &mdash; Deterministic ranking from VLM scores exists; VLM itself is fake/local probe only.
+                </div>
+                <div className="timeline-item gap">
+                  <strong>Real VLM analysis</strong> &mdash; analysis-production-local writes schema-compatible JSON from byte hashes, not semantic understanding.
+                </div>
+                <div className="timeline-item gap">
+                  <strong>Real scene clustering &amp; look development</strong> &mdash; Stand-in JSON artifacts only.
+                </div>
+                <div className="timeline-item gap">
+                  <strong>Real color grading</strong> &mdash; grade-production-local writes deterministic stand-ins, not graded media.
+                </div>
+                <div className="timeline-item gap">
+                  <strong>Real deliverable rendering</strong> &mdash; Reels, carousels, photo sets not actually rendered.
+                </div>
+                <div className="timeline-item gap">
+                  <strong>Mac native app (SwiftUI/menu bar)</strong> &mdash; Explicitly planned; zero implementation in repo.
+                </div>
+                <div className="timeline-item gap">
+                  <strong>Review UI</strong> &mdash; Approve/retry/tweak grade intent &mdash; planned, not built.
                 </div>
               </div>
-            </div>
-            <div className="callout warn">
-              <strong>Bottom line:</strong> ShootFlow is not a business yet — it is an
-              unusually rigorous <em>workflow orchestration engine</em> with excellent
-              safety contracts, pilot analytics, and business documentation. The pain it
-              targets is real and growing. The wedge ("card dump → safe ingest → graded
-              social drafts") is differentiated on paper. But the repo today delivers
-              almost none of the customer-visible value that photographers pay for:
-              no native Mac app, no real AI culling, no real color grading, no real
-              video rendering, and no paying users.
-            </div>
-            <p>
-              <strong>Is it worth pursuing?</strong> Yes, but only with eyes open about
-              what remains. This is a high-upside, high-execution-risk opportunity in a
-              market already served by funded competitors (Aftershoot, Imagen, Narrative,
-              FilterPixel). The project's unusual depth in safety, resumability, and
-              pilot measurement is a genuine strategic asset — but only if converted
-              into a product photographers can install and feel within months, not years.
+
+              <div className="callout">
+                <strong>Interpretation:</strong> ShootFlow has built the <em>operating system</em>
+                for a media automation product &mdash; job planning, safety invariants, resumability,
+                measurement &mdash; but not the <em>product surface</em> that creates customer value.
+                Roughly 60&ndash;70% of engineering effort to date appears invested in orchestration
+                infrastructure; roughly 5&ndash;10% in customer-visible media intelligence; 0% in
+                distribution-ready packaging.
+              </div>
+            </section>
+
+            <section id="market">
+              <h2>3. Market opportunity</h2>
+
+              <h3>Problem validation: strong</h3>
+              <p>
+                Professional photographers and videographers face recurring, expensive post-production
+                pain. Industry surveys suggest ~78% of pros now consider AI-assisted culling essential.
+                Wedding shoots of 3,000&ndash;6,000 images still consume 2&ndash;5+ hours of culling alone;
+                full post (cull, color, social packaging) can consume 10&ndash;20 hours/week or
+                $100&ndash;$1,000+/week in editor spend. ShootFlow&apos;s own ICP definition (wedding/event
+                teams, portrait studios, real-estate media) matches the highest-volume, highest-willingness-to-pay segment.
+              </p>
+
+              <h3>Market size: sufficient for a focused SaaS</h3>
+              <table>
+                <thead>
+                  <tr><th>Segment</th><th>Estimate</th><th>Relevance</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Photography studio software (global)</td>
+                    <td>~$720M (2025) &rarr; ~$1.36B (2030), ~13.5% CAGR</td>
+                    <td>Broad TAM; ShootFlow needs a narrow wedge</td>
+                  </tr>
+                  <tr>
+                    <td>AI photography tools (adjacent)</td>
+                    <td>~$3.8B projected by 2026 (industry marketing estimates)</td>
+                    <td>Validates AI budget exists; also signals crowding</td>
+                  </tr>
+                  <tr>
+                    <td>Serviceable obtainable market (realistic)</td>
+                    <td>~50,000&ndash;150,000 high-volume pro photo/video operators globally</td>
+                    <td>At $40/mo avg &rarr; $24M&ndash;$72M ARR ceiling for focused wedge</td>
+                  </tr>
+                  <tr>
+                    <td>Early realistic target</td>
+                    <td>500&ndash;2,000 paying studios in 24 months post-launch</td>
+                    <td>$240K&ndash;$1.9M ARR at $40/mo &mdash; viable indie/small-team business</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <h3>Why the timing is both good and bad</h3>
+              <div className="grid-2">
+                <div className="card">
+                  <h4>Tailwinds</h4>
+                  <p>AI culling/editing normalized; creators need more social output; local-first privacy concerns favor on-device processing; workflow automation undervalued vs. point AI tools.</p>
+                </div>
+                <div className="card">
+                  <h4>Headwinds</h4>
+                  <p>Aftershoot claims 100K+ users and unlimited culling from $10/mo; Imagen bundles cull+edit; Adobe/Lightroom adding AI; buyer fatigue; high bar for &quot;another tool.&quot;</p>
+                </div>
+              </div>
+            </section>
+
+            <section id="competition">
+              <h2>4. Competitive landscape</h2>
+
+              <table>
+                <thead>
+                  <tr>
+                    <th>Competitor</th>
+                    <th>Strength</th>
+                    <th>Pricing (approx.)</th>
+                    <th>ShootFlow gap</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Aftershoot</strong></td>
+                    <td>Local AI cull + edit + retouch; 100K+ users; offline; flat-rate unlimited</td>
+                    <td>$10&ndash;$60/mo</td>
+                    <td>Has shippable product, brand, integrations; weaker on full ingest-to-IG pipeline</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Imagen</strong></td>
+                    <td>Cloud cull + personalized AI edit; Lightroom integration; style learning</td>
+                    <td>$49+/mo or per-image</td>
+                    <td>Strong edit quality story; cloud dependency; less ingest safety focus</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Narrative Select</strong></td>
+                    <td>Fast macOS culling UX; moments grouping; offline</td>
+                    <td>$0&ndash;$60/mo tiers</td>
+                    <td>Best-in-class cull UX; no end-to-end social packaging</td>
+                  </tr>
+                  <tr>
+                    <td><strong>FilterPixel</strong></td>
+                    <td>Value tier; volume/event workflows; per-image economics</td>
+                    <td>~$19/mo+</td>
+                    <td>Price pressure at low end</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Lightroom + plugins</strong></td>
+                    <td>Incumbent catalog; ecosystem lock-in</td>
+                    <td>$10&ndash;$55/mo Adobe stack</td>
+                    <td>ShootFlow must integrate, not replace, for adoption</td>
+                  </tr>
+                  <tr>
+                    <td><strong>CapCut / social editors</strong></td>
+                    <td>Free/cheap reel assembly</td>
+                    <td>Freemium</td>
+                    <td>Different job &mdash; ShootFlow targets pro RAW/video pipelines</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div className="callout warn">
+                <strong>Competitive reality:</strong> ShootFlow is entering a market where
+                incumbents already sell the <em>visible</em> value (culling, editing) at
+                $10&ndash;$50/month with mature UX. ShootFlow&apos;s orchestration depth is not visible
+                to buyers until it ships a Mac app and produces real outputs. The window to
+                own &quot;card &rarr; IG-ready drafts&quot; as a category is narrowing as Aftershoot and
+                Imagen expand horizontally.
+              </div>
+            </section>
+
+            <section id="differentiation">
+              <h2>5. Differentiation &amp; defensibility</h2>
+
+              <h3>Claimed wedge (from product docs)</h3>
+              <ul>
+                <li><strong>Media safety first</strong> &mdash; never delete source, never overwrite different bytes, checksum manifests, explicit confirm gates</li>
+                <li><strong>End-to-end pipeline</strong> &mdash; ingest &rarr; proxy &rarr; analysis &rarr; scene/look &rarr; grade &rarr; story &rarr; package &rarr; render, not just culling</li>
+                <li><strong>Resumable at scale</strong> &mdash; 10,000+ asset shoots with stale-lease recovery and deterministic job IDs</li>
+                <li><strong>Scene-consistent grading</strong> &mdash; rejoin at scene/look before per-asset grade (quality thesis)</li>
+                <li><strong>IG-native deliverables</strong> &mdash; reels, carousels, photo sets as first-class outputs</li>
+              </ul>
+
+              <h3>Moat assessment</h3>
+              <table>
+                <thead>
+                  <tr><th>Moat type</th><th>Current strength</th><th>Notes</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Technical (orchestration/safety)</td>
+                    <td><span className="pill yellow">Medium</span></td>
+                    <td>Deep, tested, hard to replicate quickly &mdash; but invisible to customers until productized</td>
+                  </tr>
+                  <tr>
+                    <td>Data / style learning</td>
+                    <td><span className="pill red">None</span></td>
+                    <td>No user data, no learned looks, no VLM training loop</td>
+                  </tr>
+                  <tr>
+                    <td>Network effects</td>
+                    <td><span className="pill red">None</span></td>
+                    <td>No team features, no marketplace, no sharing loop yet</td>
+                  </tr>
+                  <tr>
+                    <td>Brand / distribution</td>
+                    <td><span className="pill red">None</span></td>
+                    <td>No GTM execution, no content engine, no community</td>
+                  </tr>
+                  <tr>
+                    <td>Switching costs</td>
+                    <td><span className="pill orange">Low today</span></td>
+                    <td>Could rise if manifests + look profiles + studio presets lock in workflows</td>
+                  </tr>
+                  <tr>
+                    <td>Integration depth</td>
+                    <td><span className="pill orange">Potential</span></td>
+                    <td>Lightroom/Capture One/Resolve handoff planned but not built</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <p>
+                <strong>Verdict on differentiation:</strong> The safety + end-to-end thesis
+                is credible and under-served by point solutions, but it is not yet
+                <em>demonstrated</em>. Aftershoot&apos;s &quot;offline unlimited cull+edit&quot; is an easier
+                sell today. ShootFlow wins only if it proves measurably faster
+                <em>ingest-to-published-draft</em> turnaround with fewer manual steps &mdash; not
+                just safer manifests.
+              </p>
+            </section>
+
+            <section id="business-model">
+              <h2>6. Business model &amp; unit economics</h2>
+
+              <h3>Proposed model (from BUSINESS_PLAN.md)</h3>
+              <ul>
+                <li><strong>Starter/Solo</strong> &mdash; local ingest + baseline automation</li>
+                <li><strong>Pro</strong> &mdash; higher throughput, look presets, collaboration</li>
+                <li><strong>Usage boost</strong> &mdash; optional cloud VLM/render credits</li>
+              </ul>
+
+              <h3>ROI anchor (customer side)</h3>
+              <div className="math-box">
+                Assumption: pro saves 8 hours/week at $75/hr effective rate &rarr; $600/week value
+                ShootFlow price: $40&ndash;$80/month &rarr; $10&ndash;$20/week
+                ROI: ~30&ndash;60&times; if time savings are real and trusted
+
+                Assumption: studio spends $400/week on editor coordination
+                ShootFlow replaces 25&ndash;50% of that &rarr; $100&ndash;$200/week saved
+                At $60/month &rarr; positive ROI if intervention rate stays low
+              </div>
+
+              <h3>Unit economics (operator side &mdash; modeled)</h3>
+              <table>
+                <thead>
+                  <tr><th>Scenario</th><th>Price</th><th>COGS/user/mo</th><th>Gross margin</th><th>Break-even subs</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Local-first (default)</td>
+                    <td>$40/mo</td>
+                    <td>$2&ndash;$5 (support + infra)</td>
+                    <td>88&ndash;95%</td>
+                    <td>~200&ndash;400 subs @ $15K/mo opex</td>
+                  </tr>
+                  <tr>
+                    <td>Pro + cloud burst</td>
+                    <td>$60/mo + credits</td>
+                    <td>$8&ndash;$25 (GPU/VLM)</td>
+                    <td>58&ndash;87%</td>
+                    <td>Higher; needs usage caps</td>
+                  </tr>
+                  <tr>
+                    <td>Studio tier (3 seats)</td>
+                    <td>$120/mo</td>
+                    <td>$10&ndash;$30</td>
+                    <td>75&ndash;92%</td>
+                    <td>Lower sub count needed</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <p>
+                Local-first defaults (explicit in product strategy) are the right economic
+                choice: they keep gross margins SaaS-like and align with pro trust concerns
+                about uploading wedding RAWs. Optional cloud burst must be priced with
+                margin guardrails &mdash; the business plan already notes this.
+              </p>
+
+              <div className="callout good">
+                <strong>Economics conclusion:</strong> If the product works, the business
+                model is viable. Pricing at $30&ndash;$80/month against 6&ndash;15 hours/week saved
+                is an easy ROI story for wedding/event pros. The hard part is not pricing &mdash;
+                it is proving the time savings with real AI and a usable Mac app.
+              </div>
+            </section>
+
+            <section id="scalability">
+              <h2>7. Scalability analysis</h2>
+
+              <h3>Technical scalability: strong architecture, unproven load</h3>
+              <ul>
+                <li>Per-asset proxy, analysis, and grading jobs are embarrassingly parallel &mdash; architecture supports bounded concurrency and resumability</li>
+                <li>Deterministic job IDs and manifest fingerprints enable caching, retries, and distributed workers later</li>
+                <li>Local-first processing scales with customer hardware (Apple Silicon advantage on Mac ICP)</li>
+                <li>Cloud workers can be added behind the same adapter registry without rewriting orchestration</li>
+                <li>Risk: real VLM and video rendering at 10K assets will stress I/O, thermals, and support &mdash; needs perf engineering</li>
+              </ul>
+
+              <h3>Business scalability: depends on GTM and support model</h3>
+              <table>
+                <thead>
+                  <tr><th>Scale lever</th><th>Feasibility</th><th>Bottleneck</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Self-serve SaaS (solo pros)</td>
+                    <td><span className="pill yellow">Medium</span></td>
+                    <td>Needs polished onboarding; pro users still want support for data loss fears</td>
+                  </tr>
+                  <tr>
+                    <td>Studio/team expansion</td>
+                    <td><span className="pill yellow">Medium</span></td>
+                    <td>Team features not built; multi-seat sales are slower</td>
+                  </tr>
+                  <tr>
+                    <td>Content-led GTM (Instagram demos)</td>
+                    <td><span className="pill green">High fit</span></td>
+                    <td>Requires real before/after workflow videos &mdash; not CLI demos</td>
+                  </tr>
+                  <tr>
+                    <td>International expansion</td>
+                    <td><span className="pill yellow">Later</span></td>
+                    <td>Mac-first, English docs; localization deferred appropriately</td>
+                  </tr>
+                  <tr>
+                    <td>Support burden at scale</td>
+                    <td><span className="pill orange">Risk</span></td>
+                    <td>Media edge cases (corrupt cards, exotic codecs) generate tickets; safety UX must be excellent</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <p>
+                <strong>Scalability verdict:</strong> The <em>architecture</em> scales. The
+                <em>business</em> does not scale until: (1) a native app reduces support
+                friction, (2) real AI reduces manual intervention below the 20% pilot
+                threshold, and (3) GTM produces repeatable demo content showing card-to-IG
+                throughput gains.
+              </p>
+            </section>
+
+            <section id="scoring">
+              <h2>8. Viability scoring matrix</h2>
+              <p>Scores 1&ndash;10 based on current repo evidence and external market data.</p>
+
+              <table>
+                <thead>
+                  <tr><th>Factor</th><th>Weight</th><th>Score</th><th>Weighted</th><th>Rationale</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Market pain &amp; willingness to pay</td>
+                    <td>15%</td>
+                    <td className="score-num">8.5</td>
+                    <td>1.28</td>
+                    <td>Validated by competitor traction and pro spend patterns</td>
+                  </tr>
+                  <tr>
+                    <td>Product-market fit (today)</td>
+                    <td>20%</td>
+                    <td className="score-num">2.0</td>
+                    <td>0.40</td>
+                    <td>No shippable product, no users, no validated workflows</td>
+                  </tr>
+                  <tr>
+                    <td>Technical foundation</td>
+                    <td>15%</td>
+                    <td className="score-num">8.0</td>
+                    <td>1.20</td>
+                    <td>Exceptional orchestration, tests, safety contracts</td>
+                  </tr>
+                  <tr>
+                    <td>Customer-visible value delivery</td>
+                    <td>20%</td>
+                    <td className="score-num">1.5</td>
+                    <td>0.30</td>
+                    <td>Stand-in adapters only; no real cull/grade/render</td>
+                  </tr>
+                  <tr>
+                    <td>Competitive position</td>
+                    <td>10%</td>
+                    <td className="score-num">4.0</td>
+                    <td>0.40</td>
+                    <td>Differentiated thesis but late vs. funded incumbents</td>
+                  </tr>
+                  <tr>
+                    <td>Business model clarity</td>
+                    <td>5%</td>
+                    <td className="score-num">7.5</td>
+                    <td>0.38</td>
+                    <td>Clear ICP, pricing anchors, pilot metrics defined</td>
+                  </tr>
+                  <tr>
+                    <td>GTM readiness</td>
+                    <td>5%</td>
+                    <td className="score-num">3.0</td>
+                    <td>0.15</td>
+                    <td>Strategy docs exist; demo fixtures exist; no live GTM</td>
+                  </tr>
+                  <tr>
+                    <td>Scalability (technical + ops)</td>
+                    <td>5%</td>
+                    <td className="score-num">7.0</td>
+                    <td>0.35</td>
+                    <td>Architecture ready; ops untested</td>
+                  </tr>
+                  <tr>
+                    <td>Team / execution velocity</td>
+                    <td>5%</td>
+                    <td className="score-num">6.0</td>
+                    <td>0.30</td>
+                    <td>429 commits show sustained work; heavy infra vs. product bias</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Weighted total</strong></td>
+                    <td>100%</td>
+                    <td />
+                    <td><strong>4.76 / 10</strong></td>
+                    <td><span className="pill orange">Conditional viability</span></td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <h3>Score visualization</h3>
+              <div className="score-bar-wrap">Market pain (8.5)
+                <div className="score-bar"><span style={{ width: "85%", background: "var(--green)" }} /></div>
+              </div>
+              <div className="score-bar-wrap">Technical foundation (8.0)
+                <div className="score-bar"><span style={{ width: "80%", background: "var(--green)" }} /></div>
+              </div>
+              <div className="score-bar-wrap">Business model clarity (7.5)
+                <div className="score-bar"><span style={{ width: "75%", background: "var(--green)" }} /></div>
+              </div>
+              <div className="score-bar-wrap">Scalability architecture (7.0)
+                <div className="score-bar"><span style={{ width: "70%", background: "var(--yellow)" }} /></div>
+              </div>
+              <div className="score-bar-wrap">Competitive position (4.0)
+                <div className="score-bar"><span style={{ width: "40%", background: "var(--orange)" }} /></div>
+              </div>
+              <div className="score-bar-wrap">GTM readiness (3.0)
+                <div className="score-bar"><span style={{ width: "30%", background: "var(--orange)" }} /></div>
+              </div>
+              <div className="score-bar-wrap">Product-market fit today (2.0)
+                <div className="score-bar"><span style={{ width: "20%", background: "var(--red)" }} /></div>
+              </div>
+              <div className="score-bar-wrap">Customer-visible value (1.5)
+                <div className="score-bar"><span style={{ width: "15%", background: "var(--red)" }} /></div>
+              </div>
+            </section>
+
+            <section id="risks">
+              <h2>9. Risk register</h2>
+              <table>
+                <thead>
+                  <tr><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Never ships customer-facing Mac app</td>
+                    <td><span className="pill orange">Medium</span></td>
+                    <td><span className="pill red">Fatal</span></td>
+                    <td>Freeze orchestration features; hire/partner for SwiftUI shell; 90-day UI milestone</td>
+                  </tr>
+                  <tr>
+                    <td>AI output quality below pro bar</td>
+                    <td><span className="pill orange">Medium-High</span></td>
+                    <td><span className="pill red">High</span></td>
+                    <td>Human-in-loop review UI; conservative defaults; measure intervention rate</td>
+                  </tr>
+                  <tr>
+                    <td>Incumbent copies full pipeline wedge</td>
+                    <td><span className="pill yellow">Medium</span></td>
+                    <td><span className="pill orange">High</span></td>
+                    <td>Move fast on ingest safety + IG packaging combo; build brand in wedding niche</td>
+                  </tr>
+                  <tr>
+                    <td>Over-engineering continues</td>
+                    <td><span className="pill orange">Medium</span></td>
+                    <td><span className="pill orange">High</span></td>
+                    <td>Cap new orchestration work; tie commits to pilot outcomes</td>
+                  </tr>
+                  <tr>
+                    <td>Support load from media edge cases</td>
+                    <td><span className="pill yellow">High</span></td>
+                    <td><span className="pill yellow">Medium</span></td>
+                    <td>Strict ICP; excellent safety UX; phased codec support</td>
+                  </tr>
+                  <tr>
+                    <td>Cloud COGS erode margins</td>
+                    <td><span className="pill yellow">Medium</span></td>
+                    <td><span className="pill yellow">Medium</span></td>
+                    <td>Local default; metered burst; transparent credit pricing</td>
+                  </tr>
+                  <tr>
+                    <td>Legal/trust incident (data loss perception)</td>
+                    <td><span className="pill yellow">Low-Medium</span></td>
+                    <td><span className="pill red">Fatal</span></td>
+                    <td>Never delete source; visible manifests; TERMS draft already aligned</td>
+                  </tr>
+                  <tr>
+                    <td>No paying pilots within 6 months of Mac alpha</td>
+                    <td><span className="pill orange">Medium</span></td>
+                    <td><span className="pill red">High</span></td>
+                    <td>Pre-sell pilot slots; weekly workflow proof demos with real media</td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
+
+            <section id="recommendations">
+              <h2>10. Recommendations for a more successful business</h2>
+
+              <p>Ordered by impact. Stop building orchestration primitives until the top three are underway.</p>
+
+              <h3>Tier 1 &mdash; Must do (business survival)</h3>
+              <ol>
+                <li>
+                  <strong>Ship a Mac menu-bar MVP in 90 days.</strong>
+                  Wrap existing <code>card-dump-workflow</code>, ingest preview/confirm, and
+                  <code>plan-production</code> in SwiftUI. The Python core is CLI-ready;
+                  the missing piece is entirely native UX for route approval and copy confirmation.
+                  Without this, there is no business.
+                </li>
+                <li>
+                  <strong>Integrate one real AI culling provider before building custom VLM.</strong>
+                  Partner with or wrap Aftershoot/Narrative API patterns, or embed a proven
+                  local culling model. Replace <code>analysis-production-local</code> stand-ins
+                  with semantic selects. Pros pay for culling today &mdash; not manifest schemas.
+                </li>
+                <li>
+                  <strong>Run 10 paid pilot studios before broad launch.</strong>
+                  Use existing <code>pilot-dashboard</code> thresholds as the contract:
+                  &ge;90% completion, &le;20% manual intervention, &ge;1 materialized output.
+                  Charge $50&ndash;$100/mo during pilot. Learn where intervention happens.
+                </li>
+                <li>
+                  <strong>Produce one real workflow demo weekly for Instagram GTM.</strong>
+                  &quot;Card in &rarr; 45 min &rarr; 3 reel drafts + carousel + graded selects&quot; with
+                  real wedding footage. The cohort demo fixture is useful internally but
+                  cannot substitute for authentic social proof.
+                </li>
+              </ol>
+
+              <h3>Tier 2 &mdash; High leverage (differentiation &amp; retention)</h3>
+              <ol start={5}>
+                <li>
+                  <strong>Lightroom/Capture One export handoff, not replacement.</strong>
+                  Meet pros where they live. ShootFlow&apos;s wedge is operations + social packaging,
+                  not killing Lightroom. Export graded masters and XMP sidecars; import look references.
+                </li>
+                <li>
+                  <strong>Real proxy + grade path on Apple Silicon.</strong>
+                  Replace stand-ins with ffmpeg/Metal downsampled proxies and a conservative
+                  LUT/CDL grade layer tied to scene/look JSON. Quality bar: &quot;good first draft,&quot;
+                  not final delivery &mdash; align with intervention metrics.
+                </li>
+                <li>
+                  <strong>Review UI for approve / retry / tweak intent.</strong>
+                  The workflow authority model is ahead of the market &mdash; use it in UI to
+                  build trust. Show why a job is retryable; never auto-delete or overwrite.
+                </li>
+                <li>
+                  <strong>Look profile learning from reference edits.</strong>
+                  Let pros upload 10&ndash;20 reference exports; build deterministic look JSON.
+                  This is harder to copy than generic AI filters and increases switching costs.
+                </li>
+                <li>
+                  <strong>Named reel variants (hero, BTS, fast cut) as the social differentiator.</strong>
+                  Storyline logic already exists in <code>shootflow.story</code>. Render real
+                  MP4 previews. This is the &quot;more deliverables per shoot&quot; promise made tangible.
+                </li>
+              </ol>
+
+              <h3>Tier 3 &mdash; Scale enablers (after first revenue)</h3>
+              <ol start={10}>
+                <li>
+                  <strong>Pricing:</strong> Launch at $39/mo Solo (local cull + ingest + drafts),
+                  $69/mo Pro (look profiles + faster scheduling + collaboration),
+                  $99/mo Studio (3 seats). Annual discount 20%. Optional burst credits at cost+40%.
+                </li>
+                <li>
+                  <strong>Vertical landing pages:</strong> Wedding, real estate, event &mdash; same engine,
+                  different presets and demo content. Avoid horizontal &quot;AI editor for everyone&quot; positioning.
+                </li>
+                <li>
+                  <strong>Editor handoff packages:</strong> Sell to studios that keep human editors
+                  but want deterministic task lists + progress files (already built). B2B2Editor
+                  may be an easier first sale than replacing editors entirely.
+                </li>
+                <li>
+                  <strong>iPhone companion for review only.</strong> Defer capture/import on mobile;
+                  ship approve/reject/annotate for reels and grade notes. Matches Mac-first strategy.
+                </li>
+                <li>
+                  <strong>Measure and publish intervention rate benchmarks.</strong>
+                  Turn pilot-dashboard metrics into marketing: &quot;ShootFlow pilots median 12%
+                  intervention vs. 35% industry manual rework&quot; &mdash; once true.
+                </li>
+                <li>
+                  <strong>Freeze orchestration scope.</strong> No new scheduler/report schema versions
+                  until Mac MVP ships. The workflow authority v3/v4 work is sufficient for years.
+                </li>
+                <li>
+                  <strong>Hire or partner for GTM, not just engineering.</strong>
+                  Aftershoot&apos;s moat includes 100K users and content marketing. Engineering
+                  excellence alone does not create distribution.
+                </li>
+              </ol>
+
+              <h3>What to deprioritize</h3>
+              <ul>
+                <li>Additional dry-run adapter variants &mdash; the contract is proven</li>
+                <li>More pilot report schema versions &mdash; v2 dashboard + cohort brief is enough for now</li>
+                <li>iPhone as primary execution platform</li>
+                <li>Casual creator / hobbyist tier until support burden is understood</li>
+                <li>Guaranteed virality or revenue outcome messaging (already correctly excluded in business plan)</li>
+              </ul>
+            </section>
+
+            <section id="decision">
+              <h2>11. Go / pivot / stop decision framework</h2>
+
+              <table>
+                <thead>
+                  <tr><th>Decision</th><th>When</th><th>Signal</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span className="pill green">GO (continue investing)</span></td>
+                    <td>Now</td>
+                    <td>If team can pivot next 6 months to Mac MVP + real culling + 10 paying pilots. Market and architecture justify continued investment.</td>
+                  </tr>
+                  <tr>
+                    <td><span className="pill yellow">PIVOT</span></td>
+                    <td>If Mac MVP slips past 6 months</td>
+                    <td>Sell orchestration as B2B SDK for editing apps/agencies; or narrow to ingest-safety-only tool (&quot;SafeCard&quot;) at lower price</td>
+                  </tr>
+                  <tr>
+                    <td><span className="pill orange">PIVOT</span></td>
+                    <td>If AI quality cannot hit &le;20% intervention</td>
+                    <td>Position as workflow ops layer (ingest + handoff + task lists) without claiming AI edit quality</td>
+                  </tr>
+                  <tr>
+                    <td><span className="pill red">STOP</span></td>
+                    <td>If no paid pilots after Mac alpha + 90 days GTM</td>
+                    <td>Market rejection despite working product &mdash; sunk cost in orchestration does not justify ongoing full-time build</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div className="callout good">
+                <strong>Final assessment:</strong> ShootFlow is a <em>conditionally viable</em>
+                business opportunity. The problem is real, the market is growing, the architecture
+                is unusually disciplined, and the business plan is coherent. But commercial viability
+                today is <strong>~4.8/10</strong> because the product does not yet exist for
+                customers &mdash; only the engine underneath it does. With focused execution on Mac UI,
+                real AI culling/grading, and paid pilots, viability rises to <strong>~6.5&ndash;7.5/10</strong>
+                within a realistic productization horizon. Without that pivot from infrastructure to
+                product, this remains an impressive engineering project with low probability of
+                becoming a profitable standalone business.
+              </div>
+            </section>
+
+            <p className="footnote">
+              Methodology: Analysis based on full review of ShootFlow repository (32 modules,
+              438 tests, docs/PRODUCT_STRATEGY.md, docs/BUSINESS_PLAN.md, docs/DESIGN_DECISIONS.md),
+              CLI capability inventory, and external market/competitor research (photography studio
+              software market reports, Aftershoot/Imagen/Narrative pricing pages, 2026 AI culling
+              comparisons). Market size figures cite third-party industry reports and should be
+              treated as directional, not audited financial data. This document is strategic analysis,
+              not investment advice.
             </p>
-            <p>
-              <strong>Is it realistically profitable and scalable?</strong>
-              <em>Eventually, possibly.</em> The addressable market is large enough
-              (~$720M photography studio software in 2025, growing ~13.5% CAGR per industry
-              reports). Pro photographers already spend $100–$1,000+/week on editing or
-              lose 10–20 hours/week on post-production — enough headroom for $30–$80/month
-              SaaS if ShootFlow saves measurable time. Scalability is favorable once real
-              compute adapters exist: per-asset work parallelizes, local-first defaults
-              keep COGS low, and optional cloud burst can be margin-protected. Today,
-              scalability of <em>revenue</em> is zero because there is nothing to sell.
-            </p>
-          </section>
-          <section id="product-state">
-            <h2>2. What exists today — honest product maturity</h2>
-            <h3>Engineering maturity: unusually strong for pre-product stage</h3>
-            <table>
-              <thead>
-                <tr><th>Dimension</th><th>Evidence</th><th>Assessment</th></tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Test coverage</td>
-                  <td>438 unittest tests, all passing; 28 test modules</td>
-                  <td><span className="pill green">Strong</span></td>
-                </tr>
-                <tr>
-                  <td>Codebase size</td>
-                  <td>~40,034 lines across src + tests; 32 Python modules; 429 commits</td>
-                  <td><span className="pill green">Substantial</span></td>
-                </tr>
-                <tr>
-                  <td>Architecture</td>
-                  <td>Deterministic job graphs, checksum manifests, resumable status, adapter registry, observe-only workflow authority</td>
-                  <td><span className="pill green">Production-grade design</span></td>
-                </tr>
-                <tr>
-                  <td>Business planning</td>
-                  <td>PRODUCT_STRATEGY.md, BUSINESS_PLAN.md, TERMS draft, pilot metrics, cohort reporting</td>
-                  <td><span className="pill green">Above average</span></td>
-                </tr>
-                <tr>
-                  <td>Shippable product</td>
-                  <td>CLI-only Python core; no Mac app, no installer, no UI</td>
-                  <td><span className="pill red">Not shippable</span></td>
-                </tr>
-                <tr>
-                  <td>Core AI/color value</td>
-                  <td>All production adapters are deterministic stand-ins (placeholders, byte-copy proxies, fake VLM JSON)</td>
-                  <td><span className="pill red">Not built</span></td>
-                </tr>
-                <tr>
-                  <td>Real rendering</td>
-                  <td>dry-run-local adapter only; no ffmpeg, Core Image, Metal, or Resolve integration</td>
-                  <td><span className="pill red">Not built</span></td>
-                </tr>
-                <tr>
-                  <td>Market validation</td>
-                  <td>No pilots, no revenue, no user interviews recorded in repo</td>
-                  <td><span className="pill red">Unvalidated</span></td>
-                </tr>
-              </tbody>
-            </table>
-            <h3>Pipeline completion map</h3>
-            <div className="timeline">
-              <div className="timeline-item done">
-                <strong>Safe ingest + manifests</strong> — Checksum copy, no-delete, conflict detection, CLI preview/confirm flow. Real and tested.
-              </div>
-              <div className="timeline-item done">
-                <strong>Storage discovery &amp; route recommendation</strong> — Mounted volume scan, macOS metadata adapter, capacity gating. Real contracts; native UI not wired.
-              </div>
-              <div className="timeline-item done">
-                <strong>Production/render orchestration</strong> — Status manifests, schedulers, stale-lease recovery, adapter registry, bounded parallelism. Exceptionally thorough.
-              </div>
-              <div className="timeline-item done">
-                <strong>Pilot analytics layer</strong> — Dashboard, cohort report, cohort brief, acceptance thresholds (90% completion, ≤20% intervention). Built before customers exist.
-              </div>
-              <div className="timeline-item partial">
-                <strong>Storyline selection logic</strong> — Deterministic ranking from VLM scores exists; VLM itself is fake/local probe only.
-              </div>
-              <div className="timeline-item gap">
-                <strong>Real VLM analysis</strong> — analysis-production-local writes schema-compatible JSON from byte hashes, not semantic understanding.
-              </div>
-              <div className="timeline-item gap">
-                <strong>Real scene clustering &amp; look development</strong> — Stand-in JSON artifacts only.
-              </div>
-              <div className="timeline-item gap">
-                <strong>Real color grading</strong> — grade-production-local writes deterministic stand-ins, not graded media.
-              </div>
-              <div className="timeline-item gap">
-                <strong>Real deliverable rendering</strong> — Reels, carousels, photo sets not actually rendered.
-              </div>
-              <div className="timeline-item gap">
-                <strong>Mac native app (SwiftUI/menu bar)</strong> — Explicitly planned; zero implementation in repo.
-              </div>
-              <div className="timeline-item gap">
-                <strong>Review UI</strong> — Approve/retry/tweak grade intent — planned, not built.
-              </div>
-            </div>
-            <div className="callout">
-              <strong>Interpretation:</strong> ShootFlow has built the <em>operating system</em>
-              for a media automation product — job planning, safety invariants, resumability,
-              measurement — but not the <em>product surface</em> that creates customer value.
-              Roughly 60–70% of engineering effort to date appears invested in orchestration
-              infrastructure; roughly 5–10% in customer-visible media intelligence; 0% in
-              distribution-ready packaging.
-            </div>
-          </section>
-          <section id="market">
-            <h2>3. Market opportunity</h2>
-            <h3>Problem validation: strong</h3>
-            <p>
-              Professional photographers and videographers face recurring, expensive post-production
-              pain. Industry surveys suggest ~78% of pros now consider AI-assisted culling essential.
-              Wedding shoots of 3,000–6,000 images still consume 2–5+ hours of culling alone;
-              full post (cull, color, social packaging) can consume 10–20 hours/week or
-              $100–$1,000+/week in editor spend. ShootFlow's own ICP definition (wedding/event
-              teams, portrait studios, real-estate media) matches the highest-volume, highest-willingness-to-pay segment.
-            </p>
-            <h3>Market size: sufficient for a focused SaaS</h3>
-            <table>
-              <thead>
-                <tr><th>Segment</th><th>Estimate</th><th>Relevance</th></tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Photography studio software (global)</td>
-                  <td>~$720M (2025) → ~$1.36B (2030), ~13.5% CAGR</td>
-                  <td>Broad TAM; ShootFlow needs a narrow wedge</td>
-                </tr>
-                <tr>
-                  <td>AI photography tools (adjacent)</td>
-                  <td>~$3.8B projected by 2026 (industry marketing estimates)</td>
-                  <td>Validates AI budget exists; also signals crowding</td>
-                </tr>
-                <tr>
-                  <td>Serviceable obtainable market (realistic)</td>
-                  <td>~50,000–150,000 high-volume pro photo/video operators globally</td>
-                  <td>At $40/mo avg → $24M–$72M ARR ceiling for focused wedge</td>
-                </tr>
-                <tr>
-                  <td>Early realistic target</td>
-                  <td>500–2,000 paying studios in 24 months post-launch</td>
-                  <td>$240K–$1.9M ARR at $40/mo — viable indie/small-team business</td>
-                </tr>
-              </tbody>
-            </table>
-            <h3>Why the timing is both good and bad</h3>
-            <div className="grid-2">
-              <div className="card">
-                <h4>Tailwinds</h4>
-                <p>AI culling/editing normalized; creators need more social output; local-first privacy concerns favor on-device processing; workflow automation undervalued vs. point AI tools.</p>
-              </div>
-              <div className="card">
-                <h4>Headwinds</h4>
-                <p>Aftershoot claims 100K+ users and unlimited culling from $10/mo; Imagen bundles cull+edit; Adobe/Lightroom adding AI; buyer fatigue; high bar for "another tool."</p>
-              </div>
-            </div>
-          </section>
-          <section id="competition">
-            <h2>4. Competitive landscape</h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>Competitor</th>
-                  <th>Strength</th>
-                  <th>Pricing (approx.)</th>
-                  <th>ShootFlow gap</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>Aftershoot</strong></td>
-                  <td>Local AI cull + edit + retouch; 100K+ users; offline; flat-rate unlimited</td>
-                  <td>$10–$60/mo</td>
-                  <td>Has shippable product, brand, integrations; weaker on full ingest-to-IG pipeline</td>
-                </tr>
-                <tr>
-                  <td><strong>Imagen</strong></td>
-                  <td>Cloud cull + personalized AI edit; Lightroom integration; style learning</td>
-                  <td>$49+/mo or per-image</td>
-                  <td>Strong edit quality story; cloud dependency; less ingest safety focus</td>
-                </tr>
-                <tr>
-                  <td><strong>Narrative Select</strong></td>
-                  <td>Fast macOS culling UX; moments grouping; offline</td>
-                  <td>$0–$60/mo tiers</td>
-                  <td>Best-in-class cull UX; no end-to-end social packaging</td>
-                </tr>
-                <tr>
-                  <td><strong>FilterPixel</strong></td>
-                  <td>Value tier; volume/event workflows; per-image economics</td>
-                  <td>~$19/mo+</td>
-                  <td>Price pressure at low end</td>
-                </tr>
-                <tr>
-                  <td><strong>Lightroom + plugins</strong></td>
-                  <td>Incumbent catalog; ecosystem lock-in</td>
-                  <td>$10–$55/mo Adobe stack</td>
-                  <td>ShootFlow must integrate, not replace, for adoption</td>
-                </tr>
-                <tr>
-                  <td><strong>CapCut / social editors</strong></td>
-                  <td>Free/cheap reel assembly</td>
-                  <td>Freemium</td>
-                  <td>Different job — ShootFlow targets pro RAW/video pipelines</td>
-                </tr>
-              </tbody>
-            </table>
-            <div className="callout warn">
-              <strong>Competitive reality:</strong> ShootFlow is entering a market where
-              incumbents already sell the <em>visible</em> value (culling, editing) at
-              $10–$50/month with mature UX. ShootFlow's orchestration depth is not visible
-              to buyers until it ships a Mac app and produces real outputs. The window to
-              own "card → IG-ready drafts" as a category is narrowing as Aftershoot and
-              Imagen expand horizontally.
-            </div>
-          </section>
-          <section id="differentiation">
-            <h2>5. Differentiation &amp; defensibility</h2>
-            <h3>Claimed wedge (from product docs)</h3>
-            <ul>
-              <li><strong>Media safety first</strong> — never delete source, never overwrite different bytes, checksum manifests, explicit confirm gates</li>
-              <li><strong>End-to-end pipeline</strong> — ingest → proxy → analysis → scene/look → grade → story → package → render, not just culling</li>
-              <li><strong>Resumable at scale</strong> — 10,000+ asset shoots with stale-lease recovery and deterministic job IDs</li>
-              <li><strong>Scene-consistent grading</strong> — rejoin at scene/look before per-asset grade (quality thesis)</li>
-              <li><strong>IG-native deliverables</strong> — reels, carousels, photo sets as first-class outputs</li>
-            </ul>
-            <h3>Moat assessment</h3>
-            <table>
-              <thead>
-                <tr><th>Moat type</th><th>Current strength</th><th>Notes</th></tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Technical (orchestration/safety)</td>
-                  <td><span className="pill yellow">Medium</span></td>
-                  <td>Deep, tested, hard to replicate quickly — but invisible to customers until productized</td>
-                </tr>
-                <tr>
-                  <td>Data / style learning</td>
-                  <td><span className="pill red">None</span></td>
-                  <td>No user data, no learned looks, no VLM training loop</td>
-                </tr>
-                <tr>
-                  <td>Network effects</td>
-                  <td><span className="pill red">None</span></td>
-                  <td>No team features, no marketplace, no sharing loop yet</td>
-                </tr>
-                <tr>
-                  <td>Brand / distribution</td>
-                  <td><span className="pill red">None</span></td>
-                  <td>No GTM execution, no content engine, no community</td>
-                </tr>
-                <tr>
-                  <td>Switching costs</td>
-                  <td><span className="pill orange">Low today</span></td>
-                  <td>Could rise if manifests + look profiles + studio presets lock in workflows</td>
-                </tr>
-                <tr>
-                  <td>Integration depth</td>
-                  <td><span className="pill orange">Potential</span></td>
-                  <td>Lightroom/Capture One/Resolve handoff planned but not built</td>
-                </tr>
-              </tbody>
-            </table>
-            <p>
-              <strong>Verdict on differentiation:</strong> The safety + end-to-end thesis
-              is credible and under-served by point solutions, but it is not yet
-              <em>demonstrated</em>. Aftershoot's "offline unlimited cull+edit" is an easier
-              sell today. ShootFlow wins only if it proves measurably faster
-              <em>ingest-to-published-draft</em> turnaround with fewer manual steps — not
-              just safer manifests.
-            </p>
-          </section>
-          <section id="business-model">
-            <h2>6. Business model &amp; unit economics</h2>
-            <h3>Proposed model (from BUSINESS_PLAN.md)</h3>
-            <ul>
-              <li><strong>Starter/Solo</strong> — local ingest + baseline automation</li>
-              <li><strong>Pro</strong> — higher throughput, look presets, collaboration</li>
-              <li><strong>Usage boost</strong> — optional cloud VLM/render credits</li>
-            </ul>
-            <h3>ROI anchor (customer side)</h3>
-            <div className="math-box">
-              Assumption: pro saves 8 hours/week at $75/hr effective rate → $600/week value
-              ShootFlow price: $40–$80/month → $10–$20/week
-              ROI: ~30–60× if time savings are real and trusted
-              Assumption: studio spends $400/week on editor coordination
-              ShootFlow replaces 25–50% of that → $100–$200/week saved
-              At $60/month → positive ROI if intervention rate stays low
-            </div>
-            <h3>Unit economics (operator side — modeled)</h3>
-            <table>
-              <thead>
-                <tr><th>Scenario</th><th>Price</th><th>COGS/user/mo</th><th>Gross margin</th><th>Break-even subs</th></tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Local-first (default)</td>
-                  <td>$40/mo</td>
-                  <td>$2–$5 (support + infra)</td>
-                  <td>88–95%</td>
-                  <td>~200–400 subs @ $15K/mo opex</td>
-                </tr>
-                <tr>
-                  <td>Pro + cloud burst</td>
-                  <td>$60/mo + credits</td>
-                  <td>$8–$25 (GPU/VLM)</td>
-                  <td>58–87%</td>
-                  <td>Higher; needs usage caps</td>
-                </tr>
-                <tr>
-                  <td>Studio tier (3 seats)</td>
-                  <td>$120/mo</td>
-                  <td>$10–$30</td>
-                  <td>75–92%</td>
-                  <td>Lower sub count needed</td>
-                </tr>
-              </tbody>
-            </table>
-            <p>
-              Local-first defaults (explicit in product strategy) are the right economic
-              choice: they keep gross margins SaaS-like and align with pro trust concerns
-              about uploading wedding RAWs. Optional cloud burst must be priced with
-              margin guardrails — the business plan already notes this.
-            </p>
-            <div className="callout good">
-              <strong>Economics conclusion:</strong> If the product works, the business
-              model is viable. Pricing at $30–$80/month against 6–15 hours/week saved
-              is an easy ROI story for wedding/event pros. The hard part is not pricing —
-              it is proving the time savings with real AI and a usable Mac app.
-            </div>
-          </section>
-          <section id="scalability">
-            <h2>7. Scalability analysis</h2>
-            <h3>Technical scalability: strong architecture, unproven load</h3>
-            <ul>
-              <li>Per-asset proxy, analysis, and grading jobs are embarrassingly parallel — architecture supports bounded concurrency and resumability</li>
-              <li>Deterministic job IDs and manifest fingerprints enable caching, retries, and distributed workers later</li>
-              <li>Local-first processing scales with customer hardware (Apple Silicon advantage on Mac ICP)</li>
-              <li>Cloud workers can be added behind the same adapter registry without rewriting orchestration</li>
-              <li>Risk: real VLM and video rendering at 10K assets will stress I/O, thermals, and support — needs perf engineering</li>
-            </ul>
-            <h3>Business scalability: depends on GTM and support model</h3>
-            <table>
-              <thead>
-                <tr><th>Scale lever</th><th>Feasibility</th><th>Bottleneck</th></tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Self-serve SaaS (solo pros)</td>
-                  <td><span className="pill yellow">Medium</span></td>
-                  <td>Needs polished onboarding; pro users still want support for data loss fears</td>
-                </tr>
-                <tr>
-                  <td>Studio/team expansion</td>
-                  <td><span className="pill yellow">Medium</span></td>
-                  <td>Team features not built; multi-seat sales are slower</td>
-                </tr>
-                <tr>
-                  <td>Content-led GTM (Instagram demos)</td>
-                  <td><span className="pill green">High fit</span></td>
-                  <td>Requires real before/after workflow videos — not CLI demos</td>
-                </tr>
-                <tr>
-                  <td>International expansion</td>
-                  <td><span className="pill yellow">Later</span></td>
-                  <td>Mac-first, English docs; localization deferred appropriately</td>
-                </tr>
-                <tr>
-                  <td>Support burden at scale</td>
-                  <td><span className="pill orange">Risk</span></td>
-                  <td>Media edge cases (corrupt cards, exotic codecs) generate tickets; safety UX must be excellent</td>
-                </tr>
-              </tbody>
-            </table>
-            <p>
-              <strong>Scalability verdict:</strong> The <em>architecture</em> scales. The
-              <em>business</em> does not scale until: (1) a native app reduces support
-              friction, (2) real AI reduces manual intervention below the 20% pilot
-              threshold, and (3) GTM produces repeatable demo content showing card-to-IG
-              throughput gains.
-            </p>
-          </section>
-          <section id="scoring">
-            <h2>8. Viability scoring matrix</h2>
-            <p>Scores 1–10 based on current repo evidence and external market data.</p>
-            <table>
-              <thead>
-                <tr><th>Factor</th><th>Weight</th><th>Score</th><th>Weighted</th><th>Rationale</th></tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Market pain &amp; willingness to pay</td>
-                  <td>15%</td>
-                  <td className="score-num">8.5</td>
-                  <td>1.28</td>
-                  <td>Validated by competitor traction and pro spend patterns</td>
-                </tr>
-                <tr>
-                  <td>Product-market fit (today)</td>
-                  <td>20%</td>
-                  <td className="score-num">2.0</td>
-                  <td>0.40</td>
-                  <td>No shippable product, no users, no validated workflows</td>
-                </tr>
-                <tr>
-                  <td>Technical foundation</td>
-                  <td>15%</td>
-                  <td className="score-num">8.0</td>
-                  <td>1.20</td>
-                  <td>Exceptional orchestration, tests, safety contracts</td>
-                </tr>
-                <tr>
-                  <td>Customer-visible value delivery</td>
-                  <td>20%</td>
-                  <td className="score-num">1.5</td>
-                  <td>0.30</td>
-                  <td>Stand-in adapters only; no real cull/grade/render</td>
-                </tr>
-                <tr>
-                  <td>Competitive position</td>
-                  <td>10%</td>
-                  <td className="score-num">4.0</td>
-                  <td>0.40</td>
-                  <td>Differentiated thesis but late vs. funded incumbents</td>
-                </tr>
-                <tr>
-                  <td>Business model clarity</td>
-                  <td>5%</td>
-                  <td className="score-num">7.5</td>
-                  <td>0.38</td>
-                  <td>Clear ICP, pricing anchors, pilot metrics defined</td>
-                </tr>
-                <tr>
-                  <td>GTM readiness</td>
-                  <td>5%</td>
-                  <td className="score-num">3.0</td>
-                  <td>0.15</td>
-                  <td>Strategy docs exist; demo fixtures exist; no live GTM</td>
-                </tr>
-                <tr>
-                  <td>Scalability (technical + ops)</td>
-                  <td>5%</td>
-                  <td className="score-num">7.0</td>
-                  <td>0.35</td>
-                  <td>Architecture ready; ops untested</td>
-                </tr>
-                <tr>
-                  <td>Team / execution velocity</td>
-                  <td>5%</td>
-                  <td className="score-num">6.0</td>
-                  <td>0.30</td>
-                  <td>429 commits show sustained work; heavy infra vs. product bias</td>
-                </tr>
-                <tr>
-                  <td><strong>Weighted total</strong></td>
-                  <td>100%</td>
-                  <td />
-                  <td><strong>4.76 / 10</strong></td>
-                  <td><span className="pill orange">Conditional viability</span></td>
-                </tr>
-              </tbody>
-            </table>
-            <h3>Score visualization</h3>
-            <div className="score-bar-wrap">Market pain (8.5)
-              <div className="score-bar"><span style={{width: '85%', background: 'var(--green)'}} /></div>
-            </div>
-            <div className="score-bar-wrap">Technical foundation (8.0)
-              <div className="score-bar"><span style={{width: '80%', background: 'var(--green)'}} /></div>
-            </div>
-            <div className="score-bar-wrap">Business model clarity (7.5)
-              <div className="score-bar"><span style={{width: '75%', background: 'var(--green)'}} /></div>
-            </div>
-            <div className="score-bar-wrap">Scalability architecture (7.0)
-              <div className="score-bar"><span style={{width: '70%', background: 'var(--yellow)'}} /></div>
-            </div>
-            <div className="score-bar-wrap">Competitive position (4.0)
-              <div className="score-bar"><span style={{width: '40%', background: 'var(--orange)'}} /></div>
-            </div>
-            <div className="score-bar-wrap">GTM readiness (3.0)
-              <div className="score-bar"><span style={{width: '30%', background: 'var(--orange)'}} /></div>
-            </div>
-            <div className="score-bar-wrap">Product-market fit today (2.0)
-              <div className="score-bar"><span style={{width: '20%', background: 'var(--red)'}} /></div>
-            </div>
-            <div className="score-bar-wrap">Customer-visible value (1.5)
-              <div className="score-bar"><span style={{width: '15%', background: 'var(--red)'}} /></div>
-            </div>
-          </section>
-          <section id="risks">
-            <h2>9. Risk register</h2>
-            <table>
-              <thead>
-                <tr><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th></tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Never ships customer-facing Mac app</td>
-                  <td><span className="pill orange">Medium</span></td>
-                  <td><span className="pill red">Fatal</span></td>
-                  <td>Freeze orchestration features; hire/partner for SwiftUI shell; 90-day UI milestone</td>
-                </tr>
-                <tr>
-                  <td>AI output quality below pro bar</td>
-                  <td><span className="pill orange">Medium-High</span></td>
-                  <td><span className="pill red">High</span></td>
-                  <td>Human-in-loop review UI; conservative defaults; measure intervention rate</td>
-                </tr>
-                <tr>
-                  <td>Incumbent copies full pipeline wedge</td>
-                  <td><span className="pill yellow">Medium</span></td>
-                  <td><span className="pill orange">High</span></td>
-                  <td>Move fast on ingest safety + IG packaging combo; build brand in wedding niche</td>
-                </tr>
-                <tr>
-                  <td>Over-engineering continues</td>
-                  <td><span className="pill orange">Medium</span></td>
-                  <td><span className="pill orange">High</span></td>
-                  <td>Cap new orchestration work; tie commits to pilot outcomes</td>
-                </tr>
-                <tr>
-                  <td>Support load from media edge cases</td>
-                  <td><span className="pill yellow">High</span></td>
-                  <td><span className="pill yellow">Medium</span></td>
-                  <td>Strict ICP; excellent safety UX; phased codec support</td>
-                </tr>
-                <tr>
-                  <td>Cloud COGS erode margins</td>
-                  <td><span className="pill yellow">Medium</span></td>
-                  <td><span className="pill yellow">Medium</span></td>
-                  <td>Local default; metered burst; transparent credit pricing</td>
-                </tr>
-                <tr>
-                  <td>Legal/trust incident (data loss perception)</td>
-                  <td><span className="pill yellow">Low-Medium</span></td>
-                  <td><span className="pill red">Fatal</span></td>
-                  <td>Never delete source; visible manifests; TERMS draft already aligned</td>
-                </tr>
-                <tr>
-                  <td>No paying pilots within 6 months of Mac alpha</td>
-                  <td><span className="pill orange">Medium</span></td>
-                  <td><span className="pill red">High</span></td>
-                  <td>Pre-sell pilot slots; weekly workflow proof demos with real media</td>
-                </tr>
-              </tbody>
-            </table>
-          </section>
-          <section id="recommendations">
-            <h2>10. Recommendations for a more successful business</h2>
-            <p>Ordered by impact. Stop building orchestration primitives until the top three are underway.</p>
-            <h3>Tier 1 — Must do (business survival)</h3>
-            <ol>
-              <li>
-                <strong>Ship a Mac menu-bar MVP in 90 days.</strong>
-                Wrap existing <code>card-dump-workflow</code>, ingest preview/confirm, and
-                <code>plan-production</code> in SwiftUI. The Python core is CLI-ready;
-                the missing piece is entirely native UX for route approval and copy confirmation.
-                Without this, there is no business.
-              </li>
-              <li>
-                <strong>Integrate one real AI culling provider before building custom VLM.</strong>
-                Partner with or wrap Aftershoot/Narrative API patterns, or embed a proven
-                local culling model. Replace <code>analysis-production-local</code> stand-ins
-                with semantic selects. Pros pay for culling today — not manifest schemas.
-              </li>
-              <li>
-                <strong>Run 10 paid pilot studios before broad launch.</strong>
-                Use existing <code>pilot-dashboard</code> thresholds as the contract:
-                ≥90% completion, ≤20% manual intervention, ≥1 materialized output.
-                Charge $50–$100/mo during pilot. Learn where intervention happens.
-              </li>
-              <li>
-                <strong>Produce one real workflow demo weekly for Instagram GTM.</strong>
-                "Card in → 45 min → 3 reel drafts + carousel + graded selects" with
-                real wedding footage. The cohort demo fixture is useful internally but
-                cannot substitute for authentic social proof.
-              </li>
-            </ol>
-            <h3>Tier 2 — High leverage (differentiation &amp; retention)</h3>
-            <ol start={5}>
-              <li>
-                <strong>Lightroom/Capture One export handoff, not replacement.</strong>
-                Meet pros where they live. ShootFlow's wedge is operations + social packaging,
-                not killing Lightroom. Export graded masters and XMP sidecars; import look references.
-              </li>
-              <li>
-                <strong>Real proxy + grade path on Apple Silicon.</strong>
-                Replace stand-ins with ffmpeg/Metal downsampled proxies and a conservative
-                LUT/CDL grade layer tied to scene/look JSON. Quality bar: "good first draft,"
-                not final delivery — align with intervention metrics.
-              </li>
-              <li>
-                <strong>Review UI for approve / retry / tweak intent.</strong>
-                The workflow authority model is ahead of the market — use it in UI to
-                build trust. Show why a job is retryable; never auto-delete or overwrite.
-              </li>
-              <li>
-                <strong>Look profile learning from reference edits.</strong>
-                Let pros upload 10–20 reference exports; build deterministic look JSON.
-                This is harder to copy than generic AI filters and increases switching costs.
-              </li>
-              <li>
-                <strong>Named reel variants (hero, BTS, fast cut) as the social differentiator.</strong>
-                Storyline logic already exists in <code>shootflow.story</code>. Render real
-                MP4 previews. This is the "more deliverables per shoot" promise made tangible.
-              </li>
-            </ol>
-            <h3>Tier 3 — Scale enablers (after first revenue)</h3>
-            <ol start={10}>
-              <li>
-                <strong>Pricing:</strong> Launch at $39/mo Solo (local cull + ingest + drafts),
-                $69/mo Pro (look profiles + faster scheduling + collaboration),
-                $99/mo Studio (3 seats). Annual discount 20%. Optional burst credits at cost+40%.
-              </li>
-              <li>
-                <strong>Vertical landing pages:</strong> Wedding, real estate, event — same engine,
-                different presets and demo content. Avoid horizontal "AI editor for everyone" positioning.
-              </li>
-              <li>
-                <strong>Editor handoff packages:</strong> Sell to studios that keep human editors
-                but want deterministic task lists + progress files (already built). B2B2Editor
-                may be an easier first sale than replacing editors entirely.
-              </li>
-              <li>
-                <strong>iPhone companion for review only.</strong> Defer capture/import on mobile;
-                ship approve/reject/annotate for reels and grade notes. Matches Mac-first strategy.
-              </li>
-              <li>
-                <strong>Measure and publish intervention rate benchmarks.</strong>
-                Turn pilot-dashboard metrics into marketing: "ShootFlow pilots median 12%
-                intervention vs. 35% industry manual rework" — once true.
-              </li>
-              <li>
-                <strong>Freeze orchestration scope.</strong> No new scheduler/report schema versions
-                until Mac MVP ships. The workflow authority v3/v4 work is sufficient for years.
-              </li>
-              <li>
-                <strong>Hire or partner for GTM, not just engineering.</strong>
-                Aftershoot's moat includes 100K users and content marketing. Engineering
-                excellence alone does not create distribution.
-              </li>
-            </ol>
-            <h3>What to deprioritize</h3>
-            <ul>
-              <li>Additional dry-run adapter variants — the contract is proven</li>
-              <li>More pilot report schema versions — v2 dashboard + cohort brief is enough for now</li>
-              <li>iPhone as primary execution platform</li>
-              <li>Casual creator / hobbyist tier until support burden is understood</li>
-              <li>Guaranteed virality or revenue outcome messaging (already correctly excluded in business plan)</li>
-            </ul>
-          </section>
-          <section id="decision">
-            <h2>11. Go / pivot / stop decision framework</h2>
-            <table>
-              <thead>
-                <tr><th>Decision</th><th>When</th><th>Signal</th></tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><span className="pill green">GO (continue investing)</span></td>
-                  <td>Now</td>
-                  <td>If team can pivot next 6 months to Mac MVP + real culling + 10 paying pilots. Market and architecture justify continued investment.</td>
-                </tr>
-                <tr>
-                  <td><span className="pill yellow">PIVOT</span></td>
-                  <td>If Mac MVP slips past 6 months</td>
-                  <td>Sell orchestration as B2B SDK for editing apps/agencies; or narrow to ingest-safety-only tool ("SafeCard") at lower price</td>
-                </tr>
-                <tr>
-                  <td><span className="pill orange">PIVOT</span></td>
-                  <td>If AI quality cannot hit ≤20% intervention</td>
-                  <td>Position as workflow ops layer (ingest + handoff + task lists) without claiming AI edit quality</td>
-                </tr>
-                <tr>
-                  <td><span className="pill red">STOP</span></td>
-                  <td>If no paid pilots after Mac alpha + 90 days GTM</td>
-                  <td>Market rejection despite working product — sunk cost in orchestration does not justify ongoing full-time build</td>
-                </tr>
-              </tbody>
-            </table>
-            <div className="callout good">
-              <strong>Final assessment:</strong> ShootFlow is a <em>conditionally viable</em>
-              business opportunity. The problem is real, the market is growing, the architecture
-              is unusually disciplined, and the business plan is coherent. But commercial viability
-              today is <strong>~4.8/10</strong> because the product does not yet exist for
-              customers — only the engine underneath it does. With focused execution on Mac UI,
-              real AI culling/grading, and paid pilots, viability rises to <strong>~6.5–7.5/10</strong>
-              within a realistic productization horizon. Without that pivot from infrastructure to
-              product, this remains an impressive engineering project with low probability of
-              becoming a profitable standalone business.
-            </div>
-          </section>
-          <p className="footnote">
-            Methodology: Analysis based on full review of ShootFlow repository (32 modules,
-            438 tests, docs/PRODUCT_STRATEGY.md, docs/BUSINESS_PLAN.md, docs/DESIGN_DECISIONS.md),
-            CLI capability inventory, and external market/competitor research (photography studio
-            software market reports, Aftershoot/Imagen/Narrative pricing pages, 2026 AI culling
-            comparisons). Market size figures cite third-party industry reports and should be
-            treated as directional, not audited financial data. This document is strategic analysis,
-            not investment advice.
-          </p>
       </div>
     </>
   );

@@ -5,480 +5,480 @@ export function ProductStrategyContent() {
     <>
       <div className="ingested-markdown">
         <h1>ShootFlow Product Strategy</h1>
-          <h2>Audience</h2>
-          <p>ShootFlow is for photographers, videographers, creators, and small studios who
-            need a faster path from shoot day to polished Instagram output. The initial
-            buyer likely already feels one of these pains:</p>
-          <ul>
-            <li>They lose evenings to culling, copying cards, matching color, and exporting
-              social formats.</li>
-            <li>They pay an editor but still spend time preparing drives, writing notes,
-              chasing turnaround, and requesting social cutdowns.</li>
-            <li>They have valuable old footage and raw files sitting unused because turning
-              archives into posts is too much operational work.</li>
-          </ul>
-          <h2>Product promise</h2>
-          <p>Dump a card or folder into the app. ShootFlow safely organizes the media,
-            produces graded intermediates, and proposes high-quality reels, carousels, and
-            photo sets with enough control for professionals to trust the output.</p>
-          <h2>Wedge</h2>
-          <p>The first wedge is not "replace the editor." It is "remove the boring parts of
-            media operations while improving social output throughput." That wedge is easier
-            to trust and sell:</p>
-          <ol>
-            <li>Safe source/destination detection for SD cards, local folders, and SSDs.</li>
-            <li>Reviewed ingest from SD cards and SSDs with no source deletion.</li>
-            <li>Repeatable shoot organization and manifests.</li>
-            <li>Bulk grading and select generation.</li>
-            <li>IG-ready reels/carousels/photos from graded intermediates.</li>
-            <li>Optional review and handoff to an editor.</li>
-          </ol>
-          <h2>Differentiation</h2>
-          <ul>
-            <li><strong>Media safety first:</strong> never delete card/source media, never overwrite
-              different bytes, always emit manifests.</li>
-            <li><strong>Parallel by design:</strong> per-asset jobs can scale across local compute, cloud
-              workers, or future device clusters.</li>
-            <li><strong>Quality before speed theater:</strong> use VLM analysis and scene grouping before
-              grading so the output looks like one coherent shoot, not 10,000 individually
-              optimized files.</li>
-            <li><strong>Professional control:</strong> humans can review drive detection, selects, grading
-              references, and final deliverables before export.</li>
-            <li><strong>Archive aware:</strong> old shoots and new cards use the same import, catalog, and
-              deliverable pipeline.</li>
-          </ul>
-          <h2>Workflow value</h2>
-          <p>The current core models a concrete promise for high-volume users:</p>
-          <ol>
-            <li>Discover mounted-volume candidates from reviewed roots or typed native macOS
-              metadata, rank detected storage, then recommend a review-required
-              source/destination route.</li>
-            <li>Ingest safely from the approved card, local folder, or SSD.</li>
-            <li>Preserve originals and emit a manifest.</li>
-            <li>Generate a read-only production-plan report from that manifest so the user
-              can review asset counts, parallel wave shape, and planned IG deliverables
-              before AI/color jobs start writing new artifacts.</li>
-            <li>Fan out proxy and VLM analysis work across every asset.</li>
-            <li>Rejoin at scene grouping and look development so the grade is consistent.</li>
-            <li>Fan out graded master rendering.</li>
-            <li>Rank storylines from VLM quality, scene, and narrative signals.</li>
-            <li>Persist renderer-neutral assembly tasks from verified graded storyline
-              selects through <code>write-render-tasks</code>, creating or reusing
-              <code>deliverables/render_tasks.json</code> without rendering deliverables.</li>
-            <li>Initialize and track render progress and retry safety through a trusted
-              status manifest that never resets existing matching progress.</li>
-            <li>Schedule only dependency-ready pending/retryable render work through a dry-run
-              worker action plan.</li>
-            <li>Claim ready work as running and report success/retry/failure with checksums
-              for expected deliverable outputs.</li>
-            <li>Persist each claim or result with a single-task compare/write status update
-              that holds a local advisory lock and rejects stale state or attempt
-              preconditions, with an optional <code>updated_at</code> lease token for timeout-sensitive
-              updates.</li>
-            <li>Recover from interrupted local workers by planning explicit stale-running
-              lease expirations from trusted status plus a caller-provided cutoff, then
-              persisting each retryable transition through the same compare/write path so
-              same-attempt heartbeat refreshes cannot be overwritten by stale schedulers.
-              Conflicted expirations remain visible to the scheduler/UI as "another worker
-              already changed this task" rather than being hidden as generic failures.</li>
-            <li>Prove renderer orchestration with a dry-run adapter that consumes only
-              ready worker actions, persists claim/result transitions, writes only
-              declared deliverable outputs, and refuses to overwrite existing different
-              files.</li>
-            <li>Execute trusted dry-run action batches with bounded local concurrency so
-              parallel-safe photo-set chunks can progress quickly while serial actions,
-              stale claims, and blocked tasks stay explicit.</li>
-            <li>Run an iterative dry-run scheduler loop that reloads trusted render status,
-              safely expires stale leases, plans ready work, executes bounded batches, and
-              stops with explicit complete/blocked/retryable/failed/waiting state for the Mac app
-              or background agent.</li>
-            <li>Persist a strict scheduler report for the Mac app or next background agent,
-              including completed outputs, retryable/failed/blocked tasks, review-required
-              task IDs, stale-lease conflicts, human-readable failure messages, and derived
-              product metrics for activation/reliability dashboards.</li>
-            <li>Invoke the same init/scheduler/report handoff from persisted-manifest CLI
-              commands so a Mac launch agent, menu-bar app, or automation runner can
-              bootstrap and advance work without reconstructing the production planner in
-              memory.</li>
-            <li>Resume safely with <code>workspace-health</code> and <code>inspect-render-workspace</code>:
-              read-only commands that validate whichever handoff files exist, report
-              invalid manifests for review, show render status counts, and print the next
-              safe command without writing or resetting anything.</li>
-            <li>Drive safe ingest itself through the same CLI surface: <code>preview-ingest</code>
-              plans a checksum-verified copy and prints planned items as JSON without
-              moving bytes; <code>execute-ingest --confirm</code> runs the existing safe copy +
-              manifest contract (no source deletion, no overwriting different bytes,
-              SHA-256-verified, deterministic <code>ingest_manifest.json</code>). The explicit
-              <code>--confirm</code> requirement keeps background-agent automation from triggering
-              a card copy by accident. Both preview and confirmed-copy receipt JSON use
-              schema v2 root <code>workflow_authority</code> so the payloads do not grant additional
-              copy, retry, cleanup, overwrite, materialization, or deletion authority.</li>
-            <li>Offer a unified <code>card-dump-workflow</code> command for native-shell demos and the
-              first Mac UI integration. It discovers a reviewed route, estimates source
-              media size, capacity-gates the destination, previews the checksum copy, and
-              only with <code>--confirm-ingest</code> performs the copy plus a read-only production
-              summary. Confirmed reports include explicit <code>next_actions</code> for trusted
-              storyline/grading preparation and the subsequent render-task handoff. The
-              schema-versioned report also carries an <code>agent_handoff</code> block that tells
-              launch agents whether the next safe step is route repair, preview review,
-              or production-plan review, and whether the next step may copy bytes. Schema
-              v2 report JSON carries root observe-only <code>workflow_authority</code>; agents should
-              treat <code>next_step_may_copy_bytes</code> as a prompt to request explicit user
-              confirmation, not as copy authority.</li>
-            <li>Use <code>write-render-tasks</code> after trusted analysis/storyline/grading artifacts
-              exist so production shoots can enter the same persisted init/status/scheduler
-              flow that demos already exercise. Its summary points native shells at
-              <code>init-render-status</code> and <code>dry-run-render-scheduler</code> with trusted completed
-              dependency IDs included, while keeping runtime scheduler parameters outside
-              the static handoff. The summary is schema v2 and observe-only at the root,
-              and write-capable next actions remain command-free descriptors rather than
-              file mutation permission.</li>
-            <li>Initialize <code>production_status.json</code> from the verified ingest manifest when a
-              Mac shell or production worker needs durable progress for proxy, analysis,
-              grading, storyline, and packaging work before render tasks exist. The status
-              file stays bound to the deterministic production-plan fingerprint and does
-              not create downstream media artifacts. <code>next-production-wave --use-production-status</code> now reads succeeded jobs from that trusted status
-              file, schedules only dependency-ready pending jobs, and surfaces running,
-              retryable, or failed work separately instead of relying on caller-reported
-              completion IDs. Production-worker helpers now turn that trusted status into
-              claimable job actions, report success only after declared outputs exist and
-              checksum, and record retry/failure statuses without granting cleanup,
-              deletion, or arbitrary path authority. Local production adapters now
-              exercise that status contract by persisting claims and final success or
-              retryable states through the guarded compare/write path. The dry-run adapter
-              writes declared placeholder file outputs; <code>metadata-production-local</code> reads
-              only workspace-bound trusted inputs and writes deterministic metadata JSON to
-              declared outputs; <code>proxy-production-local</code> copies trusted local source bytes
-              into declared proxy outputs as a conservative proxy stand-in; and
-              <code>analysis-production-local</code> writes deterministic schema-compatible
-              <code>vlm_asset_analysis</code> JSON only for analysis jobs. This analysis adapter is a
-              contract probe, not final creative understanding: it proves scheduler
-              routing, checksum reporting, and downstream analysis loading before real VLM
-              execution is trusted. <code>scene-production-local</code> now consumes those trusted
-              analysis artifacts and writes deterministic <code>analysis/scene_groups.json</code> for
-              <code>scene_grouping</code> jobs only, proving the serial scene-rejoin handoff before
-              real clustering is trusted. <code>look-production-local</code> consumes the verified
-              scene summary and writes deterministic <code>color/shoot_look.json</code> for
-              <code>look_development</code> jobs only, proving the shoot-level look handoff before
-              real color science or creator style learning is trusted.
-              <code>grade-production-local</code> now applies that schema-validated/checksum-verified
-              look plus schema-validated/checksum-verified per-asset analysis to one
-              trusted source original at a time, writing deterministic stand-in graded
-              outputs only for <code>graded_photo</code>/<code>graded_video</code> jobs before real ffmpeg/Core
-              Image/Metal grading is trusted. <code>story-production-local</code> now verifies the
-              planned analysis, scene, look, and graded inputs against trusted status
-              checksums, then writes deterministic schema v2
-              <code>analysis/instagram_storylines.json</code> only for <code>storyline_selection</code> jobs
-              before real editorial/story intelligence is trusted. <code>package-production-local</code>
-              now verifies trusted storyline plus graded outputs and writes deterministic
-              package handoff artifacts for <code>instagram_reel</code>, <code>instagram_carousel</code>, and
-              <code>instagram_photo_set</code> jobs before real render/export package workers are
-              trusted. Directory-style packages are represented by a controlled
-              manifest-plus-directory-checksum contract. Unexpected existing package
-              directory entries are named in retryable adapter/scheduler errors while the
-              stray bytes remain untouched. All refuse symlinked paths, missing inputs,
-              malformed package directories, or existing different files without cleanup
-              authority. The dry-run production scheduler
-              now gives Mac shells a single command to advance those
-              durable jobs in dependency order, with bounded parallelism and explicit
-              complete/blocked/retryable/failed/waiting state. Previously retryable jobs
-              require an explicit reviewed retry ID before the scheduler will attempt them
-              again. The scheduler can now expire stale running production leases through
-              the guarded status compare/write path when the caller supplies a cutoff and
-              lease timestamp, preserving active heartbeat refreshes as visible conflicts
-              instead of clobbering them. It also writes
-              <code>production_scheduler_report.json</code>, a strict run record bound to the
-              production-plan fingerprint and final <code>production_status.json</code>, so the next
-              UI or background agent can inspect materialized outputs, review-required
-              jobs, expired leases, and lease conflicts without rerunning scheduler logic.
-              These schema v3 scheduler reports now include root observe-only
-              <code>workflow_authority</code> plus validated product metric counts for completed,
-              retryable, failed, blocked, attempted, skipped, review-required, lease,
-              materialized-output, failure-message, and total work. The read-only
-              <code>plan-production</code> and <code>next-production-wave</code> summaries are schema v2 and
-              carry the shared observe-only <code>workflow_authority</code> block so native shells can
-              render candidate work without granting claim, retry, materialization, or
-              cleanup authority.</li>
-            <li>Create repeatable persisted-manifest smoke/demo workspaces through the core
-              helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
-              handoff as real shoots. The card-dump demo helper now adds a synthetic
-              detected-card -&gt; checksum-ingest -&gt; production-summary path while preserving
-              the no-delete/no-overwrite boundaries.</li>
-            <li>Summarize the current shoot workspace through <code>index-workspace</code>, a
-              metadata-only command that validates existing trusted artifacts and gives
-              UI/agent layers one coherent handoff plus the health-derived next safe
-              action without treating raw model JSON as authority. Workspace health now
-              validates production status and production scheduler reports alongside render
-              handoffs, exposes production job/state counts, and points native shells at
-              production init, scheduler execution, or review states before render work.
-              The derived index carries the same production summaries as metadata-only
-              artifacts. Workspace health and the derived index also include a current
-              render-input fingerprint over trusted storyline/graded inputs, so future
-              agents can detect in-place input drift between snapshots before relying on
-              older render progress. They now surface validated production and render
-              scheduler product metrics as observational UI/analytics fields, letting a
-              future Mac app or pilot dashboard show throughput and intervention-rate
-              signals without parsing worker internals or treating metrics as file
-              authority. Workspace health schema v4 and workspace index schema v2 now also
-              expose the shared observe-only <code>workflow_authority</code> contract, so native
-              shells and agents can fail closed before presenting adjacent write-capable
-              controls. The first <code>pilot-dashboard</code> contract now consumes that health layer
-              directly and reports activation flags, metric-source availability,
-              throughput, manual-intervention counts, and schema v2 pilot acceptance
-              thresholds as read-only product signals. Default readiness is intentionally
-              conservative: at least 90% trusted completion, at most 20% manual
-              intervention, and at least one materialized output before a workspace is
-              counted as ready for pilot review. The follow-on <code>pilot-cohort-report</code>
-              contract aggregates saved dashboard JSON across workspaces into pilot-ready
-              workspace rate, median intervention rate, first-draft output count, and
-              structured readiness blockers without reading worker internals or granting
-              workflow authority. It validates component dashboard threshold flags against
-              the reported metrics before trusting workspace readiness, so pilot
-              operations can separate missing telemetry from low completion, high
-              intervention, or missing first-draft output bottlenecks. The
-              <code>create-pilot-cohort-demo</code> fixture now composes trusted demo render
-              workspaces, saved dashboard JSON, and a saved cohort report so pilot/GTM
-              demos can show the measurement loop without real media or spreadsheets.
-              <code>pilot-cohort-brief</code> turns that saved report into native-shell presentation
-              state--status, headline, summary labels, structured blocker counts,
-              controlled per-workspace blocker labels, cards, and an optional deterministic
-              text-mode readout--without emitting workflow commands or widening authority.
-              <code>package-handoff-brief</code> gives native shells the corresponding package-level
-              production readout: it validates trusted production status/report state from
-              the ingest manifest, summarizes completed/review-required package jobs and
-              materialized package outputs, and binds copy/retry/materialization controls
-              to the same fail-closed workflow authority contract.</li>
-            <li>Assemble reels, carousels, and photo sets from graded masters.</li>
-          </ol>
-          <p>This is the right business wedge because it can save time even before the AI is
-            perfect. A photographer or editor can trust the file organization, review the
-            structured job plan, and then decide how much of the color and social packaging
-            to automate.</p>
-          <h2>Business model options</h2>
-          <ul>
-            <li>Solo creator subscription for local-only ingest, organization, and batch
-              exports.</li>
-            <li>Pro subscription with accelerated cloud/vLLM processing, team presets, and
-              shared review links.</li>
-            <li>Studio/editor workflow tier for client folders, handoff packages, and
-              recurring brand looks.</li>
-            <li>Usage-based compute add-on for very large shoots and video-heavy archives.</li>
-          </ul>
-          <h2>Next product bets</h2>
-          <ol>
-            <li>Desktop ingest assistant that turns detected SD cards, folders, and SSD destinations into a reviewed
-              import route. The current core now includes portable mounted-volume discovery, a typed native macOS
-              metadata adapter for Disk Arbitration/Swift handoff, capacity-gated route recommendation, safe ingest
-              commands, a read-only schema v2 <code>plan-production</code> report after ingest, and a
-              schema v2 <code>write-render-tasks</code> handoff once trusted storyline/graded artifacts exist;
-              the next step is a SwiftUI/menu-bar approval screen around the
-              <code>card-dump-workflow</code> contract before proxy/analysis/grading work begins.</li>
-            <li>Color-look profile model that can learn from a reference edit or existing
-              Lightroom/DaVinci exports.</li>
-            <li>Selects model that creates several reel/carousel narratives instead of one
-              brittle "best" output. The implemented contract now ranks VLM asset analysis
-              into a scene-diverse first-cut reel, named <code>hero</code>, <code>behind_the_scenes</code>, and
-              <code>fast_cut</code> reel variants, scene-varied carousels, and complete ranked photo
-              sets, then persists those choices as a deterministic edit-decision artifact
-              for review/export. Assembly turns those selections into verified render tasks
-              so a future local or cloud renderer can execute the package without trusting
-              raw model paths. Render status manifests now let that renderer report
-              pending/running/succeeded/failed/retryable progress without introducing new
-              file authority, and render-worker action plans identify ready or blocked work
-              before any adapter opens media files. Worker status-transition helpers now
-              let adapters claim a matching attempt and report completed outputs by checksum
-              without receiving authority to invent paths or delete media; compare/write
-              status updates keep stale local workers from overwriting newer task progress.
-              Stale-running lease plans now give schedulers a conservative way to retry
-              interrupted work without treating a timeout as permission to clean up or
-              delete media. The first dry-run renderer adapter now exercises this contract
-              end-to-end by claiming one trusted action, materializing deterministic
-              placeholder outputs under <code>deliverables/</code>, refusing symlinked or different
-              existing outputs, and persisting success or retryable status updates through
-              the same compare/write boundary.
-              The dry-run adapter can now run a trusted action plan in batches, respecting
-              each action's serial/parallel flag, capping local concurrency, preserving
-              blocked-task visibility, and recording stale-action failures without
-              materializing outputs or deleting media.
-              Stale-running lease expirations can now be persisted as guarded retryable
-              status updates, with heartbeat-refresh conflicts reported at task granularity.
-              The dry-run scheduler now loops over trusted status reloads, stale-lease
-              expiration, ready-action planning, and bounded batch execution until the plan
-              is complete or explicitly blocked/retryable/failed/waiting. It also avoids retrying a
-              task again in the same run after that task becomes retryable, which protects
-              manual editor exports and other persistent output conflicts from tight-loop
-              overwrite attempts.
-              Scheduler runs can now persist schema v3
-              <code>deliverables/render_scheduler_report.json</code> as
-              the product-facing summary for UI/retry/agent handoff, bound to the trusted
-              render-plan fingerprint and final status manifest so stale or model-authored
-              reports cannot invent tasks, outputs, or review state. New persisted
-              scheduler reports carry root observe-only <code>workflow_authority</code>, while legacy
-              schema v1/v2 reports load as observe-only for existing demo and pilot
-              workspaces.
-              The first CLI commands now start from persisted render-task manifests,
-              safely initialize the matching render-status manifest when it is missing,
-              preserve existing progress on repeated launches, run the trusted dry-run
-              scheduler, write that report, and can print JSON summaries for a Mac app or
-              background automation process. The demo workspace helper now creates a tiny
-              trusted persisted render-task workspace for smoke tests and product demos
-              without bypassing the real init/status/scheduler path, plus a synthetic
-              card-dump-to-render smoke workspace that exercises real checksum ingest before
-              the render handoff. A production-status manifest plus production-worker
-              action/status helpers now give pre-render proxy/analysis/grading/storyline
-              work the same resumable, fingerprint-bound progress boundary as rendering:
-              workers can plan dependency-ready jobs, claim a matching attempt, verify
-              declared outputs before success, and report retry/failure without deleting or
-              inventing paths. The dry-run production adapter, <code>metadata-production-local</code>,
-              and <code>proxy-production-local</code> now prove the same claim/materialize/report loop
-              for declared file artifacts before real model-backed workers are wired in. The
-              dry-run production scheduler wraps those adapters in the same persisted-status
-              loop the render side uses, including
-              guarded stale-lease expiration, so native shells can advance pre-render jobs
-              without embedding scheduling logic or retrying prior/newly retryable conflicts
-              or clobbering heartbeat-refreshed workers in a tight loop. Scheduler dispatch
-              is adapter-capability aware: <code>proxy-production-local</code>,
-              <code>analysis-production-local</code>, <code>scene-production-local</code>,
-              <code>look-production-local</code>, <code>grade-production-local</code>, and
-              <code>story-production-local</code>, and <code>package-production-local</code> receive only
-              dependency-ready jobs for their declared output kinds, while incompatible
-              future jobs remain pending or blocked for a compatible worker rather than
-              becoming expected stage-mismatch failures. The first local
-              metadata production adapter now extends the same worker contract beyond pure
-              placeholders: it reads trusted local inputs, fingerprints their bytes, and
-              writes deterministic metadata JSON only to declared output files, while
-              preserving missing-input, directory-output, stale-claim, and output-conflict
-              review states. The proxy adapter extends the contract into media-byte
-              materialization by copying trusted source bytes only to declared proxy outputs
-              while preserving the same no-overwrite/no-cleanup review states.
-              <code>analysis-production-local</code> extends the stage-specific adapter path into the
-              next wave by materializing deterministic per-asset analysis JSON only for
-              <code>vlm_asset_analysis</code> jobs. <code>scene-production-local</code> extends the path across
-              the first serial rejoin by materializing deterministic scene-group summaries
-              from trusted analysis artifacts; <code>look-production-local</code> extends the path to
-              a deterministic shoot-look profile from the trusted scene summary; and
-              <code>grade-production-local</code> extends the path into deterministic per-asset graded
-              stand-ins from trusted originals plus schema-validated/checksum-verified
-              analysis and look dependencies. <code>story-production-local</code> extends the path
-              into deterministic schema v2 storyline selection from checksum-verified
-              analysis, scene, look, and graded inputs. <code>package-production-local</code> extends
-              the path into deterministic package handoff artifacts and directory checksums
-              from verified story and graded dependencies. The persisted production and render scheduler
-              reports now emit root observe-only authority plus derived product metrics,
-              giving the future
-              Mac app and pilot analytics a
-              trusted way to measure automation throughput, intervention rate, and
-              reliability without parsing raw worker internals. <code>pilot-dashboard</code> is the
-              first stable pilot-facing summary
-              on top of those metrics: unavailable reports remain unavailable rather than
-              silently becoming zeroes, and write-capable next actions are named without
-              re-emitting executable scheduler commands. Pilot dashboard, cohort report,
-              and cohort brief JSON now share a structured <code>workflow_authority</code> contract so
-              native shells and continuation agents can see that readiness metrics are
-              presentation-only and do not permit copy, retry, cleanup, overwrite,
-              materialization, deletion, or any file mutation.
-              The next-production-wave handoff can derive its completed dependency set
-              directly from that manifest. The workspace health and index layer gives those
-              shells a single metadata snapshot across ingest, production-status,
-              production-scheduler-report, storyline, render-task, render-status, and
-              scheduler-report artifacts, while preserving each artifact's original trust
-              boundary. It includes production job/status counts and production scheduler
-              report review state, plus a metadata-only render-input fingerprint that gives
-              continuation agents a simple drift signal when trusted storyline or graded
-              files change in place. Render workspace inspection adds the missing read-only
-              state surface around render handoffs: it reports whether status is missing,
-              work is ready, blocked, running, review required, or complete, while rejecting
-              stale scheduler reports instead of treating them as product truth.</li>
-            <li>Review UI for accepting, tweaking, or regenerating deliverables.</li>
-            <li>iPhone companion for review, approvals, publishing prep, and mobile imports.</li>
-          </ol>
-          <h2>Focus decision: who we serve first</h2>
-          <p>ShootFlow should prioritize one paying segment first, then expand:</p>
-          <ol>
-            <li><strong>Primary ICP (v1):</strong> professional photographers/videographers with recurring
-              client work (weddings, events, portrait/editorial teams) who process large
-              weekly batches and can justify paid software quickly.</li>
-            <li><strong>Secondary ICP (v1.5+):</strong> creator businesses (small teams or solo creators
-              with sponsorship workflows) that need more output consistency and throughput.</li>
-            <li><strong>Later ICP:</strong> casual creators and hobbyists, once the workflow is stable and
-              support burden is low enough for lower-price plans.</li>
-          </ol>
-          <p>Why this order:</p>
-          <ul>
-            <li>Pros feel pain weekly, not occasionally.</li>
-            <li>Pros already pay either with hours or with editor spend.</li>
-            <li>Pros care about safe ingest + predictable turnaround, which is ShootFlow's
-              strongest moat versus generic AI editing apps.</li>
-          </ul>
-          <h2>Product packaging and platform strategy</h2>
-          <ul>
-            <li><strong>Mac app first:</strong> full ingest/organize/edit/export automation for high-volume
-              local media workflows and attached drives.</li>
-            <li><strong>iPhone app second (companion):</strong> review selects, approve reels/carousels,
-              annotate grade tweaks, and prep captions/calendars while away from desk.</li>
-            <li><strong>Cloud optional, local default:</strong> local processing and storage should remain
-              first-class so customers are not forced to upload terabytes. Cloud acceleration
-              can be an opt-in compute booster for burst jobs.</li>
-          </ul>
-          <h2>Monetization strategy (working model)</h2>
-          <ul>
-            <li><strong>Base subscription:</strong> local-first pipeline (ingest safety, organization, batch
-              grading, draft IG deliverables).</li>
-            <li><strong>Pro tier:</strong> stronger presets/looks, collaboration/review tools, and faster
-              job orchestration.</li>
-            <li><strong>Usage add-on:</strong> optional accelerated VLM/render credits for very large shoots
-              or faster turnaround windows.</li>
-          </ul>
-          <p>Pricing should be anchored against time/editor replacement value, not only
-            "software category" pricing. A credible value story:</p>
-          <ul>
-            <li>If users save 8-15 hours/week of editing/admin time or avoid part of editor
-              spend, even a premium monthly price can remain ROI-positive.</li>
-            <li>The product promise should be "more high-quality outputs per week with less
-              operational overhead," not guaranteed engagement outcomes.</li>
-          </ul>
-          <h2>Go-to-market thesis</h2>
-          <ul>
-            <li><strong>Primary channel:</strong> Instagram-native marketing (creator/pro reels showing
-              before/after workflow speed, not only visual quality).</li>
-            <li><strong>Secondary channels:</strong> partnerships with editing educators, wedding/photo
-              communities, and post-production agencies.</li>
-            <li><strong>Positioning:</strong> "the safest way to turn card dumps into client-ready and
-              IG-ready deliverables at scale."</li>
-          </ul>
-          <p>Messaging should emphasize:</p>
-          <ol>
-            <li>Source-media safety (no destructive ingest).</li>
-            <li>Predictable ingest-to-deliverable turnaround.</li>
-            <li>Better content throughput without adding editing headcount.</li>
-          </ol>
-          <h2>Operational trust policy (card offload + deletion boundaries)</h2>
-          <p>To keep the product useful for professionals, ingest must stay conservative:</p>
-          <ol>
-            <li><strong>Detection is advisory:</strong> drive/card detection proposes a route for review; it
-              is never permission to start destructive actions.</li>
-            <li><strong>Offload before edit:</strong> users should route source card -&gt; working destination
-              first, then run grading/assembly from the ingest manifest boundary.</li>
-            <li><strong>Capacity gate by default:</strong> destination selection should require estimated
-              import bytes plus safety headroom before route status is <code>ready_for_review</code>.</li>
-            <li><strong>No-delete lock:</strong> source deletion and card formatting remain explicitly out of
-              scope for default workflows; any future cleanup features should be opt-in,
-              delayed, and recoverable.</li>
-            <li><strong>Backup reminder baked in:</strong> route recommendations should continue to include
-              notes to verify backups before ejecting cards.</li>
-          </ol>
-          <h2>Audience split: one core engine, staged packaging</h2>
-          <p>The request spans three real segments, but they should share one execution core:</p>
-          <ul>
-            <li><strong>Pro service teams (primary):</strong> photographers/videographers with recurring
-              paid client turnaround pressure.</li>
-            <li><strong>Creator businesses (secondary):</strong> social-first teams optimizing weekly output
-              velocity and consistency.</li>
-            <li><strong>Casual creators (later):</strong> lower willingness to pay, higher support load.</li>
-          </ul>
-          <p>Execution implication: the product should keep one deterministic ingest -&gt; grade
-            -&gt; social package engine while exposing different workflow presets and pricing,
-            instead of branching into separate codebases too early.</p>
+        <h2>Audience</h2>
+        <p>ShootFlow is for photographers, videographers, creators, and small studios who
+        need a faster path from shoot day to polished Instagram output. The initial
+        buyer likely already feels one of these pains:</p>
+        <ul>
+        <li>They lose evenings to culling, copying cards, matching color, and exporting
+        social formats.</li>
+        <li>They pay an editor but still spend time preparing drives, writing notes,
+        chasing turnaround, and requesting social cutdowns.</li>
+        <li>They have valuable old footage and raw files sitting unused because turning
+        archives into posts is too much operational work.</li>
+        </ul>
+        <h2>Product promise</h2>
+        <p>Dump a card or folder into the app. ShootFlow safely organizes the media,
+        produces graded intermediates, and proposes high-quality reels, carousels, and
+        photo sets with enough control for professionals to trust the output.</p>
+        <h2>Wedge</h2>
+        <p>The first wedge is not &quot;replace the editor.&quot; It is &quot;remove the boring parts of
+        media operations while improving social output throughput.&quot; That wedge is easier
+        to trust and sell:</p>
+        <ol>
+        <li>Safe source/destination detection for SD cards, local folders, and SSDs.</li>
+        <li>Reviewed ingest from SD cards and SSDs with no source deletion.</li>
+        <li>Repeatable shoot organization and manifests.</li>
+        <li>Bulk grading and select generation.</li>
+        <li>IG-ready reels/carousels/photos from graded intermediates.</li>
+        <li>Optional review and handoff to an editor.</li>
+        </ol>
+        <h2>Differentiation</h2>
+        <ul>
+        <li><strong>Media safety first:</strong> never delete card/source media, never overwrite
+        different bytes, always emit manifests.</li>
+        <li><strong>Parallel by design:</strong> per-asset jobs can scale across local compute, cloud
+        workers, or future device clusters.</li>
+        <li><strong>Quality before speed theater:</strong> use VLM analysis and scene grouping before
+        grading so the output looks like one coherent shoot, not 10,000 individually
+        optimized files.</li>
+        <li><strong>Professional control:</strong> humans can review drive detection, selects, grading
+        references, and final deliverables before export.</li>
+        <li><strong>Archive aware:</strong> old shoots and new cards use the same import, catalog, and
+        deliverable pipeline.</li>
+        </ul>
+        <h2>Workflow value</h2>
+        <p>The current core models a concrete promise for high-volume users:</p>
+        <ol>
+        <li>Discover mounted-volume candidates from reviewed roots or typed native macOS
+        metadata, rank detected storage, then recommend a review-required
+        source/destination route.</li>
+        <li>Ingest safely from the approved card, local folder, or SSD.</li>
+        <li>Preserve originals and emit a manifest.</li>
+        <li>Generate a read-only production-plan report from that manifest so the user
+        can review asset counts, parallel wave shape, and planned IG deliverables
+        before AI/color jobs start writing new artifacts.</li>
+        <li>Fan out proxy and VLM analysis work across every asset.</li>
+        <li>Rejoin at scene grouping and look development so the grade is consistent.</li>
+        <li>Fan out graded master rendering.</li>
+        <li>Rank storylines from VLM quality, scene, and narrative signals.</li>
+        <li>Persist renderer-neutral assembly tasks from verified graded storyline
+        selects through <code>write-render-tasks</code>, creating or reusing
+        <code>deliverables/render_tasks.json</code> without rendering deliverables.</li>
+        <li>Initialize and track render progress and retry safety through a trusted
+           status manifest that never resets existing matching progress.</li>
+        <li>Schedule only dependency-ready pending/retryable render work through a dry-run
+           worker action plan.</li>
+        <li>Claim ready work as running and report success/retry/failure with checksums
+        for expected deliverable outputs.</li>
+        <li>Persist each claim or result with a single-task compare/write status update
+        that holds a local advisory lock and rejects stale state or attempt
+        preconditions, with an optional <code>updated_at</code> lease token for timeout-sensitive
+        updates.</li>
+        <li>Recover from interrupted local workers by planning explicit stale-running
+        lease expirations from trusted status plus a caller-provided cutoff, then
+        persisting each retryable transition through the same compare/write path so
+        same-attempt heartbeat refreshes cannot be overwritten by stale schedulers.
+        Conflicted expirations remain visible to the scheduler/UI as &quot;another worker
+        already changed this task&quot; rather than being hidden as generic failures.</li>
+        <li>Prove renderer orchestration with a dry-run adapter that consumes only
+        ready worker actions, persists claim/result transitions, writes only
+        declared deliverable outputs, and refuses to overwrite existing different
+        files.</li>
+        <li>Execute trusted dry-run action batches with bounded local concurrency so
+        parallel-safe photo-set chunks can progress quickly while serial actions,
+        stale claims, and blocked tasks stay explicit.</li>
+        <li>Run an iterative dry-run scheduler loop that reloads trusted render status,
+        safely expires stale leases, plans ready work, executes bounded batches, and
+        stops with explicit complete/blocked/retryable/failed/waiting state for the Mac app
+        or background agent.</li>
+        <li>Persist a strict scheduler report for the Mac app or next background agent,
+        including completed outputs, retryable/failed/blocked tasks, review-required
+        task IDs, stale-lease conflicts, human-readable failure messages, and derived
+        product metrics for activation/reliability dashboards.</li>
+        <li>Invoke the same init/scheduler/report handoff from persisted-manifest CLI
+        commands so a Mac launch agent, menu-bar app, or automation runner can
+        bootstrap and advance work without reconstructing the production planner in
+        memory.</li>
+        <li>Resume safely with <code>workspace-health</code> and <code>inspect-render-workspace</code>:
+        read-only commands that validate whichever handoff files exist, report
+        invalid manifests for review, show render status counts, and print the next
+        safe command without writing or resetting anything.</li>
+        <li>Drive safe ingest itself through the same CLI surface: <code>preview-ingest</code>
+        plans a checksum-verified copy and prints planned items as JSON without
+        moving bytes; <code>execute-ingest --confirm</code> runs the existing safe copy +
+        manifest contract (no source deletion, no overwriting different bytes,
+        SHA-256-verified, deterministic <code>ingest_manifest.json</code>). The explicit
+        <code>--confirm</code> requirement keeps background-agent automation from triggering
+        a card copy by accident. Both preview and confirmed-copy receipt JSON use
+        schema v2 root <code>workflow_authority</code> so the payloads do not grant additional
+        copy, retry, cleanup, overwrite, materialization, or deletion authority.</li>
+        <li>Offer a unified <code>card-dump-workflow</code> command for native-shell demos and the
+        first Mac UI integration. It discovers a reviewed route, estimates source
+        media size, capacity-gates the destination, previews the checksum copy, and
+        only with <code>--confirm-ingest</code> performs the copy plus a read-only production
+        summary. Confirmed reports include explicit <code>next_actions</code> for trusted
+        storyline/grading preparation and the subsequent render-task handoff. The
+        schema-versioned report also carries an <code>agent_handoff</code> block that tells
+        launch agents whether the next safe step is route repair, preview review,
+        or production-plan review, and whether the next step may copy bytes. Schema
+        v2 report JSON carries root observe-only <code>workflow_authority</code>; agents should
+        treat <code>next_step_may_copy_bytes</code> as a prompt to request explicit user
+        confirmation, not as copy authority.</li>
+        <li>Use <code>write-render-tasks</code> after trusted analysis/storyline/grading artifacts
+        exist so production shoots can enter the same persisted init/status/scheduler
+        flow that demos already exercise. Its summary points native shells at
+        <code>init-render-status</code> and <code>dry-run-render-scheduler</code> with trusted completed
+        dependency IDs included, while keeping runtime scheduler parameters outside
+        the static handoff. The summary is schema v2 and observe-only at the root,
+        and write-capable next actions remain command-free descriptors rather than
+        file mutation permission.</li>
+        <li>Initialize <code>production_status.json</code> from the verified ingest manifest when a
+        Mac shell or production worker needs durable progress for proxy, analysis,
+        grading, storyline, and packaging work before render tasks exist. The status
+        file stays bound to the deterministic production-plan fingerprint and does
+        not create downstream media artifacts. <code>next-production-wave --use-production-status</code> now reads succeeded jobs from that trusted status
+        file, schedules only dependency-ready pending jobs, and surfaces running,
+        retryable, or failed work separately instead of relying on caller-reported
+        completion IDs. Production-worker helpers now turn that trusted status into
+        claimable job actions, report success only after declared outputs exist and
+        checksum, and record retry/failure statuses without granting cleanup,
+        deletion, or arbitrary path authority. Local production adapters now
+        exercise that status contract by persisting claims and final success or
+        retryable states through the guarded compare/write path. The dry-run adapter
+        writes declared placeholder file outputs; <code>metadata-production-local</code> reads
+        only workspace-bound trusted inputs and writes deterministic metadata JSON to
+        declared outputs; <code>proxy-production-local</code> copies trusted local source bytes
+        into declared proxy outputs as a conservative proxy stand-in; and
+        <code>analysis-production-local</code> writes deterministic schema-compatible
+        <code>vlm_asset_analysis</code> JSON only for analysis jobs. This analysis adapter is a
+        contract probe, not final creative understanding: it proves scheduler
+        routing, checksum reporting, and downstream analysis loading before real VLM
+        execution is trusted. <code>scene-production-local</code> now consumes those trusted
+        analysis artifacts and writes deterministic <code>analysis/scene_groups.json</code> for
+        <code>scene_grouping</code> jobs only, proving the serial scene-rejoin handoff before
+        real clustering is trusted. <code>look-production-local</code> consumes the verified
+        scene summary and writes deterministic <code>color/shoot_look.json</code> for
+        <code>look_development</code> jobs only, proving the shoot-level look handoff before
+        real color science or creator style learning is trusted.
+        <code>grade-production-local</code> now applies that schema-validated/checksum-verified
+        look plus schema-validated/checksum-verified per-asset analysis to one
+        trusted source original at a time, writing deterministic stand-in graded
+        outputs only for <code>graded_photo</code>/<code>graded_video</code> jobs before real ffmpeg/Core
+        Image/Metal grading is trusted. <code>story-production-local</code> now verifies the
+        planned analysis, scene, look, and graded inputs against trusted status
+        checksums, then writes deterministic schema v2
+        <code>analysis/instagram_storylines.json</code> only for <code>storyline_selection</code> jobs
+        before real editorial/story intelligence is trusted. <code>package-production-local</code>
+        now verifies trusted storyline plus graded outputs and writes deterministic
+        package handoff artifacts for <code>instagram_reel</code>, <code>instagram_carousel</code>, and
+        <code>instagram_photo_set</code> jobs before real render/export package workers are
+        trusted. Directory-style packages are represented by a controlled
+        manifest-plus-directory-checksum contract. Unexpected existing package
+        directory entries are named in retryable adapter/scheduler errors while the
+        stray bytes remain untouched. All refuse symlinked paths, missing inputs,
+        malformed package directories, or existing different files without cleanup
+        authority. The dry-run production scheduler
+        now gives Mac shells a single command to advance those
+        durable jobs in dependency order, with bounded parallelism and explicit
+        complete/blocked/retryable/failed/waiting state. Previously retryable jobs
+        require an explicit reviewed retry ID before the scheduler will attempt them
+        again. The scheduler can now expire stale running production leases through
+        the guarded status compare/write path when the caller supplies a cutoff and
+        lease timestamp, preserving active heartbeat refreshes as visible conflicts
+        instead of clobbering them. It also writes
+        <code>production_scheduler_report.json</code>, a strict run record bound to the
+        production-plan fingerprint and final <code>production_status.json</code>, so the next
+        UI or background agent can inspect materialized outputs, review-required
+        jobs, expired leases, and lease conflicts without rerunning scheduler logic.
+        These schema v3 scheduler reports now include root observe-only
+        <code>workflow_authority</code> plus validated product metric counts for completed,
+        retryable, failed, blocked, attempted, skipped, review-required, lease,
+        materialized-output, failure-message, and total work. The read-only
+        <code>plan-production</code> and <code>next-production-wave</code> summaries are schema v2 and
+        carry the shared observe-only <code>workflow_authority</code> block so native shells can
+        render candidate work without granting claim, retry, materialization, or
+        cleanup authority.</li>
+        <li>Create repeatable persisted-manifest smoke/demo workspaces through the core
+        helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
+        handoff as real shoots. The card-dump demo helper now adds a synthetic
+        detected-card -&gt; checksum-ingest -&gt; production-summary path while preserving
+        the no-delete/no-overwrite boundaries.</li>
+        <li>Summarize the current shoot workspace through <code>index-workspace</code>, a
+        metadata-only command that validates existing trusted artifacts and gives
+        UI/agent layers one coherent handoff plus the health-derived next safe
+        action without treating raw model JSON as authority. Workspace health now
+        validates production status and production scheduler reports alongside render
+        handoffs, exposes production job/state counts, and points native shells at
+        production init, scheduler execution, or review states before render work.
+        The derived index carries the same production summaries as metadata-only
+        artifacts. Workspace health and the derived index also include a current
+        render-input fingerprint over trusted storyline/graded inputs, so future
+        agents can detect in-place input drift between snapshots before relying on
+        older render progress. They now surface validated production and render
+        scheduler product metrics as observational UI/analytics fields, letting a
+        future Mac app or pilot dashboard show throughput and intervention-rate
+        signals without parsing worker internals or treating metrics as file
+        authority. Workspace health schema v4 and workspace index schema v2 now also
+        expose the shared observe-only <code>workflow_authority</code> contract, so native
+        shells and agents can fail closed before presenting adjacent write-capable
+        controls. The first <code>pilot-dashboard</code> contract now consumes that health layer
+        directly and reports activation flags, metric-source availability,
+        throughput, manual-intervention counts, and schema v2 pilot acceptance
+        thresholds as read-only product signals. Default readiness is intentionally
+        conservative: at least 90% trusted completion, at most 20% manual
+        intervention, and at least one materialized output before a workspace is
+        counted as ready for pilot review. The follow-on <code>pilot-cohort-report</code>
+        contract aggregates saved dashboard JSON across workspaces into pilot-ready
+        workspace rate, median intervention rate, first-draft output count, and
+        structured readiness blockers without reading worker internals or granting
+        workflow authority. It validates component dashboard threshold flags against
+        the reported metrics before trusting workspace readiness, so pilot
+        operations can separate missing telemetry from low completion, high
+        intervention, or missing first-draft output bottlenecks. The
+        <code>create-pilot-cohort-demo</code> fixture now composes trusted demo render
+        workspaces, saved dashboard JSON, and a saved cohort report so pilot/GTM
+        demos can show the measurement loop without real media or spreadsheets.
+        <code>pilot-cohort-brief</code> turns that saved report into native-shell presentation
+        state--status, headline, summary labels, structured blocker counts,
+        controlled per-workspace blocker labels, cards, and an optional deterministic
+        text-mode readout--without emitting workflow commands or widening authority.
+        <code>package-handoff-brief</code> gives native shells the corresponding package-level
+        production readout: it validates trusted production status/report state from
+        the ingest manifest, summarizes completed/review-required package jobs and
+        materialized package outputs, and binds copy/retry/materialization controls
+        to the same fail-closed workflow authority contract.</li>
+        <li>Assemble reels, carousels, and photo sets from graded masters.</li>
+        </ol>
+        <p>This is the right business wedge because it can save time even before the AI is
+        perfect. A photographer or editor can trust the file organization, review the
+        structured job plan, and then decide how much of the color and social packaging
+        to automate.</p>
+        <h2>Business model options</h2>
+        <ul>
+        <li>Solo creator subscription for local-only ingest, organization, and batch
+        exports.</li>
+        <li>Pro subscription with accelerated cloud/vLLM processing, team presets, and
+        shared review links.</li>
+        <li>Studio/editor workflow tier for client folders, handoff packages, and
+        recurring brand looks.</li>
+        <li>Usage-based compute add-on for very large shoots and video-heavy archives.</li>
+        </ul>
+        <h2>Next product bets</h2>
+        <ol>
+        <li>Desktop ingest assistant that turns detected SD cards, folders, and SSD destinations into a reviewed
+        import route. The current core now includes portable mounted-volume discovery, a typed native macOS
+        metadata adapter for Disk Arbitration/Swift handoff, capacity-gated route recommendation, safe ingest
+        commands, a read-only schema v2 <code>plan-production</code> report after ingest, and a
+        schema v2 <code>write-render-tasks</code> handoff once trusted storyline/graded artifacts exist;
+        the next step is a SwiftUI/menu-bar approval screen around the
+        <code>card-dump-workflow</code> contract before proxy/analysis/grading work begins.</li>
+        <li>Color-look profile model that can learn from a reference edit or existing
+        Lightroom/DaVinci exports.</li>
+        <li>Selects model that creates several reel/carousel narratives instead of one
+        brittle &quot;best&quot; output. The implemented contract now ranks VLM asset analysis
+        into a scene-diverse first-cut reel, named <code>hero</code>, <code>behind_the_scenes</code>, and
+        <code>fast_cut</code> reel variants, scene-varied carousels, and complete ranked photo
+        sets, then persists those choices as a deterministic edit-decision artifact
+        for review/export. Assembly turns those selections into verified render tasks
+        so a future local or cloud renderer can execute the package without trusting
+        raw model paths. Render status manifests now let that renderer report
+        pending/running/succeeded/failed/retryable progress without introducing new
+        file authority, and render-worker action plans identify ready or blocked work
+        before any adapter opens media files. Worker status-transition helpers now
+        let adapters claim a matching attempt and report completed outputs by checksum
+        without receiving authority to invent paths or delete media; compare/write
+        status updates keep stale local workers from overwriting newer task progress.
+        Stale-running lease plans now give schedulers a conservative way to retry
+        interrupted work without treating a timeout as permission to clean up or
+        delete media. The first dry-run renderer adapter now exercises this contract
+        end-to-end by claiming one trusted action, materializing deterministic
+        placeholder outputs under <code>deliverables/</code>, refusing symlinked or different
+        existing outputs, and persisting success or retryable status updates through
+        the same compare/write boundary.
+        The dry-run adapter can now run a trusted action plan in batches, respecting
+        each action&apos;s serial/parallel flag, capping local concurrency, preserving
+        blocked-task visibility, and recording stale-action failures without
+        materializing outputs or deleting media.
+        Stale-running lease expirations can now be persisted as guarded retryable
+        status updates, with heartbeat-refresh conflicts reported at task granularity.
+        The dry-run scheduler now loops over trusted status reloads, stale-lease
+        expiration, ready-action planning, and bounded batch execution until the plan
+        is complete or explicitly blocked/retryable/failed/waiting. It also avoids retrying a
+        task again in the same run after that task becomes retryable, which protects
+        manual editor exports and other persistent output conflicts from tight-loop
+        overwrite attempts.
+        Scheduler runs can now persist schema v3
+        <code>deliverables/render_scheduler_report.json</code> as
+        the product-facing summary for UI/retry/agent handoff, bound to the trusted
+        render-plan fingerprint and final status manifest so stale or model-authored
+        reports cannot invent tasks, outputs, or review state. New persisted
+        scheduler reports carry root observe-only <code>workflow_authority</code>, while legacy
+        schema v1/v2 reports load as observe-only for existing demo and pilot
+        workspaces.
+        The first CLI commands now start from persisted render-task manifests,
+        safely initialize the matching render-status manifest when it is missing,
+        preserve existing progress on repeated launches, run the trusted dry-run
+        scheduler, write that report, and can print JSON summaries for a Mac app or
+        background automation process. The demo workspace helper now creates a tiny
+        trusted persisted render-task workspace for smoke tests and product demos
+        without bypassing the real init/status/scheduler path, plus a synthetic
+        card-dump-to-render smoke workspace that exercises real checksum ingest before
+        the render handoff. A production-status manifest plus production-worker
+        action/status helpers now give pre-render proxy/analysis/grading/storyline
+        work the same resumable, fingerprint-bound progress boundary as rendering:
+        workers can plan dependency-ready jobs, claim a matching attempt, verify
+        declared outputs before success, and report retry/failure without deleting or
+        inventing paths. The dry-run production adapter, <code>metadata-production-local</code>,
+        and <code>proxy-production-local</code> now prove the same claim/materialize/report loop
+        for declared file artifacts before real model-backed workers are wired in. The
+        dry-run production scheduler wraps those adapters in the same persisted-status
+        loop the render side uses, including
+        guarded stale-lease expiration, so native shells can advance pre-render jobs
+        without embedding scheduling logic or retrying prior/newly retryable conflicts
+        or clobbering heartbeat-refreshed workers in a tight loop. Scheduler dispatch
+        is adapter-capability aware: <code>proxy-production-local</code>,
+        <code>analysis-production-local</code>, <code>scene-production-local</code>,
+        <code>look-production-local</code>, <code>grade-production-local</code>, and
+        <code>story-production-local</code>, and <code>package-production-local</code> receive only
+        dependency-ready jobs for their declared output kinds, while incompatible
+        future jobs remain pending or blocked for a compatible worker rather than
+        becoming expected stage-mismatch failures. The first local
+        metadata production adapter now extends the same worker contract beyond pure
+        placeholders: it reads trusted local inputs, fingerprints their bytes, and
+        writes deterministic metadata JSON only to declared output files, while
+        preserving missing-input, directory-output, stale-claim, and output-conflict
+        review states. The proxy adapter extends the contract into media-byte
+        materialization by copying trusted source bytes only to declared proxy outputs
+        while preserving the same no-overwrite/no-cleanup review states.
+        <code>analysis-production-local</code> extends the stage-specific adapter path into the
+        next wave by materializing deterministic per-asset analysis JSON only for
+        <code>vlm_asset_analysis</code> jobs. <code>scene-production-local</code> extends the path across
+        the first serial rejoin by materializing deterministic scene-group summaries
+        from trusted analysis artifacts; <code>look-production-local</code> extends the path to
+        a deterministic shoot-look profile from the trusted scene summary; and
+        <code>grade-production-local</code> extends the path into deterministic per-asset graded
+        stand-ins from trusted originals plus schema-validated/checksum-verified
+        analysis and look dependencies. <code>story-production-local</code> extends the path
+        into deterministic schema v2 storyline selection from checksum-verified
+        analysis, scene, look, and graded inputs. <code>package-production-local</code> extends
+        the path into deterministic package handoff artifacts and directory checksums
+        from verified story and graded dependencies. The persisted production and render scheduler
+        reports now emit root observe-only authority plus derived product metrics,
+        giving the future
+        Mac app and pilot analytics a
+        trusted way to measure automation throughput, intervention rate, and
+        reliability without parsing raw worker internals. <code>pilot-dashboard</code> is the
+        first stable pilot-facing summary
+        on top of those metrics: unavailable reports remain unavailable rather than
+        silently becoming zeroes, and write-capable next actions are named without
+        re-emitting executable scheduler commands. Pilot dashboard, cohort report,
+        and cohort brief JSON now share a structured <code>workflow_authority</code> contract so
+        native shells and continuation agents can see that readiness metrics are
+        presentation-only and do not permit copy, retry, cleanup, overwrite,
+        materialization, deletion, or any file mutation.
+        The next-production-wave handoff can derive its completed dependency set
+        directly from that manifest. The workspace health and index layer gives those
+        shells a single metadata snapshot across ingest, production-status,
+        production-scheduler-report, storyline, render-task, render-status, and
+        scheduler-report artifacts, while preserving each artifact&apos;s original trust
+        boundary. It includes production job/status counts and production scheduler
+        report review state, plus a metadata-only render-input fingerprint that gives
+        continuation agents a simple drift signal when trusted storyline or graded
+        files change in place. Render workspace inspection adds the missing read-only
+        state surface around render handoffs: it reports whether status is missing,
+        work is ready, blocked, running, review required, or complete, while rejecting
+        stale scheduler reports instead of treating them as product truth.</li>
+        <li>Review UI for accepting, tweaking, or regenerating deliverables.</li>
+        <li>iPhone companion for review, approvals, publishing prep, and mobile imports.</li>
+        </ol>
+        <h2>Focus decision: who we serve first</h2>
+        <p>ShootFlow should prioritize one paying segment first, then expand:</p>
+        <ol>
+        <li><strong>Primary ICP (v1):</strong> professional photographers/videographers with recurring
+        client work (weddings, events, portrait/editorial teams) who process large
+        weekly batches and can justify paid software quickly.</li>
+        <li><strong>Secondary ICP (v1.5+):</strong> creator businesses (small teams or solo creators
+        with sponsorship workflows) that need more output consistency and throughput.</li>
+        <li><strong>Later ICP:</strong> casual creators and hobbyists, once the workflow is stable and
+        support burden is low enough for lower-price plans.</li>
+        </ol>
+        <p>Why this order:</p>
+        <ul>
+        <li>Pros feel pain weekly, not occasionally.</li>
+        <li>Pros already pay either with hours or with editor spend.</li>
+        <li>Pros care about safe ingest + predictable turnaround, which is ShootFlow&apos;s
+        strongest moat versus generic AI editing apps.</li>
+        </ul>
+        <h2>Product packaging and platform strategy</h2>
+        <ul>
+        <li><strong>Mac app first:</strong> full ingest/organize/edit/export automation for high-volume
+        local media workflows and attached drives.</li>
+        <li><strong>iPhone app second (companion):</strong> review selects, approve reels/carousels,
+        annotate grade tweaks, and prep captions/calendars while away from desk.</li>
+        <li><strong>Cloud optional, local default:</strong> local processing and storage should remain
+        first-class so customers are not forced to upload terabytes. Cloud acceleration
+        can be an opt-in compute booster for burst jobs.</li>
+        </ul>
+        <h2>Monetization strategy (working model)</h2>
+        <ul>
+        <li><strong>Base subscription:</strong> local-first pipeline (ingest safety, organization, batch
+        grading, draft IG deliverables).</li>
+        <li><strong>Pro tier:</strong> stronger presets/looks, collaboration/review tools, and faster
+        job orchestration.</li>
+        <li><strong>Usage add-on:</strong> optional accelerated VLM/render credits for very large shoots
+        or faster turnaround windows.</li>
+        </ul>
+        <p>Pricing should be anchored against time/editor replacement value, not only
+        &quot;software category&quot; pricing. A credible value story:</p>
+        <ul>
+        <li>If users save 8-15 hours/week of editing/admin time or avoid part of editor
+        spend, even a premium monthly price can remain ROI-positive.</li>
+        <li>The product promise should be &quot;more high-quality outputs per week with less
+        operational overhead,&quot; not guaranteed engagement outcomes.</li>
+        </ul>
+        <h2>Go-to-market thesis</h2>
+        <ul>
+        <li><strong>Primary channel:</strong> Instagram-native marketing (creator/pro reels showing
+        before/after workflow speed, not only visual quality).</li>
+        <li><strong>Secondary channels:</strong> partnerships with editing educators, wedding/photo
+        communities, and post-production agencies.</li>
+        <li><strong>Positioning:</strong> &quot;the safest way to turn card dumps into client-ready and
+        IG-ready deliverables at scale.&quot;</li>
+        </ul>
+        <p>Messaging should emphasize:</p>
+        <ol>
+        <li>Source-media safety (no destructive ingest).</li>
+        <li>Predictable ingest-to-deliverable turnaround.</li>
+        <li>Better content throughput without adding editing headcount.</li>
+        </ol>
+        <h2>Operational trust policy (card offload + deletion boundaries)</h2>
+        <p>To keep the product useful for professionals, ingest must stay conservative:</p>
+        <ol>
+        <li><strong>Detection is advisory:</strong> drive/card detection proposes a route for review; it
+        is never permission to start destructive actions.</li>
+        <li><strong>Offload before edit:</strong> users should route source card -&gt; working destination
+        first, then run grading/assembly from the ingest manifest boundary.</li>
+        <li><strong>Capacity gate by default:</strong> destination selection should require estimated
+        import bytes plus safety headroom before route status is <code>ready_for_review</code>.</li>
+        <li><strong>No-delete lock:</strong> source deletion and card formatting remain explicitly out of
+        scope for default workflows; any future cleanup features should be opt-in,
+        delayed, and recoverable.</li>
+        <li><strong>Backup reminder baked in:</strong> route recommendations should continue to include
+        notes to verify backups before ejecting cards.</li>
+        </ol>
+        <h2>Audience split: one core engine, staged packaging</h2>
+        <p>The request spans three real segments, but they should share one execution core:</p>
+        <ul>
+        <li><strong>Pro service teams (primary):</strong> photographers/videographers with recurring
+        paid client turnaround pressure.</li>
+        <li><strong>Creator businesses (secondary):</strong> social-first teams optimizing weekly output
+        velocity and consistency.</li>
+        <li><strong>Casual creators (later):</strong> lower willingness to pay, higher support load.</li>
+        </ul>
+        <p>Execution implication: the product should keep one deterministic ingest -&gt; grade
+        -&gt; social package engine while exposing different workflow presets and pricing,
+        instead of branching into separate codebases too early.</p>
       </div>
     </>
   );

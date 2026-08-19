@@ -5,7 +5,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import HtmlToJsx from "htmltojsx";
+import { htmlToJsx } from "html-to-jsx-transform";
 import { marked } from "marked";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -13,8 +13,6 @@ const DOCS_ROOT = path.resolve(__dirname, "../../docs");
 const APP_ROOT = path.resolve(__dirname, "../src/app");
 const CONTENT_ROOT = path.resolve(__dirname, "../src/generated/doc-content");
 const MANIFEST_FILE = path.resolve(__dirname, "../src/generated/manifest.ts");
-
-const jsxConverter = new HtmlToJsx({ createClass: false });
 
 const HTML_SLUGS = {
   "commercial-viability-report.html": "commercial-viability-assessment",
@@ -81,9 +79,34 @@ function contentExportName(slug) {
   return `${componentName(slug)}Content`;
 }
 
+// html-to-jsx-transform treats any balanced `{...}` run in text content as a
+// template "merge tag" and rewrites it into a commented-out JSX expression
+// instead of literal text (see its split-merge-tags.js). Our source docs
+// embed literal JSON/code samples containing braces, so every `{`/`}` must be
+// shielded from that pass. Private-Use-Area sentinels survive HTML parsing
+// and JSX generation untouched (they're ordinary characters to both), then
+// get swapped for JSX-escaped brace literals once the merge-tag pass is done.
+const BRACE_OPEN_SENTINEL = "\uE000";
+const BRACE_CLOSE_SENTINEL = "\uE001";
+
+function shieldBraces(html) {
+  return html.replaceAll("{", BRACE_OPEN_SENTINEL).replaceAll("}", BRACE_CLOSE_SENTINEL);
+}
+
+function unshieldBraces(jsx) {
+  // The JSX generator may re-emit the sentinels as numeric character
+  // references (e.g. `&#57344;` for U+E000) instead of the raw codepoint,
+  // so both forms need to be swapped back.
+  return jsx
+    .replaceAll(BRACE_OPEN_SENTINEL, '{"{"}')
+    .replaceAll("&#57344;", '{"{"}')
+    .replaceAll(BRACE_CLOSE_SENTINEL, '{"}"}')
+    .replaceAll("&#57345;", '{"}"}');
+}
+
 function htmlToJsxFragment(html) {
-  let jsx = jsxConverter.convert(html).trim();
-  const wrapped = jsx.match(/^<div>\s*([\s\S]*)\s*<\/div>$/);
+  let jsx = unshieldBraces(htmlToJsx(shieldBraces(html))).trim();
+  const wrapped = jsx.match(/^<>\s*([\s\S]*)\s*<\/>$/) || jsx.match(/^<div>\s*([\s\S]*)\s*<\/div>$/);
   if (wrapped) {
     jsx = wrapped[1].trim();
   }

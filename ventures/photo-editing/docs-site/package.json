@@ -22,7 +22,7 @@
     "@types/react-dom": "^19.0.4",
     "eslint": "^9.25.1",
     "eslint-config-next": "^15.2.4",
-    "htmltojsx": "^0.3.0",
+    "html-to-jsx-transform": "^1.2.1",
     "typescript": "^5.8.2"
   }
 }

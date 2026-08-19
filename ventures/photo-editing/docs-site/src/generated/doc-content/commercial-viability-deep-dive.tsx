@@ -10,18 +10,20 @@ export function CommercialViabilityDeepDiveContent() {
         <div className="container">
           <div className="hero">
             <h1>ShootFlow Commercial Viability Deep Dive</h1>
-            <p style={{fontSize: '1.25rem', maxWidth: 720, opacity: '0.9'}}>Independent assessment of profitability, scalability, and strategic recommendations for turning the current core into a sustainable business. Generated June 2026.</p>
-            <div style={{marginTop: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap'}}>
-              <div><span className="score">6.5</span><span style={{fontSize: '1.1rem', color: '#94a3b8'}}>/10</span><br /><small>Overall Viability Score</small></div>
-              <div style={{marginLeft: '2rem'}}><strong>Market Fit:</strong> 7/10<br /><strong>Tech Moat:</strong> 8/10<br /><strong>Execution Risk:</strong> 7/10 (high)</div>
+            <p style={{ fontSize: "1.25rem", maxWidth: 720, opacity: "0.9" }}>Independent assessment of profitability, scalability, and strategic recommendations for turning the current core into a sustainable business. Generated June 2026.</p>
+            <div style={{ marginTop: "2rem", display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+              <div><span className="score">6.5</span><span style={{ fontSize: "1.1rem", color: "#94a3b8" }}>/10</span><br /><small>Overall Viability Score</small></div>
+              <div style={{ marginLeft: "2rem" }}><strong>Market Fit:</strong> 7/10<br /><strong>Tech Moat:</strong> 8/10<br /><strong>Execution Risk:</strong> 7/10 (high)</div>
             </div>
           </div>
+
           <div className="section">
             <h2>1. Executive Summary</h2>
             <p>ShootFlow has a <strong>solid technical foundation</strong> with exceptional emphasis on safety, determinism, and non-destructive workflows. The pure-stdlib Python design, adapter pattern for production/render, and observe-only authority model create a defensible core for professional users who value reliability over flashy AI features.</p>
             <p>However, <strong>commercial readiness is low</strong>. The product is still CLI-only with placeholder adapters. Real media processing (ffmpeg, VLM, color science) is absent. The market (photographers/videographers) is price-sensitive and slow to adopt new tools unless they demonstrably save 10+ hours/week with zero risk of data loss.</p>
-            <p><strong>Likelihood of realistic profitability:</strong> Moderate. With focused execution on a native Mac app + real adapters + pilot customers, it could reach $500k–$2M ARR in 24–36 months. Without a clear path to native UI and first paying users, it risks remaining a sophisticated hobby project.</p>
+            <p><strong>Likelihood of realistic profitability:</strong> Moderate. With focused execution on a native Mac app + real adapters + pilot customers, it could reach $500k&ndash;$2M ARR in 24&ndash;36 months. Without a clear path to native UI and first paying users, it risks remaining a sophisticated hobby project.</p>
           </div>
+
           <div className="section">
             <h2>2. Current State Analysis (Code Deep Dive)</h2>
             <div className="grid">
@@ -32,7 +34,7 @@ export function CommercialViabilityDeepDiveContent() {
                   <li>Adapter abstraction (<code>production_adapter</code>, <code>render_adapter</code>) allows pluggable backends without core changes.</li>
                   <li>Deterministic, checksum-verified artifacts for every stage (analysis, scene, look, grade, story, package).</li>
                   <li>Rich pilot/cohort analytics and workspace health surfaces ready for native app consumption.</li>
-                  <li>Zero third-party deps — extremely low attack surface and maintenance cost.</li>
+                  <li>Zero third-party deps &mdash; extremely low attack surface and maintenance cost.</li>
                 </ul>
               </div>
               <div className="card">
@@ -48,59 +50,64 @@ export function CommercialViabilityDeepDiveContent() {
               </div>
             </div>
           </div>
+
           <div className="section">
             <h2>3. Market &amp; Business Model Assessment</h2>
             <table>
               <tbody><tr><th>Dimension</th><th>Assessment</th><th>Score</th></tr>
-                <tr><td>ICP Clarity</td><td>Wedding/event, portrait studios, real-estate media teams — clear recurring pain.</td><td className="positive">8/10</td></tr>
-                <tr><td>Willingness to Pay</td><td>High if it replaces 10-20 hrs/week or $500–2000/mo outsourced editing.</td><td className="positive">8/10</td></tr>
-                <tr><td>Competitive Moat</td><td>Safety + deterministic pipelines &gt; generic AI tools; hard to replicate safely.</td><td className="positive">7/10</td></tr>
-                <tr><td>Distribution</td><td>Direct (Mac App Store / website) + creator partnerships. No existing user base.</td><td className="warning">4/10</td></tr>
-                <tr><td>Scalability of Delivery</td><td>Local-first excellent for margins (no inference cost at scale); cloud burst option needed for heavy VLM.</td><td className="positive">8/10</td></tr>
-                <tr><td>Churn Risk</td><td>Low once integrated into workflow; high until first successful reel delivered.</td><td className="warning">5/10</td></tr>
-              </tbody></table>
-            <p><strong>Projected Economics (conservative):</strong> 400 customers @ $49/mo avg = $235k ARR at 18 months. 70% gross margin after support. Path to 2–3M ARR possible with Studio tier + marketplace take-rate.</p>
+              <tr><td>ICP Clarity</td><td>Wedding/event, portrait studios, real-estate media teams &mdash; clear recurring pain.</td><td className="positive">8/10</td></tr>
+              <tr><td>Willingness to Pay</td><td>High if it replaces 10-20 hrs/week or $500&ndash;2000/mo outsourced editing.</td><td className="positive">8/10</td></tr>
+              <tr><td>Competitive Moat</td><td>Safety + deterministic pipelines &gt; generic AI tools; hard to replicate safely.</td><td className="positive">7/10</td></tr>
+              <tr><td>Distribution</td><td>Direct (Mac App Store / website) + creator partnerships. No existing user base.</td><td className="warning">4/10</td></tr>
+              <tr><td>Scalability of Delivery</td><td>Local-first excellent for margins (no inference cost at scale); cloud burst option needed for heavy VLM.</td><td className="positive">8/10</td></tr>
+              <tr><td>Churn Risk</td><td>Low once integrated into workflow; high until first successful reel delivered.</td><td className="warning">5/10</td></tr>
+            </tbody></table>
+            <p><strong>Projected Economics (conservative):</strong> 400 customers @ $49/mo avg = $235k ARR at 18 months. 70% gross margin after support. Path to 2&ndash;3M ARR possible with Studio tier + marketplace take-rate.</p>
           </div>
+
           <div className="section">
             <h2>4. Profitability &amp; Scalability Verdict</h2>
             <div className="conclusion">
               <p><strong>Is this a realistically profitable and scalable business worth pursuing?</strong></p>
               <p><strong>Yes, with caveats.</strong> The problem is real and painful. The technical approach (safety-first orchestration + adapter extensibility) is correct for the domain. Unit economics look attractive because the heavy lifting stays on customer hardware.</p>
-              <p>However, the <strong>capital and time required to reach first revenue</strong> is higher than a typical SaaS MVP. Expect 9–15 months of focused engineering (native app, ffmpeg/Metal adapters, minimal VLM pilot, onboarding flow) before charging customers. Only pursue if the founding team has:</p>
+              <p>However, the <strong>capital and time required to reach first revenue</strong> is higher than a typical SaaS MVP. Expect 9&ndash;15 months of focused engineering (native app, ffmpeg/Metal adapters, minimal VLM pilot, onboarding flow) before charging customers. Only pursue if the founding team has:</p>
               <ul>
                 <li>Deep domain expertise or strong advisor network in photography/video production.</li>
-                <li>Access to 10–20 pilot customers willing to pay $2k–5k for early access + feedback.</li>
+                <li>Access to 10&ndash;20 pilot customers willing to pay $2k&ndash;5k for early access + feedback.</li>
                 <li>Comfort with long pre-revenue runway (or non-dilutive grants / services revenue to fund).</li>
               </ul>
             </div>
           </div>
+
           <div className="section">
             <h2>5. Strategic Recommendations for Success</h2>
             <ol>
-              <li><strong>Ship a native Mac app immediately.</strong> The CLI is an excellent backend, but adoption requires drag-and-drop volumes, visual timeline of tasks, one-click "next wave", and in-app preview of storylines. Use Swift + the existing Python orchestration via embedded interpreter or XPC.</li>
+              <li><strong>Ship a native Mac app immediately.</strong> The CLI is an excellent backend, but adoption requires drag-and-drop volumes, visual timeline of tasks, one-click &quot;next wave&quot;, and in-app preview of storylines. Use Swift + the existing Python orchestration via embedded interpreter or XPC.</li>
               <li><strong>Prioritize real proxy + grade adapters.</strong> The local byte-copy and JSON stubs prove the contract; now implement ffmpeg (cross-platform) + Apple Metal/Core Image paths. This is the #1 credibility milestone.</li>
-              <li><strong>Offer a "local VLM" path + optional cloud credits.</strong> Bundle Ollama or MLX models for on-device analysis to keep costs and privacy low. Sell cloud VLM bursts at cost+margin for users who want higher quality.</li>
-              <li><strong>Build a look/style marketplace.</strong> Users already produce <code>shoot_look.json</code>. Let creators sell/publish named looks. Take 20–30% cut. High margin, increases switching costs.</li>
-              <li><strong>Launch a paid pilot cohort (10–15 studios).</strong> Charge $3k–8k for 3-month engagement including custom look development, on-site training, and priority support. Use revenue + testimonials to fund product.</li>
+              <li><strong>Offer a &quot;local VLM&quot; path + optional cloud credits.</strong> Bundle Ollama or MLX models for on-device analysis to keep costs and privacy low. Sell cloud VLM bursts at cost+margin for users who want higher quality.</li>
+              <li><strong>Build a look/style marketplace.</strong> Users already produce <code>shoot_look.json</code>. Let creators sell/publish named looks. Take 20&ndash;30% cut. High margin, increases switching costs.</li>
+              <li><strong>Launch a paid pilot cohort (10&ndash;15 studios).</strong> Charge $3k&ndash;8k for 3-month engagement including custom look development, on-site training, and priority support. Use revenue + testimonials to fund product.</li>
               <li><strong>Add Windows support via WSL2 or native Python.</strong> Many Windows-based real-estate and corporate video teams exist; fcntl is the only blocker.</li>
-              <li><strong>Instrument usage telemetry (opt-in).</strong> The pilot_dashboard already emits rich metrics; surface anonymized cohort insights back to users ("you are 23% faster than median studio").</li>
+              <li><strong>Instrument usage telemetry (opt-in).</strong> The pilot_dashboard already emits rich metrics; surface anonymized cohort insights back to users (&quot;you are 23% faster than median studio&quot;).</li>
               <li><strong>Consider white-label / agency licensing.</strong> Large post houses or camera rental companies may want to brand and resell the platform.</li>
               <li><strong>Plan for export to TikTok/YouTube Shorts vertical variants.</strong> The storyline engine can be extended; social platforms change fast.</li>
-              <li><strong>Establish a "trust &amp; safety" narrative.</strong> Market the observe-only workflow_authority and never-delete guarantees heavily. This differentiates from "magic AI" tools that occasionally eat your footage.</li>
+              <li><strong>Establish a &quot;trust &amp; safety&quot; narrative.</strong> Market the observe-only workflow_authority and never-delete guarantees heavily. This differentiates from &quot;magic AI&quot; tools that occasionally eat your footage.</li>
             </ol>
           </div>
+
           <div className="section">
             <h2>6. Risk Matrix &amp; Mitigations</h2>
             <table>
               <tbody><tr><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th></tr>
-                <tr><td>Adoption slower than expected</td><td>High</td><td>High</td><td>Heavy pilot program + case studies before public launch</td></tr>
-                <tr><td>Real media processing quality lags Adobe</td><td>Medium</td><td>High</td><td>Position as "first draft + human review" tool, not full replacement</td></tr>
-                <tr><td>AI inference costs explode</td><td>Medium</td><td>Medium</td><td>Default to local models; cloud only opt-in with hard caps</td></tr>
-                <tr><td>Apple ecosystem changes (new OS, notarization)</td><td>Low</td><td>Medium</td><td>Keep Python orchestration portable; native shell thin</td></tr>
-                <tr><td>Competitor copies safety model</td><td>Low</td><td>Medium</td><td>Move fast on marketplace + community looks; patent key orchestration if possible</td></tr>
-              </tbody></table>
+              <tr><td>Adoption slower than expected</td><td>High</td><td>High</td><td>Heavy pilot program + case studies before public launch</td></tr>
+              <tr><td>Real media processing quality lags Adobe</td><td>Medium</td><td>High</td><td>Position as &quot;first draft + human review&quot; tool, not full replacement</td></tr>
+              <tr><td>AI inference costs explode</td><td>Medium</td><td>Medium</td><td>Default to local models; cloud only opt-in with hard caps</td></tr>
+              <tr><td>Apple ecosystem changes (new OS, notarization)</td><td>Low</td><td>Medium</td><td>Keep Python orchestration portable; native shell thin</td></tr>
+              <tr><td>Competitor copies safety model</td><td>Low</td><td>Medium</td><td>Move fast on marketplace + community looks; patent key orchestration if possible</td></tr>
+            </tbody></table>
           </div>
-          <footer style={{marginTop: '4rem', opacity: '0.6', fontSize: '0.85rem'}}>
+
+          <footer style={{ marginTop: "4rem", opacity: "0.6", fontSize: "0.85rem" }}>
             This report was produced by continued evaluation of the ShootFlow codebase, docs, tests, and CLI surface as of June 2026. All claims are grounded in the observed architecture (adapter boundaries, status manifests, workflow_authority, deterministic local adapters) and publicly documented product direction.
           </footer>
         </div>
