@@ -4092,3 +4092,70 @@ entries:
         that the owner might otherwise approve on the strength of its
         description alone — worth flagging before it merges, not after.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process, increase profit legally/ethically/reliably" run.
+        `git fetch origin main` before starting; tip was `06689e0`, then
+        moved to `4886ce0` (#145, a ledger entry recording independent
+        review of PR #144's entrypoint script) while this session was
+        still reviewing the same PR — read that entry in full before
+        writing this one rather than re-deriving its findings.
+      - >-
+        Independently reviewed PR #144 in parallel with (unknowingly) at
+        least two other concurrent sessions, per its four now-visible PR
+        comments: found the same core bugs (`work_items` always empty,
+        `get_open_prs()` reads local git branch names instead of calling
+        the GitHub API and would see ~0 branches under this workflow's
+        actual `actions/checkout@v4` single-ref fetch, `allocate_work`
+        doesn't exist in `portfolio/router/allocate.py`) and posted a
+        fourth, overlapping review comment before noticing the other
+        three already there — the exact race condition #144 itself is
+        about, one layer up in reviews instead of PRs. Recording so the
+        next session doesn't make it five: the bug findings are now fully
+        covered by 4 PR comments and #145's ledger entry, nothing new to
+        add there.
+      - >-
+        What is new, and not yet in #145's entry: after all four review
+        comments were posted (12:24:49-12:26:04Z), the same PR head kept
+        moving. Two more commits landed — `768732a` at 12:24:02Z
+        ("Enable OpenCode agent fleet with 10 hourly agents + guardrails",
+        message literally says "Schedule trigger: hourly at :05 UTC" is
+        now enabled) and `91209c5` at 12:26:45Z ("centralized agent
+        prompts... coordinates 21+ agents across Claude Code, Cursor, and
+        OpenCode", explicitly describing an 85/10 strategic-allocation
+        split across a 21-agent multi-platform fleet). Verified directly
+        against the PR head rather than trusting the commit message: the
+        `schedule: - cron: '5 * * * *'` block is live in
+        `.github/workflows/opencode-high-throughput.yml` as of `91209c5`,
+        unconditional and un-gated by any of the new guardrails checks
+        (which validate PR-backlog size, secret presence, and a router
+        import that itself doesn't exist — none of which touch the actual
+        account-level Actions lockdown). So the PR is not merely failing
+        to fix the duplicate-work problem it was opened for; while under
+        active review flagging exactly this, it grew to explicitly
+        re-enable and expand the unattended paid-spend automation that
+        caused the account-wide Actions `startup_failure` lockdown in the
+        first place, now scoped to 21+ agents across three platforms
+        instead of the original 10-agent single-platform fleet.
+      - >-
+        Per CLAUDE.md ("Automation that writes or spends unattended... is
+        a deliberate, human-reviewed decision, not something a session
+        should add or re-enable on its own judgment"), did not close the
+        PR or revert the commits myself — that's the account owner's
+        call, not mine to make unilaterally on a PR I didn't open. Sent a
+        push notification instead: this is a live, escalating situation
+        (a fourth commit could land before the owner reads this) directly
+        contradicting four standing review comments including the PR's
+        own body, not a routine finding that can wait for the next
+        scheduled check-in.
+      - >-
+        Did not re-verify #137/#134/#130/#126/#122/#117/#106/#79/#19/#142
+        — all unchanged, #139 still current. GitHub Actions account-wide
+        `startup_failure` outage: not re-checked (confirmed repeatedly
+        already today, #144's commits independently reconfirm the same
+        root cause).
+    mrr_end: null
