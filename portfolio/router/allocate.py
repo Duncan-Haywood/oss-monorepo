@@ -51,7 +51,22 @@ class Venture:
     monthly_cap: float
     protected: bool
     kill_criteria: list = field(default_factory=list)
+    hypotheses: list = field(default_factory=list)
     ledger_entries: int = 0
+
+    @property
+    def untested_hypothesis(self) -> Optional[str]:
+        """The claim text of the first hypothesis still marked untested.
+
+        VENTURE.yaml's hypotheses list is the venture's own record of what
+        it needs to learn next. Every venture in the portfolio is currently
+        unmeasured, so a generic "push toward the first real measurement"
+        task is the same for all of them -- this makes that task specific.
+        """
+        for h in self.hypotheses:
+            if isinstance(h, dict) and h.get("status") == "untested" and h.get("claim"):
+                return h["claim"]
+        return None
 
     @property
     def measured(self) -> bool:
@@ -112,6 +127,7 @@ def load_ventures(
                 monthly_cap=float(budget.get("monthly_cap") or 0),
                 protected=bool(budget.get("protected", False)),
                 kill_criteria=data.get("kill_criteria") or [],
+                hypotheses=data.get("hypotheses") or [],
                 ledger_entries=ledger_counts.get(name, 0),
             )
         )
@@ -146,6 +162,9 @@ def next_task(v: Venture) -> str:
     if v.needs_decision:
         return "Review: measured at $0 MRR past revenue stage -- check against kill_criteria before further spend."
     if not v.measured:
+        claim = v.untested_hypothesis
+        if claim:
+            return f'Explore: test the untested hypothesis -- "{claim}"'
         return "Explore: no economics signal yet -- push toward the first real measurement (a hypothesis check or a customer touchpoint)."
     if v.mrr is not None and v.monthly_cost is not None and v.mrr < v.monthly_cost:
         return "Review: monthly_cost exceeds mrr -- check against kill_criteria."

@@ -2404,3 +2404,63 @@ entries:
         the candidate the pipeline tells the owner to build first, plus a
         blocker class that was not previously known to be structural.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process, strategic" run. `git fetch origin main` first (tip
+        unchanged at `79b5fa2`, ~3 minutes old at session start); only #79
+        and #19 open, both re-verified within the last hour by the prior
+        cycle with no new development since, so per this file's own ledger-
+        discipline rule did not re-verify or re-notify on either — that
+        would repeat the exact waste this section exists to prevent.
+      - >-
+        Looked for genuinely strategic work rather than another routine
+        test/lint pass, since almost every venture has already had that
+        pass done in prior cycles. Ran `portfolio/router/allocate.py` and
+        noticed a real gap in the router itself: every one of the 11
+        ventures is unmeasured (`economics.mrr: null`), so the "next task"
+        column printed the identical generic string
+        ("Explore: no economics signal yet...") for all 11 rows — not
+        actually a useful work queue despite each `VENTURE.yaml` already
+        recording a specific, structured `hypotheses` list (`claim` +
+        `status`) that the router was reading for nothing but validation.
+      - >-
+        Fixed it: `next_task()` now surfaces the first `status: untested`
+        hypothesis's own claim text for an unmeasured venture instead of
+        the placeholder, falling back to the generic message only when a
+        venture has no untested hypothesis left (checked against the real
+        data — `photos-import-tools` is the one venture whose sole
+        hypothesis is already `supported`, and it correctly still gets the
+        generic line). This makes the router's output what it was always
+        supposed to be: a ranked queue naming, per venture, the specific
+        thing to go learn next, sourced from that venture's own record
+        rather than a template.
+      - >-
+        Verified before committing: `python3 -m unittest test_allocate`
+        (21/21 pass, 4 new: claim-surfaced, falls-back-when-only-supported,
+        picks-first-untested-not-second, existing-Explore-substring-still-
+        holds so no downstream consumer of that string breaks),
+        `portfolio/router/validate.py` (11/11 `VENTURE.yaml` still valid —
+        this change only reads an existing field, adds no new required
+        schema), and a real run of `allocate.py` against all 11 ventures
+        confirmed each row now names its own hypothesis. Documented the
+        change in `portfolio/router/README.md` next to the existing
+        ledger-attribution caveat it sits beside.
+      - >-
+        Did not touch #79 or #19 (both unchanged, correctly left for the
+        account owner per their own PR bodies and prior cycles' judgment)
+        or re-check GitHub Actions (unchanged `startup_failure`, already
+        root-caused and reported repeatedly). This is pure tooling/process
+        improvement — no content, no spend, no publication — so opened it
+        as a PR on the designated branch rather than merging directly,
+        consistent with this session's task instructions.
+      - >-
+        Did not send a push notification: this is routine, low-risk,
+        additive tooling work with no new information the account owner is
+        waiting on, and the standing blockers (#79 merge decision, #19,
+        GitHub Actions billing/quota, the recurring screening task) are
+        unchanged from what has already reached them multiple times today.
+    mrr_end: null

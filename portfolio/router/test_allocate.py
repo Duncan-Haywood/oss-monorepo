@@ -74,6 +74,31 @@ class NextTaskTests(unittest.TestCase):
         v = make("v", stage="idea", mrr=None)
         self.assertIn("Explore", next_task(v))
 
+    def test_unmeasured_with_untested_hypothesis_names_the_claim(self):
+        v = make("v", stage="idea", mrr=None)
+        v.hypotheses = [{"claim": "People will pay for X.", "status": "untested"}]
+        task = next_task(v)
+        self.assertIn("Explore", task)
+        self.assertIn("People will pay for X.", task)
+
+    def test_unmeasured_with_only_supported_hypothesis_falls_back_to_generic(self):
+        v = make("v", stage="idea", mrr=None)
+        v.hypotheses = [{"claim": "Already validated.", "status": "supported"}]
+        task = next_task(v)
+        self.assertIn("Explore", task)
+        self.assertNotIn("Already validated.", task)
+
+    def test_unmeasured_picks_first_untested_hypothesis(self):
+        v = make("v", stage="idea", mrr=None)
+        v.hypotheses = [
+            {"claim": "Already validated.", "status": "supported"},
+            {"claim": "Second claim, still untested.", "status": "untested"},
+            {"claim": "Third claim, also untested.", "status": "untested"},
+        ]
+        task = next_task(v)
+        self.assertIn("Second claim, still untested.", task)
+        self.assertNotIn("Third claim, also untested.", task)
+
     def test_cost_exceeding_revenue_says_review(self):
         v = make("v", stage="revenue", mrr=100, monthly_cost=200)
         self.assertIn("Review", next_task(v))
