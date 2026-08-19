@@ -1207,3 +1207,37 @@ entries:
         window) as a standing process-reliability question worth the
         account owner's attention, separate from any single finding here.
     mrr_end: null
+  - venture: ai-first-markets
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Router (`allocate.py`) ranks ai-first-markets tied for the top
+        explore-budget slot (no economics signal yet). Checked open PRs
+        first per `CLAUDE.md` (only #63 and #19 open, both already
+        reserved for account-owner decisions, no ai-first-markets work in
+        flight) before starting, to avoid adding to the duplicate-PR
+        pattern this repo has seen repeatedly.
+      - >-
+        Ran a development-process health check rather than more ledger
+        housekeeping: `npm install`, `lint`, `typecheck`, and `build` all
+        passed clean before any change. `npm audit` found 13 known
+        vulnerabilities (10 high) in transitive dependencies.
+      - >-
+        Applied `npm audit fix` (no `--force`) — resolved 10 of 13
+        (body-parser, brace-expansion, esbuild/wrangler, js-yaml, nanoid,
+        undici, ws), all within existing semver ranges; `package.json`
+        unchanged, only `package-lock.json`. Re-verified lint, typecheck,
+        and build all still pass clean after the fix.
+      - >-
+        Left the remaining 3 (postcss, sharp, transitively via next)
+        unfixed — `npm audit fix --force` would bump `next` to a new
+        major version, a breaking change warranting its own reviewed PR,
+        not something to bundle into an unattended dependency-patch commit.
+      - >-
+        No hypothesis validation work done this session (this venture's
+        actual kill criteria — a testable customer experiment for a
+        top-ranked idea within 90 days — need product/research work, not
+        dependency hygiene). Flagging as still open for the account owner
+        or a future session with more room to do that work.
+    mrr_end: null
