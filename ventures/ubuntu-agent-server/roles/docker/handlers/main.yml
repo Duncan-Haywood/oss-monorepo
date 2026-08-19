@@ -1,0 +1,13 @@
+---
+- name: Update apt cache after adding Docker repo
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Note that a re-login is needed for the new group membership
+  ansible.builtin.debug:
+    msg: >-
+      Added {{ agent_user }} to the docker group. Group membership changes
+      don't apply to already-open SSH sessions or already-running systemd
+      services — the agent-runner.service will pick it up on its next
+      invocation (each run is a fresh process), but if you're testing
+      `docker` by hand over SSH right now, reconnect first.

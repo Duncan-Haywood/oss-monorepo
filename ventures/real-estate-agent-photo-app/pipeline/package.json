@@ -11,7 +11,7 @@
     "test": "tsx src/enhance.test.ts && tsx src/log-lead.test.ts && tsx src/microsite.test.ts && tsx src/delivery-message.test.ts && tsx src/referral-followup.test.ts"
   },
   "dependencies": {
-    "sharp": "^0.33.2"
+    "sharp": "^0.35.3"
   },
   "devDependencies": {
     "@types/node": "^20",

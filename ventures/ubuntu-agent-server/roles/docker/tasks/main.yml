@@ -8,12 +8,10 @@
     components: stable
     architectures: "{{ 'amd64' if ansible_architecture == 'x86_64' else ansible_architecture }}"
     signed_by: "https://download.docker.com/linux/ubuntu/gpg"
-  register: docker_repo
+  notify: Update apt cache after adding Docker repo
 
-- name: Update apt cache after adding Docker repo
-  ansible.builtin.apt:
-    update_cache: true
-  when: docker_repo.changed
+- name: Flush handlers so the just-added apt repo is usable immediately
+  ansible.builtin.meta: flush_handlers
 
 - name: Install Docker Engine
   ansible.builtin.apt:
@@ -35,17 +33,7 @@
     name: "{{ agent_user }}"
     groups: docker
     append: true
-  register: docker_group_membership
-
-- name: Note that a re-login is needed for the new group membership
-  ansible.builtin.debug:
-    msg: >-
-      Added {{ agent_user }} to the docker group. Group membership changes
-      don't apply to already-open SSH sessions or already-running systemd
-      services — the agent-runner.service will pick it up on its next
-      invocation (each run is a fresh process), but if you're testing
-      `docker` by hand over SSH right now, reconnect first.
-  when: docker_group_membership.changed
+  notify: Note that a re-login is needed for the new group membership
 
 # `docker build` runs ON THE REMOTE HOST (this is ansible.builtin.command,
 # not something that transfers files itself) — so the build context has to

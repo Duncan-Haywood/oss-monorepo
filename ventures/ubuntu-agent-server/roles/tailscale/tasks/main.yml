@@ -7,12 +7,10 @@
     suites: "{{ ansible_distribution_release }}"
     components: main
     signed_by: "https://pkgs.tailscale.com/stable/ubuntu/{{ ansible_distribution_release }}.noarmor.gpg"
-  register: tailscale_repo
+  notify: Update apt cache after adding tailscale repo
 
-- name: Update apt cache after adding tailscale repo
-  ansible.builtin.apt:
-    update_cache: true
-  when: tailscale_repo.changed
+- name: Flush handlers so the just-added apt repo is usable immediately
+  ansible.builtin.meta: flush_handlers
 
 - name: Install tailscale
   ansible.builtin.apt:

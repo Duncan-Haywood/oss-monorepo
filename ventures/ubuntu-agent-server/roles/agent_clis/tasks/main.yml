@@ -29,7 +29,7 @@
   loop: "{{ agent_clis_wanted | default([]) }}"
   loop_control:
     label: "{{ item.bin }}"
-  register: cli_check
+  register: agent_clis_cli_check
   failed_when: false
   changed_when: false
 
@@ -39,7 +39,7 @@
   become_user: "{{ agent_user }}"
   environment:
     PATH: "/home/{{ agent_user }}/.npm-global/bin:{{ ansible_env.PATH }}"
-  loop: "{{ cli_check.results | default([]) }}"
+  loop: "{{ agent_clis_cli_check.results | default([]) }}"
   loop_control:
     label: "{{ item.item.bin }}"
   when: item.rc != 0
@@ -51,7 +51,7 @@
   become_user: "{{ agent_user }}"
   environment:
     PATH: "/home/{{ agent_user }}/.npm-global/bin:{{ ansible_env.PATH }}"
-  register: agy_check
+  register: agent_clis_agy_check
   failed_when: false
   changed_when: false
   when: install_antigravity_cli | bool
@@ -74,7 +74,7 @@
     executable: /bin/bash
   become: true
   become_user: "{{ agent_user }}"
-  when: install_antigravity_cli | bool and (agy_check.rc | default(1)) != 0
+  when: install_antigravity_cli | bool and (agent_clis_agy_check.rc | default(1)) != 0
   changed_when: true
 
 - name: Collect installed CLI versions
@@ -90,12 +90,12 @@
     done
   become: true
   become_user: "{{ agent_user }}"
-  register: cli_versions
+  register: agent_clis_cli_versions
   changed_when: false
 
 - name: Show installed CLI versions
   ansible.builtin.debug:
-    msg: "{{ cli_versions.stdout_lines }}"
+    msg: "{{ agent_clis_cli_versions.stdout_lines }}"
 
 - name: Grok Build reminder
   ansible.builtin.debug:
