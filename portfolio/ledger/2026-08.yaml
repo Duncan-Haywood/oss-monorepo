@@ -2655,3 +2655,34 @@ entries:
         for the account owner here, just incremental CI-hygiene work
         blocked on the same already-known infrastructure outage.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Follow-up within the same session that opened and merged #99 (pause
+        the OpenCode agent-fleet schedule, on the hypothesis that it caused
+        the repo-wide Actions startup_failure outage). #99 merged
+        immediately as commit 77ce6cc. Checked the resulting workflow run
+        on that exact merge commit: still `conclusion: "startup_failure"`,
+        identical to every run for the prior 24+ hours.
+      - >-
+        This narrows, not confirms, the earlier hypothesis: disabling the
+        fleet's schedule trigger did not, by itself, restore Actions. The
+        outage is not conditional on that workflow currently being
+        scheduled to run — whatever tripped it (most plausibly a spending
+        limit or abuse flag, per #99's reasoning) is already latched at the
+        account level and needs direct remediation there, not just a
+        workflow-content change. #99's fix may still be the right call
+        (removing the thing that plausibly caused the trip in the first
+        place, before raising any limit), but it is not sufficient on its
+        own — flagging this so the next session or the account owner
+        doesn't assume the outage is already resolved because #99 merged.
+      - >-
+        No further action taken: root-causing an account-level Actions
+        suspension requires GitHub billing/security-log access this
+        environment does not have. Did not send a second push notification
+        for this — it refines rather than changes the action already
+        surfaced (check GitHub Settings → Billing/Security), so a second
+        phone ping would not give the account owner anything new to act on.
+    mrr_end: null
