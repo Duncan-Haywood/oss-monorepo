@@ -1,0 +1,35 @@
+name: retail-pilot-intel CI
+
+on:
+  pull_request:
+    paths:
+      - "ventures/retail-pilot-intel/**"
+      - ".github/workflows/retail-pilot-intel-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/retail-pilot-intel/**"
+      - ".github/workflows/retail-pilot-intel-ci.yml"
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: ventures/retail-pilot-intel
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: ventures/retail-pilot-intel/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run ci

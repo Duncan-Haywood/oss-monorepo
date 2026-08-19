@@ -1,0 +1,35 @@
+name: local-site-studio CI
+
+on:
+  pull_request:
+    paths:
+      - "ventures/local-site-studio/**"
+      - ".github/workflows/local-site-studio-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/local-site-studio/**"
+      - ".github/workflows/local-site-studio-ci.yml"
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: ventures/local-site-studio
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: ventures/local-site-studio/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run test
+      - run: npm run build
