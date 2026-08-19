@@ -21,6 +21,32 @@ Scored 2026-08-18. Composite 7.25 · floor 5 (defensibility).
 | Liability containment | 6 | Real exposure if we overclaim; contained by selling evidence, never a compliance guarantee |
 | Ethical robustness | 9 | The output is a site disabled users can actually use — the interests line up |
 
+## Buyer-segment correction (2026-08-19, per ledger PR #96)
+
+**The "ten German or Swedish shops" in the first experiment below is largely the
+wrong buyer.** Under **EAA Art. 4(5)** and Germany's **BFSG §3**, microenterprises
+*providing services* — fewer than 10 employees **and** turnover or balance sheet
+≤ €2M, both conditions, per Recommendation 2003/361/EC — are **exempt** from the
+service accessibility requirements this pipeline sells against. A "small shop"
+sourced by visible WCAG failures alone is, more often than not, the exempt
+segment: selling EAA-deadline urgency to a buyer the law does not obligate is
+selling on a fear that does not legally apply to them, which the ethical-
+robustness gate above exists to refuse.
+
+This is a **re-target, not a kill**. The obligated buyer is the shop just above
+the threshold — ≥10 employees or >€2M turnover — which still has no dedicated
+accessibility staff but is actually inside the obligation the pitch cites. Any
+outbound list or qualification step before the first experiment runs should
+filter for that, not for warning-letter visibility alone. The same qualification
+applies to [shopify-a11y-evidence](shopify-a11y-evidence.md), whose merchant base
+skews micro.
+
+This finding is corroborated secondary sourcing (`eur-lex.europa.eu` was
+unreachable from the session that found it), not primary text — confirm against
+the directive itself before it reaches customer-facing copy. Not re-scored: the
+defensibility/ethical-robustness dimensions above already assume claims stay
+narrow, which this correction is consistent with rather than in tension with.
+
 ## Why now
 
 The European Accessibility Act applied from 28 June 2025, and 2026 is the first
@@ -99,7 +125,10 @@ Two weeks, under €300 of spend, no new directory:
 1. Build the audit-and-fix pass against three real shop themes; measure how many
    blocking issues the generated fixes actually close under AT verification.
 2. Price one contractor test job to get a real cost, not an estimate.
-3. Offer the job to ten German or Swedish shops with visible WCAG failures.
+3. Offer the job to ten German or Swedish shops with visible WCAG failures
+   **and** at least 10 employees or >€2M turnover — see the buyer-segment
+   correction above. Screening only on visible failures re-fills the list with
+   the exempt microenterprise segment.
 
 Kill it if fewer than two of ten take a paid audit, or if AT verification finds
 that generated fixes close less than half of blocking issues — below that the
