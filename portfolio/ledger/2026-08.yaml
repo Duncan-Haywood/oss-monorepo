@@ -3635,3 +3635,205 @@ entries:
         category as three others already open — not a new class of
         finding warranting an interrupt.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Eighteenth firing of the recurring "research and evaluate
+        potential software business projects that aren't already here"
+        brief. Screened nothing and rebuilt nothing: #79's intake gate
+        asks future runs not to re-screen, and its provenance note is
+        explicit that rebuilding the consolidation PR is what sustained
+        the duplicate-PR loop through five cycles. Checked the open-PR
+        list first per CLAUDE.md — #79 (candidate pipeline) and #126
+        (agent reachability) already cover the brief's research surface.
+      - >-
+        Measured the surface #126 did not: monetization rails,
+        publishing channels, and operating data sources that ride on
+        hosts this environment already permits. 45 targets over 37
+        distinct hosts, committed as a re-runnable script plus results
+        in `portfolio/research/monetization-reachability/`. Opened as
+        #130, content-only and carrying no ledger hunk (this entry is
+        the separate half), so it stays mergeable while it waits.
+      - >-
+        Headline: 0 of 13 monetization rails are usable. #126 probed
+        four and found them egress-denied; this extends it to the whole
+        category, including the two structurally cheapest options for a
+        portfolio with no legal entity — Open Collective's fiscal
+        hosting and Gumroad's merchant-of-record model. Switching rails
+        does not route around it.
+      - >-
+        The material refinement to the standing payout-rail ask, now
+        eight cycles old: two of the thirteen fail on a DIFFERENT
+        switch. GitHub Sponsors and GitHub Marketplace billing are
+        SCOPE_DENIED, not EGRESS_DENIED — the hosts answer and this
+        session's GitHub app scope refuses the route. So the ask is a
+        choice between two differently-priced options, not one thing:
+        (a) narrow — widen the GitHub app scope, one switch, one
+        vendor, GitHub-native monetization only; or (b) broad — a
+        merchant-of-record account AND that host added to the network
+        egress allowlist, two switches that must land together or the
+        credential lands and nothing can call out to it. Escalated to
+        the account owner by push notification, since it sharpens a
+        decision that has blocked every candidate for eight cycles into
+        something answerable.
+      - >-
+        Two corrections to #126, proposed in text rather than applied,
+        since editing its files would mean rebuilding it. First: eight
+        more publishing channels are reachable than it found (ghcr.io,
+        hub.docker.com, proxy.golang.org, pkg.go.dev, rubygems.org,
+        api.nuget.org, repo.packagist.org, hex.pm), so "every listing
+        channel except npm is denied" becomes "every listing channel
+        except package registries". None carries a payment rail, and
+        note pypi.org is reachable while upload.pypi.org is denied —
+        readable is not publishable. Second: it scored
+        api.github.com/marketplace_listing/plans REACHABLE because
+        GitHub's session proxy denies out-of-scope API *paths* with a
+        body distinct from the out-of-scope *repository* body #126
+        handled; it is a scope denial. That is the same overcounting
+        failure mode #126 itself warned about for jsr.io.
+      - >-
+        Third correction, and the one that moves a row in #126's
+        per-candidate table: the public vulnerability corpus IS
+        reachable, by routes it did not try. OSV's GCS export
+        (227,091 npm records actually downloaded and parsed), the
+        GitHub Advisory Database and CVEProject/cvelistV5 as git repos
+        over raw.githubusercontent.com, RustSec likewise — each
+        confirmed by retrieving real records, not a status code on a
+        README. `cra-evidence-desk`'s `operate` role flips from
+        unavailable to available; its `premise` role does not
+        (eur-lex still denied), so it stays non-executable for one
+        reason instead of two. Transferable heuristic recorded: when an
+        API host is denied, check whether the same data ships as a git
+        repository or an object-store export.
+      - >-
+        Generated exactly one candidate, by a constraint-native method
+        the pipeline has not used (start from what the environment can
+        reach rather than from a market or a channel): cross-source
+        advisory reconciliation. Then killed it on its own premise,
+        following the #103/#111 precedent of measuring a candidate
+        before writing it up. Two independent tests: only 11 of 5,771
+        npm CVEs are described by more than one publishing database
+        (reported as weak on its own — OSV deduplicates, so the method
+        is partly blind by construction), and against the independent
+        cvelistV5 corpus, 0 of 295 live GHSA advisories in a seeded
+        300-advisory sample cite a CVE their own authority has
+        rejected. The sources agree. Recorded as a rejection so run
+        nineteen does not re-derive it.
+      - >-
+        Net finding, and the reason this is worth more than another
+        candidate: the reachable set is narrow and homogeneous —
+        package registries and vulnerability data, one buyer archetype,
+        one distribution motion whose median outcome #111 and #126
+        already measured at tens-to-low-hundreds of downloads.
+        `mcp-supply-chain-watch` is the pipeline's only executable
+        candidate not because it is exceptional but because it is the
+        only one inside the single category this environment reaches.
+        Further firings of the screening brief cannot produce a
+        candidate this portfolio can charge for, because under current
+        settings none exists. The binding constraint is an access
+        decision, not a research one — consistent with the prior
+        entry's conclusion that the next unit of profit-relevant work
+        is outside what a code-focused session can execute.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / more strategic" run. `git fetch origin
+        main` first per CLAUDE.md; the tip (`2593802`) carried a
+        backlog review from ~30 minutes earlier that had just re-checked
+        #122/#117/#106/#79/#19 and the Actions outage, so re-doing that
+        check would be the exact duplicate work CLAUDE.md warns about.
+        Looked for something new instead of repeating it.
+      - >-
+        Found stale, misleading documentation in `quick-pick-survey`:
+        `IMPROVEMENT-PLAN.md` and `docs/PULL-REQUEST-BACKLOG.md` both
+        opened with a present-tense P0 emergency ("forty-two pull
+        requests, none merged, whether to keep the schedule firing").
+        It read as live. It wasn't — `git log --diff-filter=A` showed
+        the whole venture arrived in one commit, `4935cc7` ("Merge
+        quick-pick-survey into ventures/"), a real two-parent `git
+        merge` Duncan authored on 2026-07-29, which is why the fixes
+        the plan describes as landing "on this branch" were already in
+        the tree. The standalone repo the docs describe predates this
+        monorepo and was superseded by the migration itself three weeks
+        ago, not resolved by a decision on the old repo. Added a short
+        resolution note to both files pointing at the migration commit,
+        left the historical write-ups in place per the file's own
+        stated record-keeping philosophy. Opened as #132, self-merged
+        under the same content-only precedent #103/#111/#121/#127/#129
+        established — no code, no business decision, no spend.
+      - >-
+        Swept for npm ventures missed by prior dependency sweeps,
+        independently of #128 (which landed mid-session and was
+        re-read before concluding here): checked all `package.json`
+        files under `ventures/`, not just venture-root ones. #128
+        covered `ai-engineering-academy/site` and
+        `real-estate-agent-photo-app/pipeline` (both already clean, 0
+        vulnerabilities) but not `real-estate-agent-photo-app/research`
+        or `.../docs-site` — so #129's own entry stating "real-estate-
+        agent-photo-app... all already clean per that entry" overstates
+        what #128 actually checked. Worth a plain correction: `research`
+        and `docs-site` were not clean.
+      - >-
+        `research` (11 high) was already covered by #134, opened by a
+        concurrent session while this one was mid-sweep — checked open
+        PRs again before pushing anything, per CLAUDE.md, and dropped
+        the redundant local diff rather than duplicate it. `docs-site`
+        (17: 15 high/2 moderate) was the one gap #134 explicitly
+        flagged as a real regression rather than a routine bump (cross-
+        boundary `../../../../process/*` imports breaking under Next
+        16's Turbopack root check and mandatory `jsx: "react-jsx"`) and
+        deferred as "its own scoped follow-up." Fixed with two targeted,
+        non-suppressing changes — a `turbopack.root` override and
+        explicit `tsconfig.json` `paths` aliases for `react/jsx-runtime`
+        — rather than restructuring the shared-code layout. Independently
+        re-verified after the implementing agent finished, not trusted
+        from its report: `npm audit` 0 (was 17), `eslint .` clean,
+        `next build` succeeds across all 8 routes including the dynamic
+        SSG route. Opened as #135, referencing and commenting on #134
+        rather than duplicating it. Not self-merged — same breaking-
+        major-version-bump category #106/#117/#122/#134 are already
+        gated on the account owner for.
+      - >-
+        Found #133 (routine ledger-only append for #130) blocked by a
+        merge conflict against a since-advanced `main` — another
+        content-only, self-mergeable PR of exactly the kind this
+        session was already merging. Resolved the conflict directly
+        (both sides were independent appends to the same append-only
+        file; kept both entries, ordered by commit timestamp) and
+        pushed the resolution to its branch rather than leave it stuck,
+        the same way #112 did for #109 earlier in this backlog's
+        history. Merged it once resolved.
+      - >-
+        Deliberately did not build out `mcp-supply-chain-watch` or any
+        other pipeline candidate from #79/#126/#130: #79 itself is
+        still an unmerged, account-owner-gated decision, and building on
+        top of its unmerged content would repeat the exact "rebuild
+        sideways instead of waiting for the merge" failure mode #79's
+        own provenance section documents killing five prior consolidation
+        PRs. Considered wiring ledger data into the router's ranking
+        (`portfolio/router/README.md` flags this as unimplemented) and
+        decided against it this cycle — the router's own docs
+        explicitly warn against exactly that kind of unvalidated
+        control-loop change ("do not add automated spend escalation on
+        top of a signal that has not been validated against outcomes").
+      - >-
+        Open-PR backlog now: #135 (new, this session), #134, #126, #122,
+        #117, #106, #79, #19 — all correctly gated on the account owner
+        (breaking dependency bumps, an explicit business/pipeline
+        decision, or a second unattended agent-fleet proposal per
+        CLAUDE.md's automation rule). GitHub Actions account-wide
+        `startup_failure` outage: still active (this session's own
+        pushes carry the same status), already escalated multiple times
+        in recent entries; not re-escalated here.
+      - >-
+        No push notification: the quick-pick-survey doc fix and the
+        docs-site upgrade are routine maintenance of the kind recent
+        entries in this exact chain have not interrupted the account
+        owner for, and nothing here changes the standing decisions
+        already in front of them.
+    mrr_end: null
