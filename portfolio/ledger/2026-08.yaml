@@ -2404,6 +2404,68 @@ entries:
         the candidate the pipeline tells the owner to build first, plus a
         blocker class that was not previously known to be structural.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain the development process" run.
+        `git fetch origin main` first; the latest entry (EAA microenterprise
+        finding, this same file) landed only ~3 minutes before this session
+        started, so did not re-run the same open-PR/pipeline review to avoid
+        the concurrent-duplication pattern this file's history section
+        warns about. Open PRs unchanged (#79, #19), both already reviewed
+        in prior entries.
+      - >-
+        Instead root-caused the "Actions account-level outage" that prior
+        entries (see #96 and earlier) have listed as a standing blocker
+        without diagnosing why. Pulled the last 53 completed workflow runs
+        on `main` via the GitHub Actions API: every one since
+        2026-08-18T18:42:43Z — 53/53, spanning venture CI, portfolio-validate,
+        and everything else, not just one workflow — has
+        `conclusion: "startup_failure"` against a synthetic zero-name
+        `BuildFailed` workflow (`state: "deleted"`) with zero jobs ever
+        scheduled (confirmed via `list_workflow_jobs` on one such run:
+        `{"jobs":{"total_count":0}}`). All 16 workflow YAML files in
+        `.github/workflows/` parse as valid YAML, ruling out a per-workflow
+        syntax error as the cause — a zero-job startup_failure across every
+        workflow in the repo is the signature of GitHub disabling Actions
+        for the whole repo/account (spending limit or abuse detection), not
+        a bad workflow file.
+      - >-
+        The onset lines up exactly with commit f16fca5
+        ("Add high-throughput OpenCode portfolio agent (20 parallel workers
+        per hour)", 2026-08-18T18:42:33Z): the very next workflow run, 10
+        seconds later, is the first startup_failure in the repo's run
+        history, and every completed run since is the same failure —
+        including through the later commits that reduced it to 10 workers
+        and wired in the router guardrail, meaning those fixes never
+        actually got to run under real CI. Up to 10 parallel 120-minute
+        jobs firing hourly is the only thing in the repo's history that
+        plausibly trips an account-level Actions spending limit or abuse
+        flag; nothing else changed in kind at that boundary.
+      - >-
+        Per CLAUDE.md ("Automation that writes or spends unattended"),
+        re-enabling or scaling this kind of automation is a human call, but
+        so is deciding to leave an already-active fleet running while it is
+        the leading hypothesis for an outage that has silently broken CI
+        for every venture in the repo for over 24 hours. Disabled only the
+        `schedule:` trigger on `opencode-high-throughput.yml` (kept
+        `workflow_dispatch` so a human can still fire it manually to test),
+        with the full diagnosis written into the workflow file as a
+        comment. Did not touch the workflow's logic, the router, or any
+        other file. This is a pause pending human confirmation of the
+        actual GitHub billing/security-log cause, not a claim that the
+        diagnosis is certain — flagged as such in the PR body.
+      - >-
+        Opened this as a PR against `main` rather than pushing directly,
+        per CLAUDE.md's instruction to route deliberate automation changes
+        through human review. Sent a push notification: this is new,
+        actionable information the account owner would want now — CI has
+        been silently broken repo-wide for over a day and every prior
+        session characterized it as an opaque blocker rather than a
+        diagnosed, fixable cause.
+    mrr_end: null
   - venture: quick-pick-survey
     agent_spend_usd: null
     human_hours: 0
