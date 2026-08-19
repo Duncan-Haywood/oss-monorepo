@@ -265,3 +265,96 @@ entries:
         of duplicates; (4) decide on #19; (5) #1/#2 remain low-risk to review
         whenever convenient.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per CLAUDE.md. The backlog changed shape since
+        the last cycle: #44 (an eighth screening-task run) independently
+        closed #18/#20/#27/#30/#34 as superseded and consolidated #36 into
+        itself, leaving only #44, #36, #19, #1, #2 open. Confirmed via
+        list_pull_requests that this claim holds — the five app-side
+        ai-first-markets PRs are in fact gone.
+      - >-
+        Independently verified #44 rather than trusting its stated checks:
+        fetched its branch into a scratch worktree, confirmed the diff against
+        main is exactly what it claims (16 files, portfolio/pipeline/ + minor
+        README edits only, no changes to ventures/ai-first-markets or any
+        deploy workflow), and re-ran `validate.py` (9/9 clean) and
+        `test_allocate.py` (12/12 pass) on its branch. mergeable_state is
+        "clean". Did not merge it — its own content is still internal
+        candidate research carrying explicitly-unverified secondary-source
+        market/regulatory claims, the same category five prior cycles have
+        consistently left for the account owner, and #44 asks for that
+        decision explicitly. Consistency with that established boundary
+        matters more than throughput here, so this cycle did not break it
+        without new justification. Left #36 alone too, respecting #44's own
+        reasoning for not closing it (which PR becomes the merge target is
+        the account owner's call, not a cleanup action).
+      - >-
+        Re-checked GitHub Actions directly: `portfolio-validate.yml` still
+        shows exactly 1 run total, `startup_failure`, 0 jobs ever started.
+        Unchanged from every prior cycle since #36 first found this — still
+        needs the account owner to check billing/quota. Not re-notified,
+        since this exact fact has already reached them five times.
+      - >-
+        Looked past the portfolio-research loop (which has now run 8 times
+        against an already-answered brief) for actual product engineering
+        work, per this session's "continue work, maintain and improve the
+        development process" brief. Surveyed all 9 ventures' stated
+        next-steps: most have no agent-actionable next step right now
+        (real-estate-agent-photo-app is explicitly done pending human-only
+        steps; ai-first-markets/print-atelier have no stated next engineering
+        step; photo-editing's real next step needs ffmpeg, unavailable in
+        this environment). retail-pilot-intel's own ROI doc ranks "door
+        entries + POS join" as the #1 revenue-lever initiative, and its
+        `packages/pos` CLI only ever emitted synthetic `--sample` data, with
+        no real ingest path implemented.
+      - >-
+        Implemented a real (not synthetic) POS ingest path: `--file <path>`
+        on `packages/pos/src/cli.ts`, backed by a new dependency-free CSV
+        parser (`src/csv.ts`, handles quoted/embedded-comma fields) and
+        importer (`src/importer.ts`) that normalizes a generic
+        line-item-per-row POS export into schema-valid `SaleEvent`s —
+        grouping by receipt id, summing `total_cents`, mapping free-text
+        payment methods to the schema's `payment_class` enum, and skipping
+        malformed rows with a warning rather than aborting the whole file.
+        Added a sample fixture and README usage docs. Verified with the
+        repo's own tooling (no test framework exists in this package, so
+        matched its existing typecheck/lint/build-only convention rather
+        than introducing one unrequested): `pnpm run typecheck` (6/6
+        packages clean), `pnpm run lint` (clean), `pnpm --filter
+        @retail-pilot/pos run build` (clean), a manual run against the
+        fixture (3 receipts in, 3 correctly-grouped/summed SaleEvents out,
+        payment classes mapped correctly, the embedded-comma field parsed
+        correctly), and a manual run against a deliberately malformed CSV
+        (all 4 bad-row cases correctly skipped with a specific warning, zero
+        events written). This directly unblocks the ROI doc's #1-ranked
+        initiative's POS half; the door/edge-vision half is still a stub
+        needing a real camera/model, out of scope for this environment.
+      - >-
+        Did not touch #19 (second unattended agent fleet — explicitly a human
+        decision per CLAUDE.md) or #1/#2 (Swift/Garmin sources, both already
+        carry their own VENTURE.yaml and are non-conflicting, but represent
+        real recurring budget commitments — $10/mo and $50/mo protected — so
+        left the accept/reject call to the account owner rather than merging
+        unilaterally, consistent with treating new-venture budget commitments
+        as a portfolio-allocation decision rather than a mechanical infra
+        merge).
+      - >-
+        Did not send a push notification. Nothing this cycle rises to
+        "needs the account owner's attention now": Actions-broken and
+        #44-ready-to-decide are both repeats already delivered five times,
+        and the POS importer is routine, low-risk, additive engineering work
+        that doesn't need an interrupt.
+      - >-
+        Still unresolved, needs the account owner, unchanged in substance from
+        prior cycles: (1) GitHub Actions billing/quota — no successful run on
+        any branch since 2026-07-29; (2) merge #44 (or #36) or neither — both
+        are verified and ready; (3) decide on #19; (4) #1/#2 remain low-risk
+        to merge whenever convenient, now with a genuine budget-commitment
+        angle to weigh, not just staleness; (5) retire or redirect the
+        recurring "research new business projects" scheduled task — #44 is
+        its eighth firing against an already-answered brief.
+    mrr_end: null
