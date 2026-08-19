@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -100,7 +100,7 @@ def _plan_next_production_wave_from_plan(
     *,
     production_plan: ProductionPlan,
     completed_job_ids: tuple[str, ...],
-    job_states_by_id: dict[str, str] | None,
+    job_states_by_id: Mapping[str, str] | None,
     status_source: ProductionHandoffStatusSource,
 ) -> ProductionWaveHandoff:
     completed_set = set(completed_job_ids)
@@ -173,7 +173,7 @@ def _job_is_incomplete(
     job: ProductionJob,
     *,
     completed_set: set[str],
-    job_states_by_id: dict[str, str] | None,
+    job_states_by_id: Mapping[str, str] | None,
 ) -> bool:
     if job_states_by_id is None:
         return job.job_id not in completed_set
@@ -183,14 +183,14 @@ def _job_is_incomplete(
 def _job_is_schedulable(
     job: ProductionJob,
     *,
-    job_states_by_id: dict[str, str] | None,
+    job_states_by_id: Mapping[str, str] | None,
 ) -> bool:
     if job_states_by_id is None:
         return True
     return _job_state(job, job_states_by_id) == "pending"
 
 
-def _job_state(job: ProductionJob, job_states_by_id: dict[str, str] | None) -> str:
+def _job_state(job: ProductionJob, job_states_by_id: Mapping[str, str] | None) -> str:
     if job_states_by_id is None:
         return "pending"
     return job_states_by_id[job.job_id]
@@ -198,7 +198,7 @@ def _job_state(job: ProductionJob, job_states_by_id: dict[str, str] | None) -> s
 
 def _job_ids_by_state(
     jobs: tuple[ProductionJob, ...],
-    job_states_by_id: dict[str, str] | None,
+    job_states_by_id: Mapping[str, str] | None,
     state: str,
 ) -> tuple[str, ...]:
     if job_states_by_id is None:
@@ -208,7 +208,7 @@ def _job_ids_by_state(
 
 def _review_required_job_ids(
     jobs: tuple[ProductionJob, ...],
-    job_states_by_id: dict[str, str] | None,
+    job_states_by_id: Mapping[str, str] | None,
 ) -> tuple[str, ...]:
     if job_states_by_id is None:
         return ()

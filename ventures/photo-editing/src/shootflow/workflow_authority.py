@@ -57,8 +57,14 @@ def observe_only_handoff_controls_to_dict(
     return controls
 
 
-def validate_observe_only_workflow_authority(value: object, *, field_label: str) -> None:
-    """Validate that a serialized UI/agent surface grants no workflow authority."""
+def validate_observe_only_workflow_authority(
+    value: object, *, field_label: str
+) -> Mapping[str, object]:
+    """Validate that a serialized UI/agent surface grants no workflow authority.
+
+    Returns the same mapping, narrowed, so callers can reuse it without
+    re-checking the type they just validated.
+    """
 
     if not isinstance(field_label, str) or not field_label.strip():
         raise WorkflowAuthorityError("field_label must be a non-empty string")
@@ -78,6 +84,7 @@ def validate_observe_only_workflow_authority(value: object, *, field_label: str)
             raise WorkflowAuthorityError(f"{field_label}.{key} must be {expected_value!r}")
         if actual_value != expected_value:
             raise WorkflowAuthorityError(f"{field_label}.{key} must be {expected_value!r}")
+    return value
 
 
 def _validate_observe_only_handoff_controls(

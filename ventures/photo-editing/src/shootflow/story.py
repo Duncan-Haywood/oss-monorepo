@@ -4,6 +4,7 @@ import json
 import math
 import os
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -585,27 +586,27 @@ def _required_sequence_name(raw_sequence: object) -> str:
     return name
 
 
-def _required_variant_id(raw_variant: dict[object, object]) -> str:
+def _required_variant_id(raw_variant: Mapping[str, object]) -> str:
     variant_id = _required_sequence_string(raw_variant, "variant_id")
     _validate_variant_id(variant_id)
     return variant_id
 
 
-def _required_asset_paths(raw_sequence: dict[object, object]) -> tuple[str, ...]:
+def _required_asset_paths(raw_sequence: Mapping[str, object]) -> tuple[str, ...]:
     asset_paths = raw_sequence.get("asset_paths")
     if not isinstance(asset_paths, list) or any(not isinstance(path, str) for path in asset_paths):
         raise StoryPlanError("Storyline sequence asset_paths must be a list of strings")
     return tuple(asset_paths)
 
 
-def _required_sequence_string(raw_sequence: dict[object, object], key: str) -> str:
+def _required_sequence_string(raw_sequence: Mapping[str, object], key: str) -> str:
     value = raw_sequence.get(key)
     if not isinstance(value, str) or not value.strip():
         raise StoryPlanError(f"Storyline sequence field must be a non-empty string: {key}")
     return value
 
 
-def _optional_sequence_duration(raw_sequence: dict[object, object]) -> float | None:
+def _optional_sequence_duration(raw_sequence: Mapping[str, object]) -> float | None:
     value = raw_sequence.get("total_duration_seconds")
     if value is None:
         return None
@@ -618,7 +619,7 @@ def _optional_sequence_duration(raw_sequence: dict[object, object]) -> float | N
 
 
 def _validate_exact_keys(
-    raw_object: dict[object, object],
+    raw_object: Mapping[str, object],
     *,
     allowed_keys: frozenset[str],
     label: str,

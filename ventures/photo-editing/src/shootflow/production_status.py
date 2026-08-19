@@ -6,7 +6,7 @@ import json
 import os
 import re
 import uuid
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
@@ -745,7 +745,7 @@ def _status_from_json(raw_status: object) -> ProductionJobStatus:
     )
 
 
-def _required_output_checksums(raw_status: dict[object, object]) -> tuple[OutputChecksum, ...]:
+def _required_output_checksums(raw_status: Mapping[str, object]) -> tuple[OutputChecksum, ...]:
     value = raw_status.get("output_checksums")
     if not isinstance(value, list):
         raise ProductionStatusError("Production status output_checksums must be a list")
@@ -763,14 +763,14 @@ def _required_output_checksums(raw_status: dict[object, object]) -> tuple[Output
     return tuple(checksums)
 
 
-def _required_manifest_string(raw_manifest: dict[object, object], key: str) -> str:
+def _required_manifest_string(raw_manifest: Mapping[str, object], key: str) -> str:
     value = raw_manifest.get(key)
     if not isinstance(value, str) or not value.strip():
         raise ProductionStatusError(f"Production status manifest field must be a non-empty string: {key}")
     return value
 
 
-def _required_plan_fingerprint(raw_manifest: dict[object, object]) -> str:
+def _required_plan_fingerprint(raw_manifest: Mapping[str, object]) -> str:
     fingerprint = _required_manifest_string(raw_manifest, "production_plan_fingerprint")
     if not _SHA256_PATTERN.fullmatch(fingerprint):
         raise ProductionStatusError(
@@ -779,14 +779,14 @@ def _required_plan_fingerprint(raw_manifest: dict[object, object]) -> str:
     return fingerprint
 
 
-def _required_status_string(raw_status: dict[object, object], key: str) -> str:
+def _required_status_string(raw_status: Mapping[str, object], key: str) -> str:
     value = raw_status.get(key)
     if not isinstance(value, str) or not value.strip():
         raise ProductionStatusError(f"Production status field must be a non-empty string: {key}")
     return value
 
 
-def _optional_status_string(raw_status: dict[object, object], key: str) -> str | None:
+def _optional_status_string(raw_status: Mapping[str, object], key: str) -> str | None:
     value = raw_status.get(key)
     if value is None:
         return None
@@ -795,14 +795,14 @@ def _optional_status_string(raw_status: dict[object, object], key: str) -> str |
     return value
 
 
-def _required_state(raw_status: dict[object, object]) -> ProductionJobState:
+def _required_state(raw_status: Mapping[str, object]) -> ProductionJobState:
     value = _required_status_string(raw_status, "state")
     if value not in _STATES:
         raise ProductionStatusError(f"Unsupported production status state: {value}")
     return value  # type: ignore[return-value]
 
 
-def _required_status_int(raw_status: dict[object, object], key: str) -> int:
+def _required_status_int(raw_status: Mapping[str, object], key: str) -> int:
     value = raw_status.get(key)
     if isinstance(value, bool) or not isinstance(value, int):
         raise ProductionStatusError(f"Production status field must be an integer: {key}")
@@ -810,7 +810,7 @@ def _required_status_int(raw_status: dict[object, object], key: str) -> int:
 
 
 def _validate_exact_keys(
-    raw_object: dict[object, object],
+    raw_object: Mapping[str, object],
     *,
     allowed_keys: frozenset[str],
     label: str,
