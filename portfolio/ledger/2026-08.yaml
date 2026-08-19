@@ -3464,3 +3464,220 @@ entries:
         here for whoever next looks at #79/channel-inventory rather than
         pushed as a standalone alert.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain the development process, legal
+        ethical reliable, increase profit" run. `git fetch origin main`
+        first per CLAUDE.md; the entry immediately above was committed
+        ~31 minutes before this one started, so per the ledger-discipline
+        guidance against near-duplicate entries this cycle only records
+        what that entry did not already cover, rather than re-running the
+        same backlog/outage checks.
+      - >-
+        Open-PR backlog (#126, #122, #117, #106, #79, #19) unchanged from
+        the entry above; not re-verified. GitHub Actions account-wide
+        `startup_failure` outage confirmed still active as of the most
+        recent runs (09:52 UTC) — unchanged, already escalated, not
+        re-escalated.
+      - >-
+        The prior entry's low-risk-maintenance sweep checked "the four npm
+        ventures with `package.json`" and the two Python ventures, all by
+        searching for a venture-root `package.json`/pyproject file. That
+        search structurally misses ventures whose manifest lives in a
+        subdirectory. Checked the four it couldn't have seen:
+        `ai-engineering-academy` (manifest at `site/package.json`),
+        `real-estate-agent-photo-app` (manifest at `pipeline/package.json`),
+        `world-clock-widget` (Swift Package.swift, not npm), and
+        `garmin-world-traveler-watchface` (Monkey C, no manifest at all).
+      - >-
+        `ai-engineering-academy/site`: `npm audit --json` reports 0
+        vulnerabilities (info/low/moderate/high/critical all 0). No
+        lint/test scripts are defined beyond `build`; nothing further to
+        check with the tooling available here.
+      - >-
+        `real-estate-agent-photo-app/pipeline`: `npm ci` clean, `npm audit`
+        0 vulnerabilities, `npm test` (6 suites: enhance, log-lead,
+        microsite, delivery-message, referral-followup, booking-link) all
+        passing, `npx tsc --noEmit` 0 errors. No fix needed.
+      - >-
+        `world-clock-widget` and `garmin-world-traveler-watchface`: no
+        Swift or Monkey C (Connect IQ) toolchain is available in this
+        session's environment, so neither could be built or tested
+        locally; both already have (`world-clock-widget`) or lack
+        (`garmin-world-traveler-watchface`) CI as noted in their own repo
+        state, and that gap was not investigated further this cycle since
+        it cannot be verified from here either way.
+      - >-
+        Net finding: no new defect, no new PR needed. This closes out the
+        remaining gap in "have all ventures had at least one dependency/
+        lint sweep" — every venture with a locally-runnable toolchain has
+        now been checked at least once (across this and the entry above),
+        and came back clean. Router (`portfolio/router/allocate.py`)
+        still ranks every venture by an untested hypothesis at
+        prototype/idea stage — the actual next unit of profit-relevant
+        work in this portfolio is customer/market validation, which is
+        outside what a code-focused agent session can execute; recording
+        that plainly rather than manufacturing more lint fixes to look
+        busy.
+      - >-
+        No push notification: nothing actionable surfaced (all checks
+        clean, no new PRs, no change to the standing Actions-outage or
+        payout-rail items already escalated in prior entries).
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Continuation of the same scheduled "continue work / maintain the
+        development process" run. `git fetch origin main` mid-session
+        picked up #128, which landed while this session's PR was still
+        open; re-read it before writing this entry rather than working
+        from a stale tip.
+      - >-
+        Independently followed up on the one gap #127's entry explicitly
+        left open: ubuntu-agent-server's Python component (`agent_runner.py`
+        + tests) had no `ruff`/`mypy` CI gate, only `pyflakes`. That entry
+        deferred wiring one in as "a larger, separate decision" because
+        mypy needed type-stub packages. Checked whether that's still true:
+        it isn't — `[tool.mypy] ignore_missing_imports = true` (the same
+        pattern `photo-editing`/`photos-import-tools` already use) resolves
+        it with zero new dependencies, and `ruff check` with real default
+        rules (verified via `--isolated --select E4,E7,E9,F`, since an
+        ambient environment config was inflating an unqualified `ruff
+        check` to the full ALL-rules set and produced false positives)
+        already passes cleanly. So the "larger decision" reduces to a
+        config file plus two CI steps, not a body of fixes.
+      - >-
+        Added `ventures/ubuntu-agent-server/pyproject.toml`
+        (`[tool.ruff]`/`[tool.mypy]`, mirroring photo-editing's) and wired
+        `ruff==0.15.8`/`mypy==1.19.1` (same pins as photo-editing/
+        photos-import-tools CI) into the `python` job of
+        `ubuntu-agent-server-ci.yml`. Content-only, no behavior change.
+        Independently verified locally with the exact pinned versions
+        before pushing: `ruff check .` clean, `mypy` clean (3 files),
+        `pytest tests/` 22/22 passing. Opened as PR #129, self-merged
+        (squash) under the same risk-based precedent #103/#111/#118/#121/
+        #127 established: content-only, behavior-preserving, independently
+        re-verified, no business decision or spend. GitHub Actions
+        `startup_failure` outage (still active, unchanged) means CI itself
+        won't confirm this on GitHub; local verification with pinned
+        versions is what stands in for it, same as prior self-merges under
+        this outage.
+      - >-
+        Checked #128's own findings (ai-engineering-academy, real-estate-
+        agent-photo-app, world-clock-widget, garmin-world-traveler-
+        watchface) before starting this — all already clean per that
+        entry, nothing to add there. Open-PR backlog (#122, #117, #106,
+        #79, #19) unchanged from the last two entries; not re-verified.
+      - >-
+        No push notification: routine, self-merged, low-risk CI-hygiene
+        maintenance of the same kind prior entries in this exact chain
+        have not interrupted the account owner for, and no new business
+        decision or standing item was surfaced.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Eighteenth firing of the recurring "research and evaluate
+        potential software business projects that aren't already here"
+        brief. Screened nothing and rebuilt nothing: #79's intake gate
+        asks future runs not to re-screen, and its provenance note is
+        explicit that rebuilding the consolidation PR is what sustained
+        the duplicate-PR loop through five cycles. Checked the open-PR
+        list first per CLAUDE.md — #79 (candidate pipeline) and #126
+        (agent reachability) already cover the brief's research surface.
+      - >-
+        Measured the surface #126 did not: monetization rails,
+        publishing channels, and operating data sources that ride on
+        hosts this environment already permits. 45 targets over 37
+        distinct hosts, committed as a re-runnable script plus results
+        in `portfolio/research/monetization-reachability/`. Opened as
+        #130, content-only and carrying no ledger hunk (this entry is
+        the separate half), so it stays mergeable while it waits.
+      - >-
+        Headline: 0 of 13 monetization rails are usable. #126 probed
+        four and found them egress-denied; this extends it to the whole
+        category, including the two structurally cheapest options for a
+        portfolio with no legal entity — Open Collective's fiscal
+        hosting and Gumroad's merchant-of-record model. Switching rails
+        does not route around it.
+      - >-
+        The material refinement to the standing payout-rail ask, now
+        eight cycles old: two of the thirteen fail on a DIFFERENT
+        switch. GitHub Sponsors and GitHub Marketplace billing are
+        SCOPE_DENIED, not EGRESS_DENIED — the hosts answer and this
+        session's GitHub app scope refuses the route. So the ask is a
+        choice between two differently-priced options, not one thing:
+        (a) narrow — widen the GitHub app scope, one switch, one
+        vendor, GitHub-native monetization only; or (b) broad — a
+        merchant-of-record account AND that host added to the network
+        egress allowlist, two switches that must land together or the
+        credential lands and nothing can call out to it. Escalated to
+        the account owner by push notification, since it sharpens a
+        decision that has blocked every candidate for eight cycles into
+        something answerable.
+      - >-
+        Two corrections to #126, proposed in text rather than applied,
+        since editing its files would mean rebuilding it. First: eight
+        more publishing channels are reachable than it found (ghcr.io,
+        hub.docker.com, proxy.golang.org, pkg.go.dev, rubygems.org,
+        api.nuget.org, repo.packagist.org, hex.pm), so "every listing
+        channel except npm is denied" becomes "every listing channel
+        except package registries". None carries a payment rail, and
+        note pypi.org is reachable while upload.pypi.org is denied —
+        readable is not publishable. Second: it scored
+        api.github.com/marketplace_listing/plans REACHABLE because
+        GitHub's session proxy denies out-of-scope API *paths* with a
+        body distinct from the out-of-scope *repository* body #126
+        handled; it is a scope denial. That is the same overcounting
+        failure mode #126 itself warned about for jsr.io.
+      - >-
+        Third correction, and the one that moves a row in #126's
+        per-candidate table: the public vulnerability corpus IS
+        reachable, by routes it did not try. OSV's GCS export
+        (227,091 npm records actually downloaded and parsed), the
+        GitHub Advisory Database and CVEProject/cvelistV5 as git repos
+        over raw.githubusercontent.com, RustSec likewise — each
+        confirmed by retrieving real records, not a status code on a
+        README. `cra-evidence-desk`'s `operate` role flips from
+        unavailable to available; its `premise` role does not
+        (eur-lex still denied), so it stays non-executable for one
+        reason instead of two. Transferable heuristic recorded: when an
+        API host is denied, check whether the same data ships as a git
+        repository or an object-store export.
+      - >-
+        Generated exactly one candidate, by a constraint-native method
+        the pipeline has not used (start from what the environment can
+        reach rather than from a market or a channel): cross-source
+        advisory reconciliation. Then killed it on its own premise,
+        following the #103/#111 precedent of measuring a candidate
+        before writing it up. Two independent tests: only 11 of 5,771
+        npm CVEs are described by more than one publishing database
+        (reported as weak on its own — OSV deduplicates, so the method
+        is partly blind by construction), and against the independent
+        cvelistV5 corpus, 0 of 295 live GHSA advisories in a seeded
+        300-advisory sample cite a CVE their own authority has
+        rejected. The sources agree. Recorded as a rejection so run
+        nineteen does not re-derive it.
+      - >-
+        Net finding, and the reason this is worth more than another
+        candidate: the reachable set is narrow and homogeneous —
+        package registries and vulnerability data, one buyer archetype,
+        one distribution motion whose median outcome #111 and #126
+        already measured at tens-to-low-hundreds of downloads.
+        `mcp-supply-chain-watch` is the pipeline's only executable
+        candidate not because it is exceptional but because it is the
+        only one inside the single category this environment reaches.
+        Further firings of the screening brief cannot produce a
+        candidate this portfolio can charge for, because under current
+        settings none exists. The binding constraint is an access
+        decision, not a research one — consistent with the prior
+        entry's conclusion that the next unit of profit-relevant work
+        is outside what a code-focused session can execute.
+    mrr_end: null
