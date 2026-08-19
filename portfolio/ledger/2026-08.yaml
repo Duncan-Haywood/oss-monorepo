@@ -1207,3 +1207,80 @@ entries:
         window) as a standing process-reliability question worth the
         account owner's attention, separate from any single finding here.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per CLAUDE.md, fetched fresh against
+        `origin/main` (tip `d5bc527`): four open — #70, #69, #63, #19. #68
+        (merged just before this session started) had already landed the
+        corrected Actions root-cause finding and asked for #63 to be closed
+        pointing to it, but #63 was still open — a prior session's own
+        close-and-comment on #63 had been reverted (reopened) by a
+        concurrent session that mistakenly believed closing it would
+        orphan #61's pipeline-research content with no open PR carrying it.
+      - >-
+        That belief was stale by the time this session ran: #70, opened
+        minutes earlier, already carries that same content (the #61
+        lineage: 8 scored candidates, `channel-inventory.md`,
+        `convergence.md`, `distribution-first.md`, `screened-out.md`, the
+        `CLAUDE.md` intake gate) onto current `main`, plus a materially
+        better narrative — correct run count (eleven firings, not ten) and
+        an explicit account of why the consolidation kept failing to land
+        (runs seven through ten each diagnosed the duplication correctly
+        and then closed unmerged, so later runs had no way to discover the
+        question was answered).
+      - >-
+        Diffed #63's branch against #70's branch directly rather than
+        trusting either PR's description: `portfolio/pipeline/candidates*`,
+        `channel-inventory.md`, `convergence.md`, `distribution-first.md`,
+        and `screened-out.md` are byte-identical across both. The only
+        differences are in `CLAUDE.md`, `portfolio/pipeline/README.md`, and
+        the ledger narrative, and #70's version is strictly better on all
+        three (see above). Independently re-verified #70's branch before
+        acting — checked out its files, ran `validate.py` (11/11
+        `VENTURE.yaml` clean), `python3 -m unittest discover -s
+        portfolio/router -t portfolio/router` (12/12 pass), and confirmed
+        the ledger parses (19 entries, 123 outcome items) — then restored
+        the working tree with `git reset --hard` + `git clean -fd`.
+      - >-
+        Closed #63 with a comment pointing to #70, since it is now a strict
+        duplicate carrying no unique content. This closes the loop a
+        concurrent session (working from a stale assumption) reopened by
+        mistake roughly 40 minutes earlier in the same burst that produced
+        #62/#63/#64/#65/#68.
+      - >-
+        Left #70, #69, and #19 untouched — all three are genuine
+        account-owner decisions per their own PR bodies (merge the
+        screening-pipeline consolidation and retire/redirect the recurring
+        "research new business projects" task per #70; merge the
+        ai-first-markets dependency-audit fix per #69; decide on the second
+        unattended agent fleet per #19), not routine engineering or ledger
+        housekeeping this session should resolve unilaterally.
+      - >-
+        Did not send a push notification. Closing a now-redundant PR after
+        independent re-verification is routine consolidation housekeeping
+        exactly matching prior cycles, not new information the account
+        owner hasn't already been asked to act on — the standing asks
+        (retire the scheduled task, merge #70, decide #19, merge #69) are
+        unchanged in substance from what #70's own body already states.
+      - >-
+        Still unresolved, needs the account owner, unchanged in substance
+        from the last several cycles: (1) merge #70 (the pipeline-research
+        consolidation, supersedes #36/#44/#53/#61/#63) or none of the
+        chain; (2) retire or redirect the recurring "research new business
+        projects" scheduled task — eleven firings have produced one
+        directory of usable research and ten discarded re-derivations,
+        per #70's own recommendation; (3) merge #69 (ai-first-markets
+        `npm audit fix`, no `package.json` changes) or not; (4) decide on
+        #19 (second unattended agent fleet); (5) `main`'s GitHub Actions
+        has not run successfully since 2026-07-29, most consistent with an
+        account-level billing/quota cause per #68's correction — check
+        Settings → Billing/Actions directly; (6) may an agent session
+        publish a free channel listing under the portfolio's name, and/or
+        establish one payout rail, per #70's `channel-inventory.md`; (7)
+        submit `garmin-world-traveler-watchface` or `world-clock-widget`
+        to their stores — both built, blocked only on developer-account
+        credentials.
+    mrr_end: null
