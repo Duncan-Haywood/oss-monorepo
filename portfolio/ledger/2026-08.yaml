@@ -980,3 +980,84 @@ entries:
         check; (6) retire or redirect the recurring "research new business
         projects" scheduled task.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per CLAUDE.md, fetched fresh against current
+        `origin/main`: four open (#61, #60, #55, #19), down from the
+        backlog earlier today. #53/#54 were already closed by a prior
+        cycle (#60), so neither needed action here.
+      - >-
+        Independently re-verified #60's claims rather than trusting them:
+        `git log` confirms #56, #58, and #59 are merged (commits `13dd67e`,
+        `394d56e`, `644e9d0`) and #54 is closed. #60 itself was
+        ledger-documentation-only, additive, non-content, non-automation,
+        and its base matched current `main` exactly (`mergeable_state:
+        clean`) — squash-merged it directly, consistent with this repo's
+        established pattern of a later session merging a verified,
+        ledger-only PR rather than the authoring session self-merging it.
+      - >-
+        #55 (verify #53, root-cause the Actions `startup_failure`) had gone
+        stale — base three commits behind `main`, `mergeable_state: dirty`
+        — and its #53-verification content was moot since #53 was already
+        closed. But it carried one genuinely new finding not yet in this
+        ledger: a specific root-cause for the repo-wide `startup_failure`,
+        rather than the "billing/quota" guess repeated ~9 times previously.
+        It found `.github/workflows/opencode-high-throughput.yml`'s
+        creation timestamp matches the first phantom `BuildFailed`
+        `startup_failure` run to the second.
+      - >-
+        Independently re-checked that finding via the Actions API rather
+        than trusting the PR body: `opencode-high-throughput.yml` is
+        workflow id `337234310`, `state: active`, created
+        `2026-08-18T18:42:42Z` UTC — confirmed distinct from the phantom
+        `BuildFailed` workflow (id `337182028`, `state: deleted`, already
+        documented in this ledger). Queried its run history directly:
+        **0 total runs, ever** — it has never once successfully registered
+        a run, scheduled or otherwise, since being added. This confirms
+        (not just repeats) the standing finding that the repo-wide
+        `startup_failure` blocks even this workflow's own hourly cron
+        trigger — no evidence of live spend from it despite being
+        active with `contents: write` + `pull-requests: write` and an
+        hourly schedule.
+      - >-
+        Did not disable or edit `opencode-high-throughput.yml` — same
+        reasoning as #55 gave: it is live automation already on `main`,
+        not a PR awaiting review, and CLAUDE.md reserves that call for the
+        account owner. Closed #55 with a comment folding this
+        independently-reverified finding into this entry and pointing
+        here, since its branch was too stale to merge cleanly and #61
+        already supersedes its #53-verification half.
+      - >-
+        Left #61 (channel-first pipeline research, carries #53's diff, six
+        explicit decisions for the account owner) and #19 (second
+        unattended agent fleet proposal) completely untouched — both are
+        account-owner decisions per their own PR bodies and CLAUDE.md's
+        "Automation that writes or spends unattended" section, unchanged
+        in substance from prior cycles.
+      - >-
+        Did not send a push notification. Nothing this cycle is new to the
+        account owner beyond what #61 and prior cycles already listed: the
+        Actions root-cause is now pinned to a specific file rather than a
+        guess, but confirms zero live spend rather than raising a new risk,
+        and the file itself was already flagged as a decision point in
+        #61's own body. Routine consolidation, not an interrupt.
+      - >-
+        Still unresolved, needs the account owner, unchanged in substance:
+        (1) whether `opencode-high-throughput.yml` (the confirmed root
+        cause of the repo-wide `startup_failure`, currently inert — 0 runs
+        ever) should be disabled pending review, or whether the
+        `startup_failure` itself needs a GitHub-side fix (Actions tab /
+        billing / third-party-action allowlist); (2) merge #61 (carries
+        #53/#44) or none of them; (3) decide on #19; (4) submit
+        garmin-world-traveler-watchface or world-clock-widget to their app
+        stores; (5) whether an agent session may publish a free,
+        no-credential-required listing per #61's channel-first proposal,
+        and separately whether to establish one payout rail; (6) whether
+        local-site-studio's standalone repo still has its 6 dormant
+        scheduled-workflow crons live with provider secrets configured;
+        (7) retire or redirect the recurring "research new business
+        projects" scheduled task.
+    mrr_end: null
