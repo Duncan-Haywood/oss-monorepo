@@ -3579,3 +3579,59 @@ entries:
         have not interrupted the account owner for, and no new business
         decision or standing item was surfaced.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Continuation of the same scheduled "continue work / maintain the
+        development process" run. `git fetch origin main` before writing
+        this entry; picked up #128/#129/#130/#131/#132/#133 landing mid-
+        session, including confirmation the earlier "42-PR pileup" is
+        resolved (#132). Rebased this session's branch onto the fetched
+        tip before pushing.
+      - >-
+        The #128 entry's sweep of `real-estate-agent-photo-app` only found
+        `pipeline/package.json` and reported the venture clean. It missed
+        two more Node subprojects one level deeper:
+        `real-estate-agent-photo-app/research` (11 high-severity `npm
+        audit` findings, same `next<16.3.1` root cause as #106/#117/#122)
+        and `real-estate-agent-photo-app/docs-site` (17 findings, 15
+        high / 2 moderate, via `wrangler`'s transitive `undici`/`ws`).
+      - >-
+        Fixed `research/`: upgraded `next` 14.2.35 → 16.3.1, `eslint` 8 →
+        9, `eslint-config-next` → 16.3.1, kept `react@18` (builds fine
+        against it, unlike ai-first-markets/local-site-studio), swapped
+        `.eslintrc.json` for the flat config pattern #106/#117 already
+        established. Verified locally: `npm audit` 0 vulnerabilities (was
+        11 high), `eslint .` clean, `tsc --noEmit` clean, `next build`
+        succeeds. Opened as PR #134, not self-merged — same breaking-
+        major-version-bump category #106/#117/#122 are already waiting on
+        sign-off for.
+      - >-
+        Attempted the same fix on `docs-site/` and stopped: it imports
+        `.tsx` files from `../../../../process/*`, outside its own npm
+        project root, which Next 16's Turbopack refuses to resolve
+        without a `turbopack.root` override — and even with that
+        override, TypeScript then can't resolve `react/jsx-runtime` for
+        those files (no `node_modules` ancestor has react installed from
+        that path). Falling back to `--webpack` hit the same failure plus
+        Next 16's async dynamic-route `params` breaking change. Same
+        class of regression `local-site-studio` hit on an earlier
+        upgrade attempt: recorded and left out of scope rather than
+        forced through with a larger restructuring, consistent with that
+        precedent. `docs-site`'s 17 advisories remain unfixed pending a
+        scoped follow-up.
+      - >-
+        Open-PR backlog otherwise unchanged from the last several entries
+        (#133, #130, #79, #126, #122, #117, #106, #19, plus this
+        session's new #134) — not re-reviewed individually since nothing
+        in it changed. GitHub Actions account-wide `startup_failure`
+        outage unchanged, already escalated, not re-escalated.
+      - >-
+        No push notification: this closes a real gap in prior coverage
+        (not a duplicate check) but the fix itself is a normal, already-
+        precedented dependency-bump PR waiting on the same sign-off
+        category as three others already open — not a new class of
+        finding warranting an interrupt.
+    mrr_end: null
