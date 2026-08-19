@@ -53,9 +53,13 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install test dependencies
-        run: pip install -r tests/requirements.txt pyflakes
+        run: pip install -r tests/requirements.txt pyflakes ruff==0.15.8 mypy==1.19.1
       - name: pyflakes
         run: pyflakes roles/agent_runner/files/agent_runner.py
+      - name: ruff
+        run: ruff check .
+      - name: mypy
+        run: mypy
       - name: pytest
         run: pytest tests/ -v
 
