@@ -15,7 +15,7 @@ export default function Operations() {
 
       <section>
         <h2 className="text-2xl font-semibold">AI-Assisted Capture Workflow</h2>
-        <p>The traditional "hire a photographer" model is replaced by a software-guided self-capture process.</p>
+        <p>The traditional &quot;hire a photographer&quot; model is replaced by a software-guided self-capture process.</p>
         <ul className="list-disc pl-5 space-y-2">
           <li><strong>The App:</strong> Artists use our mobile web-app to photograph their paintings. The app guides lighting, framing, and requires a standard color-checker card in the shot.</li>
           <li><strong>Computer Vision Pipeline:</strong> 
@@ -44,7 +44,7 @@ export default function Operations() {
           <li>Customer purchases via the digital storefront.</li>
           <li>Webhook routes the order instantly to the optimal POD partner facility nearest to the customer (reducing shipping time and carbon footprint).</li>
           <li>Tracking info is synced programmatically back to the customer.</li>
-          <li>Revenue split is calculated instantly and appears on the artist's dashboard.</li>
+          <li>Revenue split is calculated instantly and appears on the artist&apos;s dashboard.</li>
         </ol>
       </section>
     </div>

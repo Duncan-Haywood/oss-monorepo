@@ -563,11 +563,11 @@ describe("computePipelineHealth", () => {
       commerceCatalogs: [
         {
           leadSlug: "unsynced-shop",
-          items: [{ id: "a", stripePriceId: undefined }],
+          items: [{ stripePriceId: undefined }],
         },
         {
           leadSlug: "synced-shop",
-          items: [{ id: "b", stripePriceId: "price_b" }],
+          items: [{ stripePriceId: "price_b" }],
         },
       ],
       nowMs: NOW,

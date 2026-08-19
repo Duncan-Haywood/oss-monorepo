@@ -41,7 +41,7 @@ export default function Strategy() {
             <ul className="list-disc pl-5 space-y-1">
               <li>Digital-first automated outreach using AI to identify rising artists on Instagram/TikTok.</li>
               <li>Self-serve onboarding app: artists can digitize their own work using our proprietary AI enhancement software.</li>
-              <li>Pitch: "Digitize once from your phone, earn on every print, zero logistics."</li>
+              <li>Pitch: &quot;Digitize once from your phone, earn on every print, zero logistics.&quot;</li>
             </ul>
           </div>
           <div className="bg-green-50 dark:bg-gray-700 p-4 rounded-lg">
