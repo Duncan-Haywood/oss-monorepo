@@ -1059,3 +1059,79 @@ entries:
         (5) retire or redirect the recurring "research new business
         projects" scheduled task.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs fresh against `origin/main` per CLAUDE.md and found
+        the exact failure mode CLAUDE.md's own history section warns about,
+        happening live: within a roughly two-minute window (02:25-02:27
+        UTC), four separate sessions (#62, #63, #64, #65) each independently
+        opened a PR consolidating the same three prior PRs (#55, #60, #61)
+        and correcting the same claim in #55 — that PR's "root cause"
+        attribution of the repo-wide Actions `startup_failure` to
+        `.github/workflows/opencode-high-throughput.yml`. That attribution
+        does not hold: independently re-checked via the Actions API this
+        cycle, the phantom `BuildFailed` workflow (id 337182028) every
+        failing run is attributed to was created 2026-08-18T17:23:11Z UTC —
+        **79 minutes before** `opencode-high-throughput.yml` (id 337234310,
+        created 18:42:42Z) existed. It cannot be the cause. (#55 itself was
+        merged before this was caught; its now-superseded claim is preserved
+        above per the ledger's append-only rule, corrected here rather than
+        edited there.)
+      - >-
+        Rather than open a fifth near-duplicate PR, verified the most
+        complete of the four (#63 — carries #55+#60+#61 as one union, not a
+        subset) by checking out its exact head commit independently:
+        `portfolio/router/validate.py` 11/11 `VENTURE.yaml` clean,
+        `python3 -m unittest test_allocate` 12/12 pass,
+        `portfolio/ledger/2026-08.yaml` parses at that commit. Commented on
+        #62, #64, and #65 pointing to #63 as the union and explaining the
+        corrected root-cause finding (#64 and #65 in particular still
+        carried the disproven single-file theory), then closed all three.
+        Their branches were left undeleted, so nothing is lost if any of
+        their content turns out to matter later. Left #63 open — merging is
+        the account owner's call, same as every consolidation PR before it.
+      - >-
+        Net effect: the open-PR count for this repo went from 4 (#55, #60,
+        #61, #19) at the start of this cycle, briefly up to 7 as the
+        concurrent sessions piled on, back down to 2 (#63, #19) after this
+        cleanup — lower than at the start, not just flat.
+      - >-
+        This is not a one-off: CLAUDE.md's own history section already
+        documents roughly two dozen near-duplicate PRs accumulating in a few
+        hours on 2026-08-18, and today's four-PR collision in a two-minute
+        window on 2026-08-19 is the same pattern at smaller scale, happening
+        because several scheduled sessions fire against a `main` that is
+        stale by the time each one looks — no session did anything wrong
+        individually, the collision is a property of running many
+        independent sessions against the same fast-moving branch with no
+        mutual visibility. Consolidating after the fact (as this cycle and
+        several before it have done) bounds the damage but doesn't prevent
+        the spend: five full sessions' worth of tool calls and API cost were
+        spent to reach one conclusion four of them reached independently.
+        Reducing the scheduled-session frequency, or serializing them, would
+        cut this waste directly; that's a scheduling decision outside this
+        session's access.
+      - >-
+        Sent a push notification for this: a prior cycle (folded into #55,
+        now merged) already sent one claiming
+        `opencode-high-throughput.yml` was "very likely" the Actions root
+        cause and recommended disabling its cron — that claim is now
+        disproven by direct evidence, so the account owner needs the
+        correction before acting on the earlier notification. Also flagged
+        the live multi-session collision above, since it's a concrete,
+        actionable scheduling problem separate from anything already
+        reported.
+      - >-
+        Still unresolved, unchanged from #63's own body: (1) merge #63
+        (carries #53/#55/#60/#61) or none of it; (2) GitHub Actions is
+        blocked repo-wide, evidence now points at account-level
+        billing/quota rather than any specific workflow file — check
+        Settings → Billing/Actions directly; (3) decide on #19; (4) submit
+        `garmin-world-traveler-watchface` or `world-clock-widget` to their
+        stores; (5) whether an agent session may publish a free,
+        no-credential channel listing per #61's proposal (carried into
+        #63), and separately whether to establish one payout rail.
+    mrr_end: null
