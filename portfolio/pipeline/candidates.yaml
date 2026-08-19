@@ -45,7 +45,11 @@ candidates:
     graduate_as: venture
     host_venture: null
     scores:
-      ai_leverage: 7
+      # ai_leverage lowered 7 -> 6 on 2026-08-19 by measurement, not judgement:
+      # the classification step this dimension was scored on turned out to be
+      # separable by deterministic rules with no model in the loop. See
+      # portfolio/research/mcp-tool-drift/README.md, finding 5.
+      ai_leverage: 6
       autonomous_ops: 9
       time_to_revenue: 7
       gross_margin: 9
@@ -53,12 +57,41 @@ candidates:
       distribution: 6
       liability_containment: 7
       ethical_robustness: 8
-    composite: 7.125
+    composite: 7.0
     floor: 4
     floor_dimension: defensibility
     mitigation: Only the retained per-customer pin history accrues; the diffing mechanism is assumed copyable and is not the sale.
     first_experiment_days: 14
     first_experiment_budget_usd: 150
+    rescored: 2026-08-19
+    # The only candidate whose experiment has actually been run. Steps 1 and 2
+    # are complete and neither kill condition fired; step 3 needs buyer contact
+    # and cannot be done by an unattended session.
+    probe_log:
+      - step: 1
+        question: Is the tool-declaration drift base rate near zero?
+        status: passed
+        finding: >-
+          69% of adjacent releases change the tool surface, 29% remove a tool.
+          No spec revision or registry record closes the gap upstream.
+        evidence: ../research/mcp-tool-drift/README.md
+      - step: 2
+        question: >-
+          Can routine churn be kept out of the instruction-bearing bucket, or
+          does alert fatigue kill it?
+        status: passed
+        finding: >-
+          Of 152 measured description changes, 78% are cosmetic and 7.2% are
+          instruction-bearing. Median 0.00 alerts per monitored server per
+          month (mean 0.11, p90 0.53). Alert fatigue does not fire. The
+          inverted risk it exposes is pricing: per-server pricing bills for
+          something usually silent, which argues for selling the retained
+          archive rather than the alert.
+        evidence: ../research/mcp-tool-drift/README.md
+      - step: 3
+        question: Will two of ten teams pay $29/server/month?
+        status: blocked
+        finding: Needs contact with buyers; no unattended session can run it.
 
   - slug: cra-evidence-desk
     name: CRA evidence desk

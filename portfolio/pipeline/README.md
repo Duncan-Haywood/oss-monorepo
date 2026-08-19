@@ -86,7 +86,7 @@ decides.
 |---|---|---|---|---|
 | 1 | [EAA remediation pipeline](candidates/eaa-remediation-pipeline.md) | 7.25 | 5 | Build now, as a `local-site-studio` product line |
 | 2 | [Shopify accessibility evidence app](candidates/shopify-a11y-evidence.md) | 7.25 | 4 | Probe the channel — scored 2026-08-19 |
-| 3 | [MCP supply-chain watch](candidates/mcp-supply-chain-watch.md) | 7.125 | 4 | Cheap probe — measure the drift base rate first |
+| 3 | [MCP supply-chain watch](candidates/mcp-supply-chain-watch.md) | 7.0 | 4 | Probe steps 1–2 run 2026-08-19, neither killed it; step 3 needs a buyer. AI-leverage rescored 7→6 (see [research](../research/mcp-tool-drift/)) |
 | 4 | [CRA evidence desk](candidates/cra-evidence-desk.md) | 7.0 | 4 | Build now, narrow scope |
 | 5 | [Public-record watch](candidates/public-record-watch.md) | 7.0 | 4 | Cheap probe — one vertical, two weeks |
 | 6 | [Agent permission harness](candidates/agent-permission-harness.md) | 7.0 | 4 | Park; revisit 2027-Q1 |
