@@ -2150,3 +2150,113 @@ entries:
         and #79/#19 remain the only items actively blocking on a decision,
         both unchanged from the prior entry.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain the development process" run.
+        `git fetch origin main` first; the tip's own last entry (this file,
+        PR #89, merged 3 minutes before this session started) already
+        re-confirmed #79 and #19 as unchanged and blocked on the account
+        owner, so did not repeat that verification — would have been the
+        exact same-hour duplicate-ledger-entry waste this section warns
+        about. Looked for the one thing that entry flagged as not yet
+        done: PR #19 was still marked "unreviewed" (open since 2026-08-18,
+        zero comments, zero reviews).
+      - >-
+        Did that review: fetched the #19 branch directly and read
+        `platform/agents/repo-advancement.js` and
+        `.github/workflows/repo-advancement-agent.yml` in full rather than
+        trusting the PR description. Found the agent is non-functional as
+        written, independent of the policy question CLAUDE.md already
+        raises about unattended spend-capable automation:
+        `implementItem()` only returns the OpenCode API's `data.changes` —
+        nothing in `repo-advancement.js` ever writes those changes to the
+        working tree (no `fs.writeFileSync`, no patch application
+        anywhere in the file). So even with both API keys configured and
+        both APIs returning 200s, `git status -s` is empty after the
+        agent runs, the workflow skips the commit, still pushes the
+        branch, and the PR-creation step would hit GitHub's "No commits
+        between X and Y" error. Separately, `https://api.opencode.dev/v1/
+        generate` does not match any documented public OpenCode API —
+        OpenCode ships as a local CLI/TUI agent, not this hosted REST
+        surface — worth confirming it exists before wiring in a real key.
+        Also flagged a smaller bug: the PR-creation script passes
+        `context.ref` (a full ref) where the GitHub API's `base` param
+        expects a branch name.
+      - >-
+        Posted this as a review comment on #19 (not a fourteenth
+        re-verification of #79, and not a merge or a fix — the missing
+        file-write step is a real implementation gap, not a one-line
+        patch, and this remains automation the account owner should
+        decide on, not a session). Recommended closing or reworking
+        before it goes near real secrets/spend.
+      - >-
+        Did not touch #79, the router, or any venture — everything else
+        in the last entry was confirmed still current and re-doing it
+        would have been the wasted-spend pattern this file exists to
+        avoid. Did not send a push notification: this adds detail to an
+        already-flagged blocker (#19) rather than new decision-relevant
+        information the account owner doesn't already know they're
+        waiting on.
+    mrr_end: null
+  - venture: real-estate-agent-photo-app
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain the development process" run.
+        Checked open PRs and the ledger tip first: only #79 and #19 open,
+        both already fully current (#79 content-only and clean against
+        `main`, #19 already reviewed with findings posted) and both
+        genuinely blocked on the account owner, so re-verifying either
+        would repeat the exact duplicate-verification waste this section
+        warns about. GitHub Actions is still 100% `startup_failure` on
+        every run, unchanged; already root-caused as account-level
+        (billing/quota) by many prior sessions and already reported —
+        not repeated here as new information.
+      - >-
+        Instead looked for routine, safe additive engineering work not
+        blocked on any human decision. Found one real gap: `process/
+        booking-link.ts` in `real-estate-agent-photo-app` — the module
+        that builds the venture's live "Book now" mailto: link, rendered
+        by `pricing-one-pager.tsx` and the docs-site's `/pricing` page —
+        had zero test coverage, unlike its sibling `process/*.ts` modules
+        (`delivery-message.ts`, `referral-followup.ts`), which already
+        have tests in `pipeline/src/*.test.ts`.
+      - >-
+        Added `pipeline/src/booking-link.test.ts`, matching the existing
+        no-framework `tsx`+`assert()` pattern exactly: checks the default
+        mailto: target, percent-encoding of the subject, that every
+        `bookingIntakeFields` prompt appears in the body, that a custom
+        email override is honored, and that the exported `BOOKING_LINK`
+        constant matches the default build (what call sites actually
+        render). Wired it into `pipeline/package.json`'s chained `test`
+        script, same pattern as the other five test files.
+      - >-
+        Verified for real, not just by reading: `npm test` in `pipeline/`
+        — 6/6 test files pass, including the new one; `npx tsc --noEmit`
+        clean. Also checked the new test isn't vacuous by temporarily
+        breaking the subject-encoding logic in the source and re-running
+        — the new test correctly failed with the expected assertion
+        message, then passed again once the source was restored.
+      - >-
+        Surveyed the other prototype-stage ventures the router currently
+        ranks highest (ai-first-markets, local-site-studio,
+        photo-editing, retail-pilot-intel, quick-pick-survey,
+        photos-import-tools, world-clock-widget, print-atelier,
+        ai-engineering-academy) for the same class of gap; all already
+        have passing test/lint/typecheck coverage from prior cycles.
+        `retail-pilot-intel`'s `packages/schemas` and `packages/edge`
+        lack `test` scripts but contain only type declarations and a
+        side-effecting CLI with no pure logic worth unit-testing, so left
+        untouched rather than force busywork.
+      - >-
+        Did not send a push notification: this is routine, low-risk,
+        additive engineering, not new information the account owner is
+        waiting on — the actual blockers (#79 merge decision, #19
+        close/rework decision, Actions account-level outage, and the
+        pipeline-research payout/listing decisions) are unchanged from
+        what prior entries already put in front of them.
+    mrr_end: null
