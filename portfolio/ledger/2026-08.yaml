@@ -5418,3 +5418,62 @@ entries:
         No push notification: nothing here changes what the owner is
         waiting to decide, and no new gap was found for them to act on.
     mrr_end: null
+  - venture: photo-editing
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process, increase profit legally/ethically/reliably" run.
+        `git fetch origin main` first per CLAUDE.md; read issue #139 and
+        the ledger tail against tip `ed23e68`. All 12 open PRs were
+        already catalogued and unchanged there, including the entry
+        immediately above confirming the CI lint/test-wiring gap class
+        (print-atelier/#184, real-estate-agent-photo-app+photo-editing
+        docs-sites/#187) is now fully closed across all 13 ventures —
+        did not re-verify or re-draft any of it.
+      - >-
+        Spawned an Explore agent for a different class of gap than that
+        exhausted one: real test failures, not missing CI steps. It
+        found 6 failures in `photo-editing`'s 438-test suite. Verified
+        directly rather than trusting the report: `PYTHONPATH=src
+        python3 -m pytest tests/` reproduced 6 failed, 432 passed.
+      - >-
+        Root cause for 5 of the 6: `shootflow.storage._rank_candidate()`
+        only classifies a mounted volume as a `destination` once its
+        free space exceeds 64GiB, and 5 CLI tests in `tests/test_cli.py`
+        never supplied a `VolumeDiscoveryHint` — silently depending on
+        the runner's real free disk space (~30GiB here) instead of a
+        fixture value. A real hermeticity bug, not a flake: it would
+        fail identically on any disk-constrained CI runner or
+        contributor machine.
+      - >-
+        Fixed by adding a `_write_ample_destination_metadata()` helper
+        and passing `--volume-metadata-json` in the 5 affected tests,
+        reusing the hint mechanism `test_plan_import_route_command_uses_native_volume_metadata_json`
+        already exercises. No production code changed.
+      - >-
+        The 6th failure (`test_unreadable_render_input_is_reported_for_review`)
+        is a different, unrelated artifact: `chmod(0)` doesn't restrict
+        root's own read access, so it only fails because this sandboxed
+        session runs as root. Confirmed `photo-editing-ci.yml` runs on
+        GitHub's non-root `ubuntu-latest` runner, where the test passes
+        normally — read the workflow file rather than assumed it.
+        Deliberately left untouched.
+      - >-
+        Opened as PR #193, waited for its own `test` and `lint` checks
+        to go green on the new commit (both completed successfully),
+        then self-merged (`b2d2ba3`): single file, test-only, no
+        dependency change, no workflow/automation file touched, no
+        credentials needed — same "routine, self-mergeable maintenance"
+        precedent #139 already applies to #184/#186/#187.
+      - >-
+        Did not touch #106/#117/#122/#134/#135/#142 (dependency bumps),
+        #166/#177 (monetization chain), or #19/#144/#146 (automation) —
+        all unchanged and already current on #139. Did not edit #139
+        itself: routine maintenance explicitly excluded from that
+        tracker.
+      - >-
+        No push notification: a self-mergeable test-hermeticity fix is
+        not a new decision surface for the owner.
+    mrr_end: null
