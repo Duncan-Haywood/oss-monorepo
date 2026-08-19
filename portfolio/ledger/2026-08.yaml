@@ -1059,3 +1059,85 @@ entries:
         (5) retire or redirect the recurring "research new business
         projects" scheduled task.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Correction to the immediately preceding entry (merged as #55): its
+        root-cause theory for the repo-wide Actions `startup_failure` —
+        `.github/workflows/opencode-high-throughput.yml`'s pinned
+        third-party action — does not hold up. Found this independently
+        while consolidating a burst of concurrent scheduled sessions that
+        landed #55, #60, and opened #61/#62/#63 within roughly the same
+        hour, all reasoning about the same Actions outage; cross-checking
+        one session's disputed claim against another's evidence surfaced
+        the correction rather than one session finding it alone.
+      - >-
+        Independently verified via the Actions API (did not trust any PR
+        body): `portfolio-validate.yml` (workflow id `337361808`) is a
+        syntactically clean workflow using only official, unpinned actions
+        (`actions/checkout`, `actions/setup-python`), created
+        2026-08-19T01:25:37+03:00 — *after* opencode-high-throughput.yml,
+        with no dependency on it. Its one run (`32197159797`,
+        `workflow_dispatch`, not `schedule`) shows `conclusion:
+        startup_failure`, 0 jobs, `{"billable":{}}` usage — the identical
+        zero-jobs-scheduled signature every other failing run shows. A
+        clean, unrelated, official-actions-only workflow failing exactly
+        the same way as the suspect one rules out a bad third-party action
+        reference in one specific file as the cause. The evidence is most
+        consistent with an account-level cause (billing, quota, or Actions
+        disabled repo-wide) — i.e. back to the "billing/quota" theory
+        several cycles held before #55, now with the specific-file theory
+        actively ruled out rather than merely unconfirmed.
+      - >-
+        Also independently re-confirmed opencode-high-throughput.yml itself
+        is not currently spending: queried its run history directly
+        (workflow id `337234310`) — 0 total runs, ever, consistent with
+        every other workflow's zero-jobs failure signature. No evidence of
+        live hourly spend from it right now, whatever the outage's actual
+        cause turns out to be.
+      - >-
+        Did not disable or edit `opencode-high-throughput.yml` — same
+        reasoning as every prior cycle: it is live automation already on
+        `main`, not a PR awaiting review, and CLAUDE.md reserves that call
+        for the account owner regardless of suspicion level, now further
+        reduced by this correction.
+      - >-
+        On the concurrent-PR burst itself: #62 and #63 (both consolidating
+        #55/#60/#61 into one PR, both opened within a minute of each other
+        by independent sessions) each merged #61's branch — channel-first
+        pipeline research and a proposal to publish a free listing — into
+        their own ledger-consolidation PR. Left that decision where #61
+        itself puts it: a separate, standalone merge call for the account
+        owner, not bundled with routine ledger housekeeping, so approving
+        or deferring one doesn't force a decision on the other. Commented
+        on #62 and #63 pointing to this entry and asking that #61 be left
+        standalone; did not close either unilaterally since both contain
+        real, independently-arrived-at analysis worth the account owner's
+        own look before anything is discarded.
+      - >-
+        Did not send a push notification. The corrected root cause doesn't
+        change what the account owner needs to do (Actions tab/billing is
+        still the next step either way) and the concurrent-PR burst,
+        while real, is the kind of housekeeping CLAUDE.md already asks
+        sessions to absorb rather than escalate.
+      - >-
+        Still unresolved, needs the account owner: (1) `main`'s Actions is
+        blocked repo-wide by an account-level cause (billing, quota, or
+        Actions disabled), not a specific workflow file — needs the
+        Actions tab or billing page directly, nothing further to diagnose
+        from inside a session; (2) merge #61 (carries #53/#44, plus
+        channel-first research) or not, as its own standalone decision;
+        (3) decide on #19; (4) submit garmin-world-traveler-watchface or
+        world-clock-widget to their app stores; (5) whether an agent
+        session may publish a free, no-credential listing per #61's
+        proposal, and separately whether to establish one payout rail;
+        (6) whether local-site-studio's standalone repo still has its 6
+        dormant scheduled crons live with provider secrets configured;
+        (7) retire or redirect the recurring "research new business
+        projects" scheduled task; (8) #62 and #63 are still open,
+        redundant with each other and with this entry's correction —
+        recommend closing both once reviewed, keeping whichever of #61's
+        analysis in them (if any) is worth lifting out separately.
+    mrr_end: null
