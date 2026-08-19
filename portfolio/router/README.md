@@ -64,3 +64,13 @@ used inside `rank()` — it does not spend anything automatically. Per
 "Attribution honesty" above, treat its output as a heuristic worth arguing
 with, not a
 number to act on unreviewed.
+
+Every venture in the portfolio is currently unmeasured (`economics.mrr:
+null`), so with only stage/cap to go on the "next task" column would read
+the same generic "push toward the first real measurement" for all eleven —
+not actually useful as a work queue. `next_task()` now reads each venture's
+own `hypotheses` list from its `VENTURE.yaml` and names the first one still
+marked `status: untested`, so the task each venture gets back is what that
+venture itself recorded it needs to learn next, not a placeholder. A
+venture with no untested hypothesis left (all `supported`, or none listed)
+still falls back to the generic explore task.
