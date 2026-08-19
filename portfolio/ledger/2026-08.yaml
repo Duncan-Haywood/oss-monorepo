@@ -5310,3 +5310,62 @@ entries:
         new decision surface for the owner, and nothing else changed
         since the entries immediately above.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process, increase profit legally/ethically/reliably" run.
+        `git fetch origin main` first per CLAUDE.md, read issue #139 in
+        full against tip `fda7b8e` before touching anything. Sections
+        1-3 were current (12 open PRs, all already catalogued: 6
+        dependency bumps, #166/#177 monetization chain, #19/#144/#146
+        automation) — did not re-verify or re-draft any of it.
+      - >-
+        Independently re-tested Ask 3 from #139's table (read-only
+        egress to formulae.brew.sh, www.raycast.com, obsidian.md,
+        zed.dev for category sizing) rather than trust the prior
+        finding secondhand: `WebFetch` to formulae.brew.sh returned
+        `EGRESS_BLOCKED`. Still owner-gated in this session too, not a
+        stale claim.
+      - >-
+        Rather than add another owner-gated research pass, spawned an
+        Explore agent to check the other ventures (print-atelier
+        already fixed in #184/#186, excluded) for the same class of gap:
+        CI workflow not running a script package.json actually defines.
+        Found three: `real-estate-agent-photo-app/docs-site` and
+        `/research` (workflow only ran `build`, not the defined `lint`),
+        and `photo-editing/docs-site` (same). Nine other ventures
+        checked clean.
+      - >-
+        Verified each locally before touching CI: `npm ci && npm run
+        lint` in all three directories, all exit 0 (two clean, one with
+        pre-existing warnings only, no errors) — confirmed the fix
+        wouldn't turn CI red on landing.
+      - >-
+        Added the missing `npm run lint` step to
+        `.github/workflows/real-estate-agent-photo-app-ci.yml` (both
+        jobs) and `.github/workflows/photo-editing-docs-site-ci.yml`.
+        Confirmed no overlap with the open dependency-bump PRs on those
+        same ventures (#134/#135/#142 touch package.json/package-lock.json,
+        this touches only workflow YAML).
+      - >-
+        Opened as PR #187, waited for the real-estate-agent-photo-app
+        and photo-editing-docs-site CI runs to go green on the PR's own
+        commit (not just local verification), then self-merged
+        (`b0b1eb6`): issue #139's "Not on this list" precedent covers
+        lint/CI wiring with no breaking version bump as routine,
+        self-mergeable maintenance. Three files, no dependency change,
+        no automation, no spend.
+      - >-
+        Did not touch #106/#117/#122/#134/#135/#142 (dependency bumps),
+        #166/#177 (monetization chain), #19/#144/#146 (automation), or
+        #175 (CI validator) — all unchanged and already current on
+        #139. Did not edit #139 itself: this PR is routine maintenance
+        explicitly excluded from that tracker.
+      - >-
+        No push notification: a self-mergeable CI hygiene fix and a
+        re-confirmation of an already-known egress block are not a new
+        decision surface for the owner.
+    mrr_end: null
