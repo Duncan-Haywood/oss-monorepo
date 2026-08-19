@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Camera, CheckCircle2, Sparkles, Image as ImageIcon, ArrowRight, Upload } from "lucide-react";
 
 const STEPS = [
@@ -38,7 +39,7 @@ export default function CaptureDemo() {
           <h1 className="text-xl font-bold">AI Capture Pipeline</h1>
           <p className="text-sm text-gray-400">Phone photo → print-ready master in under 60 seconds</p>
         </div>
-        <a href="/" className="text-sm px-4 py-2 border border-gray-700 rounded-lg hover:bg-gray-800 transition">Return to Docs</a>
+        <Link href="/" className="text-sm px-4 py-2 border border-gray-700 rounded-lg hover:bg-gray-800 transition">Return to Docs</Link>
       </header>
 
       <main className="max-w-5xl mx-auto p-8">
