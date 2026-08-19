@@ -42,6 +42,9 @@ on:
         required: false
         default: "opencode/deepseek-v4-flash"
         type: string
+  schedule:
+    # Hourly at :05 UTC — staggered from other automation to reduce contention
+    - cron: '5 * * * *'
 
 permissions:
   contents: write
@@ -49,7 +52,56 @@ permissions:
   id-token: write
 
 jobs:
+  guardrails:
+    name: Pre-flight safety checks
+    runs-on: ubuntu-latest
+    outputs:
+      should_proceed: ${{ steps.check.outputs.should_proceed }}
+      reason: ${{ steps.check.outputs.reason }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 50
+
+      - name: Run safety checks
+        id: check
+        run: |
+          echo "🔍 Running pre-flight safety checks..."
+
+          # Check 1: PR backlog size (fail-safe if too many open PRs)
+          pr_count=$(git branch -r | grep -E 'origin/(claude|opencode)/' | wc -l)
+          echo "  • Active agent branches: $pr_count"
+          if (( pr_count > 20 )); then
+            echo "should_proceed=false" >> "$GITHUB_OUTPUT"
+            echo "reason=PR backlog too large ($pr_count > 20)" >> "$GITHUB_OUTPUT"
+            echo "  ⚠️  SKIP: PR backlog too large ($pr_count open)"
+            exit 0
+          fi
+
+          # Check 2: Verify OPENCODE_API_KEY is available
+          if [[ -z "${{ secrets.OPENCODE_API_KEY }}" ]]; then
+            echo "should_proceed=false" >> "$GITHUB_OUTPUT"
+            echo "reason=OPENCODE_API_KEY not configured" >> "$GITHUB_OUTPUT"
+            echo "  ⚠️  SKIP: OPENCODE_API_KEY secret not found"
+            exit 0
+          fi
+
+          # Check 3: Verify portfolio router is available
+          if ! python3 -c "import sys; sys.path.insert(0, 'portfolio/router'); from allocate import allocate_work; allocate_work()" 2>/dev/null; then
+            echo "should_proceed=false" >> "$GITHUB_OUTPUT"
+            echo "reason=Portfolio router unavailable" >> "$GITHUB_OUTPUT"
+            echo "  ⚠️  SKIP: Portfolio router validation failed"
+            exit 0
+          fi
+
+          echo "should_proceed=true" >> "$GITHUB_OUTPUT"
+          echo "reason=All checks passed" >> "$GITHUB_OUTPUT"
+          echo "  ✅ All checks passed, proceeding with agent fleet"
+
   entrypoint:
+    needs: guardrails
+    if: needs.guardrails.outputs.should_proceed == 'true'
     name: Analyze state and emit work plan
     runs-on: ubuntu-latest
     outputs:
@@ -77,7 +129,8 @@ jobs:
           cat /tmp/work-plan.json | python3 -m json.tool
 
   resolve-config:
-    needs: entrypoint
+    needs: [guardrails, entrypoint]
+    if: needs.guardrails.outputs.should_proceed == 'true'
     runs-on: ubuntu-latest
     outputs:
       num_agents: ${{ steps.config.outputs.num_agents }}
@@ -89,25 +142,36 @@ jobs:
           NUM_AGENTS_INPUT: ${{ github.event.inputs.num_agents }}
           ENTRYPOINT_AGENT_COUNT: ${{ needs.entrypoint.outputs.agent_count }}
         run: |
+          echo "🔧 Resolving agent configuration..."
+
           # Resolve agent count: entrypoint takes precedence, input overrides on manual dispatch
           if [[ -n "$NUM_AGENTS_INPUT" ]]; then
             num_agents="$NUM_AGENTS_INPUT"
-          elif [[ -n "$ENTRYPOINT_AGENT_COUNT" ]]; then
+            reason="manual dispatch input"
+          elif [[ -n "$ENTRYPOINT_AGENT_COUNT" && "$ENTRYPOINT_AGENT_COUNT" != "0" ]]; then
             num_agents="$ENTRYPOINT_AGENT_COUNT"
+            reason="entrypoint recommendation"
           else
             num_agents="10"
+            reason="default (10 agents hourly)"
           fi
 
+          # Validation: ensure it's a valid number
           if ! [[ "$num_agents" =~ ^[0-9]+$ ]]; then
             echo "::warning::Invalid num_agents '${num_agents}', using 10"
             num_agents=10
+            reason="fallback (invalid input)"
           fi
+
+          # Guardrail: cap at 100 to avoid runaway spend
           if (( num_agents > 100 )); then
             echo "::warning::num_agents capped at 100 (requested ${num_agents})"
             num_agents=100
+            reason="capped at max (100)"
           fi
+
           echo "num_agents=${num_agents}" >> "$GITHUB_OUTPUT"
-          echo "Agent count resolved: $num_agents (entrypoint: $ENTRYPOINT_AGENT_COUNT, input: $NUM_AGENTS_INPUT)"
+          echo "✅ Agent count: $num_agents ($reason)"
 
           # Generate agent IDs as a JSON array (0..num_agents-1)
           ids=()
@@ -117,7 +181,8 @@ jobs:
           printf '%s\n' "agent_ids=$(printf '%s\n' "${ids[@]}" | jq -R . | jq -s .)" >> "$GITHUB_OUTPUT"
 
   opencode-agent:
-    needs: resolve-config
+    needs: [guardrails, resolve-config]
+    if: needs.guardrails.outputs.should_proceed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 120
     strategy:
