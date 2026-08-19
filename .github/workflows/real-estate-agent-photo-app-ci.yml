@@ -49,6 +49,8 @@ jobs:
       - working-directory: ventures/real-estate-agent-photo-app/docs-site
         run: npm ci
       - working-directory: ventures/real-estate-agent-photo-app/docs-site
+        run: npm run lint
+      - working-directory: ventures/real-estate-agent-photo-app/docs-site
         run: npm run build
 
   research:
@@ -63,5 +65,7 @@ jobs:
           cache-dependency-path: ventures/real-estate-agent-photo-app/research/package-lock.json
       - working-directory: ventures/real-estate-agent-photo-app/research
         run: npm ci
+      - working-directory: ventures/real-estate-agent-photo-app/research
+        run: npm run lint
       - working-directory: ventures/real-estate-agent-photo-app/research
         run: npm run build
