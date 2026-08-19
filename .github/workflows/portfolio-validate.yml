@@ -2,7 +2,9 @@ name: Portfolio validate
 
 # Every venture must stay legible to the portfolio router: a valid
 # VENTURE.yaml, or an explicit NOT-A-VENTURE marker saying why the directory
-# is not a business.
+# is not a business. Every workflow file must stay legible to GitHub itself:
+# an unparseable one registers under its own path and emits a zero-job
+# startup_failure per event, which no PR check surfaces.
 
 on:
   push:
@@ -11,13 +13,15 @@ on:
       - "ventures/**/VENTURE.yaml"
       - "ventures/**/NOT-A-VENTURE"
       - "portfolio/router/**"
-      - ".github/workflows/portfolio-validate.yml"
+      - "platform/ci/**"
+      - ".github/workflows/**"
   pull_request:
     paths:
       - "ventures/**/VENTURE.yaml"
       - "ventures/**/NOT-A-VENTURE"
       - "portfolio/router/**"
-      - ".github/workflows/portfolio-validate.yml"
+      - "platform/ci/**"
+      - ".github/workflows/**"
   workflow_dispatch:
 
 permissions:
@@ -38,3 +42,6 @@ jobs:
 
       - name: Validate VENTURE.yaml schema
         run: python3 portfolio/router/validate.py
+
+      - name: Validate workflow files are parseable
+        run: python3 platform/ci/validate_workflows.py
