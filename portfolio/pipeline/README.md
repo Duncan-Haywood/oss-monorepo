@@ -219,11 +219,28 @@ before rebuilding anything — rebuilding is what sustained this loop.
 The `VENTURE.yaml` backfill this pass originally flagged has since landed —
 every directory under `ventures/` now carries either that file or a
 `NOT-A-VENTURE` marker. A CI workflow to enforce that exists
-(`.github/workflows/portfolio-validate.yml`) but has **never successfully
-run**; see the ledger entry for 2026-08-18. Treat the invariant as verified
-locally, not as automatically enforced, until Actions is working. The
-underlying caution stands: economics are still `null` across the portfolio, so
-the router is allocating against stage and budget cap rather than measured
-return. Adding new ventures on top of an unmeasured portfolio is the more
-expensive version of that problem, which is why every verdict above is a probe
-or a product line rather than a new `ventures/` directory.
+(`.github/workflows/portfolio-validate.yml`); it had **never successfully
+run** as of 2026-08-18 (see that day's ledger entry) because account-wide
+Actions runs were failing before any job started (`startup_failure`, a
+broken workflow file elsewhere in the repo reporting as `path: "BuildFailed"`
+on every push — tracked separately in issue #139 section 3, alongside #144
+and #146). **Update 2026-08-19 ~15:55 UTC:** run
+[`32266714656`](https://github.com/Duncan-Haywood/monorepo-projects/actions/runs/32266714656)
+completed with `conclusion: success` — the workflow's first recorded success,
+triggered by the #79 merge commit (`42ebd981`, which touched
+`portfolio/router/README.md` and so matched this workflow's path filter).
+Re-run locally the same day: `python3 portfolio/router/validate.py` →
+`All 11 VENTURE.yaml files are valid`, matching the CI result. This confirms
+the `startup_failure` signature is not an account-wide Actions block —
+push-triggered workflows do run and can succeed — but it is only proven for
+commits that touch this workflow's own trigger paths
+(`ventures/**/VENTURE.yaml`, `ventures/**/NOT-A-VENTURE`,
+`portfolio/router/**`). No push since (`110d68c`, `fc49deef`) touched those
+paths, so there is no further evidence either way yet. Treat the invariant as
+verified locally and now spot-confirmed once in CI, not yet as continuously
+enforced. The underlying caution stands: economics are still `null` across
+the portfolio, so the router is allocating against stage and budget cap
+rather than measured return. Adding new ventures on top of an unmeasured
+portfolio is the more expensive version of that problem, which is why every
+verdict above is a probe or a product line rather than a new `ventures/`
+directory.
