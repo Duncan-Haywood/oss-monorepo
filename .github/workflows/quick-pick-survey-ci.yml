@@ -1,14 +1,27 @@
-name: CI
+name: quick-pick-survey CI
 
 on:
   push:
     branches: [main]
+    paths:
+      - "ventures/quick-pick-survey/**"
+      - ".github/workflows/quick-pick-survey-ci.yml"
   pull_request:
+    paths:
+      - "ventures/quick-pick-survey/**"
+      - ".github/workflows/quick-pick-survey-ci.yml"
+
+permissions:
+  contents: read
 
 # A second push to the same branch makes the first run irrelevant.
 concurrency:
-  group: ci-${{ github.ref }}
+  group: quick-pick-survey-ci-${{ github.ref }}
   cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/quick-pick-survey
 
 jobs:
   verify:
@@ -20,6 +33,19 @@ jobs:
       POSTGRES_URL_NON_POOLING: postgresql://postgres@127.0.0.1:5432/ci?schema=public
       ADMIN_KEY: ci-placeholder
       ADMIN_SESSION_SECRET: ci-placeholder
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: shadow
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
 
@@ -27,6 +53,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: ventures/quick-pick-survey/package-lock.json
 
       - run: npm ci
 
@@ -72,17 +99,3 @@ jobs:
             --exit-code
         env:
           SHADOW_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/shadow
-
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: shadow
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5

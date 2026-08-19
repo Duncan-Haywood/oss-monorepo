@@ -2072,3 +2072,97 @@ entries:
         constraint that changes how the top candidate must be architected),
         against a decision that has now blocked thirteen paid firings.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        `git fetch origin main` first; checked open PRs (only #19 and #79
+        remain, both unchanged since the prior entry and already flagged as
+        blocked on the account owner) before starting, per this file's own
+        duplication warning. Did not re-verify either — nothing new to add
+        there — and instead looked one level up: every one of the 11
+        `ventures/*/VENTURE.yaml` files still reads `economics.mrr: null`
+        and `links.production: null`, so despite months of engineering
+        churn no venture has ever produced a real, publicly reachable
+        artifact. Spawned an Explore agent to survey the top 5
+        router-ranked ventures (ai-first-markets, local-site-studio,
+        world-clock-widget, photo-editing, retail-pilot-intel) for the
+        cheapest safe, unattended, non-spending step toward a first
+        measurement; confirms the pattern the router README already states:
+        every real deploy path needs either paid-platform secrets
+        (Cloudflare/Vercel tokens), an Apple/App Store account, or human
+        Stripe/DNS/legal setup — none of that is available to or
+        appropriate for an unattended session.
+      - >-
+        Found a concrete, safe, non-spending fix along the way: three
+        ventures (`print-atelier`, `quick-pick-survey`, `retail-pilot-intel`)
+        had their CI workflows sitting under
+        `ventures/<name>/.github/workflows/`, a path GitHub Actions never
+        reads — the same dead-CI bug fixed for `real-estate-agent-photo-app`
+        in e99974f a few hours before this run. Their CI has silently never
+        run since each venture's subtree merge. Moved `ci.yml` (all three)
+        and `retail-pilot-intel`'s `deploy-docs.yml` to the repo-root
+        `.github/workflows/` using the exact naming/path-filter/
+        working-directory convention already established by the prior fix,
+        with all internal paths re-prefixed. Independently re-ran the
+        underlying commands from each venture's own directory rather than
+        trusting the move: `print-atelier` (`npm ci && npm run build`) and
+        `quick-pick-survey` (`npm ci`, `typecheck`, `lint`, `build`) both
+        clean; `retail-pilot-intel` (`pnpm install --frozen-lockfile`,
+        `typecheck`, `lint`, `build`) all clean, producing
+        `apps/docs/dist/index.html` and `apps/portal/dist/index.html`
+        exactly where the new workflow's artifact-upload and Pages-deploy
+        steps expect them. Did not run `quick-pick-survey`'s DB-backed
+        integration suite or `retail-pilot-intel`'s `pnpm run bootstrap`
+        step (both need infra this session doesn't have); typecheck/lint/
+        build passing is sufficient evidence for what is purely a file
+        relocation, not a logic change.
+      - >-
+        `retail-pilot-intel`'s newly-live `deploy-docs.yml` is, per the
+        Explore agent's finding, the single closest thing this whole
+        portfolio has to a free, unattended path to a real public artifact:
+        it publishes to GitHub Pages using only the built-in `GITHUB_TOKEN`,
+        no paid secret required, and the passcode-gated docs site it builds
+        is the actual sales-demo material for the venture's named pilot
+        target (the ~10 m² leather boutique in Italy). It could not run
+        before this fix (dead path) or during it (fires on push to `main`
+        or manual dispatch, and this session only pushes to a feature
+        branch) — merging the PR is what activates it, consistent with this
+        repo's human-merge convention. Once merged, GitHub Pages still needs
+        enabling once in repo Settings (a one-time, human, low-risk toggle)
+        before the workflow's `deploy` job can succeed; noted in the PR body
+        rather than attempted here since repo-settings changes are outside
+        an unattended session's remit.
+      - >-
+        Explicitly did NOT touch `local-site-studio`'s nested
+        `.github/workflows/` directory, even though it has the identical
+        dead-path symptom. Its contents are a different thing: six
+        `*-scheduled.yml` workflows (Claude, Gemini, Codex, Cursor, Grok,
+        OpenCode), hourly cron, `permissions: contents: write,
+        pull-requests: write, issues: write` — a multi-provider scheduled
+        agent fleet, currently inert only because the path is dead. Per this
+        file's "Automation that writes or spends unattended" section, moving
+        these to root would activate exactly the kind of unreviewed,
+        budget-spending automation that needs a deliberate human decision,
+        not a session's judgment call — this is effectively a second,
+        already-built instance of the same risk category as the still-open,
+        still-unreviewed #19. Left in place and flagged here and in the PR
+        body rather than merged into a fix that should otherwise be an easy
+        yes.
+      - >-
+        Committed and pushed on `claude/wizardly-albattani-yrc51k` (no open
+        PR existed for this branch); opened a PR for review since this
+        touches CI configuration and, once merged, actually enables a
+        prod-facing deploy job — unlike the pure-engineering fixes in prior
+        entries that were committed directly, this one is left for human
+        merge given the `local-site-studio` finding sits right next to it
+        and deserves eyes, and because enabling `retail-pilot-intel`'s
+        deploy is a real (if reversible) externally-visible action.
+      - >-
+        Sent a push notification this run: the `local-site-studio` inert
+        agent-fleet finding is new decision-relevant information (a second
+        unreviewed automation risk, not previously recorded), and the CI fix
+        unblocks a concrete path to this portfolio's first real customer
+        artifact once two small human steps (merge PR, enable Pages) happen.
+    mrr_end: null
