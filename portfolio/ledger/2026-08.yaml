@@ -5477,3 +5477,64 @@ entries:
         No push notification: a self-mergeable test-hermeticity fix is
         not a new decision surface for the owner.
     mrr_end: null
+  - venture: photo-editing
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled firing of the "research and evaluate potential software
+        business projects that aren't already here" brief (roughly its
+        21st). The `CLAUDE.md` intake gate redirected it as designed — no
+        candidate added, no score changed, no screening pass run. Read
+        `portfolio/pipeline/`, `portfolio/research/`, and issue #139
+        against fresh `origin/main` (`d847751`) first.
+      - >-
+        Checked the one open question `portfolio/research/free-listing-demand`
+        names against itself — whether its "the proposed probe is
+        underpowered" finding generalises off npm to WordPress.org, the
+        only free channel in `channel-inventory.md` with a non-developer
+        business buyer. It cannot be tested from here:
+        `api.wordpress.org` and `wordpress.org` both return
+        `CONNECT tunnel failed, response 403` (proxy-blocked, not an
+        origin answer — the three-state distinction #177 introduced).
+        Consistent with #126/#137/#166; adds no new document, since the
+        result only re-confirms what those already record.
+      - >-
+        Also checked before writing anything whether the reconciliation
+        of Ask 0 against that underpowered-probe finding was still
+        missing. It is not — PR #166's `portfolio/research/README.md`
+        already carries it (Packagist/RubyGems run 60-90x the volume of
+        the registries the objection was measured on). Dropped that line
+        of work rather than re-deriving it into a second PR.
+      - >-
+        Took the gate's "ship or unblock something already built" move on
+        the task the 17:32 UTC comment on #139 left explicitly specified
+        and unblocked: `ventures/photo-editing/AGENTS.md` told sessions to
+        expect 6 of 438 test failures as sandbox artifacts. Verified
+        directly against current `main` — `PYTHONPATH=src python3 -m
+        unittest discover -s tests` gives 1 failure in 438, not 6.
+      - >-
+        Corrected the doc rather than the code. Two things were stale or
+        wrong: the 5 capacity-gated `test_cli.py` failures were fixed in
+        `2aa9078` (#193) and no longer occur, and they were never sandbox
+        artifacts — they read the host's real free space via `os.statvfs`
+        in `storage_discovery.py` against a 64 GiB gate at
+        `storage.py:154`, so they failed on GitHub's `ubuntu-latest`
+        runner too. Left the one genuine root-uid artifact documented,
+        kept the standing "don't loosen the threshold or the permission
+        checks" caution, and added the rule the fix implies: a test
+        needing a `destination` volume must supply
+        `--volume-metadata-json`, never depend on host disk.
+      - >-
+        Doc-only, no production or test code touched, no dependency and
+        no workflow file changed — self-mergeable under the same precedent
+        as #184/#186/#187/#193, so the ledger entry rides along in the
+        same PR per CLAUDE.md's "harmless for a routine PR you merge
+        yourself in the same session".
+      - >-
+        Did not touch #166/#177 (monetization chain), #19/#144/#146
+        (automation), #175, #191, #192, or #195 — all unchanged and
+        already current on #139. Asks 0/1/2/3 are unchanged: every
+        revenue-capture path remains gated on one account-owner decision,
+        and no unattended session should make any of them.
+    mrr_end: null
