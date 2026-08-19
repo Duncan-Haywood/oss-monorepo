@@ -2072,3 +2072,81 @@ entries:
         constraint that changes how the top candidate must be architected),
         against a decision that has now blocked thirteen paid firings.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        `git fetch origin main` first and read the tail against the current
+        tip (last two entries: router ledger-wiring #88, then #79's
+        channel-claims verification #89, already merged as 1a4fb94) before
+        doing anything, per this file's own discipline section. Both open
+        PRs (#79, #19) confirmed unchanged and still correctly parked on the
+        account owner; GitHub Actions still `startup_failure` on every run
+        as of this run, unchanged — none of that re-reported as new.
+      - >-
+        Found a real, previously-unnoticed gap instead, the same shape as
+        the one already fixed once for `real-estate-agent-photo-app`
+        (commit e99974f: "workflows live under
+        `ventures/X/.github/workflows/`, a path GitHub Actions never reads
+        from"): five more ventures had the
+        identical dead-path bug — `photo-editing` (`docs-site.yml`),
+        `print-atelier` (`ci.yml`), `quick-pick-survey` (`ci.yml`),
+        `retail-pilot-intel` (`ci.yml` + `deploy-docs.yml`), and
+        `ubuntu-agent-server` (`ci.yml`). None of these six workflows has
+        ever run since each venture's subtree merge — `quick-pick-survey`
+        alone has a 264-test suite with zero CI coverage anywhere in this
+        repo, matching the "no CI" gap the router flagged for several
+        prototype-stage ventures.
+      - >-
+        Moved all six to the repo root as `<venture>-ci.yml` /
+        `-deploy-docs.yml`, matching the naming/path-filter convention
+        already used for every other per-venture workflow, with internal
+        working-directory and artifact paths re-prefixed accordingly.
+        `photo-editing` already has a root-level `photo-editing-ci.yml` (the
+        Python test suite) so the moved one is named
+        `photo-editing-docs-site-ci.yml` to avoid collision.
+      - >-
+        A seventh nested-workflow set was found in the same sweep and
+        deliberately NOT touched: `local-site-studio/.github/workflows/`
+        holds six hourly-scheduled agent-fleet workflows (Claude, Codex,
+        Cursor, Gemini, Grok, OpenCode — `claude-scheduled.yml` etc.), each
+        needing a provider credential and each capable of pushing commits
+        and opening PRs unattended. These are dead by the exact same
+        path bug, which today is accidentally the safe state. Moving them
+        to a path GitHub Actions reads would silently turn on six unattended,
+        budget-spending automations across five different providers — the
+        precise case `CLAUDE.md`'s "Automation that writes or spends
+        unattended" section reserves for the account owner. Left in place,
+        flagged here instead.
+      - >-
+        Verified independently, not trusted from the diff: `npm ci` + full
+        gate (typecheck/lint/build, or build alone where that's the
+        venture's only gate) for `photo-editing/docs-site`, `print-atelier`,
+        `quick-pick-survey`; `pnpm install --frozen-lockfile && pnpm run ci`
+        for `retail-pilot-intel` (builds `apps/docs`+`apps/portal`, runs
+        `scripts/bootstrap.ts` against a scratch SQLite db); for
+        `ubuntu-agent-server`, installed `ansible`/`ansible-lint`/
+        `shellcheck` into this session (none were preinstalled) and ran
+        every job the workflow specifies: `ansible-playbook --syntax-check`,
+        `ansible-lint` (0 failures/warnings across 27 files), `shellcheck`
+        (clean), `pyflakes` (clean), `pytest` (22/22). The one job not
+        reproducible here is `quick-pick-survey`'s Postgres-backed
+        integration-test step — no docker daemon in this environment — left
+        unverified locally the same way the moved file's own CI already
+        isolates it (separate step, after the DB-independent gates). All
+        `.github/workflows/*.yml` parse as valid YAML; `portfolio/router/
+        validate.py` (11/11) and `test_allocate.py` (18/18) still pass.
+      - >-
+        Committed and will merge directly once pushed — additive,
+        non-content, non-automation engineering fix matching the
+        established pattern (relocates existing, previously-authored CI
+        definitions; adds no new logic, no new secrets, no new triggers
+        beyond what each file already had).
+      - >-
+        Did not send a push notification: routine, low-risk, self-verified
+        engineering fix; the local-site-studio agent-fleet finding is worth
+        the account owner's attention but is not urgent (it's inert today)
+        and #79/#19 remain the only items actively blocking on a decision,
+        both unchanged from the prior entry.
+    mrr_end: null

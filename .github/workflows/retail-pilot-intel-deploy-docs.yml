@@ -1,28 +1,32 @@
 # Publish built docs to GitHub Pages (private repo: enable Pages in repo settings).
 # Pair with passcode gate (VITE_DOCS_PASSCODE) and optional Vercel Deployment Protection.
-name: Deploy docs
+name: Deploy retail-pilot-intel docs
 
 on:
   push:
     branches: [main]
     paths:
-      - "apps/docs/**"
-      - "docs/**"
-      - "reports/**"
-      - "scripts/convert-html-to-tsx.ts"
-      - "packages/**"
-      - "pnpm-lock.yaml"
-      - ".github/workflows/deploy-docs.yml"
+      - "ventures/retail-pilot-intel/apps/docs/**"
+      - "ventures/retail-pilot-intel/docs/**"
+      - "ventures/retail-pilot-intel/reports/**"
+      - "ventures/retail-pilot-intel/scripts/convert-html-to-tsx.ts"
+      - "ventures/retail-pilot-intel/packages/**"
+      - "ventures/retail-pilot-intel/pnpm-lock.yaml"
+      - ".github/workflows/retail-pilot-intel-deploy-docs.yml"
   workflow_dispatch:
 
 concurrency:
-  group: deploy-docs
+  group: retail-pilot-intel-deploy-docs
   cancel-in-progress: false
 
 permissions:
   contents: read
   pages: write
   id-token: write
+
+defaults:
+  run:
+    working-directory: ventures/retail-pilot-intel
 
 jobs:
   build:
@@ -38,6 +42,7 @@ jobs:
         with:
           node-version: "22"
           cache: pnpm
+          cache-dependency-path: ventures/retail-pilot-intel/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -52,7 +57,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: apps/docs/dist
+          path: ventures/retail-pilot-intel/apps/docs/dist
 
   deploy:
     needs: build
@@ -80,6 +85,7 @@ jobs:
         with:
           node-version: "22"
           cache: pnpm
+          cache-dependency-path: ventures/retail-pilot-intel/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -97,5 +103,5 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: apps/docs
+          working-directory: ventures/retail-pilot-intel/apps/docs
           vercel-args: "--prod"

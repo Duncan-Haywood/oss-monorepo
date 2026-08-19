@@ -1,4 +1,4 @@
-name: CI
+name: ubuntu-agent-server CI
 
 # Everything this workflow checks can and has been run locally (see
 # README's "Development notes"). This exists so it happens automatically
@@ -9,7 +9,17 @@ name: CI
 on:
   push:
     branches: [main]
+    paths:
+      - "ventures/ubuntu-agent-server/**"
+      - ".github/workflows/ubuntu-agent-server-ci.yml"
   pull_request:
+    paths:
+      - "ventures/ubuntu-agent-server/**"
+      - ".github/workflows/ubuntu-agent-server-ci.yml"
+
+defaults:
+  run:
+    working-directory: ventures/ubuntu-agent-server
 
 jobs:
   ansible:
