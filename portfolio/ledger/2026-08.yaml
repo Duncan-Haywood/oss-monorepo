@@ -1514,3 +1514,68 @@ entries:
         `local-site-studio` applies here too, plus an unresolved security
         bug.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Twelfth firing of the recurring "research new software business
+        projects" scheduled task. Added no candidate and changed no score,
+        per the intake gate that PR #70 carries. The screening question is
+        answered: 8 scored candidates, ~36 proposals reduced to 9
+        archetypes, everything else recorded in `screened-out.md`.
+      - >-
+        **Root-caused why five consecutive consolidation PRs (#36, #44,
+        #53, #61, #70) were each built correctly and never merged.** Every
+        version bundled a `portfolio/ledger/2026-08.yaml` entry into the
+        same PR as the `portfolio/pipeline/` research. That file is
+        append-only and several sessions append to it per hour, so each
+        consolidation PR went un-mergeable within roughly an hour of being
+        opened — and the next run found a conflicted PR, rebuilt it onto a
+        fresh `main`, re-attached a new ledger entry, and restarted the
+        same clock. The eleventh run measured this exact conflict and
+        classified it "routine, not a real conflict"; it was routine and it
+        was also the entire blocker, because a PR awaiting a human decision
+        cannot carry a hunk that goes stale hourly. Re-verified this cycle:
+        #70 against current `main` conflicts in that one file and nowhere
+        else across its 17-file diff.
+      - >-
+        Acted on it rather than restating it. Re-opened the research as a
+        **content-only PR with no ledger change** — `portfolio/pipeline/`
+        (17 files), the `CLAUDE.md` intake gate, and the `README.md`/
+        `portfolio/router/README.md` edits. No other scheduled session
+        touches any of those paths, so that PR stays mergeable
+        indefinitely and can wait on the account owner for as long as it
+        needs without a rebase or another rebuild. This ledger entry ships
+        separately, which is the whole point. Closed #70 pointing at it.
+      - >-
+        Independently verified the carried content rather than trusting
+        five prior runs: `validate.py` 11/11 VENTURE.yaml valid, router
+        suite 12/12, all 8 `candidates.yaml` composites and floors
+        recomputed from raw scores (exact match, 0 mismatches), all 8 clear
+        the liability and ethics gates, 64 relative links across the
+        pipeline docs resolve with 0 broken, and every path the `CLAUDE.md`
+        gate references exists.
+      - >-
+        Generalised the finding into `CLAUDE.md` under "Ledger discipline":
+        never bundle a ledger entry into a PR that is waiting on a human
+        decision. Harmless for a routine PR a session merges itself in the
+        same run; fatal for one that has to sit. This is the mechanism
+        behind a documented loop, not a style preference.
+      - >-
+        Still unresolved, needs the account owner — unchanged from the
+        previous entry except (1), which is now one click rather than a
+        rebase: (1) merge the content-only pipeline PR, or decline the
+        chain outright and say so, so the recurring task stops rebuilding
+        it; (2) retire or redirect that recurring task — twelve firings,
+        one answer, zero landed; (3) decide on #19 (second unattended agent
+        fleet); (4) approve or refuse an agent publishing a *free* listing
+        under this portfolio's name, which `channel-inventory.md` shows is
+        the one unblocked half of the demand probe and costs nothing; (5)
+        establish one payout rail, which unblocks charging for all 8
+        candidates and is better-shaped than the per-product store
+        submissions previously escalated; (6) GitHub Actions billing/quota,
+        no successful run since 2026-07-29; (7) `quick-pick-survey` and
+        `local-site-studio` standalone-repo exposure, per the previous
+        entry.
+    mrr_end: null
