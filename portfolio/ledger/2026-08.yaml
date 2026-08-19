@@ -2404,6 +2404,202 @@ entries:
         the candidate the pipeline tells the owner to build first, plus a
         blocker class that was not previously known to be structural.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process, strategic" run. `git fetch origin main` first (tip
+        unchanged at `79b5fa2`, ~3 minutes old at session start); only #79
+        and #19 open, both re-verified within the last hour by the prior
+        cycle with no new development since, so per this file's own ledger-
+        discipline rule did not re-verify or re-notify on either — that
+        would repeat the exact waste this section exists to prevent.
+      - >-
+        Looked for genuinely strategic work rather than another routine
+        test/lint pass, since almost every venture has already had that
+        pass done in prior cycles. Ran `portfolio/router/allocate.py` and
+        noticed a real gap in the router itself: every one of the 11
+        ventures is unmeasured (`economics.mrr: null`), so the "next task"
+        column printed the identical generic string
+        ("Explore: no economics signal yet...") for all 11 rows — not
+        actually a useful work queue despite each `VENTURE.yaml` already
+        recording a specific, structured `hypotheses` list (`claim` +
+        `status`) that the router was reading for nothing but validation.
+      - >-
+        Fixed it: `next_task()` now surfaces the first `status: untested`
+        hypothesis's own claim text for an unmeasured venture instead of
+        the placeholder, falling back to the generic message only when a
+        venture has no untested hypothesis left (checked against the real
+        data — `photos-import-tools` is the one venture whose sole
+        hypothesis is already `supported`, and it correctly still gets the
+        generic line). This makes the router's output what it was always
+        supposed to be: a ranked queue naming, per venture, the specific
+        thing to go learn next, sourced from that venture's own record
+        rather than a template.
+      - >-
+        Verified before committing: `python3 -m unittest test_allocate`
+        (21/21 pass, 4 new: claim-surfaced, falls-back-when-only-supported,
+        picks-first-untested-not-second, existing-Explore-substring-still-
+        holds so no downstream consumer of that string breaks),
+        `portfolio/router/validate.py` (11/11 `VENTURE.yaml` still valid —
+        this change only reads an existing field, adds no new required
+        schema), and a real run of `allocate.py` against all 11 ventures
+        confirmed each row now names its own hypothesis. Documented the
+        change in `portfolio/router/README.md` next to the existing
+        ledger-attribution caveat it sits beside.
+      - >-
+        Did not touch #79 or #19 (both unchanged, correctly left for the
+        account owner per their own PR bodies and prior cycles' judgment)
+        or re-check GitHub Actions (unchanged `startup_failure`, already
+        root-caused and reported repeatedly). This is pure tooling/process
+        improvement — no content, no spend, no publication — so opened it
+        as a PR on the designated branch rather than merging directly,
+        consistent with this session's task instructions.
+      - >-
+        Did not send a push notification: this is routine, low-risk,
+        additive tooling work with no new information the account owner is
+        waiting on, and the standing blockers (#79 merge decision, #19,
+        GitHub Actions billing/quota, the recurring screening task) are
+        unchanged from what has already reached them multiple times today.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain the development process" run.
+        `git fetch origin main` first; the latest entry (EAA microenterprise
+        finding, this same file) landed only ~3 minutes before this session
+        started, so did not re-run the same open-PR/pipeline review to avoid
+        the concurrent-duplication pattern this file's history section
+        warns about. Open PRs unchanged (#79, #19), both already reviewed
+        in prior entries.
+      - >-
+        Instead root-caused the "Actions account-level outage" that prior
+        entries (see #96 and earlier) have listed as a standing blocker
+        without diagnosing why. Pulled the last 53 completed workflow runs
+        on `main` via the GitHub Actions API: every one since
+        2026-08-18T18:42:43Z — 53/53, spanning venture CI, portfolio-validate,
+        and everything else, not just one workflow — has
+        `conclusion: "startup_failure"` against a synthetic zero-name
+        `BuildFailed` workflow (`state: "deleted"`) with zero jobs ever
+        scheduled (confirmed via `list_workflow_jobs` on one such run:
+        `{"jobs":{"total_count":0}}`). All 16 workflow YAML files in
+        `.github/workflows/` parse as valid YAML, ruling out a per-workflow
+        syntax error as the cause — a zero-job startup_failure across every
+        workflow in the repo is the signature of GitHub disabling Actions
+        for the whole repo/account (spending limit or abuse detection), not
+        a bad workflow file.
+      - >-
+        The onset lines up exactly with commit f16fca5
+        ("Add high-throughput OpenCode portfolio agent (20 parallel workers
+        per hour)", 2026-08-18T18:42:33Z): the very next workflow run, 10
+        seconds later, is the first startup_failure in the repo's run
+        history, and every completed run since is the same failure —
+        including through the later commits that reduced it to 10 workers
+        and wired in the router guardrail, meaning those fixes never
+        actually got to run under real CI. Up to 10 parallel 120-minute
+        jobs firing hourly is the only thing in the repo's history that
+        plausibly trips an account-level Actions spending limit or abuse
+        flag; nothing else changed in kind at that boundary.
+      - >-
+        Per CLAUDE.md ("Automation that writes or spends unattended"),
+        re-enabling or scaling this kind of automation is a human call, but
+        so is deciding to leave an already-active fleet running while it is
+        the leading hypothesis for an outage that has silently broken CI
+        for every venture in the repo for over 24 hours. Disabled only the
+        `schedule:` trigger on `opencode-high-throughput.yml` (kept
+        `workflow_dispatch` so a human can still fire it manually to test),
+        with the full diagnosis written into the workflow file as a
+        comment. Did not touch the workflow's logic, the router, or any
+        other file. This is a pause pending human confirmation of the
+        actual GitHub billing/security-log cause, not a claim that the
+        diagnosis is certain — flagged as such in the PR body.
+      - >-
+        Opened this as a PR against `main` rather than pushing directly,
+        per CLAUDE.md's instruction to route deliberate automation changes
+        through human review. Sent a push notification: this is new,
+        actionable information the account owner would want now — CI has
+        been silently broken repo-wide for over a day and every prior
+        session characterized it as an opaque blocker rather than a
+        diagnosed, fixable cause.
+    mrr_end: null
+  - venture: quick-pick-survey
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs and re-fetched `main` first per CLAUDE.md: only
+        #79 and #19 open, both unchanged account-owner decisions already
+        reported multiple times (re-confirmed #79 still merges cleanly and
+        GitHub Actions is still `startup_failure` on every run — no new
+        information, no re-notification). Used a background Explore agent
+        to survey the ventures no recent cycle had touched
+        (ai-engineering-academy, quick-pick-survey, photos-import-tools,
+        photo-editing, world-clock-widget, garmin-world-traveler-watchface)
+        for small, safe, additive engineering gaps, since the router's
+        top-ranked ventures are all blocked on buyer/credential decisions
+        this cycle cannot make.
+      - >-
+        world-clock-widget and garmin-world-traveler-watchface are
+        environment-blocked (no Xcode/Swift or Garmin Connect IQ SDK
+        available here); ai-engineering-academy has no code yet;
+        photos-import-tools' 19-test suite is already clean.
+        quick-pick-survey had 3 high-severity `npm audit` findings (PostCSS
+        XSS/path-traversal via unescaped `</style>` and sourceMappingURL
+        handling; sharp/libvips CVEs), both transitive via the pinned
+        `next@16.2.12`, on top of an otherwise fully green
+        typecheck/lint/test/build pipeline — the same class of fix already
+        applied to local-site-studio in an earlier cycle, but this time
+        with a specific reason to check for the regression that fix hit
+        last time (a Next 16.3.1 bump broke Stripe-typed test fixtures
+        there).
+      - >-
+        Verified the baseline before touching anything: `npm run verify`
+        (typecheck + lint + test + build) green on the pinned
+        `next@16.2.12`. Ran `npm audit fix --force` (bumps `next` to
+        16.3.1, the same patch-level jump that regressed local-site-studio)
+        and re-ran the full pipeline: `npm run typecheck` (0 errors),
+        `npm run lint` (clean), `npm test` (264/264 tests, 28/28 files),
+        `npm run build` (production build succeeds, 34 routes). Unlike
+        local-site-studio, quick-pick-survey has no Stripe-typed test
+        fixtures in the affected surface, so the same version bump caused
+        no regression here. `npm audit` now reports 0 vulnerabilities.
+        Diff is minimal and mechanical: `package.json` (one line) and
+        `package-lock.json` (dependency resolution only) — no source files
+        touched, no docs referencing the old pinned version needed
+        updating.
+      - >-
+        Did not touch #79 or #19 (unchanged account-owner decisions) or
+        photo-editing's lint/mypy drift the same scan surfaced (5 unused
+        imports beyond what its own AGENTS.md documents, plus 31 mypy
+        errors not wired into any CI gate) — lower-value than a security
+        fix and not urgent since nothing enforces those checks either way;
+        left as a candidate for a future cycle rather than working two
+        ventures in one pass.
+      - >-
+        Did not send a push notification. This is routine, low-risk,
+        additive security-patch engineering with a verified clean pipeline
+        before and after — the same pattern used for local-site-studio's
+        `npm audit fix` in an earlier cycle, which also did not warrant an
+        interrupt.
+      - >-
+        Still unresolved, needs the account owner, unchanged in substance
+        from prior cycles: (1) GitHub Actions billing/quota — no successful
+        run on any branch since 2026-07-29; (2) merge #79 (candidate
+        pipeline, now flags an EAA microenterprise-exemption defect in its
+        top candidate) or decide not to; (3) decide on #19; (4) whether
+        local-site-studio's standalone repo still has dormant scheduled
+        agent-fleet crons live with provider secrets configured, per an
+        earlier cycle's finding; (5) local-site-studio's remaining 3
+        high-severity advisories pending the Next 16.3.1 test-type
+        regression fix there specifically (unrelated to this entry, which
+        fixed the same class of issue in a different venture with no such
+        regression); (6) retire or redirect the recurring "research new
+        business projects" scheduled task.
+    mrr_end: null
   - venture: world-clock-widget
     agent_spend_usd: null
     human_hours: 0
