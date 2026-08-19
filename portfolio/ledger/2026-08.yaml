@@ -1207,3 +1207,42 @@ entries:
         window) as a standing process-reliability question worth the
         account owner's attention, separate from any single finding here.
     mrr_end: null
+  - venture: quick-pick-survey
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs and recent commits first per CLAUDE.md — #70, #69,
+        #19 are the only open PRs, each already reserved for the account
+        owner (research landing, npm audit fix, second agent-fleet
+        proposal). Confirmed the repo-wide GitHub Actions `startup_failure`
+        (root-caused account-level in prior entries) is still occurring as
+        of this run; not re-reported as new since it is unchanged and
+        already escalated seven+ times.
+      - >-
+        quick-pick-survey (router rank 8, no economics signal yet) had not
+        had a dependency-hygiene pass. `npm run lint`, `typecheck`, `test`
+        (264/264), and `build` all passed clean before any change. `npm
+        audit` found 6 high-severity vulnerabilities; ran `npm audit fix`
+        (no `--force`), resolving 3 (brace-expansion, js-yaml, nanoid)
+        within existing semver ranges — only `package-lock.json` changed.
+        Re-verified lint/typecheck/test/build all still pass clean after.
+      - >-
+        Left the remaining 3 (postcss, sharp, transitively via next)
+        unfixed: `npm audit fix --force` would bump `next` to 16.3.1, a
+        breaking major-version change outside this venture's stated
+        dependency range — belongs in its own reviewed PR, same call made
+        for ai-first-markets in #69.
+      - >-
+        Did not touch this venture's actual kill criteria (a customer
+        touchpoint) — router flags all top-ranked ventures as blocked on
+        that, not on code hygiene, consistent with the channel-inventory
+        finding in #70 that distribution, not idea or code supply, is the
+        bottleneck.
+      - >-
+        Did not merge #70/#69/#19 or add to their content — all three
+        already correctly await the account owner per CLAUDE.md's merge
+        rule. Did not send a push notification: nothing here is new
+        information the account owner hasn't already seen (Actions outage,
+        the three open PRs) beyond a routine, low-risk dependency patch.
+    mrr_end: null
