@@ -4029,3 +4029,66 @@ entries:
         already established as non-interrupting, and it changes no
         standing decision in front of the account owner.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process, be strategic" run. `git fetch origin main` first per
+        CLAUDE.md; tip was `06689e0` (#142 merged), no new commits since
+        the prior entry. Checked issue #139 (the decision-queue tracker)
+        first as the one-place-to-check it's meant to be — confirmed it
+        still accurately lists the full backlog (#106/#117/#122/#134/#135
+        dependency bumps, #79->#126->#130->#137 monetization chain, #19 +
+        the Actions outage) and nothing there had changed since it was
+        opened, so did not re-derive or re-type any of it into this
+        entry.
+      - >-
+        The one thing not yet covered by #139 or any ledger entry: PR
+        #144, opened after #139 and after the prior ledger entry, proposing
+        an "entrypoint pattern" (one sequential state-analysis step before
+        the parallel agent fleet starts) to fix the exact duplicate-PR
+        problem #139 and this file document. Read the diff and ran
+        `.github/scripts/agent-entrypoint.py` locally against the real
+        12-open-PR backlog rather than trusting the PR description.
+      - >-
+        Found it doesn't work as designed: `work_items` is declared and
+        returned empty in every code path (confirmed by running it —
+        output is always `"work_items": []`); `get_open_prs()` greps local
+        git branch names instead of calling the GitHub API (its own
+        comment claims "GitHub CLI not available," which is false on
+        `ubuntu-latest` runners) and would see 0-2 branches against
+        `actions/checkout@v4`'s default single-ref fetch regardless of
+        the real backlog size; `get_router_allocation()`'s result is
+        fetched and discarded, never feeding the plan. Net effect measured
+        locally: with 12 real open PRs, the script recommended 10 agents
+        (full throttle) — the opposite of its own stated logic, which
+        would cut to 0 above 8 open PRs.
+      - >-
+        Flagged as a regression, not just a bug: the same diff removes the
+        one working guardrail that exists today — each agent independently
+        checking open PRs and confirming no overlap before opening one —
+        from `.github/prompts/portfolio-work.md`, replacing it with "trust
+        the entrypoint." If merged as-is and the fleet's schedule is ever
+        re-enabled, agents would trust a plan that's always empty and an
+        agent-count blind to backlog size, with the old per-agent check
+        gone. Posted this as a PR review comment
+        (https://github.com/Duncan-Haywood/monorepo-projects/pull/144#issuecomment-5342066501)
+        rather than pushing a fix myself — #144 is a proposed automation/
+        process change, which CLAUDE.md already gates on the account
+        owner's review; the finding is that it shouldn't merge in its
+        current state, not a decision to make for them.
+      - >-
+        Did not re-verify #137/#134/#130/#126/#122/#117/#106/#79/#19/#142 —
+        all unchanged, #139 already current. GitHub Actions account-wide
+        `startup_failure` outage: not re-checked this session (confirmed
+        multiple times already in prior entries today; #144's own diff
+        also reconfirms it independently, no reason to expect a change).
+      - >-
+        Push notification sent: unlike the routine maintenance PRs this
+        chain has correctly not interrupted the owner for, this is a
+        concrete defect in a not-yet-merged process/automation change
+        that the owner might otherwise approve on the strength of its
+        description alone — worth flagging before it merges, not after.
+    mrr_end: null
