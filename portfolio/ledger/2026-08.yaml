@@ -4956,3 +4956,106 @@ entries:
         unchanged, and nothing here needs the owner's attention before
         the next scheduled cycle.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process, increase profit legally/ethically/reliably" run.
+        `git fetch origin main` first per CLAUDE.md; tip `f441b8a`
+        (#174). Read #139 in full against that tip before touching
+        anything. Sections 1 and 2 were current — no new PRs, nothing
+        the entry directly above doesn't already cover — so did not
+        re-verify or re-draft any of it.
+      - >-
+        Took section 3's own stated next step, which four prior cycles
+        had left open: *which* workflow file produces the blank-name,
+        `path: "BuildFailed"`, zero-job `startup_failure` runs.
+        **Answer: `.github/workflows/repo-advancement-agent.yml`, which
+        exists only on #19's branch and has never been on `main`.**
+        Found in one call rather than by reading logs — `GET
+        /actions/workflows` returns 18 registered workflows against 17
+        files on `main`, and the extra entry carries `name` equal to
+        its own `path`, which is GitHub's fallback when it cannot parse
+        the file to read the `name:` key. Its registration timestamp
+        (18:43:21 UTC) matches #19's opening (18:43:32 UTC) on
+        2026-08-18. Worth reusing: the count mismatch is a cheap,
+        general detector for this class of failure.
+      - >-
+        Confirmed the cause rather than inferring it: fetched the file
+        from #19's branch and parsed it locally. Two multi-line strings
+        — a `git commit -m` body at ~line 55 and a JS template literal
+        at ~line 84 — have continuation lines at column 0 inside
+        `run: |` block scalars, which terminates the scalar
+        (`expected <block end>, but found '-'`). Because GitHub cannot
+        parse the file it cannot read its `on:` block either, so it
+        attempts a build per event and fails at startup. That is the
+        entire signature. This positively causes what #171 had only
+        established negatively: Actions was never blocked account-wide.
+        At least three sessions spent budget on the account-block
+        hypothesis because one broken file on an unmerged branch looks
+        identical to a platform outage.
+      - >-
+        The bug worth fixing was not the typo, though. **A broken
+        workflow file turns nothing red** — no check appears, no PR
+        status fails, no venture CI notices — which is why it sat for a
+        day and misdirected several sessions. Shipped
+        `platform/ci/validate_workflows.py` (valid YAML, mapping at top
+        level, readable `name:`, an `on:` block, non-empty `jobs:`;
+        accepts `on` resolving to boolean `True`, since YAML 1.1 does
+        that to an unquoted key) and wired it into
+        `portfolio-validate.yml`, widening that workflow's trigger
+        `paths` from a single self-reference to `.github/workflows/**`
+        plus `platform/ci/**` so the check fires on the pull request
+        that introduces the breakage. Under this, #19 would have gone
+        red on open. Verified both directions, not just the happy path:
+        passes on all 17 current files, exits 1 naming the file and
+        line 55 when pointed at #19's. Router suite 21/21,
+        `validate.py` 11/11, and the edited workflow re-parsed after
+        editing to confirm it kept all three triggers and both prior
+        steps.
+      - >-
+        Opened as **PR #175** and deliberately *not* self-merged,
+        despite being routine CI wiring under the established
+        precedent: it edits a workflow file and speaks to #19's pending
+        decision, and CLAUDE.md treats workflow-file changes adjacent
+        to an automation decision as the owner's call. No ledger hunk
+        rides along, so it stays mergeable indefinitely. Recorded the
+        finding as a comment on #19 (its branch untouched — that PR is
+        an automation/spend decision, not this session's to change) and
+        on #139.
+      - >-
+        Used a comment on #139 rather than a body edit. The body is
+        ~10k characters of prose several sessions depend on, and the
+        API replaces it wholesale, so retyping it from a transcript to
+        append two sentences risks mangling content for a small
+        formatting gain. Said so in the comment and asked whoever next
+        edits the body to fold it in and drop the comment. Flagging the
+        tradeoff here because the in-place-edit convention is otherwise
+        right and this is a deliberate exception, not a lapse.
+      - >-
+        Routine re-verification, all unchanged, recorded so the next
+        session can skip it: #106/#117/#122/#134/#135/#142/#166 all
+        trial-merge clean against `f441b8a` — none of the seven
+        owner-gated PRs has gone stale. Next.js advisory coverage has
+        no gap: every venture still on a vulnerable major already has
+        an open PR, and `quick-pick-survey` is already at 16.3.1. Did
+        not touch #126/#130/#137/#150/#155 (superseded by #166) or
+        #144/#146.
+      - >-
+        Process note on this session's own error, since the ledger is
+        for honest signal: ran `git reset --hard origin/main` on a
+        clean branch to confirm its base and silently discarded an
+        uncommitted edit to `portfolio-validate.yml`. Caught
+        immediately via the diff and reapplied, nothing lost. The
+        cheaper habit is `git status` plus `git merge-base` rather than
+        a destructive reset to answer a read-only question.
+      - >-
+        Push notification sent: #175 is a new decision surface that did
+        not exist before this run, and the diagnosis retires a
+        hypothesis (account-wide Actions block) that has been
+        misdirecting sessions for a day. That is a changed finding, not
+        a "still mergeable" confirmation on something already in front
+        of the owner.
+    mrr_end: null
