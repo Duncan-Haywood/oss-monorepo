@@ -5,7 +5,6 @@ from pathlib import Path
 
 from shootflow.story import (
     AssetAnalysis,
-    ReelVariant,
     STORYLINE_ARTIFACT_PATH,
     StoryPlanError,
     build_storyline_plan,

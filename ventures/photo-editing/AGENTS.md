@@ -198,8 +198,20 @@ mypy src/shootflow/ --ignore-missing-imports
 ```
 
 Pre-existing findings:
-- `ruff`: 2 unused imports in test files (F401).
-- `mypy`: 8 dict-variance arg-type notes (harmless, `dict` invariance vs `Mapping`).
+- `ruff`: clean (0 findings). The 5 unused-import findings recorded here
+  previously (2 in test files, plus 3 in `pilot_authority.py`) are fixed —
+  the test-file ones were genuinely dead; `pilot_authority.py`'s three were
+  a deliberate re-export shim (`pilot_dashboard.py`, `pilot_cohort_report.py`,
+  and `pilot_cohort_brief.py` import from it), now made explicit via
+  `__all__` instead of removed.
+- `mypy`: 31 errors across 10 files (`production_status.py`, `assembly.py`,
+  `render_status.py`, `production_handoff.py`, `production_adapter.py`,
+  `render_scheduler.py`, `production_scheduler.py`, `demo_workspace.py`).
+  Not fixed — mostly `dict` invariance (`dict[str, X]` passed where
+  `dict[object, object]`/`Mapping` is expected) and a few genuine
+  return-type/assignment mismatches in `production_adapter.py` and
+  `demo_workspace.py` that need case-by-case review, not a mechanical
+  pass. Not wired into any CI gate, so nothing currently enforces this.
 
 ### Platform note
 
