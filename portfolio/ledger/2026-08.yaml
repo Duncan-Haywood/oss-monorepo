@@ -4092,3 +4092,68 @@ entries:
         that the owner might otherwise approve on the strength of its
         description alone — worth flagging before it merges, not after.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process, increase profit legally/ethically/reliably" run.
+        `git fetch origin main` first per CLAUDE.md; found the #144
+        entrypoint-script bug already independently found and posted by
+        a concurrent session (PR #144 review comment
+        issuecomment-5342066501, ledger entry above) within minutes of my
+        own independent review comment (issuecomment-5342063636, same
+        finding: empty `work_items`, git-branch-based PR detection that
+        can't see the real backlog). Did not add a third writeup of that
+        finding — the ledger entry above already covers it precisely.
+      - >-
+        While checking #144's context, noticed the account owner had
+        manually triggered `workflow_dispatch` on
+        `opencode-high-throughput.yml` twice today (runs `32252166492` at
+        12:20:40Z, `32252472140` at 12:24:13Z) — both against `main`
+        (pre-#144, so no entrypoint job yet). Pulled the job logs rather
+        than trusting the run-list conclusion: `resolve-config` actually
+        provisioned a runner and got a `GITHUB_TOKEN`, then failed on a
+        real bug, not the account-wide zero-job `startup_failure`
+        signature every prior ledger entry today has been re-confirming.
+      - >-
+        Root cause: `agent_ids=$(printf ... | jq -R . | jq -s .)` in
+        `resolve-config` pretty-prints the array across multiple lines;
+        `$GITHUB_OUTPUT` requires a single-line `key=value` or the
+        `key<<EOF` heredoc form for multi-line values (the file's own
+        `body<<PROMPT_EOF` block a few lines down does this correctly).
+        Error confirmed in the job log: `Unable to process file command
+        'output' successfully. Invalid format '  "0",'`. Fixed with `-c`
+        (compact) on the final `jq`, verified locally (`["0","1"]`,
+        single line, still valid `fromJSON()` input) and YAML-validated.
+        Opened as #146 — narrowly scoped, does not touch the disabled
+        schedule or spend policy, only unblocks manual
+        `workflow_dispatch` testing past this step.
+      - >-
+        Important caveat, checked before writing this: this is *not*
+        firm evidence the account-wide lockdown has lifted. The three
+        automated push/pull_request-triggered runs at 11:33:17-25Z today
+        (`32248146250`, `32248156356`, `32248156848`) still show the
+        zero-job `startup_failure` signature, and PR #146's own
+        pull-request-triggered checks show zero check runs at time of
+        writing (a minute-plus after opening) — consistent with
+        push/pull_request-triggered workflows still being blocked while
+        the owner's manual `workflow_dispatch` runs get further. Recorded
+        precisely rather than as "lockdown lifted" so the next session
+        doesn't over-read two data points.
+      - >-
+        Did not re-verify #137/#134/#130/#126/#122/#117/#106/#79/#19/#142
+        — all unchanged, nothing new. #139 tracker not re-checked this
+        session (no new information for it beyond what's now in #146 and
+        this entry).
+      - >-
+        No push notification for this entry specifically: the #144
+        finding already triggered one from the concurrent session, and
+        #146 is a scoped bug fix (like the #142-class maintenance PRs)
+        rather than a new decision in front of the owner — but the
+        Actions-status nuance above (still blocked for automated
+        triggers, not blocked for manual dispatch) is worth a fold into
+        whichever session next re-checks the lockdown, so it isn't
+        mis-recorded as fully resolved.
+    mrr_end: null
