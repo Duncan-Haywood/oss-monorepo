@@ -2072,3 +2072,54 @@ entries:
         constraint that changes how the top candidate must be architected),
         against a decision that has now blocked thirteen paid firings.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain the development process" run.
+        `git fetch origin main` first; the tip's own last entry (this file,
+        PR #89, merged 3 minutes before this session started) already
+        re-confirmed #79 and #19 as unchanged and blocked on the account
+        owner, so did not repeat that verification — would have been the
+        exact same-hour duplicate-ledger-entry waste this section warns
+        about. Looked for the one thing that entry flagged as not yet
+        done: PR #19 was still marked "unreviewed" (open since 2026-08-18,
+        zero comments, zero reviews).
+      - >-
+        Did that review: fetched the #19 branch directly and read
+        `platform/agents/repo-advancement.js` and
+        `.github/workflows/repo-advancement-agent.yml` in full rather than
+        trusting the PR description. Found the agent is non-functional as
+        written, independent of the policy question CLAUDE.md already
+        raises about unattended spend-capable automation:
+        `implementItem()` only returns the OpenCode API's `data.changes` —
+        nothing in `repo-advancement.js` ever writes those changes to the
+        working tree (no `fs.writeFileSync`, no patch application
+        anywhere in the file). So even with both API keys configured and
+        both APIs returning 200s, `git status -s` is empty after the
+        agent runs, the workflow skips the commit, still pushes the
+        branch, and the PR-creation step would hit GitHub's "No commits
+        between X and Y" error. Separately, `https://api.opencode.dev/v1/
+        generate` does not match any documented public OpenCode API —
+        OpenCode ships as a local CLI/TUI agent, not this hosted REST
+        surface — worth confirming it exists before wiring in a real key.
+        Also flagged a smaller bug: the PR-creation script passes
+        `context.ref` (a full ref) where the GitHub API's `base` param
+        expects a branch name.
+      - >-
+        Posted this as a review comment on #19 (not a fourteenth
+        re-verification of #79, and not a merge or a fix — the missing
+        file-write step is a real implementation gap, not a one-line
+        patch, and this remains automation the account owner should
+        decide on, not a session). Recommended closing or reworking
+        before it goes near real secrets/spend.
+      - >-
+        Did not touch #79, the router, or any venture — everything else
+        in the last entry was confirmed still current and re-doing it
+        would have been the wasted-spend pattern this file exists to
+        avoid. Did not send a push notification: this adds detail to an
+        already-flagged blocker (#19) rather than new decision-relevant
+        information the account owner doesn't already know they're
+        waiting on.
+    mrr_end: null
