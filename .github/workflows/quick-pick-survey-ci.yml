@@ -28,7 +28,7 @@ jobs:
       # queried at build time. Real credentials live in the deploy environment.
       POSTGRES_PRISMA_URL: postgresql://postgres@127.0.0.1:5432/ci?schema=public
       POSTGRES_URL_NON_POOLING: postgresql://postgres@127.0.0.1:5432/ci?schema=public
-      ADMIN_KEY: ci-placeholder
+      ADMIN_KEY: integration-admin-key
       ADMIN_SESSION_SECRET: ci-placeholder
     steps:
       - uses: actions/checkout@v4
