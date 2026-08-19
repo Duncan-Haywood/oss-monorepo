@@ -2997,3 +2997,64 @@ entries:
         awaiting sign-off" bucket the account owner already has visibility
         into from #110/#112, not a new class of finding or a blocker.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        A separate, concurrent session opened #113 (the print-atelier fix
+        recorded immediately above) at essentially the same time this
+        session opened its own #114 fixing the same print-atelier finding
+        a different way, plus retail-pilot-intel (13 high / 4 moderate
+        across 5 transitive packages — brace-expansion, js-yaml,
+        react-router, nanoid, postcss — none of them direct dependencies
+        of any workspace package). Caught the overlap via `git fetch
+        origin main` before merging anything: #113's print-atelier diff
+        is the stronger of the two independently-written fixes (no need
+        to bump react/react-dom to 19 the way #114 did — #114 only needed
+        that to satisfy a peer conflict from also bumping `lucide-react`
+        past its 0.x line, which #113 avoids entirely by not touching
+        `lucide-react`; #113 also fixes the `no-html-link-for-pages`
+        findings and downgrades two pre-existing react-hooks patterns to
+        warnings instead of leaving them as errors). Consolidated: opened
+        #117 taking #113's print-atelier diff as-is plus #114's
+        retail-pilot-intel diff, independently re-verified both on the
+        consolidated branch, closed #113 and #114 pointing to it.
+      - >-
+        Two real bugs caught while building #114's retail-pilot-intel fix
+        (unaffected by the print-atelier overlap, carried into #117
+        unchanged): a single `pnpm.overrides` pin of
+        `brace-expansion: ^5.0.9` silently broke `eslint .` at runtime
+        (`TypeError: expand is not a function`) because `minimatch@3.1.5`
+        expects brace-expansion's pre-v2 callable-function export, which
+        v5 replaced — caught by actually running `pnpm run lint` after
+        the override rather than trusting a clean `pnpm audit`. Fixed
+        with two scoped overrides (`minimatch@3>brace-expansion` ->
+        `^1.1.18`, `minimatch@10>brace-expansion` -> `^5.0.9`) so each
+        consumer stays on its own API-compatible major line. Separately,
+        a parallel low-severity esbuild advisory was attempted the same
+        way and reverted — forcing esbuild to the patched 0.28.2 broke
+        `apps/portal`'s `vite build` (version mismatch inside Vite's own
+        bundled toolchain); left unfixed rather than shipped broken,
+        noted in the PR as needing an actual Vite upgrade.
+      - >-
+        Verification on the final #117 branch: print-atelier — `npm ci`
+        clean, `npm audit` 0 vulnerabilities (was 5 high), `next build`
+        48/48 routes, `npm test` 128/128, `npm run lint` 0 errors / 7
+        warnings; retail-pilot-intel — typecheck/build/test clean across
+        all 6 workspace packages, `pnpm audit` 0 vulnerabilities (was 13
+        high / 4 moderate), `pnpm install --frozen-lockfile && pnpm run
+        ci` (this venture's actual CI command) passing end-to-end.
+      - >-
+        #109, #106, #103, #79, #19 unchanged — not re-reviewed, per
+        #110/#112's recent re-verification. #117 is ledger-only-adjacent
+        (this entry) but the PR itself touches no file any other open PR
+        touches, so it stays mergeable independent of review timelines
+        elsewhere.
+      - >-
+        No push notification sent: this is routine, verified engineering
+        work plus a same-session near-duplicate caught and consolidated
+        before it added to the backlog — not new information changing
+        what the account owner has to decide beyond the existing
+        #106/#109/#117 sign-off queue.
+    mrr_end: null
