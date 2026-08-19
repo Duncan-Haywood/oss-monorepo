@@ -1579,3 +1579,40 @@ entries:
         `local-site-studio` standalone-repo exposure, per the previous
         entry.
     mrr_end: null
+  - venture: ai-engineering-academy
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked open PRs first per `CLAUDE.md`: only #79 (pipeline
+        research, blocked on the account owner per its own body) and #19
+        (second unattended agent fleet, also blocked on the account owner)
+        were open, so this run did not duplicate either.
+      - >-
+        Confirmed the GitHub Actions blocker from the previous entry is
+        still live, with harder evidence: the 30 most recent workflow runs
+        across the repo (through 2026-08-19T04:15 UTC, including PR #79's
+        own check) all show `conclusion: startup_failure`, `path:
+        BuildFailed` — 100% failure rate, consistent with an
+        account-level cause rather than any workflow's own YAML or code.
+        Not logged as a separate entry since the previous one already
+        carries this as an open item.
+      - >-
+        `ai-engineering-academy/site` had no CI at all (verified: no
+        workflow anywhere in the repo references it). Added
+        `.github/workflows/ai-engineering-academy-ci.yml`, a build-only
+        check (`npm ci && npm run build`, no cron, no secrets,
+        `contents: read`) matching the pattern already used for
+        `print-atelier`/`photo-editing`. Verified locally first: clean
+        `npm ci` (0 vulnerabilities) then `npm run build` produces all 8
+        site pages with no errors. It will not go green until the Actions
+        blocker above is fixed, but is ready the moment it is.
+      - >-
+        Looked for other CI gaps: `garmin-world-traveler-watchface`
+        (Connect IQ / Monkey C, needs Garmin's SDK) and `world-clock-widget`
+        (Swift/XcodeGen, needs a macOS runner) also have none. Left both
+        unadded this run — this session has no macOS runner or Connect IQ
+        SDK available to verify either locally, and an unverified CI file
+        for a toolchain that can't be tested first risks landing something
+        broken instead of something dormant.
+    mrr_end: null

@@ -1,0 +1,32 @@
+name: ai-engineering-academy CI
+
+on:
+  pull_request:
+    paths:
+      - "ventures/ai-engineering-academy/site/**"
+      - ".github/workflows/ai-engineering-academy-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/ai-engineering-academy/site/**"
+      - ".github/workflows/ai-engineering-academy-ci.yml"
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: ventures/ai-engineering-academy/site
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: ventures/ai-engineering-academy/site/package-lock.json
+      - run: npm ci
+      - run: npm run build
