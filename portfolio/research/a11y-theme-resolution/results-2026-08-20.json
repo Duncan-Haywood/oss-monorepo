@@ -1,0 +1,516 @@
+{
+ "summary": {
+  "packages": 12,
+  "undecidable": 491,
+  "theme_recoverable": 248,
+  "structural_unmatched": 0,
+  "outcomes": {
+   "named": 170,
+   "unnamed": 5,
+   "placeholder": 4,
+   "merchant_deferred": 4,
+   "unresolved": 65
+  },
+  "shares_pct": {
+   "named": 68.5,
+   "unnamed": 2.0,
+   "placeholder": 1.6,
+   "merchant_deferred": 1.6,
+   "unresolved": 26.2
+  },
+  "settled_pct": 72.2,
+  "defect_pct_of_theme_recoverable": 2.0,
+  "by_bucket": {
+   "theme": {
+    "unresolved": 65,
+    "named": 106,
+    "merchant_deferred": 4,
+    "placeholder": 4
+   },
+   "theme_structural": {
+    "unnamed": 5,
+    "named": 64
+   }
+  },
+  "by_check": {
+   "button-no-accessible-name": {
+    "unresolved": 17,
+    "named": 78,
+    "placeholder": 3
+   },
+   "link-no-accessible-name": {
+    "unresolved": 47,
+    "merchant_deferred": 4,
+    "named": 25,
+    "placeholder": 1
+   },
+   "control-no-label": {
+    "unnamed": 5,
+    "named": 64
+   },
+   "img-alt-missing": {
+    "unresolved": 1,
+    "named": 3
+   }
+  },
+  "reasons": {
+   "translation": 106,
+   "label_same_file_expression_match": 64,
+   "no_locale_data": 42,
+   "runtime_theme_object": 41,
+   "literal": 26,
+   "setting_empty_default": 8,
+   "no_label_anywhere_in_package": 5,
+   "missing_translation_key": 4,
+   "dynamic_translation_key": 2,
+   "setting_default": 1
+  }
+ },
+ "packages": [
+  {
+   "package": "@ecomplus/storefront-app",
+   "version": "2.0.0-beta.228",
+   "undecidable": 25,
+   "theme_recoverable": 3,
+   "structural_unmatched": 0,
+   "outcomes": {
+    "unresolved": 3
+   },
+   "by_bucket": {
+    "theme": {
+     "unresolved": 3
+    }
+   },
+   "by_check": {
+    "link-no-accessible-name": {
+     "unresolved": 2
+    },
+    "button-no-accessible-name": {
+     "unresolved": 1
+    }
+   },
+   "reasons": {
+    "no_locale_data": 3
+   },
+   "resources": {
+    "locale_files": 0,
+    "translation_keys": 0,
+    "settings_files": 0,
+    "settings_ids": 0,
+    "label_for_ids": 9
+   },
+   "defect_examples": [],
+   "defects": 0
+  },
+  {
+   "package": "@ecomplus/storefront-components",
+   "version": "1.0.0-beta.195",
+   "undecidable": 45,
+   "theme_recoverable": 0,
+   "structural_unmatched": 0,
+   "outcomes": {},
+   "by_bucket": {},
+   "by_check": {},
+   "reasons": {},
+   "resources": {
+    "locale_files": 0,
+    "translation_keys": 0,
+    "settings_files": 0,
+    "settings_ids": 0,
+    "label_for_ids": 32
+   },
+   "defect_examples": [],
+   "defects": 0
+  },
+  {
+   "package": "@ecomplus/storefront-template",
+   "version": "2.0.0-beta.300",
+   "undecidable": 69,
+   "theme_recoverable": 24,
+   "structural_unmatched": 0,
+   "outcomes": {
+    "unresolved": 24
+   },
+   "by_bucket": {
+    "theme": {
+     "unresolved": 24
+    }
+   },
+   "by_check": {
+    "button-no-accessible-name": {
+     "unresolved": 11
+    },
+    "link-no-accessible-name": {
+     "unresolved": 12
+    },
+    "img-alt-missing": {
+     "unresolved": 1
+    }
+   },
+   "reasons": {
+    "no_locale_data": 16,
+    "runtime_theme_object": 15
+   },
+   "resources": {
+    "locale_files": 0,
+    "translation_keys": 0,
+    "settings_files": 0,
+    "settings_ids": 0,
+    "label_for_ids": 0
+   },
+   "defect_examples": [],
+   "defects": 0
+  },
+  {
+   "package": "@fleetbase/storefront-engine",
+   "version": "0.4.19",
+   "undecidable": 34,
+   "theme_recoverable": 0,
+   "structural_unmatched": 0,
+   "outcomes": {},
+   "by_bucket": {},
+   "by_check": {},
+   "reasons": {},
+   "resources": {
+    "locale_files": 0,
+    "translation_keys": 0,
+    "settings_files": 0,
+    "settings_ids": 0,
+    "label_for_ids": 0
+   },
+   "defect_examples": [],
+   "defects": 0
+  },
+  {
+   "package": "@nuskin/ns-shop-elements",
+   "version": "5.44.0",
+   "undecidable": 2,
+   "theme_recoverable": 2,
+   "structural_unmatched": 0,
+   "outcomes": {
+    "unnamed": 2
+   },
+   "by_bucket": {
+    "theme_structural": {
+     "unnamed": 2
+    }
+   },
+   "by_check": {
+    "control-no-label": {
+     "unnamed": 2
+    }
+   },
+   "reasons": {
+    "no_label_anywhere_in_package": 2
+   },
+   "resources": {
+    "locale_files": 0,
+    "translation_keys": 0,
+    "settings_files": 0,
+    "settings_ids": 0,
+    "label_for_ids": 0
+   },
+   "defect_examples": [
+    {
+     "file": "package/src/market-banner-uploader/market-banner-uploader.html",
+     "line": 530,
+     "element": "input",
+     "check": "control-no-label",
+     "why": "no_label_anywhere_in_package"
+    },
+    {
+     "file": "package/src/ns-stripe-donation/ns-stripe-donation.html",
+     "line": 88,
+     "element": "input",
+     "check": "control-no-label",
+     "why": "no_label_anywhere_in_package"
+    }
+   ],
+   "defects": 2
+  },
+  {
+   "package": "@pradip1995/create-storefront-app",
+   "version": "0.6.19",
+   "undecidable": 1,
+   "theme_recoverable": 0,
+   "structural_unmatched": 0,
+   "outcomes": {},
+   "by_bucket": {},
+   "by_check": {},
+   "reasons": {},
+   "resources": {
+    "locale_files": 0,
+    "translation_keys": 0,
+    "settings_files": 0,
+    "settings_ids": 0,
+    "label_for_ids": 0
+   },
+   "defect_examples": [],
+   "defects": 0
+  },
+  {
+   "package": "@vue-storefront/nuxt-theme",
+   "version": "2.8.0",
+   "undecidable": 2,
+   "theme_recoverable": 1,
+   "structural_unmatched": 0,
+   "outcomes": {
+    "unresolved": 1
+   },
+   "by_bucket": {
+    "theme": {
+     "unresolved": 1
+    }
+   },
+   "by_check": {
+    "link-no-accessible-name": {
+     "unresolved": 1
+    }
+   },
+   "reasons": {
+    "no_locale_data": 1
+   },
+   "resources": {
+    "locale_files": 0,
+    "translation_keys": 0,
+    "settings_files": 0,
+    "settings_ids": 0,
+    "label_for_ids": 0
+   },
+   "defect_examples": [],
+   "defects": 0
+  },
+  {
+   "package": "@vue-storefront/theme-default",
+   "version": "1.7.0",
+   "undecidable": 26,
+   "theme_recoverable": 24,
+   "structural_unmatched": 0,
+   "outcomes": {
+    "unresolved": 24
+   },
+   "by_bucket": {
+    "theme": {
+     "unresolved": 24
+    }
+   },
+   "by_check": {
+    "button-no-accessible-name": {
+     "unresolved": 5
+    },
+    "link-no-accessible-name": {
+     "unresolved": 19
+    }
+   },
+   "reasons": {
+    "no_locale_data": 22,
+    "dynamic_translation_key": 2
+   },
+   "resources": {
+    "locale_files": 0,
+    "translation_keys": 0,
+    "settings_files": 0,
+    "settings_ids": 0,
+    "label_for_ids": 6
+   },
+   "defect_examples": [],
+   "defects": 0
+  },
+  {
+   "package": "@zalify/theme-templates",
+   "version": "0.5.0",
+   "undecidable": 158,
+   "theme_recoverable": 105,
+   "structural_unmatched": 0,
+   "outcomes": {
+    "named": 94,
+    "merchant_deferred": 3,
+    "unresolved": 8
+   },
+   "by_bucket": {
+    "theme_structural": {
+     "named": 24
+    },
+    "theme": {
+     "named": 70,
+     "merchant_deferred": 3,
+     "unresolved": 8
+    }
+   },
+   "by_check": {
+    "control-no-label": {
+     "named": 24
+    },
+    "button-no-accessible-name": {
+     "named": 55
+    },
+    "link-no-accessible-name": {
+     "merchant_deferred": 3,
+     "named": 12,
+     "unresolved": 8
+    },
+    "img-alt-missing": {
+     "named": 3
+    }
+   },
+   "reasons": {
+    "translation": 68,
+    "literal": 26,
+    "label_same_file_expression_match": 24,
+    "runtime_theme_object": 16,
+    "setting_empty_default": 6,
+    "setting_default": 1
+   },
+   "resources": {
+    "locale_files": 3,
+    "translation_keys": 197,
+    "settings_files": 6,
+    "settings_ids": 125,
+    "label_for_ids": 18
+   },
+   "defect_examples": [],
+   "defects": 0
+  },
+  {
+   "package": "bootstrap-shopify-theme",
+   "version": "1.4.5",
+   "undecidable": 29,
+   "theme_recoverable": 16,
+   "structural_unmatched": 0,
+   "outcomes": {
+    "named": 12,
+    "merchant_deferred": 1,
+    "unresolved": 3
+   },
+   "by_bucket": {
+    "theme_structural": {
+     "named": 12
+    },
+    "theme": {
+     "unresolved": 3,
+     "merchant_deferred": 1
+    }
+   },
+   "by_check": {
+    "control-no-label": {
+     "named": 12
+    },
+    "link-no-accessible-name": {
+     "unresolved": 3,
+     "merchant_deferred": 1
+    }
+   },
+   "reasons": {
+    "label_same_file_expression_match": 12,
+    "runtime_theme_object": 6,
+    "setting_empty_default": 2
+   },
+   "resources": {
+    "locale_files": 1,
+    "translation_keys": 0,
+    "settings_files": 2,
+    "settings_ids": 8,
+    "label_for_ids": 17
+   },
+   "defect_examples": [],
+   "defects": 0
+  },
+  {
+   "package": "fassbender-shopify-theme",
+   "version": "1.4.0",
+   "undecidable": 99,
+   "theme_recoverable": 73,
+   "structural_unmatched": 0,
+   "outcomes": {
+    "named": 64,
+    "unnamed": 3,
+    "placeholder": 4,
+    "unresolved": 2
+   },
+   "by_bucket": {
+    "theme": {
+     "placeholder": 4,
+     "named": 36,
+     "unresolved": 2
+    },
+    "theme_structural": {
+     "unnamed": 3,
+     "named": 28
+    }
+   },
+   "by_check": {
+    "link-no-accessible-name": {
+     "placeholder": 1,
+     "named": 13,
+     "unresolved": 2
+    },
+    "button-no-accessible-name": {
+     "placeholder": 3,
+     "named": 23
+    },
+    "control-no-label": {
+     "unnamed": 3,
+     "named": 28
+    }
+   },
+   "reasons": {
+    "translation": 38,
+    "label_same_file_expression_match": 28,
+    "missing_translation_key": 4,
+    "runtime_theme_object": 4,
+    "no_label_anywhere_in_package": 3
+   },
+   "resources": {
+    "locale_files": 2,
+    "translation_keys": 293,
+    "settings_files": 5,
+    "settings_ids": 28,
+    "label_for_ids": 17
+   },
+   "defect_examples": [
+    {
+     "file": "package/theme/sections/newsletter.liquid",
+     "line": 69,
+     "element": "input",
+     "check": "control-no-label",
+     "why": "no_label_anywhere_in_package"
+    },
+    {
+     "file": "package/theme/sections/newsletter.liquid",
+     "line": 83,
+     "element": "input",
+     "check": "control-no-label",
+     "why": "no_label_anywhere_in_package"
+    },
+    {
+     "file": "package/theme/templates/search.liquid",
+     "line": 22,
+     "element": "input",
+     "check": "control-no-label",
+     "why": "no_label_anywhere_in_package"
+    }
+   ],
+   "defects": 3
+  },
+  {
+   "package": "pinelab-storefront",
+   "version": "1.4.3",
+   "undecidable": 1,
+   "theme_recoverable": 0,
+   "structural_unmatched": 0,
+   "outcomes": {},
+   "by_bucket": {},
+   "by_check": {},
+   "reasons": {},
+   "resources": {
+    "locale_files": 0,
+    "translation_keys": 0,
+    "settings_files": 0,
+    "settings_ids": 0,
+    "label_for_ids": 0
+   },
+   "defect_examples": [],
+   "defects": 0
+  }
+ ]
+}

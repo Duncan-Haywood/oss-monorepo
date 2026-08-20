@@ -164,6 +164,20 @@ measured.
   generation against a customer's theme is a write path into someone else's
   site, and the write-up's own rule — staging-only, rollback, first ten reviewed
   — describes work with a human in it.
+- **`audit.py` over-reports `control-no-label` as undecidable, by 64.**
+  Found 2026-08-20 by [`../a11y-theme-resolution/`](../a11y-theme-resolution/).
+  This engine records the expression-*stripped* id (`id="{{ id_prefix }}FirstName"`
+  becomes `FirstName`) and skips any `<label for>` whose target contains an
+  expression, so a control and its label can sit six lines apart in one file and
+  still be reported undecidable. **64 of the 491 undecidables here (13.0%) are
+  that artifact**, which restates the 63.2% headline below as **59.9%** (427
+  undecidable against 286 findings). Matching label references on the raw
+  template text settles them, and the same change turns the genuinely broken
+  case — a literal `for` against an expression-built `id`, which can never
+  match — from an undecidable into a finding. The numbers in this document are
+  left as measured; the fix belongs in `audit.py` and in
+  [`../../pipeline/probes/eaa-wcag-triage/`](../../pipeline/probes/eaa-wcag-triage/),
+  not in a retrospective edit of a committed result.
 - **~~No rendered-page comparison.~~** Closed 2026-08-20 by
   [`../a11y-render-recovery/`](../a11y-render-recovery/), which classifies each
   of these 491 undecidables by the data it is waiting on. Headline: rendering
