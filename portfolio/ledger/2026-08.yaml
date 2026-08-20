@@ -9987,3 +9987,89 @@ entries:
         revenue this session. This entry carries no other content so it
         stays independently mergeable per CLAUDE.md's ledger discipline.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        legal-ethical-reliable increase in profit" scheduled session,
+        designated branch claude/pensive-feynman-23ucgn. `git fetch origin
+        main` first; read the four open PRs (#222/#192/#144/#19), issue
+        #139 and the ledger tail before touching anything. Deliberately
+        re-derived none of what recent sessions had delivered — the
+        break-even binary (14:54Z), the 9-of-11-blocked count (15:50Z),
+        #192's redundancy (17:32Z) and the Actions-outage timeline (#355)
+        were all read, not recomputed. No candidate screening (intake gate
+        applies); no candidate added, no score changed.
+      - >-
+        Shipped #347 (merged dc1e545). Found by reading deploy-workflow run
+        history rather than the workflow files:
+        `retail-pilot-intel-deploy-docs.yml`'s `deploy` job runs
+        `actions/deploy-pages@v4` unconditionally, which returns 404
+        ("Ensure GitHub Pages has been enabled") because Pages is disabled
+        for this repo. Its only run (32299439345, push to main 2026-08-19)
+        built and uploaded the Pages artifact successfully, then failed at
+        that deploy step — so the workflow goes red on main on every push
+        touching the retail docs paths.
+      - >-
+        Same class of gap #324 already fixed for the sibling
+        `real-estate-agent-photo-app-deploy-docs.yml` (graceful skip when
+        the Cloudflare credential is absent); the retail workflow was
+        missed. Fix mirrors the file's own pattern — gated the Pages
+        `deploy` job behind `vars.GITHUB_PAGES_ENABLED == 'true'`, exactly
+        as its sibling `deploy-vercel` job is gated on
+        `vars.VERCEL_DEPLOY == 'true'`. The `build` job stays
+        unconditional so the docs build is still validated on every push;
+        publishing only fires once the owner enables Pages and sets the
+        variable, which also aligns publishing with CLAUDE.md's
+        human-gated "publishing to the public" posture (a deliberate owner
+        action, not an every-push attempt). Side effect worth recording:
+        this removes that failure mode from the pending #222 decision,
+        since #222 touches `ventures/retail-pilot-intel/pnpm-lock.yaml`,
+        which is inside this workflow's path filter.
+      - >-
+        Shipped #354 (merged c7f3cd0). Doc drift left by the #337/#341
+        ai-first-markets reclassification, found by a delegated survey and
+        then verified against live script output rather than the report:
+        `allocate.py` prints "Dispatchable now: 1 of 10" and
+        `score_ventures.py` puts the dispatchable venture at merit rank 9
+        of 10 with composite 4.17 (blocked mean 4.74), but
+        `portfolio/router/README.md` still described eleven ventures, two
+        dispatchable, at "ranks 6 and 10 of 11" with mean 4.33. Corrected
+        those, and named `ai-first-markets` as reclassified out of the
+        allocated set. Deliberately left two things alone that look stale
+        and are not: L156 ("scoring all eleven ventures") is correct — 11
+        are scored, 10 allocated — and the "0 of 11" table is a dated
+        snapshot measured at commit 2c7ae58.
+      - >-
+        Also in #354: `ventures/ai-first-markets/NOT-A-VENTURE` asserted
+        its `venture-scores.yaml` entry "has been removed to match (a
+        scored directory with no matching venture would fail `--check`)".
+        Both clauses are false on main — the row is present and `--check`
+        passes by design, via the `documented_slugs()` superset added in
+        #341 so a reclassified directory keeps its score row. Replaced
+        with the actual state.
+      - >-
+        Verified rather than asserted, both PRs: `validate_workflows.py`
+        22/22 valid; router `validate.py` 10/10; `score_ventures.py
+        --check` 11/11; `validate_doc_consistency.py` 8/8;
+        `break_even.py --check` green. CI green on each head before
+        merging — #347 `validate`; #354 `validate` plus the
+        path-filtered ai-first-markets `verify` build, which the marker
+        edit triggers. Both `mergeable_state: clean` against the live tip
+        at merge time. Self-merged as agent-decidable per CLAUDE.md:
+        internal `.github/` CI config and `portfolio/` docs plus one prose
+        marker file, no `ventures/*` application code, publishes nothing,
+        registers nothing, uses no credential, adds no unattended
+        automation, spends nothing beyond agent time.
+      - >-
+        Did not touch #222/#192/#144/#19 or their branches — all four
+        remain correctly owner-gated per #139 and none was re-verified
+        this session, which is the loop break-even.md measures. No
+        customer contact and no revenue; the portfolio's binding
+        constraint (distribution/credential gates on #139, and the payout
+        rail binary) is unchanged and needs the account owner, not another
+        internal pass. This entry carries no other content so it stays
+        independently mergeable per CLAUDE.md's ledger-discipline section.
+    mrr_end: null
