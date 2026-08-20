@@ -10216,3 +10216,57 @@ entries:
         suite had never run now has one that does, and the claim in its
         README is true rather than aspirational.
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        legal-ethical-reliable increase in profit" scheduled session,
+        designated branch claude/charming-hawking-wl74l3. `git fetch origin
+        main` first; read the four owner-gated PRs (#222/#192/#144/#19),
+        issue #139 and the ledger tail before touching anything. Confirmed
+        main is healthy rather than re-deriving it: portfolio-validate
+        battery green locally (router 10/10, scoring 11/11, doc-consistency
+        8/8, candidates 8/8, break-even --check, workflows 22/22) and CI
+        green on the main tip. Re-verified none of the owner-gated PRs — the
+        loop break-even.md measures.
+      - >-
+        Took the router's one dispatchable task rather than inventing work:
+        `allocate.py` names photos-import-tools as the sole dispatchable
+        venture with "every recorded hypothesis is settled -- write the next
+        one, then test it." Shipped #361 (self-merged 6663de3). Its resume
+        state is SQLite (durable); its observability records
+        (status.json, completion_report.json, SD-offload manifest/summary)
+        were written with plain write_text, which truncates the destination
+        before writing. A crash mid-write, or the watchdog polling
+        status.json during a rewrite, can read a torn JSON — and
+        read_status_file already swallows JSONDecodeError to {}, silently
+        blanking the watchdog's progress/error view. Routed all five writers
+        through a shared atomic_io.write_json_atomic (serialize fully in
+        memory, temp file, os.replace); output byte-for-byte unchanged.
+        Recorded as the next hypothesis in VENTURE.yaml, supported,
+        evidence in-repo.
+      - >-
+        Verified by running, not trusting: 6 new tests in test_atomic_io.py
+        (valid output + no orphan temp, sort_keys byte-match, parent-dir
+        creation, serialization-failure preserves the prior record,
+        failed-os.replace preserves it and cleans the temp, reader-mid-write
+        never sees a torn file); full venture suite 39/39, ruff clean, mypy
+        clean. During the run main advanced from ac6b6c0 to 3138c9a; merged
+        origin/main in and resolved a VENTURE.yaml conflict with #359 by
+        keeping both new hypotheses (#359's no-card-mounted exit code and
+        this one). CI green on the merge commit (test, lint, validate);
+        merge-tree clean against live tip before self-merge.
+      - >-
+        Self-merged as agent-decidable per CLAUDE.md: internal ventures/
+        prototype with links.production null (no live-site deploy), additive
+        helper + tests plus identical-output rewrite, no ventures/* code that
+        ships to a live site in a behavior-changing way, publishes nothing,
+        registers nothing, uses no credential, adds no unattended automation,
+        spends nothing beyond agent time. Did not touch #222/#192/#144/#19 or
+        their branches — all remain correctly owner-gated per #139. No
+        customer contact and no revenue; the portfolio's binding constraint
+        (distribution/credential gates on #139, and the payout-rail binary)
+        is unchanged and needs the account owner, not another internal pass.
+    mrr_end: null
