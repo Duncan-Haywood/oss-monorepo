@@ -9,6 +9,9 @@ on:
       - ".github/workflows/real-estate-agent-photo-app-deploy-docs.yml"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: real-estate-agent-photo-app-deploy-docs
   cancel-in-progress: true
