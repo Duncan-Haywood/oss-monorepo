@@ -8,6 +8,7 @@ from sd_offload import (
     OffloadStats,
     build_rsync_cmd,
     iter_media_files,
+    offload_exit_code,
     sha256_file,
     verify_and_manifest,
 )
@@ -142,6 +143,21 @@ class VerifyAndManifestTests(unittest.TestCase):
             entry = json.loads(manifest.read_text())["files"][0]
             self.assertEqual(entry["status"], "verified")
             self.assertEqual(entry["sha256"], sha256_file(card.dest / "DCIM" / "IMG_1.JPG"))
+
+
+class OffloadExitCodeTests(unittest.TestCase):
+    def test_no_card_mounted_is_not_reported_as_success(self):
+        # The dangerous case: an empty summary means nothing was offloaded, so
+        # a wrapper that ejects/reformats on exit 0 must not treat it as done.
+        self.assertEqual(offload_exit_code([]), 2)
+
+    def test_clean_offload_returns_zero(self):
+        self.assertEqual(offload_exit_code([{"errors": []}]), 0)
+
+    def test_offload_with_errors_returns_one(self):
+        self.assertEqual(
+            offload_exit_code([{"errors": []}, {"errors": ["Size mismatch: x"]}]), 1
+        )
 
 
 class BuildRsyncCmdTests(unittest.TestCase):
