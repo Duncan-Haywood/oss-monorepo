@@ -112,6 +112,14 @@ Why the next pass should screen channel-first:
 Which channels this portfolio can actually list in, and what each costs in
 credentials: [channel-inventory.md](channel-inventory.md).
 
+A candidate's composite and floor are written in three places — the table above,
+[candidates.yaml](candidates.yaml), and the write-up's own headline — and are
+rescored by one session at a time. `python3
+portfolio/pipeline/validate_doc_consistency.py` checks that all three still say
+the same number, because a rescore that updates two of them is invisible in the
+diff of the pull request that makes it. CI runs this on any change under
+`portfolio/pipeline/`.
+
 ## Status of the claims in these write-ups
 
 **These are internal research notes, not published content and not legal

@@ -3,6 +3,11 @@ name: Portfolio validate
 # Every venture must stay legible to the portfolio router: a valid
 # VENTURE.yaml, or an explicit NOT-A-VENTURE marker saying why the directory
 # is not a business.
+#
+# And every candidate must carry the same score wherever that score is written.
+# Candidates are rescored by one session at a time, in three files that are
+# edited independently, so a partial rescore is invisible in the diff of any
+# single pull request and only surfaces once two of them land together.
 
 on:
   push:
@@ -11,12 +16,14 @@ on:
       - "ventures/**/VENTURE.yaml"
       - "ventures/**/NOT-A-VENTURE"
       - "portfolio/router/**"
+      - "portfolio/pipeline/**"
       - ".github/workflows/portfolio-validate.yml"
   pull_request:
     paths:
       - "ventures/**/VENTURE.yaml"
       - "ventures/**/NOT-A-VENTURE"
       - "portfolio/router/**"
+      - "portfolio/pipeline/**"
       - ".github/workflows/portfolio-validate.yml"
   workflow_dispatch:
 
@@ -38,3 +45,6 @@ jobs:
 
       - name: Validate VENTURE.yaml schema
         run: python3 portfolio/router/validate.py
+
+      - name: Check candidate scores agree across yaml, write-ups, and README
+        run: python3 portfolio/pipeline/validate_doc_consistency.py
