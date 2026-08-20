@@ -1,0 +1,36 @@
+# What has already been verified, and against which `main`.
+#
+# One record per open pull request that a session has verified by actually
+# running something. `verification_status.py` reads this file and decides, from
+# git alone, whether each record still holds against the current `main` -- so
+# the next session can skip the work instead of re-running it blind. See
+# re-verification.md for the rule and its limits.
+#
+# Schema (checked by `verification_status.py --check` in CI):
+#   pr:                     positive integer, one record per pull request
+#   head_sha:               full 40-char sha the verification ran against
+#   verified_against_main:  full 40-char sha of `main` at that time
+#   verified_at:            quoted "YYYY-MM-DDTHH:MM:SSZ"
+#   result:                 pass | fail
+#   note:                   what was actually run, and where it is written up
+#
+# Remove a record when its pull request is merged or closed. Replace one rather
+# than appending a second when the same pull request is verified again.
+#
+# The records live under a `records:` key rather than at the top level because
+# the router globs every *.yaml in this directory as a monthly ledger and reads
+# `entries:` off it; a bare list here crashes `allocate.py`.
+
+records:
+- pr: 222
+  head_sha: fe19bb899ea0e58d36b48ddcd96575ffa2cd529b
+  verified_against_main: baca2019f52e976f7faf5860abe72433fbb343af
+  verified_at: "2026-08-20T14:33:36Z"
+  result: pass
+  note: >-
+    Install, lint, typecheck, build, test and `audit --audit-level=high` run on
+    the actual merge result in a throwaway worktree, across all six affected
+    apps; 0 high-severity findings on each, and all ten CI checks green on the
+    head. Written up in the comment on #222 dated 2026-08-20T14:33Z. The pull
+    request stays owner-gated because merging it fires two live deploys, not
+    because anything about it is unverified.
