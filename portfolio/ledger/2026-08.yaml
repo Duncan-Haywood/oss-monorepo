@@ -6840,61 +6840,106 @@ entries:
     outcomes:
       - >-
         "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        fresh branch with no PR of its own. `git fetch origin main`
+        first; tip `9bd71d0` (#239, ledger entry for the #139
+        consolidation) before reading anything.
+      - >-
+        Reviewed all 16 open PRs against current issue #139, including
+        **#240** (opened 02:15:48Z, ~1 minute before this session
+        started): it measures a third reachability question nobody had
+        asked — whether each of the 8 pipeline candidates' *product*
+        can fetch its own runtime input data, distinct from whether the
+        portfolio can *publish* to a channel (#166/#177) or *verify a
+        claim* against a primary source (#232/§2c). Finding: only
+        `mcp-supply-chain-watch` has a fully reachable data feed, and it
+        is the one candidate whose probe has actually advanced (#207) —
+        a correlation five prior cycles missed because nobody had
+        measured the allowlist. Reprioritises the ask queue (recasts
+        Ask 7 as one instance of a broader "general read-only egress or
+        registry-only forever" decision) but adds no candidate and
+        changes no score, correctly following the `CLAUDE.md` intake
+        gate. #240's own session already posted a full comment on #139
+        (02:16:14Z) and sent a push notification about it — both
+        confirmed present before this entry, so not repeating either
+        here.
+      - >-
+        The other 15 open PRs (#237, #232, #230, #229, #225, #222, #219,
+        #218, #207, #192, #177, #19, #175, #166, #144) are unchanged
+        since the last ledger entry and #139's current body/comments
+        already account for all of them — nothing to fold in.
+      - >-
+        Independently checked `main`'s last 30 workflow runs for
+        anything not already tracked. Same two persistent failures as
+        before (`Deploy retail-pilot-intel docs` — Ask 6, GitHub Pages
+        source; `Deploy real-estate-agent-photo-app docs site` — Ask 4,
+        Cloudflare secret), both owner-blocked and already on #139. The
+        remaining failures in the window (`OpenCode high-throughput
+        portfolio agents`, several blank-name `startup_failure` runs,
+        all from 2026-08-19 10:29-12:24Z) are the same batch a prior
+        session already found and closed out as transient/pre-#175; no
+        new failure since. CI on `main` is healthy.
+      - >-
+        Did not re-run the pipeline/research screening brief
+        (`CLAUDE.md` intake gate still applies, no new candidate). Did
+        not merge any research-chain PR, for the same reason stated in
+        every prior entry: several sessions have had the opportunity and
+        chosen not to, and nothing this session found explains that
+        choice away. Did not touch #19/#144/#192/#175 (automation/spend,
+        unchanged) or the Next.js chain (#222, still the owner's call).
+      - >-
+        No push notification from this entry: #240's own session
+        already sent one covering the one genuinely new, decision-
+        relevant finding in this window (the egress-scope reframing),
+        and everything else this session found was confirmation of
+        already-surfaced state. Sending a second notification for the
+        same finding would be the redundant-alert pattern this
+        routine's own instructions warn against.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
         increase profit legally/ethically/reliably, be strategic"
-        scheduled session, fresh branch with no PR of its own. `git
-        fetch origin main` first; tip `9bd71d0` (#239) before reading
-        anything. Read issue #139's body plus its 4 newest comments and
-        all 17 open PRs against that tip.
+        scheduled session, fresh branch. `git fetch origin main` first;
+        tip `9bd71d0` (#239). While reading issue #139, found a
+        concurrent session's ledger-only PR (#241, commit `af0b73c`)
+        had already landed reviewing the same state — its entry is the
+        block immediately above this one. This entry only records what
+        that one didn't do, to avoid re-typing an already-recorded
+        review.
       - >-
-        Found the tracker body was one finding behind its own comments:
-        #240 (runtime-data reachability — measured which of the 8
-        pipeline candidates can fetch their own product data at all,
-        not just publish or verify a claim) had been posted as a
-        comment 51 minutes before this session started, with the
-        posting session explicitly deferring the body edit. Read #240's
-        full diff (not just its summary), independently spot-checked 3
-        of its 24 probed hosts directly (`www.w3.org`, `api.osv.dev` →
-        proxy-denied; `registry.npmjs.org` → 200), matched its results
-        exactly, then re-fetched the issue immediately before writing
-        (unchanged since #240 landed) and folded it in: a new top note,
-        a bullet in section 2's PR list, and a new §2d recording the
-        finding that the same egress-policy decision behind Asks 3/7
-        also gates which candidates can be built, not only which claims
-        can be verified against primary sources (§2c). No ask added, no
-        pipeline score changed — #240 itself frames this as a
-        restatement of Asks 3/7's stakes, not a new ask.
+        #241's session recorded #240's finding but explicitly left the
+        `#139` tracker body fold-in deferred (per the issue's own
+        concurrent-edit guidance, same as four prior findings had been
+        left before a later session folded them in together). This
+        session did that fold-in: added a top note, a section-2 bullet,
+        and a new §2d recording that the egress-policy decision behind
+        Asks 3/7 (§2c) also gates which pipeline candidates can be
+        *built*, not only which claims can be verified. Before writing,
+        independently spot-checked 3 of #240's 24 probed hosts directly
+        rather than trusting its report (`www.w3.org`, `api.osv.dev` →
+        proxy-denied; `registry.npmjs.org` → 200) — all matched exactly.
+        No ask added, no pipeline score changed.
       - >-
-        Independently checked `main`'s last 30 workflow runs for any
-        failure not already tracked on #139. All 13 non-success runs in
-        that window are from 2026-08-19 or earlier and already
-        accounted for: `Deploy retail-pilot-intel docs` (Ask 6),
-        `Deploy real-estate-agent-photo-app docs site` (Ask 4), the
-        18:30:26Z `ubuntu-agent-server CI`/`CI` transient pair already
-        recorded as fixed by #202 in a prior entry, and the pre-#79
-        `startup_failure` runs from before 12:00Z. Nothing new; CI on
-        `main` is otherwise healthy.
-      - >-
-        Reviewed the remaining 16 open PRs against current issue #139:
-        #222 (Next.js chain, owner's merge call),
-        #166/#177/#207/#218/#219/#225/#229/#230/#232 (monetization/
-        verification research chain, each already described in #139 as
-        staying mergeable indefinitely with no ledger hunk of its own),
-        and #19/#144/#192/#175 (automation/spend proposals). All
-        unchanged since the last entry, no new PR opened this session
-        beyond the #139 body edit above (which is an issue edit, not a
-        PR). Left the research-chain PRs open rather than merging them
-        myself, for the same reason the last three sessions gave: many
-        prior sessions had the same opportunity and chose not to, and
-        nothing this session found explains that choice away.
+        Also independently checked `main`'s last 30 workflow runs before
+        seeing #241's entry; same conclusion (CI healthy beyond the two
+        already-tracked owner-blocked deploys), not repeating the detail
+        here since #241's entry already has it.
       - >-
         Did not re-run the pipeline/research screening brief (`CLAUDE.md`
-        intake gate still applies, no new candidate). Did not touch
-        Asks 0-8 on #139 (all still owner-blocked or, for Ask 8,
-        already pushed directly and awaiting the owner's number).
+        intake gate still applies, no new candidate). Did not merge any
+        research-chain PR, for the same reason every recent entry gives.
+        Opened this ledger entry as its own PR (#244) rather than
+        folding it into #241 — #241 had already merged by the time this
+        was written, and per CLAUDE.md's ledger-append-conflict note,
+        rebasing a still-open PR onto a merged one is the correct fix,
+        not blocking on it.
       - >-
-        No push notification for this entry: #240's own session already
-        pushed this finding directly as the most consequential item on
-        the queue since Ask 8, and this entry's only contribution is
-        moving it from a comment into the tracker body plus independent
-        spot-verification — not new information for the owner.
+        No push notification: the only thing this session added beyond
+        #241's already-filed review is the tracker body edit itself,
+        which is visible on #139 directly and isn't a new decision
+        surface for the owner.
     mrr_end: null
