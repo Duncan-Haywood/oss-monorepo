@@ -61,18 +61,55 @@ hypotheses:
       This venture has a commercial thesis at all — a buyer, a price, and a
       route to one — rather than being internal decision infrastructure the
       portfolio counts as a business.
-    status: untested
-    checked: null
+    status: refuted
+    checked: 2026-08-20
     evidence: in-repo
     note: >-
-      Raised by the portfolio/scoring/ pass, which put this venture at
-      composite 4.50 with a time_to_revenue of 2: the deployed app sits behind
-      Cloudflare Access restricted to a single email address, and there is no
-      price anywhere in the repo. The honest options are to write a commercial
-      thesis or to reclassify it under platform/ rather than ventures/;
-      leaving it as a venture makes the portfolio look one business larger
-      than it is. Recorded as this venture's next question because the router
-      otherwise reports it as having none.
+      Tested by inspection against the three parts of the claim — a buyer, a
+      price, a route to one — and none is present.
+
+      Buyer: the only access is the Cloudflare Access policy in
+      cloudflare/access-policy.json, which is a single-email whitelist for the
+      owner ("Private business evaluation reports — single authorized user").
+      No second user, prospect, or waitlist exists anywhere in the repo.
+
+      Price: grepping src/ for stripe/checkout/billing/subscribe/purchase
+      returns only strings describing the eight *evaluated ideas* and their
+      hypothetical Stripe billing (src/data/ideas.ts, src/app/reports), never a
+      price, plan, or purchase surface for this tool itself. The app's own
+      scoring data says so in as many words:
+      src/data/portfolio-ventures.ts:144 scores this venture's own
+      time_to_revenue and records "There is no pricing, no buyer and no
+      purchase surface — it is an internal decision tool."
+
+      Route: no listing, no distribution channel, and — per the portfolio's
+      repeatedly verified finding — no channel it could publish to from here
+      anyway. Its own distribution dimension scores 3/10: "competes against an
+      enormous supply of free idea lists with no distinguishing channel."
+
+      The clinching structural evidence is that this venture's
+      src/lib/evaluation.ts is not a product feature but the portfolio's own
+      scoring engine: portfolio/scoring/venture-scores.yaml records
+      `method: ventures/ai-first-markets/src/lib/evaluation.ts`, and ~17 files
+      across the router, scoring, research, and pipeline reference this path.
+      It is decision infrastructure the rest of the repo depends on, not a
+      business with customers.
+
+      Conclusion: the claim is refuted. This is internal decision
+      infrastructure, and counting it under ventures/ makes the portfolio look
+      one business larger than it is and draws $50/mo of protected explore
+      budget it can never convert to revenue. Recommended follow-up (a
+      deliberate, standalone change, not bundled here because it ripples
+      through the router, scoring, CI path filters, and docs): reclassify this
+      directory from ventures/ to platform/ so allocate.py stops ranking it as
+      a revenue-explore candidate. Touch-points to update in that move:
+      .github/workflows/ai-first-markets-{ci,deploy}.yml,
+      portfolio/router/{allocate.py,test_allocate.py,README.md},
+      portfolio/scoring/{score_ventures.py,venture-scores.yaml,README.md},
+      README.md, and the portfolio/research + portfolio/pipeline docs that cite
+      the ventures/ai-first-markets/... path. Kept out of this change because a
+      whole-directory move conflicts with the hourly router/scoring/ledger
+      churn and deserves to land on its own.
 
 economics:
   currency: USD
