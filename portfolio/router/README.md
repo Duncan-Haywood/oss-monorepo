@@ -193,3 +193,40 @@ wrong, a session picks the task up, finds it needs an outside response, and
 flips one field. The opposite error is worse: mark everything blocked and
 the queue reports that the portfolio has no available work at all, which is
 the conclusion that produced the meta-work it is supposed to replace.
+
+## What each owner decision unblocks, weighted by merit
+
+The two axes above answer "which venture next" for a *session*. They do not
+answer the question the account owner's decision queue (issue #139) turns on:
+of the decisions only a human can make, which one releases the most, and is
+that the same as the one that costs the least? The #323 scoring pass found it
+is not — the highest-merit venture (`local-site-studio`, 6.00: coded and
+tested Stripe checkout, a $500 + $99–199/mo ladder, the only buyer in the
+portfolio holding a business budget) sits behind the ask ranked *last* in #139
+for being the most expensive, while the cheap asks at the top of that queue
+serve pipeline candidates rather than any venture. The queue was ordered
+cheapest-first, which was correct while nothing was known about what each ask
+released; now something is.
+
+`allocate.py` closes that half. It already records, per venture, *why* no
+session can start it (`blocked_on`) and *how good the business looks*
+(`merit`). `decisions_by_merit()` adds them up the other way: it groups the
+blocked ventures by the owner-gated decision that would unblock them and
+reports, per decision, how many ventures wait on it, the total composite merit
+it would release, and the single highest-merit venture in that group (because
+one 6.00 unblocked can matter more than three 4.00s, and the sum alone hides
+that). The table prints it under the work queue; `--decisions` emits it as
+JSON.
+
+Run today it collapses to one line, and that *is* the finding: **9 of the 11
+ventures — 42.67 total merit, `local-site-studio` at the top — are blocked on
+a single decision, publishing.** Nearly the entire portfolio's merit is
+waiting on one owner call, not spread across the several cheaper asks the #139
+ordering leads with. This is a reporting change, not a recommendation: it does
+not reorder #139 or make the publish decision, both of which stay the owner's.
+It puts the merit-unblocked number next to the cost so the two can be read
+together, which is what the cheapest-first ordering left out. As more distinct
+`evidence: customer-contact` blockers appear (a venture blocked on something
+other than publishing), the rollup gains rows and the comparison sharpens; the
+line stays honest because the blocker string is computed from each
+`VENTURE.yaml`, not written down anywhere that can go stale.

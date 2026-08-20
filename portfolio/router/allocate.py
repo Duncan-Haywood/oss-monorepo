@@ -330,6 +330,53 @@ def work_queue(ventures: list[Venture]) -> list[dict]:
     ]
 
 
+def decisions_by_merit(ventures: list[Venture]) -> list[dict]:
+    """Group blocked ventures by the owner decision that would unblock them,
+    ranked by the merit each decision would release.
+
+    The router already records, per venture, *why* no session can start it
+    (`Venture.blocker`) and *how good the business looks* (`merit`). What it
+    did not do before was add those up the other way: for each owner-gated
+    blocker, how much merit is waiting on it. The account-owner decision queue
+    (issue #139) is ordered cheapest-first, which was right while nothing was
+    known about what each ask releases; the #323 scoring pass then found the
+    highest-merit venture sitting behind the ask ranked last for being the
+    most expensive. This answers the question that ordering left open -- what
+    does clearing each blocker actually release -- so cost and merit-unblocked
+    can be read side by side rather than one without the other.
+
+    Only blocked ventures contribute. `total_merit` sums the composites waiting
+    on the decision; `top_venture` is the single highest-merit one it would
+    release, because one 6.00 venture unblocked can matter more than three
+    4.00s, and the sum alone hides that.
+    """
+    groups: dict[str, list[Venture]] = {}
+    for v in ventures:
+        if v.dispatchable or v.blocker is None:
+            continue
+        groups.setdefault(v.blocker, []).append(v)
+
+    rows = []
+    for blocker, blocked in groups.items():
+        scored = [v for v in blocked if v.merit is not None]
+        top = max(scored, key=lambda v: v.merit) if scored else None
+        rows.append(
+            {
+                "decision": blocker,
+                "blocked_ventures": len(blocked),
+                "merit_scored": len(scored),
+                "total_merit": round(sum(v.merit for v in scored), 3),
+                "top_venture": top.name if top else None,
+                "top_merit": top.merit if top else None,
+                "ventures": sorted(v.name for v in blocked),
+            }
+        )
+    rows.sort(
+        key=lambda r: (-r["total_merit"], -(r["top_merit"] or 0.0), r["decision"])
+    )
+    return rows
+
+
 def print_table(ventures: list[Venture], queue: list[dict]) -> None:
     later_cap = sum(v.monthly_cap for v in ventures if v.later_stage)
     early_cap = sum(v.monthly_cap for v in ventures if not v.later_stage)
@@ -374,16 +421,45 @@ def print_table(ventures: list[Venture], queue: list[dict]) -> None:
             f"{item['portfolio_mentions_this_period']:>10}  {item['task']}"
         )
 
+    decisions = decisions_by_merit(ventures)
+    if decisions:
+        print()
+        print(
+            "Owner decisions ranked by merit unblocked "
+            "(pair with cost in issue #139 / channel-inventory.md):"
+        )
+        print(f"{'merit':>7}{'top':>7}  {'ventures':<10}decision")
+        for d in decisions:
+            top = f"{d['top_merit']:.2f}" if d["top_merit"] is not None else "-"
+            print(
+                f"{d['total_merit']:>7.2f}{top:>7}  {d['blocked_ventures']:<10}"
+                f"{d['decision']}"
+            )
+        print(
+            "Merit-unblocked orders these; cost does not. The cheapest ask and "
+            "the highest-merit one are not the same -- read this beside #139's "
+            "cost ordering, not instead of it."
+        )
+
 
 def main(argv: Optional[list[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--json", action="store_true", help="emit JSON instead of a table")
+    parser.add_argument("--json", action="store_true", help="emit the work queue as JSON instead of a table")
+    parser.add_argument(
+        "--decisions",
+        action="store_true",
+        help="emit the owner-decision / merit-unblocked rollup as JSON",
+    )
     args = parser.parse_args(argv)
 
     ventures = load_ventures()
     if not ventures:
         print("No ventures with a VENTURE.yaml found.", file=sys.stderr)
         return 1
+
+    if args.decisions:
+        print(json.dumps(decisions_by_merit(ventures), indent=2))
+        return 0
 
     queue = work_queue(ventures)
 
