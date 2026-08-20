@@ -374,7 +374,9 @@ class LoadRealVenturesTests(unittest.TestCase):
         expected_dirs = {
             p.name
             for p in Path(VENTURES_DIR).iterdir()
-            if p.is_dir() and (p / "VENTURE.yaml").is_file()
+            if p.is_dir()
+            and (p / "VENTURE.yaml").is_file()
+            and not (p / "NOT-A-VENTURE").is_file()
         }
         self.assertEqual({v.name for v in ventures}, expected_dirs)
         self.assertTrue(ventures, "expected at least one venture with a VENTURE.yaml")
@@ -382,6 +384,29 @@ class LoadRealVenturesTests(unittest.TestCase):
     def test_ranking_real_ventures_does_not_raise(self):
         ventures = load_ventures(VENTURES_DIR)
         work_queue(ventures)  # exercises rank() + next_task() end to end
+
+    def test_not_a_venture_marker_excludes_a_directory_with_a_yaml(self):
+        # A NOT-A-VENTURE marker must win over a VENTURE.yaml in the same
+        # directory, so the router agrees with validate.py rather than
+        # allocating profit-seeking effort to a directory that opted out.
+        with tempfile.TemporaryDirectory() as tmp:
+            ventures_dir = Path(tmp)
+            real = ventures_dir / "real-venture"
+            real.mkdir()
+            (real / "VENTURE.yaml").write_text(
+                "name: real-venture\nstage: prototype\n"
+                "economics: {mrr: null}\nbudget: {monthly_cap: 10}\nlinks: {production: null}\n"
+            )
+            optout = ventures_dir / "opted-out"
+            optout.mkdir()
+            (optout / "VENTURE.yaml").write_text(
+                "name: opted-out\nstage: prototype\n"
+                "economics: {mrr: null}\nbudget: {monthly_cap: 10}\nlinks: {production: null}\n"
+            )
+            (optout / "NOT-A-VENTURE").write_text("infra, not a business\n")
+            names = {v.name for v in load_ventures(ventures_dir)}
+            self.assertIn("real-venture", names)
+            self.assertNotIn("opted-out", names)
 
     def test_every_untested_real_hypothesis_declares_its_evidence_kind(self):
         # Without this the router silently treats an unannotated claim as

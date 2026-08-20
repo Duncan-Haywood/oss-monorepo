@@ -9341,3 +9341,77 @@ entries:
         the tool cannot help a session that never runs it, which is why the
         pointer went into CLAUDE.md rather than only into the write-up.
     mrr_end: null
+  - venture: ai-first-markets
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process" run, designated branch claude/keen-knuth-d6rdgp. `git fetch
+        origin main` first (tip f5e8109, #333). Checked open PRs before
+        touching anything: five open (#330, #222, #192, #144, #19). #330 is a
+        ledger-only entry recording the self-merge of #326
+        (ai-first-markets commercial-thesis refutation) -- content correct,
+        but its base (9048964) is now several ledger appends behind main and
+        `git merge-tree` confirms it no longer merges cleanly, the exact
+        append-only-file staleness CLAUDE.md's ledger-discipline section
+        describes. Recording the same content fresh here rather than asking
+        the account owner to resolve a conflict on a PR whose only job was
+        to be a ledger entry.
+      - >-
+        #326 itself (already merged, not touched by this entry): tested
+        ai-first-markets' one remaining untested hypothesis --
+        "This venture has a commercial thesis at all -- a buyer, a price,
+        and a route to one" -- and recorded REFUTED in VENTURE.yaml. No
+        buyer (single-email Cloudflare Access whitelist); no price (no
+        stripe/checkout/billing surface in src/, and the venture's own
+        scoring data says "There is no pricing, no buyer and no purchase
+        surface -- it is an internal decision tool"); no route (no listing
+        or channel, distribution 3/10). Structural clincher: src/lib/
+        evaluation.ts is the portfolio's own scoring engine, referenced by
+        portfolio/scoring/venture-scores.yaml and used by ~17 files across
+        router/scoring/research/pipeline -- decision infrastructure, not a
+        business. #326's own session recommended, but deliberately did not
+        do, reclassifying ventures/ai-first-markets -> platform/
+        ai-first-markets, since that ripples through router/scoring/CI path
+        filters/docs and conflicts with hourly churn on those files from
+        concurrent sessions; left as its own future change.
+      - >-
+        #326 was verified before its self-merge: `python3
+        portfolio/router/validate.py` (11/11 VENTURE.yaml valid), router
+        unittest (44/44), allocate.py re-run confirming the venture reports
+        all hypotheses settled, both PR checks green, `git merge-tree`
+        clean at merge time. Self-merged as agent-decidable per CLAUDE.md:
+        touches only ventures/*/VENTURE.yaml, publishes nothing, spends
+        nothing beyond agent time.
+      - >-
+        Then acted on #326's own deferred recommendation rather than
+        re-deriving it. #326 flagged that reclassifying ventures/ai-first-
+        markets -> platform/ was too ripply to do in a hypothesis-test
+        commit because it "ripples through the router, scoring, CI path
+        filters, and docs." The reason it ripples is a real inconsistency:
+        the NOT-A-VENTURE marker (a directory's machine-readable opt-out
+        from profit-seeking allocation) was honored only by
+        portfolio/router/validate.py, while allocate.py and
+        score_ventures.py keyed purely on VENTURE.yaml presence and ignored
+        the marker. A directory carrying both files -- exactly the
+        transitional state any reclassification passes through -- would make
+        the three tools disagree. Fixed both to skip a NOT-A-VENTURE
+        directory the same way validate.py does, with a unit test on each
+        and a README note. This does not reclassify ai-first-markets (still
+        its own future change, its scores unchanged), but it turns that move
+        from a simultaneous three-tool edit into a single-file one: drop the
+        marker in.
+      - >-
+        Verified: router unittest 51 (50 prior + 1 NOT-A-VENTURE test),
+        scoring unittest 33 (32 prior + 1), validate.py 11/11, score_ventures
+        clean, break_even --check agrees, allocate.py runs, YAML parses.
+        This entry closes #330 as superseded (commented on the PR pointing
+        here, not merged) rather than force-pushing a rebase onto someone
+        else's branch. Agent-decidable throughout: internal
+        portfolio/router/, portfolio/scoring/, portfolio/ledger/ and README
+        only; no ventures/* application code touched; publishes nothing;
+        registers nothing; adds no automation; no candidate screening
+        performed; no pipeline or venture score changed; nothing spent
+        beyond agent time.
+    mrr_end: null

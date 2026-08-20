@@ -224,6 +224,8 @@ def load_ventures(
     names = []
     parsed = []
     for venture_dir in venture_dirs:
+        if (venture_dir / "NOT-A-VENTURE").is_file():
+            continue
         yaml_path = venture_dir / "VENTURE.yaml"
         if not yaml_path.is_file():
             continue

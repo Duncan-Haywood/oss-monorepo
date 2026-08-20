@@ -64,9 +64,16 @@ def load_doc(path: Path = SCORES_PATH) -> dict:
 
 
 def venture_slugs(ventures_dir: Path = VENTURES_DIR) -> list[str]:
-    """Slugs of every directory carrying a VENTURE.yaml, sorted."""
+    """Slugs of every directory carrying a VENTURE.yaml, sorted.
+
+    A `NOT-A-VENTURE` marker wins over a `VENTURE.yaml` in the same directory,
+    matching portfolio/router/validate.py: the marker is how a directory opts
+    out of profit-seeking allocation, so all three tools must agree on it.
+    """
     return sorted(
-        p.name for p in ventures_dir.iterdir() if (p / "VENTURE.yaml").is_file()
+        p.name
+        for p in ventures_dir.iterdir()
+        if (p / "VENTURE.yaml").is_file() and not (p / "NOT-A-VENTURE").is_file()
     )
 
 
