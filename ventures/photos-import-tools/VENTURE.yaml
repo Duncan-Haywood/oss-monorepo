@@ -9,6 +9,10 @@ hypotheses:
     status: supported
     checked: 2026-07-29
     evidence: in-repo
+  - claim: Content-hash verification on SD offload catches same-size corruption that a byte-count check reports as a clean copy, closing a silent data-loss path.
+    status: supported
+    checked: 2026-08-20
+    evidence: in-repo
 
 economics:
   currency: USD

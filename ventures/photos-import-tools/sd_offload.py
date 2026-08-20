@@ -147,10 +147,14 @@ def rsync_copy(source: Path, dest: Path, log_path: Path) -> int:
     return proc.returncode
 
 
-def verify_and_manifest(card: CardSpec, stats: OffloadStats, manifest_path: Path, log_path: Path) -> None:
+def verify_and_manifest(
+    card: CardSpec,
+    stats: OffloadStats,
+    manifest_path: Path,
+    log_path: Path,
+    verify_hash: bool = False,
+) -> None:
     manifest_entries: list[dict[str, object]] = []
-    copied = 0
-    skipped = 0
     verified = 0
 
     for include in card.include_paths:
@@ -173,17 +177,25 @@ def verify_and_manifest(card: CardSpec, stats: OffloadStats, manifest_path: Path
                 manifest_entries.append(entry)
                 continue
             entry["dest_bytes"] = dest_file.stat().st_size
+            # Size alone cannot catch partial-write or bit-flip corruption that
+            # leaves the byte count unchanged; hashing both sides is the only
+            # check that backs this venture's "no lost/corrupted media" promise.
+            if verify_hash:
+                source_hash = sha256_file(source_file)
+                dest_hash = sha256_file(dest_file)
+                entry["sha256"] = dest_hash
+                if source_hash != dest_hash:
+                    stats.errors.append(f"Hash mismatch: {rel}")
+                    entry["status"] = "hash_mismatch"
+                    manifest_entries.append(entry)
+                    continue
             entry["status"] = "verified"
             verified += 1
             evict(dest_file)
             manifest_entries.append(entry)
-            if entry["status"] == "verified":
-                copied += 1
-            else:
-                skipped += 1
 
-    stats.copied_files = copied
-    stats.skipped_files = skipped
+    stats.copied_files = verified
+    stats.skipped_files = 0
     stats.verified_files = verified
     payload = {
         "card": card.name,
@@ -208,7 +220,12 @@ def count_source(card: CardSpec) -> tuple[int, int]:
     return len(files), total_bytes
 
 
-def offload_card(card: CardSpec, log_path: Path, manifest_path: Path) -> OffloadStats:
+def offload_card(
+    card: CardSpec,
+    log_path: Path,
+    manifest_path: Path,
+    verify_hash: bool = False,
+) -> OffloadStats:
     stats = OffloadStats(card=card.name, started_at=iso_now())
     stats.source_files, stats.source_bytes = count_source(card)
     log(
@@ -227,7 +244,7 @@ def offload_card(card: CardSpec, log_path: Path, manifest_path: Path) -> Offload
         rsync_copy(source, dest, log_path)
         for media in iter_media_files(dest):
             evict(media)
-    verify_and_manifest(card, stats, manifest_path, log_path)
+    verify_and_manifest(card, stats, manifest_path, log_path, verify_hash=verify_hash)
     stats.finished_at = iso_now()
     return stats
 
@@ -242,7 +259,15 @@ def main() -> int:
         ),
     )
     parser.add_argument("--card", choices=("insta360", "sony", "all"), default="all")
+    parser.add_argument(
+        "--verify",
+        choices=("size", "hash"),
+        default="size",
+        help="Post-copy verification: 'size' compares byte counts only; "
+        "'hash' also compares source/dest SHA-256 to catch same-size corruption.",
+    )
     args = parser.parse_args()
+    verify_hash = args.verify == "hash"
 
     staging = Path(args.staging_root)
     logs = staging / "_logs"
@@ -275,7 +300,7 @@ def main() -> int:
             continue
         card_log = logs / f"{card.name}.log"
         manifest = staging / f"{card.name}_manifest.json"
-        stats = offload_card(card, card_log, manifest)
+        stats = offload_card(card, card_log, manifest, verify_hash=verify_hash)
         summary.append(asdict(stats))
 
     summary_path = staging / "OFFLOAD_SUMMARY.json"
