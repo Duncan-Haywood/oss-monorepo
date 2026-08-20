@@ -1,0 +1,483 @@
+{
+  "categories": {
+    "accessibility-evidence": {
+      "candidate": "eaa-remediation-pipeline / shopify-a11y-evidence",
+      "cold_publisher": {
+        "expected_downloads_cold": 1562.73445104527,
+        "expected_downloads_uniform": 2707.661716171617,
+        "mean_below_top_decile": 476.76146788990826,
+        "mean_top_decile": 22639.475409836065,
+        "top_decile_prob_cold": 0.049
+      },
+      "distribution": {
+        "max": 194644,
+        "mean": 2707.661716171617,
+        "n_leaf_listings": 606,
+        "percentiles": {
+          "50": 204.5,
+          "75": 955.0,
+          "90": 3777.0,
+          "95": 9537.25,
+          "99": 59952.25000000115
+        }
+      },
+      "required_y_usd_per_monthly_download": {
+        "50": {
+          "100": 0.4889975550122249,
+          "1000": 4.88997555012225,
+          "10000": 48.899755501222494
+        },
+        "75": {
+          "100": 0.10471204188481675,
+          "1000": 1.0471204188481675,
+          "10000": 10.471204188481675
+        },
+        "90": {
+          "100": 0.026476039184537992,
+          "1000": 0.2647603918453799,
+          "10000": 2.6476039184537994
+        },
+        "95": {
+          "100": 0.010485202757608326,
+          "1000": 0.10485202757608325,
+          "10000": 1.0485202757608325
+        },
+        "99": {
+          "100": 0.0016679941119807527,
+          "1000": 0.01667994111980753,
+          "10000": 0.16679941119807526
+        },
+        "mean": {
+          "100": 0.0369322354423915,
+          "1000": 0.36932235442391503,
+          "10000": 3.6932235442391503
+        }
+      },
+      "scenarios": {
+        "central": {
+          "c_adopter_to_payer": 0.02,
+          "expected_monthly_revenue_cold": 15.6273445104527,
+          "expected_monthly_revenue_uniform": 27.07661716171617,
+          "monthly_revenue_at_percentile": {
+            "50": 2.045,
+            "75": 9.55,
+            "90": 37.77,
+            "95": 95.3725,
+            "99": 599.5225000000115,
+            "mean": 27.07661716171617
+          },
+          "p_monthly_arpu_usd": 25.0,
+          "r_downloads_to_adopting_team": 0.02,
+          "revenue_bars": {
+            "100": {
+              "downloads_needed": 10000.0,
+              "percentile_needed": 95.04950495049505,
+              "share_of_listings_clearing": 0.04950495049504951
+            },
+            "1000": {
+              "downloads_needed": 100000.0,
+              "percentile_needed": 99.5049504950495,
+              "share_of_listings_clearing": 0.0049504950495049506
+            },
+            "10000": {
+              "downloads_needed": 1000000.0,
+              "percentile_needed": 100.0,
+              "share_of_listings_clearing": 0.0
+            }
+          },
+          "y_usd_per_monthly_download": 0.01
+        },
+        "optimistic": {
+          "c_adopter_to_payer": 0.04,
+          "expected_monthly_revenue_cold": 156.273445104527,
+          "expected_monthly_revenue_uniform": 270.7661716171617,
+          "monthly_revenue_at_percentile": {
+            "50": 20.450000000000003,
+            "75": 95.5,
+            "90": 377.70000000000005,
+            "95": 953.725,
+            "99": 5995.225000000115,
+            "mean": 270.7661716171617
+          },
+          "p_monthly_arpu_usd": 50.0,
+          "r_downloads_to_adopting_team": 0.05,
+          "revenue_bars": {
+            "100": {
+              "downloads_needed": 1000.0,
+              "percentile_needed": 75.41254125412541,
+              "share_of_listings_clearing": 0.24587458745874588
+            },
+            "1000": {
+              "downloads_needed": 10000.0,
+              "percentile_needed": 95.04950495049505,
+              "share_of_listings_clearing": 0.04950495049504951
+            },
+            "10000": {
+              "downloads_needed": 100000.0,
+              "percentile_needed": 99.5049504950495,
+              "share_of_listings_clearing": 0.0049504950495049506
+            }
+          },
+          "y_usd_per_monthly_download": 0.1
+        },
+        "pessimistic": {
+          "c_adopter_to_payer": 0.01,
+          "expected_monthly_revenue_cold": 0.7813672255226349,
+          "expected_monthly_revenue_uniform": 1.3538308580858087,
+          "monthly_revenue_at_percentile": {
+            "50": 0.10225000000000001,
+            "75": 0.47750000000000004,
+            "90": 1.8885,
+            "95": 4.768625,
+            "99": 29.976125000000575,
+            "mean": 1.3538308580858087
+          },
+          "p_monthly_arpu_usd": 10.0,
+          "r_downloads_to_adopting_team": 0.005,
+          "revenue_bars": {
+            "100": {
+              "downloads_needed": 200000.0,
+              "percentile_needed": 100.0,
+              "share_of_listings_clearing": 0.0
+            },
+            "1000": {
+              "downloads_needed": 2000000.0,
+              "percentile_needed": 100.0,
+              "share_of_listings_clearing": 0.0
+            },
+            "10000": {
+              "downloads_needed": 20000000.0,
+              "percentile_needed": 100.0,
+              "share_of_listings_clearing": 0.0
+            }
+          },
+          "y_usd_per_monthly_download": 0.0005
+        }
+      }
+    },
+    "mcp-supply-chain": {
+      "candidate": "mcp-supply-chain-watch",
+      "cold_publisher": {
+        "expected_downloads_cold": 14478.230910652921,
+        "expected_downloads_uniform": 25836.840206185567,
+        "mean_below_top_decile": 3565.057273768614,
+        "mean_top_decile": 226282.88659793814,
+        "top_decile_prob_cold": 0.049
+      },
+      "distribution": {
+        "max": 10231581,
+        "mean": 25836.840206185567,
+        "n_leaf_listings": 970,
+        "percentiles": {
+          "50": 2398.0,
+          "75": 6830.5,
+          "90": 18813.800000000003,
+          "95": 55031.649999999965,
+          "99": 333951.5199999989
+        }
+      },
+      "required_y_usd_per_monthly_download": {
+        "50": {
+          "100": 0.041701417848206836,
+          "1000": 0.4170141784820684,
+          "10000": 4.170141784820684
+        },
+        "75": {
+          "100": 0.014640216675206793,
+          "1000": 0.14640216675206794,
+          "10000": 1.4640216675206794
+        },
+        "90": {
+          "100": 0.005315247318457727,
+          "1000": 0.05315247318457727,
+          "10000": 0.5315247318457726
+        },
+        "95": {
+          "100": 0.0018171361389309618,
+          "1000": 0.018171361389309616,
+          "10000": 0.18171361389309618
+        },
+        "99": {
+          "100": 0.00029944466190781323,
+          "1000": 0.002994446619078132,
+          "10000": 0.02994446619078132
+        },
+        "mean": {
+          "100": 0.0038704423297110115,
+          "1000": 0.038704423297110116,
+          "10000": 0.3870442329711012
+        }
+      },
+      "scenarios": {
+        "central": {
+          "c_adopter_to_payer": 0.02,
+          "expected_monthly_revenue_cold": 144.78230910652923,
+          "expected_monthly_revenue_uniform": 258.36840206185565,
+          "monthly_revenue_at_percentile": {
+            "50": 23.98,
+            "75": 68.305,
+            "90": 188.13800000000003,
+            "95": 550.3164999999997,
+            "99": 3339.5151999999894,
+            "mean": 258.36840206185565
+          },
+          "p_monthly_arpu_usd": 25.0,
+          "r_downloads_to_adopting_team": 0.02,
+          "revenue_bars": {
+            "100": {
+              "downloads_needed": 10000.0,
+              "percentile_needed": 82.06185567010309,
+              "share_of_listings_clearing": 0.17938144329896907
+            },
+            "1000": {
+              "downloads_needed": 100000.0,
+              "percentile_needed": 96.80412371134021,
+              "share_of_listings_clearing": 0.031958762886597936
+            },
+            "10000": {
+              "downloads_needed": 1000000.0,
+              "percentile_needed": 99.79381443298969,
+              "share_of_listings_clearing": 0.002061855670103093
+            }
+          },
+          "y_usd_per_monthly_download": 0.01
+        },
+        "optimistic": {
+          "c_adopter_to_payer": 0.04,
+          "expected_monthly_revenue_cold": 1447.8230910652921,
+          "expected_monthly_revenue_uniform": 2583.684020618557,
+          "monthly_revenue_at_percentile": {
+            "50": 239.8,
+            "75": 683.0500000000001,
+            "90": 1881.3800000000003,
+            "95": 5503.164999999997,
+            "99": 33395.15199999989,
+            "mean": 2583.684020618557
+          },
+          "p_monthly_arpu_usd": 50.0,
+          "r_downloads_to_adopting_team": 0.05,
+          "revenue_bars": {
+            "100": {
+              "downloads_needed": 1000.0,
+              "percentile_needed": 24.020618556701034,
+              "share_of_listings_clearing": 0.7597938144329897
+            },
+            "1000": {
+              "downloads_needed": 10000.0,
+              "percentile_needed": 82.06185567010309,
+              "share_of_listings_clearing": 0.17938144329896907
+            },
+            "10000": {
+              "downloads_needed": 100000.0,
+              "percentile_needed": 96.80412371134021,
+              "share_of_listings_clearing": 0.031958762886597936
+            }
+          },
+          "y_usd_per_monthly_download": 0.1
+        },
+        "pessimistic": {
+          "c_adopter_to_payer": 0.01,
+          "expected_monthly_revenue_cold": 7.239115455326461,
+          "expected_monthly_revenue_uniform": 12.918420103092783,
+          "monthly_revenue_at_percentile": {
+            "50": 1.199,
+            "75": 3.41525,
+            "90": 9.406900000000002,
+            "95": 27.51582499999998,
+            "99": 166.97575999999947,
+            "mean": 12.918420103092783
+          },
+          "p_monthly_arpu_usd": 10.0,
+          "r_downloads_to_adopting_team": 0.005,
+          "revenue_bars": {
+            "100": {
+              "downloads_needed": 200000.0,
+              "percentile_needed": 98.4536082474227,
+              "share_of_listings_clearing": 0.015463917525773196
+            },
+            "1000": {
+              "downloads_needed": 2000000.0,
+              "percentile_needed": 99.89690721649484,
+              "share_of_listings_clearing": 0.0010309278350515464
+            },
+            "10000": {
+              "downloads_needed": 20000000.0,
+              "percentile_needed": 100.0,
+              "share_of_listings_clearing": 0.0
+            }
+          },
+          "y_usd_per_monthly_download": 0.0005
+        }
+      }
+    },
+    "sbom-cra-evidence": {
+      "candidate": "cra-evidence-desk",
+      "cold_publisher": {
+        "expected_downloads_cold": 8098.544963535912,
+        "expected_downloads_uniform": 16211.711442786069,
+        "mean_below_top_decile": 226.75138121546962,
+        "mean_top_decile": 160875.6,
+        "top_decile_prob_cold": 0.049
+      },
+      "distribution": {
+        "max": 3683733,
+        "mean": 16211.711442786069,
+        "n_leaf_listings": 402,
+        "percentiles": {
+          "50": 66.5,
+          "75": 435.25,
+          "90": 2147.7000000000003,
+          "95": 8680.849999999973,
+          "99": 373586.61000000185
+        }
+      },
+      "required_y_usd_per_monthly_download": {
+        "50": {
+          "100": 1.5037593984962405,
+          "1000": 15.037593984962406,
+          "10000": 150.37593984962405
+        },
+        "75": {
+          "100": 0.22975301550832855,
+          "1000": 2.2975301550832854,
+          "10000": 22.975301550832853
+        },
+        "90": {
+          "100": 0.04656143781719979,
+          "1000": 0.4656143781719979,
+          "10000": 4.656143781719979
+        },
+        "95": {
+          "100": 0.011519609254854112,
+          "1000": 0.11519609254854112,
+          "10000": 1.151960925485411
+        },
+        "99": {
+          "100": 0.0002676755465084777,
+          "1000": 0.0026767554650847765,
+          "10000": 0.026767554650847767
+        },
+        "mean": {
+          "100": 0.006168380207908171,
+          "1000": 0.06168380207908171,
+          "10000": 0.6168380207908171
+        }
+      },
+      "scenarios": {
+        "central": {
+          "c_adopter_to_payer": 0.02,
+          "expected_monthly_revenue_cold": 80.98544963535912,
+          "expected_monthly_revenue_uniform": 162.11711442786068,
+          "monthly_revenue_at_percentile": {
+            "50": 0.665,
+            "75": 4.3525,
+            "90": 21.477000000000004,
+            "95": 86.80849999999974,
+            "99": 3735.8661000000184,
+            "mean": 162.11711442786068
+          },
+          "p_monthly_arpu_usd": 25.0,
+          "r_downloads_to_adopting_team": 0.02,
+          "revenue_bars": {
+            "100": {
+              "downloads_needed": 10000.0,
+              "percentile_needed": 95.02487562189054,
+              "share_of_listings_clearing": 0.04975124378109453
+            },
+            "1000": {
+              "downloads_needed": 100000.0,
+              "percentile_needed": 98.00995024875621,
+              "share_of_listings_clearing": 0.01990049751243781
+            },
+            "10000": {
+              "downloads_needed": 1000000.0,
+              "percentile_needed": 99.75124378109453,
+              "share_of_listings_clearing": 0.0024875621890547263
+            }
+          },
+          "y_usd_per_monthly_download": 0.01
+        },
+        "optimistic": {
+          "c_adopter_to_payer": 0.04,
+          "expected_monthly_revenue_cold": 809.8544963535912,
+          "expected_monthly_revenue_uniform": 1621.171144278607,
+          "monthly_revenue_at_percentile": {
+            "50": 6.65,
+            "75": 43.525000000000006,
+            "90": 214.77000000000004,
+            "95": 868.0849999999973,
+            "99": 37358.66100000019,
+            "mean": 1621.171144278607
+          },
+          "p_monthly_arpu_usd": 50.0,
+          "r_downloads_to_adopting_team": 0.05,
+          "revenue_bars": {
+            "100": {
+              "downloads_needed": 1000.0,
+              "percentile_needed": 83.5820895522388,
+              "share_of_listings_clearing": 0.16417910447761194
+            },
+            "1000": {
+              "downloads_needed": 10000.0,
+              "percentile_needed": 95.02487562189054,
+              "share_of_listings_clearing": 0.04975124378109453
+            },
+            "10000": {
+              "downloads_needed": 100000.0,
+              "percentile_needed": 98.00995024875621,
+              "share_of_listings_clearing": 0.01990049751243781
+            }
+          },
+          "y_usd_per_monthly_download": 0.1
+        },
+        "pessimistic": {
+          "c_adopter_to_payer": 0.01,
+          "expected_monthly_revenue_cold": 4.049272481767956,
+          "expected_monthly_revenue_uniform": 8.105855721393034,
+          "monthly_revenue_at_percentile": {
+            "50": 0.03325,
+            "75": 0.217625,
+            "90": 1.0738500000000002,
+            "95": 4.340424999999986,
+            "99": 186.79330500000094,
+            "mean": 8.105855721393034
+          },
+          "p_monthly_arpu_usd": 10.0,
+          "r_downloads_to_adopting_team": 0.005,
+          "revenue_bars": {
+            "100": {
+              "downloads_needed": 200000.0,
+              "percentile_needed": 98.75621890547264,
+              "share_of_listings_clearing": 0.012437810945273632
+            },
+            "1000": {
+              "downloads_needed": 2000000.0,
+              "percentile_needed": 99.75124378109453,
+              "share_of_listings_clearing": 0.0024875621890547263
+            },
+            "10000": {
+              "downloads_needed": 20000000.0,
+              "percentile_needed": 100.0,
+              "share_of_listings_clearing": 0.0
+            }
+          },
+          "y_usd_per_monthly_download": 0.0005
+        }
+      }
+    }
+  },
+  "input": {
+    "measured_at": "2026-08-19T08:21:42.535008+00:00",
+    "path": "../free-listing-demand/results-2026-08-19.json",
+    "source": "npm registry search API (registry.npmjs.org/-/v1/search)"
+  },
+  "model": {
+    "identity": "Y = r * c * p; monthly revenue = downloads * Y",
+    "note": "Y is derived, not measured. The download distribution is measured. Required-Y figures depend on no assumption; the named scenarios do.",
+    "revenue_bars_usd_per_month": [
+      100,
+      1000,
+      10000
+    ]
+  }
+}

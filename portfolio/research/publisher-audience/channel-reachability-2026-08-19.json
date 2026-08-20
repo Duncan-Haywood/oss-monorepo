@@ -1,0 +1,103 @@
+{
+ "checked_at": "2026-08-19T20:16:40.917522+00:00",
+ "method": "one HTTPS GET per host through the environment's egress proxy; 'egress-denied' means the proxy answered 403 to CONNECT, which is an environment policy the account owner can change, not a property of the channel",
+ "summary": {
+  "egress-denied": [
+   "api.wordpress.org",
+   "wordpress.org",
+   "plugins.svn.wordpress.org",
+   "open-vsx.org",
+   "marketplace.visualstudio.com",
+   "docs.github.com",
+   "euvd.enisa.europa.eu",
+   "api.osv.dev"
+  ],
+  "reachable": [
+   "registry.npmjs.org",
+   "pypi.org"
+  ],
+  "unreachable": []
+ },
+ "targets": [
+  {
+   "detail": null,
+   "host": "registry.npmjs.org",
+   "outcome": "reachable",
+   "status": 200,
+   "url": "https://registry.npmjs.org/-/v1/search?text=sbom&size=1",
+   "why_it_matters": "free channel; per-listing download counts (used by free-listing-demand)"
+  },
+  {
+   "detail": null,
+   "host": "pypi.org",
+   "outcome": "reachable",
+   "status": 200,
+   "url": "https://pypi.org/pypi/requests/json",
+   "why_it_matters": "free channel; package metadata"
+  },
+  {
+   "detail": "Tunnel connection failed: 403 Forbidden",
+   "host": "api.wordpress.org",
+   "outcome": "egress-denied",
+   "status": null,
+   "url": "https://api.wordpress.org/plugins/info/1.2/?action=query_plugins",
+   "why_it_matters": "free channel; publishes per-plugin active_installs \u2014 the business-buyer channel the accessibility candidates target"
+  },
+  {
+   "detail": "Tunnel connection failed: 403 Forbidden",
+   "host": "wordpress.org",
+   "outcome": "egress-denied",
+   "status": null,
+   "url": "https://wordpress.org/plugins/",
+   "why_it_matters": "free channel; listing requirements"
+  },
+  {
+   "detail": "Tunnel connection failed: 403 Forbidden",
+   "host": "plugins.svn.wordpress.org",
+   "outcome": "egress-denied",
+   "status": null,
+   "url": "https://plugins.svn.wordpress.org/",
+   "why_it_matters": "free channel; the actual publish endpoint for WordPress.org"
+  },
+  {
+   "detail": "Tunnel connection failed: 403 Forbidden",
+   "host": "open-vsx.org",
+   "outcome": "egress-denied",
+   "status": null,
+   "url": "https://open-vsx.org/api/-/search?query=accessibility&size=1",
+   "why_it_matters": "free channel; per-extension download counts"
+  },
+  {
+   "detail": "Tunnel connection failed: 403 Forbidden",
+   "host": "marketplace.visualstudio.com",
+   "outcome": "egress-denied",
+   "status": null,
+   "url": "https://marketplace.visualstudio.com/vscode",
+   "why_it_matters": "free channel; per-extension install counts"
+  },
+  {
+   "detail": "Tunnel connection failed: 403 Forbidden",
+   "host": "docs.github.com",
+   "outcome": "egress-denied",
+   "status": null,
+   "url": "https://docs.github.com/en/apps/github-marketplace/creating-apps-for-github-marketplace/requirements-for-listing-an-app",
+   "why_it_matters": "the free/paid split and 100-install minimum that channel-inventory.md calls load-bearing and could not verify"
+  },
+  {
+   "detail": "Tunnel connection failed: 403 Forbidden",
+   "host": "euvd.enisa.europa.eu",
+   "outcome": "egress-denied",
+   "status": null,
+   "url": "https://euvd.enisa.europa.eu/",
+   "why_it_matters": "the EU Vulnerability Database \u2014 the wedge cra-evidence-desk's defensibility rests on"
+  },
+  {
+   "detail": "Tunnel connection failed: 403 Forbidden",
+   "host": "api.osv.dev",
+   "outcome": "egress-denied",
+   "status": null,
+   "url": "https://api.osv.dev/v1/query",
+   "why_it_matters": "the open advisory source any SBOM matching would compare EUVD against"
+  }
+ ]
+}

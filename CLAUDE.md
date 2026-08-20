@@ -52,6 +52,13 @@ writing anything:
 - `portfolio/pipeline/channel-inventory.md` — which channels this portfolio can
   list in and what each costs in credentials, including which ones an agent can
   publish to for $0 without any account belonging to a legal person
+- `portfolio/research/README.md` — the *measurements* those rankings rest on,
+  and the index of what has already been measured. Read this before writing any
+  probe. Fourteen passes over two days re-derived each other's work because
+  each one's results sat in an unmerged branch; the index exists so a fifteenth
+  does not. In particular, **do not write a new egress/reachability probe** —
+  `portfolio/research/egress-reachability/` covers 92 hosts and regenerates the
+  whole table with one command
 
 The finding every run reproduces is that **the bottleneck is distribution and
 customer contact, not idea generation**. Every candidate in that directory is

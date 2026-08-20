@@ -1,0 +1,2652 @@
+[
+  {
+    "product": "ventures/ai-first-markets",
+    "package": "sharp",
+    "installed": [
+      "0.34.5",
+      "0.35.2"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "sharp inherited vulnerabilities in libvips: CVE-2026-33327, CVE-2026-33328, CVE-2026-35590, CVE-2026-35591",
+    "vulnerable_versions": "<0.35.0",
+    "url": "https://github.com/advisories/GHSA-f88m-g3jw-g9cj",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/sharp"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/ai-first-markets",
+    "package": "postcss",
+    "installed": [
+      "8.4.31",
+      "8.5.26"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "PostCSS: incomplete fix of GHSA-6g55-p6wh-862q \u2014 attacker-controlled sourceMappingURL reads arbitrary .map files when `from` is unset",
+    "vulnerable_versions": "<=8.5.22",
+    "url": "https://github.com/advisories/GHSA-fxqj-rqcc-2cmp",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next/node_modules/postcss"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/ai-first-markets",
+    "package": "postcss",
+    "installed": [
+      "8.4.31",
+      "8.5.26"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "PostCSS has XSS via Unescaped </style> in its CSS Stringify Output",
+    "vulnerable_versions": "<8.5.10",
+    "url": "https://github.com/advisories/GHSA-qx2v-qp2m-jg93",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next/node_modules/postcss"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/ai-first-markets",
+    "package": "postcss",
+    "installed": [
+      "8.4.31",
+      "8.5.26"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "PostCSS: Arbitrary file read and information disclosure via attacker-controlled sourceMappingURL in CSS comments",
+    "vulnerable_versions": "<=8.5.11",
+    "url": "https://github.com/advisories/GHSA-6g55-p6wh-862q",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next/node_modules/postcss"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/ai-first-markets",
+    "package": "postcss",
+    "installed": [
+      "8.4.31",
+      "8.5.26"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "PostCSS: Path Traversal in Previous Source Map Auto-Loading (sourceMappingURL) leads to Arbitrary .map File Disclosure",
+    "vulnerable_versions": "<=8.5.17",
+    "url": "https://github.com/advisories/GHSA-r28c-9q8g-f849",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next/node_modules/postcss"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/local-site-studio",
+    "package": "next",
+    "installed": [
+      "16.2.9"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js: Server-Side Request Forgery in Server Actions on custom servers",
+    "vulnerable_versions": ">=16.0.0 <16.2.11",
+    "url": "https://github.com/advisories/GHSA-89xv-2m56-2m9x",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/local-site-studio",
+    "package": "next",
+    "installed": [
+      "16.2.9"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js: Cache confusion of response bodies for requests with bodies",
+    "vulnerable_versions": ">=16.0.0 <16.2.11",
+    "url": "https://github.com/advisories/GHSA-68g3-v927-f742",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/local-site-studio",
+    "package": "next",
+    "installed": [
+      "16.2.9"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js: Middleware / Proxy bypass in App Router applications using Turbopack and single locale",
+    "vulnerable_versions": ">=16.0.0 <16.2.11",
+    "url": "https://github.com/advisories/GHSA-6gpp-xcg3-4w24",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/local-site-studio",
+    "package": "next",
+    "installed": [
+      "16.2.9"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js: Denial of Service in App Router using Server Actions",
+    "vulnerable_versions": ">=16.0.0 <16.2.11",
+    "url": "https://github.com/advisories/GHSA-m99w-x7hq-7vfj",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/local-site-studio",
+    "package": "next",
+    "installed": [
+      "16.2.9"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js: Cache confusion of response bodies for requests with bodies containing invalid UTF-8 byte sequences",
+    "vulnerable_versions": ">=16.0.0 <16.2.11",
+    "url": "https://github.com/advisories/GHSA-4633-3j49-mh5q",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/local-site-studio",
+    "package": "next",
+    "installed": [
+      "16.2.9"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js: Unbounded Server Action payload in Edge runtime",
+    "vulnerable_versions": ">=16.0.0 <16.2.11",
+    "url": "https://github.com/advisories/GHSA-4c39-4ccg-62r3",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/local-site-studio",
+    "package": "next",
+    "installed": [
+      "16.2.9"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js: Server-Side Request Forgery in rewrites via attacker-controlled destination hostname",
+    "vulnerable_versions": ">=16.0.0 <16.2.11",
+    "url": "https://github.com/advisories/GHSA-p9j2-gv94-2wf4",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/local-site-studio",
+    "package": "next",
+    "installed": [
+      "16.2.9"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js: Denial of Service in the Image Optimization API using SVGs",
+    "vulnerable_versions": ">=16.0.0 <16.2.11",
+    "url": "https://github.com/advisories/GHSA-q8wf-6r8g-63ch",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/local-site-studio",
+    "package": "next",
+    "installed": [
+      "16.2.9"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js: Unauthenticated disclosure of internal Server Function endpoints",
+    "vulnerable_versions": ">=16.0.0 <16.2.11",
+    "url": "https://github.com/advisories/GHSA-955p-x3mx-jcvp",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/local-site-studio",
+    "package": "postcss",
+    "installed": [
+      "8.4.31",
+      "8.5.23"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "PostCSS: incomplete fix of GHSA-6g55-p6wh-862q \u2014 attacker-controlled sourceMappingURL reads arbitrary .map files when `from` is unset",
+    "vulnerable_versions": "<=8.5.22",
+    "url": "https://github.com/advisories/GHSA-fxqj-rqcc-2cmp",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next/node_modules/postcss"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/local-site-studio",
+    "package": "postcss",
+    "installed": [
+      "8.4.31",
+      "8.5.23"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "PostCSS has XSS via Unescaped </style> in its CSS Stringify Output",
+    "vulnerable_versions": "<8.5.10",
+    "url": "https://github.com/advisories/GHSA-qx2v-qp2m-jg93",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next/node_modules/postcss"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/local-site-studio",
+    "package": "postcss",
+    "installed": [
+      "8.4.31",
+      "8.5.23"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "PostCSS: Arbitrary file read and information disclosure via attacker-controlled sourceMappingURL in CSS comments",
+    "vulnerable_versions": "<=8.5.11",
+    "url": "https://github.com/advisories/GHSA-6g55-p6wh-862q",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next/node_modules/postcss"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/local-site-studio",
+    "package": "postcss",
+    "installed": [
+      "8.4.31",
+      "8.5.23"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "PostCSS: Path Traversal in Previous Source Map Auto-Loading (sourceMappingURL) leads to Arbitrary .map File Disclosure",
+    "vulnerable_versions": "<=8.5.17",
+    "url": "https://github.com/advisories/GHSA-r28c-9q8g-f849",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next/node_modules/postcss"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/local-site-studio",
+    "package": "sharp",
+    "installed": [
+      "0.34.5"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "sharp inherited vulnerabilities in libvips: CVE-2026-33327, CVE-2026-33328, CVE-2026-35590, CVE-2026-35591",
+    "vulnerable_versions": "<0.35.0",
+    "url": "https://github.com/advisories/GHSA-f88m-g3jw-g9cj",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/sharp"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/photo-editing/docs-site",
+    "package": "postcss",
+    "installed": [
+      "8.4.31"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "PostCSS: incomplete fix of GHSA-6g55-p6wh-862q \u2014 attacker-controlled sourceMappingURL reads arbitrary .map files when `from` is unset",
+    "vulnerable_versions": "<=8.5.22",
+    "url": "https://github.com/advisories/GHSA-fxqj-rqcc-2cmp",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/postcss"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/photo-editing/docs-site",
+    "package": "postcss",
+    "installed": [
+      "8.4.31"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "PostCSS has XSS via Unescaped </style> in its CSS Stringify Output",
+    "vulnerable_versions": "<8.5.10",
+    "url": "https://github.com/advisories/GHSA-qx2v-qp2m-jg93",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/postcss"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/photo-editing/docs-site",
+    "package": "postcss",
+    "installed": [
+      "8.4.31"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "PostCSS: Arbitrary file read and information disclosure via attacker-controlled sourceMappingURL in CSS comments",
+    "vulnerable_versions": "<=8.5.11",
+    "url": "https://github.com/advisories/GHSA-6g55-p6wh-862q",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/postcss"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/photo-editing/docs-site",
+    "package": "postcss",
+    "installed": [
+      "8.4.31"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "PostCSS: Path Traversal in Previous Source Map Auto-Loading (sourceMappingURL) leads to Arbitrary .map File Disclosure",
+    "vulnerable_versions": "<=8.5.17",
+    "url": "https://github.com/advisories/GHSA-r28c-9q8g-f849",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/postcss"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/photo-editing/docs-site",
+    "package": "sharp",
+    "installed": [
+      "0.34.5"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "sharp inherited vulnerabilities in libvips: CVE-2026-33327, CVE-2026-33328, CVE-2026-35590, CVE-2026-35591",
+    "vulnerable_versions": "<0.35.0",
+    "url": "https://github.com/advisories/GHSA-f88m-g3jw-g9cj",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/sharp"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/print-atelier",
+    "package": "glob",
+    "installed": [
+      "10.3.10",
+      "7.2.3"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "glob CLI: Command injection via -c/--cmd executes matches with shell:true",
+    "vulnerable_versions": ">=10.2.0 <10.5.0",
+    "url": "https://github.com/advisories/GHSA-5j98-mcp5-4vw2",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/glob"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/print-atelier",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js Vulnerable to Denial of Service with Server Components",
+    "vulnerable_versions": ">=13.0.0 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-8h8q-6873-q5fj",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/print-atelier",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "low",
+    "title": "Next.js's Middleware / Proxy redirects can be cache-poisoned",
+    "vulnerable_versions": ">=12.2.0 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-3g8h-86w9-wvmq",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/print-atelier",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js vulnerable to cross-site scripting in App Router applications using CSP nonces",
+    "vulnerable_versions": ">=13.4.0 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-ffhc-5mcf-pf4q",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/print-atelier",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "low",
+    "title": "Next.js vulnerable to cache poisoning via collisions in React Server Component cache-busting",
+    "vulnerable_versions": ">=13.4.6 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-vfv6-92ff-j949",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/print-atelier",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js has cross-site scripting in beforeInteractive scripts with untrusted input",
+    "vulnerable_versions": ">=13.0.0 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-gx5p-jg67-6x7h",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/print-atelier",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js has a Denial of Service in the Image Optimization API",
+    "vulnerable_versions": ">=10.0.0 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-h64f-5h5j-jqjh",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/print-atelier",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js vulnerable to server-side request forgery in applications using WebSocket upgrades",
+    "vulnerable_versions": ">=13.4.13 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-c4j6-fc7j-m34r",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/print-atelier",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js vulnerable to cache poisoning in React Server Component responses",
+    "vulnerable_versions": ">=14.2.0 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-wfc6-r584-vfw7",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/print-atelier",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js has a Middleware / Proxy bypass in Pages Router applications using i18n",
+    "vulnerable_versions": ">=12.2.0 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-36qx-fr4f-26g5",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/print-atelier",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js self-hosted applications vulnerable to DoS via Image Optimizer remotePatterns configuration",
+    "vulnerable_versions": ">=10.0.0 <15.5.10",
+    "url": "https://github.com/advisories/GHSA-9g9p-9gw9-jx7f",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/print-atelier",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js HTTP request deserialization can lead to DoS when using insecure React Server Components",
+    "vulnerable_versions": ">=13.0.0 <15.0.8",
+    "url": "https://github.com/advisories/GHSA-h25m-26qc-wcjf",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/print-atelier",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js: HTTP request smuggling in rewrites",
+    "vulnerable_versions": ">=9.5.0 <15.5.13",
+    "url": "https://github.com/advisories/GHSA-ggv3-7p47-pfv8",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/print-atelier",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js: Unbounded next/image disk cache growth can exhaust storage",
+    "vulnerable_versions": ">=10.0.0 <15.5.14",
+    "url": "https://github.com/advisories/GHSA-3x4c-7xq6-9pq8",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/print-atelier",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js has a Denial of Service with Server Components",
+    "vulnerable_versions": ">=13.0.0 <15.5.15",
+    "url": "https://github.com/advisories/GHSA-q4gf-8mx6-v5v3",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/print-atelier",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js: Server-Side Request Forgery in Server Actions on custom servers",
+    "vulnerable_versions": ">=14.1.1 <15.5.21",
+    "url": "https://github.com/advisories/GHSA-89xv-2m56-2m9x",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/print-atelier",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js: Denial of Service in App Router using Server Actions",
+    "vulnerable_versions": ">=13.0.0 <15.5.21",
+    "url": "https://github.com/advisories/GHSA-m99w-x7hq-7vfj",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/print-atelier",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js: Cache confusion of response bodies for requests with bodies",
+    "vulnerable_versions": ">=13.0.0 <15.5.21",
+    "url": "https://github.com/advisories/GHSA-68g3-v927-f742",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/print-atelier",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js: Cache confusion of response bodies for requests with bodies containing invalid UTF-8 byte sequences",
+    "vulnerable_versions": ">=13.0.0 <15.5.21",
+    "url": "https://github.com/advisories/GHSA-4633-3j49-mh5q",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/print-atelier",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js: Unbounded Server Action payload in Edge runtime",
+    "vulnerable_versions": ">=13.0.0 <15.5.21",
+    "url": "https://github.com/advisories/GHSA-4c39-4ccg-62r3",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/print-atelier",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js: Server-Side Request Forgery in rewrites via attacker-controlled destination hostname",
+    "vulnerable_versions": ">=12.0.0 <15.5.21",
+    "url": "https://github.com/advisories/GHSA-p9j2-gv94-2wf4",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/print-atelier",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js: Unauthenticated disclosure of internal Server Function endpoints",
+    "vulnerable_versions": ">=13.0.0 <15.5.21",
+    "url": "https://github.com/advisories/GHSA-955p-x3mx-jcvp",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/print-atelier",
+    "package": "postcss",
+    "installed": [
+      "8.4.31",
+      "8.5.26"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "PostCSS: incomplete fix of GHSA-6g55-p6wh-862q \u2014 attacker-controlled sourceMappingURL reads arbitrary .map files when `from` is unset",
+    "vulnerable_versions": "<=8.5.22",
+    "url": "https://github.com/advisories/GHSA-fxqj-rqcc-2cmp",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next/node_modules/postcss"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/print-atelier",
+    "package": "postcss",
+    "installed": [
+      "8.4.31",
+      "8.5.26"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "PostCSS has XSS via Unescaped </style> in its CSS Stringify Output",
+    "vulnerable_versions": "<8.5.10",
+    "url": "https://github.com/advisories/GHSA-qx2v-qp2m-jg93",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next/node_modules/postcss"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/print-atelier",
+    "package": "postcss",
+    "installed": [
+      "8.4.31",
+      "8.5.26"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "PostCSS: Arbitrary file read and information disclosure via attacker-controlled sourceMappingURL in CSS comments",
+    "vulnerable_versions": "<=8.5.11",
+    "url": "https://github.com/advisories/GHSA-6g55-p6wh-862q",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next/node_modules/postcss"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/print-atelier",
+    "package": "postcss",
+    "installed": [
+      "8.4.31",
+      "8.5.26"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "PostCSS: Path Traversal in Previous Source Map Auto-Loading (sourceMappingURL) leads to Arbitrary .map File Disclosure",
+    "vulnerable_versions": "<=8.5.17",
+    "url": "https://github.com/advisories/GHSA-r28c-9q8g-f849",
+    "verdict": "true_positive",
+    "cause": "reachable in the shipped artifact",
+    "vuln_paths": [
+      "node_modules/next/node_modules/postcss"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "brace-expansion",
+    "installed": [
+      "1.1.15",
+      "2.1.1"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
+    "vulnerable_versions": "<1.1.17",
+    "url": "https://github.com/advisories/GHSA-mh99-v99m-4gvg",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/brace-expansion"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "brace-expansion",
+    "installed": [
+      "1.1.15",
+      "2.1.1"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
+    "vulnerable_versions": ">=2.0.0 <2.1.3",
+    "url": "https://github.com/advisories/GHSA-mh99-v99m-4gvg",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/@typescript-eslint/typescript-estree/node_modules/brace-expansion",
+      "node_modules/glob/node_modules/brace-expansion"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "brace-expansion",
+    "installed": [
+      "1.1.15",
+      "2.1.1"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+    "vulnerable_versions": ">=2.0.0 <2.1.4",
+    "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/@typescript-eslint/typescript-estree/node_modules/brace-expansion",
+      "node_modules/glob/node_modules/brace-expansion"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "brace-expansion",
+    "installed": [
+      "1.1.15",
+      "2.1.1"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+    "vulnerable_versions": "<1.1.18",
+    "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/brace-expansion"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "brace-expansion",
+    "installed": [
+      "1.1.15",
+      "2.1.1"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups",
+    "vulnerable_versions": ">=2.0.0 <2.1.2",
+    "url": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/@typescript-eslint/typescript-estree/node_modules/brace-expansion",
+      "node_modules/glob/node_modules/brace-expansion"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "brace-expansion",
+    "installed": [
+      "1.1.15",
+      "2.1.1"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups",
+    "vulnerable_versions": "<1.1.16",
+    "url": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/brace-expansion"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "minimatch",
+    "installed": [
+      "3.1.5",
+      "9.0.3",
+      "9.0.9"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "minimatch has a ReDoS via repeated wildcards with non-matching literal in pattern",
+    "vulnerable_versions": ">=9.0.0 <9.0.6",
+    "url": "https://github.com/advisories/GHSA-3ppc-4f35-3m26",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/@typescript-eslint/typescript-estree/node_modules/minimatch"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "minimatch",
+    "installed": [
+      "3.1.5",
+      "9.0.3",
+      "9.0.9"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "minimatch has ReDoS: matchOne() combinatorial backtracking via multiple non-adjacent GLOBSTAR segments",
+    "vulnerable_versions": ">=9.0.0 <9.0.7",
+    "url": "https://github.com/advisories/GHSA-7r86-cg39-jmmj",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/@typescript-eslint/typescript-estree/node_modules/minimatch"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "minimatch",
+    "installed": [
+      "3.1.5",
+      "9.0.3",
+      "9.0.9"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions",
+    "vulnerable_versions": ">=9.0.0 <9.0.7",
+    "url": "https://github.com/advisories/GHSA-23c5-xmqv-rm74",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/@typescript-eslint/typescript-estree/node_modules/minimatch"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "esbuild",
+    "installed": [
+      "0.17.19"
+    ],
+    "dev_only": true,
+    "severity": "moderate",
+    "title": "esbuild enables any website to send any requests to the development server and read the response",
+    "vulnerable_versions": "<=0.24.2",
+    "url": "https://github.com/advisories/GHSA-67mh-4wv8-2f99",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/esbuild"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "glob",
+    "installed": [
+      "10.3.10",
+      "7.2.3"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "glob CLI: Command injection via -c/--cmd executes matches with shell:true",
+    "vulnerable_versions": ">=10.2.0 <10.5.0",
+    "url": "https://github.com/advisories/GHSA-5j98-mcp5-4vw2",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/glob"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "js-yaml",
+    "installed": [
+      "4.2.0"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "js-yaml: YAML merge-key chains can force quadratic CPU consumption",
+    "vulnerable_versions": ">=4.0.0 <4.3.0",
+    "url": "https://github.com/advisories/GHSA-52cp-r559-cp3m",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/js-yaml"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "js-yaml",
+    "installed": [
+      "4.2.0"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "JS-YAML: Quadratic CPU consumption in !!omap resolution (3.x and 4.x) \u2014 CVE-2026-59870 fix not backported",
+    "vulnerable_versions": ">=4.0.0 <4.3.1",
+    "url": "https://github.com/advisories/GHSA-5p4m-2wfm-xmqj",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/js-yaml"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "nanoid",
+    "installed": [
+      "3.3.12"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "nanoid: non-secure generators can loop indefinitely with negative size",
+    "vulnerable_versions": "<3.3.16",
+    "url": "https://github.com/advisories/GHSA-28wg-ghj8-5hjv",
+    "verdict": "false_positive",
+    "cause": "B: build-time only, not in the static artifact",
+    "vuln_paths": [
+      "node_modules/nanoid"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "nanoid",
+    "installed": [
+      "3.3.12"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "nanoid: custom generators can loop indefinitely when size is zero",
+    "vulnerable_versions": "<3.3.18",
+    "url": "https://github.com/advisories/GHSA-2v37-7h3g-55p8",
+    "verdict": "false_positive",
+    "cause": "B: build-time only, not in the static artifact",
+    "vuln_paths": [
+      "node_modules/nanoid"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js Vulnerable to Denial of Service with Server Components",
+    "vulnerable_versions": ">=13.0.0 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-8h8q-6873-q5fj",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "low",
+    "title": "Next.js's Middleware / Proxy redirects can be cache-poisoned",
+    "vulnerable_versions": ">=12.2.0 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-3g8h-86w9-wvmq",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js vulnerable to cross-site scripting in App Router applications using CSP nonces",
+    "vulnerable_versions": ">=13.4.0 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-ffhc-5mcf-pf4q",
+    "verdict": "arguable",
+    "cause": "B?: needs per-request nonces, but rests on CSP config",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "low",
+    "title": "Next.js vulnerable to cache poisoning via collisions in React Server Component cache-busting",
+    "vulnerable_versions": ">=13.4.6 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-vfv6-92ff-j949",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js has cross-site scripting in beforeInteractive scripts with untrusted input",
+    "vulnerable_versions": ">=13.0.0 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-gx5p-jg67-6x7h",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js has a Denial of Service in the Image Optimization API",
+    "vulnerable_versions": ">=10.0.0 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-h64f-5h5j-jqjh",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js vulnerable to server-side request forgery in applications using WebSocket upgrades",
+    "vulnerable_versions": ">=13.4.13 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-c4j6-fc7j-m34r",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js vulnerable to cache poisoning in React Server Component responses",
+    "vulnerable_versions": ">=14.2.0 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-wfc6-r584-vfw7",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js has a Middleware / Proxy bypass in Pages Router applications using i18n",
+    "vulnerable_versions": ">=12.2.0 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-36qx-fr4f-26g5",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js self-hosted applications vulnerable to DoS via Image Optimizer remotePatterns configuration",
+    "vulnerable_versions": ">=10.0.0 <15.5.10",
+    "url": "https://github.com/advisories/GHSA-9g9p-9gw9-jx7f",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js HTTP request deserialization can lead to DoS when using insecure React Server Components",
+    "vulnerable_versions": ">=13.0.0 <15.0.8",
+    "url": "https://github.com/advisories/GHSA-h25m-26qc-wcjf",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js: HTTP request smuggling in rewrites",
+    "vulnerable_versions": ">=9.5.0 <15.5.13",
+    "url": "https://github.com/advisories/GHSA-ggv3-7p47-pfv8",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js: Unbounded next/image disk cache growth can exhaust storage",
+    "vulnerable_versions": ">=10.0.0 <15.5.14",
+    "url": "https://github.com/advisories/GHSA-3x4c-7xq6-9pq8",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js has a Denial of Service with Server Components",
+    "vulnerable_versions": ">=13.0.0 <15.5.15",
+    "url": "https://github.com/advisories/GHSA-q4gf-8mx6-v5v3",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js: Server-Side Request Forgery in Server Actions on custom servers",
+    "vulnerable_versions": ">=14.1.1 <15.5.21",
+    "url": "https://github.com/advisories/GHSA-89xv-2m56-2m9x",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js: Denial of Service in App Router using Server Actions",
+    "vulnerable_versions": ">=13.0.0 <15.5.21",
+    "url": "https://github.com/advisories/GHSA-m99w-x7hq-7vfj",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js: Cache confusion of response bodies for requests with bodies",
+    "vulnerable_versions": ">=13.0.0 <15.5.21",
+    "url": "https://github.com/advisories/GHSA-68g3-v927-f742",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js: Cache confusion of response bodies for requests with bodies containing invalid UTF-8 byte sequences",
+    "vulnerable_versions": ">=13.0.0 <15.5.21",
+    "url": "https://github.com/advisories/GHSA-4633-3j49-mh5q",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js: Unbounded Server Action payload in Edge runtime",
+    "vulnerable_versions": ">=13.0.0 <15.5.21",
+    "url": "https://github.com/advisories/GHSA-4c39-4ccg-62r3",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js: Server-Side Request Forgery in rewrites via attacker-controlled destination hostname",
+    "vulnerable_versions": ">=12.0.0 <15.5.21",
+    "url": "https://github.com/advisories/GHSA-p9j2-gv94-2wf4",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js: Unauthenticated disclosure of internal Server Function endpoints",
+    "vulnerable_versions": ">=13.0.0 <15.5.21",
+    "url": "https://github.com/advisories/GHSA-955p-x3mx-jcvp",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "postcss",
+    "installed": [
+      "8.4.31",
+      "8.5.15"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "PostCSS: incomplete fix of GHSA-6g55-p6wh-862q \u2014 attacker-controlled sourceMappingURL reads arbitrary .map files when `from` is unset",
+    "vulnerable_versions": "<=8.5.22",
+    "url": "https://github.com/advisories/GHSA-fxqj-rqcc-2cmp",
+    "verdict": "false_positive",
+    "cause": "B: build-time only, not in the static artifact",
+    "vuln_paths": [
+      "node_modules/next/node_modules/postcss",
+      "node_modules/postcss"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "postcss",
+    "installed": [
+      "8.4.31",
+      "8.5.15"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "PostCSS has XSS via Unescaped </style> in its CSS Stringify Output",
+    "vulnerable_versions": "<8.5.10",
+    "url": "https://github.com/advisories/GHSA-qx2v-qp2m-jg93",
+    "verdict": "false_positive",
+    "cause": "B: build-time only, not in the static artifact",
+    "vuln_paths": [
+      "node_modules/next/node_modules/postcss"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "postcss",
+    "installed": [
+      "8.4.31",
+      "8.5.15"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "PostCSS: Arbitrary file read and information disclosure via attacker-controlled sourceMappingURL in CSS comments",
+    "vulnerable_versions": "<=8.5.11",
+    "url": "https://github.com/advisories/GHSA-6g55-p6wh-862q",
+    "verdict": "false_positive",
+    "cause": "B: build-time only, not in the static artifact",
+    "vuln_paths": [
+      "node_modules/next/node_modules/postcss"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "postcss",
+    "installed": [
+      "8.4.31",
+      "8.5.15"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "PostCSS: Path Traversal in Previous Source Map Auto-Loading (sourceMappingURL) leads to Arbitrary .map File Disclosure",
+    "vulnerable_versions": "<=8.5.17",
+    "url": "https://github.com/advisories/GHSA-r28c-9q8g-f849",
+    "verdict": "false_positive",
+    "cause": "B: build-time only, not in the static artifact",
+    "vuln_paths": [
+      "node_modules/next/node_modules/postcss",
+      "node_modules/postcss"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "sharp",
+    "installed": [
+      "0.33.5"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "sharp inherited vulnerabilities in libvips: CVE-2026-33327, CVE-2026-33328, CVE-2026-35590, CVE-2026-35591",
+    "vulnerable_versions": "<0.35.0",
+    "url": "https://github.com/advisories/GHSA-f88m-g3jw-g9cj",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/sharp"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "undici",
+    "installed": [
+      "5.29.0"
+    ],
+    "dev_only": true,
+    "severity": "moderate",
+    "title": "Undici has an unbounded decompression chain in HTTP responses on Node.js Fetch API via Content-Encoding leads to resource exhaustion",
+    "vulnerable_versions": "<6.23.0",
+    "url": "https://github.com/advisories/GHSA-g9mf-h72j-4rw9",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/undici"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "undici",
+    "installed": [
+      "5.29.0"
+    ],
+    "dev_only": true,
+    "severity": "moderate",
+    "title": "Undici has an HTTP Request/Response Smuggling issue",
+    "vulnerable_versions": "<6.24.0",
+    "url": "https://github.com/advisories/GHSA-2mjp-6q6p-2qxm",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/undici"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "undici",
+    "installed": [
+      "5.29.0"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "Undici has Unbounded Memory Consumption in WebSocket permessage-deflate Decompression",
+    "vulnerable_versions": "<6.24.0",
+    "url": "https://github.com/advisories/GHSA-vrm6-8vpv-qv8q",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/undici"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "undici",
+    "installed": [
+      "5.29.0"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "Undici has Unhandled Exception in WebSocket Client Due to Invalid server_max_window_bits Validation",
+    "vulnerable_versions": "<6.24.0",
+    "url": "https://github.com/advisories/GHSA-v9p9-hfj2-hcw8",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/undici"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "undici",
+    "installed": [
+      "5.29.0"
+    ],
+    "dev_only": true,
+    "severity": "moderate",
+    "title": "Undici has CRLF Injection in undici via `upgrade` option",
+    "vulnerable_versions": "<6.24.0",
+    "url": "https://github.com/advisories/GHSA-4992-7rv2-5pvq",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/undici"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "undici",
+    "installed": [
+      "5.29.0"
+    ],
+    "dev_only": true,
+    "severity": "moderate",
+    "title": "undici vulnerable to downstream response desynchronization via retry interceptor",
+    "vulnerable_versions": "<6.28.0",
+    "url": "https://github.com/advisories/GHSA-8xcm-r25x-g524",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/undici"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "undici",
+    "installed": [
+      "5.29.0"
+    ],
+    "dev_only": true,
+    "severity": "moderate",
+    "title": "undici vulnerable to CRLF Injection via blob-like body 'type' property",
+    "vulnerable_versions": "<6.28.0",
+    "url": "https://github.com/advisories/GHSA-m8rv-5g2x-5cg5",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/undici"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "undici",
+    "installed": [
+      "5.29.0"
+    ],
+    "dev_only": true,
+    "severity": "moderate",
+    "title": "undici vulnerable to cookie attribute injection via unsanitized domain and unparsed setCookie fields",
+    "vulnerable_versions": "<6.28.0",
+    "url": "https://github.com/advisories/GHSA-v3r7-h72x-cjcm",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/undici"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "undici",
+    "installed": [
+      "5.29.0"
+    ],
+    "dev_only": true,
+    "severity": "moderate",
+    "title": "undici vulnerable to HTTP header injection via Set-Cookie percent-decoding",
+    "vulnerable_versions": "<6.27.0",
+    "url": "https://github.com/advisories/GHSA-p88m-4jfj-68fv",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/undici"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "undici",
+    "installed": [
+      "5.29.0"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "undici WebSocket client vulnerable to denial of service via fragment count bypass",
+    "vulnerable_versions": "<6.27.0",
+    "url": "https://github.com/advisories/GHSA-vxpw-j846-p89q",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/undici"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "undici",
+    "installed": [
+      "5.29.0"
+    ],
+    "dev_only": true,
+    "severity": "low",
+    "title": "undici vulnerable to Set-Cookie SameSite attribute downgrade via permissive substring matching",
+    "vulnerable_versions": "<6.27.0",
+    "url": "https://github.com/advisories/GHSA-g8m3-5g58-fq7m",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/undici"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "undici",
+    "installed": [
+      "5.29.0"
+    ],
+    "dev_only": true,
+    "severity": "low",
+    "title": "undici vulnerable to HTTP response queue poisoning via keep-alive socket reuse",
+    "vulnerable_versions": "<6.27.0",
+    "url": "https://github.com/advisories/GHSA-35p6-xmwp-9g52",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/undici"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "ws",
+    "installed": [
+      "8.18.0"
+    ],
+    "dev_only": true,
+    "severity": "moderate",
+    "title": "ws: Uninitialized memory disclosure",
+    "vulnerable_versions": ">=8.0.0 <8.20.1",
+    "url": "https://github.com/advisories/GHSA-58qx-3vcg-4xpx",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/ws"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/docs-site",
+    "package": "ws",
+    "installed": [
+      "8.18.0"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "ws: Memory exhaustion DoS from tiny fragments and data chunks",
+    "vulnerable_versions": ">=8.0.0 <8.21.0",
+    "url": "https://github.com/advisories/GHSA-96hv-2xvq-fx4p",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/ws"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "brace-expansion",
+    "installed": [
+      "1.1.15",
+      "2.1.1"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
+    "vulnerable_versions": "<1.1.17",
+    "url": "https://github.com/advisories/GHSA-mh99-v99m-4gvg",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/brace-expansion"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "brace-expansion",
+    "installed": [
+      "1.1.15",
+      "2.1.1"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
+    "vulnerable_versions": ">=2.0.0 <2.1.3",
+    "url": "https://github.com/advisories/GHSA-mh99-v99m-4gvg",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/@typescript-eslint/typescript-estree/node_modules/brace-expansion",
+      "node_modules/glob/node_modules/brace-expansion"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "brace-expansion",
+    "installed": [
+      "1.1.15",
+      "2.1.1"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+    "vulnerable_versions": ">=2.0.0 <2.1.4",
+    "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/@typescript-eslint/typescript-estree/node_modules/brace-expansion",
+      "node_modules/glob/node_modules/brace-expansion"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "brace-expansion",
+    "installed": [
+      "1.1.15",
+      "2.1.1"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+    "vulnerable_versions": "<1.1.18",
+    "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/brace-expansion"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "brace-expansion",
+    "installed": [
+      "1.1.15",
+      "2.1.1"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups",
+    "vulnerable_versions": ">=2.0.0 <2.1.2",
+    "url": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/@typescript-eslint/typescript-estree/node_modules/brace-expansion",
+      "node_modules/glob/node_modules/brace-expansion"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "brace-expansion",
+    "installed": [
+      "1.1.15",
+      "2.1.1"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups",
+    "vulnerable_versions": "<1.1.16",
+    "url": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/brace-expansion"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "minimatch",
+    "installed": [
+      "3.1.5",
+      "9.0.3",
+      "9.0.9"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "minimatch has a ReDoS via repeated wildcards with non-matching literal in pattern",
+    "vulnerable_versions": ">=9.0.0 <9.0.6",
+    "url": "https://github.com/advisories/GHSA-3ppc-4f35-3m26",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/@typescript-eslint/typescript-estree/node_modules/minimatch"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "minimatch",
+    "installed": [
+      "3.1.5",
+      "9.0.3",
+      "9.0.9"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "minimatch has ReDoS: matchOne() combinatorial backtracking via multiple non-adjacent GLOBSTAR segments",
+    "vulnerable_versions": ">=9.0.0 <9.0.7",
+    "url": "https://github.com/advisories/GHSA-7r86-cg39-jmmj",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/@typescript-eslint/typescript-estree/node_modules/minimatch"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "minimatch",
+    "installed": [
+      "3.1.5",
+      "9.0.3",
+      "9.0.9"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions",
+    "vulnerable_versions": ">=9.0.0 <9.0.7",
+    "url": "https://github.com/advisories/GHSA-23c5-xmqv-rm74",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/@typescript-eslint/typescript-estree/node_modules/minimatch"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "glob",
+    "installed": [
+      "10.3.10",
+      "7.2.3"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "glob CLI: Command injection via -c/--cmd executes matches with shell:true",
+    "vulnerable_versions": ">=10.2.0 <10.5.0",
+    "url": "https://github.com/advisories/GHSA-5j98-mcp5-4vw2",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/glob"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "js-yaml",
+    "installed": [
+      "4.2.0"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "js-yaml: YAML merge-key chains can force quadratic CPU consumption",
+    "vulnerable_versions": ">=4.0.0 <4.3.0",
+    "url": "https://github.com/advisories/GHSA-52cp-r559-cp3m",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/js-yaml"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "js-yaml",
+    "installed": [
+      "4.2.0"
+    ],
+    "dev_only": true,
+    "severity": "high",
+    "title": "JS-YAML: Quadratic CPU consumption in !!omap resolution (3.x and 4.x) \u2014 CVE-2026-59870 fix not backported",
+    "vulnerable_versions": ">=4.0.0 <4.3.1",
+    "url": "https://github.com/advisories/GHSA-5p4m-2wfm-xmqj",
+    "verdict": "false_positive",
+    "cause": "A: vulnerable version only on a dev-only path",
+    "vuln_paths": [
+      "node_modules/js-yaml"
+    ],
+    "shipped_vuln_paths": 0
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "nanoid",
+    "installed": [
+      "3.3.12"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "nanoid: non-secure generators can loop indefinitely with negative size",
+    "vulnerable_versions": "<3.3.16",
+    "url": "https://github.com/advisories/GHSA-28wg-ghj8-5hjv",
+    "verdict": "false_positive",
+    "cause": "B: build-time only, not in the static artifact",
+    "vuln_paths": [
+      "node_modules/nanoid"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "nanoid",
+    "installed": [
+      "3.3.12"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "nanoid: custom generators can loop indefinitely when size is zero",
+    "vulnerable_versions": "<3.3.18",
+    "url": "https://github.com/advisories/GHSA-2v37-7h3g-55p8",
+    "verdict": "false_positive",
+    "cause": "B: build-time only, not in the static artifact",
+    "vuln_paths": [
+      "node_modules/nanoid"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js Vulnerable to Denial of Service with Server Components",
+    "vulnerable_versions": ">=13.0.0 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-8h8q-6873-q5fj",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "low",
+    "title": "Next.js's Middleware / Proxy redirects can be cache-poisoned",
+    "vulnerable_versions": ">=12.2.0 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-3g8h-86w9-wvmq",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js vulnerable to cross-site scripting in App Router applications using CSP nonces",
+    "vulnerable_versions": ">=13.4.0 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-ffhc-5mcf-pf4q",
+    "verdict": "arguable",
+    "cause": "B?: needs per-request nonces, but rests on CSP config",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "low",
+    "title": "Next.js vulnerable to cache poisoning via collisions in React Server Component cache-busting",
+    "vulnerable_versions": ">=13.4.6 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-vfv6-92ff-j949",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js has cross-site scripting in beforeInteractive scripts with untrusted input",
+    "vulnerable_versions": ">=13.0.0 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-gx5p-jg67-6x7h",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js has a Denial of Service in the Image Optimization API",
+    "vulnerable_versions": ">=10.0.0 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-h64f-5h5j-jqjh",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js vulnerable to server-side request forgery in applications using WebSocket upgrades",
+    "vulnerable_versions": ">=13.4.13 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-c4j6-fc7j-m34r",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js vulnerable to cache poisoning in React Server Component responses",
+    "vulnerable_versions": ">=14.2.0 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-wfc6-r584-vfw7",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js has a Middleware / Proxy bypass in Pages Router applications using i18n",
+    "vulnerable_versions": ">=12.2.0 <15.5.16",
+    "url": "https://github.com/advisories/GHSA-36qx-fr4f-26g5",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js self-hosted applications vulnerable to DoS via Image Optimizer remotePatterns configuration",
+    "vulnerable_versions": ">=10.0.0 <15.5.10",
+    "url": "https://github.com/advisories/GHSA-9g9p-9gw9-jx7f",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js HTTP request deserialization can lead to DoS when using insecure React Server Components",
+    "vulnerable_versions": ">=13.0.0 <15.0.8",
+    "url": "https://github.com/advisories/GHSA-h25m-26qc-wcjf",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js: HTTP request smuggling in rewrites",
+    "vulnerable_versions": ">=9.5.0 <15.5.13",
+    "url": "https://github.com/advisories/GHSA-ggv3-7p47-pfv8",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js: Unbounded next/image disk cache growth can exhaust storage",
+    "vulnerable_versions": ">=10.0.0 <15.5.14",
+    "url": "https://github.com/advisories/GHSA-3x4c-7xq6-9pq8",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js has a Denial of Service with Server Components",
+    "vulnerable_versions": ">=13.0.0 <15.5.15",
+    "url": "https://github.com/advisories/GHSA-q4gf-8mx6-v5v3",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js: Server-Side Request Forgery in Server Actions on custom servers",
+    "vulnerable_versions": ">=14.1.1 <15.5.21",
+    "url": "https://github.com/advisories/GHSA-89xv-2m56-2m9x",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js: Denial of Service in App Router using Server Actions",
+    "vulnerable_versions": ">=13.0.0 <15.5.21",
+    "url": "https://github.com/advisories/GHSA-m99w-x7hq-7vfj",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js: Cache confusion of response bodies for requests with bodies",
+    "vulnerable_versions": ">=13.0.0 <15.5.21",
+    "url": "https://github.com/advisories/GHSA-68g3-v927-f742",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js: Cache confusion of response bodies for requests with bodies containing invalid UTF-8 byte sequences",
+    "vulnerable_versions": ">=13.0.0 <15.5.21",
+    "url": "https://github.com/advisories/GHSA-4633-3j49-mh5q",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js: Unbounded Server Action payload in Edge runtime",
+    "vulnerable_versions": ">=13.0.0 <15.5.21",
+    "url": "https://github.com/advisories/GHSA-4c39-4ccg-62r3",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "Next.js: Server-Side Request Forgery in rewrites via attacker-controlled destination hostname",
+    "vulnerable_versions": ">=12.0.0 <15.5.21",
+    "url": "https://github.com/advisories/GHSA-p9j2-gv94-2wf4",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "next",
+    "installed": [
+      "14.2.35"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "Next.js: Unauthenticated disclosure of internal Server Function endpoints",
+    "vulnerable_versions": ">=13.0.0 <15.5.21",
+    "url": "https://github.com/advisories/GHSA-955p-x3mx-jcvp",
+    "verdict": "false_positive",
+    "cause": "B: server-runtime feature, product is a static export",
+    "vuln_paths": [
+      "node_modules/next"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "postcss",
+    "installed": [
+      "8.4.31",
+      "8.5.15"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "PostCSS: incomplete fix of GHSA-6g55-p6wh-862q \u2014 attacker-controlled sourceMappingURL reads arbitrary .map files when `from` is unset",
+    "vulnerable_versions": "<=8.5.22",
+    "url": "https://github.com/advisories/GHSA-fxqj-rqcc-2cmp",
+    "verdict": "false_positive",
+    "cause": "B: build-time only, not in the static artifact",
+    "vuln_paths": [
+      "node_modules/next/node_modules/postcss",
+      "node_modules/postcss"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "postcss",
+    "installed": [
+      "8.4.31",
+      "8.5.15"
+    ],
+    "dev_only": false,
+    "severity": "moderate",
+    "title": "PostCSS has XSS via Unescaped </style> in its CSS Stringify Output",
+    "vulnerable_versions": "<8.5.10",
+    "url": "https://github.com/advisories/GHSA-qx2v-qp2m-jg93",
+    "verdict": "false_positive",
+    "cause": "B: build-time only, not in the static artifact",
+    "vuln_paths": [
+      "node_modules/next/node_modules/postcss"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "postcss",
+    "installed": [
+      "8.4.31",
+      "8.5.15"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "PostCSS: Arbitrary file read and information disclosure via attacker-controlled sourceMappingURL in CSS comments",
+    "vulnerable_versions": "<=8.5.11",
+    "url": "https://github.com/advisories/GHSA-6g55-p6wh-862q",
+    "verdict": "false_positive",
+    "cause": "B: build-time only, not in the static artifact",
+    "vuln_paths": [
+      "node_modules/next/node_modules/postcss"
+    ],
+    "shipped_vuln_paths": 1
+  },
+  {
+    "product": "ventures/real-estate-agent-photo-app/research",
+    "package": "postcss",
+    "installed": [
+      "8.4.31",
+      "8.5.15"
+    ],
+    "dev_only": false,
+    "severity": "high",
+    "title": "PostCSS: Path Traversal in Previous Source Map Auto-Loading (sourceMappingURL) leads to Arbitrary .map File Disclosure",
+    "vulnerable_versions": "<=8.5.17",
+    "url": "https://github.com/advisories/GHSA-r28c-9q8g-f849",
+    "verdict": "false_positive",
+    "cause": "B: build-time only, not in the static artifact",
+    "vuln_paths": [
+      "node_modules/next/node_modules/postcss",
+      "node_modules/postcss"
+    ],
+    "shipped_vuln_paths": 1
+  }
+]

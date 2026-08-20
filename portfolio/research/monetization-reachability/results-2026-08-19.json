@@ -1,0 +1,554 @@
+{
+  "generated_by": "portfolio/research/monetization-reachability/probe_rails_and_sources.py",
+  "no_proxy_allowlist": [
+    "0.0.0.0/8",
+    "10.0.0.0/8",
+    "100.64.0.0/10",
+    "127.0.0.0/8",
+    "127.0.0.1",
+    "169.254.0.0/16",
+    "172.16.0.0/12",
+    "192.168.0.0/16",
+    "::",
+    "::1",
+    "anthropic.com",
+    "files.pythonhosted.org",
+    "host.docker.internal",
+    "index.crates.io",
+    "jsr.io",
+    "localhost",
+    "npm.jsr.io",
+    "proxy.golang.org",
+    "pypi.org",
+    "registry.npmjs.org",
+    "svc.cluster.local"
+  ],
+  "n_targets": 45,
+  "n_distinct_hosts": 37,
+  "summary": {
+    "by_verdict": {
+      "REACHABLE": 20,
+      "EGRESS_DENIED": 20,
+      "SCOPE_DENIED": 4,
+      "BOT_CHALLENGED": 1
+    },
+    "by_kind": {
+      "baseline": {
+        "REACHABLE": 3,
+        "EGRESS_DENIED": 1
+      },
+      "rail": {
+        "SCOPE_DENIED": 2,
+        "EGRESS_DENIED": 8
+      },
+      "channel": {
+        "REACHABLE": 9,
+        "EGRESS_DENIED": 8,
+        "SCOPE_DENIED": 1,
+        "BOT_CHALLENGED": 1
+      },
+      "source": {
+        "REACHABLE": 8,
+        "SCOPE_DENIED": 1,
+        "EGRESS_DENIED": 3
+      }
+    }
+  },
+  "results": [
+    {
+      "url": "https://registry.npmjs.org/express",
+      "kind": "baseline",
+      "note": "known reachable in #126; confirms the allowlist has not changed under us",
+      "host": "registry.npmjs.org",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.09,
+      "route": "DIRECT"
+    },
+    {
+      "url": "https://api.stripe.com/v1",
+      "kind": "baseline",
+      "note": "known egress-denied in #126; confirms denials are still denials",
+      "host": "api.stripe.com",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.43,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://api.anthropic.com/v1/models",
+      "kind": "baseline",
+      "note": "the inference rail every candidate depends on",
+      "host": "api.anthropic.com",
+      "verdict": "REACHABLE",
+      "http_status": 401,
+      "detail": "origin returned HTTP 401: {\"type\":\"error\",\"error\":{\"type\":\"authentication_error\",\"message\":\"x-api-key header is required\"},\"request_id\":\"req_011CeBweVhufTgPhuyGX9eyj\"}",
+      "elapsed_s": 0.23,
+      "route": "DIRECT"
+    },
+    {
+      "url": "https://api.github.com/marketplace_listing/plans",
+      "kind": "rail",
+      "note": "GitHub Marketplace billing API -- rides on api.github.com, which is reachable",
+      "host": "api.github.com",
+      "verdict": "SCOPE_DENIED",
+      "http_status": 403,
+      "detail": "host reachable; route not scoped: {\"message\":\"This GitHub API path is not available: sessions are bound to their configured repositories. Use repository-scoped endpoints (repos/{owner}/{repo}/...).\",\"documentation_url\":\"https://docs.a",
+      "elapsed_s": 0.47,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://api.github.com/user",
+      "kind": "baseline",
+      "note": "GitHub API under this session's own credentials -- the control that shows api.github.com itself answers, so a SCOPE_DENIED elsewhere on that host is about the path, not the host",
+      "host": "api.github.com",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.64,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://github.com/sponsors",
+      "kind": "rail",
+      "note": "GitHub Sponsors -- listing surface on github.com",
+      "host": "github.com",
+      "verdict": "SCOPE_DENIED",
+      "http_status": 403,
+      "detail": "host reachable; route not scoped: {\"message\":\"This GitHub API path is not available: sessions are bound to their configured repositories. Use repository-scoped endpoints (repos/{owner}/{repo}/...).\",\"documentation_url\":\"https://docs.a",
+      "elapsed_s": 0.2,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://opencollective.com/",
+      "kind": "rail",
+      "note": "Open Collective -- fiscal host, so no company formation needed",
+      "host": "opencollective.com",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.41,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://api.opencollective.com/graphql/v2",
+      "kind": "rail",
+      "note": "Open Collective API",
+      "host": "api.opencollective.com",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.44,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://ko-fi.com/",
+      "kind": "rail",
+      "note": "Ko-fi",
+      "host": "ko-fi.com",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.4,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://api.gumroad.com/v2/products",
+      "kind": "rail",
+      "note": "Gumroad -- merchant of record, sells digital goods without a store",
+      "host": "api.gumroad.com",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.44,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://liberapay.com/",
+      "kind": "rail",
+      "note": "Liberapay",
+      "host": "liberapay.com",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.61,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://tidelift.com/",
+      "kind": "rail",
+      "note": "Tidelift -- pays maintainers for packages already published; rail attached to a registry listing",
+      "host": "tidelift.com",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.43,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://thanks.dev/",
+      "kind": "rail",
+      "note": "thanks.dev -- dependency-weighted payouts to package maintainers",
+      "host": "thanks.dev",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.39,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://api.paypal.com/v1/",
+      "kind": "rail",
+      "note": "PayPal -- the one mainstream rail #126 did not probe",
+      "host": "api.paypal.com",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.47,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://ghcr.io/v2/",
+      "kind": "channel",
+      "note": "GitHub Container Registry -- container distribution on a GitHub host",
+      "host": "ghcr.io",
+      "verdict": "REACHABLE",
+      "http_status": 401,
+      "detail": "origin returned HTTP 401: {\"errors\":[{\"code\":\"UNAUTHORIZED\",\"message\":\"authentication required\"}]}",
+      "elapsed_s": 0.6,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://hub.docker.com/v2/repositories/library/nginx/",
+      "kind": "channel",
+      "note": "Docker Hub",
+      "host": "hub.docker.com",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.34,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://huggingface.co/api/models?limit=1",
+      "kind": "channel",
+      "note": "Hugging Face -- model/space hosting and a discovery surface",
+      "host": "huggingface.co",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.09,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://proxy.golang.org/github.com/pkg/errors/@v/list",
+      "kind": "channel",
+      "note": "Go module proxy -- in the noProxy allowlist verbatim",
+      "host": "proxy.golang.org",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.07,
+      "route": "DIRECT"
+    },
+    {
+      "url": "https://pkg.go.dev/",
+      "kind": "channel",
+      "note": "Go package discovery surface",
+      "host": "pkg.go.dev",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.99,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://rubygems.org/api/v1/gems/rails.json",
+      "kind": "channel",
+      "note": "RubyGems",
+      "host": "rubygems.org",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.22,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://api.nuget.org/v3/index.json",
+      "kind": "channel",
+      "note": "NuGet",
+      "host": "api.nuget.org",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.36,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://repo.packagist.org/p2/monolog/monolog.json",
+      "kind": "channel",
+      "note": "Packagist (PHP)",
+      "host": "repo.packagist.org",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.3,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://hex.pm/api/packages?search=json",
+      "kind": "channel",
+      "note": "Hex (Elixir/Erlang)",
+      "host": "hex.pm",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.28,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://registry.terraform.io/v1/modules?limit=1",
+      "kind": "channel",
+      "note": "Terraform registry",
+      "host": "registry.terraform.io",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.08,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://formulae.brew.sh/api/formula/git.json",
+      "kind": "channel",
+      "note": "Homebrew formulae index",
+      "host": "formulae.brew.sh",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.42,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://addons.mozilla.org/api/v5/addons/search/?q=test&page_size=1",
+      "kind": "channel",
+      "note": "Firefox add-ons -- the browser channel #126 did not probe",
+      "host": "addons.mozilla.org",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.43,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://smithery.ai/",
+      "kind": "channel",
+      "note": "Smithery -- third-party MCP server directory",
+      "host": "smithery.ai",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.52,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://glama.ai/mcp/servers",
+      "kind": "channel",
+      "note": "Glama -- third-party MCP server directory",
+      "host": "glama.ai",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.37,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://www.pulsemcp.com/",
+      "kind": "channel",
+      "note": "PulseMCP -- third-party MCP server directory",
+      "host": "www.pulsemcp.com",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.48,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://github.com/marketplace",
+      "kind": "channel",
+      "note": "GitHub Marketplace listing surface (github.com, not the API)",
+      "host": "github.com",
+      "verdict": "SCOPE_DENIED",
+      "http_status": 403,
+      "detail": "host reachable; route not scoped: {\"message\":\"This GitHub API path is not available: sessions are bound to their configured repositories. Use repository-scoped endpoints (repos/{owner}/{repo}/...).\",\"documentation_url\":\"https://docs.a",
+      "elapsed_s": 0.41,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://www.npmjs.com/package/express",
+      "kind": "channel",
+      "note": "npm website -- distinct host from registry.npmjs.org",
+      "host": "www.npmjs.com",
+      "verdict": "BOT_CHALLENGED",
+      "http_status": 403,
+      "detail": "origin anti-bot layer refused a non-browser client: <!DOCTYPE html><html lang=\"en-US\"><head><title>Just a moment...</title><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=Edge\"><meta nam",
+      "elapsed_s": 0.62,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://upload.pypi.org/legacy/",
+      "kind": "channel",
+      "note": "PyPI upload endpoint -- distinct host from pypi.org",
+      "host": "upload.pypi.org",
+      "verdict": "EGRESS_DENIED",
+      "http_status": 403,
+      "detail": "gateway refused in-band: Host not in allowlist: upload.pypi.org. Add this host to your network egress settings to allow access.",
+      "elapsed_s": 0.22,
+      "route": "DIRECT"
+    },
+    {
+      "url": "https://crates.io/api/v1/crates/new",
+      "kind": "channel",
+      "note": "crates.io publish endpoint",
+      "host": "crates.io",
+      "verdict": "REACHABLE",
+      "http_status": 404,
+      "detail": "origin returned HTTP 404: {\"errors\":[{\"detail\":\"crate `new` does not exist\"}]}",
+      "elapsed_s": 0.31,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/github/advisory-database/main/README.md",
+      "kind": "source",
+      "note": "GitHub Advisory Database as OSV-format files in a git repo",
+      "host": "raw.githubusercontent.com",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.36,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/github/advisory-database/main/advisories/github-reviewed/2019/07/GHSA-jf85-cpcp-j695/GHSA-jf85-cpcp-j695.json",
+      "kind": "source",
+      "note": "a single advisory record, to confirm the data itself and not just the README",
+      "host": "raw.githubusercontent.com",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.27,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2024/0xxx/CVE-2024-0001.json",
+      "kind": "source",
+      "note": "a single CVE record, to confirm the data itself and not just the README",
+      "host": "raw.githubusercontent.com",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.3,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/README.md",
+      "kind": "source",
+      "note": "CVE Project's official CVE list, distributed as a git repo",
+      "host": "raw.githubusercontent.com",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.28,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://api.github.com/advisories?per_page=1",
+      "kind": "source",
+      "note": "GitHub Security Advisories API",
+      "host": "api.github.com",
+      "verdict": "SCOPE_DENIED",
+      "http_status": 403,
+      "detail": "host reachable; route not scoped: {\"message\":\"This GitHub API path is not available: sessions are bound to their configured repositories. Use repository-scoped endpoints (repos/{owner}/{repo}/...).\",\"documentation_url\":\"https://docs.a",
+      "elapsed_s": 0.19,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://api.deps.dev/v3alpha/systems/npm/packages/express",
+      "kind": "source",
+      "note": "Google Open Source Insights -- dependency graphs, licences, advisories",
+      "host": "api.deps.dev",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.44,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://api.ecosyste.ms/api/v1/registries",
+      "kind": "source",
+      "note": "ecosyste.ms -- open cross-registry package metadata",
+      "host": "api.ecosyste.ms",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.4,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://libraries.io/api/npm/express",
+      "kind": "source",
+      "note": "Libraries.io cross-registry metadata",
+      "host": "libraries.io",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.42,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://storage.googleapis.com/osv-vulnerabilities/PyPI/all.zip",
+      "kind": "source",
+      "note": "OSV's own GCS mirror -- the same data api.osv.dev serves, different host",
+      "host": "storage.googleapis.com",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 1.28,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/modelcontextprotocol/servers/main/README.md",
+      "kind": "source",
+      "note": "the reference MCP server list, an operating input for mcp-supply-chain-watch",
+      "host": "raw.githubusercontent.com",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.56,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://registry.modelcontextprotocol.io/v0/servers?limit=1",
+      "kind": "source",
+      "note": "official MCP registry -- reachable in #126, re-probed as a control for this cluster",
+      "host": "registry.modelcontextprotocol.io",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.28,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/rustsec/advisory-db/main/README.md",
+      "kind": "source",
+      "note": "RustSec advisory database, a git repo",
+      "host": "raw.githubusercontent.com",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.29,
+      "route": "GATEWAY"
+    }
+  ]
+}

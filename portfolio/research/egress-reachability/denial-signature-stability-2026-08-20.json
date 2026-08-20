@@ -1,0 +1,20 @@
+{
+  "api.wordpress.org": {
+    "connect_refused": 10
+  },
+  "eur-lex.europa.eu": {
+    "connect_refused": 9,
+    "in_band:no_rule_allows_host": 1
+  },
+  "example.com": {
+    "connect_refused": 9,
+    "in_band:no_rule_allows_host": 1
+  },
+  "open-vsx.org": {
+    "connect_refused": 10
+  },
+  "opencollective.com": {
+    "connect_refused": 9,
+    "in_band:no_rule_allows_host": 1
+  }
+}
