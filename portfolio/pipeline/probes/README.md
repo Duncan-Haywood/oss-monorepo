@@ -20,6 +20,7 @@ was therefore never permission or budget. Nobody had built one.
 | Probe | Candidate | Status |
 |---|---|---|
 | [`npm-reachability-triage`](npm-reachability-triage/) | [`cra-evidence-desk`](../candidates/cra-evidence-desk.md) | Built, tested, validated against the manual review. Not published — publishing needs the account owner's approval per `channel-inventory.md`. |
+| [`eaa-wcag-triage`](eaa-wcag-triage/) | [`eaa-remediation-pipeline`](../candidates/eaa-remediation-pipeline.md) | Built, tested (37 tests), validated against a hand-labeled fixture set (precision/recall 1.0). Implements the candidate's blocking-vs-degrading triage and its own coverage statement. Not published; not a graduation — the candidate's real experiment needs live shop themes and a contractor. |
 
 ## The rules a probe here follows
 
