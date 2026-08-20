@@ -10605,3 +10605,60 @@ entries:
         ledger-discipline section, on the designated branch restarted from main
         after #378 merged.
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process" session, designated branch claude/charming-hawking-djuqke.
+        Ran `portfolio/ledger/session_gate.py` first (PROCEED — cadence
+        already at the maintenance rate at session start). `git fetch
+        origin main` first; tip 335c890. Checked the 4 open PRs (#372,
+        #368, #144, #19) before touching anything: all four re-confirmed
+        correctly owner-gated by the ledger entry from ~30 minutes
+        earlier, nothing new to add.
+      - >-
+        `portfolio/router/allocate.py` named exactly one dispatchable
+        venture, photos-import-tools, with the standing task "every
+        recorded hypothesis is settled -- write the next one in
+        VENTURE.yaml, then test it." All six prior hypotheses were
+        supported, so read the code for the next real gap. Found one:
+        `verify_and_manifest()` in `sd_offload.py` read
+        `source_file.stat().st_size` to seed each manifest entry *before*
+        entering the `try/except OSError` block PR #370 added around the
+        dest-side reads. A flaky card reader or a card ejected
+        mid-verification could make that source-side stat fail the same
+        way a dest-side read can, and unlike the dest-side reads it wasn't
+        caught -- crashing the whole card's verification loop and losing
+        every already-verified entry in that run. Same failure class #370
+        fixed, a call site it missed.
+      - >-
+        Fixed by moving the source-side stat inside the try block and
+        reusing its result for the size comparison instead of a second
+        `.stat()` call. Added
+        `test_source_read_error_on_one_file_does_not_abort_the_others`,
+        and confirmed it actually reproduces the pre-fix crash by
+        `git stash push -- sd_offload.py` and re-running it (fails with
+        the exact unguarded `OSError`), then unstashing (passes). Full
+        venture suite 41/41 (was 40); portfolio battery green
+        (`router/validate.py` 10/10, `validate_candidates.py` 8/8,
+        `validate_doc_consistency.py` 8/8, `validate_workflows.py` 23/23).
+        VENTURE.yaml records the seventh hypothesis as supported.
+      - >-
+        Self-merged PR #376 as agent-decidable per CLAUDE.md, same class
+        as this venture's prior self-merges (#359, #361, #370):
+        `ventures/photos-import-tools` has `links.production: null` (no
+        live-site deploy), the change is additive/defensive only,
+        publishes nothing, registers nothing, uses no credential, adds no
+        unattended automation, spends nothing beyond agent time. All 3 CI
+        checks were green on the head, and `git merge-tree` was clean
+        against the live main tip immediately before merging.
+      - >-
+        This entry is the separate ledger-only follow-up per CLAUDE.md's
+        ledger-discipline section, on a branch restarted from main after
+        #376 merged. Rebuilt once more (this is the second attempt) after
+        a concurrent session's #378/#381 landed on main first and made the
+        first attempt's PR (#380) conflict -- reapplied the identical
+        entry at the new tail rather than forcing the stale one through.
+    mrr_end: null
