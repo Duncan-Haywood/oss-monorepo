@@ -1,6 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from resumable_photos_import import (
     ImportState,
@@ -160,6 +161,52 @@ class ResumablePhotosImportTests(unittest.TestCase):
 
             self.assertEqual(exit_code, 0)
             self.assertEqual(importer.import_calls, [(photo, False)])
+
+    def test_flaky_stat_while_waiting_for_file_does_not_crash_the_run(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            good = root / "good.JPG"
+            flaky = root / "flaky.JPG"
+            good.write_bytes(b"jpeg")
+            flaky.write_bytes(b"jpeg")
+            state = ImportState(root / "state.sqlite3")
+            state.upsert(good, "pending")
+            state.upsert(flaky, "pending")
+            importer = FakePhotosImporter(
+                state=state,
+                state_dir=root,
+                event_log=root / "events.jsonl",
+                error_log=root / "errors.jsonl",
+                status_path=root / "status.json",
+                stop_file=root / "STOP",
+                per_file_timeout_seconds=1,
+                attempts=1,
+                batch_size=2,
+                photos_db=root / "missing.sqlite",
+                existing_filenames=set(),
+            )
+
+            # Simulates a flaky card reader or a stalled iCloud
+            # eviction/download: stat() raises OSError instead of returning
+            # a size. Before this fix that propagated straight out of
+            # wait_for_file, crashing the whole run() loop -- prepare_batch()
+            # isn't covered by run()'s try/except, which only wraps
+            # import_batch_with_split -- so one unreadable file lost the
+            # entire run instead of just that one file being retried/skipped.
+            real_stat = Path.stat
+
+            def flaky_stat(self, *args, **kwargs):
+                if self == flaky:
+                    raise OSError("Input/output error")
+                return real_stat(self, *args, **kwargs)
+
+            with mock.patch.object(Path, "stat", flaky_stat), \
+                    mock.patch("resumable_photos_import.time.sleep", return_value=None):
+                exit_code = importer.run()
+
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(importer.imported_paths, [good])
+            self.assertEqual(state.get_status(flaky), "skipped_permanent")
 
 
 class FakePhotosImporter(PhotosImporter):

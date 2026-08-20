@@ -41,6 +41,10 @@ hypotheses:
     status: supported
     checked: 2026-08-20
     evidence: in-repo
+  - claim: A flaky card reader or a stalled iCloud eviction/download that makes a file's stat() raise while the importer is waiting for it to become ready does not crash the whole unattended run; the file is treated like any other wait timeout and the run continues with the rest of the batch.
+    status: supported
+    checked: 2026-08-20
+    evidence: in-repo
 
 economics:
   currency: USD

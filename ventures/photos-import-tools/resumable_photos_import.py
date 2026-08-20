@@ -593,11 +593,11 @@ class PhotosImporter:
             self.log_event("reset_failed_for_retry", {"count": reset})
 
     def wait_for_file(self, path: Path) -> bool:
-        if path.exists() and path.stat().st_size > 0:
+        if self._file_ready(path):
             return True
         for attempt in range(1, ICLOUD_WAIT_ATTEMPTS + 1):
             time.sleep(min(2 ** attempt, 30))
-            if path.exists() and path.stat().st_size > 0:
+            if self._file_ready(path):
                 self.log_event(
                     "icloud_file_ready",
                     {"path": str(path), "wait_attempts": attempt},
@@ -613,6 +613,20 @@ class PhotosImporter:
             next_action=ErrorAction.SKIP_PERMANENT.value,
         )
         return False
+
+    def _file_ready(self, path: Path) -> bool:
+        # A flaky card reader or a stalled iCloud eviction/download can make
+        # stat() raise between this check and the caller's previous look,
+        # exactly like the already-guarded reads in sd_offload.py. Before
+        # this fix that OSError propagated straight out of wait_for_file,
+        # crashing the whole run loop (it isn't wrapped by run()'s
+        # try/except, which only covers import_batch_with_split) rather than
+        # being treated as "not ready yet" and retried like every other
+        # iCloud-wait case.
+        try:
+            return path.exists() and path.stat().st_size > 0
+        except OSError:
+            return False
 
     def resolve_import_path(self, path: Path) -> Path:
         if self.scratch_dir is None:
