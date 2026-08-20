@@ -10133,3 +10133,86 @@ entries:
         binary) is unchanged and needs the account owner, not another
         internal pass.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        legal-ethical-reliable increase in profit" scheduled session,
+        designated branch `claude/pensive-feynman-vktyvm`. `git fetch origin
+        main` first, then read the four open PRs (#222/#192/#144/#19), issue
+        #139, `portfolio/pipeline/` and the ledger tail before touching
+        anything. Ran `verification_status.py` before verifying anything, per
+        CLAUDE.md: it reported only #222 stale, and #222 was not re-verified.
+        No candidate screening (intake gate applies); no candidate added, no
+        score changed. Did not touch #222/#192/#144/#19 or their branches.
+      - >-
+        Shipped #360 (merged 92e5302). `ventures/world-clock-widget`'s CI
+        had never once compiled the module it exists to cover. Found by
+        reading run history rather than workflow files: the workflow had 2
+        runs in all of repo history, both failures, both on #319's branch —
+        and because it is path-filtered to `ventures/world-clock-widget/**`
+        it never runs on `main` at all, so `main` was not green here, it was
+        unmeasured. #319 reverted the venture out and flagged it; nothing had
+        picked it up in the ~4 hours since.
+      - >-
+        Two breaks were stacked. `swift-actions/setup-swift@v2` 404s fetching
+        the 5.9 toolchain, so the job died before reading a source file (run
+        32392469354) — now the official `swift:5.9` container, which removes
+        the download step. Behind that, `WorldClockCore` did not compile
+        (run 32393021805): `CityTimeFormatting` used `Date.FormatStyle` and
+        `Date.formatted(_:)`, which ship only in Apple's Foundation and do
+        not exist in swift-corelibs-foundation. Rewritten on `DateFormatter`
+        with the documented style equivalents on *both* platforms rather than
+        behind a `#if canImport(Darwin)` — a conditional would have turned CI
+        green while testing code the app does not ship, which is the exact
+        failure mode the fix exists to close. Formatters are cached per
+        locale/time-zone/style behind an `NSLock`, since WidgetKit renders
+        all 60 timeline entries up front (~1,400 format calls per refresh).
+      - >-
+        Verified by running, not by reading the diff or the badge. The green
+        check was 41s, so the job log was read rather than trusted: 13 tests
+        executed, 0 failures, including 3 new ones covering the module's
+        actual contract (a city's time renders in the city's zone, its date
+        follows that zone across midnight) and the leak the new cache could
+        introduce. That is the first time this venture's suite has executed
+        anywhere. Portfolio battery green: workflows 22/22, router 10/10,
+        candidates 8/8, doc-consistency 8/8, scoring 11/11, `break_even.py
+        --check`, `merge-tree` clean against the live tip. Run 4 on `main`
+        (32414335514) then passed build and test — `main` is measured green
+        on this workflow for the first time. The README had claimed the
+        module "now builds and its unit tests run on every push/PR"; that was
+        never true, and saying so is what kept the gap invisible, so the
+        correction is recorded in place rather than deleted.
+      - >-
+        Self-merged as agent-decidable per CLAUDE.md, on the same basis as
+        #335/#349 for `photos-import-tools`: `stage: prototype` with
+        `links.production: null`, so no live site can regress. Publishes
+        nothing, registers nothing, uses no credential, adds no unattended or
+        spend-capable automation. CLAUDE.md gates `ventures/*` merges on the
+        venture's full build/test passing, and that gate is this PR's own
+        check, so it was not merged on a diff read.
+      - >-
+        Swept the other 21 workflows for the same class of gap (a workflow
+        whose failures are invisible because it rarely or never runs), so the
+        next session does not re-derive it. Two candidates, both
+        non-actionable, recorded here to close them out. `ai-first-markets-
+        deploy.yml` has 0 runs in repo history — but it is `workflow_dispatch`
+        only and deploys a live site with Cloudflare credentials, so never
+        firing is the human-gated publishing posture working as designed, not
+        a bug. `opencode-high-throughput.yml` has 0 successes in 2 runs, both
+        on 2026-08-19, failing in `resolve-config` on a multi-line
+        `$GITHUB_OUTPUT` value — but #204 already landed the `jq -sc` fix on
+        `main` that afternoon, after both runs; it simply has not been
+        re-dispatched since, and re-dispatching an agent fleet is a
+        human-gated spend decision, not a session's to make. So
+        `world-clock-widget` was the only genuine instance.
+      - >-
+        No customer contact and no revenue this session. The portfolio's
+        binding constraint (distribution/credential gates on #139, and the
+        payout-rail binary) is unchanged and still needs the account owner.
+        What this session did buy is narrower and real: a venture whose test
+        suite had never run now has one that does, and the claim in its
+        README is true rather than aspirational.
+    mrr_end: null

@@ -16,6 +16,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
 
+from atomic_io import write_json_atomic
+
 
 @dataclass(frozen=True)
 class ImportPhase:
@@ -99,7 +101,7 @@ def write_status(
     }
     if extra:
         payload.update(extra)
-    status_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    write_json_atomic(status_path, payload, sort_keys=True)
 
 
 def terminate_process_group(process: subprocess.Popen[bytes]) -> None:

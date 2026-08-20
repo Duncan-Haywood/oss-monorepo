@@ -12,6 +12,10 @@ offload support.
 - `photos_import_errors.py` — classifies failures and selects recovery actions
 - `sd_offload.py` — copies media from removable storage; `--verify hash`
   compares source/dest SHA-256 (default `size` compares byte counts only)
+- `atomic_io.py` — atomic JSON writer shared by the importer, watchdog, and
+  offload; the observability records (`status.json`, `completion_report.json`,
+  offload manifest/summary) land via a temp file and `os.replace`, so a reader
+  polling during a rewrite or a crash mid-write never sees a torn document
 - `start_import.sh` — local entrypoint
 
 ## Development
