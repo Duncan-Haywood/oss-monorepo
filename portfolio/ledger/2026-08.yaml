@@ -11013,4 +11013,18 @@ entries:
         single-branch and could not carry the ledger hunk in the
         decision-pending PR itself, and to fold #387/#388's self-merges
         into one entry rather than leaving them undocumented.
+      - >-
+        A second concurrent session independently ran the identical
+        consolidation on the same three PRs and raced this one on the
+        #387 merge; both landed the same fix. That session additionally
+        found #389 (the third PR in the cluster, not mentioned above) was
+        not a fix at all: its stated premise -- that
+        `PhotosImporter.wait_for_file()` calls `exists()`/`stat()` with no
+        `OSError` guard -- was already false against its own stated base;
+        that guard was merged separately as #385 (`file_is_ready()`,
+        commit 24cf1e6). Diffing #389's branch against its base showed a
+        pure rename of the existing guard into a method, no new
+        protection. Closed as already-resolved, nothing to merge. Also
+        re-confirmed #372/#368/#144/#19 still correctly human-gated and
+        #372 still merges cleanly against the post-#387 tip.
     mrr_end: null
