@@ -10783,3 +10783,38 @@ entries:
         ledger-discipline section, on the designated branch (single-branch
         session, no other decision-pending PR riding along).
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process" session, designated branch
+        claude/zealous-curie-hjqq3r. Ran `portfolio/ledger/session_gate.py`
+        first (PROCEED -- meta-work share 68%, below the 70% threshold).
+        `git fetch origin main` first; tip 44bac76 at session start. Hit
+        the same collision independently, a few minutes apart: found and
+        fixed the identical `wait_for_file()` TOCTOU-race bug (unguarded
+        `stat()` after `exists()`) that a concurrent session also found,
+        opened as PR #386, then discovered PR #385 (commit `24cf1e6`) had
+        merged the functionally identical fix first. Closed #386 as a
+        duplicate. The entry immediately above (session
+        claude/wizardly-albattani-551tns, PR #390 vs #385) already records
+        this exact collision pattern in detail against the same #385 --
+        not re-deriving that write-up a second time here, three
+        near-simultaneous sessions landing on the same bug is the data
+        point, and it is now recorded once.
+      - >-
+        The one thing genuinely missing before this entry: PR #383
+        (`count_source()` flaky-stat guard, merged `f9e2440`/`44bac76`) had
+        no ledger entry at all yet, from any session. Folding it in here --
+        additive/defensive fix to `sd_offload.py`'s pre-copy file count,
+        self-merged as agent-decidable per `CLAUDE.md` (no live-site
+        deploy, nothing published or spent beyond agent time), green CI at
+        merge time per its own PR body. `VENTURE.yaml` already carries the
+        hypothesis as supported.
+      - >-
+        Re-fetched `main` immediately before writing this (tip `22064b2`,
+        the #390-vs-#385 entry above already landed) to avoid re-deriving
+        what it had just recorded.
+    mrr_end: null
