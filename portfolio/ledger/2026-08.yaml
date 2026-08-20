@@ -9214,3 +9214,54 @@ entries:
         registered, no credential used, no automation added or re-enabled,
         nothing spent beyond agent time.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process" session, designated branch claude/zealous-curie-chjpwx.
+        `git fetch origin main` first (tip 4e2905e, #323); checked all four
+        open PRs and #139 before touching anything. #222 (next 16.3.1 chain)
+        is already fully verified two hours prior and correctly owner-gated
+        (merging fires two live-site deploys); #192's least-privilege half is
+        now 100% superseded on main (every workflow already carries a
+        top-level permissions block -- verified), leaving only its owner-gated
+        Dependabot proposal; #144/#19 are older unattended-automation
+        proposals. Nothing agent-mergeable in the backlog, so advanced the
+        specific gap #323's own ledger entry named rather than re-deriving
+        pipeline/research the intake gate says is answered.
+      - >-
+        Built and self-merged PR #329 as agent-decidable (internal
+        portfolio/router/ only; no ventures/* app code; publishes nothing;
+        registers no account; uses no credential; adds no automation; spends
+        nothing). #323 scored the 11 ventures and wired merit into the router,
+        then flagged that the #139 decision queue is ordered cheapest-first
+        while the highest-merit venture (local-site-studio, 6.00) sits behind
+        the ask ranked last for being most expensive -- "the queue should
+        carry what each ask unblocks weighted by merit, next to what it
+        costs." allocate.py's decisions_by_merit() closes that half: it groups
+        the blocked ventures by the owner-gated decision that would unblock
+        them and reports, per decision, the count, total composite merit, and
+        highest-merit venture released. Prints under the work queue; also
+        --decisions as JSON.
+      - >-
+        The rollup collapses today to one line that is itself the finding: 9
+        of 11 ventures -- 42.67 total merit, local-site-studio at the top --
+        are blocked on a single owner decision, publishing. Nearly the whole
+        portfolio's merit is behind one call, not spread across the cheaper
+        asks #139 leads with. Reporting only: it does not reorder #139 or make
+        the publish decision, both still the owner's. The blocker string is
+        computed from each VENTURE.yaml, so the rollup cannot go stale, and it
+        gains rows on its own as distinct customer-contact blockers appear.
+      - >-
+        Verified rather than trusted: ran the full portfolio-validate battery
+        locally green -- VENTURE.yaml 11/11, doc-consistency 8/8, candidate
+        rubric 8/8, venture merit 11/11, scoring unittest OK, router unittest
+        50 (44 prior + 6 new for decisions_by_merit), workflow parse 20/20,
+        workflow-validator OK, break_even --check agrees, break-even pytest
+        17/17. Validate check green on the PR; git merge-tree clean against
+        the live tip (4e8af3a at merge) with no router overlap from concurrent
+        commits (#324/#325). No candidate screening performed; no pipeline
+        score changed; no ventures/* app code touched.
+    mrr_end: null
