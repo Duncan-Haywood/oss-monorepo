@@ -308,6 +308,37 @@ def offload_card(
     return stats
 
 
+def offload_all(
+    cards: list[CardSpec],
+    staging: Path,
+    logs: Path,
+    verify_hash: bool = False,
+) -> list[dict[str, object]]:
+    summary: list[dict[str, object]] = []
+    for card in cards:
+        if not card.source.exists():
+            log(f"Card not mounted, skipping: {card.source}", logs / "offload.log")
+            continue
+        card_log = logs / f"{card.name}.log"
+        manifest = staging / f"{card.name}_manifest.json"
+        try:
+            stats = offload_card(card, card_log, manifest, verify_hash=verify_hash)
+        except Exception as error:
+            # A card's offload failing outright (rsync error from a card
+            # ejected mid-copy, a network drop, a permission error) ran
+            # unguarded before this fix, crashing the whole multi-card run:
+            # cards not yet attempted were never tried, and the summary for
+            # cards already offloaded in this same run was lost with it.
+            # This extends the same one-bad-item discipline verify_and_manifest
+            # and count_source already apply within a single card to the
+            # multi-card run itself.
+            log(f"Offload failed for {card.name}: {error}", card_log)
+            stats = OffloadStats(card=card.name, started_at=iso_now(), finished_at=iso_now())
+            stats.errors.append(f"Offload failed: {error}")
+        summary.append(asdict(stats))
+    return summary
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Offload SD cards to staging with verification.")
     parser.add_argument(
@@ -352,15 +383,7 @@ def main() -> int:
             )
         )
 
-    summary: list[dict[str, object]] = []
-    for card in cards:
-        if not card.source.exists():
-            log(f"Card not mounted, skipping: {card.source}", logs / "offload.log")
-            continue
-        card_log = logs / f"{card.name}.log"
-        manifest = staging / f"{card.name}_manifest.json"
-        stats = offload_card(card, card_log, manifest, verify_hash=verify_hash)
-        summary.append(asdict(stats))
+    summary = offload_all(cards, staging, logs, verify_hash=verify_hash)
 
     summary_path = staging / "OFFLOAD_SUMMARY.json"
     write_json_atomic(summary_path, {"generated_at": iso_now(), "cards": summary})
