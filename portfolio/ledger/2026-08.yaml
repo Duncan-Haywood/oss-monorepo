@@ -9776,3 +9776,52 @@ entries:
         (distribution/credential gates, tracked on #139) is unchanged and
         needs the account owner, not another internal pass.
     mrr_end: null
+
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process, legal-ethical-reliable increase in profit" session,
+        designated branch `claude/zealous-curie-p8hw78`, PR #349, self-merged
+        as bd1a838. `git fetch origin main` first (tip `f711c37`/#346 at read
+        time; base `01ae4cc` at merge). Read the 4 open PRs (#222, #192,
+        #144, #19) and #139 before touching anything — all unchanged and
+        correctly owner-gated. The router (allocate.py) names
+        photos-import-tools as the one dispatchable venture with the task
+        "every recorded hypothesis is settled — write the next one, then
+        test it," so acted there rather than re-checking the gated PRs.
+      - >-
+        Found and fixed a real interrupted-import recovery bug, exactly
+        kill_criteria #1. `sd_offload.py`'s rsync command paired `--partial`
+        (keeps a half-copied file so the next run can resume) with
+        `--ignore-existing` (skips any file that already exists). Together
+        they froze a mid-transfer file at its truncated size forever:
+        `--ignore-existing` skipped the partial on every rerun, so an
+        interrupted offload could never complete and `verify_and_manifest`
+        reported a permanent size-mismatch. Dropped `--ignore-existing`;
+        rsync's default size+mtime quick-check already skips fully-copied
+        files while re-transferring a partial to completion.
+      - >-
+        Verified by running, not by reading the diff — including against a
+        real rsync 3.2.7 (installed in-session): a 40KB partial of a 100KB
+        source resumes to full correct content, and an already-complete
+        identical file is still skipped (no redundant re-copy). An
+        end-to-end check drives the actual `build_rsync_cmd()` output through
+        a subprocess rsync. Repo checks matching photos-import-tools-ci.yml:
+        30/30 unittest (was 28, +2 regression tests that run without rsync
+        installed), `ruff check` clean, `mypy` clean (8 files). CI on the PR
+        head came back success on all three jobs; `mergeable_state: clean`.
+      - >-
+        Self-merged as agent-decidable per CLAUDE.md: touches only
+        `ventures/photos-import-tools/` — a prototype tool with
+        `links.production: null`, so nothing deploys to a live site — no
+        publish, no account, no spend, no unattended automation, verified by
+        the repo's own checks against the live tip. Recorded the
+        interrupted-recovery hypothesis as supported in VENTURE.yaml. No
+        candidate rescreen and no `portfolio/pipeline/` change; no customer
+        contact or revenue — the portfolio's binding distribution/credential
+        constraint (tracked on #139) is unchanged and needs the account
+        owner.
+    mrr_end: null
