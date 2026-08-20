@@ -9108,3 +9108,59 @@ entries:
         VENTURE.yaml's hypothesis list), no automation added or re-enabled,
         nothing spent beyond agent time.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process" session, designated branch claude/nifty-goodall-z0v2p0.
+        `git fetch origin main` first (tip 4e2905e, #323); checked all four
+        open PRs (#222, #192, #144, #19 -- all human-gated: a ventures/* next
+        16.3.1 upgrade and three unattended-paid-spend automation proposals)
+        and #139 before touching anything. Nothing agent-mergeable in the
+        backlog, so looked at main's own CI health instead of re-deriving
+        pipeline/research work the intake gate says is already answered.
+      - >-
+        Found a standing false red on main: the
+        real-estate-agent-photo-app-deploy-docs.yml workflow fires on every
+        push touching its docs paths, builds the static site fine, then the
+        cloudflare/wrangler-action step hard-fails because CLOUDFLARE_API_TOKEN
+        is not configured. Failed on every run since it was added -- run 1
+        (#200 merge), run 2 (#315 merge), both `failure`. Root-caused to the
+        missing owner-owned secret, not to #315's permissions floor
+        (contents: read does not touch wrangler's env-based auth). A recurring
+        red unrelated to any PR degrades the "is CI red on main?" signal
+        CLAUDE.md tells sessions to read when deciding whether a failure is
+        theirs.
+      - >-
+        Fixed in PR #324, self-merged as agent-decidable (only .github/ CI
+        config; no ventures/* app code; publishes nothing; registers no
+        account; uses no credential; adds no automation; spends nothing).
+        Mapped secrets.CLOUDFLARE_API_TOKEN into job-level env and guarded the
+        deploy step and the dispatch-only access-policy step with
+        `if: env.CLOUDFLARE_API_TOKEN != ''`; when absent the site still
+        builds as a check and the job passes with an explicit ::warning::
+        naming the secrets that would enable deployment. No deploy behavior
+        changes when the credential is present. When the owner adds the
+        secret the deploy runs automatically with no further change.
+      - >-
+        Verified rather than trusted: validate check green on the PR;
+        platform/ci/validate_workflows.py 20/20; git merge-tree clean against
+        the live tip. Proof end-to-end: the merge commit itself touches the
+        deploy workflow's own path filter, so it re-ran on main as run 3 --
+        job `success`, deploy step `skipped`, warning emitted -- flipping the
+        two-run failure streak to green. Scope held to the one confirmed
+        workflow: ai-first-markets-deploy is workflow_dispatch-only (never
+        false-reds on push) and retail-pilot-intel-deploy-docs uses GitHub
+        Pages with its Vercel job already var-gated (no evidence of failure),
+        both left untouched to avoid masking a working deploy.
+      - >-
+        Still human-gated, not acted on: actually publishing the docs site
+        needs the account owner to add the CLOUDFLARE_API_TOKEN and
+        CLOUDFLARE_ACCOUNT_ID repository secrets (a credential belonging to a
+        legal person, plus the decision to publish under the portfolio's
+        name). This PR only stops the false red; it does not enable
+        publication. No candidate screening performed; no pipeline score
+        changed; nothing spent beyond agent time.
+    mrr_end: null
