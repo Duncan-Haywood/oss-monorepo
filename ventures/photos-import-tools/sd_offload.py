@@ -300,7 +300,21 @@ def offload_card(
             continue
         dest = card.dest / include
         wait_for_disk_space(min_gb=8.0)
-        rsync_copy(source, dest, log_path)
+        try:
+            rsync_copy(source, dest, log_path)
+        except RuntimeError as error:
+            # A card can have multiple include_paths (e.g. DCIM and MISC for
+            # Insta360); rsync failing on one of them (disk yanked, I/O
+            # error, broken pipe) must not abort the other paths on this
+            # card, and must not propagate out of offload_card. Unhandled,
+            # this crashed main()'s per-card loop before OFFLOAD_SUMMARY.json
+            # was ever written -- silently losing the results of any card
+            # already offloaded successfully earlier in the same run.
+            # Record it and let verify_and_manifest report it below, the
+            # same as any other missing/incomplete file.
+            stats.errors.append(f"rsync failed for {include}: {error}")
+            log(f"rsync failed for {include}: {error}", log_path)
+            continue
         for media in iter_media_files(dest):
             evict(media)
     verify_and_manifest(card, stats, manifest_path, log_path, verify_hash=verify_hash)

@@ -41,6 +41,10 @@ hypotheses:
     status: supported
     checked: 2026-08-20
     evidence: in-repo
+  - claim: rsync failing on one include_path of a card (disk yanked, I/O error, broken pipe) does not abort that card's other include_paths, and does not crash the whole multi-card run before OFFLOAD_SUMMARY.json is written -- losing the results of any card already offloaded successfully earlier in the same run.
+    status: supported
+    checked: 2026-08-20
+    evidence: in-repo
 
 economics:
   currency: USD

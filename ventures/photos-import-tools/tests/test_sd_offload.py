@@ -10,6 +10,7 @@ from sd_offload import (
     build_rsync_cmd,
     count_source,
     iter_media_files,
+    offload_card,
     offload_exit_code,
     sha256_file,
     verify_and_manifest,
@@ -263,6 +264,48 @@ class CountSourceTests(unittest.TestCase):
 
             self.assertEqual(total_files, 1)
             self.assertEqual(total_bytes, 5)
+
+
+class OffloadCardTests(unittest.TestCase):
+    def _make_card(self, root: Path) -> CardSpec:
+        source = root / "source"
+        dest = root / "dest"
+        (source / "DCIM").mkdir(parents=True)
+        (source / "MISC").mkdir(parents=True)
+        return CardSpec(name="Test", source=source, dest=dest, include_paths=("DCIM", "MISC"))
+
+    def test_rsync_failure_on_one_path_does_not_abort_the_card_or_other_paths(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            card = self._make_card(root)
+            (card.source / "DCIM" / "IMG_1.JPG").write_bytes(b"photo-bytes")
+            (card.source / "MISC" / "IMG_2.JPG").write_bytes(b"misc-bytes")
+
+            def fake_rsync_copy(source, dest, log_path):
+                # Simulates rsync failing on the first include_path (disk
+                # yanked, I/O error, broken pipe) -- e.g. DCIM -- while MISC
+                # copies cleanly. Before this fix, offload_card let
+                # rsync_copy's RuntimeError propagate straight out,
+                # aborting the card before MISC was ever attempted and
+                # before verify_and_manifest ran at all.
+                if source.name == "DCIM":
+                    raise RuntimeError("rsync failed with exit code 23")
+                dest.mkdir(parents=True, exist_ok=True)
+                for path in source.iterdir():
+                    (dest / path.name).write_bytes(path.read_bytes())
+
+            with mock.patch("sd_offload.rsync_copy", side_effect=fake_rsync_copy), \
+                    mock.patch("sd_offload.wait_for_disk_space"):
+                stats = offload_card(
+                    card, root / "log.txt", root / "manifest.json", verify_hash=False
+                )
+
+            self.assertTrue(any("rsync failed for DCIM" in error for error in stats.errors))
+            self.assertTrue((card.dest / "MISC" / "IMG_2.JPG").exists())
+            manifest = json.loads((root / "manifest.json").read_text())
+            statuses = {entry["relative_path"]: entry["status"] for entry in manifest["files"]}
+            self.assertEqual(statuses["DCIM/IMG_1.JPG"], "missing")
+            self.assertEqual(statuses["MISC/IMG_2.JPG"], "verified")
 
 
 class OffloadExitCodeTests(unittest.TestCase):
