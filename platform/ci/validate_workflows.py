@@ -1,11 +1,20 @@
 #!/usr/bin/env python3
-"""Validate that every .github/workflows file is parseable as a GitHub workflow.
+"""Validate that every .github/workflows file is a well-formed GitHub workflow.
 
-An unparseable workflow file fails silently: GitHub registers it with its
-`name` set to its own path, then emits a zero-job `startup_failure` run
-(blank name, `path: "BuildFailed"`) for every event it would have matched.
-Nothing in the PR checks list turns red, so the file can sit broken for days
-while every push produces a failed run nobody can attribute to a workflow.
+Two invariants:
+
+1. Parseability. An unparseable workflow file fails silently: GitHub registers
+   it with its `name` set to its own path, then emits a zero-job
+   `startup_failure` run (blank name, `path: "BuildFailed"`) for every event it
+   would have matched. Nothing in the PR checks list turns red, so the file can
+   sit broken for days while every push produces a failed run nobody can
+   attribute to a workflow.
+
+2. Least privilege. Every workflow must declare an explicit `permissions:`
+   scope for GITHUB_TOKEN -- either top-level or on every job. A file with none
+   runs with the repository's default token scope, broader than any
+   checkout/build/lint/test step needs. Every workflow on `main` already pins a
+   scope; this check keeps a newly-added one from silently regressing that.
 
 Usage: python3 platform/ci/validate_workflows.py
 """
@@ -43,8 +52,28 @@ def check(path, errors):
     if "on" not in data and True not in data:
         err("has no `on:` trigger block")
 
-    if not isinstance(data.get("jobs"), dict) or not data["jobs"]:
+    jobs = data.get("jobs")
+    if not isinstance(jobs, dict) or not jobs:
         err("has no `jobs:` mapping")
+        return
+
+    # Least privilege for GITHUB_TOKEN: a workflow with no `permissions:`
+    # anywhere runs every job with the repository's default token scope, which
+    # is broader than any CI/build/lint/test step needs. Every workflow on
+    # `main` already declares an explicit scope (top-level, or on each job);
+    # this keeps a newly-added one from silently reintroducing the default.
+    if "permissions" not in data:
+        jobs_without_scope = [
+            name
+            for name, body in jobs.items()
+            if not (isinstance(body, dict) and "permissions" in body)
+        ]
+        if jobs_without_scope:
+            err(
+                "declares no `permissions:` scope for GITHUB_TOKEN "
+                f"(missing at top level and on job(s): {', '.join(jobs_without_scope)}) "
+                "-- add `permissions:` (e.g. `contents: read`) to pin least privilege"
+            )
 
 
 def main():
