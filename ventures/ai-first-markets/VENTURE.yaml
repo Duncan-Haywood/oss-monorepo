@@ -24,9 +24,27 @@ hypotheses:
       Scoring the portfolio's own 11 ventures on the same six dimensions ranks
       them consistently with the router's dispatchable-vs-blocked split, so the
       map's method transfers from the 8 hypothetical ideas to real ventures.
-    status: untested
-    checked: null
+    status: refuted
+    checked: 2026-08-20
     evidence: in-repo
+    note: >-
+      evaluateMethodTransfer() scores all 11 ventures on the six dimensions and
+      tests whether the two dispatchable ventures cluster at the top of the
+      score ranking (exact one-tailed rank-sum test, alpha 0.05). They do not:
+      dispatchable rank sum is 15 against an expected-by-chance 12 — they score
+      slightly *worse* than random, p=0.836. The method does not transfer,
+      and the reason is structural, not a scoring error: dispatchability
+      measures publish-state (is there a links.production for a customer to
+      respond to), while the six dimensions measure business merit. The two
+      dispatchable ventures (ai-first-markets, photos-import-tools) are
+      dispatchable precisely because they are internal tools with in-repo
+      hypotheses and nothing to publish — not because they are the best
+      businesses. The scoring map still produces a usable output where the two
+      rankings disagree: the top-scoring venture whose next claim needs a
+      customer is local-site-studio (composite 34/60), the shortest real path
+      to a first dollar. So the map ranks *what to build toward*; the router
+      ranks *what a session can start today*. They answer different questions
+      and should not be expected to agree.
 
 economics:
   currency: USD
