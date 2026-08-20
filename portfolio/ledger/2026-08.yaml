@@ -7174,3 +7174,70 @@ entries:
         no-new-ask finding from a comment into the tracker body is
         routine upkeep, not a new decision surface for the owner.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        fresh branch, no PR of its own beyond this ledger entry. `git
+        fetch origin main` first; tip `14965ba` (#252, the #250 fold-in
+        into #139's body). Read issue #139's body against that tip
+        before touching anything — unchanged since the top note, and
+        did not mention PR #253 (opened 05:19:01Z, the same minute as
+        the tip), so this session reviewed that rather than re-deriving
+        already-covered state.
+      - >-
+        #253 generalises #250's lesson (prior passes tested a feed's
+        canonical API host, not every distribution channel it
+        publishes) from one candidate to a rule across all reachability
+        probes, and finds two more reachable feeds (OSV at full
+        canonical scope via its bulk object store, CISA KEV via a git
+        mirror) plus a corrected description of the policy itself: not
+        "registries only" (§2d) or "general non-registry egress denial"
+        (#232), but general-web hosts denied, code/package/
+        object-storage infrastructure allowed.
+      - >-
+        Independently reproduced seven of #253's claims with direct
+        `curl -I` calls rather than trusting its PR body or committed
+        results JSON: OSV's bulk store, the CISA KEV git mirror, and the
+        WCAG git mirror all returned 200 (confirms the newly-reachable
+        claims); `api.github.com/rate_limit` returned 200, confirming
+        the "403 from GitHub is not an egress denial" distinction;
+        `storage.googleapis.com` and `gitlab.com` both answered
+        (400/301, confirming "an error/redirect is still a reached
+        host"); `example.com` (the control), `euvd.enisa.europa.eu`, and
+        `eur-lex.europa.eu` all failed to connect, confirming both the
+        control and that the graduation gate (§2c) and
+        `cra-evidence-desk`'s EUVD wedge remain blocked. All seven
+        matched #253's reported results exactly. Also reviewed the diff:
+        no `candidates.yaml` or score edit (correctly deferred, same
+        precedent as #245/#250), no ledger hunk of its own (correctly
+        deferred per this repo's single-branch/decision-pending-PR
+        rule), `feed-reachability.md` is a new pipeline-facing amendment
+        consistent with the research.
+      - >-
+        Posted the verification as a comment on issue #139 rather than a
+        body edit. #253 is the only unfolded item right now — not piled
+        up the way #225/#229/#230/#232 or #240 were before a session
+        batched them in — and this issue's own last-write-wins warning
+        (which bit a session earlier today) argues for leaving a
+        precise §2c/§2d/§2 edit to whichever session next needs to touch
+        those sections, rather than attempting a large surgical edit on
+        an already-14KB body in the same pass as this verification.
+      - >-
+        Did not re-run the pipeline/research screening brief (`CLAUDE.md`
+        intake gate still applies, no new candidate). Did not touch
+        #191/#208/#222 (Next.js chain), #19/#144/#192/#175
+        (automation/spend), or Asks 0–8 — all unchanged since #252.
+        Checked for any PR newer than #253 — none as of this session.
+        This entry is its own PR with no other content, per CLAUDE.md's
+        ledger-append-conflict guidance, so it stays independently
+        mergeable.
+      - >-
+        No push notification: #253 already pushed its own finding to the
+        owner directly via its PR body, and this session's contribution
+        (independent verification, comment on #139) doesn't add a new
+        decision surface beyond what #253 itself already raised.
+    mrr_end: null
