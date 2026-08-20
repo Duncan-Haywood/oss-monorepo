@@ -13,26 +13,49 @@ name: OpenCode high-throughput portfolio agents
 # on the duplicate-PR waste this fleet produced on 2026-08-18 (see CLAUDE.md).
 # Watch whether that guardrail actually holds before raising agent count again.
 #
-# Schedule trigger disabled 2026-08-19: every workflow run in this repo
-# (every venture's CI, portfolio-validate, everything) has failed with
-# conclusion "startup_failure" and zero jobs scheduled since the exact
-# commit (f16fca5, 2026-08-18T18:42:33Z) that first added this workflow at
-# 20 parallel workers/hour -- the very next run, 10 seconds later, is the
-# first startup_failure in the repo's history, and every completed run
-# since (53/53 as of this commit, spanning the later reduce-to-10 and
-# router-guardrail changes) is the same failure with 0 jobs created. That
-# signature -- a synthetic zero-name "BuildFailed" workflow with zero jobs
-# scheduled, on every workflow in the repo, not just this one -- matches
-# GitHub disabling Actions for the whole repo/account (spending limit or
-# abuse-detection), not a YAML error in any individual workflow (all
-# workflow files here parse as valid YAML). This fleet -- up to 10 parallel
-# 120-minute jobs every hour -- is the only thing in the repo's history
-# that plausibly trips that kind of account-level limit. Disabling the
-# schedule (workflow_dispatch still works for a manual, single, verifiable
-# run) stops compounding the problem while it's diagnosed. Re-enabling the
-# schedule is a human call: confirm the Actions spending limit / abuse flag
-# in GitHub billing/security settings first, per CLAUDE.md's rule that
-# unattended paid-spend automation is a deliberate, human-reviewed decision.
+# Schedule trigger disabled 2026-08-19; still disabled, but NOT for the
+# reason this comment used to give. Corrected 2026-08-20 against the full
+# run history (763 runs, GitHub REST /actions/runs), because the original
+# text was being read as a standing instruction to go check a billing page.
+#
+# What actually happened: from 2026-08-18T17:23:11Z to 2026-08-19T11:33:25Z
+# (18h10m) every run in the repo returned "startup_failure" with name null,
+# path "BuildFailed", and zero jobs -- 519 runs, no job ever scheduled. The
+# earlier text blamed commit f16fca5 (2026-08-18T18:42:33Z), which added
+# this workflow. The timeline refutes that: 16 of those failures had already
+# accumulated in the 17:00 hour, up to 79 minutes BEFORE f16fca5 existed.
+# Whatever caused the outage predates this fleet.
+#
+# It is over, and it ended without anyone touching billing. Zero
+# startup_failures in the 242 runs since; 170 runs in the last 12 hours, all
+# scheduling jobs normally. So "confirm the Actions spending limit / abuse
+# flag first" -- the instruction that used to live here -- is a check that
+# now comes back clean regardless, and must NOT be read as clearance to
+# re-enable the schedule.
+#
+# One artifact of that period is still live: GitHub lists 23 registered
+# workflows against 22 files on main. The extra is
+# .github/workflows/repo-advancement-agent.yml, which exists only on #19's
+# branch, has never been on main, and is registered with name equal to its
+# own path -- GitHub's fallback when it cannot parse the file. Comparing the
+# registered-workflow count to the file count is a cheap detector for this
+# class of failure and is worth re-running before trusting any CI signal.
+#
+# The binding reason the schedule stays off is now economic, not technical.
+# This repo is private, so Actions minutes are billed. At the configured
+# scale -- hourly, max-parallel 10, timeout-minutes 120 -- the fleet's
+# Actions bill alone runs from roughly $288/month (if every agent job
+# finished in 5 minutes) to about $6,900/month (if jobs ran to timeout), on
+# top of whatever OPENCODE_API_KEY spends. Against that,
+# portfolio/ledger/break-even.md puts the portfolio's best-case revenue
+# ceiling at $193/month, and today's ceiling at $0 because no channel lets
+# an unattended agent take money. Even the cheapest end of that range
+# exceeds the best case the portfolio's own research supports.
+#
+# Re-enabling the schedule remains a human call, per CLAUDE.md's rule that
+# unattended paid-spend automation is a deliberate, human-reviewed decision
+# -- and it is a spend decision to weigh against the ceiling above, not a
+# billing-page check to clear.
 on:
   workflow_dispatch:
     inputs:
