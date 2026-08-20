@@ -8,6 +8,7 @@ hypotheses:
   - claim: Stateful imports and explicit duplicate-risk handling materially reduce failed or duplicated photo transfers.
     status: supported
     checked: 2026-07-29
+    evidence: in-repo
 
 economics:
   currency: USD

@@ -8,6 +8,7 @@ hypotheses:
   - claim: Motivated learners will pay for an AI-mentored, project-first alternative to lectures and exams.
     status: untested
     checked: null
+    evidence: customer-contact
 
 economics:
   currency: USD

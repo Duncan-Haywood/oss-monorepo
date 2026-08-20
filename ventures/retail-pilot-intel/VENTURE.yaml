@@ -8,6 +8,7 @@ hypotheses:
   - claim: A small-format retail pilot store will pay for privacy-first analytics (SKU gap, experiments, ROI reporting) over spreadsheets or nothing.
     status: untested
     checked: null
+    evidence: customer-contact
 
 economics:
   currency: USD

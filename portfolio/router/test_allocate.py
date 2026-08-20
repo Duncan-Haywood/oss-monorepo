@@ -53,6 +53,26 @@ class RankTests(unittest.TestCase):
         self.assertFalse(v.needs_decision)
         self.assertFalse(v.measured)
 
+    def test_dispatchable_work_outranks_blocked_work(self):
+        blocked = make("blocked", stage="prototype", mrr=None, monthly_cap=100)
+        blocked.hypotheses = [
+            {"claim": "People will pay.", "status": "untested", "evidence": "customer-contact"}
+        ]
+        ready = make("ready", stage="idea", mrr=None, monthly_cap=10)
+        ready.hypotheses = [
+            {"claim": "The tool dedupes.", "status": "untested", "evidence": "in-repo"}
+        ]
+        # `blocked` wins on both stage and cap; dispatchability must override.
+        self.assertEqual(rank([blocked, ready])[0].name, "ready")
+
+    def test_a_venture_needing_a_kill_decision_still_outranks_dispatchable_work(self):
+        stuck = make("stuck", stage="revenue", mrr=0)
+        ready = make("ready", stage="idea", mrr=None)
+        ready.hypotheses = [
+            {"claim": "The tool dedupes.", "status": "untested", "evidence": "in-repo"}
+        ]
+        self.assertEqual(rank([ready, stuck])[0].name, "stuck")
+
     def test_later_stage_breaks_ties_before_early_stage(self):
         early = make("early", stage="prototype", mrr=100, monthly_cap=20)
         later = make("later", stage="scaling", mrr=100, monthly_cap=20)
@@ -103,6 +123,39 @@ class NextTaskTests(unittest.TestCase):
     def test_cost_exceeding_revenue_says_review(self):
         v = make("v", stage="revenue", mrr=100, monthly_cost=200)
         self.assertIn("Review", next_task(v))
+
+    def test_customer_contact_claim_on_unpublished_venture_is_blocked(self):
+        v = make("v", stage="idea", mrr=None)
+        v.hypotheses = [
+            {"claim": "People will pay.", "status": "untested", "evidence": "customer-contact"}
+        ]
+        self.assertFalse(v.dispatchable)
+        self.assertIn("BLOCKED", next_task(v))
+
+    def test_publishing_unblocks_a_customer_contact_claim(self):
+        v = make("v", stage="idea", mrr=None)
+        v.hypotheses = [
+            {"claim": "People will pay.", "status": "untested", "evidence": "customer-contact"}
+        ]
+        v.production_url = "https://example.invalid/"
+        self.assertTrue(v.dispatchable)
+        self.assertIn("Explore", next_task(v))
+
+    def test_in_repo_claim_is_dispatchable_without_publishing(self):
+        v = make("v", stage="idea", mrr=None)
+        v.hypotheses = [
+            {"claim": "The importer dedupes.", "status": "untested", "evidence": "in-repo"}
+        ]
+        self.assertTrue(v.dispatchable)
+        self.assertIn("Explore", next_task(v))
+
+    def test_blocker_reads_the_first_untested_claim_not_a_settled_one(self):
+        v = make("v", stage="idea", mrr=None)
+        v.hypotheses = [
+            {"claim": "Settled offline.", "status": "supported", "evidence": "customer-contact"},
+            {"claim": "Still open.", "status": "untested", "evidence": "in-repo"},
+        ]
+        self.assertTrue(v.dispatchable)
 
     def test_healthy_venture_says_continue(self):
         v = make("v", stage="revenue", mrr=500, monthly_cost=100)
@@ -266,6 +319,24 @@ class LoadRealVenturesTests(unittest.TestCase):
     def test_ranking_real_ventures_does_not_raise(self):
         ventures = load_ventures(VENTURES_DIR)
         work_queue(ventures)  # exercises rank() + next_task() end to end
+
+    def test_every_untested_real_hypothesis_declares_its_evidence_kind(self):
+        # Without this the router silently treats an unannotated claim as
+        # dispatchable and puts impossible work back at the top of the queue.
+        for v in load_ventures(VENTURES_DIR):
+            for h in v.hypotheses:
+                if h.get("status") == "untested":
+                    self.assertIn(
+                        h.get("evidence"),
+                        {"customer-contact", "in-repo"},
+                        f"{v.name}: hypothesis {h.get('claim')!r} has no `evidence`",
+                    )
+
+    def test_every_blocked_real_venture_is_blocked_for_a_stated_reason(self):
+        for v in load_ventures(VENTURES_DIR):
+            if not v.dispatchable:
+                self.assertTrue(v.blocker)
+                self.assertIsNone(v.production_url)
 
     def test_ledger_entries_are_non_negative_ints(self):
         ventures = load_ventures(VENTURES_DIR)

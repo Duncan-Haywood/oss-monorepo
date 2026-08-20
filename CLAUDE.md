@@ -148,9 +148,17 @@ already built (see the ninth-run amendment in `distribution-first.md` — two
 finished products are sitting unlisted in stores the portfolio can list in);
 or, if both are blocked on the account owner, say so, record it in the ledger,
 notify, and stop. Before concluding you are blocked, check
-`channel-inventory.md`: the tenth run found that the demand measurement every
-pass asks for is *not* credential-blocked, only revenue capture is, so "blocked
-on the owner" is a narrower claim than five prior cycles made it. Adding a genuinely new candidate is legitimate only when you
+`channel-inventory.md` — but read it to the end. Its tenth-run amendment
+argued that demand measurement is *not* credential-blocked, only revenue
+capture is, and this file used to repeat that as settled. **Later runs
+refuted its factual half and the correction is on `main`:** every channel it
+nominated as agent-listable — WordPress.org, Open VSX, VS Code Marketplace,
+GitHub Marketplace — turned out to be egress- or scope-denied, verified twice
+on separate dates against a control host. The *conceptual* split still holds
+(measuring demand and taking money are different asks), but permission was
+never the binding constraint, so Ask 5 is currently inert. Do not plan work on
+the premise that a free listing can be published from here; that premise has
+been probed and is false. Adding a genuinely new candidate is legitimate only when you
 can name what in `screened-out.md` it is *not* — and it belongs as an amendment
 to that directory, not as a new list.
 

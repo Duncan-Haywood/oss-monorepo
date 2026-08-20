@@ -8,6 +8,7 @@ hypotheses:
   - claim: A unified market map and idea-scoring system improves which AI-first venture to validate next.
     status: untested
     checked: null
+    evidence: in-repo
 
 economics:
   currency: USD

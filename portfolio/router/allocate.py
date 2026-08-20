@@ -63,8 +63,16 @@ class Venture:
     protected: bool
     kill_criteria: list = field(default_factory=list)
     hypotheses: list = field(default_factory=list)
+    production_url: Optional[str] = None
     ledger_entries: int = 0
     portfolio_mentions: int = 0
+
+    @property
+    def _first_untested(self) -> Optional[dict]:
+        for h in self.hypotheses:
+            if isinstance(h, dict) and h.get("status") == "untested" and h.get("claim"):
+                return h
+        return None
 
     @property
     def untested_hypothesis(self) -> Optional[str]:
@@ -75,10 +83,35 @@ class Venture:
         unmeasured, so a generic "push toward the first real measurement"
         task is the same for all of them -- this makes that task specific.
         """
-        for h in self.hypotheses:
-            if isinstance(h, dict) and h.get("status") == "untested" and h.get("claim"):
-                return h["claim"]
-        return None
+        h = self._first_untested
+        return h["claim"] if h else None
+
+    @property
+    def blocker(self) -> Optional[str]:
+        """Why no agent session can settle this venture's next hypothesis.
+
+        A `customer-contact` claim is settled by a response from someone
+        outside this repository -- a purchase, a signup, a download, a
+        survey answer. None of that is observable while the venture has no
+        `links.production`: there is nothing published for anyone to respond
+        to, and publishing is the account owner's decision.
+
+        Returning None means the next task is one a session can actually
+        start. The router ranks on this, so undispatchable work stops
+        occupying the top of the queue.
+        """
+        h = self._first_untested
+        if h is None:
+            return None
+        if h.get("evidence") != "customer-contact":
+            return None
+        if self.production_url:
+            return None
+        return "not published — no `links.production`, so no customer can respond"
+
+    @property
+    def dispatchable(self) -> bool:
+        return self.blocker is None
 
     @property
     def measured(self) -> bool:
@@ -179,6 +212,7 @@ def load_ventures(
     for name, data in parsed:
         economics = data.get("economics") or {}
         budget = data.get("budget") or {}
+        links = data.get("links") or {}
         ventures.append(
             Venture(
                 name=name,
@@ -189,6 +223,7 @@ def load_ventures(
                 protected=bool(budget.get("protected", False)),
                 kill_criteria=data.get("kill_criteria") or [],
                 hypotheses=data.get("hypotheses") or [],
+                production_url=links.get("production"),
                 ledger_entries=ledger_counts.get(name, 0),
                 portfolio_mentions=mention_counts.get(name, 0),
             )
@@ -202,15 +237,21 @@ def rank(ventures: list[Venture]) -> list[Venture]:
     Priority:
       1. Measured at $0 MRR at revenue stage or beyond -- this needs a
          decision (kill or fix) before more spend, not blind continuation.
-      2. Unmeasured ventures -- still owed their protected explore budget;
+      2. Work a session can actually start. A blocked venture ranked first
+         hands every session an impossible task, which is how the queue
+         came to be ignored: separate cycles kept concluding in the ledger
+         that the top-ranked task was "outside what an unattended session
+         can drive", each in prose, none of it reaching the router.
+      3. Unmeasured ventures -- still owed their protected explore budget;
          null MRR is "not yet measured", not "measured and failing".
-      3. Everything else: later stage before earlier stage, then by
+      4. Everything else: later stage before earlier stage, then by
          monthly_cap descending, then name for a stable order.
     """
 
     def sort_key(v: Venture):
         return (
             0 if v.needs_decision else 1,
+            0 if v.dispatchable else 1,
             0 if not v.measured else 1,
             0 if v.later_stage else 1,
             -v.monthly_cap,
@@ -225,9 +266,11 @@ def next_task(v: Venture) -> str:
         return "Review: measured at $0 MRR past revenue stage -- check against kill_criteria before further spend."
     if not v.measured:
         claim = v.untested_hypothesis
+        if claim and v.blocker:
+            return f'BLOCKED (unpublished) -- "{claim}"'
         if claim:
             return f'Explore: test the untested hypothesis -- "{claim}"'
-        return "Explore: no economics signal yet -- push toward the first real measurement (a hypothesis check or a customer touchpoint)."
+        return "Explore: every recorded hypothesis is settled -- write the next one in VENTURE.yaml, then test it."
     if v.mrr is not None and v.monthly_cost is not None and v.mrr < v.monthly_cost:
         return "Review: monthly_cost exceeds mrr -- check against kill_criteria."
     return "Continue: advance the venture's next documented roadmap task."
@@ -240,6 +283,8 @@ def work_queue(ventures: list[Venture]) -> list[dict]:
             "stage": v.stage,
             "protected": v.protected,
             "task": next_task(v),
+            "dispatchable": v.dispatchable,
+            "blocked_on": v.blocker,
             "spend_ceiling_usd": v.monthly_cap,
             "ledger_entries_this_period": v.ledger_entries,
             "portfolio_mentions_this_period": v.portfolio_mentions,
@@ -258,8 +303,17 @@ def print_table(ventures: list[Venture], queue: list[dict]) -> None:
     )
     print(
         f"Target split per README.md: {EXPLORE_SPLIT_LATER:.0%} later-stage / "
-        f"{EXPLORE_SPLIT_EARLY:.0%} early-stage\n"
+        f"{EXPLORE_SPLIT_EARLY:.0%} early-stage"
     )
+    ready = sum(1 for item in queue if item["dispatchable"])
+    blocked = len(queue) - ready
+    summary = f"Dispatchable now: {ready} of {len(queue)} ventures."
+    if blocked:
+        summary += (
+            f" The other {blocked} need a customer response and are unpublished,"
+            f" so no session can start them."
+        )
+    print(summary + "\n")
     print(
         f"{'#':<3}{'venture':<32}{'stage':<12}{'cap':>6}"
         f"{'ledger':>8}{'mentions':>10}  task"

@@ -8,6 +8,7 @@ hypotheses:
   - claim: Local businesses will pay $500 flat for a pre-built, preview-before-you-buy website.
     status: untested
     checked: null
+    evidence: customer-contact
 
 economics:
   currency: USD

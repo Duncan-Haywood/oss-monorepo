@@ -9,9 +9,11 @@ hypotheses:
   - claim: People who work or have family across time zones want a widget that's information-dense by default (time + sunrise/sunset for several cities), not a single minimalist clock face.
     status: untested
     checked: null
+    evidence: customer-contact
   - claim: People will pay for a "pro" tier (more cities, custom locations, lock-screen complications) once they're using the free widget daily.
     status: untested
     checked: null
+    evidence: customer-contact
 
 economics:
   currency: USD
