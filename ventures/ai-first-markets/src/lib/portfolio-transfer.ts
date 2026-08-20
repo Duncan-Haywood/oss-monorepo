@@ -49,7 +49,7 @@ export interface VentureObservation {
 // newly-added, published, or reclassified venture forces a re-review here.
 export const portfolioObservations: VentureObservation[] = [
   { slug: "ai-engineering-academy", stage: "idea", published: false, nextWorkEvidence: "customer-contact" },
-  { slug: "ai-first-markets", stage: "prototype", published: false, nextWorkEvidence: "in-repo" },
+  { slug: "ai-first-markets", stage: "prototype", published: false, nextWorkEvidence: "all-settled" },
   { slug: "garmin-world-traveler-watchface", stage: "prototype", published: false, nextWorkEvidence: "customer-contact" },
   { slug: "local-site-studio", stage: "prototype", published: false, nextWorkEvidence: "customer-contact" },
   { slug: "photo-editing", stage: "prototype", published: false, nextWorkEvidence: "customer-contact" },
