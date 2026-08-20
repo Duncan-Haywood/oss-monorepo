@@ -4,18 +4,20 @@
 software vendors selling into the EU: a live SBOM, EU vulnerability-database
 matching, and a pre-drafted 24-hour incident report they can send in minutes.
 
-**Verdict: build now, narrow.** Sell the reporting-readiness slice only. Do not
-sell conformity assessment, do not sign anything, do not file on anyone's behalf.
+**Verdict: probe** (was build now, narrow; changed 2026-08-20 — see the amendment
+below). Sell the reporting-readiness slice only. Do not sell conformity
+assessment, do not sign anything, do not file on anyone's behalf.
 
-Scored 2026-08-18. Composite 7.0 · floor 4 (defensibility).
+Scored 2026-08-18. Composite 6.75 · floor 3 (defensibility). Rescored down from
+7.0/floor 4 on 2026-08-20 (PRs #250, #253 — see the amendment below).
 
 | Dimension | Score | Why |
 |---|---|---|
-| AI leverage | 8 | Dependency reconciliation, advisory triage, and drafting the technical file are model work over structured inputs |
+| AI leverage | ~~8~~ 7 | Dependency reconciliation, advisory triage, and drafting the technical file are model work over structured inputs, but less of the triage is model work than scored — see the amendment below |
 | Autonomous ops | 8 | Ingest, diff, match, alert, draft — no human step in the normal path |
 | Time to revenue | 7 | Deadline-driven urgency, but the buyer is an engineering org with a procurement habit |
 | Gross margin | 9 | Inference plus a feed and a database |
-| Defensibility | 4 | SBOM generation is commodity and partly open source; the durable part is the archive and the EUVD mapping |
+| Defensibility | ~~4~~ 3 | SBOM generation is commodity and partly open source; the archive is public advisory data and the EUVD mapping is egress-denied — neither named durable part holds, see the amendment below |
 | Distribution | 6 | Reachable through open-source maintainer channels and CRA-deadline content, but no warm list today |
 | Liability containment | 6 | Compliance-adjacent; contained by refusing the advice and filing positions |
 | Ethical robustness | 8 | Pushes small vendors toward genuinely knowing what is in their software |
@@ -107,6 +109,35 @@ Ten days, under €200:
 Kill it if fewer than three of fifteen will pay before the deadline. A
 compliance product that cannot sell three weeks before an obligation lands will
 not sell three months after it.
+
+## Amendment, 2026-08-20: step 1 of the first experiment has been run
+
+No score was changed by this amendment when it was first written. A later pass
+(PR #258) applied the ai_leverage and defensibility edits below to
+`candidates.yaml` and moved the verdict from build-now to probe; this write-up's
+headline and table above now reflect that. See
+[`portfolio/research/cra-advisory-reachability/`](../../research/cra-advisory-reachability/)
+for the measurement and the tooling.
+
+- **The vulnerability feed is reachable after all**, correcting §2d of issue #139
+  and PR #240: npm's bulk advisory endpoint, the GitHub Advisory Database (via
+  `raw.githubusercontent.com`, and clonable in full), and the PyPA advisory
+  database all answer. OSV and NVD are denied, but they are not the only routes
+  to the same data.
+- **The wedge above is still blocked.** `euvd.enisa.europa.eu` is denied by the
+  same policy as Asks 3/7, so "your components matched against the European
+  register" cannot be built here. What became reachable is the half this
+  write-up itself calls "crowded and partly free."
+- **False-positive rate, the number this section calls the only one that
+  matters: 64.6–66.0%** across 3,573 components in 9 real products — and it is
+  bimodal, not average. It tracks deployment mode almost perfectly (~0–4% for
+  server-rendered apps, ~98% for statically-exported ones), which means the
+  discriminating input is one fact the customer already knows and the scanner
+  cannot see. That, rather than the EUVD mapping, is the part of this candidate
+  that is both measured and unblocked.
+- **Defensibility (scored 4) is if anything weaker than scored**: both named
+  durable parts — the archive and the EUVD mapping — are respectively public
+  data and unreachable. The triage is the part worth re-scoring on.
 
 ## Sources
 

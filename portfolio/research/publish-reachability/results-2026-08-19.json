@@ -1,0 +1,768 @@
+{
+  "generated_by": "portfolio/research/publish-reachability/probe_publish_endpoints.py",
+  "question": "Can this environment publish to the channels PR #79 marks agent-listable, or only read from them?",
+  "no_proxy_allowlist": [
+    "0.0.0.0/8",
+    "10.0.0.0/8",
+    "100.64.0.0/10",
+    "127.0.0.0/8",
+    "127.0.0.1",
+    "169.254.0.0/16",
+    "172.16.0.0/12",
+    "192.168.0.0/16",
+    "::",
+    "::1",
+    "anthropic.com",
+    "files.pythonhosted.org",
+    "host.docker.internal",
+    "index.crates.io",
+    "jsr.io",
+    "localhost",
+    "npm.jsr.io",
+    "proxy.golang.org",
+    "pypi.org",
+    "registry.npmjs.org",
+    "svc.cluster.local"
+  ],
+  "n_targets": 44,
+  "n_distinct_hosts": 27,
+  "summary": {
+    "by_verdict": {
+      "REACHABLE": 27,
+      "EGRESS_DENIED": 14,
+      "BOT_CHALLENGED": 1,
+      "SCOPE_DENIED": 2
+    },
+    "by_gate": {
+      "read": {
+        "REACHABLE": 11,
+        "EGRESS_DENIED": 7
+      },
+      "register": {
+        "EGRESS_DENIED": 4,
+        "BOT_CHALLENGED": 1,
+        "REACHABLE": 7,
+        "SCOPE_DENIED": 1
+      },
+      "publish": {
+        "EGRESS_DENIED": 3,
+        "REACHABLE": 9,
+        "SCOPE_DENIED": 1
+      }
+    },
+    "channels": {
+      "wordpress.org": {
+        "listable_claim": "Yes",
+        "gates": {
+          "read": "EGRESS_DENIED",
+          "register": "EGRESS_DENIED",
+          "publish": "EGRESS_DENIED"
+        },
+        "publishable": false,
+        "readable": false
+      },
+      "open-vsx": {
+        "listable_claim": "Yes",
+        "gates": {
+          "read": "EGRESS_DENIED",
+          "register": "EGRESS_DENIED",
+          "publish": "EGRESS_DENIED"
+        },
+        "publishable": false,
+        "readable": false
+      },
+      "npm": {
+        "listable_claim": "Yes",
+        "gates": {
+          "publish": "REACHABLE",
+          "register": "BOT_CHALLENGED"
+        },
+        "publishable": false,
+        "readable": false
+      },
+      "pypi": {
+        "listable_claim": "Yes",
+        "gates": {
+          "read": "REACHABLE",
+          "register": "REACHABLE",
+          "publish": "EGRESS_DENIED"
+        },
+        "publishable": false,
+        "readable": true
+      },
+      "crates.io": {
+        "listable_claim": "Yes",
+        "gates": {
+          "read": "REACHABLE",
+          "register": "REACHABLE",
+          "publish": "REACHABLE"
+        },
+        "publishable": true,
+        "readable": true
+      },
+      "rubygems": {
+        "listable_claim": "Yes",
+        "gates": {
+          "read": "REACHABLE",
+          "register": "REACHABLE",
+          "publish": "REACHABLE"
+        },
+        "publishable": true,
+        "readable": true
+      },
+      "nuget": {
+        "listable_claim": "Yes",
+        "gates": {
+          "read": "REACHABLE",
+          "register": "REACHABLE",
+          "publish": "REACHABLE"
+        },
+        "publishable": true,
+        "readable": true
+      },
+      "packagist": {
+        "listable_claim": "Yes",
+        "gates": {
+          "read": "REACHABLE",
+          "register": "REACHABLE",
+          "publish": "REACHABLE"
+        },
+        "publishable": true,
+        "readable": true
+      },
+      "hex": {
+        "listable_claim": "Yes",
+        "gates": {
+          "read": "REACHABLE",
+          "register": "REACHABLE",
+          "publish": "REACHABLE"
+        },
+        "publishable": true,
+        "readable": true
+      },
+      "dockerhub": {
+        "listable_claim": "Yes",
+        "gates": {
+          "read": "REACHABLE",
+          "register": "REACHABLE",
+          "publish": "REACHABLE"
+        },
+        "publishable": true,
+        "readable": true
+      },
+      "ghcr": {
+        "listable_claim": "Yes",
+        "gates": {
+          "read": "REACHABLE",
+          "publish": "REACHABLE"
+        },
+        "publishable": true,
+        "readable": true
+      },
+      "go": {
+        "listable_claim": "Yes",
+        "gates": {
+          "read": "REACHABLE",
+          "publish": "REACHABLE"
+        },
+        "publishable": true,
+        "readable": true
+      },
+      "vscode-marketplace": {
+        "listable_claim": "Mostly",
+        "gates": {
+          "read": "EGRESS_DENIED",
+          "register": "EGRESS_DENIED"
+        },
+        "publishable": false,
+        "readable": false
+      },
+      "github-marketplace": {
+        "listable_claim": "Yes",
+        "gates": {
+          "register": "SCOPE_DENIED",
+          "publish": "SCOPE_DENIED"
+        },
+        "publishable": false,
+        "readable": false
+      }
+    },
+    "n_channels": 14,
+    "n_publishable": 8,
+    "n_readable": 9
+  },
+  "results": [
+    {
+      "url": "https://registry.npmjs.org/express",
+      "channel": "_baseline",
+      "gate": "read",
+      "listable": "-",
+      "note": "known reachable in #126/#130; confirms the allowlist is unchanged",
+      "host": "registry.npmjs.org",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.13,
+      "route": "DIRECT"
+    },
+    {
+      "url": "https://api.stripe.com/v1",
+      "channel": "_baseline",
+      "gate": "read",
+      "listable": "-",
+      "note": "known egress-denied in #126/#130; confirms denials are still denials",
+      "host": "api.stripe.com",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.42,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&request[slug]=akismet",
+      "channel": "wordpress.org",
+      "gate": "read",
+      "listable": "Yes",
+      "note": "plugin metadata API -- the consumer-facing surface",
+      "host": "api.wordpress.org",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.41,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://wordpress.org/plugins/",
+      "channel": "wordpress.org",
+      "gate": "read",
+      "listable": "Yes",
+      "note": "the directory itself",
+      "host": "wordpress.org",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.38,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://login.wordpress.org/register",
+      "channel": "wordpress.org",
+      "gate": "register",
+      "listable": "Yes",
+      "note": "WP.org account creation -- the credential the inventory says costs nothing",
+      "host": "login.wordpress.org",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.42,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://wordpress.org/plugins/developers/add/",
+      "channel": "wordpress.org",
+      "gate": "register",
+      "listable": "Yes",
+      "note": "plugin submission form -- review is requested here",
+      "host": "wordpress.org",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.41,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://plugins.svn.wordpress.org/akismet/",
+      "channel": "wordpress.org",
+      "gate": "publish",
+      "listable": "Yes",
+      "note": "the SVN host every WP.org plugin is actually published through",
+      "host": "plugins.svn.wordpress.org",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.63,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://open-vsx.org/api/redhat/java",
+      "channel": "open-vsx",
+      "gate": "read",
+      "listable": "Yes",
+      "note": "extension metadata -- consumer surface",
+      "host": "open-vsx.org",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.61,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://open-vsx.org/user-settings/tokens",
+      "channel": "open-vsx",
+      "gate": "register",
+      "listable": "Yes",
+      "note": "where a publish token is issued (Eclipse account)",
+      "host": "open-vsx.org",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.44,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://open-vsx.org/api/-/publish",
+      "channel": "open-vsx",
+      "gate": "publish",
+      "listable": "Yes",
+      "note": "the publish endpoint itself",
+      "host": "open-vsx.org",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 1.04,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://registry.npmjs.org/-/whoami",
+      "channel": "npm",
+      "gate": "publish",
+      "listable": "Yes",
+      "note": "publish/auth route on the registry host itself (npm publish PUTs here)",
+      "host": "registry.npmjs.org",
+      "verdict": "REACHABLE",
+      "http_status": 401,
+      "detail": "origin returned HTTP 401: {\"error\":\"Unauthorized\"}",
+      "elapsed_s": 0.17,
+      "route": "DIRECT"
+    },
+    {
+      "url": "https://www.npmjs.com/signup",
+      "channel": "npm",
+      "gate": "register",
+      "listable": "Yes",
+      "note": "account creation -- #130 found this host Cloudflare-challenged",
+      "host": "www.npmjs.com",
+      "verdict": "BOT_CHALLENGED",
+      "http_status": 403,
+      "detail": "origin anti-bot layer refused a non-browser client: <!DOCTYPE html><html lang=\"en-US\"><head><title>Just a moment...</title><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=Edge\"><meta nam",
+      "elapsed_s": 1.03,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://pypi.org/simple/requests/",
+      "channel": "pypi",
+      "gate": "read",
+      "listable": "Yes",
+      "note": "in the noProxy allowlist; the install surface",
+      "host": "pypi.org",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.08,
+      "route": "DIRECT"
+    },
+    {
+      "url": "https://pypi.org/account/register/",
+      "channel": "pypi",
+      "gate": "register",
+      "listable": "Yes",
+      "note": "account creation",
+      "host": "pypi.org",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.2,
+      "route": "DIRECT"
+    },
+    {
+      "url": "https://upload.pypi.org/legacy/",
+      "channel": "pypi",
+      "gate": "publish",
+      "listable": "Yes",
+      "note": "#130 found this EGRESS_DENIED -- re-probed to confirm it holds",
+      "host": "upload.pypi.org",
+      "verdict": "EGRESS_DENIED",
+      "http_status": 403,
+      "detail": "gateway refused in-band: Host not in allowlist: upload.pypi.org. Add this host to your network egress settings to allow access.",
+      "elapsed_s": 0.36,
+      "route": "DIRECT"
+    },
+    {
+      "url": "https://index.crates.io/config.json",
+      "channel": "crates.io",
+      "gate": "read",
+      "listable": "Yes",
+      "note": "sparse index -- the entry actually in the noProxy allowlist",
+      "host": "index.crates.io",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.16,
+      "route": "DIRECT"
+    },
+    {
+      "url": "https://crates.io/api/v1/crates/serde",
+      "channel": "crates.io",
+      "gate": "read",
+      "listable": "Yes",
+      "note": "web API host, distinct from the index",
+      "host": "crates.io",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.28,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://crates.io/settings/tokens",
+      "channel": "crates.io",
+      "gate": "register",
+      "listable": "Yes",
+      "note": "where a cargo publish token is issued",
+      "host": "crates.io",
+      "verdict": "REACHABLE",
+      "http_status": 404,
+      "detail": "origin returned HTTP 404: ",
+      "elapsed_s": 0.25,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://crates.io/api/v1/crates/new",
+      "channel": "crates.io",
+      "gate": "publish",
+      "listable": "Yes",
+      "note": "cargo publish PUTs here",
+      "host": "crates.io",
+      "verdict": "REACHABLE",
+      "http_status": 404,
+      "detail": "origin returned HTTP 404: {\"errors\":[{\"detail\":\"crate `new` does not exist\"}]}",
+      "elapsed_s": 0.24,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://rubygems.org/api/v1/gems/rails.json",
+      "channel": "rubygems",
+      "gate": "read",
+      "listable": "Yes",
+      "note": "#130: REACHABLE",
+      "host": "rubygems.org",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.24,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://rubygems.org/sign_up",
+      "channel": "rubygems",
+      "gate": "register",
+      "listable": "Yes",
+      "note": "account creation",
+      "host": "rubygems.org",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.33,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://rubygems.org/api/v1/gems",
+      "channel": "rubygems",
+      "gate": "publish",
+      "listable": "Yes",
+      "note": "gem push POSTs here",
+      "host": "rubygems.org",
+      "verdict": "REACHABLE",
+      "http_status": 401,
+      "detail": "origin returned HTTP 401: Access Denied. Please sign up for an account at https://rubygems.org",
+      "elapsed_s": 0.51,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://api.nuget.org/v3/index.json",
+      "channel": "nuget",
+      "gate": "read",
+      "listable": "Yes",
+      "note": "#130: REACHABLE",
+      "host": "api.nuget.org",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.34,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://www.nuget.org/users/account/LogOn",
+      "channel": "nuget",
+      "gate": "register",
+      "listable": "Yes",
+      "note": "account/API-key surface, distinct host from api.nuget.org",
+      "host": "www.nuget.org",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 1.21,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://www.nuget.org/api/v2/package",
+      "channel": "nuget",
+      "gate": "publish",
+      "listable": "Yes",
+      "note": "nuget push PUTs here",
+      "host": "www.nuget.org",
+      "verdict": "REACHABLE",
+      "http_status": 404,
+      "detail": "origin returned HTTP 404: The resource you are looking for has been removed, had its name changed, or is temporarily unavailable.",
+      "elapsed_s": 0.61,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://repo.packagist.org/p2/monolog/monolog.json",
+      "channel": "packagist",
+      "gate": "read",
+      "listable": "Yes",
+      "note": "#130: REACHABLE",
+      "host": "repo.packagist.org",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.28,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://packagist.org/register/",
+      "channel": "packagist",
+      "gate": "register",
+      "listable": "Yes",
+      "note": "account creation, distinct host from repo.packagist.org",
+      "host": "packagist.org",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.4,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://packagist.org/api/create-package",
+      "channel": "packagist",
+      "gate": "publish",
+      "listable": "Yes",
+      "note": "package submission API",
+      "host": "packagist.org",
+      "verdict": "REACHABLE",
+      "http_status": 405,
+      "detail": "origin returned HTTP 405: <!DOCTYPE html> <html lang=\"en\"> <head> <meta charset=\"UTF-8\" /> <meta name=\"robots\" content=\"noindex,nofollow,noarchive\" /> <title>An Error Occurred: Method Not Allowed</title> <link rel=\"icon\" href=",
+      "elapsed_s": 0.36,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://hex.pm/api/packages?search=json",
+      "channel": "hex",
+      "gate": "read",
+      "listable": "Yes",
+      "note": "#130: REACHABLE",
+      "host": "hex.pm",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.33,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://hex.pm/signup",
+      "channel": "hex",
+      "gate": "register",
+      "listable": "Yes",
+      "note": "account creation",
+      "host": "hex.pm",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.29,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://hex.pm/api/publish",
+      "channel": "hex",
+      "gate": "publish",
+      "listable": "Yes",
+      "note": "mix hex.publish POSTs here",
+      "host": "hex.pm",
+      "verdict": "REACHABLE",
+      "http_status": 404,
+      "detail": "origin returned HTTP 404: <!DOCTYPE html> <html lang=\"en\" prefix=\"og: http://ogp.me/ns#\"> <head> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> <meta name=\"viewport\" content=\"width=device-width, i",
+      "elapsed_s": 0.35,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://hub.docker.com/v2/repositories/library/nginx/",
+      "channel": "dockerhub",
+      "gate": "read",
+      "listable": "Yes",
+      "note": "#130: REACHABLE",
+      "host": "hub.docker.com",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.45,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://hub.docker.com/v2/users/login/",
+      "channel": "dockerhub",
+      "gate": "register",
+      "listable": "Yes",
+      "note": "auth surface",
+      "host": "hub.docker.com",
+      "verdict": "REACHABLE",
+      "http_status": 415,
+      "detail": "origin returned HTTP 415: {\"message\":\"415: Unsupported Media Type\\n\\nAvailable representations: \"}",
+      "elapsed_s": 0.31,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://registry-1.docker.io/v2/",
+      "channel": "dockerhub",
+      "gate": "publish",
+      "listable": "Yes",
+      "note": "the registry docker push actually targets, NOT hub.docker.com",
+      "host": "registry-1.docker.io",
+      "verdict": "REACHABLE",
+      "http_status": 401,
+      "detail": "origin returned HTTP 401: {\"errors\":[{\"code\":\"UNAUTHORIZED\",\"message\":\"authentication required\",\"detail\":null}]}",
+      "elapsed_s": 0.25,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://ghcr.io/v2/",
+      "channel": "ghcr",
+      "gate": "read",
+      "listable": "Yes",
+      "note": "#130: REACHABLE (401 from the origin's own auth)",
+      "host": "ghcr.io",
+      "verdict": "REACHABLE",
+      "http_status": 401,
+      "detail": "origin returned HTTP 401: {\"errors\":[{\"code\":\"UNAUTHORIZED\",\"message\":\"authentication required\"}]}",
+      "elapsed_s": 0.24,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://ghcr.io/token?scope=repository:user/image:push",
+      "channel": "ghcr",
+      "gate": "publish",
+      "listable": "Yes",
+      "note": "push-scoped token endpoint",
+      "host": "ghcr.io",
+      "verdict": "REACHABLE",
+      "http_status": 403,
+      "detail": "origin returned HTTP 403: {\"errors\":[{\"code\":\"DENIED\",\"message\":\"requested access to the resource is denied\"}]}",
+      "elapsed_s": 0.23,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://proxy.golang.org/github.com/pkg/errors/@v/list",
+      "channel": "go",
+      "gate": "read",
+      "listable": "Yes",
+      "note": "in the noProxy allowlist verbatim",
+      "host": "proxy.golang.org",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.06,
+      "route": "DIRECT"
+    },
+    {
+      "url": "https://proxy.golang.org/github.com/pkg/errors/@latest",
+      "channel": "go",
+      "gate": "publish",
+      "listable": "Yes",
+      "note": "a module is published by the proxy fetching a tag; this is that trigger path",
+      "host": "proxy.golang.org",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.09,
+      "route": "DIRECT"
+    },
+    {
+      "url": "https://marketplace.visualstudio.com/items?itemName=ms-python.python",
+      "channel": "vscode-marketplace",
+      "gate": "read",
+      "listable": "Mostly",
+      "note": "listing page",
+      "host": "marketplace.visualstudio.com",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.08,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://marketplace.visualstudio.com/manage",
+      "channel": "vscode-marketplace",
+      "gate": "register",
+      "listable": "Mostly",
+      "note": "publisher management (Azure DevOps identity)",
+      "host": "marketplace.visualstudio.com",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.45,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://github.com/marketplace/new",
+      "channel": "github-marketplace",
+      "gate": "register",
+      "listable": "Yes",
+      "note": "free listing creation surface",
+      "host": "github.com",
+      "verdict": "SCOPE_DENIED",
+      "http_status": 403,
+      "detail": "host reachable; route not scoped: {\"message\":\"GitHub access to this repository is not enabled for this session. Use add_repo to request access. If add_repo answers that read access is already available and you need GitHub API or write",
+      "elapsed_s": 2.18,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://api.github.com/marketplace_listing/plans",
+      "channel": "github-marketplace",
+      "gate": "publish",
+      "listable": "Yes",
+      "note": "#130 reclassified this SCOPE_DENIED, not REACHABLE",
+      "host": "api.github.com",
+      "verdict": "SCOPE_DENIED",
+      "http_status": 403,
+      "detail": "host reachable; route not scoped: {\"message\":\"This GitHub API path is not available: sessions are bound to their configured repositories. Use repository-scoped endpoints (repos/{owner}/{repo}/...).\",\"documentation_url\":\"https://docs.a",
+      "elapsed_s": 0.47,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://docs.github.com/en/apps/github-marketplace/creating-apps-for-github-marketplace/requirements-for-listing-an-app",
+      "channel": "_source-check",
+      "gate": "read",
+      "listable": "-",
+      "note": "the primary requirements page #79 flagged as unreadable from this session",
+      "host": "docs.github.com",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.48,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://developer.wordpress.org/plugins/wordpress-org/",
+      "channel": "_source-check",
+      "gate": "read",
+      "listable": "-",
+      "note": "WP.org plugin handbook -- the other load-bearing primary source",
+      "host": "developer.wordpress.org",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.7,
+      "route": "GATEWAY"
+    }
+  ]
+}

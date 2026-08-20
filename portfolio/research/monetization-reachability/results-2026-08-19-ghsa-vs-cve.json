@@ -1,0 +1,2719 @@
+{
+  "generated_by": "portfolio/research/monetization-reachability/measure_ghsa_vs_cve.py",
+  "population_size": 5766,
+  "seed": 20260819,
+  "summary": {
+    "n_sampled": 300,
+    "n_cve_record_found": 296,
+    "missing_from_cvelist": 0.0133,
+    "n_live_ghsa_with_cve_record": 295,
+    "rejected_while_ghsa_live": 0.0,
+    "cve_record_has_no_version_bound": 0.1284,
+    "states": {
+      "PUBLISHED": 295,
+      "REJECTED": 1
+    }
+  },
+  "rows": [
+    {
+      "ghsa": "GHSA-mwf2-3pr3-8698",
+      "cve": "CVE-2026-67318",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/67xxx/CVE-2026-67318.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-jchw-25xp-jwwc",
+      "cve": "CVE-2023-26159",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2023/26xxx/CVE-2023-26159.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-q854-j362-cfq9",
+      "cve": "CVE-2020-23849",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2020/23xxx/CVE-2020-23849.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-vm5r-c87r-pf6x",
+      "cve": "CVE-2023-22474",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2023/22xxx/CVE-2023-22474.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-65hm-pwj5-73pw",
+      "cve": "CVE-2025-59333",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/59xxx/CVE-2025-59333.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-cwpp-5962-q4f6",
+      "cve": "CVE-2026-53848",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/53xxx/CVE-2026-53848.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-x4cf-6jr3-3qvp",
+      "cve": "CVE-2020-1915",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2020/1xxx/CVE-2020-1915.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-hm92-vgmw-qfmx",
+      "cve": "CVE-2023-26156",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2023/26xxx/CVE-2023-26156.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-xrxf-jgv3-qmrm",
+      "cve": "CVE-2025-61260",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/61xxx/CVE-2025-61260.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-6wp6-22x5-rr3w",
+      "cve": "CVE-2024-31621",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2024/31xxx/CVE-2024-31621.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-gjrp-xgmh-x9qq",
+      "cve": "CVE-2026-22596",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/22xxx/CVE-2026-22596.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-462r-wxvm-jvxh",
+      "cve": "CVE-2022-38639",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/38xxx/CVE-2022-38639.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-2xcc-vm3f-m8rw",
+      "cve": "CVE-2024-32965",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2024/32xxx/CVE-2024-32965.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-552j-pv39-f3jf",
+      "cve": "CVE-2021-34080",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/34xxx/CVE-2021-34080.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-6gvq-jcmp-8959",
+      "cve": "CVE-2025-68113",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/68xxx/CVE-2025-68113.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-qp7v-gjgg-4mj6",
+      "cve": "CVE-2026-45222",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/45xxx/CVE-2026-45222.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-cfw5-68c4-ffqp",
+      "cve": "CVE-2026-44680",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/44xxx/CVE-2026-44680.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-9pw5-wx67-q964",
+      "cve": "CVE-2025-10619",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/10xxx/CVE-2025-10619.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-3644-q5cj-c5c7",
+      "cve": "CVE-2026-45134",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/45xxx/CVE-2026-45134.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-2jp7-wwpg-3p9w",
+      "cve": "CVE-2026-55090",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/55xxx/CVE-2026-55090.json",
+      "fetch": "http_404",
+      "cve_state": "UNKNOWN",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-rwj8-p9vq-25gv",
+      "cve": "CVE-2026-29611",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/29xxx/CVE-2026-29611.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-7gmj-h9xc-mcxc",
+      "cve": "CVE-2026-3455",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/3xxx/CVE-2026-3455.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-r9mq-3c9r-fmjq",
+      "cve": "CVE-2024-48914",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2024/48xxx/CVE-2024-48914.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-9v8j-9c9g-w66c",
+      "cve": "CVE-2026-53862",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/53xxx/CVE-2026-53862.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-43f8-2h32-f4cj",
+      "cve": "CVE-2021-23362",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/23xxx/CVE-2021-23362.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-hwpp-h97w-2h3j",
+      "cve": "CVE-2026-49988",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/49xxx/CVE-2026-49988.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-pw2r-vq6v-hr8c",
+      "cve": "CVE-2022-0536",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/0xxx/CVE-2022-0536.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-7gcc-r8m5-44qm",
+      "cve": "CVE-2026-27959",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/27xxx/CVE-2026-27959.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-f9xv-q969-pqx4",
+      "cve": "CVE-2023-2251",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2023/2xxx/CVE-2023-2251.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-25mx-2mxm-6343",
+      "cve": "CVE-2022-39382",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/39xxx/CVE-2022-39382.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-5c57-rqjx-35g2",
+      "cve": "CVE-2026-44211",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/44xxx/CVE-2026-44211.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-cjj8-wfrx-jqcf",
+      "cve": "CVE-2016-1000241",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2016/1000xxx/CVE-2016-1000241.json",
+      "fetch": "http_404",
+      "cve_state": "UNKNOWN",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-cph5-m8f7-6c5x",
+      "cve": "CVE-2021-3749",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/3xxx/CVE-2021-3749.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-qf3q-9f3h-cjp9",
+      "cve": "CVE-2023-49785",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2023/49xxx/CVE-2023-49785.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-r6fw-8m27-43c9",
+      "cve": "CVE-2021-23379",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/23xxx/CVE-2021-23379.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-c9f4-xj24-8jqx",
+      "cve": "CVE-2015-8858",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2015/8xxx/CVE-2015-8858.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-j383-35pm-c5h4",
+      "cve": "CVE-2022-0436",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/0xxx/CVE-2022-0436.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-w973-2qcc-p78x",
+      "cve": "CVE-2017-5858",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2017/5xxx/CVE-2017-5858.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-vhhw-xjvf-wprr",
+      "cve": "CVE-2021-23326",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/23xxx/CVE-2021-23326.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-9cp7-3q5w-j92g",
+      "cve": "CVE-2026-30835",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/30xxx/CVE-2026-30835.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-5fw9-fq32-wv5p",
+      "cve": "CVE-2020-7789",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2020/7xxx/CVE-2020-7789.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-9pq4-5hcf-288c",
+      "cve": "CVE-2026-27118",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/27xxx/CVE-2026-27118.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-hcq6-h8v2-r5wm",
+      "cve": "CVE-2020-7740",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2020/7xxx/CVE-2020-7740.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-vgjp-vh3c-32v3",
+      "cve": "CVE-2017-16146",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2017/16xxx/CVE-2017-16146.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-4gjv-5jjp-rcgh",
+      "cve": "CVE-2020-6948",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2020/6xxx/CVE-2020-6948.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-m5qc-5hw7-8vg7",
+      "cve": "CVE-2025-71319",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/71xxx/CVE-2025-71319.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-8vw3-vxmj-h43w",
+      "cve": "CVE-2023-26129",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2023/26xxx/CVE-2023-26129.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-gcmj-c9gg-9vh6",
+      "cve": "CVE-2026-22810",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/22xxx/CVE-2026-22810.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-ph28-wwfj-fv7f",
+      "cve": "CVE-2022-25862",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/25xxx/CVE-2022-25862.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-frq9-7j6g-v74x",
+      "cve": "CVE-2026-34750",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/34xxx/CVE-2026-34750.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-jr64-pggr-j8xj",
+      "cve": "CVE-2017-1000491",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2017/1000xxx/CVE-2017-1000491.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-8689-gm9g-jgr6",
+      "cve": "CVE-2026-41395",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/41xxx/CVE-2026-41395.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-qwjm-9c66-w4q4",
+      "cve": "CVE-2026-22551",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/22xxx/CVE-2026-22551.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-r54r-wmmq-mh84",
+      "cve": "CVE-2026-27670",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/27xxx/CVE-2026-27670.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-22p9-wv53-3rq4",
+      "cve": "CVE-2026-48801",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/48xxx/CVE-2026-48801.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-4gf7-ff8x-hq99",
+      "cve": "CVE-2025-24361",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/24xxx/CVE-2025-24361.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-g7mq-rfj2-25wq",
+      "cve": "CVE-2021-23390",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/23xxx/CVE-2021-23390.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-8cc8-8vvx-fhgw",
+      "cve": "CVE-2016-10595",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2016/10xxx/CVE-2016-10595.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-q8qp-cvcw-x6jj",
+      "cve": "CVE-2026-42264",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/42xxx/CVE-2026-42264.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-2cjr-5v3h-v2w4",
+      "cve": "CVE-2026-42077",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/42xxx/CVE-2026-42077.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-xxjr-mmjv-4gpg",
+      "cve": "CVE-2025-13465",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/13xxx/CVE-2025-13465.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-g8wf-rcg3-qw4q",
+      "cve": "CVE-2017-16085",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2017/16xxx/CVE-2017-16085.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-qpv8-4pjq-qqh7",
+      "cve": "CVE-2022-2422",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/2xxx/CVE-2022-2422.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-fr9j-6mvq-frcv",
+      "cve": "CVE-2026-33442",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/33xxx/CVE-2026-33442.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-jv6r-27ww-4gw4",
+      "cve": "CVE-2026-32027",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/32xxx/CVE-2026-32027.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-xgh6-85xh-479p",
+      "cve": "CVE-2020-7754",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2020/7xxx/CVE-2020-7754.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-fp25-p6mj-qqg6",
+      "cve": "CVE-2026-29091",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/29xxx/CVE-2026-29091.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-9wf9-qvvp-2929",
+      "cve": "CVE-2023-1283",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2023/1xxx/CVE-2023-1283.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-gjwp-7v3g-99pj",
+      "cve": "CVE-2021-23431",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/23xxx/CVE-2021-23431.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-r578-pj6f-r4ff",
+      "cve": "CVE-2021-32691",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/32xxx/CVE-2021-32691.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-6gg3-pmm7-97xc",
+      "cve": "CVE-2020-15119",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2020/15xxx/CVE-2020-15119.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-hpx4-r86g-5jrg",
+      "cve": "CVE-2023-26364",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2023/26xxx/CVE-2023-26364.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-rphm-c8gw-3r38",
+      "cve": "CVE-2021-34078",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/34xxx/CVE-2021-34078.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-p23c-p8w2-ww5v",
+      "cve": "CVE-2022-25871",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/25xxx/CVE-2022-25871.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-f229-3862-4942",
+      "cve": "CVE-2026-27597",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/27xxx/CVE-2026-27597.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-58qr-rcgv-642v",
+      "cve": "CVE-2026-33660",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/33xxx/CVE-2026-33660.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-g4cf-pp4x-hqgw",
+      "cve": "CVE-2025-49141",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/49xxx/CVE-2025-49141.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-vrm6-8vpv-qv8q",
+      "cve": "CVE-2026-1526",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/1xxx/CVE-2026-1526.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-4f8g-77mw-3rxc",
+      "cve": "CVE-2026-42429",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/42xxx/CVE-2026-42429.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-3fr8-mwpp-8h9p",
+      "cve": "CVE-2020-15500",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2020/15xxx/CVE-2020-15500.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-jm22-3w23-5q7w",
+      "cve": "CVE-2026-70590",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/70xxx/CVE-2026-70590.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-6494-v9fq-fgq2",
+      "cve": "CVE-2017-15879",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2017/15xxx/CVE-2017-15879.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-q2x5-4xjx-c6p9",
+      "cve": "CVE-2026-24048",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/24xxx/CVE-2026-24048.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-r36x-p5pv-9mfx",
+      "cve": "CVE-2016-10652",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2016/10xxx/CVE-2016-10652.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-c79f-pqgf-fhp3",
+      "cve": "CVE-2023-47440",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2023/47xxx/CVE-2023-47440.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-w867-jm58-p9pv",
+      "cve": "CVE-2026-58661",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/58xxx/CVE-2026-58661.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-85cp-p426-42f5",
+      "cve": "CVE-2020-7715",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2020/7xxx/CVE-2020-7715.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-m3mh-3mpg-37hw",
+      "cve": "CVE-2026-35641",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/35xxx/CVE-2026-35641.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-gcv8-gh4r-25x6",
+      "cve": "CVE-2022-0613",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/0xxx/CVE-2022-0613.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-3fjj-p79j-c9hh",
+      "cve": "CVE-2022-41919",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/41xxx/CVE-2022-41919.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-4r4m-qw57-chr8",
+      "cve": "CVE-2025-31125",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/31xxx/CVE-2025-31125.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-vxmc-5x29-h64v",
+      "cve": "CVE-2024-6485",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2024/6xxx/CVE-2024-6485.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-4xrw-wvmq-8jmh",
+      "cve": "CVE-2020-7627",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2020/7xxx/CVE-2020-7627.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-mgq6-vr84-7m2j",
+      "cve": "CVE-2026-35630",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/35xxx/CVE-2026-35630.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-282f-qqgm-c34q",
+      "cve": "CVE-2021-23807",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/23xxx/CVE-2021-23807.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-wvr6-395c-5pxr",
+      "cve": "CVE-2026-26063",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/26xxx/CVE-2026-26063.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-vfx2-hv2g-xj5f",
+      "cve": "CVE-2026-33397",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/33xxx/CVE-2026-33397.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-45c3-c4c3-8rqg",
+      "cve": "CVE-2023-31716",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2023/31xxx/CVE-2023-31716.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-2r2c-g63r-vccr",
+      "cve": "CVE-2022-24773",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/24xxx/CVE-2022-24773.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-65p9-j6pg-72hj",
+      "cve": "CVE-2025-49223",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/49xxx/CVE-2025-49223.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-3x59-vrmc-5mx6",
+      "cve": "CVE-2023-41167",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2023/41xxx/CVE-2023-41167.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-xfp8-x3j6-h67v",
+      "cve": "CVE-2025-9096",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/9xxx/CVE-2025-9096.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-xw9q-2mv6-9fr8",
+      "cve": "CVE-2026-50131",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/50xxx/CVE-2026-50131.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-g6pc-6676-c23j",
+      "cve": "CVE-2026-30121",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/30xxx/CVE-2026-30121.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-4g5x-2jfc-xm98",
+      "cve": "CVE-2026-41408",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/41xxx/CVE-2026-41408.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-w7xj-8fx7-wfch",
+      "cve": "CVE-2025-64495",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/64xxx/CVE-2025-64495.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-3r8w-mphv-2f3f",
+      "cve": "CVE-2021-23396",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/23xxx/CVE-2021-23396.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-4rxr-27mm-mxq9",
+      "cve": "CVE-2022-39263",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/39xxx/CVE-2022-39263.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-34gh-3cwv-wvp2",
+      "cve": "CVE-2020-7683",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2020/7xxx/CVE-2020-7683.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-rcvq-m9j9-6f4g",
+      "cve": "CVE-2026-48049",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/48xxx/CVE-2026-48049.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-4hmj-39m8-jwc7",
+      "cve": "CVE-2026-35651",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/35xxx/CVE-2026-35651.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-94x5-94wf-m445",
+      "cve": "CVE-2017-16037",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2017/16xxx/CVE-2017-16037.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-9qpj-qq2r-5mcc",
+      "cve": "CVE-2023-33187",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2023/33xxx/CVE-2023-33187.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-r3x4-wr4h-pw33",
+      "cve": "CVE-2019-10759",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2019/10xxx/CVE-2019-10759.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-4r6h-8v6p-xvw6",
+      "cve": "CVE-2023-30533",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2023/30xxx/CVE-2023-30533.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-44vr-rwwj-p88h",
+      "cve": "CVE-2022-31180",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/31xxx/CVE-2022-31180.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-849r-qrwj-8rv4",
+      "cve": "CVE-2024-54151",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2024/54xxx/CVE-2024-54151.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-cq6w-w5rj-p9x8",
+      "cve": "CVE-2021-30109",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/30xxx/CVE-2021-30109.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-xcp4-62vj-cq3r",
+      "cve": "CVE-2024-34706",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2024/34xxx/CVE-2024-34706.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-fvq6-55gv-jx9f",
+      "cve": "CVE-2015-9244",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2015/9xxx/CVE-2015-9244.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-77xc-hjv8-ww97",
+      "cve": "CVE-2022-29257",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/29xxx/CVE-2022-29257.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-xr4f-mjxj-w6w5",
+      "cve": "CVE-2026-32905",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/32xxx/CVE-2026-32905.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-fqrj-m88p-qf3v",
+      "cve": "CVE-2026-41362",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/41xxx/CVE-2026-41362.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-82mg-x548-gq3j",
+      "cve": "CVE-2015-7294",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2015/7xxx/CVE-2015-7294.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-qvr7-g57c-mrc7",
+      "cve": "CVE-2026-32970",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/32xxx/CVE-2026-32970.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-f7fh-qg34-x2xh",
+      "cve": "CVE-2026-43576",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/43xxx/CVE-2026-43576.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-fh38-9fgr-454w",
+      "cve": "CVE-2024-23725",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2024/23xxx/CVE-2024-23725.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-jhpv-5j76-m56h",
+      "cve": "CVE-2026-42438",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/42xxx/CVE-2026-42438.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-9mrh-v2v3-xpfm",
+      "cve": "CVE-2026-40186",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/40xxx/CVE-2026-40186.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-wmrf-hv6w-mr66",
+      "cve": "CVE-2026-32763",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/32xxx/CVE-2026-32763.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-fg3m-vhrr-8gj6",
+      "cve": "CVE-2026-31995",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/31xxx/CVE-2026-31995.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-2mqv-4j3r-vjvp",
+      "cve": "CVE-2021-43812",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/43xxx/CVE-2021-43812.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-qmm9-x5gr-4gfm",
+      "cve": "CVE-2018-3743",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2018/3xxx/CVE-2018-3743.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-q4x5-8cj6-52wg",
+      "cve": "CVE-2026-47684",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/47xxx/CVE-2026-47684.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-rcw3-wmx7-cphr",
+      "cve": "CVE-2025-26619",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/26xxx/CVE-2025-26619.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-m5q2-4fm3-vfqp",
+      "cve": "CVE-2026-47135",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/47xxx/CVE-2026-47135.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-633r-r4p8-pw3w",
+      "cve": "CVE-2022-41376",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/41xxx/CVE-2022-41376.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-w5m3-xh75-mp55",
+      "cve": "CVE-2023-26487",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2023/26xxx/CVE-2023-26487.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-hxhm-96pp-2m43",
+      "cve": "CVE-2020-5219",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2020/5xxx/CVE-2020-5219.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-252h-2cmq-pmr6",
+      "cve": "CVE-2020-24855",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2020/24xxx/CVE-2020-24855.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-vr5g-mmx7-h897",
+      "cve": "CVE-2026-41912",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/41xxx/CVE-2026-41912.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-m79w-4mqv-r39f",
+      "cve": "CVE-2016-10691",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2016/10xxx/CVE-2016-10691.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-g4v2-qx3q-4p64",
+      "cve": "CVE-2026-39381",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/39xxx/CVE-2026-39381.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-v2jv-33gh-xx29",
+      "cve": "CVE-2021-23374",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/23xxx/CVE-2021-23374.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-7q9f-x6rm-qmxr",
+      "cve": "CVE-2020-7635",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2020/7xxx/CVE-2020-7635.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-g2c3-vwff-m3xr",
+      "cve": "CVE-2022-21165",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/21xxx/CVE-2022-21165.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-qfcv-5whw-7pcw",
+      "cve": "CVE-2020-11059",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2020/11xxx/CVE-2020-11059.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-p464-m8x6-vhv8",
+      "cve": "CVE-2026-41405",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/41xxx/CVE-2026-41405.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-7xrj-f5rp-j55h",
+      "cve": "CVE-2021-23429",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/23xxx/CVE-2021-23429.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-qwph-4952-7xr6",
+      "cve": "CVE-2022-23540",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/23xxx/CVE-2022-23540.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-cf4h-3jhx-xvhq",
+      "cve": "CVE-2021-23358",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/23xxx/CVE-2021-23358.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-33rq-m5x2-fvgf",
+      "cve": "CVE-2026-28448",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/28xxx/CVE-2026-28448.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-x369-mcw8-8rvj",
+      "cve": "CVE-2025-68467",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/68xxx/CVE-2025-68467.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-44ff-9w4f-99w6",
+      "cve": "CVE-2023-5571",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2023/5xxx/CVE-2023-5571.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-f772-66g8-q5h3",
+      "cve": "CVE-2022-35948",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/35xxx/CVE-2022-35948.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-pp7m-6j83-m7r6",
+      "cve": "CVE-2021-23414",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/23xxx/CVE-2021-23414.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-4662-j96g-mv46",
+      "cve": "CVE-2016-10548",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2016/10xxx/CVE-2016-10548.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-2xgm-wc4g-5jvg",
+      "cve": "CVE-2026-59253",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/59xxx/CVE-2026-59253.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-5ghm-h2wq-g3mh",
+      "cve": "CVE-2023-5573",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2023/5xxx/CVE-2023-5573.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-cvv5-9h9w-qp2m",
+      "cve": "CVE-2024-56334",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2024/56xxx/CVE-2024-56334.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-364x-8g5j-x2pr",
+      "cve": "CVE-2026-56359",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/56xxx/CVE-2026-56359.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-83fc-fqcc-2hmg",
+      "cve": "CVE-2026-23864",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/23xxx/CVE-2026-23864.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-hr5v-j9h9-xjhg",
+      "cve": "CVE-2026-35668",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/35xxx/CVE-2026-35668.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-xgjw-pm74-86q4",
+      "cve": "CVE-2026-48816",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/48xxx/CVE-2026-48816.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-7phr-5m9x-rw9q",
+      "cve": "CVE-2020-7687",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2020/7xxx/CVE-2020-7687.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-9fg5-f5pj-rwcc",
+      "cve": "CVE-2017-16058",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2017/16xxx/CVE-2017-16058.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-64fm-8hw2-v72w",
+      "cve": "CVE-2024-28243",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2024/28xxx/CVE-2024-28243.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-g8f2-4f4f-5jqw",
+      "cve": "CVE-2026-43898",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/43xxx/CVE-2026-43898.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-w284-33mx-6g9v",
+      "cve": "CVE-2026-54666",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/54xxx/CVE-2026-54666.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-8882-frvv-92w4",
+      "cve": "CVE-2026-50288",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/50xxx/CVE-2026-50288.json",
+      "fetch": "http_404",
+      "cve_state": "UNKNOWN",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-fg52-5jjj-28h7",
+      "cve": "CVE-2024-36580",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2024/36xxx/CVE-2024-36580.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-wqh4-27cc-j8f2",
+      "cve": "CVE-2017-16069",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2017/16xxx/CVE-2017-16069.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-rq6q-wr2q-7pgp",
+      "cve": "CVE-2026-24046",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/24xxx/CVE-2026-24046.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-j759-j44w-7fr8",
+      "cve": "CVE-2026-41672",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/41xxx/CVE-2026-41672.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-9gqh-q4cx-f2h9",
+      "cve": "CVE-2016-10594",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2016/10xxx/CVE-2016-10594.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-qhxp-v273-g94h",
+      "cve": "CVE-2019-25225",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2019/25xxx/CVE-2019-25225.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-q4j7-v27r-fgcx",
+      "cve": "CVE-2021-23543",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/23xxx/CVE-2021-23543.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-vmmj-pfw7-fjwp",
+      "cve": "CVE-2026-57138",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/57xxx/CVE-2026-57138.json",
+      "fetch": "http_404",
+      "cve_state": "UNKNOWN",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-35q2-47q7-3pc3",
+      "cve": "CVE-2021-29469",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/29xxx/CVE-2021-29469.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-rm5c-4rmf-vvhw",
+      "cve": "CVE-2026-41338",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/41xxx/CVE-2026-41338.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-4x6g-3cmx-w76r",
+      "cve": "CVE-2022-22984",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/22xxx/CVE-2022-22984.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-6x93-h9g3-9phr",
+      "cve": "CVE-2021-23451",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/23xxx/CVE-2021-23451.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-f5x2-xv93-4p23",
+      "cve": "CVE-2020-1911",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2020/1xxx/CVE-2020-1911.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-3f5c-4qxj-vmpf",
+      "cve": "CVE-2017-16877",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2017/16xxx/CVE-2017-16877.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-cwc9-cp4j-mcvv",
+      "cve": "CVE-2026-49866",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/49xxx/CVE-2026-49866.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-9x9c-ghc5-jhw9",
+      "cve": "CVE-2025-55207",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/55xxx/CVE-2025-55207.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-x9r5-jxvq-4387",
+      "cve": "CVE-2021-43862",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/43xxx/CVE-2021-43862.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-4pcg-wr6c-h9cq",
+      "cve": "CVE-2022-39386",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/39xxx/CVE-2022-39386.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-2h3h-vw8r-82rp",
+      "cve": "CVE-2021-27884",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/27xxx/CVE-2021-27884.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-wwxh-74fx-33c6",
+      "cve": "CVE-2023-30857",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2023/30xxx/CVE-2023-30857.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-2mxr-p26x-mj73",
+      "cve": "CVE-2026-48035",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/48xxx/CVE-2026-48035.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-vpgc-2f6g-7w7x",
+      "cve": "CVE-2026-33720",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/33xxx/CVE-2026-33720.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-cwq8-6f96-g3q4",
+      "cve": "CVE-2026-41377",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/41xxx/CVE-2026-41377.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-wf6x-7x77-mvgw",
+      "cve": "CVE-2026-29063",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/29xxx/CVE-2026-29063.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-qq67-mvv5-fw3g",
+      "cve": "CVE-2026-25545",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/25xxx/CVE-2026-25545.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-j6w4-pg6p-5mrv",
+      "cve": "CVE-2017-16106",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2017/16xxx/CVE-2017-16106.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-5jpf-pj32-xx53",
+      "cve": "CVE-2020-15125",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2020/15xxx/CVE-2020-15125.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-m2w9-rm58-mhm9",
+      "cve": "CVE-2016-10640",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2016/10xxx/CVE-2016-10640.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-mj46-r4gr-5x83",
+      "cve": "CVE-2022-25863",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/25xxx/CVE-2022-25863.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-8wp9-x25p-8794",
+      "cve": "CVE-2025-1467",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/1xxx/CVE-2025-1467.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-7xhv-mpjw-422f",
+      "cve": "CVE-2021-34083",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/34xxx/CVE-2021-34083.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-9c4c-g95m-c8cp",
+      "cve": "CVE-2025-71332",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/71xxx/CVE-2025-71332.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-vjc7-jrh9-9j86",
+      "cve": "CVE-2026-59801",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/59xxx/CVE-2026-59801.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-fhg7-m89q-25r3",
+      "cve": "CVE-2022-25927",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/25xxx/CVE-2022-25927.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-73rg-f94j-xvhx",
+      "cve": "CVE-2024-47061",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2024/47xxx/CVE-2024-47061.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-f4gw-2p7v-4548",
+      "cve": "CVE-2026-67315",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/67xxx/CVE-2026-67315.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-crh5-vv2v-c82q",
+      "cve": "CVE-2021-32850",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/32xxx/CVE-2021-32850.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-wpgh-hmv4-r3v5",
+      "cve": "CVE-2021-25928",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/25xxx/CVE-2021-25928.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-hrpq-r399-whgw",
+      "cve": "CVE-2020-7710",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2020/7xxx/CVE-2020-7710.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-69f2-4375-qv9h",
+      "cve": "CVE-2022-21810",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/21xxx/CVE-2022-21810.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-x4qj-2f4q-r4rx",
+      "cve": "CVE-2025-64430",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/64xxx/CVE-2025-64430.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-mqr2-w7wj-jjgr",
+      "cve": "CVE-2024-21507",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2024/21xxx/CVE-2024-21507.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-f8fh-8rgm-227h",
+      "cve": "CVE-2020-7602",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2020/7xxx/CVE-2020-7602.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-r666-8gjf-4v5f",
+      "cve": "CVE-2026-25151",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/25xxx/CVE-2026-25151.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-897m-rjf5-jp39",
+      "cve": "CVE-2020-28503",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2020/28xxx/CVE-2020-28503.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-9qgr-6vpg-9gh9",
+      "cve": "CVE-2026-46547",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/46xxx/CVE-2026-46547.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-mv33-9f6j-pfmc",
+      "cve": "CVE-2025-55746",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/55xxx/CVE-2025-55746.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-q5f4-99jv-pgg5",
+      "cve": "CVE-2026-42231",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/42xxx/CVE-2026-42231.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-qpjv-v59x-3qc4",
+      "cve": "CVE-2025-32421",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/32xxx/CVE-2025-32421.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-9cmh-xcqm-5hqr",
+      "cve": "CVE-2026-72764",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/72xxx/CVE-2026-72764.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-23vf-5g53-hm9q",
+      "cve": "CVE-2017-16084",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2017/16xxx/CVE-2017-16084.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-vp58-j275-797x",
+      "cve": "CVE-2025-71403",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/71xxx/CVE-2025-71403.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-mmpq-5hcv-hf2v",
+      "cve": "CVE-2026-39321",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/39xxx/CVE-2026-39321.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-f962-v9hr-pfg5",
+      "cve": "CVE-2026-54527",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/54xxx/CVE-2026-54527.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-286p-vc9p-p5qv",
+      "cve": "CVE-2025-59142",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/59xxx/CVE-2025-59142.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-rhx6-c78j-4q9w",
+      "cve": "CVE-2024-52798",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2024/52xxx/CVE-2024-52798.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-rpj4-7x2v-wjrf",
+      "cve": "CVE-2026-45548",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/45xxx/CVE-2026-45548.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-q9xg-h756-8689",
+      "cve": "CVE-2021-20083",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/20xxx/CVE-2021-20083.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-hw8r-x6gr-5gjp",
+      "cve": "CVE-2025-1302",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/1xxx/CVE-2025-1302.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-mv9j-6xhh-g383",
+      "cve": "CVE-2026-28450",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/28xxx/CVE-2026-28450.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-6h5j-32cf-4253",
+      "cve": "CVE-2026-53609",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/53xxx/CVE-2026-53609.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-7jxr-cg7f-gpgv",
+      "cve": "CVE-2023-29017",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2023/29xxx/CVE-2023-29017.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-99vc-2jx2-688p",
+      "cve": "CVE-2026-46551",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/46xxx/CVE-2026-46551.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-5c8j-xr24-2665",
+      "cve": "CVE-2014-3741",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2014/3xxx/CVE-2014-3741.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-35jh-r3h4-6jhm",
+      "cve": "CVE-2021-23337",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/23xxx/CVE-2021-23337.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-8p72-rcq4-h6pw",
+      "cve": "CVE-2024-39699",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2024/39xxx/CVE-2024-39699.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-7qcx-4p32-qcmx",
+      "cve": "CVE-2022-29229",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/29xxx/CVE-2022-29229.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-x9gp-vjh6-3wv6",
+      "cve": "CVE-2025-58064",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/58xxx/CVE-2025-58064.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-36vc-cw62-fqvr",
+      "cve": "CVE-2017-16078",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2017/16xxx/CVE-2017-16078.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-qcg2-h349-vwm3",
+      "cve": "CVE-2021-31712",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/31xxx/CVE-2021-31712.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-34q8-jcq6-mc37",
+      "cve": "CVE-2024-21489",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2024/21xxx/CVE-2024-21489.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-5wx6-mg75-v57r",
+      "cve": "CVE-2026-55487",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/55xxx/CVE-2026-55487.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-c9vv-fhgv-cjc3",
+      "cve": "CVE-2024-1631",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2024/1xxx/CVE-2024-1631.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-j3f7-7rmc-6wqj",
+      "cve": "CVE-2021-40831",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2021/40xxx/CVE-2021-40831.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-995x-33wq-8gc9",
+      "cve": "CVE-2022-24377",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/24xxx/CVE-2022-24377.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-42hx-vrxx-5r6v",
+      "cve": "CVE-2022-23461",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/23xxx/CVE-2022-23461.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-vh4f-fgpp-x8x2",
+      "cve": "CVE-2022-24375",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/24xxx/CVE-2022-24375.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-gmwp-3pwc-3j3g",
+      "cve": "CVE-2022-37614",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/37xxx/CVE-2022-37614.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-xc68-rrqc-qgq3",
+      "cve": "CVE-2026-3484",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/3xxx/CVE-2026-3484.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-rm8p-cx58-hcvx",
+      "cve": "CVE-2025-54371",
+      "ghsa_withdrawn": true,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/54xxx/CVE-2025-54371.json",
+      "fetch": "ok",
+      "cve_state": "REJECTED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-5rqw-r77c-jp79",
+      "cve": "CVE-2026-34779",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/34xxx/CVE-2026-34779.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-g796-fgmg-93mv",
+      "cve": "CVE-2026-59868",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/59xxx/CVE-2026-59868.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-4xqv-47rm-37mm",
+      "cve": "CVE-2024-47529",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2024/47xxx/CVE-2024-47529.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-wh5w-82f3-wrxh",
+      "cve": "CVE-2023-4771",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2023/4xxx/CVE-2023-4771.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-4q6p-r6v2-jvc5",
+      "cve": "CVE-2023-43646",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2023/43xxx/CVE-2023-43646.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-6h5x-7c5m-7cr7",
+      "cve": "CVE-2022-1650",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/1xxx/CVE-2022-1650.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-f65r-h4g3-3h9h",
+      "cve": "CVE-2026-48797",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/48xxx/CVE-2026-48797.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-392p-2q2v-4372",
+      "cve": "CVE-2026-53517",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/53xxx/CVE-2026-53517.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-2j5v-fc74-j9q2",
+      "cve": "CVE-2019-9737",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2019/9xxx/CVE-2019-9737.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-f934-5rqf-xx47",
+      "cve": "CVE-2026-44111",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/44xxx/CVE-2026-44111.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-7wpw-2hjm-89gp",
+      "cve": "CVE-2020-28499",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2020/28xxx/CVE-2020-28499.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-qvp5-mm7v-4f36",
+      "cve": "CVE-2020-27666",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2020/27xxx/CVE-2020-27666.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-892p-pqrr-hxqr",
+      "cve": "CVE-2025-46332",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/46xxx/CVE-2025-46332.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-xhq5-45pm-2gjr",
+      "cve": "CVE-2026-35624",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/35xxx/CVE-2026-35624.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-rgqx-226f-2xp4",
+      "cve": "CVE-2022-37259",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/37xxx/CVE-2022-37259.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-qf8x-vqjv-92gr",
+      "cve": "CVE-2022-24901",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/24xxx/CVE-2022-24901.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-fhwm-pc6r-4h2f",
+      "cve": "CVE-2025-62378",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/62xxx/CVE-2025-62378.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-j336-34q7-cgj3",
+      "cve": "CVE-2016-10684",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2016/10xxx/CVE-2016-10684.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-5rc6-2r3r-fv79",
+      "cve": "CVE-2016-10644",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2016/10xxx/CVE-2016-10644.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-mwp4-54f8-5fhr",
+      "cve": "CVE-2026-69192",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/69xxx/CVE-2026-69192.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-2fmp-9rvw-hc96",
+      "cve": "CVE-2026-58484",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/58xxx/CVE-2026-58484.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-36m4-6v6m-4vpr",
+      "cve": "CVE-2019-12043",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2019/12xxx/CVE-2019-12043.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-4hf6-3x24-c9m8",
+      "cve": "CVE-2026-31875",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/31xxx/CVE-2026-31875.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-wf42-42fg-fg84",
+      "cve": "CVE-2026-33011",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/33xxx/CVE-2026-33011.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-337j-9hxr-rhxg",
+      "cve": "CVE-2026-53666",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/53xxx/CVE-2026-53666.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-rf6h-5gpw-qrgq",
+      "cve": "CVE-2026-35654",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/35xxx/CVE-2026-35654.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-m7mq-85xj-9x33",
+      "cve": "CVE-2026-56269",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/56xxx/CVE-2026-56269.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-vjcj-5g2r-vxqc",
+      "cve": "CVE-2018-16330",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2018/16xxx/CVE-2018-16330.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-r29h-37fj-x2w6",
+      "cve": "CVE-2026-45346",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/45xxx/CVE-2026-45346.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-2q4w-x8h2-2fvh",
+      "cve": "CVE-2024-8181",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2024/8xxx/CVE-2024-8181.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-q284-4pvr-m585",
+      "cve": "CVE-2026-25157",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/25xxx/CVE-2026-25157.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-qgp8-v765-qxx9",
+      "cve": "CVE-2025-4144",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/4xxx/CVE-2025-4144.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-6r2j-cxgf-495f",
+      "cve": "CVE-2026-30965",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/30xxx/CVE-2026-30965.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-m5jf-8crm-r65m",
+      "cve": "CVE-2024-34449",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2024/34xxx/CVE-2024-34449.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-63m4-fhf2-cmf7",
+      "cve": "CVE-2017-1000219",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2017/1000xxx/CVE-2017-1000219.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-6f6r-m9pv-67jw",
+      "cve": "CVE-2025-52573",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/52xxx/CVE-2025-52573.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-72q2-5rxx-xfff",
+      "cve": "CVE-2017-16040",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2017/16xxx/CVE-2017-16040.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-v626-r774-j7f8",
+      "cve": "CVE-2023-48219",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2023/48xxx/CVE-2023-48219.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-7xvh-c266-cfr5",
+      "cve": "CVE-2025-64758",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/64xxx/CVE-2025-64758.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-xvhf-x56f-2hpp",
+      "cve": "CVE-2026-28463",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/28xxx/CVE-2026-28463.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-x2g5-fvc2-gqvp",
+      "cve": "CVE-2026-56272",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/56xxx/CVE-2026-56272.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-9cvc-v7wm-992c",
+      "cve": "CVE-2023-40027",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2023/40xxx/CVE-2023-40027.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-fg94-h982-f3mm",
+      "cve": "CVE-2026-54316",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/54xxx/CVE-2026-54316.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-49rv-g7w5-m8xx",
+      "cve": "CVE-2017-18635",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2017/18xxx/CVE-2017-18635.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": false
+    },
+    {
+      "ghsa": "GHSA-jrhj-2j3q-xf3v",
+      "cve": "CVE-2018-3716",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2018/3xxx/CVE-2018-3716.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-7r2x-3qcm-8vfw",
+      "cve": "CVE-2016-10665",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2016/10xxx/CVE-2016-10665.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-4c39-4ccg-62r3",
+      "cve": "CVE-2026-64646",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/64xxx/CVE-2026-64646.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-q5vx-44v4-gch4",
+      "cve": "CVE-2022-32214",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2022/32xxx/CVE-2022-32214.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-j452-xhg8-qg39",
+      "cve": "CVE-2026-5758",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/5xxx/CVE-2026-5758.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    },
+    {
+      "ghsa": "GHSA-xr7v-j379-34v9",
+      "cve": "CVE-2026-24767",
+      "ghsa_withdrawn": false,
+      "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/24xxx/CVE-2026-24767.json",
+      "fetch": "ok",
+      "cve_state": "PUBLISHED",
+      "has_version_bound": true
+    }
+  ]
+}

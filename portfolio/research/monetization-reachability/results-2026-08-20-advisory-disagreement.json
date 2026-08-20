@@ -1,0 +1,204 @@
+{
+  "n_records": 227118,
+  "n_records_with_cve_alias": 5800,
+  "n_cves_seen": 5786,
+  "n_multi_source_cves": 11,
+  "multi_source_share_of_cves": 0.0019,
+  "rates_within_multi_source_groups": {
+    "package_disagreement": 0.0909,
+    "range_disagreement": 1.0,
+    "range_silent_in_some_source": 0.0,
+    "withdrawn_split": 0.0909,
+    "any_disagreement": 1.0
+  },
+  "source_pairs": {
+    "GHSA + MAL": 11
+  },
+  "groups": [
+    {
+      "cve": "CVE-2025-59142",
+      "ids": [
+        "GHSA-286p-vc9p-p5qv",
+        "MAL-2025-46973"
+      ],
+      "sources": [
+        "GHSA",
+        "MAL"
+      ],
+      "package_disagreement": false,
+      "range_disagreement": true,
+      "range_silent_in_some_source": false,
+      "withdrawn_split": false,
+      "any_disagreement": true
+    },
+    {
+      "cve": "CVE-2025-59144",
+      "ids": [
+        "GHSA-4x49-vf9v-38px",
+        "MAL-2025-46974"
+      ],
+      "sources": [
+        "GHSA",
+        "MAL"
+      ],
+      "package_disagreement": false,
+      "range_disagreement": true,
+      "range_silent_in_some_source": false,
+      "withdrawn_split": false,
+      "any_disagreement": true
+    },
+    {
+      "cve": "CVE-2025-59140",
+      "ids": [
+        "GHSA-53mq-f4w3-f7qv",
+        "MAL-2025-46968"
+      ],
+      "sources": [
+        "GHSA",
+        "MAL"
+      ],
+      "package_disagreement": false,
+      "range_disagreement": true,
+      "range_silent_in_some_source": false,
+      "withdrawn_split": false,
+      "any_disagreement": true
+    },
+    {
+      "cve": "CVE-2025-59145",
+      "ids": [
+        "GHSA-5fvm-p68v-5wmh",
+        "MAL-2025-46972"
+      ],
+      "sources": [
+        "GHSA",
+        "MAL"
+      ],
+      "package_disagreement": false,
+      "range_disagreement": true,
+      "range_silent_in_some_source": false,
+      "withdrawn_split": false,
+      "any_disagreement": true
+    },
+    {
+      "cve": "CVE-2025-59330",
+      "ids": [
+        "GHSA-6jp5-hh4c-8c5h",
+        "MAL-2025-46975"
+      ],
+      "sources": [
+        "GHSA",
+        "MAL"
+      ],
+      "package_disagreement": false,
+      "range_disagreement": true,
+      "range_silent_in_some_source": false,
+      "withdrawn_split": false,
+      "any_disagreement": true
+    },
+    {
+      "cve": "CVE-2025-59141",
+      "ids": [
+        "GHSA-9g9j-rggx-7fmg",
+        "MAL-2025-46978"
+      ],
+      "sources": [
+        "GHSA",
+        "MAL"
+      ],
+      "package_disagreement": false,
+      "range_disagreement": true,
+      "range_silent_in_some_source": false,
+      "withdrawn_split": false,
+      "any_disagreement": true
+    },
+    {
+      "cve": "CVE-2025-10894",
+      "ids": [
+        "GHSA-cxm3-wv7p-598c",
+        "MAL-2025-41436",
+        "MAL-2025-41437",
+        "MAL-2025-41438",
+        "MAL-2025-41439",
+        "MAL-2025-41440",
+        "MAL-2025-41441",
+        "MAL-2025-41442",
+        "MAL-2025-41443"
+      ],
+      "sources": [
+        "GHSA",
+        "MAL"
+      ],
+      "package_disagreement": true,
+      "range_disagreement": true,
+      "range_silent_in_some_source": false,
+      "withdrawn_split": true,
+      "any_disagreement": true
+    },
+    {
+      "cve": "CVE-2025-59331",
+      "ids": [
+        "GHSA-frh7-2f84-v9mw",
+        "MAL-2025-46977"
+      ],
+      "sources": [
+        "GHSA",
+        "MAL"
+      ],
+      "package_disagreement": false,
+      "range_disagreement": true,
+      "range_silent_in_some_source": false,
+      "withdrawn_split": false,
+      "any_disagreement": true
+    },
+    {
+      "cve": "CVE-2025-59038",
+      "ids": [
+        "GHSA-jwq7-6j4r-2f92",
+        "MAL-2025-46990"
+      ],
+      "sources": [
+        "GHSA",
+        "MAL"
+      ],
+      "package_disagreement": false,
+      "range_disagreement": true,
+      "range_silent_in_some_source": false,
+      "withdrawn_split": false,
+      "any_disagreement": true
+    },
+    {
+      "cve": "CVE-2025-59162",
+      "ids": [
+        "GHSA-pxx3-g568-hxr4",
+        "MAL-2025-46971"
+      ],
+      "sources": [
+        "GHSA",
+        "MAL"
+      ],
+      "package_disagreement": false,
+      "range_disagreement": true,
+      "range_silent_in_some_source": false,
+      "withdrawn_split": false,
+      "any_disagreement": true
+    },
+    {
+      "cve": "CVE-2025-59143",
+      "ids": [
+        "GHSA-qrmh-qg46-72pp",
+        "MAL-2025-46985"
+      ],
+      "sources": [
+        "GHSA",
+        "MAL"
+      ],
+      "package_disagreement": false,
+      "range_disagreement": true,
+      "range_silent_in_some_source": false,
+      "withdrawn_split": false,
+      "any_disagreement": true
+    }
+  ],
+  "ecosystem": "npm",
+  "generated_by": "portfolio/research/monetization-reachability/measure_advisory_disagreement.py"
+}

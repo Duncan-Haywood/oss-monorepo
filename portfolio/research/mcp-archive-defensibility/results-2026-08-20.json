@@ -1,0 +1,582 @@
+{
+ "measured_utc": "2026-08-20T03:14:27Z",
+ "population": {
+  "version_records": 4500,
+  "distinct_servers": 1720,
+  "servers_with_multiple_versions_pct": 32.2,
+  "buckets": {
+   "remote_only": {
+    "n": 1453,
+    "pct": 84.5
+   },
+   "package_reconstructible": {
+    "n": 244,
+    "pct": 14.2
+   },
+   "package_unreachable_registry": {
+    "n": 14,
+    "pct": 0.8
+   },
+   "neither": {
+    "n": 9,
+    "pct": 0.5
+   }
+  },
+  "package_registry_kinds": {
+   "npm": 214,
+   "pypi": 33,
+   "oci": 11,
+   "mcpb": 5,
+   "nuget": 1
+  },
+  "remote_transports": {
+   "streamable-http": 1523,
+   "sse": 58
+  },
+  "top_remote_hosts": {
+   "server.smithery.ai": 213,
+   "waystation.ai": 24,
+   "apick.app": 9,
+   "mcp.openhelm.ai": 6,
+   "mcp.fodda.ai": 5,
+   "mana.am": 4,
+   "agent.thoughtspot.app": 4,
+   "api.antevo.ch": 4,
+   "api.agenticshelf.ai": 3,
+   "scope.bid": 3
+  },
+  "_remote_only_examples": [
+   "https://api.inference.sh/mcp",
+   "https://tandem.ac/mcp",
+   "https://app.inside.ad/api/mcp",
+   "https://www.hood.ag/api/mcp",
+   "https://mcp.goji.agency/mcp",
+   "https://mcp.lona.agency/mcp",
+   "https://agoclnqfyinwjxdmjnns.supabase.co/functions/v1/mcp",
+   "https://mcp.aarna.ai/mcp"
+  ]
+ },
+ "npm_targets_available": 40,
+ "retention": {
+  "packages": 40,
+  "versions_published_total": 1059,
+  "versions_unpublished_total": 18,
+  "unpublished_share_pct": 1.7,
+  "packages_with_any_unpublished": 2,
+  "retained_versions_median": 13.0,
+  "retained_versions_max": 344,
+  "span_days_median": 55.0,
+  "span_days_max": 293,
+  "span_days_total": 2864,
+  "rows": [
+   {
+    "pkg": "@bowmark/mcp",
+    "versions_published": 2,
+    "versions_retained": 2,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-08-06",
+    "last": "2026-08-06",
+    "span_days": 0
+   },
+   {
+    "pkg": "bowmark-mcp",
+    "versions_published": 7,
+    "versions_retained": 7,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-07-04",
+    "last": "2026-08-06",
+    "span_days": 33
+   },
+   {
+    "pkg": "@trusty-squire/mcp",
+    "versions_published": 344,
+    "versions_retained": 344,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-05-15",
+    "last": "2026-08-19",
+    "span_days": 96
+   },
+   {
+    "pkg": "mcp-server-scf",
+    "versions_published": 74,
+    "versions_retained": 74,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-02-19",
+    "last": "2026-07-17",
+    "span_days": 148
+   },
+   {
+    "pkg": "@kawacode/mcp",
+    "versions_published": 24,
+    "versions_retained": 24,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-03-18",
+    "last": "2026-08-15",
+    "span_days": 150
+   },
+   {
+    "pkg": "@ankimcp/anki-mcp-server",
+    "versions_published": 45,
+    "versions_retained": 44,
+    "versions_unpublished": 1,
+    "unpublished_examples": [
+     "0.12.0"
+    ],
+    "first": "2025-11-10",
+    "last": "2026-08-16",
+    "span_days": 279
+   },
+   {
+    "pkg": "@tensorfeed/mcp-server",
+    "versions_published": 36,
+    "versions_retained": 36,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-04-28",
+    "last": "2026-07-06",
+    "span_days": 69
+   },
+   {
+    "pkg": "@shipeasy/mcp",
+    "versions_published": 18,
+    "versions_retained": 18,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-05-12",
+    "last": "2026-07-27",
+    "span_days": 76
+   },
+   {
+    "pkg": "@kinlab/kin-mcp",
+    "versions_published": 66,
+    "versions_retained": 66,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-06-16",
+    "last": "2026-08-19",
+    "span_days": 64
+   },
+   {
+    "pkg": "@bolthub/mcp",
+    "versions_published": 12,
+    "versions_retained": 12,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-07-07",
+    "last": "2026-07-25",
+    "span_days": 18
+   },
+   {
+    "pkg": "@chronary/mcp",
+    "versions_published": 19,
+    "versions_retained": 19,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-05-20",
+    "last": "2026-07-14",
+    "span_days": 55
+   },
+   {
+    "pkg": "@orangepro/mcp-server",
+    "versions_published": 28,
+    "versions_retained": 28,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-07-07",
+    "last": "2026-08-14",
+    "span_days": 38
+   },
+   {
+    "pkg": "@scope-bid/scope-aec-mcp",
+    "versions_published": 13,
+    "versions_retained": 13,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-05-03",
+    "last": "2026-07-30",
+    "span_days": 88
+   },
+   {
+    "pkg": "@scope-bid/scope-claims-mcp",
+    "versions_published": 13,
+    "versions_retained": 13,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-05-03",
+    "last": "2026-07-30",
+    "span_days": 88
+   },
+   {
+    "pkg": "@scope-bid/scope-mcp",
+    "versions_published": 13,
+    "versions_retained": 13,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-05-03",
+    "last": "2026-07-30",
+    "span_days": 88
+   },
+   {
+    "pkg": "@cleanor/mcp",
+    "versions_published": 8,
+    "versions_retained": 8,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-07-06",
+    "last": "2026-07-14",
+    "span_days": 8
+   },
+   {
+    "pkg": "@aetherwealth/mcp",
+    "versions_published": 18,
+    "versions_retained": 18,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-06-27",
+    "last": "2026-08-08",
+    "span_days": 42
+   },
+   {
+    "pkg": "@dinglebear/soma",
+    "versions_published": 3,
+    "versions_retained": 3,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-08-02",
+    "last": "2026-08-05",
+    "span_days": 3
+   },
+   {
+    "pkg": "@perplexity-ai/mcp-server",
+    "versions_published": 27,
+    "versions_retained": 27,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2025-10-07",
+    "last": "2026-07-27",
+    "span_days": 293
+   },
+   {
+    "pkg": "raven-mcp",
+    "versions_published": 49,
+    "versions_retained": 49,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-04-12",
+    "last": "2026-08-18",
+    "span_days": 128
+   },
+   {
+    "pkg": "@sendinel/mcp-server",
+    "versions_published": 11,
+    "versions_retained": 11,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-07-03",
+    "last": "2026-08-04",
+    "span_days": 32
+   },
+   {
+    "pkg": "@vaaya/mcp",
+    "versions_published": 18,
+    "versions_retained": 18,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-06-19",
+    "last": "2026-08-16",
+    "span_days": 58
+   },
+   {
+    "pkg": "etincel",
+    "versions_published": 10,
+    "versions_retained": 10,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-08-11",
+    "last": "2026-08-15",
+    "span_days": 4
+   },
+   {
+    "pkg": "kaduno-pullpush-mcp",
+    "versions_published": 13,
+    "versions_retained": 13,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-07-02",
+    "last": "2026-08-10",
+    "span_days": 39
+   },
+   {
+    "pkg": "@rolli/mcp",
+    "versions_published": 14,
+    "versions_retained": 14,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-03-04",
+    "last": "2026-08-11",
+    "span_days": 160
+   },
+   {
+    "pkg": "@testivai/mcp",
+    "versions_published": 12,
+    "versions_retained": 12,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-07-14",
+    "last": "2026-08-17",
+    "span_days": 34
+   },
+   {
+    "pkg": "@voxell/forge-mcp",
+    "versions_published": 6,
+    "versions_retained": 6,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-05-30",
+    "last": "2026-05-30",
+    "span_days": 0
+   },
+   {
+    "pkg": "webhound-mcp",
+    "versions_published": 18,
+    "versions_retained": 18,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-06-24",
+    "last": "2026-07-27",
+    "span_days": 33
+   },
+   {
+    "pkg": "tenjin-cli",
+    "versions_published": 14,
+    "versions_retained": 14,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-07-17",
+    "last": "2026-08-17",
+    "span_days": 31
+   },
+   {
+    "pkg": "@pentatrail/mcp-server",
+    "versions_published": 12,
+    "versions_retained": 12,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-05-01",
+    "last": "2026-08-14",
+    "span_days": 105
+   },
+   {
+    "pkg": "@certscore/mcp",
+    "versions_published": 11,
+    "versions_retained": 11,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-07-05",
+    "last": "2026-08-14",
+    "span_days": 40
+   },
+   {
+    "pkg": "@dinglebear/labby",
+    "versions_published": 5,
+    "versions_retained": 5,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-08-02",
+    "last": "2026-08-18",
+    "span_days": 16
+   },
+   {
+    "pkg": "labby-mcp",
+    "versions_published": 4,
+    "versions_retained": 4,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-07-12",
+    "last": "2026-07-30",
+    "span_days": 18
+   },
+   {
+    "pkg": "fodda-mcp",
+    "versions_published": 9,
+    "versions_retained": 9,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-02-16",
+    "last": "2026-08-06",
+    "span_days": 171
+   },
+   {
+    "pkg": "@fouradata/mcp",
+    "versions_published": 33,
+    "versions_retained": 16,
+    "versions_unpublished": 17,
+    "unpublished_examples": [
+     "0.1.0",
+     "0.1.1",
+     "0.1.2",
+     "0.1.3",
+     "0.1.4"
+    ],
+    "first": "2026-05-13",
+    "last": "2026-08-06",
+    "span_days": 85
+   },
+   {
+    "pkg": "@shumi-ai/mcp",
+    "versions_published": 6,
+    "versions_retained": 6,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-08-12",
+    "last": "2026-08-19",
+    "span_days": 7
+   },
+   {
+    "pkg": "@signal8ai/mcp",
+    "versions_published": 25,
+    "versions_retained": 25,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-03-18",
+    "last": "2026-07-31",
+    "span_days": 135
+   },
+   {
+    "pkg": "@spekoai/mcp",
+    "versions_published": 8,
+    "versions_retained": 8,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-04-06",
+    "last": "2026-06-06",
+    "span_days": 61
+   },
+   {
+    "pkg": "@tensorfeed/x402-base-mcp",
+    "versions_published": 6,
+    "versions_retained": 6,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-05-12",
+    "last": "2026-05-28",
+    "span_days": 16
+   },
+   {
+    "pkg": "@verlon-ai/mcp",
+    "versions_published": 5,
+    "versions_retained": 5,
+    "versions_unpublished": 0,
+    "unpublished_examples": [],
+    "first": "2026-06-01",
+    "last": "2026-07-26",
+    "span_days": 55
+   }
+  ]
+ },
+ "copy_cost": {
+  "packages_attempted": 6,
+  "packages_with_usable_archive": 4,
+  "versions_fetched": 65,
+  "megabytes_total": 11.51,
+  "wall_seconds": 25.4,
+  "seconds_per_version": 0.39,
+  "history_days_recovered": 673,
+  "rows": [
+   {
+    "pkg": "@bowmark/mcp",
+    "versions_fetched": 2,
+    "sampled": false,
+    "snapshots_with_tools": 0,
+    "distinct_tools_recovered": 0,
+    "fetch_failures": 0,
+    "history_days": 0,
+    "megabytes": 0.01,
+    "seconds": 0.6
+   },
+   {
+    "pkg": "bowmark-mcp",
+    "versions_fetched": 7,
+    "sampled": false,
+    "snapshots_with_tools": 0,
+    "distinct_tools_recovered": 0,
+    "fetch_failures": 0,
+    "history_days": 33,
+    "megabytes": 0.03,
+    "seconds": 1.3
+   },
+   {
+    "pkg": "@trusty-squire/mcp",
+    "versions_fetched": 14,
+    "sampled": true,
+    "snapshots_with_tools": 14,
+    "distinct_tools_recovered": 40,
+    "fetch_failures": 0,
+    "history_days": 96,
+    "megabytes": 7.35,
+    "seconds": 7.8
+   },
+   {
+    "pkg": "mcp-server-scf",
+    "versions_fetched": 14,
+    "sampled": true,
+    "snapshots_with_tools": 14,
+    "distinct_tools_recovered": 161,
+    "fetch_failures": 0,
+    "history_days": 148,
+    "megabytes": 0.36,
+    "seconds": 4.6
+   },
+   {
+    "pkg": "@kawacode/mcp",
+    "versions_fetched": 14,
+    "sampled": true,
+    "snapshots_with_tools": 14,
+    "distinct_tools_recovered": 30,
+    "fetch_failures": 0,
+    "history_days": 150,
+    "megabytes": 1.33,
+    "seconds": 5.1
+   },
+   {
+    "pkg": "@ankimcp/anki-mcp-server",
+    "versions_fetched": 14,
+    "sampled": true,
+    "snapshots_with_tools": 14,
+    "distinct_tools_recovered": 58,
+    "fetch_failures": 0,
+    "history_days": 279,
+    "megabytes": 2.44,
+    "seconds": 5.3
+   }
+  ]
+ },
+ "control": {
+  "checked": 8,
+  "reachable": 0,
+  "results": {
+   "https://api.inference.sh/mcp": "proxy-denied",
+   "https://tandem.ac/mcp": "proxy-denied",
+   "https://app.inside.ad/api/mcp": "proxy-denied",
+   "https://www.hood.ag/api/mcp": "proxy-denied",
+   "https://mcp.goji.agency/mcp": "proxy-denied",
+   "https://mcp.lona.agency/mcp": "proxy-denied",
+   "https://agoclnqfyinwjxdmjnns.supabase.co/functions/v1/mcp": "proxy-denied",
+   "https://mcp.aarna.ai/mcp": "proxy-denied"
+  },
+  "note": "Plain GET only, to record reachability. No MCP protocol traffic was sent and no server was asked for its tool list."
+ },
+ "derived": {
+  "share_of_servers_whose_history_is_public_pct": 14.2,
+  "share_of_servers_where_a_pin_is_the_only_record_pct": 85.3,
+  "public_history_unrecoverable_pct": 1.7,
+  "median_days_of_history_a_cold_entrant_gets_free": 55.0,
+  "seconds_to_rebuild_one_package_archive_median": 4.2,
+  "server_days_of_history_rebuilt_per_wall_hour": 95386
+ }
+}

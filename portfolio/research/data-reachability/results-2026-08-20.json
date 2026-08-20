@@ -1,0 +1,254 @@
+[
+  {
+    "feed": "osv",
+    "channel": "canonical API",
+    "url": "https://api.osv.dev/v1/vulns/GHSA-4342-x723-ch2f",
+    "needed_by": "cra-evidence-desk",
+    "status": 0,
+    "note": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+    "reached": false
+  },
+  {
+    "feed": "osv",
+    "channel": "bulk object store",
+    "url": "https://osv-vulnerabilities.storage.googleapis.com/npm/all.zip",
+    "needed_by": "cra-evidence-desk",
+    "status": 200,
+    "note": "Thu, 20 Aug 2026 04:34:21 GMT",
+    "reached": true
+  },
+  {
+    "feed": "nvd",
+    "channel": "canonical API",
+    "url": "https://services.nvd.nist.gov/rest/json/cves/2.0?resultsPerPage=1",
+    "needed_by": "cra-evidence-desk",
+    "status": 0,
+    "note": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+    "reached": false
+  },
+  {
+    "feed": "cisa-kev",
+    "channel": "canonical site",
+    "url": "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
+    "needed_by": "cra-evidence-desk",
+    "status": 0,
+    "note": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+    "reached": false
+  },
+  {
+    "feed": "cisa-kev",
+    "channel": "git mirror",
+    "url": "https://raw.githubusercontent.com/cisagov/kev-data/develop/known_exploited_vulnerabilities.json",
+    "needed_by": "cra-evidence-desk",
+    "status": 200,
+    "note": "",
+    "reached": true
+  },
+  {
+    "feed": "epss",
+    "channel": "canonical download",
+    "url": "https://epss.empiricalsecurity.com/epss_scores-current.csv.gz",
+    "needed_by": "cra-evidence-desk",
+    "status": 0,
+    "note": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+    "reached": false
+  },
+  {
+    "feed": "euvd",
+    "channel": "canonical API",
+    "url": "https://euvd.enisa.europa.eu/api/lastvulnerabilities",
+    "needed_by": "cra-evidence-desk",
+    "status": 0,
+    "note": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+    "reached": false
+  },
+  {
+    "feed": "npm-advisories",
+    "channel": "registry bulk",
+    "url": "https://registry.npmjs.org/-/npm/v1/security/advisories/bulk",
+    "needed_by": "cra-evidence-desk",
+    "status": 405,
+    "note": "GET fallback: HTTP Error 405: Method Not Allowed",
+    "reached": true
+  },
+  {
+    "feed": "npm-registry",
+    "channel": "registry API",
+    "url": "https://registry.npmjs.org/next",
+    "needed_by": "mcp-supply-chain-watch",
+    "status": 200,
+    "note": "Wed, 19 Aug 2026 23:56:41 GMT",
+    "reached": true
+  },
+  {
+    "feed": "wcag",
+    "channel": "canonical site",
+    "url": "https://www.w3.org/TR/WCAG21/",
+    "needed_by": "eaa-remediation-pipeline",
+    "status": 0,
+    "note": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+    "reached": false
+  },
+  {
+    "feed": "wcag",
+    "channel": "git mirror",
+    "url": "https://raw.githubusercontent.com/w3c/wcag/main/README.md",
+    "needed_by": "eaa-remediation-pipeline",
+    "status": 200,
+    "note": "",
+    "reached": true
+  },
+  {
+    "feed": "axe-core",
+    "channel": "git mirror",
+    "url": "https://raw.githubusercontent.com/dequelabs/axe-core/develop/package.json",
+    "needed_by": "shopify-a11y-evidence",
+    "status": 200,
+    "note": "",
+    "reached": true
+  },
+  {
+    "feed": "eur-lex",
+    "channel": "canonical site",
+    "url": "https://eur-lex.europa.eu/",
+    "needed_by": "graduation gate",
+    "status": 0,
+    "note": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+    "reached": false
+  },
+  {
+    "feed": "ec.europa.eu",
+    "channel": "canonical site",
+    "url": "https://ec.europa.eu/",
+    "needed_by": "graduation gate",
+    "status": 0,
+    "note": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+    "reached": false
+  },
+  {
+    "feed": "eu-publications",
+    "channel": "canonical site",
+    "url": "https://publications.europa.eu/",
+    "needed_by": "graduation gate",
+    "status": 0,
+    "note": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+    "reached": false
+  },
+  {
+    "feed": "eu-open-data",
+    "channel": "bulk portal",
+    "url": "https://data.europa.eu/",
+    "needed_by": "graduation gate",
+    "status": 0,
+    "note": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+    "reached": false
+  },
+  {
+    "feed": "federal-register",
+    "channel": "canonical site",
+    "url": "https://www.federalregister.gov/",
+    "needed_by": "graduation gate",
+    "status": 0,
+    "note": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+    "reached": false
+  },
+  {
+    "feed": "ted",
+    "channel": "canonical site",
+    "url": "https://ted.europa.eu/",
+    "needed_by": "tender-radar",
+    "status": 0,
+    "note": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+    "reached": false
+  },
+  {
+    "feed": "wordpress.org",
+    "channel": "canonical API",
+    "url": "https://api.wordpress.org/plugins/info/1.2/",
+    "needed_by": "Ask 7",
+    "status": 0,
+    "note": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+    "reached": false
+  },
+  {
+    "feed": "control",
+    "channel": "generic website",
+    "url": "https://example.com",
+    "needed_by": "control",
+    "status": 0,
+    "note": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+    "reached": false
+  },
+  {
+    "feed": "control",
+    "channel": "github HTML",
+    "url": "https://github.com/github/advisory-database",
+    "needed_by": "control",
+    "status": 403,
+    "note": "Forbidden",
+    "reached": true
+  },
+  {
+    "feed": "control",
+    "channel": "github API",
+    "url": "https://api.github.com/rate_limit",
+    "needed_by": "control",
+    "status": 200,
+    "note": "",
+    "reached": true
+  },
+  {
+    "feed": "control",
+    "channel": "github raw",
+    "url": "https://raw.githubusercontent.com/github/advisory-database/main/README.md",
+    "needed_by": "control",
+    "status": 200,
+    "note": "",
+    "reached": true
+  },
+  {
+    "feed": "control",
+    "channel": "github codeload",
+    "url": "https://codeload.github.com/w3c/wcag/tar.gz/refs/heads/main",
+    "needed_by": "control",
+    "status": 403,
+    "note": "Forbidden",
+    "reached": true
+  },
+  {
+    "feed": "control",
+    "channel": "gcs root",
+    "url": "https://storage.googleapis.com/",
+    "needed_by": "control",
+    "status": 400,
+    "note": "Bad Request",
+    "reached": true
+  },
+  {
+    "feed": "control",
+    "channel": "s3 root",
+    "url": "https://s3.amazonaws.com/",
+    "needed_by": "control",
+    "status": 307,
+    "note": "GET fallback: HTTP Error 307: Temporary Redirect",
+    "reached": true
+  },
+  {
+    "feed": "control",
+    "channel": "gitlab",
+    "url": "https://gitlab.com/",
+    "needed_by": "control",
+    "status": 301,
+    "note": "Moved Permanently",
+    "reached": true
+  },
+  {
+    "feed": "control",
+    "channel": "huggingface",
+    "url": "https://huggingface.co/",
+    "needed_by": "control",
+    "status": 0,
+    "note": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+    "reached": false
+  }
+]

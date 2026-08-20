@@ -11,16 +11,32 @@ that one proposes runtime enforcement and competes with funded platforms on
 their roadmap. This one is a monitoring feed over a mutable supply chain, which
 is a smaller claim and a faster sale.
 
-Scored 2026-08-18. Composite 7.125 · floor 4 (defensibility).
+Scored 2026-08-18. Composite 6.75 · floor 3 (defensibility). AI leverage
+lowered 7→6 on 2026-08-19 after the probe (below) showed the classification is
+rule-separable, not model work; defensibility and distribution further lowered
+2026-08-20 from 4/6 to 3/5 (PRs #245, #225, #229 — see the table below).
+**The named mitigation is refuted by measurement with no replacement found
+(PR #245): under `README.md` rule 2 this candidate cannot graduate until
+either the remote-endpoint egress is granted or a durable asset other than
+the archive is named and tested.**
+
+> **Probe run 2026-08-19.** Steps 1 and 2 of the experiment below have been
+> executed against public data. Neither kill condition fired: the drift base
+> rate is 69% (not near zero) and the instruction-bearing share is 7.2% at a
+> median of 0.00 alerts per server-month (alert fatigue does not kill it). Full
+> measurement, corpus, and reproducible harness:
+> [`portfolio/research/mcp-tool-drift/`](../../research/mcp-tool-drift/). Step 3
+> — asking ten teams to pay — is unchanged and still needs buyer contact an
+> unattended agent cannot make.
 
 | Dimension | Score | Why |
 |---|---|---|
-| AI leverage | 7 | Classifying whether a tool-description change is benign or instruction-bearing is model work; the diffing underneath is not |
+| AI leverage | ~~7~~ 6 | Scored as model work; the [step-2 measurement](../../research/mcp-tool-drift/) separated 119 cosmetic from 11 instruction-bearing changes with deterministic rules and no model, so the leverage is lower and the copy-cost (defensibility floor) is a touch worse than scored |
 | Autonomous ops | 9 | Poll, diff, classify, alert. No human step in the normal path |
 | Time to revenue | 7 | Security buyers move slowly, but this is a monitoring line item, not a platform decision |
 | Gross margin | 9 | Polling, storage, and inference on diffs only |
-| Defensibility | 4 | The mechanism is reproducible in a week by anyone who decides to; the pinned history per customer is the only accruing asset |
-| Distribution | 6 | Reachable through security and agent-engineering channels, but no warm list today |
+| Defensibility | ~~4~~ 3 | The mechanism is reproducible in a week by anyone who decides to; the pinned history per customer accrues only for the 84.5% of servers that are remote endpoints, and the archive for the rest is public, rebuildable npm/PyPI declaration history — see the amendment above |
+| Distribution | ~~6~~ 5 | Reachable through security and agent-engineering channels, but this candidate's free-registry channel shows ~92% of top-decile-discovered listings carry no price, indistinguishable from listings nobody found (PRs #225, #229) |
 | Liability containment | 7 | Reports observed changes rather than asserting safety; nothing sits in the request path |
 | Ethical robustness | 8 | The interest is straightforwardly aligned — customers want to know what changed under them |
 
@@ -92,3 +108,16 @@ Fourteen days, under €150:
    for $29/server/month.
 
 Kill it if step 1 shows negligible drift, or if fewer than two of ten will pay.
+
+**Update 2026-08-19 — steps 1 and 2 done, step 3 outstanding.** Step 1 ran
+retrospectively (diffing the versions npm already holds rather than waiting two
+weeks): 69% of adjacent releases change the tool surface, 29% remove a tool, and
+no spec revision or registry record closes the gap upstream — the cheapest kill
+did not fire. Step 2's hand-labelling ran too: 78% of description changes are
+cosmetic, 7.2% instruction-bearing, and the alert volume is a median of 0.00 per
+server-month — the alert-fatigue kill did not fire either. It also surfaced a
+finding the write-up did not anticipate: the risk is under-alerting priced
+per-server, not over-alerting, which argues for **selling the archive rather
+than the alert**. Step 3 (take the rate to ten teams at $29/server/month) is the
+only remaining gate and is exactly the step an unattended agent cannot run. See
+[`portfolio/research/mcp-tool-drift/`](../../research/mcp-tool-drift/).

@@ -82,24 +82,43 @@ Scored 2026-08-18 unless noted. Composite is the mean of eight dimensions;
 `floor` is the lowest single dimension, which is usually the thing that actually
 decides.
 
+Rescored 2026-08-20 for the two candidates that have actually been probed — see
+[rescore-2026-08-20.md](rescore-2026-08-20.md) for the derivation. Scores with no
+`measured:` block in `candidates.yaml` are still the original estimates.
+
 | # | Candidate | Composite | Floor | Verdict |
 |---|---|---|---|---|
 | 1 | [EAA remediation pipeline](candidates/eaa-remediation-pipeline.md) | 7.25 | 5 | Build now, as a `local-site-studio` product line |
 | 2 | [Shopify accessibility evidence app](candidates/shopify-a11y-evidence.md) | 7.25 | 4 | Probe the channel — scored 2026-08-19 |
-| 3 | [MCP supply-chain watch](candidates/mcp-supply-chain-watch.md) | 7.125 | 4 | Cheap probe — measure the drift base rate first |
-| 4 | [CRA evidence desk](candidates/cra-evidence-desk.md) | 7.0 | 4 | Build now, narrow scope |
-| 5 | [Public-record watch](candidates/public-record-watch.md) | 7.0 | 4 | Cheap probe — one vertical, two weeks |
-| 6 | [Agent permission harness](candidates/agent-permission-harness.md) | 7.0 | 4 | Park; revisit 2027-Q1 |
+| 3 | [Public-record watch](candidates/public-record-watch.md) | 7.0 | 4 | Cheap probe — one vertical, two weeks |
+| 4 | [Agent permission harness](candidates/agent-permission-harness.md) | 7.0 | 4 | Park; revisit 2027-Q1 |
+| 5 | [MCP supply-chain watch](candidates/mcp-supply-chain-watch.md) | 6.75 | 3 | Probe: steps 1–2 run; mitigation refuted, cannot graduate as scored |
+| 6 | [CRA evidence desk](candidates/cra-evidence-desk.md) | 6.75 | 3 | Probe (was build-now); wedge is egress-blocked |
 | 7 | [Tender radar](candidates/tender-radar.md) | 6.625 | 4 | Park; needs a channel partner |
 | 8 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
 
-Machine-readable scores: [candidates.yaml](candidates.yaml).
+Both rescored candidates fell, one point per measured dimension, and no measured
+dimension has ever risen. Read the six unmeasured rows as upper bounds rather
+than as better candidates —
+[rescore-2026-08-20.md](rescore-2026-08-20.md) has the pattern and what follows
+from it.
+
+Machine-readable scores: [candidates.yaml](candidates.yaml), checked by
+`validate_candidates.py` (`python3 portfolio/pipeline/validate_candidates.py`).
 Considered and rejected: [screened-out.md](screened-out.md).
 What six independent screening runs agreed on: [convergence.md](convergence.md).
 Why the next pass should screen channel-first:
 [distribution-first.md](distribution-first.md).
 Which channels this portfolio can actually list in, and what each costs in
 credentials: [channel-inventory.md](channel-inventory.md).
+
+A candidate's composite and floor are written in three places — the table above,
+[candidates.yaml](candidates.yaml), and the write-up's own headline — and are
+rescored by one session at a time. `python3
+portfolio/pipeline/validate_doc_consistency.py` checks that all three still say
+the same number, because a rescore that updates two of them is invisible in the
+diff of the pull request that makes it. CI runs this on any change under
+`portfolio/pipeline/`.
 
 ## Status of the claims in these write-ups
 
@@ -208,6 +227,16 @@ The fix is separation, and it is the twelfth run's only contribution:
   without a rebase, and no future run needs to rebuild it.
 - **The ledger entry for this cycle ships separately** and is merged on its
   own, the way every other session's routine ledger append already is.
+
+A later run on 2026-08-20 was assigned the same brief again. It added no
+candidate and screened nothing. It found that the four probes run in the
+preceding ten hours (#207, #245, #250, #253) had each ended by declining to
+write their result into `candidates.yaml` — so the ranking above was still
+entirely pre-measurement while the measurements themselves sat in unmerged
+branches. It applied those five score changes, replaced one refuted mitigation
+and one verdict, added an arithmetic checker so the next edit is cheap, and
+recorded the pattern the five changes make. See
+[rescore-2026-08-20.md](rescore-2026-08-20.md).
 
 If you are a thirteenth run reading this on `main`, the separation worked and
 the intake gate above applies to you: do not screen. If you are reading it in
