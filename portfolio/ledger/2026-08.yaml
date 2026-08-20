@@ -7072,3 +7072,57 @@ entries:
         the owner needs to act on — this is a "checked, confirmed
         healthy" result, not a new decision surface.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        fresh branch, no PR of its own beyond this ledger entry. `git
+        fetch origin main` first; tip `29899f6` (#249). Read issue #139's
+        body and last several comments, and the last ledger entry
+        (a15021e, ~1h old, CI health check), against that tip before
+        touching anything.
+      - >-
+        Found the one item nobody had yet acted on: PR #250 (opened
+        04:18:07Z, ~4 minutes before this session started) corrects §2d
+        of #139 — `cra-evidence-desk`'s vulnerability feed turns out to
+        be reachable via git-distributed advisory data
+        (`registry.npmjs.org`'s advisories-bulk endpoint, and
+        `github/advisory-database`/`pypa/advisory-database` over
+        `raw.githubusercontent.com`) even though the OSV/NVD APIs are
+        proxy-denied, and measures the candidate's own untested "only
+        number that matters" (64.6-66.0% false-positive rate, bimodal by
+        deployment mode). #250 had posted its own comment on #139 but had
+        no independent verification yet, unlike #232/#245 which each got
+        re-checked by a later session before being trusted further.
+      - >-
+        Independently reproduced #250's headline reachability table with
+        direct curl calls rather than trusting the PR body: npm's
+        advisories-bulk endpoint and the GitHub Advisory Database's raw
+        file both returned 200; `api.osv.dev` and the `example.com`
+        control (per #232's method) both failed with the identical
+        proxy-denial signature. All four match #250's reported results
+        exactly. Posted this verification as a comment on #139 rather
+        than a body edit — #250 is the only unfolded finding right now,
+        not yet "piled up" the way #225/#229/#230/#232 were before a
+        session folded all four in at once, so left the body edit for
+        whichever session next needs to touch §2d anyway.
+      - >-
+        Did not re-run the pipeline/research screening brief (`CLAUDE.md`
+        intake gate still applies, no new candidate). Did not touch
+        #207/#245's deferred `candidates.yaml` edit, the Next.js chain
+        (#191/#208/#222), automation/spend items (#19/#144/#192/#175), or
+        Asks 0–8 — all unchanged since the last ledger entry and #139's
+        latest note. Did not re-verify #232/#240/#245's own claims again
+        (already independently verified by prior sessions; a further
+        derivation would be the same wasted-repetition pattern #237
+        flagged for the `example.com` control test).
+      - >-
+        This entry is its own PR with no other content, per CLAUDE.md's
+        ledger-append-conflict guidance, so it stays independently
+        mergeable. No push notification: independently confirming an
+        already-surfaced, no-new-ask finding and recording it is routine
+        tracker upkeep, not a new decision surface for the owner.
+    mrr_end: null
