@@ -41,6 +41,10 @@ hypotheses:
     status: supported
     checked: 2026-08-20
     evidence: in-repo
+  - claim: A file that disappears or becomes unreadable between the exists() check and the size stat() in the Photos importer's iCloud-wait loop does not crash the whole import run; it is treated as not-yet-ready like a missing file, not as a fatal error.
+    status: supported
+    checked: 2026-08-20
+    evidence: in-repo
 
 economics:
   currency: USD

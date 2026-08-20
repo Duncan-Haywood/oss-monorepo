@@ -1,6 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from resumable_photos_import import (
     ImportState,
@@ -160,6 +161,44 @@ class ResumablePhotosImportTests(unittest.TestCase):
 
             self.assertEqual(exit_code, 0)
             self.assertEqual(importer.import_calls, [(photo, False)])
+
+    def test_file_is_ready_survives_stat_raising_after_exists_check(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            photo = root / "flaky.JPG"
+            photo.write_bytes(b"jpeg")
+            state = ImportState(root / "state.sqlite3")
+            importer = FakePhotosImporter(
+                state=state,
+                state_dir=root,
+                event_log=root / "events.jsonl",
+                error_log=root / "errors.jsonl",
+                status_path=root / "status.json",
+                stop_file=root / "STOP",
+                per_file_timeout_seconds=1,
+                attempts=1,
+                batch_size=1,
+                photos_db=root / "missing.sqlite",
+                existing_filenames=set(),
+            )
+
+            # Simulates a card ejected or an iCloud placeholder evicted
+            # between the exists() check and the stat() call that reads its
+            # size -- the same TOCTOU race already closed on the sd_offload
+            # side (#376, #379, #383). Before this fix, wait_for_file called
+            # .stat() unguarded and this OSError propagated straight out of
+            # prepare_batch(), which run()'s main loop does not wrap in
+            # try/except, crashing the whole import run instead of treating
+            # the file as not-yet-ready.
+            real_stat = Path.stat
+
+            def flaky_stat(self, *args, **kwargs):
+                if self == photo:
+                    raise OSError("Input/output error")
+                return real_stat(self, *args, **kwargs)
+
+            with mock.patch.object(Path, "stat", flaky_stat):
+                self.assertFalse(importer.file_is_ready(photo))
 
 
 class FakePhotosImporter(PhotosImporter):
