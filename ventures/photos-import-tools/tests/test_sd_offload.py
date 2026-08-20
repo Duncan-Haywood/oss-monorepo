@@ -4,12 +4,42 @@ import unittest
 from pathlib import Path
 
 from sd_offload import (
+    PARTIAL_DIR,
     CardSpec,
     OffloadStats,
+    build_rsync_cmd,
     iter_media_files,
     sha256_file,
     verify_and_manifest,
 )
+
+
+class BuildRsyncCmdTests(unittest.TestCase):
+    def _cmd(self) -> list[str]:
+        return build_rsync_cmd(Path("/src"), Path("/dst"))
+
+    def test_uses_partial_dir_not_bare_partial(self):
+        cmd = self._cmd()
+        # Bare --partial leaves a half-written file at the final path, which
+        # --ignore-existing then skips forever: the interrupted-import that can
+        # be detected but never recovered. --partial-dir is the fix.
+        self.assertNotIn("--partial", cmd)
+        self.assertIn(f"--partial-dir={PARTIAL_DIR}", cmd)
+
+    def test_partial_dir_and_ignore_existing_coexist(self):
+        cmd = self._cmd()
+        # Both must be present: --ignore-existing gives fast idempotent re-runs,
+        # --partial-dir keeps that from stranding an interrupted transfer.
+        self.assertIn("--ignore-existing", cmd)
+        self.assertIn(f"--partial-dir={PARTIAL_DIR}", cmd)
+
+    def test_partial_dir_is_excluded_from_mirror(self):
+        cmd = self._cmd()
+        self.assertIn(f"--exclude={PARTIAL_DIR}", cmd)
+
+    def test_source_has_trailing_slash_and_is_last_but_one(self):
+        cmd = self._cmd()
+        self.assertEqual(cmd[-2:], ["/src/", "/dst/"])
 
 
 class Sha256FileTests(unittest.TestCase):
@@ -42,6 +72,20 @@ class IterMediaFilesTests(unittest.TestCase):
     def test_missing_root_returns_empty(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             self.assertEqual(iter_media_files(Path(temp_dir) / "nope"), [])
+
+    def test_partial_dir_contents_are_not_counted_as_media(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / "DCIM").mkdir()
+            (root / "DCIM" / "IMG_0001.JPG").write_bytes(b"x")
+            # A half-written file rsync parked in the partial dir must never be
+            # mistaken for a delivered photo (it would size-mismatch at verify).
+            (root / "DCIM" / PARTIAL_DIR).mkdir()
+            (root / "DCIM" / PARTIAL_DIR / "IMG_0002.JPG").write_bytes(b"parti")
+
+            found = {p.name for p in iter_media_files(root)}
+
+            self.assertEqual(found, {"IMG_0001.JPG"})
 
 
 class VerifyAndManifestTests(unittest.TestCase):

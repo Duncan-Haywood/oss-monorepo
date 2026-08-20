@@ -13,6 +13,10 @@ hypotheses:
     status: supported
     checked: 2026-08-20
     evidence: in-repo
+  - claim: An interrupted offload can be recovered by re-running, because partial transfers are parked in a side directory (--partial-dir) instead of at the final path where --ignore-existing would skip completing them forever.
+    status: supported
+    checked: 2026-08-20
+    evidence: in-repo
 
 economics:
   currency: USD

@@ -24,6 +24,12 @@ MEDIA_EXTENSIONS = {
 
 EXCLUDE_DIRS = {".fseventsd", ".Spotlight-V100", "System Volume Information", ".Trashes"}
 
+# rsync stashes partially-transferred files here (relative to each file's
+# destination directory) instead of leaving them at the final path. Kept off
+# the final path so that --ignore-existing on a later run cannot mistake a
+# half-written file for a completed one and skip it forever.
+PARTIAL_DIR = ".rsync-partial"
+
 
 @dataclass
 class CardSpec:
@@ -95,7 +101,7 @@ def iter_media_files(root: Path) -> list[Path]:
     for path in root.rglob("*"):
         if not path.is_file():
             continue
-        if any(part in EXCLUDE_DIRS for part in path.parts):
+        if any(part in EXCLUDE_DIRS or part == PARTIAL_DIR for part in path.parts):
             continue
         if path.suffix.lower() not in MEDIA_EXTENSIONS:
             continue
@@ -120,24 +126,33 @@ def background_evictor(root: Path, stop: threading.Event, log_path: Path) -> Non
             log(f"Background evicted {freed} files from {root}", log_path)
 
 
+def build_rsync_cmd(source: Path, dest: Path) -> list[str]:
+    # --partial-dir (not bare --partial): an interrupted transfer keeps its
+    # partial in PARTIAL_DIR, away from the final name, so --ignore-existing on
+    # the next run does not see the final path yet and rsync resumes the file to
+    # completion. Bare --partial leaves the partial at the final path, which
+    # --ignore-existing then skips permanently -- a truncated file the tool can
+    # detect at verify but never recover, violating the interrupted-import
+    # kill criterion. PARTIAL_DIR is also excluded so it is never mirrored back.
+    excludes = [*sorted(EXCLUDE_DIRS), PARTIAL_DIR]
+    return [
+        "rsync",
+        "-avh",
+        f"--partial-dir={PARTIAL_DIR}",
+        "--ignore-existing",
+        "--modify-window=2",
+        *(f"--exclude={name}" for name in excludes),
+        f"{source}/",
+        f"{dest}/",
+    ]
+
+
 def rsync_copy(source: Path, dest: Path, log_path: Path) -> int:
     dest.mkdir(parents=True, exist_ok=True)
     stop = threading.Event()
     evictor = threading.Thread(target=background_evictor, args=(dest, stop, log_path), daemon=True)
     evictor.start()
-    cmd = [
-        "rsync",
-        "-avh",
-        "--partial",
-        "--ignore-existing",
-        "--modify-window=2",
-        "--exclude=.fseventsd",
-        "--exclude=.Spotlight-V100",
-        "--exclude=System Volume Information",
-        "--exclude=.Trashes",
-        f"{source}/",
-        f"{dest}/",
-    ]
+    cmd = build_rsync_cmd(source, dest)
     log(f"rsync: {' '.join(cmd)}", log_path)
     proc = subprocess.run(cmd, check=False)
     stop.set()
