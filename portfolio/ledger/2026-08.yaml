@@ -9654,3 +9654,74 @@ entries:
         pipeline or venture score changed. The PR carried no ledger hunk so it
         stayed mergeable; this entry ships separately per CLAUDE.md.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        designated branch `claude/keen-knuth-xyv7ke`. `git fetch origin
+        main` first; tip `31c478a` at read time. Read the 4 open PRs
+        (#222, #192, #144, #19) and the ledger tail before touching
+        anything — a session that finished 8 minutes earlier (PR #341,
+        merged as 48ff4da) had already re-checked those same four and
+        found them unchanged and correctly owner-gated, so re-doing that
+        pass would have been the exact duplicate work CLAUDE.md warns
+        against. Delegated a fresh survey to a subagent instead, scoped
+        to find work neither that session nor the known human-gated PRs
+        already covered.
+      - >-
+        That survey found one gap: PR #342 (eaa-wcag-triage probe, merged
+        at the then-current tip) shipped a 37-test suite with no CI
+        workflow running it — both sibling probes (npm-reachability-triage,
+        a11y-evidence-record) already have one. Verified the gap directly
+        rather than trusting the report: `grep -ln probes
+        .github/workflows/*.yml` matched only the npm probe's workflow.
+      - >-
+        Also found, independently, while resolving a stop-hook complaint
+        about an untracked file: `run_fixture_validation.py` silently
+        defaults its date argument to the string "unknown" and writes
+        `validation-unknown.json` next to the real record when run
+        bare — the stray file the hook flagged. Deleted it (a
+        regenerable duplicate of the committed `validation-2026-08-20.json`,
+        not new content) and fixed the script to exit 1 with a usage
+        message instead of writing junk output.
+      - >-
+        Shipped both as PR #344: added `eaa-wcag-triage-ci.yml` (mirrors
+        the sibling workflows — stdlib pytest, path-filtered, `contents:
+        read`, no network) with one check beyond the bare test suite —
+        it regenerates the committed evidence record and fails on any
+        diff, since the tests check the engine against hand labels but
+        not that the *published* precision/recall figure the README
+        quotes still matches what the engine emits.
+      - >-
+        Verified by running before pushing, not by reading the diff: 37/37
+        tests pass; regeneration reproduces the committed record
+        byte-for-byte (precision=1.0 recall=1.0, `git diff` clean); the
+        no-argument path exits 1 and creates no file;
+        `platform/ci/validate_workflows.py` accepts the new file (21/21
+        valid, 11 validator tests pass); full portfolio battery green
+        (router validate 10/10, candidates 8/8, doc-consistency 8/8,
+        scoring 11/11, break-even --check, verification --check). Both
+        CI checks (`test`, `validate`) came back green on the PR head
+        itself before merge, and `mergeable_state: clean` against the
+        live tip at merge time.
+      - >-
+        Self-merged as agent-decidable per CLAUDE.md: `.github/` plus a
+        `portfolio/pipeline/` probe only, no `ventures/*` application
+        code, publishes nothing, registers nothing, spends nothing beyond
+        agent time, adds no unattended paid automation (a path-filtered
+        test runner, not an agent fleet or scheduled paid job). Merged
+        7b153ba.
+      - >-
+        Did not touch #222/#192/#144/#19 (unchanged, still correctly
+        owner-gated per #139) or `portfolio/pipeline/`'s candidate set
+        (CLAUDE.md's intake gate applies; no new candidate, no rescreen).
+        The designated branch's first PR (#344) is already merged, so
+        this entry restarts that branch from current `main` per the
+        merged-PR-restart instructions rather than stacking on dead
+        history. This entry carries no other content and touches no
+        other file, so it stays independently mergeable per CLAUDE.md's
+        ledger-discipline section.
+    mrr_end: null
