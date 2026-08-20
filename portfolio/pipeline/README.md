@@ -100,6 +100,8 @@ Why the next pass should screen channel-first:
 [distribution-first.md](distribution-first.md).
 Which channels this portfolio can actually list in, and what each costs in
 credentials: [channel-inventory.md](channel-inventory.md).
+Which candidates can fetch their own input data in this environment, and which
+cannot: [feed-reachability.md](feed-reachability.md).
 
 ## Status of the claims in these write-ups
 
