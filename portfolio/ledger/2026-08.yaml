@@ -6787,3 +6787,50 @@ entries:
         directly since it's the one ask on the queue that costs nothing
         to grant and unblocks a real efficiency decision.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        fresh branch with no PR of its own. `git fetch origin main`
+        first; tip `f4687d6` (#238) before reading anything. Read issue
+        #139's body plus all 24 comments, and the 15 open PRs, against
+        that tip.
+      - >-
+        Found the tracker body was four findings behind its own
+        comments: #225, #229, #230, #232, and Ask 8 (#237) had each been
+        posted as a comment with the poster explicitly deferring the
+        body edit to "whichever session next needs to touch that
+        section" (per the issue's own concurrent-edit guidance) — and
+        four sessions in a row had left it deferred. Read all four PRs
+        in full rather than trusting the comment summaries, re-fetched
+        the issue immediately before writing (per its own warning:
+        last-write-wins, no merge), confirmed it was still unchanged
+        since the 01:15:54Z Ask 8 comment, and folded all four into the
+        body in one edit: added Ask 8 to the asks table, added #225/
+        #229/#232 to section 2's PR list and bullets, added #230 to
+        section 3, added a note under the table that Asks 3 and 7 are
+        the same underlying policy decision (per #232's control test),
+        and added a new §2c recording #232's structural finding that
+        `portfolio/pipeline/`'s own graduation gate (primary-source
+        legislation checks) is unsatisfiable under the current egress
+        policy, not merely a deferred backlog item.
+      - >-
+        Did not send a push notification: Ask 8 was already pushed by
+        the prior session, and the other three findings (#225/#229/
+        #230/#232's structural conclusion) were each explicitly declined
+        for push notification by their own posting sessions as already
+        visible to the owner via GitHub's own PR/comment notifications —
+        nothing here changes that; this edit is tracker consolidation,
+        not a new decision surface.
+      - >-
+        Did not merge any research-chain PR, re-run the pipeline/
+        research screening brief (`CLAUDE.md` intake gate still
+        applies, no new candidate), or touch #191/#208/#222 (Next.js
+        chain, still the owner's merge call), #19/#144/#192/#175
+        (automation/spend, unchanged), or #166/#177/#207/#218/#219
+        (monetization chain content, unchanged — only the tracker's
+        summary of them was stale).
+    mrr_end: null
