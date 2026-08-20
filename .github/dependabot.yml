@@ -1,0 +1,210 @@
+version: 2
+
+updates:
+  # GitHub Actions used across all workflows in .github/workflows/
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    groups:
+      actions-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    labels:
+      - "dependencies"
+      - "github-actions"
+
+  # npm ventures
+  - package-ecosystem: "npm"
+    directory: "/ventures/ai-first-markets"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 3
+    groups:
+      npm-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    labels:
+      - "dependencies"
+      - "ai-first-markets"
+
+  - package-ecosystem: "npm"
+    directory: "/ventures/local-site-studio"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 3
+    groups:
+      npm-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    labels:
+      - "dependencies"
+      - "local-site-studio"
+
+  - package-ecosystem: "npm"
+    directory: "/ventures/print-atelier"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+    open-pull-requests-limit: 3
+    groups:
+      npm-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    labels:
+      - "dependencies"
+      - "print-atelier"
+
+  - package-ecosystem: "npm"
+    directory: "/ventures/quick-pick-survey"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+    open-pull-requests-limit: 3
+    groups:
+      npm-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    labels:
+      - "dependencies"
+      - "quick-pick-survey"
+
+  - package-ecosystem: "npm"
+    directory: "/ventures/retail-pilot-intel"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+    open-pull-requests-limit: 3
+    groups:
+      npm-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    labels:
+      - "dependencies"
+      - "retail-pilot-intel"
+
+  - package-ecosystem: "npm"
+    directory: "/ventures/ai-engineering-academy/site"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+    open-pull-requests-limit: 3
+    groups:
+      npm-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    labels:
+      - "dependencies"
+      - "ai-engineering-academy"
+
+  - package-ecosystem: "npm"
+    directory: "/ventures/photo-editing/docs-site"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+    open-pull-requests-limit: 3
+    groups:
+      npm-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    labels:
+      - "dependencies"
+      - "photo-editing"
+
+  - package-ecosystem: "npm"
+    directory: "/ventures/real-estate-agent-photo-app/docs-site"
+    schedule:
+      interval: "weekly"
+      day: "thursday"
+    open-pull-requests-limit: 3
+    groups:
+      npm-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    labels:
+      - "dependencies"
+      - "real-estate-agent-photo-app"
+
+  - package-ecosystem: "npm"
+    directory: "/ventures/real-estate-agent-photo-app/pipeline"
+    schedule:
+      interval: "weekly"
+      day: "thursday"
+    open-pull-requests-limit: 3
+    groups:
+      npm-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    labels:
+      - "dependencies"
+      - "real-estate-agent-photo-app"
+
+  - package-ecosystem: "npm"
+    directory: "/ventures/real-estate-agent-photo-app/research"
+    schedule:
+      interval: "weekly"
+      day: "thursday"
+    open-pull-requests-limit: 3
+    groups:
+      npm-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    labels:
+      - "dependencies"
+      - "real-estate-agent-photo-app"
+
+  # Python ventures
+  - package-ecosystem: "pip"
+    directory: "/portfolio/router"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "portfolio-router"
+
+  - package-ecosystem: "pip"
+    directory: "/ventures/photo-editing"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "photo-editing"
+
+  - package-ecosystem: "pip"
+    directory: "/ventures/photos-import-tools"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "photos-import-tools"
+
+  - package-ecosystem: "pip"
+    directory: "/ventures/ubuntu-agent-server"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "ubuntu-agent-server"
