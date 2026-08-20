@@ -9887,3 +9887,103 @@ entries:
         session; the binding constraint (distribution/credential gates,
         tracked on #139) is unchanged and needs the account owner.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        legal-ethical-reliable increase in profit -- be strategic"
+        scheduled session, designated branch
+        `claude/wizardly-albattani-cr4oy6`. `git fetch origin main`
+        first. Read the 4 open PRs (#222, #192, #144, #19), issue #139
+        and the ledger tail before touching anything. Deliberately
+        re-derived none of what recent sessions had already delivered:
+        the break-even binary went to the owner at 14:54Z, the
+        9-of-11-ventures-blocked count at 15:50Z, and #192's redundancy
+        (its permissions half already landed as #200) at 17:32Z.
+        Delegated the #192 re-check to a subagent rather than repeating
+        it by hand, and it confirmed that prior assessment.
+      - >-
+        Finding: the GitHub Actions outage that three places on `main`
+        (issue #139 section 3, #144's body, and the comment block in
+        `.github/workflows/opencode-high-throughput.yml`) describe as
+        ongoing has been over for ~33 hours. Measured against all 763
+        runs in repo history via `/actions/runs`, not read off any PR
+        body: the window ran 2026-08-18T17:23:11Z to
+        2026-08-19T11:33:25Z (18h10m, 519 `startup_failure` runs, each
+        `name: null`, `path: "BuildFailed"`, zero jobs scheduled), and
+        since then 242 runs have produced zero startup failures --
+        170 of them in the last 12 hours.
+      - >-
+        Both stored explanations for it are refuted by the same
+        timeline. The workflow comment blamed `f16fca5`
+        (2026-08-18T18:42:33Z), which added the fleet workflow, but 16
+        failures had already accumulated in the 17:00 hour, up to 79
+        minutes before that commit existed. A later session's
+        attribution to #19's unparseable `repo-advancement-agent.yml`
+        (registered 18:43:21Z) is also ~80 minutes too late to be the
+        cause. The honest position is that the trigger is unidentified
+        and the outage cleared on its own, with nobody touching
+        billing. The `53/53` figure in #144 was a sample; the window
+        total is 519.
+      - >-
+        Why that mattered rather than being a filing correction. #144's
+        re-enable checklist tells the owner to verify the Actions
+        spending limit and abuse flag first -- and both now come back
+        clean, so the gate no longer gates anything while reading as
+        clearance. #144's diff re-adds a live unconditional
+        `cron: '5 * * * *'`. A review on 2026-08-19 warned this would
+        matter "if Actions ever clears for unrelated reasons"; it has.
+        Priced it: the repo is private, so Actions minutes are billed,
+        and hourly x `max-parallel: 10` x `timeout-minutes: 120` is
+        7,200 agent-jobs/month -- roughly $288/month if every job
+        finished in 5 minutes, ~$1,152 at 20 minutes, ~$6,912 at the
+        configured timeout, before any `OPENCODE_API_KEY` spend. Against
+        `break-even.md`'s $193/month best case and $0 today, even the
+        cheapest row exceeds the best case the portfolio's own research
+        supports. So #144 and #19 are not parked pending a platform fix;
+        the platform fixed itself and what remains is a spend decision.
+      - >-
+        Shipped #355 (merged): replaces the stale comment block in
+        `opencode-high-throughput.yml` with the verified timeline,
+        records the still-registered phantom workflow (23 registered
+        vs 22 files on `main`) as a cheap detector, and states the
+        binding reason the schedule stays off as economic rather than
+        technical -- explicitly that a clean billing page is not
+        clearance. Verified rather than trusted: parsed YAML compares
+        equal before and after via `yaml.safe_load` on both revisions,
+        filtering the diff for non-comment non-blank changed lines
+        returns 0, `validate_workflows.py` 22/22 plus its 11 tests,
+        router validate 10/10, candidates 8/8, doc-consistency,
+        `break_even.py --check`, `verification_status.py --check`. The
+        `validate` check came back green on the PR head before merge and
+        `merge-tree` was clean against the live tip at merge time.
+        Agent-decidable per CLAUDE.md: `.github/` comment text only, no
+        `ventures/*` code, publishes nothing, spends nothing, and adds,
+        enables or re-enables no automation -- the `schedule:` trigger
+        stays absent.
+      - >-
+        Two smaller facts checked and recorded on #139. `CronList`
+        returns no jobs, so the fleet cadence is not visible or
+        throttleable from inside a session -- a session that concludes
+        "throttle" cannot act on it, only the owner can; `break-even.md`
+        assumed this and it is now verified. And the break-even snapshot
+        is drifting the wrong way within hours: re-ran `break_even.py`
+        and independently recounted the ledger by hand, agreeing --
+        cadence 2.2 -> 2.4 sessions/hour (peak 5 -> 8), 1,556 -> 1,723
+        sessions/month, threshold tightened $0.12 -> $0.11, ledger
+        139 -> 159 entries, meta-work 82.7% -> 83.6%, re-verification
+        48.2% -> 48.4%, ceiling unchanged at $0.
+      - >-
+        Notified the account owner, since a human-gated decision had
+        silently gone live without anyone deciding anything. Did not
+        touch #222/#192/#144/#19, their branches, or the `schedule:`
+        block -- posted the correction to #144 so its four reviews are
+        not read against a refuted premise, and left the decision alone.
+        No candidate screening performed (intake gate applies); no
+        candidate added, no score changed. Nothing published, no account
+        registered, no credential used, no customer contact and no
+        revenue this session. This entry carries no other content so it
+        stays independently mergeable per CLAUDE.md's ledger discipline.
+    mrr_end: null
