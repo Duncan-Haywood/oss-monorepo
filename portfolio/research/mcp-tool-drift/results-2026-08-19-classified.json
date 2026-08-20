@@ -1,0 +1,2554 @@
+{
+ "summary": {
+  "description_changes": 152,
+  "packages_with_changes": 19,
+  "coverage": {
+   "version_pairs": 270,
+   "pairs_with_shared_tools": 173
+  },
+  "buckets": {
+   "cosmetic": {
+    "n": 119,
+    "pct": 78.3
+   },
+   "capability-change": {
+    "n": 13,
+    "pct": 8.6
+   },
+   "instruction-bearing": {
+    "n": 11,
+    "pct": 7.2
+   },
+   "schema-widening": {
+    "n": 9,
+    "pct": 5.9
+   }
+  },
+  "instruction_bearing_signals": {
+   "tool_routing": 8,
+   "secret_or_credential": 2,
+   "embedded_url": 1
+  },
+  "alerting_share_pct": 7.2,
+  "changes_per_package_median": 8,
+  "noisiest_package": [
+   "mcp-socialapi",
+   20
+  ]
+ },
+ "changes": [
+  {
+   "pkg": "@trusty-squire/mcp",
+   "server": "ai.trustysquire/trusty-squire",
+   "tool": "operate_act",
+   "from": "1.0.48-rc.2",
+   "to": "1.1.10",
+   "t": "2026-08-19",
+   "old": "Take one action in a provisioning session, then return the resulting ",
+   "new": "Take one action in an operate session, then return the resulting ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Take one action in an operate session, then return the resulting"
+   }
+  },
+  {
+   "pkg": "@trusty-squire/mcp",
+   "server": "ai.trustysquire/trusty-squire",
+   "tool": "operate_finish",
+   "from": "1.0.48-rc.2",
+   "to": "1.1.10",
+   "t": "2026-08-19",
+   "old": "Close a provisioning session and tear down its browser. Always call this ",
+   "new": "Finish an operate task and close its session. outcome.kind=",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Finish an operate task and close its session. outcome.kind="
+   }
+  },
+  {
+   "pkg": "@trusty-squire/mcp",
+   "server": "ai.trustysquire/trusty-squire",
+   "tool": "operate_observe",
+   "from": "1.0.48-rc.2",
+   "to": "1.1.10",
+   "t": "2026-08-19",
+   "old": "Re-read the current page of a provisioning session. DEFAULT is a COMPACT ",
+   "new": "Re-read the current page of an operate session. DEFAULT is a COMPACT ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Re-read the current page of an operate session."
+   }
+  },
+  {
+   "pkg": "@trusty-squire/mcp",
+   "server": "ai.trustysquire/trusty-squire",
+   "tool": "operate_remember",
+   "from": "1.0.48-rc.2",
+   "to": "1.1.10",
+   "t": "2026-08-19",
+   "old": "Save the CURRENT successful operate session as a replayable operator-recipe ",
+   "new": "Save the CURRENT successful operate session as a replayable local recipe. ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Save the CURRENT successful operate session as a replayable local recipe."
+   }
+  },
+  {
+   "pkg": "@trusty-squire/mcp",
+   "server": "ai.trustysquire/trusty-squire",
+   "tool": "operate_start",
+   "from": "1.0.48-rc.2",
+   "to": "1.1.10",
+   "t": "2026-08-19",
+   "old": "Begin an interactive provisioning session: opens a scoped browser on the ",
+   "new": "Begin an interactive website task: opens a scoped browser on the ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Begin an interactive website task: opens a scoped browser on the"
+   }
+  },
+  {
+   "pkg": "@trusty-squire/mcp",
+   "server": "ai.trustysquire/trusty-squire",
+   "tool": "operate_use",
+   "from": "1.0.48-rc.2",
+   "to": "1.1.10",
+   "t": "2026-08-19",
+   "old": "Replay a saved operator-recipe by name: opens a scoped browser at the recipe",
+   "new": "Replay a local prepared-statement recipe selected by the host-classified closed-enum ",
+   "label": {
+    "bucket": "schema-widening",
+    "reason": "input surface described differently",
+    "signals": [],
+    "added": "Replay a local prepared-statement recipe selected by the host-classified closed-enum"
+   }
+  },
+  {
+   "pkg": "mcp-server-scf",
+   "server": "app.scfcontrolsplatform/mcp-server-scf",
+   "tool": "get_audit_log",
+   "from": "0.1.0",
+   "to": "0.3.3",
+   "t": "2026-03-17",
+   "old": "Get the audit trail for an organization. Shows field-level changes to controls, evidence, and other entities with actor, timestamp, and before/after values.",
+   "new": "Get the audit trail for an organization. Shows field-level changes to controls, evidence, and other entities with actor, timestamp, and before/after values. Pagination uses limit/offset.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Pagination uses limit/offset."
+   }
+  },
+  {
+   "pkg": "mcp-server-scf",
+   "server": "app.scfcontrolsplatform/mcp-server-scf",
+   "tool": "get_control",
+   "from": "0.1.0",
+   "to": "0.3.3",
+   "t": "2026-03-17",
+   "old": "Get detailed information about a specific SCF control by its ID (e.g., AST-01, IAC-15). Returns control description, assessment objectives, mapped frameworks, and linked evidence items.",
+   "new": "Get detailed information about a specific SCF control by its ID (e.g., AST-01, IAC-15, GOV-02). Returns the control description, mapped frameworks, assessment objectives, and linked evidence items from the reference catalog.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get detailed information about a specific SCF control by its ID (e.g., AST-01, IAC-15, GOV-02). Returns the control description, mapped frameworks, assessment objectives, and linked evidence items from the reference catalog."
+   }
+  },
+  {
+   "pkg": "mcp-server-scf",
+   "server": "app.scfcontrolsplatform/mcp-server-scf",
+   "tool": "get_evidence_maturity",
+   "from": "0.1.0",
+   "to": "0.3.3",
+   "t": "2026-03-17",
+   "old": "Get evidence maturity scores for an organization. Shows how well evidence collection is progressing across controls.",
+   "new": "Get evidence maturity summary for an organization. Shows average maturity score, automation percentage, distribution by maturity level, and improvement opportunities.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get evidence maturity summary for an organization. Shows average maturity score, automation percentage, distribution by maturity level, and improvement opportunities."
+   }
+  },
+  {
+   "pkg": "mcp-server-scf",
+   "server": "app.scfcontrolsplatform/mcp-server-scf",
+   "tool": "list_assessment_objectives",
+   "from": "0.1.0",
+   "to": "0.3.3",
+   "t": "2026-03-17",
+   "old": "List assessment objectives from the SCF catalog. These are the 5,736 specific test criteria used to evaluate control implementation.",
+   "new": "List assessment objectives from the SCF reference catalog. These are the 5,736 specific test criteria used to evaluate control implementation. Filter by SCF control ID to get objectives for a specific control. Pagination uses limit/offset.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "List assessment objectives from the SCF reference catalog. Filter by SCF control ID to get objectives for a specific control. Pagination uses limit/offset."
+   }
+  },
+  {
+   "pkg": "mcp-server-scf",
+   "server": "app.scfcontrolsplatform/mcp-server-scf",
+   "tool": "list_capability_themes",
+   "from": "0.1.0",
+   "to": "0.3.3",
+   "t": "2026-03-17",
+   "old": "List the 11 KSI-aligned capability themes that group NIST 800-53 controls into security capability areas. Provides a high-level view of your security posture by capability.",
+   "new": "List the 11 KSI-aligned capability themes for an organization. Capability themes group NIST 800-53 controls into security capability areas, providing a high-level view of security posture.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "List the 11 KSI-aligned capability themes for an organization. Capability themes group NIST 800-53 controls into security capability areas, providing a high-level view of security posture."
+   }
+  },
+  {
+   "pkg": "mcp-server-scf",
+   "server": "app.scfcontrolsplatform/mcp-server-scf",
+   "tool": "list_controls",
+   "from": "0.1.0",
+   "to": "0.3.3",
+   "t": "2026-03-17",
+   "old": "List SCF security controls. Returns paginated controls with SCF ID, title, description, and mapped frameworks. Use framework filter to find controls for specific standards (NIST 800-53, ISO 27001, SOC 2, etc.).",
+   "new": "List SCF security controls from the reference catalog. Returns paginated controls with SCF ID, title, description, and mapped frameworks. Use domain or search filters to narrow results. Pagination uses limit/offset.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "search"
+    ],
+    "added": "List SCF security controls from the reference catalog. Use domain or search filters to narrow results. Pagination uses limit/offset."
+   }
+  },
+  {
+   "pkg": "mcp-server-scf",
+   "server": "app.scfcontrolsplatform/mcp-server-scf",
+   "tool": "list_domains",
+   "from": "0.1.0",
+   "to": "0.3.3",
+   "t": "2026-03-17",
+   "old": "List all compliance domains in the SCF taxonomy. Domains group related security controls (e.g., Asset Management, Identity & Access Control).",
+   "new": "List all compliance domains in the SCF taxonomy. Domains group related security controls (e.g., GOV = Governance, AST = Asset Management, IAC = Identity & Access Control).",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Domains group related security controls (e.g., GOV = Governance, AST = Asset Management, IAC = Identity & Access Control)."
+   }
+  },
+  {
+   "pkg": "mcp-server-scf",
+   "server": "app.scfcontrolsplatform/mcp-server-scf",
+   "tool": "list_evidence_catalog",
+   "from": "0.1.0",
+   "to": "0.3.3",
+   "t": "2026-03-17",
+   "old": "List evidence items from the SCF catalog. These are the 272 standard evidence types that can be collected to demonstrate control implementation.",
+   "new": "List evidence items from the SCF reference catalog. These are the 272 standard evidence types that can be collected to demonstrate control implementation. Pagination uses limit/offset.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "List evidence items from the SCF reference catalog. Pagination uses limit/offset."
+   }
+  },
+  {
+   "pkg": "mcp-server-scf",
+   "server": "app.scfcontrolsplatform/mcp-server-scf",
+   "tool": "list_frameworks",
+   "from": "0.1.0",
+   "to": "0.3.3",
+   "t": "2026-03-17",
+   "old": "List all compliance frameworks mapped in the SCF catalog. Includes NIST 800-53, ISO 27001, SOC 2, FedRAMP, GDPR, and 350+ other frameworks.",
+   "new": "List all compliance frameworks mapped in the SCF catalog. Returns framework identifiers and names. Includes NIST 800-53, ISO 27001, SOC 2, FedRAMP, GDPR, and 350+ other frameworks.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Returns framework identifiers and names."
+   }
+  },
+  {
+   "pkg": "mcp-server-scf",
+   "server": "app.scfcontrolsplatform/mcp-server-scf",
+   "tool": "trigger_dpsia",
+   "from": "0.3.3",
+   "to": "0.5.4",
+   "t": "2026-04-18",
+   "old": "Trigger a Data Protection Security Impact Assessment (DPSIA) for a vendor. Evaluates vendor security posture against CIA triad and certification requirements via AWS Lambda.",
+   "new": "Trigger a Data Protection Security Impact Assessment (DPSIA) for a vendor. Evaluates vendor security posture against CIA triad and certification requirements.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Evaluates vendor security posture against CIA triad and certification requirements."
+   }
+  },
+  {
+   "pkg": "@kawacode/mcp",
+   "server": "ai.kawacode/mcp",
+   "tool": "get_relevant_context",
+   "from": "5.0.4",
+   "to": "6.0.0",
+   "t": "2026-05-16",
+   "old": "Find context relevant to a specific user request.\n\nUse this when you need context that's specifically relevant to the current task,\nrather than all recent context. This is more token-efficient for large projects.\n\n**IMPORTANT: Call this AFTER initial exploration of the request**, not immediately.\nOnce you know which files are involved, pass them in \\",
+   "new": "Find past intents and decisions relevant to the current user request.\n\nWhen to use:\n- After you have done a quick initial exploration of the user's request and know which files are involved. Calling earlier with only a vague prompt gives weak results.\n- To pull task-specific context instead of dumping all recent activity \u2014 preferred for large projects.\n\nInputs of note:\n- \\",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "tool_routing"
+    ],
+    "evidence": [
+     "instead of dumping"
+    ],
+    "added": "Find past intents and decisions relevant to the current user request. When to use: - After you have done a quick initial exploration of the user's request and know which files are involved. Calling earlier with only a vague prompt gives weak results. - To pull task-specific context instead of dumping all recent activity \u2014 preferred for large projects. Inputs of note: - \\"
+   }
+  },
+  {
+   "pkg": "@kawacode/mcp",
+   "server": "ai.kawacode/mcp",
+   "tool": "infer_history",
+   "from": "5.0.4",
+   "to": "6.0.0",
+   "t": "2026-05-16",
+   "old": "Analyze git commit history to extract structured development knowledge (intents, decisions, lessons).\n\nRuns the full pipeline automatically: infer \u2192 evolve \u2192 persist.\n\n1. **Pass 1**: Groups commits into coherent development stories with value hints\n2. **Pass 2**: Deep analysis of each story to extract architectural decisions and lessons\n3. **Evolution**: Curates decisions by finding relationships (supersedes, reinforces, contradicts, specializes)\n4. **Persist**: Stores curated stories as intents with decisions and lessons (auto-syncs to cloud)\n\nUse \\",
+   "new": "Analyze a repository's git commit history and produce structured development knowledge (intents and decisions) for the repo.\n\nWhen to use:\n- To bootstrap a repository that has no recorded intents/decisions yet.\n- To extend coverage for new commits since the last run (resumes automatically when no \\",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "run"
+    ],
+    "added": "Analyze a repository's git commit history and produce structured development knowledge (intents and decisions) for the repo. When to use: - To bootstrap a repository that has no recorded intents/decisions yet. - To extend coverage for new commits since the last run (resumes automatically when no \\"
+   }
+  },
+  {
+   "pkg": "@kawacode/mcp",
+   "server": "ai.kawacode/mcp",
+   "tool": "list_team_intents",
+   "from": "5.0.4",
+   "to": "6.0.0",
+   "t": "2026-05-16",
+   "old": "List all intents from team members for this repository.\n\nUse this to:\n- See what your team is working on\n- Check for potential overlapping work before starting a new task\n- Review the status of various features/refactors in progress\n\nOptionally filter by status (active, committed, pushed, done, abandoned).",
+   "new": "List intents from team members for this repository.\n\nUse this to:\n- See what your team is working on\n- Check for potential overlapping work before starting a new task\n- Review the status of various features/refactors in progress\n\nSupports filtering by status, author, and date range. Paginated (default: 50 per page).",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "List intents from team members for this repository. Supports filtering by status, author, and date range. Paginated (default: 50 per page)."
+   }
+  },
+  {
+   "pkg": "@kawacode/mcp",
+   "server": "ai.kawacode/mcp",
+   "tool": "log_work",
+   "from": "5.0.4",
+   "to": "6.0.0",
+   "t": "2026-05-16",
+   "old": "Lightweight single-call tool to log completed work without the full intent lifecycle. Use for quick fixes, doc updates, config changes \u2014 any task where create/assign/complete is overhead. Creates a completed intent record in one call. Does NOT set an active intent.",
+   "new": "DEPRECATED \u2014 trivial changes (typos, one-line fixes, obvious bugs, doc updates, config changes) should skip the intent workflow entirely: just make the change and commit, no intent needed. Do not call this tool. Kept available for backwards compatibility only and will be removed in a future release.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "DEPRECATED \u2014 trivial changes (typos, one-line fixes, obvious bugs, doc updates, config changes) should skip the intent workflow entirely: just make the change and commit, no intent needed. Do not call this tool. Kept available for backwards compatibility only and will be removed in a future release."
+   }
+  },
+  {
+   "pkg": "@kawacode/mcp",
+   "server": "ai.kawacode/mcp",
+   "tool": "edit_session_decision",
+   "from": "6.0.0",
+   "to": "6.1.5",
+   "t": "2026-05-31",
+   "old": "Edit or delete a decision in the current session.\n\nUse this when reviewing decisions before commit:\n- action: \"update\" - Modify the decision fields\n- action: \"delete\" - Remove the decision entirely\n\nThis allows users to curate their decision history before it's persisted.",
+   "new": "Edit or delete a decision in the current session.\n\nUse this when reviewing decisions before commit:\n- action: \"update\" - Modify the decision fields\n- action: \"delete\" - Remove the decision entirely\n\nOnly ephemeral (in-flight) session decisions are editable. Once a decision is\nsynced to Kawa Code, it is immutable \u2014 refine it instead by recording a new\ndecision with \\",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Only ephemeral (in-flight) session decisions are editable. Once a decision is synced to Kawa Code, it is immutable \u2014 refine it instead by recording a new decision with \\"
+   }
+  },
+  {
+   "pkg": "@kawacode/mcp",
+   "server": "ai.kawacode/mcp",
+   "tool": "list_team_intents",
+   "from": "6.0.0",
+   "to": "6.1.5",
+   "t": "2026-05-31",
+   "old": "List intents from team members for this repository.\n\nUse this to:\n- See what your team is working on\n- Check for potential overlapping work before starting a new task\n- Review the status of various features/refactors in progress\n\nSupports filtering by status, author, and date range. Paginated (default: 50 per page).",
+   "new": "List intents from team members for this repository.\n\nUse this to:\n- See what your team is working on\n- Check for potential overlapping work before starting a new task\n- Review the status of various features/refactors in progress\n\nFiltering (status, author, date range) and pagination are applied server-side across the full result set (default: 50 per page; use limit/offset to page). \\",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Filtering (status, author, date range) and pagination are applied server-side across the full result set (default: 50 per page; use limit/offset to page). \\"
+   }
+  },
+  {
+   "pkg": "@kawacode/mcp",
+   "server": "ai.kawacode/mcp",
+   "tool": "get_session_decisions",
+   "from": "6.1.5",
+   "to": "6.8.1",
+   "t": "2026-07-15",
+   "old": "Get all decisions recorded in the current session for an intent.\n\nUse this before committing to review what decisions were captured during development.\nDecisions are presented for user review and can be edited or removed before being persisted.\n\nReturns:\n- intentId: The intent these decisions belong to\n- decisions: Array of decision points with full details\n- count: Number of decisions recorded",
+   "new": "Get all decisions recorded in the current session for an intent.\n\nUse this before committing to review what decisions were captured during development.\nDecisions are presented for user review and can be edited or removed before being persisted.\n\nReturns:\n- intentId: The intent these decisions belong to\n- decisions: Array of decision points (summary-only \u2014 call get_decision_detail(decisionId) for full rationale/context/consequences/alternatives)\n- count: Number of decisions recorded",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "- decisions: Array of decision points (summary-only \u2014 call get_decision_detail(decisionId) for full rationale/context/consequences/alternatives)"
+   }
+  },
+  {
+   "pkg": "@kawacode/mcp",
+   "server": "ai.kawacode/mcp",
+   "tool": "check_active_intent",
+   "from": "6.9.3",
+   "to": "8.0.0",
+   "t": "2026-08-15",
+   "old": "REQUIRED: Call this tool BEFORE writing any code.\n\nReturns THIS session's current intent (\\",
+   "new": "REQUIRED before writing any code. Returns this session's current intent; if there is none, confirm the details with the user and call create_and_activate_intent.\n\nIntents are active PER SESSION \u2014 many can be active on one repo at once. hasActiveIntent reflects only YOUR session, while activeIntents lists every session's current intent (yours and teammates') and may be non-empty when you have none. A stale intent stays \"active\"; terminal states are committed / pushed / done / abandoned / superseded.",
+   "label": {
+    "bucket": "schema-widening",
+    "reason": "input surface described differently",
+    "signals": [],
+    "added": "REQUIRED before writing any code. Returns this session's current intent; if there is none, confirm the details with the user and call create_and_activate_intent. Intents are active PER SESSION \u2014 many can be active on one repo at once. hasActiveIntent reflects only YOUR session, while activeIntents lists every session's current intent (yours and teammates') and may be non-empty when you have none. "
+   }
+  },
+  {
+   "pkg": "@kawacode/mcp",
+   "server": "ai.kawacode/mcp",
+   "tool": "get_intents_for_file",
+   "from": "6.9.3",
+   "to": "8.0.0",
+   "t": "2026-08-15",
+   "old": "Get all intents that have code blocks in this file.\n\nUse this before modifying a file to:\n- See what work is already in progress\n- Identify potential conflicts with team members\n- Understand the context of existing code changes\n\nReturns intent details including author, status, and specific line ranges.",
+   "new": "Intents with code blocks in a file, so you can see in-progress work and team conflicts before editing.\n\nPass startLine + endLine to narrow to a range; the result then reports the exact overlap and warns when it hits a teammate's active intent.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Intents with code blocks in a file, so you can see in-progress work and team conflicts before editing. Pass startLine + endLine to narrow to a range; the result then reports the exact overlap and warns when it hits a teammate's active intent."
+   }
+  },
+  {
+   "pkg": "@ankimcp/anki-mcp-server",
+   "server": "ai.ankimcp/anki-mcp-server",
+   "tool": "addNotes",
+   "from": "0.15.0-tunnel.4",
+   "to": "0.18.4-tunnel",
+   "t": "2026-04-24",
+   "old": "Add multiple notes to Anki in a single batch. Up to 100 notes sharing the same deck and model. Supports partial success - individual failures don",
+   "new": "Add multiple notes to Anki in a single batch. Up to 100 notes sharing the same deck and model. Duplicates are skipped individually; validation errors (empty required fields, bad tags) reject the batch. IMPORTANT: Only create notes that were explicitly requested by the user.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "create"
+    ],
+    "added": "Duplicates are skipped individually; validation errors (empty required fields, bad tags) reject the batch. IMPORTANT: Only create notes that were explicitly requested by the user."
+   }
+  },
+  {
+   "pkg": "@ankimcp/anki-mcp-server",
+   "server": "ai.ankimcp/anki-mcp-server",
+   "tool": "addNote",
+   "from": "0.19.1",
+   "to": "0.22.1",
+   "t": "2026-07-01",
+   "old": "Add a new note to Anki. Use modelNames to see available note types and modelFieldNames to see required fields. Returns the note ID on success. IMPORTANT: Only create notes that were explicitly requested by the user.",
+   "new": "Add a SINGLE note to Anki. To create multiple notes, use the addNotes batch tool instead of calling addNote repeatedly \u2014 AnkiConnect processes requests one at a time, so repeated (especially parallel) addNote calls are slower and unnecessary. Use modelNames to see available note types and modelFieldNames to see required fields. Returns the note ID on success. IMPORTANT: Only create notes that were explicitly requested by the user.",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "tool_routing"
+    ],
+    "evidence": [
+     "instead of calling addNote"
+    ],
+    "added": "Add a SINGLE note to Anki. To create multiple notes, use the addNotes batch tool instead of calling addNote repeatedly \u2014 AnkiConnect processes requests one at a time, so repeated (especially parallel) addNote calls are slower and unnecessary."
+   }
+  },
+  {
+   "pkg": "@ankimcp/anki-mcp-server",
+   "server": "ai.ankimcp/anki-mcp-server",
+   "tool": "addNotes",
+   "from": "0.19.1",
+   "to": "0.22.1",
+   "t": "2026-07-01",
+   "old": "Add multiple notes to Anki in a single batch. Up to 100 notes sharing the same deck and model. Duplicates are skipped individually; validation errors (empty required fields, bad tags) reject the batch. IMPORTANT: Only create notes that were explicitly requested by the user.",
+   "new": "Add multiple notes to Anki in a single batch \u2014 the preferred way to create more than one note (use this instead of repeated addNote calls). Up to 100 notes sharing the same deck and model. Duplicates are skipped individually; validation errors (empty required fields, bad tags) reject the batch. IMPORTANT: Only create notes that were explicitly requested by the user.",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "tool_routing"
+    ],
+    "evidence": [
+     "instead of repeated"
+    ],
+    "added": "Add multiple notes to Anki in a single batch \u2014 the preferred way to create more than one note (use this instead of repeated addNote calls)."
+   }
+  },
+  {
+   "pkg": "@ankimcp/anki-mcp-server",
+   "server": "ai.ankimcp/anki-mcp-server",
+   "tool": "listDecks",
+   "from": "0.22.1",
+   "to": "0.24.1",
+   "t": "2026-08-16",
+   "old": "List all Anki decks, optionally with card count statistics for each deck. Remember to sync first at the start of a session for latest data.",
+   "new": "List all Anki decks, optionally with per-deck study-queue statistics. ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "List all Anki decks, optionally with per-deck study-queue statistics."
+   }
+  },
+  {
+   "pkg": "@shipeasy/mcp",
+   "server": "ai.shipeasy/mcp",
+   "tool": "i18n_create_key",
+   "from": "1.0.0",
+   "to": "1.1.0",
+   "t": "2026-06-09",
+   "old": "Create or update a single key in a profile. Use for adding descriptions to existing keys.",
+   "new": "Add a single new key to a profile. Insert-only: if the key already exists it is left unchanged (never overwritten).",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Add a single new key to a profile. Insert-only: if the key already exists it is left unchanged (never overwritten)."
+   }
+  },
+  {
+   "pkg": "@shipeasy/mcp",
+   "server": "ai.shipeasy/mcp",
+   "tool": "i18n_push_keys",
+   "from": "1.0.0",
+   "to": "1.1.0",
+   "t": "2026-06-09",
+   "old": "Bulk upload keys to a profile chunk. Pass ",
+   "new": "Add NEW keys to a profile chunk. Insert-only: existing keys are never overwritten \u2014 they come back under `skipped`, and only new keys are added. Pass ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Add NEW keys to a profile chunk. Insert-only: existing keys are never overwritten \u2014 they come back under `skipped`, and only new keys are added."
+   }
+  },
+  {
+   "pkg": "@shipeasy/mcp",
+   "server": "ai.shipeasy/mcp",
+   "tool": "list_resources",
+   "from": "1.0.0",
+   "to": "1.1.0",
+   "t": "2026-06-09",
+   "old": "Unified listing across gates, configs, experiments, events, metrics, universes, attributes, i18n profiles/chunks/keys/drafts, and sdk_keys.",
+   "new": "Unified listing across gates, configs, experiments, events, metrics, alert_rules, universes, attributes, i18n profiles/chunks/keys/drafts, and sdk_keys.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Unified listing across gates, configs, experiments, events, metrics, alert_rules, universes, attributes, i18n profiles/chunks/keys/drafts, and sdk_keys."
+   }
+  },
+  {
+   "pkg": "@shipeasy/mcp",
+   "server": "ai.shipeasy/mcp",
+   "tool": "exp_create_experiment",
+   "from": "1.1.0",
+   "to": "1.3.1",
+   "t": "2026-06-14",
+   "old": "Create an experiment draft with groups, params, optional targeting gate, and optional success metric. Does NOT start \u2014 call exp_start_experiment.",
+   "new": "Create an experiment draft with groups, params, optional targeting gate, and a success (goal) metric. Pass success_event (+ success_aggregation) to attach the goal metric inline \u2014 required before the experiment can be started. Does NOT start \u2014 call exp_start_experiment.",
+   "label": {
+    "bucket": "schema-widening",
+    "reason": "input surface described differently",
+    "signals": [],
+    "added": "Create an experiment draft with groups, params, optional targeting gate, and a success (goal) metric. Pass success_event (+ success_aggregation) to attach the goal metric inline \u2014 required before the experiment can be started."
+   }
+  },
+  {
+   "pkg": "@shipeasy/mcp",
+   "server": "ai.shipeasy/mcp",
+   "tool": "exp_delete_experiment",
+   "from": "1.1.0",
+   "to": "1.3.1",
+   "t": "2026-06-14",
+   "old": "Delete an experiment by name.",
+   "new": "Soft-delete (archive) an experiment by name. The name stays reserved; restore it with exp_restore_experiment.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Soft-delete (archive) an experiment by name. The name stays reserved; restore it with exp_restore_experiment."
+   }
+  },
+  {
+   "pkg": "@shipeasy/mcp",
+   "server": "ai.shipeasy/mcp",
+   "tool": "exp_create_experiment",
+   "from": "1.3.1",
+   "to": "1.4.0",
+   "t": "2026-06-20",
+   "old": "Create an experiment draft with groups, params, optional targeting gate, and a success (goal) metric. Pass success_event (+ success_aggregation) to attach the goal metric inline \u2014 required before the experiment can be started. Does NOT start \u2014 call exp_start_experiment.",
+   "new": "Create an experiment draft with groups, params, optional targeting gate, a success (goal) metric, optional guardrail metrics, and full statistical config. Pass success_event (+ success_aggregation) to attach the goal metric inline \u2014 required before the experiment can be started. Does NOT start \u2014 call exp_start_experiment.",
+   "label": {
+    "bucket": "schema-widening",
+    "reason": "input surface described differently",
+    "signals": [],
+    "added": "Create an experiment draft with groups, params, optional targeting gate, a success (goal) metric, optional guardrail metrics, and full statistical config."
+   }
+  },
+  {
+   "pkg": "@shipeasy/mcp",
+   "server": "ai.shipeasy/mcp",
+   "tool": "exp_create_gate",
+   "from": "1.3.1",
+   "to": "1.4.0",
+   "t": "2026-06-20",
+   "old": "Create a feature gate with targeting rules and rollout percentage.",
+   "new": "Create a feature gate. A flat gate is `rules` + a single `rollout` %. For tiered ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Create a feature gate. A flat gate is `rules` + a single `rollout` %. For tiered"
+   }
+  },
+  {
+   "pkg": "@shipeasy/mcp",
+   "server": "ai.shipeasy/mcp",
+   "tool": "auth_logout",
+   "from": "2.3.0",
+   "to": "2.6.0",
+   "t": "2026-07-26",
+   "old": "Delete ~/.config/shipeasy/config.json. No network call.",
+   "new": "Delete ~/.config/shipeasy/config.json \u2014 the ONE session shared by the `shipeasy` CLI and ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Delete ~/.config/shipeasy/config.json \u2014 the ONE session shared by the `shipeasy` CLI and"
+   }
+  },
+  {
+   "pkg": "@shipeasy/mcp",
+   "server": "ai.shipeasy/mcp",
+   "tool": "i18n-profile",
+   "from": "2.3.0",
+   "to": "2.6.0",
+   "t": "2026-07-26",
+   "old": "i18n profile metadata + chunk list + coverage %.",
+   "new": "i18n profile metadata + published label strings + coverage %.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "i18n profile metadata + published label strings + coverage %."
+   }
+  },
+  {
+   "pkg": "@shipeasy/mcp",
+   "server": "ai.shipeasy/mcp",
+   "tool": "i18n_keys_push",
+   "from": "2.3.0",
+   "to": "2.6.0",
+   "t": "2026-07-26",
+   "old": "Push new i18n keys (insert-only). Add NEW keys to a profile. Insert-only \u2014 existing keys are left untouched (overwrite one with `updateI18nKey`).",
+   "new": "Push i18n keys (insert-only, or `force` to overwrite). Add NEW keys to a profile. Insert-only by default \u2014 existing keys are left untouched and reported back as `skipped`.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Push i18n keys (insert-only, or `force` to overwrite). Insert-only by default \u2014 existing keys are left untouched and reported back as `skipped`."
+   }
+  },
+  {
+   "pkg": "@shipeasy/mcp",
+   "server": "ai.shipeasy/mcp",
+   "tool": "i18n_profiles_publish",
+   "from": "2.3.0",
+   "to": "2.6.0",
+   "t": "2026-07-26",
+   "old": "Publish a profile live. Publish a profile to the CDN \u2014 rebuild its KV snapshot + purge the edge. Publishing is PROFILE-WIDE: the whole profile is snapshotted into one KV blob, so the optional `chunk` in the body is an audit label only (it does not scope what ships).",
+   "new": "Publish a profile live. Publish a profile to the CDN \u2014 rebuild its KV snapshot + purge the edge. Publishing is PROFILE-WIDE: the whole profile is snapshotted into one KV blob, so the body takes no options.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Publishing is PROFILE-WIDE: the whole profile is snapshotted into one KV blob, so the body takes no options."
+   }
+  },
+  {
+   "pkg": "@shipeasy/mcp",
+   "server": "ai.shipeasy/mcp",
+   "tool": "release_configs_update",
+   "from": "2.3.0",
+   "to": "2.6.0",
+   "t": "2026-07-26",
+   "old": "Update a dynamic config. Partial update. When `value` is supplied it is **republished on every env** (new version per env). When `schema` is supplied it replaces the current schema; every existing value is re-validated.",
+   "new": "Update a dynamic config. Partial update. When `value` is supplied it is **republished on every env** (new version per env). A per-env key (`dev`/`staging`/`prod`) publishes a new version to **only that env**, immediately, overriding `value` for it. When `schema` is supplied it replaces the current sch\u2026",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "A per-env key (`dev`/`staging`/`prod`) publishes a new version to **only that env**, immediately, overriding `value` for it. When `schema` is supplied it replaces the current sch\u2026"
+   }
+  },
+  {
+   "pkg": "@bolthub/mcp",
+   "server": "ai.bolthub/mcp",
+   "tool": "mint_scoped_token",
+   "from": "0.2.1",
+   "to": "0.3.0",
+   "t": "2026-07-10",
+   "old": "Mint a scoped, capped child credential from a prepaid bundle you already hold for an endpoint, to hand to a sub-agent. Attenuates OFFLINE (no payment, no round-trip): the child is a normal L402 token the worker spends with call_api or a plain client, and the gateway enforces every cap. Attenuation is tighten-only \u2014 a child can never widen scope or exceed the parent",
+   "new": "Mint a scoped, capped child credential from a multi-use credential you already hold for an endpoint, to hand to a sub-agent. Attenuates OFFLINE (no payment, no round-trip): the child is a normal L402 token the worker spends with call_api or a plain client, and the gateway enforces every cap. Attenuation is tighten-only \u2014 a child can never widen scope or exceed the parent",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Mint a scoped, capped child credential from a multi-use credential you already hold for an endpoint, to hand to a sub-agent."
+   }
+  },
+  {
+   "pkg": "@bolthub/mcp",
+   "server": "ai.bolthub/mcp",
+   "tool": "deploy_node",
+   "from": "0.3.0",
+   "to": "0.5.0",
+   "t": "2026-07-15",
+   "old": "Deploy a new Lightning node (LND + Neutrino) on a VPS. The node runs on the user",
+   "new": "Deploy a Lightning node (LND + Neutrino) on the user",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Deploy a Lightning node (LND + Neutrino) on the user"
+   }
+  },
+  {
+   "pkg": "@bolthub/mcp",
+   "server": "ai.bolthub/mcp",
+   "tool": "create_workspace",
+   "from": "0.5.1",
+   "to": "0.6.0",
+   "t": "2026-07-21",
+   "old": "Create a new bolthub workspace (tenant) for selling APIs. Secret-free and reversible: an empty workspace costs nothing and the 30-day trial only starts when a first endpoint is published. Wallet connection is a separate step (connect_wallet). Requires an account token (connect_account).",
+   "new": "Create a new bolthub workspace (tenant) for selling APIs. Secret-free and reversible: an empty workspace costs nothing and the 30-day trial only starts when a first endpoint is published. A wallet is OPTIONAL until you publish a paid endpoint \u2014 then it",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "publish"
+    ],
+    "added": "A wallet is OPTIONAL until you publish a paid endpoint \u2014 then it"
+   }
+  },
+  {
+   "pkg": "@scope-bid/scope-mcp",
+   "server": "bid.scope/legal",
+   "tool": "scope_book_deposition",
+   "from": "1.0.6",
+   "to": "1.0.7",
+   "t": "2026-07-30",
+   "old": "Convenience tool for booking a deposition. Wraps scope_dispatch_matter with the court-reporting service category and structured deposition fields. Returns matter id and bid window.",
+   "new": "Convenience tool for booking a deposition. Wraps scope_dispatch_matter with the court-reporting service category and structured deposition fields, and inherits its approval rule: the booking parks as a pending approval and a person at the firm must approve it before any money is committed. Returns matter id and dispatch status.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Wraps scope_dispatch_matter with the court-reporting service category and structured deposition fields, and inherits its approval rule: the booking parks as a pending approval and a person at the firm must approve it before any money is committed. Returns matter id and dispatch status."
+   }
+  },
+  {
+   "pkg": "@scope-bid/scope-mcp",
+   "server": "bid.scope/legal",
+   "tool": "scope_request_records",
+   "from": "1.0.6",
+   "to": "1.0.7",
+   "t": "2026-07-30",
+   "old": "Convenience tool for ordering records retrieval. Wraps scope_dispatch_matter with the records-retrieval service category and structured custodian fields. Returns matter id and bid window.",
+   "new": "Convenience tool for ordering records retrieval. Wraps scope_dispatch_matter with the records-retrieval service category and structured custodian fields, and inherits its approval rule: the order parks as a pending approval and a person at the firm must approve it before any money is committed. Returns matter id and dispatch status.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Wraps scope_dispatch_matter with the records-retrieval service category and structured custodian fields, and inherits its approval rule: the order parks as a pending approval and a person at the firm must approve it before any money is committed. Returns matter id and dispatch status."
+   }
+  },
+  {
+   "pkg": "@aetherwealth/mcp",
+   "server": "ai.aetherwealth/mcp",
+   "tool": "get_candles",
+   "from": "0.1.21",
+   "to": "0.1.25",
+   "t": "2026-07-03",
+   "old": "Get the most recent OHLC candles (up to 500) for a pair + timeframe. Timeframe may be a base (1m, 5m, 15m, 30m, 1h, 4h, 1d) or any integer multiple of one (e.g. 2h, 3h, 12h, 90m), aggregated server-side; invalid or unsupported timeframes return an error, not an empty list.",
+   "new": "Get OHLC candles for a pair + timeframe. Returns up to 200 bars per request (newest 200 by default). Use offset to page further back through history \u2014 the store keeps thousands of bars (e.g. limit=200 offset=200 returns bars 201-400 back from the latest). Timeframe may be a base (1m, 5m, 15m, 30m, 1h, 4h, 1d) or any integer multiple of one (e.g. 2h, 3h, 12h, 90m), aggregated server-side; invalid or unsupported timeframes return an error, not an empty list.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get OHLC candles for a pair + timeframe. Returns up to 200 bars per request (newest 200 by default). Use offset to page further back through history \u2014 the store keeps thousands of bars (e.g. limit=200 offset=200 returns bars 201-400 back from the latest)."
+   }
+  },
+  {
+   "pkg": "@aetherwealth/mcp",
+   "server": "ai.aetherwealth/mcp",
+   "tool": "delete_trade",
+   "from": "0.1.29",
+   "to": "0.1.36",
+   "t": "2026-07-12",
+   "old": "Permanently delete a single trade by id. Requires sign-in.",
+   "new": "Permanently delete a single trade by id. Only trades on demo accounts can be deleted. Requires sign-in.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Only trades on demo accounts can be deleted."
+   }
+  },
+  {
+   "pkg": "@aetherwealth/mcp",
+   "server": "ai.aetherwealth/mcp",
+   "tool": "delete_trades",
+   "from": "0.1.29",
+   "to": "0.1.36",
+   "t": "2026-07-12",
+   "old": "Permanently delete trades on a specific account. Requires explicit status (OPEN, CLOSED, CANCELLED, or ALL). This cannot be undone. Requires sign-in.",
+   "new": "Permanently delete trades on a specific demo account. Requires explicit status (OPEN, CLOSED, CANCELLED, or ALL). This cannot be undone. Requires sign-in.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Permanently delete trades on a specific demo account."
+   }
+  },
+  {
+   "pkg": "@aetherwealth/mcp",
+   "server": "ai.aetherwealth/mcp",
+   "tool": "get_candles",
+   "from": "0.1.29",
+   "to": "0.1.36",
+   "t": "2026-07-12",
+   "old": "Get OHLC candles for a pair + timeframe. Returns up to 200 bars per request (newest 200 by default). Use offset to page further back through history \u2014 the store keeps thousands of bars (e.g. limit=200 offset=200 returns bars 201-400 back from the latest). Timeframe may be a base (1m, 5m, 15m, 30m, 1h, 4h, 1d) or any integer multiple of one (e.g. 2h, 3h, 12h, 90m), aggregated server-side; invalid or unsupported timeframes return an error, not an empty list.",
+   "new": "Get OHLC candles for a pair + timeframe. Returns up to 200 bars plus nextCursor. To page through the complete stored history, pass nextCursor back as cursor until nextCursor is null. Timeframe may be a stored base (1m, 5m, 15m, 30m, 1h, 4h, 1d) or any integer multiple of one (e.g. 3m, 2h, 12h, 90m), aggregated server-side without splitting derived candles across pages. The legacy offset parameter remains available for shallow pagination; do not combine offset and cursor.",
+   "label": {
+    "bucket": "schema-widening",
+    "reason": "input surface described differently",
+    "signals": [],
+    "added": "Returns up to 200 bars plus nextCursor. To page through the complete stored history, pass nextCursor back as cursor until nextCursor is null. Timeframe may be a stored base (1m, 5m, 15m, 30m, 1h, 4h, 1d) or any integer multiple of one (e.g. 3m, 2h, 12h, 90m), aggregated server-side without splitting derived candles across pages. The legacy offset parameter remains available for shallow pagination;"
+   }
+  },
+  {
+   "pkg": "@aetherwealth/mcp",
+   "server": "ai.aetherwealth/mcp",
+   "tool": "close_position",
+   "from": "0.1.36",
+   "to": "0.2.2",
+   "t": "2026-07-24",
+   "old": "Close an open broker position fully, or partially by passing `volume`.",
+   "new": "Propose closing an open broker position fully, or partially by passing `volume`. This does not close immediately; it returns a pending confirmation intent. For email_otp/app_otp ask the user for the code and call execute_trade. For push, do not ask for a code \u2014 the user taps Approve in the app.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Propose closing an open broker position fully, or partially by passing `volume`. This does not close immediately; it returns a pending confirmation intent. For email_otp/app_otp ask the user for the code and call execute_trade. For push, do not ask for a code \u2014 the user taps Approve in the app."
+   }
+  },
+  {
+   "pkg": "@aetherwealth/mcp",
+   "server": "ai.aetherwealth/mcp",
+   "tool": "execute_trade",
+   "from": "0.1.36",
+   "to": "0.2.2",
+   "t": "2026-07-24",
+   "old": "Place a previously proposed email_otp, app_otp, or auto trade after the required confirmation. Push intents cannot be executed by the agent; the backend enforces this. NEVER guess or fabricate a code.",
+   "new": "Place a previously proposed trade. Email/app modes require the user-provided code; auto mode requires no per-trade code. Push intents cannot be executed by the agent. NEVER guess or fabricate a code.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Place a previously proposed trade. Email/app modes require the user-provided code; auto mode requires no per-trade code."
+   }
+  },
+  {
+   "pkg": "@aetherwealth/mcp",
+   "server": "ai.aetherwealth/mcp",
+   "tool": "get_candles",
+   "from": "0.1.36",
+   "to": "0.2.2",
+   "t": "2026-07-24",
+   "old": "Get OHLC candles for a pair + timeframe. Returns up to 200 bars plus nextCursor. To page through the complete stored history, pass nextCursor back as cursor until nextCursor is null. Timeframe may be a stored base (1m, 5m, 15m, 30m, 1h, 4h, 1d) or any integer multiple of one (e.g. 3m, 2h, 12h, 90m), aggregated server-side without splitting derived candles across pages. The legacy offset parameter remains available for shallow pagination; do not combine offset and cursor.",
+   "new": "Get OHLC candles for a pair + timeframe and optional sourceId. Omit sourceId for Twelve Data. Non-default sources return only native timeframes advertised by get_market_config; they are never re-aggregated. Returns up to 200 bars plus nextCursor. Pass nextCursor back as cursor until it is null. The legacy offset remains available for shallow pagination; do not combine offset and cursor.",
+   "label": {
+    "bucket": "schema-widening",
+    "reason": "input surface described differently",
+    "signals": [],
+    "added": "Get OHLC candles for a pair + timeframe and optional sourceId. Omit sourceId for Twelve Data. Non-default sources return only native timeframes advertised by get_market_config; they are never re-aggregated. Pass nextCursor back as cursor until it is null. The legacy offset remains available for shallow pagination;"
+   }
+  },
+  {
+   "pkg": "@aetherwealth/mcp",
+   "server": "ai.aetherwealth/mcp",
+   "tool": "get_market_config",
+   "from": "0.1.36",
+   "to": "0.2.2",
+   "t": "2026-07-24",
+   "old": "Get the catalog of supported instruments + timeframes (useful before calling other tools).",
+   "new": "Get supported instruments, timeframes, and per-source candle/live capabilities. Use marketDataSources before selecting a non-default sourceId.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get supported instruments, timeframes, and per-source candle/live capabilities. Use marketDataSources before selecting a non-default sourceId."
+   }
+  },
+  {
+   "pkg": "@aetherwealth/mcp",
+   "server": "ai.aetherwealth/mcp",
+   "tool": "modify_position",
+   "from": "0.1.36",
+   "to": "0.2.2",
+   "t": "2026-07-24",
+   "old": "Adjust stop-loss / take-profit on an open position. Stop-loss changes that INCREASE risk are rejected (use the app). Pass null to clear a level.",
+   "new": "Propose adjusting stop-loss / take-profit on an open position. Stop-loss changes that INCREASE risk are rejected (use the app). Pass null to clear a level. This returns a pending confirmation intent; for email_otp/app_otp ask for the code and call execute_trade, while push is approved in the app.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Propose adjusting stop-loss / take-profit on an open position. This returns a pending confirmation intent; for email_otp/app_otp ask for the code and call execute_trade, while push is approved in the app."
+   }
+  },
+  {
+   "pkg": "@aetherwealth/mcp",
+   "server": "ai.aetherwealth/mcp",
+   "tool": "connect_broker",
+   "from": "0.2.2",
+   "to": "0.2.11",
+   "t": "2026-07-31",
+   "old": "Attach the user",
+   "new": "Attach a live execution provider to a journal account. For MetaApi, provide its account id and region. For `mt5_executor`, provide the expected MT5 login as `providerAccountRef` and its `baseUrl` under `*.aetherwealth.ai`. `providerToken` is sensitive \u2014 never expose or log it.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Attach a live execution provider to a journal account. For MetaApi, provide its account id and region. For `mt5_executor`, provide the expected MT5 login as `providerAccountRef` and its `baseUrl` under `*.aetherwealth.ai`. `providerToken` is sensitive \u2014 never expose or log it."
+   }
+  },
+  {
+   "pkg": "@perplexity-ai/mcp-server",
+   "server": "ai.perplexity/mcp-server",
+   "tool": "perplexity_ask",
+   "from": "0.6.2",
+   "to": "0.8.2",
+   "t": "2026-02-16",
+   "old": "Engages in a conversation using the Sonar API. ",
+   "new": "Answer a question using web-grounded AI (Sonar Pro model). ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Answer a question using web-grounded AI (Sonar Pro model)."
+   }
+  },
+  {
+   "pkg": "@perplexity-ai/mcp-server",
+   "server": "ai.perplexity/mcp-server",
+   "tool": "perplexity_reason",
+   "from": "0.6.2",
+   "to": "0.8.2",
+   "t": "2026-02-16",
+   "old": "Performs reasoning tasks using the Perplexity API. ",
+   "new": "Analyze a question using step-by-step reasoning with web grounding (Sonar Reasoning Pro model). ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Analyze a question using step-by-step reasoning with web grounding (Sonar Reasoning Pro model)."
+   }
+  },
+  {
+   "pkg": "@perplexity-ai/mcp-server",
+   "server": "ai.perplexity/mcp-server",
+   "tool": "perplexity_research",
+   "from": "0.6.2",
+   "to": "0.8.2",
+   "t": "2026-02-16",
+   "old": "Performs deep research using the Perplexity API. ",
+   "new": "Conduct deep, multi-source research on a topic (Sonar Deep Research model). ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Conduct deep, multi-source research on a topic (Sonar Deep Research model)."
+   }
+  },
+  {
+   "pkg": "@perplexity-ai/mcp-server",
+   "server": "ai.perplexity/mcp-server",
+   "tool": "perplexity_search",
+   "from": "0.6.2",
+   "to": "0.8.2",
+   "t": "2026-02-16",
+   "old": "Performs web search using the Perplexity Search API. ",
+   "new": "Search the web and return a ranked list of results with titles, URLs, snippets, and dates. ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Search the web and return a ranked list of results with titles, URLs, snippets, and dates."
+   }
+  },
+  {
+   "pkg": "@perplexity-ai/mcp-server",
+   "server": "ai.perplexity/mcp-server",
+   "tool": "perplexity_ask",
+   "from": "0.8.5",
+   "to": "1.2.0",
+   "t": "2026-07-27",
+   "old": "Answer a question using web-grounded AI (Sonar Pro model). ",
+   "new": "Answer a question using web-grounded AI (Perplexity Agent API, ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Answer a question using web-grounded AI (Perplexity Agent API,"
+   }
+  },
+  {
+   "pkg": "@perplexity-ai/mcp-server",
+   "server": "ai.perplexity/mcp-server",
+   "tool": "perplexity_reason",
+   "from": "0.8.5",
+   "to": "1.2.0",
+   "t": "2026-07-27",
+   "old": "Analyze a question using step-by-step reasoning with web grounding (Sonar Reasoning Pro model). ",
+   "new": "Analyze a question using step-by-step reasoning with web grounding (Perplexity Agent API, ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Analyze a question using step-by-step reasoning with web grounding (Perplexity Agent API,"
+   }
+  },
+  {
+   "pkg": "@perplexity-ai/mcp-server",
+   "server": "ai.perplexity/mcp-server",
+   "tool": "perplexity_research",
+   "from": "0.8.5",
+   "to": "1.2.0",
+   "t": "2026-07-27",
+   "old": "Conduct deep, multi-source research on a topic (Sonar Deep Research model). ",
+   "new": "Conduct deep, multi-source research on a topic (Perplexity Agent API, ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Conduct deep, multi-source research on a topic (Perplexity Agent API,"
+   }
+  },
+  {
+   "pkg": "raven-mcp",
+   "server": "ai.ravenmcp/raven-mcp",
+   "tool": "list_content_systems",
+   "from": "1.3.3",
+   "to": "1.6.1",
+   "t": "2026-05-29",
+   "old": "Browse available content design systems \u2014 brand voice and tone guides from real companies (Mailchimp, GOV.UK, Shopify Polaris, Atlassian, Intuit). Filter by category or search by name.",
+   "new": "Browse available content design systems \u2014 brand voice and tone guides from real companies (Mailchimp, GOV.UK, Shopify Polaris, Atlassian). Filter by category or search by name.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Browse available content design systems \u2014 brand voice and tone guides from real companies (Mailchimp, GOV.UK, Shopify Polaris, Atlassian)."
+   }
+  },
+  {
+   "pkg": "raven-mcp",
+   "server": "ai.ravenmcp/raven-mcp",
+   "tool": "list_content_systems",
+   "from": "2.2.6",
+   "to": "2.5.0",
+   "t": "2026-08-18",
+   "old": "Browse available content design systems \u2014 brand voice and tone guides from real companies (Mailchimp, GOV.UK, Shopify Polaris, Atlassian). Filter by category or search by name.",
+   "new": "Browse available content design systems \u2014 brand voice and tone guides (Conversational Product Voice, GOV.UK, Shopify Polaris, Atlassian). Filter by category or search by name.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Browse available content design systems \u2014 brand voice and tone guides (Conversational Product Voice, GOV.UK, Shopify Polaris, Atlassian)."
+   }
+  },
+  {
+   "pkg": "@rolli/mcp",
+   "server": "ai.rolli/mcp",
+   "tool": "keyword_search",
+   "from": "1.0.0",
+   "to": "1.1.1",
+   "t": "2026-03-04",
+   "old": "Create a keyword/hashtag search across social media platforms (X, Reddit, Bluesky, YouTube, LinkedIn, Facebook, Instagram, Weibo). Returns a search ID to retrieve results later.",
+   "new": "Create a keyword/hashtag search across social media platforms (X, Reddit, Bluesky, YouTube, LinkedIn, Facebook, Instagram, Weibo). Polls until the search is complete and returns the full results.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Polls until the search is complete and returns the full results."
+   }
+  },
+  {
+   "pkg": "@rolli/mcp",
+   "server": "ai.rolli/mcp",
+   "tool": "user_search",
+   "from": "1.0.0",
+   "to": "1.1.1",
+   "t": "2026-03-04",
+   "old": "Create a user profile search on a social media platform. Returns a search ID to retrieve results later.",
+   "new": "Create a user profile search on a social media platform. Polls until the search is complete and returns the full results.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Polls until the search is complete and returns the full results."
+   }
+  },
+  {
+   "pkg": "@rolli/mcp",
+   "server": "ai.rolli/mcp",
+   "tool": "keyword_search",
+   "from": "1.1.6",
+   "to": "1.1.8",
+   "t": "2026-04-17",
+   "old": "Create a keyword/hashtag search across social media platforms (X, Reddit, Bluesky, YouTube, LinkedIn, Facebook, Instagram, Weibo). Polls until the search is complete and returns the full results.",
+   "new": "Create a keyword/hashtag search across social media platforms (X, Reddit, YouTube, Facebook, Instagram, Threads, Bluesky, and more). Polls until the search is complete and returns the full results.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Create a keyword/hashtag search across social media platforms (X, Reddit, YouTube, Facebook, Instagram, Threads, Bluesky, and more)."
+   }
+  },
+  {
+   "pkg": "@rolli/mcp",
+   "server": "ai.rolli/mcp",
+   "tool": "get_expert_search",
+   "from": "1.2.1",
+   "to": "1.4.0",
+   "t": "2026-08-11",
+   "old": "Get results for an expert search by ID. Returns search status and, once complete, the array of recommended experts with their profiles and AI-generated match summaries.",
+   "new": "Get results for an expert search by ID. Returns search status and, once complete, the array of recommended experts with their profiles and AI-generated match summaries. results_pending: true means the search succeeded but the backend is still writing results; retry in a few seconds.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "results_pending: true means the search succeeded but the backend is still writing results; retry in a few seconds."
+   }
+  },
+  {
+   "pkg": "@rolli/mcp",
+   "server": "ai.rolli/mcp",
+   "tool": "get_keyword_search",
+   "from": "1.2.1",
+   "to": "1.4.0",
+   "t": "2026-08-11",
+   "old": "Get results for a keyword search by ID. Returns search status, analytics summary, and posts.",
+   "new": "Get results for a keyword search by ID. Returns search status, analytics summary, and posts. Oversized responses are truncated (truncated: true) \u2014 retrieve complete post data with get_keyword_search_posts. results_pending: true means the search succeeded but the backend is still writing results; retry in a few seconds.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Oversized responses are truncated (truncated: true) \u2014 retrieve complete post data with get_keyword_search_posts. results_pending: true means the search succeeded but the backend is still writing results; retry in a few seconds."
+   }
+  },
+  {
+   "pkg": "@rolli/mcp",
+   "server": "ai.rolli/mcp",
+   "tool": "get_keyword_search_posts",
+   "from": "1.2.1",
+   "to": "1.4.0",
+   "t": "2026-08-11",
+   "old": "Get raw posts from a keyword search. Returns the actual social media posts matching the search query.",
+   "new": "Get raw posts from a keyword search. Returns the actual social media posts matching the search query. Oversized responses are truncated (truncated: true) \u2014 request one platform at a time for full data on large searches.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Oversized responses are truncated (truncated: true) \u2014 request one platform at a time for full data on large searches."
+   }
+  },
+  {
+   "pkg": "@rolli/mcp",
+   "server": "ai.rolli/mcp",
+   "tool": "get_usage",
+   "from": "1.2.1",
+   "to": "1.4.0",
+   "t": "2026-08-11",
+   "old": "Get API usage data. Returns search counts and per-user breakdowns. Optionally filter by month.",
+   "new": "Get API usage data. Returns search counts, per-user breakdowns, and the current IQ credit balance (credits.credits_remaining, credits.credits_limit, credits.period_reset_date \u2014 the latter two are null for one-time credit grants). Optionally filter by month.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Returns search counts, per-user breakdowns, and the current IQ credit balance (credits.credits_remaining, credits.credits_limit, credits.period_reset_date \u2014 the latter two are null for one-time credit grants)."
+   }
+  },
+  {
+   "pkg": "@rolli/mcp",
+   "server": "ai.rolli/mcp",
+   "tool": "get_user_search",
+   "from": "1.2.1",
+   "to": "1.4.0",
+   "t": "2026-08-11",
+   "old": "Get results for a user search by ID. Returns profile info, metrics, and content analysis.",
+   "new": "Get results for a user search by ID. Returns profile info, metrics, and content analysis. Oversized responses are truncated (truncated: true) \u2014 retrieve complete post data with get_user_search_posts. results_pending: true means the search succeeded but the backend is still writing results; retry in a few seconds.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Oversized responses are truncated (truncated: true) \u2014 retrieve complete post data with get_user_search_posts. results_pending: true means the search succeeded but the backend is still writing results; retry in a few seconds."
+   }
+  },
+  {
+   "pkg": "@rolli/mcp",
+   "server": "ai.rolli/mcp",
+   "tool": "get_user_search_posts",
+   "from": "1.2.1",
+   "to": "1.4.0",
+   "t": "2026-08-11",
+   "old": "Get raw posts from a user search. Returns the actual social media posts from the searched user profile.",
+   "new": "Get raw posts from a user search. Returns the actual social media posts from the searched user profile. Oversized responses are truncated (truncated: true).",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Oversized responses are truncated (truncated: true)."
+   }
+  },
+  {
+   "pkg": "@rolli/mcp",
+   "server": "ai.rolli/mcp",
+   "tool": "keyword_search",
+   "from": "1.2.1",
+   "to": "1.4.0",
+   "t": "2026-08-11",
+   "old": "Create a keyword/hashtag search across social media platforms (X, Reddit, YouTube, Facebook, Instagram, Threads, Bluesky, and more). Polls until the search is complete and returns the full results.",
+   "new": "Create a keyword/hashtag search across social media platforms (X, Reddit, YouTube, Facebook, Instagram, Threads, Bluesky, and more). Polls until the search is complete and returns the full results. Oversized responses are truncated (truncated: true, largest post arrays shortened) \u2014 retrieve complete post data with get_keyword_search_posts. A status of results_pending means the search succeeded but results are still being written; fetch them with get_keyword_search.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "fetch"
+    ],
+    "added": "Oversized responses are truncated (truncated: true, largest post arrays shortened) \u2014 retrieve complete post data with get_keyword_search_posts. A status of results_pending means the search succeeded but results are still being written; fetch them with get_keyword_search."
+   }
+  },
+  {
+   "pkg": "@rolli/mcp",
+   "server": "ai.rolli/mcp",
+   "tool": "user_search",
+   "from": "1.2.1",
+   "to": "1.4.0",
+   "t": "2026-08-11",
+   "old": "Create a user profile search on a social media platform. Polls until the search is complete and returns the full results.",
+   "new": "Create a user profile search on a social media platform. Polls until the search is complete and returns the full results. Oversized responses are truncated (truncated: true) \u2014 retrieve complete post data with get_user_search_posts. A status of results_pending means the search succeeded but results are still being written; fetch them with get_user_search.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "fetch"
+    ],
+    "added": "Oversized responses are truncated (truncated: true) \u2014 retrieve complete post data with get_user_search_posts. A status of results_pending means the search succeeded but results are still being written; fetch them with get_user_search."
+   }
+  },
+  {
+   "pkg": "@voxell/forge-mcp",
+   "server": "ai.voxell/forge",
+   "tool": "embed",
+   "from": "0.1.3",
+   "to": "0.1.4",
+   "t": "2026-05-30",
+   "old": "Generate vector embeddings for one or more texts using Voxell Forge (a GA, ",
+   "new": "Generate vector embeddings for one or more texts with Forge (Voxell",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Generate vector embeddings for one or more texts with Forge (Voxell"
+   }
+  },
+  {
+   "pkg": "@voxell/forge-mcp",
+   "server": "ai.voxell/forge",
+   "tool": "list_models",
+   "from": "0.1.3",
+   "to": "0.1.4",
+   "t": "2026-05-30",
+   "old": "List the available Forge embedding models and their native dimensions.",
+   "new": "List the available Forge embedding models and their dimensions. Call this to pick a model before embedding.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "List the available Forge embedding models and their dimensions. Call this to pick a model before embedding."
+   }
+  },
+  {
+   "pkg": "tenjin-cli",
+   "server": "blog.tenjin/tenjin",
+   "tool": "tenjin_publish",
+   "from": "0.1.0-alpha.10",
+   "to": "0.1.0-alpha.12",
+   "t": "2026-08-15",
+   "old": "Publish a Markdown file (or a parked candidate) as a paid or free piece with an optional answer card. Gated by a deterministic local scan and your publish.mode consent: in review mode, or on a soft finding, it returns NEEDS_CONFIRMATION with the exact payload (mode, price, findings, card, target) for you to show the user before re-calling with yes:true. A hard block (a live secret) returns PUBLISH_BLOCKED and is NEVER cleared by yes or any mode. The wallet signs the write locally; the key never leaves this machine.",
+   "new": "Publish a Markdown file as a paid or free piece with an optional answer card. Gated by a deterministic local scan and your publish.mode consent: in review mode, or on a soft finding, it returns NEEDS_CONFIRMATION with the exact payload (mode, price, findings, card, target) for you to show the user before re-calling with yes:true. A hard block (a live secret) returns PUBLISH_BLOCKED and is NEVER cleared by yes or any mode. The wallet signs the write locally; the key never leaves this machine.",
+   "label": {
+    "bucket": "schema-widening",
+    "reason": "input surface described differently",
+    "signals": [],
+    "added": "Publish a Markdown file as a paid or free piece with an optional answer card."
+   }
+  },
+  {
+   "pkg": "@certscore/mcp",
+   "server": "ai.certscore/mcp",
+   "tool": "scan_site",
+   "from": "0.2.1",
+   "to": "0.2.3",
+   "t": "2026-07-07",
+   "old": "Start or reuse a CertScore public-web scan for a public URL.",
+   "new": "Start or reuse a CertScore public-web scan for a public URL. API docs: https://certscore.ai/api/v2/openapi.json",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "embedded_url"
+    ],
+    "evidence": [
+     "https://certscore.ai/api/v2/openapi.json"
+    ],
+    "added": "API docs: https://certscore.ai/api/v2/openapi.json"
+   }
+  },
+  {
+   "pkg": "@certscore/mcp",
+   "server": "ai.certscore/mcp",
+   "tool": "explain_finding",
+   "from": "0.2.4",
+   "to": "0.2.6",
+   "t": "2026-07-11",
+   "old": "Explain a single CertScore finding with public evidence, caveats, and reviewer next steps.",
+   "new": "Explain one projected finding with public evidence, caveats, reviewer next steps, and reason-specific no-go context when applicable.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Explain one projected finding with public evidence, caveats, reviewer next steps, and reason-specific no-go context when applicable."
+   }
+  },
+  {
+   "pkg": "@certscore/mcp",
+   "server": "ai.certscore/mcp",
+   "tool": "export_findings",
+   "from": "0.2.4",
+   "to": "0.2.6",
+   "t": "2026-07-11",
+   "old": "Return structured findings from a CertScore Pulse report for downstream review or ticketing workflows.",
+   "new": "Return structured findings plus completed-limited no-go disposition and guidance for downstream review or ticketing workflows.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Return structured findings plus completed-limited no-go disposition and guidance for downstream review or ticketing workflows."
+   }
+  },
+  {
+   "pkg": "@certscore/mcp",
+   "server": "ai.certscore/mcp",
+   "tool": "get_report",
+   "from": "0.2.4",
+   "to": "0.2.6",
+   "t": "2026-07-11",
+   "old": "Retrieve a summary CertScore Pulse report by stable scan ID. Use get_evidence for the larger bounded evidence packet.",
+   "new": "Retrieve a summary Pulse report, including customer-safe no-go messaging when coverage is completed-limited. Use get_evidence for the larger bounded packet.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Retrieve a summary Pulse report, including customer-safe no-go messaging when coverage is completed-limited. Use get_evidence for the larger bounded packet."
+   }
+  },
+  {
+   "pkg": "@certscore/mcp",
+   "server": "ai.certscore/mcp",
+   "tool": "get_scan",
+   "from": "0.2.4",
+   "to": "0.2.6",
+   "t": "2026-07-11",
+   "old": "Retrieve the API v2 public-safe scan resource for a stable scan ID.",
+   "new": "Retrieve the API v2 public-safe scan resource, including completed-limited no-go disposition, reason-specific guidance, and timing when available.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Retrieve the API v2 public-safe scan resource, including completed-limited no-go disposition, reason-specific guidance, and timing when available."
+   }
+  },
+  {
+   "pkg": "@certscore/mcp",
+   "server": "ai.certscore/mcp",
+   "tool": "get_scan_status",
+   "from": "0.2.4",
+   "to": "0.2.6",
+   "t": "2026-07-11",
+   "old": "Pass scanId (preferred, API v2). Pass jobId only for a just-created scan that has not yet returned a scanId.",
+   "new": "Retrieve terminal status, including completed_limited no-go disposition and reason-specific guidance. Pass jobId only before a stable scanId is available.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Retrieve terminal status, including completed_limited no-go disposition and reason-specific guidance. Pass jobId only before a stable scanId is available."
+   }
+  },
+  {
+   "pkg": "@certscore/mcp",
+   "server": "ai.certscore/mcp",
+   "tool": "scan_site",
+   "from": "0.2.4",
+   "to": "0.2.6",
+   "t": "2026-07-11",
+   "old": "Start or reuse a CertScore public-web scan for a public URL. API docs: https://certscore.ai/api/v2/openapi.json",
+   "new": "Start or reuse a CertScore public-web scan. Completed no-go scans return completed_limited status, structured reason-specific guidance, and timing when available.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Start or reuse a CertScore public-web scan. Completed no-go scans return completed_limited status, structured reason-specific guidance, and timing when available."
+   }
+  },
+  {
+   "pkg": "@certscore/mcp",
+   "server": "ai.certscore/mcp",
+   "tool": "scan_site",
+   "from": "0.2.7",
+   "to": "0.2.12",
+   "t": "2026-07-16",
+   "old": "Start or reuse a CertScore public-web scan. Completed no-go scans return completed_limited status, structured reason-specific guidance, and timing when available.",
+   "new": "Recommended first call. Starts or reuses a public-web scan, reports freshness and anonymous quota decisions, and waits up to 45 seconds by default. If still running, use get_scan_status; otherwise use get_scan_bundle. Completed no-go scans retain completed_limited status and reason-specific guidance.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Recommended first call. Starts or reuses a public-web scan, reports freshness and anonymous quota decisions, and waits up to 45 seconds by default. If still running, use get_scan_status; otherwise use get_scan_bundle. Completed no-go scans retain completed_limited status and reason-specific guidance."
+   }
+  },
+  {
+   "pkg": "fodda-mcp",
+   "server": "ai.fodda/mcp-server",
+   "tool": "get_evidence",
+   "from": "1.3.2",
+   "to": "1.7.0",
+   "t": "2026-03-07",
+   "old": "Get source signals, articles, and evidentiary depth for a specific node. Essential for provenance and fact-checking.",
+   "new": "Retrieve supporting signals, source articles, and structured evidence for a specific trend or concept. Designed for provenance, validation, and strategic briefing.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Retrieve supporting signals, source articles, and structured evidence for a specific trend or concept. Designed for provenance, validation, and strategic briefing."
+   }
+  },
+  {
+   "pkg": "fodda-mcp",
+   "server": "ai.fodda/mcp-server",
+   "tool": "get_label_values",
+   "from": "1.3.2",
+   "to": "1.7.0",
+   "t": "2026-03-07",
+   "old": "Discover valid values for a specific node label (e.g., RetailerType, Technology). Use for discovery, UI filters, and category exploration.",
+   "new": "Discover available values for a specific category (e.g., Technology, Audience, RetailerType, Brand) to support structured filtering and exploration.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Discover available values for a specific category (e.g., Technology, Audience, RetailerType, Brand) to support structured filtering and exploration."
+   }
+  },
+  {
+   "pkg": "fodda-mcp",
+   "server": "ai.fodda/mcp-server",
+   "tool": "get_neighbors",
+   "from": "1.3.2",
+   "to": "1.7.0",
+   "t": "2026-03-07",
+   "old": "Traverse the graph from seed nodes to find related concepts and relationships. Useful for depth-first discovery.",
+   "new": "Explore how a trend, brand, or technology connects to related signals, concepts, and adjacent innovation patterns within the selected graph. Traversal is depth-limited for focused discovery.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Explore how a trend, brand, or technology connects to related signals, concepts, and adjacent innovation patterns within the selected graph. Traversal is depth-limited for focused discovery."
+   }
+  },
+  {
+   "pkg": "fodda-mcp",
+   "server": "ai.fodda/mcp-server",
+   "tool": "get_node",
+   "from": "1.3.2",
+   "to": "1.7.0",
+   "t": "2026-03-07",
+   "old": "Directly retrieve metadata and properties for a single node by its ID.",
+   "new": "Retrieve the full metadata and properties of a specific node within the knowledge graph, including labels and structured attributes.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Retrieve the full metadata and properties of a specific node within the knowledge graph, including labels and structured attributes."
+   }
+  },
+  {
+   "pkg": "fodda-mcp",
+   "server": "ai.fodda/mcp-server",
+   "tool": "psfk_overview",
+   "from": "1.3.2",
+   "to": "1.7.0",
+   "t": "2026-03-07",
+   "old": "Get a structured macro overview from the PSFK Graph. Returns up to 3 meta_patterns. Useful for top-level briefings before deeper exploration. At least one of ",
+   "new": "Generate a macro-level overview of a selected PSFK domain (e.g., Retail, Beauty, Sports), summarizing key meta-patterns and structured trend clusters for strategic briefing.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Generate a macro-level overview of a selected PSFK domain (e.g., Retail, Beauty, Sports), summarizing key meta-patterns and structured trend clusters for strategic briefing."
+   }
+  },
+  {
+   "pkg": "fodda-mcp",
+   "server": "ai.fodda/mcp-server",
+   "tool": "search_graph",
+   "from": "1.3.2",
+   "to": "1.7.0",
+   "t": "2026-03-07",
+   "old": "Perform hybrid (vector + keyword) search on a Fodda knowledge graph. Returns trends and articles matching the query. Uses a 3-tier fallback: vector search \u2192 keyword search \u2192 all trends. Always returns results.",
+   "new": "Search across expert-curated PSFK knowledge graphs (Retail, Beauty, Sports and partner datasets) to retrieve structured trend clusters, signals, and supporting articles relevant to a query. Note: a server-side relevance gate may reduce results for brand/entity-specific queries \u2014 results with low semantic scores that don",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Search across expert-curated PSFK knowledge graphs (Retail, Beauty, Sports and partner datasets) to retrieve structured trend clusters, signals, and supporting articles relevant to a query. Note: a server-side relevance gate may reduce results for brand/entity-specific queries \u2014 results with low semantic scores that don"
+   }
+  },
+  {
+   "pkg": "fodda-mcp",
+   "server": "ai.fodda/mcp-server",
+   "tool": "get_evidence",
+   "from": "1.7.0",
+   "to": "1.31.0",
+   "t": "2026-07-02",
+   "old": "Retrieve supporting signals, source articles, and structured evidence for a specific trend or concept. Designed for provenance, validation, and strategic briefing.",
+   "new": "Get the source articles, case studies, and statistics behind a specific trend \u2014 with full citations and publisher attribution. Each item includes source URL, location, brand names, publication date, category, and a formatted citation. Use after search_graph when you need the supporting proof behind a trend. This is a direct lookup by trend ID \u2014 not a text search tool.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "search"
+    ],
+    "added": "Get the source articles, case studies, and statistics behind a specific trend \u2014 with full citations and publisher attribution. Each item includes source URL, location, brand names, publication date, category, and a formatted citation. Use after search_graph when you need the supporting proof behind a trend. This is a direct lookup by trend ID \u2014 not a text search tool."
+   }
+  },
+  {
+   "pkg": "fodda-mcp",
+   "server": "ai.fodda/mcp-server",
+   "tool": "get_label_values",
+   "from": "1.7.0",
+   "to": "1.31.0",
+   "t": "2026-07-02",
+   "old": "Discover available values for a specific category (e.g., Technology, Audience, RetailerType, Brand) to support structured filtering and exploration.",
+   "new": "Discover valid values for a specific node label (e.g., RetailerType, Technology). Use for discovery, UI filters, and category exploration.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Discover valid values for a specific node label (e.g., RetailerType, Technology). Use for discovery, UI filters, and category exploration."
+   }
+  },
+  {
+   "pkg": "fodda-mcp",
+   "server": "ai.fodda/mcp-server",
+   "tool": "get_neighbors",
+   "from": "1.7.0",
+   "to": "1.31.0",
+   "t": "2026-07-02",
+   "old": "Explore how a trend, brand, or technology connects to related signals, concepts, and adjacent innovation patterns within the selected graph. Traversal is depth-limited for focused discovery.",
+   "new": "Traverse the graph from seed nodes to find related concepts and relationships. Useful for depth-first discovery.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Traverse the graph from seed nodes to find related concepts and relationships. Useful for depth-first discovery."
+   }
+  },
+  {
+   "pkg": "fodda-mcp",
+   "server": "ai.fodda/mcp-server",
+   "tool": "get_node",
+   "from": "1.7.0",
+   "to": "1.31.0",
+   "t": "2026-07-02",
+   "old": "Retrieve the full metadata and properties of a specific node within the knowledge graph, including labels and structured attributes.",
+   "new": "Get the full profile of a specific trend \u2014 detailed description, lifecycle stage (emerging/building/mature), signal strength, geographic scope, and all properties. Use when you need deeper detail on a single trend after search_graph returned a summary. Requires node_id from a prior search_graph result.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get the full profile of a specific trend \u2014 detailed description, lifecycle stage (emerging/building/mature), signal strength, geographic scope, and all properties. Use when you need deeper detail on a single trend after search_graph returned a summary. Requires node_id from a prior search_graph result."
+   }
+  },
+  {
+   "pkg": "fodda-mcp",
+   "server": "ai.fodda/mcp-server",
+   "tool": "list_graphs",
+   "from": "1.7.0",
+   "to": "1.31.0",
+   "t": "2026-07-02",
+   "old": "Discover available knowledge graphs and their schemas, including node types, relationship types, and versions. Use this tool first to find valid graphId values for other tools.",
+   "new": "List all knowledge graphs the user can access \u2014 IDs, descriptions, authors, sectors, signal counts. Use FIRST in any session to discover available sources before searching. Returns graph metadata needed for graphId parameters in other tools. Deprecated: waldo, psfk (use retail/tech/food/travel/fashion/beauty/sports instead).",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "list"
+    ],
+    "added": "List all knowledge graphs the user can access \u2014 IDs, descriptions, authors, sectors, signal counts. Use FIRST in any session to discover available sources before searching. Returns graph metadata needed for graphId parameters in other tools. Deprecated: waldo, psfk (use retail/tech/food/travel/fashion/beauty/sports instead)."
+   }
+  },
+  {
+   "pkg": "fodda-mcp",
+   "server": "ai.fodda/mcp-server",
+   "tool": "psfk_overview",
+   "from": "1.7.0",
+   "to": "1.31.0",
+   "t": "2026-07-02",
+   "old": "Generate a macro-level overview of a selected PSFK domain (e.g., Retail, Beauty, Sports), summarizing key meta-patterns and structured trend clusters for strategic briefing.",
+   "new": "Get a structured macro overview from the PSFK Graph. Returns up to 3 meta_patterns. Useful for top-level briefings before deeper exploration.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get a structured macro overview from the PSFK Graph. Returns up to 3 meta_patterns. Useful for top-level briefings before deeper exploration."
+   }
+  },
+  {
+   "pkg": "fodda-mcp",
+   "server": "ai.fodda/mcp-server",
+   "tool": "search_graph",
+   "from": "1.7.0",
+   "to": "1.31.0",
+   "t": "2026-07-02",
+   "old": "Search across expert-curated PSFK knowledge graphs (Retail, Beauty, Sports and partner datasets) to retrieve structured trend clusters, signals, and supporting articles relevant to a query. Note: a server-side relevance gate may reduce results for brand/entity-specific queries \u2014 results with low semantic scores that don",
+   "new": "Find trends, signals, and expert insights across 100+ curated knowledge graphs covering retail, beauty, tech, food, travel, sports, and 30+ specialist domains. Returns trend data with cited evidence, source attribution, and lifecycle stage (emerging/building/mature/fading) \u2014 not generic web summaries. If graphId is omitted, searches ALL accessible graphs in parallel (recommended default). Use for market trends, competitor analysis, innovation signals, consumer behavior, cultural shifts, or any topic where curated expert intelligence outperforms web search.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Find trends, signals, and expert insights across 100+ curated knowledge graphs covering retail, beauty, tech, food, travel, sports, and 30+ specialist domains. Returns trend data with cited evidence, source attribution, and lifecycle stage (emerging/building/mature/fading) \u2014 not generic web summaries. If graphId is omitted, searches ALL accessible graphs in parallel (recommended default). Use for "
+   }
+  },
+  {
+   "pkg": "fodda-mcp",
+   "server": "ai.fodda/mcp-server",
+   "tool": "read_url",
+   "from": "1.31.0",
+   "to": "1.32.0",
+   "t": "2026-07-03",
+   "old": "Extract clean text content from any URL. Use this when a user shares a link (competitor site, news article, client brief, trend report) and wants to cross-reference it against Fodda knowledge graphs. Returns structured text ready for analysis. Costs 15 API calls.",
+   "new": "Extract clean text content from any URL. Use this when a user shares a link (competitor site, news article, client brief, trend report) and wants to cross-reference it against Fodda knowledge graphs. Returns structured text ready for analysis. Uses 15 tokens ($7.50 via SPT).",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Uses 15 tokens ($7.50 via SPT)."
+   }
+  },
+  {
+   "pkg": "fodda-mcp",
+   "server": "ai.fodda/mcp-server",
+   "tool": "read_url",
+   "from": "1.32.1",
+   "to": "1.38.0",
+   "t": "2026-08-06",
+   "old": "Extract clean text content from any URL. Use this when a user shares a link (competitor site, news article, client brief, trend report) and wants to cross-reference it against Fodda knowledge graphs. Returns structured text ready for analysis. Uses 15 tokens ($7.50 via SPT).",
+   "new": "Extract clean text content from any URL. Use this when a user shares a link (competitor site, news article, client brief, trend report) and wants to cross-reference it against Fodda knowledge graphs. Returns structured text ready for analysis. Uses $0.50 via SPT.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Uses $0.50 via SPT."
+   }
+  },
+  {
+   "pkg": "fodda-mcp",
+   "server": "ai.fodda/mcp-server",
+   "tool": "search_graph",
+   "from": "1.32.1",
+   "to": "1.38.0",
+   "t": "2026-08-06",
+   "old": "Find trends, signals, and expert insights across 100+ curated knowledge graphs covering retail, beauty, tech, food, travel, sports, and 30+ specialist domains. Returns trend data with cited evidence, source attribution, and lifecycle stage (emerging/building/mature/fading) \u2014 not generic web summaries. If graphId is omitted, searches ALL accessible graphs in parallel (recommended default). Use for market trends, competitor analysis, innovation signals, consumer behavior, cultural shifts, or any topic where curated expert intelligence outperforms web search.",
+   "new": "Perform hybrid (keyword + semantic) search on a Fodda knowledge graph. Use this to find trends, articles, and concepts. Highly recommended for natural language discovery.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Perform hybrid (keyword + semantic) search on a Fodda knowledge graph. Use this to find trends, articles, and concepts. Highly recommended for natural language discovery."
+   }
+  },
+  {
+   "pkg": "fodda-mcp",
+   "server": "ai.fodda/mcp-server",
+   "tool": "search_insights",
+   "from": "1.32.1",
+   "to": "1.38.0",
+   "t": "2026-08-06",
+   "old": "Find expert quotes, editorial analysis, and strategic perspectives on a topic \u2014 sourced from named strategists and industry leaders. Returns categorized evidence (metrics, quotes, interpretations, signals) with source attribution and parent trend context. Works on ALL graphs. Use when you need authoritative voices, strategic framing, or analytical depth that web search cannot provide.",
+   "new": "NARRATIVE only: expert quotes, editorial analysis, and strategic perspectives on a topic \u2014 sourced from named strategists and industry leaders. Returns qualitative evidence (quotes, interpretations) with source attribution and parent trend context, NOT raw numbers. For hard data points, market sizes, and growth rates, use search_statistics instead. Works on ALL graphs. Use when you need authoritative voices, strategic framing, or analytical depth that web search cannot provide.",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "tool_routing"
+    ],
+    "evidence": [
+     "use search_statistics instead"
+    ],
+    "added": "NARRATIVE only: expert quotes, editorial analysis, and strategic perspectives on a topic \u2014 sourced from named strategists and industry leaders. Returns qualitative evidence (quotes, interpretations) with source attribution and parent trend context, NOT raw numbers. For hard data points, market sizes, and growth rates, use search_statistics instead."
+   }
+  },
+  {
+   "pkg": "@fouradata/mcp",
+   "server": "ai.foura/mcp",
+   "tool": "foura_browser",
+   "from": "0.2.11",
+   "to": "0.3.1",
+   "t": "2026-07-01",
+   "old": "Load a URL in a real browser session. JS runs, DOM renders, cookies come back. 2\u201310s. ",
+   "new": "Load a URL in a real browser session. JS runs, DOM renders, cookies come back. 2-10s. ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "2-10s."
+   }
+  },
+  {
+   "pkg": "@fouradata/mcp",
+   "server": "ai.foura/mcp",
+   "tool": "foura_single",
+   "from": "0.2.11",
+   "to": "0.3.1",
+   "t": "2026-07-01",
+   "old": "Send one HTTP request and return the response. Fastest of the three tools (typically 200ms\u20132s). ",
+   "new": "Send one HTTP request and return the response. Fastest of the four tools (typically 200ms-2s). ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Fastest of the four tools (typically 200ms-2s)."
+   }
+  },
+  {
+   "pkg": "@fouradata/mcp",
+   "server": "ai.foura/mcp",
+   "tool": "foura_auto",
+   "from": "0.4.8",
+   "to": "0.6.0",
+   "t": "2026-08-06",
+   "old": "Give a URL, get the content back. The default first choice for any page when you just want ",
+   "new": "Give it a public URL and get the content back. This is the default when you don",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Give it a public URL and get the content back. This is the default when you don"
+   }
+  },
+  {
+   "pkg": "@fouradata/mcp",
+   "server": "ai.foura/mcp",
+   "tool": "foura_browser",
+   "from": "0.4.8",
+   "to": "0.6.0",
+   "t": "2026-08-06",
+   "old": "Load a URL in a real browser session. JS runs, DOM renders, cookies come back. 2-10s. ",
+   "new": "Load a public URL in a full browser session. JavaScript runs, the DOM renders, and cookies ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Load a public URL in a full browser session. JavaScript runs, the DOM renders, and cookies"
+   }
+  },
+  {
+   "pkg": "@fouradata/mcp",
+   "server": "ai.foura/mcp",
+   "tool": "foura_proxy",
+   "from": "0.4.8",
+   "to": "0.6.0",
+   "t": "2026-08-06",
+   "old": "Route an HTTP request through FourA",
+   "new": "Route an HTTP request through rotating proxies with automatic retry. Use it when foura_single ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Route an HTTP request through rotating proxies with automatic retry. Use it when foura_single"
+   }
+  },
+  {
+   "pkg": "@fouradata/mcp",
+   "server": "ai.foura/mcp",
+   "tool": "foura_single",
+   "from": "0.4.8",
+   "to": "0.6.0",
+   "t": "2026-08-06",
+   "old": "Send one HTTP request and return the response. Fastest of the four tools (typically 200ms-2s). ",
+   "new": "Send one HTTP request and return the response. Use it for static pages, JSON APIs, and ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Use it for static pages, JSON APIs, and"
+   }
+  },
+  {
+   "pkg": "@signal8ai/mcp",
+   "server": "ai.signal8/mcp",
+   "tool": "get_company_bundle",
+   "from": "0.10.0",
+   "to": "0.12.3",
+   "t": "2026-07-02",
+   "old": "Get all available data for a company in a single call. Returns extractions, ",
+   "new": "Get all available data for a company in a single call. Returns financials, earnings, ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Returns financials, earnings,"
+   }
+  },
+  {
+   "pkg": "@signal8ai/mcp",
+   "server": "ai.signal8/mcp",
+   "tool": "get_edgar_companies",
+   "from": "0.10.0",
+   "to": "0.12.3",
+   "t": "2026-07-02",
+   "old": "List companies that have SEC filings in the extraction database. Optionally search by ",
+   "new": "List companies that have SEC filings indexed in Signal8. Optionally search by ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "List companies that have SEC filings indexed in Signal8."
+   }
+  },
+  {
+   "pkg": "@signal8ai/mcp",
+   "server": "ai.signal8/mcp",
+   "tool": "get_insider_positions",
+   "from": "0.10.0",
+   "to": "0.12.3",
+   "t": "2026-07-02",
+   "old": "Get current open insider positions for an insider by their SEC CIK number, including ",
+   "new": "Get current open insider positions for a CIK (either an insider or an issuer). ",
+   "label": {
+    "bucket": "schema-widening",
+    "reason": "input surface described differently",
+    "signals": [],
+    "added": "Get current open insider positions for a CIK (either an insider or an issuer)."
+   }
+  },
+  {
+   "pkg": "@signal8ai/mcp",
+   "server": "ai.signal8/mcp",
+   "tool": "get_politician_pnl",
+   "from": "0.10.0",
+   "to": "0.12.3",
+   "t": "2026-07-02",
+   "old": "Get estimated realized + unrealized profit & loss for a politician (FIFO matching, ",
+   "new": "Get estimated realized + unrealized profit & loss for a politician. Methodology: ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get estimated realized + unrealized profit & loss for a politician. Methodology:"
+   }
+  },
+  {
+   "pkg": "@signal8ai/mcp",
+   "server": "ai.signal8/mcp",
+   "tool": "get_politicians_pnl_leaderboard",
+   "from": "0.10.0",
+   "to": "0.12.3",
+   "t": "2026-07-02",
+   "old": "Rank politicians by estimated trading P&L across the universe. Sort by total P&L, ",
+   "new": "Rank politicians (Congress + executive branch) by estimated trading P&L across the ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Rank politicians (Congress + executive branch) by estimated trading P&L across the"
+   }
+  },
+  {
+   "pkg": "@signal8ai/mcp",
+   "server": "ai.signal8/mcp",
+   "tool": "get_recent_congressional_votes",
+   "from": "0.10.0",
+   "to": "0.12.3",
+   "t": "2026-07-02",
+   "old": "Get recent congressional roll-call votes across all members. NOTE: House data only \u2014 ",
+   "new": "Get recent congressional roll-call votes across all members, sourced from GovTrack ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get recent congressional roll-call votes across all members, sourced from GovTrack"
+   }
+  },
+  {
+   "pkg": "@signal8ai/mcp",
+   "server": "ai.signal8/mcp",
+   "tool": "get_recent_material_filings",
+   "from": "0.10.0",
+   "to": "0.12.3",
+   "t": "2026-07-02",
+   "old": "Get recent 8-K filings flagged as materially significant within an index ",
+   "new": "Recent material 8-K filings (last 7 days) for the constituents of an index ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Recent material 8-K filings (last 7 days) for the constituents of an index"
+   }
+  },
+  {
+   "pkg": "@signal8ai/mcp",
+   "server": "ai.signal8/mcp",
+   "tool": "get_top_movers",
+   "from": "0.10.0",
+   "to": "0.12.3",
+   "t": "2026-07-02",
+   "old": "Get the top stock movers by direction: gainers (largest % up), losers (largest ",
+   "new": "Top stock movers \u2014 gainers (largest % up), losers (largest % down), or active ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Top stock movers \u2014 gainers (largest % up), losers (largest % down), or active"
+   }
+  },
+  {
+   "pkg": "@signal8ai/mcp",
+   "server": "ai.signal8/mcp",
+   "tool": "screen_companies",
+   "from": "0.10.0",
+   "to": "0.12.3",
+   "t": "2026-07-02",
+   "old": "Screen companies using dilution-aware filters. Filter by price range, volume, ",
+   "new": "Screen companies by price range, volume, cash runway, float, shares outstanding, ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Screen companies by price range, volume, cash runway, float, shares outstanding,"
+   }
+  },
+  {
+   "pkg": "@signal8ai/mcp",
+   "server": "ai.signal8/mcp",
+   "tool": "search_filing_text",
+   "from": "0.10.0",
+   "to": "0.12.3",
+   "t": "2026-07-02",
+   "old": "Full-text substring search across all exhibit content in the extraction database. ",
+   "new": "Full-text substring search across all SEC filing exhibit content. ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Full-text substring search across all SEC filing exhibit content."
+   }
+  },
+  {
+   "pkg": "@signal8ai/mcp",
+   "server": "ai.signal8/mcp",
+   "tool": "search_sec_filings",
+   "from": "0.10.0",
+   "to": "0.12.3",
+   "t": "2026-07-02",
+   "old": "Search and list SEC filings with filtering by company (CIK), form type, date range, ",
+   "new": "Search and list SEC filings with filtering by company (CIK), form type, and date range. ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Search and list SEC filings with filtering by company (CIK), form type, and date range."
+   }
+  },
+  {
+   "pkg": "@posteverywhere/mcp",
+   "server": "ai.posteverywhere/mcp",
+   "tool": "create_post",
+   "from": "1.0.0",
+   "to": "1.1.1",
+   "t": "2026-04-28",
+   "old": "Create and publish or schedule a social media post across multiple platforms",
+   "new": "Create and schedule a social media post on PostEverywhere. Specify the content text, which social accounts to post to (by account ID), and optionally when to schedule it. If no scheduled_for is provided, the post is published immediately. Supports platform-specific content overrides and media attachments. Returns the post ID and scheduling confirmation.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Create and schedule a social media post on PostEverywhere. Specify the content text, which social accounts to post to (by account ID), and optionally when to schedule it. If no scheduled_for is provided, the post is published immediately. Supports platform-specific content overrides and media attachments. Returns the post ID and scheduling confirmation."
+   }
+  },
+  {
+   "pkg": "@posteverywhere/mcp",
+   "server": "ai.posteverywhere/mcp",
+   "tool": "delete_media",
+   "from": "1.0.0",
+   "to": "1.1.1",
+   "t": "2026-04-28",
+   "old": "Delete an uploaded media file",
+   "new": "Delete a media file from the PostEverywhere media library. This permanently removes the file from storage and cannot be undone. Any posts that reference this media will no longer have the attachment. Use with caution.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Delete a media file from the PostEverywhere media library. This permanently removes the file from storage and cannot be undone. Any posts that reference this media will no longer have the attachment. Use with caution."
+   }
+  },
+  {
+   "pkg": "@posteverywhere/mcp",
+   "server": "ai.posteverywhere/mcp",
+   "tool": "delete_post",
+   "from": "1.0.0",
+   "to": "1.1.1",
+   "t": "2026-04-28",
+   "old": "Delete a scheduled or published post",
+   "new": "Delete a scheduled or draft post from PostEverywhere. This permanently removes the post and all its platform destinations. Cannot delete posts that have already been published. Use with caution as this action cannot be undone.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Delete a scheduled or draft post from PostEverywhere. This permanently removes the post and all its platform destinations. Cannot delete posts that have already been published. Use with caution as this action cannot be undone."
+   }
+  },
+  {
+   "pkg": "@posteverywhere/mcp",
+   "server": "ai.posteverywhere/mcp",
+   "tool": "get_account",
+   "from": "1.0.0",
+   "to": "1.1.1",
+   "t": "2026-04-28",
+   "old": "Get details for a specific social media account",
+   "new": "Get detailed information about a specific connected social media account on PostEverywhere. Returns the account platform, username, health status, and whether it can currently post. Use this to check the status of a single account by its ID.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get detailed information about a specific connected social media account on PostEverywhere. Returns the account platform, username, health status, and whether it can currently post. Use this to check the status of a single account by its ID."
+   }
+  },
+  {
+   "pkg": "@posteverywhere/mcp",
+   "server": "ai.posteverywhere/mcp",
+   "tool": "get_media",
+   "from": "1.0.0",
+   "to": "1.1.1",
+   "t": "2026-04-28",
+   "old": "Get status of an uploaded media file",
+   "new": "Get detailed information about a specific media file on PostEverywhere, including its type, dimensions, file size, upload status, and aspect ratio. Use this to check if an uploaded media file has finished processing before attaching it to a post.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "upload"
+    ],
+    "added": "Get detailed information about a specific media file on PostEverywhere, including its type, dimensions, file size, upload status, and aspect ratio. Use this to check if an uploaded media file has finished processing before attaching it to a post."
+   }
+  },
+  {
+   "pkg": "@posteverywhere/mcp",
+   "server": "ai.posteverywhere/mcp",
+   "tool": "get_post",
+   "from": "1.0.0",
+   "to": "1.1.1",
+   "t": "2026-04-28",
+   "old": "Get details of a specific post including per-platform status",
+   "new": "Get detailed information about a specific post on PostEverywhere, including its content, media attachments, schedule, and the publishing status on each destination platform. Use this to check if a post was published successfully or to see error details for failed destinations.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get detailed information about a specific post on PostEverywhere, including its content, media attachments, schedule, and the publishing status on each destination platform. Use this to check if a post was published successfully or to see error details for failed destinations."
+   }
+  },
+  {
+   "pkg": "@posteverywhere/mcp",
+   "server": "ai.posteverywhere/mcp",
+   "tool": "get_post_results",
+   "from": "1.0.0",
+   "to": "1.1.1",
+   "t": "2026-04-28",
+   "old": "Get per-platform publish results for a post (success/failure per platform)",
+   "new": "Get the per-platform publishing results for a specific post on PostEverywhere. Returns detailed status for each destination including published URLs, error messages, attempt counts, and retry schedules. Use this to check which platforms succeeded or failed after publishing.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get the per-platform publishing results for a specific post on PostEverywhere. Returns detailed status for each destination including published URLs, error messages, attempt counts, and retry schedules. Use this to check which platforms succeeded or failed after publishing."
+   }
+  },
+  {
+   "pkg": "@posteverywhere/mcp",
+   "server": "ai.posteverywhere/mcp",
+   "tool": "list_accounts",
+   "from": "1.0.0",
+   "to": "1.1.1",
+   "t": "2026-04-28",
+   "old": "List all connected social media accounts (Instagram, TikTok, YouTube, LinkedIn, Facebook, X, Threads)",
+   "new": "List all connected social media accounts on PostEverywhere. Returns account IDs, platform names, usernames, and health status (whether each account can currently post). Use this to see which platforms are available before creating a post.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "List all connected social media accounts on PostEverywhere. Returns account IDs, platform names, usernames, and health status (whether each account can currently post). Use this to see which platforms are available before creating a post."
+   }
+  },
+  {
+   "pkg": "@posteverywhere/mcp",
+   "server": "ai.posteverywhere/mcp",
+   "tool": "list_media",
+   "from": "1.0.0",
+   "to": "1.1.1",
+   "t": "2026-04-28",
+   "old": "List uploaded media files",
+   "new": "List media files in the PostEverywhere media library. Supports filtering by type (image, video, document) and pagination. Returns file metadata including URLs, dimensions, and upload status. Use this to find existing media to attach to posts.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "upload"
+    ],
+    "added": "List media files in the PostEverywhere media library. Supports filtering by type (image, video, document) and pagination. Returns file metadata including URLs, dimensions, and upload status. Use this to find existing media to attach to posts."
+   }
+  },
+  {
+   "pkg": "@posteverywhere/mcp",
+   "server": "ai.posteverywhere/mcp",
+   "tool": "list_posts",
+   "from": "1.0.0",
+   "to": "1.1.1",
+   "t": "2026-04-28",
+   "old": "List scheduled and published posts",
+   "new": "List scheduled, published, or draft posts on PostEverywhere. Supports filtering by status (scheduled, published, draft) and platform. Returns post content, scheduling info, and per-platform destination statuses. Use this to check what posts are queued or to review published content.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "List scheduled, published, or draft posts on PostEverywhere. Supports filtering by status (scheduled, published, draft) and platform. Returns post content, scheduling info, and per-platform destination statuses. Use this to check what posts are queued or to review published content."
+   }
+  },
+  {
+   "pkg": "@posteverywhere/mcp",
+   "server": "ai.posteverywhere/mcp",
+   "tool": "upload_media_from_url",
+   "from": "1.5.1",
+   "to": "1.7.0",
+   "t": "2026-08-19",
+   "old": "Import an image from a public URL into the PostEverywhere media library. The image is fetched server-side, stored, and immediately ready to attach to posts via media_ids. Supported: JPEG, PNG, GIF, WebP, HEIC, HEIF \u2014 up to 25 MB. Image-only for now; videos still require the 3-step REST flow (POST /v1/media/upload \u2192 PUT presigned URL \u2192 POST /v1/media/{id}/complete). Returns { media_id, url, content_type, size } \u2014 pass media_id directly to create_post.",
+   "new": "Import an image OR VIDEO from a public URL into the PostEverywhere media library, ready to attach to posts via media_ids. IMAGES (JPEG, PNG, GIF, WebP, HEIC, HEIF \u2014 up to 25 MB) import synchronously: the response media_id is ready immediately. VIDEOS (MP4 only \u2014 up to 500 MB) import ASYNCHRONOUSLY: the response returns media_id with media_status ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Import an image OR VIDEO from a public URL into the PostEverywhere media library, ready to attach to posts via media_ids. IMAGES (JPEG, PNG, GIF, WebP, HEIC, HEIF \u2014 up to 25 MB) import synchronously: the response media_id is ready immediately. VIDEOS (MP4 only \u2014 up to 500 MB) import ASYNCHRONOUSLY: the response returns media_id with media_status"
+   }
+  },
+  {
+   "pkg": "mcp-socialapi",
+   "server": "ai.social-api/socialapi",
+   "tool": "social_api_connect_account",
+   "from": "1.0.1",
+   "to": "1.2.0",
+   "t": "2026-05-02",
+   "old": "Initiate the OAuth flow to connect a new social media account. Returns an authorization URL the user must visit to grant access.",
+   "new": "Initiate connecting a new social media account. For OAuth2 platforms (instagram, facebook) returns an auth_url the user must visit to authorize access. After authorization, the account is connected automatically \u2014 no follow-up call needed. Present the auth_url link to the user and ask them to let you know once they",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Initiate connecting a new social media account. For OAuth2 platforms (instagram, facebook) returns an auth_url the user must visit to authorize access. After authorization, the account is connected automatically \u2014 no follow-up call needed. Present the auth_url link to the user and ask them to let you know once they"
+   }
+  },
+  {
+   "pkg": "mcp-socialapi",
+   "server": "ai.social-api/socialapi",
+   "tool": "social_api_create_key",
+   "from": "1.0.1",
+   "to": "1.2.0",
+   "t": "2026-05-02",
+   "old": "Create a new API key. The full key is only shown once in the response \u2014 store it securely.",
+   "new": "Generate a new API key (prefixed sapi_key_) for programmatic API access. The raw key is returned exactly once in the response and cannot be retrieved later -- store it securely immediately. All keys for a user share the same monthly quota pool. Provide a descriptive name to identify the key",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Generate a new API key (prefixed sapi_key_) for programmatic API access. The raw key is returned exactly once in the response and cannot be retrieved later -- store it securely immediately. All keys for a user share the same monthly quota pool. Provide a descriptive name to identify the key"
+   }
+  },
+  {
+   "pkg": "mcp-socialapi",
+   "server": "ai.social-api/socialapi",
+   "tool": "social_api_create_webhook",
+   "from": "1.0.1",
+   "to": "1.2.0",
+   "t": "2026-05-02",
+   "old": "Create a new webhook endpoint to receive event notifications.",
+   "new": "Register a new webhook endpoint to receive real-time event notifications. The URL must be HTTPS. Specify which event types to subscribe to (comment.received, dm.received, review.received, mention.received, post.published, post.failed, post.scheduled). The signing secret is returned once -- store it securely to verify payload signatures (HMAC-SHA256).",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "secret_or_credential"
+    ],
+    "evidence": [
+     "secret"
+    ],
+    "added": "Register a new webhook endpoint to receive real-time event notifications. The URL must be HTTPS. Specify which event types to subscribe to (comment.received, dm.received, review.received, mention.received, post.published, post.failed, post.scheduled). The signing secret is returned once -- store it securely to verify payload signatures (HMAC-SHA256)."
+   }
+  },
+  {
+   "pkg": "mcp-socialapi",
+   "server": "ai.social-api/socialapi",
+   "tool": "social_api_delete_webhook",
+   "from": "1.0.1",
+   "to": "1.2.0",
+   "t": "2026-05-02",
+   "old": "Delete a webhook endpoint. It will no longer receive event notifications.",
+   "new": "Permanently delete a webhook endpoint. Future events will no longer be delivered to this URL. Any in-flight deliveries may still complete. This is irreversible. Use social_api_list_webhooks to find the webhook_id.",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "tool_routing"
+    ],
+    "evidence": [
+     "Use social_api_list_webhooks to"
+    ],
+    "added": "Permanently delete a webhook endpoint. Future events will no longer be delivered to this URL. Any in-flight deliveries may still complete. This is irreversible. Use social_api_list_webhooks to find the webhook_id."
+   }
+  },
+  {
+   "pkg": "mcp-socialapi",
+   "server": "ai.social-api/socialapi",
+   "tool": "social_api_exchange_oauth",
+   "from": "1.0.1",
+   "to": "1.2.0",
+   "t": "2026-05-02",
+   "old": "Complete the OAuth flow by exchanging an authorization code for account credentials. Called after the user grants access via the auth URL.",
+   "new": "Complete an OAuth2 account connection by exchanging the authorization code received after the user authorized access. Requires platform, the authorization code, and metadata including redirect_uri and state (from social_api_connect_account). For Facebook, a single user token may yield multiple Page accounts.",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "secret_or_credential"
+    ],
+    "evidence": [
+     "token"
+    ],
+    "added": "Complete an OAuth2 account connection by exchanging the authorization code received after the user authorized access. Requires platform, the authorization code, and metadata including redirect_uri and state (from social_api_connect_account). For Facebook, a single user token may yield multiple Page accounts."
+   }
+  },
+  {
+   "pkg": "mcp-socialapi",
+   "server": "ai.social-api/socialapi",
+   "tool": "social_api_get_account_limits",
+   "from": "1.0.1",
+   "to": "1.2.0",
+   "t": "2026-05-02",
+   "old": "Get platform-specific rate limits and usage limits for a connected account.",
+   "new": "Get platform-specific API usage limits and quotas for a connected account, as reported by the platform itself (e.g., Instagram daily posting limits). Returns a map of quota keys to remaining counts. Not all platforms expose usage limits -- returns 501 for Facebook and platforms that do not provide this data. These are the platform",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get platform-specific API usage limits and quotas for a connected account, as reported by the platform itself (e.g., Instagram daily posting limits). Returns a map of quota keys to remaining counts. Not all platforms expose usage limits -- returns 501 for Facebook and platforms that do not provide this data. These are the platform"
+   }
+  },
+  {
+   "pkg": "mcp-socialapi",
+   "server": "ai.social-api/socialapi",
+   "tool": "social_api_get_comment_replies",
+   "from": "1.0.1",
+   "to": "1.2.0",
+   "t": "2026-05-02",
+   "old": "Retrieve replies to a specific comment. The interaction_id must start with socapi_cmt_.",
+   "new": "List replies to a specific comment. The interaction_id must be a comment ID starting with sapi_cmt_ (from social_api_get_comments). Returns reply interaction objects in the same format. Supports pagination via cursor and since filter. Max 100 results (default 20). Supported on Instagram and Facebook.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "list"
+    ],
+    "added": "List replies to a specific comment. The interaction_id must be a comment ID starting with sapi_cmt_ (from social_api_get_comments). Returns reply interaction objects in the same format. Supports pagination via cursor and since filter. Max 100 results (default 20). Supported on Instagram and Facebook."
+   }
+  },
+  {
+   "pkg": "mcp-socialapi",
+   "server": "ai.social-api/socialapi",
+   "tool": "social_api_get_me",
+   "from": "1.0.1",
+   "to": "1.2.0",
+   "t": "2026-05-02",
+   "old": "Get information about the currently authenticated user, including plan tier and billing period.",
+   "new": "Get the authenticated user",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get the authenticated user"
+   }
+  },
+  {
+   "pkg": "mcp-socialapi",
+   "server": "ai.social-api/socialapi",
+   "tool": "social_api_get_mentions",
+   "from": "1.0.1",
+   "to": "1.2.0",
+   "t": "2026-05-02",
+   "old": "Retrieve mentions of a connected account across the platform. Supports pagination and date filtering.",
+   "new": "List brand mentions and tags for a connected account -- posts by other users that mention or tag your account. Returns interaction objects with id (prefixed sapi_mnt_), author, text, media_url, and timestamp. Supported on Instagram (@mentions and tags) and Facebook (page mentions). Returns 501 for platforms without mention tracking. Supports pagination.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "list"
+    ],
+    "added": "List brand mentions and tags for a connected account -- posts by other users that mention or tag your account. Returns interaction objects with id (prefixed sapi_mnt_), author, text, media_url, and timestamp. Supported on Instagram (@mentions and tags) and Facebook (page mentions). Returns 501 for platforms without mention tracking. Supports pagination."
+   }
+  },
+  {
+   "pkg": "mcp-socialapi",
+   "server": "ai.social-api/socialapi",
+   "tool": "social_api_get_posts",
+   "from": "1.0.1",
+   "to": "1.2.0",
+   "t": "2026-05-02",
+   "old": "Retrieve posts/media from a connected social media account. Supports pagination and filtering by date.",
+   "new": "List posts and media for a connected social media account, sorted newest-first. Returns post objects with id, text, media_url, timestamp, and engagement metrics. Supports pagination via cursor and filtering via since (RFC3339 timestamp). Max 100 results per request (default 20).",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "list"
+    ],
+    "added": "List posts and media for a connected social media account, sorted newest-first. Returns post objects with id, text, media_url, timestamp, and engagement metrics. Supports pagination via cursor and filtering via since (RFC3339 timestamp). Max 100 results per request (default 20)."
+   }
+  },
+  {
+   "pkg": "mcp-socialapi",
+   "server": "ai.social-api/socialapi",
+   "tool": "social_api_get_reviews",
+   "from": "1.0.1",
+   "to": "1.2.0",
+   "t": "2026-05-02",
+   "old": "Retrieve reviews for a connected account (e.g. Google Reviews, Trustpilot). Supports pagination and date filtering.",
+   "new": "List reviews across connected accounts (applicable to Google Business, Trustpilot, and similar review platforms). Fan-out queries all matching accounts in parallel. Returns review interaction objects with id, reviewer name, rating, text, and timestamp. Use social_api_reply_to_review to respond. Returns 501 for Instagram, Facebook, and platforms without review support. Supports account_id or platform filter and pagination.",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "tool_routing"
+    ],
+    "evidence": [
+     "Use social_api_reply_to_review to"
+    ],
+    "added": "List reviews across connected accounts (applicable to Google Business, Trustpilot, and similar review platforms). Fan-out queries all matching accounts in parallel. Returns review interaction objects with id, reviewer name, rating, text, and timestamp. Use social_api_reply_to_review to respond. Returns 501 for Instagram, Facebook, and platforms without review support. Supports account_id or platfo"
+   }
+  },
+  {
+   "pkg": "mcp-socialapi",
+   "server": "ai.social-api/socialapi",
+   "tool": "social_api_get_usage",
+   "from": "1.0.1",
+   "to": "1.2.0",
+   "t": "2026-05-02",
+   "old": "Get your current API usage statistics including credits used, credits limit, and billing period.",
+   "new": "Get resource usage for the current billing period. Returns counts and limits for brands (brand slots), posts (create_post and retry_post operations), and interactions (reply and send_dm operations), plus period_start and period_end timestamps. Use before billed operations to check remaining quota. Free plan: 2 brands, 10 posts/mo, 50 interactions/mo. All paid plans (Starter, Pro, Business, Enterprise): unlimited posts and interactions. Brand limits vary by plan. -1 means unlimited.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get resource usage for the current billing period. Returns counts and limits for brands (brand slots), posts (create_post and retry_post operations), and interactions (reply and send_dm operations), plus period_start and period_end timestamps. Use before billed operations to check remaining quota. Free plan: 2 brands, 10 posts/mo, 50 interactions/mo. All paid plans (Starter, Pro, Business, Enterpr"
+   }
+  },
+  {
+   "pkg": "mcp-socialapi",
+   "server": "ai.social-api/socialapi",
+   "tool": "social_api_list_accounts",
+   "from": "1.0.1",
+   "to": "1.2.0",
+   "t": "2026-05-02",
+   "old": "List all social media accounts connected to your SocialAPI workspace. Returns platform, account name, and account ID for each.",
+   "new": "List all connected social media accounts for the authenticated user. Returns account details including platform name, username, connection status, and platform-specific metadata (follower_count, video_count, avatar_url, etc.). Use the returned account IDs as the account_id parameter in all other tools.",
+   "label": {
+    "bucket": "schema-widening",
+    "reason": "input surface described differently",
+    "signals": [],
+    "added": "List all connected social media accounts for the authenticated user. Returns account details including platform name, username, connection status, and platform-specific metadata (follower_count, video_count, avatar_url, etc.). Use the returned account IDs as the account_id parameter in all other tools."
+   }
+  },
+  {
+   "pkg": "mcp-socialapi",
+   "server": "ai.social-api/socialapi",
+   "tool": "social_api_list_keys",
+   "from": "1.0.1",
+   "to": "1.2.0",
+   "t": "2026-05-02",
+   "old": "List all API keys in your workspace. Returns key hints (first 5 chars), names, and creation dates.",
+   "new": "List all API keys for the authenticated user. Returns key metadata including id, name, preview (first characters of the key), is_active status, last_used_at timestamp, and created_at. The full key value is never shown after creation. Use this to audit active keys or find a key_id for revocation.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "List all API keys for the authenticated user. Returns key metadata including id, name, preview (first characters of the key), is_active status, last_used_at timestamp, and created_at. The full key value is never shown after creation. Use this to audit active keys or find a key_id for revocation."
+   }
+  },
+  {
+   "pkg": "mcp-socialapi",
+   "server": "ai.social-api/socialapi",
+   "tool": "social_api_list_webhooks",
+   "from": "1.0.1",
+   "to": "1.2.0",
+   "t": "2026-05-02",
+   "old": "List all configured webhook endpoints for your workspace.",
+   "new": "List all registered webhook endpoints for the authenticated user. Returns endpoint details including id, url, subscribed event types, is_active status, and created_at. Available event types: comment.received, dm.received, review.received, mention.received, post.published, post.failed, post.scheduled.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "List all registered webhook endpoints for the authenticated user. Returns endpoint details including id, url, subscribed event types, is_active status, and created_at. Available event types: comment.received, dm.received, review.received, mention.received, post.published, post.failed, post.scheduled."
+   }
+  },
+  {
+   "pkg": "mcp-socialapi",
+   "server": "ai.social-api/socialapi",
+   "tool": "social_api_moderate_comment",
+   "from": "1.0.1",
+   "to": "1.2.0",
+   "t": "2026-05-02",
+   "old": "Moderate a comment by hiding, unhiding, or deleting it. The interaction_id must start with socapi_cmt_.",
+   "new": "Moderate a comment by hiding, unhiding, or deleting it. The interaction_id must be a comment ID starting with sapi_cmt_. Actions: ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "The interaction_id must be a comment ID starting with sapi_cmt_. Actions:"
+   }
+  },
+  {
+   "pkg": "mcp-socialapi",
+   "server": "ai.social-api/socialapi",
+   "tool": "social_api_revoke_key",
+   "from": "1.0.1",
+   "to": "1.2.0",
+   "t": "2026-05-02",
+   "old": "Permanently revoke an API key. This cannot be undone.",
+   "new": "Permanently deactivate an API key. This is irreversible -- the key immediately stops working for all API requests. Use social_api_list_keys to find the key_id. Revoking an already-revoked key is a no-op (idempotent). Does not affect other active keys for the same user.",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "tool_routing"
+    ],
+    "evidence": [
+     "Use social_api_list_keys to"
+    ],
+    "added": "Permanently deactivate an API key. This is irreversible -- the key immediately stops working for all API requests. Use social_api_list_keys to find the key_id. Revoking an already-revoked key is a no-op (idempotent). Does not affect other active keys for the same user."
+   }
+  },
+  {
+   "pkg": "mcp-socialapi",
+   "server": "ai.social-api/socialapi",
+   "tool": "social_api_send_dm",
+   "from": "1.0.1",
+   "to": "1.2.0",
+   "t": "2026-05-02",
+   "old": "Send a direct message in an existing DM thread. Costs 2 credits.",
+   "new": "Send a direct message in an existing inbox conversation. The conversation_id comes from social_api_list_conversations. Specify the account_id to send from. Max 1000 characters. Consumes 1 interaction credit. On Facebook Messenger, messages can only be sent within 24 hours of the user",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Send a direct message in an existing inbox conversation. The conversation_id comes from social_api_list_conversations. Specify the account_id to send from. Max 1000 characters. Consumes 1 interaction credit. On Facebook Messenger, messages can only be sent within 24 hours of the user"
+   }
+  },
+  {
+   "pkg": "mcp-socialapi",
+   "server": "ai.social-api/socialapi",
+   "tool": "social_api_send_feedback",
+   "from": "1.0.1",
+   "to": "1.2.0",
+   "t": "2026-05-02",
+   "old": "Send feedback to the SocialAPI team \u2014 bug reports, feature requests, or general comments.",
+   "new": "Send feedback to the SocialAPI team. Use when a user wants to report a bug, request a feature, or share general feedback. Type must be one of: ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Send feedback to the SocialAPI team. Use when a user wants to report a bug, request a feature, or share general feedback. Type must be one of:"
+   }
+  },
+  {
+   "pkg": "mcp-socialapi",
+   "server": "ai.social-api/socialapi",
+   "tool": "social_api_update_webhook",
+   "from": "1.0.1",
+   "to": "1.2.0",
+   "t": "2026-05-02",
+   "old": "Update an existing webhook endpoint",
+   "new": "Update an existing webhook endpoint. Change the URL, subscribed event types, or enable/disable it (is_active). At least one field must be provided. Idempotent -- setting the same values has no effect. Use social_api_list_webhooks to find the webhook_id.",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "tool_routing"
+    ],
+    "evidence": [
+     "Use social_api_list_webhooks to"
+    ],
+    "added": "Change the URL, subscribed event types, or enable/disable it (is_active). At least one field must be provided. Idempotent -- setting the same values has no effect. Use social_api_list_webhooks to find the webhook_id."
+   }
+  }
+ ]
+}
