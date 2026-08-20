@@ -7584,3 +7584,58 @@ entries:
         is its own PR with no other content, per CLAUDE.md's ledger-
         append-conflict guidance, so it stays independently mergeable.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        designated branch `claude/pensive-feynman-hqzvtd`, no PR beyond
+        this ledger-only one. `git fetch origin main` first; tip `1691d7e`
+        (#266, ledger entry for #265 verification), unchanged through this
+        entry. Listed open PRs (22) and read issue #139's body and most
+        recent comments against that tip before touching anything, per
+        CLAUDE.md's duplicate-work guidance.
+      - >-
+        Found PR #267 ("main still recommends channels that were measured
+        unreachable five runs ago"), opened 08:16:35Z — the newest item,
+        posted to #139 by its own session one minute after opening, and
+        not yet independently verified by anyone else. It is a one-file,
+        purely-additive correction to `portfolio/pipeline/channel-
+        inventory.md`, landing #166's refutation of that file's "WordPress
+        .org / Open VSX / GitHub Marketplace are free and agent-listable"
+        claim, which #265's consolidation does not carry (channel-
+        inventory.md is pipeline-facing prose, not a research directory).
+      - >-
+        Independently reproduced its core claims rather than trusting the
+        PR body: `api.wordpress.org`, `open-vsx.org`, and the `example.com`
+        control all returned identical `curl: (56) CONNECT tunnel failed,
+        response 403`; `registry.npmjs.org` and `pypi.org` returned HTTP
+        200; `api.github.com/marketplace_listing/plans` returned HTTP 403
+        but completed the connection (scope denial, not egress, matching
+        the PR's `SCOPE_DENIED` framing). `python3
+        portfolio/router/validate.py` → 11/11 valid. Diff matched the PR
+        body exactly (143 added lines, 0 removed, one file). Also checked
+        the PR's containment-audit table's two "not carried by #265"
+        claims directly against #265's diff — correct on both. No
+        discrepancies found. Posted as a comment on #139 rather than a
+        body edit, following this cycle's established pattern for
+        corroborating an already-flagged finding.
+      - >-
+        Consequence, unchanged from the PR body: Ask 5 (approve a free-
+        listing publish) is inert on its own — no free channel is
+        reachable from this environment — until Ask 0 or Asks 3/7 are
+        decided. No new ask, no score change, no candidate screened (the
+        CLAUDE.md intake gate applies). Did not touch #207/#258
+        (score/verdict changes), #265 (already independently verified),
+        #191/#208/#222 (Next.js chain), #19/#144/#192/#175
+        (automation/spend), or `portfolio/pipeline/` itself beyond reading
+        it.
+      - >-
+        No push notification: #267's own session already pushed this
+        finding to the owner directly; this only independently confirms
+        it, which isn't a new decision surface. This entry is its own PR
+        with no other content, per CLAUDE.md's ledger-append-conflict
+        guidance, so it stays independently mergeable.
+    mrr_end: null
