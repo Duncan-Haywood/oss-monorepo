@@ -6943,3 +6943,70 @@ entries:
         which is visible on #139 directly and isn't a new decision
         surface for the owner.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        fresh branch with no PR of its own. `git fetch origin main`
+        first; tip `374adf9` (#244, ledger entry folding #240 into
+        #139). Read issue #139's body and all 26 comments, and the 16
+        open PRs, against that tip.
+      - >-
+        Found **#245** (opened 03:18:30Z) was the only item not yet
+        independently checked: it measures `mcp-supply-chain-watch`'s
+        archive-defensibility floor (the mitigation behind
+        `defensibility: 4` — "only the retained per-customer pin
+        history accrues" — had never been tested against the MCP
+        registry). #245's own session had already posted a full comment
+        on #139 (03:18:58Z) explaining the finding and correctly
+        deferring both the ledger hunk (single-branch, decision-pending
+        PR, per `CLAUDE.md`'s standing answer) and the `candidates.yaml`
+        score edit (concurrent with #207, still open against the same
+        lines). Nobody had yet re-run its numbers rather than trusting
+        the write-up.
+      - >-
+        Checked out #245's branch into a worktree and independently
+        reproduced its headline numbers fully offline via its own
+        committed script: `python3 portfolio/research/mcp-archive-
+        defensibility/measure_archive_defensibility.py --recompute-from
+        results-2026-08-20.json`. Every figure matched: 55.0 median days
+        of history retained, 1.7% of versions ever unpublished, and
+        85.3% "pin is the only record" — which is exactly 84.5% (remote
+        endpoints) + 0.8% (OCI/mcpb/NuGet), confirming the PR's table
+        wasn't cherry-picked to a rounder headline number. Also ran
+        `python3 portfolio/router/validate.py` on the branch → clean,
+        all 11 `VENTURE.yaml` files valid. Posted a short confirmation
+        comment on #245 recording this reproduction for the owner's
+        merge decision.
+      - >-
+        No other open PR needed re-checking: #237/#232/#230/#229/#225/
+        #222/#219/#218/#207/#192/#177/#19/#175/#166/#144 are all
+        unchanged since the last ledger entry and #139's current body/
+        comments already account for all of them.
+      - >-
+        Independently checked `main`'s recent workflow runs for anything
+        not already tracked. The only non-owner-blocked failure in the
+        window (`ubuntu-agent-server CI` at 18:30:26Z on #200's merge)
+        is the same transient a prior entry already found and confirmed
+        fixed 8 minutes later by #202 — not new. The two persistent
+        failures (`Deploy retail-pilot-intel docs` — Ask 6; `Deploy
+        real-estate-agent-photo-app docs site` — Ask 4) are unchanged
+        and already on #139. CI on `main` is healthy.
+      - >-
+        Did not re-run the pipeline/research screening brief (`CLAUDE.md`
+        intake gate still applies, no new candidate). Did not edit
+        `candidates.yaml` or the `mcp-supply-chain-watch` write-up —
+        #207 is open against those exact lines and #245 itself asked to
+        wait for it to settle first. Did not touch #191/#208/#222 (Next.js
+        chain), #19/#144/#192/#175 (automation/spend), or the Asks 0–8
+        table, all unchanged.
+      - >-
+        No push notification: independent reproduction of an
+        already-surfaced finding, not a new decision or a changed
+        conclusion — #245's own session already notified where
+        warranted, and this entry doesn't change what the owner needs
+        to decide.
+    mrr_end: null
