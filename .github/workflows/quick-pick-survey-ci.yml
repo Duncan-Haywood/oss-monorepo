@@ -10,6 +10,7 @@ on:
     paths:
       - "ventures/quick-pick-survey/**"
       - ".github/workflows/quick-pick-survey-ci.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read

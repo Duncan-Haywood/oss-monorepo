@@ -23,6 +23,7 @@ on:
     paths:
       - "portfolio/research/a11y-evidence-record/**"
       - ".github/workflows/a11y-evidence-record-ci.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read

@@ -10,6 +10,7 @@ on:
     paths:
       - "ventures/ai-engineering-academy/site/**"
       - ".github/workflows/ai-engineering-academy-ci.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read

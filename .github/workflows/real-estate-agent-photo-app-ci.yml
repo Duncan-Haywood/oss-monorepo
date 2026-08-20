@@ -10,6 +10,7 @@ on:
     paths:
       - "ventures/real-estate-agent-photo-app/**"
       - ".github/workflows/real-estate-agent-photo-app-ci.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read

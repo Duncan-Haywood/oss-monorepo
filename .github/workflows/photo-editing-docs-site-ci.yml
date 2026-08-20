@@ -14,6 +14,7 @@ on:
       - "ventures/photo-editing/docs/*.html"
       - "ventures/photo-editing/docs/*.md"
       - ".github/workflows/photo-editing-docs-site-ci.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read

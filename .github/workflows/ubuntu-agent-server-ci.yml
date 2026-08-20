@@ -16,6 +16,7 @@ on:
     paths:
       - "ventures/ubuntu-agent-server/**"
       - ".github/workflows/ubuntu-agent-server-ci.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read

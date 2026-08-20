@@ -10,6 +10,7 @@ on:
     paths:
       - "ventures/local-site-studio/**"
       - ".github/workflows/local-site-studio-ci.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read

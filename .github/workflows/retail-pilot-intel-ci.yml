@@ -11,6 +11,7 @@ on:
     paths:
       - "ventures/retail-pilot-intel/**"
       - ".github/workflows/retail-pilot-intel-ci.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
