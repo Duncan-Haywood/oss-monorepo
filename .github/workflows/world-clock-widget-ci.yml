@@ -7,6 +7,7 @@ on:
       - "ventures/world-clock-widget/Sources/WorldClockCore/**"
       - "ventures/world-clock-widget/Tests/**"
       - ".github/workflows/world-clock-widget-ci.yml"
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
@@ -32,10 +33,10 @@ jobs:
     # WorldClockWidgetExtension depend on SwiftUI/WidgetKit/AppIntents and need Xcode + a
     # simulator, so they still require a manual build via the XcodeGen project (see README.md).
     runs-on: ubuntu-latest
+    # The official image rather than swift-actions/setup-swift@v2, which 404s fetching the
+    # 5.9 toolchain and so failed this job before a single file was compiled.
+    container: swift:5.9
     steps:
       - uses: actions/checkout@v4
-      - uses: swift-actions/setup-swift@v2
-        with:
-          swift-version: "5.9"
       - run: swift build
       - run: swift test

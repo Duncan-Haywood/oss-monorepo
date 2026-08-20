@@ -88,10 +88,15 @@ not a rewrite.
 - No city in the catalog sits inside the polar circles, so the "sun never rises/sets" case
   (`SolarCalculator` returns `nil`) is exercised in tests but not in the shipped UI.
 - `WorldClockCore` (the platform-agnostic logic — city catalog, sunrise/sunset math,
-  formatting, shared store) now builds and its unit tests run on every push/PR via
+  formatting, shared store) builds and its unit tests run on every push/PR via
   `.github/workflows/world-clock-widget-ci.yml`, using the `Package.swift` in this directory
   (a Linux-CI-only SPM manifest alongside `project.yml`; it doesn't replace the XcodeGen flow
-  above). `WorldClockApp` and `WorldClockWidgetExtension` depend on SwiftUI/WidgetKit/AppIntents
+  above). That was claimed here before it was true: the workflow's toolchain-install step
+  404'd, so the job had never compiled the module at all, and when it finally did,
+  `CityTimeFormatting` failed to build because `Date.FormatStyle` exists only in Apple's
+  Foundation. "Platform-agnostic" is now a checked property rather than an intention — keep it
+  that way by preferring APIs that swift-corelibs-foundation also has.
+  `WorldClockApp` and `WorldClockWidgetExtension` depend on SwiftUI/WidgetKit/AppIntents
   and still have no macOS/Xcode toolchain available where this was written or in CI — they
   follow documented APIs but are unverified. Open the project in Xcode and smoke-test the app
   and widget on a simulator before relying on them.
