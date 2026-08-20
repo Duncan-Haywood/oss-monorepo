@@ -10270,3 +10270,97 @@ entries:
         (distribution/credential gates on #139, and the payout-rail binary)
         is unchanged and needs the account owner, not another internal pass.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process, legal
+        ethical reliable increase in profit; more strategic work" scheduled
+        session, designated branch `claude/wizardly-albattani-8rce1b`.
+        `git fetch origin main` first (tip `ac6b6c0`), then read the four open
+        PRs (#222/#192/#144/#19), issue #139, the pipeline/research indexes and
+        the ledger tail before touching anything. Ran `verification_status.py`
+        before verifying anything, per CLAUDE.md; did not re-verify #222 or
+        touch any of the four owner-gated PRs or their branches. No candidate
+        screened, none added, no score changed — the intake gate applies.
+      - >-
+        Shipped #366 (merged 03d5889). `break-even.md` has been on `main` since
+        earlier today deriving the economics — a $0 revenue ceiling, a $0.12
+        per-session break-even, ~48% of the month's entries re-deriving
+        conclusions already on `main` — and ending by calling the current state
+        incoherent. Nothing acted on it, and its own "Recommended next action"
+        (supersede Ask 8's framing with the payout-rail binary) was never
+        executed. Re-measured against `main` rather than carried over: 164
+        entries (was 139), 83.5% `venture: portfolio` (was 82.7%), **68%** of
+        the last 25 entries mentioning re-verification (was 48.2% month-wide),
+        zero revenue, 2.33 distinct sessions/hour (was 2.2). Twenty-five more
+        sessions produced twenty-five more meta-entries, zero revenue, and a
+        higher re-verification rate.
+      - >-
+        #366 adds `portfolio/ledger/session_gate.py`: a two-second pre-flight
+        that reads the ledger and `git log` and tells a *generic* scheduled
+        brief whether it has positive-expected-value work. NO-OP is a
+        conjunction — no revenue recorded AND recent meta-work share >= 70% AND
+        cadence >= 1 session/hour; any one condition clears it. It never speaks
+        to venture work, red CI, a PR being driven to green, a review comment,
+        or a named task. Live reading with no snapshot, deliberately unlike
+        `break_even.py`, because a gate consulted at the top of a session is
+        only useful if it reflects the regime that session will spend in. The
+        70% threshold is one the fleet actually crosses (25-entry windows this
+        month span 56–100%, 29 of 140 below it) and a test asserts that rather
+        than trusting the constant. Not wired into CI; touches no workflow file.
+      - >-
+        Two routing defects fixed in the same PR, both instances of the
+        re-derivation the gate measures, found by a delegated survey and then
+        confirmed by grep rather than trusted. (1) `portfolio/pipeline/probes/`
+        was named by no file that routes a session, while CLAUDE.md's intake
+        gate sends every generic run to "advance a probe already specified in
+        `portfolio/pipeline/`" — indexed it from CLAUDE.md, the pipeline README
+        and the research README. (2)
+        `portfolio/research/a11y-evidence-record/audit.py` and
+        `portfolio/pipeline/probes/eaa-wcag-triage/` are two independent
+        accessibility-audit engines for the same candidate with overlapping
+        check IDs, neither referencing the other — cross-referenced, not merged,
+        which is a larger change than that PR should carry.
+      - >-
+        Also corrected a stale premise that was distorting the decision queue.
+        Both probe READMEs said the npm probe was "waiting on one approval
+        rather than on a payout rail", with GitHub Marketplace's free tier as
+        its mapped channel; `channel-inventory.md`'s own refutation table
+        measures Marketplace listing creation as `SCOPE_DENIED`. Publish
+        approval alone grants nothing there — the blocker is Ask 1 (GitHub App
+        scope). #139's §2 bullet on #280 still presents that publish decision as
+        live when it is inert, the same shape as Ask 5. Recorded on #139 as a
+        comment (not a body edit — that body's own warning about concurrent
+        last-write-wins edits applies, and both items are corrections to
+        existing rows rather than new asks).
+      - >-
+        Verified rather than asserted before merging: `validate_workflows.py`
+        22/22, router `validate.py` 10/10, `score_ventures.py --check` 11/11,
+        `validate_candidates.py` 8/8, `validate_doc_consistency.py` 8/8,
+        `break_even.py --check` green, `pytest portfolio/ platform/` 233 passed
+        (14 of them new). Both CI checks green on the head, `mergeable_state:
+        clean` against the live tip at merge time. Self-merged as
+        agent-decidable per CLAUDE.md: internal `portfolio/` tooling and docs
+        plus CLAUDE.md, no `ventures/*` application code, no workflow file,
+        publishes nothing, registers nothing, uses no credential, adds no
+        unattended automation, spends nothing beyond agent time.
+      - >-
+        Worth recording honestly, because it is the obvious objection: the gate
+        this session shipped would have told this session to stop. The brief was
+        generic. No exception was carved for "improving the development
+        process", because that loophole is wide enough for every meta-work
+        session to drive through, and the gate is worth less than nothing if the
+        session writing it exempts itself. The defence is only that it is a
+        one-time cost that pays back if later sessions honour it — which is a
+        claim this ledger can check in a few days, not one to accept now.
+      - >-
+        No customer contact and no revenue. The portfolio's binding constraint
+        is unchanged: revenue is ceiling-zero without an account-owner decision,
+        so burn reduction is the only profit lever a session holds, and the
+        decision that would change that — commit to a payout rail, or accept the
+        portfolio cannot earn and set the cadence accordingly — has now waited
+        two days behind Ask 8's request for a number it never required. Notified
+        the account owner with that binary rather than with another datapoint.
+    mrr_end: null
