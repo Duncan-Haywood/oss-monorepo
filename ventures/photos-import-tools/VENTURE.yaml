@@ -17,6 +17,10 @@ hypotheses:
     status: supported
     checked: 2026-08-20
     evidence: in-repo
+  - claim: The observability JSON records (import status, completion report, offload manifest/summary) are written atomically, so a crash mid-write or the watchdog polling status.json during a rewrite never reads a torn document that json.loads rejects and the watchdog silently treats as empty.
+    status: supported
+    checked: 2026-08-20
+    evidence: in-repo
 
 economics:
   currency: USD
