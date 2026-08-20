@@ -41,6 +41,10 @@ hypotheses:
     status: supported
     checked: 2026-08-20
     evidence: in-repo
+  - claim: The Photos importer's iCloud-readiness check does not crash the whole run when a file (e.g. an iCloud placeholder) vanishes between its exists() check and the following stat() call; the file is treated as not-ready-yet and retried like any other not-yet-downloaded file.
+    status: supported
+    checked: 2026-08-20
+    evidence: in-repo
   - claim: One card's offload failing outright (rsync error from a card ejected mid-copy, a network drop, a permission error) does not abort a multi-card run before other cards are attempted, and does not lose the summary for cards already offloaded in the same run.
     status: supported
     checked: 2026-08-20
