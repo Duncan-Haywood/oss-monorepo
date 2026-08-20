@@ -9265,3 +9265,79 @@ entries:
         commits (#324/#325). No candidate screening performed; no pipeline
         score changed; no ventures/* app code touched.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / be strategic" session, designated branch
+        claude/wizardly-albattani-huc5pe, PR #332, self-merged as 18e9c4c.
+        `git fetch origin main` first (tip 4e2905e at read time; main moved
+        four times during the run and the branch was rebased onto c7d0d8b
+        before pushing). Read the four open PRs, #139's recent notes and the
+        ledger tail before touching anything. Re-verified nothing: #222 was
+        independently re-verified at 14:33Z with a full six-app build/test/
+        audit table and is correctly owner-gated because merging it fires two
+        live deploys; #192/#144/#19 unchanged.
+      - >-
+        Acted on break-even.md's own measurement rather than restating it.
+        That document established that 67 of 139 ledger entries -- 48.2% --
+        record re-verifying work another session had already verified, and
+        that with revenue structurally capped at $0 until the owner opens a
+        payout rail, re-verification is the largest cost line an agent can act
+        on by itself. It ends at the measurement. #332 is the mechanism.
+      - >-
+        The diagnosis that made it tractable: the behaviour was never
+        disobedience. CLAUDE.md has said not to re-derive settled work since
+        before any of those 67 entries were written. A session starting from a
+        fresh checkout against a main that moves several times an hour cannot
+        tell whether the drift since a verification touches the PR in front of
+        it, so re-running everything is the only safe thing available to it.
+        The gap was epistemic, and it closes with a fact about git rather than
+        another paragraph of instruction.
+      - >-
+        portfolio/ledger/verification_status.py reads a new verifications.yaml
+        (what was verified, at which head, against which main tip) and returns
+        two independent verdicts per record from git alone: build staleness
+        (did main touch the projects the PR touches, or a root build file) and
+        check staleness (did main touch any workflow, so the attached check
+        runs predate the current CI definition). Keeping them separate mirrors
+        CLAUDE.md's own distinction between reading an attached CI result and
+        hand-running what CI cannot tell you.
+      - >-
+        The build verdict is usually partial, which is where the saving is. On
+        the one seeded record (#222, verified 14:33Z against baca201), 60
+        files changed on main since; the rule resolves them to "re-verify
+        ventures/ai-first-markets, the other five apps are provably
+        unaffected" -- against a previous pass that rebuilt all six. Not a
+        judgement call: main did not touch those five, so a rebuild cannot
+        return a different answer.
+      - >-
+        Two exclusions decide whether the tool is useful at all. VENTURE.yaml
+        and NOT-A-VENTURE are router/scoring metadata that a scoring pass
+        rewrites eleven-at-a-time and no venture build reads; root docs
+        (CLAUDE.md, README.md) are edited most hours and read by no build.
+        Counting either as build drift marked all six of #222's apps stale,
+        which is how the exclusion was found. Scoping is otherwise coarse (top
+        two path components) so errors fall on the over-invalidating side: a
+        false STALE costs one build, a false VALID costs a wrong merge.
+      - >-
+        Verified rather than trusted, and the running caught a real regression
+        the diff did not show: allocate.py globs every *.yaml in
+        portfolio/ledger/ as a monthly ledger and calls .get("entries") on it,
+        so the first draft's bare-list verifications.yaml crashed the router in
+        10 tests. Records now sit under a `records:` key and a test guards the
+        invariant. Full portfolio-validate battery green locally on the
+        rebased head -- router unittest 50, scoring 32, workflow parse 20/20,
+        workflow-validator OK, all five validators pass, break_even --check
+        agrees, plus 24 new tests. Validate check green on the PR;
+        merge-tree clean against the live tip at merge.
+      - >-
+        Agent-decidable class throughout: portfolio/ledger/, CLAUDE.md and CI
+        config only; no ventures/* app code; publishes nothing; registers
+        nothing; spends nothing; adds no unattended automation. No candidate
+        screening performed, no pipeline or venture score changed. The
+        remaining failure mode is stated in re-verification.md and not solved:
+        the tool cannot help a session that never runs it, which is why the
+        pointer went into CLAUDE.md rather than only into the write-up.
+    mrr_end: null
