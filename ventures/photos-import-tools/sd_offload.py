@@ -175,20 +175,28 @@ def verify_and_manifest(
             dest_file = card.dest / rel
             entry: dict[str, object] = {
                 "relative_path": rel.as_posix(),
-                "source_bytes": source_file.stat().st_size,
                 "status": "missing",
             }
             try:
+                # Reading the source's own size must stay inside this
+                # try/except too: a flaky card reader or a card ejected
+                # mid-verification can make this stat() fail exactly like the
+                # dest-side reads below, and it ran unguarded before this fix
+                # -- crashing the whole card's verification loop and losing
+                # every already-verified entry in the same run.
+                source_bytes = source_file.stat().st_size
+                entry["source_bytes"] = source_bytes
                 if not dest_file.exists():
                     stats.errors.append(f"Missing after copy: {rel}")
                     manifest_entries.append(entry)
                     continue
-                if dest_file.stat().st_size != source_file.stat().st_size:
+                dest_bytes = dest_file.stat().st_size
+                if dest_bytes != source_bytes:
                     stats.errors.append(f"Size mismatch: {rel}")
                     entry["status"] = "size_mismatch"
                     manifest_entries.append(entry)
                     continue
-                entry["dest_bytes"] = dest_file.stat().st_size
+                entry["dest_bytes"] = dest_bytes
                 # Size alone cannot catch partial-write or bit-flip corruption
                 # that leaves the byte count unchanged; hashing both sides is
                 # the only check that backs this venture's "no lost/corrupted
