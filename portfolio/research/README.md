@@ -53,6 +53,7 @@ before building either.
 | [`a11y-evidence-record/`](a11y-evidence-record/) | How much of the `eaa-remediation-pipeline` audit is automatable from templates alone? | **63.2% is undecidable without rendering or store data**; **70.4%** on the four checks where "undecidable" is even a possible answer. Two defect classes (unnamed buttons, unlabelled controls) carry **71% of blocking findings**; missing image alt is 5.6% |
 | [`a11y-render-recovery/`](a11y-render-recovery/) | What does rendering actually recover from that undecidable share? | **50.5% is theme-recoverable** at build time with no store data; **11.0% requires per-store merchant data** (where empty alts become real blocking failures at that store); **38.5% is context-dependent** — undecidable even as to provenance from the template alone. "Almost all" splits into three shares, only one of which is a build step |
 | [`a11y-theme-resolution/`](a11y-theme-resolution/) | The theme-recoverable share is a *ceiling*. What does it recover **to** — a pass, or a defect? | **A pass, overwhelmingly.** 68.5% of the 248 theme-recoverable undecidables resolve to a name that is present; **2.0% (5 of 248) are real blocking failures**. The build step is a coverage step, not a finding-generator. All five defects are one mechanically-detectable class (a `<label for>` whose target id the theme builds from an expression), and 64 of the 69 "cross-partial label" cases were in the same file all along — a fix both audit engines can adopt |
+| [`register-change-rate/`](register-change-rate/) | `public-record-watch`'s kill criterion — how often does a public register actually change? | **Weekly or better for six of nine git-mirrored registers**, and the software-security ones change on 85–180 of 180 days. But cheap-to-monitor and expensive-to-miss are anti-correlated: none of the candidate's three named verticals has a usable mirror, and for the ones that do, the "archive a new entrant cannot fetch" moat is one clone (388 commits of CISA KEV history, in seconds). Also retires the €150/two-week budget for step 1 of that candidate's experiment, for any mirrored source |
 | [`substitute-supply/`](substitute-supply/) | For each pipeline candidate's core function, does a live, adopted, free implementation already exist on npm? | **7 of 10 measurable functions are commoditised.** Four candidates' prose "commodity" claims are confirmed with numbers; `mcp-supply-chain-watch` gets an independent second reason its `defensibility: 3` floor sits where it does (both mechanisms are free); `public-record-watch`'s polling-and-diffing engine is the one function that is **not** commoditised on npm (2 relevant packages, none above 1k/mo) |
 
 ## 2. Can this portfolio reach a buyer from where the agent actually lives?
@@ -74,7 +75,7 @@ what each pass established and are kept for provenance; where they disagree with
 | [`primary-source-egress/`](primary-source-egress/) | **Nobody had run a control.** `example.com` produces a byte-identical denial to `api.wordpress.org`, so the WordPress denial is not evidence about WordPress — it is evidence of a general policy, and Asks 3 and 7 are therefore one decision rather than several |
 | [`runtime-data-reachability/`](runtime-data-reachability/) | A third question the other two do not answer: can a product **fetch its own input data**? For only one of eight candidates. A candidate can be publishable and still impossible to develop |
 | [`data-reachability/`](data-reachability/) | Probe every distribution channel a feed publishes, not just its canonical one. Under that rule the policy is not "registries only" but **general-web hosts denied, code/package/object-storage infrastructure allowed** — OSV's bulk export and the CISA KEV git mirror both answer while their APIs do not |
-| [`egress-reachability/`](egress-reachability/) | **Current.** All nine passes reconciled: 92 hosts, **25 reachable, 64 egress-denied, 3 GitHub-scope-denied**. Establishes that this environment denies egress in *three* signatures, one of which fires intermittently on ~6% of requests and is indistinguishable from an origin 403 by status code — enough on its own to generate ~4 spurious "reachable" verdicts per pass, a different four each time |
+| [`egress-reachability/`](egress-reachability/) | **Current.** All nine passes reconciled: 92 hosts, **25 reachable, 64 egress-denied, 3 GitHub-scope-denied**. Establishes that this environment denies egress in *three* signatures, one of which fires intermittently on ~6% of requests and is indistinguishable from an origin 403 by status code — enough on its own to generate ~4 spurious "reachable" verdicts per pass, a different four each time. **Amended 2026-08-20:** the three GitHub scope-denials are verdicts about the *HTTP* surface. Git's smart-HTTP transport is a fourth surface and is not scoped — full-history `git clone` of repositories this session has no scope over succeeds, on `github.com` and `codeload.github.com` alike (`consolidate.py --git-surface`) |
 
 ### The bottom line these converge on
 
@@ -110,6 +111,13 @@ Stated once here so a tenth pass does not rediscover them:
 > routinely differ in verdict. Then score the `stats` surface, and check the
 > count exists *at all* — a channel you can publish to but cannot measure is a
 > distribution channel, not a probe.
+>
+> **Amended 2026-08-20: three was the count, not the rule.** GitHub is
+> scope-denied on its web, REST and archive surfaces and *reachable* over git's
+> smart-HTTP transport, which is a fourth surface nobody had asked. The general
+> form is that a verdict belongs to a surface and never to a host, and a
+> recorded denial is only as broad as the surface it was measured on
+> ([`egress-reachability/`](egress-reachability/)).
 
 > **2. A status code is not evidence about reachability in this environment.**
 > Denials arrive in three signatures, two of which are ordinary-looking HTTP

@@ -103,6 +103,13 @@ than as better candidates —
 [rescore-2026-08-20.md](rescore-2026-08-20.md) has the pattern and what follows
 from it.
 
+Step 1 of `public-record-watch`'s first experiment has since been run — see the
+amendment in [its write-up](candidates/public-record-watch.md) and the
+measurement in
+[`portfolio/research/register-change-rate/`](../research/register-change-rate/).
+No score moved; the change-rate premise holds and the reasons the candidate is
+hard did not change.
+
 Executable probes already built for these candidates: [probes/](probes/) —
 `npm-reachability-triage` (for `cra-evidence-desk`) and `eaa-wcag-triage` (for
 `eaa-remediation-pipeline`). `CLAUDE.md`'s intake gate sends every generic

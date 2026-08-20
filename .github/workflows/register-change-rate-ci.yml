@@ -1,0 +1,56 @@
+name: register-change-rate CI
+
+# Test coverage for the register change-rate probe under
+# portfolio/research/register-change-rate/. It is standard-library-only and its
+# suite needs no network — every test drives the derivation half of the probe
+# from synthetic records — so this workflow does no more than a contributor runs
+# locally: run the tests. It publishes nothing, registers nothing, and spends no
+# API budget; it is a test runner, not the unattended-automation kind of workflow
+# CLAUDE.md gates.
+#
+# Matching the runners the sibling research probes already have
+# (a11y-evidence-record in #302, eaa-wcag-triage in #344, a11y-render-recovery).
+# The invariants that must not reach main unseen are the three that each produced
+# a plausible *wrong number* rather than an error while this probe was built: the
+# log record separator leads its header (a trailing one parses a whole history as
+# one commit), the ISO-week denominator is the weeks the window touches (dividing
+# by days/7 reported 105% of weeks), and the subprocess timeout kills the process
+# group (git's transport helper otherwise holds the pipe open forever).
+
+on:
+  pull_request:
+    paths:
+      - "portfolio/research/register-change-rate/**"
+      - ".github/workflows/register-change-rate-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "portfolio/research/register-change-rate/**"
+      - ".github/workflows/register-change-rate-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A second push to the same branch makes the first run irrelevant.
+concurrency:
+  group: register-change-rate-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: portfolio/research/register-change-rate
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # Standard-library unittest only: no pip install step, by design.
+      - run: python3 -m unittest discover -p 'test_*.py'
+      # The saved results must stay re-derivable offline — that is the contract
+      # the README's tables rest on, and it breaks silently if the schema drifts.
+      - run: python3 probe_registers.py --recompute-from results-2026-08-20.json
