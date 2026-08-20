@@ -1,0 +1,57 @@
+name: garmin-world-traveler-watchface CI
+
+# Full Monkey C compilation needs the Garmin Connect IQ SDK, which isn't
+# available in GitHub Actions (see this venture's README). This job covers
+# what can be checked without it: the manifest and resource files are XML
+# that the Connect IQ build tooling parses directly, so a well-formedness
+# check here catches a broken edit before it reaches a local SDK build.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ventures/garmin-world-traveler-watchface/manifest.xml"
+      - "ventures/garmin-world-traveler-watchface/resources/**"
+      - ".github/workflows/garmin-world-traveler-watchface-ci.yml"
+  pull_request:
+    paths:
+      - "ventures/garmin-world-traveler-watchface/manifest.xml"
+      - "ventures/garmin-world-traveler-watchface/resources/**"
+      - ".github/workflows/garmin-world-traveler-watchface-ci.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: garmin-world-traveler-watchface-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/garmin-world-traveler-watchface
+
+jobs:
+  xml-sanity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: manifest.xml and resources/**/*.xml are well-formed
+        run: |
+          python3 -c "
+          import glob
+          import sys
+          import xml.etree.ElementTree as ET
+
+          files = ['manifest.xml'] + sorted(glob.glob('resources/**/*.xml', recursive=True))
+          assert files, 'no XML files found'
+          errors = []
+          for f in files:
+              try:
+                  ET.parse(f)
+              except ET.ParseError as e:
+                  errors.append(f'{f}: {e}')
+          if errors:
+              print('\n'.join(errors))
+              sys.exit(1)
+          print(f'{len(files)} XML file(s) well-formed')
+          "
