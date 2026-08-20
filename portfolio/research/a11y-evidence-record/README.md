@@ -164,8 +164,13 @@ measured.
   generation against a customer's theme is a write path into someone else's
   site, and the write-up's own rule — staging-only, rollback, first ten reviewed
   — describes work with a human in it.
-- **No rendered-page comparison.** The 70.4% undecidable share is measured, but
-  what a rendered audit would recover from it is inferred, not measured.
+- **~~No rendered-page comparison.~~** Closed 2026-08-20 by
+  [`../a11y-render-recovery/`](../a11y-render-recovery/), which classifies each
+  of these 491 undecidables by the data it is waiting on. Headline: rendering
+  the theme with no store data recovers 50.5%; 11.0% require the merchant's
+  own content (per-store, not per-theme); the remaining 38.5% is undecidable
+  even as to provenance from the template alone. "Almost all" from finding 2
+  above unpacks into three shares, only one of which is a build step.
 - **The corpus is npm, and npm is the wrong shelf.** The themes EU shops
   actually run come from the Shopify theme store and the WordPress.org
   directory. Neither is reachable: **`api.wordpress.org` is denied by this
