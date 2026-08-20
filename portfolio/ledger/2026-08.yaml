@@ -6943,3 +6943,61 @@ entries:
         which is visible on #139 directly and isn't a new decision
         surface for the owner.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        fresh branch, no PR of its own. `git fetch origin main` first;
+        tip `374adf9` (#244, unchanged). Read issue #139's body and its
+        last 5 comments against that tip before touching anything —
+        nothing there mentioned PR #245 (opened 03:18:30Z, after the
+        most recent comment at 02:16:14Z), so this entry records that
+        review rather than re-deriving state already covered.
+      - >-
+        Verified #245 independently rather than trusting its report:
+        checked out its branch in a worktree and ran
+        `measure_archive_defensibility.py --recompute-from
+        results-2026-08-20.json` offline, which reproduced its headline
+        figures (14.2% of MCP registry servers are npm/PyPI packages
+        with 98.3% public history; 85.3% of servers have a pin as their
+        only record, i.e. 84.5% remote endpoints plus 0.8% partial-OCI;
+        55-day median retained history per package). `git diff
+        origin/main...HEAD --stat` confirmed the PR is purely additive
+        (3 new files, 1,349 insertions under
+        `portfolio/research/mcp-archive-defensibility/`, no touch to
+        `candidates.yaml` or the candidate scorecard, deliberately
+        deferred since #207 is open against those same lines).
+        `python3 portfolio/router/validate.py` → 11/11 clean.
+      - >-
+        #245 measures `mcp-supply-chain-watch`'s unmeasured mitigation
+        (pipeline README rule 2: a named mitigation must hold before
+        graduation) and finds it true only of the 84.5% of the market
+        this environment cannot reach, false of the 14.2% it can build
+        against — every measurement the candidate has so far (#207's
+        drift rate) came from the unprotected half. Proposes shipping
+        the collector to the customer (their egress, not the vendor's)
+        as the mitigation that actually holds, which also reframes the
+        candidate as blocked on Ask 5 (free-listing approval) rather
+        than on more egress. Folded this into issue #139 as a comment
+        (concurrent-edit safe, matching the pattern #232/#237/#240 used)
+        rather than a body edit. No ask added, no score changed — #245
+        itself defers the defensibility 4→3 edit until #207 lands, to
+        avoid a second concurrent edit to the same block.
+      - >-
+        Did not re-run the pipeline/research screening brief (`CLAUDE.md`
+        intake gate still applies, no new candidate). Did not merge #207
+        or #245 — both remain the owner's call under this repo's own
+        precedent (research/score changes aren't self-merged, unlike doc
+        fixes or dependency-audit fixes). Did not touch the Next.js chain
+        (#222), automation/spend items (#19/#144/#192/#175), or Asks
+        0–8 — all unchanged since #244's entry.
+      - >-
+        This entry is its own PR with no other content, per CLAUDE.md's
+        ledger-append-conflict guidance, so it stays independently
+        mergeable. No push notification: verifying and folding in one
+        already-open PR's finding is routine tracker upkeep, not a new
+        decision surface for the owner.
+    mrr_end: null
