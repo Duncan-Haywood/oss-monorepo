@@ -100,6 +100,20 @@ Why the next pass should screen channel-first:
 [distribution-first.md](distribution-first.md).
 Which channels this portfolio can actually list in, and what each costs in
 credentials: [channel-inventory.md](channel-inventory.md).
+Which candidates' own input data this environment can actually fetch:
+[../research/runtime-data-reachability/](../research/runtime-data-reachability/README.md).
+
+**Read that last one before acting on the verdict column above.** Measured
+2026-08-20: the egress allowlist is package registries plus this repository —
+`example.com`, `wikipedia.org` and `gov.uk` are all denied, as are every legal,
+standards, vulnerability and government-data host these candidates read from.
+Of the eight, only `mcp-supply-chain-watch` has a fully reachable runtime feed,
+and it is also the only one whose probe has ever advanced on measured data
+(#207). Candidates 1 and 2 need arbitrary-host fetching to scan customer sites,
+which an allowlist cannot grant at any length. No score below is changed by
+that measurement — it is a fact about this environment, not about the
+businesses — but it is the reason five of these cannot currently be built here,
+and it was being read as a distribution problem.
 
 ## Status of the claims in these write-ups
 
