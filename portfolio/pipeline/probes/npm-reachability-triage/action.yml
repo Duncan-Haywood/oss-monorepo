@@ -1,0 +1,109 @@
+name: "Dependency Reachability Record"
+description: >-
+  Report which npm advisory findings describe code your project actually
+  deploys, with every suppression listed and explained.
+author: "monorepo-projects"
+
+branding:
+  icon: "filter"
+  color: "blue"
+
+inputs:
+  project:
+    description: "Directory containing package-lock.json and next.config.*"
+    required: false
+    default: "."
+  lockfile:
+    description: "Explicit path to package-lock.json (defaults to <project>/package-lock.json)"
+    required: false
+    default: ""
+  output-dir:
+    description: "Directory to write record.json and record.md into"
+    required: false
+    default: "dependency-reachability-record"
+  advisories:
+    description: >-
+      Path to a local advisory file (OSV bulk .zip, OSV JSON array, or npm bulk
+      response). Leave empty to download the OSV npm feed.
+    required: false
+    default: ""
+  deployment-mode:
+    description: >-
+      Override deployment detection: static-export, server, or unknown. Leave
+      empty to detect from next.config.*.
+    required: false
+    default: ""
+  fail-on:
+    description: >-
+      Fail the job when a finding in deployed code reaches this severity:
+      never, low, moderate, high, or critical. Defaults to never, so adding
+      this action cannot break an existing pipeline.
+    required: false
+    default: "never"
+  summary:
+    description: "Write the record to the GitHub Actions job summary"
+    required: false
+    default: "true"
+
+outputs:
+  shipped-count:
+    description: "Number of findings describing deployed code"
+    value: ${{ steps.triage.outputs.shipped-count }}
+  suppressed-count:
+    description: "Number of findings suppressed as not deployed"
+    value: ${{ steps.triage.outputs.suppressed-count }}
+  record-path:
+    description: "Path to the generated record.json"
+    value: ${{ steps.triage.outputs.record-path }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Run reachability triage
+      id: triage
+      shell: bash
+      env:
+        # Quoted through the environment rather than interpolated into the
+        # script body, so a crafted input cannot be executed as shell.
+        INPUT_PROJECT: ${{ inputs.project }}
+        INPUT_LOCKFILE: ${{ inputs.lockfile }}
+        INPUT_OUTPUT_DIR: ${{ inputs.output-dir }}
+        INPUT_ADVISORIES: ${{ inputs.advisories }}
+        INPUT_DEPLOYMENT_MODE: ${{ inputs.deployment-mode }}
+        INPUT_FAIL_ON: ${{ inputs.fail-on }}
+        INPUT_SUMMARY: ${{ inputs.summary }}
+        ACTION_PATH: ${{ github.action_path }}
+      run: |
+        set -euo pipefail
+
+        args=(
+          --project "$INPUT_PROJECT"
+          --output-dir "$INPUT_OUTPUT_DIR"
+          --fail-on "$INPUT_FAIL_ON"
+        )
+        [ -n "$INPUT_LOCKFILE" ] && args+=(--lockfile "$INPUT_LOCKFILE")
+        [ -n "$INPUT_ADVISORIES" ] && args+=(--advisories "$INPUT_ADVISORIES")
+        [ -n "$INPUT_DEPLOYMENT_MODE" ] && args+=(--deployment-mode "$INPUT_DEPLOYMENT_MODE")
+
+        status=0
+        PYTHONPATH="$ACTION_PATH/src" python3 -m triage.cli "${args[@]}" || status=$?
+
+        record="$INPUT_OUTPUT_DIR/record.json"
+        if [ -f "$record" ]; then
+          shipped=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['counts']['shipped'])" "$record")
+          total=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['counts']['total'])" "$record")
+          echo "shipped-count=$shipped" >> "$GITHUB_OUTPUT"
+          echo "suppressed-count=$((total - shipped))" >> "$GITHUB_OUTPUT"
+          echo "record-path=$record" >> "$GITHUB_OUTPUT"
+
+          if [ "$INPUT_SUMMARY" = "true" ] && [ -f "$INPUT_OUTPUT_DIR/record.md" ]; then
+            cat "$INPUT_OUTPUT_DIR/record.md" >> "$GITHUB_STEP_SUMMARY"
+          fi
+        fi
+
+        exit $status
