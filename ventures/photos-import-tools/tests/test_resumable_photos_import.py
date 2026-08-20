@@ -7,6 +7,7 @@ from resumable_photos_import import (
     PhotosImporter,
     build_manifest,
     discover_importable_photos,
+    file_is_ready,
     recover_interrupted,
 )
 
@@ -160,6 +161,31 @@ class ResumablePhotosImportTests(unittest.TestCase):
 
             self.assertEqual(exit_code, 0)
             self.assertEqual(importer.import_calls, [(photo, False)])
+
+    def test_file_is_ready_true_for_nonempty_file(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "photo.jpg"
+            path.write_bytes(b"jpeg")
+            self.assertTrue(file_is_ready(path))
+
+    def test_file_is_ready_false_for_missing_file(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "missing.jpg"
+            self.assertFalse(file_is_ready(path))
+
+    def test_file_is_ready_survives_vanishing_between_exists_and_stat(self):
+        # exists() and stat() are separate syscalls; a file (e.g. an iCloud
+        # placeholder) that's evicted in between must not crash the caller --
+        # it ran unguarded before this fix, raising FileNotFoundError out of
+        # wait_for_file() and aborting the whole importer run.
+        class VanishingPath:
+            def exists(self) -> bool:
+                return True
+
+            def stat(self):
+                raise FileNotFoundError("vanished between exists() and stat()")
+
+        self.assertFalse(file_is_ready(VanishingPath()))
 
 
 class FakePhotosImporter(PhotosImporter):

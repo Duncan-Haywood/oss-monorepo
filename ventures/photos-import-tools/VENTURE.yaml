@@ -41,6 +41,10 @@ hypotheses:
     status: supported
     checked: 2026-08-20
     evidence: in-repo
+  - claim: The Photos importer's iCloud-readiness check does not crash the whole run when a file (e.g. an iCloud placeholder) vanishes between its exists() check and the following stat() call; the file is treated as not-ready-yet and retried like any other not-yet-downloaded file.
+    status: supported
+    checked: 2026-08-20
+    evidence: in-repo
 
 economics:
   currency: USD
