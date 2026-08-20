@@ -1,0 +1,295 @@
+{
+ "summary": {
+  "packages": 12,
+  "undecidable": 491,
+  "matched": 491,
+  "match_rate_pct": 100.0,
+  "provenance": {
+   "theme": 179,
+   "theme_structural": 69,
+   "merchant": 54,
+   "context": 189
+  },
+  "shares_pct": {
+   "theme_recoverable": 50.5,
+   "merchant_per_store": 11.0,
+   "context_dependent": 38.5
+  },
+  "by_check": {
+   "link-no-accessible-name": {
+    "context": 111,
+    "theme": 77,
+    "merchant": 34
+   },
+   "button-no-accessible-name": {
+    "context": 55,
+    "theme": 98,
+    "merchant": 3
+   },
+   "control-no-label": {
+    "theme_structural": 69,
+    "merchant": 1
+   },
+   "img-alt-missing": {
+    "context": 23,
+    "theme": 4,
+    "merchant": 16
+   }
+  }
+ },
+ "packages": [
+  {
+   "package": "@ecomplus/storefront-app",
+   "version": "2.0.0-beta.228",
+   "undecidable": 25,
+   "matched": 25,
+   "provenance": {
+    "theme": 3,
+    "merchant": 1,
+    "context": 21
+   },
+   "by_check": {
+    "button-no-accessible-name": {
+     "context": 13,
+     "theme": 1
+    },
+    "link-no-accessible-name": {
+     "context": 8,
+     "theme": 2,
+     "merchant": 1
+    }
+   }
+  },
+  {
+   "package": "@ecomplus/storefront-components",
+   "version": "1.0.0-beta.195",
+   "undecidable": 45,
+   "matched": 45,
+   "provenance": {
+    "context": 45
+   },
+   "by_check": {
+    "button-no-accessible-name": {
+     "context": 26
+    },
+    "link-no-accessible-name": {
+     "context": 19
+    }
+   }
+  },
+  {
+   "package": "@ecomplus/storefront-template",
+   "version": "2.0.0-beta.300",
+   "undecidable": 69,
+   "matched": 69,
+   "provenance": {
+    "theme": 24,
+    "context": 45
+   },
+   "by_check": {
+    "button-no-accessible-name": {
+     "theme": 11,
+     "context": 2
+    },
+    "link-no-accessible-name": {
+     "context": 30,
+     "theme": 12
+    },
+    "img-alt-missing": {
+     "context": 13,
+     "theme": 1
+    }
+   }
+  },
+  {
+   "package": "@fleetbase/storefront-engine",
+   "version": "0.4.19",
+   "undecidable": 34,
+   "matched": 34,
+   "provenance": {
+    "merchant": 6,
+    "context": 28
+   },
+   "by_check": {
+    "button-no-accessible-name": {
+     "context": 5
+    },
+    "img-alt-missing": {
+     "context": 9,
+     "merchant": 1
+    },
+    "link-no-accessible-name": {
+     "context": 14,
+     "merchant": 5
+    }
+   }
+  },
+  {
+   "package": "@nuskin/ns-shop-elements",
+   "version": "5.44.0",
+   "undecidable": 2,
+   "matched": 2,
+   "provenance": {
+    "theme_structural": 2
+   },
+   "by_check": {
+    "control-no-label": {
+     "theme_structural": 2
+    }
+   }
+  },
+  {
+   "package": "@pradip1995/create-storefront-app",
+   "version": "0.6.19",
+   "undecidable": 1,
+   "matched": 1,
+   "provenance": {
+    "context": 1
+   },
+   "by_check": {
+    "link-no-accessible-name": {
+     "context": 1
+    }
+   }
+  },
+  {
+   "package": "@vue-storefront/nuxt-theme",
+   "version": "2.8.0",
+   "undecidable": 2,
+   "matched": 2,
+   "provenance": {
+    "theme": 1,
+    "context": 1
+   },
+   "by_check": {
+    "link-no-accessible-name": {
+     "context": 1,
+     "theme": 1
+    }
+   }
+  },
+  {
+   "package": "@vue-storefront/theme-default",
+   "version": "1.7.0",
+   "undecidable": 26,
+   "matched": 26,
+   "provenance": {
+    "theme": 24,
+    "context": 2
+   },
+   "by_check": {
+    "button-no-accessible-name": {
+     "theme": 5,
+     "context": 1
+    },
+    "link-no-accessible-name": {
+     "theme": 19,
+     "context": 1
+    }
+   }
+  },
+  {
+   "package": "@zalify/theme-templates",
+   "version": "0.5.0",
+   "undecidable": 158,
+   "matched": 158,
+   "provenance": {
+    "theme": 81,
+    "theme_structural": 24,
+    "merchant": 22,
+    "context": 31
+   },
+   "by_check": {
+    "button-no-accessible-name": {
+     "context": 7,
+     "theme": 55,
+     "merchant": 1
+    },
+    "control-no-label": {
+     "theme_structural": 24
+    },
+    "link-no-accessible-name": {
+     "theme": 23,
+     "context": 24,
+     "merchant": 21
+    },
+    "img-alt-missing": {
+     "theme": 3
+    }
+   }
+  },
+  {
+   "package": "bootstrap-shopify-theme",
+   "version": "1.4.5",
+   "undecidable": 29,
+   "matched": 29,
+   "provenance": {
+    "theme": 4,
+    "theme_structural": 12,
+    "merchant": 2,
+    "context": 11
+   },
+   "by_check": {
+    "link-no-accessible-name": {
+     "merchant": 1,
+     "context": 10,
+     "theme": 4
+    },
+    "control-no-label": {
+     "theme_structural": 12
+    },
+    "img-alt-missing": {
+     "merchant": 1
+    },
+    "button-no-accessible-name": {
+     "context": 1
+    }
+   }
+  },
+  {
+   "package": "fassbender-shopify-theme",
+   "version": "1.4.0",
+   "undecidable": 99,
+   "matched": 99,
+   "provenance": {
+    "theme": 42,
+    "theme_structural": 31,
+    "merchant": 23,
+    "context": 3
+   },
+   "by_check": {
+    "link-no-accessible-name": {
+     "theme": 16,
+     "merchant": 6,
+     "context": 2
+    },
+    "button-no-accessible-name": {
+     "theme": 26,
+     "merchant": 2
+    },
+    "control-no-label": {
+     "theme_structural": 31,
+     "merchant": 1
+    },
+    "img-alt-missing": {
+     "merchant": 14,
+     "context": 1
+    }
+   }
+  },
+  {
+   "package": "pinelab-storefront",
+   "version": "1.4.3",
+   "undecidable": 1,
+   "matched": 1,
+   "provenance": {
+    "context": 1
+   },
+   "by_check": {
+    "link-no-accessible-name": {
+     "context": 1
+    }
+   }
+  }
+ ]
+}
