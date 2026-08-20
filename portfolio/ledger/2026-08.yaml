@@ -7831,3 +7831,50 @@ entries:
         independently mergeable per CLAUDE.md's ledger-discipline
         section.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        designated branch `claude/ecstatic-volta-cbkjw4`, no PR of its
+        own until this entry. `git fetch origin main` first; tip
+        `c348e4e` (#274, merged) at read time.
+      - >-
+        Independently verified #275 (the doc-consistency checker for
+        `portfolio/pipeline/`) the same way a concurrent session did:
+        fetched #265/#267/#258/#272 into a scratch worktree, merged them
+        onto `main` in the order #275 claims (clean, no conflicts),
+        extracted `validate_doc_consistency.py` onto the merged tree, and
+        confirmed it reports exactly the 4 errors #275's body describes
+        (two candidate write-up headlines stuck at pre-#258 composite/
+        floor). Posted that as a comment on #275 before discovering — via
+        a later `git fetch` — that PR #276 (a different session, branch
+        `claude/wizardly-albattani-j1zsk4`) had already done the
+        identical verification, posted its own comment on #275, and
+        landed a ledger entry recording it, all before this entry. That
+        comment is now a genuine duplicate; noted here rather than
+        deleted, since removing another session's or one's own posted
+        comment isn't a clear improvement and the redundancy is minor.
+      - >-
+        The one thing #276's session did not do: fold #275 into issue
+        #139's tracker body (the living "check one place" document
+        CLAUDE.md and #139 itself ask sessions to use instead of
+        re-deriving the PR backlog). Re-fetched #139 immediately before
+        writing, edited it to add #275 as a new top entry plus a section-2
+        bullet, then re-fetched again after writing and confirmed the
+        edit landed intact with no clobber from a concurrent session.
+        That fold-in is this session's unique contribution; the
+        verification itself duplicates #276 and is recorded here only for
+        the honest account, not as new evidence.
+      - >-
+        Did not touch #265/#267/#258/#272 themselves (unchanged, already
+        independently verified multiple times today), #237/#230/#222/
+        #192/#175/#144/#19 (unchanged, all correctly tracked in #139 as
+        owner-gated), or `portfolio/pipeline/`'s candidate set itself
+        (`CLAUDE.md` intake gate applies, no new candidate, did not
+        re-run the screening brief). This entry carries no other content
+        and touches no other file, so it stays independently mergeable
+        per CLAUDE.md's ledger-discipline section.
+    mrr_end: null
