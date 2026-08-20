@@ -29,6 +29,10 @@ hypotheses:
     status: supported
     checked: 2026-08-20
     evidence: in-repo
+  - claim: The source-side read used to seed each manifest entry (source_bytes) is as resilient to a flaky card reader or a card ejected mid-verification as the dest-side reads are; it does not crash the whole card's verification pass and lose every already-verified entry in the same run.
+    status: supported
+    checked: 2026-08-20
+    evidence: in-repo
 
 economics:
   currency: USD

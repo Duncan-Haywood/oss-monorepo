@@ -163,6 +163,41 @@ class VerifyAndManifestTests(unittest.TestCase):
             self.assertEqual(statuses["DCIM/IMG_1.JPG"], "read_error")
             self.assertEqual(statuses["DCIM/IMG_2.JPG"], "verified")
 
+    def test_source_read_error_on_one_file_does_not_abort_the_others(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            card = self._make_card(root)
+            self._write(card.source / "DCIM" / "IMG_1.JPG", b"photo-bytes")
+            self._write(card.dest / "DCIM" / "IMG_1.JPG", b"photo-bytes")
+            self._write(card.source / "DCIM" / "IMG_2.JPG", b"more-bytes")
+            self._write(card.dest / "DCIM" / "IMG_2.JPG", b"more-bytes")
+            stats = OffloadStats(card=card.name)
+            manifest = root / "manifest.json"
+            img1 = card.source / "DCIM" / "IMG_1.JPG"
+            img2 = card.source / "DCIM" / "IMG_2.JPG"
+
+            # Simulates a flaky card reader or a card ejected mid-verification:
+            # the *source*-side stat() used to seed each manifest entry fails,
+            # as opposed to the dest-side read #370 already made resilient.
+            real_stat = Path.stat
+
+            def flaky_stat(self, *args, **kwargs):
+                if self == img1:
+                    raise OSError("Input/output error")
+                return real_stat(self, *args, **kwargs)
+
+            with mock.patch("sd_offload.iter_media_files", return_value=[img1, img2]), \
+                    mock.patch.object(Path, "stat", flaky_stat):
+                verify_and_manifest(card, stats, manifest, root / "log.txt")
+
+            self.assertEqual(stats.verified_files, 1)
+            self.assertEqual(len(stats.errors), 1)
+            self.assertIn("Read error: DCIM/IMG_1.JPG", stats.errors[0])
+            payload = json.loads(manifest.read_text())
+            statuses = {entry["relative_path"]: entry["status"] for entry in payload["files"]}
+            self.assertEqual(statuses["DCIM/IMG_1.JPG"], "read_error")
+            self.assertEqual(statuses["DCIM/IMG_2.JPG"], "verified")
+
     def test_hash_mode_records_digest_in_manifest(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
