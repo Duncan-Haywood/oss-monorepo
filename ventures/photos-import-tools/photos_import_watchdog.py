@@ -159,6 +159,16 @@ def active_phase(phases: list[ImportPhase]) -> ImportPhase | None:
     return None
 
 
+def never_initialized_phases(phases: list[ImportPhase]) -> list[ImportPhase]:
+    # A phase whose manifest db was never created (no `init` run) reads as
+    # zero remaining work, identically to a phase that finished -- so without
+    # this check, requesting --include-raws and forgetting to `init` the raw
+    # manifest makes the watchdog report "complete" having silently never
+    # attempted a single raw file. That is a silent-loss outcome this
+    # venture's kill_criteria specifically rule out.
+    return [phase for phase in phases if not phase.db_path.exists()]
+
+
 def run_watchdog(
     *,
     root: Path,
@@ -196,6 +206,22 @@ def run_watchdog(
     while True:
         phase = active_phase(phases)
         if phase is None:
+            uninitialized = never_initialized_phases(phases)
+            if uninitialized:
+                media_types = [p.media_type for p in uninitialized]
+                with log_path.open("ab") as log_handle:
+                    log_handle.write(
+                        f"[{iso_now()}] blocked: manifest never initialized for "
+                        f"{', '.join(media_types)}; refusing to report complete\n".encode()
+                    )
+                write_status(
+                    phases[0].status_path,
+                    read_summary(phases[-1].db_path),
+                    worker_running=False,
+                    message=f"blocked: not initialized: {', '.join(media_types)}",
+                    extra={"phase": "blocked", "include_raws": include_raws, "uninitialized": media_types},
+                )
+                return 3
             final_summary = read_summary(phases[-1].db_path)
             write_status(
                 phases[0].status_path,
