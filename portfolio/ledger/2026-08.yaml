@@ -9415,3 +9415,48 @@ entries:
         performed; no pipeline or venture score changed; nothing spent
         beyond agent time.
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process" session, designated branch claude/nifty-goodall-852rd1, PR
+        #335, self-merged as 271fd5a. `git fetch origin main` first (tip
+        caca0e7 at read time; main moved to 1af1ea1 during the run). Read the
+        four open PRs (#222, #192, #19, #144), #139 and the ledger tail
+        before touching anything; confirmed CI on main fully green and 9 of
+        11 ventures owner-blocked on the publish decision. Ran the router
+        (allocate.py): it names advancing a dispatchable venture as the one
+        actionable move, and photos-import-tools is one of the two
+        dispatchable ones. Re-verified nothing already verified; no candidate
+        screening, no pipeline or score change.
+      - >-
+        Fixed a real silent-data-loss gap rather than writing a token
+        hypothesis. ventures/photos-import-tools/sd_offload.py defined
+        sha256_file() but never called it: post-copy verification compared
+        byte counts only, so a same-size corrupted copy (partial write, bit
+        flip) was recorded as "verified" -- the exact lost/corrupted-media
+        failure this venture's kill-criteria exist to prevent -- and the
+        291-line module (the first step where media can be lost) had zero
+        test coverage. Wired sha256_file into an opt-in `--verify hash` mode
+        that compares source/dest SHA-256 and records the digest in the
+        manifest (default stays size-only for backward compatibility);
+        removed the dead copied/skipped branch that left skipped_files always
+        0; added tests/test_sd_offload.py (9 cases) covering media discovery,
+        hashing and every verification outcome, including the same-size
+        corruption that size-only misses and hash mode catches. Recorded the
+        new supported hypothesis in VENTURE.yaml.
+      - >-
+        Verified by running the venture's full CI battery locally
+        (photos-import-tools-ci.yml): 28 unittest cases pass (was 19), ruff
+        clean, mypy clean; plus router validate.py (11/11 VENTURE.yaml valid)
+        and score_ventures.py --check (consistent) with the new hypothesis.
+        The photos-import-tools CI check on the PR head ran green; merges
+        clean against main via git merge-tree. Self-merged as agent-decidable
+        per CLAUDE.md: photos-import-tools is a prototype with
+        links.production: null (local macOS tooling, no deploy workflow, so
+        it ships to no live site); the change is additive tests, an opt-in
+        flag and a correctness fix; publishes nothing, registers nothing,
+        adds no automation, spends nothing beyond agent time.
+    mrr_end: null
