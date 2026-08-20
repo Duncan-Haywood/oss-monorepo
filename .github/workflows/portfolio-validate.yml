@@ -8,6 +8,10 @@ name: Portfolio validate
 # Candidates are rescored by one session at a time, in three files that are
 # edited independently, so a partial rescore is invisible in the diff of any
 # single pull request and only surfaces once two of them land together.
+#
+# And every workflow file must stay legible to GitHub itself: an unparseable
+# one registers under its own path and emits a zero-job startup_failure per
+# event, which no PR check surfaces.
 
 on:
   push:
@@ -17,14 +21,16 @@ on:
       - "ventures/**/NOT-A-VENTURE"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
-      - ".github/workflows/portfolio-validate.yml"
+      - "platform/ci/**"
+      - ".github/workflows/**"
   pull_request:
     paths:
       - "ventures/**/VENTURE.yaml"
       - "ventures/**/NOT-A-VENTURE"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
-      - ".github/workflows/portfolio-validate.yml"
+      - "platform/ci/**"
+      - ".github/workflows/**"
   workflow_dispatch:
 
 permissions:
@@ -48,3 +54,6 @@ jobs:
 
       - name: Check candidate scores agree across yaml, write-ups, and README
         run: python3 portfolio/pipeline/validate_doc_consistency.py
+
+      - name: Validate workflow files are parseable
+        run: python3 platform/ci/validate_workflows.py

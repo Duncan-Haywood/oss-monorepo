@@ -25,9 +25,67 @@ If you find the open-PR backlog is large and growing, the most valuable
 thing a session can do is consolidate: pick the strongest existing PR(s),
 merge in anything unique from the others, verify the result (run the actual
 tests, don't just trust the diff or the title), and close the rest with a
-comment pointing to the consolidated PR. Merging into `main` is still a call
-for the human account owner — call it out clearly in the PR body so the
-decision doesn't itself get lost in the backlog.
+comment pointing to the consolidated PR.
+
+## What a session may merge without a human, and what it may not
+
+A blanket "every merge to `main` is the account owner's call" was the single
+largest source of wasted spend in this repo's history. It is why the
+`portfolio/pipeline/` consolidation was rebuilt from scratch five times, why
+verified research sat unmerged until it conflicted, and why the recurring
+screening brief kept firing against a checkout where the answer had never
+landed. The gate did not protect anything — every one of those PRs was
+internal, verified, and spent nothing. It only delayed, and delay is what cost
+the budget. **The account owner's time is a scarce resource; do not spend it on
+decisions that do not need a human.** The split below is what actually needs
+one.
+
+**Agent-decidable — verify, merge, and record it yourself. Do not wait.**
+A PR is in this class when *all* of the following hold, and a session that
+built or verified it should merge it rather than leave it for the owner:
+
+- It touches only internal surfaces — `portfolio/` (pipeline, research,
+  router, ledger), `platform/`, CI config, docs, tests — **not** any
+  `ventures/*` app code that deploys to a live site.
+- It publishes nothing to the outside world, registers no account, and uses no
+  credential belonging to a legal person.
+- It spends nothing beyond agent time and enables no unattended paid spend.
+- It is verified by actually running the repo's checks (the relevant
+  validators and tests), not by trusting the diff or the title.
+- Its base is current `main` and it merges cleanly (re-check with
+  `git merge-tree` against the live tip, since `main` moves hourly).
+
+Consolidation of such PRs is itself agent-decidable: merge the strongest,
+fold in what is unique, close the rest with a pointer.
+
+**Human-gated — these genuinely need the account owner, because they need a
+legal person or create ongoing outside effects. Flag them clearly (issue #139
+is the decision queue) and do not merge them on your own judgment:**
+
+- **Taking or moving money** — any payout rail, merchant-of-record, or billing
+  setup. This needs a bank account and a tax identity, and an unattended agent
+  holding one is exactly the liability this portfolio exists to avoid. This is
+  the correct design, not a gap to route around (see
+  `portfolio/pipeline/channel-inventory.md`).
+- **Registering any account** that requires a payment card, a government ID, a
+  domain, or a bank account (store developer programs, verified-publisher
+  marketplaces).
+- **Publishing under this portfolio's name to the public** — a listing, a
+  package, a live-site content change. The *decision to publish at all* is the
+  owner's; building the artifact privately is not.
+- **Enabling unattended, spend-capable automation** — agent fleets, scheduled
+  workflows that call paid APIs, cron jobs (see "Automation that writes or
+  spends unattended" below). Adding or re-enabling one is always a human call.
+- **Breaking changes to deployable `ventures/*` code** where a wrong merge
+  ships a regression to a live site — merge these only when the venture's full
+  build/test passes and the change is in scope.
+
+When you merge something in the agent-decidable class, say so plainly in the
+merge and the ledger, with the verification you ran. When you flag something
+human-gated, put it on #139 with enough context to decide without scrolling.
+The goal is that the *only* things reaching the account owner are the ones on
+the human-gated list — everything else the portfolio needs, a session finishes
+itself.
 
 ## If your brief is "research new business projects"
 
