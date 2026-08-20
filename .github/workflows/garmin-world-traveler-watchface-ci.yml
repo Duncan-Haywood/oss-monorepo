@@ -18,6 +18,7 @@ on:
       - "ventures/garmin-world-traveler-watchface/manifest.xml"
       - "ventures/garmin-world-traveler-watchface/resources/**"
       - ".github/workflows/garmin-world-traveler-watchface-ci.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read

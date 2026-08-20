@@ -10,6 +10,7 @@ on:
     paths:
       - "ventures/ai-first-markets/**"
       - ".github/workflows/ai-first-markets-ci.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read

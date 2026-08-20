@@ -16,6 +16,7 @@ on:
     paths:
       - "portfolio/pipeline/probes/npm-reachability-triage/**"
       - ".github/workflows/npm-reachability-triage-ci.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
