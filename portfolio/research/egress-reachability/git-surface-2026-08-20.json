@@ -1,0 +1,35 @@
+{
+  "clone": {
+    "commits_fetched": 388,
+    "repo": "cisagov/kev-data",
+    "verdict": "reachable"
+  },
+  "method": "anonymous git smart-HTTP against public repositories this session is not scoped to, via `git ls-remote` and a blobless `git clone`. Read-only, no credential, nothing written to any remote.",
+  "probed_at": "2026-08-20",
+  "targets": [
+    {
+      "host": "github.com",
+      "ls_remote": "reachable",
+      "refs": 2,
+      "repo": "cisagov/kev-data",
+      "url": "https://github.com/cisagov/kev-data.git",
+      "why": "public register mirror, unrelated to this session's repo"
+    },
+    {
+      "host": "github.com",
+      "ls_remote": "reachable",
+      "refs": 1593,
+      "repo": "openstates/people",
+      "url": "https://github.com/openstates/people.git",
+      "why": "second unrelated public repo, different org"
+    },
+    {
+      "host": "codeload.github.com",
+      "ls_remote": "reachable",
+      "refs": 2,
+      "repo": "cisagov/kev-data",
+      "url": "https://codeload.github.com/cisagov/kev-data.git",
+      "why": "archive endpoint for the same repo"
+    }
+  ]
+}

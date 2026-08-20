@@ -307,6 +307,96 @@ def probe_host(host: str, url: str) -> dict:
                 "detail": f"{type(exc).__name__}: {exc}"}
 
 
+# --------------------------------------------------------------------------
+# --git-surface
+# --------------------------------------------------------------------------
+#
+# Every pass before 2026-08-20 probed GitHub with an HTTPS GET and recorded
+# `github.com`, `api.github.com` and `codeload.github.com` as scope_denied. That
+# is a verdict about the web and REST surfaces. Git's own smart-HTTP transport
+# is a fourth surface on the same hosts, and nobody had asked it anything.
+#
+# It matters because the surfaces carry different data: `raw.githubusercontent.com`
+# serves a file's *current* bytes, and the git transport serves its *history*.
+# Any question of the form "how often does this change" needs the second.
+
+GIT_SURFACE_TARGETS = [
+    # (host, repo, why this repo)
+    ("github.com", "cisagov/kev-data", "public register mirror, unrelated to this session's repo"),
+    ("github.com", "openstates/people", "second unrelated public repo, different org"),
+    ("codeload.github.com", "cisagov/kev-data", "archive endpoint for the same repo"),
+]
+
+
+def probe_git_surface() -> dict:
+    """Ask the git transport the question the HTTP passes asked the web surface.
+
+    Read-only: `git ls-remote` and a `--filter=blob:none --no-checkout` clone.
+    Nothing is written to any remote and no credential is used.
+    """
+    import shutil
+    import subprocess
+    import tempfile
+
+    results = []
+    for host, repo, why in GIT_SURFACE_TARGETS:
+        url = f"https://{host}/{repo}.git"
+        entry = {"host": host, "repo": repo, "why": why, "url": url}
+        try:
+            proc = subprocess.run(
+                ["git", "ls-remote", "--heads", url],
+                capture_output=True, text=True, timeout=TIMEOUT * 3,
+            )
+            body = (proc.stdout + proc.stderr)
+            if proc.returncode == 0 and proc.stdout.strip():
+                entry["ls_remote"] = REACHABLE
+                entry["refs"] = len(proc.stdout.strip().splitlines())
+            else:
+                entry["ls_remote"] = _verdict_from_body(body) if body.strip() else ERROR
+                entry["detail"] = body.strip()[:200]
+        except Exception as exc:  # noqa: BLE001 - a failure is not a verdict
+            entry["ls_remote"] = ERROR
+            entry["detail"] = f"{type(exc).__name__}: {exc}"
+        results.append(entry)
+        print(f"  {host} {repo}: ls-remote {entry['ls_remote']}", file=sys.stderr)
+
+    # One full history clone, because refs alone do not prove the pack transfers.
+    clone = {"repo": GIT_SURFACE_TARGETS[0][1], "verdict": ERROR}
+    tmp = tempfile.mkdtemp()
+    try:
+        proc = subprocess.run(
+            ["git", "clone", "--quiet", "--filter=blob:none", "--no-checkout",
+             f"https://github.com/{clone['repo']}.git", os.path.join(tmp, "r")],
+            capture_output=True, text=True, timeout=TIMEOUT * 15,
+        )
+        if proc.returncode == 0:
+            count = subprocess.run(
+                ["git", "-C", os.path.join(tmp, "r"), "rev-list", "--count", "HEAD"],
+                capture_output=True, text=True, timeout=TIMEOUT,
+            )
+            clone["verdict"] = REACHABLE
+            clone["commits_fetched"] = int(count.stdout.strip() or 0)
+        else:
+            clone["verdict"] = _verdict_from_body(proc.stderr)
+            clone["detail"] = proc.stderr.strip()[:200]
+    except Exception as exc:  # noqa: BLE001
+        clone["detail"] = f"{type(exc).__name__}: {exc}"
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+    print(f"  clone {clone['repo']}: {clone['verdict']} "
+          f"({clone.get('commits_fetched', clone.get('detail', ''))})", file=sys.stderr)
+
+    return {
+        "method": (
+            "anonymous git smart-HTTP against public repositories this session is "
+            "not scoped to, via `git ls-remote` and a blobless `git clone`. Read-only, "
+            "no credential, nothing written to any remote."
+        ),
+        "targets": results,
+        "clone": clone,
+    }
+
+
 def proxy_status() -> dict:
     """The gateway's own view. `noProxy` hosts bypass the proxy entirely, so
     their reachability says nothing about the egress policy."""
@@ -423,6 +513,9 @@ def main() -> int:
     ap.add_argument("--ingest", action="store_true")
     ap.add_argument("--probe", action="store_true")
     ap.add_argument("--report", action="store_true")
+    ap.add_argument("--git-surface", action="store_true",
+                    help="probe git's smart-HTTP transport on the GitHub hosts "
+                         "the HTTP passes recorded as scope_denied")
     ap.add_argument("-i", "--prior", default=os.path.join(RESEARCH_DIR, "prior-verdicts.json"))
     ap.add_argument("-r", "--results")
     ap.add_argument("-o", "--out")
@@ -437,6 +530,16 @@ def main() -> int:
             fh.write("\n")
         print(f"{data['n_hosts']} hosts from {data['n_source_files']} files -> {out}",
               file=sys.stderr)
+        return 0
+
+    if args.git_surface:
+        data = probe_git_surface()
+        data["probed_at"] = args.stamp or "unstamped"
+        out = args.out or os.path.join(RESEARCH_DIR, "git-surface.json")
+        with open(out, "w") as fh:
+            json.dump(data, fh, indent=2, sort_keys=True)
+            fh.write("\n")
+        print(f"git surface -> {out}", file=sys.stderr)
         return 0
 
     prior = json.load(open(args.prior))

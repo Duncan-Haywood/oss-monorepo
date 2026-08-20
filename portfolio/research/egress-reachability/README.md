@@ -89,6 +89,56 @@ affects it. `raw.githubusercontent.com` is *not* scoped this way and served
 unrelated public repositories at `200` — it is the working route to any dataset
 published in a public git repository.
 
+**Amendment, 2026-08-20 — those three verdicts are about the HTTP surface, and
+git's transport is a fourth surface that is not scoped.** Every pass folded into
+the table above probed GitHub with an HTTPS GET, so the table says nothing about
+git.
+
+[`cra-advisory-reachability/`](../cra-advisory-reachability/) found the gap
+first and stated the general rule — *"where a dataset is published as a public
+repository, egress policy aimed at APIs does not necessarily block it"* — after
+cloning `github/advisory-database` with `--depth 1 --filter=blob:none --sparse`.
+That finding never reached this table, which is the failure this directory
+exists to stop, so it is recorded here as a row-level amendment rather than left
+in one candidate's write-up. What this pass adds to it is the **depth**: a
+`--depth 1` clone proves the transport carries current records, and full history
+is a different claim, which is the one a change-rate measurement needs.
+
+Asked over git's smart-HTTP transport, the same hosts answer for repositories
+this session has no scope over:
+
+| Surface | `cisagov/kev-data` (unrelated public repo) |
+|---|---|
+| `https://github.com/<repo>` (web) | **403**, GitHub scope message — as recorded |
+| `https://api.github.com/repos/<repo>` (REST) | **403**, GitHub scope message — as recorded |
+| `https://codeload.github.com/<repo>/tar.gz/…` (archive) | **403**, GitHub scope message — as recorded |
+| `git ls-remote https://github.com/<repo>.git` | **reachable**, 2 refs |
+| `git ls-remote https://codeload.github.com/<repo>.git` | **reachable**, 2 refs |
+| `git clone --filter=blob:none` | **reachable**, 388 commits of history fetched |
+
+Reproduce: `python3 consolidate.py --git-surface -o git-surface-2026-08-20.json`
+(read-only `ls-remote` plus one blobless clone; nothing is written to any
+remote). Raw output:
+[git-surface-2026-08-20.json](git-surface-2026-08-20.json). Confirmed against a
+second unrelated org (`openstates/people`, 1,593 refs), so it is not one repo's
+setting.
+
+This does not overturn a row. `github.com` over HTTP is scope-denied, exactly as
+recorded; the table's verdicts stand for the surface they were measured on. What
+it adds is a route the table did not carry, and the distinction that makes the
+route worth more than "another way to read a file" is **history**:
+`raw.githubusercontent.com` serves a file's current bytes, and only the git
+transport serves the commits behind it. Any question of the form *"how often
+does this actually change"* needs the second, and every answer in this repo so
+far assumed it had to be gathered by polling forward. It can be read backwards
+instead, for free. [`register-change-rate/`](../register-change-rate/) is the
+first measurement to use it.
+
+It also generalises methodological rule 1 below. A channel was said to have
+three surfaces — publish, read, stats — that fail independently. Git is a
+fourth, it failed *open* where the others failed closed, and the general form of
+the rule is that a verdict belongs to a surface and never to a host.
+
 Full per-host detail, with which passes probed each host and what they found:
 [results-2026-08-20.json](results-2026-08-20.json) and
 [prior-verdicts.json](prior-verdicts.json).

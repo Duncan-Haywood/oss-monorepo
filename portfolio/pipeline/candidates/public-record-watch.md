@@ -88,3 +88,44 @@ Two weeks, under €150. Pick licensing-and-disciplinary as the first vertical:
 Kill it if none pre-pay, and record the vertical in
 [screened-out.md](../screened-out.md) with what the register's change rate
 actually was — that number is reusable for the next vertical.
+
+## Amendment, 2026-08-20: step 1 of the first experiment has been run
+
+**No score changed.** Measurement, tooling and full reasoning:
+[`portfolio/research/register-change-rate/`](../../research/register-change-rate/).
+
+Step 1 above — *"poll one state board for a month of history; measure how often
+anything actually changes"* — was answered retrospectively instead of forward,
+by reading the commit history of registers that publish a git mirror. Nine
+mirrors, 180 days, no credential and no spend.
+
+- **The change-rate kill criterion passes**, for registers that have a mirror.
+  Six of nine changed in at least half the window's weeks; the official
+  software-security registers changed on 85–180 of 180 days with a worst gap of
+  six. "The pain is not weekly" is not how this candidate dies.
+- **Cheap-to-monitor and expensive-to-miss are anti-correlated.** None of the
+  three verticals ranked above by cost-of-a-miss has a usable git mirror.
+  Licensing and permitting have none found; the FDA's repository carries the
+  agency's *tooling* (two commits in 180 days, last 73 days before the window
+  closed) while the recall data itself is served from an API this environment
+  cannot reach. What does mirror is the software-security feeds this write-up
+  never names, whose buyers already get them free.
+- **The moat sentence is refuted wherever the build is cheap.** "After a year of
+  polling, the history is something a new entrant cannot fetch" does not hold
+  for a mirrored register: this pass fetched the CISA KEV catalog's entire
+  history — 388 commits — in one command, having polled nothing. It still holds
+  for the unmirrored verticals this candidate actually proposes, which is why
+  `defensibility: 5` is left alone. The constraint it creates for a later pass:
+  **a vertical chosen because it is cheap to prototype from here has no archive
+  moat, and whoever picks one has to drop that rationale in the same breath.**
+- **"Alert on pipeline silence" is sharper than budgeted for.** Both control
+  mirrors went quiet (149 and 73 days) without announcing it. A mirror-fed
+  product monitors its maintainer, not the register, so it needs a per-source
+  expected-cadence threshold derived from that source's own history and an alert
+  when the current gap exceeds it.
+- **The €150/two-week budget for step 1 is wrong for any mirrored source.** It
+  is one command against real history, and the same technique retires the
+  question for any candidate whose premise is "X changes often enough to watch".
+
+Distribution — the floor at 4 — is untouched by all of this and remains the
+thing that decides. This pass measured the product premise, not the buyer.
