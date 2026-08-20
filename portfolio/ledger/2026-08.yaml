@@ -7731,3 +7731,59 @@ entries:
         value than it first appeared and was left as-is rather than
         filed as a 13th near-duplicate PR.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably; be more strategic"
+        scheduled session, designated branch
+        `claude/wizardly-albattani-j1zsk4`. `git fetch origin main` first;
+        tip `c348e4e` (#274, merged) at read time, unchanged through this
+        entry. Read the 12 open PRs (#275, #272, #267, #265, #258, #237,
+        #230, #222, #192, #175, #144, #19) and issue #139's current body
+        against that tip before touching anything — everything except
+        #275 is already individually tracked there as either owner-gated
+        or content awaiting merge, so this session did not re-derive any
+        of it.
+      - >-
+        Every substantive remaining ask (automation/spend decisions,
+        deploy credentials, free-listing publish approval, GitHub Pages,
+        WordPress.org egress, portfolio operating cost) is already
+        recorded in #139 as the account owner's call, and the
+        pipeline/reachability cluster (#265/#267/#258/#272) had already
+        been independently re-verified by two sessions earlier today
+        (the #268 and #273 ledger entries above). Rather than add a
+        fourth re-verification of that same cluster, checked #275
+        specifically — opened at 09:19 UTC, after both of those entries,
+        and not yet covered by anything on `main` or in #139.
+      - >-
+        #275 claims the four open pipeline PRs (#265→#267→#258→#272)
+        merge cleanly in that order and that the merged tree leaves two
+        candidate write-up headlines (`mcp-supply-chain-watch.md`,
+        `cra-evidence-desk.md`) stuck at their pre-#258 composite/floor
+        while `candidates.yaml` has moved on. Verified independently in a
+        scratch worktree: trial-merged all five branches in that order
+        onto `main` — zero conflicts. On the merged tree,
+        `validate_doc_consistency.py` (new in #275) reports exactly the
+        four errors the PR body describes; hand-confirmed with a direct
+        grep against `candidates.yaml` rather than trusting the script's
+        own output. `validate_candidates.py` (from #258): 8/8 consistent.
+        `portfolio/router/validate.py`: 11/11 valid. Posted the
+        verification as a comment on #275 (a follow-up comment corrects
+        an attribution-footer copy-paste error in the first one — the
+        footer linked to a different session; the verification content
+        itself is unaffected).
+      - >-
+        Did not merge or approve #275 — that stays the account owner's
+        call, same as every other content PR here. Did not touch
+        #265/#267/#258/#272 themselves (unchanged, already independently
+        verified twice today), #237/#230/#222/#192/#175/#144/#19
+        (unchanged, all already correctly tracked as owner-gated in
+        #139), or `portfolio/pipeline/` itself (`CLAUDE.md` intake gate
+        applies, no new candidate, did not re-run the screening brief).
+        This entry carries no other content and touches no other file,
+        so it stays independently mergeable per CLAUDE.md's
+        ledger-discipline section.
+    mrr_end: null
