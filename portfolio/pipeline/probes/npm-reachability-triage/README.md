@@ -164,8 +164,15 @@ portfolio's name is not. GitHub Marketplace's free tier is the mapped channel
 for this candidate, and the platform's own 100-install threshold before a
 listing may charge doubles as the go/no-go number.
 
-So this is the demand measurement the pipeline has asked for across five
-cycles, built and waiting on one approval rather than on a payout rail.
+**Correction — it is not waiting on one approval.** This section previously read
+"built and waiting on one approval rather than on a payout rail." That is the
+same error `channel-inventory.md` records against its own earlier table:
+Marketplace listing creation measures `SCOPE_DENIED`, because this session's
+GitHub app scope is bound to `duncan-haywood/monorepo-projects` and refuses the
+route. Publish approval alone would grant nothing. The blocker is **Ask 1** (the
+GitHub App permission change), and approval to publish is only useful after it —
+not instead of it. Do not plan work on the premise that this probe is one
+decision away from a live listing.
 
 ## Development
 
