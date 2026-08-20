@@ -37,6 +37,10 @@ hypotheses:
     status: supported
     checked: 2026-08-20
     evidence: in-repo
+  - claim: A file that disappears or becomes unreadable between the initial directory scan and the pre-copy size estimate does not crash the whole card's offload before a single file is copied; it is skipped from the estimate and the offload proceeds.
+    status: supported
+    checked: 2026-08-20
+    evidence: in-repo
 
 economics:
   currency: USD
