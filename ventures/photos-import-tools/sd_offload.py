@@ -222,6 +222,19 @@ def verify_and_manifest(
     )
 
 
+def offload_exit_code(summary: list[dict[str, object]]) -> int:
+    # An empty summary means no card was mounted, so nothing was offloaded.
+    # Reporting success there is the dangerous case: a wrapper that ejects or
+    # reformats the card on exit 0 would destroy the originals believing they
+    # were safely copied. Distinguish "nothing offloaded" (2) from "offloaded
+    # with errors" (1) and "offloaded clean" (0).
+    if not summary:
+        return 2
+    if any(item.get("errors") for item in summary):
+        return 1
+    return 0
+
+
 def count_source(card: CardSpec) -> tuple[int, int]:
     files: list[Path] = []
     for include in card.include_paths:
@@ -319,7 +332,9 @@ def main() -> int:
         encoding="utf-8",
     )
     log(f"Summary: {summary_path}", logs / "offload.log")
-    return 0 if all(not item.get("errors") for item in summary) else 1
+    if not summary:
+        log("No card was mounted; nothing offloaded.", logs / "offload.log")
+    return offload_exit_code(summary)
 
 
 if __name__ == "__main__":
