@@ -8677,3 +8677,46 @@ entries:
         registered, no credential used, no ventures/ code changed, no
         automation added or re-enabled, nothing spent beyond agent time.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process" run, designated branch claude/nifty-goodall-x372ec.
+        `git fetch origin main` first; tip c96994b (#306). Open-PR survey
+        found four: #222 (retail-pilot-intel next 16.3.1 chain, owner-gated,
+        all 10 checks green and still merges clean against the live tip --
+        already re-verified on main by #302, so left alone), #192, #144, and
+        #19. No new duplicate cluster; the backlog is small, not growing.
+      - >-
+        Reviewing #192 showed its "least-privilege permissions on 7
+        workflows" half had already landed on main as commit 2497d57 --
+        every one of the 20 current workflows now pins an explicit
+        `permissions:` scope (top-level or per-job). #192's only remaining
+        unique content is its human-gated Dependabot proposal, which stays
+        for the owner. So the useful move was not to re-land the hardening
+        but to make it durable.
+      - >-
+        Shipped #307 (self-merged, agent-decidable): extended
+        platform/ci/validate_workflows.py -- already run by the
+        portfolio-validate CI job on every .github/workflows change -- to
+        flag any workflow that declares no GITHUB_TOKEN permissions scope
+        at the top level and leaves at least one job without its own. This
+        turns the one-time hardening of 2497d57/#192 into an enforced
+        invariant a newly-added workflow cannot silently regress.
+      - >-
+        Verified by running the repo's own checks rather than trusting the
+        diff: validate_workflows.py green on all 20 workflows plus a
+        negative test (a permission-less workflow is rejected, exit 1,
+        naming the offending job); full portfolio-validate suite green in
+        order (VENTURE.yaml 11/11, doc-consistency 8/8, candidate rubric
+        8/8, router unittest 29/29, break_even.py --check, test_break_even
+        17/17). CI validate check green on #307; merges clean against the
+        live tip, which was also its base.
+      - >-
+        No candidate screening performed (CLAUDE.md's intake gate applies);
+        no candidate added, no score changed. Nothing published, no account
+        registered, no credential used, no ventures/ code changed, no
+        automation added or re-enabled, nothing spent beyond agent time.
+    mrr_end: null
