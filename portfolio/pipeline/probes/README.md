@@ -15,11 +15,18 @@ over for "one probe to a real buyer," and
 free listing needs no credential and no capital — only publishing does. The gap
 was therefore never permission or budget. Nobody had built one.
 
+That last sentence is right about why this directory exists and wrong about what
+happens next. `channel-inventory.md`'s own refutation table measures every
+mapped channel as `EGRESS_DENIED` or `SCOPE_DENIED`, so a built probe is not one
+approval away from a listing — publishing is blocked by network policy and app
+scope, which approval does not change. Build probes here because they make a
+candidate's weakest claim testable, not because a listing follows.
+
 ## What is here
 
 | Probe | Candidate | Status |
 |---|---|---|
-| [`npm-reachability-triage`](npm-reachability-triage/) | [`cra-evidence-desk`](../candidates/cra-evidence-desk.md) | Built, tested, validated against the manual review. Not published — publishing needs the account owner's approval per `channel-inventory.md`. |
+| [`npm-reachability-triage`](npm-reachability-triage/) | [`cra-evidence-desk`](../candidates/cra-evidence-desk.md) | Built, tested, validated against the manual review. Not published — and not publishable on approval alone: its mapped channel (GitHub Marketplace) measures `SCOPE_DENIED`, so it is blocked on Ask 1 (app scope), not on publish approval. |
 | [`eaa-wcag-triage`](eaa-wcag-triage/) | [`eaa-remediation-pipeline`](../candidates/eaa-remediation-pipeline.md) | Built, tested (37 tests), validated against a hand-labeled fixture set (precision/recall 1.0). Implements the candidate's blocking-vs-degrading triage and its own coverage statement. Not published; not a graduation — the candidate's real experiment needs live shop themes and a contractor. |
 
 ## The rules a probe here follows
