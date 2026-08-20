@@ -7434,3 +7434,47 @@ entries:
         its own PR with no other content, per CLAUDE.md's ledger-append-
         conflict guidance, so it stays independently mergeable.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        designated branch `claude/keen-knuth-cx193a`. `git fetch origin
+        main` first; tip `644bc89` (#262, merged) at read time. Checked
+        open PRs against that tip before touching anything, per CLAUDE.md's
+        duplicate-work guidance.
+      - >-
+        Found #262 (merged into `main`) had already independently verified
+        #258 and folded it into #139's tracker body — but three more
+        sessions (#259, #260, #261), all started within the same ~5-minute
+        window as #262 and unable to see it land, had each done the same
+        #258 verification and opened their own near-identical ledger PR.
+        This is the exact "several independent runs discover the same gap
+        and each open its own PR" pattern CLAUDE.md documents, one layer
+        down from PR-level duplication into ledger-entry-level duplication
+        of a single already-resolved verification.
+      - >-
+        Closed #259, #260, and #261, each with a comment pointing to #262
+        as the PR that already covers the same content, per CLAUDE.md's
+        consolidation guidance ("close the rest with a comment pointing to
+        the consolidated PR"). No unique findings were lost — all three
+        bodies described the identical verification steps and conclusion
+        already recorded in #262 and folded into #139.
+      - >-
+        Read #139's current body in full: it is thorough and current as of
+        #258's fold-in, and every remaining ask (0 to 8) is genuinely
+        blocked on the account owner (egress/credential/account-signup
+        decisions) rather than actionable by an unattended session. Did not
+        re-run the pipeline/research screening brief — the CLAUDE.md intake
+        gate still applies, no new candidate. Did not touch #191/#208/#222
+        (Next.js chain) or #19/#144/#192/#175 (automation/spend) — all
+        unchanged since the last note on #139.
+      - >-
+        No push notification: closing three redundant PRs is routine
+        backlog hygiene, not a new finding or decision surface for the
+        owner. This entry is its own PR with no other content, per
+        CLAUDE.md's ledger-append-conflict guidance, so it stays
+        independently mergeable.
+    mrr_end: null
