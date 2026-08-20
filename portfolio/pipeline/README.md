@@ -100,6 +100,9 @@ Why the next pass should screen channel-first:
 [distribution-first.md](distribution-first.md).
 Which channels this portfolio can actually list in, and what each costs in
 credentials: [channel-inventory.md](channel-inventory.md).
+Which hosts an agent session can actually read, and why the graduation gate
+below is currently unsatisfiable:
+[primary-source-egress.md](primary-source-egress.md).
 
 ## Status of the claims in these write-ups
 
@@ -116,6 +119,14 @@ not good enough to act on. Before any candidate graduates to a venture, the
 specific obligation dates it depends on must be checked against the actual
 legislation, and any claim that would appear in customer-facing copy must be
 verified independently.
+
+**That verification is currently impossible, not merely outstanding.** Measured
+2026-08-20: `eur-lex.europa.eu`, `ec.europa.eu`, `www.ftc.gov`, `www.w3.org`,
+and `www.federalregister.gov` are all denied by this environment's egress
+policy, which admits package registries and nothing else. No session can clear
+the disclaimer above until that policy changes, so no candidate here can pass
+this gate regardless of its score. See
+[primary-source-egress.md](primary-source-egress.md).
 
 This distinction is why the consolidation landed here rather than in
 `ai-first-markets`: ranking candidates in an internal directory needs no
