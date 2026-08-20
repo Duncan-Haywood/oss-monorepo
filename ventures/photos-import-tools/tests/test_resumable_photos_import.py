@@ -1,6 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from resumable_photos_import import (
     ImportState,
@@ -160,6 +161,47 @@ class ResumablePhotosImportTests(unittest.TestCase):
 
             self.assertEqual(exit_code, 0)
             self.assertEqual(importer.import_calls, [(photo, False)])
+
+    def test_wait_for_file_survives_flaky_stat_between_exists_and_stat(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            photo = root / "arriving.JPG"
+            photo.write_bytes(b"jpeg")
+            state = ImportState(root / "state.sqlite3")
+            importer = FakePhotosImporter(
+                state=state,
+                state_dir=root,
+                event_log=root / "events.jsonl",
+                error_log=root / "errors.jsonl",
+                status_path=root / "status.json",
+                stop_file=root / "STOP",
+                per_file_timeout_seconds=1,
+                attempts=1,
+                batch_size=1,
+                photos_db=root / "missing.sqlite",
+                existing_filenames=set(),
+            )
+
+            # Simulates an iCloud placeholder that gets evicted (or a flaky
+            # card reader) in the window between the exists() check and the
+            # stat() call: the very race wait_for_file exists to ride out.
+            # Before this fix, that raised OSError straight out of the wait
+            # loop instead of being retried like every other transient error.
+            real_stat = Path.stat
+            calls = {"n": 0}
+
+            def flaky_stat(self, *args, **kwargs):
+                if self == photo:
+                    calls["n"] += 1
+                    if calls["n"] == 1:
+                        raise OSError("Input/output error")
+                return real_stat(self, *args, **kwargs)
+
+            with mock.patch.object(Path, "stat", flaky_stat), \
+                    mock.patch("resumable_photos_import.time.sleep"):
+                ready = importer.wait_for_file(photo)
+
+            self.assertTrue(ready)
 
 
 class FakePhotosImporter(PhotosImporter):

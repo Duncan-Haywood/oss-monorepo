@@ -592,12 +592,23 @@ class PhotosImporter:
         if reset:
             self.log_event("reset_failed_for_retry", {"count": reset})
 
+    @staticmethod
+    def _file_ready(path: Path) -> bool:
+        # exists() and stat() are separate syscalls, so a file that
+        # disappears or goes unreadable between them (iCloud placeholder
+        # evicted, card ejected mid-wait) must not raise out of the wait
+        # loop -- treat it the same as "not ready yet" and keep polling.
+        try:
+            return path.exists() and path.stat().st_size > 0
+        except OSError:
+            return False
+
     def wait_for_file(self, path: Path) -> bool:
-        if path.exists() and path.stat().st_size > 0:
+        if self._file_ready(path):
             return True
         for attempt in range(1, ICLOUD_WAIT_ATTEMPTS + 1):
             time.sleep(min(2 ** attempt, 30))
-            if path.exists() and path.stat().st_size > 0:
+            if self._file_ready(path):
                 self.log_event(
                     "icloud_file_ready",
                     {"path": str(path), "wait_attempts": attempt},

@@ -41,6 +41,10 @@ hypotheses:
     status: supported
     checked: 2026-08-20
     evidence: in-repo
+  - claim: The iCloud-download wait loop does not crash the import run when a placeholder file disappears or becomes unreadable in the window between its existence check and its size check; that exact race is retried like any other transient wait, not raised as an unhandled error.
+    status: supported
+    checked: 2026-08-20
+    evidence: in-repo
 
 economics:
   currency: USD
