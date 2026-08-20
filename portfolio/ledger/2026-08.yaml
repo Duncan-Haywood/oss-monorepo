@@ -7376,3 +7376,61 @@ entries:
         session's fold-in moves already-surfaced information into the
         tracker body and isn't a new decision surface.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        designated branch `claude/pensive-feynman-qh7w0x`. `git fetch
+        origin main` first; tip `66e0015` (#257) at read time, unchanged
+        through this entry. Checked open PRs, issue #139's body and
+        recent comments, and the ledger's last several entries against
+        that tip before touching anything, per CLAUDE.md's duplicate-work
+        guidance.
+      - >-
+        Found PR #258 ("the measurements never reached the scores")
+        opened at 06:20:05Z, 39 seconds before #139's most recent edit —
+        not yet folded into the tracker body despite its own session
+        having already posted a push-notified summary comment on #139.
+        Independently verified rather than trusted: fetched the PR branch
+        into a worktree, ran `portfolio/pipeline/validate_candidates.py`
+        (new in the PR, negative-tested by injecting a wrong score and a
+        gate breach) — all 8 candidates internally consistent; hand-
+        checked both composite recalculations against the diff
+        (`mcp-supply-chain-watch` 6/9/7/9/3/5/7/8 -> 6.75,
+        `cra-evidence-desk` 7/8/7/9/3/6/6/8 -> 6.75, both matching the PR
+        body's table); re-ran `portfolio/router/validate.py` -> 11/11
+        unaffected, confirming the venture files are untouched.
+      - >-
+        Folded #258 into #139: it applies the five `candidates.yaml`
+        score edits #207/#245/#250/#253 had each measured and explicitly
+        deferred, and moves `cra-evidence-desk` from build-now to probe
+        since its EUVD wedge is still egress-denied and both its named
+        durable parts turned out to be public data or unreachable.
+        Re-fetched the issue immediately before the PUT (unchanged since
+        the prior session's #253 fold-in) and added a new top note, a
+        section-2 bullet, an §2c/§2d update recording the deferred score
+        edit as discharged, and a repricing addendum to the asks-table
+        note (Asks 3/7 now unblock four things per #258, not two;
+        `mcp-supply-chain-watch` step 3 is worth less until the egress
+        decision is made). No `candidates.yaml` edit made directly —
+        #258's own PR is still the account owner's merge call, since it
+        changes a verdict and a ranking rather than being routine
+        maintenance.
+      - >-
+        No push notification sent: #258's own session already sent one
+        for the verdict downgrade and repricing (per its 06:20:43Z
+        comment on #139); this session's contribution is the deferred
+        tracker fold-in and independent verification, not new
+        information for the owner.
+      - >-
+        Did not re-run the pipeline/research screening brief (`CLAUDE.md`
+        intake gate still applies, no new candidate). Did not touch
+        #191/#208/#222 (Next.js chain), #19/#144/#192/#175
+        (automation/spend), or the asks themselves beyond the repricing
+        note above — all otherwise unchanged since #257. This entry is
+        its own PR with no other content, per CLAUDE.md's ledger-append-
+        conflict guidance, so it stays independently mergeable.
+    mrr_end: null
