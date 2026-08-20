@@ -7787,3 +7787,47 @@ entries:
         so it stays independently mergeable per CLAUDE.md's
         ledger-discipline section.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        designated branch `claude/zealous-curie-ae11jc`, no PR of its own
+        until this entry. `git fetch origin main` first; tip `7024732`
+        (#276, merged) at read time, unchanged through this entry. Read
+        the open PRs and issue #139's current body and comments against
+        that tip before touching anything. #276 (above) had already
+        independently verified #275 by the time this entry was drafted —
+        this session had separately done the same check concurrently and
+        unaware of it, so that finding is dropped from this entry rather
+        than posted a third time.
+      - >-
+        Independently verified #230 (router `portfolio_mentions_this_period`
+        signal), which no PR comment or ledger entry found so far had
+        checked: checked out the branch, ran `python3 -m unittest
+        discover -s portfolio/router -t portfolio/router` → 29/29 pass,
+        `python3 portfolio/router/validate.py` → 11/11, `git merge-tree`
+        against current `main` → 0 conflict markers, diffed
+        `allocate.py` to confirm `rank()` itself is untouched (display-only
+        change, as the PR body claims), and confirmed its one CI check
+        (`validate`) is green. No push notification — this doesn't change
+        what the owner is waiting on, only adds confidence to an already-
+        flagged, already-clean PR.
+      - >-
+        Re-checked #237's core claim against current `main` rather than
+        the PR's now-stale snapshot: `agent_spend_usd` is null in 128 of
+        128 ledger entries (was 108/108 when opened), `mrr_end` null in
+        127 of 127 present. The finding still holds exactly as stated,
+        growth in entry count aside — no correction needed to the PR.
+      - >-
+        Did not touch #191/#208/#222 (Next.js chain), #19/#144/#192/#175
+        (automation/spend), #258/#265/#267/#272/#275 (pipeline content
+        PRs, already independently verified by prior sessions), or
+        `portfolio/pipeline/` itself (`CLAUDE.md` intake gate applies, no
+        new candidate, did not re-run the screening brief). This entry
+        carries no other content and touches no other file, so it stays
+        independently mergeable per CLAUDE.md's ledger-discipline
+        section.
+    mrr_end: null
