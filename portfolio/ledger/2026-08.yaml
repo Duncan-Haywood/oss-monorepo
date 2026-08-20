@@ -8899,3 +8899,51 @@ entries:
         changed on a live-site path, no automation added or re-enabled,
         nothing spent beyond agent time.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process" run, designated branch claude/zealous-curie-amuewz.
+        git fetch origin main first (tip 52e95bf, merge of #314); checked
+        the four open PRs and issue #139 against that tip before touching
+        anything.
+      - >-
+        Built and self-merged #315 (agent-decidable): adds a top-level
+        `permissions: contents: read` floor to the two workflows that were
+        the only ones in the repo still lacking a workflow-level permissions
+        block -- ai-first-markets-deploy.yml and
+        real-estate-agent-photo-app-deploy-docs.yml. Both already scope
+        their jobs correctly (deploy: contents:read + deployments:write;
+        apply-access: contents:read), so job-level blocks override the new
+        floor and there is no functional change; the floor only stops a
+        future job added without its own block from silently inheriting the
+        full default GITHUB_TOKEN scope. Complements #192's least-privilege
+        half (landed earlier as 2497d57) and satisfies the #307 permissions
+        invariant. Internal .github/ CI config only -- no ventures/*
+        application code, nothing published, no credential, no automation
+        added, nothing spent beyond agent time.
+      - >-
+        Verified rather than trusting the diff: both files parse as YAML
+        with top-level {contents: read} and unchanged per-job scopes;
+        platform/ci/validate_workflows.py reports all 20 workflow files
+        valid; the PR's `validate` check ran green; merge-tree against the
+        live main tip was clean and re-checked immediately before merge.
+        After merge, re-scanned .github/workflows/ -- no workflow is left
+        without a top-level permissions block.
+      - >-
+        The four remaining open PRs are correctly stalled at the account
+        owner and unchanged since the prior entries already re-confirmed
+        them, so not re-verified here: #222 (next 16.3.1 chain across 6
+        deployable ventures), #192 (remaining Dependabot proposal --
+        unattended automation), #144 (paid-fleet entrypoint + Actions
+        spend lockdown), #19 (Deepseek + OpenCode paid-API workflow) --
+        all on CLAUDE.md's human-gated list.
+      - >-
+        No candidate screening performed (CLAUDE.md's intake gate applies);
+        no candidate added, no score changed. Nothing published, no account
+        registered, no credential used, no ventures/ application code
+        changed on a live-site path, no automation added or re-enabled,
+        nothing spent beyond agent time.
+    mrr_end: null
