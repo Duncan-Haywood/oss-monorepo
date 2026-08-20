@@ -11,6 +11,7 @@ on:
     paths:
       - "ventures/print-atelier/**"
       - ".github/workflows/print-atelier-ci.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read

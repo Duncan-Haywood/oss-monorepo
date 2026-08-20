@@ -10,6 +10,7 @@ on:
     paths:
       - "ventures/photos-import-tools/**"
       - ".github/workflows/photos-import-tools-ci.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read

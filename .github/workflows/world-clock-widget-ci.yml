@@ -14,6 +14,7 @@ on:
       - "ventures/world-clock-widget/Sources/WorldClockCore/**"
       - "ventures/world-clock-widget/Tests/**"
       - ".github/workflows/world-clock-widget-ci.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
