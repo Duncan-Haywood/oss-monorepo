@@ -1,0 +1,43 @@
+name: npm-reachability-triage CI
+
+# Test coverage for the pipeline probe merged in #280. It is stdlib-only and its
+# suite needs no network, so this workflow does no more than a contributor runs
+# locally: run the tests and check they import cleanly. It publishes nothing,
+# registers nothing, and spends no API budget — it is a test runner, not the
+# unattended-automation kind of workflow CLAUDE.md gates.
+
+on:
+  pull_request:
+    paths:
+      - "portfolio/pipeline/probes/npm-reachability-triage/**"
+      - ".github/workflows/npm-reachability-triage-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "portfolio/pipeline/probes/npm-reachability-triage/**"
+      - ".github/workflows/npm-reachability-triage-ci.yml"
+
+permissions:
+  contents: read
+
+# A second push to the same branch makes the first run irrelevant.
+concurrency:
+  group: npm-reachability-triage-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: portfolio/pipeline/probes/npm-reachability-triage
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pytest
+      # No network: the OSV feed download in run_portfolio_sample.py is not
+      # exercised here — only the offline unit suite is.
+      - run: python3 -m pytest
