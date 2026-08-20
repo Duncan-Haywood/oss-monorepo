@@ -10525,3 +10525,83 @@ entries:
         head came back green, and `mergeable_state` was `clean` against
         the live main tip immediately before merging.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research new business projects" session, designated branch
+        claude/laughing-pasteur-84vra3. Hit CLAUDE.md's intake gate: added no
+        candidate, screened nothing, changed no score. Ran
+        `portfolio/ledger/session_gate.py` first (PROCEED — cadence at the
+        maintenance rate) and `git fetch origin main` (tip 335c890) before
+        touching anything. Checked the 4 open PRs (#372, #368, #144, #19) and
+        `verification_status.py`; all four unchanged since their last review
+        and still correctly owner-gated, so nothing to do on them.
+      - >-
+        Took the gate's first-ranked move — advance work already specified in
+        portfolio/pipeline/ — via the accessibility chain behind the #1
+        candidate (eaa-remediation-pipeline). a11y-render-recovery had measured
+        that a build-time theme render can recover 50.5% of the undecidable
+        audit population and named its own uncovered gap: "No actual render …
+        this measures the ceiling on what rendering can recover." Nobody had
+        measured what that ceiling recovers *to*, which is the whole
+        commercial question for that candidate's free-qualification wedge.
+      - >-
+        Built portfolio/research/a11y-theme-resolution/, which resolves all 248
+        theme-recoverable undecidables against the data the theme package
+        itself ships (locale files, settings-schema defaults, its other
+        partials) — exactly what a build-time render would have. Result: the
+        build step clears, it does not find. 68.5% resolve to a name that is
+        present and 2.0% (5 of 248) to a real blocking failure, so the render
+        stage improves the audit's coverage statement rather than generating
+        findings; the qualification artifact's substance remains the 286 direct
+        findings the static audit already reports. All five defects are one
+        mechanically-detectable class (a <label for> whose target id the theme
+        builds from an expression, so the reference is dead in the rendered
+        page while looking correct in the file) and all five were read by hand
+        in their source files before being written down.
+      - >-
+        Two corrections fell out. audit.py compares expression-stripped
+        strings, so 64 of the 69 "cross-partial label" undecidables were in the
+        same file all along — restating a11y-evidence-record's 63.2%
+        undecidable headline as 59.9%, and the fix (match label references on
+        raw template text) is also what exposes the five genuinely broken ones.
+        And the residual 26.2% unresolved is a platform-access limit rather
+        than a tooling one: themes shipping no locale files (42) and runtime
+        platform objects (41). Both recorded as actionable notes on the sibling
+        directories rather than as retrospective edits to their committed
+        results. The merchant share moved 11.0% -> 11.8%, the direction
+        a11y-render-recovery had predicted as a lower bound; that prediction
+        was falsifiable and held.
+      - >-
+        No score changed, deliberately and explicitly, following the rule
+        rescore-2026-08-20.md set for itself when it declined to score
+        runtime-data-reachability's finding: what is measured here is the yield
+        of a build step and no scored dimension asks about it. Recorded in the
+        write-up so a later pass does not move one by reflex. The finding does
+        continue that document's observed pattern one level down — the
+        optimistic reading of the 50.5% share was that a render would surface
+        defects a scanner misses; checked, it surfaces five across twelve
+        themes.
+      - >-
+        Self-merged PR #378 as agent-decidable per CLAUDE.md: touches only
+        portfolio/research/ plus one path-filtered CI test runner
+        (a11y-theme-resolution-ci.yml, same shape as its two siblings —
+        stdlib unittest and an offline --recompute-from check, no paid API, not
+        the unattended-automation kind of workflow CLAUDE.md gates). No
+        ventures/* app code, nothing published, nothing registered, no
+        credential used, no unattended paid spend enabled, nothing spent beyond
+        agent time. Verified before merging: 58/58 new tests, population 12/12
+        packages and 248/248 elements against a11y-render-recovery's committed
+        rows, --recompute-from re-derives every number offline, sibling suites
+        54/54 and 22/22 unchanged, router/validate.py 10/10,
+        validate_candidates.py 8/8, validate_doc_consistency.py 8/8,
+        validate_workflows.py 24/24, all four CI checks green on head 1db0efe,
+        and `git merge-tree` clean against the live main tip immediately
+        before merging.
+      - >-
+        This entry is the separate ledger-only follow-up per CLAUDE.md's
+        ledger-discipline section, on the designated branch restarted from main
+        after #378 merged.
+    mrr_end: null
