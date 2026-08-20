@@ -10073,3 +10073,63 @@ entries:
         internal pass. This entry carries no other content so it stays
         independently mergeable per CLAUDE.md's ledger-discipline section.
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        legal-ethical-reliable increase in profit" scheduled session,
+        designated branch claude/nice-mendel-ybz5bj. `git fetch origin
+        main` first; read the four open PRs (#222/#192/#144/#19), issue
+        #139, break-even.md and the ledger tail before touching anything.
+        All four PRs remain correctly owner-gated (mergeable_state clean
+        or dirty as previously reported, no new activity); CI on main was
+        fully green across the last ~30 runs. Did not re-derive any of
+        that. `portfolio/router/allocate.py` names exactly one
+        dispatchable venture, photos-import-tools, with the standing task
+        "every recorded hypothesis is settled -- write the next one in
+        VENTURE.yaml, then test it," so that is what this session did.
+      - >-
+        Shipped #359 (merged 3138c9a). Reading `sd_offload.py`'s `main()`
+        found `return 0 if all(not item.get("errors") for item in
+        summary) else 1` -- `summary` only contains cards that were
+        actually mounted, so when no card is mounted at all (wrong volume
+        name, card not inserted) the list is empty, `all()` over an empty
+        list is `True`, and the tool exits 0 for a run that offloaded
+        nothing. That is the dangerous direction for a venture whose
+        entire promise is not losing media: a wrapper that ejects or
+        reformats the card on exit 0 -- the natural way to script
+        "offload then wipe" -- would destroy the originals believing they
+        were safely copied.
+      - >-
+        Extracted `offload_exit_code(summary)`: 2 (nothing offloaded, no
+        card mounted) / 1 (card processed, had errors) / 0 (clean). Added
+        a matching log line and three new tests. Recorded the hypothesis
+        as supported in VENTURE.yaml, its fourth.
+      - >-
+        Verified rather than trusted: venture test suite 33/33 (was 30);
+        `offload_exit_code` sanity-checked directly (`[]`->2, clean->0,
+        errors->1); full portfolio battery green (`router/validate.py`
+        10/10, `score_ventures.py --check` 11/11,
+        `validate_doc_consistency.py` 8/8, `validate_workflows.py` 22/22,
+        `break_even.py --check`, `verification_status.py --check`). Both
+        PR checks (photos-import-tools CI, Portfolio validate) came back
+        green on the PR head, and `git merge-tree` was clean against the
+        live main tip immediately before merging. Self-merged as
+        agent-decidable per CLAUDE.md, same class as #335/#349:
+        `ventures/photos-import-tools` is a prototype with
+        `links.production: null` (no live-site deploy); the change is
+        additive only, publishes nothing, registers nothing, uses no
+        credential, adds no unattended automation, spends nothing beyond
+        agent time.
+      - >-
+        Did not touch #222/#192/#144/#19 or their branches -- all four
+        remain correctly owner-gated per #139 and none was re-verified
+        this session. No candidate screening performed (intake gate
+        applies); no candidate added, no score changed. No customer
+        contact and no revenue; the portfolio's binding constraint
+        (distribution/credential gates on #139, and the payout rail
+        binary) is unchanged and needs the account owner, not another
+        internal pass.
+    mrr_end: null
