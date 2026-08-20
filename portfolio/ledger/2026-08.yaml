@@ -10886,3 +10886,81 @@ entries:
         ledger-discipline section, on the designated branch restarted from
         main (tip afcac03) after #388 merged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business
+        projects that aren't already here" session, designated branch
+        claude/laughing-pasteur-1no39p. Ran
+        `portfolio/ledger/session_gate.py` first (PROCEED -- meta-work
+        share 68%, below the 70% threshold). Per CLAUDE.md's intake gate
+        this brief is closed: no candidate list was produced and
+        `screened-out.md` was not re-derived. Took the gate's first
+        listed move instead -- advance a probe already specified in
+        `portfolio/pipeline/`. Checked the 4 open PRs (#372, #368, #144,
+        #19) first; all already correctly owner-gated by prior sessions,
+        nothing to add.
+      - >-
+        Ran step 1 of `public-record-watch`'s first experiment, the only
+        pipeline kill criterion nobody had executed: "poll one register
+        for a month of history; measure how often anything actually
+        changes." It had looked structurally blocked -- the candidate's
+        portals are egress-denied and a change rate looks like something
+        only gatherable forward. Both dissolve for registers that publish
+        a git mirror: the mirror's commit history is the polling record,
+        already years deep. Nine mirrors, 180 days, no credential and no
+        spend. Six of nine change in at least half the window's weeks;
+        the official software-security registers change on 85-180 of 180
+        days with a worst gap of six. The change-rate premise holds.
+      - >-
+        Three findings the candidate did not have. (1) Cheap-to-monitor
+        and expensive-to-miss are anti-correlated: none of the three
+        verticals it ranks by cost-of-a-miss has a usable mirror, and the
+        FDA's repository carries the agency's tooling (2 commits in 180
+        days) while the recall data is served from an API this
+        environment cannot reach. (2) Its moat sentence -- "after a year
+        of polling, the history is something a new entrant cannot fetch"
+        -- is false wherever a mirror exists: this pass fetched the CISA
+        KEV catalog's entire 388-commit history in one command, having
+        polled nothing. It survives for the unmirrored verticals the
+        candidate actually proposes, so `defensibility: 5` was left
+        alone, per rescore-2026-08-20.md's rule that a sandbox
+        reachability fact is not a score. The constraint recorded
+        instead: a vertical chosen because it is cheap to prototype from
+        here has no archive moat, and cannot claim both. (3) Both control
+        mirrors went silent (149 and 73 days) without announcing it, so a
+        mirror-fed product monitors its maintainer, not the register.
+      - >-
+        Also corrected the consolidated egress table, which is the file
+        this repo treats as current. Its three GitHub scope-denials are
+        verdicts about the HTTP surface only: git's smart-HTTP transport
+        is a fourth surface and is not scoped, on github.com and
+        codeload.github.com alike, and it serves full history where
+        raw.githubusercontent.com serves only current bytes.
+        `cra-advisory-reachability` found the API-vs-git distinction
+        first at `--depth 1` and that finding never reached the table --
+        the same never-lands failure this directory exists to stop -- so
+        it is recorded there now, with a `--git-surface` mode added to
+        the existing `consolidate.py` rather than a new probe directory.
+        Methodological rule 1 generalised: a verdict belongs to a
+        surface, never to a host.
+      - >-
+        Nothing shipped to a customer and no revenue: this measures a
+        product premise, not a buyer. `public-record-watch`'s floor is
+        still distribution at 4 and every pipeline candidate is still at
+        zero customer contacts. What the session did buy is a kill
+        criterion answered for free that was budgeted at two weeks and
+        EUR 150, and a technique that retires the same question for any
+        future candidate whose premise is "X changes often enough to be
+        worth watching."
+      - >-
+        Verified before merging: 27 offline probe tests,
+        `validate_candidates.py` 8/8, `validate_doc_consistency.py` 8/8,
+        `router/validate.py` 10/10, `validate_workflows.py` 24/24. Change
+        is portfolio/ research and docs only -- no `ventures/*` code, no
+        publishing, no account, no credential, no unattended automation,
+        no spend beyond agent time -- so agent-decidable per CLAUDE.md
+        and self-merged rather than queued for the account owner.
+    mrr_end: null
