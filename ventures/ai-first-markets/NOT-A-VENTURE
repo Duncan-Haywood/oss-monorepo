@@ -20,8 +20,11 @@ convert to revenue.
 This marker makes that call machine-readable so `portfolio/router/allocate.py`,
 `portfolio/scoring/score_ventures.py`, and `portfolio/router/validate.py` all
 skip the directory consistently, per the marker-precedence fix in #334. Its
-`portfolio/scoring/venture-scores.yaml` entry has been removed to match
-(a scored directory with no matching venture would fail `--check`).
+`portfolio/scoring/venture-scores.yaml` entry is deliberately kept: reclassified
+is not removed, and `score_ventures.py --check` scores it (11 scored) while the
+router allocates only the 10 unmarked ventures. A marked directory keeping its
+score row is allowed by the `documented_slugs()` superset added in #341, so
+`--check` passes with the row present rather than requiring it be deleted.
 
 Whether this belongs under `ventures/` or `platform/` is still the open
 structural question its own VENTURE.yaml flags — this marker does not settle
