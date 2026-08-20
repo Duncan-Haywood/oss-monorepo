@@ -76,7 +76,7 @@ with, not numbers to act on unreviewed.
 
 Every venture in the portfolio is currently unmeasured (`economics.mrr:
 null`), so with only stage/cap to go on the "next task" column would read
-the same generic "push toward the first real measurement" for all eleven —
+the same generic "push toward the first real measurement" for all ten —
 not actually useful as a work queue. `next_task()` now reads each venture's
 own `hypotheses` list from its `VENTURE.yaml` and names the first one still
 marked `status: untested`, so the task each venture gets back is what that
@@ -90,7 +90,7 @@ Naming each venture's own claim made the queue specific. It did not make it
 *executable*, and that difference went unrecorded anywhere a tool could read
 it.
 
-Nine of the eleven ventures' next claims are about what someone outside this
+Nine of the ten ventures' next claims are about what someone outside this
 repository will do — pay, sign up, download, answer. None of those ventures
 has a `links.production`, so there is nothing published for anyone to respond
 to, and publishing is the account owner's decision (see
@@ -136,7 +136,7 @@ hypotheses:
 the top of the queue with work no session can start. `rank()` sorts
 dispatchable work above blocked work — below a venture that needs a kill
 decision, which still comes first — and `allocate.py` prints how many of the
-eleven a session could actually pick up.
+ten a session could actually pick up.
 
 **This is a reporting change, not a discovery.** Searching the parsed
 outcome text of `2026-08.yaml` finds at least three entries, from separate
@@ -156,14 +156,16 @@ question about testability. [`portfolio/scoring/`](../scoring/) answers the
 other one — whether the business is any good — by scoring all eleven ventures
 on the six dimensions `ai-first-markets` uses for its idea library.
 
-The two orderings disagree, and not mildly. The two dispatchable ventures sit
-at merit ranks 6 and 10 of 11, and their mean composite (4.33) is *below* the
-blocked ventures' (4.74). The reason is structural rather than accidental: a
+The two orderings disagree, and not mildly. The one dispatchable venture sits
+at merit rank 9 of 10, and its composite (4.17) is *below* the blocked
+ventures' mean (4.74). The reason is structural rather than accidental: a
 venture only has an `in-repo` next question when nobody is currently trying to
-sell it, so **dispatchability anti-selects for commercial intent**. Both
-dispatchable ventures are the two with no price and no buyer —
-`ai-first-markets` is access-restricted to one email address, and
-`photos-import-tools` has no monetization language anywhere in it.
+sell it, so **dispatchability anti-selects for commercial intent**. The single
+dispatchable venture is the one with no price and no buyer —
+`photos-import-tools` has no monetization language anywhere in it. (The other
+formerly-dispatchable directory, `ai-first-markets`, was reclassified out of
+the allocated set on 2026-08-20 and no longer appears in the router's queue —
+see its `NOT-A-VENTURE` marker.)
 
 `allocate.py` therefore reports both rather than letting one stand in for the
 other:
