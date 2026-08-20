@@ -234,16 +234,18 @@ class TestRealDocument(unittest.TestCase):
     """The committed scores must satisfy every rule and cover every venture."""
 
     def test_committed_scores_are_valid(self):
-        problems = sv.check(sv.load_doc(), sv.venture_slugs())
+        problems = sv.check(sv.load_doc(), sv.venture_slugs(), sv.documented_slugs())
         self.assertEqual(problems, [], f"venture-scores.yaml: {problems}")
 
     def test_json_output_is_serializable(self):
         # `scored:` parses as a datetime.date, which json.dumps rejects.
         with contextlib.redirect_stdout(io.StringIO()) as out:
             self.assertEqual(sv.main(["--json"]), 0)
-        self.assertEqual(
-            len(json.loads(out.getvalue())["ranking"]), len(sv.venture_slugs())
-        )
+        payload = json.loads(out.getvalue())
+        # The ranking carries every scored venture; `agreement.ranked` narrows
+        # it to the ones actually allocated to.
+        self.assertEqual(len(payload["ranking"]), len(sv.documented_slugs()))
+        self.assertEqual(len(payload["agreement"]["ranked"]), len(sv.venture_slugs()))
 
 
 class TestVentureSlugs(unittest.TestCase):
@@ -261,6 +263,47 @@ class TestVentureSlugs(unittest.TestCase):
             (ventures_dir / "opted-out" / "VENTURE.yaml").write_text("name: opted-out\n")
             (ventures_dir / "opted-out" / "NOT-A-VENTURE").write_text("infra\n")
             self.assertEqual(sv.venture_slugs(ventures_dir), ["real-venture"])
+            self.assertEqual(
+                sv.documented_slugs(ventures_dir), ["opted-out", "real-venture"]
+            )
+
+
+class TestReclassifiedVentureKeepsItsScore(unittest.TestCase):
+    """A directory that opts out of allocation may keep its score row.
+
+    Without this, dropping a NOT-A-VENTURE marker in turns `--check` red
+    ("scored but no such venture directory"), so the single-file
+    reclassification README.md documents is not actually available.
+    """
+
+    def test_scored_but_opted_out_is_allowed(self):
+        problems = sv.check(
+            doc(venture("alpha"), venture("beta")),
+            ["alpha"],
+            ["alpha", "beta"],
+        )
+        self.assertEqual(problems, [])
+
+    def test_scored_but_no_directory_at_all_is_still_a_problem(self):
+        problems = sv.check(doc(venture("alpha"), venture("ghost")), ["alpha"], ["alpha"])
+        self.assertEqual(problems, ["scored but no such venture directory: ['ghost']"])
+
+    def test_allocated_venture_still_requires_a_score(self):
+        problems = sv.check(doc(venture("alpha")), ["alpha", "beta"], ["alpha", "beta"])
+        self.assertEqual(problems, ["ventures with a VENTURE.yaml but no score: ['beta']"])
+
+    def test_agreement_excludes_reclassified_from_ranks_and_means(self):
+        ranking = sv.merit_ranking(
+            doc(
+                venture("top", scores=scores(ai_leverage=10)),
+                venture("alpha"),
+                venture("beta"),
+            )
+        )
+        result = sv.agreement(ranking, {"alpha"}, allocated={"top", "alpha"})
+        self.assertEqual(result["ranked"], ["top", "alpha"])
+        # "beta" is reclassified, so it must not be counted as blocked.
+        self.assertEqual(result["mean_composite_blocked"], sv.composite(scores(ai_leverage=10)))
 
 
 if __name__ == "__main__":
