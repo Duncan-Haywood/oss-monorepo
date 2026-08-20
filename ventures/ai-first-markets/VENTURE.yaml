@@ -24,9 +24,27 @@ hypotheses:
       Scoring the portfolio's own 11 ventures on the same six dimensions ranks
       them consistently with the router's dispatchable-vs-blocked split, so the
       map's method transfers from the 8 hypothetical ideas to real ventures.
-    status: untested
-    checked: null
+    status: refuted
+    checked: 2026-08-20
     evidence: in-repo
+    note: >-
+      Refuted. src/data/ventures.ts scores all 11 real ventures on the same
+      six dimensions ideas.ts uses; assessMethodTransfer() (src/lib/transfer.ts,
+      guarded by transfer.test.ts) compares the composite-score ranking against
+      the router's dispatchable split (allocate.py: ai-first-markets and
+      photos-import-tools dispatchable, 9 blocked). The two dispatchable
+      ventures rank 7 and 11 of 11 by business score, not 1 and 2 — the split is
+      not reproduced. This is structural, not an artifact of the exact scores:
+      dispatchability is a function of a hypothesis's evidence type
+      (in-repo vs customer-contact) and publication status, and none of the six
+      dimensions (ai-leverage, automation, time-to-revenue, margin,
+      defensibility, distribution) measures either. photos-import-tools, a free
+      macOS utility with no AI, is dispatchable and scores lowest of all 11. So
+      the map's ranking method answers "which is the better business," which is
+      a different question from the router's "which can a session start now";
+      the two should not be conflated. A synthetic-control test confirms the
+      assessor returns transfer=true when the top scorers are the dispatchable
+      set, so the false result is a property of the portfolio, not the code.
 
 economics:
   currency: USD
