@@ -9471,6 +9471,59 @@ entries:
         post-merge tip and self-merged in the same pass, so it never sits as
         a decision-pending ledger hunk.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process" run, designated branch claude/pensive-feynman-fpvukd. `git
+        fetch origin main` first; checked all 4 open PRs (#222, #192, #144,
+        #19) and issue #139 before touching anything. Acted on the deferred
+        recommendation the previous ledger entry (self-merge of #334) had
+        just set up: #334 made allocate.py, score_ventures.py, and
+        validate.py all honor a NOT-A-VENTURE marker consistently,
+        deliberately turning the ai-first-markets reclassification "from a
+        simultaneous three-tool edit into a single-file one: drop the marker
+        in." This entry is that drop-in (PR #337, self-merged), not a
+        re-derivation.
+      - >-
+        #337: added ventures/ai-first-markets/NOT-A-VENTURE (same style as
+        the ubuntu-agent-server / mat-470-real-analysis precedent), removed
+        the now-orphaned ai-first-markets entry from
+        portfolio/scoring/venture-scores.yaml (a scored slug with no matching
+        venture directory fails --check once the marker excludes it from
+        venture_slugs()), kept its last scores in a comment, fixed the file
+        header's stale "eleven" count, and made the one hardcoded ranking-
+        count test assertion derive from venture_slugs() so the next
+        reclassification need not touch it. VENTURE.yaml left in place (the
+        transitional NOT-A-VENTURE + VENTURE.yaml coexistence those tools
+        were built for); the ventures/ -> platform/ directory move is still
+        deliberately left as its own future change.
+      - >-
+        This acts on ai-first-markets' own hypothesis test (VENTURE.yaml,
+        checked 2026-08-20, REFUTED via #326): no buyer (single-email
+        Cloudflare Access whitelist), no price (no purchase surface in src/),
+        no route (no listing/channel), and src/lib/evaluation.ts is the
+        portfolio's own scoring engine referenced by ~17 files -- decision
+        infrastructure, not a business. Effect confirmed via allocate.py:
+        total monthly caps $370 -> $320 (the $50/mo protected explore budget
+        it could never convert to revenue is no longer allocated), 11
+        ventures -> 10.
+      - >-
+        Verified before self-merge: score_ventures.py --check (10/10
+        consistent), router/validate.py (10/10 valid), scoring unittest
+        (33/33), router unittest (51/51), ledger verification_status unittest
+        (24/24, unaffected, ran to confirm), clean `git rebase origin/main`
+        with all checks re-run green after. PR had no CI checks because the
+        diff touches no venture CI path -- consistent with its being
+        internal-only. Self-merged as agent-decidable per CLAUDE.md: touches
+        only portfolio/scoring/ and a marker file, publishes nothing,
+        registers nothing, spends nothing beyond agent time, adds no
+        automation, no candidate screening. This entry recorded on a fresh
+        branch off the post-merge tip and self-merged in the same pass, so it
+        never sits as a decision-pending ledger hunk.
+    mrr_end: null
   - venture: photos-import-tools
     agent_spend_usd: null
     human_hours: 0
@@ -9495,9 +9548,11 @@ entries:
         flip) was recorded as "verified" -- the exact lost/corrupted-media
         failure this venture's kill-criteria exist to prevent -- and the
         291-line module (the first step where media can be lost) had zero
-        test coverage. Wired sha256_file into an opt-in `--verify hash` mode
-        that compares source/dest SHA-256 and records the digest in the
-        manifest (default stays size-only for backward compatibility);
+        test coverage. (An earlier pass, #121, had already removed one
+        unrelated dead variable here but did not spot the unused hash helper
+        or the size-only gap.) Wired sha256_file into an opt-in `--verify
+        hash` mode that compares source/dest SHA-256 and records the digest
+        in the manifest (default stays size-only for backward compatibility);
         removed the dead copied/skipped branch that left skipped_files always
         0; added tests/test_sd_offload.py (9 cases) covering media discovery,
         hashing and every verification outcome, including the same-size
