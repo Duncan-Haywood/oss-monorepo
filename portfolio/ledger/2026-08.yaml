@@ -7174,3 +7174,78 @@ entries:
         no-new-ask finding from a comment into the tracker body is
         routine upkeep, not a new decision surface for the owner.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        fresh branch (claude/charming-hawking-gnfb67), no PR of its own
+        beyond this ledger entry plus a comment on #139. `git fetch
+        origin main` first; tip `14965ba` (#252, unchanged). Read #139's
+        body and last several comments, the full open-PR list (19 open),
+        and the ledger's last two entries against that tip before
+        touching anything. Every open PR except one is already
+        referenced in #139's body; the exception is #253 (opened
+        05:19:01Z), which advances the same reachability probe #240/#250
+        left half-finished and had not yet been folded in or verified.
+      - >-
+        #253's claim: the egress policy is not "registries only" (§2d)
+        or "general non-registry denial" (#232) as previously
+        characterized, but "general-web hosts denied, code/package/
+        object-storage infrastructure allowed" — a `403` from GitHub's
+        own API is this session's repo scoping, not a network denial,
+        and `raw.githubusercontent.com` serves any public repo's data
+        regardless of that scoping. Under that corrected rule, OSV's
+        bulk object-store export, the CISA KEV git mirror, and WCAG/
+        axe-core rule data are all reachable, and `WebFetch` itself
+        (not just curl) was confirmed `EGRESS_BLOCKED` against EUR-Lex,
+        closing §2c's graduation-gate hypothesis through every route
+        available to a session, not just one.
+      - >-
+        Independently re-ran #253's five headline probes with direct
+        curl through the proxy rather than trusting its committed
+        results.json: `api.osv.dev` → CONNECT tunnel failed, 403
+        (denied); `storage.googleapis.com/osv-vulnerabilities/npm/
+        all.zip` → 200 (reachable — OSV bulk at canonical scope, all
+        102 ecosystem prefixes per #253's own count); `raw.
+        githubusercontent.com/cisagov/kev-data/...` → 200 (reachable —
+        CISA KEV git mirror); `example.com` control → CONNECT tunnel
+        failed, 403 (denied); `euvd.enisa.europa.eu` → CONNECT tunnel
+        failed, 403 (denied — `cra-evidence-desk`'s actual EUVD/ENISA
+        wedge is still blocked, only its commodity OSV+KEV "Watch" half
+        is newly confirmed buildable). All five match #253's reported
+        results exactly.
+      - >-
+        Also checked `main`'s last 30 completed CI runs on the `main`
+        branch: nothing newer than the 2026-08-19T20:36:26Z `Deploy
+        retail-pilot-intel docs` failure (Ask 6, already tracked); the
+        `ubuntu-agent-server CI` / plain `CI` failures and the OpenCode/
+        `startup_failure` entries are all older than, and consistent
+        with, what `a15021e`'s session already confirmed as stale.
+        Nothing new to report.
+      - >-
+        Posted the verification above as a comment on #139 rather than
+        a body edit — #253 is the only unfolded item right now (not yet
+        "piled up" the way #225/#229/#230/#232 or the four findings
+        before them were), so left the §2c/§2d body edit for whichever
+        session next needs to touch that section, per this issue's own
+        concurrent-edit-avoidance precedent (multiple sessions edit this
+        issue in the same window; a PUT built from a body read even a
+        few minutes stale has clobbered a concurrent addition before).
+        No new ask, no score change: #253 narrows the framing of the
+        existing Asks 3/7 decision (government/institutional publishers
+        + WordPress.org, not "general egress") rather than adding one.
+      - >-
+        Did not re-run the pipeline/research screening brief (`CLAUDE.md`
+        intake gate still applies, no new candidate). Did not touch the
+        Next.js chain (#191/#208/#222), automation/spend items (#19/
+        #144/#192/#175), or the rest of Asks 0–8 — all unchanged since
+        the last ledger entry and #139's latest note. This entry is its
+        own PR with no other content, per CLAUDE.md's ledger-append-
+        conflict guidance, so it stays independently mergeable. No push
+        notification: #253's own PR already surfaced its finding to the
+        owner directly; this only independently confirms it and
+        checks CI health, neither of which is a new decision surface.
+    mrr_end: null
