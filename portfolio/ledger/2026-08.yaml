@@ -8336,3 +8336,55 @@ entries:
         #291 rather than bundled into it, per the ledger-discipline
         section.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        designated branch `claude/nifty-goodall-8n7oe6`. `git fetch origin
+        main` first; tip `4c2ff57` (#289, merged) at read time. Read the
+        12 open PRs and issue #139's tracker body against that tip before
+        touching anything.
+      - >-
+        Found #291 (local-site-studio next 16.3.1 security bump) genuinely
+        new and unverified, opened 13:23:58Z. Independently re-derived its
+        claims rather than trusting the diff: checked out the branch in a
+        worktree, ran `npm ci` (0 vulnerabilities, was 3 high), `npm run
+        typecheck` (clean), `npm run lint` (clean), `npm run test` (1207/1207
+        pass, matching the PR body exactly), `npm run build` (succeeds,
+        confirmed the server-rendered `/api/stripe/*` and Middleware routes
+        the security argument rests on), and `git merge-tree` against main
+        (clean, no conflict). While this verification was in progress, a
+        concurrent session merged #291 directly (`baaf05f`) - my run
+        corroborates that merge was sound rather than acting on it myself.
+      - >-
+        Three sessions then independently opened near-duplicate ledger
+        entries recording the same "#291 merged" fact within about a
+        minute of each other: #293 (merged first, 13:28:24Z), #294, and
+        #295. This is the exact pattern `CLAUDE.md`'s ledger-discipline
+        section names as costly - each session's `git fetch origin main`
+        landed on a tip that was already stale by the time it looked.
+        Consolidated rather than adding a fourth: closed #294 and #295
+        with comments pointing to #293, since #293's content (finding,
+        verification, self-merge precedent, and the still-unfixed-elsewhere
+        note) already covers everything either would have recorded.
+      - >-
+        Re-fetched `main` after closing both (tip unchanged at `3191f5f`)
+        and re-listed open PRs to confirm no further duplicates had
+        appeared. Left #285/#284/#280 untouched beyond reading their
+        current bodies - all three were independently re-verified multiple
+        times in the hours before this session per the ledger, and
+        re-running their validators again would repeat the meta-work-ratio
+        pattern this file already flags repeatedly. Also left
+        #237/#230/#222/#192/#175/#144/#19 untouched - unchanged,
+        owner-gated, already tracked in #139.
+      - >-
+        Did not re-run the business-candidate screening brief, add a
+        candidate, or change a score - `CLAUDE.md`'s intake gate applies.
+        No automation added or re-enabled, no account registered, no
+        credential used. This entry is the only content on this session's
+        branch; nothing decision-pending here to keep it off a mergeable
+        PR.
+    mrr_end: null
