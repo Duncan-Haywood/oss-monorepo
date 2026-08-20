@@ -258,11 +258,25 @@ def offload_exit_code(summary: list[dict[str, object]]) -> int:
 
 
 def count_source(card: CardSpec) -> tuple[int, int]:
+    # This is the pre-copy size estimate logged before rsync_copy runs, not
+    # the post-copy verification pass -- a bare stat() here ran unguarded
+    # before this fix, so a file that disappears or goes unreadable between
+    # the rglob() scan and this call (flaky card reader, card ejected early)
+    # crashed offload_card with an unhandled OSError before a single file was
+    # copied, aborting the whole card's offload rather than just losing one
+    # manifest entry the way the already-guarded verification loop does.
     files: list[Path] = []
     for include in card.include_paths:
         files.extend(iter_media_files(card.source / include))
-    total_bytes = sum(path.stat().st_size for path in files)
-    return len(files), total_bytes
+    total_files = 0
+    total_bytes = 0
+    for path in files:
+        try:
+            total_bytes += path.stat().st_size
+        except OSError:
+            continue
+        total_files += 1
+    return total_files, total_bytes
 
 
 def offload_card(

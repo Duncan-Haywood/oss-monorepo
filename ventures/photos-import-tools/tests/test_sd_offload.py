@@ -8,6 +8,7 @@ from sd_offload import (
     CardSpec,
     OffloadStats,
     build_rsync_cmd,
+    count_source,
     iter_media_files,
     offload_exit_code,
     sha256_file,
@@ -212,6 +213,56 @@ class VerifyAndManifestTests(unittest.TestCase):
             entry = json.loads(manifest.read_text())["files"][0]
             self.assertEqual(entry["status"], "verified")
             self.assertEqual(entry["sha256"], sha256_file(card.dest / "DCIM" / "IMG_1.JPG"))
+
+
+class CountSourceTests(unittest.TestCase):
+    def _make_card(self, root: Path) -> CardSpec:
+        source = root / "source"
+        dest = root / "dest"
+        (source / "DCIM").mkdir(parents=True)
+        return CardSpec(name="Test", source=source, dest=dest, include_paths=("DCIM",))
+
+    def test_counts_files_and_bytes(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            card = self._make_card(root)
+            (card.source / "DCIM" / "IMG_1.JPG").write_bytes(b"12345")
+            (card.source / "DCIM" / "IMG_2.JPG").write_bytes(b"1234567890")
+
+            total_files, total_bytes = count_source(card)
+
+            self.assertEqual(total_files, 2)
+            self.assertEqual(total_bytes, 15)
+
+    def test_unreadable_file_is_skipped_not_fatal(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            card = self._make_card(root)
+            good = card.source / "DCIM" / "IMG_1.JPG"
+            flaky = card.source / "DCIM" / "IMG_2.JPG"
+            good.write_bytes(b"12345")
+            flaky.write_bytes(b"1234567890")
+
+            # Simulates a file that disappears or goes unreadable (flaky card
+            # reader, card ejected) between the rglob() scan in
+            # iter_media_files and this stat() call. Before this fix that
+            # raised OSError straight out of count_source, crashing
+            # offload_card before rsync_copy ever ran -- unlike the already
+            # guarded post-copy verification loop, this aborted the whole
+            # card with zero files copied.
+            real_stat = Path.stat
+
+            def flaky_stat(self, *args, **kwargs):
+                if self == flaky:
+                    raise OSError("Input/output error")
+                return real_stat(self, *args, **kwargs)
+
+            with mock.patch("sd_offload.iter_media_files", return_value=[good, flaky]), \
+                    mock.patch.object(Path, "stat", flaky_stat):
+                total_files, total_bytes = count_source(card)
+
+            self.assertEqual(total_files, 1)
+            self.assertEqual(total_bytes, 5)
 
 
 class OffloadExitCodeTests(unittest.TestCase):
