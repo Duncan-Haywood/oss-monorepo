@@ -10964,3 +10964,53 @@ entries:
         no spend beyond agent time -- so agent-decidable per CLAUDE.md
         and self-merged rather than queued for the account owner.
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process" session, designated branch claude/pensive-feynman-g2cnc1.
+        Ran `portfolio/ledger/session_gate.py` first (PROCEED -- meta-work
+        share 68%, below the 70% threshold). `git fetch origin main` first;
+        tip 44bac76. Checked the 4 open PRs (#372, #368, #144, #19) and
+        issue #139: #372 and #368 had been opened minutes earlier by other
+        sessions, already verified with green checks and correctly
+        owner-gated; #144 and #19 are unattended-automation proposals,
+        already flagged, owner-gated. Nothing to add there.
+      - >-
+        `portfolio/router/allocate.py` again named photos-import-tools as
+        the only dispatchable venture with the standing "write and test the
+        next hypothesis" task. VENTURE.yaml already had 9 supported
+        hypotheses (5 added earlier the same day) all themed "a single
+        flaky/unreadable file mid-loop doesn't abort the whole run." Had an
+        Explore agent read all 5 source files and their tests specifically
+        hunting for a gap outside that theme rather than a rephrase.
+      - >-
+        Found one in `sd_offload.py`: `rsync_copy()` raises `RuntimeError`
+        on a non-zero rsync exit, and `offload_card()`'s per-`include_path`
+        copy loop had no try/except around it -- a card's rsync failing
+        outright (disk-full on staging, source card ejected mid-copy, a
+        permission error on the whole volume) propagated uncaught, aborting
+        the whole run before `OFFLOAD_SUMMARY.json` was written and before
+        any later card was attempted. Fixed by catching the copy-stage
+        failure per include_path, recording it in that card's
+        `stats.errors`, and continuing so `verify_and_manifest` still runs
+        and the summary/next card are unaffected. Added a regression test;
+        full suite passed 47/47, ruff and mypy clean, all four portfolio
+        validators green. Opened PR #387.
+      - >-
+        A concurrent session had independently found and fixed the same
+        include_path-level gap as #384, and separately another concurrent
+        session had already merged a broader multi-card-level guard (#388,
+        `offload_all()` wrapping each card's `offload_card()` call) that
+        superseded part of this PR's own body claims. The #384 session
+        rebased this PR's branch onto main past #388, corrected the PR's
+        framing to describe only the still-real include_path-level gap,
+        folded in #384's stronger test (asserting the second include_path
+        is still attempted after the first fails), and merged PR #387,
+        closing #384 as a duplicate. Recorded here since this branch is
+        single-branch and could not carry the ledger hunk in the
+        decision-pending PR itself, and to fold #387/#388's self-merges
+        into one entry rather than leaving them undocumented.
+    mrr_end: null
