@@ -9164,3 +9164,53 @@ entries:
         publication. No candidate screening performed; no pipeline score
         changed; nothing spent beyond agent time.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process" run, designated branch claude/charming-hawking-imeylf.
+        `git fetch origin main` first; started from tip 4e2905e (#323).
+        Checked the open-PR list (222, 192, 144, 19) and issue #139 before
+        touching anything -- no new duplicate cluster; the pipeline/scoring
+        chains are all already tracked.
+      - >-
+        Shipped and self-merged #325 (agent-decidable): platform/ci/
+        validate_workflows.py now rejects duplicate mapping keys. PyYAML's
+        safe_load keeps the LAST of a repeated key, so a workflow carrying two
+        `permissions:` blocks parsed clean while the later block silently
+        overrode the earlier one -- a least-privilege floor could be widened
+        with no check turning red, even though GitHub's own parser rejects a
+        duplicate-key file outright. Added a _StrictLoader(SafeLoader) whose
+        construct_mapping raises on any repeated key (nested too, so a job
+        that repeats a key is caught the same way), plus three tests
+        (duplicate top-level, duplicate inside a job, two sibling jobs each
+        with their own permissions block still passing).
+      - >-
+        Motivation was concrete, not hypothetical. Open PR #192 adds
+        `permissions: contents: read` to seven venture CI workflows; those
+        same seven have since gained the identical block on main (via #315
+        and the earlier least-privilege passes), so merging #192 today would
+        land two `permissions:` keys in each. Reproduced against #192's actual
+        merge-tree: the OLD validator passed all 20 files, the NEW one flags 6
+        of the 7 (the 7th puts its second block on a different job, correctly
+        not a within-mapping duplicate). Left a comment on #192 so the
+        Dependabot half can still be decided without its now-redundant, now-
+        CI-failing permissions commits.
+      - >-
+        Verified rather than trusting the diff: ran the whole portfolio-
+        validate job locally -- validate_workflows 20/20 valid, workflow-
+        validator unittest 11/11 (8 prior + 3 new), VENTURE.yaml 11/11,
+        doc-consistency 8/8, candidate rubric 8/8, venture merit 11/11,
+        scoring + router unittests green, break_even --check green. The PR's
+        own `validate` check ran green on the runner; merge-tree re-checked
+        clean against the live tip (main had moved 4e2905e -> 0f93344) both
+        before merge and immediately before merging.
+      - >-
+        No candidate screening performed (CLAUDE.md's intake gate applies);
+        no candidate added, no score changed. Internal platform/ci/ only --
+        no ventures/ application code, nothing published, no account
+        registered, no credential used, no automation added or re-enabled,
+        nothing spent beyond agent time.
+    mrr_end: null
