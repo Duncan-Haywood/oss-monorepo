@@ -151,7 +151,7 @@ export const businessIdeas: BusinessIdea[] = [
     firstExperiment:
       "Build a CLI that reviews 10 open-source PRs and post results as a Twitter thread. Measure engagement and waitlist signups.",
     rank100k: 1,
-    rank1m: 3,
+    rank1m: 2,
   },
   {
     id: "02",
@@ -252,7 +252,7 @@ export const businessIdeas: BusinessIdea[] = [
     firstExperiment:
       "Run a free 'missed call audit' landing page for HVAC owners in one city. Offer 2 weeks free AI answering.",
     rank100k: 2,
-    rank1m: 4,
+    rank1m: 3,
   },
   {
     id: "03",
@@ -349,7 +349,7 @@ export const businessIdeas: BusinessIdea[] = [
     firstExperiment:
       "Offer free SOC2 policy template generator. Gate evidence automation behind waitlist.",
     rank100k: 5,
-    rank1m: 7,
+    rank1m: 6,
   },
   {
     id: "04",
@@ -444,7 +444,7 @@ export const businessIdeas: BusinessIdea[] = [
     firstExperiment:
       "Publish a free public dashboard of Stripe/Twilio/OpenAI uptime with email alerts.",
     rank100k: 4,
-    rank1m: 5,
+    rank1m: 4,
   },
   {
     id: "05",
@@ -543,7 +543,7 @@ export const businessIdeas: BusinessIdea[] = [
     firstExperiment:
       "Offer free 'LinkedIn audit' — analyze last 20 posts and generate 5 improved versions.",
     rank100k: 3,
-    rank1m: 6,
+    rank1m: 5,
   },
   {
     id: "06",
@@ -638,7 +638,7 @@ export const businessIdeas: BusinessIdea[] = [
     firstExperiment:
       "Open-source a chunking comparison tool. Upsell managed API in docs.",
     rank100k: 6,
-    rank1m: 8,
+    rank1m: 7,
   },
   {
     id: "07",
@@ -733,7 +733,7 @@ export const businessIdeas: BusinessIdea[] = [
     firstExperiment:
       "Free 'store health scan' for 10 Shopify stores. Publish bug reports (anonymized) as content.",
     rank100k: 7,
-    rank1m: 2,
+    rank1m: 1,
   },
   {
     id: "08",
@@ -829,6 +829,6 @@ export const businessIdeas: BusinessIdea[] = [
     firstExperiment:
       "Free NDA reviewer tool on website. Track API key requests from legal tech domains.",
     rank100k: 8,
-    rank1m: 9,
+    rank1m: 8,
   },
 ];

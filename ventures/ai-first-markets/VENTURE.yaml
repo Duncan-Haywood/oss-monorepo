@@ -6,6 +6,24 @@ owner: duncan
 
 hypotheses:
   - claim: A unified market map and idea-scoring system improves which AI-first venture to validate next.
+    status: supported
+    checked: 2026-08-20
+    evidence: in-repo
+    note: >-
+      getValidationDecision() now turns the map into a single auditable pick:
+      for $100k ARR it returns AI PR Review Agent, which is both rank-1 and the
+      top composite dimension score (scoreAgreesWithRank=true), with a concrete
+      first experiment. Both kill criteria are non-triggered — a decision
+      workflow uses the platform, and every top-ranked idea carries a testable
+      customer experiment. The test pass also caught two integrity gaps now
+      fixed: rank1m was not a 1..N permutation (no rank 1, an out-of-range 9),
+      and the hand-assigned ranks diverge from the dimension scores below the
+      top slot (e.g. AI QA for E-commerce is joint-top by score but rank 7 for
+      $100k). Rank integrity is now guarded by a test.
+  - claim: >-
+      Scoring the portfolio's own 11 ventures on the same six dimensions ranks
+      them consistently with the router's dispatchable-vs-blocked split, so the
+      map's method transfers from the 8 hypothetical ideas to real ventures.
     status: untested
     checked: null
     evidence: in-repo

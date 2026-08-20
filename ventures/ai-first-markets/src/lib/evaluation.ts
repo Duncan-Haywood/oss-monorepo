@@ -1,5 +1,21 @@
-import type { BusinessIdea, PortfolioSummary } from "./types";
+import type { BusinessIdea, PortfolioSummary, ValidationDecision } from "./types";
 import { businessIdeas } from "@/data/ideas";
+
+// Equal-weight composite of an idea's scored dimensions. This is the scoring
+// system's own number, independent of the hand-assigned rank100k/rank1m, so a
+// caller can see whether the narrative ranking and the scores actually agree.
+export function scoreIdea(idea: BusinessIdea): number {
+  return idea.dimensions.reduce((sum, d) => sum + d.score, 0);
+}
+
+export function maxIdeaScore(idea: BusinessIdea): number {
+  return idea.dimensions.reduce((sum, d) => sum + d.maxScore, 0);
+}
+
+// Ideas ordered by composite score, highest first. Ties keep source order.
+export function getScoreRanking(): BusinessIdea[] {
+  return [...businessIdeas].sort((a, b) => scoreIdea(b) - scoreIdea(a));
+}
 
 export function getAllIdeas(): BusinessIdea[] {
   return [...businessIdeas].sort((a, b) => a.rank100k - b.rank100k);
@@ -17,6 +33,26 @@ export function getTopIdeasForMilestone(
   return [...businessIdeas]
     .sort((a, b) => a[rankKey] - b[rankKey])
     .slice(0, limit);
+}
+
+// The platform's actual output: given a milestone, which idea to validate
+// next and the concrete first experiment that would test it. The decision is
+// the milestone's rank-1 idea (the map's primary recommendation); the scoring
+// dimensions are reported alongside so the choice is auditable rather than
+// asserted.
+export function getValidationDecision(
+  milestone: "100k" | "1m" = "100k",
+): ValidationDecision {
+  const idea = getTopIdeasForMilestone(milestone, 1)[0];
+  const topByScore = getScoreRanking()[0];
+  return {
+    milestone,
+    idea,
+    compositeScore: scoreIdea(idea),
+    maxCompositeScore: maxIdeaScore(idea),
+    firstExperiment: idea.firstExperiment,
+    scoreAgreesWithRank: idea.id === topByScore.id,
+  };
 }
 
 export function buildPortfolioSummary(): PortfolioSummary {
