@@ -10,6 +10,7 @@ from sd_offload import (
     build_rsync_cmd,
     count_source,
     iter_media_files,
+    offload_all,
     offload_exit_code,
     sha256_file,
     verify_and_manifest,
@@ -263,6 +264,61 @@ class CountSourceTests(unittest.TestCase):
 
             self.assertEqual(total_files, 1)
             self.assertEqual(total_bytes, 5)
+
+
+class OffloadAllTests(unittest.TestCase):
+    def _make_card(self, root: Path, name: str) -> CardSpec:
+        source = root / name / "source"
+        dest = root / name / "dest"
+        (source / "DCIM").mkdir(parents=True)
+        return CardSpec(name=name, source=source, dest=dest, include_paths=("DCIM",))
+
+    def test_one_card_failing_does_not_abort_the_others_or_lose_their_summary(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            failing = self._make_card(root, "Failing")
+            healthy = self._make_card(root, "Healthy")
+
+            def fake_offload_card(card, card_log, manifest, verify_hash=False):
+                if card.name == "Failing":
+                    # Simulates rsync raising RuntimeError from a card ejected
+                    # mid-copy, a network drop, or a permission error.
+                    raise RuntimeError("rsync failed with exit code 23")
+                return OffloadStats(
+                    card=card.name,
+                    verified_files=1,
+                    started_at="t0",
+                    finished_at="t1",
+                )
+
+            with mock.patch("sd_offload.offload_card", side_effect=fake_offload_card):
+                summary = offload_all([failing, healthy], root, root / "_logs")
+
+            self.assertEqual(len(summary), 2)
+            self.assertEqual(summary[0]["card"], "Failing")
+            self.assertIn("Offload failed", summary[0]["errors"][0])
+            # The card attempted after the failure still ran and verified --
+            # a crash on the first card must not block the second.
+            self.assertEqual(summary[1]["card"], "Healthy")
+            self.assertEqual(summary[1]["errors"], [])
+            self.assertEqual(summary[1]["verified_files"], 1)
+            # A run with a failed card is "offloaded with errors", never
+            # silently reported as clean.
+            self.assertEqual(offload_exit_code(summary), 1)
+
+    def test_unmounted_card_is_skipped_not_recorded_as_a_failure(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            unmounted = CardSpec(
+                name="Unmounted",
+                source=root / "does-not-exist",
+                dest=root / "dest",
+                include_paths=("DCIM",),
+            )
+
+            summary = offload_all([unmounted], root, root / "_logs")
+
+            self.assertEqual(summary, [])
 
 
 class OffloadExitCodeTests(unittest.TestCase):
