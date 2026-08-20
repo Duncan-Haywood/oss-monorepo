@@ -8249,3 +8249,65 @@ entries:
         decision-pending here to keep this ledger entry off of a
         mergeable PR.
     mrr_end: null
+  - venture: local-site-studio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably — more strategic work"
+        scheduled session, designated branch `claude/wizardly-albattani-46zcmy`.
+        `git fetch origin main` first; tip `4c2ff57` (#289, merged). Read
+        the 13 open PRs and issue #139's tracker body against that tip
+        before touching anything.
+      - >-
+        One item was genuinely new, unverified, and self-mergeable: #291
+        (created 13:23:58Z), bumping `next`/`eslint-config-next`
+        16.2.9 → 16.3.1 in `ventures/local-site-studio` alone — the one
+        venture in #222's six-venture, owner-gated Next.js 16.3.1 chain
+        that was already on the 16.x line, so npm reports the bump
+        `isSemVerMajor: false`. Clears 3 high-severity advisories
+        (`next` middleware/proxy bypass + Server Actions DoS/SSRF,
+        transitive `postcss`, transitive `sharp`) on a live venture that
+        carries Stripe and Convex. Independently verified rather than
+        trusted: fetched the PR's two-file diff directly and confirmed it
+        matches the body's description exactly (only the version bump and
+        regenerated lockfile, no source/config change); waited for its
+        own `verify` CI check to go green (it was still in-progress at
+        read time); confirmed `mergeable_state: clean` against current
+        `main` and that no other open PR touches
+        `ventures/local-site-studio/`. Matches this repo's established
+        self-merge precedent for dependency-audit fixes with no breaking
+        version bump (#195/#184/#211/#214/#282/#288). Self-merged as #291
+        (squash, `baaf05f`), then re-fetched `main` and confirmed the
+        merge landed clean.
+      - >-
+        This does not touch #222 itself — #222's remaining scope (the
+        other five ventures, all genuine semver-major bumps) is still the
+        account owner's call, and its `local-site-studio` hunk will now
+        need a routine rebase at whoever next touches that chain, the
+        same kind of pass #208/#222 have each already done once. Not
+        performed here, since #222 is a decision-pending PR this session
+        doesn't own.
+      - >-
+        Did not re-verify #284 (pipeline consolidation) or #285
+        (eaa-remediation-pipeline audit pass) beyond reading their current
+        bodies — both were independently re-verified within the last few
+        hours (see the entries above) and both explicitly mark merging to
+        `main` as the account owner's call. Re-running their validators
+        again would only repeat the meta-work-ratio pattern this file
+        already flags. Also left #237/#230/#192/#175/#144/#19 untouched —
+        unchanged, owner-gated, already tracked in #139. Did not edit
+        issue #139: #291 fits the tracker's own "Not on this list"
+        category for routine self-mergeable maintenance, so it was never
+        listed there and needs no removal.
+      - >-
+        Did not re-run the business-candidate screening brief, add a
+        candidate, or change a score — `CLAUDE.md`'s intake gate applies
+        and nothing here overrides it. No automation added or re-enabled,
+        no account registered, no credential used beyond merging an
+        already-green, already-verified PR. This ledger entry is the only
+        content on this session's branch; no other PR was opened, so
+        there is nothing decision-pending here to keep it off a mergeable
+        PR.
+    mrr_end: null
