@@ -7534,3 +7534,53 @@ entries:
         is its own PR with no other content, per CLAUDE.md's ledger-
         append-conflict guidance, so it stays independently mergeable.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        designated branch `claude/keen-knuth-03vkxf`. `git fetch origin
+        main` first; tip `f85d5be` (#264) at read time, unchanged through
+        this entry. Checked open PRs and issue #139's body/recent comments
+        against that tip before touching anything, per CLAUDE.md's
+        duplicate-work guidance.
+      - >-
+        Found PR #265 ("fourteen passes measured the same thing because
+        none of them landed"), opened 07:34:06Z — a fresh consolidation of
+        eleven open reachability/research-measurement PRs (#166, #177,
+        #218, #219, #225, #229, #232, #240, #245, #250, #253) into one
+        content-only change, plus a new 92-host egress reconciliation
+        (`portfolio/research/egress-reachability/`). Not yet independently
+        verified by any session. Checked out its branch into a worktree
+        and verified rather than trusted: diffed file list against
+        `portfolio/(ledger|pipeline)/|candidates.yaml|VENTURE.yaml` (no
+        hits, confirming it conflicts with nothing #207/#258 or any
+        pipeline PR touches); `python3 portfolio/router/validate.py` →
+        11/11 valid; all 17 claimed research directories present; every
+        script under `portfolio/research/` compiles; 18 internal markdown
+        links checked, 0 broken; `consolidate.py --report` reproduced the
+        headline 25/64/3 host-verdict split offline from the committed
+        JSON, exact match to the PR body; the classifier's negative test
+        (`upload.pypi.org` and `www.npmjs.com` both HTTP 403, opposite
+        verdicts) reproduced directly from `results-2026-08-20.json`; the
+        `CLAUDE.md` diff is exactly the single bullet the PR describes.
+      - >-
+        Posted the verification as a comment on #139 rather than folding
+        it into the body — the PR's own session had already posted its
+        announcement there, and this only adds independent confirmation,
+        not a new finding for the owner. No push notification: #265's
+        session already pushed the finding directly; this doesn't change
+        the decision it's waiting on (still "merging is your call," per
+        the PR body — it supersedes eleven open PRs' content but leaves
+        them open rather than closing them unilaterally).
+      - >-
+        Did not touch #207/#258 (score/verdict changes, the account
+        owner's ranking call), #191/#208/#222 (Next.js chain),
+        #19/#144/#192/#175 (automation/spend), or `portfolio/pipeline/`
+        itself (`CLAUDE.md` intake gate still applies, no new candidate).
+        Did not re-run the pipeline/research screening brief. This entry
+        is its own PR with no other content, per CLAUDE.md's ledger-
+        append-conflict guidance, so it stays independently mergeable.
+    mrr_end: null
