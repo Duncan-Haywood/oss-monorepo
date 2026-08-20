@@ -6,6 +6,7 @@ from pathlib import Path
 from sd_offload import (
     CardSpec,
     OffloadStats,
+    build_rsync_cmd,
     iter_media_files,
     sha256_file,
     verify_and_manifest,
@@ -141,6 +142,21 @@ class VerifyAndManifestTests(unittest.TestCase):
             entry = json.loads(manifest.read_text())["files"][0]
             self.assertEqual(entry["status"], "verified")
             self.assertEqual(entry["sha256"], sha256_file(card.dest / "DCIM" / "IMG_1.JPG"))
+
+
+class BuildRsyncCmdTests(unittest.TestCase):
+    def test_resumes_partial_without_ignore_existing(self):
+        # --ignore-existing would skip a half-copied file forever, making an
+        # interrupted import unrecoverable (kill_criteria #1). It must not be
+        # present; --partial must be, so progress survives an interruption.
+        cmd = build_rsync_cmd(Path("/Volumes/card"), Path("/staging/card"))
+        self.assertNotIn("--ignore-existing", cmd)
+        self.assertIn("--partial", cmd)
+
+    def test_source_has_trailing_slash_to_copy_contents(self):
+        cmd = build_rsync_cmd(Path("/Volumes/card"), Path("/staging/card"))
+        self.assertEqual(cmd[-2], "/Volumes/card/")
+        self.assertEqual(cmd[-1], "/staging/card/")
 
 
 if __name__ == "__main__":
