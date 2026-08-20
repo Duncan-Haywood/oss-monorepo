@@ -11,9 +11,14 @@ that one proposes runtime enforcement and competes with funded platforms on
 their roadmap. This one is a monitoring feed over a mutable supply chain, which
 is a smaller claim and a faster sale.
 
-Scored 2026-08-18. Composite 7.0 · floor 4 (defensibility). AI leverage lowered
-7→6 on 2026-08-19 after the probe (below) showed the classification is
-rule-separable, not model work.
+Scored 2026-08-18. Composite 6.75 · floor 3 (defensibility). AI leverage
+lowered 7→6 on 2026-08-19 after the probe (below) showed the classification is
+rule-separable, not model work; defensibility and distribution further lowered
+2026-08-20 from 4/6 to 3/5 (PRs #245, #225, #229 — see the table below).
+**The named mitigation is refuted by measurement with no replacement found
+(PR #245): under `README.md` rule 2 this candidate cannot graduate until
+either the remote-endpoint egress is granted or a durable asset other than
+the archive is named and tested.**
 
 > **Probe run 2026-08-19.** Steps 1 and 2 of the experiment below have been
 > executed against public data. Neither kill condition fired: the drift base
@@ -30,8 +35,8 @@ rule-separable, not model work.
 | Autonomous ops | 9 | Poll, diff, classify, alert. No human step in the normal path |
 | Time to revenue | 7 | Security buyers move slowly, but this is a monitoring line item, not a platform decision |
 | Gross margin | 9 | Polling, storage, and inference on diffs only |
-| Defensibility | 4 | The mechanism is reproducible in a week by anyone who decides to; the pinned history per customer is the only accruing asset |
-| Distribution | 6 | Reachable through security and agent-engineering channels, but no warm list today |
+| Defensibility | ~~4~~ 3 | The mechanism is reproducible in a week by anyone who decides to; the pinned history per customer accrues only for the 84.5% of servers that are remote endpoints, and the archive for the rest is public, rebuildable npm/PyPI declaration history — see the amendment above |
+| Distribution | ~~6~~ 5 | Reachable through security and agent-engineering channels, but this candidate's free-registry channel shows ~92% of top-decile-discovered listings carry no price, indistinguishable from listings nobody found (PRs #225, #229) |
 | Liability containment | 7 | Reports observed changes rather than asserting safety; nothing sits in the request path |
 | Ethical robustness | 8 | The interest is straightforwardly aligned — customers want to know what changed under them |
 
