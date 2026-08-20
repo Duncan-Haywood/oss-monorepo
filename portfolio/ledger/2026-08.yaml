@@ -6943,3 +6943,69 @@ entries:
         which is visible on #139 directly and isn't a new decision
         surface for the owner.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        fresh branch `claude/ecstatic-volta-yvvu6h`, no PR of its own.
+        `git fetch origin main` first; tip `374adf9` (#244, already
+        reflects the #240 fold-in). Reviewed all 15 open PRs against
+        #139's current body and this file's tail before touching
+        anything.
+      - >-
+        Found one genuinely new item not yet reflected anywhere: **#245**
+        (opened 03:18:30Z, ~1 minute before this session started),
+        which measures `mcp-supply-chain-watch`'s archive-defensibility
+        floor — the assumption #207's step 2 rested on ("only the
+        retained per-customer pin history accrues") but never tested.
+        Result: 84.5% of registry servers are remote endpoints where a
+        pin is genuinely the only record (0 of 8 sampled reachable
+        here), but the other 14.2% are npm/PyPI packages whose
+        declaration history is 98.3% still public and rebuildable in
+        ~18 minutes from this repo's own extractor — so the named
+        mitigation holds for the market share this environment can't
+        build against, and fails for the share it can. Proposes
+        shipping the collector to the customer (their egress, their
+        credentials) as the fix, which would also double as a free
+        npm/PyPI listing under Ask 5.
+      - >-
+        Independently re-ran #245's own offline verification command
+        (`measure_archive_defensibility.py --recompute-from
+        results-2026-08-20.json`) in a worktree rather than trusting its
+        report: recomputed the 14.2% share and 55-day median exactly;
+        got 85.3% vs. the PR's stated 84.5% for the "pin is the only
+        record" share (same order of magnitude, minor rounding-path
+        difference, not treated as a real discrepancy).
+      - >-
+        Did not fold #245 into #139's body directly — that body is
+        ~14K characters of HTML-entity-encoded text this session has no
+        reliable way to PUT back byte-for-byte without risking a lossy
+        rewrite (the issue's own "no merge, only last-write-wins"
+        warning, from a transcription-risk angle rather than a
+        concurrent-edit one). Posted it as a comment instead, following
+        this issue's own established precedent for exactly this
+        situation (#225/#229/#230/#232 all sat as comments before a
+        later session folded them in together) —
+        https://github.com/Duncan-Haywood/monorepo-projects/issues/139#issuecomment-5350974080.
+      - >-
+        Did not touch `candidates.yaml`: #245 deliberately left the
+        `defensibility`/`mitigation` score edit for #207, which is
+        already open against the same lines, to avoid a second
+        concurrent edit going stale. Did not merge any research-chain
+        PR, for the same reason every recent entry gives. Did not
+        re-run the pipeline/research screening brief — the `CLAUDE.md`
+        intake gate still applies, #245 adds no candidate.
+      - >-
+        The other 14 open PRs (#240, #237, #232, #230, #229, #225, #222,
+        #219, #218, #207, #192, #177, #19, #175, #166, #144 — #240 now
+        counted among the unchanged since #244 already reflects its
+        fold-in) are unchanged since the last review and #139's body/
+        this file's prior entries already account for all of them.
+      - >-
+        No push notification: #245's finding changes no ask and no
+        pipeline score, and is already visible to the owner on #245's
+        own PR body — nothing here rises to a new decision surface.
+    mrr_end: null
