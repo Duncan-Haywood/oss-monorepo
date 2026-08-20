@@ -1,0 +1,473 @@
+{
+ "summary": {
+  "packages": 22,
+  "files": 1219,
+  "elements": 15565,
+  "findings": 286,
+  "blocking": 235,
+  "degrading": 51,
+  "undecidable": 491,
+  "undecidable_share_pct": 63.2,
+  "checks_with_an_undecidable_branch": [
+   "button-no-accessible-name",
+   "control-no-label",
+   "img-alt-missing",
+   "link-no-accessible-name"
+  ],
+  "undecidable_share_on_those_checks_pct": 70.4,
+  "undecidable_share_per_package_pct": {
+   "n": 11,
+   "p25": 18.18,
+   "median": 70.31,
+   "p75": 83.13,
+   "p90": 89.29,
+   "max": 96.93
+  },
+  "blocking_per_1000_elements": {
+   "n": 22,
+   "p25": 0.0,
+   "median": 5.25,
+   "p75": 15.61,
+   "p90": 48.19,
+   "max": 218.75
+  },
+  "packages_with_zero_blocking": 7,
+  "by_check": {
+   "button-no-accessible-name": 88,
+   "control-no-label": 79,
+   "title-missing": 24,
+   "link-no-accessible-name": 23,
+   "heading-level-skipped": 21,
+   "img-alt-missing": 16,
+   "html-lang-missing": 16,
+   "iframe-no-title": 12,
+   "data-table-no-header": 6,
+   "viewport-scaling-blocked": 1
+  },
+  "undecidable_by_check": {
+   "link-no-accessible-name": 222,
+   "button-no-accessible-name": 156,
+   "control-no-label": 70,
+   "img-alt-missing": 43
+  }
+ },
+ "packages": [
+  {
+   "package": "@ecomplus/storefront-app",
+   "version": "2.0.0-beta.228",
+   "published": "2026-07-31",
+   "files": 20,
+   "fragments": 20,
+   "elements": 441,
+   "findings": 3,
+   "blocking": 3,
+   "degrading": 0,
+   "undecidable": 25,
+   "by_check": {
+    "control-no-label": 2,
+    "img-alt-missing": 1
+   },
+   "undecidable_by_check": {
+    "button-no-accessible-name": 14,
+    "link-no-accessible-name": 11
+   }
+  },
+  {
+   "package": "@ecomplus/storefront-components",
+   "version": "1.0.0-beta.195",
+   "published": "2026-06-17",
+   "files": 78,
+   "fragments": 78,
+   "elements": 1089,
+   "findings": 19,
+   "blocking": 17,
+   "degrading": 2,
+   "undecidable": 45,
+   "by_check": {
+    "link-no-accessible-name": 4,
+    "control-no-label": 5,
+    "button-no-accessible-name": 6,
+    "img-alt-missing": 1,
+    "iframe-no-title": 1,
+    "heading-level-skipped": 2
+   },
+   "undecidable_by_check": {
+    "button-no-accessible-name": 26,
+    "link-no-accessible-name": 19
+   }
+  },
+  {
+   "package": "@ecomplus/storefront-template",
+   "version": "2.0.0-beta.300",
+   "published": "2026-07-31",
+   "files": 66,
+   "fragments": 59,
+   "elements": 544,
+   "findings": 14,
+   "blocking": 6,
+   "degrading": 8,
+   "undecidable": 69,
+   "by_check": {
+    "title-missing": 7,
+    "link-no-accessible-name": 2,
+    "img-alt-missing": 1,
+    "html-lang-missing": 1,
+    "button-no-accessible-name": 2,
+    "heading-level-skipped": 1
+   },
+   "undecidable_by_check": {
+    "button-no-accessible-name": 13,
+    "link-no-accessible-name": 42,
+    "img-alt-missing": 14
+   }
+  },
+  {
+   "package": "@ecomplus/storefront-twbs",
+   "version": "7.3.6",
+   "published": "2023-11-02",
+   "files": 5,
+   "fragments": 0,
+   "elements": 1605,
+   "findings": 10,
+   "blocking": 5,
+   "degrading": 5,
+   "undecidable": 0,
+   "by_check": {
+    "html-lang-missing": 5,
+    "title-missing": 5
+   },
+   "undecidable_by_check": {}
+  },
+  {
+   "package": "@fleetbase/storefront-engine",
+   "version": "0.4.19",
+   "published": "2026-08-17",
+   "files": 344,
+   "fragments": 344,
+   "elements": 2075,
+   "findings": 106,
+   "blocking": 100,
+   "degrading": 6,
+   "undecidable": 34,
+   "by_check": {
+    "button-no-accessible-name": 77,
+    "control-no-label": 21,
+    "link-no-accessible-name": 2,
+    "heading-level-skipped": 6
+   },
+   "undecidable_by_check": {
+    "button-no-accessible-name": 5,
+    "img-alt-missing": 10,
+    "link-no-accessible-name": 19
+   }
+  },
+  {
+   "package": "@mcptoolshop/site-theme",
+   "version": "2.1.0",
+   "published": "2026-06-16",
+   "files": 36,
+   "fragments": 36,
+   "elements": 56,
+   "findings": 0,
+   "blocking": 0,
+   "degrading": 0,
+   "undecidable": 0,
+   "by_check": {},
+   "undecidable_by_check": {}
+  },
+  {
+   "package": "@molsoft/molsoft-tools",
+   "version": "3.1.1",
+   "published": "2026-04-21",
+   "files": 6,
+   "fragments": 6,
+   "elements": 29,
+   "findings": 0,
+   "blocking": 0,
+   "degrading": 0,
+   "undecidable": 0,
+   "by_check": {},
+   "undecidable_by_check": {}
+  },
+  {
+   "package": "@nuskin/ns-shop-elements",
+   "version": "5.44.0",
+   "published": "2025-10-10",
+   "files": 50,
+   "fragments": 47,
+   "elements": 1413,
+   "findings": 9,
+   "blocking": 3,
+   "degrading": 6,
+   "undecidable": 2,
+   "by_check": {
+    "heading-level-skipped": 5,
+    "data-table-no-header": 1,
+    "html-lang-missing": 3
+   },
+   "undecidable_by_check": {
+    "control-no-label": 2
+   }
+  },
+  {
+   "package": "@pradip1995/create-storefront-app",
+   "version": "0.6.19",
+   "published": "2026-08-19",
+   "files": 9,
+   "fragments": 0,
+   "elements": 299,
+   "findings": 3,
+   "blocking": 0,
+   "degrading": 3,
+   "undecidable": 1,
+   "by_check": {
+    "data-table-no-header": 3
+   },
+   "undecidable_by_check": {
+    "link-no-accessible-name": 1
+   }
+  },
+  {
+   "package": "@vue-storefront/nuxt-theme",
+   "version": "2.8.0",
+   "published": "2023-07-27",
+   "files": 45,
+   "fragments": 45,
+   "elements": 861,
+   "findings": 0,
+   "blocking": 0,
+   "degrading": 0,
+   "undecidable": 2,
+   "by_check": {},
+   "undecidable_by_check": {
+    "link-no-accessible-name": 2
+   }
+  },
+  {
+   "package": "@vue-storefront/theme-default",
+   "version": "1.7.0",
+   "published": "2019-01-15",
+   "files": 114,
+   "fragments": 111,
+   "elements": 1902,
+   "findings": 20,
+   "blocking": 13,
+   "degrading": 7,
+   "undecidable": 26,
+   "by_check": {
+    "html-lang-missing": 3,
+    "title-missing": 3,
+    "heading-level-skipped": 4,
+    "control-no-label": 7,
+    "img-alt-missing": 3
+   },
+   "undecidable_by_check": {
+    "button-no-accessible-name": 6,
+    "link-no-accessible-name": 20
+   }
+  },
+  {
+   "package": "@zalify/theme-templates",
+   "version": "0.5.0",
+   "published": "2026-08-04",
+   "files": 76,
+   "fragments": 73,
+   "elements": 1059,
+   "findings": 5,
+   "blocking": 1,
+   "degrading": 4,
+   "undecidable": 158,
+   "by_check": {
+    "title-missing": 3,
+    "control-no-label": 1,
+    "heading-level-skipped": 1
+   },
+   "undecidable_by_check": {
+    "button-no-accessible-name": 63,
+    "control-no-label": 24,
+    "link-no-accessible-name": 68,
+    "img-alt-missing": 3
+   }
+  },
+  {
+   "package": "altify-shopify-pipeline",
+   "version": "0.4.4",
+   "published": "2018-12-12",
+   "files": 8,
+   "fragments": 8,
+   "elements": 1,
+   "findings": 0,
+   "blocking": 0,
+   "degrading": 0,
+   "undecidable": 0,
+   "by_check": {},
+   "undecidable_by_check": {}
+  },
+  {
+   "package": "bootstrap-shopify-theme",
+   "version": "1.4.5",
+   "published": "2021-06-03",
+   "files": 37,
+   "fragments": 35,
+   "elements": 508,
+   "findings": 7,
+   "blocking": 5,
+   "degrading": 2,
+   "undecidable": 29,
+   "by_check": {
+    "heading-level-skipped": 2,
+    "control-no-label": 4,
+    "link-no-accessible-name": 1
+   },
+   "undecidable_by_check": {
+    "link-no-accessible-name": 15,
+    "control-no-label": 12,
+    "img-alt-missing": 1,
+    "button-no-accessible-name": 1
+   }
+  },
+  {
+   "package": "create-brainerce-store",
+   "version": "1.67.0",
+   "published": "2026-08-20",
+   "files": 39,
+   "fragments": 37,
+   "elements": 507,
+   "findings": 5,
+   "blocking": 3,
+   "degrading": 2,
+   "undecidable": 0,
+   "by_check": {
+    "control-no-label": 3,
+    "title-missing": 2
+   },
+   "undecidable_by_check": {}
+  },
+  {
+   "package": "create-shopify-theme",
+   "version": "0.0.5",
+   "published": "2020-03-02",
+   "files": 22,
+   "fragments": 21,
+   "elements": 12,
+   "findings": 1,
+   "blocking": 1,
+   "degrading": 0,
+   "undecidable": 0,
+   "by_check": {
+    "viewport-scaling-blocked": 1
+   },
+   "undecidable_by_check": {}
+  },
+  {
+   "package": "fassbender-shopify-theme",
+   "version": "1.4.0",
+   "published": "2018-12-20",
+   "files": 114,
+   "fragments": 111,
+   "elements": 1442,
+   "findings": 38,
+   "blocking": 38,
+   "degrading": 0,
+   "undecidable": 99,
+   "by_check": {
+    "img-alt-missing": 8,
+    "button-no-accessible-name": 3,
+    "iframe-no-title": 6,
+    "control-no-label": 16,
+    "link-no-accessible-name": 4,
+    "html-lang-missing": 1
+   },
+   "undecidable_by_check": {
+    "link-no-accessible-name": 24,
+    "button-no-accessible-name": 28,
+    "control-no-label": 32,
+    "img-alt-missing": 15
+   }
+  },
+  {
+   "package": "gatsby-shopify-theme",
+   "version": "1.0.6",
+   "published": "2019-12-28",
+   "files": 11,
+   "fragments": 0,
+   "elements": 1222,
+   "findings": 33,
+   "blocking": 31,
+   "degrading": 2,
+   "undecidable": 0,
+   "by_check": {
+    "link-no-accessible-name": 10,
+    "control-no-label": 20,
+    "title-missing": 2,
+    "html-lang-missing": 1
+   },
+   "undecidable_by_check": {}
+  },
+  {
+   "package": "pinelab-storefront",
+   "version": "1.4.3",
+   "published": "2024-06-12",
+   "files": 19,
+   "fragments": 19,
+   "elements": 436,
+   "findings": 4,
+   "blocking": 2,
+   "degrading": 2,
+   "undecidable": 1,
+   "by_check": {
+    "img-alt-missing": 2,
+    "data-table-no-header": 2
+   },
+   "undecidable_by_check": {
+    "link-no-accessible-name": 1
+   }
+  },
+  {
+   "package": "shopify-cms",
+   "version": "5.1.26",
+   "published": "2024-03-10",
+   "files": 42,
+   "fragments": 40,
+   "elements": 32,
+   "findings": 9,
+   "blocking": 7,
+   "degrading": 2,
+   "undecidable": 0,
+   "by_check": {
+    "iframe-no-title": 5,
+    "html-lang-missing": 2,
+    "title-missing": 2
+   },
+   "undecidable_by_check": {}
+  },
+  {
+   "package": "shopify-theme-dev",
+   "version": "3.0.11",
+   "published": "2024-11-05",
+   "files": 39,
+   "fragments": 39,
+   "elements": 16,
+   "findings": 0,
+   "blocking": 0,
+   "degrading": 0,
+   "undecidable": 0,
+   "by_check": {},
+   "undecidable_by_check": {}
+  },
+  {
+   "package": "shopify-typed-settings",
+   "version": "1.0.12",
+   "published": "2022-11-27",
+   "files": 39,
+   "fragments": 39,
+   "elements": 16,
+   "findings": 0,
+   "blocking": 0,
+   "degrading": 0,
+   "undecidable": 0,
+   "by_check": {},
+   "undecidable_by_check": {}
+  }
+ ]
+}
