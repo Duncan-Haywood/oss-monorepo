@@ -73,4 +73,6 @@ def main(date: str) -> None:
 
 
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else "unknown")
+    if len(sys.argv) != 2:
+        sys.exit(f"usage: {Path(sys.argv[0]).name} <date>   e.g. 2026-08-20")
+    main(sys.argv[1])

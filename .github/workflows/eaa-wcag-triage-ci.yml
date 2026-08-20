@@ -1,0 +1,61 @@
+name: eaa-wcag-triage CI
+
+# Test coverage for the WCAG triage probe under
+# portfolio/pipeline/probes/eaa-wcag-triage/ (merged in #342). It is
+# standard-library-only and its suite needs no network, so this workflow does
+# no more than a contributor runs locally: run the tests. It publishes nothing,
+# registers nothing, and spends no API budget — it is a test runner, not the
+# unattended-automation kind of workflow CLAUDE.md gates.
+#
+# Both sibling probes already have a matching runner (npm-reachability-triage
+# in #299, a11y-evidence-record in #302); this one closes the same gap for the
+# probe merged most recently, whose 37-test suite passed only by hand until now.
+# Its load-bearing invariant — a clean run is reported as "the static checks
+# found no failures", never as "compliant" — is precisely the regression that
+# must not reach main unseen, because the candidate's liability position
+# depends on it.
+
+on:
+  pull_request:
+    paths:
+      - "portfolio/pipeline/probes/eaa-wcag-triage/**"
+      - ".github/workflows/eaa-wcag-triage-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "portfolio/pipeline/probes/eaa-wcag-triage/**"
+      - ".github/workflows/eaa-wcag-triage-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A second push to the same branch makes the first run irrelevant.
+concurrency:
+  group: eaa-wcag-triage-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: portfolio/pipeline/probes/eaa-wcag-triage
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pytest
+      # pyproject sets pythonpath/testpaths, so this needs no PYTHONPATH.
+      - run: python3 -m pytest
+
+      # The committed evidence record is a published number (README quotes its
+      # precision/recall). The suite checks the engine against the labels; this
+      # checks that the recorded artifact still matches what the engine emits,
+      # which a rule change can otherwise leave stale and unnoticed.
+      - name: Committed validation record is reproducible
+        run: |
+          python3 run_fixture_validation.py 2026-08-20
+          git diff --exit-code -- validation-2026-08-20.json
