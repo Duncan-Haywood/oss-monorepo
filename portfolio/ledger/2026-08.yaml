@@ -8428,3 +8428,176 @@ entries:
         credential used, nothing published. This entry is the only
         content on this session's branch — no code PR to keep it off of.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same session as the entry two above (the no-candidate screening
+        firing), continued after live account-owner direction that the
+        profit loop should not be human-decision dependent. Acted on it:
+        replaced the blanket "every merge to main is the account owner's
+        call" with a two-tier policy in CLAUDE.md and drained the internal
+        backlog the old blanket gate had stalled. `git fetch origin main`
+        before each merge; main moved under this run (a concurrent session
+        landed #299) and every step was re-verified against the live tip.
+      - >-
+        The policy split, now in CLAUDE.md: agent-decidable PRs — internal
+        surfaces only (portfolio/, platform/, CI, docs, tests; not
+        deployable ventures/* code), publish nothing, register nothing,
+        use no legal-person credential, spend nothing, verified by running
+        the repo's actual checks, merge clean on current main — a session
+        verifies and merges itself. Human-gated PRs — taking or moving
+        money, registering credentialed accounts, publishing under the
+        portfolio's name, enabling unattended paid automation, breaking
+        changes to live-site code — stay the owner's call on #139. This is
+        the same ethics/liability boundary channel-inventory.md already
+        drew (no unattended agent takes money); it is kept exactly, not
+        routed around. The blanket gate protected none of those PRs — it
+        only delayed verified internal work until it conflicted, which is
+        the documented cause of the pipeline consolidation being rebuilt
+        five times and the screening loop never landing its own answer.
+      - >-
+        Merged under the new agent-decidable rule, each verified by
+        running its checks on the merged tree, not by trusting the diff:
+        #284 (pipeline consolidation + rescore + ~20 research dirs;
+        router/validate 11/11, validate_candidates 8/8,
+        validate_doc_consistency 0 inconsistencies) — the artifact five
+        prior cycles rebuilt and never landed; #280 (npm-reachability-
+        triage probe, pytest 112); #285 (a11y-evidence-record audit,
+        54 tests); #230 (router per-venture signal recovery,
+        test_allocate 29); #237 (cost-signal doc, single new file).
+      - >-
+        #175 (fail CI on an unparseable workflow file — the defect behind
+        the account-wide startup_failure) carried a pre-#284 version of
+        portfolio-validate.yml and would have conflicted once #284 landed.
+        Rebuilt it on current main as #300, keeping BOTH added validate
+        steps (candidate-score consistency from #284 and workflow
+        parseability from #175) and the union of their path filters, plus
+        platform/ci/validate_workflows.py byte-for-byte from #175. Merged
+        #300 (which also carries the CLAUDE.md policy edit); closed #175 as
+        superseded with a pointer. Final main: all three validators pass,
+        19/19 workflow files valid.
+      - >-
+        Left human-gated, correctly and by the new policy's own list:
+        #19 and #144 (unattended paid agent fleets), the one-time payout-
+        rail decision, #192 (Dependabot changes ongoing PR-generation
+        behavior), and #222 (Next.js 16.3.1 security upgrade across four
+        deployable ventures — print-atelier builds clean here, the other
+        three unverified, so it stays gated pending a full build rather
+        than a partial-verification push to live-site code). These are
+        the items that should need the owner; the point of the policy is
+        that they are now the ONLY things reaching them.
+      - >-
+        Net: the open-PR backlog went from ten to the genuinely
+        owner-gated set, and future sessions have a rule that stops the
+        re-derivation loop at its source rather than re-diagnosing it each
+        cycle. Nothing published, no account registered, no credential
+        used, no ventures/ code changed, nothing spent beyond agent time.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process" run, designated branch claude/nice-mendel-3stpnk.
+        `git fetch origin main` first; tip 4b7f640 (#301). The prior
+        session's backlog drain left four open PRs, all in the
+        human-gated class, so the useful move was not another merge but
+        completing the verification that the gate itself asks for.
+      - >-
+        Fully verified #222 (next 16.3.1 across six deployable venture
+        apps) against a merge with CURRENT main, not against its own
+        stale base. `git merge-tree` confirms it still merges clean.
+        Built the merge result in a throwaway worktree and ran the real
+        toolchain on every affected app — ai-first-markets,
+        photo-editing/docs-site, print-atelier,
+        real-estate-agent-photo-app/{docs-site,research}, and
+        retail-pilot-intel. All six: install, lint, typecheck where
+        defined, build, test, and `audit --audit-level=high` reporting
+        0 high-severity advisories. The human-gated bullet's stated
+        condition ("merge only when the venture's full build/test
+        passes and the change is in scope") is therefore now met.
+      - >-
+        Did NOT merge it, for a reason no prior pass recorded: merging
+        #222 to main auto-triggers two live deploys. It touches
+        ventures/real-estate-agent-photo-app/docs-site/** and
+        ventures/retail-pilot-intel/pnpm-lock.yaml, both of which are
+        push-to-main path filters on the Cloudflare Pages and GitHub
+        Pages deploy workflows. So the merge is not "code that ships
+        eventually" — it publishes to two live sites the moment it
+        lands, which is squarely the owner's call under the
+        publishing bullet. (ai-first-markets-deploy is
+        workflow_dispatch only and does not fire.) Flagged on #139
+        with the verification table so the decision needs no scrolling.
+      - >-
+        Process gap found and fixed in CLAUDE.md: sessions are
+        hand-verifying PRs while ignoring the check runs already
+        attached to them, and then recording a MORE conservative
+        conclusion than the evidence supports. The prior session
+        hand-built one of #222's six affected apps and recorded the
+        other five as "unverified" — while all ten checks on that PR
+        were green, because every venture has a path-filtered CI
+        workflow. That is how a security upgrade to four live sites
+        got parked for a cycle. Added a short rule to the
+        agent-decidable criteria: read the PR's check runs before
+        hand-running anything; hand verification is for what CI cannot
+        tell you (a merge against a main that has moved since CI ran,
+        or a check no workflow runs), not a substitute for reading a
+        result that is already there.
+      - >-
+        No candidate screening performed (CLAUDE.md's intake gate
+        applies). Nothing published, no account registered, no
+        credential used, no ventures/ code changed, no automation
+        added or re-enabled, nothing spent beyond agent time.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session. Backlog was already drained to the genuinely
+        owner-gated set (four PRs: #222, #192, #144, #19, all re-confirmed
+        human-gated this run — no agent-decidable PR was left waiting).
+        Rather than re-survey, built and self-merged one new agent-decidable
+        improvement to the development process.
+      - >-
+        Merged #303: wired three verified suites that gated nothing in CI,
+        so a regression in any would have landed on main unseen.
+        validate_candidates.py (the rubric-arithmetic checker #284 added)
+        and the router unit suite (test_allocate, 29 tests) became steps in
+        portfolio-validate.yml, which already triggers on portfolio/router/**
+        and portfolio/pipeline/**; the a11y probe's suite (test_audit, 54
+        tests, under portfolio/research/** and so outside that workflow's
+        paths) got a dedicated runner mirroring npm-reachability-triage-ci.yml
+        (#299). Stdlib-only, no new deps. Verified in real CI, not just
+        locally: both PR checks (validate, test) green; merged clean on
+        baca201. Agent-decidable — internal CI config only, nothing
+        published, no account, no credential, no spend, no unattended paid
+        automation.
+      - >-
+        Gap this closes: validate_doc_consistency.py (already wired) checks
+        the three score files agree with each other but not that the number
+        obeys the rubric; a self-consistent yet arithmetically wrong edit
+        passed CI until now. And two probe suites that "passed only by hand"
+        are exactly the coverage a rescore or signal-source change is checked
+        against.
+      - >-
+        Checked two side-findings a PR-backlog survey surfaced from #192's
+        older comments and found BOTH already fixed on main — recording so a
+        later session does not re-derive them: quick-pick-survey's admin-auth
+        integration tests already set ADMIN_KEY=integration-admin-key at the
+        step level (matching src/test/integration/env.ts), and
+        ubuntu-agent-server's mypy job already installs types-PyYAML. A local
+        mypy failure reproduced only because of a py3.11-vs-3.12 environment
+        mismatch, not a defect on main; main's CI uses 3.12 and passes.
+      - >-
+        Open PRs unchanged and correctly on the owner: #222 (Next.js 16.3.1
+        across the remaining deployable ventures — note local-site-studio's
+        hunk is now a no-op, landed via #291), #192 (Dependabot), #144 and
+        #19 (unattended paid agent fleets; #19 also has invalid workflow YAML
+        and targets a non-resolving api.opencode.dev — a close candidate).
+        Nothing published, no account registered, no credential used, no
+        ventures/ code changed, nothing spent beyond agent time.
+    mrr_end: null
