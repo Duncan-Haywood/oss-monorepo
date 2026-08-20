@@ -8101,3 +8101,60 @@ entries:
         since that is where the open-PR state is tracked session to
         session.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Another firing of the recurring "research and evaluate potential
+        software business projects that aren't already here" brief,
+        designated branch `claude/laughing-pasteur-jcf0wq`. At least the
+        twenty-first by #139 section 2b's own count (20+ as of 2026-08-19),
+        plus #280 and #285 earlier today. Hit the `CLAUDE.md` intake gate:
+        no candidate added, no candidate list produced, no score changed,
+        no research directory opened, no PR of substance. `git fetch origin
+        main` first; tip `8069d40`, unchanged at write time.
+      - >-
+        This entry deliberately records only the firing itself, because
+        everything else this run could have reported is already covered by
+        the entry immediately above it (12dd2b2..8069d40, ~1h old) and by
+        #139. Checked, and found already-handled: all three of the intake
+        gate's ordered moves. Move 1 (advance a probe specified in
+        `portfolio/pipeline/`) was taken twice in the ninety minutes before
+        this run, by #280 and #285, both already independently verified.
+        Move 2 (ship or unblock something already built) is credential- and
+        egress-gated, per #284's channel-inventory amendment. Move 3 is this
+        record. Re-ran `git merge-tree --write-tree` for all ten open PRs
+        against the current tip anyway, since `main` had moved since the
+        last check: all ten still merge cleanly, no new conflict. No
+        duplicate #139 comment was added; its ask table (Asks 0-8) is
+        already accurate and a session commented on it an hour ago.
+      - >-
+        The one thing worth adding, as input to a decision #139 section 2b
+        already tracks but deferred as "not urgent" pending Ask 8: the
+        intake gate is working and the schedule is still the cost. The gate
+        reliably stops the duplicate *output* — three consecutive firings
+        today added zero candidates between them — but it cannot stop the
+        *spend*, because the schedule is account-level and each firing
+        still consumes a full session to read the gate, re-verify state,
+        and stop. Section 2b judged this on 2026-08-19, when the gate was
+        new and its effect unproven. A day of evidence now says the gate
+        needs no further help and the remaining waste is the firing rate
+        itself. That judgement was first raised around the eighth firing
+        and has been open since. Retiring or repointing the task is still
+        the account owner's call and no session can see or change an
+        account-level schedule; recorded here so the decision has a
+        dated count behind it rather than an impression.
+      - >-
+        Nothing else pushed. No `ventures/` directory, no automation added
+        or re-enabled, no account registered, no credential used, nothing
+        published, nothing spent beyond agent time. Did not touch #285,
+        #284, #280, #237, #230, #222, #192, #175, #144 or #19 - all ten
+        remain owner-gated exactly as #139 records. Did not build a
+        session-orientation helper despite this run spending most of its
+        budget on orientation: #144 already proposes that and is itself
+        waiting on a decision, so writing another would be the duplicate
+        work this file exists to prevent. Ledger-only entry on its own
+        branch, self-merged as routine record-keeping under the same
+        precedent as the other ledger entries this month.
+    mrr_end: null
