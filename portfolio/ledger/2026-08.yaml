@@ -8601,3 +8601,79 @@ entries:
         Nothing published, no account registered, no credential used, no
         ventures/ code changed, nothing spent beyond agent time.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process" run, designated branch claude/keen-knuth-oxnhzo.
+        `git fetch origin main` first; tip 9e561cc (#304). Open-PR survey
+        found five: #305 (new, created 14:42Z, ~15 min old and not yet
+        mentioned in the ledger or on #139) plus the four already
+        re-confirmed human-gated by the two entries above. Did not
+        re-verify those four an eighth time — that is precisely the
+        re-verification loop #305 itself measures.
+      - >-
+        Merged #305 (break-even analysis for fleet spend). It inverts the
+        question cost-signal.md (#237) asks: rather than wait on Ask 8 for
+        the owner to report API spend, it bounds revenue from this
+        portfolio's own committed research and turns that into a threshold
+        the owner checks against a bill they already hold. Result — at the
+        observed cadence the fleet breaks even only if a session costs
+        under $0.12, and today's ceiling is exactly $0 because
+        channel-inventory.md finds 0 of 11 channels lets an unattended
+        agent take money. Agent-decidable — internal portfolio/ledger plus
+        CI config only, no ventures/ code, publishes nothing, registers
+        nothing, spends nothing, adds no unattended automation, and
+        carries no ledger YAML hunk of its own.
+      - >-
+        Verified independently rather than trusted from the diff or the
+        body. Read the attached check run first per the rule #302 added:
+        portfolio-validate green on head 50e3af1. Then hand-ran only what
+        CI could not tell me. Merges clean against the live tip (which was
+        also its base, so no drift). Full portfolio-validate job replicated
+        in order on the actual merge result: VENTURE.yaml 11/11,
+        doc-consistency 8/8, candidate rubric 8/8, router unittest 29/29,
+        workflow parse 20/20, break_even.py --check green,
+        test_break_even.py 17/17.
+      - >-
+        Re-derived the ledger statistics with an independent script instead
+        of reading the PR's table. Got 142 entries on the merged tree
+        against the snapshot's 139 (three appended since), 100% null
+        agent_spend_usd and mrr_end, meta-work 83.1% vs 82.7%,
+        re-verification 47.9% vs 48.2%, duplicates 40.8% vs 41.7%. The
+        magnitudes reproduce and the deltas are the expected hourly drift.
+        Traced the money figures to source rather than re-estimating:
+        mcp-supply-chain $144.78 and accessibility $15.63 match
+        free-listing-economics/results-2026-08-19.json, WordPress $980
+        gross matches that README, the zero-ceiling claim quotes
+        channel-inventory.md verbatim, and 192.80 / 1556.13 = 0.1239.
+      - >-
+        The load-bearing design choice worth keeping: --check reads the
+        pinned dated snapshot, not the live ledger, so an hourly ledger
+        append cannot turn main red while the document still reports a real
+        measurement. This is the first analysis file in the repo that
+        survives the append-only ledger without either going stale or
+        breaking CI, and the pattern is worth reusing for any future
+        ledger-derived document.
+      - >-
+        #305's author deferred its own merge on the judgement that a
+        session should not land its own case for throttling the fleet.
+        That deference is resolved by an independent session verifying and
+        merging it, which is what happened here — recording the reasoning
+        so a later pass does not read the delay as an unmet gate.
+      - >-
+        Flagged on #139 for the owner: #305 supersedes Ask 8 with a
+        decision rather than a data request — either commit to a payout
+        rail, or accept that the portfolio cannot earn and set the fleet
+        cadence to match. Both branches are legitimate; the current state
+        (2.2-2.3 sessions/hour against a $0 ceiling) is the one that is
+        not. Notified, since this is a money decision the nine-item ask
+        table had never put to the owner directly.
+      - >-
+        No candidate screening performed (CLAUDE.md's intake gate applies);
+        no candidate added, no score changed. Nothing published, no account
+        registered, no credential used, no ventures/ code changed, no
+        automation added or re-enabled, nothing spent beyond agent time.
+    mrr_end: null
