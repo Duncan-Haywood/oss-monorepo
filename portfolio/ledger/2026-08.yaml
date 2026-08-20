@@ -10662,3 +10662,74 @@ entries:
         first attempt's PR (#380) conflict -- reapplied the identical
         entry at the new tail rather than forcing the stale one through.
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process, more strategic work" session, designated branch
+        claude/wizardly-albattani-0uh2ap. Ran `portfolio/ledger/session_gate.py`
+        first (PROCEED -- cadence already at the maintenance rate). `git
+        fetch origin main` first; tip 335c890. Checked the open PRs (#372,
+        #368, #144, #19) and issue #139: all four correctly owner-gated by
+        prior sessions, nothing new to add. #375 (ledger-only, concurrent
+        session) had already self-merged by the time it was checked.
+      - >-
+        `portfolio/router/allocate.py` again named photos-import-tools as
+        the only dispatchable venture with the standing "write and test
+        the next hypothesis" task. Read through sd_offload.py,
+        resumable_photos_import.py, photos_import_errors.py, atomic_io.py,
+        and photos_import_watchdog.py for the next real gap. Found one in
+        the watchdog: `start_import.sh` defaults `INCLUDE_RAWS=1` and
+        launches `photos_import_watchdog.py --include-raws` directly, but
+        never runs the separate manual `init --media-type raw` step first
+        (its args vary per run and can't be defaulted in the script).
+        `active_phase()`'s `has_remaining_work(read_summary(db_path))`
+        check reads "raw manifest db doesn't exist" identically to "raw
+        phase finished" -- both are all-zero counts. So skipping the
+        manual raw init makes the watchdog finish the jpeg phase, see raw
+        as having zero remaining work, write status "complete", and exit
+        0 -- having never attempted a single raw file, with no error or
+        warning anywhere. A whole media type silently skipped while the
+        tooling reports success, on the exact axis this venture's
+        kill_criteria rule out.
+      - >-
+        Fixed by adding `never_initialized_phases()`, which distinguishes
+        "phase db exists" from "phase db was never created (no init run)".
+        `run_watchdog`'s completion branch now checks it before declaring
+        "complete": an included-but-uninitialized phase now writes
+        `"blocked: not initialized: raw"` and returns exit code 3 instead
+        of 0. Added 3 new tests covering the helper and the previously
+        blind `active_phase` case. Full venture suite passed at each
+        checkpoint; ruff and mypy clean. VENTURE.yaml records the next
+        hypothesis as supported.
+      - >-
+        Opened PR #379 against tip 335c890. Before merging, a concurrent
+        session's PR #376 (source-side stat() fix, also touching
+        VENTURE.yaml) landed on main first, and `git merge-tree` against
+        the new tip showed a real conflict -- both PRs appended a new
+        hypothesis entry at the same anchor line. Merged origin/main into
+        the branch, resolved by keeping both hypotheses (their source-side
+        entry, then this one), and re-ran the full check battery on the
+        merged result: venture suite 44/44 (was 40 at session start; 43
+        from this PR's own commit plus 1 more from #376's test that landed
+        concurrently), ruff clean, mypy clean, and all four portfolio
+        validators green (`router/validate.py` 10/10,
+        `validate_candidates.py` 8/8, `validate_doc_consistency.py` 8/8,
+        `validate_workflows.py` 24/24).
+      - >-
+        Self-merged PR #379 as agent-decidable per CLAUDE.md, same class
+        as this venture's prior self-merges (#359, #361, #370, #376):
+        `ventures/photos-import-tools` has `links.production: null` (no
+        live-site deploy), the change is additive/defensive only,
+        publishes nothing, registers nothing, uses no credential, adds no
+        unattended automation, spends nothing beyond agent time. Both CI
+        checks (photos-import-tools CI, Portfolio validate) were green on
+        the merged head (6a926bc), and `mergeable_state` read clean
+        immediately before merging.
+      - >-
+        This entry is the separate ledger-only follow-up per CLAUDE.md's
+        ledger-discipline section, on the designated branch restarted from
+        main after #379 merged.
+    mrr_end: null
