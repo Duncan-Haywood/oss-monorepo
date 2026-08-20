@@ -112,6 +112,61 @@ jobs:
         self.assertEqual(len(errs), 1)
         self.assertIn("not valid YAML", errs[0])
 
+    def test_duplicate_top_level_key_is_flagged(self):
+        text = """\
+name: CI
+on: [push]
+permissions:
+  contents: read
+permissions:
+  contents: write
+jobs:
+  build:
+    steps:
+      - run: echo hi
+"""
+        errs = errors_for(text)
+        self.assertEqual(len(errs), 1)
+        self.assertIn("repeats a mapping key", errs[0])
+        self.assertIn("permissions", errs[0])
+
+    def test_duplicate_key_inside_a_job_is_flagged(self):
+        text = """\
+name: CI
+on: [push]
+jobs:
+  build:
+    permissions:
+      contents: read
+    permissions:
+      contents: write
+    steps:
+      - run: echo hi
+"""
+        errs = errors_for(text)
+        self.assertEqual(len(errs), 1)
+        self.assertIn("repeats a mapping key", errs[0])
+
+    def test_repeated_key_in_sibling_mappings_is_not_a_duplicate(self):
+        # Two jobs may each carry their own `permissions:` -- only a repeat
+        # within one mapping is an error.
+        text = """\
+name: CI
+on: [push]
+jobs:
+  build:
+    permissions:
+      contents: read
+    steps:
+      - run: echo a
+  deploy:
+    permissions:
+      contents: read
+    steps:
+      - run: echo b
+"""
+        self.assertEqual(errors_for(text), [])
+
     def test_non_mapping_top_level_is_flagged(self):
         errs = errors_for("- just\n- a\n- list\n")
         self.assertTrue(any("top level must be a mapping" in e for e in errs))

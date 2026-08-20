@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Validate that every .github/workflows file is a well-formed GitHub workflow.
 
-Two invariants:
+Three invariants:
 
 1. Parseability. An unparseable workflow file fails silently: GitHub registers
    it with its `name` set to its own path, then emits a zero-job
@@ -10,7 +10,15 @@ Two invariants:
    sit broken for days while every push produces a failed run nobody can
    attribute to a workflow.
 
-2. Least privilege. Every workflow must declare an explicit `permissions:`
+2. No duplicate mapping keys. PyYAML keeps the *last* of a repeated key, so a
+   file carrying two `permissions:` blocks parses here without complaint while
+   the later block silently overrides the earlier one -- a least-privilege
+   floor can be widened with nothing turning red. This is not hypothetical:
+   open PR #192 adds `permissions: contents: read` to seven workflows that
+   have since gained the same block on `main`, so merging it lands two
+   `permissions:` keys in each of those seven files.
+
+3. Least privilege. Every workflow must declare an explicit `permissions:`
    scope for GITHUB_TOKEN -- either top-level or on every job. A file with none
    runs with the repository's default token scope, broader than any
    checkout/build/lint/test step needs. Every workflow on `main` already pins a
@@ -30,12 +38,46 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 WORKFLOWS_DIR = REPO_ROOT / ".github" / "workflows"
 
 
+class DuplicateKeyError(yaml.YAMLError):
+    """A mapping in the document repeats a key."""
+
+
+class _StrictLoader(yaml.SafeLoader):
+    """SafeLoader that rejects duplicate mapping keys rather than keeping the last.
+
+    Overriding construct_mapping covers nested mappings too, so a job that
+    repeats `permissions:` is caught the same way a top-level repeat is.
+    """
+
+    def construct_mapping(self, node, deep=False):
+        seen = set()
+        for key_node, _ in node.value:
+            key = self.construct_object(key_node, deep=deep)
+            try:
+                duplicate = key in seen
+            except TypeError:  # unhashable key; SafeLoader reports it itself
+                continue
+            if duplicate:
+                raise DuplicateKeyError(
+                    f"duplicate key {key!r} at {key_node.start_mark}"
+                )
+            seen.add(key)
+        return super().construct_mapping(node, deep=deep)
+
+
 def check(path, errors):
     def err(msg):
         errors.append(f"{path.relative_to(REPO_ROOT)}: {msg}")
 
     try:
-        data = yaml.safe_load(path.read_text())
+        data = yaml.load(path.read_text(), Loader=_StrictLoader)
+    except DuplicateKeyError as exc:
+        err(
+            f"repeats a mapping key -- {exc}. The later block silently wins, so a "
+            "permissions floor (or any other setting) can be overridden with no "
+            "check turning red; GitHub's own parser rejects the file outright"
+        )
+        return
     except yaml.YAMLError as exc:
         err(f"is not valid YAML, so GitHub cannot read it at all -- {exc}")
         return
