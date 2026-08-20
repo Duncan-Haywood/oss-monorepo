@@ -273,6 +273,19 @@ def iso_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def file_is_ready(path: Path) -> bool:
+    # exists() and stat() are two separate syscalls; a file that vanishes
+    # between them (an iCloud placeholder evicted mid-check, a card ejected
+    # early) makes the bare stat() raise OSError. That happened unguarded
+    # here before this fix -- crashing the whole importer run rather than
+    # just treating this one file as not-ready-yet-retry, the same failure
+    # mode already closed in sd_offload.py's verification loop.
+    try:
+        return path.exists() and path.stat().st_size > 0
+    except OSError:
+        return False
+
+
 def manifest_db_path(state_dir: Path, media_type: str) -> Path:
     if media_type == "raw":
         return state_dir / "raw_import.sqlite3"
@@ -593,11 +606,11 @@ class PhotosImporter:
             self.log_event("reset_failed_for_retry", {"count": reset})
 
     def wait_for_file(self, path: Path) -> bool:
-        if path.exists() and path.stat().st_size > 0:
+        if file_is_ready(path):
             return True
         for attempt in range(1, ICLOUD_WAIT_ATTEMPTS + 1):
             time.sleep(min(2 ** attempt, 30))
-            if path.exists() and path.stat().st_size > 0:
+            if file_is_ready(path):
                 self.log_event(
                     "icloud_file_ready",
                     {"path": str(path), "wait_attempts": attempt},
