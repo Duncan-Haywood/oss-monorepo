@@ -33,6 +33,9 @@ on:
       - "portfolio/ledger/break_even.py"
       - "portfolio/ledger/test_break_even.py"
       - "portfolio/ledger/results-break-even-*.json"
+      - "portfolio/ledger/verification_status.py"
+      - "portfolio/ledger/test_verification_status.py"
+      - "portfolio/ledger/verifications.yaml"
       - "platform/ci/**"
       - ".github/workflows/**"
   pull_request:
@@ -46,6 +49,9 @@ on:
       - "portfolio/ledger/break_even.py"
       - "portfolio/ledger/test_break_even.py"
       - "portfolio/ledger/results-break-even-*.json"
+      - "portfolio/ledger/verification_status.py"
+      - "portfolio/ledger/test_verification_status.py"
+      - "portfolio/ledger/verifications.yaml"
       - "platform/ci/**"
       - ".github/workflows/**"
   workflow_dispatch:
@@ -99,3 +105,10 @@ jobs:
       - name: Run break-even tests
         working-directory: portfolio/ledger
         run: python3 -m pytest test_break_even.py -q
+
+      - name: Check the verification records are well-formed
+        run: python3 portfolio/ledger/verification_status.py --check
+
+      - name: Re-verification staleness tests
+        working-directory: portfolio/ledger
+        run: python3 -m unittest test_verification_status

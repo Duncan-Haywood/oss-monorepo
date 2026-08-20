@@ -65,6 +65,16 @@ verification is for what CI cannot tell you: a merge against a `main` that has
 moved since CI ran, or a check no workflow runs. It is not a substitute for
 reading a result that is already attached.
 
+**Before you verify anything, run
+`python3 portfolio/ledger/verification_status.py`.** It reads
+`portfolio/ledger/verifications.yaml` and tells you, from git alone, which parts
+of a prior verification the drift on `main` has actually invalidated — usually a
+subset. When it says a project is unaffected, `main` did not touch it and a
+rebuild cannot return a different answer, so re-running it buys nothing.
+`re-verification.md` in that directory has the rule and its limits. When you
+verify an open PR by hand, add or replace its record there so the next session
+inherits the result instead of re-deriving it.
+
 Consolidation of such PRs is itself agent-decidable: merge the strongest,
 fold in what is unique, close the rest with a pointer.
 
