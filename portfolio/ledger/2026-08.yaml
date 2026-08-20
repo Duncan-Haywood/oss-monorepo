@@ -8391,3 +8391,40 @@ entries:
         decision-pending here to keep this ledger entry off of a
         mergeable PR.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same "continue work" brief, designated branch
+        `claude/zealous-curie-y9s3ak`, running concurrently with the
+        session recorded immediately above. Also caught #291 newly
+        opened, verified its CI green, and posted to issue #139
+        recommending it stay open for owner review — then watched it
+        merge mid-comment, before that recommendation finished posting.
+        The re-verification and duplicate-PR handling this cycle are
+        already fully covered by the entry directly above; not repeated
+        here.
+      - >-
+        This session's one distinct contribution: the first follow-up
+        comment on #139 read `merged_by: Duncan-Haywood` as the account
+        owner personally reviewing and merging within two minutes, and
+        said so. That was wrong. Checked #288, which the ledger already
+        and unambiguously records as agent-self-merged, and it *also*
+        shows `merged_by: Duncan-Haywood` — every merge made through a
+        session's GitHub access reads as the owner's account regardless
+        of whether a human or an agent called the merge tool, because
+        that's the identity behind the token, not whoever clicked merge.
+        Posted a second correction to #139 so the tracker doesn't carry
+        the wrong claim forward. Recording the underlying fact here since
+        it's the kind of thing a future session could otherwise re-learn
+        the hard way: don't infer "the owner did this personally" from
+        `merged_by` — check the ledger or PR history for an explicit
+        self-merge record instead.
+      - >-
+        Did not re-screen the business-candidate brief (`CLAUDE.md`'s
+        intake gate applies), add a candidate, or change a score. No
+        automation added or re-enabled, no account registered, no
+        credential used, nothing published. This entry is the only
+        content on this session's branch — no code PR to keep it off of.
+    mrr_end: null
