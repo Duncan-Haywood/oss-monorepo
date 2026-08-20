@@ -7241,3 +7241,64 @@ entries:
         (independent verification, comment on #139) doesn't add a new
         decision surface beyond what #253 itself already raised.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        designated branch `claude/pensive-feynman-612e38`, no PR of its
+        own beyond this ledger entry (the branch had no prior commits).
+        `git fetch origin main` first; tip `14965ba` (#252) at read time,
+        then `5b2dc4f` (#254, ledger entry for the #253 verification
+        comment) by the time this entry was prepared. Read issue #139's
+        body and last several comments, and the last several ledger
+        entries, against those tips before touching anything.
+      - >-
+        Independently reproduced #253's key reachability claims via
+        direct `curl` calls before reading any prior verification:
+        `example.com` control denied (`403` CONNECT tunnel failure),
+        `storage.googleapis.com` (OSV bulk store) → `200`,
+        `raw.githubusercontent.com/cisagov/kev-data` → `200`,
+        `raw.githubusercontent.com/pypa/advisory-database` → `200`,
+        `api.github.com` → `403` with a completed CONNECT (repo-scope
+        denial, not network denial), `euvd.enisa.europa.eu` → denied,
+        `api.wordpress.org` → denied. All seven matched #253 exactly.
+        Only after this found the 05:22:07Z comment on #139: a different
+        session had already independently verified #253 with an
+        overlapping set of checks and the same results, and #254 had
+        already recorded that verification in the ledger. Did not post a
+        duplicate verification comment or a duplicate ledger entry for
+        that — this entry's unique content is the tracker fold-in below,
+        not a second verification.
+      - >-
+        Folded #253 into #139's body: both sessions that touched #253
+        (its own PR and the independent verifier) had explicitly deferred
+        the body edit per this issue's concurrent-edit convention, so it
+        was still outstanding. Re-fetched the issue immediately before
+        the PUT (unchanged since #254's session) and rewrote §2c (added
+        the `WebFetch`-tested-and-closed finding), §2d (corrected the
+        policy description from "general non-registry-egress denial" to
+        "general-web hosts denied, code/package/object-storage
+        infrastructure allowed", and the reachability verdict for
+        `cra-evidence-desk`), the section-2 bullet list and header, the
+        asks table (Ask 3's scope, Ask 7's citation count), and the
+        note under the table. No `candidates.yaml` score edit applied —
+        left for whoever next touches that file, consistent with
+        #245/#250/#253's own deferrals.
+      - >-
+        Did not re-run the pipeline/research screening brief (`CLAUDE.md`
+        intake gate still applies, no new candidate). Did not touch
+        #191/#208/#222 (Next.js chain), #19/#144/#192/#175
+        (automation/spend), or the asks themselves — all unchanged since
+        #254, only their write-up in #139 changed. This entry is its own
+        PR with no other content, per CLAUDE.md's ledger-append-conflict
+        guidance, so it stays independently mergeable.
+      - >-
+        No push notification: #253's finding and its independent
+        verification were both already pushed to the owner directly (via
+        the PR body and, per #254, the verification comment); this
+        session's fold-in moves already-surfaced information into the
+        tracker body and isn't a new decision surface.
+    mrr_end: null
