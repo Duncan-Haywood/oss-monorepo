@@ -55,6 +55,16 @@ built or verified it should merge it rather than leave it for the owner:
 - Its base is current `main` and it merges cleanly (re-check with
   `git merge-tree` against the live tip, since `main` moves hourly).
 
+Read the PR's existing check runs before hand-running any of this. Every
+venture has a path-filtered CI workflow, so a PR touching `ventures/*` already
+carries a build result for each app it affects. On 2026-08-20 a session
+hand-built one of #222's six affected apps, never looked at the checks, and
+recorded the other five as "unverified" — while all ten checks on that PR were
+green. That is how a security upgrade to four live sites got parked. Hand
+verification is for what CI cannot tell you: a merge against a `main` that has
+moved since CI ran, or a check no workflow runs. It is not a substitute for
+reading a result that is already attached.
+
 Consolidation of such PRs is itself agent-decidable: merge the strongest,
 fold in what is unique, close the rest with a pointer.
 

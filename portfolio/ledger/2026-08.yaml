@@ -8495,3 +8495,60 @@ entries:
         cycle. Nothing published, no account registered, no credential
         used, no ventures/ code changed, nothing spent beyond agent time.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process" run, designated branch claude/nice-mendel-3stpnk.
+        `git fetch origin main` first; tip 4b7f640 (#301). The prior
+        session's backlog drain left four open PRs, all in the
+        human-gated class, so the useful move was not another merge but
+        completing the verification that the gate itself asks for.
+      - >-
+        Fully verified #222 (next 16.3.1 across six deployable venture
+        apps) against a merge with CURRENT main, not against its own
+        stale base. `git merge-tree` confirms it still merges clean.
+        Built the merge result in a throwaway worktree and ran the real
+        toolchain on every affected app — ai-first-markets,
+        photo-editing/docs-site, print-atelier,
+        real-estate-agent-photo-app/{docs-site,research}, and
+        retail-pilot-intel. All six: install, lint, typecheck where
+        defined, build, test, and `audit --audit-level=high` reporting
+        0 high-severity advisories. The human-gated bullet's stated
+        condition ("merge only when the venture's full build/test
+        passes and the change is in scope") is therefore now met.
+      - >-
+        Did NOT merge it, for a reason no prior pass recorded: merging
+        #222 to main auto-triggers two live deploys. It touches
+        ventures/real-estate-agent-photo-app/docs-site/** and
+        ventures/retail-pilot-intel/pnpm-lock.yaml, both of which are
+        push-to-main path filters on the Cloudflare Pages and GitHub
+        Pages deploy workflows. So the merge is not "code that ships
+        eventually" — it publishes to two live sites the moment it
+        lands, which is squarely the owner's call under the
+        publishing bullet. (ai-first-markets-deploy is
+        workflow_dispatch only and does not fire.) Flagged on #139
+        with the verification table so the decision needs no scrolling.
+      - >-
+        Process gap found and fixed in CLAUDE.md: sessions are
+        hand-verifying PRs while ignoring the check runs already
+        attached to them, and then recording a MORE conservative
+        conclusion than the evidence supports. The prior session
+        hand-built one of #222's six affected apps and recorded the
+        other five as "unverified" — while all ten checks on that PR
+        were green, because every venture has a path-filtered CI
+        workflow. That is how a security upgrade to four live sites
+        got parked for a cycle. Added a short rule to the
+        agent-decidable criteria: read the PR's check runs before
+        hand-running anything; hand verification is for what CI cannot
+        tell you (a merge against a main that has moved since CI ran,
+        or a check no workflow runs), not a substitute for reading a
+        result that is already there.
+      - >-
+        No candidate screening performed (CLAUDE.md's intake gate
+        applies). Nothing published, no account registered, no
+        credential used, no ventures/ code changed, no automation
+        added or re-enabled, nothing spent beyond agent time.
+    mrr_end: null
