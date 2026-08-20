@@ -80,6 +80,10 @@ jobs:
       - name: Validate workflow files are parseable
         run: python3 platform/ci/validate_workflows.py
 
+      - name: Workflow-validator unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_validate_workflows
+
       - name: Check break-even.md agrees with its pinned snapshot
         run: python3 portfolio/ledger/break_even.py --check
 
