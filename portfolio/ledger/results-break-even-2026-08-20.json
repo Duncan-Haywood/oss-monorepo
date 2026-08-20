@@ -1,0 +1,166 @@
+{
+  "best_ceiling_usd": 192.80230910652924,
+  "break_even_per_session_usd": 0.12389866464142635,
+  "ceilings": {
+    "accessibility-evidence": {
+      "candidate": "eaa-remediation-pipeline / shopify-a11y-evidence",
+      "cold_monthly_usd": 15.6273445104527,
+      "top_decile_prob_cold": 0.049
+    },
+    "mcp-supply-chain": {
+      "candidate": "mcp-supply-chain-watch",
+      "cold_monthly_usd": 144.78230910652923,
+      "top_decile_prob_cold": 0.049
+    },
+    "sbom-cra-evidence": {
+      "candidate": "cra-evidence-desk",
+      "cold_monthly_usd": 80.98544963535912,
+      "top_decile_prob_cold": 0.049
+    }
+  },
+  "ledger": {
+    "entries": 139,
+    "mention_duplicate": 58,
+    "mention_reverify": 67,
+    "null_mrr": 139,
+    "null_spend": 139,
+    "portfolio_meta": 115
+  },
+  "observed": {
+    "hours": 31,
+    "max_per_hour": 5,
+    "mean_per_hour": 2.161290322580645
+  },
+  "regimes": {
+    "plus_wordpress": {
+      "ceiling_usd": 192.80230910652924,
+      "label": "Asks 5 + 2 + 7 granted (adds WordPress.org egress)",
+      "why": "Adds the WordPress.org regime: $980/mo gross at 1,000 active installs, discounted to $48/mo at the same 4.9% cold rate per #225."
+    },
+    "publish_and_payout": {
+      "ceiling_usd": 144.78230910652923,
+      "label": "Asks 5 + 2 granted (publish approval + payout rail)",
+      "why": "Best reachable category (mcp-supply-chain-watch) at the central scenario, already re-weighted by the 4.9% cold-publisher rate."
+    },
+    "today": {
+      "ceiling_usd": 0.0,
+      "label": "Today (no ask granted)",
+      "why": "No channel with a billing rail is agent-listable (0 of 11 in channel-inventory.md). Revenue cannot be captured at any volume, so the ceiling is exactly zero and is not a function of how good the products are."
+    }
+  },
+  "sessions_per_month": 1556.1290322580644,
+  "spend_table": [
+    {
+      "clears_best_ceiling": true,
+      "monthly_usd": 72.00000000000001,
+      "per_session_usd": 0.1,
+      "sessions_per_hour": 1
+    },
+    {
+      "clears_best_ceiling": true,
+      "monthly_usd": 144.00000000000003,
+      "per_session_usd": 0.1,
+      "sessions_per_hour": 2
+    },
+    {
+      "clears_best_ceiling": false,
+      "monthly_usd": 288.00000000000006,
+      "per_session_usd": 0.1,
+      "sessions_per_hour": 4
+    },
+    {
+      "clears_best_ceiling": true,
+      "monthly_usd": 180.0,
+      "per_session_usd": 0.25,
+      "sessions_per_hour": 1
+    },
+    {
+      "clears_best_ceiling": false,
+      "monthly_usd": 360.0,
+      "per_session_usd": 0.25,
+      "sessions_per_hour": 2
+    },
+    {
+      "clears_best_ceiling": false,
+      "monthly_usd": 720.0,
+      "per_session_usd": 0.25,
+      "sessions_per_hour": 4
+    },
+    {
+      "clears_best_ceiling": false,
+      "monthly_usd": 360.0,
+      "per_session_usd": 0.5,
+      "sessions_per_hour": 1
+    },
+    {
+      "clears_best_ceiling": false,
+      "monthly_usd": 720.0,
+      "per_session_usd": 0.5,
+      "sessions_per_hour": 2
+    },
+    {
+      "clears_best_ceiling": false,
+      "monthly_usd": 1440.0,
+      "per_session_usd": 0.5,
+      "sessions_per_hour": 4
+    },
+    {
+      "clears_best_ceiling": false,
+      "monthly_usd": 720.0,
+      "per_session_usd": 1.0,
+      "sessions_per_hour": 1
+    },
+    {
+      "clears_best_ceiling": false,
+      "monthly_usd": 1440.0,
+      "per_session_usd": 1.0,
+      "sessions_per_hour": 2
+    },
+    {
+      "clears_best_ceiling": false,
+      "monthly_usd": 2880.0,
+      "per_session_usd": 1.0,
+      "sessions_per_hour": 4
+    },
+    {
+      "clears_best_ceiling": false,
+      "monthly_usd": 1440.0,
+      "per_session_usd": 2.0,
+      "sessions_per_hour": 1
+    },
+    {
+      "clears_best_ceiling": false,
+      "monthly_usd": 2880.0,
+      "per_session_usd": 2.0,
+      "sessions_per_hour": 2
+    },
+    {
+      "clears_best_ceiling": false,
+      "monthly_usd": 5760.0,
+      "per_session_usd": 2.0,
+      "sessions_per_hour": 4
+    },
+    {
+      "clears_best_ceiling": false,
+      "monthly_usd": 3600.0,
+      "per_session_usd": 5.0,
+      "sessions_per_hour": 1
+    },
+    {
+      "clears_best_ceiling": false,
+      "monthly_usd": 7200.0,
+      "per_session_usd": 5.0,
+      "sessions_per_hour": 2
+    },
+    {
+      "clears_best_ceiling": false,
+      "monthly_usd": 14400.0,
+      "per_session_usd": 5.0,
+      "sessions_per_hour": 4
+    }
+  ],
+  "wordpress": {
+    "cold_weighted": 48.02,
+    "gross": 980.0
+  }
+}

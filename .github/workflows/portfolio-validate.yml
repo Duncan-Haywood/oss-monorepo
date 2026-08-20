@@ -21,6 +21,10 @@ on:
       - "ventures/**/NOT-A-VENTURE"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
+      - "portfolio/ledger/break-even.md"
+      - "portfolio/ledger/break_even.py"
+      - "portfolio/ledger/test_break_even.py"
+      - "portfolio/ledger/results-break-even-*.json"
       - "platform/ci/**"
       - ".github/workflows/**"
   pull_request:
@@ -29,6 +33,10 @@ on:
       - "ventures/**/NOT-A-VENTURE"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
+      - "portfolio/ledger/break-even.md"
+      - "portfolio/ledger/break_even.py"
+      - "portfolio/ledger/test_break_even.py"
+      - "portfolio/ledger/results-break-even-*.json"
       - "platform/ci/**"
       - ".github/workflows/**"
   workflow_dispatch:
@@ -47,7 +55,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: pip install -r portfolio/router/requirements.txt
+        run: pip install -r portfolio/router/requirements.txt pytest
 
       - name: Validate VENTURE.yaml schema
         run: python3 portfolio/router/validate.py
@@ -57,3 +65,10 @@ jobs:
 
       - name: Validate workflow files are parseable
         run: python3 platform/ci/validate_workflows.py
+
+      - name: Check break-even.md agrees with its pinned snapshot
+        run: python3 portfolio/ledger/break_even.py --check
+
+      - name: Run break-even tests
+        working-directory: portfolio/ledger
+        run: python3 -m pytest test_break_even.py -q
