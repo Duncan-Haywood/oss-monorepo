@@ -9415,6 +9415,62 @@ entries:
         performed; no pipeline or venture score changed; nothing spent
         beyond agent time.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process" run, designated branch claude/ecstatic-volta-fa761v. `git
+        fetch origin main` first (tip caca0e7, #334). Checked open PRs before
+        touching anything: four open (#222, #192, #144, #19), none about the
+        re-verification tooling. Then ran the tool CLAUDE.md points every
+        session to before verifying an open PR --
+        `python3 portfolio/ledger/verification_status.py` -- and it failed on
+        its one real record: it printed "UNRESOLVABLE -- a recorded commit is
+        not in this clone; treat as stale" for #222, its own defeat condition.
+      - >-
+        Root cause: both of the tool's verdicts (build staleness, check
+        staleness) need the pull request's head commit, and a scheduled
+        session's container clones only main and its own branch, shallowly --
+        so #222's head fe19bb8 was simply absent. The gap re-verification.md
+        set out to close (a session cannot tell whether the drift since a
+        verification touches the PR in front of it) was reopened one level
+        down: the fact the tool needs was not reachable from the state a
+        scheduled session starts in. Confirmed by hand that
+        `git fetch origin refs/pull/222/head` retrieves the commit in ~2s and
+        the tool then produces its intended partial verdict: re-verify only
+        ventures/ai-first-markets, the other five apps provably unaffected.
+      - >-
+        Fix (PR #336, self-merged): fetch refs/pull/<n>/head on demand and
+        deepen a shallow clone when merge-base finds no history, so the
+        verdict is computable from a scheduled clone. The fetched ref also
+        reveals the PR's live head, so a record voided by a push since now
+        prints "VOID -- pushed since" instead of comparing against a stale
+        commit -- previously a stated-but-unhandled limitation. --no-fetch
+        keeps it offline for a clone that already has the commits; --check
+        (CI schema validation) stays offline. Added three report-path tests
+        and updated re-verification.md's limits section.
+      - >-
+        Verified by running, not trusting: verification_status.py produced the
+        partial #222 verdict from a fresh clone lacking the head;
+        test_verification_status 27/27 green (24 prior + 3 new); --check
+        green; and the full local validate battery mirroring CI passed
+        (validate.py 11/11, doc-consistency, candidates, score_ventures
+        --check, scoring unittest, router unittest, workflow validator + its
+        tests, break_even --check). PR #336's own validate check green;
+        `git merge-tree` clean against the live tip. (test_break_even.py
+        needs pytest, absent in this environment, unrelated to this change.)
+      - >-
+        Self-merged as agent-decidable per CLAUDE.md: touches only
+        portfolio/ledger/ (the tool, its test, its doc); no ventures/*
+        application code; publishes nothing; registers nothing; spends
+        nothing beyond agent time; adds no unattended automation; changes no
+        venture or candidate score and adds no candidate. No candidate
+        screening performed. This entry recorded on a fresh branch off the
+        post-merge tip and self-merged in the same pass, so it never sits as
+        a decision-pending ledger hunk.
+    mrr_end: null
   - venture: photos-import-tools
     agent_spend_usd: null
     human_hours: 0
@@ -9423,8 +9479,8 @@ entries:
         Scheduled "continue work / maintain and improve the development
         process" session, designated branch claude/nifty-goodall-852rd1, PR
         #335, self-merged as 271fd5a. `git fetch origin main` first (tip
-        caca0e7 at read time; main moved to 1af1ea1 during the run). Read the
-        four open PRs (#222, #192, #19, #144), #139 and the ledger tail
+        caca0e7 at read time; main moved several times during the run). Read
+        the four open PRs (#222, #192, #19, #144), #139 and the ledger tail
         before touching anything; confirmed CI on main fully green and 9 of
         11 ventures owner-blocked on the publish decision. Ran the router
         (allocate.py): it names advancing a dispatchable venture as the one

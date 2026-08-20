@@ -1,0 +1,32 @@
+Internal decision infrastructure, not a business with customers.
+
+Its own VENTURE.yaml records the hypothesis test (checked 2026-08-20): a
+buyer, a price, and a route to one were checked in turn and none is present.
+Access is a single-email Cloudflare Access whitelist for the owner, no
+pricing or purchase surface exists anywhere in `src/`, and there is no
+listing or distribution channel. Its own scoring data already said so:
+`portfolio/scoring/venture-scores.yaml`'s `floor_note` scored it 2/10 on
+time-to-revenue for exactly this reason before this marker existed.
+
+Structurally, `src/lib/evaluation.ts` is the portfolio's own scoring engine
+(`portfolio/scoring/venture-scores.yaml` records
+`method: ventures/ai-first-markets/src/lib/evaluation.ts`, and roughly
+seventeen files across the router, scoring, research, and pipeline reference
+this path) and the app itself is the portfolio's private market-map tool, not
+a product being sold. Counting it under `ventures/` drew $50/mo of protected
+explore budget toward a directory `portfolio/router/allocate.py` could never
+convert to revenue.
+
+This marker makes that call machine-readable so `portfolio/router/allocate.py`,
+`portfolio/scoring/score_ventures.py`, and `portfolio/router/validate.py` all
+skip the directory consistently, per the marker-precedence fix in #334. Its
+`portfolio/scoring/venture-scores.yaml` entry has been removed to match
+(a scored directory with no matching venture would fail `--check`).
+
+Whether this belongs under `ventures/` or `platform/` is still the open
+structural question its own VENTURE.yaml flags — this marker does not settle
+it, and deliberately stops short of the directory move (and the CI
+path-filter, router, and doc updates that move would need) since the marker
+alone is now sufficient to stop future budget misallocation. VENTURE.yaml is
+left in place rather than deleted, matching the transitional state the
+NOT-A-VENTURE + VENTURE.yaml coexistence is designed for.
