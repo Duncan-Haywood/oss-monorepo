@@ -9825,3 +9825,65 @@ entries:
         constraint (tracked on #139) is unchanged and needs the account
         owner.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        legal-ethical-reliable increase in profit" scheduled session,
+        designated branch `claude/ecstatic-volta-c9piwr`. `git fetch
+        origin main` first; tip `ac54112` (#353) at write time. Read the
+        4 open PRs (#222, #192, #144, #19) and issue #139 before touching
+        anything.
+      - >-
+        Correction to the record: the two most recent portfolio ledger
+        entries (#346/#348 sessions) both state "#192 unchanged, still
+        owner-gated." Re-checked #192 file-by-file against the live tip
+        rather than trusting that framing, and it is now stale. Every
+        self-mergeable part of #192 has already landed on `main`
+        independently: the `permissions: contents: read` block on all six
+        CI workflows it touched, the top-level + `apply-access` floors on
+        `real-estate-agent-photo-app-deploy-docs.yml` (where `main` now
+        carries strictly more — a credential-absent deploy skip added by
+        `7c08bb1`/`e013e23`), the `CLAUDE.md` single-branch-ledger
+        paragraph (verbatim), and the `print-atelier` `*.tsbuildinfo`
+        gitignore line. The only live content left in #192 is
+        `.github/dependabot.yml` (210 lines), which is genuinely
+        owner-gated as unattended automation.
+      - >-
+        So "#192 owner-gated" is still true but misleading: merging its
+        branch as-is would be a no-op on those seven files, and its one
+        content conflict sits exactly on the `permissions:` region of the
+        deploy workflow — a future hand-resolution there risks reverting
+        `main`'s later credential-skip improvement for zero gain. #192 got
+        stuck because it bundled a 413-line ledger hunk with a
+        decision-pending file, the exact rot CLAUDE.md's ledger-discipline
+        section describes. Recorded all of this as a status comment on
+        #192 itself so the next session and the owner see the real state
+        at the source; the owner now only needs to decide on
+        `dependabot.yml`, nothing else.
+      - >-
+        Confirmed the rest of the repo is healthy, by running rather than
+        trusting: full portfolio battery green (router validate 10/10,
+        candidates 8/8, doc-consistency 8/8, venture-scores 11/11 +
+        unittest, router `test_allocate`, workflows valid + validator
+        self-tests, break-even `--check`, verification `--check` +
+        staleness tests). Both probe suites and the two `a11y` research
+        suites pass under their CI harness (local unittest "failures" were
+        only the pytest `src/`-path convention — since fixed on `main` by
+        #351's root pytest config, landed this same window).
+      - >-
+        Did not touch #222/#144/#19 (unchanged, still owner-gated per
+        #139) or `portfolio/pipeline/`'s candidate set (intake gate
+        applies; no new candidate, no rescreen). Re-confirmed the
+        pipeline's next moves are owner-blocked, not agent-decidable:
+        general web egress is denied here (both `apps.shopify.com` and a
+        control host return proxy 403), so candidate #2
+        `shopify-a11y-evidence`'s channel-measurement probe — its whole
+        step 1 is pulling live app-store install/review/pricing data —
+        cannot run from this environment, and publishing any built probe
+        stays the owner's call. No customer contact and no revenue this
+        session; the binding constraint (distribution/credential gates,
+        tracked on #139) is unchanged and needs the account owner.
+    mrr_end: null
