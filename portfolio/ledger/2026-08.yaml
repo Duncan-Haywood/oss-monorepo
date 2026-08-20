@@ -7001,3 +7001,74 @@ entries:
         already-open PR's finding is routine tracker upkeep, not a new
         decision surface for the owner.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        fresh branch, no PR of its own. `git fetch origin main` first;
+        tip `4a98550` (#246, the #245-verification entry). Read issue
+        #139 and the last several ledger entries against that tip before
+        touching anything — #245 was already independently verified and
+        folded into #139 by #246's session, so did not repeat that work.
+      - >-
+        Checked `main`'s last 30 workflow runs for anything not already
+        tracked (same routine as recent entries) and found two failures
+        neither the tracker nor any recent ledger entry mentions: **CI**
+        (`quick-pick-survey-ci.yml`) and **ubuntu-agent-server CI**, both
+        triggered once at 2026-08-19T18:30:26Z by #200's merge (it
+        touched every workflow file's `permissions:` block, which
+        matched both workflows' path filters) and never re-triggered
+        since, because nothing has since touched
+        `ventures/{quick-pick-survey,ubuntu-agent-server}/**` or those
+        two workflow files.
+      - >-
+        Root-caused both before checking history, then found both
+        already fixed. `quick-pick-survey`: 4 admin-login integration
+        tests failed with "expected 200, got 401" — traced to the
+        job-level `ADMIN_KEY: ci-placeholder` env leaking into the
+        integration-test step, which the test file's hardcoded
+        `integration-admin-key` constant doesn't match. `git log` shows
+        this was already fixed 3 minutes after the failing run, in
+        `56f9420` ("fix ADMIN_KEY env shadowing the integration tests"),
+        which adds the step-level override — present on `main` now.
+        `ubuntu-agent-server`: mypy failed on "Library stubs not
+        installed for yaml"; already fixed in `66b5496` ("install
+        types-PyYAML, fixing the mypy job"), also on `main` now. Neither
+        fix has had its CI re-run since, since both are path-gated and
+        nothing has touched those paths — so nobody had confirmed either
+        fix actually works.
+      - >-
+        Verified the `ubuntu-agent-server` fix directly rather than
+        trusting the diff: reproduced the original failure with the old
+        install line, then ran `python3 -m pip install types-PyYAML
+        mypy==1.19.1 pyyaml && python3 -m mypy` from
+        `ventures/ubuntu-agent-server` — "Success: no issues found in 3
+        source files", matching what current `main` would produce. Did
+        not spin up Postgres to re-run `quick-pick-survey`'s integration
+        suite end-to-end (heavier setup for a one-line env-var fix whose
+        root cause and correction both trace cleanly), but independently
+        derived the same root cause as `56f9420`'s own commit message
+        before reading it, which is strong evidence the fix is correct.
+      - >-
+        Net finding: both failures are stale, not live — `main` is not
+        currently broken on either path, just unverified since the fix.
+        Recording this so a future session hitting the same "last 30
+        runs" check doesn't re-diagnose CI it already fixed, and so the
+        two-red-workflows appearance (which no `#139` section currently
+        explains) doesn't get mistaken for a new problem.
+      - >-
+        Did not re-run the pipeline/research screening brief (`CLAUDE.md`
+        intake gate still applies, no new candidate). Did not touch
+        #207/#245 (owner's call, unchanged since #246), the Next.js chain
+        (#222), automation/spend items (#19/#144/#192/#175), or Asks 0–8.
+        This entry is its own PR with no other content, so it stays
+        independently mergeable.
+      - >-
+        No push notification: both failures are already fixed on `main`
+        and were never live production breaks, so there's nothing here
+        the owner needs to act on — this is a "checked, confirmed
+        healthy" result, not a new decision surface.
+    mrr_end: null
