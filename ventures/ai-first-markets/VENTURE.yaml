@@ -24,9 +24,28 @@ hypotheses:
       Scoring the portfolio's own 11 ventures on the same six dimensions ranks
       them consistently with the router's dispatchable-vs-blocked split, so the
       map's method transfers from the 8 hypothetical ideas to real ventures.
-    status: untested
-    checked: null
+    status: refuted
+    checked: 2026-08-20
     evidence: in-repo
+    note: >-
+      evaluatePortfolioTransfer() (src/lib/portfolio-transfer.ts, tested) shows
+      the six-dimension composite does NOT transfer, but for a reason that is
+      itself the portfolio's standing finding. Five of the six dimensions
+      (AI Leverage, Zero-Employee Ops, Time to Revenue, Gross Margin,
+      Defensibility) have no recorded value for any real venture -- every
+      VENTURE.yaml has economics.mrr: null and no dimension scores -- so a
+      composite cannot be computed without inventing five of its six inputs,
+      which the router's "Unmeasured is not zero" rule forbids. The one
+      dimension with a repo-observable value, Distribution (market-access),
+      scored as "is the venture's next result settleable in-repo", reproduces
+      the router's dispatchable-vs-blocked split exactly (2 dispatchable:
+      ai-first-markets, photos-import-tools; 9 blocked). So the method transfers
+      on the single binding axis and not as a composite -- distribution, not
+      idea quality, is what separates the portfolio's ventures, the same
+      conclusion the pipeline reaches independently. A drift guard re-derives
+      published status and next-work evidence from each VENTURE.yaml on disk, so
+      a newly published or reclassified venture fails the test and forces a
+      re-check here.
 
 economics:
   currency: USD

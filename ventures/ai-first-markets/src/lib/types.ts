@@ -10,6 +10,15 @@ export type IdeaCategory =
 
 export type RiskLevel = "low" | "medium" | "high";
 
+// The six dimensions every idea is scored on in data/ideas.ts.
+export type DimensionKey =
+  | "ai-leverage"
+  | "automation"
+  | "time-to-revenue"
+  | "margin"
+  | "defensibility"
+  | "market-access";
+
 export interface ScoreDimension {
   key: string;
   label: string;
