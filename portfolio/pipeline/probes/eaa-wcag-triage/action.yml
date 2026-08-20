@@ -1,0 +1,88 @@
+name: "Accessibility Evidence Record"
+description: >-
+  Static WCAG 2.2 A/AA triage: report the accessibility failures a source-only
+  pass can find, split into task-blocking and degrading, with an explicit
+  statement of what it could not check. Never a compliance claim.
+author: "monorepo-projects"
+
+branding:
+  icon: "eye"
+  color: "purple"
+
+inputs:
+  pages:
+    description: "Space- or newline-separated HTML files to audit (globs allowed by the shell)"
+    required: true
+  output-dir:
+    description: "Directory to write record.json and record.md into"
+    required: false
+    default: "accessibility-evidence-record"
+  fail-on:
+    description: >-
+      Fail the job when findings at this level exist: never, blocking, or any.
+      Defaults to never, so adding this action cannot break an existing pipeline.
+    required: false
+    default: "never"
+  summary:
+    description: "Write the record to the GitHub Actions job summary"
+    required: false
+    default: "true"
+
+outputs:
+  blocking-count:
+    description: "Number of task-blocking findings"
+    value: ${{ steps.triage.outputs.blocking-count }}
+  degrading-count:
+    description: "Number of degrading findings"
+    value: ${{ steps.triage.outputs.degrading-count }}
+  record-path:
+    description: "Path to the generated record.json"
+    value: ${{ steps.triage.outputs.record-path }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Run accessibility triage
+      id: triage
+      shell: bash
+      env:
+        # Quoted through the environment rather than interpolated into the
+        # script body, so a crafted input cannot be executed as shell.
+        INPUT_PAGES: ${{ inputs.pages }}
+        INPUT_OUTPUT_DIR: ${{ inputs.output-dir }}
+        INPUT_FAIL_ON: ${{ inputs.fail-on }}
+        INPUT_SUMMARY: ${{ inputs.summary }}
+        ACTION_PATH: ${{ github.action_path }}
+      run: |
+        set -euo pipefail
+
+        # Split INPUT_PAGES on whitespace into an array of file arguments.
+        read -r -a pages <<< "$INPUT_PAGES"
+
+        args=(
+          --output-dir "$INPUT_OUTPUT_DIR"
+          --fail-on "$INPUT_FAIL_ON"
+        )
+
+        status=0
+        PYTHONPATH="$ACTION_PATH/src" python3 -m wcag_triage.cli "${pages[@]}" "${args[@]}" || status=$?
+
+        record="$INPUT_OUTPUT_DIR/record.json"
+        if [ -f "$record" ]; then
+          blocking=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['totals']['blocking'])" "$record")
+          degrading=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['totals']['degrading'])" "$record")
+          echo "blocking-count=$blocking" >> "$GITHUB_OUTPUT"
+          echo "degrading-count=$degrading" >> "$GITHUB_OUTPUT"
+          echo "record-path=$record" >> "$GITHUB_OUTPUT"
+
+          if [ "$INPUT_SUMMARY" = "true" ] && [ -f "$INPUT_OUTPUT_DIR/record.md" ]; then
+            cat "$INPUT_OUTPUT_DIR/record.md" >> "$GITHUB_STEP_SUMMARY"
+          fi
+        fi
+
+        exit $status

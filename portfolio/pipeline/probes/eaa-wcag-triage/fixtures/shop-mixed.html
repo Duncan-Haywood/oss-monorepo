@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Print Atelier — poster shop</title>
+</head>
+<body>
+  <header>
+    <a href="/">Print Atelier</a>
+  </header>
+  <main>
+    <h1>Gallery-quality poster prints</h1>
+
+    <!-- decorative image, correctly marked: must NOT be flagged -->
+    <img src="/decoration/flourish.svg" alt="">
+
+    <!-- product image missing alt: 1.1.1 blocking -->
+    <img src="/products/poster-01.jpg">
+
+    <!-- video with no captions track: 1.2.2 blocking -->
+    <video src="/how-it-works.mp4" controls></video>
+
+    <!-- data table with no header cells: 1.3.1 degrading -->
+    <table>
+      <tr><td>A2</td><td>€29</td></tr>
+      <tr><td>A1</td><td>€39</td></tr>
+    </table>
+
+    <!-- focusable input hidden from assistive tech: 4.1.2 blocking -->
+    <input type="text" name="promo" aria-label="Promo code" aria-hidden="true">
+
+    <!-- correctly labelled input: must NOT be flagged -->
+    <form action="/subscribe">
+      <label for="email">Email for restock alerts</label>
+      <input type="email" id="email" name="email">
+      <button type="submit">Notify me</button>
+    </form>
+  </main>
+</body>
+</html>
