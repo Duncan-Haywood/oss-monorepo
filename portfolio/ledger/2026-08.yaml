@@ -8495,3 +8495,52 @@ entries:
         cycle. Nothing published, no account registered, no credential
         used, no ventures/ code changed, nothing spent beyond agent time.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session. Backlog was already drained to the genuinely
+        owner-gated set (four PRs: #222, #192, #144, #19, all re-confirmed
+        human-gated this run — no agent-decidable PR was left waiting).
+        Rather than re-survey, built and self-merged one new agent-decidable
+        improvement to the development process.
+      - >-
+        Merged #303: wired three verified suites that gated nothing in CI,
+        so a regression in any would have landed on main unseen.
+        validate_candidates.py (the rubric-arithmetic checker #284 added)
+        and the router unit suite (test_allocate, 29 tests) became steps in
+        portfolio-validate.yml, which already triggers on portfolio/router/**
+        and portfolio/pipeline/**; the a11y probe's suite (test_audit, 54
+        tests, under portfolio/research/** and so outside that workflow's
+        paths) got a dedicated runner mirroring npm-reachability-triage-ci.yml
+        (#299). Stdlib-only, no new deps. Verified in real CI, not just
+        locally: both PR checks (validate, test) green; merged clean on
+        baca201. Agent-decidable — internal CI config only, nothing
+        published, no account, no credential, no spend, no unattended paid
+        automation.
+      - >-
+        Gap this closes: validate_doc_consistency.py (already wired) checks
+        the three score files agree with each other but not that the number
+        obeys the rubric; a self-consistent yet arithmetically wrong edit
+        passed CI until now. And two probe suites that "passed only by hand"
+        are exactly the coverage a rescore or signal-source change is checked
+        against.
+      - >-
+        Checked two side-findings a PR-backlog survey surfaced from #192's
+        older comments and found BOTH already fixed on main — recording so a
+        later session does not re-derive them: quick-pick-survey's admin-auth
+        integration tests already set ADMIN_KEY=integration-admin-key at the
+        step level (matching src/test/integration/env.ts), and
+        ubuntu-agent-server's mypy job already installs types-PyYAML. A local
+        mypy failure reproduced only because of a py3.11-vs-3.12 environment
+        mismatch, not a defect on main; main's CI uses 3.12 and passes.
+      - >-
+        Open PRs unchanged and correctly on the owner: #222 (Next.js 16.3.1
+        across the remaining deployable ventures — note local-site-studio's
+        hunk is now a no-op, landed via #291), #192 (Dependabot), #144 and
+        #19 (unattended paid agent fleets; #19 also has invalid workflow YAML
+        and targets a non-resolving api.opencode.dev — a close candidate).
+        Nothing published, no account registered, no credential used, no
+        ventures/ code changed, nothing spent beyond agent time.
+    mrr_end: null
