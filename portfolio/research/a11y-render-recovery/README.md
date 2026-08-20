@@ -168,12 +168,25 @@ specific customer without checking their stack.
   environment. The *mix* of theme/merchant/context measured here is a fact
   about these 12 npm packages, not a market estimate. What generalises is the
   mechanism: rendering-recovery is three shares, not one.
-- **No actual render.** This is a static classification of what each expression
-  points at. A real render might close more (a Vue-storefront controller in
-  scope collapses "context" toward "theme") or expose defects invisible here
-  (an alt that renders as `"undefined"` because the merchant hasn't set one).
-  This measures the ceiling on what rendering *can* recover from the template
-  alone, and where the ceiling lives.
+- **~~No actual render.~~** This is a static classification of what each
+  expression points at. A real render might close more (a Vue-storefront
+  controller in scope collapses "context" toward "theme") or expose defects
+  invisible here (an alt that renders as `"undefined"` because the merchant
+  hasn't set one). This measures the ceiling on what rendering *can* recover
+  from the template alone, and where the ceiling lives.
+
+  Closed 2026-08-20 by [`../a11y-theme-resolution/`](../a11y-theme-resolution/),
+  which resolves each of the 248 theme-recoverable undecidables against the data
+  the package itself ships. **68.5% resolve to a name that is present and 2.0%
+  (5 of 248) to a real blocking failure** — so the build step is a coverage
+  step, not a finding-generator. It also corrects this directory's account of
+  its own `theme_structural` bucket: **64 of those 69 were in the same file all
+  along**, reported undecidable only because `audit.py` compares
+  expression-*stripped* strings (`id="{{ id_prefix }}FirstName"` against
+  `for="{{ id_prefix }}FirstName"`). Matching on the raw template text settles
+  them — and is what exposes the five that are genuinely broken. The
+  merchant-share lower-bound prediction below held: four elements moved theme →
+  merchant, 11.0% → 11.8%.
 - **The 11.0% merchant share is a lower bound on per-store residual.** The
   taxonomy calls something merchant only when the root is unambiguously a
   merchant object; a bare `title` used as `product.title` in the controller is

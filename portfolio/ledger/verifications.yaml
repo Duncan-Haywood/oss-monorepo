@@ -22,15 +22,20 @@
 # `entries:` off it; a bare list here crashes `allocate.py`.
 
 records:
-- pr: 222
-  head_sha: fe19bb899ea0e58d36b48ddcd96575ffa2cd529b
-  verified_against_main: baca2019f52e976f7faf5860abe72433fbb343af
-  verified_at: "2026-08-20T14:33:36Z"
+- pr: 372
+  head_sha: 14960d9ee0cf100c581ab835eccab745d318b419
+  verified_against_main: 75650d7aaf767bc8da4f90acdd3259627fef8d0d
+  verified_at: "2026-08-20T21:29:55Z"
   result: pass
   note: >-
-    Install, lint, typecheck, build, test and `audit --audit-level=high` run on
-    the actual merge result in a throwaway worktree, across all six affected
-    apps; 0 high-severity findings on each, and all ten CI checks green on the
-    head. Written up in the comment on #222 dated 2026-08-20T14:33Z. The pull
-    request stays owner-gated because merging it fires two live deploys, not
-    because anything about it is unverified.
+    Supersedes #222 (closed, same head-of-chain content) after resolving a
+    third conflict with `main` (retail-pilot-intel + a doubled `permissions:`
+    block in 6 CI workflows). retail-pilot-intel: `pnpm install
+    --frozen-lockfile`, lint, typecheck (6/6 packages), build, test (13/13),
+    and `audit --audit-level=high` all clean. photo-editing/docs-site: `npm
+    ci`, lint, build (23 static pages), `audit --audit-level=high` all clean.
+    The other four ventures (ai-first-markets, print-atelier,
+    real-estate-agent-photo-app research + docs-site) are byte-identical to
+    #222's own verified branch content, so not re-run. Written up in the PR
+    #372 body. Stays owner-gated because merging it fires deploys to live
+    sites, not because anything about it is unverified.
