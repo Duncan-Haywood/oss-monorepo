@@ -49,6 +49,10 @@ hypotheses:
     status: supported
     checked: 2026-08-20
     evidence: in-repo
+  - claim: Within a single card's offload, one include_path's copy stage failing outright (disk-full on staging, source card ejected mid-copy, a permission error on the whole volume) does not abort that card's other include_paths; the failure is recorded in the card's stats and the manifest still gets written.
+    status: supported
+    checked: 2026-08-20
+    evidence: in-repo
 
 economics:
   currency: USD

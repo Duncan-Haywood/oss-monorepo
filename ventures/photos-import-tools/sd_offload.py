@@ -299,10 +299,24 @@ def offload_card(
             log(f"Skipping missing path: {source}", log_path)
             continue
         dest = card.dest / include
-        wait_for_disk_space(min_gb=8.0)
-        rsync_copy(source, dest, log_path)
-        for media in iter_media_files(dest):
-            evict(media)
+        try:
+            wait_for_disk_space(min_gb=8.0)
+            rsync_copy(source, dest, log_path)
+            for media in iter_media_files(dest):
+                evict(media)
+        except (RuntimeError, OSError) as error:
+            # rsync failing outright (disk-full on staging, source card
+            # ejected mid-copy, a permission error on the whole volume) used
+            # to propagate uncaught out of this loop, aborting the rest of
+            # this card's include_paths (e.g. MISC never attempted after
+            # DCIM fails) even though offload_all() already isolates one
+            # card's failure from the others. Recording the failure here
+            # instead lets this card's remaining include_paths still run:
+            # already-copied includes still get verified below, and
+            # offload_exit_code() still sees the error and reports "offloaded
+            # with errors" (1) rather than losing the rest of the card.
+            stats.errors.append(f"Copy failed for {include}: {error}")
+            log(f"Copy failed for {include}: {error}", log_path)
     verify_and_manifest(card, stats, manifest_path, log_path, verify_hash=verify_hash)
     stats.finished_at = iso_now()
     return stats
