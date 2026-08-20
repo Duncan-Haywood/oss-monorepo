@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Copy, Image, Mail, MessageSquare, Send } from "lucide-react";
+import { Copy, Image as ImageIcon, Mail, MessageSquare, Send } from "lucide-react";
 import { buildProofMockupKitsForQueue, type ProofMockupResponseKit } from "@/lib/outreach";
 
 function KitCard({ kit }: { kit: ProofMockupResponseKit }) {
@@ -51,7 +51,7 @@ function KitCard({ kit }: { kit: ProofMockupResponseKit }) {
             className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/40"
           >
             <div className="flex items-center gap-2 text-xs font-medium uppercase text-gray-500">
-              <Image className="h-3.5 w-3.5" />
+              <ImageIcon className="h-3.5 w-3.5" />
               {scene.roomLabel}
             </div>
             <p className="mt-2 text-sm text-gray-800 dark:text-gray-200">{scene.previewLabel}</p>
