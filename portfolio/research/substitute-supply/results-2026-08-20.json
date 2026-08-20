@@ -1,0 +1,1231 @@
+{
+ "measured_at": "2026-08-20T20:18:49.631401+00:00",
+ "source": "https://registry.npmjs.org/-/v1/search",
+ "page_size": 250,
+ "live_window_days": 548,
+ "thresholds": [
+  1000,
+  10000,
+  100000
+ ],
+ "headline_threshold": 10000,
+ "candidates": {
+  "eaa-remediation-pipeline": [
+   {
+    "function": "wcag-audit",
+    "query": "wcag accessibility audit",
+    "domain_groups": [
+     [
+      "wcag",
+      "a11y",
+      "accessibility",
+      "aria",
+      "axe"
+     ]
+    ],
+    "action_groups": [
+     [
+      "audit",
+      "scan",
+      "test",
+      "check",
+      "lint",
+      "report",
+      "validator"
+     ]
+    ],
+    "ecosystem_fit": "native",
+    "note": "The write-up scores ai_leverage 8 on 'audit and prioritisation are model work against a well-specified standard'. This asks whether the audit half is already free.",
+    "error": null,
+    "returned_by_search": 250,
+    "relevant": 68,
+    "relevant_live": 68,
+    "substitutes_at_threshold": {
+     "1000": 33,
+     "10000": 9,
+     "100000": 5
+    },
+    "top_live": [
+     {
+      "name": "@storybook/addon-a11y",
+      "description": "Storybook Addon A11y: Test UI component compliance with WCAG web accessibility standards",
+      "monthly_downloads": 42294723,
+      "dependents": 1237,
+      "updated": "2026-08-20T11:01:26.104Z",
+      "live": true
+     },
+     {
+      "name": "@axe-core/react",
+      "description": "Dynamic accessibility analysis for React using axe-core",
+      "monthly_downloads": 3269466,
+      "dependents": 11,
+      "updated": "2026-08-20T11:02:20.621Z",
+      "live": true
+     },
+     {
+      "name": "impeccable",
+      "description": "Design skills, commands, and anti-pattern detection for AI coding agents",
+      "monthly_downloads": 434947,
+      "dependents": 5,
+      "updated": "2026-08-20T10:59:06.567Z",
+      "live": true
+     },
+     {
+      "name": "color-contrast-checker",
+      "description": "This is an accessibility validator based on WCAG 2.0 standard for checking the color contrast.",
+      "monthly_downloads": 426194,
+      "dependents": 14,
+      "updated": "2026-08-20T11:06:30.669Z",
+      "live": true
+     },
+     {
+      "name": "nightwatch-axe-verbose",
+      "description": "For adding custom commands to allow you to run axe accessibility tests in your NightwatchJS test cases.",
+      "monthly_downloads": 276064,
+      "dependents": 14,
+      "updated": "2026-08-20T11:04:01.677Z",
+      "live": true
+     },
+     {
+      "name": "axe-sarif-converter",
+      "description": "Convert axe-core accessibility scan results to the SARIF format",
+      "monthly_downloads": 77515,
+      "dependents": 2,
+      "updated": "2026-08-20T11:00:52.856Z",
+      "live": true
+     },
+     {
+      "name": "react-native-accessibility-engine",
+      "description": "Make accessibility-related assertions on React Native code using React Test Renderer",
+      "monthly_downloads": 30909,
+      "dependents": 0,
+      "updated": "2026-08-14T10:41:05.352Z",
+      "live": true
+     },
+     {
+      "name": "axe-playwright-report",
+      "description": "Playwright + axe-core integration to run accessibility scans and build HTML dashboard reports.",
+      "monthly_downloads": 26639,
+      "dependents": 0,
+      "updated": "2026-08-19T11:26:35.516Z",
+      "live": true
+     }
+    ]
+   },
+   {
+    "function": "a11y-fix-generation",
+    "query": "accessibility automatic fix remediation",
+    "domain_groups": [
+     [
+      "wcag",
+      "a11y",
+      "accessibility",
+      "aria"
+     ]
+    ],
+    "action_groups": [
+     [
+      "fix",
+      "remediation",
+      "autofix",
+      "repair"
+     ]
+    ],
+    "ecosystem_fit": "native",
+    "note": "The 'AI-generated theme fixes' half of the deliverable.",
+    "error": null,
+    "returned_by_search": 250,
+    "relevant": 10,
+    "relevant_live": 10,
+    "substitutes_at_threshold": {
+     "1000": 5,
+     "10000": 0,
+     "100000": 0
+    },
+    "top_live": [
+     {
+      "name": "@ia-qa/self-healing",
+      "description": "Local-first self-healing for UI tests: a local MCP server + CLI that map your app's pages to a role/name/selector contract, diff selector drift (PASS/FIX/BLOCK), and apply deterministic fixes to Cypre",
+      "monthly_downloads": 7651,
+      "dependents": 0,
+      "updated": "2026-08-18T14:07:49.815Z",
+      "live": true
+     },
+     {
+      "name": "sa11y",
+      "description": "Sa11y is an accessibility quality assurance tool that visually highlights common accessibility and usability issues. Geared towards content authors, Sa11y straightforwardly identifies errors or warnin",
+      "monthly_downloads": 7508,
+      "dependents": 0,
+      "updated": "2026-08-19T11:23:21.497Z",
+      "live": true
+     },
+     {
+      "name": "pdfix-sdk",
+      "description": "Take the full control over the PDF documents with PDFix SDK. Leverage the advantages of the PDFix SDK WebAssembly build for use in both Node.js and web applications",
+      "monthly_downloads": 1424,
+      "dependents": 0,
+      "updated": "2026-08-13T21:00:00.894Z",
+      "live": true
+     },
+     {
+      "name": "fix-outline",
+      "description": "`*:focus { outline: none }` done right",
+      "monthly_downloads": 1247,
+      "dependents": 0,
+      "updated": "2026-08-20T04:06:22.285Z",
+      "live": true
+     },
+     {
+      "name": "@a11ychk/mcp",
+      "description": "A11y Check MCP server \u2014 web accessibility scanning (WCAG 2.2 AA + KWCAG 2.2) with Korean remediation guides, for AI coding tools",
+      "monthly_downloads": 1061,
+      "dependents": 0,
+      "updated": "2026-08-19T06:21:29.423Z",
+      "live": true
+     },
+     {
+      "name": "grapesjs-a11y-seo",
+      "description": "Lighthouse for GrapesJS \u2014 an in-editor accessibility auditor (WCAG 2.1/2.2) and SEO metadata manager. Every finding is bound to the exact component: click to select, scroll and quick-fix.",
+      "monthly_downloads": 824,
+      "dependents": 0,
+      "updated": "2026-08-15T12:06:10.432Z",
+      "live": true
+     },
+     {
+      "name": "accessibility-scanner-mcp",
+      "description": "MCP server that scans web pages for WCAG accessibility issues with axe-core, so AI agents can audit and fix accessibility. By accessibilityscanner.app",
+      "monthly_downloads": 772,
+      "dependents": 0,
+      "updated": "2026-08-17T13:01:08.166Z",
+      "live": true
+     },
+     {
+      "name": "accessflow-mcp-server",
+      "description": "AccessFlow MCP Server for accessibility issue remediation",
+      "monthly_downloads": 771,
+      "dependents": 0,
+      "updated": "2026-08-18T15:11:31.088Z",
+      "live": true
+     }
+    ]
+   }
+  ],
+  "shopify-a11y-evidence": [
+   {
+    "function": "storefront-a11y-scan",
+    "query": "shopify theme accessibility",
+    "domain_groups": [
+     [
+      "shopify",
+      "liquid",
+      "storefront"
+     ],
+     [
+      "wcag",
+      "a11y",
+      "accessibility",
+      "aria"
+     ]
+    ],
+    "action_groups": [],
+    "ecosystem_fit": "native",
+    "note": "The write-up already asserts 'the scan is commodity and the category is crowded' (defensibility 4). This measures the Shopify-specific slice of that.",
+    "error": null,
+    "returned_by_search": 250,
+    "relevant": 0,
+    "relevant_live": 0,
+    "substitutes_at_threshold": {
+     "1000": 0,
+     "10000": 0,
+     "100000": 0
+    },
+    "top_live": []
+   }
+  ],
+  "cra-evidence-desk": [
+   {
+    "function": "sbom-generation",
+    "query": "sbom cyclonedx spdx generate",
+    "domain_groups": [
+     [
+      "sbom",
+      "cyclonedx",
+      "spdx",
+      "bill-of-materials",
+      "bom"
+     ]
+    ],
+    "action_groups": [
+     [
+      "generate",
+      "create",
+      "build",
+      "produce",
+      "export",
+      "cli",
+      "tool",
+      "plugin",
+      "generator"
+     ]
+    ],
+    "ecosystem_fit": "native",
+    "note": "Directly tests the write-up's 'SBOM generation is commodity and partly open source'.",
+    "error": null,
+    "returned_by_search": 250,
+    "relevant": 36,
+    "relevant_live": 36,
+    "substitutes_at_threshold": {
+     "1000": 11,
+     "10000": 7,
+     "100000": 6
+    },
+    "top_live": [
+     {
+      "name": "@datadog/datadog-ci-plugin-sbom",
+      "description": "Datadog CI plugin for `sbom` commands",
+      "monthly_downloads": 3841774,
+      "dependents": 0,
+      "updated": "2026-08-20T10:57:19.303Z",
+      "live": true
+     },
+     {
+      "name": "@cyclonedx/cyclonedx-npm",
+      "description": "Create CycloneDX Software Bill of Materials (SBOM) from NPM projects.",
+      "monthly_downloads": 1929585,
+      "dependents": 5,
+      "updated": "2026-08-20T10:57:26.428Z",
+      "live": true
+     },
+     {
+      "name": "retire",
+      "description": "Retire is a tool for detecting use of vulnerable libraries",
+      "monthly_downloads": 932836,
+      "dependents": 25,
+      "updated": "2026-08-20T11:03:54.909Z",
+      "live": true
+     },
+     {
+      "name": "rollup-plugin-sbom",
+      "description": "A rollup, rolldown and vite plugin to generate SBOMs for your application",
+      "monthly_downloads": 179068,
+      "dependents": 0,
+      "updated": "2026-08-20T11:05:32.424Z",
+      "live": true
+     },
+     {
+      "name": "@cyclonedx/webpack-plugin",
+      "description": "Creates CycloneDX Software Bill of Materials (SBoM) from webpack projects",
+      "monthly_downloads": 149625,
+      "dependents": 2,
+      "updated": "2026-08-20T10:58:55.638Z",
+      "live": true
+     },
+     {
+      "name": "@cyclonedx/yarn-plugin-cyclonedx",
+      "description": "Create CycloneDX Software Bill of Materials (SBOM) from yarn projects.",
+      "monthly_downloads": 139937,
+      "dependents": 0,
+      "updated": "2026-08-20T11:01:04.160Z",
+      "live": true
+     },
+     {
+      "name": "@cyclonedx/cyclonedx-esbuild",
+      "description": "Create CycloneDX Software Bill of Materials (SBOM) from projects built with esbuild or Bun.",
+      "monthly_downloads": 53584,
+      "dependents": 0,
+      "updated": "2026-08-20T11:02:20.727Z",
+      "live": true
+     },
+     {
+      "name": "supply-chain-guard",
+      "description": "Open-source supply-chain security scanner for npm, PyPI, Cargo, Go, RubyGems, Composer, NuGet, Docker, VS Code extensions, GitHub Actions, IaC and Solana C2. Detects GlassWorm, Shai-Hulud, PPE attacks",
+      "monthly_downloads": 9815,
+      "dependents": 0,
+      "updated": "2026-08-20T12:53:10.521Z",
+      "live": true
+     }
+    ]
+   },
+   {
+    "function": "advisory-matching",
+    "query": "vulnerability audit dependencies advisory",
+    "domain_groups": [
+     [
+      "vulnerability",
+      "vulnerabilities",
+      "advisory",
+      "advisories",
+      "cve",
+      "cvss"
+     ]
+    ],
+    "action_groups": [
+     [
+      "audit",
+      "scan",
+      "check",
+      "monitor",
+      "detect",
+      "match"
+     ]
+    ],
+    "ecosystem_fit": "native",
+    "note": "The 'EU vulnerability-database matching' half, minus the EUVD mapping that is egress-denied (see research/data-reachability/).",
+    "error": null,
+    "returned_by_search": 250,
+    "relevant": 32,
+    "relevant_live": 32,
+    "substitutes_at_threshold": {
+     "1000": 22,
+     "10000": 10,
+     "100000": 3
+    },
+    "top_live": [
+     {
+      "name": "better-npm-audit",
+      "description": "Reshape into a better npm audit for the community and encourage more people to include security audit into their process.",
+      "monthly_downloads": 1004281,
+      "dependents": 15,
+      "updated": "2026-08-20T11:04:23.614Z",
+      "live": true
+     },
+     {
+      "name": "yarn-audit-fix",
+      "description": "The missing `yarn audit fix`",
+      "monthly_downloads": 264469,
+      "dependents": 3,
+      "updated": "2026-08-20T11:01:43.543Z",
+      "live": true
+     },
+     {
+      "name": "@snyk/protect",
+      "description": "Snyk protect library and utility",
+      "monthly_downloads": 204522,
+      "dependents": 40,
+      "updated": "2026-08-20T17:06:46.520Z",
+      "live": true
+     },
+     {
+      "name": "yarn-osv-audit",
+      "description": "Audit Yarn v1 lockfiles against the OSV vulnerability database",
+      "monthly_downloads": 22572,
+      "dependents": 0,
+      "updated": "2026-08-19T11:01:23.690Z",
+      "live": true
+     },
+     {
+      "name": "audit-export",
+      "description": "Pretty export your npm audit output as an offline accessible html page",
+      "monthly_downloads": 17534,
+      "dependents": 0,
+      "updated": "2026-08-19T11:25:08.864Z",
+      "live": true
+     },
+     {
+      "name": "npm-audit-plus",
+      "description": "A wrapper around NPM's built-in audit that adds extra features",
+      "monthly_downloads": 15237,
+      "dependents": 0,
+      "updated": "2026-08-19T11:01:13.682Z",
+      "live": true
+     },
+     {
+      "name": "node-version-audit",
+      "description": "Audit your Node version for known CVEs and patches ",
+      "monthly_downloads": 15185,
+      "dependents": 0,
+      "updated": "2026-08-19T10:56:18.459Z",
+      "live": true
+     },
+     {
+      "name": "bun-scan",
+      "description": "Vulnerability scanner for Bun projects",
+      "monthly_downloads": 14960,
+      "dependents": 0,
+      "updated": "2026-08-19T11:29:04.326Z",
+      "live": true
+     }
+    ]
+   },
+   {
+    "function": "vex-attestation",
+    "query": "vex provenance slsa in-toto supply chain",
+    "domain_groups": [
+     [
+      "vex",
+      "provenance",
+      "in-toto",
+      "slsa"
+     ],
+     [
+      "supply-chain",
+      "supply",
+      "sbom",
+      "cyclonedx",
+      "spdx",
+      "attestation",
+      "attestations",
+      "vulnerability"
+     ]
+    ],
+    "action_groups": [],
+    "ecosystem_fit": "partial",
+    "note": "The part of the technical file that is not SBOM. Domain requires a supply-chain attestation term AND a supply-chain context term, so device/crypto attestation (Android key attestation, iOS App Attest) does not count. Thinner on npm than in Go.",
+    "error": null,
+    "returned_by_search": 250,
+    "relevant": 10,
+    "relevant_live": 10,
+    "substitutes_at_threshold": {
+     "1000": 5,
+     "10000": 0,
+     "100000": 0
+    },
+    "top_live": [
+     {
+      "name": "supply-chain-guard",
+      "description": "Open-source supply-chain security scanner for npm, PyPI, Cargo, Go, RubyGems, Composer, NuGet, Docker, VS Code extensions, GitHub Actions, IaC and Solana C2. Detects GlassWorm, Shai-Hulud, PPE attacks",
+      "monthly_downloads": 9815,
+      "dependents": 0,
+      "updated": "2026-08-20T12:53:10.521Z",
+      "live": true
+     },
+     {
+      "name": "@xemahq/biome-supply-chain",
+      "description": "Shared cosign supply-chain verification for Xema biomes: the single cosign CLI exec + the signature/provenance verdict enums used by biome-fetcher-api (OCI bundle verification) and xema-store-api. Nod",
+      "monthly_downloads": 8128,
+      "dependents": 1,
+      "updated": "2026-08-20T11:04:25.341Z",
+      "live": true
+     },
+     {
+      "name": "@dir-ai/voyager",
+      "description": "Voyager \u2014 the verified-brief organ for coding agents: turns a query into a cited, confidence-scored, OSV-gated, injection-hardened brief, never a raw web response. CLI, library, and MCP server.",
+      "monthly_downloads": 3831,
+      "dependents": 4,
+      "updated": "2026-08-18T10:01:40.696Z",
+      "live": true
+     },
+     {
+      "name": "skillerr",
+      "description": "Create, sign, verify, and run portable .skill packages for AI agents: content-addressed identity, Ed25519 + Sigstore provenance, and inspect-before-run trust. Bin: skill.",
+      "monthly_downloads": 1645,
+      "dependents": 0,
+      "updated": "2026-08-18T03:36:09.732Z",
+      "live": true
+     },
+     {
+      "name": "@effected/sbom",
+      "description": "CycloneDX 1.6 SBOM construction, SLSA provenance, NTIA validation and Sigstore signing as typed services.",
+      "monthly_downloads": 1460,
+      "dependents": 1,
+      "updated": "2026-08-17T09:36:31.765Z",
+      "live": true
+     },
+     {
+      "name": "node-addon-slsa",
+      "description": "Provenance verification for prebuilt native addons with GitHub attestations",
+      "monthly_downloads": 574,
+      "dependents": 1,
+      "updated": "2026-08-17T05:52:31.539Z",
+      "live": true
+     },
+     {
+      "name": "@peac/mappings-slsa",
+      "description": "SLSA v1.2 provenance mapping for PEAC provenance extension",
+      "monthly_downloads": 565,
+      "dependents": 0,
+      "updated": "2026-08-16T12:41:09.105Z",
+      "live": true
+     },
+     {
+      "name": "git-provenance-anchor",
+      "description": "Trust-minimized software provenance for Git using selective Layer-2 blockchain anchoring",
+      "monthly_downloads": 561,
+      "dependents": 0,
+      "updated": "2026-08-20T11:21:14.553Z",
+      "live": true
+     }
+    ]
+   }
+  ],
+  "mcp-supply-chain-watch": [
+   {
+    "function": "mcp-tool-introspection",
+    "query": "mcp model context protocol server tools",
+    "domain_groups": [
+     [
+      "mcp",
+      "model-context-protocol",
+      "modelcontextprotocol"
+     ]
+    ],
+    "action_groups": [
+     [
+      "inspect",
+      "inspector",
+      "tools",
+      "client",
+      "list",
+      "schema",
+      "registry",
+      "server"
+     ]
+    ],
+    "ecosystem_fit": "native",
+    "note": "Reading a server's declared tool surface -- the input step of the product.",
+    "error": null,
+    "returned_by_search": 250,
+    "relevant": 186,
+    "relevant_live": 186,
+    "substitutes_at_threshold": {
+     "1000": 186,
+     "10000": 140,
+     "100000": 51
+    },
+    "top_live": [
+     {
+      "name": "@playwright/mcp",
+      "description": "Playwright Tools for MCP",
+      "monthly_downloads": 25874357,
+      "dependents": 106,
+      "updated": "2026-08-20T10:58:39.757Z",
+      "live": true
+     },
+     {
+      "name": "@ai-sdk/mcp",
+      "description": "The **Model Context Protocol (MCP) client** for the [AI SDK](https://ai-sdk.dev/docs) lets you connect to MCP servers and use their tools with AI SDK functions like `generateText` and `streamText`.",
+      "monthly_downloads": 10463152,
+      "dependents": 152,
+      "updated": "2026-08-20T10:59:59.611Z",
+      "live": true
+     },
+     {
+      "name": "@modelcontextprotocol/server",
+      "description": "Model Context Protocol implementation for TypeScript - Server package",
+      "monthly_downloads": 7959960,
+      "dependents": 849,
+      "updated": "2026-08-20T11:04:02.578Z",
+      "live": true
+     },
+     {
+      "name": "chrome-devtools-mcp",
+      "description": "MCP server for Chrome DevTools",
+      "monthly_downloads": 7771428,
+      "dependents": 24,
+      "updated": "2026-08-20T10:58:58.966Z",
+      "live": true
+     },
+     {
+      "name": "@modelcontextprotocol/client",
+      "description": "Model Context Protocol implementation for TypeScript - Client package",
+      "monthly_downloads": 4867919,
+      "dependents": 205,
+      "updated": "2026-08-20T11:01:15.403Z",
+      "live": true
+     },
+     {
+      "name": "eve",
+      "description": "Filesystem-first framework for durable backend AI agents that run anywhere.",
+      "monthly_downloads": 2273481,
+      "dependents": 56,
+      "updated": "2026-08-20T11:02:10.798Z",
+      "live": true
+     },
+     {
+      "name": "@modelcontextprotocol/server-filesystem",
+      "description": "MCP server for filesystem access",
+      "monthly_downloads": 1989072,
+      "dependents": 37,
+      "updated": "2026-08-20T10:58:02.965Z",
+      "live": true
+     },
+     {
+      "name": "@mcp-ui/client",
+      "description": "mcp-ui Client SDK",
+      "monthly_downloads": 1233302,
+      "dependents": 18,
+      "updated": "2026-08-20T11:00:31.735Z",
+      "live": true
+     }
+    ]
+   },
+   {
+    "function": "change-monitoring",
+    "query": "monitor changes diff notify alert",
+    "domain_groups": [
+     [
+      "monitor",
+      "watch",
+      "watcher",
+      "diff"
+     ]
+    ],
+    "action_groups": [
+     [
+      "change",
+      "changes",
+      "alert",
+      "notify",
+      "diff",
+      "watch"
+     ]
+    ],
+    "ecosystem_fit": "native",
+    "note": "The generic diff-and-alert engine. research/mcp-archive-defensibility/ already refuted the archive mitigation; this asks whether the mechanism is free too.",
+    "error": null,
+    "returned_by_search": 250,
+    "relevant": 127,
+    "relevant_live": 127,
+    "substitutes_at_threshold": {
+     "1000": 125,
+     "10000": 117,
+     "100000": 90
+    },
+    "top_live": [
+     {
+      "name": "diff",
+      "description": "A JavaScript text diff implementation.",
+      "monthly_downloads": 571852492,
+      "dependents": 10274,
+      "updated": "2026-08-20T10:58:54.906Z",
+      "live": true
+     },
+     {
+      "name": "jest-diff",
+      "description": "Display differences clearly so people can review changes confidently.",
+      "monthly_downloads": 323275205,
+      "dependents": 1213,
+      "updated": "2026-08-20T11:01:10.446Z",
+      "live": true
+     },
+     {
+      "name": "fast-diff",
+      "description": "Fast Javascript text diff",
+      "monthly_downloads": 203185294,
+      "dependents": 704,
+      "updated": "2026-08-20T11:02:21.846Z",
+      "live": true
+     },
+     {
+      "name": "diff-sequences",
+      "description": "Compare items in two sequences to find a longest common subsequence",
+      "monthly_downloads": 200052878,
+      "dependents": 931,
+      "updated": "2026-08-20T10:58:06.715Z",
+      "live": true
+     },
+     {
+      "name": "@jest/diff-sequences",
+      "description": "Compare items in two sequences to find a longest common subsequence",
+      "monthly_downloads": 127448744,
+      "dependents": 3,
+      "updated": "2026-08-20T11:03:05.159Z",
+      "live": true
+     },
+     {
+      "name": "preact",
+      "description": "Fast 3kb React-compatible Virtual DOM library.",
+      "monthly_downloads": 119604087,
+      "dependents": 2684,
+      "updated": "2026-08-20T10:57:14.449Z",
+      "live": true
+     },
+     {
+      "name": "arr-diff",
+      "description": "Returns an array with only the unique values from the first array, by excluding all values from additional arrays using strict equality for comparisons.",
+      "monthly_downloads": 65348673,
+      "dependents": 725,
+      "updated": "2026-08-20T11:04:18.500Z",
+      "live": true
+     },
+     {
+      "name": "pixelmatch",
+      "description": "The smallest and fastest pixel-level image comparison library.",
+      "monthly_downloads": 38883854,
+      "dependents": 817,
+      "updated": "2026-08-20T11:01:06.962Z",
+      "live": true
+     }
+    ]
+   }
+  ],
+  "agent-permission-harness": [
+   {
+    "function": "prompt-injection-testing",
+    "query": "prompt injection jailbreak llm security",
+    "domain_groups": [
+     [
+      "prompt-injection",
+      "jailbreak",
+      "prompt",
+      "llm-security"
+     ]
+    ],
+    "action_groups": [
+     [
+      "injection",
+      "attack",
+      "red-team",
+      "redteam",
+      "adversarial",
+      "guard",
+      "test"
+     ]
+    ],
+    "ecosystem_fit": "native",
+    "note": "Directly tests the write-up's 'free tooling sets the anchor at zero' (distribution 4).",
+    "error": null,
+    "returned_by_search": 250,
+    "relevant": 64,
+    "relevant_live": 64,
+    "substitutes_at_threshold": {
+     "1000": 34,
+     "10000": 12,
+     "100000": 2
+    },
+    "top_live": [
+     {
+      "name": "arcjet",
+      "description": "Arcjet runtime security SDK \u2014 bot protection, rate limiting, prompt injection detection, PII blocking, and WAF for JavaScript and TypeScript apps",
+      "monthly_downloads": 317462,
+      "dependents": 11,
+      "updated": "2026-08-20T11:02:06.713Z",
+      "live": true
+     },
+     {
+      "name": "@arcjet/next",
+      "description": "Arcjet runtime security SDK for Next.js \u2014 bot protection, rate limiting, prompt injection detection, PII blocking, and WAF",
+      "monthly_downloads": 276250,
+      "dependents": 3,
+      "updated": "2026-08-20T10:59:41.284Z",
+      "live": true
+     },
+     {
+      "name": "@metaharness/redblue",
+      "description": "AI red-teaming for the AI agents & LLM apps you own: stress-test them with adversarial models to find security failures (prompt injection, tool misuse / excessive agency, data leakage, jailbreaks, den",
+      "monthly_downloads": 88297,
+      "dependents": 2,
+      "updated": "2026-08-20T11:04:27.037Z",
+      "live": true
+     },
+     {
+      "name": "@promptshield/core",
+      "description": "The heart of the PromptShield ecosystem. A zero-dependency, isomorphic TypeScript engine for detecting invisible characters, BIDI overrides, and homoglyph attacks in AI prompts.",
+      "monthly_downloads": 67459,
+      "dependents": 6,
+      "updated": "2026-08-20T11:07:28.109Z",
+      "live": true
+     },
+     {
+      "name": "@andersmyrmel/vard",
+      "description": "Lightweight prompt injection detection for LLM applications. Zod-inspired chainable API for prompt security.",
+      "monthly_downloads": 66574,
+      "dependents": 1,
+      "updated": "2026-08-20T11:01:14.371Z",
+      "live": true
+     },
+     {
+      "name": "@promptshield/tiptap",
+      "description": "Official Tiptap extension for PromptShield - Protect your editor from Prompt Injection and Trojan Source attacks in real-time.",
+      "monthly_downloads": 63222,
+      "dependents": 0,
+      "updated": "2026-08-20T11:05:57.931Z",
+      "live": true
+     },
+     {
+      "name": "@mondaydotcomorg/atp-provenance",
+      "description": "CAMEL-inspired provenance security for LLM applications - track data origin and enforce security policies",
+      "monthly_downloads": 56286,
+      "dependents": 2,
+      "updated": "2026-08-20T11:03:40.563Z",
+      "live": true
+     },
+     {
+      "name": "@arcjet/node",
+      "description": "Arcjet runtime security SDK for Node.js \u2014 bot protection, rate limiting, prompt injection detection, PII blocking, and WAF",
+      "monthly_downloads": 27620,
+      "dependents": 1,
+      "updated": "2026-08-20T11:03:03.405Z",
+      "live": true
+     }
+    ]
+   },
+   {
+    "function": "agent-eval-harness",
+    "query": "llm evaluation harness agent testing",
+    "domain_groups": [
+     [
+      "llm",
+      "agent",
+      "genai",
+      "prompt"
+     ],
+     [
+      "eval",
+      "evals",
+      "evaluation",
+      "benchmark",
+      "harness"
+     ]
+    ],
+    "action_groups": [],
+    "ecosystem_fit": "native",
+    "note": "The regression-suite mechanism the candidate proposes to sell. Requires an LLM/agent domain term AND an eval term in name or keywords -- so a generic test runner (jest) does not count.",
+    "error": null,
+    "returned_by_search": 250,
+    "relevant": 44,
+    "relevant_live": 44,
+    "substitutes_at_threshold": {
+     "1000": 39,
+     "10000": 14,
+     "100000": 7
+    },
+    "top_live": [
+     {
+      "name": "@mastra/core",
+      "description": "Mastra is a framework for building AI-powered applications and agents with a modern TypeScript stack.",
+      "monthly_downloads": 5753205,
+      "dependents": 353,
+      "updated": "2026-08-20T16:47:19.104Z",
+      "live": true
+     },
+     {
+      "name": "@ai-sdk/harness",
+      "description": "_This package is **experimental**._",
+      "monthly_downloads": 502241,
+      "dependents": 31,
+      "updated": "2026-08-20T20:05:26.931Z",
+      "live": true
+     },
+     {
+      "name": "agentic-flow",
+      "description": "The agentic meta-harness \u2014 freeze the model, evolve the harness. An open runtime that routes each query to the cost-optimal model, evolves its own harness (planner/context/reviewer/retry/tool/memory/s",
+      "monthly_downloads": 343381,
+      "dependents": 21,
+      "updated": "2026-08-20T10:58:24.449Z",
+      "live": true
+     },
+     {
+      "name": "@metaharness/darwin",
+      "description": "Freeze the model, evolve the harness. Two measured applications: (1) SWE-bench code-repair \u2014 conformant GLM->Opus empty-patch cascade resolves 51.3% Lite (n=300) and 55.6% Verified (278/500, Wilson 95",
+      "monthly_downloads": 287723,
+      "dependents": 2,
+      "updated": "2026-08-20T11:00:46.124Z",
+      "live": true
+     },
+     {
+      "name": "mcp-evals",
+      "description": "GitHub Action for evaluating MCP server tool calls using LLM-based scoring",
+      "monthly_downloads": 271374,
+      "dependents": 107,
+      "updated": "2026-08-20T11:03:19.762Z",
+      "live": true
+     },
+     {
+      "name": "metaharness",
+      "description": "MetaHarness \u2014 mint a custom AI agent harness from any repo. Browser Studio + `npx metaharness` CLI. Runs on Claude Code, Codex, pi.dev, Hermes, OpenClaw, RVM, Prime Agent.",
+      "monthly_downloads": 136623,
+      "dependents": 2,
+      "updated": "2026-08-20T10:58:13.220Z",
+      "live": true
+     },
+     {
+      "name": "@metaharness/flywheel",
+      "description": "A verifiable self-improvement loop for agent harnesses. Freeze the model. Evolve the harness. Promote only what proves lift.",
+      "monthly_downloads": 122052,
+      "dependents": 4,
+      "updated": "2026-08-20T11:06:36.358Z",
+      "live": true
+     },
+     {
+      "name": "@metaharness/redblue",
+      "description": "AI red-teaming for the AI agents & LLM apps you own: stress-test them with adversarial models to find security failures (prompt injection, tool misuse / excessive agency, data leakage, jailbreaks, den",
+      "monthly_downloads": 88297,
+      "dependents": 2,
+      "updated": "2026-08-20T11:04:27.037Z",
+      "live": true
+     }
+    ]
+   }
+  ],
+  "einvoice-preflight": [
+   {
+    "function": "einvoice-validation",
+    "query": "invoice validation ubl xrechnung facturx peppol",
+    "domain_groups": [
+     [
+      "invoice",
+      "ubl",
+      "xrechnung",
+      "facturx",
+      "factur-x",
+      "peppol",
+      "zugferd",
+      "en16931",
+      "e-invoice",
+      "einvoice"
+     ]
+    ],
+    "action_groups": [
+     [
+      "valid",
+      "validate",
+      "validator",
+      "check",
+      "schema",
+      "schematron",
+      "parse",
+      "verify"
+     ]
+    ],
+    "ecosystem_fit": "foreign",
+    "note": "npm is NOT this market's ecosystem -- the reference validators are Java (Schematron/Mustang) and .NET. A low count here is not evidence of scarcity.",
+    "error": null,
+    "returned_by_search": 250,
+    "relevant": 40,
+    "relevant_live": 40,
+    "substitutes_at_threshold": {
+     "1000": 6,
+     "10000": 0,
+     "100000": 0
+    },
+    "top_live": [
+     {
+      "name": "n8n-nodes-sirenic",
+      "description": "Verify a supplier before you pay them, in n8n: the French e-invoicing mandate of 1 September 2026 (Belgium since 1 January 2026), legal identity, VAT checked against VIES, IBAN checked against officia",
+      "monthly_downloads": 3254,
+      "dependents": 0,
+      "updated": "2026-08-20T16:43:26.834Z",
+      "live": true
+     },
+     {
+      "name": "n8n-nodes-pdfvector",
+      "description": "n8n community node for PDF Vector \u2014 parse PDF, Word, Excel, and image documents, extract structured data with JSON Schema, ask AI questions, and search academic papers across multiple databases.",
+      "monthly_downloads": 1659,
+      "dependents": 0,
+      "updated": "2026-08-14T10:38:39.987Z",
+      "live": true
+     },
+     {
+      "name": "ocrgenerator",
+      "description": "Swedish invoice no generator",
+      "monthly_downloads": 1648,
+      "dependents": 0,
+      "updated": "2026-08-20T06:31:08.455Z",
+      "live": true
+     },
+     {
+      "name": "@financica/ubl",
+      "description": "UBL (Universal Business Language) invoice toolkit for TypeScript: parse, build, and serialize Peppol BIS Billing 3.0 documents.",
+      "monthly_downloads": 1326,
+      "dependents": 1,
+      "updated": "2026-08-20T17:25:58.540Z",
+      "live": true
+     },
+     {
+      "name": "vat-validator-mcp",
+      "description": "VAT number validator for AI agents. EU VIES, AU ABR. Fraud risk scoring and name cross-check. PROCEED/HOLD verdict before any invoice payment.",
+      "monthly_downloads": 1051,
+      "dependents": 0,
+      "updated": "2026-08-19T03:34:14.316Z",
+      "live": true
+     },
+     {
+      "name": "@getpeppr/cli",
+      "description": "CLI tool for Peppol e-invoice validation and development",
+      "monthly_downloads": 1020,
+      "dependents": 0,
+      "updated": "2026-08-19T14:21:46.011Z",
+      "live": true
+     },
+     {
+      "name": "@lucaapp/zugferd-ts",
+      "description": "Pure-TypeScript ZUGFeRD 2.x / Factur-X + XRechnung e-invoice library \u2014 generate, embed (PDF/A-3b), parse, and validate (XSD + EN16931 Schematron) with zero native/JVM/subprocess dependencies",
+      "monthly_downloads": 908,
+      "dependents": 0,
+      "updated": "2026-08-15T02:56:06.761Z",
+      "live": true
+     },
+     {
+      "name": "verifaktura",
+      "description": "EN 16931 e-invoice validation for UBL and CII, with national CIUS profiles (HR, RS/SEF, BA/FBiH) and localized rule messages.",
+      "monthly_downloads": 752,
+      "dependents": 1,
+      "updated": "2026-08-19T15:26:11.877Z",
+      "live": true
+     }
+    ]
+   }
+  ],
+  "tender-radar": [
+   {
+    "function": "tender-monitoring",
+    "query": "tender procurement notices contracts",
+    "domain_groups": [
+     [
+      "tender",
+      "procurement",
+      "ted",
+      "contracts-finder"
+     ]
+    ],
+    "action_groups": [
+     [
+      "notice",
+      "monitor",
+      "search",
+      "api",
+      "client",
+      "feed"
+     ]
+    ],
+    "ecosystem_fit": "foreign",
+    "note": "No software ecosystem for this exists on npm. Recorded for completeness only.",
+    "error": null,
+    "returned_by_search": 250,
+    "relevant": 15,
+    "relevant_live": 15,
+    "substitutes_at_threshold": {
+     "1000": 5,
+     "10000": 0,
+     "100000": 0
+    },
+    "top_live": [
+     {
+      "name": "@open-tender/store",
+      "description": "A library of hooks, reducers, utility functions, and types for use with Open Tender applications that utilize our in-store POS API",
+      "monthly_downloads": 3233,
+      "dependents": 0,
+      "updated": "2026-08-16T05:46:13.300Z",
+      "live": true
+     },
+     {
+      "name": "@open-tender/types",
+      "description": "A library of types for use with Open Tender applications that utilize our cloud-based Order API.",
+      "monthly_downloads": 3153,
+      "dependents": 0,
+      "updated": "2026-08-17T15:06:08.611Z",
+      "live": true
+     },
+     {
+      "name": "@open-tender/utils",
+      "description": "A library of utils for use with Open Tender applications that utilize our cloud-based Order API.",
+      "monthly_downloads": 3088,
+      "dependents": 0,
+      "updated": "2026-08-18T23:46:18.779Z",
+      "live": true
+     },
+     {
+      "name": "@google-cloud/procurement",
+      "description": "Cloud Commerce Consumer Procurement API client for Node.js",
+      "monthly_downloads": 1597,
+      "dependents": 0,
+      "updated": "2026-08-17T14:18:48.923Z",
+      "live": true
+     },
+     {
+      "name": "@open-tender/cloud",
+      "description": "A library of hooks, reducers, utility functions, and types for use with Open Tender applications that utilize our cloud-based Order API.",
+      "monthly_downloads": 1573,
+      "dependents": 0,
+      "updated": "2026-08-19T00:06:44.022Z",
+      "live": true
+     },
+     {
+      "name": "tender-mcp",
+      "description": "Government tender search for AI agents. UK, EU, US contracts with AI bid scoring. BID/SKIP verdict with deadline and value in one call.",
+      "monthly_downloads": 901,
+      "dependents": 0,
+      "updated": "2026-08-19T03:34:33.971Z",
+      "live": true
+     },
+     {
+      "name": "brdata-mcp",
+      "description": "MCP server for Brazilian company & public-procurement data, paid automatically via x402 micropayments (USDC on Base or Solana). Tools: CNPJ company registry lookup (basic + full due-diligence), compan",
+      "monthly_downloads": 755,
+      "dependents": 0,
+      "updated": "2026-08-18T12:51:09.771Z",
+      "live": true
+     },
+     {
+      "name": "@atlasprzetargow/mcp",
+      "description": "MCP server for Atlas Przetarg\u00f3w \u2014 search and analyze Polish public tenders (BZP + TED) from any AI client (Claude Desktop, Cursor, Continue).",
+      "monthly_downloads": 320,
+      "dependents": 0,
+      "updated": "2026-08-13T21:36:11.127Z",
+      "live": true
+     }
+    ]
+   }
+  ],
+  "public-record-watch": [
+   {
+    "function": "register-change-monitor",
+    "query": "website change detection monitor scrape",
+    "domain_groups": [
+     [
+      "change-detection",
+      "changedetection",
+      "change",
+      "changes",
+      "diff"
+     ],
+     [
+      "website",
+      "webpage",
+      "web-page",
+      "scrape",
+      "scraper",
+      "crawl",
+      "crawler",
+      "rss",
+      "monitor",
+      "monitoring"
+     ]
+    ],
+    "action_groups": [
+     [
+      "monitor",
+      "watch",
+      "detect",
+      "track",
+      "change",
+      "changes",
+      "diff",
+      "poll",
+      "polling"
+     ]
+    ],
+    "ecosystem_fit": "native",
+    "note": "The polling-and-diffing engine for a fetched document, not a filesystem watcher or an APM: the domain term must be web/scrape/feed. The registers themselves are egress-denied from here (research/runtime-data-reachability/), the mechanism is not.",
+    "error": null,
+    "returned_by_search": 250,
+    "relevant": 2,
+    "relevant_live": 2,
+    "substitutes_at_threshold": {
+     "1000": 0,
+     "10000": 0,
+     "100000": 0
+    },
+    "top_live": [
+     {
+      "name": "watchdiff-core",
+      "description": "Lightweight web change monitoring - diffs, AI summaries, file/API/SSL/DB monitoring, structured alerts.",
+      "monthly_downloads": 589,
+      "dependents": 0,
+      "updated": "2026-08-20T07:16:07.625Z",
+      "live": true
+     },
+     {
+      "name": "n8n-nodes-feed-contract-monitor",
+      "description": "Monitor RSS, Atom, JSON Feed, and website feeds in n8n with persistent state, health evidence, and only-new delivery.",
+      "monthly_downloads": 476,
+      "dependents": 0,
+      "updated": "2026-08-20T09:21:09.137Z",
+      "live": true
+     }
+    ]
+   }
+  ]
+ }
+}
