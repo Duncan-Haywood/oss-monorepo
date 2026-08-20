@@ -59,6 +59,17 @@ export interface ReportMeta {
   arrFocus?: ArrMilestone;
 }
 
+export interface ValidationDecision {
+  milestone: ArrMilestone;
+  idea: BusinessIdea;
+  compositeScore: number;
+  maxCompositeScore: number;
+  firstExperiment: string;
+  // True when the milestone's rank-1 idea is also the top composite scorer, so
+  // the narrative ranking and the dimension scores agree on what to test next.
+  scoreAgreesWithRank: boolean;
+}
+
 export interface PortfolioSummary {
   totalIdeas: number;
   strong100k: number;

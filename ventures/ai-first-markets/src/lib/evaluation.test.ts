@@ -3,9 +3,24 @@ import {
   buildPortfolioSummary,
   getAllIdeas,
   getIdeaBySlug,
+  getScoreRanking,
   getTopIdeasForMilestone,
+  getValidationDecision,
+  maxIdeaScore,
+  scoreIdea,
 } from "./evaluation";
 import { businessIdeas } from "@/data/ideas";
+
+describe("rank integrity", () => {
+  it.each(["rank100k", "rank1m"] as const)(
+    "%s is a permutation of 1..N with no gaps or duplicates",
+    (rankKey) => {
+      const ranks = businessIdeas.map((idea) => idea[rankKey]).sort((a, b) => a - b);
+      const expected = Array.from({ length: businessIdeas.length }, (_, i) => i + 1);
+      expect(ranks).toEqual(expected);
+    },
+  );
+});
 
 describe("getAllIdeas", () => {
   it("returns every idea exactly once", () => {
@@ -102,5 +117,64 @@ describe("buildPortfolioSummary", () => {
     expect(summary.top1m.map((i) => i.id)).toEqual(
       getTopIdeasForMilestone("1m", 5).map((i) => i.id),
     );
+  });
+});
+
+describe("scoreIdea", () => {
+  it("sums the dimension scores", () => {
+    for (const idea of businessIdeas) {
+      const expected = idea.dimensions.reduce((sum, d) => sum + d.score, 0);
+      expect(scoreIdea(idea)).toBe(expected);
+      expect(maxIdeaScore(idea)).toBe(
+        idea.dimensions.reduce((sum, d) => sum + d.maxScore, 0),
+      );
+    }
+  });
+
+  it("never exceeds the maximum possible score", () => {
+    for (const idea of businessIdeas) {
+      expect(scoreIdea(idea)).toBeLessThanOrEqual(maxIdeaScore(idea));
+    }
+  });
+});
+
+describe("getScoreRanking", () => {
+  it("orders ideas by composite score, highest first", () => {
+    const scores = getScoreRanking().map(scoreIdea);
+    const sorted = [...scores].sort((a, b) => b - a);
+    expect(scores).toEqual(sorted);
+  });
+
+  it("does not mutate the source data", () => {
+    const originalOrder = businessIdeas.map((idea) => idea.id);
+    getScoreRanking();
+    expect(businessIdeas.map((idea) => idea.id)).toEqual(originalOrder);
+  });
+});
+
+describe("getValidationDecision", () => {
+  it("recommends the milestone's rank-1 idea with a concrete first experiment", () => {
+    const decision = getValidationDecision("100k");
+    const top = getTopIdeasForMilestone("100k", 1)[0];
+    expect(decision.idea.id).toBe(top.id);
+    expect(decision.firstExperiment).toBe(top.firstExperiment);
+    expect(decision.firstExperiment.trim().length).toBeGreaterThan(0);
+    expect(decision.compositeScore).toBe(scoreIdea(top));
+  });
+
+  it("defaults to the 100k milestone", () => {
+    expect(getValidationDecision().idea.id).toBe(getValidationDecision("100k").idea.id);
+  });
+
+  it("reports whether the score ranking agrees with the narrative rank", () => {
+    const decision = getValidationDecision("100k");
+    const topByScore = getScoreRanking()[0];
+    expect(decision.scoreAgreesWithRank).toBe(decision.idea.id === topByScore.id);
+  });
+
+  it("produces a decision for the 1m milestone too", () => {
+    const decision = getValidationDecision("1m");
+    expect(decision.idea.id).toBe(getTopIdeasForMilestone("1m", 1)[0].id);
+    expect(decision.firstExperiment.trim().length).toBeGreaterThan(0);
   });
 });
