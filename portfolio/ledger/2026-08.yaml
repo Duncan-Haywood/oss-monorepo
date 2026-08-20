@@ -8720,3 +8720,91 @@ entries:
         registered, no credential used, no ventures/ code changed, no
         automation added or re-enabled, nothing spent beyond agent time.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / be strategic" run, designated branch
+        claude/wizardly-albattani-eekg3y. `git fetch origin main` first;
+        tip fdc144c (#310). Open-PR survey found five (#309, #222, #192,
+        #144, #19); none touches the router or VENTURE.yaml, so this was
+        not a duplicate. Re-listed open PRs immediately before pushing, not
+        only at the start -- the four-way duplicate verifications of #267
+        (#268/#269/#270/#271, all within 2m16s) are a TOCTOU race that an
+        up-front survey alone cannot catch.
+      - >-
+        Ran the repo's own allocator instead of picking work by hand, and
+        found the router has been emitting an undispatchable queue. Nine of
+        eleven ventures' next hypotheses are claims about what someone
+        outside the repo will do -- pay, sign up, download, answer -- and 0
+        of 11 ventures have a links.production. Nothing is published for
+        anyone to respond to, so those claims are not merely hard to test
+        but unobservable from here.
+      - >-
+        This was already known and never recorded anywhere a tool could
+        read. Searching the parsed outcome text of this file (raw grep
+        undercounts -- the YAML is line-wrapped) finds at least three
+        entries from separate cycles concluding the top-ranked task is
+        "outside what an unattended session can drive"; two of those say
+        they are themselves consistent with earlier ones. Each was prose,
+        none reached the router, so the next session drew the same queue
+        and paid to rediscover the same finding.
+      - >-
+        Shipped #311 (self-merged, agent-decidable): every hypothesis now
+        declares what evidence would settle it (customer-contact | in-repo);
+        allocate.py marks a customer-contact claim BLOCKED while the venture
+        is unpublished, ranks dispatchable work above blocked work, and
+        prints the count -- 2 of 11 today. validate.py requires the field so
+        a new venture cannot silently reappear at the top of the queue with
+        work nobody can start. This is a reporting change, not a discovery.
+      - >-
+        Also corrected a stale claim in CLAUDE.md. It repeated the tenth
+        run's "demand measurement is not credential-blocked" as settled,
+        but later runs refuted its factual half and the correction is
+        already on main in channel-inventory.md -- WordPress.org, Open VSX,
+        VS Code Marketplace and GitHub Marketplace are all egress- or
+        scope-denied, verified twice on separate dates against a control
+        host, leaving Ask 5 inert. Sessions reading CLAUDE.md alone were
+        being aimed at a closed path.
+      - >-
+        Verified rather than trusted: read all 13 attached check runs first
+        per the rule #302 added (all green, including every venture build
+        the VENTURE.yaml path filters triggered), then hand-ran the whole
+        portfolio-validate job in order against the live tip -- VENTURE.yaml
+        11/11, doc-consistency 8/8, candidate rubric 8/8, router unittest
+        37/37 (29 prior + 8 new), workflow parse 20/20, workflow-validator
+        tests 8/8, break_even --check green, break-even tests 17/17. The new
+        validator rule was negative-tested both ways (missing field, bogus
+        value). mergeable_state clean, re-checked with git merge-tree after
+        main moved three times mid-session.
+      - >-
+        One judgment call recorded rather than hidden: ai-first-markets is
+        marked in-repo, contradicting a prior entry that read its claim as a
+        customer-usage test. Its own kill criteria are checkable here. Marked
+        dispatchable deliberately rather than confidently -- if wrong, a
+        session flips one field; marking everything blocked would report the
+        portfolio has no available work at all, which is what produced the
+        meta-work this replaces.
+      - >-
+        Measured, on a full (not shallow) clone -- the shallow-clone trap
+        #305's CI fix documents is real and this run hit it before
+        unshallowing: 5 commits have ever touched any ventures/*/VENTURE.yaml
+        against 166 touching portfolio/ledger/, and the last of the five
+        added a venture rather than recording anything learned about one. The
+        fleet writes about what it did far more often than it updates what
+        the businesses are.
+      - >-
+        Open follow-up, deliberately not smuggled into #311: whether any
+        reachable registry (npm, Packagist, RubyGems, crates.io, Hex, all
+        confirmed readable) can proxy for a venture's buyer. Every demand
+        study in portfolio/research/ targets portfolio/pipeline/ candidates,
+        which are not ventures. That question needs no credential,
+        publication, or owner approval.
+      - >-
+        No candidate screening performed (CLAUDE.md's intake gate applies);
+        no candidate added, no score changed. Nothing published, no account
+        registered, no credential used, no ventures/ application code
+        changed, no automation added or re-enabled, nothing spent beyond
+        agent time.
+    mrr_end: null
