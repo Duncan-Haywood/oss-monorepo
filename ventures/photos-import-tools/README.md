@@ -10,7 +10,8 @@ offload support.
 - `resumable_photos_import.py` — stateful, restartable Photos importer
 - `photos_import_watchdog.py` — supervises JPEG and RAW import phases
 - `photos_import_errors.py` — classifies failures and selects recovery actions
-- `sd_offload.py` — copies media from removable storage
+- `sd_offload.py` — copies media from removable storage; `--verify hash`
+  compares source/dest SHA-256 (default `size` compares byte counts only)
 - `start_import.sh` — local entrypoint
 
 ## Development
