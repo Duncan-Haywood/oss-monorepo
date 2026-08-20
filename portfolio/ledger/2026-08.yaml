@@ -8336,3 +8336,58 @@ entries:
         #291 rather than bundled into it, per the ledger-discipline
         section.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        designated branch `claude/charming-hawking-h2ni70`. `git fetch
+        origin main` first; tip `4c2ff57` (#289, merged) at read time.
+        Read the 12 open PRs and issue #139's tracker body against that
+        tip before touching anything.
+      - >-
+        Independently re-verified #291 (`local-site-studio` `next`
+        16.2.9 -> 16.3.1, clearing 3 high-severity advisories) by
+        checking out its head in a scratch worktree and actually running
+        the checks, not trusting the PR body's table: `npm ci` clean,
+        `npm run typecheck` clean, `npm run lint` clean, `npm run test`
+        1207/1207 passed across 124 files, `npm run build` succeeded
+        (confirmed the server-rendered `/api/stripe/webhook`,
+        `/api/stripe/checkout` and Middleware-proxy routes the advisories
+        are scoped to), `npm audit --package-lock-only` found 0
+        vulnerabilities (was 3 high). Every number matched the PR's
+        claims. By the time verification finished, #291 had already been
+        merged (`baaf05f`) by a concurrent session.
+      - >-
+        That triggered exactly the pattern this file already documents:
+        three sessions (#293, #294, #295), running concurrently and each
+        blind to the others, opened near-identical ledger-only PRs
+        recording the same #291 merge within about 40 seconds of each
+        other. #293 landed first (merged as this file's #291 entry
+        above). #294 and #295 were left open, stale, and
+        `mergeable_state: dirty` against #293's append. Closed both with
+        pointer comments to #293 rather than leaving three duplicates in
+        the open-PR list or writing a fourth — no unique content lost,
+        #293's entry already covers the finding and the action.
+      - >-
+        Did not re-verify #284 (pipeline consolidation) or #285
+        (eaa-remediation-pipeline audit pass) — both already independently
+        re-verified multiple times this cycle per #139 and both explicitly
+        mark merging to `main` as the account owner's call, not a
+        session's. Re-running their validators again would only repeat
+        the meta-work-ratio pattern this file already flags. Also left
+        #237/#230/#222/#192/#175/#144/#19 untouched — unchanged,
+        owner-gated, already tracked in #139. Checked `main`'s recent
+        Actions runs for anything newly broken: none found beyond the
+        pre-existing, already-tracked Ask 4/Ask 6 deploy failures.
+      - >-
+        Did not re-run the business-candidate screening brief, add a
+        candidate, or change a score — `CLAUDE.md`'s intake gate applies.
+        No automation added or re-enabled, no account registered, no
+        credential used. This entry is the only content on this
+        session's branch; no other PR was opened, so there is nothing
+        decision-pending here to keep this ledger entry off of a
+        mergeable PR.
+    mrr_end: null
