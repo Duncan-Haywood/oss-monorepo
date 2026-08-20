@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import json
 import os
 import subprocess
 import sys
@@ -14,6 +13,8 @@ import time
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
+
+from atomic_io import write_json_atomic
 
 
 MEDIA_EXTENSIONS = {
@@ -215,7 +216,7 @@ def verify_and_manifest(
         "stats": asdict(stats),
         "files": manifest_entries,
     }
-    manifest_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    write_json_atomic(manifest_path, payload)
     log(
         f"Manifest written: {manifest_path} ({verified} verified, {len(stats.errors)} errors)",
         log_path,
@@ -327,10 +328,7 @@ def main() -> int:
         summary.append(asdict(stats))
 
     summary_path = staging / "OFFLOAD_SUMMARY.json"
-    summary_path.write_text(
-        json.dumps({"generated_at": iso_now(), "cards": summary}, indent=2) + "\n",
-        encoding="utf-8",
-    )
+    write_json_atomic(summary_path, {"generated_at": iso_now(), "cards": summary})
     log(f"Summary: {summary_path}", logs / "offload.log")
     if not summary:
         log("No card was mounted; nothing offloaded.", logs / "offload.log")

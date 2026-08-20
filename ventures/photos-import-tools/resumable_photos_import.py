@@ -23,6 +23,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Iterable
 
+from atomic_io import write_json_atomic
 from photos_import_errors import (
     ClassifiedError,
     ErrorAction,
@@ -745,8 +746,7 @@ class PhotosImporter:
                 "error_count_1h": count_recent_errors(self.error_log, hours=1),
             },
         }
-        self.status_path.parent.mkdir(parents=True, exist_ok=True)
-        self.status_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        write_json_atomic(self.status_path, payload, sort_keys=True)
 
     def write_completion_report(self) -> None:
         report_path = self.state_dir / "completion_report.json"
@@ -760,7 +760,7 @@ class PhotosImporter:
                 "total_errors": self.stats.total_errors,
             },
         }
-        report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        write_json_atomic(report_path, report, sort_keys=True)
 
     def log_event(self, event_type: str, payload: Mapping[str, object]) -> None:
         record = {"time": iso_now(), "event": event_type, **payload}
