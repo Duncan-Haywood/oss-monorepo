@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
 """Unit tests for the re-verification staleness rule."""
+import io
 import unittest
+from contextlib import redirect_stdout
+from unittest import mock
 
 import yaml
 
+import verification_status
 from verification_status import (
     RECORDS_PATH,
     classify,
     load_records,
+    report,
     scope_of,
     validate_records,
     verdict,
@@ -165,6 +170,56 @@ class RealFile(unittest.TestCase):
 
     def test_is_well_formed(self):
         self.assertEqual(validate_records(load_records()), [])
+
+
+class Report(unittest.TestCase):
+    """The report path a scheduled clone actually hits: it lacks the pull
+    request head until the tool fetches it, and must catch a stale record."""
+
+    RECORD = record(head_sha="a" * 40, verified_against_main="b" * 40)
+
+    def _run(self, patches):
+        with mock.patch.multiple(verification_status, **patches):
+            buffer = io.StringIO()
+            with redirect_stdout(buffer):
+                report([self.RECORD], "origin/main")
+            return buffer.getvalue()
+
+    def test_a_pushed_since_head_voids_the_record(self):
+        out = self._run(
+            {
+                "resolve": mock.Mock(return_value="m" * 40),
+                "fetch_pr_head": mock.Mock(return_value="c" * 40),
+            }
+        )
+        self.assertIn("VOID", out)
+        self.assertIn("pushed since", out)
+
+    def test_a_matching_live_head_is_not_voided(self):
+        # head resolves, verified resolves, no drift -> both valid, no VOID.
+        out = self._run(
+            {
+                "resolve": mock.Mock(return_value="m" * 40),
+                "fetch_pr_head": mock.Mock(return_value="a" * 40),
+                "merge_base": mock.Mock(return_value="base"),
+                "changed_files": mock.Mock(return_value=[]),
+            }
+        )
+        self.assertNotIn("VOID", out)
+        self.assertIn("VALID", out)
+
+    def test_no_fetch_skips_the_fetch(self):
+        fetch = mock.Mock()
+        with mock.patch.multiple(
+            verification_status,
+            resolve=mock.Mock(return_value="m" * 40),
+            fetch_pr_head=fetch,
+            merge_base=mock.Mock(return_value="base"),
+            changed_files=mock.Mock(return_value=[]),
+        ):
+            with redirect_stdout(io.StringIO()):
+                report([self.RECORD], "origin/main", fetch=False)
+        fetch.assert_not_called()
 
 
 if __name__ == "__main__":

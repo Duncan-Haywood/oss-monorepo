@@ -32,10 +32,18 @@ Scoping is deliberately coarse: a path is attributed to its top two components,
 so `ventures/photo-editing/docs-site/x` counts as `ventures/photo-editing`.
 Coarse scoping over-invalidates, which is the safe direction for an error here.
 
+Both questions need the pull request's head commit, and a scheduled session's
+clone does not have it: the container clones `main` and the session's own branch
+shallowly, so every record about a pull request the session did not open
+resolved to "treat as stale" -- the tool's own defeat condition. It therefore
+fetches `refs/pull/<n>/head` on demand (~2s) rather than assuming the commit is
+present, and deepens the clone when a truncated history hides a merge base.
+Having fetched that ref it also knows the pull request's *live* head, so a
+record voided by a push since is now detected rather than merely warned about.
+`--no-fetch` keeps the tool offline for a clone that has the commits already.
+
 What this does not do: it does not verify anything, and it cannot help a session
-that never runs it. It also assumes the recorded head is still the pull
-request's head -- if the branch was pushed since, the record is void, which the
-report states rather than detects.
+that never runs it.
 
 Usage:
     python3 portfolio/ledger/verification_status.py            # status report
@@ -189,6 +197,30 @@ def resolve(ref):
     return out.strip() if out else None
 
 
+def fetch_pr_head(pr):
+    """Fetch `refs/pull/<pr>/head` and return its sha, or None if unavailable.
+
+    Origin refuses a fetch by bare sha, so the pull request ref is the only
+    handle on a head commit the clone does not already carry.
+    """
+    if git("fetch", "--quiet", "origin", f"refs/pull/{pr}/head") is None:
+        return None
+    return resolve("FETCH_HEAD")
+
+
+def deepen():
+    """Un-truncate a shallow clone so merge-base has history to walk."""
+    git("fetch", "--quiet", "--unshallow", "origin", "main")
+
+
+def merge_base(a, b):
+    base = git("merge-base", a, b)
+    if base is None:
+        deepen()
+        base = git("merge-base", a, b)
+    return base.strip() if base else None
+
+
 def changed_files(base, head):
     out = git("diff", "--name-only", base, head)
     return [line for line in out.splitlines() if line] if out else []
@@ -203,7 +235,7 @@ def load_records():
     return data.get("records") or []
 
 
-def report(records, main_ref):
+def report(records, main_ref, fetch=True):
     main_sha = resolve(main_ref)
     if main_sha is None:
         print(f"Cannot resolve {main_ref}; run `git fetch origin main` first.", file=sys.stderr)
@@ -223,16 +255,24 @@ def report(records, main_ref):
             f"  ({record['verified_at']}, {record['result']})"
         )
 
+        live_head = fetch_pr_head(pr) if fetch else None
+        if live_head is not None and live_head != head:
+            print(
+                f"  VOID - #{pr}'s live head is {live_head[:7]}, not the verified "
+                f"{head[:7]}; the branch was pushed since. Re-verify from scratch.\n"
+            )
+            continue
+
         if resolve(head) is None or resolve(verified) is None:
             print("  UNRESOLVABLE - a recorded commit is not in this clone; treat as stale.\n")
             continue
 
-        base = git("merge-base", verified, head)
+        base = merge_base(verified, head)
         if not base:
             print("  UNRESOLVABLE - no merge base with the verified tip; treat as stale.\n")
             continue
 
-        result = verdict(changed_files(base.strip(), head), changed_files(verified, main_sha))
+        result = verdict(changed_files(base, head), changed_files(verified, main_sha))
 
         if result["build_valid"]:
             print(
@@ -268,6 +308,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--check", action="store_true", help="validate the record schema only")
     parser.add_argument("--main", default="origin/main", help="the main ref to compare against")
+    parser.add_argument(
+        "--no-fetch",
+        action="store_true",
+        help="do not fetch pull-request heads; use only what the clone already has",
+    )
     args = parser.parse_args()
 
     try:
@@ -287,7 +332,7 @@ def main():
         print(f"{len(records)} verification record(s) are well-formed.")
         return 0
 
-    return report(records, args.main)
+    return report(records, args.main, fetch=not args.no_fetch)
 
 
 if __name__ == "__main__":

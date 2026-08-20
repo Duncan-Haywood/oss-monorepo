@@ -34,6 +34,17 @@ being wrong about that is worse than being slow.
 **The gap was epistemic, not behavioural.** It closes with a fact about git, not
 with another paragraph of instruction.
 
+That fact has to be *reachable*, though. A scheduled session's container clones
+`main` and the session's own branch, shallowly — it does not carry the head
+commit of a pull request some other session opened, which is exactly the commit
+every verdict below needs. Until 2026-08-20 the tool assumed that commit was
+present and, finding it absent, printed `UNRESOLVABLE — treat as stale` for
+every record: its own defeat condition, hit on the first real run. It now fetches
+`refs/pull/<n>/head` on demand (about two seconds) and deepens the shallow clone
+when a merge base is missing, so the verdict is computable from the state a
+scheduled session actually starts in. `--no-fetch` keeps it offline when the
+clone already has the commits.
+
 ## The rule
 
 Given a verification of pull request `P` at head `H`, taken against `main` tip
@@ -88,9 +99,10 @@ answer is usually partial like this, which is why a single yes/no
 - **It cannot help a session that never runs it.** That is the remaining
   failure mode, and it is why the pointer lives in `CLAUDE.md` rather than only
   here.
-- **It does not detect a re-pushed branch.** If a pull request's live head no
-  longer matches the recorded `head_sha`, the record is void; the report says
-  so, but the session has to notice.
+- **A re-pushed branch voids the record, and this is now detected.** Fetching
+  `refs/pull/<n>/head` also reveals the pull request's live head, so a record
+  whose `head_sha` no longer matches prints `VOID — pushed since` rather than a
+  verdict computed against a commit no longer on the branch.
 - **Its scoping is coarse on purpose.** Two apps under one venture directory
   invalidate each other. Coarse scoping over-invalidates, which is the safe
   direction for an error here — the cost of a false `STALE` is one wasted
