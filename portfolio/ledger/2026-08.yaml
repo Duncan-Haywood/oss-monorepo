@@ -10394,3 +10394,59 @@ entries:
         touched, nothing published, nothing registered, no credential used,
         no automation added.
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process" session, designated branch claude/pensive-feynman-xbfagi.
+        `git fetch origin main` first; tip fb8b188 at start. Read the open
+        PRs before touching anything: #192 and #363 turned out to already be
+        closed (redundant/stale, per #369's fold-in) by a session running
+        concurrently -- confirmed rather than re-derived by reading #369's
+        merged diff and its ledger entry directly. The remaining four open
+        PRs (#368, #144, #222, #19) were unchanged since their last
+        re-confirmation and stayed correctly owner-gated (unattended
+        automation or a live-venture framework upgrade); none needed action.
+      - >-
+        `portfolio/router/allocate.py` named exactly one dispatchable
+        venture, photos-import-tools, with the standing task "every recorded
+        hypothesis is settled -- write the next one in VENTURE.yaml, then
+        test it." All five prior hypotheses were supported, so wrote and
+        tested the sixth: `verify_and_manifest()` in `sd_offload.py` had no
+        error handling around the per-file stat/hash calls, so a single
+        OSError (most plausibly a previously-evicted iCloud-only dest file
+        failing to re-download on a later `--verify hash` run) crashed the
+        whole card's verification loop before the manifest was written --
+        silently discarding the verified status of every other file already
+        checked in that same run. That is a real regression against the
+        venture's "no lost media" kill_criteria, not a hypothetical one.
+      - >-
+        Fixed by catching OSError per file and recording a new "read_error"
+        manifest status plus a stats.errors entry, then continuing to the
+        next file rather than aborting. Added
+        `test_read_error_on_one_file_does_not_abort_the_others`, which
+        patches `sd_offload.sha256_file` to fail for one of two files during
+        a hash-mode pass and asserts the other file still verifies and the
+        manifest still gets written. Full venture suite 40/40 (was 39);
+        portfolio battery green (`router/validate.py` 10/10,
+        `validate_candidates.py` 8/8, `validate_doc_consistency.py` 8/8,
+        `validate_workflows.py` 23/23). VENTURE.yaml records the sixth
+        hypothesis as supported.
+      - >-
+        Self-merged PR #370 as agent-decidable per CLAUDE.md, same class as
+        this venture's prior self-merges (#359, #361):
+        `ventures/photos-import-tools` has `links.production: null` (no
+        live-site deploy), the change is additive/defensive only, publishes
+        nothing, registers nothing, uses no credential, adds no unattended
+        automation, spends nothing beyond agent time. Both CI checks (lint,
+        test, validate) were green on the head, and `git merge-tree` was
+        clean against the live main tip immediately before merging.
+      - >-
+        This entry is the separate ledger-only follow-up per CLAUDE.md's
+        ledger-discipline section, on a branch restarted from main after
+        #370 merged (the branch's only other commit is already on main via
+        #370, so this follows the "designated branch already merged" restart
+        instruction rather than stacking on dead history).
+    mrr_end: null
