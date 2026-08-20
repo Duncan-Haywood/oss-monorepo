@@ -1,0 +1,211 @@
+# The portfolio's own 11 ventures, scored on the six dimensions
+# `ventures/ai-first-markets` uses for its eight hypothetical business ideas
+# (`src/data/ideas.ts`), and which `portfolio/pipeline/README.md` reuses as the
+# first six of its eight.
+#
+# Anchors are that README's, unchanged:
+#
+#   ai_leverage      10 = the work is mostly model work; a human adds little per unit
+#   autonomous_ops   10 = runs unattended; no queue that only a person can drain
+#   time_to_revenue  10 = first paid customer plausible inside a month
+#   gross_margin     10 = cost of delivery is inference and hosting, nothing else
+#   defensibility    10 = a copy of the product does not take the customers
+#   distribution     10 = a reachable channel exists today, without paid acquisition
+#
+# These are agent judgment, exactly like `portfolio/pipeline/candidates.yaml`'s
+# screening estimates, and carry the same standing: arguable, not measured.
+# `measure_transfer.py` therefore reports how far they would have to move to
+# change the finding, so the conclusion does not rest on any single number
+# being right. Each rationale cites something checkable in the repo or in the
+# venture's own VENTURE.yaml.
+#
+# Scored deliberately from each venture's business content only. Dispatchability
+# is NOT an input here: it is read separately, from the router, by the script.
+
+scored: 2026-08-20
+scored_by: agent
+rubric_source: portfolio/pipeline/README.md
+dimensions:
+  - ai_leverage
+  - autonomous_ops
+  - time_to_revenue
+  - gross_margin
+  - defensibility
+  - distribution
+
+ventures:
+  - name: local-site-studio
+    scores:
+      ai_leverage: 7
+      autonomous_ops: 5
+      time_to_revenue: 8
+      gross_margin: 8
+      defensibility: 3
+      distribution: 6
+    rationale:
+      ai_leverage: Site build and page copy are generation work; the venture's whole pitch is a pre-built site the buyer previews.
+      autonomous_ops: Preview-before-you-buy automates, but per-business content edits and the sale itself leave a human queue.
+      time_to_revenue: $500 flat, one transaction, no procurement cycle — the fastest first dollar of the eleven. Kill criterion is a paid sale within 90 days of checkout going live.
+      gross_margin: Hosting plus generation; marginal cost is small against $500.
+      defensibility: Template site shops are a commodity; the customer relationship is the asset, not the software.
+      distribution: Local businesses are individually reachable without paid acquisition, though that reach is manual and happens outside this repo.
+
+  - name: real-estate-agent-photo-app
+    scores:
+      ai_leverage: 8
+      autonomous_ops: 6
+      time_to_revenue: 4
+      gross_margin: 7
+      defensibility: 4
+      distribution: 5
+    rationale:
+      ai_leverage: Guided capture, enhancement and MLS-ready delivery are the product and all three are model work.
+      autonomous_ops: The agent shoots; QC exceptions and concierge delivery still need a person.
+      time_to_revenue: Stage `idea`; its own kill criterion records first-concierge-delivery unconfirmed since 2026-06-13.
+      gross_margin: Inference plus media storage per listing.
+      defensibility: MLS delivery integrations and per-agent branding presets accrue mildly, but are reproducible.
+      distribution: Agents are a well-defined, list-reachable segment through brokerages and MLS groups.
+
+  - name: quick-pick-survey
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 8
+      time_to_revenue: 5
+      gross_margin: 9
+      defensibility: 3
+      distribution: 4
+    rationale:
+      ai_leverage: Pairwise preference inference is classical ranking statistics, not model work.
+      autonomous_ops: Self-serve surveys run without an operator once deployed.
+      time_to_revenue: Self-serve SaaS bills quickly in principle, but taking money is owner-gated here (see portfolio/pipeline/channel-inventory.md).
+      gross_margin: Hosting and Postgres only.
+      defensibility: Survey tools are a commodity and the pairwise method is published.
+      distribution: Researchers are reachable through academic and UX communities; no listing channel exists.
+
+  - name: ai-engineering-academy
+    scores:
+      ai_leverage: 8
+      autonomous_ops: 6
+      time_to_revenue: 3
+      gross_margin: 8
+      defensibility: 3
+      distribution: 3
+    rationale:
+      ai_leverage: Mentoring and feedback are the product, and both are model work.
+      autonomous_ops: Grading and mentorship automate; cohort support does not fully.
+      time_to_revenue: Stage `idea`; its own kill criterion is that the constitution in docs/ is not yet narrowed to a buildable MVP.
+      gross_margin: Inference plus hosting.
+      defensibility: Course content and AI mentoring are widely available and there is no credential to sell.
+      distribution: Learners are reachable through content, but that is an audience this portfolio does not have.
+
+  - name: photo-editing
+    scores:
+      ai_leverage: 7
+      autonomous_ops: 6
+      time_to_revenue: 4
+      gross_margin: 6
+      defensibility: 4
+      distribution: 3
+    rationale:
+      ai_leverage: Grading, cut selection and deliverable assembly are model and algorithmic work.
+      autonomous_ops: The pipeline runs unattended, but real shoots bring format and QC exceptions.
+      time_to_revenue: Its own kill criterion requires a shippable deliverable from a real shoot before any buyer exists.
+      gross_margin: Media transcode and GPU time are a real per-unit cost, unlike pure inference.
+      defensibility: Workflow glue around ffmpeg and model APIs; the accumulated catalog is the only switching cost.
+      distribution: Photographers are reachable only through communities or paid ads; no listing channel.
+
+  - name: ai-first-markets
+    scores:
+      ai_leverage: 5
+      autonomous_ops: 7
+      time_to_revenue: 3
+      gross_margin: 9
+      defensibility: 2
+      distribution: 2
+    rationale:
+      ai_leverage: The idea library in src/data/ideas.ts is a hand-authored static dataset and the scoring is arithmetic; no model sits in the delivery path.
+      autonomous_ops: Static content behind auth, no queue to drain — but the research content itself is written by hand.
+      time_to_revenue: No pricing and no checkout; gated behind a Google Access allowlist, so it is an internal decision tool rather than a sellable product today.
+      gross_margin: Next.js on Cloudflare Workers; delivery cost is hosting.
+      defensibility: The write-ups are opinion and copying the eight of them is trivial.
+      distribution: No listing channel, and founder-research content competes against free newsletters.
+
+  - name: retail-pilot-intel
+    scores:
+      ai_leverage: 5
+      autonomous_ops: 5
+      time_to_revenue: 4
+      gross_margin: 7
+      defensibility: 5
+      distribution: 2
+    rationale:
+      ai_leverage: SKU-gap and experiment analysis are mostly statistics; models help at the margins.
+      autonomous_ops: Per-store install and calibration is a human queue.
+      time_to_revenue: A pilot-store sales cycle plus on-site data setup, per its own kill criteria.
+      gross_margin: Hosting and per-store data storage.
+      defensibility: The deployed in-store integration and accumulated history raise switching cost more than most here.
+      distribution: One named target boutique in Italy; no repeatable channel behind it.
+
+  - name: world-clock-widget
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 9
+      time_to_revenue: 3
+      gross_margin: 9
+      defensibility: 2
+      distribution: 4
+    rationale:
+      ai_leverage: Timezone and sunrise/sunset math; no model work anywhere.
+      autonomous_ops: A shipped app with nothing to operate.
+      time_to_revenue: A paid tier needs an Apple developer account, which requires a card and a legal identity and is therefore owner-gated.
+      gross_margin: No marginal delivery cost beyond store fees.
+      defensibility: World-clock widgets are a crowded and easily cloned category.
+      distribution: The App Store is a real organic channel, but the account is owner-gated and the category is saturated.
+
+  - name: photos-import-tools
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 8
+      time_to_revenue: 2
+      gross_margin: 9
+      defensibility: 3
+      distribution: 3
+    rationale:
+      ai_leverage: Deterministic file-transfer tooling; no model work at all.
+      autonomous_ops: CLI tooling runs unattended once installed.
+      time_to_revenue: No packaging, no store presence and no price; macOS utilities also sell at a low average price.
+      gross_margin: Local software with no per-unit delivery cost.
+      defensibility: Import wrappers are widely reimplemented; the resumable state file is the only asset.
+      distribution: Could ship to Homebrew or GitHub releases, both agent-reachable per portfolio/research/egress-reachability/, but there is no audience.
+
+  - name: garmin-world-traveler-watchface
+    scores:
+      ai_leverage: 0
+      autonomous_ops: 9
+      time_to_revenue: 2
+      gross_margin: 9
+      defensibility: 1
+      distribution: 4
+    rationale:
+      ai_leverage: Pure Monkey C rendering of a 24-hour bezel; no model anywhere.
+      autonomous_ops: Once published there is nothing to operate.
+      time_to_revenue: Connect IQ paid listings need a store account, and watch faces monetise at $0-$3; the venture caps itself at $10/month.
+      gross_margin: No marginal cost.
+      defensibility: Watch faces are the most-cloned category on Connect IQ.
+      distribution: The Connect IQ Store is the strongest single organic channel here, but the submission account is owner-gated.
+
+  - name: print-atelier
+    scores:
+      ai_leverage: 6
+      autonomous_ops: 4
+      time_to_revenue: 3
+      gross_margin: 3
+      defensibility: 4
+      distribution: 3
+    rationale:
+      ai_leverage: Prospecting, outreach and the digitisation pipeline are model work; the physical half is not.
+      autonomous_ops: Print fulfilment, artist onboarding and disputes leave a real human queue.
+      time_to_revenue: Two-sided — its own kill criteria require artists before any buyer exists.
+      gross_margin: Physical print-on-demand; printing and shipping dominate, and 30% of net profit goes to the artist.
+      defensibility: The artist roster is the asset and it is non-exclusive.
+      distribution: Art buyers need paid acquisition or an existing marketplace's traffic.

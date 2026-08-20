@@ -28,6 +28,7 @@ on:
       - "ventures/**/NOT-A-VENTURE"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
+      - "portfolio/research/venture-score-transfer/**"
       - "portfolio/ledger/break-even.md"
       - "portfolio/ledger/break_even.py"
       - "portfolio/ledger/test_break_even.py"
@@ -40,6 +41,7 @@ on:
       - "ventures/**/NOT-A-VENTURE"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
+      - "portfolio/research/venture-score-transfer/**"
       - "portfolio/ledger/break-even.md"
       - "portfolio/ledger/break_even.py"
       - "portfolio/ledger/test_break_even.py"
@@ -76,6 +78,10 @@ jobs:
       - name: Router ranking-logic unit tests
         working-directory: portfolio/router
         run: python3 -m unittest test_allocate
+
+      - name: Venture score-transfer tests (imports router + reads VENTURE.yaml)
+        working-directory: portfolio/research/venture-score-transfer
+        run: python3 -m unittest test_measure_transfer
 
       - name: Validate workflow files are parseable
         run: python3 platform/ci/validate_workflows.py

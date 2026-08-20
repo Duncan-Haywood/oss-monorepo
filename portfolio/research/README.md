@@ -88,6 +88,12 @@ discovery have no price, and that the ones with a price are companies that
 arrived with an audience. Ask 0 is cheap and worth doing precisely because it is
 cheap — not because the measurements so far suggest it will pay.
 
+## 3. Do the portfolio's own methods hold up on the portfolio's own ventures?
+
+| Directory | Question | Finding |
+|---|---|---|
+| [`venture-score-transfer/`](venture-score-transfer/) | Does `ai-first-markets`'s six-dimension scoring transfer from its 8 hypothetical ideas to the 11 real ventures, ranking them consistently with the router's dispatchable-vs-blocked split? | **No — refuted.** The composite ranks the two dispatchable ventures *below* the blocked field (rank-biserial −0.44, AUC 0.28; mean composite 4.50 dispatchable vs 4.96 blocked). Business attractiveness and dispatchability are orthogonal here by construction — the buyer who makes a venture attractive is the same buyer whose response makes its next claim `customer-contact`, hence blocked. Settles `ai-first-markets`'s second hypothesis in-repo, and is evidence against wiring composite scores into the router's `rank()` |
+
 ## Two methodological results worth keeping
 
 Each pass above corrected its predecessor on the same two classes of mistake.

@@ -24,9 +24,23 @@ hypotheses:
       Scoring the portfolio's own 11 ventures on the same six dimensions ranks
       them consistently with the router's dispatchable-vs-blocked split, so the
       map's method transfers from the 8 hypothetical ideas to real ventures.
-    status: untested
-    checked: null
+    status: refuted
+    checked: 2026-08-20
     evidence: in-repo
+    note: >-
+      Refuted, and not marginally. portfolio/research/venture-score-transfer/
+      scores all 11 ventures on the six dimensions (dispatchability deliberately
+      not an input) and imports the router for the dispatchable/blocked labels.
+      The composite ranks the two dispatchable ventures *below* the blocked
+      field (ranks 6 and 9 of 11): rank-biserial -0.44, AUC 0.28, mean
+      composite 4.50 dispatchable vs 4.96 blocked. Mechanism: the router's
+      split is driven by whether the next hypothesis is in-repo vs
+      customer-contact, which is orthogonal to business attractiveness -- in
+      fact the very thing that makes a venture attractive (a real buyer who
+      would pay) is what makes its next claim customer-contact, hence blocked.
+      So the market-map scoring measures idea quality but does not transfer to
+      predicting what the router can dispatch, and should not be wired into
+      rank(). Verified by `python3 -m unittest test_measure_transfer` (9/9).
 
 economics:
   currency: USD
