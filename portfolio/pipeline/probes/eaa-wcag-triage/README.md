@@ -128,6 +128,10 @@ and posted to the job summary, mirroring the sibling probe.
 python3 -m pytest
 ```
 
+Run in CI by [`eaa-wcag-triage-ci.yml`](../../../../.github/workflows/eaa-wcag-triage-ci.yml),
+which also re-runs `run_fixture_validation.py` and fails if the committed
+record no longer matches what the engine emits.
+
 37 tests: parser behaviour, each rule and its negative control, the
 blocking-before-degrading ordering, dedup of one element matched by two rules,
 the evidence record's JSON/markdown shape and its compliance disclaimer, and the
