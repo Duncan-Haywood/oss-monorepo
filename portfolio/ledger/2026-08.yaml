@@ -6834,3 +6834,78 @@ entries:
         (monetization chain content, unchanged — only the tracker's
         summary of them was stale).
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        fresh branch with no PR of its own. `git fetch origin main`
+        first; tip `9bd71d0` (#239, ledger entry folding #225/#229/
+        #230/#232/Ask 8 into #139's body). Read issue #139 (body plus
+        all 25 comments) and the 16 open PRs against that tip.
+      - >-
+        One PR postdated everything on #139 and everything in this
+        ledger: **#240**, opened four minutes before this session's
+        tip, measuring which of the eight pipeline candidates' own
+        runtime input data this environment can actually fetch (a third
+        reachability question, distinct from #166/#177's "can we
+        publish" and #232/#139 s2c's "can we verify a primary source").
+        Its own session had already posted the finding as a comment on
+        #139 and sent a push notification, correctly following the
+        single-branch decision-pending rule in `CLAUDE.md` — so it was
+        already visible to the owner, just not yet folded into this
+        ledger. That gap (comment posted under the single-branch rule,
+        not yet promoted to a ledger entry) is exactly the pattern
+        `CLAUDE.md` describes as needing "a later session with
+        ledger-writing room" to close, so this entry does that rather
+        than re-deriving new research.
+      - >-
+        Verified #240's central claim independently rather than trusting
+        the diff: re-ran a sample of its probes directly against the
+        live proxy (not by reading the PR's checked-in JSON). `curl` to
+        `example.com` and `www.wikipedia.org` both failed identically —
+        `CONNECT tunnel failed, response 403` — while
+        `registry.npmjs.org` returned `200` with real search results,
+        and `eur-lex.europa.eu` / `api.osv.dev` both failed the same way
+        as the controls. Matches #240's table exactly: registries
+        reachable, everything else (general web, legal/standards hosts,
+        vulnerability feeds) denied by the egress gateway. Read the
+        full diff (script, README, results JSON, pipeline pointer) —
+        no ledger hunk, no automation change, no new candidate, no
+        rescoring; consistent with what the PR claims of itself.
+      - >-
+        Read #240's conclusion: of the eight pipeline candidates, only
+        `mcp-supply-chain-watch`'s runtime feed is fully reachable here,
+        and it is also the only candidate whose probe has ever advanced
+        on measured data (#207) — a correlation nobody had checked
+        because nobody had measured the allowlist before. Reframes Asks
+        3/7 (already known to be the same policy decision per #232) as
+        buying the ability to build five candidates, not just one demand
+        measurement, and surfaces the same question as still owner-only:
+        general read-only egress vs. "registry-data businesses only" as
+        a deliberate strategy. Both are legitimate; neither is this
+        session's call.
+      - >-
+        Did not send a push notification: #240's own session already
+        sent one for this exact finding, and nothing has changed or
+        been added since — a second notification for the same finding
+        would be the redundant-signal waste `CLAUDE.md` warns against,
+        not new information for the owner.
+      - >-
+        Checked for anything else new since tip `9bd71d0`: no PR opened
+        after #240, no owner response yet on #139 (all 25 comments are
+        agent-authored), and `main`'s last 30 completed workflow runs
+        show no failure beyond the two already-tracked, already
+        owner-blocked ones (Ask 4 Cloudflare token, Ask 6 GitHub Pages
+        source). Confirmed the OpenCode high-throughput fleet's schedule
+        trigger (disabled 2026-08-19 per that workflow file's own
+        comment, pending the owner's spending-limit check) is still
+        `workflow_dispatch`-only, not re-enabled. Did not re-run the
+        pipeline/research screening brief — the `CLAUDE.md` intake gate
+        still applies and no new candidate exists. Did not merge any
+        research-chain PR, for the same reason prior sessions gave:
+        several have had the opportunity and none has taken it, and
+        nothing this session found explains that choice away.
+    mrr_end: null
