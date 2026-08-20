@@ -1,6 +1,10 @@
 # Venture merit scoring
 
-**What this answers: are the portfolio's own eleven ventures any good?**
+**What this answers: are the portfolio's own ventures any good?**
+
+Eleven are scored. Ten are allocated to — `ai-first-markets` was reclassified
+out of profit-seeking allocation after this pass and keeps its score row for the
+record; see the amendment under Finding 1.
 
 Nothing in this repository had answered that. The router
 ([`portfolio/router/`](../router/)) ranks ventures by whether a session can
@@ -47,7 +51,7 @@ is a real property of the business on any host.
 | 3 | photo-editing | 4.83 | 3 | blocked |
 | 4 | quick-pick-survey | 4.83 | 3 | blocked |
 | 5 | world-clock-widget | 4.67 | 1 | blocked |
-| 6 | ai-first-markets | 4.50 | 2 | **dispatchable** |
+| 6 | ai-first-markets | 4.50 | 2 | **reclassified** (see amendment) |
 | 7 | garmin-world-traveler-watchface | 4.50 | 1 | blocked |
 | 8 | retail-pilot-intel | 4.50 | 3 | blocked |
 | 9 | ai-engineering-academy | 4.33 | 1 | blocked |
@@ -133,6 +137,43 @@ question when nobody is currently trying to sell it:
 > queue every session reads steers effort toward the two ventures nobody is
 > trying to sell, because trying to sell something is exactly what makes a
 > venture's next question unanswerable from here.
+
+### Amendment — Finding 1 acted on, and the score row kept
+
+Finding 1 diagnosed `ai-first-markets` as internal decision infrastructure.
+[#337](https://github.com/Duncan-Haywood/monorepo-projects/pull/337) acted on
+it, giving the directory a
+[`NOT-A-VENTURE`](../../ventures/ai-first-markets/NOT-A-VENTURE) marker: the
+router, the scorer, and `validate.py` now skip it, its $50/mo protected explore
+budget is released, and the queue no longer hands sessions "write the next
+hypothesis" for a tool with no buyer. **10 allocated ventures, 11 scored.**
+
+#337 also had to delete this venture's row from `venture-scores.yaml`, and said
+why: `--check` required the scored set to equal the allocated set exactly, so
+keeping the row failed CI with `scored but no such venture directory`. That was
+a real constraint, and it had a cost the deletion could not avoid — **seven of
+the numbers in Finding 2 below, and Finding 0's inter-rater count, are computed
+over whatever this file contains.** Removing one of eleven rows silently
+restated all of them (`ai_leverage` 4.64 → 4.70, composite 4.67 → 4.68, pairs
+11 → 10) while the prose kept the old figures. No check catches that: `--check`
+validates this file's internal consistency, not the README's arithmetic.
+
+The constraint is now gone. `check()` distinguishes the **allocated** set (every
+one must be scored) from the **documented** set (any directory with a
+`VENTURE.yaml`, marker or not, may be scored), so a reclassified venture keeps
+its row. The row is restored, every figure below is once again what the script
+prints, and the eleventh inter-rater pair is back.
+
+A score is a record *about* a business, not an input to allocation. That is the
+principle worth keeping: reclassifying a venture should change what the
+portfolio spends on, not erase what it learned.
+
+`score_ventures.py` now reports the venture as `reclassified` and excludes it
+from the ranking positions and the dispatchable/blocked means — so the router
+column above is the only thing about it that moved. `photos-import-tools` is now
+the only dispatchable venture, at merit rank 9 of 10, which strengthens Finding
+1 rather than altering it. The directory is deliberately **not** moved to
+`platform/`; that remains open.
 
 This is not an argument for deleting the dispatchable field — a queue that
 hands every session impossible work is how the router came to be ignored in the
@@ -240,8 +281,9 @@ rather than in general.
 To rescore: edit the dimension in `venture-scores.yaml`, update `composite`,
 `floor`, and `floor_dimension`, then run
 `python3 portfolio/scoring/score_ventures.py --check`. It recomputes every
-derived field, enforces the floor-note and gate-note rules, and requires the
-scored set to be exactly the set of directories carrying a `VENTURE.yaml` — so
-a venture added or removed without a score fails CI rather than vanishing from
-the ranking. `.github/workflows/portfolio-validate.yml` runs it and the unit
+derived field, enforces the floor-note and gate-note rules, and checks coverage
+in both directions — every *allocated* venture must be scored, and a scored slug
+must name a directory carrying a `VENTURE.yaml` — so a venture added or removed
+without a score fails CI rather than vanishing from the ranking, while a
+directory reclassified with a `NOT-A-VENTURE` marker keeps its row. `.github/workflows/portfolio-validate.yml` runs it and the unit
 suite on every change to this directory.

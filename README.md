@@ -31,9 +31,13 @@ with `git filter-repo` if it is ever sold or spun off.
 `ubuntu-agent-server` (shared agent-hosting infra, not itself
 revenue-seeking) intentionally have no `VENTURE.yaml` — neither is a
 business the router should allocate profit-seeking effort to. Each carries a
-`NOT-A-VENTURE` file recording why. Whether they belong under `ventures/` at
-all, or should move to `platform/`/elsewhere, is still an open structural
-decision; the marker does not settle it.
+`NOT-A-VENTURE` file recording why. `ai-first-markets` carries one too, for
+the same reason and by the same rule, but keeps its `VENTURE.yaml`: it is the
+portfolio's own scoring engine rather than a business, and its retained
+hypothesis record is the evidence that reclassification rests on. Whether any
+of the three belong under `ventures/` at all, or should move to
+`platform/`/elsewhere, is still an open structural decision; the marker does
+not settle it.
 
 `VENTURE.yaml` is what the router reads, so it is schema-checked in CI:
 
@@ -50,6 +54,15 @@ scorer (`score_ventures.py`), and `validate.py` all skip such a directory.
 That makes reclassifying a directory out of profit-seeking allocation a
 single-file change (drop the marker in) rather than a simultaneous edit
 across all three tools.
+
+A reclassified directory **keeps** its row in
+[`portfolio/scoring/venture-scores.yaml`](portfolio/scoring/venture-scores.yaml),
+where it is reported as `reclassified` and excluded from the ranking and the
+dispatchable/blocked means. A score is a record about a business, not an input
+to allocation, so removing the row would delete the evidence the
+reclassification was decided on. `score_ventures.py --check` enforces both
+halves: every *allocated* venture must be scored, and a scored slug must name a
+directory that carries a `VENTURE.yaml` — marker or not.
 
 ### platform/
 

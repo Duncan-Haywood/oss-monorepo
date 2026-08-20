@@ -64,7 +64,7 @@ def load_doc(path: Path = SCORES_PATH) -> dict:
 
 
 def venture_slugs(ventures_dir: Path = VENTURES_DIR) -> list[str]:
-    """Slugs of every directory carrying a VENTURE.yaml, sorted.
+    """Slugs the portfolio allocates profit-seeking effort to, sorted.
 
     A `NOT-A-VENTURE` marker wins over a `VENTURE.yaml` in the same directory,
     matching portfolio/router/validate.py: the marker is how a directory opts
@@ -77,12 +77,32 @@ def venture_slugs(ventures_dir: Path = VENTURES_DIR) -> list[str]:
     )
 
 
+def documented_slugs(ventures_dir: Path = VENTURES_DIR) -> list[str]:
+    """Slugs of every directory carrying a VENTURE.yaml, marker or not, sorted.
+
+    Superset of `venture_slugs()`. A score is a record *about* a business,
+    not an input to allocation, so a directory that opts out of allocation may
+    keep its score row: dropping the row would silently destroy the evidence
+    the reclassification was decided on, and the inter-rater measurement in
+    README.md that spans the full set.
+    """
+    return sorted(p.name for p in ventures_dir.iterdir() if (p / "VENTURE.yaml").is_file())
+
+
 def composite(scores: dict) -> float:
     return round(sum(scores[d] for d in DIMENSIONS) / len(DIMENSIONS), 3)
 
 
-def check(doc: dict, slugs: list[str]) -> list[str]:
-    """Every rubric and coverage rule. Returns a list of problems, empty if clean."""
+def check(doc: dict, slugs: list[str], documented: list[str] | None = None) -> list[str]:
+    """Every rubric and coverage rule. Returns a list of problems, empty if clean.
+
+    `slugs` is the allocated set (every one must be scored); `documented` is the
+    set that may be scored, defaulting to `slugs` when the caller draws no
+    distinction. The two differ only for a directory carrying both a
+    VENTURE.yaml and a NOT-A-VENTURE marker.
+    """
+    if documented is None:
+        documented = slugs
     problems: list[str] = []
     ventures = doc.get("ventures") or []
     if not ventures:
@@ -96,7 +116,7 @@ def check(doc: dict, slugs: list[str]) -> list[str]:
     missing = sorted(set(slugs) - set(scored))
     if missing:
         problems.append(f"ventures with a VENTURE.yaml but no score: {missing}")
-    unknown = sorted(set(scored) - set(slugs))
+    unknown = sorted(set(scored) - set(documented))
     if unknown:
         problems.append(f"scored but no such venture directory: {unknown}")
 
@@ -199,7 +219,9 @@ def dispatchable_slugs() -> set[str]:
     return {v.name for v in allocate.load_ventures() if v.dispatchable}
 
 
-def agreement(ranking: list[dict], dispatchable: set[str]) -> dict:
+def agreement(
+    ranking: list[dict], dispatchable: set[str], allocated: set[str] | None = None
+) -> dict:
     """Test the ai-first-markets hypothesis that merit ranking tracks the split.
 
     The claim on file is that scoring the real ventures on these six
@@ -210,6 +232,8 @@ def agreement(ranking: list[dict], dispatchable: set[str]) -> dict:
     cannot be replaced by a merit score (nor the reverse).
     """
     order = [v["slug"] for v in ranking]
+    if allocated is not None:
+        order = [slug for slug in order if slug in allocated]
     ranks = {slug: i + 1 for i, slug in enumerate(order)}
     n_dispatchable = len(dispatchable)
     top_slots = set(order[:n_dispatchable])
@@ -221,6 +245,7 @@ def agreement(ranking: list[dict], dispatchable: set[str]) -> dict:
 
     blocked = set(order) - dispatchable
     return {
+        "ranked": order,
         "dispatchable": sorted(dispatchable),
         "dispatchable_merit_ranks": dispatchable_ranks,
         "occupies_top_slots": bool(dispatchable) and top_slots == dispatchable,
@@ -308,6 +333,7 @@ def print_comparison(doc: dict) -> None:
 
 def print_table(doc: dict, ranking: list[dict], result: dict) -> None:
     dispatchable = set(result["dispatchable"])
+    allocated = set(result["ranked"])
     print(f"Venture merit scores, {doc.get('scored', 'undated')} "
           f"({doc.get('scored_by', 'unknown')}) — "
           f"six equal-weight dimensions, 0-10 each\n")
@@ -319,7 +345,12 @@ def print_table(doc: dict, ranking: list[dict], result: dict) -> None:
         gate_text = ", ".join(
             f"{g.split('_')[0]}:{gates.get(g, '?')}" for g in GATES
         )
-        state = "dispatchable" if slug in dispatchable else "blocked"
+        if slug not in allocated:
+            state = "reclassified"
+        elif slug in dispatchable:
+            state = "dispatchable"
+        else:
+            state = "blocked"
         print(
             f"{i:<3}{slug:<32}{composite(venture['scores']):>6.2f}"
             f"{venture['floor']:>7}  {state:<14}{gate_text}"
@@ -328,7 +359,7 @@ def print_table(doc: dict, ranking: list[dict], result: dict) -> None:
     print()
     ranks = result["dispatchable_merit_ranks"]
     print(
-        f"Dispatchable ventures sit at merit rank(s) {ranks} of {len(ranking)}; "
+        f"Dispatchable ventures sit at merit rank(s) {ranks} of {len(allocated)}; "
         f"the top {len(ranks)} slot(s) "
         f"{'are' if result['occupies_top_slots'] else 'are not'} exactly the "
         f"dispatchable set."
@@ -357,7 +388,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     doc = load_doc()
-    problems = check(doc, venture_slugs())
+    allocated = venture_slugs()
+    problems = check(doc, allocated, documented_slugs())
     if problems:
         print(f"{len(problems)} problem(s) in {SCORES_PATH.name}:", file=sys.stderr)
         for problem in problems:
@@ -371,7 +403,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     ranking = merit_ranking(doc)
-    result = agreement(ranking, dispatchable_slugs())
+    result = agreement(ranking, dispatchable_slugs(), set(allocated))
     if args.json:
         print(
             json.dumps(
