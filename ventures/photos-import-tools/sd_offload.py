@@ -178,32 +178,45 @@ def verify_and_manifest(
                 "source_bytes": source_file.stat().st_size,
                 "status": "missing",
             }
-            if not dest_file.exists():
-                stats.errors.append(f"Missing after copy: {rel}")
-                manifest_entries.append(entry)
-                continue
-            if dest_file.stat().st_size != source_file.stat().st_size:
-                stats.errors.append(f"Size mismatch: {rel}")
-                entry["status"] = "size_mismatch"
-                manifest_entries.append(entry)
-                continue
-            entry["dest_bytes"] = dest_file.stat().st_size
-            # Size alone cannot catch partial-write or bit-flip corruption that
-            # leaves the byte count unchanged; hashing both sides is the only
-            # check that backs this venture's "no lost/corrupted media" promise.
-            if verify_hash:
-                source_hash = sha256_file(source_file)
-                dest_hash = sha256_file(dest_file)
-                entry["sha256"] = dest_hash
-                if source_hash != dest_hash:
-                    stats.errors.append(f"Hash mismatch: {rel}")
-                    entry["status"] = "hash_mismatch"
+            try:
+                if not dest_file.exists():
+                    stats.errors.append(f"Missing after copy: {rel}")
                     manifest_entries.append(entry)
                     continue
-            entry["status"] = "verified"
-            verified += 1
-            evict(dest_file)
-            manifest_entries.append(entry)
+                if dest_file.stat().st_size != source_file.stat().st_size:
+                    stats.errors.append(f"Size mismatch: {rel}")
+                    entry["status"] = "size_mismatch"
+                    manifest_entries.append(entry)
+                    continue
+                entry["dest_bytes"] = dest_file.stat().st_size
+                # Size alone cannot catch partial-write or bit-flip corruption
+                # that leaves the byte count unchanged; hashing both sides is
+                # the only check that backs this venture's "no lost/corrupted
+                # media" promise.
+                if verify_hash:
+                    source_hash = sha256_file(source_file)
+                    dest_hash = sha256_file(dest_file)
+                    entry["sha256"] = dest_hash
+                    if source_hash != dest_hash:
+                        stats.errors.append(f"Hash mismatch: {rel}")
+                        entry["status"] = "hash_mismatch"
+                        manifest_entries.append(entry)
+                        continue
+                entry["status"] = "verified"
+                verified += 1
+                evict(dest_file)
+                manifest_entries.append(entry)
+            except OSError as error:
+                # A verified-but-evicted dest file becomes an iCloud-only
+                # placeholder; re-reading it (e.g. hashing on a later re-run)
+                # can fail if the download stalls or the volume is offline.
+                # One unreadable file must not crash the whole verification
+                # loop -- that would lose the manifest for every file already
+                # confirmed good in this same run, exactly the kind of silent
+                # loss kill_criteria #2 rules out.
+                stats.errors.append(f"Read error: {rel} ({error})")
+                entry["status"] = "read_error"
+                manifest_entries.append(entry)
 
     stats.copied_files = verified
     stats.skipped_files = 0

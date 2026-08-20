@@ -2,6 +2,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from sd_offload import (
     CardSpec,
@@ -128,6 +129,39 @@ class VerifyAndManifestTests(unittest.TestCase):
             # Documents the gap the hash mode closes: size-only reports success.
             self.assertEqual(stats.verified_files, 1)
             self.assertEqual(stats.errors, [])
+
+    def test_read_error_on_one_file_does_not_abort_the_others(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            card = self._make_card(root)
+            self._write(card.source / "DCIM" / "IMG_1.JPG", b"photo-bytes")
+            self._write(card.dest / "DCIM" / "IMG_1.JPG", b"photo-bytes")
+            self._write(card.source / "DCIM" / "IMG_2.JPG", b"more-bytes")
+            self._write(card.dest / "DCIM" / "IMG_2.JPG", b"more-bytes")
+            stats = OffloadStats(card=card.name)
+            manifest = root / "manifest.json"
+
+            # Simulates a dest file that was evicted to iCloud-only after an
+            # earlier run and now fails to re-download (offline, stalled
+            # sync) when this run tries to hash it -- exactly the case a bare
+            # sha256_file() call cannot recover from on its own.
+            real_sha256 = sha256_file
+
+            def flaky_sha256(path: Path) -> str:
+                if path.name == "IMG_1.JPG" and "dest" in path.parts:
+                    raise OSError("Resource temporarily unavailable")
+                return real_sha256(path)
+
+            with mock.patch("sd_offload.sha256_file", side_effect=flaky_sha256):
+                verify_and_manifest(card, stats, manifest, root / "log.txt", verify_hash=True)
+
+            self.assertEqual(stats.verified_files, 1)
+            self.assertEqual(len(stats.errors), 1)
+            self.assertIn("Read error: DCIM/IMG_1.JPG", stats.errors[0])
+            payload = json.loads(manifest.read_text())
+            statuses = {entry["relative_path"]: entry["status"] for entry in payload["files"]}
+            self.assertEqual(statuses["DCIM/IMG_1.JPG"], "read_error")
+            self.assertEqual(statuses["DCIM/IMG_2.JPG"], "verified")
 
     def test_hash_mode_records_digest_in_manifest(self):
         with tempfile.TemporaryDirectory() as temp_dir:

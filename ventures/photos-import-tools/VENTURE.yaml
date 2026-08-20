@@ -25,6 +25,10 @@ hypotheses:
     status: supported
     checked: 2026-08-20
     evidence: in-repo
+  - claim: A single unreadable file during SD offload verification (e.g. a previously-evicted iCloud-only placeholder that fails to re-download) does not abort the whole card's verification pass; the failure is recorded against that one file and every other file already checked in the same run still gets verified and still lands in the manifest.
+    status: supported
+    checked: 2026-08-20
+    evidence: in-repo
 
 economics:
   currency: USD
