@@ -153,7 +153,9 @@ to re-derive something, check the closed pull requests and the branches behind
 them before assuming it has not been done.
 
 If you are handed this brief, the useful moves are, in order: advance a probe
-that is already specified in `portfolio/pipeline/`; ship or unblock something
+that is already specified in `portfolio/pipeline/` (the built ones live in
+`portfolio/pipeline/probes/` — this instruction pointed at a directory no
+routing file named until 2026-08-20); ship or unblock something
 already built (see the ninth-run amendment in `distribution-first.md` — two
 finished products are sitting unlisted in stores the portfolio can list in);
 or, if both are blocked on the account owner, say so, record it in the ledger,
@@ -171,6 +173,38 @@ the premise that a free listing can be published from here; that premise has
 been probed and is false. Adding a genuinely new candidate is legitimate only when you
 can name what in `screened-out.md` it is *not* — and it belongs as an amendment
 to that directory, not as a new list.
+
+## Run the session gate before doing generic work
+
+```
+python3 portfolio/ledger/session_gate.py
+```
+
+If your brief is generic — "continue work", "maintain and improve the
+development process", "research new business projects", or a paraphrase — run
+this first and act on what it says. It reads the ledger and `git log` and takes
+about two seconds.
+
+When it prints **NO-OP**, the highest-value output of your session is nothing:
+no new analysis document, no re-verification of a pull request another session
+already verified, no ledger entry recording that you looked. Report what the
+gate read and stop. That is not idleness; it is the only profit lever available
+in a regime whose revenue ceiling is provably `$0` — see
+[`portfolio/ledger/break-even.md`](portfolio/ledger/break-even.md), which
+derives the ceiling, the `$0.12`-per-session break-even, and the finding that
+roughly half this month's ledger entries record re-deriving conclusions already
+on `main`.
+
+The gate is deliberately narrow and never overrides a real trigger. Venture
+work, a red CI run, a pull request you are driving to green, a review comment,
+a merge conflict, and any specifically named task all clear it by having a
+reason of their own. It speaks only to the scheduled generic brief, which is
+the case where a session has no target and invents one.
+
+Why a command and not another paragraph: this file has warned about duplicate
+and re-derived work since 2026-08-18, in steadily more detail, and the
+re-verification share has not fallen. The sessions that most need the warning
+are the ones that skim the file.
 
 ## Automation that writes or spends unattended
 

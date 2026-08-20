@@ -103,6 +103,13 @@ than as better candidates —
 [rescore-2026-08-20.md](rescore-2026-08-20.md) has the pattern and what follows
 from it.
 
+Executable probes already built for these candidates: [probes/](probes/) —
+`npm-reachability-triage` (for `cra-evidence-desk`) and `eaa-wcag-triage` (for
+`eaa-remediation-pipeline`). `CLAUDE.md`'s intake gate sends every generic
+session to "advance a probe that is already specified in `portfolio/pipeline/`",
+and until this line existed no file that routes a session named the directory
+those probes live in. Read `probes/README.md` before writing a new one.
+
 Machine-readable scores: [candidates.yaml](candidates.yaml), checked by
 `validate_candidates.py` (`python3 portfolio/pipeline/validate_candidates.py`).
 Considered and rejected: [screened-out.md](screened-out.md).

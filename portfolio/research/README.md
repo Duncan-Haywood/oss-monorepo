@@ -29,6 +29,15 @@ The whole reason this index exists is that fourteen measurement passes over two
 days re-derived each other's work, because each one's results were sitting in an
 unmerged branch where the next one could not see them.
 
+That failure is not only historical, and this index alone does not catch it.
+`portfolio/research/a11y-evidence-record/audit.py` and
+`portfolio/pipeline/probes/eaa-wcag-triage/` are two independent
+accessibility-audit engines built for the same candidate, with overlapping check
+IDs, and until this note neither referenced the other. Measurements here and
+executable probes under [`portfolio/pipeline/probes/`](../pipeline/probes/) are
+separate directories that answer overlapping questions — read both indexes
+before building either.
+
 ## 1. Is there demand, and does the product premise hold?
 
 | Directory | Question | Finding |
