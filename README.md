@@ -67,6 +67,14 @@ flows to it. Its write-ups are internal research notes carrying unverified
 claims, not published content — see
 [portfolio/pipeline/README.md](portfolio/pipeline/README.md).
 
+`scoring/` ranks the ventures the portfolio **does** own, on the same six
+dimensions `ventures/ai-first-markets` applies to its idea library — so a
+venture, a candidate, and a hypothetical idea can all be read against each
+other. The router consumes the composite as a tiebreaker. See
+[portfolio/scoring/README.md](portfolio/scoring/README.md) for what the first
+pass found, including why merit and the router's dispatchable/blocked split
+disagree.
+
 ## History
 
 Ventures were merged in with `git subtree`, so each one's full commit history

@@ -149,6 +149,35 @@ same impossible queue and wrote the finding down again. The point of the
 field is that the tool now says it once, instead of each session paying to
 rediscover it.
 
+## Merit is a separate axis, and it does not agree with this one
+
+Everything above ranks on whether a session can *start* on a venture. That is a
+question about testability. [`portfolio/scoring/`](../scoring/) answers the
+other one — whether the business is any good — by scoring all eleven ventures
+on the six dimensions `ai-first-markets` uses for its idea library.
+
+The two orderings disagree, and not mildly. The two dispatchable ventures sit
+at merit ranks 6 and 10 of 11, and their mean composite (4.33) is *below* the
+blocked ventures' (4.74). The reason is structural rather than accidental: a
+venture only has an `in-repo` next question when nobody is currently trying to
+sell it, so **dispatchability anti-selects for commercial intent**. Both
+dispatchable ventures are the two with no price and no buyer —
+`ai-first-markets` is access-restricted to one email address, and
+`photos-import-tools` has no monetization language anywhere in it.
+
+`allocate.py` therefore reports both rather than letting one stand in for the
+other:
+
+- a `merit` column, read from `portfolio/scoring/venture-scores.yaml`;
+- ventures that are otherwise tied are ordered by merit instead of by
+  `monthly_cap`, which was an input the portfolio assigned rather than evidence
+  about the venture;
+- when the highest-merit venture is blocked, the header says so by name.
+
+Merit sorts strictly *below* dispatchability in `rank()`. Promoting it would
+put work no session can start back at the top of the queue, which is the
+failure the dispatchable field was added to fix.
+
 ### The one judgment call
 
 `ai-first-markets` is marked `in-repo`, which contradicts a prior ledger

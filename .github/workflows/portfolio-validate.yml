@@ -28,6 +28,7 @@ on:
       - "ventures/**/NOT-A-VENTURE"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
+      - "portfolio/scoring/**"
       - "portfolio/ledger/break-even.md"
       - "portfolio/ledger/break_even.py"
       - "portfolio/ledger/test_break_even.py"
@@ -40,6 +41,7 @@ on:
       - "ventures/**/NOT-A-VENTURE"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
+      - "portfolio/scoring/**"
       - "portfolio/ledger/break-even.md"
       - "portfolio/ledger/break_even.py"
       - "portfolio/ledger/test_break_even.py"
@@ -72,6 +74,13 @@ jobs:
 
       - name: Check candidate scores obey the rubric rules
         run: python3 portfolio/pipeline/validate_candidates.py
+
+      - name: Check venture merit scores obey the rubric and cover every venture
+        run: python3 portfolio/scoring/score_ventures.py --check
+
+      - name: Venture-scoring unit tests
+        working-directory: portfolio/scoring
+        run: python3 -m unittest test_score_ventures
 
       - name: Router ranking-logic unit tests
         working-directory: portfolio/router
