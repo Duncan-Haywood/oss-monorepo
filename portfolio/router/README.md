@@ -53,17 +53,26 @@ python3 -m unittest discover -s portfolio/router -t portfolio/router
 v1 ranks by: ventures measured at $0 MRR past `revenue` stage first (they
 need a kill/fix decision, not more blind spend), then unmeasured ventures
 (protected explore budget), then everything else by stage and monthly cap.
-It now also reads `portfolio/ledger/*.yaml` and prints an informational
-`ledger` / `ledger_entries_this_period` count per venture — how many entries
-this month were logged with `venture: <name>` directly. That count is a
-lower bound, not a reliable recency signal: a session that surveys or fixes
-several ventures in one cycle typically logs a single `venture: portfolio`
-entry describing all of them in prose, which this count does not attribute
-back to the individual ventures mentioned. Because of that gap it is not yet
-used inside `rank()` — it does not spend anything automatically. Per
-"Attribution honesty" above, treat its output as a heuristic worth arguing
-with, not a
-number to act on unreviewed.
+It now also reads `portfolio/ledger/*.yaml` and prints two informational
+counts per venture — neither is used inside `rank()`, so neither spends
+anything automatically:
+
+- `ledger` / `ledger_entries_this_period` — entries this month logged with
+  `venture: <name>` directly. A reliable count, but as of 2026-08 only
+  about 1 in 5 ledger entries use it; most sessions that survey or fix
+  several ventures in one cycle log a single `venture: portfolio` entry
+  describing all of them in prose instead, which this count alone does not
+  attribute back to the ventures mentioned.
+- `mentions` / `portfolio_mentions_this_period` — recovers a signal from
+  that majority: `venture: portfolio` entries whose outcome text names a
+  venture by its exact slug (`count_portfolio_mentions` in `allocate.py`).
+  A heuristic, not a precise touch count — text can mention a venture
+  without work happening on it, or describe work without the exact slug —
+  but it turns what was near-total blindness for most entries into real
+  per-venture visibility.
+
+Per "Attribution honesty" above, treat both as heuristics worth arguing
+with, not numbers to act on unreviewed.
 
 Every venture in the portfolio is currently unmeasured (`economics.mrr:
 null`), so with only stage/cap to go on the "next task" column would read
