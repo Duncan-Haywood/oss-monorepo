@@ -9164,3 +9164,54 @@ entries:
         publication. No candidate screening performed; no pipeline score
         changed; nothing spent beyond agent time.
     mrr_end: null
+  - venture: ai-first-markets
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work" run, designated branch
+        claude/pensive-feynman-vk7w1c. Checked open PRs first per CLAUDE.md:
+        four open (#222, #192, #144, #19), none touching this work; #192's
+        red CI (mypy missing types-PyYAML) is stale against main, which
+        already installs that stub, so left it alone. Then ran
+        portfolio/router/allocate.py: ai-first-markets was the #1 dispatchable
+        task, with one untested hypothesis left -- "This venture has a
+        commercial thesis at all -- a buyer, a price, and a route to one."
+      - >-
+        Tested it by inspection and recorded REFUTED in VENTURE.yaml (merged
+        as #326). No buyer: the only access is a single-email Cloudflare
+        Access whitelist. No price: grepping src/ for
+        stripe/checkout/billing/subscribe/purchase finds only pricing
+        language describing the eight *evaluated ideas*, never the tool
+        itself, and the venture's own scoring data says so directly
+        (src/data/portfolio-ventures.ts:144: "There is no pricing, no buyer
+        and no purchase surface -- it is an internal decision tool"). No
+        route: no listing or channel, distribution scores 3/10. Structural
+        clincher: src/lib/evaluation.ts is the portfolio's own scoring
+        engine (portfolio/scoring/venture-scores.yaml references it as
+        `method:`), used by ~17 files across router/scoring/research/
+        pipeline -- this is decision infrastructure, not a business.
+      - >-
+        Recommended, but deliberately did not do here: reclassify the
+        directory ventures/ai-first-markets -> platform/ai-first-markets so
+        allocate.py stops treating $50/mo of protected explore budget as
+        aimed at a venture that can never convert it. That move ripples
+        through the router, scoring, CI path filters, and docs (touch-points
+        listed in the VENTURE.yaml note) and conflicts with the hourly churn
+        on those files from concurrent sessions; it deserves to land as its
+        own change, not bundled into a hypothesis-test commit.
+      - >-
+        Verified before merging: `python3 portfolio/router/validate.py` (11/11
+        VENTURE.yaml valid), router unittest (44/44), re-ran allocate.py and
+        confirmed the venture now reports all hypotheses settled. PR #326's
+        two checks (validate, verify) both green; `git merge-tree` against
+        the current main tip showed no conflict. Self-merged as
+        agent-decidable per CLAUDE.md: touches only ventures/*/VENTURE.yaml,
+        publishes nothing, spends nothing beyond agent time, verified by the
+        repo's own checks rather than trusted from the diff.
+      - >-
+        Nothing else changed: no candidate screening, no pipeline score
+        edit, no account registered, no credential used, no ventures/
+        application code touched on a live-site path, no automation added
+        or re-enabled.
+    mrr_end: null
