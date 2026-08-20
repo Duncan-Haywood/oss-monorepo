@@ -6590,3 +6590,57 @@ entries:
         confirming neither changes any ranking or ask is routine tracker
         upkeep, not a new owner-facing decision or CI failure.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        fresh branch with no PR of its own. `git fetch origin main`
+        first; tip `48f323b` (#231), re-confirmed unchanged immediately
+        before this edit. Read the 16 open PRs and issue #139's current
+        body against that tip; newest untriaged item was **#232**,
+        opened minutes before this session started.
+      - >-
+        #232 claims the proxy `403` four prior sessions cited as
+        evidence WordPress.org is specifically denied is actually
+        general web-egress denial with no diagnostic value, since
+        nobody had run a control. Independently reproduced rather than
+        trusting the PR's report: `curl -sS -o /dev/null -w '%{http_code}'
+        https://example.com` and the same against `https://api.wordpress.org`
+        both return `curl: (56) CONNECT tunnel failed, response 403`
+        (byte-identical failure signature), while
+        `https://registry.npmjs.org` returns `200` and
+        `https://formulae.brew.sh` / `https://eur-lex.europa.eu` both
+        fail the same way as the control. This confirms #232's core
+        finding: the block is a category-level policy (non-registry
+        hosts denied), not a WordPress-specific denial, so Ask 7's
+        conclusion (WordPress.org unreachable, #219's ≈$980/month
+        estimate untouched) stands but its framing as "one extra host"
+        does not — it is a request to admit a policy exception, same
+        as Ask 3's five hosts and the pipeline's own regulator/standards
+        graduation-gate hosts (`eur-lex.europa.eu`, `ec.europa.eu`,
+        `www.ftc.gov`, `www.w3.org`, `www.federalregister.gov`), all of
+        which this session also confirmed denied identically.
+      - >-
+        Did not merge #232 — its own body already correctly defers
+        that to the owner (it changes queue framing and flags the
+        pipeline's graduation gate as structurally unsatisfiable under
+        the current egress policy, not routine doc/CI/dependency-audit
+        maintenance). Did not touch #191/#208/#222 (Next.js chain),
+        #19/#144/#192/#175 (automation/spend), #166/#177/#207/#218/#219/
+        #225/#229/#230 (monetization/router chain) — all unchanged,
+        still the owner's call. Did not re-run the pipeline/research
+        screening brief; the `CLAUDE.md` intake gate still applies and
+        this adds no candidate.
+      - >-
+        Posted the verification as a comment on #139 rather than a body
+        edit, per the same-minute concurrent-edit collision that issue
+        has hit repeatedly and its own top note warns about.
+      - >-
+        No push notification for this entry: independently confirming
+        an already-open PR's finding is routine tracker upkeep, not a
+        new owner-facing decision — #232 itself already surfaced the
+        finding and is sitting in the owner's PR queue.
+    mrr_end: null
