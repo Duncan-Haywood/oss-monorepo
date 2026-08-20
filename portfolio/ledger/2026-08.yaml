@@ -10818,3 +10818,71 @@ entries:
         the #390-vs-#385 entry above already landed) to avoid re-deriving
         what it had just recorded.
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit is the long term
+        goal" session, designated branch claude/ecstatic-volta-7cpl6e. Ran
+        `portfolio/ledger/session_gate.py` first (PROCEED -- meta-work
+        share 68%, below the 70% threshold). `git fetch origin main`
+        first; tip 44bac76 at session start. Checked the open PRs (#372,
+        #368, #144, #19) and issue #139 before touching anything: all
+        already correctly owner-gated by prior sessions (framework-version
+        bump chain, Dependabot re-proposal, and the two competing
+        duplicate-work-prevention entrypoints), nothing new to add.
+      - >-
+        `portfolio/router/allocate.py` again named photos-import-tools the
+        only dispatchable venture, with the standing "write and test the
+        next hypothesis" task. Read `sd_offload.py` for the next real gap:
+        `main()`'s per-card loop called `offload_card()` with no exception
+        handling. A card's rsync failing outright (ejected mid-copy,
+        network drop, permission error) crashed the whole multi-card run
+        -- cards not yet attempted were never tried, and
+        `OFFLOAD_SUMMARY.json` was never written even for cards already
+        offloaded in the same run. The same one-bad-item discipline
+        `verify_and_manifest()` and `count_source()` already apply within
+        a single card (and `resumable_photos_import.py`'s per-item
+        try/except) was missing one level up, at the multi-card run
+        itself.
+      - >-
+        Fixed by factoring the loop into `offload_all()`, which catches a
+        failing card's exception, records it as an error entry for that
+        card, and continues to the next. Added `OffloadAllTests` covering
+        a failing card followed by a healthy one (healthy card still
+        verifies; failing card's error is recorded; `offload_exit_code`
+        returns 1, never silently clean) and an unmounted card being
+        skipped rather than recorded as a failure. Full venture suite
+        48/48 (was 46), ruff and mypy clean, all four portfolio validators
+        green. VENTURE.yaml records the eighth hypothesis as supported.
+        Opened PR #388 against tip 44bac76.
+      - >-
+        Before merging, a concurrent session's PR #385 (iCloud-readiness
+        vanishing-file race fix, also touching VENTURE.yaml) landed on
+        main first, producing the same anchor-line collision this
+        venture's PRs keep hitting. Merged origin/main into the branch,
+        resolved by keeping both hypotheses (their entry, then this one),
+        and re-ran the full check battery on the merged result: venture
+        suite 51/51, ruff clean, mypy clean, all four portfolio validators
+        green (`router/validate.py` 10/10, `validate_candidates.py` 8/8,
+        `validate_doc_consistency.py` 8/8, `validate_workflows.py` 24/24).
+        Re-checked `git merge-tree` against the live main tip (which had
+        moved again, to a ledger-only PR #392) immediately before merging
+        -- clean, no further conflict.
+      - >-
+        Self-merged PR #388 as agent-decidable per CLAUDE.md, same class
+        as this venture's prior self-merges (#359, #361, #370, #376,
+        #377, #379, #383, #385): `ventures/photos-import-tools` has
+        `links.production: null` (no live-site deploy), the change is
+        additive/defensive only, publishes nothing, registers nothing,
+        uses no credential, adds no unattended automation, spends nothing
+        beyond agent time. All 3 CI checks (test, lint, validate) were
+        green on the merge-resolved head (8597b40), and `mergeable_state`
+        read clean immediately before merging.
+      - >-
+        This entry is the separate ledger-only follow-up per CLAUDE.md's
+        ledger-discipline section, on the designated branch restarted from
+        main (tip afcac03) after #388 merged.
+    mrr_end: null
