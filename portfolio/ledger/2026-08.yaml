@@ -8428,3 +8428,70 @@ entries:
         credential used, nothing published. This entry is the only
         content on this session's branch — no code PR to keep it off of.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same session as the entry two above (the no-candidate screening
+        firing), continued after live account-owner direction that the
+        profit loop should not be human-decision dependent. Acted on it:
+        replaced the blanket "every merge to main is the account owner's
+        call" with a two-tier policy in CLAUDE.md and drained the internal
+        backlog the old blanket gate had stalled. `git fetch origin main`
+        before each merge; main moved under this run (a concurrent session
+        landed #299) and every step was re-verified against the live tip.
+      - >-
+        The policy split, now in CLAUDE.md: agent-decidable PRs — internal
+        surfaces only (portfolio/, platform/, CI, docs, tests; not
+        deployable ventures/* code), publish nothing, register nothing,
+        use no legal-person credential, spend nothing, verified by running
+        the repo's actual checks, merge clean on current main — a session
+        verifies and merges itself. Human-gated PRs — taking or moving
+        money, registering credentialed accounts, publishing under the
+        portfolio's name, enabling unattended paid automation, breaking
+        changes to live-site code — stay the owner's call on #139. This is
+        the same ethics/liability boundary channel-inventory.md already
+        drew (no unattended agent takes money); it is kept exactly, not
+        routed around. The blanket gate protected none of those PRs — it
+        only delayed verified internal work until it conflicted, which is
+        the documented cause of the pipeline consolidation being rebuilt
+        five times and the screening loop never landing its own answer.
+      - >-
+        Merged under the new agent-decidable rule, each verified by
+        running its checks on the merged tree, not by trusting the diff:
+        #284 (pipeline consolidation + rescore + ~20 research dirs;
+        router/validate 11/11, validate_candidates 8/8,
+        validate_doc_consistency 0 inconsistencies) — the artifact five
+        prior cycles rebuilt and never landed; #280 (npm-reachability-
+        triage probe, pytest 112); #285 (a11y-evidence-record audit,
+        54 tests); #230 (router per-venture signal recovery,
+        test_allocate 29); #237 (cost-signal doc, single new file).
+      - >-
+        #175 (fail CI on an unparseable workflow file — the defect behind
+        the account-wide startup_failure) carried a pre-#284 version of
+        portfolio-validate.yml and would have conflicted once #284 landed.
+        Rebuilt it on current main as #300, keeping BOTH added validate
+        steps (candidate-score consistency from #284 and workflow
+        parseability from #175) and the union of their path filters, plus
+        platform/ci/validate_workflows.py byte-for-byte from #175. Merged
+        #300 (which also carries the CLAUDE.md policy edit); closed #175 as
+        superseded with a pointer. Final main: all three validators pass,
+        19/19 workflow files valid.
+      - >-
+        Left human-gated, correctly and by the new policy's own list:
+        #19 and #144 (unattended paid agent fleets), the one-time payout-
+        rail decision, #192 (Dependabot changes ongoing PR-generation
+        behavior), and #222 (Next.js 16.3.1 security upgrade across four
+        deployable ventures — print-atelier builds clean here, the other
+        three unverified, so it stays gated pending a full build rather
+        than a partial-verification push to live-site code). These are
+        the items that should need the owner; the point of the policy is
+        that they are now the ONLY things reaching them.
+      - >-
+        Net: the open-PR backlog went from ten to the genuinely
+        owner-gated set, and future sessions have a rule that stops the
+        re-derivation loop at its source rather than re-diagnosing it each
+        cycle. Nothing published, no account registered, no credential
+        used, no ventures/ code changed, nothing spent beyond agent time.
+    mrr_end: null
