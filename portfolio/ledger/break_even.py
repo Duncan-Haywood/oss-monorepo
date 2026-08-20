@@ -262,17 +262,24 @@ def print_report(r: dict) -> None:
         )
 
     obs = r["observed"]
+    if r["break_even_per_session_usd"] is None:
+        print(
+            "\nObserved cadence: unmeasured here — no session trailers in reach. "
+            "This is a shallow checkout (CI runs one), not an idle fleet; the "
+            "count needs full git history. See the snapshot for the figure the "
+            "document reports."
+        )
+        return
     print(
         f"\nObserved cadence: {obs['mean_per_hour']:.1f} distinct sessions/hour "
         f"(max {obs['max_per_hour']}, over {obs['hours']} hours) — a lower bound; "
         "sessions leaving no commit are invisible."
     )
-    if r["break_even_per_session_usd"] is not None:
-        print(
-            f"At that cadence ({r['sessions_per_month']:,.0f} sessions/month), the "
-            "fleet breaks even against the best-case ceiling only if a session "
-            f"costs less than ${r['break_even_per_session_usd']:.2f}."
-        )
+    print(
+        f"At that cadence ({r['sessions_per_month']:,.0f} sessions/month), the "
+        "fleet breaks even against the best-case ceiling only if a session "
+        f"costs less than ${r['break_even_per_session_usd']:.2f}."
+    )
 
 
 def check_doc(r: dict) -> int:

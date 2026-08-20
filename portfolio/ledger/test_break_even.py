@@ -19,7 +19,14 @@ import break_even as be
 
 @pytest.fixture(scope="module")
 def report():
+    """The live measurement. Environment-dependent — see the shallow-clone test."""
     return be.build_report()
+
+
+@pytest.fixture(scope="module")
+def snapshot():
+    """The pinned measurement the document actually reports."""
+    return be.load_snapshot()
 
 
 def test_ledger_figures_match_the_ledger_file(report):
@@ -79,20 +86,43 @@ def test_best_ceiling_is_the_sum_of_its_stated_parts(report):
     )
 
 
-def test_break_even_per_session_inverts_the_monthly_ceiling(report):
-    """The headline number: ceiling / sessions-per-month."""
-    expected = report["best_ceiling_usd"] / report["sessions_per_month"]
-    assert report["break_even_per_session_usd"] == pytest.approx(expected)
+def test_break_even_per_session_inverts_the_monthly_ceiling(snapshot):
+    """The headline number: ceiling / sessions-per-month.
+
+    Asserted against the snapshot, not the live report: cadence is read from
+    git history, and CI checks out shallow (`actions/checkout` defaults to
+    depth 1), so the live figure is environment-dependent by design. The
+    document's number is the snapshot's number.
+    """
+    expected = snapshot["best_ceiling_usd"] / snapshot["sessions_per_month"]
+    assert snapshot["break_even_per_session_usd"] == pytest.approx(expected)
 
 
-def test_break_even_threshold_is_below_any_plausible_session_cost(report):
+def test_break_even_threshold_is_below_any_plausible_session_cost(snapshot):
     """The conclusion the document draws, asserted as a test.
 
     If a future measurement moves the ceiling enough that a session could
     plausibly cost less than this, the document's recommendation should be
     revisited and this test is where that surfaces.
     """
-    assert report["break_even_per_session_usd"] < 1.00
+    assert snapshot["break_even_per_session_usd"] < 1.00
+
+
+def test_cadence_is_unmeasurable_in_a_shallow_clone(report):
+    """The contract that keeps this suite runnable in CI.
+
+    A shallow checkout has no session trailers to count, so the live cadence
+    is 0.0 — meaning "unmeasured", not "idle" — and the derived threshold is
+    None rather than a divide-by-zero. Both are legitimate states for the live
+    report and neither may crash it. This is the failure that turned the first
+    CI run on this PR red.
+    """
+    live_rate = report["observed"]["mean_per_hour"]
+    if live_rate == 0.0:
+        assert report["sessions_per_month"] == 0.0
+        assert report["break_even_per_session_usd"] is None
+    else:
+        assert report["break_even_per_session_usd"] > 0
 
 
 def test_spend_table_rows_are_classified_against_the_best_ceiling(report):
