@@ -1,0 +1,651 @@
+{
+  "generated_by": "portfolio/research/agent-reachability/probe_reachability.py",
+  "no_proxy_allowlist": [
+    "0.0.0.0/8",
+    "10.0.0.0/8",
+    "100.64.0.0/10",
+    "127.0.0.0/8",
+    "127.0.0.1",
+    "169.254.0.0/16",
+    "172.16.0.0/12",
+    "192.168.0.0/16",
+    "::",
+    "::1",
+    "anthropic.com",
+    "files.pythonhosted.org",
+    "host.docker.internal",
+    "index.crates.io",
+    "jsr.io",
+    "localhost",
+    "npm.jsr.io",
+    "proxy.golang.org",
+    "pypi.org",
+    "registry.npmjs.org",
+    "svc.cluster.local"
+  ],
+  "counts": {
+    "EGRESS_DENIED": 24,
+    "REACHABLE": 8,
+    "SCOPE_DENIED": 1
+  },
+  "n_targets": 33,
+  "results": [
+    {
+      "url": "https://eur-lex.europa.eu/homepage.html",
+      "candidate": "eaa-remediation-pipeline,cra-evidence-desk,einvoice-preflight",
+      "role": "premise",
+      "note": "EU primary legislation (EAA, CRA, e-invoicing)",
+      "host": "eur-lex.europa.eu",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.39,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://www.w3.org/WAI/standards-guidelines/wcag/",
+      "candidate": "eaa-remediation-pipeline,shopify-a11y-evidence",
+      "role": "premise",
+      "note": "WCAG success criteria the audits are graded against",
+      "host": "www.w3.org",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.36,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://www.etsi.org/",
+      "candidate": "eaa-remediation-pipeline",
+      "role": "premise",
+      "note": "EN 301 549, the EU harmonised accessibility standard",
+      "host": "www.etsi.org",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.32,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&request%5Bslug%5D=akismet",
+      "candidate": "eaa-remediation-pipeline",
+      "role": "channel",
+      "note": "WordPress.org plugin directory API (listing + active_installs)",
+      "host": "api.wordpress.org",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.5,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://developer.wordpress.org/plugins/",
+      "candidate": "eaa-remediation-pipeline",
+      "role": "channel",
+      "note": "WordPress plugin submission docs",
+      "host": "developer.wordpress.org",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.34,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://shopify.dev/docs/apps",
+      "candidate": "shopify-a11y-evidence",
+      "role": "channel",
+      "note": "Shopify app platform docs",
+      "host": "shopify.dev",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.32,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://apps.shopify.com/",
+      "candidate": "shopify-a11y-evidence",
+      "role": "channel",
+      "note": "Shopify App Store listing surface",
+      "host": "apps.shopify.com",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.53,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://registry.npmjs.org/@modelcontextprotocol/sdk",
+      "candidate": "mcp-supply-chain-watch",
+      "role": "operate",
+      "note": "npm registry -- the drift signal PR #103 measured",
+      "host": "registry.npmjs.org",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.11,
+      "route": "DIRECT"
+    },
+    {
+      "url": "https://registry.modelcontextprotocol.io/v0/servers?limit=1",
+      "candidate": "mcp-supply-chain-watch",
+      "role": "operate",
+      "note": "official MCP server registry",
+      "host": "registry.modelcontextprotocol.io",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.69,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://api.github.com/repos/modelcontextprotocol/modelcontextprotocol",
+      "candidate": "mcp-supply-chain-watch",
+      "role": "premise",
+      "source": "mcp-spec-repo",
+      "note": "MCP spec source repo via GitHub API",
+      "host": "api.github.com",
+      "verdict": "SCOPE_DENIED",
+      "http_status": 403,
+      "detail": "host reachable; session credentials not scoped: {\"message\":\"GitHub access to this repository is not enabled for this session. Use add_repo to request access. If add_repo answers that read access is already available and you need GitHub API or write",
+      "elapsed_s": 0.19,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/modelcontextprotocol/modelcontextprotocol/main/README.md",
+      "candidate": "mcp-supply-chain-watch",
+      "role": "premise",
+      "source": "mcp-spec-repo",
+      "note": "MCP spec source over raw.githubusercontent (the route PR #103 used)",
+      "host": "raw.githubusercontent.com",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.51,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://api.osv.dev/v1/query",
+      "candidate": "cra-evidence-desk",
+      "role": "operate",
+      "note": "OSV vulnerability feed -- the SBOM evidence input",
+      "host": "api.osv.dev",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.06,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://services.nvd.nist.gov/rest/json/cves/2.0?resultsPerPage=1",
+      "candidate": "cra-evidence-desk",
+      "role": "operate",
+      "note": "NVD CVE feed",
+      "host": "services.nvd.nist.gov",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.35,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://openssf.org/",
+      "candidate": "cra-evidence-desk",
+      "role": "premise",
+      "note": "OpenSSF, cited as the ecosystem reference",
+      "host": "openssf.org",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.39,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://ted.europa.eu/en/",
+      "candidate": "tender-radar",
+      "role": "operate",
+      "note": "TED, the EU tender feed the product resells",
+      "host": "ted.europa.eu",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.44,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://docs.peppol.eu/",
+      "candidate": "einvoice-preflight",
+      "role": "operate",
+      "note": "Peppol BIS spec the validator checks against",
+      "host": "docs.peppol.eu",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.34,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000320193&type=10-K&count=1",
+      "candidate": "public-record-watch",
+      "role": "operate",
+      "note": "SEC EDGAR, representative public-record source",
+      "host": "www.sec.gov",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.36,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://data.gov/",
+      "candidate": "public-record-watch",
+      "role": "operate",
+      "note": "US open-data portal index",
+      "host": "data.gov",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.38,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://dev.to/",
+      "candidate": "agent-permission-harness",
+      "role": "channel",
+      "note": "developer-audience publishing surface cited in the write-up",
+      "host": "dev.to",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.42,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://open-vsx.org/api/-/search?query=test&size=1",
+      "candidate": "*",
+      "role": "channel",
+      "note": "Open VSX -- listed as free and agent-listable",
+      "host": "open-vsx.org",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.38,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://marketplace.visualstudio.com/",
+      "candidate": "*",
+      "role": "channel",
+      "note": "VS Code Marketplace",
+      "host": "marketplace.visualstudio.com",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.44,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://chromewebstore.google.com/",
+      "candidate": "*",
+      "role": "channel",
+      "note": "Chrome Web Store",
+      "host": "chromewebstore.google.com",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.36,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://api.github.com/marketplace_listing/plans",
+      "candidate": "*",
+      "role": "channel",
+      "note": "GitHub Marketplace API",
+      "host": "api.github.com",
+      "verdict": "REACHABLE",
+      "http_status": 403,
+      "detail": "origin returned HTTP 403: {\"message\":\"This GitHub API path is not available: sessions are bound to their configured repositories. Use repository-scoped endpoints (repos/{owner}/{repo}/...).\",\"documentation_url\":\"https://docs.a",
+      "elapsed_s": 0.33,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://api.stripe.com/v1",
+      "candidate": "*",
+      "role": "channel",
+      "note": "Stripe API",
+      "host": "api.stripe.com",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.41,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://api.lemonsqueezy.com/v1/",
+      "candidate": "*",
+      "role": "channel",
+      "note": "Lemon Squeezy merchant-of-record rail",
+      "host": "api.lemonsqueezy.com",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.4,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://api.paddle.com/",
+      "candidate": "*",
+      "role": "channel",
+      "note": "Paddle merchant-of-record rail",
+      "host": "api.paddle.com",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.35,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://api.polar.sh/v1/products/",
+      "candidate": "*",
+      "role": "channel",
+      "note": "Polar merchant-of-record rail",
+      "host": "api.polar.sh",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.39,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://registry.npmjs.org/-/v1/search?text=sbom&size=1",
+      "candidate": "*",
+      "role": "measure",
+      "note": "npm search -- the only demand signal PR #111 could use",
+      "host": "registry.npmjs.org",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.42,
+      "route": "DIRECT"
+    },
+    {
+      "url": "https://pypi.org/pypi/requests/json",
+      "candidate": "*",
+      "role": "measure",
+      "note": "PyPI metadata (download counts are disabled -- see README)",
+      "host": "pypi.org",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.07,
+      "route": "DIRECT"
+    },
+    {
+      "url": "https://pypistats.org/api/packages/requests/recent",
+      "candidate": "*",
+      "role": "measure",
+      "note": "PyPI download stats",
+      "host": "pypistats.org",
+      "verdict": "EGRESS_DENIED",
+      "http_status": null,
+      "detail": "gateway answered 403 to CONNECT (policy denial)",
+      "elapsed_s": 0.41,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://crates.io/api/v1/crates?q=sbom&per_page=1",
+      "candidate": "*",
+      "role": "measure",
+      "note": "crates.io API (download counts)",
+      "host": "crates.io",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.56,
+      "route": "GATEWAY"
+    },
+    {
+      "url": "https://index.crates.io/config.json",
+      "candidate": "*",
+      "role": "measure",
+      "note": "crates.io sparse index (no download counts)",
+      "host": "index.crates.io",
+      "verdict": "REACHABLE",
+      "http_status": 200,
+      "detail": "",
+      "elapsed_s": 0.05,
+      "route": "DIRECT"
+    },
+    {
+      "url": "https://jsr.io/@std/fs/meta.json",
+      "candidate": "*",
+      "role": "measure",
+      "note": "JSR package metadata",
+      "host": "jsr.io",
+      "verdict": "EGRESS_DENIED",
+      "http_status": 403,
+      "detail": "gateway refused in-band: Host not in allowlist: jsr.io. Add this host to your network egress settings to allow access.",
+      "elapsed_s": 0.05,
+      "route": "DIRECT"
+    }
+  ],
+  "per_candidate": {
+    "eaa-remediation-pipeline": {
+      "premise": [
+        {
+          "host": "eur-lex.europa.eu",
+          "source": "eur-lex.europa.eu",
+          "verdict": "EGRESS_DENIED",
+          "note": "EU primary legislation (EAA, CRA, e-invoicing)"
+        },
+        {
+          "host": "www.w3.org",
+          "source": "www.w3.org",
+          "verdict": "EGRESS_DENIED",
+          "note": "WCAG success criteria the audits are graded against"
+        },
+        {
+          "host": "www.etsi.org",
+          "source": "www.etsi.org",
+          "verdict": "EGRESS_DENIED",
+          "note": "EN 301 549, the EU harmonised accessibility standard"
+        }
+      ],
+      "channel": [
+        {
+          "host": "api.wordpress.org",
+          "source": "api.wordpress.org",
+          "verdict": "EGRESS_DENIED",
+          "note": "WordPress.org plugin directory API (listing + active_installs)"
+        },
+        {
+          "host": "developer.wordpress.org",
+          "source": "developer.wordpress.org",
+          "verdict": "EGRESS_DENIED",
+          "note": "WordPress plugin submission docs"
+        }
+      ],
+      "operate": [],
+      "premise_verifiable": false,
+      "channel_reachable": false,
+      "operable": null,
+      "agent_executable": false
+    },
+    "cra-evidence-desk": {
+      "premise": [
+        {
+          "host": "eur-lex.europa.eu",
+          "source": "eur-lex.europa.eu",
+          "verdict": "EGRESS_DENIED",
+          "note": "EU primary legislation (EAA, CRA, e-invoicing)"
+        },
+        {
+          "host": "openssf.org",
+          "source": "openssf.org",
+          "verdict": "EGRESS_DENIED",
+          "note": "OpenSSF, cited as the ecosystem reference"
+        }
+      ],
+      "channel": [],
+      "operate": [
+        {
+          "host": "api.osv.dev",
+          "source": "api.osv.dev",
+          "verdict": "EGRESS_DENIED",
+          "note": "OSV vulnerability feed -- the SBOM evidence input"
+        },
+        {
+          "host": "services.nvd.nist.gov",
+          "source": "services.nvd.nist.gov",
+          "verdict": "EGRESS_DENIED",
+          "note": "NVD CVE feed"
+        }
+      ],
+      "premise_verifiable": false,
+      "channel_reachable": null,
+      "operable": false,
+      "agent_executable": false
+    },
+    "einvoice-preflight": {
+      "premise": [
+        {
+          "host": "eur-lex.europa.eu",
+          "source": "eur-lex.europa.eu",
+          "verdict": "EGRESS_DENIED",
+          "note": "EU primary legislation (EAA, CRA, e-invoicing)"
+        }
+      ],
+      "channel": [],
+      "operate": [
+        {
+          "host": "docs.peppol.eu",
+          "source": "docs.peppol.eu",
+          "verdict": "EGRESS_DENIED",
+          "note": "Peppol BIS spec the validator checks against"
+        }
+      ],
+      "premise_verifiable": false,
+      "channel_reachable": null,
+      "operable": false,
+      "agent_executable": false
+    },
+    "shopify-a11y-evidence": {
+      "premise": [
+        {
+          "host": "www.w3.org",
+          "source": "www.w3.org",
+          "verdict": "EGRESS_DENIED",
+          "note": "WCAG success criteria the audits are graded against"
+        }
+      ],
+      "channel": [
+        {
+          "host": "shopify.dev",
+          "source": "shopify.dev",
+          "verdict": "EGRESS_DENIED",
+          "note": "Shopify app platform docs"
+        },
+        {
+          "host": "apps.shopify.com",
+          "source": "apps.shopify.com",
+          "verdict": "EGRESS_DENIED",
+          "note": "Shopify App Store listing surface"
+        }
+      ],
+      "operate": [],
+      "premise_verifiable": false,
+      "channel_reachable": false,
+      "operable": null,
+      "agent_executable": false
+    },
+    "mcp-supply-chain-watch": {
+      "premise": [
+        {
+          "host": "api.github.com",
+          "source": "mcp-spec-repo",
+          "verdict": "SCOPE_DENIED",
+          "note": "MCP spec source repo via GitHub API"
+        },
+        {
+          "host": "raw.githubusercontent.com",
+          "source": "mcp-spec-repo",
+          "verdict": "REACHABLE",
+          "note": "MCP spec source over raw.githubusercontent (the route PR #103 used)"
+        }
+      ],
+      "channel": [],
+      "operate": [
+        {
+          "host": "registry.npmjs.org",
+          "source": "registry.npmjs.org",
+          "verdict": "REACHABLE",
+          "note": "npm registry -- the drift signal PR #103 measured"
+        },
+        {
+          "host": "registry.modelcontextprotocol.io",
+          "source": "registry.modelcontextprotocol.io",
+          "verdict": "REACHABLE",
+          "note": "official MCP server registry"
+        }
+      ],
+      "premise_verifiable": true,
+      "channel_reachable": null,
+      "operable": true,
+      "agent_executable": true
+    },
+    "tender-radar": {
+      "premise": [],
+      "channel": [],
+      "operate": [
+        {
+          "host": "ted.europa.eu",
+          "source": "ted.europa.eu",
+          "verdict": "EGRESS_DENIED",
+          "note": "TED, the EU tender feed the product resells"
+        }
+      ],
+      "premise_verifiable": null,
+      "channel_reachable": null,
+      "operable": false,
+      "agent_executable": false
+    },
+    "public-record-watch": {
+      "premise": [],
+      "channel": [],
+      "operate": [
+        {
+          "host": "www.sec.gov",
+          "source": "www.sec.gov",
+          "verdict": "EGRESS_DENIED",
+          "note": "SEC EDGAR, representative public-record source"
+        },
+        {
+          "host": "data.gov",
+          "source": "data.gov",
+          "verdict": "EGRESS_DENIED",
+          "note": "US open-data portal index"
+        }
+      ],
+      "premise_verifiable": null,
+      "channel_reachable": null,
+      "operable": false,
+      "agent_executable": false
+    },
+    "agent-permission-harness": {
+      "premise": [],
+      "channel": [
+        {
+          "host": "dev.to",
+          "source": "dev.to",
+          "verdict": "EGRESS_DENIED",
+          "note": "developer-audience publishing surface cited in the write-up"
+        }
+      ],
+      "operate": [],
+      "premise_verifiable": null,
+      "channel_reachable": false,
+      "operable": null,
+      "agent_executable": false
+    }
+  }
+}

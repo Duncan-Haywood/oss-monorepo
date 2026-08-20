@@ -107,6 +107,14 @@ the scarce thing to spend an approval on is a referral path, not a listing.
   this environment. WordPress.org in particular has a different buyer (site
   owners, many of them businesses) and may well behave differently; nothing here
   refutes that, and the accessibility candidates target exactly that channel.
+
+  **Partly addressed since** — see [cross-registry-replication.md](cross-registry-replication.md).
+  The concentration finding was replicated on Packagist and RubyGems, two
+  registries that *are* reachable: it holds in all nine registry × category
+  cells, it is not an artifact of CI traffic (Packagist stars show the same
+  shape), and npm turns out to be the *optimistic* case — the median Packagist
+  listing in these categories gets zero downloads a month. WordPress.org itself
+  remains unmeasured and egress-blocked.
 - **Downloads are not users, and users are not payers.** A download is a CI run
   as often as a person. The concentration finding is robust to this; the
   absolute medians are an upper bound on human adoption, not an estimate of it.

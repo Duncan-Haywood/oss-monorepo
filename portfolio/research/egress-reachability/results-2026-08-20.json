@@ -1,0 +1,1446 @@
+{
+  "counts": {
+    "egress_denied": 64,
+    "reachable": 25,
+    "scope_denied": 3
+  },
+  "method": "one HTTPS GET per host through this environment's egress proxy, redirects not followed, descriptive user-agent, 20s timeout. 'egress_denied' means the proxy refused the CONNECT and the origin was never contacted; any HTTP status is an origin-side answer.",
+  "n_hosts": 92,
+  "probed_at": "2026-08-20T07:23:15Z",
+  "proxy": {
+    "available": true,
+    "status": {
+      "caBundlePath": "/root/.ccr/ca-bundle.crt",
+      "enabled": true,
+      "gitConfigInjection": true,
+      "gitSshRewrite": true,
+      "hasSystemCa": true,
+      "javaTrustStorePath": "/root/.ccr/java-truststore.p12",
+      "noProxy": "localhost,127.0.0.1,::1,127.0.0.0/8,0.0.0.0/8,::,169.254.0.0/16,anthropic.com,.anthropic.com,*.anthropic.com,registry.npmjs.org,jsr.io,npm.jsr.io,pypi.org,files.pythonhosted.org,index.crates.io,proxy.golang.org,host.docker.internal,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,100.64.0.0/10,.svc.cluster.local,*.svc.cluster.local",
+      "port": 42277,
+      "readmePath": "/root/.ccr/README.md",
+      "recentRelayFailures": [
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "thanks.dev:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-20T07:22:19.074Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "tidelift.com:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-20T07:22:19.526Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "wordpress.org:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-20T07:22:20.199Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "www.cisa.gov:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-20T07:22:20.552Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "www.courtlistener.com:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-20T07:22:23.004Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "www.etsi.org:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-20T07:22:23.417Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "www.federalregister.gov:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-20T07:22:23.781Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "www.gov.uk:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-20T07:22:24.512Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "www.pulsemcp.com:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-20T07:22:25.501Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "www.raycast.com:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-20T07:22:25.898Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "www.sec.gov:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-20T07:22:26.267Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "www.shopify.com:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-20T07:22:26.439Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "www.w3.org:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-20T07:22:26.755Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "www.wikipedia.org:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-20T07:22:27.086Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "zed.dev:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-20T07:22:27.322Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "api.wordpress.org:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-20T07:22:36.914Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "opencollective.com:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-20T07:22:37.620Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "api.wordpress.org:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-20T07:22:37.937Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "api.wordpress.org:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-20T07:22:43.640Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "opencollective.com:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-20T07:22:43.932Z"
+        }
+      ],
+      "selective": false,
+      "standalone": false,
+      "toolScoped": false
+    }
+  },
+  "results": [
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "addons.mozilla.org",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://addons.mozilla.org/api/v5/addons/search/?q=test&page_size=1",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 401 from origin",
+      "host": "api.anthropic.com",
+      "prior_consensus": "reachable",
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 401,
+      "url": "https://api.anthropic.com/v1/models",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "api.deps.dev",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://api.deps.dev/v3alpha/systems/npm/packages/express",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "api.ecosyste.ms",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://api.ecosyste.ms/api/v1/registries",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 403 in-band: {\"message\":\"This GitHub API path is not available: sessions are bound to their configured repositories. Use repository-s",
+      "host": "api.github.com",
+      "prior_consensus": "scope_denied",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "data-reachability/results-2026-08-20.json",
+        "demand-signal-reachability/results-2026-08-19.json",
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results.json",
+        "publish-reachability/results-2026-08-19.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 403,
+      "url": "https://api.github.com/marketplace_listing/plans",
+      "verdict": "scope_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "api.gumroad.com",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://api.gumroad.com/v2/products",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "api.lemonsqueezy.com",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://api.lemonsqueezy.com/v1/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "api.nuget.org",
+      "prior_consensus": "reachable",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json",
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results.json",
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "status": 200,
+      "url": "https://api.nuget.org/v3/index.json",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "api.opencollective.com",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://api.opencollective.com/graphql/v2",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "api.osv.dev",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "data-reachability/results-2026-08-20.json",
+        "publisher-audience/channel-reachability-2026-08-19.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 0,
+      "url": "https://api.osv.dev/v1/query",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "api.paddle.com",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://api.paddle.com/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "api.paypal.com",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://api.paypal.com/v1/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "api.polar.sh",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://api.polar.sh/v1/products/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "api.sam.gov",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 0,
+      "url": "https://api.sam.gov/opportunities/v2/search",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "api.stripe.com",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://api.stripe.com/v1",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "api.wordpress.org",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "data-reachability/results-2026-08-20.json",
+        "publish-reachability/results-2026-08-19.json",
+        "publisher-audience/channel-reachability-2026-08-19.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 0,
+      "url": "https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&request[slug]=akismet",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "apps.shopify.com",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://apps.shopify.com/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "azuresearch-usnc.nuget.org",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://azuresearch-usnc.nuget.org/query?q=packageid:newtonsoft.json",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "chromewebstore.google.com",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://chromewebstore.google.com/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 403 in-band: {\"message\":\"GitHub access to this repository is not enabled for this session. Use add_repo to request access. If add_rep",
+      "host": "codeload.github.com",
+      "prior_consensus": "reachable",
+      "second_attempt": {
+        "detail": "HTTP 403 in-band: {\"message\":\"GitHub access to this repository is not enabled for this session. Use add_repo to request access. If add_rep",
+        "status": 403,
+        "verdict": "scope_denied"
+      },
+      "sources": [
+        "data-reachability/results-2026-08-20.json",
+        "demand-signal-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 403,
+      "url": "https://codeload.github.com/w3c/wcag/tar.gz/refs/heads/main",
+      "verdict": "scope_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "crates.io",
+      "prior_consensus": "reachable",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-19.json",
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results.json",
+        "publish-reachability/results-2026-08-19.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 200,
+      "url": "https://crates.io/api/v1/crates/serde",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "data.europa.eu",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "data-reachability/results-2026-08-20.json"
+      ],
+      "status": 0,
+      "url": "https://data.europa.eu/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "data.gov",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://data.gov/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "dev.to",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://dev.to/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "developer.wordpress.org",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://developer.wordpress.org/plugins/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "docs.github.com",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "publish-reachability/results-2026-08-19.json",
+        "publisher-audience/channel-reachability-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://docs.github.com/en/apps/github-marketplace/creating-apps-for-github-marketplace/requirements-for-listing-an-app",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "docs.peppol.eu",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 0,
+      "url": "https://docs.peppol.eu/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "ec.europa.eu",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "data-reachability/results-2026-08-20.json"
+      ],
+      "status": 0,
+      "url": "https://ec.europa.eu/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "epss.empiricalsecurity.com",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "data-reachability/results-2026-08-20.json"
+      ],
+      "status": 0,
+      "url": "https://epss.empiricalsecurity.com/epss_scores-current.csv.gz",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "eur-lex.europa.eu",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "data-reachability/results-2026-08-20.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 0,
+      "url": "https://eur-lex.europa.eu/homepage.html",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "euvd.enisa.europa.eu",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "data-reachability/results-2026-08-20.json",
+        "publisher-audience/channel-reachability-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://euvd.enisa.europa.eu/api/lastvulnerabilities",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "example.com",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "data-reachability/results-2026-08-20.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 0,
+      "url": "https://example.com",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": true,
+      "detail": "HTTP 200",
+      "host": "files.pythonhosted.org",
+      "prior_consensus": "reachable",
+      "sources": [
+        "publish-endpoint-reachability/results.json"
+      ],
+      "status": 200,
+      "url": "https://files.pythonhosted.org/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "formulae.brew.sh",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json",
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://formulae.brew.sh/api/analytics/install/30d.json",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 401 from origin",
+      "host": "ghcr.io",
+      "prior_consensus": "reachable",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json",
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "status": 401,
+      "url": "https://ghcr.io/v2/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 403 in-band: {\"message\":\"GitHub access to this repository is not enabled for this session. Use add_repo to request access. If add_rep",
+      "host": "github.com",
+      "prior_consensus": "scope_denied",
+      "sources": [
+        "data-reachability/results-2026-08-20.json",
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "status": 403,
+      "url": "https://github.com/github/advisory-database",
+      "verdict": "scope_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 301 from origin",
+      "host": "gitlab.com",
+      "prior_consensus": "reachable",
+      "sources": [
+        "data-reachability/results-2026-08-20.json"
+      ],
+      "status": 301,
+      "url": "https://gitlab.com/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "glama.ai",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://glama.ai/mcp/servers",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "hex.pm",
+      "prior_consensus": "reachable",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json",
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results.json",
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "status": 200,
+      "url": "https://hex.pm/api/packages?search=json",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "hub.docker.com",
+      "prior_consensus": "reachable",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json",
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results.json",
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "status": 200,
+      "url": "https://hub.docker.com/v2/repositories/library/nginx/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "huggingface.co",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "data-reachability/results-2026-08-20.json",
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://huggingface.co/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": true,
+      "detail": "HTTP 200",
+      "host": "index.crates.io",
+      "prior_consensus": "reachable",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results.json",
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "status": 200,
+      "url": "https://index.crates.io/config.json",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "index.golang.org",
+      "prior_consensus": "reachable",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json"
+      ],
+      "status": 200,
+      "url": "https://index.golang.org/index?limit=1",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": true,
+      "detail": "HTTP 403 in-band: Host not in allowlist: jsr.io. Add this host to your network egress settings to allow access.",
+      "host": "jsr.io",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json"
+      ],
+      "status": 403,
+      "url": "https://jsr.io/@std/fs/meta.json",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "ko-fi.com",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://ko-fi.com/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "liberapay.com",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://liberapay.com/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "libraries.io",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://libraries.io/api/npm/express",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "login.wordpress.org",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://login.wordpress.org/register",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "marketplace.visualstudio.com",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "publish-reachability/results-2026-08-19.json",
+        "publisher-audience/channel-reachability-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://marketplace.visualstudio.com/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "obsidian.md",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://obsidian.md/plugins",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "open-vsx.org",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "publish-reachability/results-2026-08-19.json",
+        "publisher-audience/channel-reachability-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://open-vsx.org/api/-/search?query=test&size=1",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "opencollective.com",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://opencollective.com/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "openssf.org",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://openssf.org/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "osv-vulnerabilities.storage.googleapis.com",
+      "prior_consensus": "reachable",
+      "sources": [
+        "data-reachability/results-2026-08-20.json"
+      ],
+      "status": 200,
+      "url": "https://osv-vulnerabilities.storage.googleapis.com/npm/all.zip",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 405 from origin",
+      "host": "packagist.org",
+      "prior_consensus": "reachable",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results.json",
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "status": 405,
+      "url": "https://packagist.org/api/create-package",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "pkg.go.dev",
+      "prior_consensus": "reachable",
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 200,
+      "url": "https://pkg.go.dev/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "plugins.svn.wordpress.org",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "publish-reachability/results-2026-08-19.json",
+        "publisher-audience/channel-reachability-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://plugins.svn.wordpress.org/akismet/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": true,
+      "detail": "HTTP 200",
+      "host": "proxy.golang.org",
+      "prior_consensus": "reachable",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json",
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "status": 200,
+      "url": "https://proxy.golang.org/github.com/pkg/errors/@v/list",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "publications.europa.eu",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "data-reachability/results-2026-08-20.json"
+      ],
+      "status": 0,
+      "url": "https://publications.europa.eu/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": true,
+      "detail": "HTTP 200",
+      "host": "pypi.org",
+      "prior_consensus": "reachable",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results.json",
+        "publish-reachability/results-2026-08-19.json",
+        "publisher-audience/channel-reachability-2026-08-19.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 200,
+      "url": "https://pypi.org/pypi/requests/json",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "pypistats.org",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://pypistats.org/api/packages/requests/recent",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "raw.githubusercontent.com",
+      "prior_consensus": "reachable",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "data-reachability/results-2026-08-20.json",
+        "demand-signal-reachability/results-2026-08-19.json",
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 200,
+      "url": "https://raw.githubusercontent.com/github/advisory-database/main/README.md",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 401 from origin",
+      "host": "registry-1.docker.io",
+      "prior_consensus": "reachable",
+      "sources": [
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "status": 401,
+      "url": "https://registry-1.docker.io/v2/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "registry.modelcontextprotocol.io",
+      "prior_consensus": "reachable",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 200,
+      "url": "https://registry.modelcontextprotocol.io/v0/servers?limit=1",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": true,
+      "detail": "HTTP 200",
+      "host": "registry.npmjs.org",
+      "prior_consensus": "reachable",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "data-reachability/results-2026-08-20.json",
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results.json",
+        "publish-reachability/results-2026-08-19.json",
+        "publisher-audience/channel-reachability-2026-08-19.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 200,
+      "url": "https://registry.npmjs.org/-/v1/search?text=sbom&size=1",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "registry.terraform.io",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://registry.terraform.io/v1/modules?limit=1",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "repo.packagist.org",
+      "prior_consensus": "reachable",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json",
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-reachability/results-2026-08-19.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 200,
+      "url": "https://repo.packagist.org/p2/monolog/monolog.json",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "rubygems.org",
+      "prior_consensus": "reachable",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json",
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results.json",
+        "publish-reachability/results-2026-08-19.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 200,
+      "url": "https://rubygems.org/api/v1/gems/rails.json",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 307 from origin",
+      "host": "s3.amazonaws.com",
+      "prior_consensus": "reachable",
+      "sources": [
+        "data-reachability/results-2026-08-20.json"
+      ],
+      "status": 307,
+      "url": "https://s3.amazonaws.com/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "services.nvd.nist.gov",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "data-reachability/results-2026-08-20.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 0,
+      "url": "https://services.nvd.nist.gov/rest/json/cves/2.0?resultsPerPage=1",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "shopify.dev",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 0,
+      "url": "https://shopify.dev/docs/apps",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "smithery.ai",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://smithery.ai/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 400 from origin",
+      "host": "storage.googleapis.com",
+      "prior_consensus": "reachable",
+      "sources": [
+        "data-reachability/results-2026-08-20.json",
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 400,
+      "url": "https://storage.googleapis.com/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "ted.europa.eu",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "data-reachability/results-2026-08-20.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 0,
+      "url": "https://ted.europa.eu/en/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "thanks.dev",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://thanks.dev/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "tidelift.com",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://tidelift.com/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 403 in-band: Host not in allowlist: upload.pypi.org. Add this host to your network egress settings to allow access.",
+      "host": "upload.pypi.org",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "status": 403,
+      "url": "https://upload.pypi.org/legacy/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "wordpress.org",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json",
+        "publish-reachability/results-2026-08-19.json",
+        "publisher-audience/channel-reachability-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://wordpress.org/plugins/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "www.cisa.gov",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "data-reachability/results-2026-08-20.json"
+      ],
+      "status": 0,
+      "url": "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "www.courtlistener.com",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 0,
+      "url": "https://www.courtlistener.com/api/rest/v4/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "www.etsi.org",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 0,
+      "url": "https://www.etsi.org/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "www.federalregister.gov",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "data-reachability/results-2026-08-20.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 0,
+      "url": "https://www.federalregister.gov/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "www.gov.uk",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 0,
+      "url": "https://www.gov.uk",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 403 from origin",
+      "host": "www.npmjs.com",
+      "prior_consensus": "reachable",
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results.json",
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "status": 403,
+      "url": "https://www.npmjs.com/signup",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 404 from origin",
+      "host": "www.nuget.org",
+      "prior_consensus": "reachable",
+      "sources": [
+        "publish-endpoint-reachability/results.json",
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "status": 404,
+      "url": "https://www.nuget.org/api/v2/package",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "www.pulsemcp.com",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://www.pulsemcp.com/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "www.raycast.com",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://www.raycast.com/store",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "www.sec.gov",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000320193&type=10-K&count=1",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "www.shopify.com",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 0,
+      "url": "https://www.shopify.com",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "www.w3.org",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "data-reachability/results-2026-08-20.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 0,
+      "url": "https://www.w3.org/WAI/standards-guidelines/wcag/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "www.wikipedia.org",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 0,
+      "url": "https://www.wikipedia.org",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "zed.dev",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://zed.dev/extensions",
+      "verdict": "egress_denied"
+    }
+  ]
+}

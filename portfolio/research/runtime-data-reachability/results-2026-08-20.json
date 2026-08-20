@@ -1,0 +1,196 @@
+{
+  "targets": [
+    {
+      "candidate": "control",
+      "host": "generic public web",
+      "url": "https://example.com",
+      "needed_for": "control: is non-registry web reachable at all?",
+      "verdict": "proxy_denied",
+      "detail": "gateway refused CONNECT (403)"
+    },
+    {
+      "candidate": "control",
+      "host": "generic public web (2)",
+      "url": "https://www.wikipedia.org",
+      "needed_for": "control: arbitrary-host fetch, the shape an a11y scanner needs",
+      "verdict": "proxy_denied",
+      "detail": "gateway refused CONNECT (403)"
+    },
+    {
+      "candidate": "mcp-supply-chain-watch",
+      "host": "npm registry",
+      "url": "https://registry.npmjs.org/-/v1/search?text=mcp&size=1",
+      "needed_for": "server manifests + version history (the monitored population)",
+      "verdict": "origin_answered",
+      "detail": "HTTP 200"
+    },
+    {
+      "candidate": "mcp-supply-chain-watch",
+      "host": "PyPI",
+      "url": "https://pypi.org/pypi/requests/json",
+      "needed_for": "Python-packaged MCP servers",
+      "verdict": "origin_answered",
+      "detail": "HTTP 200"
+    },
+    {
+      "candidate": "mcp-supply-chain-watch",
+      "host": "GitHub API",
+      "url": "https://api.github.com/rate_limit",
+      "needed_for": "source repos behind each server, for tool-description diffs",
+      "verdict": "origin_answered",
+      "detail": "HTTP 200"
+    },
+    {
+      "candidate": "cra-evidence-desk",
+      "host": "GitHub API",
+      "url": "https://api.github.com/rate_limit",
+      "needed_for": "dependency manifests for SBOM generation",
+      "verdict": "origin_answered",
+      "detail": "HTTP 200"
+    },
+    {
+      "candidate": "cra-evidence-desk",
+      "host": "GitHub advisories",
+      "url": "https://api.github.com/advisories?per_page=1",
+      "needed_for": "the vulnerability half of the CRA evidence record",
+      "verdict": "scope_denied",
+      "detail": "HTTP 403 (GitHub proxy: repo-scoped)"
+    },
+    {
+      "candidate": "cra-evidence-desk",
+      "host": "OSV.dev",
+      "url": "https://api.osv.dev/v1/query",
+      "needed_for": "cross-ecosystem vulnerability feed",
+      "verdict": "proxy_denied",
+      "detail": "gateway refused CONNECT (403)"
+    },
+    {
+      "candidate": "cra-evidence-desk",
+      "host": "NVD (NIST)",
+      "url": "https://services.nvd.nist.gov/rest/json/cves/2.0?resultsPerPage=1",
+      "needed_for": "CVE records of record",
+      "verdict": "proxy_denied",
+      "detail": "gateway refused CONNECT (403)"
+    },
+    {
+      "candidate": "eaa-remediation-pipeline",
+      "host": "arbitrary customer site",
+      "url": "https://www.gov.uk",
+      "needed_for": "the customer's own pages: the thing being scanned",
+      "verdict": "proxy_denied",
+      "detail": "gateway refused CONNECT (403)"
+    },
+    {
+      "candidate": "eaa-remediation-pipeline",
+      "host": "W3C WCAG 2.2",
+      "url": "https://www.w3.org/TR/WCAG22/",
+      "needed_for": "the success criteria the evidence is written against",
+      "verdict": "proxy_denied",
+      "detail": "gateway refused CONNECT (403)"
+    },
+    {
+      "candidate": "eaa-remediation-pipeline",
+      "host": "ETSI EN 301 549",
+      "url": "https://www.etsi.org/deliver/etsi_en/301500_301599/301549/",
+      "needed_for": "the EU harmonised standard the EAA points at",
+      "verdict": "proxy_denied",
+      "detail": "gateway refused CONNECT (403)"
+    },
+    {
+      "candidate": "shopify-a11y-evidence",
+      "host": "Shopify dev docs",
+      "url": "https://shopify.dev/docs/apps/launch",
+      "needed_for": "app requirements + Admin API docs",
+      "verdict": "proxy_denied",
+      "detail": "gateway refused CONNECT (403)"
+    },
+    {
+      "candidate": "shopify-a11y-evidence",
+      "host": "merchant storefront",
+      "url": "https://www.shopify.com",
+      "needed_for": "a storefront page, the thing being scanned",
+      "verdict": "proxy_denied",
+      "detail": "gateway refused CONNECT (403)"
+    },
+    {
+      "candidate": "public-record-watch",
+      "host": "CourtListener API",
+      "url": "https://www.courtlistener.com/api/rest/v4/",
+      "needed_for": "docket/filing feed for the watched vertical",
+      "verdict": "proxy_denied",
+      "detail": "gateway refused CONNECT (403)"
+    },
+    {
+      "candidate": "tender-radar",
+      "host": "TED (EU tenders)",
+      "url": "https://ted.europa.eu/en/",
+      "needed_for": "the tender notices being matched",
+      "verdict": "proxy_denied",
+      "detail": "gateway refused CONNECT (403)"
+    },
+    {
+      "candidate": "tender-radar",
+      "host": "SAM.gov",
+      "url": "https://api.sam.gov/opportunities/v2/search",
+      "needed_for": "US federal opportunity feed",
+      "verdict": "proxy_denied",
+      "detail": "gateway refused CONNECT (403)"
+    },
+    {
+      "candidate": "einvoice-preflight",
+      "host": "Peppol BIS spec",
+      "url": "https://docs.peppol.eu/poacc/billing/3.0/",
+      "needed_for": "the validation rules being preflighted against",
+      "verdict": "proxy_denied",
+      "detail": "gateway refused CONNECT (403)"
+    },
+    {
+      "candidate": "graduation gate (#139 s2c)",
+      "host": "EUR-Lex",
+      "url": "https://eur-lex.europa.eu/homepage.html",
+      "needed_for": "EAA/CRA obligation dates, per pipeline/README.md's own standard",
+      "verdict": "proxy_denied",
+      "detail": "gateway refused CONNECT (403)"
+    },
+    {
+      "candidate": "graduation gate (#139 s2c)",
+      "host": "Federal Register",
+      "url": "https://www.federalregister.gov/api/v1/documents.json?per_page=1",
+      "needed_for": "US rulemaking dates",
+      "verdict": "proxy_denied",
+      "detail": "gateway refused CONNECT (403)"
+    },
+    {
+      "candidate": "publish channels (#166/#177)",
+      "host": "crates.io",
+      "url": "https://crates.io/api/v1/crates?q=cli&per_page=1",
+      "needed_for": "publish + demand signal",
+      "verdict": "origin_answered",
+      "detail": "HTTP 200"
+    },
+    {
+      "candidate": "publish channels (#166/#177)",
+      "host": "RubyGems",
+      "url": "https://rubygems.org/api/v1/gems/rails.json",
+      "needed_for": "publish + demand signal",
+      "verdict": "origin_answered",
+      "detail": "HTTP 200"
+    },
+    {
+      "candidate": "publish channels (#166/#177)",
+      "host": "Packagist",
+      "url": "https://repo.packagist.org/p2/symfony/console.json",
+      "needed_for": "publish + demand signal",
+      "verdict": "origin_answered",
+      "detail": "HTTP 200"
+    },
+    {
+      "candidate": "publish channels (#166/#177)",
+      "host": "WordPress.org (Ask 7)",
+      "url": "https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&request[slug]=akismet",
+      "needed_for": "active_installs, the one business-buyer demand signal",
+      "verdict": "proxy_denied",
+      "detail": "gateway refused CONNECT (403)"
+    }
+  ]
+}

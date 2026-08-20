@@ -1,0 +1,6124 @@
+{
+ "categories": {
+  "accessibility-evidence": {
+   "candidate": "eaa-remediation-pipeline / shopify-a11y-evidence",
+   "leaf_count": 606,
+   "strata": {
+    "baseline": {
+     "records": [
+      {
+       "largest_other_monthly": 716210104,
+       "largest_other_package": "magic-string",
+       "last_publish": "2026-08-19",
+       "maintainers": [
+        "antfu"
+       ],
+       "monthly": 3686,
+       "name": "@devframes/plugin-a11y",
+       "other_packages": 499,
+       "repository": "git+https://github.com/devframes/devframe.git",
+       "scope": "@devframes",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 271,
+       "largest_other_package": "accessible-html-content-patterns",
+       "last_publish": "2024-09-07",
+       "maintainers": [
+        "ericwbailey"
+       ],
+       "monthly": 3302,
+       "name": "a11y-syntax-highlighting",
+       "other_packages": 3,
+       "repository": "git://github.com/ericwbailey/a11y-syntax-highlighting.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 376,
+       "largest_other_package": "glancify",
+       "last_publish": "2026-04-07",
+       "maintainers": [
+        "pavlogolovatyy"
+       ],
+       "monthly": 2705,
+       "name": "wcag-contrast-utils",
+       "other_packages": 1,
+       "repository": "git+https://github.com/pavlogolovatyy/wcag-contrast-utils.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 5169,
+       "largest_other_package": "@demlik/tea",
+       "last_publish": "2026-08-18",
+       "maintainers": [
+        "luuwa",
+        "cansirin",
+        "binclusive-eng"
+       ],
+       "monthly": 2493,
+       "name": "@binclusive/cli",
+       "other_packages": 21,
+       "repository": "git+https://github.com/Binclusive/monorepo.git",
+       "scope": "@binclusive",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2024-04-14",
+       "maintainers": [
+        "kalbee-katz"
+       ],
+       "monthly": 1938,
+       "name": "storybook-a11y-report",
+       "other_packages": 0,
+       "repository": "git+https://github.com/kalbeekatz/storybook-a11y-report.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-07-27",
+       "maintainers": [
+        "piwig"
+       ],
+       "monthly": 1706,
+       "name": "findable-audit",
+       "other_packages": 0,
+       "repository": "git+https://github.com/piwig/findable-audit.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 1545,
+       "largest_other_package": "plugin-pagenotfound",
+       "last_publish": "2026-07-15",
+       "maintainers": [
+        "7h3rabbit",
+        "marcusosterberg"
+       ],
+       "monthly": 1428,
+       "name": "plugin-accessibility-statement",
+       "other_packages": 11,
+       "repository": "git+https://github.com/Webperf-se/plugin-accessibility-statement.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 30545,
+       "largest_other_package": "git-changed-files",
+       "last_publish": "2026-08-04",
+       "maintainers": [
+        "vivek_raj",
+        "astronomersiva"
+       ],
+       "monthly": 1116,
+       "name": "@coyote-labs/ember-accessibility",
+       "other_packages": 21,
+       "repository": "git+https://github.com/coyote-labs/ember-accessibility.git",
+       "scope": "@coyote-labs",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-08-03",
+       "maintainers": [
+        "sm8uti"
+       ],
+       "monthly": 1067,
+       "name": "deep-semantic-scanner",
+       "other_packages": 0,
+       "repository": null,
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 4154,
+       "largest_other_package": "@trail-ui/react",
+       "last_publish": "2026-02-25",
+       "maintainers": [
+        "trail-ui"
+       ],
+       "monthly": 1007,
+       "name": "@barrierbreak/eslint-plugin-a11yinspect",
+       "other_packages": 8,
+       "repository": "git+https://github.com/BarrierBreak/eslint-plugin-a11yinspect.git",
+       "scope": "@barrierbreak",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 1582,
+       "largest_other_package": "@renatodeleao/vue-sticky-directive",
+       "last_publish": "2026-02-16",
+       "maintainers": [
+        "renatodeleao"
+       ],
+       "monthly": 988,
+       "name": "a11y-vue-dialog",
+       "other_packages": 10,
+       "repository": "git+ssh://git@github.com/renatodeleao/a11y-vue-dialog.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 2226,
+       "largest_other_package": "@chanmeng666/archlang",
+       "last_publish": "2026-07-31",
+       "maintainers": [
+        "chanmeng666"
+       ],
+       "monthly": 957,
+       "name": "a11y-loop",
+       "other_packages": 7,
+       "repository": "git+https://github.com/ChanMeng666/a11y-loop.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 497,
+       "largest_other_package": "accessibility-scanner-cli",
+       "last_publish": "2026-08-03",
+       "maintainers": [
+        "bishop81"
+       ],
+       "monthly": 772,
+       "name": "accessibility-scanner-mcp",
+       "other_packages": 7,
+       "repository": "git+https://github.com/Bishop81/accessibility-scanner-mcp.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 59,
+       "largest_other_package": "@f1v/zati",
+       "last_publish": "2023-01-03",
+       "maintainers": [
+        "veiko"
+       ],
+       "monthly": 750,
+       "name": "jest-a11y",
+       "other_packages": 4,
+       "repository": "git+https://github.com/veiko/jest-a11y.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2025-11-03",
+       "maintainers": [
+        "tuliocunha23"
+       ],
+       "monthly": 747,
+       "name": "liquidify-react",
+       "other_packages": 0,
+       "repository": "git+https://github.com/tuliopc23/LiqUIdify.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 69,
+       "largest_other_package": "uxprobe",
+       "last_publish": "2026-07-05",
+       "maintainers": [
+        "scriptkidd"
+       ],
+       "monthly": 712,
+       "name": "aria-ease",
+       "other_packages": 1,
+       "repository": "git+https://github.com/aria-ease/aria-ease.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 13748,
+       "largest_other_package": "@bleedingdev/modern-js-utils",
+       "last_publish": "2026-01-15",
+       "maintainers": [
+        "pegak"
+       ],
+       "monthly": 604,
+       "name": "@techsio/storybook-better-a11y",
+       "other_packages": 37,
+       "repository": "git+https://github.com/NMIT-WR/storybook-addons.git",
+       "scope": "@techsio",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-08-19",
+       "maintainers": [
+        "digitizzle"
+       ],
+       "monthly": 590,
+       "name": "@a11ypros/a11y-ui-components",
+       "other_packages": 0,
+       "repository": "git+https://github.com/A11YPros/a11y-ui.git",
+       "scope": "@a11ypros",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 1364,
+       "largest_other_package": "@nolrm/contextkit",
+       "last_publish": "2026-07-08",
+       "maintainers": [
+        "nolrm"
+       ],
+       "monthly": 493,
+       "name": "eslint-plugin-a11y",
+       "other_packages": 1,
+       "repository": "git+https://github.com/nolrm/eslint-plugin-a11y.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 504,
+       "largest_other_package": "@accessibility-devkit/core",
+       "last_publish": "2026-08-04",
+       "maintainers": [
+        "lsteuber"
+       ],
+       "monthly": 414,
+       "name": "@accessibility-devkit/media",
+       "other_packages": 16,
+       "repository": "git+https://github.com/actually-useful-ai/accessibility-devkit.git",
+       "scope": "@accessibility-devkit",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 22059,
+       "largest_other_package": "astro-decap-cms",
+       "last_publish": "2026-07-20",
+       "maintainers": [
+        "redwerkz"
+       ],
+       "monthly": 328,
+       "name": "astro-emojis",
+       "other_packages": 43,
+       "repository": "git+https://github.com/advanced-astro/astro-emojis.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 256,
+       "largest_other_package": "flexa-design-system",
+       "last_publish": "2026-07-19",
+       "maintainers": [
+        "chidang"
+       ],
+       "monthly": 324,
+       "name": "flexa-ui-kit",
+       "other_packages": 5,
+       "repository": "git+https://github.com/chidang/flexa-builder.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-08-07",
+       "maintainers": [
+        "prateek-singh"
+       ],
+       "monthly": 273,
+       "name": "ui-audit-cli",
+       "other_packages": 0,
+       "repository": "git+https://github.com/Prateek-Singh1/ui-audit.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 1458,
+       "largest_other_package": "@lewishowles/components",
+       "last_publish": "2026-07-25",
+       "maintainers": [
+        "lewishowles"
+       ],
+       "monthly": 253,
+       "name": "@lewishowles/web-audit",
+       "other_packages": 6,
+       "repository": "git+https://github.com/lewishowles/dev-tools.git",
+       "scope": "@lewishowles",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 1144,
+       "largest_other_package": "@renge-ui/tokens",
+       "last_publish": "2026-07-22",
+       "maintainers": [
+        "rengenoikigai"
+       ],
+       "monthly": 196,
+       "name": "@renge-ui/test-utils",
+       "other_packages": 9,
+       "repository": "git+https://github.com/vsm1996/renge-ui.git",
+       "scope": "@renge-ui",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 21887,
+       "largest_other_package": "gulp-concat-filenames",
+       "last_publish": "2026-08-02",
+       "maintainers": [
+        "the_simian"
+       ],
+       "monthly": 163,
+       "name": "expo-accessibility-toolbox",
+       "other_packages": 17,
+       "repository": "git+https://github.com/simiancraft/expo-accessibility-toolbox.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-07-10",
+       "maintainers": [
+        "sanjaynandi13"
+       ],
+       "monthly": 146,
+       "name": "web-accessibility",
+       "other_packages": 0,
+       "repository": "git+https://github.com/uieclipse/Accessibility-.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-07-10",
+       "maintainers": [
+        "nprdservice6"
+       ],
+       "monthly": 139,
+       "name": "have-wcag",
+       "other_packages": 0,
+       "repository": "git+https://github.com/nprdservice6/have-wcag.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 721,
+       "largest_other_package": "shopify-pricing-page",
+       "last_publish": "2026-07-29",
+       "maintainers": [
+        "ahmad404"
+       ],
+       "monthly": 135,
+       "name": "color-contrast-kit",
+       "other_packages": 2,
+       "repository": "git+https://github.com/Muhammad-Ahmad-Shaukat/color-contrast-npm.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 232,
+       "largest_other_package": "@huekit/tokens",
+       "last_publish": "2026-06-07",
+       "maintainers": [
+        "doniv01"
+       ],
+       "monthly": 117,
+       "name": "@huekit/contrast",
+       "other_packages": 5,
+       "repository": "git+https://github.com/doniv01/huekit-contrast.git",
+       "scope": "@huekit",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 1425,
+       "largest_other_package": "@cornhsu/polymigrate-linux-x64",
+       "last_publish": "2026-07-24",
+       "maintainers": [
+        "cornhsu"
+       ],
+       "monthly": 113,
+       "name": "cornhsu-ramp-scan",
+       "other_packages": 14,
+       "repository": "git+https://github.com/HSU-YU-MING/ramp-a11y.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 3204,
+       "largest_other_package": "microdex-cli",
+       "last_publish": "2026-04-30",
+       "maintainers": [
+        "kappaemme"
+       ],
+       "monthly": 110,
+       "name": "codex-design-audit-skill",
+       "other_packages": 43,
+       "repository": "git+https://github.com/Kappaemme-git/codex-design-audit-skill.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-06-30",
+       "maintainers": [
+        "dotan.siman.tov"
+       ],
+       "monthly": 104,
+       "name": "allycat",
+       "other_packages": 0,
+       "repository": "git+https://github.com/AllyCatHQ/allycat-core.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 936,
+       "largest_other_package": "cypress-mercury-editor",
+       "last_publish": "2026-07-06",
+       "maintainers": [
+        "jnettik",
+        "pixelwhip",
+        "atenadmin",
+        "stierpm",
+        "jldust"
+       ],
+       "monthly": 101,
+       "name": "@atendesign/javascript-components",
+       "other_packages": 22,
+       "repository": "git+https://github.com/AtenDesignGroup/javascript-components.git",
+       "scope": "@atendesign",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2025-11-13",
+       "maintainers": [
+        "a11yformvalidator"
+       ],
+       "monthly": 91,
+       "name": "a11y-form-validator-lib",
+       "other_packages": 0,
+       "repository": "git+https://github.com/QABrandon/a11y-form-validator-app.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-08-19",
+       "maintainers": [
+        "aelira-ai"
+       ],
+       "monthly": 90,
+       "name": "@aelira/cli",
+       "other_packages": 0,
+       "repository": "git+https://github.com/Aelira-AI/aelira-core.git",
+       "scope": "@aelira",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 74,
+       "largest_other_package": "@cavebatsofware/riposte-pickers",
+       "last_publish": "2026-06-29",
+       "maintainers": [
+        "cavebatsofware"
+       ],
+       "monthly": 77,
+       "name": "@cavebatsofware/riposte-design-system",
+       "other_packages": 1,
+       "repository": "git+https://github.com/cavebatsofware/riposte-design-system.git",
+       "scope": "@cavebatsofware",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 68,
+       "largest_other_package": "elastikteams_components",
+       "last_publish": "2026-08-13",
+       "maintainers": [
+        "elastikteams"
+       ],
+       "monthly": 70,
+       "name": "@elastikteams/theme-forge",
+       "other_packages": 3,
+       "repository": "git+https://github.com/Pranav-ElastikTeams/ThemeForge-Package.git",
+       "scope": "@elastikteams",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 650,
+       "largest_other_package": "@jalonsc66/a11y-ci",
+       "last_publish": "2026-08-11",
+       "maintainers": [
+        "jalonsc66"
+       ],
+       "monthly": 67,
+       "name": "@jasc66/a11y-ci",
+       "other_packages": 2,
+       "repository": "git+https://github.com/jasc66/prototipoAccesible.git",
+       "scope": "@jasc66",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 534,
+       "largest_other_package": "opticquiz-eye",
+       "last_publish": "2026-07-14",
+       "maintainers": [
+        "vincegonz"
+       ],
+       "monthly": 66,
+       "name": "opticquiz-cvd-mcp",
+       "other_packages": 3,
+       "repository": "git+https://github.com/zengineco/opticquiz.com.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 2874,
+       "largest_other_package": "@zysec-ai/relata-sdk",
+       "last_publish": "2026-03-24",
+       "maintainers": [
+        "venkycs"
+       ],
+       "monthly": 62,
+       "name": "cpod-theme",
+       "other_packages": 2,
+       "repository": "git+https://github.com/ZySec-AI/cpod-theme.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 22,
+       "largest_other_package": "site-roaster",
+       "last_publish": "2026-03-31",
+       "maintainers": [
+        "ryuno25"
+       ],
+       "monthly": 59,
+       "name": "accessscore",
+       "other_packages": 1,
+       "repository": "git+https://github.com/ryuno2525/autonomous-claude-agent.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 636,
+       "largest_other_package": "@xerox/prettier-config",
+       "last_publish": "2017-09-27",
+       "maintainers": [
+        "phawxby"
+       ],
+       "monthly": 58,
+       "name": "gulp-puppeteer-accessibility-audit",
+       "other_packages": 9,
+       "repository": null,
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-06-06",
+       "maintainers": [
+        "jainishsoni2024"
+       ],
+       "monthly": 56,
+       "name": "wcag-kit",
+       "other_packages": 0,
+       "repository": "git+https://github.com/jainishsoni2026/wcag-kit.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 27,
+       "largest_other_package": "@adahei/vue-components",
+       "last_publish": "2026-03-06",
+       "maintainers": [
+        "adahei"
+       ],
+       "monthly": 53,
+       "name": "@adahei/ui",
+       "other_packages": 4,
+       "repository": "git+https://github.com/adahei/ui.git",
+       "scope": "@adahei",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 44,
+       "largest_other_package": "@elvora/core",
+       "last_publish": "2026-06-28",
+       "maintainers": [
+        "bhushanab159"
+       ],
+       "monthly": 42,
+       "name": "@elvora/react",
+       "other_packages": 8,
+       "repository": "git+https://github.com/elvora-ui/elvora.git",
+       "scope": "@elvora",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 292443,
+       "largest_other_package": "hex-to-rgba",
+       "last_publish": "2025-07-29",
+       "maintainers": [
+        "misund"
+       ],
+       "monthly": 39,
+       "name": "passes-wcag",
+       "other_packages": 12,
+       "repository": "git+https://github.com/misund/passes-wcag.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 184154,
+       "largest_other_package": "node-gcm",
+       "last_publish": "2026-04-29",
+       "maintainers": [
+        "ath88",
+        "hypesystem",
+        "lasseborly",
+        "haid0109",
+        "arth101"
+       ],
+       "monthly": 37,
+       "name": "@deranged/qualweb-wcag-techniques",
+       "other_packages": 207,
+       "repository": "git+https://github.com/qualweb/qualweb.git",
+       "scope": "@deranged",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 34,
+       "largest_other_package": "@dufeut/uizy",
+       "last_publish": "2026-04-25",
+       "maintainers": [
+        "dufeut"
+       ],
+       "monthly": 36,
+       "name": "@dufeut/waria",
+       "other_packages": 3,
+       "repository": "git+https://github.com/dufeutech/waria.git",
+       "scope": "@dufeut",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 1214,
+       "largest_other_package": "bluetemberg",
+       "last_publish": "2026-06-17",
+       "maintainers": [
+        "prototypdigital"
+       ],
+       "monthly": 35,
+       "name": "bluetemberg-rules-accessibility",
+       "other_packages": 69,
+       "repository": "git+https://github.com/prototypdigital/bluetemberg-packs.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 549,
+       "largest_other_package": "metronical.metron",
+       "last_publish": "2026-06-03",
+       "maintainers": [
+        "szul",
+        "x51"
+       ],
+       "monthly": 29,
+       "name": "@kung-fu/wcag-compliance-scanner",
+       "other_packages": 26,
+       "repository": "git+https://github.com/szul/wcag-compliance-scanner.git",
+       "scope": "@kung-fu",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 1440,
+       "largest_other_package": "@iflow-mcp/pdb-server",
+       "last_publish": "2026-04-08",
+       "maintainers": [
+        "chatflowdev",
+        "qystart"
+       ],
+       "monthly": 26,
+       "name": "@iflow-mcp/accesslint-mcp",
+       "other_packages": 1000,
+       "repository": "git+https://github.com/AccessLint/mcp.git",
+       "scope": "@iflow-mcp",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 80,
+       "largest_other_package": "@hypoth-ui/cli",
+       "last_publish": "2026-03-14",
+       "maintainers": [
+        "hypoth-admin"
+       ],
+       "monthly": 25,
+       "name": "@hypoth-ui/a11y-audit",
+       "other_packages": 11,
+       "repository": "git+https://github.com/hypoth-ui/hypoth-ui.git",
+       "scope": "@hypoth-ui",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 47,
+       "largest_other_package": "@owenrees/pgn2tex",
+       "last_publish": "2026-02-06",
+       "maintainers": [
+        "owenrees"
+       ],
+       "monthly": 25,
+       "name": "wcag-color-contrast",
+       "other_packages": 1,
+       "repository": "git+https://github.com/TheRealOwenRees/wcag-color-contrast.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 30,
+       "largest_other_package": "peek-carousel",
+       "last_publish": "2025-11-06",
+       "maintainers": [
+        "deeeep"
+       ],
+       "monthly": 23,
+       "name": "infinite-text-scroller",
+       "other_packages": 1,
+       "repository": "git+https://github.com/lledellebell/infinite-text-scroller.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 23,
+       "largest_other_package": "npm-search-fast",
+       "last_publish": "2019-04-11",
+       "maintainers": [
+        "coryzibell"
+       ],
+       "monthly": 19,
+       "name": "accessible-named-colors",
+       "other_packages": 3,
+       "repository": "git+https://github.com/coryzibell/accessible-name-colors.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-04-26",
+       "maintainers": [
+        "gellino"
+       ],
+       "monthly": 19,
+       "name": "oklch-badge-colors",
+       "other_packages": 0,
+       "repository": "git+https://github.com/angedell/oklch-badge-colors.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 243,
+       "largest_other_package": "generator-brei-app",
+       "last_publish": "2022-02-10",
+       "maintainers": [
+        "nessthehero",
+        "dwhitebr31"
+       ],
+       "monthly": 15,
+       "name": "brei-audit",
+       "other_packages": 34,
+       "repository": null,
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 3219,
+       "largest_other_package": "@weareberyl/design-system",
+       "last_publish": "2017-09-28",
+       "maintainers": [
+        "sachams"
+       ],
+       "monthly": 10,
+       "name": "protractor-axe-report-plugin",
+       "other_packages": 2,
+       "repository": "git+https://github.com/E1Edatatracker/protractor-axe-report-plugin.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 1440,
+       "largest_other_package": "payload-all-in-one-accessibility",
+       "last_publish": "2026-06-11",
+       "maintainers": [
+        "skynettechnologies"
+       ],
+       "monthly": 8,
+       "name": "builderio-skynet-accessibility-scanner",
+       "other_packages": 35,
+       "repository": null,
+       "scope": null,
+       "scoped": false
+      }
+     ],
+     "summary": {
+      "cold_publisher_share": 0.6333,
+      "has_repository_share": 0.9333,
+      "listing_downloads_median": 117,
+      "n": 60,
+      "publisher_audience_above_100": 0.5833,
+      "publisher_audience_above_1000": 0.3667,
+      "publisher_audience_above_10000": 0.1167,
+      "publisher_audience_above_100000": 0.05,
+      "publisher_audience_median": 497,
+      "scoped_share": 0.3667,
+      "solo_package_share": 0.2167
+     }
+    },
+    "found": {
+     "records": [
+      {
+       "largest_other_monthly": 304171,
+       "largest_other_package": "@limrun/api",
+       "last_publish": "2026-08-14",
+       "maintainers": [
+        "eneslimrun",
+        "turkenh",
+        "muvaf",
+        "limrunbot"
+       ],
+       "monthly": 194644,
+       "name": "@limrun/ui",
+       "other_packages": 68,
+       "repository": "git+https://github.com/limrun-inc/typescript-sdk.git",
+       "scope": "@limrun",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 9275630,
+       "largest_other_package": "portscanner",
+       "last_publish": "2026-05-06",
+       "maintainers": [
+        "endangeredmassa",
+        "real_ate",
+        "robdel12",
+        "bsipple",
+        "kamikillerto",
+        "melsumner",
+        "drewlee",
+        "thegilby"
+       ],
+       "monthly": 144691,
+       "name": "ember-a11y-testing",
+       "other_packages": 575,
+       "repository": "git+https://github.com/ember-a11y/ember-a11y-testing.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 73550,
+       "largest_other_package": "react-native-external-keyboard",
+       "last_publish": "2026-05-24",
+       "maintainers": [
+        "artur_kalach"
+       ],
+       "monthly": 117345,
+       "name": "react-native-a11y-order",
+       "other_packages": 7,
+       "repository": "git+https://github.com/ArturKalach/react-native-a11y-order.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 1455342,
+       "largest_other_package": "@devexpress/error-stack-parser",
+       "last_publish": "2019-06-13",
+       "maintainers": [
+        "romanresh"
+       ],
+       "monthly": 83853,
+       "name": "axe-testcafe",
+       "other_packages": 101,
+       "repository": "git+https://github.com/helen-dikareva/axe-testcafe.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2021-05-28",
+       "maintainers": [
+        "alberict",
+        "emvo"
+       ],
+       "monthly": 71045,
+       "name": "jasmine-axe",
+       "other_packages": 0,
+       "repository": "git+https://github.com/theodo/jasmine-axe.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 58900,
+       "largest_other_package": "@govtechsg/sgds-web-component",
+       "last_publish": "2026-08-16",
+       "maintainers": [
+        "gds_ace_dlt",
+        "gylsky",
+        "ryanoolala",
+        "dyihoon90",
+        "younglim",
+        "gyunikuchan",
+        "kenneth_leong_gt",
+        "govtechsg_a11y",
+        "gt-tohyongcheng",
+        "gtrgchua"
+       ],
+       "monthly": 65915,
+       "name": "@govtechsg/oobee",
+       "other_packages": 472,
+       "repository": "git+https://github.com/GovTechSG/oobee.git",
+       "scope": "@govtechsg",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 413,
+       "largest_other_package": "@squarespace/template-engine",
+       "last_publish": "2026-06-21",
+       "maintainers": [
+        "pomerantsev"
+       ],
+       "monthly": 65776,
+       "name": "accented",
+       "other_packages": 19,
+       "repository": "git+https://github.com/pomerantsev/accented.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 22,
+       "largest_other_package": "moong",
+       "last_publish": "2024-08-19",
+       "maintainers": [
+        "moong23"
+       ],
+       "monthly": 34123,
+       "name": "a11y-contrast-color",
+       "other_packages": 1,
+       "repository": "git+https://github.com/moong23/a11y-contrast-color.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 263,
+       "largest_other_package": "react-native-easy-calendar",
+       "last_publish": "2022-11-15",
+       "maintainers": [
+        "aryella.lacerda"
+       ],
+       "monthly": 30909,
+       "name": "react-native-accessibility-engine",
+       "other_packages": 1,
+       "repository": "git+https://github.com/aryella-lacerda/react-native-accessibility-engine.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 135,
+       "largest_other_package": "orcish-openai-connector",
+       "last_publish": "2026-08-15",
+       "maintainers": [
+        "orcdev"
+       ],
+       "monthly": 29688,
+       "name": "@shadscan/cli",
+       "other_packages": 1,
+       "repository": "git+https://github.com/TheOrcDev/shadscan.git",
+       "scope": "@shadscan",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 43133,
+       "largest_other_package": "@templatical/types",
+       "last_publish": "2026-08-19",
+       "maintainers": [
+        "orkhanahmadov"
+       ],
+       "monthly": 27547,
+       "name": "@templatical/quality",
+       "other_packages": 13,
+       "repository": "git+https://github.com/templatical/sdk.git",
+       "scope": "@templatical",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 35202,
+       "largest_other_package": "@dnd-kit-svelte/svelte",
+       "last_publish": "2025-07-22",
+       "maintainers": [
+        "hanielu"
+       ],
+       "monthly": 26771,
+       "name": "@dnd-kit-svelte/accessibility",
+       "other_packages": 9,
+       "repository": "git+https://github.com/HanielU/dnd-kit-svelte.git",
+       "scope": "@dnd-kit-svelte",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-06-26",
+       "maintainers": [
+        "eotsevych"
+       ],
+       "monthly": 26639,
+       "name": "axe-playwright-report",
+       "other_packages": 0,
+       "repository": "git+https://github.com/eotsevych/axe-playwright-report.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 43714,
+       "largest_other_package": "@blackbaud/skyux-design-tokens",
+       "last_publish": "2026-08-19",
+       "maintainers": [
+        "blackbaud"
+       ],
+       "monthly": 26629,
+       "name": "@skyux/a11y",
+       "other_packages": 125,
+       "repository": "git+https://github.com/blackbaud/skyux.git",
+       "scope": "@skyux",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 207,
+       "largest_other_package": "npm-pact-binaries",
+       "last_publish": "2021-04-08",
+       "maintainers": [
+        "vlaraort"
+       ],
+       "monthly": 24014,
+       "name": "addon-screen-reader",
+       "other_packages": 11,
+       "repository": "git://github.com/vlaraort/addon-screen-reader.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 125144,
+       "largest_other_package": "accessibility-checker",
+       "last_publish": "2026-01-13",
+       "maintainers": [
+        "eatools"
+       ],
+       "monthly": 23615,
+       "name": "storybook-addon-accessibility-checker",
+       "other_packages": 6,
+       "repository": "git+https://github.com/IBMa/storybook.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2024-08-13",
+       "maintainers": [
+        "fitz.li"
+       ],
+       "monthly": 21792,
+       "name": "jsx-a11y-unstable",
+       "other_packages": 0,
+       "repository": null,
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 83114,
+       "largest_other_package": "astro-compressor",
+       "last_publish": "2022-07-19",
+       "maintainers": [
+        "sondr3"
+       ],
+       "monthly": 21186,
+       "name": "a11y-color-contrast",
+       "other_packages": 18,
+       "repository": "git+https://github.com/sondr3/a11y-color-contrast.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 10739,
+       "largest_other_package": "@crystallize/react-growl",
+       "last_publish": "2022-10-24",
+       "maintainers": [
+        "crystallize-admin"
+       ],
+       "monthly": 20250,
+       "name": "@crystallize/react-dialog",
+       "other_packages": 28,
+       "repository": "git+ssh://git@github.com/CrystallizeAPI/react-dialog.git",
+       "scope": "@crystallize",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-08-03",
+       "maintainers": [
+        "damirbogdanov"
+       ],
+       "monthly": 18589,
+       "name": "@tabworthy/components",
+       "other_packages": 0,
+       "repository": "git+https://github.com/tabworthy/tabworthy-components.git",
+       "scope": "@tabworthy",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 33,
+       "largest_other_package": "git-hook-creator",
+       "last_publish": "2026-04-27",
+       "maintainers": [
+        "taylorho"
+       ],
+       "monthly": 17534,
+       "name": "audit-export",
+       "other_packages": 1,
+       "repository": "git+https://github.com/TaylorHo/audit-export.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 117345,
+       "largest_other_package": "react-native-a11y-order",
+       "last_publish": "2026-07-05",
+       "maintainers": [
+        "artur_kalach"
+       ],
+       "monthly": 16412,
+       "name": "react-native-a11y",
+       "other_packages": 7,
+       "repository": "git+https://github.com/ArturKalach/react-native-a11y.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 117345,
+       "largest_other_package": "react-native-a11y-order",
+       "last_publish": "2026-03-28",
+       "maintainers": [
+        "artur_kalach"
+       ],
+       "monthly": 14824,
+       "name": "react-native-a11y-container",
+       "other_packages": 7,
+       "repository": "git+https://github.com/ArturKalach/react-native-a11y-container.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 1209,
+       "largest_other_package": "nhsuk-frontend-react",
+       "last_publish": "2024-10-11",
+       "maintainers": [
+        "rowellx68"
+       ],
+       "monthly": 14284,
+       "name": "cypress-a11y-report",
+       "other_packages": 10,
+       "repository": "git+https://github.com/rowellx68/cypress-a11y-report.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 3985,
+       "largest_other_package": "@aiany/sqlite-vec-linux-arm64",
+       "last_publish": "2026-07-27",
+       "maintainers": [
+        "fullex"
+       ],
+       "monthly": 13944,
+       "name": "selection-hook",
+       "other_packages": 9,
+       "repository": "git+https://github.com/0xfullex/selection-hook.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2016-12-12",
+       "maintainers": [
+        "majornista"
+       ],
+       "monthly": 13352,
+       "name": "phonegap-plugin-mobile-accessibility",
+       "other_packages": 0,
+       "repository": "git+https://github.com/phonegap/phonegap-mobile-accessibility.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 329,
+       "largest_other_package": "accessible-astro-launcher",
+       "last_publish": "2026-08-16",
+       "maintainers": [
+        "markteekman",
+        "sunshinepackages"
+       ],
+       "monthly": 13304,
+       "name": "accessible-astro-components",
+       "other_packages": 3,
+       "repository": "git+https://github.com/incluud/accessible-astro-components.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 4389694,
+       "largest_other_package": "@salesforce/core",
+       "last_publish": "2026-07-30",
+       "maintainers": [
+        "mohanraj-r",
+        "jasonschroeder-sfdc",
+        "apapko",
+        "lwc-admin"
+       ],
+       "monthly": 13074,
+       "name": "@sa11y/vitest",
+       "other_packages": 1084,
+       "repository": "git+https://github.com/salesforce/sa11y.git",
+       "scope": "@sa11y",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 22554,
+       "largest_other_package": "@sebspark/opentelemetry-instrumentation-opensearch",
+       "last_publish": "2021-05-03",
+       "maintainers": [
+        "dubbelnisse",
+        "believer"
+       ],
+       "monthly": 12463,
+       "name": "@opendevtools/wcag-color",
+       "other_packages": 74,
+       "repository": "git+https://github.com/opendevtools/wcag-color.git",
+       "scope": "@opendevtools",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 45348,
+       "largest_other_package": "@mxenabled/widget-post-message-definitions",
+       "last_publish": "2026-02-04",
+       "maintainers": [
+        "jordanboudreau",
+        "ashlylamarr",
+        "stephanie.stamm",
+        "drewwarren",
+        "william.bridegroom",
+        "lem_mx",
+        "mx.dev",
+        "amyjeppson.mx"
+       ],
+       "monthly": 11350,
+       "name": "@kyper/a11y",
+       "other_packages": 452,
+       "repository": "git@gitlab.mx.com:mx/kyper-react.git",
+       "scope": "@kyper",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 1428,
+       "largest_other_package": "mcp-guardian",
+       "last_publish": "2026-08-15",
+       "maintainers": [
+        "wfmedia"
+       ],
+       "monthly": 9821,
+       "name": "cbrowser",
+       "other_packages": 2,
+       "repository": "git+https://github.com/alexandriashai/cbrowser.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2025-10-29",
+       "maintainers": [
+        "psegurap"
+       ],
+       "monthly": 8871,
+       "name": "cypress-axe-reporter",
+       "other_packages": 0,
+       "repository": "git+https://github.com/psegurap/cypress-axe-reporter.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 5373,
+       "largest_other_package": "a11y-nav",
+       "last_publish": "2023-04-11",
+       "maintainers": [
+        "mmahandev"
+       ],
+       "monthly": 8686,
+       "name": "a11y-slider",
+       "other_packages": 2,
+       "repository": "git+https://github.com/mmahandev/a11y-slider.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2020-09-09",
+       "maintainers": [
+        "matthiasott"
+       ],
+       "monthly": 8390,
+       "name": "a11y-accordion-tabs",
+       "other_packages": 0,
+       "repository": "git+https://github.com/matthiasott/a11y-accordion-tabs.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 7826,
+       "largest_other_package": "@abcaustralia/campaign-health-quiz",
+       "last_publish": "2025-08-04",
+       "maintainers": [
+        "dnops"
+       ],
+       "monthly": 8361,
+       "name": "@abcaustralia/storybook-addon-a11ydocs",
+       "other_packages": 5,
+       "repository": "git+https://github.com/abcdigital/storybook-addon-a11ydocs.git",
+       "scope": "@abcaustralia",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 457444,
+       "largest_other_package": "@awesome-cordova-plugins/core",
+       "last_publish": "2026-08-11",
+       "maintainers": [
+        "danielsogl"
+       ],
+       "monthly": 8331,
+       "name": "@awesome-cordova-plugins/mobile-accessibility",
+       "other_packages": 289,
+       "repository": "git+https://github.com/danielsogl/awesome-cordova-plugins.git",
+       "scope": "@awesome-cordova-plugins",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 896,
+       "largest_other_package": "@ia-qa/cli",
+       "last_publish": "2026-08-18",
+       "maintainers": [
+        "zi-c17"
+       ],
+       "monthly": 7651,
+       "name": "@ia-qa/self-healing",
+       "other_packages": 1,
+       "repository": null,
+       "scope": "@ia-qa",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 7906,
+       "largest_other_package": "@wcag-checkr/ci",
+       "last_publish": "2026-07-18",
+       "maintainers": [
+        "wcagcheckr"
+       ],
+       "monthly": 7525,
+       "name": "@wcag-checkr/mcp",
+       "other_packages": 2,
+       "repository": "git+https://github.com/CliffCee/draft-code.git",
+       "scope": "@wcag-checkr",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-07-30",
+       "maintainers": [
+        "torontometsa11y"
+       ],
+       "monthly": 7508,
+       "name": "sa11y",
+       "other_packages": 0,
+       "repository": "git+https://github.com/ryersondmp/sa11y.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 5425,
+       "largest_other_package": "@maxgfr/codeindex",
+       "last_publish": "2026-08-19",
+       "maintainers": [
+        "maxgfr"
+       ],
+       "monthly": 7410,
+       "name": "ultra11y",
+       "other_packages": 25,
+       "repository": "git+https://github.com/maxgfr/ultra11y.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 7906,
+       "largest_other_package": "@wcag-checkr/ci",
+       "last_publish": "2026-07-18",
+       "maintainers": [
+        "wcagcheckr"
+       ],
+       "monthly": 7337,
+       "name": "@wcag-checkr/storybook-addon",
+       "other_packages": 2,
+       "repository": "git+https://github.com/CliffCee/draft-code.git",
+       "scope": "@wcag-checkr",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 1348560,
+       "largest_other_package": "@web/config-loader",
+       "last_publish": "2026-02-04",
+       "maintainers": [
+        "dgutride",
+        "dlabrecq",
+        "patternfly-build",
+        "jeff-phillips-18",
+        "mturley",
+        "bennyp",
+        "mwcz",
+        "kylebuch8",
+        "evwilkin",
+        "schulj12",
+        "nicolethoen",
+        "heymp",
+        "zhawkins",
+        "dlabaj",
+        "ausuliv",
+        "kmcfaul"
+       ],
+       "monthly": 7181,
+       "name": "@patternfly/patternfly-a11y",
+       "other_packages": 2436,
+       "repository": "git+https://github.com/patternfly/patternfly-a11y.git",
+       "scope": "@patternfly",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 396,
+       "largest_other_package": "flaky-test-scorer",
+       "last_publish": "2026-08-12",
+       "maintainers": [
+        "justasmonkev"
+       ],
+       "monthly": 6545,
+       "name": "mcp-accessibility-scanner",
+       "other_packages": 12,
+       "repository": "git+https://github.com/JustasMonkev/mcp-accessibility-scanner.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 2062,
+       "largest_other_package": "testilo",
+       "last_publish": "2026-08-19",
+       "maintainers": [
+        "jrpool"
+       ],
+       "monthly": 6525,
+       "name": "testaro",
+       "other_packages": 5,
+       "repository": "git+https://github.com/jrpool/testaro.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 3055,
+       "largest_other_package": "pour-cli",
+       "last_publish": "2026-08-19",
+       "maintainers": [
+        "davidyarham"
+       ],
+       "monthly": 6133,
+       "name": "pour-engine",
+       "other_packages": 1,
+       "repository": "git+https://github.com/pourdev/pour-engine.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 9451,
+       "largest_other_package": "@spark-ui/icons",
+       "last_publish": "2026-07-29",
+       "maintainers": [
+        "soykje",
+        "powerplex",
+        "alex.acd02",
+        "spark-web-admin"
+       ],
+       "monthly": 6028,
+       "name": "@spark-ui/components",
+       "other_packages": 66,
+       "repository": "git+https://github.com/leboncoin/spark-web.git",
+       "scope": "@spark-ui",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 104711138,
+       "largest_other_package": "@angular-devkit/core",
+       "last_publish": "2016-12-20",
+       "maintainers": [
+        "angular"
+       ],
+       "monthly": 5961,
+       "name": "protractor-accessibility-plugin",
+       "other_packages": 117,
+       "repository": "git+https://github.com/angular/protractor-accessibility-plugin.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 15,
+       "largest_other_package": "testparty-axe",
+       "last_publish": "2025-10-13",
+       "maintainers": [
+        "christian-testparty",
+        "jasonzhetan",
+        "arturmeinen"
+       ],
+       "monthly": 5749,
+       "name": "@test-party/contrast-color-picker",
+       "other_packages": 2,
+       "repository": "git+https://github.com/test-party/contrast-color-picker.git",
+       "scope": "@test-party",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 938,
+       "largest_other_package": "@hamsterwheel/sandbox",
+       "last_publish": "2026-08-13",
+       "maintainers": [
+        "nc9"
+       ],
+       "monthly": 5619,
+       "name": "squirrelscan",
+       "other_packages": 40,
+       "repository": "git+https://github.com/squirrelscan/squirrelscan.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 538,
+       "largest_other_package": "@docsbook/widgets",
+       "last_publish": "2026-08-17",
+       "maintainers": [
+        "javeoff"
+       ],
+       "monthly": 5536,
+       "name": "docs-skills",
+       "other_packages": 51,
+       "repository": "git+https://github.com/Docsbook-io/docs-skills.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-05-08",
+       "maintainers": [
+        "bennylukdev"
+       ],
+       "monthly": 5535,
+       "name": "sienna-accessibility",
+       "other_packages": 0,
+       "repository": "git+https://github.com/bennyluk/Sienna-Accessibility-Widget.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 8686,
+       "largest_other_package": "a11y-slider",
+       "last_publish": "2023-02-03",
+       "maintainers": [
+        "mmahandev"
+       ],
+       "monthly": 5373,
+       "name": "a11y-nav",
+       "other_packages": 2,
+       "repository": "git+https://github.com/mmahandev/a11y-nav.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 731,
+       "largest_other_package": "@nota/nativescript-webview-ext",
+       "last_publish": "2021-03-19",
+       "maintainers": [
+        "tfarestveit",
+        "m_abs",
+        "ddaf",
+        "838",
+        "nota-licenser",
+        "programmgunnar"
+       ],
+       "monthly": 5156,
+       "name": "@nota/nativescript-accessibility-ext",
+       "other_packages": 41,
+       "repository": "git+https://github.com/Notalib/nativescript-accessibility-ext.git",
+       "scope": "@nota",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 24591296,
+       "largest_other_package": "rc-util",
+       "last_publish": "2025-12-24",
+       "maintainers": [
+        "lvisei",
+        "iaaron",
+        "jinke.li",
+        "lzxue",
+        "army8735",
+        "dengfuping",
+        "afc163",
+        "chenluli",
+        "kn9117",
+        "bbsqq",
+        "banxuan",
+        "yanxiong",
+        "atool",
+        "pearl_wang",
+        "alex_zjt",
+        "duxinyue023",
+        "wang1212",
+        "gaofuhong"
+       ],
+       "monthly": 5118,
+       "name": "@antv/g-plugin-a11y",
+       "other_packages": 6220,
+       "repository": "git+https://github.com/antvis/g.git",
+       "scope": "@antv",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 409,
+       "largest_other_package": "holded-mobile-ui",
+       "last_publish": "2024-02-21",
+       "maintainers": [
+        "ezeleites"
+       ],
+       "monthly": 4843,
+       "name": "react-native-accessibility-wrapper",
+       "other_packages": 6,
+       "repository": "git+https://github.com/leiteszeke/react-native-accessibility-wrapper.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 2019966,
+       "largest_other_package": "codeceptjs",
+       "last_publish": "2025-05-21",
+       "maintainers": [
+        "thanh.nguyen"
+       ],
+       "monthly": 4327,
+       "name": "codeceptjs-a11y-helper",
+       "other_packages": 33,
+       "repository": "git+ssh://git@github.com/kobenguyent/codeceptjs-a11y-helper.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 1357,
+       "largest_other_package": "@casoon/astro-webvitals",
+       "last_publish": "2026-07-29",
+       "maintainers": [
+        "jseidel"
+       ],
+       "monthly": 4199,
+       "name": "@casoon/astro-post-audit",
+       "other_packages": 39,
+       "repository": "git+https://github.com/casoon/astro-post-audit.git",
+       "scope": "@casoon",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 1357269,
+       "largest_other_package": "@babylonjs/core",
+       "last_publish": "2026-08-14",
+       "maintainers": [
+        "babylonjs"
+       ],
+       "monthly": 4191,
+       "name": "babylonjs-accessibility",
+       "other_packages": 76,
+       "repository": "git+https://github.com/BabylonJS/Babylon.js.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 457444,
+       "largest_other_package": "@awesome-cordova-plugins/core",
+       "last_publish": "2026-08-15",
+       "maintainers": [
+        "danielsogl"
+       ],
+       "monthly": 4185,
+       "name": "@danielsogl/lighthouse-mcp",
+       "other_packages": 289,
+       "repository": "git+https://github.com/danielsogl/lighthouse-mcp-server.git",
+       "scope": "@danielsogl",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 30000,
+       "largest_other_package": "email-builder-core",
+       "last_publish": "2018-02-21",
+       "maintainers": [
+        "yargalot"
+       ],
+       "monthly": 4132,
+       "name": "grunt-accessibility",
+       "other_packages": 6,
+       "repository": "git+https://github.com/yargalot/grunt-accessibility.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 12260,
+       "largest_other_package": "@hennge/vue3-pagination",
+       "last_publish": "2025-11-26",
+       "maintainers": [
+        "hennge-henrylie",
+        "taizo",
+        "julian-springaux",
+        "furqanhabibi",
+        "npm-maintainer"
+       ],
+       "monthly": 3950,
+       "name": "@hennge/ui-react",
+       "other_packages": 11,
+       "repository": "git+https://github.com/HENNGE/hennge-ui-react.git",
+       "scope": "@hennge",
+       "scoped": true
+      }
+     ],
+     "summary": {
+      "cold_publisher_share": 0.377,
+      "has_repository_share": 0.9672,
+      "listing_downloads_median": 9821,
+      "n": 61,
+      "publisher_audience_above_100": 0.8033,
+      "publisher_audience_above_1000": 0.623,
+      "publisher_audience_above_10000": 0.4098,
+      "publisher_audience_above_100000": 0.2295,
+      "publisher_audience_median": 5425,
+      "scoped_share": 0.3934,
+      "solo_package_share": 0.1475
+     }
+    }
+   }
+  },
+  "mcp-supply-chain": {
+   "candidate": "mcp-supply-chain-watch",
+   "leaf_count": 972,
+   "strata": {
+    "baseline": {
+     "records": [
+      {
+       "largest_other_monthly": 38536,
+       "largest_other_package": "@rebasepro/types",
+       "last_publish": "2026-08-17",
+       "maintainers": [
+        "gatti675"
+       ],
+       "monthly": 18800,
+       "name": "@rebasepro/mcp",
+       "other_packages": 64,
+       "repository": "https://github.com/rebasepro/rebase.git",
+       "scope": "@rebasepro",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 15915,
+       "largest_other_package": "@skanda-yutori/mcp-send-email",
+       "last_publish": "2025-04-24",
+       "maintainers": [
+        "skanda-yutori"
+       ],
+       "monthly": 15989,
+       "name": "flightradar-mcp-server",
+       "other_packages": 3,
+       "repository": null,
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 158234,
+       "largest_other_package": "@sigmacomputing/embed-sdk",
+       "last_publish": "2026-02-23",
+       "maintainers": [
+        "jfranty",
+        "ktruong",
+        "maxseiden",
+        "josherich",
+        "sigma-nathan-healey",
+        "caseyjsigma",
+        "pat-haimbaugh",
+        "dmadelyn",
+        "yuchristina",
+        "sivadheeraj2",
+        "kevinpham",
+        "pearce-sigma",
+        "jmhain",
+        "pballai",
+        "dinkarkhattar",
+        "belaklaus",
+        "azule-lux",
+        "wtgjxj",
+        "nathansigma",
+        "hiranmaya",
+        "benjixd",
+        "yuhangsigma",
+        "dbronnik",
+        "anandnarayanan",
+        "eranatsigma",
+        "dyoung_ncc",
+        "ezimanyi-sigma",
+        "jhu_sigma",
+        "rjsigma",
+        "kiel2",
+        "rwoollen",
+        "anjinl",
+        "mansa_pabbaraju",
+        "huy-sigma",
+        "priyanshi13",
+        "yi-sigma",
+        "brett_b_at_sigma",
+        "moonero",
+        "nicholaschandler",
+        "diego-sigma",
+        "rudysigma",
+        "sharviln",
+        "sinanunan",
+        "abhijit_sigma",
+        "aaron-sigma",
+        "rounaksalim95",
+        "robinpille",
+        "nikhil_0929",
+        "reitmr",
+        "ray.chen.sigma",
+        "asadakram",
+        "haoxu-sigma",
+        "bohan_sigma",
+        "ajvedati",
+        "mathughes",
+        "srivatsa-p",
+        "jadefleishhacker",
+        "peternandersson",
+        "purvilmehta",
+        "ryankwong",
+        "tifn",
+        "cgreybosh",
+        "shiller8586",
+        "valerie-fauconmorin",
+        "liz425",
+        "aileensigma",
+        "matei_the_sigmanaut",
+        "ashtonca",
+        "gary-sigma",
+        "matt-bierman-sigma",
+        "estellakarunia",
+        "jscherererer",
+        "leontk",
+        "jishakambo",
+        "olcawthorne",
+        "smoir",
+        "colindolese",
+        "kulachi",
+        "ashnarya",
+        "angelafan",
+        "bhavanapkote",
+        "montefern",
+        "svc-prd-cursor-npm",
+        "mukund-sigma",
+        "curtiscastro",
+        "obashaw",
+        "swvooda",
+        "svc-prd-socket-npm",
+        "don-sigma",
+        "sbrovman",
+        "voidd7",
+        "justineyuan",
+        "acholmes",
+        "miguelsigma",
+        "mjones-sigma",
+        "john.yorke",
+        "lilei-sigma",
+        "scibellisigma",
+        "hildebr4nd",
+        "sgarrettmack",
+        "mrsk",
+        "dweidner-sigma",
+        "sigma-catfish",
+        "vivek7",
+        "alice.tan",
+        "aicluo",
+        "tana-sigma",
+        "ganesh24",
+        "jstein77",
+        "dapwu",
+        "maximus-sigma",
+        "angel-sigma",
+        "angelafan1",
+        "sathwik92ranabothu",
+        "sigmaseppy",
+        "wenxuan5",
+        "andyleo",
+        "edwin.cortazo",
+        "kabilan-sigma",
+        "kunalgadgil",
+        "peterb.sigma",
+        "sophia-ho-01",
+        "maxzmorrison",
+        "alinasigma",
+        "eeshakurode",
+        "dbronnik2",
+        "ronaksigma",
+        "jw11142002",
+        "danikaland",
+        "ky28060",
+        "ako28",
+        "chengming.li",
+        "tejas-sigma",
+        "matt.senick",
+        "jarvis-sigma",
+        "zhong-sigma",
+        "wren.warburg",
+        "illia_lazurenko",
+        "jhannan13",
+        "haechanoh",
+        "pratinavchandra",
+        "lionloo",
+        "blake.skinner.npm",
+        "aditya-arjun",
+        "margotmerrill",
+        "kirtan22",
+        "svc-prd-yarn-npm",
+        "gjerian",
+        "howardp",
+        "wsun858",
+        "onardin",
+        "neil-mathew-npm",
+        "josephgoznpm",
+        "samirapatel",
+        "joshb-sigma",
+        "neiloliver",
+        "lylesigam",
+        "drewfb_sigma",
+        "mcowger-at-sigma",
+        "colinmparker",
+        "seanking-sigma",
+        "williamdolsen",
+        "marwanmattar",
+        "tao-sigma",
+        "eltong11",
+        "mya-bridgeforth",
+        "dougancey",
+        "benharrissigma",
+        "mhogrefe",
+        "georgebonvaniesigma",
+        "jonathan-cook-sigma",
+        "vincenzoizzo",
+        "yingchou",
+        "mimevbore",
+        "jsmn-hou",
+        "jleeee",
+        "kojipereira",
+        "tristine",
+        "jeremietex",
+        "sigmaraz",
+        "mpccisme",
+        "andrew.tran07",
+        "sahilsalim99",
+        "louisshyers",
+        "borissigma",
+        "yinpengsig",
+        "ryan-sigma",
+        "micalazalea",
+        "christophermouri",
+        "mirandabillawala",
+        "evelynsjafii",
+        "yashsvisharma",
+        "dhyeysigma",
+        "ayman-sigma",
+        "adityasigmacomputing",
+        "alyssatsuno",
+        "alexisjohnson",
+        "natbolton",
+        "jcheung-sigma",
+        "svc-prod-winfra-npm",
+        "alison.lai",
+        "bendyshen-sigma",
+        "rohan322",
+        "wangyvonne",
+        "svc-prod-winfra-gcp",
+        "ggezer",
+        "jeffreychin",
+        "rileycrahen",
+        "vandit-sigma",
+        "ding-harrison",
+        "nischo22",
+        "jialeijin",
+        "madisonchamberlain",
+        "jlgjlg",
+        "varyn",
+        "yifeng-sigma",
+        "czhang_sigmacomputing",
+        "aarshinova",
+        "pengbei",
+        "jmschuman",
+        "asingh888",
+        "gsharoya",
+        "brandon.dixon",
+        "punnal",
+        "shawn-lin",
+        "delvalle84",
+        "nsunkad",
+        "shubhangi.srivastava",
+        "ericbannatyne-sigma",
+        "hannahsigma",
+        "arangasai",
+        "fanfan-sigma",
+        "jonathanzhang53",
+        "daisywang",
+        "ekene-tcs",
+        "crewtaylorsc",
+        "messerc",
+        "guyatsigma",
+        "munteanuic",
+        "halden-sigma",
+        "liamnorm",
+        "simingu",
+        "alexbiba",
+        "samhv0",
+        "eansari-sigma",
+        "ric-sigma-computing",
+        "davidmax-sigma",
+        "ratnashiv",
+        "sankruthkota0929"
+       ],
+       "monthly": 14961,
+       "name": "@sigmacomputing/slack-mcp-server",
+       "other_packages": 1251,
+       "repository": "git+https://github.com/sigmacomputing/slack-mcp-server.git",
+       "scope": "@sigmacomputing",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 4054539,
+       "largest_other_package": "@turbopuffer/turbopuffer",
+       "last_publish": "2026-07-30",
+       "maintainers": [
+        "sirupsen",
+        "jli",
+        "morgangallant",
+        "benesch-turbopuffer"
+       ],
+       "monthly": 13403,
+       "name": "@turbopuffer/turbopuffer-mcp",
+       "other_packages": 13,
+       "repository": "git+https://github.com/turbopuffer/turbopuffer-typescript.git",
+       "scope": "@turbopuffer",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 53233,
+       "largest_other_package": "@sylphx/contract",
+       "last_publish": "2025-04-07",
+       "maintainers": [
+        "shtse8"
+       ],
+       "monthly": 10321,
+       "name": "@sylphlab/pdf-reader-mcp",
+       "other_packages": 342,
+       "repository": "git+https://github.com/sylphlab/pdf-reader-mcp.git",
+       "scope": "@sylphlab",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 1857,
+       "largest_other_package": "convex-evalbench",
+       "last_publish": "2026-08-17",
+       "maintainers": [
+        "thfo"
+       ],
+       "monthly": 10006,
+       "name": "convex-mcp-gateway",
+       "other_packages": 2,
+       "repository": "git+https://github.com/tfohlmeister/convex-mcp-gateway.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2025-08-29",
+       "maintainers": [
+        "ihrthk"
+       ],
+       "monthly": 9142,
+       "name": "mcp-deepseek",
+       "other_packages": 0,
+       "repository": null,
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 4373,
+       "largest_other_package": "remarque-tokens",
+       "last_publish": "2026-08-19",
+       "maintainers": [
+        "williamzujkowski"
+       ],
+       "monthly": 7542,
+       "name": "nexus-agents",
+       "other_packages": 28,
+       "repository": "git+https://github.com/nexus-substrate/nexus-agents.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 24292,
+       "largest_other_package": "@vizejs/native-linux-x64-gnu",
+       "last_publish": "2026-08-19",
+       "maintainers": [
+        "ubugeeei"
+       ],
+       "monthly": 7246,
+       "name": "@vizejs/musea-mcp-server",
+       "other_packages": 102,
+       "repository": "https://github.com/ubugeeei-prod/vize.git",
+       "scope": "@vizejs",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-08-11",
+       "maintainers": [
+        "praveenmada",
+        "santosh-edgescale",
+        "manojmk",
+        "drjackmcdonald",
+        "wtyree-esai"
+       ],
+       "monthly": 7182,
+       "name": "@edgescaleai/cube-mcp",
+       "other_packages": 0,
+       "repository": "git+https://github.com/edgescaleai/cube-mcp.git",
+       "scope": "@edgescaleai",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-07-21",
+       "maintainers": [
+        "willdent"
+       ],
+       "monthly": 6626,
+       "name": "pipedrive-mcp-server",
+       "other_packages": 0,
+       "repository": "git+https://github.com/WillDent/pipedrive-mcp-server.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 26,
+       "largest_other_package": "@crawlith/cli",
+       "last_publish": "2026-08-09",
+       "maintainers": [
+        "saurabhsharma2u"
+       ],
+       "monthly": 6208,
+       "name": "search-console-mcp",
+       "other_packages": 8,
+       "repository": "git+https://github.com/saurabhsharma2u/search-console-mcp.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 48892,
+       "largest_other_package": "kubernetes-mcp-server",
+       "last_publish": "2026-07-31",
+       "maintainers": [
+        "manusa"
+       ],
+       "monthly": 5613,
+       "name": "kubernetes-mcp-server-windows-amd64",
+       "other_packages": 35,
+       "repository": "git+https://github.com/containers/kubernetes-mcp-server.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 433106,
+       "largest_other_package": "alchemy-sdk",
+       "last_publish": "2026-03-26",
+       "maintainers": [
+        "brian-alchemy",
+        "alchemy-team"
+       ],
+       "monthly": 4830,
+       "name": "@alchemy/mcp-server",
+       "other_packages": 45,
+       "repository": "git+https://github.com/alchemyplatform/alchemy-mcp-server.git",
+       "scope": "@alchemy",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 13753673,
+       "largest_other_package": "tailwind-variants",
+       "last_publish": "2026-02-12",
+       "maintainers": [
+        "juniorgarciadev"
+       ],
+       "monthly": 4804,
+       "name": "@heroui/react-mcp",
+       "other_packages": 165,
+       "repository": "git+https://github.com/heroui-inc/heroui-mcp.git",
+       "scope": "@heroui",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 71347,
+       "largest_other_package": "ragie",
+       "last_publish": "2025-05-20",
+       "maintainers": [
+        "ragie_matt",
+        "andreyragie",
+        "foobarfighter"
+       ],
+       "monthly": 4377,
+       "name": "@ragieai/mcp-server",
+       "other_packages": 12,
+       "repository": "git+https://github.com/ragieai/ragie-mcp-server.git",
+       "scope": "@ragieai",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 46,
+       "largest_other_package": "@cm3r/weather-map-layer",
+       "last_publish": "2026-07-25",
+       "maintainers": [
+        "cm3r"
+       ],
+       "monthly": 3920,
+       "name": "open-meteo-mcp-server",
+       "other_packages": 2,
+       "repository": "git+https://github.com/cmer81/open-meteo-mcp.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 1357382433,
+       "largest_other_package": "source-map",
+       "last_publish": "2026-08-18",
+       "maintainers": [
+        "mozilla-npm",
+        "mythmon",
+        "jkratzer",
+        "factorui.npm",
+        "project-nimbus-publishing",
+        "gijs",
+        "brizental",
+        "aplacitelli",
+        "mozrhelmer",
+        "knowtheory",
+        "nbaumgardner",
+        "tigleym",
+        "eemeli",
+        "hmanilla",
+        "jdescottes-mozilla-npm",
+        "ahanot",
+        "mlifshin",
+        "llisi-moz",
+        "jdarcangelo-mozilla",
+        "nchevobbe"
+       ],
+       "monthly": 3654,
+       "name": "@mozilla/firefox-devtools-mcp-moz",
+       "other_packages": 461,
+       "repository": "git+https://github.com/mozilla/firefox-devtools-mcp.git",
+       "scope": "@mozilla",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-08-18",
+       "maintainers": [
+        "caelum29"
+       ],
+       "monthly": 3481,
+       "name": "calibre-mcp",
+       "other_packages": 0,
+       "repository": "git+https://github.com/caelum29/calibre-mcp.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 61,
+       "largest_other_package": "n8n-nodes-plaud-unofficial",
+       "last_publish": "2025-06-30",
+       "maintainers": [
+        "leonardsellem"
+       ],
+       "monthly": 3457,
+       "name": "@leonardsellem/n8n-mcp-server",
+       "other_packages": 2,
+       "repository": "git+https://github.com/leonardsellem/n8n-mcp-server.git",
+       "scope": "@leonardsellem",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 184943,
+       "largest_other_package": "react-native-react-query-devtools",
+       "last_publish": "2026-08-19",
+       "maintainers": [
+        "lovesworking"
+       ],
+       "monthly": 3194,
+       "name": "@buoy-gg/mcp",
+       "other_packages": 43,
+       "repository": "git+https://github.com/Buoy-gg/buoy.git",
+       "scope": "@buoy-gg",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 658147,
+       "largest_other_package": "@paddle/paddle-js",
+       "last_publish": "2026-04-15",
+       "maintainers": [
+        "paddle.com",
+        "gedskikas"
+       ],
+       "monthly": 3128,
+       "name": "@paddle/paddle-mcp",
+       "other_packages": 9,
+       "repository": "git+https://github.com/PaddleHQ/paddle-mcp-server.git",
+       "scope": "@paddle",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-08-19",
+       "maintainers": [
+        "elvislion"
+       ],
+       "monthly": 3057,
+       "name": "@lionchat/mcp-server",
+       "other_packages": 0,
+       "repository": null,
+       "scope": "@lionchat",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 205751380,
+       "largest_other_package": "unified",
+       "last_publish": "2026-07-11",
+       "maintainers": [
+        "kvz",
+        "mifi",
+        "remcohaszing"
+       ],
+       "monthly": 2993,
+       "name": "@transloadit/mcp-server",
+       "other_packages": 555,
+       "repository": "git+https://github.com/transloadit/node-sdk.git",
+       "scope": "@transloadit",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 3013,
+       "largest_other_package": "@richard-stovall/opnsense-typescript-client",
+       "last_publish": "2025-06-30",
+       "maintainers": [
+        "richard-stovall"
+       ],
+       "monthly": 2926,
+       "name": "@richard-stovall/opnsense-mcp-server",
+       "other_packages": 3,
+       "repository": "git+https://github.com/richard-stovall/opnsense-mcp-server.git",
+       "scope": "@richard-stovall",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 213891,
+       "largest_other_package": "@bitwarden/cli",
+       "last_publish": "2026-07-07",
+       "maintainers": [
+        "mchecinskibw",
+        "racostabw",
+        "agalles",
+        "fntyler",
+        "bbiete",
+        "aj-bw",
+        "bribitwarden",
+        "apixley_bw",
+        "bwvgrassia"
+       ],
+       "monthly": 2747,
+       "name": "@bitwarden/mcp-server",
+       "other_packages": 98,
+       "repository": "git+https://github.com/bitwarden/mcp-server.git",
+       "scope": "@bitwarden",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 1276,
+       "largest_other_package": "ralph-hero-knowledge-index",
+       "last_publish": "2026-07-31",
+       "maintainers": [
+        "cdubiel08"
+       ],
+       "monthly": 2614,
+       "name": "ralph-hero-mcp-server",
+       "other_packages": 1,
+       "repository": "git+https://github.com/cdubiel08/ralph-hero.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 30726,
+       "largest_other_package": "@mmmeff/use-s3-uploader",
+       "last_publish": "2026-02-03",
+       "maintainers": [
+        "mfrey"
+       ],
+       "monthly": 2411,
+       "name": "outline-mcp-server",
+       "other_packages": 5,
+       "repository": "git+https://github.com/mmmeff/outline-mcp-server.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 35440,
+       "largest_other_package": "sit-onyx",
+       "last_publish": "2026-07-30",
+       "maintainers": [
+        "larsrickert",
+        "boppli",
+        "joca96"
+       ],
+       "monthly": 2386,
+       "name": "@sit-onyx/modelcontextprotocol",
+       "other_packages": 50,
+       "repository": "https://github.com/SchwarzIT/onyx",
+       "scope": "@sit-onyx",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 4089,
+       "largest_other_package": "@aborruso/italianparliament-mcp",
+       "last_publish": "2026-08-06",
+       "maintainers": [
+        "aborruso"
+       ],
+       "monthly": 2183,
+       "name": "@aborruso/ckan-mcp-server",
+       "other_packages": 2,
+       "repository": "git+https://github.com/ondata/ckan-mcp-server.git",
+       "scope": "@aborruso",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 24093,
+       "largest_other_package": "mcp-echo-server",
+       "last_publish": "2025-06-15",
+       "maintainers": [
+        "aholsinger"
+       ],
+       "monthly": 2112,
+       "name": "mcp-server-docker",
+       "other_packages": 2,
+       "repository": "git+https://github.com/adamdude828/mcp-server-docker.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 382,
+       "largest_other_package": "@bonvoy/core",
+       "last_publish": "2026-07-28",
+       "maintainers": [
+        "zweer"
+       ],
+       "monthly": 2058,
+       "name": "@echoes-io/mcp-server",
+       "other_packages": 63,
+       "repository": "git+https://github.com/echoes-io/mcp-server.git",
+       "scope": "@echoes-io",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-07-18",
+       "maintainers": [
+        "mrhenpm"
+       ],
+       "monthly": 2037,
+       "name": "yifangyun-mcp-server",
+       "other_packages": 0,
+       "repository": "git+https://github.com/mrhegit/yifangyun-mcp.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 135,
+       "largest_other_package": "craco-favicons",
+       "last_publish": "2025-06-29",
+       "maintainers": [
+        "rickysullivan"
+       ],
+       "monthly": 1924,
+       "name": "gitbook-mcp",
+       "other_packages": 2,
+       "repository": "git+https://github.com/rickysullivan/gitbook-mcp.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-08-02",
+       "maintainers": [
+        "warlyjr"
+       ],
+       "monthly": 1849,
+       "name": "mcp-security-lab",
+       "other_packages": 0,
+       "repository": "git+https://github.com/warlyjr-cloud/mcp-security-lab.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 2300,
+       "largest_other_package": "@idealyst/components",
+       "last_publish": "2026-07-25",
+       "maintainers": [
+        "idealyst"
+       ],
+       "monthly": 1782,
+       "name": "@idealyst/mcp-server",
+       "other_packages": 28,
+       "repository": null,
+       "scope": "@idealyst",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 1552848,
+       "largest_other_package": "@lobehub/icons",
+       "last_publish": "2026-08-06",
+       "maintainers": [
+        "yutengjing"
+       ],
+       "monthly": 1623,
+       "name": "@vscode-mcp/vscode-mcp-server",
+       "other_packages": 107,
+       "repository": null,
+       "scope": "@vscode-mcp",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 394,
+       "largest_other_package": "@creatrip/env-safe",
+       "last_publish": "2025-10-22",
+       "maintainers": [
+        "rhea-so",
+        "kyuhee.han",
+        "jonghakseo"
+       ],
+       "monthly": 1508,
+       "name": "@creatrip/mcp-server",
+       "other_packages": 12,
+       "repository": "git+https://github.com/creatrip/mcp-server.git",
+       "scope": "@creatrip",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 21771,
+       "largest_other_package": "mcp-server-fetch",
+       "last_publish": "2026-05-29",
+       "maintainers": [
+        "node-canaries"
+       ],
+       "monthly": 1443,
+       "name": "mcp-server-git",
+       "other_packages": 9,
+       "repository": "git+https://github.com/theinfosecguy/npx-canary.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 5331,
+       "largest_other_package": "copilot-custom-endpoint",
+       "last_publish": "2026-08-03",
+       "maintainers": [
+        "tugudush"
+       ],
+       "monthly": 1369,
+       "name": "@tugudush/bitbucket-mcp",
+       "other_packages": 5,
+       "repository": "git+https://github.com/tugudush/bitbucket-mcp.git",
+       "scope": "@tugudush",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 349,
+       "largest_other_package": "@open-state/kit",
+       "last_publish": "2026-08-04",
+       "maintainers": [
+        "jcrossman"
+       ],
+       "monthly": 1360,
+       "name": "@open-state/camping",
+       "other_packages": 1,
+       "repository": "git+https://github.com/JCrossman/can-fed-camp-mcp.git",
+       "scope": "@open-state",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 136,
+       "largest_other_package": "@black-duck/coverity-mcp-server",
+       "last_publish": "2026-07-17",
+       "maintainers": [
+        "blackduck-admin",
+        "jfitzpat-bd"
+       ],
+       "monthly": 1321,
+       "name": "@black-duck/mcp-server",
+       "other_packages": 12,
+       "repository": null,
+       "scope": "@black-duck",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-08-06",
+       "maintainers": [
+        "dataprime1"
+       ],
+       "monthly": 1293,
+       "name": "dreamd-mcp",
+       "other_packages": 0,
+       "repository": "git+https://github.com/botzrDev/dreamd.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 471,
+       "largest_other_package": "@sitelensapi/reports",
+       "last_publish": "2026-08-14",
+       "maintainers": [
+        "sitelenapi"
+       ],
+       "monthly": 1277,
+       "name": "@sitelensapi/mcp",
+       "other_packages": 26,
+       "repository": "git+https://github.com/mythmakr/sitelensapi.com.git",
+       "scope": "@sitelensapi",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 11122,
+       "largest_other_package": "@deppon/pm-toolkit",
+       "last_publish": "2026-07-18",
+       "maintainers": [
+        "wangyang1103"
+       ],
+       "monthly": 1270,
+       "name": "@deppon/deppon-prd-mcp",
+       "other_packages": 26,
+       "repository": "https://codehub.devcloud.cn-east-3.huaweicloud.com/e473681fd1cc4b2cb85967e5f7a3ff36/deppon-npm.git",
+       "scope": "@deppon",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 51,
+       "largest_other_package": "relivio",
+       "last_publish": "2026-07-16",
+       "maintainers": [
+        "lazypl82"
+       ],
+       "monthly": 1255,
+       "name": "context-registry-control-plane",
+       "other_packages": 2,
+       "repository": null,
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-08-18",
+       "maintainers": [
+        "georgeracu"
+       ],
+       "monthly": 1171,
+       "name": "google-jules-mcp-server",
+       "other_packages": 0,
+       "repository": "git+https://github.com/georgeracu/google-jules-mcp-server.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 500,
+       "largest_other_package": "@instawp/cli",
+       "last_publish": "2026-08-19",
+       "maintainers": [
+        "vikasiwp"
+       ],
+       "monthly": 1047,
+       "name": "@instawp/mcp-wp",
+       "other_packages": 1,
+       "repository": "git+https://github.com/InstaWP/mcp-wp.git",
+       "scope": "@instawp",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 2396,
+       "largest_other_package": "subgraph-registry-mcp",
+       "last_publish": "2026-08-09",
+       "maintainers": [
+        "paulieb"
+       ],
+       "monthly": 1043,
+       "name": "graph-polymarket-mcp",
+       "other_packages": 9,
+       "repository": "git+https://github.com/PaulieB14/graph-polymarket-mcp.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-06-25",
+       "maintainers": [
+        "smartzan63"
+       ],
+       "monthly": 1036,
+       "name": "lucid-mcp-server",
+       "other_packages": 0,
+       "repository": "git+https://github.com/smartzan63/lucid-mcp-server.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 518,
+       "largest_other_package": "@downatthebottomofthemolehole/megalinter-mcp-server",
+       "last_publish": "2026-08-04",
+       "maintainers": [
+        "rolfmoleman"
+       ],
+       "monthly": 904,
+       "name": "@downatthebottomofthemolehole/terraform-best-practices-mcp-server",
+       "other_packages": 2,
+       "repository": "git+https://github.com/DownAtTheBottomOfTheMoleHole/terraform-best-practices-mcp.git",
+       "scope": "@downatthebottomofthemolehole",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 4407,
+       "largest_other_package": "correctover-mcp-server",
+       "last_publish": "2026-08-19",
+       "maintainers": [
+        "neuralbridge-sdk-guigui"
+       ],
+       "monthly": 770,
+       "name": "correctover",
+       "other_packages": 6,
+       "repository": "git+https://github.com/Correctover/dsh-ccs-security.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 154,
+       "largest_other_package": "@lucairn/ai-act-classifier",
+       "last_publish": "2026-07-17",
+       "maintainers": [
+        "declade_dsaveil"
+       ],
+       "monthly": 692,
+       "name": "@lucairn/mcp-server",
+       "other_packages": 2,
+       "repository": "git+https://github.com/Declade/lucairn-sdks.git",
+       "scope": "@lucairn",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 60,
+       "largest_other_package": "@chenyqthu/mcp-server-memos",
+       "last_publish": "2025-05-15",
+       "maintainers": [
+        "lucienchen"
+       ],
+       "monthly": 604,
+       "name": "mcp-server-weread",
+       "other_packages": 2,
+       "repository": null,
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 601,
+       "largest_other_package": "@didcid/keymaster",
+       "last_publish": "2026-07-31",
+       "maintainers": [
+        "macterra"
+       ],
+       "monthly": 435,
+       "name": "@didcid/mcp-server",
+       "other_packages": 16,
+       "repository": "git+https://github.com/archetech/archon.git",
+       "scope": "@didcid",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 86850,
+       "largest_other_package": "@hasna/events",
+       "last_publish": "2026-06-29",
+       "maintainers": [
+        "andreihasna2"
+       ],
+       "monthly": 211,
+       "name": "@hasna/mcps",
+       "other_packages": 109,
+       "repository": "git+https://github.com/hasna/mcps.git",
+       "scope": "@hasna",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 117545,
+       "largest_other_package": "@podman-desktop/api",
+       "last_publish": "2025-11-05",
+       "maintainers": [
+        "florentbenoit",
+        "podman-desktop-bot"
+       ],
+       "monthly": 151,
+       "name": "@kortex-hub/mcp-registry-types",
+       "other_packages": 102,
+       "repository": "git+https://github.com/kortex-hub/mcp-registry-types.git",
+       "scope": "@kortex-hub",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-05-27",
+       "maintainers": [
+        "mcp-vulnerability"
+       ],
+       "monthly": 88,
+       "name": "mcp-vulnerability-scanner",
+       "other_packages": 0,
+       "repository": "git+https://github.com/mcphealth/mcp-vulnerability-health-scanner.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2025-08-29",
+       "maintainers": [
+        "johnjohn2410"
+       ],
+       "monthly": 74,
+       "name": "mcp-security-agent",
+       "other_packages": 0,
+       "repository": "git+https://github.com/johnjohn2410/MCP-Security-Agent.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-03-13",
+       "maintainers": [
+        "gianmarcomaz"
+       ],
+       "monthly": 35,
+       "name": "@gianmarcomaz/vantyr",
+       "other_packages": 0,
+       "repository": "git+https://github.com/gianmarcomaz/vantyr.git",
+       "scope": "@gianmarcomaz",
+       "scoped": true
+      }
+     ],
+     "summary": {
+      "cold_publisher_share": 0.4667,
+      "has_repository_share": 0.8667,
+      "listing_downloads_median": 2183,
+      "n": 60,
+      "publisher_audience_above_100": 0.7,
+      "publisher_audience_above_1000": 0.5333,
+      "publisher_audience_above_10000": 0.3833,
+      "publisher_audience_above_100000": 0.1833,
+      "publisher_audience_median": 2300,
+      "scoped_share": 0.5833,
+      "solo_package_share": 0.2167
+     }
+    },
+    "found": {
+     "records": [
+      {
+       "largest_other_monthly": 31,
+       "largest_other_package": "claude-jar",
+       "last_publish": "2026-07-19",
+       "maintainers": [
+        "claude-cup"
+       ],
+       "monthly": 10231581,
+       "name": "claude-cup",
+       "other_packages": 1,
+       "repository": "git+https://github.com/Itaib24/Claude-.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 9193462,
+       "largest_other_package": "@zag-js/dom-query",
+       "last_publish": "2026-07-29",
+       "maintainers": [
+        "segunadebayo"
+       ],
+       "monthly": 1072771,
+       "name": "@pandacss/mcp",
+       "other_packages": 405,
+       "repository": "git+https://github.com/chakra-ui/panda.git",
+       "scope": "@pandacss",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 202849246,
+       "largest_other_package": "@modelcontextprotocol/sdk",
+       "last_publish": "2026-07-23",
+       "maintainers": [
+        "jspahrsummers",
+        "pcarleton",
+        "fweinberger",
+        "thedsp",
+        "ashwin-ant",
+        "ochafik-ant",
+        "cliffhall"
+       ],
+       "monthly": 834598,
+       "name": "@modelcontextprotocol/server-pdf",
+       "other_packages": 255,
+       "repository": "git+https://github.com/modelcontextprotocol/ext-apps.git",
+       "scope": "@modelcontextprotocol",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 35675424,
+       "largest_other_package": "@lovable.dev/vite-plugin-dev-server-bridge",
+       "last_publish": "2026-08-10",
+       "maintainers": [
+        "vivasjernstrom",
+        "lovattl",
+        "jacques-lovable",
+        "emilf2",
+        "lfievet",
+        "danielivert",
+        "whn",
+        "gukj",
+        "aronstrandberg",
+        "shaneikennedy",
+        "wiledal",
+        "igorl5e",
+        "jifeng-lovable",
+        "ertan.lovable",
+        "pbricout",
+        "devyhia",
+        "aleksei-lvbl"
+       ],
+       "monthly": 709867,
+       "name": "@lovable.dev/mcp-js",
+       "other_packages": 220,
+       "repository": "git+https://github.com/lovablelabs/lovable.git",
+       "scope": "@lovable.dev",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-08-19",
+       "maintainers": [
+        "czlonkowski"
+       ],
+       "monthly": 590098,
+       "name": "n8n-mcp",
+       "other_packages": 0,
+       "repository": "git+https://github.com/czlonkowski/n8n-mcp.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 5329301,
+       "largest_other_package": "@xml-tools/parser",
+       "last_publish": "2026-08-19",
+       "maintainers": [
+        "tqueck",
+        "kranthie.sap",
+        "sap_extncrepos",
+        "sap-ospo-admin",
+        "devinea"
+       ],
+       "monthly": 461634,
+       "name": "@sap-ux/fiori-mcp-server",
+       "other_packages": 1085,
+       "repository": "https://github.com/SAP/open-ux-tools.git",
+       "scope": "@sap-ux",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 233115434,
+       "largest_other_package": "@sentry/core",
+       "last_publish": "2026-07-02",
+       "maintainers": [
+        "sentry-bot"
+       ],
+       "monthly": 454361,
+       "name": "@sentry/mcp-server",
+       "other_packages": 190,
+       "repository": "git+ssh://git@github.com/getsentry/sentry-mcp.git",
+       "scope": "@sentry",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 5329301,
+       "largest_other_package": "@xml-tools/parser",
+       "last_publish": "2026-08-13",
+       "maintainers": [
+        "sap-ospo-admin"
+       ],
+       "monthly": 446303,
+       "name": "@ui5/mcp-server",
+       "other_packages": 385,
+       "repository": "git+https://github.com/UI5/mcp-server.git",
+       "scope": "@ui5",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 1666,
+       "largest_other_package": "mcp-markdownify-server",
+       "last_publish": "2026-08-18",
+       "maintainers": [
+        "zereight"
+       ],
+       "monthly": 417505,
+       "name": "@zereight/mcp-gitlab",
+       "other_packages": 13,
+       "repository": "git+https://github.com/zereight/gitlab-mcp.git",
+       "scope": "@zereight",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 471174,
+       "largest_other_package": "clui",
+       "last_publish": "2026-08-19",
+       "maintainers": [
+        "artokun"
+       ],
+       "monthly": 353452,
+       "name": "comfyui-mcp",
+       "other_packages": 10,
+       "repository": "git+https://github.com/artokun/comfyui-mcp.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 730664042,
+       "largest_other_package": "@typescript-eslint/types",
+       "last_publish": "2026-04-30",
+       "maintainers": [
+        "nrwlowner",
+        "nrwl-jason",
+        "jack-nrwl",
+        "maxk-nrwl",
+        "jameshenry",
+        "altan-nrwl",
+        "maxkless"
+       ],
+       "monthly": 349683,
+       "name": "nx-mcp",
+       "other_packages": 814,
+       "repository": "git+https://github.com/nrwl/nx-console.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 2128252113,
+       "largest_other_package": "ms",
+       "last_publish": "2026-06-24",
+       "maintainers": [
+        "vercel-release-bot"
+       ],
+       "monthly": 344044,
+       "name": "next-devtools-mcp",
+       "other_packages": 499,
+       "repository": "git+https://github.com/vercel/next-devtools-mcp.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 5329301,
+       "largest_other_package": "@xml-tools/parser",
+       "last_publish": "2026-04-27",
+       "maintainers": [
+        "sap_extncrepos",
+        "cap-npm",
+        "sap-ospo-admin"
+       ],
+       "monthly": 265347,
+       "name": "@cap-js/mcp-server",
+       "other_packages": 799,
+       "repository": "git+https://github.com/cap-js/mcp-server.git",
+       "scope": "@cap-js",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 28567,
+       "largest_other_package": "@fiahfy/packbits",
+       "last_publish": "2026-08-18",
+       "maintainers": [
+        "kemuridama",
+        "fiahfy",
+        "freee_developers",
+        "ymrl",
+        "him0",
+        "akhr77",
+        "94soon"
+       ],
+       "monthly": 213680,
+       "name": "freee-mcp",
+       "other_packages": 62,
+       "repository": "git+https://github.com/freee/freee-mcp.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 37545,
+       "largest_other_package": "@21st-dev/cli",
+       "last_publish": "2026-07-31",
+       "maintainers": [
+        "serafimcloud",
+        "bunasq",
+        "danverr"
+       ],
+       "monthly": 212380,
+       "name": "@21st-dev/magic",
+       "other_packages": 45,
+       "repository": "git+https://github.com/21st-dev/magic-mcp.git",
+       "scope": "@21st-dev",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-03-11",
+       "maintainers": [
+        "weipeng11"
+       ],
+       "monthly": 208040,
+       "name": "hlims-mcp",
+       "other_packages": 0,
+       "repository": null,
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-04-16",
+       "maintainers": [
+        "serdnaley"
+       ],
+       "monthly": 207926,
+       "name": "@serdnaley/metabase-mcp",
+       "other_packages": 0,
+       "repository": "git+https://github.com/Serdnaley/metabase-mcp.git",
+       "scope": "@serdnaley",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 39946211,
+       "largest_other_package": "@oclif/core",
+       "last_publish": "2026-07-09",
+       "maintainers": [
+        "ire-npm-team-user",
+        "jimjag",
+        "salesforce-releases",
+        "jasonschroeder-sfdc",
+        "mobify",
+        "lwc-admin",
+        "salesforce-admin"
+       ],
+       "monthly": 193267,
+       "name": "@salesforce/mcp",
+       "other_packages": 3493,
+       "repository": "git+https://github.com/salesforcecli/mcp.git",
+       "scope": "@salesforce",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 34096492,
+       "largest_other_package": "@redocly/openapi-core",
+       "last_publish": "2025-09-19",
+       "maintainers": [
+        "romanhotsiy",
+        "alawar",
+        "adamaltman",
+        "marshevskyy",
+        "volodymyr-rutskyi"
+       ],
+       "monthly": 167669,
+       "name": "@redocly/mcp-typescript-sdk",
+       "other_packages": 352,
+       "repository": "git+https://github.com/redocly-contrib/mcp-typescript-sdk.git",
+       "scope": "@redocly",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 29871528,
+       "largest_other_package": "file-saver",
+       "last_publish": "2026-08-18",
+       "maintainers": [
+        "cami-transcend",
+        "michaelfarrell76",
+        "bencmbrook",
+        "dmattia",
+        "eli",
+        "dawson.turechek",
+        "fran-transcend",
+        "kendra.taylor",
+        "htunnicliff"
+       ],
+       "monthly": 161547,
+       "name": "@transcend-io/mcp",
+       "other_packages": 315,
+       "repository": "git+https://github.com/transcend-io/tools.git",
+       "scope": "@transcend-io",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 650,
+       "largest_other_package": "@eirikb/domdom",
+       "last_publish": "2026-08-19",
+       "maintainers": [
+        "eirikb"
+       ],
+       "monthly": 159715,
+       "name": "@softeria/ms-365-mcp-server",
+       "other_packages": 16,
+       "repository": "git+https://github.com/Softeria/ms-365-mcp-server.git",
+       "scope": "@softeria",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2025-12-18",
+       "maintainers": [
+        "ericthered926"
+       ],
+       "monthly": 158550,
+       "name": "@ericthered926/duckduckgo-mcp-server",
+       "other_packages": 0,
+       "repository": "git+https://github.com/ericthered926/duckduckgo-mcp-server.git",
+       "scope": "@ericthered926",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 113396,
+       "largest_other_package": "backlog-js",
+       "last_publish": "2026-08-12",
+       "maintainers": [
+        "nulab"
+       ],
+       "monthly": 143588,
+       "name": "backlog-mcp-server",
+       "other_packages": 13,
+       "repository": "git+https://github.com/nulab/backlog-mcp-server.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 286082,
+       "largest_other_package": "@perplexity-ai/perplexity_ai",
+       "last_publish": "2026-07-27",
+       "maintainers": [
+        "dan-pplx",
+        "long-pplx",
+        "jasonklym-pplx"
+       ],
+       "monthly": 141422,
+       "name": "@perplexity-ai/mcp-server",
+       "other_packages": 6,
+       "repository": "git+https://github.com/perplexityai/modelcontextprotocol.git",
+       "scope": "@perplexity-ai",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 19411543,
+       "largest_other_package": "@ant-design/colors",
+       "last_publish": "2025-04-20",
+       "maintainers": [
+        "arvinxx"
+       ],
+       "monthly": 137051,
+       "name": "mcp-hello-world",
+       "other_packages": 214,
+       "repository": "git+https://github.com/lobehub/mcp-hello-world.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 51840055,
+       "largest_other_package": "JSONStream",
+       "last_publish": "2026-07-29",
+       "maintainers": [
+        "kumavis",
+        "frederikbolding",
+        "metamaskbot",
+        "gudahtt",
+        "mrten",
+        "mcmire",
+        "naugtur"
+       ],
+       "monthly": 134907,
+       "name": "@metamask/client-mcp-core",
+       "other_packages": 3142,
+       "repository": "https://github.com/MetaMask/client-mcp-core.git",
+       "scope": "@metamask",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 148,
+       "largest_other_package": "@openaccountant/wilson",
+       "last_publish": "2026-01-02",
+       "maintainers": [
+        "jdfiscus"
+       ],
+       "monthly": 131538,
+       "name": "n8n-nodes-mcp",
+       "other_packages": 3,
+       "repository": "git+https://github.com/nerding-io/n8n-nodes-mcp.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-07-09",
+       "maintainers": [
+        "williamlaverty"
+       ],
+       "monthly": 118302,
+       "name": "ato-mcp",
+       "other_packages": 0,
+       "repository": "git+https://github.com/william-laverty/ato-mcp.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 1514282651,
+       "largest_other_package": "eslint-visitor-keys",
+       "last_publish": "2026-07-27",
+       "maintainers": [
+        "openjsfoundation",
+        "eslintbot"
+       ],
+       "monthly": 115723,
+       "name": "@eslint/mcp",
+       "other_packages": 66,
+       "repository": "git+https://github.com/eslint/rewrite.git",
+       "scope": "@eslint",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 93713,
+       "largest_other_package": "slack-mcp-server-linux-amd64",
+       "last_publish": "2026-05-14",
+       "maintainers": [
+        "korotovsky"
+       ],
+       "monthly": 109102,
+       "name": "slack-mcp-server",
+       "other_packages": 7,
+       "repository": "git+https://github.com/korotovsky/slack-mcp-server.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 972,
+       "largest_other_package": "@bytebase/vue-kbar",
+       "last_publish": "2026-07-31",
+       "maintainers": [
+        "tianzhou",
+        "ed_bytebase",
+        "d-bytebase",
+        "steven_bb"
+       ],
+       "monthly": 103805,
+       "name": "@bytebase/dbhub",
+       "other_packages": 5,
+       "repository": "git+https://github.com/bytebase/dbhub.git",
+       "scope": "@bytebase",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 164,
+       "largest_other_package": "n8n-nodes-faceless-video",
+       "last_publish": "2026-06-22",
+       "maintainers": [
+        "winor30"
+       ],
+       "monthly": 102511,
+       "name": "@winor30/mcp-server-datadog",
+       "other_packages": 3,
+       "repository": "git+https://github.com/winor30/mcp-server-datadog.git",
+       "scope": "@winor30",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 1723749232,
+       "largest_other_package": "emoji-regex",
+       "last_publish": "2026-02-11",
+       "maintainers": [
+        "google-wombot",
+        "google-admin"
+       ],
+       "monthly": 97936,
+       "name": "@google-cloud/observability-mcp",
+       "other_packages": 764,
+       "repository": "git+https://github.com/googleapis/gcloud-mcp.git",
+       "scope": "@google-cloud",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 13741619,
+       "largest_other_package": "@launchdarkly/js-sdk-common",
+       "last_publish": "2026-05-08",
+       "maintainers": [
+        "launchdarkly"
+       ],
+       "monthly": 94170,
+       "name": "@launchdarkly/mcp-server",
+       "other_packages": 87,
+       "repository": "git+https://github.com/launchdarkly/mcp-server.git",
+       "scope": "@launchdarkly",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 24,
+       "largest_other_package": "@vrcollab/ugc",
+       "last_publish": "2026-08-11",
+       "maintainers": [
+        "alexander-akuity",
+        "jiachengxu",
+        "ken-akuity",
+        "akuitybot",
+        "jessesuen"
+       ],
+       "monthly": 92303,
+       "name": "argocd-mcp",
+       "other_packages": 4,
+       "repository": "git+https://github.com/argoproj-labs/mcp-for-argocd.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 38722,
+       "largest_other_package": "@aikidosec/ci-api-client",
+       "last_publish": "2026-08-16",
+       "maintainers": [
+        "matthias_aikido",
+        "sander_aikido"
+       ],
+       "monthly": 90366,
+       "name": "@aikidosec/mcp",
+       "other_packages": 1,
+       "repository": null,
+       "scope": "@aikidosec",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 193056,
+       "largest_other_package": "mcp-use",
+       "last_publish": "2025-12-10",
+       "maintainers": [
+        "pzullo",
+        "pederzh",
+        "tonxxd"
+       ],
+       "monthly": 88209,
+       "name": "@mcp-use/modelcontextprotocol-sdk",
+       "other_packages": 38,
+       "repository": "git+https://github.com/modelcontextprotocol/typescript-sdk.git",
+       "scope": "@mcp-use",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 987,
+       "largest_other_package": "useismobile",
+       "last_publish": "2026-08-19",
+       "maintainers": [
+        "tufantunc"
+       ],
+       "monthly": 82700,
+       "name": "ssh-mcp",
+       "other_packages": 8,
+       "repository": "git+https://github.com/tufantunc/ssh-mcp.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 102706,
+       "largest_other_package": "@open-mercato/cache",
+       "last_publish": "2026-08-05",
+       "maintainers": [
+        "pat-lewczuk",
+        "patryk.andrzejewski",
+        "piotrkarwatka"
+       ],
+       "monthly": 81052,
+       "name": "@open-mercato/ai-assistant",
+       "other_packages": 104,
+       "repository": "git+https://github.com/open-mercato/open-mercato.git",
+       "scope": "@open-mercato",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 419958,
+       "largest_other_package": "@paperclipai/adapter-utils",
+       "last_publish": "2026-08-18",
+       "maintainers": [
+        "dotta",
+        "devinfoley"
+       ],
+       "monthly": 79176,
+       "name": "@paperclipai/mcp-server",
+       "other_packages": 69,
+       "repository": "git+https://github.com/paperclipai/paperclip.git",
+       "scope": "@paperclipai",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 7090855,
+       "largest_other_package": "@github/copilot",
+       "last_publish": "2026-04-16",
+       "maintainers": [
+        "manuelpuyol",
+        "jonrohan",
+        "primer-css",
+        "gracepark",
+        "jibrangarcia",
+        "arelia",
+        "tylerthedev",
+        "smockle",
+        "simurai",
+        "khiga8",
+        "srt32",
+        "githubbot",
+        "jfuchs",
+        "andrialexandrou",
+        "joycezhu",
+        "bteng22",
+        "dustin.savery",
+        "ncalteen",
+        "alaingoga",
+        "andreiig"
+       ],
+       "monthly": 78350,
+       "name": "@github/mcp-registry",
+       "other_packages": 2599,
+       "repository": "git+https://github.com/github/mcp-registry.git",
+       "scope": "@github",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 4298,
+       "largest_other_package": "@felores/kie-ai-mcp-server",
+       "last_publish": "2025-01-18",
+       "maintainers": [
+        "felores"
+       ],
+       "monthly": 74944,
+       "name": "@felores/airtable-mcp-server",
+       "other_packages": 9,
+       "repository": "git+https://github.com/felores/airtable-mcp.git",
+       "scope": "@felores",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 71632,
+       "largest_other_package": "@sellable/install",
+       "last_publish": "2026-08-19",
+       "maintainers": [
+        "csreyes92",
+        "sellabledeveloper"
+       ],
+       "monthly": 70930,
+       "name": "@sellable/mcp",
+       "other_packages": 6,
+       "repository": null,
+       "scope": "@sellable",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 29484443,
+       "largest_other_package": "@better-auth/utils",
+       "last_publish": "2026-08-18",
+       "maintainers": [
+        "bekacru",
+        "better-gustavo"
+       ],
+       "monthly": 67411,
+       "name": "@better-auth/mcp",
+       "other_packages": 188,
+       "repository": "git+https://github.com/better-auth/better-auth.git",
+       "scope": "@better-auth",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 69314831,
+       "largest_other_package": "stripe",
+       "last_publish": "2026-03-24",
+       "maintainers": [
+        "nazli-stripe",
+        "stripejs",
+        "jordand-stripe",
+        "arashn-stripe",
+        "maxliu-stripe",
+        "jackieosborn-stripe",
+        "billfinn-stripe",
+        "lins-stripe",
+        "stripe-bindings",
+        "jil-stripe",
+        "tomas-stripe",
+        "bibek-stripe",
+        "rado-stripe",
+        "fkuo-stripe",
+        "chaves-stripe",
+        "porter-stripe",
+        "lemuel-stripe",
+        "ngrubb-stripe",
+        "cchalstrom-stripe",
+        "charliecruzan-stripe",
+        "mattpatt-stripe",
+        "ericfrank-stripe",
+        "tomer-stripe",
+        "mindy-stripe",
+        "tennhard-stripe",
+        "jackokerman-stripe",
+        "ianjabour-stripe",
+        "stegs-stripe",
+        "jeremyg-stripe",
+        "ebarrenechea-stripe",
+        "stevekaliski-stripe",
+        "matebek-stripe",
+        "henryx-stripe",
+        "kovalev-stripe",
+        "aelliott-stripe",
+        "tylerkrupickastripe",
+        "aywang-stripe",
+        "finn-stripe",
+        "raulfdm-stripe",
+        "cttsai-stripe",
+        "tjc-stripe",
+        "timbennett-stripe",
+        "bethanychen-stripe",
+        "russill-stripe",
+        "kysley-stripe",
+        "cjmisenas-stripe",
+        "jar-stripe",
+        "vladpotapov-stripe",
+        "tlin-stripe",
+        "davidme-stripe",
+        "johno-stripe",
+        "svenugopal-stripe",
+        "alexander-stripe",
+        "toluo-stripe",
+        "tillh-stripe",
+        "wooj-stripe",
+        "joyceqin-stripe",
+        "jaynewstrom-stripe",
+        "gbirch-stripe",
+        "luisv-stripe",
+        "lamflam-stripe",
+        "tjclawson-stripe",
+        "matv-stripe",
+        "lng-stripe",
+        "mats-stripe",
+        "samer-stripe"
+       ],
+       "monthly": 63364,
+       "name": "@stripe/mcp",
+       "other_packages": 1870,
+       "repository": "git+https://github.com/stripe/ai.git",
+       "scope": "@stripe",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 1723749232,
+       "largest_other_package": "emoji-regex",
+       "last_publish": "2026-01-05",
+       "maintainers": [
+        "google-wombot",
+        "google-admin"
+       ],
+       "monthly": 62997,
+       "name": "@google-cloud/gcloud-mcp",
+       "other_packages": 764,
+       "repository": "git+https://github.com/googleapis/gcloud-mcp.git",
+       "scope": "@google-cloud",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 6523438,
+       "largest_other_package": "remotion",
+       "last_publish": "2026-08-18",
+       "maintainers": [
+        "jonny"
+       ],
+       "monthly": 62462,
+       "name": "@remotion/mcp",
+       "other_packages": 173,
+       "repository": "https://github.com/remotion-dev/remotion/tree/main/packages/mcp",
+       "scope": "@remotion",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 42,
+       "largest_other_package": "drawioex",
+       "last_publish": "2025-07-19",
+       "maintainers": [
+        "negokaz"
+       ],
+       "monthly": 61365,
+       "name": "@negokaz/excel-mcp-server",
+       "other_packages": 2,
+       "repository": null,
+       "scope": "@negokaz",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 1357,
+       "largest_other_package": "@odgrim/linear-mcp",
+       "last_publish": "2025-03-05",
+       "maintainers": [
+        "odgrim"
+       ],
+       "monthly": 60434,
+       "name": "@odgrim/mcp-datetime",
+       "other_packages": 2,
+       "repository": "git+https://github.com/odgrim/mcp-datetime.git",
+       "scope": "@odgrim",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 379689728,
+       "largest_other_package": "@floating-ui/utils",
+       "last_publish": "2026-08-06",
+       "maintainers": [
+        "diegoandai",
+        "brijeshb42",
+        "michaldudak",
+        "mnajdova",
+        "siriwatknp",
+        "aarongarciah",
+        "atomiks",
+        "oliviertassinari",
+        "silviuaavram",
+        "janpotoms"
+       ],
+       "monthly": 56778,
+       "name": "@mui/mcp",
+       "other_packages": 677,
+       "repository": "git+https://github.com/mui/mui-x.git",
+       "scope": "@mui",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 771,
+       "largest_other_package": "@bangdao-ai/zentao-mcp",
+       "last_publish": "2026-08-04",
+       "maintainers": [
+        "baigod",
+        "jingli.chang",
+        "shaoshuai.liu",
+        "ypsoul",
+        "sunyuanyue",
+        "cocowangruixue"
+       ],
+       "monthly": 55384,
+       "name": "@bangdao-ai/acw-tools",
+       "other_packages": 43,
+       "repository": "git+https://github.com/bangdao-ai/acw-tools.git",
+       "scope": "@bangdao-ai",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-08-12",
+       "maintainers": [
+        "samarthanalytics-sj"
+       ],
+       "monthly": 54601,
+       "name": "samarth-gtm-mcp",
+       "other_packages": 0,
+       "repository": "git+https://github.com/samarthanalytics-sj/samarth-analytics-mcp.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-06-19",
+       "maintainers": [
+        "benborla29"
+       ],
+       "monthly": 53420,
+       "name": "@benborla29/mcp-server-mysql",
+       "other_packages": 0,
+       "repository": "git+https://github.com/benborla/mcp-server-mysql.git",
+       "scope": "@benborla29",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 32720,
+       "largest_other_package": "kubernetes-mcp-server-linux-amd64",
+       "last_publish": "2026-07-31",
+       "maintainers": [
+        "manusa"
+       ],
+       "monthly": 48892,
+       "name": "kubernetes-mcp-server",
+       "other_packages": 35,
+       "repository": "git+https://github.com/containers/kubernetes-mcp-server.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 5329301,
+       "largest_other_package": "@xml-tools/parser",
+       "last_publish": "2026-07-29",
+       "maintainers": [
+        "sap_extncrepos",
+        "sap-ospo-admin"
+       ],
+       "monthly": 48480,
+       "name": "@sap/mdk-mcp-server",
+       "other_packages": 760,
+       "repository": "git+https://github.com/SAP/mdk-mcp-server.git",
+       "scope": "@sap",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 43950,
+       "largest_other_package": "@ironbee-ai/cli",
+       "last_publish": "2026-08-12",
+       "maintainers": [
+        "subarman",
+        "ercaner",
+        "serkan-ozal"
+       ],
+       "monthly": 45396,
+       "name": "@ironbee-ai/devtools",
+       "other_packages": 18,
+       "repository": "git+https://github.com/ironbee-ai/ironbee-devtools.git",
+       "scope": "@ironbee-ai",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 7090855,
+       "largest_other_package": "@github/copilot",
+       "last_publish": "2026-08-04",
+       "maintainers": [
+        "primer-css"
+       ],
+       "monthly": 44837,
+       "name": "@primer/mcp",
+       "other_packages": 168,
+       "repository": "git+https://github.com/primer/react.git",
+       "scope": "@primer",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 223363,
+       "largest_other_package": "@tableau/embedding-api",
+       "last_publish": "2026-08-17",
+       "maintainers": [
+        "devplat.npmjs"
+       ],
+       "monthly": 44075,
+       "name": "@tableau/mcp-server",
+       "other_packages": 5,
+       "repository": "git+https://github.com/tableau/tableau-mcp.git",
+       "scope": "@tableau",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 1617,
+       "largest_other_package": "vanta-auditor-api-sdk",
+       "last_publish": "2026-02-25",
+       "maintainers": [
+        "vantasdk"
+       ],
+       "monthly": 43519,
+       "name": "@vantasdk/vanta-mcp-server",
+       "other_packages": 5,
+       "repository": "git+https://github.com/VantaInc/vanta-mcp-server.git",
+       "scope": "@vantasdk",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-05-16",
+       "maintainers": [
+        "codefuturist"
+       ],
+       "monthly": 43438,
+       "name": "@codefuturist/email-mcp",
+       "other_packages": 0,
+       "repository": "git+https://github.com/codefuturist/email-mcp.git",
+       "scope": "@codefuturist",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 43775,
+       "largest_other_package": "tscgen",
+       "last_publish": "2026-07-09",
+       "maintainers": [
+        "kevinbai0",
+        "slashwaseem",
+        "slashfinancial"
+       ],
+       "monthly": 40999,
+       "name": "@slashfi/agents-sdk",
+       "other_packages": 14,
+       "repository": "git+https://github.com/slashfi/agents-sdk.git",
+       "scope": "@slashfi",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 32948,
+       "largest_other_package": "@agentmemory/agentmemory",
+       "last_publish": "2026-08-16",
+       "maintainers": [
+        "rohitghumare"
+       ],
+       "monthly": 38252,
+       "name": "@agentmemory/mcp",
+       "other_packages": 19,
+       "repository": "git+https://github.com/rohitg00/agentmemory.git",
+       "scope": "@agentmemory",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 716989,
+       "largest_other_package": "@instantdb/core",
+       "last_publish": "2026-08-11",
+       "maintainers": [
+        "stopachka",
+        "nezaj",
+        "dww"
+       ],
+       "monthly": 37865,
+       "name": "@instantdb/mcp",
+       "other_packages": 104,
+       "repository": "git+https://github.com/instantdb/instant.git",
+       "scope": "@instantdb",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 212380,
+       "largest_other_package": "@21st-dev/magic",
+       "last_publish": "2026-07-31",
+       "maintainers": [
+        "serafimcloud",
+        "bunasq",
+        "danverr"
+       ],
+       "monthly": 37545,
+       "name": "@21st-dev/cli",
+       "other_packages": 45,
+       "repository": "git+ssh://git@github.com/21st-dev/cli.git",
+       "scope": "@21st-dev",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 98197647,
+       "largest_other_package": "agentkeepalive",
+       "last_publish": "2026-01-12",
+       "maintainers": [
+        "fengmk2",
+        "gxkl",
+        "killagu",
+        "elrrrrrrr",
+        "pub_alipay_npm",
+        "yyysylvia"
+       ],
+       "monthly": 37074,
+       "name": "@alipay/mcp-server-alipay",
+       "other_packages": 1276,
+       "repository": null,
+       "scope": "@alipay",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 33997,
+       "largest_other_package": "@productbrain/cli",
+       "last_publish": "2026-08-19",
+       "maintainers": [
+        "productbrain"
+       ],
+       "monthly": 35673,
+       "name": "@productbrain/mcp",
+       "other_packages": 1,
+       "repository": "git+https://github.com/synergyai-os/productbrain.git",
+       "scope": "@productbrain",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 26,
+       "largest_other_package": "nspady-google-calendar-mcp",
+       "last_publish": "2026-06-01",
+       "maintainers": [
+        "nat0st"
+       ],
+       "monthly": 34657,
+       "name": "@cocal/google-calendar-mcp",
+       "other_packages": 1,
+       "repository": "git+https://github.com/nspady/google-calendar-mcp.git",
+       "scope": "@cocal",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 5313,
+       "largest_other_package": "ccjk",
+       "last_publish": "2026-08-19",
+       "maintainers": [
+        "miounet"
+       ],
+       "monthly": 34399,
+       "name": "iclavue",
+       "other_packages": 1,
+       "repository": "git+https://github.com/mycode699/clavue.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 1887613,
+       "largest_other_package": "fixturify-project",
+       "last_publish": "2026-06-27",
+       "maintainers": [
+        "scalvert"
+       ],
+       "monthly": 33815,
+       "name": "docusaurus-plugin-mcp-server",
+       "other_packages": 67,
+       "repository": "git+https://github.com/scalvert/docusaurus-plugin-mcp-server.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 1639896830,
+       "largest_other_package": "tslib",
+       "last_publish": "2026-07-31",
+       "maintainers": [
+        "microsoft1es",
+        "microsoft-oss-releases"
+       ],
+       "monthly": 33741,
+       "name": "@microsoft/powerbi-modeling-mcp",
+       "other_packages": 1000,
+       "repository": "git+https://github.com/microsoft/powerbi-modeling-mcp.git",
+       "scope": "@microsoft",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-05-19",
+       "maintainers": [
+        "almessadi"
+       ],
+       "monthly": 33448,
+       "name": "opencode-mcp",
+       "other_packages": 0,
+       "repository": "git+https://github.com/AlaeddineMessadi/opencode-mcp.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 19907,
+       "largest_other_package": "@dbx-app/mcp-win32-x64",
+       "last_publish": "2026-08-18",
+       "maintainers": [
+        "t8y2"
+       ],
+       "monthly": 31973,
+       "name": "@dbx-app/mcp-server",
+       "other_packages": 30,
+       "repository": "git+https://github.com/t8y2/dbx.git",
+       "scope": "@dbx-app",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 1645,
+       "largest_other_package": "@chrisdoc/hevy-cli",
+       "last_publish": "2026-08-18",
+       "maintainers": [
+        "chrisdoc"
+       ],
+       "monthly": 31367,
+       "name": "hevy-mcp",
+       "other_packages": 2,
+       "repository": "git+https://github.com/chrisdoc/hevy-mcp.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 78759,
+       "largest_other_package": "dataforseo-client",
+       "last_publish": "2026-08-17",
+       "maintainers": [
+        "dataforseo"
+       ],
+       "monthly": 30186,
+       "name": "dataforseo-mcp-server",
+       "other_packages": 2,
+       "repository": "git+https://github.com/dataforseo/mcp-server-typescript.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 1723749232,
+       "largest_other_package": "emoji-regex",
+       "last_publish": "2026-05-06",
+       "maintainers": [
+        "google-wombot",
+        "google-admin"
+       ],
+       "monthly": 29982,
+       "name": "@google-cloud/storage-mcp",
+       "other_packages": 764,
+       "repository": "git+https://github.com/googleapis/gcloud-mcp.git",
+       "scope": "@google-cloud",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 4517202,
+       "largest_other_package": "@postman/tunnel-agent",
+       "last_publish": "2026-08-18",
+       "maintainers": [
+        "gouthamaj",
+        "postman-admin",
+        "aravindrajr"
+       ],
+       "monthly": 29307,
+       "name": "@postman/postman-mcp-server",
+       "other_packages": 148,
+       "repository": "git+https://github.com/postmanlabs/postman-mcp-server.git",
+       "scope": "@postman",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 16342,
+       "largest_other_package": "ecc-universal",
+       "last_publish": "2026-03-21",
+       "maintainers": [
+        "cogsec"
+       ],
+       "monthly": 29058,
+       "name": "ecc-agentshield",
+       "other_packages": 1,
+       "repository": "git+https://github.com/affaan-m/agentshield.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 43765,
+       "largest_other_package": "@aleph-alpha/config-css",
+       "last_publish": "2026-08-10",
+       "maintainers": [
+        "uyiaa"
+       ],
+       "monthly": 28289,
+       "name": "@aleph-alpha/lib-mcp",
+       "other_packages": 22,
+       "repository": null,
+       "scope": "@aleph-alpha",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 10034,
+       "largest_other_package": "@hero-design/colors",
+       "last_publish": "2026-06-09",
+       "maintainers": [
+        "rendyt",
+        "toannguyeneh",
+        "ehrocks-dev",
+        "ttkien_eh",
+        "sangquangnguyeneh",
+        "haudao-eh",
+        "phthhieu",
+        "namvo"
+       ],
+       "monthly": 26227,
+       "name": "@ehrocks/fe-mcp-server",
+       "other_packages": 184,
+       "repository": "git+https://github.com/thinkei/fe-mcp-service.git",
+       "scope": "@ehrocks",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 54366,
+       "largest_other_package": "@aashari/mcp-server-atlassian-jira",
+       "last_publish": "2025-12-03",
+       "maintainers": [
+        "aashari"
+       ],
+       "monthly": 25614,
+       "name": "@aashari/mcp-server-atlassian-confluence",
+       "other_packages": 8,
+       "repository": "git+https://github.com/aashari/mcp-server-atlassian-confluence.git",
+       "scope": "@aashari",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 77,
+       "largest_other_package": "react-rest-client",
+       "last_publish": "2026-01-24",
+       "maintainers": [
+        "ktnyt"
+       ],
+       "monthly": 24701,
+       "name": "cclsp",
+       "other_packages": 2,
+       "repository": "git+https://github.com/ktnyt/cclsp.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 2112,
+       "largest_other_package": "mcp-server-docker",
+       "last_publish": "2025-06-10",
+       "maintainers": [
+        "aholsinger"
+       ],
+       "monthly": 24093,
+       "name": "mcp-echo-server",
+       "other_packages": 2,
+       "repository": null,
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 420,
+       "largest_other_package": "@esaio/esa-cli",
+       "last_publish": "2026-08-18",
+       "maintainers": [
+        "ppworks",
+        "fukayatsu"
+       ],
+       "monthly": 23968,
+       "name": "@esaio/esa-mcp-server",
+       "other_packages": 4,
+       "repository": "git+https://github.com/esaio/esa-mcp-server.git",
+       "scope": "@esaio",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 3776892,
+       "largest_other_package": "@mikro-orm/core",
+       "last_publish": "2026-08-02",
+       "maintainers": [
+        "mtrunkat",
+        "jancurn",
+        "petrpatek",
+        "mnmkng",
+        "jaroslavhejlek",
+        "drobnikj",
+        "metalwarrior665",
+        "fnesveda",
+        "b4nan",
+        "janbuchar",
+        "apify-service-account"
+       ],
+       "monthly": 23865,
+       "name": "@apify/mcpc",
+       "other_packages": 1109,
+       "repository": "git+https://github.com/apify/mcpc.git",
+       "scope": "@apify",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-08-18",
+       "maintainers": [
+        "samuelgursky"
+       ],
+       "monthly": 23464,
+       "name": "davinci-resolve-mcp",
+       "other_packages": 0,
+       "repository": "git+https://github.com/samuelgursky/davinci-resolve-mcp.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 64824,
+       "largest_other_package": "documents.js",
+       "last_publish": "2026-08-19",
+       "maintainers": [
+        "jmearman"
+       ],
+       "monthly": 23045,
+       "name": "document-mcp",
+       "other_packages": 219,
+       "repository": "git+https://github.com/ExaDev/document-mcp.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 165855,
+       "largest_other_package": "passport-gitlab2",
+       "last_publish": "2026-07-31",
+       "maintainers": [
+        "timowolf",
+        "kfenner",
+        "fh1ch",
+        "spike-rabbit",
+        "siemens-element-bot"
+       ],
+       "monthly": 22728,
+       "name": "@siemens/ix-mcp-react",
+       "other_packages": 131,
+       "repository": "https://code.siemens.com/ux/sdl-mcp",
+       "scope": "@siemens",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 12048327,
+       "largest_other_package": "jest-canvas-mock",
+       "last_publish": "2026-02-12",
+       "maintainers": [
+        "atool"
+       ],
+       "monthly": 22298,
+       "name": "mcp-mermaid",
+       "other_packages": 499,
+       "repository": "git+https://github.com/hustcc/mcp-mermaid.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 1645,
+       "largest_other_package": "mcp-server-github",
+       "last_publish": "2026-05-29",
+       "maintainers": [
+        "node-canaries"
+       ],
+       "monthly": 21771,
+       "name": "mcp-server-fetch",
+       "other_packages": 9,
+       "repository": "git+https://github.com/theinfosecguy/npx-canary.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 1639896830,
+       "largest_other_package": "tslib",
+       "last_publish": "2026-07-13",
+       "maintainers": [
+        "microsoft1es",
+        "microsoft-oss-releases"
+       ],
+       "monthly": 21665,
+       "name": "@microsoft/github-copilot-app-modernization-mcp-server",
+       "other_packages": 1000,
+       "repository": "git+https://github.com/microsoft/github-copilot-appmod.git",
+       "scope": "@microsoft",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2025-07-10",
+       "maintainers": [
+        "npjonath"
+       ],
+       "monthly": 21375,
+       "name": "oclif-plugin-mcp-server",
+       "other_packages": 0,
+       "repository": "git+https://github.com/npjonath/oclif-plugin-mcp-server.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-07-27",
+       "maintainers": [
+        "a-bonus"
+       ],
+       "monthly": 21311,
+       "name": "@a-bonus/google-docs-mcp",
+       "other_packages": 0,
+       "repository": null,
+       "scope": "@a-bonus",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-08-14",
+       "maintainers": [
+        "thisrohangupta"
+       ],
+       "monthly": 21165,
+       "name": "harness-mcp-v2",
+       "other_packages": 0,
+       "repository": "git+https://github.com/harness/mcp-server.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 1534,
+       "largest_other_package": "fred-mcp-server",
+       "last_publish": "2025-09-14",
+       "maintainers": [
+        "stefano.amorelli"
+       ],
+       "monthly": 21037,
+       "name": "storybook-mcp-server",
+       "other_packages": 11,
+       "repository": "git+https://github.com/stefanoamorelli/storybook-mcp-server.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 11010624,
+       "largest_other_package": "@contentful/rich-text-types",
+       "last_publish": "2026-08-18",
+       "maintainers": [
+        "it-internal",
+        "whydah-gally",
+        "contentful-ecosystem",
+        "michaelpearce"
+       ],
+       "monthly": 21029,
+       "name": "@contentful/mcp-server",
+       "other_packages": 607,
+       "repository": "git+https://github.com/contentful/contentful-mcp-server.git",
+       "scope": "@contentful",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 7234701,
+       "largest_other_package": "@browserbasehq/sdk",
+       "last_publish": "2026-03-31",
+       "maintainers": [
+        "seanmcguire12",
+        "kylejeong",
+        "nosaj",
+        "zerofool",
+        "desaadi",
+        "ajmcquilkin",
+        "miguel_g",
+        "browserz"
+       ],
+       "monthly": 20957,
+       "name": "@browserbasehq/mcp",
+       "other_packages": 139,
+       "repository": "git+https://github.com/browserbase/mcp-server-browserbase.git",
+       "scope": "@browserbasehq",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 22696,
+       "largest_other_package": "@mightybot/mbcli-linux-x64",
+       "last_publish": "2026-08-18",
+       "maintainers": [
+        "manoj-mighty"
+       ],
+       "monthly": 20909,
+       "name": "@mightybot/mbcli",
+       "other_packages": 5,
+       "repository": null,
+       "scope": "@mightybot",
+       "scoped": true
+      }
+     ],
+     "summary": {
+      "cold_publisher_share": 0.2577,
+      "has_repository_share": 0.9072,
+      "listing_downloads_median": 60434,
+      "n": 97,
+      "publisher_audience_above_100": 0.8144,
+      "publisher_audience_above_1000": 0.7423,
+      "publisher_audience_above_10000": 0.6495,
+      "publisher_audience_above_100000": 0.4639,
+      "publisher_audience_median": 64824,
+      "scoped_share": 0.6804,
+      "solo_package_share": 0.134
+     }
+    }
+   }
+  },
+  "sbom-cra-evidence": {
+   "candidate": "cra-evidence-desk",
+   "leaf_count": 403,
+   "strata": {
+    "baseline": {
+     "records": [
+      {
+       "largest_other_monthly": 31143,
+       "largest_other_package": "@absolutejs/manifest",
+       "last_publish": "2026-08-17",
+       "maintainers": [
+        "alexkahndev"
+       ],
+       "monthly": 2186,
+       "name": "@absolutejs/vulnerabilities-worker",
+       "other_packages": 178,
+       "repository": "git+https://github.com/absolutejs/vulnerabilities-modules.git",
+       "scope": "@absolutejs",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 64,
+       "largest_other_package": "@synvoya/cerebro-mcp",
+       "last_publish": "2026-08-17",
+       "maintainers": [
+        "hibin-m"
+       ],
+       "monthly": 2145,
+       "name": "codeinspectus",
+       "other_packages": 1,
+       "repository": "git+https://github.com/Synvoya/codeinspectus.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 2165,
+       "largest_other_package": "@skillerr/core",
+       "last_publish": "2026-07-21",
+       "maintainers": [
+        "csinye"
+       ],
+       "monthly": 1645,
+       "name": "skillerr",
+       "other_packages": 9,
+       "repository": "git+https://github.com/dot-skill/skillerr.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 12,
+       "largest_other_package": "noticeme",
+       "last_publish": "2023-06-07",
+       "maintainers": [
+        "clearlydefined"
+       ],
+       "monthly": 1554,
+       "name": "@clearlydefined/spdx",
+       "other_packages": 2,
+       "repository": "git+https://github.com/clearlydefined/spdx.git",
+       "scope": "@clearlydefined",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 654299,
+       "largest_other_package": "node-fs",
+       "last_publish": "2026-08-06",
+       "maintainers": [
+        "jorgegar",
+        "amagan",
+        "marianoao",
+        "bpedro",
+        "ivanasabi",
+        "danielfn",
+        "inditex-oso"
+       ],
+       "monthly": 1296,
+       "name": "@inditextech/weave-renderer-konva-react-reconciler",
+       "other_packages": 80,
+       "repository": "git+https://github.com/InditexTech/weavejs.git",
+       "scope": "@inditextech",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 1645354078,
+       "largest_other_package": "@types/node",
+       "last_publish": "2026-07-01",
+       "maintainers": [
+        "types"
+       ],
+       "monthly": 1165,
+       "name": "@types/cyclonedx",
+       "other_packages": 500,
+       "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+       "scope": "@types",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 104240,
+       "largest_other_package": "@settlemint/dalp-cli",
+       "last_publish": "2025-01-27",
+       "maintainers": [
+        "roderik",
+        "patrickmualaba",
+        "janb87"
+       ],
+       "monthly": 785,
+       "name": "@settlemint/starterkit-supply-chain",
+       "other_packages": 147,
+       "repository": "git+https://github.com/settlemint/starterkit-supply-chain.git",
+       "scope": "@settlemint",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 676,
+       "largest_other_package": "lzg",
+       "last_publish": "2023-11-14",
+       "maintainers": [
+        "dlvoy"
+       ],
+       "monthly": 683,
+       "name": "html-license-gen",
+       "other_packages": 4,
+       "repository": "git+https://github.com/dlvoy/html-license-gen.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 1187,
+       "largest_other_package": "licenseproof",
+       "last_publish": "2026-07-25",
+       "maintainers": [
+        "mjgoldfinger"
+       ],
+       "monthly": 583,
+       "name": "ceproof",
+       "other_packages": 1,
+       "repository": "git+https://github.com/thrillhouse34/ceproof.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 2328601,
+       "largest_other_package": "@cyclonedx/cyclonedx-library",
+       "last_publish": "2024-11-16",
+       "maintainers": [
+        "cyclonedx-automation",
+        "jkowalleck",
+        "sspringett",
+        "eoftedal",
+        "coderpatros"
+       ],
+       "monthly": 457,
+       "name": "@cyclonedx/cdxgen-plugins-bin-arm",
+       "other_packages": 121,
+       "repository": "git+https://github.com/cyclonedx/cdxgen-plugins-bin.git",
+       "scope": "@cyclonedx",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-08-19",
+       "maintainers": [
+        "clarani"
+       ],
+       "monthly": 408,
+       "name": "@jamstec-spdx/react-earth",
+       "other_packages": 0,
+       "repository": "git+https://github.com/JAMSTEC-SPDX/react-earth.git",
+       "scope": "@jamstec-spdx",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 481,
+       "largest_other_package": "@redbeemedia/javascript-player",
+       "last_publish": "2026-05-18",
+       "maintainers": [
+        "olivbraun",
+        "simonwallin",
+        "silviu.negoi",
+        "alexandru_cocioran"
+       ],
+       "monthly": 390,
+       "name": "@redbeemedia/javascript-player-web-component",
+       "other_packages": 17,
+       "repository": "git+https://github.com/EricssonBroadcastServices/javascript-player.git",
+       "scope": "@redbeemedia",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2024-08-15",
+       "maintainers": [
+        "gevdev"
+       ],
+       "monthly": 321,
+       "name": "@gevdev/cyclonedx-library-no-spdx",
+       "other_packages": 0,
+       "repository": null,
+       "scope": "@gevdev",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-08-02",
+       "maintainers": [
+        "tavotsu"
+       ],
+       "monthly": 270,
+       "name": "basesec",
+       "other_packages": 0,
+       "repository": "git+https://github.com/Tavotsu/BaseSec.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 498,
+       "largest_other_package": "@ph-itdev/delivery-window-scheduler",
+       "last_publish": "2026-07-12",
+       "maintainers": [
+        "nilob"
+       ],
+       "monthly": 238,
+       "name": "@ph-itdev/supply-chain-events",
+       "other_packages": 20,
+       "repository": "git+https://github.com/nilskie06/supply-chain-events.git",
+       "scope": "@ph-itdev",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 382,
+       "largest_other_package": "vibecheck-ai",
+       "last_publish": "2026-01-28",
+       "maintainers": [
+        "vibecheckai"
+       ],
+       "monthly": 181,
+       "name": "@vibecheckai/cli",
+       "other_packages": 83,
+       "repository": "git+https://github.com/guardiavault-oss/VIBEYCHECK.git",
+       "scope": "@vibecheckai",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 9713,
+       "largest_other_package": "ytconv",
+       "last_publish": "2026-08-05",
+       "maintainers": [
+        "cellauu"
+       ],
+       "monthly": 156,
+       "name": "shipforge-cli",
+       "other_packages": 1,
+       "repository": "git+https://github.com/andhikamarcella/shipforge-cli.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 359,
+       "largest_other_package": "cashclaw",
+       "last_publish": "2026-03-13",
+       "maintainers": [
+        "ertugrulakben"
+       ],
+       "monthly": 147,
+       "name": "dep-oracle",
+       "other_packages": 1,
+       "repository": "git+https://github.com/ertugrulakben/dep-oracle.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 339,
+       "largest_other_package": "@pollychrome/joan-mcp",
+       "last_publish": "2026-02-04",
+       "maintainers": [
+        "pollychrome"
+       ],
+       "monthly": 114,
+       "name": "canary-cli",
+       "other_packages": 1,
+       "repository": "git+https://github.com/pollychrome/canary.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 6382,
+       "largest_other_package": "@mseep/linear-mcp",
+       "last_publish": "2026-06-22",
+       "maintainers": [
+        "skydeckai"
+       ],
+       "monthly": 95,
+       "name": "@mseep/delimit-cli",
+       "other_packages": 499,
+       "repository": "git+https://github.com/delimit-ai/delimit-mcp-server.git",
+       "scope": "@mseep",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 1108,
+       "largest_other_package": "angular-translate-cache",
+       "last_publish": "2026-01-26",
+       "maintainers": [
+        "bazobehram"
+       ],
+       "monthly": 90,
+       "name": "vanguard-cli",
+       "other_packages": 4,
+       "repository": "git+https://github.com/bazobehram/vanguard.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 67,
+       "largest_other_package": "@countersig/protocol-sdk",
+       "last_publish": "2026-07-06",
+       "maintainers": [
+        "ccie14019"
+       ],
+       "monthly": 87,
+       "name": "sbomix",
+       "other_packages": 9,
+       "repository": "git+https://github.com/RunTimeAdmin/sbomix.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 26,
+       "largest_other_package": "@nexylore/sentori",
+       "last_publish": "2026-02-18",
+       "maintainers": [
+        "vmgs-ruri"
+       ],
+       "monthly": 77,
+       "name": "aiagentshield",
+       "other_packages": 1,
+       "repository": "git+https://github.com/TakumaLee/AgentShield.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 322,
+       "largest_other_package": "@jvalue/eslint-config-jvalue",
+       "last_publish": "2024-11-12",
+       "maintainers": [
+        "georg-schwarz",
+        "dirkriehle"
+       ],
+       "monthly": 73,
+       "name": "@jvalue/jayvee-monaco",
+       "other_packages": 17,
+       "repository": "git+https://github.com/jvalue/jayvee.git",
+       "scope": "@jvalue",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 386,
+       "largest_other_package": "@cyberhub/trust-event-stream",
+       "last_publish": "2026-04-02",
+       "maintainers": [
+        "nrupaks"
+       ],
+       "monthly": 71,
+       "name": "@cyberhub/trust-word-wrap",
+       "other_packages": 499,
+       "repository": "git+https://github.com/nrupaks/pkgtrust.git",
+       "scope": "@cyberhub",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 453,
+       "largest_other_package": "create-sdd-project",
+       "last_publish": "2026-06-09",
+       "maintainers": [
+        "pbojeda"
+       ],
+       "monthly": 70,
+       "name": "sbom-sentinel",
+       "other_packages": 2,
+       "repository": "git+https://github.com/pbojeda/sbom-sentinel.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 66,
+       "largest_other_package": "@scanoss_test/win32-x64",
+       "last_publish": "2026-01-21",
+       "maintainers": [
+        "scanoss_test"
+       ],
+       "monthly": 64,
+       "name": "@scanoss_test/sdk",
+       "other_packages": 5,
+       "repository": "git+https://github.com/scanoss/scanoss.lib.git",
+       "scope": "@scanoss_test",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 224254292,
+       "largest_other_package": "spdx-expression-parse",
+       "last_publish": "2018-07-10",
+       "maintainers": [
+        "kemitchell"
+       ],
+       "monthly": 54,
+       "name": "spdx-is-osi",
+       "other_packages": 372,
+       "repository": "git+https://github.com/jslicense/spdx-is-osi.js.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 497699,
+       "largest_other_package": "google-closure-compiler",
+       "last_publish": "2026-03-26",
+       "maintainers": [
+        "chadhikes",
+        "devwiththehair",
+        "jrobinson01",
+        "bhagerman"
+       ],
+       "monthly": 52,
+       "name": "@jack-henry/create-consumer-app",
+       "other_packages": 62,
+       "repository": "git+https://github.com/Banno/jh-consumer-app-tools.git",
+       "scope": "@jack-henry",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2024-08-23",
+       "maintainers": [
+        "clanktron"
+       ],
+       "monthly": 50,
+       "name": "spdx-types",
+       "other_packages": 0,
+       "repository": null,
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-07-15",
+       "maintainers": [
+        "ibyton"
+       ],
+       "monthly": 45,
+       "name": "@ibyton/license-guard",
+       "other_packages": 0,
+       "repository": "git+https://github.com/IByton1/license-guard.git",
+       "scope": "@ibyton",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-05-19",
+       "maintainers": [
+        "licenseleak"
+       ],
+       "monthly": 44,
+       "name": "licenseleak",
+       "other_packages": 0,
+       "repository": "git+https://github.com/licenseleak/cli.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-04-07",
+       "maintainers": [
+        "cherishclay"
+       ],
+       "monthly": 44,
+       "name": "@claytivi/driftguard-mcp",
+       "other_packages": 0,
+       "repository": "git+https://github.com/claytini1/driftguard-mcp.git",
+       "scope": "@claytivi",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-07-12",
+       "maintainers": [
+        "shankonduru"
+       ],
+       "monthly": 41,
+       "name": "autobom",
+       "other_packages": 0,
+       "repository": "git+https://github.com/ShanKonduru/autobom.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 19085,
+       "largest_other_package": "playwright-aws-lambda",
+       "last_publish": "2022-11-16",
+       "maintainers": [
+        "jupiterone-dev"
+       ],
+       "monthly": 33,
+       "name": "node-cdx-bom",
+       "other_packages": 203,
+       "repository": null,
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 10537,
+       "largest_other_package": "@dev-build-deploy/comment-it",
+       "last_publish": "2023-07-21",
+       "maintainers": [
+        "kevin-de-jong"
+       ],
+       "monthly": 31,
+       "name": "@dev-build-deploy/reuse-it",
+       "other_packages": 6,
+       "repository": "git+https://github.com/dev-build-deploy/reuse-it.git",
+       "scope": "@dev-build-deploy",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 6620,
+       "largest_other_package": "@astudioplus/codegraph-mcp",
+       "last_publish": "2026-06-14",
+       "maintainers": [
+        "anvanster-personal"
+       ],
+       "monthly": 28,
+       "name": "@astudioplus/codegraph-pro-mcp",
+       "other_packages": 6,
+       "repository": "git+https://github.com/codegraph-ai/CodeGraph.git",
+       "scope": "@astudioplus",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 806,
+       "largest_other_package": "engramx",
+       "last_publish": "2026-06-03",
+       "maintainers": [
+        "nick7777"
+       ],
+       "monthly": 27,
+       "name": "engram-counter",
+       "other_packages": 3,
+       "repository": "git+https://github.com/NickCirv/engram-counter.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2019-07-04",
+       "maintainers": [
+        "deepak6446"
+       ],
+       "monthly": 26,
+       "name": "spdxvalidator",
+       "other_packages": 0,
+       "repository": "git+https://github.com/deepak6446/spdxValidator.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 1688,
+       "largest_other_package": "nedb-engine-client",
+       "last_publish": "2026-06-27",
+       "maintainers": [
+        "interchained"
+       ],
+       "monthly": 24,
+       "name": "notary-public",
+       "other_packages": 32,
+       "repository": "git+https://github.com/public-notary/notary-public.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2025-12-03",
+       "maintainers": [
+        "manuel71"
+       ],
+       "monthly": 23,
+       "name": "dependencytrack-uploader-node",
+       "other_packages": 0,
+       "repository": null,
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 630722870,
+       "largest_other_package": "eventemitter3",
+       "last_publish": "2025-10-24",
+       "maintainers": [
+        "3rdeden"
+       ],
+       "monthly": 19,
+       "name": "oss-review",
+       "other_packages": 451,
+       "repository": "git+https://github.com/godaddy/oss-review.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 44,
+       "largest_other_package": "dpp-lint",
+       "last_publish": "2026-07-03",
+       "maintainers": [
+        "felix_pangea"
+       ],
+       "monthly": 17,
+       "name": "sov-lint",
+       "other_packages": 1,
+       "repository": "git+https://github.com/pangea-intelligence/sov-lint.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2021-12-22",
+       "maintainers": [
+        "ksg97031"
+       ],
+       "monthly": 15,
+       "name": "@ksg97031/cdxgen",
+       "other_packages": 0,
+       "repository": "git+https://github.com/ksg97031/cdxgen.git",
+       "scope": "@ksg97031",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 41,
+       "largest_other_package": "get-ssh-config",
+       "last_publish": "2026-02-19",
+       "maintainers": [
+        "edezekiel"
+       ],
+       "monthly": 14,
+       "name": "openvex-js",
+       "other_packages": 2,
+       "repository": "git+https://github.com/edezekiel/openvex-js.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 3278,
+       "largest_other_package": "@the-draupnir-project/interface-manager",
+       "last_publish": "2026-05-07",
+       "maintainers": [
+        "mtrnord",
+        "gnuxie"
+       ],
+       "monthly": 14,
+       "name": "@the-draupnir-project/matrix-protection-suite",
+       "other_packages": 23,
+       "repository": "git+https://github.com/the-draupnir-project/Draupnir.git",
+       "scope": "@the-draupnir-project",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-03-18",
+       "maintainers": [
+        "sbomhub"
+       ],
+       "monthly": 12,
+       "name": "sbomhub-cli",
+       "other_packages": 0,
+       "repository": null,
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 20,
+       "largest_other_package": "@bestsolution/rsd-webcomponents",
+       "last_publish": "2023-11-20",
+       "maintainers": [
+        "tomsontom",
+        "udotirol"
+       ],
+       "monthly": 12,
+       "name": "@bestsolution/spdx-license-report",
+       "other_packages": 4,
+       "repository": "git+https://github.com/BestSolution-at/spdx-license-report.git",
+       "scope": "@bestsolution",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 114,
+       "largest_other_package": "@caoshouse/imagick_x64",
+       "last_publish": "2022-10-19",
+       "maintainers": [
+        "caoshouse"
+       ],
+       "monthly": 12,
+       "name": "spdx-data",
+       "other_packages": 13,
+       "repository": null,
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 39,
+       "largest_other_package": "pqctx",
+       "last_publish": "2026-05-31",
+       "maintainers": [
+        "piqued-ai"
+       ],
+       "monthly": 11,
+       "name": "@pqdc/pqrb",
+       "other_packages": 202,
+       "repository": "git+https://github.com/pqdc/pqrb.git",
+       "scope": "@pqdc",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2025-09-27",
+       "maintainers": [
+        "dev-jan"
+       ],
+       "monthly": 11,
+       "name": "sapcommerce-sbom-gen",
+       "other_packages": 0,
+       "repository": null,
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-05-03",
+       "maintainers": [
+        "neve7er1"
+       ],
+       "monthly": 10,
+       "name": "audit-ready",
+       "other_packages": 0,
+       "repository": "git+https://github.com/neve7er/audit-ready-sbom-kit.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 224254292,
+       "largest_other_package": "spdx-expression-parse",
+       "last_publish": "2020-09-07",
+       "maintainers": [
+        "kemitchell"
+       ],
+       "monthly": 9,
+       "name": "spdx-license-identifiers",
+       "other_packages": 372,
+       "repository": "git+https://github.com/jslicense/spdx-license-identifiers.json.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 422478,
+       "largest_other_package": "postcss-combine-duplicated-selectors",
+       "last_publish": "2018-09-27",
+       "maintainers": [
+        "christianmurphy"
+       ],
+       "monthly": 9,
+       "name": "apache-category-b-spdx",
+       "other_packages": 45,
+       "repository": "git+https://github.com/ChristianMurphy/apache-category-b-spdx.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 608438577,
+       "largest_other_package": "pnpm",
+       "last_publish": "2026-03-01",
+       "maintainers": [
+        "pnpmuser",
+        "zkochan"
+       ],
+       "monthly": 8,
+       "name": "@pnpm/plugin-commands-sbom",
+       "other_packages": 951,
+       "repository": "https://github.com/pnpm/pnpm/tree/main/reviewing/plugin-commands-sbom",
+       "scope": "@pnpm",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 39,
+       "largest_other_package": "pqctx",
+       "last_publish": "2026-05-31",
+       "maintainers": [
+        "piqued-ai"
+       ],
+       "monthly": 6,
+       "name": "pqrb",
+       "other_packages": 202,
+       "repository": "git+https://github.com/pqdc/pqrb.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 32,
+       "largest_other_package": "klinkaara",
+       "last_publish": "2026-08-18",
+       "maintainers": [
+        "klinkaara"
+       ],
+       "monthly": 0,
+       "name": "niyantri",
+       "other_packages": 2,
+       "repository": "git+https://github.com/Shivaji1306/Vulneracli.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-08-16",
+       "maintainers": [
+        "rfagan"
+       ],
+       "monthly": 0,
+       "name": "@rfagan/audit-config-normalizer",
+       "other_packages": 10,
+       "repository": "https://example.invalid/sca-license-depth-chain.git",
+       "scope": "@rfagan",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-08-16",
+       "maintainers": [
+        "rfagan"
+       ],
+       "monthly": 0,
+       "name": "@rfagan/license-policy-resolver",
+       "other_packages": 10,
+       "repository": "https://example.invalid/sca-license-depth-chain.git",
+       "scope": "@rfagan",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-08-16",
+       "maintainers": [
+        "rfagan"
+       ],
+       "monthly": 0,
+       "name": "@rfagan/semver-range-summarizer",
+       "other_packages": 10,
+       "repository": "https://example.invalid/sca-license-depth-chain.git",
+       "scope": "@rfagan",
+       "scoped": true
+      }
+     ],
+     "summary": {
+      "cold_publisher_share": 0.65,
+      "has_repository_share": 0.8833,
+      "listing_downloads_median": 50,
+      "n": 60,
+      "publisher_audience_above_100": 0.5333,
+      "publisher_audience_above_1000": 0.35,
+      "publisher_audience_above_10000": 0.2167,
+      "publisher_audience_above_100000": 0.1667,
+      "publisher_audience_median": 339,
+      "scoped_share": 0.4667,
+      "solo_package_share": 0.2333
+     }
+    },
+    "found": {
+     "records": [
+      {
+       "largest_other_monthly": 46642438,
+       "largest_other_package": "@datadog/pprof",
+       "last_publish": "2026-08-17",
+       "maintainers": [
+        "datadog"
+       ],
+       "monthly": 3841774,
+       "name": "@datadog/datadog-ci-plugin-sbom",
+       "other_packages": 248,
+       "repository": "https://github.com/DataDog/datadog-ci.git",
+       "scope": "@datadog",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 835033,
+       "largest_other_package": "@appthreat/atom",
+       "last_publish": "2026-08-14",
+       "maintainers": [
+        "prabhus"
+       ],
+       "monthly": 551165,
+       "name": "@cdxgen/cdxgen-plugins-bin",
+       "other_packages": 53,
+       "repository": "git+https://github.com/cdxgen/cdxgen-plugins-bin.git",
+       "scope": "@cdxgen",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 835033,
+       "largest_other_package": "@appthreat/atom",
+       "last_publish": "2026-06-15",
+       "maintainers": [
+        "prabhus"
+       ],
+       "monthly": 497915,
+       "name": "@cdxgen/cdx-hbom",
+       "other_packages": 53,
+       "repository": "git+https://github.com/cdxgen/cdx-hbom.git",
+       "scope": "@cdxgen",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 835033,
+       "largest_other_package": "@appthreat/atom",
+       "last_publish": "2026-05-14",
+       "maintainers": [
+        "prabhus"
+       ],
+       "monthly": 421916,
+       "name": "@appthreat/cdx-proto",
+       "other_packages": 53,
+       "repository": "git+https://github.com/AppThreat/cdx-proto.git",
+       "scope": "@appthreat",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 835033,
+       "largest_other_package": "@appthreat/atom",
+       "last_publish": "2026-08-10",
+       "maintainers": [
+        "prabhus"
+       ],
+       "monthly": 391218,
+       "name": "@cdxgen/cdx-proto",
+       "other_packages": 53,
+       "repository": "git+https://github.com/cdxgen/cdx-proto.git",
+       "scope": "@cdxgen",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 251,
+       "largest_other_package": "hask",
+       "last_publish": "2026-07-16",
+       "maintainers": [
+        "janbiasi",
+        "boostvolt"
+       ],
+       "monthly": 179630,
+       "name": "rollup-plugin-sbom",
+       "other_packages": 24,
+       "repository": "git+https://github.com/janbiasi/rollup-plugin-sbom.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 2328601,
+       "largest_other_package": "@cyclonedx/cyclonedx-library",
+       "last_publish": "2026-08-12",
+       "maintainers": [
+        "sspringett",
+        "eoftedal",
+        "coderpatros",
+        "cyclonedx-automation",
+        "jkowalleck"
+       ],
+       "monthly": 139472,
+       "name": "@cyclonedx/yarn-plugin-cyclonedx",
+       "other_packages": 121,
+       "repository": "git+https://github.com/CycloneDX/cyclonedx-node-yarn.git",
+       "scope": "@cyclonedx",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 62111882,
+       "largest_other_package": "bson",
+       "last_publish": "2026-07-24",
+       "maintainers": [
+        "satyasinha",
+        "kristina.stefano",
+        "jarjee",
+        "devtoolsbot",
+        "mongo-j",
+        "nbbeeken",
+        "dbx-node",
+        "devtools-npm-user"
+       ],
+       "monthly": 123077,
+       "name": "@mongodb-js/sbom-tools",
+       "other_packages": 2306,
+       "repository": "git+https://github.com/mongodb-js/devtools-shared.git",
+       "scope": "@mongodb-js",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 882271,
+       "largest_other_package": "webpack-license-plugin",
+       "last_publish": "2026-03-13",
+       "maintainers": [
+        "cwer"
+       ],
+       "monthly": 98446,
+       "name": "rollup-license-plugin",
+       "other_packages": 23,
+       "repository": "git+https://github.com/codepunkt/rollup-license-plugin.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 51840055,
+       "largest_other_package": "JSONStream",
+       "last_publish": "2026-06-25",
+       "maintainers": [
+        "kumavis",
+        "naugtur",
+        "boneskull"
+       ],
+       "monthly": 83651,
+       "name": "lavamoat",
+       "other_packages": 1198,
+       "repository": "git+https://github.com/LavaMoat/lavamoat.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 224254292,
+       "largest_other_package": "spdx-expression-parse",
+       "last_publish": "2019-03-22",
+       "maintainers": [
+        "kemitchell"
+       ],
+       "monthly": 69795,
+       "name": "spdx-copyleft",
+       "other_packages": 372,
+       "repository": "git+https://github.com/kemitchell/spdx-copyleft.json.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 2328601,
+       "largest_other_package": "@cyclonedx/cyclonedx-library",
+       "last_publish": "2026-08-11",
+       "maintainers": [
+        "sspringett",
+        "eoftedal",
+        "coderpatros",
+        "cyclonedx-automation",
+        "jkowalleck"
+       ],
+       "monthly": 51326,
+       "name": "@cyclonedx/cyclonedx-esbuild",
+       "other_packages": 121,
+       "repository": "git+https://github.com/CycloneDX/cyclonedx-esbuild.git",
+       "scope": "@cyclonedx",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 465164752,
+       "largest_other_package": "@aws-sdk/types",
+       "last_publish": "2025-03-04",
+       "maintainers": [
+        "amzn-oss",
+        "cdklabs-automation"
+       ],
+       "monthly": 32844,
+       "name": "@cdklabs/cdk-enterprise-iac",
+       "other_packages": 775,
+       "repository": "git+https://github.com/cdklabs/cdk-enterprise-iac.git",
+       "scope": "@cdklabs",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 835033,
+       "largest_other_package": "@appthreat/atom",
+       "last_publish": "2026-08-14",
+       "maintainers": [
+        "prabhus"
+       ],
+       "monthly": 24412,
+       "name": "@cdxgen/cdxgen-plugins-bin-windows-amd64",
+       "other_packages": 53,
+       "repository": "git+https://github.com/cdxgen/cdxgen-plugins-bin.git",
+       "scope": "@cdxgen",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 66,
+       "largest_other_package": "scroll-animations-js",
+       "last_publish": "2025-11-25",
+       "maintainers": [
+        "developerjhp"
+       ],
+       "monthly": 19910,
+       "name": "sha1-hulud-scanner",
+       "other_packages": 2,
+       "repository": "git+https://github.com/developerjhp/sha1-hulud-scanner.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 1455342,
+       "largest_other_package": "@devexpress/error-stack-parser",
+       "last_publish": "2026-08-07",
+       "maintainers": [
+        "devexpress-npm-publisher"
+       ],
+       "monthly": 17796,
+       "name": "devexpress-reporting-react",
+       "other_packages": 78,
+       "repository": null,
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 1455342,
+       "largest_other_package": "@devexpress/error-stack-parser",
+       "last_publish": "2026-08-10",
+       "maintainers": [
+        "devexpress-npm-publisher",
+        "dx_services",
+        "romanresh",
+        "vyacheslavdonchak"
+       ],
+       "monthly": 15209,
+       "name": "@devexpress/eslint-plugin-dx-security",
+       "other_packages": 269,
+       "repository": null,
+       "scope": "@devexpress",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 1645354078,
+       "largest_other_package": "@types/node",
+       "last_publish": "2026-04-03",
+       "maintainers": [
+        "types"
+       ],
+       "monthly": 13119,
+       "name": "@types/spdx-license-ids",
+       "other_packages": 500,
+       "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+       "scope": "@types",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 1645354078,
+       "largest_other_package": "@types/node",
+       "last_publish": "2026-04-08",
+       "maintainers": [
+        "types"
+       ],
+       "monthly": 12793,
+       "name": "@types/spdx-exceptions",
+       "other_packages": 500,
+       "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+       "scope": "@types",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 2121,
+       "largest_other_package": "@elvatis_com/aahp",
+       "last_publish": "2026-08-19",
+       "maintainers": [
+        "elvatis_com"
+       ],
+       "monthly": 10498,
+       "name": "supply-chain-guard",
+       "other_packages": 7,
+       "repository": "git+https://github.com/homeofe/supply-chain-guard.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 156,
+       "largest_other_package": "shipforge-cli",
+       "last_publish": "2026-08-12",
+       "maintainers": [
+        "cellauu"
+       ],
+       "monthly": 9713,
+       "name": "ytconv",
+       "other_packages": 1,
+       "repository": "git+https://github.com/andhikamarcella/YTConv.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 2328601,
+       "largest_other_package": "@cyclonedx/cyclonedx-library",
+       "last_publish": "2018-04-18",
+       "maintainers": [
+        "eoftedal"
+       ],
+       "monthly": 6512,
+       "name": "cyclonedx-bom",
+       "other_packages": 30,
+       "repository": "git+https://github.com/eoftedal/cyclonedx-node-module.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 2762406,
+       "largest_other_package": "min-dash",
+       "last_publish": "2024-09-27",
+       "maintainers": [
+        "vsgoulart"
+       ],
+       "monthly": 5892,
+       "name": "@vzeta/rollup-plugin-sbom",
+       "other_packages": 180,
+       "repository": "git+https://github.com/janbiasi/rollup-plugin-sbom.git",
+       "scope": "@vzeta",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 9439,
+       "largest_other_package": "@provex/utils",
+       "last_publish": "2026-07-19",
+       "maintainers": [
+        "provexdev"
+       ],
+       "monthly": 5353,
+       "name": "@provex/eas",
+       "other_packages": 8,
+       "repository": "git+https://github.com/provex-tech/monorepo.git",
+       "scope": "@provex",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 2328601,
+       "largest_other_package": "@cyclonedx/cyclonedx-library",
+       "last_publish": "2025-11-22",
+       "maintainers": [
+        "sspringett",
+        "eoftedal",
+        "coderpatros",
+        "cyclonedx-automation",
+        "jkowalleck"
+       ],
+       "monthly": 4806,
+       "name": "@cyclonedx/cdxgen-plugins-bin-windows-amd64",
+       "other_packages": 121,
+       "repository": "git+https://github.com/cyclonedx/cdxgen-plugins-bin.git",
+       "scope": "@cyclonedx",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 6405,
+       "largest_other_package": "euparliamentmonitor",
+       "last_publish": "2026-08-18",
+       "maintainers": [
+        "jamespethersorling"
+       ],
+       "monthly": 4401,
+       "name": "cia-compliance-manager",
+       "other_packages": 4,
+       "repository": "git+https://github.com/Hack23/cia-compliance-manager.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 147,
+       "largest_other_package": "gitskins",
+       "last_publish": "2026-08-19",
+       "maintainers": [
+        "asamassekou"
+       ],
+       "monthly": 4311,
+       "name": "ship-safe",
+       "other_packages": 1,
+       "repository": "git+https://github.com/asamassekou10/ship-safe.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 325492,
+       "largest_other_package": "generate-license-file",
+       "last_publish": "2026-03-02",
+       "maintainers": [
+        "tobysmith568"
+       ],
+       "monthly": 3788,
+       "name": "license-cop",
+       "other_packages": 32,
+       "repository": "git+https://github.com/tobysmith568/license-cop.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 1111984557,
+       "largest_other_package": "postcss",
+       "last_publish": "2026-07-18",
+       "maintainers": [
+        "ai"
+       ],
+       "monthly": 3703,
+       "name": "multiocular",
+       "other_packages": 159,
+       "repository": "git+https://github.com/ai/multiocular.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 3022,
+       "largest_other_package": "@gnuxie/matrix-protection-suite",
+       "last_publish": "2025-11-12",
+       "maintainers": [
+        "mtrnord",
+        "gnuxie"
+       ],
+       "monthly": 3278,
+       "name": "@the-draupnir-project/interface-manager",
+       "other_packages": 23,
+       "repository": "git+https://github.com/the-draupnir-project/interface-manager.git",
+       "scope": "@the-draupnir-project",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 30388,
+       "largest_other_package": "openapi-generator-cli",
+       "last_publish": "2026-01-16",
+       "maintainers": [
+        "debugducky"
+       ],
+       "monthly": 3221,
+       "name": "cyclonedx-npm",
+       "other_packages": 126,
+       "repository": null,
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 224254292,
+       "largest_other_package": "spdx-expression-parse",
+       "last_publish": "2019-09-24",
+       "maintainers": [
+        "kemitchell"
+       ],
+       "monthly": 3139,
+       "name": "spdx-to-html",
+       "other_packages": 372,
+       "repository": "git+https://github.com/jslicense/spdx-to-html.js.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 19,
+       "largest_other_package": "delimit-presets",
+       "last_publish": "2026-07-24",
+       "maintainers": [
+        "delimit_ai"
+       ],
+       "monthly": 3087,
+       "name": "delimit-cli",
+       "other_packages": 1,
+       "repository": "git+https://github.com/delimit-ai/delimit-mcp-server.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 654299,
+       "largest_other_package": "node-fs",
+       "last_publish": "2026-08-06",
+       "maintainers": [
+        "jorgegar",
+        "amagan",
+        "marianoao",
+        "bpedro",
+        "ivanasabi",
+        "danielfn",
+        "inditex-oso",
+        "jesusmpc"
+       ],
+       "monthly": 3073,
+       "name": "@inditextech/weave-store-websockets",
+       "other_packages": 87,
+       "repository": "git+https://github.com/InditexTech/weavejs.git",
+       "scope": "@inditextech",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 0,
+       "largest_other_package": null,
+       "last_publish": "2026-08-10",
+       "maintainers": [
+        "myrahjam"
+       ],
+       "monthly": 2977,
+       "name": "@corvalon/lichen",
+       "other_packages": 0,
+       "repository": "git+https://bitbucket.org/corvalon/lichen.git",
+       "scope": "@corvalon",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 4678,
+       "largest_other_package": "mustflow",
+       "last_publish": "2026-07-28",
+       "maintainers": [
+        "0disoft"
+       ],
+       "monthly": 2754,
+       "name": "ohrisk",
+       "other_packages": 27,
+       "repository": "git+https://github.com/0disoft/ohrisk.git",
+       "scope": null,
+       "scoped": false
+      },
+      {
+       "largest_other_monthly": 3278,
+       "largest_other_package": "@the-draupnir-project/interface-manager",
+       "last_publish": "2026-05-07",
+       "maintainers": [
+        "mtrnord",
+        "gnuxie"
+       ],
+       "monthly": 2547,
+       "name": "@the-draupnir-project/matrix-basic-types",
+       "other_packages": 23,
+       "repository": "git+https://github.com/the-draupnir-project/Draupnir.git",
+       "scope": "@the-draupnir-project",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 654299,
+       "largest_other_package": "node-fs",
+       "last_publish": "2026-08-06",
+       "maintainers": [
+        "jorgegar",
+        "amagan",
+        "marianoao",
+        "bpedro",
+        "ivanasabi",
+        "danielfn",
+        "inditex-oso"
+       ],
+       "monthly": 2509,
+       "name": "@inditextech/weave-renderer-konva-base",
+       "other_packages": 80,
+       "repository": "git+https://github.com/InditexTech/weavejs.git",
+       "scope": "@inditextech",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 654299,
+       "largest_other_package": "node-fs",
+       "last_publish": "2026-08-06",
+       "maintainers": [
+        "jorgegar",
+        "amagan",
+        "marianoao",
+        "bpedro",
+        "ivanasabi",
+        "danielfn",
+        "inditex-oso",
+        "jesusmpc"
+       ],
+       "monthly": 2317,
+       "name": "@inditextech/weave-react",
+       "other_packages": 87,
+       "repository": "git+https://github.com/InditexTech/weavejs.git",
+       "scope": "@inditextech",
+       "scoped": true
+      },
+      {
+       "largest_other_monthly": 608438577,
+       "largest_other_package": "pnpm",
+       "last_publish": "2026-08-15",
+       "maintainers": [
+        "pnpmuser",
+        "zkochan"
+       ],
+       "monthly": 2286,
+       "name": "@pnpm/deps.compliance.commands",
+       "other_packages": 950,
+       "repository": "https://github.com/pnpm/pnpm/tree/main/pnpm11/deps/compliance/commands",
+       "scope": "@pnpm",
+       "scoped": true
+      }
+     ],
+     "summary": {
+      "cold_publisher_share": 0.15,
+      "has_repository_share": 0.925,
+      "listing_downloads_median": 10498,
+      "n": 40,
+      "publisher_audience_above_100": 0.925,
+      "publisher_audience_above_1000": 0.85,
+      "publisher_audience_above_10000": 0.7,
+      "publisher_audience_above_100000": 0.675,
+      "publisher_audience_median": 835033,
+      "scoped_share": 0.575,
+      "solo_package_share": 0.025
+     }
+    }
+   }
+  }
+ },
+ "measured_at": "2026-08-19T21:08:11.307719+00:00",
+ "method": {
+  "audience_definition": "largest monthly download count among the listing's maintainers' other packages",
+  "audience_thresholds": [
+   100,
+   1000,
+   10000,
+   100000
+  ],
+  "baseline_stratum": "seeded random sample (seed 20260819) of up to 60 leaves below the top decile",
+  "found_stratum": "top decile of leaf packages by monthly downloads",
+  "known_limit": "portfolio counts are current, not as-of the listing's first publish, so this measures association and bounds the cold-publisher share from above",
+  "publishers_looked_up": 984,
+  "source": "npm registry search API (registry.npmjs.org/-/v1/search)"
+ }
+}
