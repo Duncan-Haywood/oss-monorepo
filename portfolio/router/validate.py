@@ -18,6 +18,7 @@ VENTURES_DIR = REPO_ROOT / "ventures"
 
 VALID_STAGES = {"idea", "prototype", "launched", "revenue", "scaling", "winding-down"}
 VALID_HYPOTHESIS_STATUS = {"untested", "supported", "refuted"}
+VALID_HYPOTHESIS_EVIDENCE = {"customer-contact", "in-repo"}
 
 
 def check(venture_dir, data, errors):
@@ -58,6 +59,13 @@ def check(venture_dir, data, errors):
             status = h.get("status")
             if status not in VALID_HYPOTHESIS_STATUS:
                 err(f"hypotheses[{i}].status is '{status}', must be one of {sorted(VALID_HYPOTHESIS_STATUS)}")
+            evidence = h.get("evidence")
+            if evidence not in VALID_HYPOTHESIS_EVIDENCE:
+                err(
+                    f"hypotheses[{i}].evidence is {evidence!r}, must be one of "
+                    f"{sorted(VALID_HYPOTHESIS_EVIDENCE)} — the router needs this to "
+                    f"tell work it can dispatch from work no session can start"
+                )
             checked = h.get("checked")
             if status in {"supported", "refuted"} and checked is None:
                 err(f"hypotheses[{i}] is '{status}' but `checked` is null — a tested claim needs a date")

@@ -83,3 +83,84 @@ marked `status: untested`, so the task each venture gets back is what that
 venture itself recorded it needs to learn next, not a placeholder. A
 venture with no untested hypothesis left (all `supported`, or none listed)
 still falls back to the generic explore task.
+
+## Dispatchable vs. blocked
+
+Naming each venture's own claim made the queue specific. It did not make it
+*executable*, and that difference went unrecorded anywhere a tool could read
+it.
+
+Nine of the eleven ventures' next claims are about what someone outside this
+repository will do — pay, sign up, download, answer. None of those ventures
+has a `links.production`, so there is nothing published for anyone to respond
+to, and publishing is the account owner's decision (see
+[`channel-inventory.md`](../pipeline/channel-inventory.md)). The claims are
+therefore not merely hard to test; they are unobservable from here.
+
+The router's inputs show the same thing from the other side. Measured on a
+full (not shallow) clone at `2c7ae58`:
+
+| | |
+|---|---:|
+| Ventures with a `links.production` | **0 of 11** |
+| Ventures with a measured `economics.mrr` | **0 of 11** |
+| Hypotheses ever marked `supported` or `refuted` | **1 of 13** |
+| Commits touching any `ventures/*/VENTURE.yaml` | **5** |
+| Commits touching `portfolio/ledger/` | **166** |
+
+The last of those five was on 2026-08-19, and it added a venture rather than
+recording anything learned about one. So the file the router ranks on is
+written roughly once per thirty-three ledger commits: the fleet writes about
+what it did far more often than it updates what the businesses are. A queue
+built on inputs that never change cannot say anything new, which is part of
+why it stopped being read.
+
+Every hypothesis now declares which kind of evidence would settle it:
+
+```yaml
+hypotheses:
+  - claim: Local businesses will pay $500 flat for a pre-built website.
+    status: untested
+    checked: null
+    evidence: customer-contact   # or: in-repo
+```
+
+- **`customer-contact`** — settled only by a response from outside this repo.
+  The router marks it `BLOCKED` while `links.production` is null.
+- **`in-repo`** — settled against code, data, or documents already here.
+  `photos-import-tools` is the worked example: its claim that stateful
+  imports reduce failed transfers was marked `supported` on 2026-07-29
+  without any buyer in it.
+
+`validate.py` requires the field, so a new venture cannot quietly reappear at
+the top of the queue with work no session can start. `rank()` sorts
+dispatchable work above blocked work — below a venture that needs a kill
+decision, which still comes first — and `allocate.py` prints how many of the
+eleven a session could actually pick up.
+
+**This is a reporting change, not a discovery.** Searching the parsed
+outcome text of `2026-08.yaml` finds at least three entries, from separate
+cycles, already concluding that the top-ranked task is "outside what an
+unattended session can drive" or "outside what a code-focused agent session
+can execute" — and two of those say they are themselves consistent with
+earlier entries phrased differently, so the real count is higher. Each was
+written in prose; none of it reached the router; the next session got the
+same impossible queue and wrote the finding down again. The point of the
+field is that the tool now says it once, instead of each session paying to
+rediscover it.
+
+### The one judgment call
+
+`ai-first-markets` is marked `in-repo`, which contradicts a prior ledger
+entry calling its claim "a customer-usage hypothesis test". Both readings
+are defensible: the claim is that a market map "improves which AI-first
+venture to validate next", and the decisions it would improve are recorded
+in this repository. Its own kill criteria settle it — "no decision or
+validation workflow uses the platform within 90 days" is checkable here,
+with no outsider involved.
+
+It is marked dispatchable deliberately rather than confidently. If it is
+wrong, a session picks the task up, finds it needs an outside response, and
+flips one field. The opposite error is worse: mark everything blocked and
+the queue reports that the portfolio has no available work at all, which is
+the conclusion that produced the meta-work it is supposed to replace.

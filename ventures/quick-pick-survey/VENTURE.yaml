@@ -8,6 +8,7 @@ hypotheses:
   - claim: Teams/researchers will pay for pairwise-comparison preference surveys over traditional Likert/ranking surveys.
     status: untested
     checked: null
+    evidence: customer-contact
 
 economics:
   currency: USD

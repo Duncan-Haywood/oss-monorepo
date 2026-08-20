@@ -8,9 +8,11 @@ hypotheses:
   - claim: Artists will onboard through an automated, software-driven prospecting/outreach flow at meaningful volume.
     status: untested
     checked: null
+    evidence: customer-contact
   - claim: Buyers will purchase POD prints of digitized art at a price point that clears the 30% artist share and platform costs.
     status: untested
     checked: null
+    evidence: customer-contact
 
 economics:
   currency: USD

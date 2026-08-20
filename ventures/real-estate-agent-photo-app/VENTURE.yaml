@@ -8,6 +8,7 @@ hypotheses:
   - claim: Mid-market real estate agents will pay a recurring fee for a guided-capture, AI-enhanced listing-media workflow instead of hiring photographers or shooting DIY.
     status: untested
     checked: null
+    evidence: customer-contact
 
 economics:
   currency: USD

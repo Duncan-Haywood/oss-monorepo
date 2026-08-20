@@ -17,6 +17,13 @@ hypotheses:
   - claim: Shops will pay for this monthly.
     status: untested        # untested | supported | refuted
     checked: null           # YYYY-MM-DD
+    # What kind of evidence settles this claim. The router uses it to tell
+    # work it can dispatch from work no agent can start.
+    #   customer-contact — needs a response from someone outside this repo
+    #                      (a purchase, signup, download, survey answer).
+    #                      Unobservable while `links.production` is null.
+    #   in-repo          — settleable against code, data, or documents here.
+    evidence: customer-contact
 
 # Where the money is. Nulls are fine early; the router treats an unmeasured
 # venture differently from one measured at zero.

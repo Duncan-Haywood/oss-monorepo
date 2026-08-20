@@ -8,6 +8,7 @@ hypotheses:
   - claim: Photographers/videographers will pay for an automated ingest-to-deliverable pipeline over manual file wrangling and editors.
     status: untested
     checked: null
+    evidence: customer-contact
 
 economics:
   currency: USD

@@ -8,6 +8,7 @@ hypotheses:
   - claim: A well-designed, accurate multi-city world-clock watch face is compelling enough to frequent travelers to earn meaningful Connect IQ Store downloads/ratings.
     status: untested
     checked: 2026-08-08
+    evidence: customer-contact
 
 economics:
   currency: USD
