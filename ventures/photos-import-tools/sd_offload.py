@@ -120,16 +120,18 @@ def background_evictor(root: Path, stop: threading.Event, log_path: Path) -> Non
             log(f"Background evicted {freed} files from {root}", log_path)
 
 
-def rsync_copy(source: Path, dest: Path, log_path: Path) -> int:
-    dest.mkdir(parents=True, exist_ok=True)
-    stop = threading.Event()
-    evictor = threading.Thread(target=background_evictor, args=(dest, stop, log_path), daemon=True)
-    evictor.start()
-    cmd = [
+def build_rsync_cmd(source: Path, dest: Path) -> list[str]:
+    # --partial keeps a half-copied file so an interrupted offload can resume,
+    # but that file must then be re-checked on the next run. --ignore-existing
+    # would skip it purely because it exists, freezing it at its truncated size
+    # forever -- an unrecoverable interrupted import, exactly kill_criteria #1.
+    # rsync's default size+mtime quick-check already skips fully-copied files
+    # (the idempotency we want) while re-transferring a partial, so the correct
+    # resumable copy is --partial WITHOUT --ignore-existing.
+    return [
         "rsync",
         "-avh",
         "--partial",
-        "--ignore-existing",
         "--modify-window=2",
         "--exclude=.fseventsd",
         "--exclude=.Spotlight-V100",
@@ -138,6 +140,14 @@ def rsync_copy(source: Path, dest: Path, log_path: Path) -> int:
         f"{source}/",
         f"{dest}/",
     ]
+
+
+def rsync_copy(source: Path, dest: Path, log_path: Path) -> int:
+    dest.mkdir(parents=True, exist_ok=True)
+    stop = threading.Event()
+    evictor = threading.Thread(target=background_evictor, args=(dest, stop, log_path), daemon=True)
+    evictor.start()
+    cmd = build_rsync_cmd(source, dest)
     log(f"rsync: {' '.join(cmd)}", log_path)
     proc = subprocess.run(cmd, check=False)
     stop.set()

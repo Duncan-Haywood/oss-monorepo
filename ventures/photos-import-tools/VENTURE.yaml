@@ -13,6 +13,10 @@ hypotheses:
     status: supported
     checked: 2026-08-20
     evidence: in-repo
+  - claim: The SD offload can recover from an interrupted transfer; a half-copied file left by --partial is completed on the next run rather than frozen at its truncated size.
+    status: supported
+    checked: 2026-08-20
+    evidence: in-repo
 
 economics:
   currency: USD
