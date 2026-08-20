@@ -9571,3 +9571,86 @@ entries:
         flag and a correctness fix; publishes nothing, registers nothing,
         adds no automation, spends nothing beyond agent time.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / be strategic" session, designated branch
+        claude/wizardly-albattani-2w5a5u, PR #341, self-merged as 48ff4da.
+        `git fetch origin main` first (tip caca0e7 at read time; main moved
+        three times during the run and the branch was rebased onto 206a5d4
+        before pushing). Read the four open PRs (#222, #192, #144, #19), #139
+        and the ledger tail before touching anything. Re-verified nothing: all
+        four are unchanged and correctly owner-gated, and the two CI failures
+        #192's comments diagnosed on main (quick-pick-survey's ADMIN_KEY
+        mismatch, ubuntu-agent-server's missing types-PyYAML) are both already
+        fixed on main -- checked directly rather than assumed.
+      - >-
+        Tested a claim the top-level README makes rather than trusting it, and
+        it was false. README.md advertises that reclassifying a directory out
+        of profit-seeking allocation is "a single-file change (drop the marker
+        in)". Dropping a NOT-A-VENTURE marker on ventures/ai-first-markets and
+        running the checks turned portfolio-validate red:
+        `score_ventures.py --check` required the scored set to equal the
+        allocated set exactly, so the marker could not be added unless the
+        venture's row in venture-scores.yaml was deleted in the same change.
+        The affordance #334 built and documented did not actually work.
+      - >-
+        #337 landed the same reclassification mid-run and hit the identical
+        wall, resolving it the only way then available -- deleting the row,
+        and saying so in a replacement comment. That deletion had a cost it
+        could not avoid, and nothing caught it: seven figures in
+        portfolio/scoring/README.md Finding 2 and the inter-rater count in
+        Finding 0 are computed over whatever venture-scores.yaml contains, so
+        removing one of eleven rows silently restated all of them
+        (ai_leverage 4.64 -> 4.70, autonomous_ops 6.73 -> 6.60,
+        time_to_revenue 2.91 -> 3.00, gross_margin 7.36 -> 7.20,
+        defensibility 3.00 -> 3.10, distribution 3.36 -> 3.50, composite
+        4.67 -> 4.68, rater pairs 11 -> 10) while the prose kept the old
+        numbers. `--check` validates that file's internal consistency, not the
+        README's arithmetic. Confirmed by running the scorer against a clean
+        origin/main checkout, not by reading the diff.
+      - >-
+        The fix is one distinction. check() now takes an allocated set (every
+        one must be scored) and a documented set (any directory carrying a
+        VENTURE.yaml, marker or not, may be scored), so a reclassified
+        directory keeps its row. A score is a record *about* a business, not
+        an input to allocation -- reclassifying a venture should change what
+        the portfolio spends on, not erase what it learned about it.
+        score_ventures.py reports such a venture as `reclassified` and
+        excludes it from the ranking positions and the dispatchable/blocked
+        means, so the router column is the only thing about it that moves.
+        ai-first-markets' row is restored with its floor_note marked resolved;
+        every figure in Finding 2 is again exactly what the script prints and
+        the eleventh inter-rater pair is back.
+      - >-
+        Allocation is deliberately unchanged: #337's NOT-A-VENTURE marker is
+        untouched, still 10 allocated ventures against 11 scored, $320 in
+        caps, photos-import-tools the only dispatchable one. This run
+        re-litigated none of that reclassification -- it was right, and this
+        is the half of it that got lost. The directory move to platform/
+        remains open and was not attempted.
+      - >-
+        Verified rather than trusted, and the running caught two things the
+        diff did not show. The pre-existing test_committed_scores_are_valid
+        mirrors main() and failed until it passed both sets, and
+        test_json_output_is_serializable had been pinned by #337 to a bare
+        count of 10; it now asserts the ranking covers every scored venture
+        and agreement.ranked covers every allocated one, which is the
+        invariant rather than the number. Full portfolio-validate battery
+        green locally on the rebased head -- five validators (validate.py
+        10/10, doc-consistency 8/8, candidates 8/8, scoring 11/11, workflow
+        parse 20/20), scoring unittest 37 (33 prior + 4 new), router 51,
+        workflow-validator 11, break-even --check plus 17 tests, verification
+        --check plus 27 tests. Validate check green on the PR; merge-tree
+        clean against the live tip 206a5d4 at merge.
+      - >-
+        Agent-decidable class throughout: portfolio/scoring/ and docs only; no
+        ventures/* application code (ai-first-markets' deploy workflow is
+        workflow_dispatch-only, so adding a file to that directory ships
+        nothing); publishes nothing; registers nothing; spends nothing; adds
+        no unattended automation. No candidate screening performed, no
+        pipeline or venture score changed. The PR carried no ledger hunk so it
+        stayed mergeable; this entry ships separately per CLAUDE.md.
+    mrr_end: null
