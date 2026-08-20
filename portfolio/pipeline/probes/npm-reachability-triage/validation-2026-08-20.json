@@ -1,0 +1,92 @@
+[
+  {
+    "project": "ventures/ai-engineering-academy/site",
+    "mode": "unknown",
+    "components": 1,
+    "findings": 0,
+    "shipped": 0,
+    "dev_only": 0,
+    "not_deployed": 0,
+    "suppression_rate": 0.0
+  },
+  {
+    "project": "ventures/ai-first-markets",
+    "mode": "server",
+    "components": 858,
+    "findings": 8,
+    "shipped": 8,
+    "dev_only": 0,
+    "not_deployed": 0,
+    "suppression_rate": 0.0
+  },
+  {
+    "project": "ventures/local-site-studio",
+    "mode": "server",
+    "components": 515,
+    "findings": 16,
+    "shipped": 16,
+    "dev_only": 0,
+    "not_deployed": 0,
+    "suppression_rate": 0.0
+  },
+  {
+    "project": "ventures/photo-editing/docs-site",
+    "mode": "server",
+    "components": 378,
+    "findings": 6,
+    "shipped": 6,
+    "dev_only": 0,
+    "not_deployed": 0,
+    "suppression_rate": 0.0
+  },
+  {
+    "project": "ventures/print-atelier",
+    "mode": "server",
+    "components": 454,
+    "findings": 28,
+    "shipped": 26,
+    "dev_only": 2,
+    "not_deployed": 0,
+    "suppression_rate": 7.1
+  },
+  {
+    "project": "ventures/quick-pick-survey",
+    "mode": "server",
+    "components": 572,
+    "findings": 1,
+    "shipped": 1,
+    "dev_only": 0,
+    "not_deployed": 0,
+    "suppression_rate": 0.0
+  },
+  {
+    "project": "ventures/real-estate-agent-photo-app/docs-site",
+    "mode": "static-export",
+    "components": 614,
+    "findings": 56,
+    "shipped": 12,
+    "dev_only": 28,
+    "not_deployed": 16,
+    "suppression_rate": 78.6
+  },
+  {
+    "project": "ventures/real-estate-agent-photo-app/pipeline",
+    "mode": "unknown",
+    "components": 64,
+    "findings": 0,
+    "shipped": 0,
+    "dev_only": 0,
+    "not_deployed": 0,
+    "suppression_rate": 0.0
+  },
+  {
+    "project": "ventures/real-estate-agent-photo-app/research",
+    "mode": "static-export",
+    "components": 422,
+    "findings": 38,
+    "shipped": 12,
+    "dev_only": 10,
+    "not_deployed": 16,
+    "suppression_rate": 68.4
+  }
+]

@@ -1,0 +1,52 @@
+# Example consumer workflow.
+#
+# This file is an example and is deliberately NOT installed under
+# .github/workflows/ in this repository. Per CLAUDE.md, automation that runs
+# unattended in this repo is a human-reviewed decision, so enabling it is left
+# to whoever adopts the action.
+#
+# Copy it to .github/workflows/dependency-reachability.yml in a consuming repo.
+
+name: Dependency reachability record
+
+on:
+  pull_request:
+  schedule:
+    # Advisories are published continuously; a weekly record keeps the archive
+    # useful without running the download on every push.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Produce the reachability record
+        id: record
+        uses: your-org/npm-reachability-triage@v0
+        with:
+          project: .
+          # Start with `never` so the record is observed before it gates
+          # anything. Raise it once the output has been read a few times.
+          fail-on: never
+
+      - name: Publish the record as an artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dependency-reachability-record
+          path: dependency-reachability-record/
+          # The record is the archive the CRA reporting slice depends on, so
+          # keep it longer than the default.
+          retention-days: 90
+
+      - name: Show the counts
+        if: always()
+        run: |
+          echo "deployed findings:   ${{ steps.record.outputs.shipped-count }}"
+          echo "suppressed findings: ${{ steps.record.outputs.suppressed-count }}"
