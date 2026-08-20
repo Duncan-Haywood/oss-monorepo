@@ -10738,6 +10738,56 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Scheduled "continue work, maintain and improve the development
+        process, more strategic work" session, designated branch
+        claude/wizardly-albattani-551tns. Ran
+        `portfolio/ledger/session_gate.py` first (PROCEED -- meta-work
+        share 68%, below the 70% threshold). `git fetch origin main`
+        first; tip 44bac76. Checked the four open PRs (#372, #368, #144,
+        #19): all still correctly owner-gated (Next.js breaking-change
+        chain, and three separate spend-capable-automation proposals).
+      - >-
+        `portfolio/router/allocate.py` again named photos-import-tools the
+        only dispatchable venture (all 9 others blocked on the owner's
+        publish decision, per `links.production: null`), with the standing
+        "every hypothesis is settled -- write the next one" task. A
+        sub-agent found one real gap: `wait_for_file()`'s iCloud-readiness
+        check called `path.exists()` and `path.stat()` as two separate
+        syscalls, so a placeholder evicted in that window raised an
+        unguarded `OSError` out of the wait loop -- the same bug class
+        already fixed in `count_source()`, `verify_and_manifest()`, and the
+        watchdog. Implemented the guard, added a regression test verified
+        to fail pre-fix and pass post-fix, full suite 47/47, opened PR #390.
+      - >-
+        Before merging, `git merge-tree` against a re-fetched main showed
+        PR #385 -- an independently-run concurrent session -- had merged
+        the functionally identical fix (same helper shape, same guard,
+        same call sites, own regression test) one commit ahead, at
+        04efcc0. This is the duplicate-PR pattern CLAUDE.md warns about,
+        caught before it compounded: closed #390 with a comment pointing
+        to #385, and reset the designated branch to the current main tip
+        rather than leaving stale duplicate commits on it.
+      - >-
+        Checked #139 and #144's review thread for anything needing a
+        fresh flag: both are current -- #144 (the proposed
+        duplicate-work-prevention entrypoint) already has four prior
+        reviews from this account identifying real bugs in it (import of a
+        function that doesn't exist, an always-empty work-item list, a
+        branch-name PR-count heuristic that's blind in CI) plus a
+        corrected Actions-outage timeline; nothing new to add there.
+        Confirmed the router's "9 of 10 ventures blocked on publish" read
+        matches #139's standing human-gated list -- no new action for the
+        account owner beyond what's already flagged.
+      - >-
+        This entry is the separate ledger-only follow-up per CLAUDE.md's
+        ledger-discipline section, on the designated branch (single-branch
+        session, no other decision-pending PR riding along).
+    mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Scheduled "continue work on the projects... maintain and improve
         the development process" session, designated branch
         claude/zealous-curie-hjqq3r. Ran `portfolio/ledger/session_gate.py`
@@ -10748,11 +10798,12 @@ entries:
         `stat()` after `exists()`) that a concurrent session also found,
         opened as PR #386, then discovered PR #385 (commit `24cf1e6`) had
         merged the functionally identical fix first. Closed #386 as a
-        duplicate. #391's entry (session claude/wizardly-albattani-551tns,
-        PR #390 vs #385) already records this exact collision pattern in
-        detail against the same #385 -- not re-deriving that write-up a
-        second time here, three near-simultaneous sessions landing on the
-        same bug is the data point, and it is now recorded once.
+        duplicate. The entry immediately above (session
+        claude/wizardly-albattani-551tns, PR #390 vs #385) already records
+        this exact collision pattern in detail against the same #385 --
+        not re-deriving that write-up a second time here, three
+        near-simultaneous sessions landing on the same bug is the data
+        point, and it is now recorded once.
       - >-
         The one thing genuinely missing before this entry: PR #383
         (`count_source()` flaky-stat guard, merged `f9e2440`/`44bac76`) had
@@ -10764,5 +10815,6 @@ entries:
         hypothesis as supported.
       - >-
         Re-fetched `main` immediately before writing this (tip `22064b2`,
-        #391 already landed) to avoid re-deriving what #391 just recorded.
+        the #390-vs-#385 entry above already landed) to avoid re-deriving
+        what it had just recorded.
     mrr_end: null
