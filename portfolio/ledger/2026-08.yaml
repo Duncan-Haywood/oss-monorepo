@@ -6896,3 +6896,50 @@ entries:
         same finding would be the redundant-alert pattern this
         routine's own instructions warn against.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably, be strategic"
+        scheduled session, fresh branch. `git fetch origin main` first;
+        tip `9bd71d0` (#239). While reading issue #139, found a
+        concurrent session's ledger-only PR (#241, commit `af0b73c`)
+        had already landed reviewing the same state — its entry is the
+        block immediately above this one. This entry only records what
+        that one didn't do, to avoid re-typing an already-recorded
+        review.
+      - >-
+        #241's session recorded #240's finding but explicitly left the
+        `#139` tracker body fold-in deferred (per the issue's own
+        concurrent-edit guidance, same as four prior findings had been
+        left before a later session folded them in together). This
+        session did that fold-in: added a top note, a section-2 bullet,
+        and a new §2d recording that the egress-policy decision behind
+        Asks 3/7 (§2c) also gates which pipeline candidates can be
+        *built*, not only which claims can be verified. Before writing,
+        independently spot-checked 3 of #240's 24 probed hosts directly
+        rather than trusting its report (`www.w3.org`, `api.osv.dev` →
+        proxy-denied; `registry.npmjs.org` → 200) — all matched exactly.
+        No ask added, no pipeline score changed.
+      - >-
+        Also independently checked `main`'s last 30 workflow runs before
+        seeing #241's entry; same conclusion (CI healthy beyond the two
+        already-tracked owner-blocked deploys), not repeating the detail
+        here since #241's entry already has it.
+      - >-
+        Did not re-run the pipeline/research screening brief (`CLAUDE.md`
+        intake gate still applies, no new candidate). Did not merge any
+        research-chain PR, for the same reason every recent entry gives.
+        Opened this ledger entry as its own PR (#244) rather than
+        folding it into #241 — #241 had already merged by the time this
+        was written, and per CLAUDE.md's ledger-append-conflict note,
+        rebasing a still-open PR onto a merged one is the correct fix,
+        not blocking on it.
+      - >-
+        No push notification: the only thing this session added beyond
+        #241's already-filed review is the tracker body edit itself,
+        which is visible on #139 directly and isn't a new decision
+        surface for the owner.
+    mrr_end: null
