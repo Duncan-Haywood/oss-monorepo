@@ -7935,3 +7935,60 @@ entries:
         touches no other file, so it stays independently mergeable per
         CLAUDE.md's ledger-discipline section.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        designated branch `claude/keen-knuth-g7ccbl`. `git fetch origin
+        main` first; tip `2ae58fe` (#279, merged) at read time, unchanged
+        through this entry. Read the 13 open PRs and issue #139's current
+        body against that tip before touching anything.
+      - >-
+        Ran a fresh survey rather than trusting the "large backlog"
+        impression, since #139's own body already recorded the pipeline
+        chain (#265/#267/#258/#272/#275) as independently re-verified by
+        roughly seven sessions in the prior ~4 hours: fetched all 13
+        PR branches, ran `git merge-tree` against current `main` for each,
+        merged the 6-PR pipeline chain (#265→#267→#258→#272→#275→#280) in
+        a scratch worktree, and ran `validate.py`/`validate_candidates.py`/
+        `validate_doc_consistency.py` against the result. Confirms the
+        prior sessions' finding: the chain is not a duplicate pile, each
+        PR is the only candidate for its slice, and the full 6-PR merge is
+        clean end to end, surfacing exactly the 2 known stale-headline
+        lines #275 already flags (fix belongs in #258/#272, not a new PR).
+      - >-
+        The one new fact this survey found: #280 (created 10:28:04Z,
+        after #279's tip) is not mentioned anywhere in issue #139 or this
+        ledger. It builds `portfolio/pipeline/probes/npm-reachability-triage/`
+        — a CLI + GitHub Action implementing what #250 measured (which npm
+        advisories describe code actually deployed). Ran its `pytest`
+        suite directly: 112/112 pass. Confirmed it touches no file any
+        other open PR touches (only new paths), so it merges independently
+        of the pipeline chain's order, and `mergeable_state: clean`
+        against current `main`. This is the first executable artifact
+        after 13 firings of the research-new-business-projects brief that
+        produced 8 scored candidates and ~20 write-ups but nothing
+        runnable — the "ship or unblock something already built" move
+        CLAUDE.md's intake gate names as a priority action. Folded into
+        issue #139 as a new top entry (own comment there has the detail);
+        not repeated here beyond this summary.
+      - >-
+        Sent a push notification for #280 specifically — a shippable,
+        tested artifact sitting unreviewed is a different kind of signal
+        than the pipeline-chain re-verification this ledger and #139
+        already record seven-plus times over, and #279's session had
+        already covered the meta-work-ratio concern, so did not repeat
+        that notification.
+      - >-
+        Did not merge or touch #265/#267/#258/#272/#275/#280 themselves,
+        #191/#208/#222 (Next.js chain), #19/#144/#192/#175/#230/#237
+        (automation/spend/router — all unchanged, correctly owner-gated
+        per #139), or `portfolio/pipeline/`'s candidate set itself
+        (`CLAUDE.md` intake gate applies, no new candidate, did not
+        re-run the screening brief). This entry carries no other content
+        and touches no other file, so it stays independently mergeable
+        per CLAUDE.md's ledger-discipline section.
+    mrr_end: null
