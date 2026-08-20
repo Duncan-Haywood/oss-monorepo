@@ -44,7 +44,12 @@ python3 portfolio/router/validate.py
 
 Every directory under `ventures/` must have either a valid `VENTURE.yaml` or
 a `NOT-A-VENTURE` file, so a new venture cannot go silently invisible to the
-router.
+router. A `NOT-A-VENTURE` marker is authoritative even when a `VENTURE.yaml`
+is still present in the same directory — the router (`allocate.py`), the
+scorer (`score_ventures.py`), and `validate.py` all skip such a directory.
+That makes reclassifying a directory out of profit-seeking allocation a
+single-file change (drop the marker in) rather than a simultaneous edit
+across all three tools.
 
 ### platform/
 

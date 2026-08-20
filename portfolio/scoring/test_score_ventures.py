@@ -244,5 +244,22 @@ class TestRealDocument(unittest.TestCase):
         self.assertEqual(len(json.loads(out.getvalue())["ranking"]), 11)
 
 
+class TestVentureSlugs(unittest.TestCase):
+    def test_not_a_venture_marker_excludes_a_directory_with_a_yaml(self):
+        # The scorer must agree with the router and validate.py: a
+        # NOT-A-VENTURE marker opts a directory out even when a VENTURE.yaml
+        # is still present (the transitional state of a reclassification).
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            ventures_dir = Path(tmp)
+            (ventures_dir / "real-venture").mkdir()
+            (ventures_dir / "real-venture" / "VENTURE.yaml").write_text("name: real-venture\n")
+            (ventures_dir / "opted-out").mkdir()
+            (ventures_dir / "opted-out" / "VENTURE.yaml").write_text("name: opted-out\n")
+            (ventures_dir / "opted-out" / "NOT-A-VENTURE").write_text("infra\n")
+            self.assertEqual(sv.venture_slugs(ventures_dir), ["real-venture"])
+
+
 if __name__ == "__main__":
     unittest.main()
