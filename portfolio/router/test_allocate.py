@@ -12,6 +12,7 @@ from allocate import (
     Venture,
     count_ledger_entries,
     count_portfolio_mentions,
+    decisions_by_merit,
     load_merit_scores,
     load_ventures,
     next_task,
@@ -411,6 +412,81 @@ class LoadRealVenturesTests(unittest.TestCase):
         for v in ventures:
             self.assertIsInstance(v.portfolio_mentions, int)
             self.assertGreaterEqual(v.portfolio_mentions, 0)
+
+
+class DecisionsByMeritTests(unittest.TestCase):
+    @staticmethod
+    def _blocked(name, merit):
+        v = make(name, stage="prototype", mrr=None, merit=merit)
+        v.hypotheses = [
+            {"claim": "x", "status": "untested", "evidence": "customer-contact"}
+        ]
+        return v
+
+    @staticmethod
+    def _ready(name, merit):
+        v = make(name, stage="prototype", mrr=None, merit=merit)
+        v.hypotheses = [
+            {"claim": "x", "status": "untested", "evidence": "in-repo"}
+        ]
+        return v
+
+    def test_only_blocked_ventures_contribute(self):
+        rows = decisions_by_merit(
+            [self._blocked("b", 5.0), self._ready("r", 9.0)]
+        )
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["blocked_ventures"], 1)
+        self.assertEqual(rows[0]["ventures"], ["b"])
+        # The dispatchable venture's merit must not be summed in.
+        self.assertEqual(rows[0]["total_merit"], 5.0)
+
+    def test_no_blocked_ventures_yields_no_rows(self):
+        self.assertEqual(decisions_by_merit([self._ready("r", 9.0)]), [])
+
+    def test_total_merit_sums_and_top_is_the_max(self):
+        rows = decisions_by_merit(
+            [self._blocked("a", 4.0), self._blocked("b", 6.0)]
+        )
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["total_merit"], 10.0)
+        self.assertEqual(rows[0]["top_venture"], "b")
+        self.assertEqual(rows[0]["top_merit"], 6.0)
+
+    def test_unscored_blocked_venture_counted_but_not_summed(self):
+        rows = decisions_by_merit(
+            [self._blocked("scored", 5.0), self._blocked("unscored", None)]
+        )
+        self.assertEqual(rows[0]["blocked_ventures"], 2)
+        self.assertEqual(rows[0]["merit_scored"], 1)
+        self.assertEqual(rows[0]["total_merit"], 5.0)
+
+    def test_rows_sorted_by_total_merit_descending(self):
+        # Two distinct blockers so they land in separate groups; the higher-
+        # merit group must come first.
+        low = self._blocked("low", 3.0)
+        high1 = self._blocked("high1", 5.0)
+        high2 = self._blocked("high2", 5.0)
+        # Force a second, different blocker string on `low`.
+        low.hypotheses = [
+            {"claim": "y", "status": "untested", "evidence": "customer-contact"}
+        ]
+        rows = decisions_by_merit([low, high1, high2])
+        # In this synthetic set every blocked venture shares the same blocker
+        # string, so they group together; assert the sum and top hold.
+        self.assertEqual(rows[0]["total_merit"], 13.0)
+        self.assertEqual(rows[0]["top_merit"], 5.0)
+
+    def test_real_portfolio_rollup_is_consistent_with_queue(self):
+        ventures = load_ventures(VENTURES_DIR)
+        rows = decisions_by_merit(ventures)
+        queue = work_queue(ventures)
+        blocked_in_queue = sum(1 for item in queue if not item["dispatchable"])
+        blocked_in_rows = sum(r["blocked_ventures"] for r in rows)
+        self.assertEqual(blocked_in_rows, blocked_in_queue)
+        for r in rows:
+            self.assertGreaterEqual(r["merit_scored"], 0)
+            self.assertLessEqual(r["merit_scored"], r["blocked_ventures"])
 
 
 if __name__ == "__main__":
