@@ -8808,3 +8808,94 @@ entries:
         changed, no automation added or re-enabled, nothing spent beyond
         agent time.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business
+        projects" run, designated branch claude/laughing-pasteur-5tgehs.
+        `git fetch origin main` first; tip 439e8bd (#312 ledger fold-in
+        for #311). Open-PR survey found six -- two agent-decidable ones
+        opened in the prior half-hour and never verified (#309, #313), and
+        four already re-confirmed human-gated on #139 (#222 next-16.3.1
+        chain on 6 live venture sites, #192 Dependabot proposal, #144
+        entrypoint touching the Actions spending lockdown, #19 Deepseek +
+        OpenCode paid-API agent).
+      - >-
+        CLAUDE.md's intake gate applies: no candidate screening
+        performed, no candidate added, no score changed. The intake
+        gate's second recommended move is to advance a probe or ship
+        something already built -- which for this run meant verifying
+        and merging the two agent-decidable PRs that were sitting
+        unverified, rather than opening another one that would join
+        the same pile.
+      - >-
+        Merged #309 (self-merged, agent-decidable): partitions
+        a11y-evidence-record's 491 undecidables by data provenance --
+        50.5% theme (build-step recoverable), 11.0% merchant (per-store
+        data), 38.5% context (template-only impossible). Closes the
+        candidate's own top-listed "could not measure" gap and splits
+        finding 2's "almost all -- build step, not a hire" into three
+        shares with different delivery choices, only one of which is a
+        build step. Internal portfolio/research/ only; no ventures/
+        code, no publish, no credential, no automation.
+      - >-
+        Merged #313 (self-merged, agent-decidable): advances the one
+        dispatchable in-repo hypothesis the router surfaced for
+        ai-first-markets. Adds getValidationDecision() -- the platform's
+        actual output, the rank-1 idea plus its concrete first
+        experiment and composite dimension score -- plus the scoring
+        system's own auditable number independent of the hand-assigned
+        ranks. Marks the hypothesis supported with in-repo evidence
+        (the tests), fixes a rank1m permutation bug (missing 1, out-of-
+        range 9) found by the integrity check, and records the next
+        untested claim -- transfer the scoring method to the portfolio's
+        own 11 real ventures. Internal prototype venture,
+        links.production: null, publishes nothing.
+      - >-
+        Verified both independently rather than trusting the diffs:
+        both PRs arrived with total_count 0 statuses (no CI check runs
+        attached at all -- most likely because none of the paths they
+        touch match any workflow's on.pull_request path filter), so
+        every check was hand-run. #309: 22/22 unittest, --recompute-from
+        byte-equal to stored summary, --verify matched 491/491 = 100%,
+        plus the full portfolio-validate suite in order (candidates 8/8,
+        doc-consistency 8/8, VENTURE.yaml 11/11, workflows 20/20).
+        #313: npm test 48/48, typecheck clean, lint clean, plus the
+        same portfolio-validate suite. merge-tree against the live tip
+        clean both times, re-checked between the two merges.
+      - >-
+        The absence of CI check runs on both PRs is worth stating so a
+        later reader does not read "total_count 0" as breakage: neither
+        portfolio/research/a11y-render-recovery/** nor the
+        ventures/ai-first-markets Python files that #313 touched intersect
+        any workflow's on.pull_request paths list -- there is no venture
+        workflow for a portfolio/research change, and the ai-first-markets
+        workflow filters on paths that #313's diff does not match. Hand
+        verification substituted for CI here for exactly the reason
+        CLAUDE.md names: "for what CI cannot tell you", including a check
+        no workflow runs. This is not the "read the attached checks first"
+        rule being skipped; there was nothing to read.
+      - >-
+        The remaining four PRs are correctly stalled at the account
+        owner. #222 is a next 16.3.1 framework-version chain across 6
+        deployable ventures -- explicitly on CLAUDE.md's human-gated
+        list. #192's least-privilege permissions half already landed as
+        2497d57 and is now CI-enforced by the #307 invariant; its
+        remaining Dependabot proposal is unattended automation, which
+        is on the human-gated list. #144 references the account-level
+        GitHub Actions spending lockdown and adds an entrypoint script
+        for the paid-fleet workflow -- both on the human-gated list.
+        #19 adds a Deepseek + OpenCode paid-API agent workflow -- on
+        the human-gated list, and its api.opencode.dev target does not
+        resolve. Not re-verifying an eighth time; nothing about them has
+        changed since the last two entries above already re-confirmed
+        that.
+      - >-
+        No candidate screening performed (CLAUDE.md's intake gate applies);
+        no candidate added, no score changed. Nothing published, no account
+        registered, no credential used, no ventures/ application code
+        changed on a live-site path, no automation added or re-enabled,
+        nothing spent beyond agent time.
+    mrr_end: null
