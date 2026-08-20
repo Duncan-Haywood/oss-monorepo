@@ -8200,3 +8200,59 @@ entries:
         there is nothing decision-pending here to keep this ledger entry
         off of a mergeable PR.
     mrr_end: null
+  - venture: local-site-studio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        designated branch `claude/pensive-feynman-pchwrh`. `git fetch
+        origin main` first; tip `4c2ff57` (#289, merged) at read time.
+        Listed the 12 open PRs and read issue #139's tracker body against
+        that tip before touching anything.
+      - >-
+        One item was genuinely new and unverified: #291 (created
+        13:23:58Z, `local-site-studio` `next` 16.2.9 → 16.3.1, clearing 3
+        high-severity advisories — a middleware/proxy-bypass and two SSRF
+        CVEs in `next`, plus transitive `postcss`/`sharp` bumps). Not
+        mentioned in #139 or any prior ledger entry. `local-site-studio`
+        is a live venture with Stripe and Convex wired in, and its build
+        output includes `/api/stripe/webhook`, `/api/stripe/checkout`,
+        and a middleware proxy — surfaces the advisories are scoped to.
+        The PR's own body correctly separates this from #222 (the
+        six-venture, five-of-them-semver-major `next` upgrade chain
+        that's genuinely owner-gated): `local-site-studio` is the one
+        venture in that chain already on the 16.x line, so npm reports
+        this fix as `isSemVerMajor: false` — a routine, verifiable patch
+        that had been inheriting an unrelated framework decision's
+        latency by sitting in the same PR family.
+      - >-
+        Independently verified rather than trusted: read the diff
+        (`package.json` + regenerated `package-lock.json`, 2 files, no
+        source/config change), watched its own CI check (`verify`) go
+        `in_progress` → `completed`/`success`, and confirmed
+        `mergeable_state: clean` against the current `main` tip before
+        merging — not inferred from the PR body's self-reported
+        `npm run typecheck`/`lint`/`test`/`build`/`audit` table alone.
+        Matches this repo's established self-merge precedent for
+        single-file-family, CI-green, no-other-PR-touches-this-path
+        security/CI fixes (#282, #288). Merged #291 (merge commit,
+        `baaf05f`), then re-fetched `main` and confirmed it landed clean.
+      - >-
+        Did not re-verify #284/#285/#280 (pipeline) beyond noting they're
+        unchanged and still explicitly owner-gated for the `main` merge
+        decision — already independently re-verified multiple times this
+        cycle per #139, and re-running their validators again would only
+        repeat the meta-work-ratio pattern this file already flags. Left
+        #237/#230/#222/#192/#175/#144/#19 untouched — unchanged,
+        owner-gated, already tracked in #139.
+      - >-
+        Did not re-run the business-candidate screening brief, add a
+        candidate, or change a score — `CLAUDE.md`'s intake gate applies.
+        No automation added or re-enabled, no account registered, no
+        credential used, nothing published. This entry is the only
+        content on this session's branch; no other PR was opened, so
+        there is nothing decision-pending here to keep this ledger entry
+        off of a mergeable PR.
+    mrr_end: null
