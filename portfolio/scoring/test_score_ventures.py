@@ -241,7 +241,9 @@ class TestRealDocument(unittest.TestCase):
         # `scored:` parses as a datetime.date, which json.dumps rejects.
         with contextlib.redirect_stdout(io.StringIO()) as out:
             self.assertEqual(sv.main(["--json"]), 0)
-        self.assertEqual(len(json.loads(out.getvalue())["ranking"]), 11)
+        self.assertEqual(
+            len(json.loads(out.getvalue())["ranking"]), len(sv.venture_slugs())
+        )
 
 
 class TestVentureSlugs(unittest.TestCase):

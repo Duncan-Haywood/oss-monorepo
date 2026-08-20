@@ -1,7 +1,8 @@
 # The portfolio's own ventures, scored on ai-first-markets' six dimensions.
 #
 # Not candidates. `portfolio/pipeline/candidates.yaml` scores businesses the
-# portfolio has NOT started; this file scores the eleven it has. The dimension
+# portfolio has NOT started; this file scores the ten it has (ai-first-markets
+# was removed 2026-08-20 -- see below). The dimension
 # keys and the 0-10 scale are the same, so a venture and a candidate can be
 # read against each other, but the six here are exactly the six
 # `ventures/ai-first-markets/src/lib/evaluation.ts` applies to its own idea
@@ -209,41 +210,15 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
 
-  - slug: ai-first-markets
-    scores:
-      ai_leverage: 4
-      autonomous_ops: 8
-      time_to_revenue: 2
-      gross_margin: 9
-      defensibility: 2
-      distribution: 2
-    composite: 4.5
-    rater_b: 4.667
-    floor: 2
-    floor_dimension: time_to_revenue
-    floor_note: >-
-      No price, no buyer, and no route to one: the deployed app sits behind
-      Cloudflare Access restricted to a single email address. Its value to date
-      is real but internal -- it is decision infrastructure this portfolio uses
-      on itself. The honest options are to give it a commercial thesis or to
-      reclassify it as `platform/` rather than a venture; leaving it as a
-      venture makes the portfolio look one business larger than it is.
-    basis: >-
-      A working Next.js app with a market map, eight scored ideas, and the only
-      hypothesis in the portfolio marked `supported` by in-repo evidence.
-      Scored low as a *business* rather than as a tool: the idea library is
-      hand-authored content (ai_leverage 4 -- the model work went into writing
-      it, not into running it), trivially reproducible by any LLM on demand
-      (defensibility 2), and aimed at a query -- "AI business ideas" -- that is
-      among the most SEO-saturated on the web (distribution 2).
-    gates:
-      liability_containment: pass
-      ethical_robustness: pass
-    gate_note: >-
-      Pass only because it is access-restricted and publishes nothing. Its
-      write-ups carry regulatory dates and market claims recorded as
-      unverified against primary sources; publishing them under this
-      portfolio's name would put the liability gate back in question.
+  # ai-first-markets: removed 2026-08-20. Its own VENTURE.yaml hypothesis test
+  # (checked the same day) refuted having a commercial thesis at all -- no
+  # buyer, no price, no route to one -- and concluded it is this portfolio's
+  # own scoring/decision infrastructure, not a business. It now carries a
+  # NOT-A-VENTURE marker, which `venture_slugs()` treats as authoritative
+  # (matching allocate.py and validate.py, per #334), so a score entry here
+  # would fail `--check` as "scored but no such venture directory". Its last
+  # scores, for the record: composite 4.5 (rater_b 4.667), floor 2 on
+  # time_to_revenue -- the same conclusion this removal acts on.
 
   - slug: garmin-world-traveler-watchface
     scores:
