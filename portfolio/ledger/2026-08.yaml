@@ -8249,3 +8249,90 @@ entries:
         decision-pending here to keep this ledger entry off of a
         mergeable PR.
     mrr_end: null
+  - venture: local-site-studio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Research and evaluate potential software business projects"
+        scheduled session, designated branch
+        `claude/laughing-pasteur-4rjbpg`. `CLAUDE.md`'s intake gate
+        applies: no candidate added, no candidate list produced, no score
+        changed. `git fetch origin main` first; tip `4c2ff57` (#289) at
+        read time, unchanged through the session.
+      - >-
+        The gate's first move (advance a probe already specified in
+        `portfolio/pipeline/`) was taken twice in the two hours before
+        this run - #280 built `npm-reachability-triage`, #285 built the
+        `a11y-evidence-record` audit pass - so re-taking it would have
+        been the duplicate work the gate exists to prevent. Took the
+        gate's second move instead (ship or unblock something already
+        built) and found the one thing in that class that is neither
+        credential-blocked nor owner-gated.
+      - >-
+        Found `ventures/local-site-studio` sitting on `main` at `next
+        16.2.9` with three unfixed high-severity advisories: `next`
+        (>=16.0.0 <16.2.11 - middleware/proxy bypass, Server Actions DoS,
+        SSRF in Server Actions, SSRF in rewrites), plus `postcss`
+        (<=8.5.22) and `sharp` (<0.35.0) transitively through it. This is
+        a live venture carrying Stripe and Convex whose build output has
+        server-rendered `/api/stripe/webhook`, `/api/stripe/checkout` and
+        a Middleware proxy - the surfaces three of those four `next`
+        advisories are scoped to.
+      - >-
+        Why it had not landed, which is the reusable finding rather than
+        the bump itself. The fix was already written and waiting inside
+        #222, the six-venture `next 16.3.1` chain (#122 -> #191 -> #208
+        -> #222): 36 files, +7,743/-4,939, and for five of its six
+        ventures a semver-major framework upgrade (14.x/15.x -> 16.x)
+        that also moves `next lint` -> `eslint .`, ESLint 8 -> 9 and
+        Wrangler 3 -> 4. That PR is correctly gated on the account owner
+        and has been waiting since 2026-08-19 while collecting its third
+        conflict-resolution pass. `local-site-studio` is the one venture
+        in that diff already on the 16.x line, so npm reports its fix as
+        `isSemVerMajor: false` - a routine security patch inheriting a
+        framework decision's latency purely by being bundled with it.
+        Same shape as the "blocked PR blocked itself" pattern `CLAUDE.md`
+        records for ledger hunks, one layer up, and the same remedy:
+        separation.
+      - >-
+        Extracted it as #291 - two files, `next` and `eslint-config-next`
+        16.2.9 -> 16.3.1 plus the regenerated lockfile, no source or
+        config change. Resolved versions `next` 16.3.1, `postcss` 8.5.23,
+        `sharp` 0.35.3; `npm audit` 3 high -> 0 vulnerabilities. Verified
+        on this checkout before pushing rather than inferred from the
+        diff: `npm run typecheck` clean, `npm run lint` clean, `npm run
+        test` 1207 passed across 124 files, `npm run build` succeeds.
+        `local-site-studio CI` green on the PR head (run
+        32374050073). Self-merged under the same precedent as #214, #282
+        and #288 - single-venture, verified, non-major dependency bump
+        clearing audit findings, no product or business logic touched.
+      - >-
+        Targets the same version #222 targets for this venture, so #222's
+        `local-site-studio/package.json` hunk is now already applied on
+        `main` and its remaining scope is the five ventures that
+        genuinely need the owner's review. Its lockfile hunk needs a
+        regenerate, which that chain has done at each pass anyway. Left
+        #222 itself untouched, and left #285, #284, #280, #237, #230,
+        #192, #175, #144 and #19 untouched - all still owner-gated
+        exactly as #139 records.
+      - >-
+        Still unfixed on `main` and deliberately not bundled here: the
+        other five ventures in #222's diff carry high-severity findings
+        that only a semver-major upgrade clears - `ai-first-markets` 3
+        high, `print-atelier` 5 high, `photo-editing/docs-site` 3 high,
+        `real-estate-agent-photo-app/research` 11 high,
+        `real-estate-agent-photo-app/docs-site` 17 (15 high, 2
+        moderate). Those are the owner's call and remain #222's. Per
+        #280's measurement the two `real-estate-agent-photo-app`
+        packages are static exports, so a large share of their findings
+        describe surfaces they do not deploy; the three server-mode
+        products' findings do not get that discount.
+      - >-
+        No `ventures/` directory created, no score changed, no candidate
+        added, no account registered, no credential used, nothing
+        published, no unattended automation added or re-enabled, nothing
+        spent beyond agent time. Ledger entry shipped separately from
+        #291 rather than bundled into it, per the ledger-discipline
+        section.
+    mrr_end: null
