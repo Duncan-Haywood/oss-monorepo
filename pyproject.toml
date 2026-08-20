@@ -1,0 +1,17 @@
+# Root pytest configuration.
+#
+# The repo's real test entrypoint is CI: portfolio-validate.yml runs each
+# portfolio/platform suite from the directory that owns it, and every pipeline
+# probe carries its own path-filtered workflow. This block exists only so an
+# ad-hoc `pytest portfolio/ platform/` from the repo root collects cleanly,
+# giving a contributor or agent a one-command spot-check of the portfolio-
+# internal suites instead of a wall of collection errors.
+#
+# The pipeline probes under portfolio/pipeline/probes/ are self-contained
+# packages: each pins its own rootdir (src on pythonpath, a tests/ package) in
+# its own pyproject.toml and is exercised by its own CI. Run together from the
+# repo root their identically-named `tests` packages collide on import, so they
+# are ignored here. Run each probe's suite from inside its directory, exactly as
+# that probe's workflow does.
+[tool.pytest.ini_options]
+addopts = "--ignore=portfolio/pipeline/probes"
