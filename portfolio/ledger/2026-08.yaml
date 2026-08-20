@@ -7584,3 +7584,50 @@ entries:
         is its own PR with no other content, per CLAUDE.md's ledger-
         append-conflict guidance, so it stays independently mergeable.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        designated branch `claude/nifty-goodall-moe3le`. `git fetch
+        origin main` first; tip `1691d7e` (#266, ledger entry for #265's
+        verification) at read time, unchanged through this entry. Checked
+        open PRs (24 open, all `Duncan-Haywood`), issue #139's body and
+        the ledger's newest entries against that tip before touching
+        anything, per CLAUDE.md's duplicate-work guidance.
+      - >-
+        #265 (the eleven-PR reachability/research consolidation) had
+        already been independently verified by an earlier session this
+        cycle. #267 ("main still recommends channels that were measured
+        unreachable five runs ago"), opened 08:16:35Z — a small, purely
+        additive correction restoring #166's `channel-inventory.md`
+        content, which #265 does not carry — had not been. Re-probed its
+        five host claims directly: `api.wordpress.org`, `open-vsx.org`,
+        and the `example.com` control all fail identically (`CONNECT
+        tunnel failed, response 403`); `registry.npmjs.org` and
+        `pypi.org` both `200`; `api.github.com/marketplace_listing/plans`
+        completes the connection with an in-band `403` (scope denial, not
+        egress). All six match the PR body exactly. Also confirmed the
+        diff is purely additive (1 file, +143/-0), `python3
+        portfolio/router/validate.py` → 11/11 valid, and all 12 relative
+        markdown links in the new content resolve against `main`'s
+        current tree.
+      - >-
+        Posted the verification as a comment on #139 rather than folding
+        it into the body — this only adds independent confirmation of an
+        already-surfaced finding, not new information for the owner. No
+        push notification: neither #265 nor #267 changed which decision
+        they're waiting on (still "merging is your call," per both PR
+        bodies), and both findings were already pushed to the owner
+        directly by their own sessions.
+      - >-
+        Did not touch #207/#258 (score/verdict changes, the account
+        owner's ranking call), #191/#208/#222 (Next.js chain),
+        #19/#144/#192/#175 (automation/spend), or `portfolio/pipeline/`
+        itself (`CLAUDE.md` intake gate still applies, no new candidate).
+        Did not re-run the pipeline/research screening brief. This entry
+        is its own PR with no other content, per CLAUDE.md's ledger-
+        append-conflict guidance, so it stays independently mergeable.
+    mrr_end: null
