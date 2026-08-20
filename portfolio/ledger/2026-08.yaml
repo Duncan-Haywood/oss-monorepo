@@ -7376,3 +7376,72 @@ entries:
         session's fold-in moves already-surfaced information into the
         tracker body and isn't a new decision surface.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        "Continue work / maintain and improve the development process,
+        increase profit legally/ethically/reliably" scheduled session,
+        designated branch `claude/nifty-goodall-n2ap6f`, no prior commits
+        on the branch. `git fetch origin main` first; tip `66e0015` (#257,
+        ledger entry on #253 verification duplication). Read this issue's
+        history and the last several ledger entries against that tip
+        before touching anything, then listed all open PRs (20 open,
+        oldest #19 from 2026-08-18).
+      - >-
+        Found PR #258, opened minutes before this session started, still
+        unverified by anyone: it applies the five `candidates.yaml` score
+        edits that #207/#245/#250/#253 had each measured and explicitly
+        deferred writing (per #139's own repeated notes on this), and adds
+        a new `portfolio/pipeline/validate_candidates.py` that recomputes
+        composite/floor and enforces the rubric's gate and mitigation
+        rules. Independently verified before trusting it: pulled the
+        branch into a worktree, hand-checked the arithmetic (composite =
+        mean of the 8 dimensions, floor = min dimension — matches for
+        both `mcp-supply-chain-watch` at 6.75/3 and `cra-evidence-desk` at
+        6.75/3), ran `validate_candidates.py` and `portfolio/router/
+        validate.py` (both exit 0, 0 problems), and read the validator's
+        source rather than trusting its exit code — it is a real check
+        (missing/unknown dimensions, gate rejection at <5 on the two gate
+        dimensions, mitigation-required below the threshold, doc
+        existence), not a no-op, consistent with the PR's own claim of
+        catching 4 injected problems in a negative test.
+      - >-
+        Folded #258 into #139's tracker: re-fetched the issue immediately
+        before the `PUT` (unchanged since the #253 fold-in note at the
+        top), added a new top section recording the verification and its
+        two verdict-level consequences (`mcp-supply-chain-watch`'s named
+        mitigation refuted with no replacement, blocking graduation under
+        README rule 2; `cra-evidence-desk` moving `build-now` → `probe`),
+        and updated the section-2 header, bullet list, §2b, and §2d to
+        reference #258 without touching the stale "no score edit applied
+        yet" language in §2d's body text, since the decision hasn't
+        happened yet and the note shouldn't overstate what has actually
+        landed on `main`. Also flagged in the tracker note: #258's
+        `candidates.yaml` hunk is a superset of #207's, so if #258 merges,
+        #207's own hunk becomes redundant (its research directory is not).
+      - >-
+        Checked `main`'s recent Actions runs for anything new and red
+        beyond what #139 already tracks: only failure is `Deploy
+        retail-pilot-intel docs`, already Ask 6. Did not re-run the
+        pipeline/research screening brief (the `CLAUDE.md` intake gate
+        still applies, no new candidate). Did not touch #191/#208/#222
+        (Next.js chain), #19/#144/#192/#175/#230 (automation/spend/
+        router), or the asks themselves beyond the #258 fold-in above —
+        all unchanged since #257. Did not attempt to consolidate the
+        20-PR backlog itself: per CLAUDE.md and #139's own established
+        pattern, the tracker issue already is the consolidation
+        mechanism, and every open PR on the list is either self-mergeable
+        routine work, superseded content left open for history, or a
+        distinct decision already itemized in #139 — nothing found this
+        session that duplicates without #139 already saying so.
+      - >-
+        This entry is its own PR with no other content (a ledger-only
+        change touching only this file), per CLAUDE.md's ledger-append-
+        conflict guidance, so it stays independently mergeable even while
+        #258's decision is pending. No push notification: #258's own PR
+        body already surfaced its finding to the owner; this session's
+        verification raises confidence in that finding but is not a new
+        decision surface on its own.
+    mrr_end: null
