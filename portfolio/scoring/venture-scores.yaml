@@ -1,0 +1,416 @@
+# The portfolio's own ventures, scored on ai-first-markets' six dimensions.
+#
+# Not candidates. `portfolio/pipeline/candidates.yaml` scores businesses the
+# portfolio has NOT started; this file scores the eleven it has. The dimension
+# keys and the 0-10 scale are the same, so a venture and a candidate can be
+# read against each other, but the six here are exactly the six
+# `ventures/ai-first-markets/src/lib/evaluation.ts` applies to its own idea
+# library — no liability/ethics dimensions in the mean — because comparability
+# with that scale is the point (see README.md).
+#
+# Liability and ethics are still gates on a real venture. They are recorded as
+# `gates: pass|fail` rather than scored, so they cannot be averaged away and
+# cannot distort the comparison. A failed gate needs a `gate_note`.
+#
+# Derived fields (`composite`, `floor`, `floor_dimension`) and every rule above
+# are checked by `score_ventures.py --check`. Run it after any score edit.
+#
+# STATUS OF THESE NUMBERS: agent estimates from repository evidence, 2026-08-20.
+# Not one of them is a customer measurement, because the portfolio has no
+# customer contacts. `portfolio/pipeline/rescore-2026-08-20.md` established that
+# every product-assumption score in this portfolio that anyone has since
+# measured moved DOWN, by one point, every time. Read these as upper bounds.
+
+scored: 2026-08-20
+scored_by: agent
+rubric_version: 1
+method: ventures/ai-first-markets/src/lib/evaluation.ts
+method_note: >-
+  Six equal-weight dimensions, 0-10, composite = arithmetic mean. Identical to
+  the scoring the ai-first-markets venture applies to its eight hypothetical
+  ideas, which average 7.50 (range 7.17-7.83). That set is the calibration
+  anchor: those are pitches, these are positions.
+second_rater: >-
+  A second scheduled session scored these same eleven ventures on the same six
+  dimensions the same day, independently and without seeing this file, in
+  ventures/ai-first-markets/src/data/portfolio-ventures.ts (merged as #321).
+  Its composites are recorded per venture below as `rater_b`. The two sets are
+  deliberately NOT reconciled: forcing them equal would destroy the only
+  inter-rater agreement measurement this portfolio has. `rater_b` is a frozen
+  snapshot of #321 as merged, not a live second source, so it cannot drift.
+scoring_rule: >-
+  Sandbox egress is NOT scored, per rescore-2026-08-20.md. That this
+  environment cannot reach a host constrains what an agent can build and
+  measure here; it says nothing about what a deployed product could reach from
+  ordinary hosting. Channel economics ARE scored -- a saturated category with a
+  near-zero-price norm is a real property of the business on any host.
+
+ventures:
+  - slug: local-site-studio
+    scores:
+      ai_leverage: 7
+      autonomous_ops: 6
+      time_to_revenue: 7
+      gross_margin: 8
+      defensibility: 3
+      distribution: 5
+    composite: 6.0
+    rater_b: 5.667
+    floor: 3
+    floor_dimension: defensibility
+    floor_note: >-
+      No moat is claimed and none is available: site generation is a commodity
+      and the buyer never returns after a one-time build. What partly offsets
+      it is that the recurring tiers sell hosting and maintenance, which is a
+      retention mechanic rather than a moat -- churn, not copying, is the risk
+      to price in.
+    basis: >-
+      The most-built venture in the portfolio and the only one with a priced,
+      coded, tested path to money: 124 Vitest files, live Stripe checkout /
+      webhook / billing-portal routes with tests, and a concrete ladder in
+      src/lib/pricing/bundles.ts ($500 setup, then $99-199/mo, plus a $300 +
+      $49/mo commerce add-on). It is also the only venture whose buyer holds a
+      business budget rather than a consumer wallet. Time-to-revenue is high
+      rather than maximal because what remains is unset production env vars
+      (Stripe live price IDs, Resend, Convex, CAN-SPAM address) plus an
+      outbound motion that has never run, not because anything is unbuilt.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: the motion is speculative site generation followed
+      by cold outreach, so CAN-SPAM/GDPR compliance is load-bearing rather than
+      incidental. The repo already carries a CAN-SPAM address env var and an
+      unsubscribe route, which is why this is a pass and not a flag.
+
+  - slug: real-estate-agent-photo-app
+    scores:
+      ai_leverage: 8
+      autonomous_ops: 5
+      time_to_revenue: 4
+      gross_margin: 7
+      defensibility: 3
+      distribution: 4
+    composite: 5.167
+    rater_b: 5.0
+    floor: 3
+    floor_dimension: defensibility
+    floor_note: >-
+      Image enhancement is a crowded commodity (BoxBrownie, Styldod, in-phone
+      computational photography). The only durable asset proposed is the
+      guided-capture checklist plus per-agent listing history, neither of which
+      is built.
+    basis: >-
+      Highest AI leverage in the portfolio and the clearest-documented blocker
+      set (process/blockers.ts, every item owner:human). The sharp-based
+      pipeline CLI works with self-tests, and the concierge model prices at
+      $19/listing with a $29-249/mo ladder in STRATEGY.md -- revenue that needs
+      no iOS app. Scored down on time-to-revenue and autonomous ops because the
+      near-term motion is deliberately manual concierge delivery, and the app
+      the recurring tiers depend on has no iOS code at all (stage: idea).
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: MLS rules restrict materially altering listing
+      photos, so "enhancement, disclosed" is a positioning constraint the
+      product must hold to, in the same shape as the pipeline's
+      no-claim-of-compliance rule.
+
+  - slug: photo-editing
+    scores:
+      ai_leverage: 7
+      autonomous_ops: 6
+      time_to_revenue: 3
+      gross_margin: 5
+      defensibility: 4
+      distribution: 4
+    composite: 4.833
+    rater_b: 5.0
+    floor: 3
+    floor_dimension: time_to_revenue
+    floor_note: >-
+      Its own kill criterion -- "the pipeline cannot produce a real, shippable
+      deliverable from a real shoot" -- is currently satisfied. Ingest, catalog,
+      and analysis are real and tested (28 test files), but the only registered
+      render backend is `dry-run-local` and no ffmpeg/Core Image/Metal adapter
+      exists, so nothing has ever been rendered. The mitigation is one adapter,
+      which is in-repo work no session is blocked on.
+    basis: >-
+      Substantial, genuinely tested Python core aimed at a buyer who already
+      spends $100-1,000+/week on editors, so the value story is concrete.
+      Gross margin is the portfolio's second-lowest because video and photo
+      rendering is real compute and storage, not inference -- unlike every
+      web venture here, delivery has a marginal cost. Pricing is a described
+      shape (Starter/Pro plus usage credits) with no numbers set.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
+  - slug: quick-pick-survey
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 8
+      time_to_revenue: 3
+      gross_margin: 8
+      defensibility: 4
+      distribution: 3
+    composite: 4.833
+    rater_b: 4.833
+    floor: 3
+    floor_dimension: time_to_revenue
+    floor_note: >-
+      No pricing model exists anywhere in the repo -- not in README,
+      PRODUCT-GOALS.md, or IMPROVEMENT-PLAN.md -- while the venture's recorded
+      hypothesis is that teams will pay. Writing a price is unblocked in-repo
+      work and is the cheapest score-moving action available on this venture.
+    basis: >-
+      The most methodologically serious build in the portfolio: Glicko-2 for
+      discrete items, Davidson tie-extended Bradley-Terry with Newton-Raphson
+      for continuous attributes, adaptive question selection, and a test on
+      every API route. That sophistication is why defensibility is 4 rather
+      than 3, but the method is published statistics, not proprietary. AI
+      leverage is low and honestly so -- this is inference in the statistical
+      sense, not model work. Distribution is the binding problem: a private
+      repo, no acquisition motion described, and an incumbent field
+      (Qualtrics, Typeform) that owns the buyer's attention.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
+  - slug: world-clock-widget
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 9
+      time_to_revenue: 3
+      gross_margin: 9
+      defensibility: 2
+      distribution: 4
+    composite: 4.667
+    rater_b: 4.667
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI in a clock widget and there is no honest way to add one.
+      This is not a defect to mitigate -- it is a venture that does not fit the
+      portfolio's stated AI-heavy brief, and the right response is to judge it
+      on the other five dimensions or not to fund it, not to bolt a model on.
+    basis: >-
+      WorldClockCore is real and CI-verified on every push (USNO 1990 solar
+      algorithm, ~40-city catalog, snapshot tests running on Linux SPM). The
+      app and widget extension have never been built or run -- no macOS or
+      Xcode toolchain exists here or in CI -- and signing team, App Group, and
+      app icon are all unset. Distribution is the portfolio's joint-best at 4
+      because the App Store is a real search channel with billing already
+      attached; it is not higher because the category is saturated with free
+      alternatives including Apple's own, so ARPU is a couple of dollars
+      against a $99/yr floor cost.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
+  - slug: ai-first-markets
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 8
+      time_to_revenue: 2
+      gross_margin: 9
+      defensibility: 2
+      distribution: 2
+    composite: 4.5
+    rater_b: 4.667
+    floor: 2
+    floor_dimension: time_to_revenue
+    floor_note: >-
+      No price, no buyer, and no route to one: the deployed app sits behind
+      Cloudflare Access restricted to a single email address. Its value to date
+      is real but internal -- it is decision infrastructure this portfolio uses
+      on itself. The honest options are to give it a commercial thesis or to
+      reclassify it as `platform/` rather than a venture; leaving it as a
+      venture makes the portfolio look one business larger than it is.
+    basis: >-
+      A working Next.js app with a market map, eight scored ideas, and the only
+      hypothesis in the portfolio marked `supported` by in-repo evidence.
+      Scored low as a *business* rather than as a tool: the idea library is
+      hand-authored content (ai_leverage 4 -- the model work went into writing
+      it, not into running it), trivially reproducible by any LLM on demand
+      (defensibility 2), and aimed at a query -- "AI business ideas" -- that is
+      among the most SEO-saturated on the web (distribution 2).
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass only because it is access-restricted and publishes nothing. Its
+      write-ups carry regulatory dates and market claims recorded as
+      unverified against primary sources; publishing them under this
+      portfolio's name would put the liability gate back in question.
+
+  - slug: garmin-world-traveler-watchface
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 9
+      time_to_revenue: 2
+      gross_margin: 9
+      defensibility: 2
+      distribution: 4
+    composite: 4.5
+    rater_b: 4.333
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      As with world-clock-widget: no AI, and no honest way to add one. Judge it
+      on the other five or do not fund it.
+    basis: >-
+      Complete Monkey C source including a hand-rolled 42-city DST catalog, but
+      never compiled or run -- the Connect IQ SDK is not installed here, so
+      there is no build, no signature, and none of the simulator screenshots
+      the store listing requires. Time-to-revenue is 2 rather than 3 because
+      the monetization tier is still an open question in its own README and the
+      Connect IQ watch-face category is priced at approximately zero, so
+      "shipped" and "earning" are much further apart here than on the App
+      Store.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
+  - slug: retail-pilot-intel
+    scores:
+      ai_leverage: 5
+      autonomous_ops: 4
+      time_to_revenue: 4
+      gross_margin: 6
+      defensibility: 5
+      distribution: 3
+    composite: 4.5
+    rater_b: 4.333
+    floor: 3
+    floor_dimension: distribution
+    floor_note: >-
+      The beachhead is one named boutique in one Italian historic centre, which
+      has not agreed to a pilot. There is no repeatable route to the next fifty
+      small-format retailers and none is described; consultative sales to
+      owner-operated 8-25 m2 shops does not scale without feet or a channel
+      partner.
+    basis: >-
+      By far the highest ARPU in the portfolio -- EUR 1.5-3k setup plus EUR
+      149-449/store/month, anchored to basket value rather than sensor count --
+      and the most defensible position here, because privacy-first retail
+      analytics on the operator's own data is a real differentiator against
+      both spreadsheets and camera-based incumbents. Everything else is scored
+      against the product's actual state: edge vision and the POS connector are
+      stub CLIs, the demo portal runs on illustrative data, and launch gates
+      G1/G5/G7 are all No or partial. Autonomous ops is the portfolio's lowest
+      at 4 because delivery requires physical edge hardware installed per
+      store, which is a person on site.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: in-store analytics in the EU is DPIA territory and
+      the plan already treats a signed DPIA as a pilot precondition, which is
+      the correct shape. The gate would fail if the product ever moved to
+      identifying individual shoppers.
+
+  - slug: ai-engineering-academy
+    scores:
+      ai_leverage: 8
+      autonomous_ops: 5
+      time_to_revenue: 1
+      gross_margin: 7
+      defensibility: 2
+      distribution: 3
+    composite: 4.333
+    rater_b: 4.667
+    floor: 1
+    floor_dimension: time_to_revenue
+    floor_note: >-
+      No code exists -- a 491-line brief, a seven-file constitution, and a bare
+      static-site scaffold. Its own kill criterion is that the constitution
+      cannot be narrowed into a buildable MVP scope, and that scope is still
+      unwritten. The mitigation is to write the MVP scope, which is unblocked
+      in-repo work; until then this is a document, not a venture.
+    basis: >-
+      Genuine AI leverage -- mentoring and assessment are model work per
+      learner -- and a described free/paid/employer-partnership model with no
+      numbers attached. Gross margin is 7 rather than 9 because mentoring is
+      token-heavy per active learner, so unlike the static ventures here the
+      cost scales with usage. Defensibility 2 and distribution 3 reflect a
+      market where the strongest competitor is the underlying model itself,
+      offered free, and where learner acquisition is conventionally paid.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: education businesses that make employment or
+      earnings claims attract regulatory attention, so the no-outcome-guarantee
+      constraint is the same shape as the pipeline's no-claim-of-compliance
+      rule and must survive into any customer-facing copy.
+
+  - slug: photos-import-tools
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 9
+      time_to_revenue: 1
+      gross_margin: 9
+      defensibility: 3
+      distribution: 2
+    composite: 4.167
+    rater_b: 4.333
+    floor: 1
+    floor_dimension: time_to_revenue
+    floor_note: >-
+      There is no launch intent to be blocked. No packaging, no pricing, and no
+      monetization language anywhere in the venture; `budget.protected` is
+      false and its kill criteria are purely technical. This scores as it does
+      because it is not being run as a business, which is a classification
+      question rather than a deficiency to fix.
+    basis: >-
+      Five working, tested macOS tools and the only hypothesis in the portfolio
+      settled by in-repo evidence before this pass (2026-07-29). Genuinely
+      useful software with no commercial thesis: deterministic file transfer,
+      so no AI leverage; free first-party alternatives ship with the OS, so
+      little defensibility; run locally from a venv, so no channel.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
+  - slug: print-atelier
+    scores:
+      ai_leverage: 6
+      autonomous_ops: 5
+      time_to_revenue: 2
+      gross_margin: 4
+      defensibility: 3
+      distribution: 3
+    composite: 3.833
+    rater_b: 4.0
+    floor: 2
+    floor_dimension: time_to_revenue
+    floor_note: >-
+      No database has been chosen, orders are in-memory records, and the
+      catalog is a typed in-repo mock; the top of docs/BACKLOG.md is roughly
+      fifteen consecutive "persist ..." items. It is a two-sided marketplace
+      that has never had a real artist or a real buyer, so both sides need cold
+      starting at once.
+    basis: >-
+      A large, heavily-tested demo (128 tests) that models a business rather
+      than running one. Gross margin is the portfolio's lowest and structurally
+      so: physical prints carry COGS and shipping, and 30% of net profit is
+      contracted away to the artist, so this is the one venture here whose unit
+      economics are not "inference and hosting, nothing else."
+    gates:
+      liability_containment: fail
+      ethical_robustness: pass
+    gate_note: >-
+      Liability gate FAILED, and this is the finding on this venture rather
+      than its score. It combines the two things CLAUDE.md puts on the
+      human-gated list with the two exposures the pipeline rubric rejects
+      candidates for: it hosts third-party artwork (copyright and DMCA claims
+      against the operator, in a market where infringing uploads are the normal
+      failure mode) and it moves money to third parties on a contracted 30%
+      net-profit share (a royalty-accounting obligation to people who can sue
+      over it). Being wrong here costs a lawsuit, not a refund. Recorded as a
+      flag for the account owner, not as a kill decision -- no session should
+      retire a venture on its own scoring pass. The narrower version that
+      clears the gate is licensed or owner-supplied artwork with a flat fee
+      rather than a profit share.

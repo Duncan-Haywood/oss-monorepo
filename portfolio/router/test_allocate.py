@@ -12,16 +12,26 @@ from allocate import (
     Venture,
     count_ledger_entries,
     count_portfolio_mentions,
+    load_merit_scores,
     load_ventures,
     next_task,
     rank,
     work_queue,
     LEDGER_DIR,
+    SCORES_PATH,
     VENTURES_DIR,
 )
 
 
-def make(name, stage="prototype", mrr=None, monthly_cost=None, monthly_cap=20, protected=True):
+def make(
+    name,
+    stage="prototype",
+    mrr=None,
+    monthly_cost=None,
+    monthly_cap=20,
+    protected=True,
+    merit=None,
+):
     return Venture(
         name=name,
         stage=stage,
@@ -29,6 +39,7 @@ def make(name, stage="prototype", mrr=None, monthly_cost=None, monthly_cap=20, p
         monthly_cost=monthly_cost,
         monthly_cap=monthly_cap,
         protected=protected,
+        merit=merit,
     )
 
 
@@ -301,6 +312,57 @@ class CountPortfolioMentionsTests(unittest.TestCase):
         counts = count_portfolio_mentions(["ai-first-markets"], LEDGER_DIR)
         self.assertIsInstance(counts["ai-first-markets"], int)
         self.assertGreaterEqual(counts["ai-first-markets"], 0)
+
+
+class MeritTests(unittest.TestCase):
+    """Merit orders ties; it must never outrank dispatchability."""
+
+    def test_higher_merit_wins_a_tie(self):
+        low = make("low", merit=4.0)
+        high = make("high", merit=6.0)
+        self.assertEqual([v.name for v in rank([low, high])], ["high", "low"])
+
+    def test_merit_beats_monthly_cap(self):
+        big_budget = make("big-budget", monthly_cap=50, merit=4.0)
+        good = make("good", monthly_cap=10, merit=6.0)
+        self.assertEqual(
+            [v.name for v in rank([big_budget, good])], ["good", "big-budget"]
+        )
+
+    def test_dispatchability_still_outranks_merit(self):
+        # The whole point of the dispatchable field: a session must not be
+        # handed the best business if nobody can start on it today.
+        blocked = make("blocked", merit=9.0)
+        blocked.hypotheses = [
+            {"claim": "someone will pay", "status": "untested", "evidence": "customer-contact"}
+        ]
+        startable = make("startable", merit=1.0)
+        startable.hypotheses = [
+            {"claim": "the code works", "status": "untested", "evidence": "in-repo"}
+        ]
+        self.assertFalse(blocked.dispatchable)
+        self.assertTrue(startable.dispatchable)
+        self.assertEqual(
+            [v.name for v in rank([blocked, startable])], ["startable", "blocked"]
+        )
+
+    def test_unscored_venture_sorts_below_a_scored_one(self):
+        unscored = make("unscored", merit=None)
+        scored = make("scored", merit=0.5)
+        self.assertEqual([v.name for v in rank([unscored, scored])], ["scored", "unscored"])
+
+    def test_missing_scores_file_yields_no_merit(self):
+        self.assertEqual(load_merit_scores(Path("/nonexistent/venture-scores.yaml")), {})
+
+    def test_real_scores_file_covers_every_real_venture(self):
+        merit = load_merit_scores(SCORES_PATH)
+        for venture in load_ventures(VENTURES_DIR):
+            self.assertIn(venture.name, merit, f"{venture.name} has no merit score")
+            self.assertIsNotNone(venture.merit)
+
+    def test_work_queue_exposes_merit(self):
+        queue = work_queue(load_ventures(VENTURES_DIR))
+        self.assertTrue(all("merit" in item for item in queue))
 
 
 class LoadRealVenturesTests(unittest.TestCase):

@@ -44,6 +44,7 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[2]
 VENTURES_DIR = REPO_ROOT / "ventures"
 LEDGER_DIR = REPO_ROOT / "portfolio" / "ledger"
+SCORES_PATH = REPO_ROOT / "portfolio" / "scoring" / "venture-scores.yaml"
 
 # Stage at or beyond which a venture is no longer "early" for the protected
 # explore-budget split described in README.md.
@@ -66,6 +67,7 @@ class Venture:
     production_url: Optional[str] = None
     ledger_entries: int = 0
     portfolio_mentions: int = 0
+    merit: Optional[float] = None
 
     @property
     def _first_untested(self) -> Optional[dict]:
@@ -192,10 +194,32 @@ def count_portfolio_mentions(
     return counts
 
 
+def load_merit_scores(scores_path: Path = SCORES_PATH) -> dict[str, float]:
+    """Composite merit score per venture from portfolio/scoring/.
+
+    Merit answers "is this business any good"; everything else in this file
+    answers "can a session start on it". They are different questions and the
+    scoring pass found they do not agree, so merit is used only to order
+    ventures that are otherwise tied -- never to promote blocked work above
+    work a session can actually pick up.
+    """
+    if not scores_path.is_file():
+        return {}
+    doc = yaml.safe_load(scores_path.read_text()) or {}
+    return {
+        v["slug"]: float(v["composite"])
+        for v in doc.get("ventures") or []
+        if v.get("slug") and v.get("composite") is not None
+    }
+
+
 def load_ventures(
-    ventures_dir: Path = VENTURES_DIR, ledger_dir: Path = LEDGER_DIR
+    ventures_dir: Path = VENTURES_DIR,
+    ledger_dir: Path = LEDGER_DIR,
+    scores_path: Path = SCORES_PATH,
 ) -> list[Venture]:
     ledger_counts = count_ledger_entries(ledger_dir)
+    merit_scores = load_merit_scores(scores_path)
     venture_dirs = sorted(p for p in ventures_dir.iterdir() if p.is_dir())
     names = []
     parsed = []
@@ -226,6 +250,7 @@ def load_ventures(
                 production_url=links.get("production"),
                 ledger_entries=ledger_counts.get(name, 0),
                 portfolio_mentions=mention_counts.get(name, 0),
+                merit=merit_scores.get(name),
             )
         )
     return ventures
@@ -244,8 +269,18 @@ def rank(ventures: list[Venture]) -> list[Venture]:
          can drive", each in prose, none of it reaching the router.
       3. Unmeasured ventures -- still owed their protected explore budget;
          null MRR is "not yet measured", not "measured and failing".
-      4. Everything else: later stage before earlier stage, then by
-         monthly_cap descending, then name for a stable order.
+      4. Everything else: later stage before earlier stage, then by merit
+         score descending, then monthly_cap descending, then name for a
+         stable order.
+
+    Merit (portfolio/scoring/) sits below dispatchability deliberately. The
+    two orderings disagree -- the scoring pass measured the dispatchable
+    ventures at a *lower* mean composite than the blocked ones -- so letting
+    merit outrank dispatchability would put work no session can start back at
+    the top of the queue, which is the failure `dispatchable` was added to
+    fix. What merit does is order ventures that are otherwise tied, which
+    before this was decided by budget cap: an input the portfolio set, not
+    evidence about the venture.
     """
 
     def sort_key(v: Venture):
@@ -254,6 +289,7 @@ def rank(ventures: list[Venture]) -> list[Venture]:
             0 if v.dispatchable else 1,
             0 if not v.measured else 1,
             0 if v.later_stage else 1,
+            -(v.merit if v.merit is not None else 0.0),
             -v.monthly_cap,
             v.name,
         )
@@ -286,6 +322,7 @@ def work_queue(ventures: list[Venture]) -> list[dict]:
             "dispatchable": v.dispatchable,
             "blocked_on": v.blocker,
             "spend_ceiling_usd": v.monthly_cap,
+            "merit": v.merit,
             "ledger_entries_this_period": v.ledger_entries,
             "portfolio_mentions_this_period": v.portfolio_mentions,
         }
@@ -313,15 +350,26 @@ def print_table(ventures: list[Venture], queue: list[dict]) -> None:
             f" The other {blocked} need a customer response and are unpublished,"
             f" so no session can start them."
         )
-    print(summary + "\n")
+    print(summary)
+    scored = [item for item in queue if item["merit"] is not None]
+    if scored:
+        best = max(scored, key=lambda item: item["merit"])
+        if not best["dispatchable"]:
+            print(
+                f"Highest merit ({best['merit']:.2f}, portfolio/scoring/) is "
+                f"{best['venture']}, which is blocked. Merit and dispatchability "
+                f"do not agree -- see portfolio/scoring/README.md."
+            )
+    print()
     print(
-        f"{'#':<3}{'venture':<32}{'stage':<12}{'cap':>6}"
+        f"{'#':<3}{'venture':<32}{'stage':<12}{'cap':>6}{'merit':>7}"
         f"{'ledger':>8}{'mentions':>10}  task"
     )
     for i, item in enumerate(queue, 1):
+        merit = f"{item['merit']:.2f}" if item["merit"] is not None else "-"
         print(
             f"{i:<3}{item['venture']:<32}{item['stage']:<12}"
-            f"{item['spend_ceiling_usd']:>6.0f}"
+            f"{item['spend_ceiling_usd']:>6.0f}{merit:>7}"
             f"{item['ledger_entries_this_period']:>8}"
             f"{item['portfolio_mentions_this_period']:>10}  {item['task']}"
         )

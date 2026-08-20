@@ -8947,3 +8947,104 @@ entries:
         changed on a live-site path, no automation added or re-enabled,
         nothing spent beyond agent time.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / be strategic" run, designated branch
+        claude/wizardly-albattani-wgfhxt. `git fetch origin main` first;
+        started from tip 52e95bf (#314). Took the router's own top
+        dispatchable item rather than opening new work: ai-first-markets'
+        untested claim that its six-dimension idea-scoring method transfers
+        to the portfolio's own 11 real ventures.
+      - >-
+        Shipped portfolio/scoring/ (self-merged, agent-decidable): all 11
+        ventures scored on ai-first-markets' six dimensions, with a per-
+        venture `basis` grounded in an actual survey of what each venture
+        has built, a `floor_note` naming what its worst dimension costs, and
+        liability/ethics recorded as pass/fail gates rather than folded into
+        the mean. score_ventures.py --check recomputes every derived field
+        and fails if a venture exists without a score, so the ranking cannot
+        silently go stale; wired into portfolio-validate.yml.
+      - >-
+        Hypothesis REFUTED, and in the worse direction. The two dispatchable
+        ventures sit at merit ranks 6 and 10 of 11 and their mean composite
+        (4.333) is below the blocked ventures' (4.741). The mechanism is
+        structural, not a scoring error: a venture only has an in-repo next
+        question when nobody is trying to sell it, so dispatchability
+        anti-selects for commercial intent. Both dispatchable ventures are
+        the two with no price and no buyer -- ai-first-markets is behind
+        Cloudflare Access restricted to one email address, photos-import-
+        tools has no monetization language anywhere in it. The queue every
+        session reads was steering effort toward the least commercial work
+        available.
+      - >-
+        Made the result consumable rather than another document. allocate.py
+        now reads the composite, prints a merit column, orders otherwise-tied
+        ventures by merit instead of by monthly_cap (an input the portfolio
+        assigned, not evidence), and names the highest-merit venture when it
+        is blocked. Merit sorts strictly below dispatchability -- promoting
+        it would put unstartable work back at the top, the failure the
+        dispatchable field was added to fix.
+      - >-
+        Second finding, new and not asked for: scoring real ventures against
+        the same rubric's 8 hypothetical ideas is a controlled pitch-versus-
+        position comparison. Ventures lose 3.4-4.1 points on the four
+        market-dependent dimensions (time_to_revenue -4.09, ai_leverage
+        -3.86, distribution -3.39, defensibility -3.38) and only 0.64 on
+        gross margin and 1.90 on autonomous ops. The two dimensions that
+        survive contact with reality are the two decided by choosing to
+        build software at all. Also: measured ai_leverage averages 4.64 and
+        four of eleven ventures score 1-3 on it, so the portfolio has
+        drifted off its own AI-heavy brief. Reproduce with
+        `python3 portfolio/scoring/score_ventures.py`.
+      - >-
+        Duplicate work, caught and converted. #321 was merged to main
+        mid-session by another scheduled run given the same hypothesis,
+        scoring the same 11 ventures in TypeScript inside the ai-first-markets
+        venture. Neither session could see the other. Rather than pile on or
+        discard either, re-fetched main, fast-forwarded, kept #321's note and
+        code intact, and recorded its composites as a frozen `rater_b`
+        snapshot. The two independent raters agree: largest composite
+        disagreement 0.334, mean 0.167, same rank 1 (local-site-studio), same
+        rank 11 (print-atelier), same refutation, same explanation. That is
+        an inter-rater reliability check nobody designed, and it is the best
+        answer available to the standing objection that these scores are one
+        agent's opinion. The two datasets are deliberately not reconciled --
+        forcing them equal would destroy the measurement.
+      - >-
+        Flagged for the account owner, not acted on: print-atelier fails the
+        liability gate. It hosts third-party artwork (copyright/DMCA exposure)
+        and moves money to third parties on a contracted 30% net-profit share
+        -- both on CLAUDE.md's human-gated list, and being wrong costs a
+        lawsuit rather than a refund. It also carries the portfolio's lowest
+        composite and structurally lowest gross margin. Recorded as a flag; no
+        session should retire a venture on its own scoring pass.
+      - >-
+        Also flagged for issue #139: the decision queue is ordered cheapest-
+        first, which was correct while nothing was known about what each ask
+        unblocks. The highest-merit venture (local-site-studio, 6.00 -- coded
+        and tested Stripe checkout, a $500 + $99-199/mo ladder, the only buyer
+        in the portfolio holding a business budget) is gated on Ask 2, the ask
+        ranked last because it is the most expensive. The cheap asks serve
+        developer-audience channels that map onto pipeline candidates, not
+        onto the ventures at the top of this ranking. The queue should carry
+        what each ask unblocks weighted by merit, next to what it costs.
+      - >-
+        Verified rather than trusted: ran the whole portfolio-validate job in
+        order against the reconciled tree -- VENTURE.yaml 11/11, doc-
+        consistency 8/8, candidate rubric 8/8, venture merit 11/11, scoring
+        unittest 32/32, router unittest 44/44 (37 prior + 7 new), workflow
+        parse 20/20, workflow-validator 8/8, break_even --check green,
+        break-even pytest 17/17. Building --json surfaced a real bug before
+        commit (PyYAML parses an unquoted `scored:` date into datetime.date,
+        which json.dumps rejects); fixed and pinned by a test.
+      - >-
+        No candidate screening performed (CLAUDE.md's intake gate applies);
+        no candidate added, no pipeline score changed. Nothing published, no
+        account registered, no credential used, no ventures/ application code
+        changed on a live-site path (the only ventures/ edit is one
+        VENTURE.yaml's hypothesis list), no automation added or re-enabled,
+        nothing spent beyond agent time.
+    mrr_end: null
