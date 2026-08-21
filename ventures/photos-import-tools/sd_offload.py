@@ -156,9 +156,22 @@ def rsync_copy(source: Path, dest: Path, log_path: Path) -> int:
     evictor.start()
     cmd = build_rsync_cmd(source, dest)
     log(f"rsync: {' '.join(cmd)}", log_path)
-    proc = subprocess.run(cmd, check=False)
-    stop.set()
-    evictor.join(timeout=5)
+    try:
+        proc = subprocess.run(cmd, check=False)
+    finally:
+        # subprocess.run can raise before returning a CompletedProcess at
+        # all -- e.g. FileNotFoundError if the rsync binary is temporarily
+        # missing/unreachable, or a PermissionError -- not just report a
+        # nonzero exit code. stop.set()/evictor.join() lived after that call
+        # unguarded before this fix, so that exception skipped them and
+        # leaked the background evictor thread: it is a daemon thread, so it
+        # does not block process exit, but it keeps calling brctl evict on
+        # `dest` every 20s for the rest of this process's life, and
+        # offload_card's caller moves on to more include_paths/cards after
+        # catching this same exception, so a long unattended run can
+        # accumulate one such leaked thread per occurrence.
+        stop.set()
+        evictor.join(timeout=5)
     if proc.returncode != 0:
         raise RuntimeError(f"rsync failed with exit code {proc.returncode}")
     return proc.returncode

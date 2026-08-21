@@ -14,6 +14,7 @@ from sd_offload import (
     offload_all,
     offload_card,
     offload_exit_code,
+    rsync_copy,
     sha256_file,
     verify_and_manifest,
 )
@@ -409,6 +410,42 @@ class EvictTreeTests(unittest.TestCase):
     def test_missing_root_returns_zero(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             self.assertEqual(evict_tree(Path(temp_dir) / "nope"), 0)
+
+
+class RsyncCopyThreadLeakTests(unittest.TestCase):
+    def test_launch_failure_still_stops_background_evictor_thread(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            source = root / "source"
+            dest = root / "dest"
+            source.mkdir()
+
+            stop_events = []
+
+            def fake_evictor(root_arg, stop, log_path):
+                stop_events.append(stop)
+                # Mirrors the real background_evictor's stop.wait(20) loop,
+                # just polled fast so the test doesn't block for 20s.
+                while not stop.wait(0.01):
+                    pass
+
+            def raising_run(cmd, **kwargs):
+                # Simulates rsync being temporarily missing/unreachable:
+                # subprocess.run raises before returning a CompletedProcess,
+                # unlike a nonzero exit code which it reports normally.
+                raise FileNotFoundError("rsync: no such file or directory")
+
+            with mock.patch("sd_offload.background_evictor", side_effect=fake_evictor), \
+                    mock.patch("sd_offload.subprocess.run", side_effect=raising_run):
+                with self.assertRaises(FileNotFoundError):
+                    rsync_copy(source, dest, root / "log.txt")
+
+            # The evictor thread must be signaled to stop even though
+            # subprocess.run raised before reaching stop.set() -- otherwise
+            # it is a leaked daemon thread that keeps calling brctl evict on
+            # `dest` every 20s for the rest of this process's life.
+            self.assertEqual(len(stop_events), 1)
+            self.assertTrue(stop_events[0].is_set())
 
 
 class BuildRsyncCmdTests(unittest.TestCase):
