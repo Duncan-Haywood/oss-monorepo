@@ -121,7 +121,7 @@ same style as the amendment table in
 | Candidate | Verdict on file | Free, agent-reachable channel? |
 |---|---|---|
 | [eaa-remediation-pipeline](candidates/eaa-remediation-pipeline.md) | build-now | **Yes.** An accessibility *evidence* plugin in the WordPress.org directory is free to list, needs no card or ID, and its buyer is the same site owner `local-site-studio` targets. This is a real alternative to the "borrow a lead pipeline that does not exist yet" channel the distribution score of 8 currently assumes |
-| [shopify-a11y-evidence](candidates/shopify-a11y-evidence.md) | probe | Partly. The Shopify channel itself is gated on a Partner account, but the same scanner listed on WordPress.org measures whether the *category* gets searched, at zero cost and with no credential |
+| [shopify-a11y-evidence](candidates/shopify-a11y-evidence.md) | probe | **No** (corrected below — the WordPress.org substitute this row originally proposed is itself unreachable; see the amendment) |
 | [cra-evidence-desk](candidates/cra-evidence-desk.md) | build-now | **Yes.** SBOM/CRA evidence is a natural GitHub Action; free listing on GitHub Marketplace is open to individuals, and the 100-install threshold doubles as the go/no-go number |
 | [mcp-supply-chain-watch](candidates/mcp-supply-chain-watch.md) | probe | Yes (npm/PyPI/GitHub) — but this is the candidate `distribution-first.md` already flagged against the "<5% of MCP servers monetise" figure. A free listing measures interest without contradicting that caution |
 | [public-record-watch](candidates/public-record-watch.md) | probe | No obvious one. Its verticals' channels are practice-management app stores, all gated |
@@ -227,6 +227,7 @@ above wherever they conflict.
 | GitHub Marketplace free tier — "**Yes**, may be listed by individuals" | `SCOPE_DENIED` — the host answers; this session's GitHub app scope is bound to `duncan-haywood/monorepo-projects` and refuses the route |
 | npm / PyPI — "free, agent-listable, **Yes**" | npm's account cannot be created from here; PyPI's publish host is denied, and its API returns `-1` for every download field (counts disabled upstream) |
 | The four payout rails, "interchangeable for this purpose" | All four `EGRESS_DENIED`. Extended to 13 rails: 11 egress-denied, 2 scope-denied, **0 usable** |
+| Shopify App Store — "Partly agent-reachable via a WordPress.org substitute listing" (mapping table below, original text) | `EGRESS_DENIED` on `apps.shopify.com` itself (confirmed in [`egress-reachability/`](../../research/egress-reachability/), `Tunnel connection failed: 403 Forbidden`) — and the WordPress.org substitute this row proposed is *also* `EGRESS_DENIED`, per the first row of this table. Both halves of the "Partly" verdict are gone; it is **No**, not partial, for demand measurement as well as for listing |
 
 So the sentence *"an agent can publish here today"* was true of no channel in the
 top gradient, and *"(2) alone is enough to produce the measurement, and (2) costs

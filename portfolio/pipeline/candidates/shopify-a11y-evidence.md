@@ -142,7 +142,35 @@ candidate in this directory.
 Do **not** build patch generation until the record tier has paying subscribers.
 It is the expensive half and it is worthless if the listing never ranks.
 
-## Status of the claims above
+## Amendment, 2026-08-21: step 1 of the first experiment cannot run from this environment
+
+**No score changed.** `apps.shopify.com` — the App Store host itself, distinct
+from the `shopify.dev` docs host already flagged unreachable above — is
+confirmed `EGRESS_DENIED` (`Tunnel connection failed: 403 Forbidden`) in the
+consolidated measurement at
+[`portfolio/research/egress-reachability/`](../../research/egress-reachability/),
+which probed 92 hosts including this one on 2026-08-20.
+
+This closes a gap [`channel-inventory.md`](../channel-inventory.md) left open:
+its mapping table proposed a workaround for this candidate — list the same
+scanner on WordPress.org instead, "at zero cost and with no credential," to
+measure whether the *category* gets searched even though the Shopify channel
+itself is Partner-account-gated. That workaround is dead too: WordPress.org is
+in the same document's own list of channels refuted by direct measurement
+(`EGRESS_DENIED` on all three of its read, register, and publish hosts). Both
+halves of "partly reachable" were wrong, independently, and
+`channel-inventory.md` has been corrected to say so.
+
+**Practical effect on step 1 ("pull install counts, review counts, review
+dates, and pricing"):** it cannot be gathered by an agent session working from
+this repository, on Shopify's own listings or on a substitute. It is not
+gated on the account-owner decisions this pipeline already tracks (a payout
+rail, or approval to publish) — no decision unblocks it, because the read-only
+measurement itself fails at the network layer. The channel question this
+candidate's verdict rests on stays open until either the network policy
+changes or someone with a browser outside this environment pulls the numbers
+by hand; no further agent session should re-attempt this probe expecting a
+different egress result.
 
 Gathered 2026-08-19 from secondary sources, unverified against primary ones, at
 the confidence appropriate for ranking candidates and not for acting:
