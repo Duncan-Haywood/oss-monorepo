@@ -38,6 +38,7 @@ import json
 import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 import yaml
@@ -105,8 +106,45 @@ def reverification_share(entries: list[dict], window: int = WINDOW) -> float:
     return hits / len(recent)
 
 
-def sessions_per_hour(hours: int = 24) -> float:
-    """Distinct session trailers on main per hour. Lower bound by construction."""
+def history_span_hours(commit_timestamps: list[int]) -> float:
+    """Hours from the oldest of the given commit timestamps to now."""
+    if not commit_timestamps:
+        return 0.0
+    return (time.time() - min(commit_timestamps)) / 3600
+
+
+def commit_timestamps() -> list[int]:
+    """Unix timestamps of every commit currently reachable from origin/main.
+
+    On a shallow clone this is bounded by the clone's depth, not by time —
+    exactly the quantity `sessions_per_hour` needs to tell "24h of real
+    history" apart from "however many commits the shallow fetch happened to
+    include".
+    """
+    out = subprocess.run(
+        ["git", "log", "origin/main", "--pretty=%ct"], cwd=REPO, capture_output=True, text=True
+    )
+    return [int(line) for line in out.stdout.split() if line]
+
+
+def sessions_per_hour(hours: int = 24) -> tuple[float, bool]:
+    """Distinct session trailers on main per hour, and whether that count is trustworthy.
+
+    A fresh session in this environment gets a shallow clone (see the repo's
+    own environment notes). `git log --since` on a shallow repo does not error
+    or warn when the window it's asked for reaches past the shallow boundary —
+    it just returns whatever commits happen to be present, which silently
+    undercounts recent activity rather than reporting the true absence of it.
+    Measured directly: a session_gate.py run against this session's own
+    as-cloned shallow checkout read 0.00 sessions/hour on a period the ledger
+    shows ran at roughly 2.7/hour once the clone was deepened — a false
+    "maintenance rate" reading that would have cleared the gate to PROCEED on
+    an artifact of the checkout, not on the fleet's actual cadence.
+
+    The second element is False whenever the local history doesn't reach back
+    the full window, so callers can refuse to let an undercounted reading
+    clear the gate.
+    """
     out = subprocess.run(
         ["git", "log", "origin/main", f"--since={hours} hours ago", "--pretty=%B"],
         cwd=REPO,
@@ -114,7 +152,9 @@ def sessions_per_hour(hours: int = 24) -> float:
         text=True,
     )
     sessions = set(re.findall(r"session_[A-Za-z0-9]+", out.stdout))
-    return len(sessions) / hours
+    cadence = len(sessions) / hours
+    reliable = history_span_hours(commit_timestamps()) >= hours
+    return cadence, reliable
 
 
 def commits_with_sessions(hours: float = BURST_LOOKBACK_HOURS) -> list[tuple[int, str]]:
@@ -173,8 +213,15 @@ def verdict(
     revenue: bool,
     meta: float,
     cadence: float,
+    cadence_reliable: bool = True,
 ) -> tuple[str, list[str]]:
-    """NO-OP only when every condition holds. Any one of them clears the gate."""
+    """NO-OP only when every condition holds. Any one of them clears the gate.
+
+    `cadence_reliable` gates the cadence condition specifically: an
+    undercounted reading (see `sessions_per_hour`) must never manufacture a
+    false PROCEED, so when it's False the cadence branch is skipped entirely
+    rather than evaluated against a number that may be too low.
+    """
     if revenue:
         return "PROCEED", ["Revenue is recorded this month — the $0-ceiling regime has ended."]
     if meta < META_SHARE_THRESHOLD:
@@ -182,26 +229,42 @@ def verdict(
             f"Recent meta-work share {meta:.0%} is below the {META_SHARE_THRESHOLD:.0%} "
             "threshold — the fleet is spending on ventures, not on itself."
         ]
-    if cadence < CADENCE_THRESHOLD_PER_HOUR:
+    if cadence_reliable and cadence < CADENCE_THRESHOLD_PER_HOUR:
         return "PROCEED", [
             f"Cadence {cadence:.2f} sessions/hour is already at the maintenance rate "
             "the $0-ceiling branch implies."
         ]
-    return "NO-OP", [
+    reasons = [
         "No revenue is recorded, so the ceiling on justifiable spend is the one "
         "break-even.md derives, and it is $0.",
         f"{meta:.0%} of the last {WINDOW} ledger entries are portfolio meta-work, "
         "not venture work.",
-        f"The fleet is running at {cadence:.2f} sessions/hour, far above the "
-        "event-driven rate that regime implies.",
     ]
+    if cadence_reliable:
+        reasons.append(
+            f"The fleet is running at {cadence:.2f} sessions/hour, far above the "
+            "event-driven rate that regime implies."
+        )
+    else:
+        reasons.append(
+            "Cadence could not be reliably measured this run (shallow clone "
+            "truncates history) — not treated as evidence either way."
+        )
+    return "NO-OP", reasons
 
 
-def report(entries: list[dict], cadence: float, burst: int = 0) -> dict:
+def report(
+    entries: list[dict],
+    cadence: float,
+    burst: int = 0,
+    cadence_reliable: bool = True,
+) -> dict:
     revenue = revenue_recorded(entries)
     meta = meta_share(entries)
     reverif = reverification_share(entries)
-    call, reasons = verdict(revenue=revenue, meta=meta, cadence=cadence)
+    call, reasons = verdict(
+        revenue=revenue, meta=meta, cadence=cadence, cadence_reliable=cadence_reliable
+    )
     if burst >= BURST_THRESHOLD_SESSIONS:
         reasons = reasons + [
             f"{burst} distinct sessions committed to main within a "
@@ -218,6 +281,7 @@ def report(entries: list[dict], cadence: float, burst: int = 0) -> dict:
         "meta_share_recent": round(meta, 4),
         "reverification_share_recent": round(reverif, 4),
         "sessions_per_hour": round(cadence, 4),
+        "cadence_reliable": cadence_reliable,
         "window": WINDOW,
         "max_concurrent_sessions": burst,
         "burst_window_minutes": BURST_WINDOW_MINUTES,
@@ -240,7 +304,8 @@ def render(r: dict) -> str:
         f"  re-verification share .......... {r['reverification_share_recent']:.0%} of last "
         f"{r['window']} entries",
         f"  distinct sessions / hour ....... {r['sessions_per_hour']:.2f} over the last 24h "
-        f"(threshold {CADENCE_THRESHOLD_PER_HOUR:.2f}, lower bound)",
+        f"(threshold {CADENCE_THRESHOLD_PER_HOUR:.2f}, lower bound)"
+        + ("" if r["cadence_reliable"] else " [undercounted -- see note]"),
         f"  peak concurrent sessions ....... {r['max_concurrent_sessions']} within any "
         f"{r['burst_window_minutes']}-min window (last {r['burst_lookback_hours']}h)",
         f"  break-even ..................... "
@@ -249,6 +314,14 @@ def render(r: dict) -> str:
         f"VERDICT: {r['verdict']}",
     ]
     lines += [f"  - {reason}" for reason in r["reasons"]]
+    if not r["cadence_reliable"]:
+        lines += [
+            "",
+            "  NOTE: this clone's local history doesn't reach back the full 24h window",
+            "  (a shallow clone -- the default for a fresh session here -- can silently",
+            "  truncate `git log --since`). The cadence figure above is a floor, not a",
+            "  reading, and was excluded from clearing the gate this run.",
+        ]
     if r["verdict"] == "NO-OP":
         lines += [
             "",
@@ -270,7 +343,8 @@ def main() -> int:
     args = parser.parse_args()
 
     burst = max_concurrent_sessions(commits_with_sessions())
-    r = report(load_entries(), sessions_per_hour(), burst=burst)
+    cadence, cadence_reliable = sessions_per_hour()
+    r = report(load_entries(), cadence, burst=burst, cadence_reliable=cadence_reliable)
     print(json.dumps(r, indent=2) if args.json else render(r))
     return 0
 

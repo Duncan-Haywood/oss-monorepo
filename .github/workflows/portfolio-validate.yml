@@ -126,6 +126,9 @@ jobs:
         working-directory: portfolio/ledger
         run: python3 -m unittest test_verification_status
 
+      - name: Check the session gate still reads live
+        run: python3 portfolio/ledger/session_gate.py
+
       - name: Session-gate tests
         working-directory: portfolio/ledger
         run: python3 -m pytest test_session_gate.py -q
