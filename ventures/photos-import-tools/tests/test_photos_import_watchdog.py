@@ -9,6 +9,7 @@ from unittest import mock
 from photos_import_watchdog import (
     active_phase,
     build_phases,
+    combined_summary,
     has_remaining_work,
     never_initialized_phases,
     run_watchdog,
@@ -294,6 +295,85 @@ class PhotosImportWatchdogTests(unittest.TestCase):
                 )
 
             popen.assert_called_once()
+
+    def test_combined_summary_sums_across_initialized_and_uninitialized_phases(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            state_dir = Path(temp_dir)
+            phases = build_phases(
+                state_dir=state_dir,
+                batch_size=10,
+                timeout_seconds=180,
+                include_raws=True,
+                raw_batch_size=3,
+                raw_timeout_seconds=600,
+            )
+            with sqlite3.connect(phases[0].db_path) as connection:
+                connection.execute(
+                    "CREATE TABLE imports (path TEXT PRIMARY KEY, status TEXT NOT NULL, attempts INTEGER NOT NULL DEFAULT 0, last_error TEXT, first_seen_at TEXT NOT NULL, updated_at TEXT NOT NULL)"
+                )
+                for index in range(5):
+                    connection.execute(
+                        "INSERT INTO imports VALUES (?, 'imported', 1, NULL, 'now', 'now')",
+                        (f"/tmp/f{index}.jpg",),
+                    )
+                connection.commit()
+            # phases[1] (raw) db is never created -- combined_summary must
+            # add its zero contribution, not fail or drop jpeg's counts.
+
+            combined = combined_summary(phases)
+
+            self.assertEqual(combined["imported"], 5)
+            self.assertEqual(combined["total"], 5)
+
+    def test_blocked_status_preserves_completed_phase_counts_instead_of_zeroing_them(self):
+        # Regression for a bug sitting right next to the "never report
+        # complete while uninitialized" guard: the watchdog correctly
+        # refused to report success here (exit code 3), but the status.json
+        # it wrote on the way out sourced its "summary" field from the
+        # *uninitialized* raw phase's (nonexistent) db instead of the
+        # completed jpeg phase's -- silently replacing an accurate
+        # "5 imported" summary with an all-zero one at exactly the moment a
+        # human checking status.json most needs the real numbers.
+        with tempfile.TemporaryDirectory() as temp_dir:
+            state_dir = Path(temp_dir)
+            phases = build_phases(
+                state_dir=state_dir,
+                batch_size=10,
+                timeout_seconds=180,
+                include_raws=True,
+                raw_batch_size=3,
+                raw_timeout_seconds=600,
+            )
+            with sqlite3.connect(phases[0].db_path) as connection:
+                connection.execute(
+                    "CREATE TABLE imports (path TEXT PRIMARY KEY, status TEXT NOT NULL, attempts INTEGER NOT NULL DEFAULT 0, last_error TEXT, first_seen_at TEXT NOT NULL, updated_at TEXT NOT NULL)"
+                )
+                for index in range(5):
+                    connection.execute(
+                        "INSERT INTO imports VALUES (?, 'imported', 1, NULL, 'now', 'now')",
+                        (f"/tmp/f{index}.jpg",),
+                    )
+                connection.commit()
+            # raw db intentionally never created -- `init` was never run.
+
+            exit_code = run_watchdog(
+                root=Path(temp_dir) / "root",
+                state_dir=state_dir,
+                tool_dir=Path(temp_dir) / "tool",
+                poll_seconds=1,
+                stall_seconds=900,
+                timeout_seconds=180,
+                attempts=3,
+                batch_size=10,
+                include_raws=True,
+                raw_batch_size=3,
+                raw_timeout_seconds=600,
+            )
+
+            self.assertEqual(exit_code, 3)
+            status = json.loads(phases[0].status_path.read_text())
+            self.assertEqual(status["summary"]["imported"], 5)
+            self.assertEqual(status["summary"]["total"], 5)
 
 
 if __name__ == "__main__":

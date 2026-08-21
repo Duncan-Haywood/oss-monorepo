@@ -183,6 +183,30 @@ def never_initialized_phases(phases: list[ImportPhase]) -> list[ImportPhase]:
     return [phase for phase in phases if not phase.db_path.exists()]
 
 
+def combined_summary(phases: list[ImportPhase]) -> dict[str, int]:
+    # The overall watchdog status file is always phases[0].status_path
+    # ("status.json"), covering the whole run, not any one phase's db --
+    # but the run-ending writes below used to source that payload from
+    # read_summary(phases[-1].db_path) alone (the *last* phase only). With
+    # --include-raws that is the raw phase, so it silently dropped the jpeg
+    # phase's real counts from the file everything external watches. Worse,
+    # when the raw manifest was never initialized (the exact scenario the
+    # "never reports complete" hypothesis covers), phases[-1].db_path does
+    # not exist, so read_summary() returns all zeros -- overwriting an
+    # already-accurate, fully-imported jpeg summary with a zeroed one right
+    # at the moment a human most needs the real numbers. Summing every
+    # phase's own read_summary() (each key is additive: total/remaining/
+    # accounted_for are themselves linear combinations of the per-status
+    # counts) gives the whole run's real totals instead, and degrades
+    # correctly for an uninitialized phase since it contributes zero rather
+    # than replacing another phase's data.
+    totals: dict[str, int] = {}
+    for phase in phases:
+        for key, value in read_summary(phase.db_path).items():
+            totals[key] = totals.get(key, 0) + value
+    return totals
+
+
 def run_watchdog(
     *,
     root: Path,
@@ -230,13 +254,13 @@ def run_watchdog(
                     )
                 write_status(
                     phases[0].status_path,
-                    read_summary(phases[-1].db_path),
+                    combined_summary(phases),
                     worker_running=False,
                     message=f"blocked: not initialized: {', '.join(media_types)}",
                     extra={"phase": "blocked", "include_raws": include_raws, "uninitialized": media_types},
                 )
                 return 3
-            final_summary = read_summary(phases[-1].db_path)
+            final_summary = combined_summary(phases)
             write_status(
                 phases[0].status_path,
                 final_summary,
