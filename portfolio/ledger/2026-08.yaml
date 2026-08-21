@@ -13938,3 +13938,98 @@ entries:
         #372, #368, and the $0 revenue ceiling on issue #139 are
         unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business
+        projects that aren't already here" session, designated branch
+        claude/laughing-pasteur-v52emo. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 28% of the last 25 entries, below the
+        70% threshold; re-verification share 44%). `git fetch origin main`
+        first. Per `CLAUDE.md` this brief is already answered, so no
+        candidate was proposed, no score moved, and nothing was added to
+        `screened-out.md`; took the first listed alternative instead --
+        advance a probe already specified in `portfolio/pipeline/`. Listed
+        the 2 open PRs (#372, #368) before starting: both are correctly
+        owner-gated by prior sessions with nothing new to add, so there was
+        no consolidation backlog to work.
+      - >-
+        Acted on the corpus `a11y-own-sites` (#498, merged earlier the same
+        day) had named as the one it could not reach and "the one that
+        carries the actual liability": `local-site-studio`'s delivered
+        customer sites. The gap is structural, not an oversight -- a
+        customer's live site is the `/preview/[slug]` route rendered per
+        request and served on their own domain, so `next build` emits no
+        HTML for it and every accessibility corpus this portfolio has ever
+        measured audited this venture's *marketing* while being blind to
+        its *product*. New directory
+        `portfolio/research/a11y-generated-sites/` renders the real
+        component tree through Vite's SSR loader (16 pages, 14 unique,
+        covering every branch that changes delivered markup) and commits
+        the corpus, so the whole suite re-runs with no npm and no build.
+      - >-
+        Finding 1 -- the delivered pages are clean: 0 findings across 14
+        unique pages, both engines agreeing on all 14. Treated that as a
+        claim needing evidence rather than a result, because a zero has two
+        opposite explanations (the pages are clean, or the scan is blind to
+        them) and this is the first corpus here where the distinction
+        decides what may be sold. Added a mutation-based positive control:
+        7 of 8 removal mutations are exercised by this corpus and all 7 are
+        caught; the other 4 are reported as NOT EXERCISED rather than as
+        passing. The first draft of that control aimed at `<label for=...>`
+        and was a silent no-op -- the delivered form wraps its controls --
+        which is precisely the failure mode the control exists to catch.
+      - >-
+        Finding 2 -- the control found a detection gap in each engine,
+        where 118 built pages found none. `eaa-wcag-triage` had no
+        `<iframe>` rule at all while `audit.py` has flagged untitled frames
+        as blocking 4.1.2 since it was written; the only `<iframe>` in this
+        repository is the map `local-site-studio` puts on every page it
+        delivers, i.e. the one element on the one route no build-directory
+        corpus can reach, which is why four prior passes missed it. And
+        `audit.py` counted any `<label>` ancestor as a name, so a control
+        inside a text-less wrapper read as labelled. Both fixed in the same
+        pass (7 and 5 tests respectively; the probe's fixture validation
+        stays byte-identical at precision/recall 1.0).
+      - >-
+        Finding 3 -- both known engine relabellings now have a named cause.
+        `a11y-own-sites` measured the two engines disagreeing on 24.6% of
+        real pages and left the cause open. With the defect injected rather
+        than found, each pair is exact: a skipped heading level is 2.4.6 to
+        the probe and 1.3.1 to `audit.py`; a control with no accessible
+        name is 1.3.1 to the probe and 3.3.2 to `audit.py`. Those two
+        account for all three rows of that directory's divergence table.
+        This does not settle them -- both remain normative readings and the
+        spec hosts remain egress-denied -- but the suite pins the pair set,
+        so a third divergence fails a test instead of appearing quietly in
+        a customer's record.
+      - >-
+        #504 opened and self-merged as agent-decidable: `portfolio/` and one
+        path-filtered CI workflow only, no `ventures/*` app code, publishes
+        nothing, registers nothing, spends nothing. Verified by running the
+        checks, not by reading the diff -- 16 new tests plus the offline
+        recompute step, `eaa-wcag-triage` 48 -> 55, `a11y-evidence-record`
+        75 -> 80, the four sibling a11y suites unchanged and passing, both
+        pipeline validators clean, all 8 PR check runs green, and a
+        `git merge-tree` re-check against the live `main` tip. Recorded
+        against `eaa-remediation-pipeline` (no score moved): the engine's
+        out-of-sample failure mode is a silent miss as well as a false
+        positive, and unlike a false positive nobody reading the record can
+        tell -- which is squarely that candidate's `liability containment: 6`
+        exposure. Practical consequence for the product: a qualification
+        audit needs a positive control per engagement, not per engine.
+      - >-
+        No revenue; no candidate score moved; no venture source needed
+        changing (the product is clean under everything both engines can
+        statically see). The standing $0 revenue ceiling and the
+        publish/payout blocker on issue #139 are unchanged. Stated rather
+        than glossed: the saved measurements in the sibling a11y
+        directories were taken with the pre-fix engines and have not been
+        re-run; both fixes can only add findings and only on markup those
+        corpora had none of (a source survey found the repository's single
+        frame, and all 82 wrapping `<label>` occurrences under `ventures/`
+        carry text), so those numbers are expected to stand, and
+        `a11y-own-sites`' README now says so.
+    mrr_end: null
