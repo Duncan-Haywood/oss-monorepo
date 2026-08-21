@@ -83,7 +83,7 @@ states, and the stylesheet spells out both, so each is decidable — the page mu
 satisfy 1.4.3 in whichever one the visitor's system asks for. Scoring both and
 taking the worse verdict is therefore not conservatism; it is the criterion.
 
-Over the corpus as `main` builds it:
+Over the corpus as `main` built it when this section was measured:
 
 | | Failures found |
 |---|---:|
@@ -99,9 +99,11 @@ The mechanism is mundane and, once named, obvious: a component writes
 `text-gray-500` with no `dark:` counterpart, inside a container that *does* have
 `dark:bg-gray-800`. In light mode the pair is fine. In dark mode the text stays
 mid-grey and the background goes dark, and the ratio collapses. `print-atelier`
-does this 384 times; the same file shows the correct pattern
-(`text-gray-500 dark:text-gray-400`) one component above, so this is a lapse
-that repeated, not a decision.
+did this 384 times; the same file showed the correct pattern
+(`text-gray-500 dark:text-gray-400`) one component above, so this was a lapse
+that repeated, not a decision — and, being internal-only venture code, it was
+fixed the same day ([#542](https://github.com/Duncan-Haywood/monorepo-projects/pull/542),
+Finding 4 below): `main` now has **0** dark-only failures, all in this class.
 
 ## Finding 3 — gradients are decidable, and the bound is exact
 
@@ -125,37 +127,37 @@ undecidable bucket.
 
 ## Finding 4 — three ventures were shipping the defect they plan to bill for finding
 
-The scan found **965 decided AA failures** on this portfolio's own built pages.
-Not marginal ones: `text-zinc-400` on white is **2.62:1** against a required
-4.5:1.
-
-All 965 are still open on `main`, and
-[`results-2026-08-21.json`](results-2026-08-21.json) measures them there — see
+The scan found **965 decided AA failures** on this portfolio's own built pages,
+as originally measured against `main` by this section (see
 [**Why the committed file measures `main`**](#why-the-committed-file-measures-main)
-below. Every one is a remediation of venture source, which is the one thing
-this measurement is not allowed to land on its own: `CLAUDE.md` puts any change
-to deploying `ventures/*` code in the human-gated class.
+below). Not marginal ones: `text-zinc-400` on white is **2.62:1** against a
+required 4.5:1.
+
+**Since then, `print-atelier`'s 611 have been fixed and merged**
+([#542](https://github.com/Duncan-Haywood/monorepo-projects/pull/542),
+2026-08-21, same day) — internal-only remediation, agent-decidable because
+that venture has no deploy workflow. `local-site-studio`'s 21 and
+`ai-first-markets`'s 333 remain open on `main`, still held for the account
+owner:
 
 | Venture | Failures on `main` | Diagnosed remediation | Held in |
 |---|---:|---|---|
 | `local-site-studio` | 21 | `text-zinc-400` → `text-zinc-500` on light panels; one ternary in `page.tsx` has its two branches the wrong way round, putting the lighter grey on the white card and the darker on the near-black one, so both sides fail | [#523](https://github.com/Duncan-Haywood/monorepo-projects/pull/523) |
 | `ai-first-markets` | 333 | `text-zinc-500` → `text-zinc-400` throughout (the site is dark-themed, so the muted step is one shade too dark); three residual near-misses in `AppNav` | [#523](https://github.com/Duncan-Haywood/monorepo-projects/pull/523) |
-| `print-atelier` | 611 | 73 component-level colour decisions, 384 of them the missing-`dark:`-variant pattern | not written |
+| `print-atelier` | 0 — **fixed** | 73 component-level colour decisions, 384 of them the missing-`dark:`-variant pattern | [#542](https://github.com/Duncan-Haywood/monorepo-projects/pull/542), merged |
 
-The first two are written and verified by rebuild: 62 lines of Tailwind
-class-name substitution across 11 files, each substitution's resulting ratio
-computed before it was applied, the lowest 4.63:1 against a required 4.5:1.
-They wait on the account owner, not on any further measurement.
-
-**Named here rather than quietly carried:** `print-atelier`'s
-**611** failures, across 73 distinct colour/background shapes. 384 of them are
-the missing-`dark:`-variant pattern above. This is a mechanical remediation —
-add the dark counterpart each component is missing — but it is 73 separate
-component-level colour decisions, and bundling them into the pull request that
-introduces the measurement would make neither reviewable. It is the obvious next
-piece of work and it is fully specified by
-[`results-2026-08-21.json`](results-2026-08-21.json), which lists every shape
-with its ratio and its element count.
+`local-site-studio`'s and `ai-first-markets`'s fixes are written and verified
+by rebuild: 62 lines of Tailwind class-name substitution across 11 files, each
+substitution's resulting ratio computed before it was applied, the lowest
+4.63:1 against a required 4.5:1. They wait on the account owner, not on any
+further measurement. The committed
+[`results-2026-08-21.json`](results-2026-08-21.json) and `test_measure.py`
+already measure the post-`#542` tree (354 total failures, `print-atelier` at
+`0`) — this section's prose was the one place still describing the pre-`#542`
+965/611 state; corrected here rather than left as a citation that no longer
+matched its own committed artifact, the same gap
+[`a11y-own-sites/README.md`](../a11y-own-sites/#finding-4-2026-08-21-the-adapters-never-fed-either-engine-a-stylesheet)
+hit and fixed the same day.
 
 ## Why the committed file measures `main`
 
@@ -190,6 +192,11 @@ evidence this measurement has that it is reproducible at all.
 ventures are clean. Whenever #523 or the `print-atelier` work lands, this suite
 fails until the corpus is rebuilt and the file regenerated. That is the same
 coupling the original guard enforced, pointed at the tree that actually exists.
+**The `print-atelier` trigger has since fired**: `#542` landed the fix, a
+later pass rebuilt the corpus and replaced the results file again (354 total,
+`print-atelier` at `0`), and `test_measure.py` was updated to pin that state —
+see Finding 4 above. `#523`/`#531`'s two ventures have not landed, so the file
+still measures them open.
 
 ## What could not be measured here
 

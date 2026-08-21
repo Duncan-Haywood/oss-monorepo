@@ -113,14 +113,18 @@ Three consequences for what is sold:
 
 It also found this portfolio shipping 965 real AA contrast failures on its own
 built pages — including on `local-site-studio`, the venture this candidate is
-supposed to ship inside. 354 are fixed and re-verified by rebuild on the branch that measured them,
-proposed for merge in
-[#523](https://github.com/Duncan-Haywood/monorepo-projects/pull/523) and
+supposed to ship inside. `print-atelier`'s 611 (internal-only, no deploy
+workflow) were fixed and merged the same day
+([#542](https://github.com/Duncan-Haywood/monorepo-projects/pull/542)). The
+remaining 354, on `local-site-studio` and `ai-first-markets`, are fixed and
+re-verified by rebuild on the branch that measured them, proposed for merge in
+[#523](https://github.com/Duncan-Haywood/monorepo-projects/pull/523) /
+[#531](https://github.com/Duncan-Haywood/monorepo-projects/pull/531) and
 awaiting the account owner's sign-off (colour-token edits to deployable
-`ventures/*` code); `print-atelier`'s 611 are recorded shape by shape and left
-as component-level decisions. A portfolio selling accessibility evidence
-should not be shipping the defect it plans to bill for finding, and until
-this pass nobody could see that it was.
+`ventures/*` code) — `main` carries 354 open AA contrast failures now, not
+965. A portfolio selling accessibility evidence should not be shipping the
+defect it plans to bill for finding, and until this pass nobody could see
+that it was.
 
 ## Amendment (2026-08-21): the engine's failure mode is a silent miss, not only a false positive
 
