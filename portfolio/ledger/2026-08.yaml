@@ -12012,3 +12012,75 @@ entries:
         requires an account-owner publish decision rather than another
         scheduled session finding more in-repo work to do.
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve the
+        development process... increase in profit" session, designated
+        branch claude/charming-hawking-p0wz5a. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 36% of last 25 entries, below the 70%
+        threshold). Listed the 4 open PRs (#372/#368/#144/#19) before
+        starting: all long-standing and already correctly owner-gated by
+        prior sessions (`mergeable_state: clean`, nothing drifted since the
+        immediately preceding ledger entry's own check) -- nothing new to
+        add. `portfolio/router/allocate.py` still named photos-import-tools
+        the only dispatchable venture at the time this session read it, with
+        the standing task "every recorded hypothesis is settled -- write the
+        next one in VENTURE.yaml, then test it" (PR #430's reclassification
+        to 0/10 dispatchable had not yet merged when this session's dispatch
+        decision was made).
+      - >-
+        Dispatched an Explore agent to read every module in
+        `ventures/photos-import-tools/` against the 21 already-recorded
+        hypotheses for a genuinely new gap. It found one in
+        `sd_offload.py`'s `wait_for_disk_space()`: the pre-flight
+        disk-space check always `statvfs`'d the boot volume ("/"), never
+        the actual `--staging-root` destination `offload_card()` is about
+        to write to. `--staging-root` routinely points at a separate
+        external drive (the normal way to offload a card's worth of
+        RAW/video onto storage the boot volume doesn't have room for), so
+        this could hang the tool forever waiting on boot-volume free space
+        that was never the real constraint (no logging inside the loop, no
+        signal handling in the module, so an unattended cron/launchd run
+        just sits blocked indefinitely), or skip the wait entirely when the
+        boot volume has room but the real destination does not -- defeating
+        the entire purpose of a pre-flight check. The only existing test
+        referencing the function mocked it out entirely, so its internal
+        `statvfs("/")` logic had never been exercised.
+      - >-
+        Fixed by passing the actual destination path into
+        `wait_for_disk_space` (falling back to the nearest existing
+        ancestor, since the check runs before the destination directory is
+        created) and logging while it waits. Added `WaitForDiskSpaceTests`
+        (3 tests); confirmed they fail against the pre-fix signature
+        (`TypeError: wait_for_disk_space() got multiple values for argument
+        'min_gb'`) and pass after the fix. Recorded as the 22nd hypothesis
+        in `VENTURE.yaml`.
+      - >-
+        While this ran, PR #430 (the venture's first monetization
+        hypothesis, reclassifying it BLOCKED) landed on `main` and produced
+        the expected position-only `VENTURE.yaml` append conflict; merged
+        `origin/main`, kept both new entries (no logic overlap), and
+        re-verified after the merge: `python3 -m unittest discover -s
+        tests -q` 81/81, `ruff check .` (0.15.8) and `mypy .` (1.19.1)
+        clean, `portfolio/router/validate.py` 10/10 valid.
+      - >-
+        Opened PR #433, waited for CI (test/lint/validate all green),
+        confirmed `mergeable_state: clean` against the live main tip, and
+        self-merged as agent-decidable: scoped entirely to
+        `ventures/photos-import-tools/`, no `links.production`, no new
+        dependency, no account, no credential, no unattended automation,
+        nothing published, nothing spent beyond agent time -- consistent
+        with this venture's own self-merge precedent
+        (#379/#387/#397/#399/#402/#406/#407/#408/#413/#416/#419/#420/#424/#427).
+      - >-
+        Re-ran `allocate.py` after #433 merged: confirms **0 of 10 ventures
+        dispatchable**, matching the immediately preceding entry's finding
+        from #430/#431 -- not a new result, just confirmation it still
+        holds after this session's own merge. No further code-side work is
+        dispatchable; the next real progress on any venture needs an
+        account-owner publish/customer-contact decision, already tracked on
+        issue #139.
+    mrr_end: null
