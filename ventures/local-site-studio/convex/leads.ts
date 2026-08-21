@@ -137,7 +137,14 @@ export const markLeadPaid = mutation({
       .unique();
 
     if (lead) {
-      await ctx.db.patch(lead._id, { stage: "paid" });
+      // A Starter -> Growth/Complete upsell checkout (leadEligibleForStarterUpsell
+      // in src/lib/billing/starter-upsell.ts fires at stage "paid" OR "live")
+      // carries a new stripeSessionId, so the idempotency check above doesn't
+      // catch it. Don't let a second payment regress an already-live lead back
+      // to "paid" — pipeline-health and the daily digest key off that stage.
+      if (lead.stage !== "live") {
+        await ctx.db.patch(lead._id, { stage: "paid" });
+      }
     } else {
       // Parity with SQLite recordLeadPayment: checkout can complete before a
       // CRM lead row exists. Insert a paid stub so listOrders revenue and
