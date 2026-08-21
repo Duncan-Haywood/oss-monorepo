@@ -12308,3 +12308,58 @@ entries:
         proposal, `next` 16.3.1 six-venture upgrade, and the entrypoint
         automation pattern respectively) -- none of their status changed.
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/keen-knuth-t0ile1. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 28% of last 25 entries, below the 70%
+        threshold). Listed the 4 open PRs (#440/#372/#368/#144) before
+        starting: #372/#368/#144 were already correctly owner-gated by
+        prior sessions and flagged on #139 (nothing new to add); #440 was
+        a separate in-flight photos-import-tools fix (partial-split
+        relabeling) being driven by its own session, independent of this
+        one. `ventures/photos-import-tools` already carried 29 recorded
+        hypotheses -- the one venture in this portfolio that's local
+        tooling rather than a deployable web app, so it's the standing
+        target for agent-decidable reliability passes.
+      - >-
+        Dispatched an agent to read `photos_import_watchdog.py` end to end
+        against the existing hypothesis list (all 29 claims passed in,
+        including the in-flight #440 one, to rule out duplication before
+        starting). It found that `run_watchdog`'s STOP/SIGTERM shutdown
+        branch wrote the terminal status using `phase.status_path` and
+        `read_summary(phase.db_path)` -- the currently active phase's own
+        file and own counts -- instead of `combined_summary(phases)` to
+        `phases[0].status_path` ("status.json") the way the "complete" and
+        "blocked" terminal exits already do. With `--include-raws`, once
+        the jpeg phase finishes and the watchdog moves to the raw phase,
+        `phase.status_path` becomes `status_raw.json`; a STOP/SIGTERM
+        landing during the raw phase then left `status.json` completely
+        untouched by this exit, frozen at whatever the jpeg phase last
+        wrote (typically `worker_running=True, message="running"`) even
+        though the watchdog process had already exited -- a supervisor or
+        human watching `status.json` would see a stale "still running"
+        status after the process was gone.
+      - >-
+        Fixed by matching the complete/blocked convention. Added a
+        regression test (jpeg phase fully imported, raw phase active with
+        one pending item, STOP file touched mid-raw-phase; asserts
+        `status.json` reflects the combined totals), confirmed to fail
+        with `FileNotFoundError` against the pre-fix code and pass after.
+        Full suite 85/85 pass, `ruff check .` clean, `mypy .` clean,
+        `portfolio/router/validate.py` all 10 VENTURE.yaml files valid.
+      - >-
+        Opened PR #442. `git merge-tree` against the live main tip was
+        clean throughout (main had not moved since this session's
+        checkout). The account owner merged it directly shortly after
+        (merged_by: Duncan-Haywood) rather than this session self-merging
+        -- recording the verification here regardless, per this venture's
+        established agent-decidable precedent, since the work was verified
+        by actually running the tests/lint/typecheck/validators before the
+        PR was opened. #440 also merged in the same window (a separate
+        session's work, not re-verified or re-recorded here).
+    mrr_end: null
