@@ -107,7 +107,33 @@ def _number(criterion: str) -> str:
     return criterion.split()[0]
 
 
-def probe_findings(html: str) -> list:
+def css_for_app(app_dir: pathlib.Path) -> str:
+    sources = []
+    for build_dir in (".next", "out", "dist"):
+        base = app_dir / build_dir
+        if base.is_dir():
+            sources.extend(sorted(base.rglob("*.css")))
+    return "\n".join(p.read_text(errors="replace") for p in sources)
+
+
+def stylesheet_for_app(app_dir: pathlib.Path):
+    """Parsed, merged stylesheet for an app's build output, or None if it has none.
+
+    Both engines' 1.4.3 (contrast) rule takes an optional *parsed, linked* CSS
+    argument and, without one, finds nothing to decide — see
+    `a11y-axe-recall/measure.py`, which found and fixed the same gap for its
+    own corpus. Without this, 1.4.3 was never actually evaluated by either
+    engine across all 118 pages here.
+    """
+    import audit
+
+    css = css_for_app(app_dir)
+    if not css.strip():
+        return None
+    return audit.merge_stylesheets([css])
+
+
+def probe_findings(html: str, sheet) -> list:
     from wcag_triage.engine import audit_html
 
     return [
@@ -117,14 +143,14 @@ def probe_findings(html: str) -> list:
             "element": f.element,
             "message": f.message,
         }
-        for f in audit_html(html).findings
+        for f in audit_html(html, stylesheet=sheet).findings
     ]
 
 
-def audit_py_criteria(html: str) -> list:
+def audit_py_criteria(html: str, sheet) -> list:
     import audit
 
-    result = audit.audit_source(html, "page.html")
+    result = audit.audit_source(html, "page.html", stylesheet=sheet)
     return sorted(_number(f["success_criterion"]) for f in result["findings"])
 
 
@@ -134,12 +160,17 @@ def audit_py_criteria(html: str) -> list:
 
 def measure(repo_root: pathlib.Path) -> dict:
     pages, duplicates = dedupe(discover(repo_root))
+    sheets = {}  # app label -> parsed Stylesheet | None, built once per app
     per_page = []
     for label, path in pages:
+        if label not in sheets:
+            sheets[label] = stylesheet_for_app(repo_root / label)
+        sheet = sheets[label]
+
         html = path.read_text(encoding="utf-8", errors="replace")
-        findings = probe_findings(html)
+        findings = probe_findings(html, sheet)
         probe_counts = collections.Counter(f["criterion"] for f in findings)
-        audit_counts = collections.Counter(audit_py_criteria(html))
+        audit_counts = collections.Counter(audit_py_criteria(html, sheet))
         per_page.append({
             "app": label,
             "page": path.name,
