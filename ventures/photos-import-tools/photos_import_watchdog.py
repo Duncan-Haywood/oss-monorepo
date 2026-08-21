@@ -306,13 +306,14 @@ def run_watchdog(
             ]
             with log_path.open("ab") as log_handle:
                 log_handle.write(f"\n[{iso_now()}] starting worker: {' '.join(command)}\n".encode())
-            process = subprocess.Popen(
-                command,
-                cwd=tool_dir,
-                stdout=log_path.open("ab"),
-                stderr=subprocess.STDOUT,
-                start_new_session=True,
-            )
+            with log_path.open("ab") as worker_stdout:
+                process = subprocess.Popen(
+                    command,
+                    cwd=tool_dir,
+                    stdout=worker_stdout,
+                    stderr=subprocess.STDOUT,
+                    start_new_session=True,
+                )
             last_progress_at = time.monotonic()
 
         if time.monotonic() - last_progress_at > stall_seconds:
