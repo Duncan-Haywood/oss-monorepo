@@ -165,6 +165,20 @@ def attribution_table() -> list:
     return rows
 
 
+def _label(path: pathlib.Path) -> str:
+    """Repo-relative name where possible, absolute otherwise.
+
+    `--corpus` accepts any directory, and the interesting corpora are the ones
+    outside the repo — a build output tree, a downloaded theme. Naming them
+    unconditionally relative to `ROOT` made every such run crash before the
+    first comparison was reported.
+    """
+    try:
+        return str(path.relative_to(ROOT))
+    except ValueError:
+        return str(path)
+
+
 def corpus_agreement(corpus: pathlib.Path) -> dict:
     files = sorted(p for p in corpus.rglob("*.html"))
     per_file = []
@@ -173,7 +187,7 @@ def corpus_agreement(corpus: pathlib.Path) -> dict:
         a = collections.Counter(audit_criteria_for(html))
         b = collections.Counter(probe_criteria_for(html))
         per_file.append({
-            "file": str(path.relative_to(ROOT)),
+            "file": _label(path),
             "audit_py": dict(sorted(a.items())),
             "probe": dict(sorted(b.items())),
             "only_audit_py": dict(sorted((a - b).items())),

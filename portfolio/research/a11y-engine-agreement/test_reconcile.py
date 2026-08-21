@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import pathlib
+import tempfile
 import unittest
 
 import reconcile
@@ -82,6 +83,37 @@ class LiveEngines(unittest.TestCase):
         disagree = sorted(r["defect"] for r in rows if not r["agree"])
         self.assertEqual(
             disagree, ["form control with no label", "skipped heading level"])
+
+
+class CorpusOutsideTheRepo(unittest.TestCase):
+    """`--corpus` accepts any directory, including one outside the repo.
+
+    The interesting corpora are exactly those: a build-output tree, a
+    downloaded theme. Naming every page relative to the repo root made each
+    such run raise before it reported a single comparison.
+    """
+
+    def test_a_page_inside_the_repo_is_named_relative_to_it(self):
+        page = reconcile.DEFAULT_CORPUS / "shop-accessible.html"
+        self.assertEqual(
+            reconcile._label(page),
+            "portfolio/pipeline/probes/eaa-wcag-triage/fixtures/shop-accessible.html")
+
+    def test_a_page_outside_the_repo_keeps_its_absolute_path(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            page = pathlib.Path(tmp) / "page.html"
+            page.write_text("<html lang='en'><title>t</title></html>")
+            self.assertEqual(reconcile._label(page), str(page))
+
+    def test_a_corpus_outside_the_repo_is_compared_rather_than_raising(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            (root / "page.html").write_text(
+                "<html lang='en'><head><title>t</title></head>"
+                "<body><img src='x.png'></body></html>")
+            result = reconcile.corpus_agreement(root)
+            self.assertEqual(result["files"], 1)
+            self.assertEqual(result["per_file"][0]["probe"], {"1.1.1": 1})
 
 
 class CommittedResults(unittest.TestCase):
