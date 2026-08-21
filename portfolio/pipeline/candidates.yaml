@@ -359,22 +359,33 @@ candidates:
       defensibility: 5
       distribution: 4
       liability_containment: 8
-      ethical_robustness: 7
-    composite: 6.625
+      ethical_robustness: 9
+    composite: 6.875
     floor: 4
     floor_dimension: time_to_revenue
     measured:
       ethical_robustness: >-
-        9 -> 7, 2026-08-21, portfolio/research/error-rate-disclosure/. The
-        rendered findings declare no limits block and make no accuracy claim
-        (-1), and there is no accuracy measurement to declare: the probe has
-        been run on one corpus (this repository's 31 workflow files) with no
-        ground-truth labelling, so neither a false-positive nor a
-        false-negative rate is known (-1). No adverse-alignment deduction — the
-        write-up states no revenue model, so there is nothing to align against,
-        and that is left unscored rather than assumed benign. This is the one
-        of the four measured candidates whose deduction is entirely about not
-        knowing rather than about not telling.
+        7 -> 9, 2026-08-21, probes/agent-permission-harness/, closing the gap
+        the same day's earlier error-rate-disclosure pass opened (9 -> 7). The
+        7 was two deductions: no
+        accuracy claim in the rendered findings (-1), and no accuracy
+        measurement existing at all (-1). Both are closed by the same fix.
+        validate_accuracy.py runs a new, labeled, 34-case synthetic fixture
+        corpus (reusing test_harness.py's fire/silent fixtures plus new ones
+        per rule) through harness.analyse() for real and gets 0 false
+        positives, 0 false negatives on the 16/34 positive-rule opportunities
+        those fixtures exercise across all seven rules; harness.render_markdown()
+        now states that figure, its direction vocabulary, and its scope in a
+        "How this can be wrong" section, so both the accuracy claim and the
+        rate are in the artifact a reader of this probe's output sees. Read
+        narrowly: the corpus is author-authored, not independent or
+        held-out, so this is a floor on precision/recall against cases built
+        to exercise the seven coded rules, not an out-of-sample estimate and
+        not a measurement of attack classes none of the seven rules encodes —
+        that gap is stated in the disclosure text, not hidden. No
+        adverse-alignment deduction — the write-up states no revenue model,
+        so there is nothing to align against, and that is left unscored
+        rather than assumed benign.
       ai_leverage: >-
         9 -> 8, 2026-08-21, probes/agent-permission-harness/. The 9 was
         justified as "attack generation, mutation, and verdicting are model work

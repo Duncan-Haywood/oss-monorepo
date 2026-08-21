@@ -249,11 +249,21 @@ def render_silence() -> tuple[str, str | None, list[str]]:
 
 
 def render_harness() -> tuple[str, str | None, list[str]]:
+    """The findings report, now with an accuracy disclosure section.
+
+    Until 2026-08-21 this had no record module and no declared constant — the
+    accuracy figure did not exist yet to declare. ``harness.py`` now declares
+    ``ACCURACY_NOTE`` (and the counts it is built from) at module level, the
+    same shape other probes' rendering modules use for a coverage/limits
+    constant, and ``render_markdown()`` reads from it rather than the caller
+    passing it in.
+    """
     _add_path("agent-permission-harness")
     import harness  # noqa: PLC0415
 
     findings = harness.analyse(REPO)
-    return harness.render_markdown(findings, harness.summarise(findings)), None, []
+    text = harness.render_markdown(findings, harness.summarise(findings))
+    return text, "harness.py", ["ACCURACY_NOTE"]
 
 
 PROBE_SPECS = (
@@ -311,15 +321,24 @@ PROBE_SPECS = (
         "probe": "agent-permission-harness",
         "candidate": "agent-permission-harness",
         "render": render_harness,
-        "citation": None,
-        "citation_absent_because": (
-            "No accuracy measurement exists. The probe has been run on one corpus (this "
-            "repository's 31 workflow files) with no ground-truth labelling, so neither "
-            "a false-positive nor a false-negative rate is known."
+        "citation": Citation(
+            "portfolio/pipeline/probes/agent-permission-harness/README.md",
+            "0 false positives, 0 false negatives on the 16/34 positive-rule opportunities",
+            ("0 false positives", "0 false negatives", "16/34"),
+            "0 false positives and 0 false negatives on 34 author-authored synthetic "
+            "fixture cases (16 positive-rule opportunities) across all seven rules — a "
+            "floor on precision/recall on cases designed to exercise the rules that "
+            "exist, not an out-of-sample estimate and not a measurement of attack "
+            "classes none of the seven rules encodes.",
         ),
         "prior": 9,
         "revenue_model": "none stated in the write-up",
-        "error_direction": "unknown — unmeasured in both directions",
+        "error_direction": (
+            "false negatives on attack/misconfiguration classes outside R1-R7 "
+            "(unmeasured, and structurally unmeasurable by this fixture corpus); "
+            "zero false positives measured on the 34-case fixture corpus, not "
+            "independently or out-of-sample validated"
+        ),
     },
 )
 

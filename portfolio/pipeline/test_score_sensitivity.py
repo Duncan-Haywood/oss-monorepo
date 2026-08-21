@@ -249,14 +249,19 @@ class AgainstTheLiveFile(unittest.TestCase):
 
         This is the distinction that keeps the record honest: a score may rise
         because someone fixed the thing being measured, never because a later
-        pass liked the candidate more. Both current upward revisions are on
-        ``ethical_robustness`` and both trace to
-        ``portfolio/research/error-rate-disclosure/``.
+        pass liked the candidate more. All four current upward revisions are on
+        ``ethical_robustness``. Three trace to
+        ``portfolio/research/error-rate-disclosure/`` directly; the fourth,
+        ``agent-permission-harness``, traces to
+        ``probes/agent-permission-harness/`` closing the gap that pass measured
+        the same day (``validate_accuracy.py``'s 34-case fixture corpus, then
+        disclosed in ``harness.render_markdown()``).
         """
         up = [r for r in self.revisions if r.delta > 0]
         self.assertEqual(
             sorted((r.slug, r.dimension) for r in up),
             [
+                ("agent-permission-harness", "ethical_robustness"),
                 ("cra-evidence-desk", "ethical_robustness"),
                 ("eaa-remediation-pipeline", "ethical_robustness"),
                 ("public-record-watch", "ethical_robustness"),
