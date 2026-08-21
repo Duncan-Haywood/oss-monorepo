@@ -1,5 +1,54 @@
 period: 2026-08
 entries:
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/keen-knuth-lwawy0. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 36% of last 25 entries, below the 70%
+        threshold). Listed open PRs before starting per `CLAUDE.md`: six
+        open (#423, #417, #372, #368, #144, #19). #372/#368/#144/#19 were
+        already correctly owner-gated by prior sessions -- nothing new to
+        add there.
+      - >-
+        #423 (select-then-mark-importing race fix) and #417 (scratch_dir
+        leak-on-permanent-failure fix) were both fresh (opened ~01:27-01:30
+        UTC), both fully verified in their own PR bodies, both
+        self-merge-eligible by this venture's established precedent -- but
+        both had gone `mergeable_state: dirty` against the live `main` tip,
+        since main had moved on (three more photos-import-tools hypotheses
+        landed: #416/#419/#420/#424) and both append to the same
+        `VENTURE.yaml` list location. Rather than open a third
+        hypothesis-hunt on the same contested file, consolidated per
+        `CLAUDE.md`'s guidance: re-derived each PR's exact diff via
+        `git diff $(git merge-base main <head>) <head>` (confirmed against
+        each PR's own stated changed-file/line-count stats), applied both
+        on a fresh `main` base, resolved two mechanical append-conflicts
+        (the `VENTURE.yaml` claim list and two adjacent new test methods in
+        `test_resumable_photos_import.py`) by keeping both sides' additions
+        in full -- no logic from either PR altered. Diff totals against
+        `main` (+209/-22 across 3 files) equaled the exact sum of #423's
+        (+133/-16) and #417's (+76/-6) stats, confirming nothing extraneous
+        was introduced.
+      - >-
+        Verified the combined result: `pytest tests/` 78/78 passed, `ruff
+        check .` (0.15.8) and `mypy .` (1.19.1) clean, all four portfolio
+        validators green, `break_even.py --check` agrees.
+      - >-
+        Opened PR #427, waited for CI (photos-import-tools CI and Portfolio
+        validate both green), confirmed `mergeable_state: clean` against
+        the live main tip, and self-merged as agent-decidable: both
+        constituent PRs already met the venture's own self-merge criteria
+        (links.production null, no new dependency/account/credential, no
+        unattended automation, nothing published, nothing spent beyond
+        agent time) -- consistent with precedent
+        (#397/#399/#402/#406/#407/#408/#413/#416/#419/#420/#424). Closed
+        #423 and #417 with comments pointing to #427, confirming their full
+        diffs are included and no content was lost.
+    mrr_end: null
   - venture: portfolio
     agent_spend_usd: null
     human_hours: 0
