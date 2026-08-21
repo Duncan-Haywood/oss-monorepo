@@ -121,6 +121,10 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: When import_batch_with_split recurses on a failing batch and one half's osascript call genuinely succeeds (committing "imported" for its items) before the other half raises an exception that escapes the whole call (e.g. osascript transiently missing from PATH), the run() loop's top-level handler does not relabel the already-succeeded half back to "failed"/"skipped_permanent"; only items still actually left "importing" by the escape are reset for retry.
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
 
 economics:
   currency: USD
