@@ -100,6 +100,15 @@ def dedupe(pages: list) -> tuple:
 
 # ---------------------------------------------------------------------------
 # Engine adapters
+#
+# Both engines' contrast rule (1.4.3) takes an optional *parsed, linked* CSS
+# argument and is explicit that with none, the colour rules find nothing to
+# decide rather than passing. Earlier versions of this module called both
+# engines with no stylesheet at all, on a corpus that is 100% Next.js build
+# output — so across all 118 pages, 1.4.3 was never actually evaluated
+# against real CSS. `css_for_app`/`stylesheet_for_app` below read the same
+# build-emitted CSS `a11y-contrast-decidability/` and `a11y-axe-recall/`
+# already feed both engines, one merged stylesheet per app.
 # ---------------------------------------------------------------------------
 
 def _number(criterion: str) -> str:
@@ -107,7 +116,25 @@ def _number(criterion: str) -> str:
     return criterion.split()[0]
 
 
-def probe_findings(html: str) -> list:
+def css_for_app(app_dir: pathlib.Path) -> str:
+    sources = []
+    for build_dir in (".next", "out", "dist"):
+        base = app_dir / build_dir
+        if base.is_dir():
+            sources.extend(sorted(base.rglob("*.css")))
+    return "\n".join(p.read_text(errors="replace") for p in sources)
+
+
+def stylesheet_for_app(app_dir: pathlib.Path):
+    import audit
+
+    css = css_for_app(app_dir)
+    if not css.strip():
+        return None
+    return audit.merge_stylesheets([css])
+
+
+def probe_findings(html: str, stylesheet=None) -> list:
     from wcag_triage.engine import audit_html
 
     return [
@@ -117,14 +144,14 @@ def probe_findings(html: str) -> list:
             "element": f.element,
             "message": f.message,
         }
-        for f in audit_html(html).findings
+        for f in audit_html(html, stylesheet=stylesheet).findings
     ]
 
 
-def audit_py_criteria(html: str) -> list:
+def audit_py_criteria(html: str, stylesheet=None) -> list:
     import audit
 
-    result = audit.audit_source(html, "page.html")
+    result = audit.audit_source(html, "page.html", stylesheet=stylesheet)
     return sorted(_number(f["success_criterion"]) for f in result["findings"])
 
 
@@ -134,12 +161,16 @@ def audit_py_criteria(html: str) -> list:
 
 def measure(repo_root: pathlib.Path) -> dict:
     pages, duplicates = dedupe(discover(repo_root))
+    sheets = {}
     per_page = []
     for label, path in pages:
+        if label not in sheets:
+            sheets[label] = stylesheet_for_app(repo_root / label)
+        sheet = sheets[label]
         html = path.read_text(encoding="utf-8", errors="replace")
-        findings = probe_findings(html)
+        findings = probe_findings(html, stylesheet=sheet)
         probe_counts = collections.Counter(f["criterion"] for f in findings)
-        audit_counts = collections.Counter(audit_py_criteria(html))
+        audit_counts = collections.Counter(audit_py_criteria(html, stylesheet=sheet))
         per_page.append({
             "app": label,
             "page": path.name,

@@ -151,6 +151,52 @@ class Summaries(unittest.TestCase):
         self.assertEqual(own.agreement(missed)["pure_relabellings"], 0)
 
 
+class StylesheetFix(unittest.TestCase):
+    """The bug: without a stylesheet, 1.4.3 finds nothing to decide at all.
+
+    A future edit that drops the stylesheet argument from `measure()` should
+    fail a test rather than silently reintroducing the gap `a11y-axe-recall/`
+    found in this module.
+    """
+
+    LOW_CONTRAST_PAGE = (
+        "<html lang='en'><head>"
+        "<link rel='stylesheet' href='/style.css'></head>"
+        "<body><p class='low'>text</p></body></html>"
+    )
+    CSS = ".low { color: #777; background-color: #999; }"
+
+    def test_no_stylesheet_means_no_contrast_finding(self):
+        probe = own.probe_findings(self.LOW_CONTRAST_PAGE)
+        audit_criteria = own.audit_py_criteria(self.LOW_CONTRAST_PAGE)
+        self.assertNotIn("1.4.3", {f["criterion"] for f in probe})
+        self.assertNotIn("1.4.3", audit_criteria)
+
+    def test_with_the_linked_stylesheet_both_engines_catch_it(self):
+        import audit
+
+        sheet = audit.merge_stylesheets([self.CSS])
+        probe = own.probe_findings(self.LOW_CONTRAST_PAGE, stylesheet=sheet)
+        audit_criteria = own.audit_py_criteria(self.LOW_CONTRAST_PAGE, stylesheet=sheet)
+        self.assertIn("1.4.3", {f["criterion"] for f in probe})
+        self.assertIn("1.4.3", audit_criteria)
+
+    def test_css_for_app_reads_every_stylesheet_under_the_build_dirs(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            app = pathlib.Path(tmp)
+            (app / ".next/static/css").mkdir(parents=True)
+            (app / ".next/static/css/a.css").write_text(".a { color: red; }")
+            (app / "out/_next/css").mkdir(parents=True)
+            (app / "out/_next/css/b.css").write_text(".b { color: blue; }")
+            css = own.css_for_app(app)
+            self.assertIn(".a { color: red; }", css)
+            self.assertIn(".b { color: blue; }", css)
+
+    def test_stylesheet_for_app_is_none_with_no_css(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertIsNone(own.stylesheet_for_app(pathlib.Path(tmp)))
+
+
 class SavedResults(unittest.TestCase):
     """Pin the numbers the README quotes to the saved run."""
 
@@ -176,7 +222,26 @@ class SavedResults(unittest.TestCase):
     def test_agreement_rate(self):
         agree = own.agreement(self.data)
         self.assertEqual(agree["pages"], 118)
-        self.assertEqual(agree["agreeing"], 89)
+        self.assertEqual(agree["agreeing"], 91)
+
+    def test_contrast_now_fires_where_the_build_css_declares_it(self):
+        """Regression guard for the stylesheet fix: 1.4.3 must appear in the
+        saved run wherever an app's build actually ships low-contrast text —
+        confirmed independently against `a11y-contrast-decidability/`'s own
+        21/333 counts for local-site-studio/ai-first-markets.
+        """
+        table = own.defects_by_app(self.data)
+        self.assertEqual(
+            table["ventures/local-site-studio"]["1.4.3 (blocking)"]
+            + table["ventures/local-site-studio"]["1.4.3 (degrading)"],
+            21,
+        )
+        self.assertEqual(
+            table["ventures/ai-first-markets"]["1.4.3 (blocking)"]
+            + table["ventures/ai-first-markets"]["1.4.3 (degrading)"],
+            333,
+        )
+        self.assertNotIn("1.4.3 (blocking)", table.get("ventures/print-atelier", {}))
 
     def test_every_disagreement_is_a_relabelling_not_a_missed_defect(self):
         agree = own.agreement(self.data)

@@ -4,7 +4,7 @@ Built and measured 2026-08-21. Re-runnable, offline, no credentials:
 
 ```bash
 cd portfolio/research/a11y-own-sites
-python3 -m unittest discover                                   # 16 tests
+python3 -m unittest discover                                   # 21 tests
 python3 audit_own_sites.py --recompute-from results-2026-08-21.json   # offline
 # to regenerate the corpus: npm ci && npm run build in each venture, then
 python3 audit_own_sites.py --out results.json
@@ -101,9 +101,9 @@ revealed.
 | Corpus | Pages | Identical criterion multiset |
 |---|---:|---:|
 | Fixtures (`a11y-engine-agreement`, 2026-08-21) | 3 | 2 (66.7%) |
-| **This portfolio's built pages** | **118** | **89 (75.4%)** |
+| **This portfolio's built pages** | **118** | **91 (77.1%)** |
 
-29 pages disagree. Every one of them is a **pure relabelling** — both engines
+27 pages disagree. Every one of them is a **pure relabelling** — both engines
 find the same defect and cite a different success criterion. Not one page in
 118 has a defect that only one engine detects. (That holds for this corpus and
 does not generalise: [`a11y-generated-sites/`](../a11y-generated-sites/) found a
@@ -117,15 +117,23 @@ criterion numbers for one defect.
 
 | audit.py cites | probe cites | pages |
 |---|---|---:|
-| 1.3.1 Info and Relationships | 2.4.6 Headings and Labels | 24 |
-| 3.3.2 Labels or Instructions | 1.3.1 Info and Relationships | 4 |
-| 3.3.2 Labels or Instructions | 2.4.6 Headings and Labels | 1 |
+| 1.3.1 Info and Relationships | 2.4.6 Headings and Labels | 25 |
+| 3.3.2 Labels or Instructions | 1.3.1 Info and Relationships | 2 |
+
+These two counts, and the 89→91 agreeing pages, are the only numbers on this
+page that moved after Finding 4's stylesheet fix — 1.4.3 contrast findings land in identical counts on both
+engines everywhere they fire (no swap row cites 1.4.3), so adding them cannot
+by itself change which pages agree. What changed is that a couple of pages
+whose *pre-fix* multisets differed only by size acquire an equal number of new
+1.4.3 findings on both sides and now match exactly; that is a property of
+those specific pages, not evidence that contrast agreement is generally
+looser or tighter than the rest of this finding.
 
 `a11y-engine-agreement/` found both of these divergences and left them open as
 the *residual* after four coverage gaps were closed, on the grounds that
 settling them is a normative reading. **That characterisation was right about
 the cause and wrong about the size.** On a corpus of three it looked like one
-page of edge case. On real pages it decides the criterion cited on **24.6% of
+page of edge case. On real pages it decides the criterion cited on **22.9% of
 them** — and it is the same two attribution pairs doing all of it, so the fix
 is bounded: two normative rulings, not a general reconciliation. The reason to
 settle it is not tidiness. The deliverable being sold is a criterion-referenced
@@ -188,13 +196,72 @@ two.
   not in a measurement pass. Recorded here so it is not rediscovered.
 - The 8 false positives and 4 contested findings above.
 
+## Finding 4 — the missing-stylesheet bug, and what fixing it found
+
+Both engines' contrast rule (1.4.3) takes an optional *parsed, linked*
+stylesheet and is explicit about what happens with none: every text-bearing
+element gets an honestly-reasoned `no-declared-color` **undecidable**, not a
+pass and not a finding. This module's two adapters (`probe_findings`,
+`audit_py_criteria`) called both engines with no stylesheet at all, on a
+corpus that is 100% Next.js build output carrying real, linked CSS — so
+across all 118 pages, **1.4.3 was never actually evaluated**, despite
+`a11y-external-coverage-reference/`'s own coverage table counting it as
+`automated` for both engines. Every number above this section was computed
+under that gap; none of them changed when it closed; the finding they answer
+(precision on the *other* 13 checked criteria, and attribution agreement) is
+unaffected, because contrast was silently absent rather than silently wrong.
+
+`portfolio/research/a11y-axe-recall/` found and named this bug first, while
+measuring recall against axe-core, and fixed it only in its own adapters. This
+finding does the same fix here: `css_for_app`/`stylesheet_for_app` read every
+`*.css` file each app's build actually emits and merge it into one stylesheet
+per app, passed to both engines for every page under that app.
+
+**Cross-validated, not just re-run.** `local-site-studio` and
+`ai-first-markets` already have independently measured, committed contrast
+counts — `a11y-contrast-decidability/` found 21 and 333 failures on their
+generated `.next` output, still open as #523/#531, human-gated because fixing
+them edits deployable `ventures/*` code. This module's own engines, given the
+same build CSS through an entirely separate code path, land on **exactly 21
+and 333** — first for `local-site-studio`, second for `ai-first-markets`. That
+agreement is evidence the fix is measuring contrast correctly, not just
+measuring *something* new. `print-atelier` corroborates the fix from the other
+direction: its contrast defects were fixed and merged separately (#542,
+611 → 0), and this run finds zero 1.4.3 findings there — the fixed state, not
+a false negative.
+
+**Two ventures gain a defect count that did not exist anywhere before this
+pass:**
+
+| App | 1.4.3 blocking | 1.4.3 degrading | Distinct colour pairs |
+|---|---:|---:|---:|
+| `real-estate-agent-photo-app/docs-site` | 19 | 347 | 7 |
+| `real-estate-agent-photo-app/research` | 9 | 11 | 6 |
+
+Both are small, closed sets of colour-token pairs repeated across many
+elements — the same shape as the already-known local-site-studio/
+ai-first-markets defects, not 366 and 20 independent bugs. Sampled by hand:
+`docs-site`'s single blocking pair is `#475569` on `#060b1d` (2.582:1 against
+a 4.5:1 requirement), a muted-text-on-dark-background token repeated across
+every docs page. Neither venture has a prior liability-scoring record for
+1.4.3 anywhere in `portfolio/pipeline/` or `portfolio/ledger/verifications.yaml`
+— this is this pipeline's first knowledge of either defect. **Not fixed
+here**, on the same reasoning #523/#531 already established: a colour-token
+substitution is a change to deployable `ventures/*` code, which stays the
+account owner's call even when the diff is mechanical and well-understood.
+Flagging on issue #139 as a next step, not fixing it in this pass.
+
+`quick-pick-survey` carries no 1.4.3 findings either, consistent with it never
+having had one recorded.
+
 ## What could not be measured here
 
-- **No render, no interaction, no assistive technology.** Every criterion the
-  engines mark `manual` — contrast, keyboard operability, focus order and
-  visibility, target size, error identification — is untouched. On the
-  candidate's own economics this is the deliberate contractor step, and nothing
-  in this directory shrinks it.
+- **No render, no interaction, no assistive technology, beyond contrast.**
+  Finding 4 closed the gap on 1.4.3. The rest of what both engines mark `manual` —
+  keyboard operability, focus order and visibility, target size, error
+  identification — is still untouched by a build-directory corpus with no
+  browser and no interaction. On the candidate's own economics this is the
+  deliberate contractor step, and nothing in this directory shrinks it.
 - **Prerendered output is not the delivered page.** The corpus is what the build
   emits before hydration. A control whose accessible name is attached by client
   JavaScript reads as unnamed here, and one whose name is *removed* on the
@@ -237,7 +304,12 @@ which sells the same audit through a different channel:
    shown to anyone. Without one, 12% of what a stranger reads first is
    un-actionable and the most frequent single finding is always un-actionable.
 2. The two-engine attribution divergence is not a residual. It sets the
-   criterion cited on a quarter of real pages, and the record is the product.
+   criterion cited on 22.9% of real pages, and the record is the product.
+3. Until Finding 4, both engines' automated contrast check (1.4.3) had never actually run
+   against this portfolio's own pages, despite being counted as `automated` in
+   `a11y-external-coverage-reference/`'s own coverage table. A qualification
+   audit built on this pipeline would have told two ventures already known to
+   fail 1.4.3 (per #523/#531) that they passed it.
 
 The candidate's own liability position — *state coverage limits in the product,
 not in the terms* — is the reason both belong here rather than in a backlog. A
