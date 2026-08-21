@@ -13688,3 +13688,89 @@ entries:
         of it being live. Standing $0 revenue ceiling and the publish/payout
         blocker on issue #139 are unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business projects
+        that aren't already here" session, designated branch
+        claude/laughing-pasteur-v5spji. Ran `session_gate.py` first (PROCEED --
+        meta-work share 16% of the last 25 entries, below the 70% threshold).
+        `git fetch origin main` first. Per `CLAUDE.md` this brief is already
+        answered, so no candidate was proposed, no score moved, and nothing was
+        added to `screened-out.md`; took the first listed alternative instead --
+        advance a probe already specified in `portfolio/pipeline/`. Listed the 3
+        open PRs (#489, #372, #368) before starting: #372 and #368 are correctly
+        owner-gated by prior sessions and #489 is a routine ledger append, so
+        there was no consolidation backlog to work.
+      - >-
+        Acted on the largest untested assumption left in the a11y stack: both of
+        this portfolio's WCAG engines had only ever been run on hand-written
+        fixtures and npm storefront-theme tarballs, and neither had ever been
+        pointed at a page this portfolio itself ships. New directory
+        `portfolio/research/a11y-own-sites/` runs both over 118 unique pages from
+        7 built apps in 6 ventures (138 files, 20 byte-identical duplicates
+        dropped), every finding read by hand against the source that produced it.
+      - >-
+        Finding 1 -- out-of-sample precision is 0.821-0.881 against 1.0 on the
+        three-page fixture set `eaa-wcag-triage` was written beside. All 8 false
+        positives are markup the *build tool* emitted rather than a venture: 7 of
+        them (one per app, and every 3.1.1 finding in the corpus) are Next.js's
+        internal error shell, proven un-actionable because `quick-pick-survey`
+        ships a correct `global-error.tsx` with `lang="en"` and is flagged
+        anyway; 1 is a `display:none` control whose class only the stylesheet
+        resolves. So `eaa-remediation-pipeline`'s free qualification audit needs
+        a build-artifact filter before a stranger reads it -- neither engine has
+        one, and no theme-tarball corpus could have surfaced it.
+      - >-
+        Finding 2 -- engine agreement falls from 2/3 fixtures to 89/118 real
+        pages. All 29 disagreements are pure relabellings (same defect, different
+        criterion), not missed defects, which is the better of the two failures
+        but still means `a11y-engine-agreement`'s "residual attribution
+        divergence" decides the criterion cited on 24.6% of real pages -- and the
+        criterion-referenced record is the product. 4 further findings (disabled
+        markdown task-list checkboxes) are a normative WCAG reading this
+        environment cannot settle; left open and the engines deliberately
+        unchanged, since relaxing a rule to remove findings is not a measurement.
+      - >-
+        Finding 3 and the fix -- subtract the framework shell and four of the
+        seven apps have no actionable finding at all; the real defects
+        concentrate in two, and all 30 blocking ones in venture source are fixed
+        in the same pass. `print-atelier`: 8 icon-only buttons with no accessible
+        name (4.1.2 -- the front page's mobile nav pair, four buyer-portal header
+        controls, B2B new-project, artist-portal bell) and 12 unlabelled controls
+        (1.3.1 -- ten per-artwork variant-ID inputs on partner-setup carrying a
+        placeholder and no label, plus the B2B catalog search and the buyer-portal
+        sort select). `quick-pick-survey`: the root layout pinned every screen at
+        1x zoom (1.4.4) for a reason that was real but over-broad -- the deck
+        already carries `touch-pan-x`, which suppresses double-tap zoom on that
+        element by itself. 25 heading-level skips recorded and deliberately not
+        fixed (degrading, and a correct fix is a visual change with no test to
+        hold it).
+      - >-
+        Verified: a11y-own-sites 16/16 tests and offline `--recompute-from`;
+        a11y-engine-agreement 15/15 (12 existing + 3 new for a `--corpus`
+        crash-on-any-path-outside-the-repo fix found by this run);
+        print-atelier `npm ci` / lint / `npm test` 130/130 / build clean with
+        4.1.2 8->0 and 1.3.1 13->1 on the rebuilt output; quick-pick-survey
+        `npm run verify` (typecheck, lint, 264 tests, build) clean with 1.4.4
+        10->0; `validate_candidates.py`, `validate_doc_consistency.py`,
+        `router/validate.py` and `verification_status.py --check` all pass. All 5
+        CI checks green on PR #498. Re-confirmed a clean `git merge-tree` against
+        the live `main` tip immediately before merging, then self-merged: the two
+        venture changes are additive accessibility attributes and one removed
+        viewport restriction, not breaking changes, each covered by its venture's
+        own full build/lint/test, which is the condition `CLAUDE.md` sets for
+        deployable venture code.
+      - >-
+        No revenue. No candidate score moved and no verdict changed; two facts
+        are recorded against `eaa-remediation-pipeline` and, through it,
+        `shopify-a11y-evidence` -- the qualification audit needs a build-artifact
+        filter, and the attribution divergence is not a residual. No new ask: the
+        standing $0 revenue ceiling and the publish/payout blocker on issue #139
+        are unchanged. The next corpus worth auditing is named in the write-up
+        and is the one that carries actual liability -- `local-site-studio`
+        generates customer sites per slug from customer data, so they never
+        appear in a build and were not covered here.
+    mrr_end: null
