@@ -11028,3 +11028,85 @@ entries:
         re-confirmed #372/#368/#144/#19 still correctly human-gated and
         #372 still merges cleanly against the post-#387 tip.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research new business projects" session (the twelfth
+        firing), designated branch claude/laughing-pasteur-hv9z8v. Ran
+        `portfolio/ledger/session_gate.py` first (PROCEED -- meta-work
+        share 56%, below the 70% threshold). `git fetch origin main`;
+        tip 37d775b. Honoured CLAUDE.md's intake gate: produced no
+        candidate list, added nothing to `portfolio/pipeline/candidates/`,
+        moved no score. Checked the 5 open PRs (#397, #372, #368, #144,
+        #19) -- #397 was self-merged by its own session while this one
+        ran; the other four remain correctly owner-gated.
+      - >-
+        Took the pipeline's stated next-best move instead: the 2026-08-20
+        rescore records that "cheap environmental checks have positive
+        expected value" because every environmental re-check so far has
+        unblocked something. Found one nobody had run. `egress-reachability/`
+        amended itself on 2026-08-20 with a fourth surface -- git's
+        smart-HTTP transport, reachable where GitHub's HTTP surfaces are
+        scope-denied -- but its results file holds three targets, all
+        github.com. The finding was one forge wide and reads as "git works".
+      - >-
+        Asked it of twenty forges plus a control
+        (`portfolio/research/forge-surface-reachability/`). Git is
+        allowlisted host-by-host exactly like HTTP: 4 reachable
+        (github.com, codeload.github.com, gitlab.com, bitbucket.org), 16
+        denied at CONNECT, control denied on every surface. Four of five
+        GitLab CE instances are denied while gitlab.com answers, so the
+        allowance tracks the host, not the protocol and not the forge
+        software. Three of the denied hosts are ones a data-hungry
+        candidate reaches for first -- huggingface.co (git-backed
+        datasets, now confirmed denied on git too, not just HTTP),
+        git.kernel.org, and the Google Gerrit hosts. Net effect is a
+        narrowing: a session reading the prior amendment as licence to
+        clone an arbitrary git host would be wrong 16 times in 20.
+      - >-
+        One genuine widening. gitlab.com sat in the 92-host table as
+        `reachable`, measured against its bare root and nothing below it,
+        and no conclusion was ever drawn from the row. All three of its
+        surfaces answer -- git, raw file, and `/api/v4/` anonymously with
+        no token, including full-text public project search. That makes it
+        the only forge in the table reachable on every surface; GitHub is
+        the only host whose surfaces disagree.
+      - >-
+        Spent that surface on a named open question rather than banking it.
+        `register-change-rate/` (merged hours earlier, #394) ends by naming
+        its own weakest claim -- no licensing/permitting/safety register
+        mirrors to git, "stated as none-found-by-hand throughout" -- and
+        says a real answer "needs repository search, which is scope-denied
+        from this session." That is true of GitHub and false of GitLab.com.
+        Ran 22 terms across all three of public-record-watch's verticals
+        with control terms on the software-security vertical to prove the
+        query works. Controls found live register data (gemnasium-db,
+        advisories-community); all three candidate verticals found none --
+        newest sanctions hit last touched 2022-03-14, only topically-correct
+        licensing hit 2021-01-16, neither an official register. The weakest
+        claim survives its first real search. Amended both READMEs so the
+        next session finds it checked rather than re-deriving the search.
+      - >-
+        Negative result, deliberately landed. No score moved and no ask was
+        added to #139: per the 2026-08-20 rescore, egress constrains what
+        this sandbox can build and measure, not what a deployed product
+        could fetch, so reachability is a build constraint and never a
+        `defensibility`/`distribution` input. By-product worth one line:
+        gitlab.com/gitlab-org/security-products/gemnasium-db is a live,
+        clonable, per-CVE advisory corpus on a host nobody had looked at,
+        which makes cra-evidence-desk's "archive half is public data"
+        reading stronger, not weaker.
+      - >-
+        Verified: 22 offline tests pass, both saved results files
+        re-derive with `--recompute-from` and no network, control host
+        denied on every surface, and all four portfolio validators green
+        (doc-consistency 8/8, candidates 8/8, router 10/10, workflows
+        26/26). Added a path-filtered CI test runner matching the one
+        #394 added for the sibling probe -- standard-library unittest,
+        no install step, no network, `permissions: contents: read`, no
+        spend. Self-merged as agent-decidable: internal
+        `portfolio/research/` only, publishes nothing, registers nothing,
+        uses no credential, enables no unattended spend.
+    mrr_end: null

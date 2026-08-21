@@ -1,0 +1,342 @@
+{
+  "measured_at": "2026-08-21",
+  "method": "Per host, each surface probed independently: `git ls-remote --heads` against an unrelated public repository (no credential sent, GIT_TERMINAL_PROMPT=0), and plain GETs against the forge's API and raw-file surfaces. Read-only; nothing written to any remote. Verdicts classified on the response body, never on status code alone.",
+  "targets": [
+    {
+      "forge": "GitHub",
+      "host": "github.com",
+      "note": "Prior pass measured the git surface here. Re-probed to confirm the split holds.",
+      "surfaces": {
+        "api": {
+          "detail": "HTTP 403: {\"message\":\"GitHub access to this repository is not enabled for this session. Use add_repo to request access. If add_repo answers that read access is already available and you need GitHub API or write",
+          "status": 403,
+          "surface": "http",
+          "url": "https://api.github.com/repos/cisagov/kev-data",
+          "verdict": "scope_denied"
+        },
+        "git": {
+          "detail": "2 refs",
+          "refs": 2,
+          "surface": "git",
+          "url": "https://github.com/cisagov/kev-data.git",
+          "verdict": "reachable"
+        },
+        "raw": {
+          "detail": "HTTP 200",
+          "status": 200,
+          "surface": "http",
+          "url": "https://raw.githubusercontent.com/cisagov/kev-data/main/README.md",
+          "verdict": "reachable"
+        }
+      }
+    },
+    {
+      "forge": "GitHub (archive host)",
+      "host": "codeload.github.com",
+      "note": "Second GitHub git endpoint; scope-denied on its archive surface.",
+      "surfaces": {
+        "git": {
+          "detail": "2 refs",
+          "refs": 2,
+          "surface": "git",
+          "url": "https://codeload.github.com/cisagov/kev-data.git",
+          "verdict": "reachable"
+        }
+      }
+    },
+    {
+      "forge": "GitLab.com",
+      "host": "gitlab.com",
+      "note": "Recorded `reachable` in the 92-host table on its bare root only; no surface below the root had ever been probed.",
+      "surfaces": {
+        "api": {
+          "detail": "HTTP 200",
+          "status": 200,
+          "surface": "http",
+          "url": "https://gitlab.com/api/v4/projects?per_page=1",
+          "verdict": "reachable"
+        },
+        "git": {
+          "detail": "323 refs",
+          "refs": 323,
+          "surface": "git",
+          "url": "https://gitlab.com/gitlab-org/gitlab-runner.git",
+          "verdict": "reachable"
+        },
+        "raw": {
+          "detail": "HTTP 200",
+          "status": 200,
+          "surface": "http",
+          "url": "https://gitlab.com/gitlab-org/gitlab-runner/-/raw/main/README.md",
+          "verdict": "reachable"
+        }
+      }
+    },
+    {
+      "forge": "Bitbucket Cloud",
+      "host": "bitbucket.org",
+      "note": "Absent from the 92-host table entirely.",
+      "surfaces": {
+        "api": {
+          "detail": "HTTP 200",
+          "status": 200,
+          "surface": "http",
+          "url": "https://api.bitbucket.org/2.0/repositories/tildeslash/monit",
+          "verdict": "reachable"
+        },
+        "git": {
+          "detail": "16 refs",
+          "refs": 16,
+          "surface": "git",
+          "url": "https://bitbucket.org/tildeslash/monit.git",
+          "verdict": "reachable"
+        },
+        "raw": {
+          "detail": "HTTP 200",
+          "status": 200,
+          "surface": "http",
+          "url": "https://bitbucket.org/",
+          "verdict": "reachable"
+        }
+      }
+    },
+    {
+      "forge": "Codeberg (Forgejo)",
+      "host": "codeberg.org",
+      "note": "Largest non-commercial forge; absent from the table.",
+      "surfaces": {
+        "api": {
+          "detail": "Tunnel connection failed: 403 Forbidden",
+          "surface": "http",
+          "url": "https://codeberg.org/api/v1/repos/forgejo/forgejo",
+          "verdict": "egress_denied"
+        },
+        "git": {
+          "detail": "fatal: unable to access 'https://codeberg.org/forgejo/forgejo.git/': CONNECT tunnel failed, response 403",
+          "surface": "git",
+          "url": "https://codeberg.org/forgejo/forgejo.git",
+          "verdict": "egress_denied"
+        }
+      }
+    },
+    {
+      "forge": "Gitea",
+      "host": "gitea.com",
+      "surfaces": {
+        "api": {
+          "detail": "Tunnel connection failed: 403 Forbidden",
+          "surface": "http",
+          "url": "https://gitea.com/api/v1/repos/gitea/tea",
+          "verdict": "egress_denied"
+        },
+        "git": {
+          "detail": "fatal: unable to access 'https://gitea.com/gitea/tea.git/': CONNECT tunnel failed, response 403",
+          "surface": "git",
+          "url": "https://gitea.com/gitea/tea.git",
+          "verdict": "egress_denied"
+        }
+      }
+    },
+    {
+      "forge": "SourceHut",
+      "host": "git.sr.ht",
+      "surfaces": {
+        "git": {
+          "detail": "fatal: unable to access 'https://git.sr.ht/~sircmpwn/hare/': CONNECT tunnel failed, response 403",
+          "surface": "git",
+          "url": "https://git.sr.ht/~sircmpwn/hare",
+          "verdict": "egress_denied"
+        }
+      }
+    },
+    {
+      "forge": "Debian Salsa (GitLab CE)",
+      "host": "salsa.debian.org",
+      "note": "Tests whether the GitLab verdict is about the software or the host.",
+      "surfaces": {
+        "api": {
+          "detail": "Tunnel connection failed: 403 Forbidden",
+          "surface": "http",
+          "url": "https://salsa.debian.org/api/v4/projects?per_page=1",
+          "verdict": "egress_denied"
+        },
+        "git": {
+          "detail": "fatal: unable to access 'https://salsa.debian.org/debian/hello.git/': CONNECT tunnel failed, response 403",
+          "surface": "git",
+          "url": "https://salsa.debian.org/debian/hello.git",
+          "verdict": "egress_denied"
+        }
+      }
+    },
+    {
+      "forge": "GNOME (GitLab CE)",
+      "host": "gitlab.gnome.org",
+      "surfaces": {
+        "api": {
+          "detail": "Tunnel connection failed: 403 Forbidden",
+          "surface": "http",
+          "url": "https://gitlab.gnome.org/api/v4/projects?per_page=1",
+          "verdict": "egress_denied"
+        },
+        "git": {
+          "detail": "fatal: unable to access 'https://gitlab.gnome.org/GNOME/glib.git/': CONNECT tunnel failed, response 403",
+          "surface": "git",
+          "url": "https://gitlab.gnome.org/GNOME/glib.git",
+          "verdict": "egress_denied"
+        }
+      }
+    },
+    {
+      "forge": "freedesktop.org (GitLab CE)",
+      "host": "gitlab.freedesktop.org",
+      "surfaces": {
+        "git": {
+          "detail": "fatal: unable to access 'https://gitlab.freedesktop.org/mesa/mesa.git/': CONNECT tunnel failed, response 403",
+          "surface": "git",
+          "url": "https://gitlab.freedesktop.org/mesa/mesa.git",
+          "verdict": "egress_denied"
+        }
+      }
+    },
+    {
+      "forge": "Framagit (GitLab CE)",
+      "host": "framagit.org",
+      "surfaces": {
+        "git": {
+          "detail": "fatal: unable to access 'https://framagit.org/framasoft/framadate/framadate.git/': CONNECT tunnel failed, response 403",
+          "surface": "git",
+          "url": "https://framagit.org/framasoft/framadate/framadate.git",
+          "verdict": "egress_denied"
+        }
+      }
+    },
+    {
+      "forge": "KDE Invent (GitLab CE)",
+      "host": "invent.kde.org",
+      "surfaces": {
+        "git": {
+          "detail": "fatal: unable to access 'https://invent.kde.org/frameworks/kirigami.git/': CONNECT tunnel failed, response 403",
+          "surface": "git",
+          "url": "https://invent.kde.org/frameworks/kirigami.git",
+          "verdict": "egress_denied"
+        }
+      }
+    },
+    {
+      "forge": "OpenDev (Gitea)",
+      "host": "opendev.org",
+      "surfaces": {
+        "git": {
+          "detail": "fatal: unable to access 'https://opendev.org/openstack/nova/': CONNECT tunnel failed, response 403",
+          "surface": "git",
+          "url": "https://opendev.org/openstack/nova",
+          "verdict": "egress_denied"
+        }
+      }
+    },
+    {
+      "forge": "kernel.org (cgit)",
+      "host": "git.kernel.org",
+      "surfaces": {
+        "git": {
+          "detail": "fatal: unable to access 'https://git.kernel.org/pub/scm/git/git.git/': CONNECT tunnel failed, response 403",
+          "surface": "git",
+          "url": "https://git.kernel.org/pub/scm/git/git.git",
+          "verdict": "egress_denied"
+        }
+      }
+    },
+    {
+      "forge": "GNU Savannah",
+      "host": "git.savannah.gnu.org",
+      "surfaces": {
+        "git": {
+          "detail": "fatal: unable to access 'https://git.savannah.gnu.org/git/bash.git/': CONNECT tunnel failed, response 403",
+          "surface": "git",
+          "url": "https://git.savannah.gnu.org/git/bash.git",
+          "verdict": "egress_denied"
+        }
+      }
+    },
+    {
+      "forge": "Launchpad",
+      "host": "git.launchpad.net",
+      "surfaces": {
+        "git": {
+          "detail": "fatal: unable to access 'https://git.launchpad.net/ubuntu/+source/bash/': CONNECT tunnel failed, response 403",
+          "surface": "git",
+          "url": "https://git.launchpad.net/ubuntu/+source/bash",
+          "verdict": "egress_denied"
+        }
+      }
+    },
+    {
+      "forge": "SourceForge",
+      "host": "git.code.sf.net",
+      "surfaces": {
+        "git": {
+          "detail": "fatal: unable to access 'https://git.code.sf.net/p/monit/code/': CONNECT tunnel failed, response 403",
+          "surface": "git",
+          "url": "https://git.code.sf.net/p/monit/code",
+          "verdict": "egress_denied"
+        }
+      }
+    },
+    {
+      "forge": "Hugging Face (git-backed datasets)",
+      "host": "huggingface.co",
+      "note": "Egress-denied on HTTP in the 92-host table. Datasets are git repos, so the git surface is a distinct question.",
+      "surfaces": {
+        "git": {
+          "detail": "fatal: unable to access 'https://huggingface.co/datasets/fka/awesome-chatgpt-prompts/': CONNECT tunnel failed, response 403",
+          "surface": "git",
+          "url": "https://huggingface.co/datasets/fka/awesome-chatgpt-prompts",
+          "verdict": "egress_denied"
+        }
+      }
+    },
+    {
+      "forge": "Google Git (Gerrit)",
+      "host": "android.googlesource.com",
+      "surfaces": {
+        "git": {
+          "detail": "fatal: unable to access 'https://android.googlesource.com/platform/build/': CONNECT tunnel failed, response 403",
+          "surface": "git",
+          "url": "https://android.googlesource.com/platform/build",
+          "verdict": "egress_denied"
+        }
+      }
+    },
+    {
+      "forge": "Go (Gerrit)",
+      "host": "go.googlesource.com",
+      "surfaces": {
+        "git": {
+          "detail": "fatal: unable to access 'https://go.googlesource.com/go/': CONNECT tunnel failed, response 403",
+          "surface": "git",
+          "url": "https://go.googlesource.com/go",
+          "verdict": "egress_denied"
+        }
+      }
+    },
+    {
+      "forge": "CONTROL",
+      "host": "example.com",
+      "note": "Control. `primary-source-egress/` established that nobody had run one, and that without it a denial is not evidence about the host.",
+      "surfaces": {
+        "api": {
+          "detail": "Tunnel connection failed: 403 Forbidden",
+          "surface": "http",
+          "url": "https://example.com/",
+          "verdict": "egress_denied"
+        },
+        "git": {
+          "detail": "fatal: unable to access 'https://example.com/control/control.git/': CONNECT tunnel failed, response 403",
+          "surface": "git",
+          "url": "https://example.com/control/control.git",
+          "verdict": "egress_denied"
+        }
+      }
+    }
+  ]
+}

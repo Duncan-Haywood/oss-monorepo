@@ -1,0 +1,1513 @@
+{
+  "measured_at": "2026-08-21",
+  "method": "Anonymous GET against https://gitlab.com/api/v4/projects?search=<term>, visibility=public, ordered by last activity, 20 per term. No credential, no account, read-only. Covers GitLab.com-hosted public projects only -- not GitHub, whose search surface is scope-denied from this session.",
+  "searches": [
+    {
+      "n": 9,
+      "projects": [
+        {
+          "description": "Feedback360 is a modular civic intelligence platform that helps legislators understand exactly how constituents feel about each individual line item in a bill. It uses AI to break down complex legislation into plain-language explanations, collect structured public feedback, and generate secure, aggr",
+          "forks": 0,
+          "last_activity_at": "2026-08-01",
+          "name": "Feedback360",
+          "path": "Roxanne_Ardary/feedback360",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2023-01-05",
+          "name": "Legislators in the Crossfire",
+          "path": "HeloiseClolery/legislators-in-the-crossfire",
+          "stars": 0
+        },
+        {
+          "description": "Transform congressional information from unitedstates/congress-legislators to a format that's useful to Climate Changemakers. ",
+          "forks": 0,
+          "last_activity_at": "2022-12-13",
+          "name": "parse-congress-info",
+          "path": "climatechangemakers/parse-congress-info",
+          "stars": 0
+        },
+        {
+          "description": "This repository contains the implementation for Tracking Legislators\u2019 Expressed Policy Agendas in Real Time paper",
+          "forks": 0,
+          "last_activity_at": "2022-07-15",
+          "name": "tracking-policy-agendas",
+          "path": "mohammad.forouhesh/tracking-policy-agendas",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2020-06-21",
+          "name": "ar-sunlight-legislators",
+          "path": "ckampfe/ar-sunlight-legislators",
+          "stars": 0
+        },
+        {
+          "description": "Members of the United States Congress, 1789-Present, in YAML, as well as committees, presidents, and vice presidents.",
+          "forks": 0,
+          "last_activity_at": "2019-12-30",
+          "name": "congress-legislators",
+          "path": "slippers/congress-legislators",
+          "stars": 0
+        },
+        {
+          "description": "A Haxe bot that manages political aspects of a Discord server, such as regular polls for moderators and legislators.",
+          "forks": 0,
+          "last_activity_at": "2019-11-05",
+          "name": "Soapbot",
+          "path": "wallabra/soapbot",
+          "stars": 0
+        },
+        {
+          "description": "iOS app for tracking and contacting your legislators, and learning about new bills and laws.",
+          "forks": 0,
+          "last_activity_at": "2018-08-05",
+          "name": "congress-ios",
+          "path": "xyzs996/congress-ios",
+          "stars": 0
+        },
+        {
+          "description": "A web app that looks up legislators by zipcode using the Congress API from the Sunlight Foundation.",
+          "forks": 0,
+          "last_activity_at": "2016-08-31",
+          "name": "0614_JS_Legislator-lookup-API",
+          "path": "nicklyman/0614_JS_Legislator-lookup-API",
+          "stars": 0
+        }
+      ],
+      "status": 200,
+      "term": "legislators",
+      "vertical": "public-office"
+    },
+    {
+      "n": 0,
+      "projects": [],
+      "status": 200,
+      "term": "officeholder",
+      "vertical": "public-office"
+    },
+    {
+      "n": 20,
+      "projects": [
+        {
+          "description": "Mastodon & Bluesky bot that tracks bills as they go through the United States Congress.  \r\nhttps://mastodon.social/@billbot",
+          "forks": 0,
+          "last_activity_at": "2026-08-20",
+          "name": "Bill Bot",
+          "path": "astrelion/bill-bot",
+          "stars": 0
+        },
+        {
+          "description": "Utilizing Airflow to track  congress members trading activity by analyzing disclosure statements and sending email alerts when new disclosure are submitted. The STOCK act requires members of congress to disclose trading activity within 45 days, so the alerts might lag behind the actual date of tradi",
+          "forks": 0,
+          "last_activity_at": "2026-08-15",
+          "name": "Insider Trading Alerts",
+          "path": "avivfaraj/insider-trading-alerts",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-08-09",
+          "name": "congress-be",
+          "path": "congress1/congress-be",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-08-09",
+          "name": "congress-app",
+          "path": "congress1/congress-app",
+          "stars": 0
+        },
+        {
+          "description": "Web del congreso esLibre / esLibre congress website",
+          "forks": 15,
+          "last_activity_at": "2026-07-20",
+          "name": "Web",
+          "path": "eslibre/eslibre.gitlab.io",
+          "stars": 9
+        },
+        {
+          "description": "Coordinaci\u00f3n del congreso / Congress Coordination",
+          "forks": 0,
+          "last_activity_at": "2026-07-17",
+          "name": "Coordinaci\u00f3n",
+          "path": "eslibre2026/coord",
+          "stars": 0
+        },
+        {
+          "description": "Coordinaci\u00f3n del congreso / Congress Coordination",
+          "forks": 4,
+          "last_activity_at": "2026-07-14",
+          "name": "Coordinaci\u00f3n",
+          "path": "eslibre/coord",
+          "stars": 4
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-06-27",
+          "name": "kathrynforcongress",
+          "path": "seopanda/kathrynforcongress",
+          "stars": 0
+        },
+        {
+          "description": "Congress Search (reactjs)",
+          "forks": 0,
+          "last_activity_at": "2026-06-21",
+          "name": "csearch3",
+          "path": "s4njee/csearch3",
+          "stars": 0
+        },
+        {
+          "description": "OpenDiscourse MCP - Comprehensive congressional and legislative data ingestion system",
+          "forks": 0,
+          "last_activity_at": "2026-06-15",
+          "name": "opendiscourse-mcp",
+          "path": "cbwinslow/opendiscourse-mcp",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-06-07",
+          "name": "Stockport Trades Union Congress Website",
+          "path": "stockport-trades-union-congress/stockport-trades-union-congress",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-05-13",
+          "name": "Citizen Jury Movement for Congress",
+          "path": "kitchen-table/congressional-jury-movement",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-04-08",
+          "name": "congress-go-client",
+          "path": "readonkeyless/congress-go-client",
+          "stars": 0
+        },
+        {
+          "description": "Documentaci\u00f3n para la gesti\u00f3n del congreso / Documentation for congress management",
+          "forks": 0,
+          "last_activity_at": "2026-03-31",
+          "name": "docs",
+          "path": "gortazar/docs",
+          "stars": 0
+        },
+        {
+          "description": "Congressional Committee Maps",
+          "forks": 0,
+          "last_activity_at": "2026-03-21",
+          "name": "congressional-committee-maps",
+          "path": "mroswell/congressional-committee-maps",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-03-07",
+          "name": "congresso",
+          "path": "OsvaldoQueta/congresso",
+          "stars": 0
+        },
+        {
+          "description": "Lobbying data on your politicians.",
+          "forks": 0,
+          "last_activity_at": "2026-01-27",
+          "name": "Catching Congress",
+          "path": "catchingcongress/catchingcongress",
+          "stars": 0
+        },
+        {
+          "description": "https://idngg-ibccongress-slotgacor.vercel.app/",
+          "forks": 0,
+          "last_activity_at": "2026-01-21",
+          "name": "idngg-ibccongress-slotgacor",
+          "path": "workhardless020/idngg-ibccongress-slotgacor",
+          "stars": 0
+        },
+        {
+          "description": "R Package to Scrape Tweets from members of United States Congress",
+          "forks": 0,
+          "last_activity_at": "2025-12-30",
+          "name": "ScrapeCongress",
+          "path": "damoncroberts/ScrapeCongress",
+          "stars": 0
+        },
+        {
+          "description": "congress.gov API",
+          "forks": 0,
+          "last_activity_at": "2025-12-29",
+          "name": "api.congress.gov",
+          "path": "abdulrahman305/api.congress.gov",
+          "stars": 0
+        }
+      ],
+      "status": 200,
+      "term": "congress",
+      "vertical": "public-office"
+    },
+    {
+      "n": 4,
+      "projects": [
+        {
+          "description": "Desktop App - that calculates the number of members of parliament of Albanian parties.",
+          "forks": 0,
+          "last_activity_at": "2021-03-11",
+          "name": "FormulaElection",
+          "path": "GranitKrasniqi20/FormulaElection",
+          "stars": 0
+        },
+        {
+          "description": "An easily navigable database of all currently serving British Members of Parliament.",
+          "forks": 0,
+          "last_activity_at": "2018-10-07",
+          "name": "know-your-mp",
+          "path": "tannart/know-your-mp",
+          "stars": 0
+        },
+        {
+          "description": "LR 2012-2016 year members of Parliament and their vote cluster analysis",
+          "forks": 0,
+          "last_activity_at": "2017-09-20",
+          "name": "bachelor-thesis",
+          "path": "ZygimantasEko/bachelor-thesis",
+          "stars": 0
+        },
+        {
+          "description": "members of Australian Parliament https://morph.io/octopusinvitro/morphio-scraper-australian-parliament ",
+          "forks": 0,
+          "last_activity_at": "2016-07-09",
+          "name": "morphio-scraper-australian-parliament",
+          "path": "octopusinvitro/morphio-scraper-australian-parliament",
+          "stars": 0
+        }
+      ],
+      "status": 200,
+      "term": "parliament members",
+      "vertical": "public-office"
+    },
+    {
+      "n": 2,
+      "projects": [
+        {
+          "description": "Nosheet is an open-source, local-first project and task tracker \u2014 built as a purpose-made alternative to managing municipal work in a spreadsheet. Basecamp is great too, but the free tier only allows a single project, and the data is hosted abroad.\r\n\r\n",
+          "forks": 0,
+          "last_activity_at": "2026-08-04",
+          "name": "Nosheet \u2014 A focused project tracker for elected officials",
+          "path": "cdlr75/nosheet",
+          "stars": 0
+        },
+        {
+          "description": "Word on the Street is a web widget that will automagically recognize the user's current location and display elected Congressional officials for that region (within the US).",
+          "forks": 0,
+          "last_activity_at": "2016-09-29",
+          "name": "wordonthestreet",
+          "path": "Klokie/wordonthestreet",
+          "stars": 0
+        }
+      ],
+      "status": 200,
+      "term": "elected officials",
+      "vertical": "public-office"
+    },
+    {
+      "n": 2,
+      "projects": [
+        {
+          "description": "Wrapper for ofac sanctions list",
+          "forks": 0,
+          "last_activity_at": "2022-03-14",
+          "name": "ofac",
+          "path": "tibhar940/ofac",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2021-11-14",
+          "name": "bigger312--Sanctions-Lists",
+          "path": "github-mirroring-2021/bigger312--Sanctions-Lists",
+          "stars": 0
+        }
+      ],
+      "status": 200,
+      "term": "sanctions list",
+      "vertical": "sanctions"
+    },
+    {
+      "n": 20,
+      "projects": [
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-08-21",
+          "name": "craft-twofactorauthentication-d0c431f4",
+          "path": "gitlab-oss-package-research/source/composer/cr/craft-twofactorauthentication-d0c431f4",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-08-21",
+          "name": "steeltoe.discovery.clientautofac-e357e420",
+          "path": "gitlab-oss-package-research/source/nuget/st/steeltoe.discovery.clientautofac-e357e420",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-08-20",
+          "name": "steeltoe.discovery.clientautofac-e357e420",
+          "path": "gitlab-oss-package-research/tools/libbehave/3.2.0/nuget/st/steeltoe.discovery.clientautofac-e357e420",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-08-20",
+          "name": "craft-twofactorauthentication-d0c431f4",
+          "path": "gitlab-oss-package-research/tools/libbehave/3.2.0/composer/cr/craft-twofactorauthentication-d0c431f4",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-08-19",
+          "name": "autofac-ece96ad1",
+          "path": "gitlab-oss-package-research/tools/libbehave/3.2.0/nuget/au/autofac-ece96ad1",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-08-19",
+          "name": "Ofac",
+          "path": "sabawoon.shafaq2/ofac",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-08-19",
+          "name": "autofac.extensions.dependencyinjection-3de0f2f0",
+          "path": "gitlab-oss-package-research/source/nuget/au/autofac.extensions.dependencyinjection-3de0f2f0",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-08-18",
+          "name": "autofac-ece96ad1",
+          "path": "gitlab-oss-package-research/source/nuget/au/autofac-ece96ad1",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-08-18",
+          "name": "autofac.extensions.dependencyinjection-3de0f2f0",
+          "path": "gitlab-oss-package-research/tools/libbehave/3.2.0/nuget/au/autofac.extensions.dependencyinjection-3de0f2f0",
+          "stars": 0
+        },
+        {
+          "description": "In C, stdin (Standard Input), stdout (Standard Output), and stderr (Standard Error) are just three separate pipelines connected to your terminal.",
+          "forks": 0,
+          "last_activity_at": "2026-08-17",
+          "name": "twoface",
+          "path": "pizslacker/twoface",
+          "stars": 0
+        },
+        {
+          "description": "Fork of MediatR.Extensions.Autofac.DependencyInjection, updated for Questy",
+          "forks": 0,
+          "last_activity_at": "2026-08-16",
+          "name": "Questy.Autofac",
+          "path": "corruptcomputer-personal/Questy/Questy.Autofac",
+          "stars": 1
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-08-12",
+          "name": "GanadoFacilAPI",
+          "path": "jainerfernandez771/ganadofacilapi",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-08-07",
+          "name": "TransformYourSkinwithLaserPhotoFacialIPL",
+          "path": "MuhammadFaizan12221/transformyourskinwithlaserphotofacialipl",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-08-07",
+          "name": "PHOFACE",
+          "path": "KANJICODER/PHOFACE",
+          "stars": 1
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-08-07",
+          "name": "PHOFACE_VID_001",
+          "path": "KANJICODER/PHOFACE_VID_001",
+          "stars": 0
+        },
+        {
+          "description": "Prototipo de Reconocimiento Facial para Control de Asistencia Local - Asignatura Aprendizaje Autom\u00e1tico",
+          "forks": 0,
+          "last_activity_at": "2026-07-29",
+          "name": "ReconocimientoFacial",
+          "path": "raospinap/ReconocimientoFacial",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-07-16",
+          "name": "ProFactura",
+          "path": "chafarleston/profactura",
+          "stars": 0
+        },
+        {
+          "description": "Next version of PathoFact: https://git-r3lab.uni.lu/laura.denies/PathoFact",
+          "forks": 0,
+          "last_activity_at": "2026-07-16",
+          "name": "PathoFact2",
+          "path": "uniluxembourg/lcsb/systems-ecology/pathofact2",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-07-10",
+          "name": "AdvancedLaserPhotoFacialIPLinNewYorkNY",
+          "path": "eastwest12/advancedlaserphotofacialiplinnewyorkny",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-07-05",
+          "name": "maxillofacial",
+          "path": "a.abhi.abhishek007/maxillofacial",
+          "stars": 0
+        }
+      ],
+      "status": 200,
+      "term": "ofac",
+      "vertical": "sanctions"
+    },
+    {
+      "n": 1,
+      "projects": [
+        {
+          "description": "An open database of persons of interest and politically exposed persons",
+          "forks": 0,
+          "last_activity_at": "2020-01-21",
+          "name": "opensanctions",
+          "path": "adikadashrieq/opensanctions",
+          "stars": 0
+        }
+      ],
+      "status": 200,
+      "term": "opensanctions",
+      "vertical": "sanctions"
+    },
+    {
+      "n": 0,
+      "projects": [],
+      "status": 200,
+      "term": "consolidated sanctions",
+      "vertical": "sanctions"
+    },
+    {
+      "n": 3,
+      "projects": [
+        {
+          "description": "An open database of persons of interest and politically exposed persons",
+          "forks": 0,
+          "last_activity_at": "2020-01-21",
+          "name": "opensanctions",
+          "path": "adikadashrieq/opensanctions",
+          "stars": 0
+        },
+        {
+          "description": "An open database of persons of interest and politically exposed persons",
+          "forks": 0,
+          "last_activity_at": "2020-01-06",
+          "name": "opennames",
+          "path": "fihlatv/opennames",
+          "stars": 0
+        },
+        {
+          "description": "An open database of persons of interest and politically exposed persons",
+          "forks": 0,
+          "last_activity_at": "2016-08-24",
+          "name": "opennames",
+          "path": "e0/opennames",
+          "stars": 1
+        }
+      ],
+      "status": 200,
+      "term": "politically exposed persons",
+      "vertical": "sanctions"
+    },
+    {
+      "n": 1,
+      "projects": [
+        {
+          "description": "A tool to check if a fresh/new/unused storage device such as a SD card or a USB flash drive can store and recall the advertised storage capacity.",
+          "forks": 0,
+          "last_activity_at": "2018-02-24",
+          "name": "diskmemorycheck",
+          "path": "tfischer/diskmemorycheck",
+          "stars": 0
+        }
+      ],
+      "status": 200,
+      "term": "device recall",
+      "vertical": "device-safety"
+    },
+    {
+      "n": 20,
+      "projects": [
+        {
+          "description": "AxonBot is an open-source, industry-agnostic robotics and IoT platform that connects, automates, and monitors any device the user selects. With end-to-end encryption, AI-assisted workflows, and modular extensibility, AxonBot supports multi-robot coordination, predictive automation, and real-time ana",
+          "forks": 0,
+          "last_activity_at": "2026-08-08",
+          "name": "AxonBot",
+          "path": "Roxanne_Ardary/axonbot",
+          "stars": 0
+        },
+        {
+          "description": "A sovereign, local-first MCP server for High-Throughput Screening (HTS) assay processing and medical device telemetry. Read technical documentation: https://www.seosiri.com/2026/07/bioassay-mcp.html",
+          "forks": 0,
+          "last_activity_at": "2026-08-04",
+          "name": "bioassay-mcp",
+          "path": "seosiri/bioassay-mcp",
+          "stars": 0
+        },
+        {
+          "description": "A plugin for managing medical devices lifecycles",
+          "forks": 0,
+          "last_activity_at": "2026-07-27",
+          "name": "Thrito Device Management",
+          "path": "nerdocs/thrito/thrito-device-management",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-07-07",
+          "name": "Why Medical Device Companies Are Outsourcing Defibrillator Design and Development",
+          "path": "raguestposting/why-medical-device-companies-are-outsourcing-defibrillator-design-and-development",
+          "stars": 0
+        },
+        {
+          "description": "Architected and deployed an end-to-end clinical management web and mobile ecosystem designed to digitize dental practice workflows. Developed a secure, real-time administrative ledger using React Native (Expo) and Firebase Firestore to track patient profiles, medical histories, and dynamic appointme",
+          "forks": 0,
+          "last_activity_at": "2026-06-16",
+          "name": "Lovely Smile Booking App",
+          "path": "jamesryanpatiag/lovelysmile-booking-app",
+          "stars": 0
+        },
+        {
+          "description": "Architected and deployed an end-to-end clinical management web and mobile ecosystem designed to digitize dental practice workflows. Developed a secure, real-time administrative ledger using React Native (Expo) and Firebase Firestore to track patient profiles, medical histories, and dynamic appointme",
+          "forks": 0,
+          "last_activity_at": "2026-06-04",
+          "name": "Lovely Smile Booking App Documentation",
+          "path": "jamesryanpatiag/lovelysmile-booking-app-documentation",
+          "stars": 0
+        },
+        {
+          "description": "Imported from zip",
+          "forks": 0,
+          "last_activity_at": "2026-03-23",
+          "name": "Encyclopedia-of-Medical-Devices-fresh-mainzip-v1",
+          "path": "smooker39/Encyclopedia-of-Medical-Devices-fresh-mainzip-v1",
+          "stars": 0
+        },
+        {
+          "description": "Repository for https://replit.com/@albarqsbahs/mohndsbareq",
+          "forks": 0,
+          "last_activity_at": "2026-03-23",
+          "name": "Encyclopedia-of-Medical-Devices",
+          "path": "smooker39/Encyclopedia-of-Medical-Devices",
+          "stars": 0
+        },
+        {
+          "description": "Medical Device Management project.",
+          "forks": 1,
+          "last_activity_at": "2025-04-21",
+          "name": "mdm",
+          "path": "huyandres2001/mdm",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2023-04-17",
+          "name": "medical_device",
+          "path": "Zzunked/medical_device",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2023-03-25",
+          "name": "Need a Medical Device FDA Approval Heres the Process Youll Need to Follow",
+          "path": "i3cglobalblogus/need-a-medical-device-fda-approval-heres-the-process-youll-need-to-follow",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2023-02-24",
+          "name": "Medical Device FDA Registrationblog",
+          "path": "i3cglobaluk/medical-device-fda-registrationblog",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2023-01-20",
+          "name": "Medical Device FDAblog Registration",
+          "path": "i3cglobaluk/medical-device-fdablog-registration",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2022-12-24",
+          "name": "European Authorized Representative For Medical Devices",
+          "path": "i3cglobalblogus/european-authorized-representative-for-medical-devices",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2022-11-25",
+          "name": "Medical Device Consulting Authorized Representative in the European Union",
+          "path": "i3cglobalin/medical-device-consulting-authorized-representative-in-the-european-union",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2021-12-28",
+          "name": "Medical Devices and the FDA",
+          "path": "i3cglobalin/medical-devices-and-the-fda",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2021-11-16",
+          "name": "Medical Device Registration",
+          "path": "medicaldeviceregulatory/medical-device-registration",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2021-10-28",
+          "name": "GuideStar Medical Devices ",
+          "path": "ferhan12/guidestar-medical-devices",
+          "stars": 0
+        },
+        {
+          "description": "The software-only simuation framework for CLASim for simulating models of medical devices and control algorithms with virtual patients.",
+          "forks": 0,
+          "last_activity_at": "2021-10-19",
+          "name": "clasim_software_only",
+          "path": "aaron.bray/clasim_software_only",
+          "stars": 0
+        },
+        {
+          "description": "ORSHARDS is a large-scale open-source hardware documentation and distribution structure that helps researchers and companies to replicate, maintain and upgrade current open source hardware research projects, with particular focus on medical devices.",
+          "forks": 0,
+          "last_activity_at": "2021-08-03",
+          "name": "ORSHARDS",
+          "path": "leodymium/orshards",
+          "stars": 0
+        }
+      ],
+      "status": 200,
+      "term": "medical device",
+      "vertical": "device-safety"
+    },
+    {
+      "n": 0,
+      "projects": [],
+      "status": 200,
+      "term": "safety notice",
+      "vertical": "device-safety"
+    },
+    {
+      "n": 9,
+      "projects": [
+        {
+          "description": "Side Effects Checker queries the FDA Adverse Event Reporting System (FAERS) via the OpenFDA API to surface the five most frequently reported side effects for any drug. ",
+          "forks": 0,
+          "last_activity_at": "2026-06-22",
+          "name": "Medication Side Effect Checker v.1  ",
+          "path": "samosuki/side-effect-checker-v1",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2024-02-20",
+          "name": "Google Openfda Api",
+          "path": "minasami/google-openfda-api",
+          "stars": 0
+        },
+        {
+          "description": "Simple analysis of [OpenFDA](https://open.fda.gov/apis/drug/label/) drug labelling endpoint.",
+          "forks": 0,
+          "last_activity_at": "2019-10-20",
+          "name": "fda_analytics",
+          "path": "drjroythorne/fda_analytics",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2019-06-25",
+          "name": "openfda_az",
+          "path": "kamel-nebhi/openfda_az",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2019-01-29",
+          "name": "openfda_api_test",
+          "path": "demasu/openfda_api_test",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2018-08-23",
+          "name": "OpenFDAExplorer",
+          "path": "leapbase/OpenFDAExplorer",
+          "stars": 0
+        },
+        {
+          "description": "Using the OpenFDA public API, the aim is to create an interactive Slack bot that can assist with your prescription questions.",
+          "forks": 1,
+          "last_activity_at": "2018-07-27",
+          "name": "python-fda-bot",
+          "path": "rahulkalluri/python-fda-bot",
+          "stars": 0
+        },
+        {
+          "description": "Using the OpenFDA public API, the aim is to create an interactive Slack bot that can assist with your prescription questions.",
+          "forks": 0,
+          "last_activity_at": "2018-07-19",
+          "name": "python-fda-bot",
+          "path": "rvsranjith/python-fda-bot",
+          "stars": 0
+        },
+        {
+          "description": "FDA Drug Scrapper and MME Calculator",
+          "forks": 0,
+          "last_activity_at": "2018-07-10",
+          "name": "OpenFDA-MME-Scraper",
+          "path": "cryocaustik/OpenFDA-MME-Scraper",
+          "stars": 0
+        }
+      ],
+      "status": 200,
+      "term": "openfda",
+      "vertical": "device-safety"
+    },
+    {
+      "n": 2,
+      "projects": [
+        {
+          "description": "Supervised learning pipeline for rare event operational failure prediction, integrating leakage resistant preprocessing, class weighted modeling, precision recall threshold calibration, ROC AUC benchmarking, and permutation based feature importance to analyze production stress drivers. ",
+          "forks": 0,
+          "last_activity_at": "2026-02-26",
+          "name": "manufacturing-downtime-analysis",
+          "path": "arisharazakhan-cpu/manufacturing-downtime-analysis",
+          "stars": 0
+        },
+        {
+          "description": "OpenRecall is a fully open-source, privacy-first alternative to proprietary solutions like Microsoft's Windows Recall. With OpenRecall, you can easily access your digital history, enhancing your memory and productivity without compromising your privacy.",
+          "forks": 0,
+          "last_activity_at": "2025-11-26",
+          "name": "openrecallAPItest",
+          "path": "AndrasSama/openrecallAPItest",
+          "stars": 0
+        }
+      ],
+      "status": 200,
+      "term": "product recall",
+      "vertical": "device-safety"
+    },
+    {
+      "n": 14,
+      "projects": [
+        {
+          "description": "ClockWork is an open-source, AGPL-3.0+ licensed, industry-agnostic service orchestration platform that replaces commission-based systems with transparent, hourly-based labor exchange. It connects clients with professionals through fair dispatch logic, real-time scheduling, and AI-assisted matching, ",
+          "forks": 0,
+          "last_activity_at": "2026-08-07",
+          "name": "Clockwork",
+          "path": "Roxanne_Ardary/clockwork",
+          "stars": 0
+        },
+        {
+          "description": "BrandFuzzySearch is a multi-source search tool that tolerates spelling variants to look up registered trademarks, patents, domain names and companies (legal names, acronyms) across official registries, with geographic priority on the EU and Switzerland.\r\nIt is built as a Rust cargo workspace: a shar",
+          "forks": 0,
+          "last_activity_at": "2026-08-02",
+          "name": "BrandFuzzysearch-LLM",
+          "path": "ypsec/brandfuzzysearch-llm",
+          "stars": 0
+        },
+        {
+          "description": "CryptaVault is a privacy-first, open-source cloud storage system built under the AGPL 3.0+ license that ensures users retain full ownership and control of their data. It uses end-to-end encryption, on-device key generation, compression, deduplication, and distributed storage to minimize storage usag",
+          "forks": 0,
+          "last_activity_at": "2026-07-31",
+          "name": "CryptaVault",
+          "path": "Roxanne_Ardary/cryptavault",
+          "stars": 0
+        },
+        {
+          "description": "A professional tool called GainTools OLM Converter Software can convert OLM files into a variety of popular email formats without sacrificing data security. Emails, contacts, calendars, notes, journals, attachments, & other mailbox data can be moved to PST, EML, MBOX, MSG, PDF, and other formats wit",
+          "forks": 0,
+          "last_activity_at": "2026-07-11",
+          "name": "OLM Converter Software",
+          "path": "gaintoolssoftware/olm-converter-software",
+          "stars": 0
+        },
+        {
+          "description": "This repository serves as a centralized and verifiable record of my key skills, licenses, certifications, awards, and honors. It's designed to provide a clear overview of my professional qualifications and ongoing commitment to development.",
+          "forks": 0,
+          "last_activity_at": "2026-04-17",
+          "name": "licenses-certifications-awards",
+          "path": "Mr.RogueKnight/licenses-certifications-awards",
+          "stars": 0
+        },
+        {
+          "description": "SDXLpy is a modular Python framework for building and executing complex Stable Diffusion XL (SDXL) image generation workflows. It enables text-to-image and image-to-image generation, high-quality upscaling, automated region-based detailing via YOLO detection and SAM segmentation, and flexible YAML-d",
+          "forks": 0,
+          "last_activity_at": "2025-12-18",
+          "name": "SDXLpy",
+          "path": "mimir-tech/sdxlpy",
+          "stars": 0
+        },
+        {
+          "description": "Download Adobe Premiere Pro for Mac Free - complete video editing suite with AI-powered tools, advanced effects, and lifetime license for professional filmmaking and content creation.",
+          "forks": 0,
+          "last_activity_at": "2025-09-30",
+          "name": "Adobe Premiere Pro MacOS Free Download",
+          "path": "adobe-premiere-pro-mac-cracked-download-free/adobe-premiere-pro-macos-free-download",
+          "stars": 0
+        },
+        {
+          "description": "\u0e43\u0e1a\u0e2d\u0e19\u0e38\u0e0d\u0e32\u0e15\u0e1b\u0e23\u0e30\u0e01\u0e2d\u0e1a\u0e27\u0e34\u0e0a\u0e32\u0e0a\u0e35\u0e1e\u0e27\u0e34\u0e28\u0e27\u0e01\u0e23\u0e23\u0e21",
+          "forks": 0,
+          "last_activity_at": "2025-09-12",
+          "name": "License For Professional Practice",
+          "path": "etdath-teda-schema/teda-affiliate/council-of-engineers-thailand/license-for-professional-practice",
+          "stars": 0
+        },
+        {
+          "description": "\u0e43\u0e1a\u0e2d\u0e19\u0e38\u0e0d\u0e32\u0e15\u0e1b\u0e23\u0e30\u0e01\u0e2d\u0e1a\u0e27\u0e34\u0e0a\u0e32\u0e0a\u0e35\u0e1e\u0e27\u0e34\u0e28\u0e27\u0e01\u0e23\u0e23\u0e21 (License For Professional Practice)",
+          "forks": 0,
+          "last_activity_at": "2025-08-18",
+          "name": "License For Professional Practice",
+          "path": "ETDATH-TEDA-Schema-UAT/teda-affiliate/council-of-engineers-thailand/license-for-professional-practice",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2025-02-22",
+          "name": "Download_AOMEI Partition Assistant 10.6.0 Crack + License Key Professional Edition",
+          "path": "kemewe6238/aomei-partition-assistant-crack",
+          "stars": 0
+        },
+        {
+          "description": "Inland Mobile Notary Services is dedicated to offering 24-hour, professional, and convenient loan signing services while maintaining the highest standards of honesty. Making a notarial error can be expensive, especially when dealing with real estate or court-related paperwork, so you want to be sure",
+          "forks": 0,
+          "last_activity_at": "2023-07-28",
+          "name": "Inland Mobile Notary Services",
+          "path": "inland-mobile-notary-services/inland-mobile-notary-services",
+          "stars": 1
+        },
+        {
+          "description": "Builds a list of specified professional licenses from the Hawaii State Database",
+          "forks": 0,
+          "last_activity_at": "2021-01-16",
+          "name": "HIState-ProLicense-Scraper",
+          "path": "crocokyle/HIState-ProLicense-Scraper",
+          "stars": 0
+        },
+        {
+          "description": "Goal: gen an extension on the license of SmartPLS from a professional free license",
+          "forks": 0,
+          "last_activity_at": "2020-01-15",
+          "name": "SmartPLS_MacOS",
+          "path": "howiebbq/hacking_smartpls_macos",
+          "stars": 0
+        },
+        {
+          "description": "Goal: gen an extension on the license of SmartPLS from a professional free license",
+          "forks": 0,
+          "last_activity_at": "2020-01-10",
+          "name": "SmartPLS_Win",
+          "path": "howiebbq/hacking__smartpls___win_mac",
+          "stars": 0
+        }
+      ],
+      "status": 200,
+      "term": "professional license",
+      "vertical": "licensing"
+    },
+    {
+      "n": 18,
+      "projects": [
+        {
+          "description": "VERA (Video Extraction and Recognition Analysis) is a fully on-premises video OCR pipeline for extracting and recognizing text (license plates, street signs, billboards) from dashcam/driving footage. Built with PaddleOCR 3.x, OpenCV, FastAPI, PostgreSQL, and MinIO, with a PySide6 desktop GUI. Consis",
+          "forks": 0,
+          "last_activity_at": "2026-08-04",
+          "name": "Vera",
+          "path": "bachelor_final_project/vera",
+          "stars": 1
+        },
+        {
+          "description": "The System Icon Explorer is the ultimate all-in-one tool for inspecting, analyzing, filtering, managing, and exporting Freedesktop-based, GTK, and theme-specific Linux system icons. Designed specifically for Linux developers and enthusiasts, it streamlines desktop scripting workflows (e.g., YAD in B",
+          "forks": 0,
+          "last_activity_at": "2026-07-03",
+          "name": "System Icon Explorer - built with GTK 3.0 and GTK 4.0",
+          "path": "zentrocdot/system-icon-explorer",
+          "stars": 0
+        },
+        {
+          "description": "This project is a Go-based management server for EasyEditor Premium, integrating with local encrypted storage to manage license data, user credits, and token consumption tracking. Provides an admin dashboard, API playground, and a full REST API for external app integration.",
+          "forks": 0,
+          "last_activity_at": "2026-04-08",
+          "name": "easyai-gateway",
+          "path": "gcclinux/easyai-gateway",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-03-24",
+          "name": "License Dashboard",
+          "path": "gl-demo-ultimate-smatthies/pov/license-dashboard",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2025-12-13",
+          "name": "licensee_LAP-Dashboard-Prototype",
+          "path": "starixvn/licensee_LAP-Dashboard-Prototype",
+          "stars": 0
+        },
+        {
+          "description": "The TimEX3 is a multipurpose compact PCI board designed to perform\r\nsimple to medium complex logical functions.  \r\nIt is mainly used for the synchronization system of SOLEIL (signal\r\nduplication, top-up gating, etc.).  \r\nThis board is based on a Spartan-6 FPGA and PLX PCI9030 interface.  \r\nIt is des",
+          "forks": 0,
+          "last_activity_at": "2025-07-23",
+          "name": "TimEX3",
+          "path": "ohwr/project/timex3",
+          "stars": 0
+        },
+        {
+          "description": "IPTV WEB Player is a web-based IPTV streaming application by Bocaletto Luca. Upload your .m3u or .m3u8 playlist file to load your IPTV channels and enjoy streaming via an integrated HLS.js player. Fully responsive with universal input support: Mouse, Touch, Keyboard, Joypad, TV Remote Control. This ",
+          "forks": 0,
+          "last_activity_at": "2025-06-21",
+          "name": "IPTV-Web-Player",
+          "path": "bocaletto-luca-group/IPTV-Web-Player",
+          "stars": 0
+        },
+        {
+          "description": "EDM is a Embedded Design Module standard under the Creative Commons\nlicense targeting on embedded applications and controllers which are\nbeing actively developed by many embedded companies. See\nhttp://www.edm-standard.org.  \nThis projects holds all EDM compatible boards.\n\n",
+          "forks": 0,
+          "last_activity_at": "2025-04-10",
+          "name": "EDM Boards",
+          "path": "ohwr/project/edm",
+          "stars": 0
+        },
+        {
+          "description": "RRC_Weather: Terminal-Based Weather App\r\n\r\nRRC_Weather is a lightweight, command-line weather app built in Rust. It provides real-time weather for any city or your current location using your IP address. Perfect for developers and system administrators, it runs on Linux, macOS, and BSD.\r\nFeatures\r\n\r",
+          "forks": 0,
+          "last_activity_at": "2025-02-01",
+          "name": "RCC Weather",
+          "path": "doodle1244/rcc-weather",
+          "stars": 0
+        },
+        {
+          "description": "clearclipboard (ccb) - clear all clipboards on-demand, easily. (Linux) - Licensed under the GNU GPL v3.0.",
+          "forks": 0,
+          "last_activity_at": "2023-12-09",
+          "name": "clearclipboard",
+          "path": "Novimatrem/clearclipboard",
+          "stars": 4
+        },
+        {
+          "description": "DjangoBB mirror. DjangoBB is a quick and simple forum which uses the Django Framework (written in Python language). Abbreviation DjangoBB stands for Django Bulletin Board. DjangoBB is distributed under the BSD license. ",
+          "forks": 0,
+          "last_activity_at": "2023-08-27",
+          "name": "DjangoBB",
+          "path": "tdway_public/DjangoBB",
+          "stars": 0
+        },
+        {
+          "description": "Progressive Web Applications using Ionic V5, Angular and Material Design. Backend is created with firebase. With propuse of manage personal accounting and analyze the data in the dashboard. This code is under GPL-v3 License.",
+          "forks": 0,
+          "last_activity_at": "2023-02-25",
+          "name": "Financial Note",
+          "path": "emidev98/financial-note",
+          "stars": 0
+        },
+        {
+          "description": "This is a fork of the Dactyl Manuform keyboard generator by joshreve: https://github.com/joshreve/dactyl-keyboard\nThis code should be slightly more organized and easier to use. In progress\nGNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007",
+          "forks": 0,
+          "last_activity_at": "2022-08-27",
+          "name": "dactyl_manuform_keyboard_generator_Python",
+          "path": "StarNamer/dactyl_manuform_keyboard_generator_python",
+          "stars": 0
+        },
+        {
+          "description": "This is a fork of the Dactyl Manuform keyboard generator by joshreve: https://github.com/joshreve/dactyl-keyboard\r\nThis code should be slightly more organized and easier to use. In progress\r\nGNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007",
+          "forks": 1,
+          "last_activity_at": "2021-04-21",
+          "name": "dactyl_manuform_keyboard_generator_Python",
+          "path": "Megahard.pro/dactyl_manuform_keyboard_generator_python",
+          "stars": 0
+        },
+        {
+          "description": "Electric boards of C.R.A.P\r\n\r\nLicense Information:\r\nThe hardware is released under Creative Commons ShareAlike 4.0 International.\r\n",
+          "forks": 0,
+          "last_activity_at": "2019-07-19",
+          "name": "elec",
+          "path": "crap/elec",
+          "stars": 2
+        },
+        {
+          "description": "An open source board game under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)",
+          "forks": 0,
+          "last_activity_at": "2019-06-14",
+          "name": "Mixologist",
+          "path": "p0p/mixologist",
+          "stars": 0
+        },
+        {
+          "description": "This is a Board Support Package for TI Tiva C Connected Launchpad (only the BSD-licensed part of it)",
+          "forks": 0,
+          "last_activity_at": "2018-10-20",
+          "name": "tivaware",
+          "path": "david-varga/tivaware",
+          "stars": 0
+        },
+        {
+          "description": "A simple HTML5 task board application. See <http://tb.subtype.de/> for a working live version.\r\n\r\nTask Board is released under the GNU General Public License version 3. See the LICENSES file for license information of third-party libraries.",
+          "forks": 0,
+          "last_activity_at": "2017-04-02",
+          "name": "TaskBoard",
+          "path": "goeb/taskboard",
+          "stars": 0
+        }
+      ],
+      "status": 200,
+      "term": "license board",
+      "vertical": "licensing"
+    },
+    {
+      "n": 2,
+      "projects": [
+        {
+          "description": "The object of this assignment is to develop and implement a microprocessor with a simple instruction set.  As a starting point, you are provided with a partial VHDL design for the CPU which you will need to expand with additional registers and instructions. The initial goal will be to to complete a ",
+          "forks": 0,
+          "last_activity_at": "2022-05-01",
+          "name": "Design-a-simple-microprocessor-in-VHDL",
+          "path": "abdelazeem201/Design-a-simple-microprocessor-in-VHDL",
+          "stars": 0
+        },
+        {
+          "description": "Healthmax Care Enterprises Corp. is a nutraceutical company, established in March 2011, registered in SEC, with LTO permit from FDA, and engage in distributing health products to drugstore such as Mercury Drug.\r\nhttps://healthmaxcare.ph/\r\n\r\n",
+          "forks": 0,
+          "last_activity_at": "2020-10-14",
+          "name": "HealthMax Care",
+          "path": "KyleFrancisOng/healthmax-care",
+          "stars": 0
+        }
+      ],
+      "status": 200,
+      "term": "permit register",
+      "vertical": "licensing"
+    },
+    {
+      "n": 0,
+      "projects": [],
+      "status": 200,
+      "term": "licensee registry",
+      "vertical": "licensing"
+    },
+    {
+      "n": 0,
+      "projects": [],
+      "status": 200,
+      "term": "known exploited vulnerabilities",
+      "vertical": "control"
+    },
+    {
+      "n": 20,
+      "projects": [
+        {
+          "description": "For information about community forks, checkout the [meta project](https://gitlab.com/gitlab-community/meta)",
+          "forks": 0,
+          "last_activity_at": "2026-08-20",
+          "name": "advisory-database Community Fork",
+          "path": "gitlab-community/gitlab-org/security-products/gemnasium-db",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 105,
+          "last_activity_at": "2026-08-20",
+          "name": "advisory-database",
+          "path": "gitlab-org/security-products/gemnasium-db",
+          "stars": 32
+        },
+        {
+          "description": "GitLab Advisory Database (Open Source Edition)",
+          "forks": 9,
+          "last_activity_at": "2026-08-20",
+          "name": "GitLab Advisory Database Open Source Edition",
+          "path": "gitlab-org/advisories-community",
+          "stars": 9
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-20",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85571260",
+          "path": "rachel.green.r/ecoscan-12006272-deletion_scheduled-85571260",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-19",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85532155",
+          "path": "chandler.bing/ecoscan-12006272-deletion_scheduled-85532155",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-18",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85497837",
+          "path": "chandler.bing/ecoscan-12006272-deletion_scheduled-85497837",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-17",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85461996",
+          "path": "rachel.green.r/ecoscan-12006272-deletion_scheduled-85461996",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-16",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85445612",
+          "path": "rachel.green.r/ecoscan-12006272-deletion_scheduled-85445612",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-15",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85430191",
+          "path": "chandler.bing/ecoscan-12006272-deletion_scheduled-85430191",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-14",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85400431",
+          "path": "chandler.bing/ecoscan-12006272-deletion_scheduled-85400431",
+          "stars": 0
+        },
+        {
+          "description": "Deploys the GitLab Advisory Database at https://advisories.gitlab.com",
+          "forks": 0,
+          "last_activity_at": "2026-08-13",
+          "name": "advisories.gitlab.io-deletion_scheduled-80225160",
+          "path": "ashmckenzie/advisories.gitlab.io-deletion_scheduled-80225160",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-13",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85368684",
+          "path": "chandler.bing/ecoscan-12006272-deletion_scheduled-85368684",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-12",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85332959",
+          "path": "chandler.bing/ecoscan-12006272-deletion_scheduled-85332959",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-10",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85265245",
+          "path": "rachel.green.r/ecoscan-12006272-deletion_scheduled-85265245",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-09",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85248181",
+          "path": "chandler.bing/ecoscan-12006272-deletion_scheduled-85248181",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-08",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85230079",
+          "path": "rachel.green.r/ecoscan-12006272-deletion_scheduled-85230079",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-07",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85197494",
+          "path": "rachel.green.r/ecoscan-12006272-deletion_scheduled-85197494",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-06",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85162832",
+          "path": "chandler.bing/ecoscan-12006272-deletion_scheduled-85162832",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-05",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85128062",
+          "path": "rachel.green.r/ecoscan-12006272-deletion_scheduled-85128062",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-05-14",
+          "name": "advisory-database",
+          "path": "imranhasmi/gemnasium-db",
+          "stars": 0
+        }
+      ],
+      "status": 200,
+      "term": "advisory database",
+      "vertical": "control"
+    },
+    {
+      "n": 20,
+      "projects": [
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 105,
+          "last_activity_at": "2026-08-20",
+          "name": "advisory-database",
+          "path": "gitlab-org/security-products/gemnasium-db",
+          "stars": 32
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-20",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85571260",
+          "path": "rachel.green.r/ecoscan-12006272-deletion_scheduled-85571260",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-19",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85532155",
+          "path": "chandler.bing/ecoscan-12006272-deletion_scheduled-85532155",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-18",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85497837",
+          "path": "chandler.bing/ecoscan-12006272-deletion_scheduled-85497837",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-17",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85461996",
+          "path": "rachel.green.r/ecoscan-12006272-deletion_scheduled-85461996",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-16",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85445612",
+          "path": "rachel.green.r/ecoscan-12006272-deletion_scheduled-85445612",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-15",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85430191",
+          "path": "chandler.bing/ecoscan-12006272-deletion_scheduled-85430191",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-14",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85400431",
+          "path": "chandler.bing/ecoscan-12006272-deletion_scheduled-85400431",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-13",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85368684",
+          "path": "chandler.bing/ecoscan-12006272-deletion_scheduled-85368684",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-12",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85332959",
+          "path": "chandler.bing/ecoscan-12006272-deletion_scheduled-85332959",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-10",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85265245",
+          "path": "rachel.green.r/ecoscan-12006272-deletion_scheduled-85265245",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-09",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85248181",
+          "path": "chandler.bing/ecoscan-12006272-deletion_scheduled-85248181",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-08",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85230079",
+          "path": "rachel.green.r/ecoscan-12006272-deletion_scheduled-85230079",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-07",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85197494",
+          "path": "rachel.green.r/ecoscan-12006272-deletion_scheduled-85197494",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-08-07",
+          "name": "Security Advisories-deletion_scheduled-85146266",
+          "path": "esaqa/esaqa/security-advisories-deletion_scheduled-85146266",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-06",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85162832",
+          "path": "chandler.bing/ecoscan-12006272-deletion_scheduled-85162832",
+          "stars": 0
+        },
+        {
+          "description": "",
+          "forks": 0,
+          "last_activity_at": "2026-08-06",
+          "name": "Security Advisories",
+          "path": "esaqa/esaqa/security-advisories",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-08-05",
+          "name": "temp scan ecoscan-12006272-deletion_scheduled-85128062",
+          "path": "rachel.green.r/ecoscan-12006272-deletion_scheduled-85128062",
+          "stars": 0
+        },
+        {
+          "description": "Security vulnerability database inclusive of CVEs and GitHub originated security advisories from the world of open source software.",
+          "forks": 0,
+          "last_activity_at": "2026-05-14",
+          "name": "pkg-install-Ali",
+          "path": "derygamer9/pkg-install-Ali",
+          "stars": 0
+        },
+        {
+          "description": "The GitLab Advisory Database (GLAD), used in GitLab Ultimate [Dependency Scanning](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/) and [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/#capabilities).\r\n\r\n[Contributions welcome!](h",
+          "forks": 0,
+          "last_activity_at": "2026-05-14",
+          "name": "advisory-database",
+          "path": "imranhasmi/gemnasium-db",
+          "stars": 0
+        }
+      ],
+      "status": 200,
+      "term": "security advisories",
+      "vertical": "control"
+    }
+  ]
+}
