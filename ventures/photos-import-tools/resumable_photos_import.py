@@ -259,6 +259,20 @@ class ImportState:
         self.connection.commit()
         return int(cursor.rowcount)
 
+    def ambiguous_names(self) -> set[str]:
+        # Camera-generated filenames (DSC00001.JPG, IMG_0001.JPG) are not
+        # globally unique, so two distinct tracked source files can share a
+        # basename. Every basename-only Photos-library match in this module
+        # (bulk_preflight_pending, photos_contains_file, filename_in_photos)
+        # is unsafe for a name in this set: matching by name alone would mark
+        # every same-named row "imported" once any one of them is, silently
+        # dropping the others without ever copying their bytes.
+        counts: dict[str, int] = {}
+        for (path,) in self.connection.execute("SELECT path FROM imports"):
+            name = Path(path).name
+            counts[name] = counts.get(name, 0) + 1
+        return {name for name, count in counts.items() if count > 1}
+
 
 def row_to_item(row: sqlite3.Row) -> ImportItem:
     return ImportItem(
@@ -362,12 +376,16 @@ def bulk_preflight_pending(state: ImportState, photos_db: Path) -> int:
     names = load_photos_original_filenames(photos_db)
     if not names:
         return 0
+    ambiguous = state.ambiguous_names()
     marked = 0
     now = iso_now()
     for path, in state.connection.execute(
         "SELECT path FROM imports WHERE status IN ('pending', 'failed', 'uncertain')"
     ):
-        if Path(path).name in names:
+        name = Path(path).name
+        if name in ambiguous:
+            continue
+        if name in names:
             state.connection.execute(
                 "UPDATE imports SET status='imported', last_error=NULL, updated_at=? WHERE path=?",
                 (now, path),
@@ -411,6 +429,8 @@ class PhotosImporter:
         self.photos_activated = False
         self._photos_names_cache: set[str] | None = None
         self._photos_names_loaded_at = 0.0
+        self._ambiguous_names_cache: set[str] | None = None
+        self._ambiguous_names_loaded_at = 0.0
 
     def install_signal_handlers(self) -> None:
         def request_stop(_signum: int, _frame: object) -> None:
@@ -724,9 +744,14 @@ class PhotosImporter:
         self.ensure_photos_ready()
 
     def photos_contains_file(self, path: Path) -> bool:
-        return path.name in self.get_photos_names()
+        name = path.name
+        if name in self.get_ambiguous_names():
+            return False
+        return name in self.get_photos_names()
 
     def filename_in_photos(self, filename: str) -> bool:
+        if filename in self.get_ambiguous_names():
+            return False
         return filename in self.get_photos_names()
 
     def get_photos_names(self) -> set[str]:
@@ -734,6 +759,16 @@ class PhotosImporter:
             self._photos_names_cache = load_photos_original_filenames(self.photos_db)
             self._photos_names_loaded_at = time.monotonic()
         return self._photos_names_cache
+
+    def get_ambiguous_names(self) -> set[str]:
+        # Same collision this venture's other basename-only Photos-library
+        # matches need guarding against (see ImportState.ambiguous_names);
+        # cached on the same TTL as get_photos_names since both are read on
+        # every prepare_batch/handle_item_error call.
+        if self._ambiguous_names_cache is None or time.monotonic() - self._ambiguous_names_loaded_at > 300:
+            self._ambiguous_names_cache = self.state.ambiguous_names()
+            self._ambiguous_names_loaded_at = time.monotonic()
+        return self._ambiguous_names_cache
 
     def check_disk_space(self) -> bool:
         usage = shutil.disk_usage(self.state_dir)
