@@ -289,9 +289,17 @@ candidates:
         measurement did not touch — the app writes nothing to a live storefront
         and requests no customer or order data — and carrying one candidate's
         measured revision onto another's estimate is the extrapolation this
-        file's tooling exists to keep labelled. Settling it needs an
-        out-of-sample recall measurement, which nothing in this repository has
-        ever taken. See portfolio/research/a11y-external-coverage-reference/.
+        file's tooling exists to keep labelled. Settling it needed an out-of-sample recall measurement, and one landed the
+        same day, 35 minutes after this note was written:
+        portfolio/research/a11y-axe-recall/ measured 0.975 against axe-core
+        over 118 built pages. Evidence for the mitigation, and one data
+        point (2 of 13 checked criteria exercised), so the score still does
+        not move. portfolio/research/a11y-delivered-contrast/ then measured
+        the delivered customer-page corpus, where contrast had never been
+        evaluated at all: 0 failures over 1018 elements, against a CSS
+        reader defect that had both engines claiming 100% decidability on
+        backgrounds they were not reading (fixed; 98.43%). Evidence in both
+        directions, no revision. See portfolio/research/a11y-external-coverage-reference/.
     mitigation: Scan detection is treated as commodity and is not the sale; per-store re-test history and the Liquid fix library are what accrue. The probe measures the channel before the product is built.
     note: >-
       Selected channel-first rather than market-first — see

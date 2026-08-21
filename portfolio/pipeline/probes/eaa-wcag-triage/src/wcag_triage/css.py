@@ -382,7 +382,32 @@ def _declarations(body: str) -> list:
 
 
 def _split_selectors(prelude: str) -> list:
-    return [s.strip() for s in prelude.split(",") if s.strip()]
+    """Split a selector list on its *separating* commas only.
+
+    A plain ``prelude.split(",")`` is wrong on any selector that contains a
+    comma which is not a separator, and Tailwind's arbitrary-value classes are
+    full of them: ``.bg-\\[linear-gradient\\(#fff\\,#000\\)]`` escapes the
+    commas of its own value into the class name. Splitting naively shredded
+    such a rule into fragments, none of which matched a single-class selector,
+    so the whole declaration was dropped — silently, because a dropped rule is
+    indistinguishable from a property the page never set. The colour values
+    that carry commas are exactly the ones that matter here (``rgba()``, every
+    gradient), so the loss was concentrated on backgrounds rather than spread
+    evenly.
+
+    Commas inside quotes or brackets are skipped for the same reason, which
+    also covers unescaped forms like ``:is(a, b)`` and ``[title="a,b"]``.
+    """
+    parts = []
+    start = 0
+    while True:
+        comma = _find_top_level(prelude, start, ",")
+        if comma == -1:
+            break
+        parts.append(prelude[start:comma])
+        start = comma + 1
+    parts.append(prelude[start:])
+    return [part.strip() for part in parts if part.strip()]
 
 
 def _find_top_level(text: str, start: int, char: str) -> int:

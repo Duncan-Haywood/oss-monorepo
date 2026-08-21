@@ -82,7 +82,35 @@ def _number(criterion: str) -> str:
     return criterion.split()[0]
 
 
-def probe_findings(html: str) -> list:
+# The stylesheet the delivered pages are served with.
+#
+# Both engines' colour rules take an optional *parsed, linked* stylesheet and
+# are explicit that without one "the colour rules simply find nothing to
+# decide". These adapters used to pass none, on a corpus that links none —
+# so 1.4.3 could not fire on any element of any page, and the zero below was
+# reported as "clean" rather than as "not checked". The engines did say so:
+# their contrast tally read 1018 of 1018 elements undecidable, in a field this
+# script never read. See `portfolio/research/a11y-delivered-contrast/`.
+#
+# The preview route is server-rendered from the same Next.js build as the
+# marketing site, so that build's emitted CSS is the sheet a visitor's browser
+# applies to it.
+STYLESHEET_APP = ROOT / "ventures/local-site-studio"
+
+
+def delivered_stylesheet():
+    """The built stylesheet, or None when the venture has not been built."""
+    import audit
+
+    css = "\n".join(
+        p.read_text(errors="replace") for p in sorted((STYLESHEET_APP / ".next").rglob("*.css"))
+    )
+    if not css.strip():
+        return None
+    return audit.merge_stylesheets([css])
+
+
+def probe_findings(html: str, stylesheet=None) -> list:
     from wcag_triage.engine import audit_html
 
     return [
@@ -92,14 +120,25 @@ def probe_findings(html: str) -> list:
             "element": f.element,
             "message": f.message,
         }
-        for f in audit_html(html).findings
+        for f in audit_html(html, stylesheet=stylesheet).findings
     ]
 
 
-def audit_py_criteria(html: str) -> list:
+def probe_contrast(html: str, stylesheet=None) -> dict:
+    """The engine's own account of what it could and could not decide.
+
+    Read separately from the findings because the findings list cannot
+    distinguish "checked and passed" from "never looked": both are empty.
+    """
+    from wcag_triage.engine import audit_html
+
+    return audit_html(html, stylesheet=stylesheet).contrast
+
+
+def audit_py_criteria(html: str, stylesheet=None) -> list:
     import audit
 
-    result = audit.audit_source(html, "page.html")
+    result = audit.audit_source(html, "page.html", stylesheet=stylesheet)
     return sorted(_number(f["success_criterion"]) for f in result["findings"])
 
 
@@ -229,11 +268,18 @@ def load_corpus(corpus_dir: pathlib.Path) -> tuple:
 
 def measure(corpus_dir: pathlib.Path) -> dict:
     pages, duplicates = load_corpus(corpus_dir)
+    sheet = delivered_stylesheet()
+    contrast = collections.Counter()
+    reasons = collections.Counter()
     per_page = []
     for name, html in pages:
-        findings = probe_findings(html)
+        findings = probe_findings(html, sheet)
+        tally = probe_contrast(html, sheet)
+        for key in ("pass", "fail", "undecidable", "elements"):
+            contrast[key] += tally[key]
+        reasons.update(tally["reasons"])
         probe_counts = collections.Counter(_number(f["criterion"]) for f in findings)
-        audit_counts = collections.Counter(audit_py_criteria(html))
+        audit_counts = collections.Counter(audit_py_criteria(html, sheet))
         per_page.append({
             "page": name,
             "findings": findings,
@@ -251,6 +297,19 @@ def measure(corpus_dir: pathlib.Path) -> dict:
         },
         "per_page": per_page,
         "control": run_control(pages),
+        # Reported whether or not a stylesheet was found, because "no
+        # stylesheet" is a result about this run and not a property of the
+        # product. Without one every element lands in `undecidable`, and a
+        # reader who sees 0 findings is entitled to know which of the two
+        # zeros this is.
+        "contrast": {
+            "stylesheet_available": sheet is not None,
+            "elements": contrast["elements"],
+            "pass": contrast["pass"],
+            "fail": contrast["fail"],
+            "undecidable": contrast["undecidable"],
+            "reasons": dict(sorted(reasons.items())),
+        },
     }
 
 
@@ -278,6 +337,18 @@ def summarise(data: dict) -> str:
         out.append(f"  {row['page']}: audit.py {sorted(row['only_audit_py'])} "
                    f"vs probe {sorted(row['only_probe'])}")
     out.append("")
+
+    contrast = data.get("contrast")
+    if contrast is not None:
+        out.append("Colour contrast (1.4.3) — which zero is the zero above?")
+        if not contrast["stylesheet_available"]:
+            out.append("  NOT CHECKED — no built stylesheet found. Every element below is "
+                       "undecidable for that reason alone, not because the page is clean.")
+        out.append(f"  {contrast['elements']} text elements: {contrast['pass']} pass, "
+                   f"{contrast['fail']} fail, {contrast['undecidable']} undecidable")
+        for reason, count in contrast["reasons"].items():
+            out.append(f"    {reason:<34s} {count}")
+        out.append("")
 
     out.append("Positive control — does a defect in these pages get caught?")
     removals = [r for r in data["control"] if r["kind"] == "removal"]
