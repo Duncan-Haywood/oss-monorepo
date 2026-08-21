@@ -14409,3 +14409,57 @@ entries:
         score moved; the standing $0 revenue ceiling and the
         publish/payout blocker on issue #139 are unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/ecstatic-volta-i6zdkg. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 60% of last 25 entries, below the 70%
+        threshold). `git fetch origin main` first; tip `8292550` (#521).
+        Listed the 4 open PRs before starting: #372 and #368 already
+        correctly owner-gated with nothing new (confirmed via
+        `verification_status.py`, both still `VALID`); #511
+        (world-clock-widget icon) correctly left for human review (no
+        Xcode toolchain here); #523 (eaa-wcag-triage colour-contrast
+        decidability), opened 12 minutes before this session started, had
+        correctly identified itself as not agent-decidable as a whole --
+        it bundles an internal probe-engine/research change with
+        colour-token fixes to two deployable ventures -- and its own body
+        explicitly invited a split.
+      - >-
+        Did that split rather than waiting on the invitation to be
+        answered by a human: the split doesn't need a human decision,
+        since the portfolio-only half already qualifies as agent-decidable
+        on its own regardless of what happens to the venture half. Applied
+        everything from #523 except the two `ventures/*` diffs (11 files
+        of colour-class edits) as PR #524, verified independently on this
+        session's own checkout -- 112/112 probe tests, 9 passed/2 skipped
+        (build-artifact-dependent, expected) on the measurement suite, all
+        six sibling a11y research suites green, both
+        `portfolio/pipeline` validators clean, new CI workflow YAML
+        parses, `git merge-tree` clean against `main`'s live tip -- then
+        self-merged it as PR #524.
+      - >-
+        Edited two spots (in the new research README and the
+        `eaa-remediation-pipeline` candidate doc) that described the
+        venture colour-token fixes as already landed by that same pass;
+        since #524 doesn't carry them, left as-is they would have
+        misstated what's on `main`. Repointed both at #523, which still
+        carries the venture-only remainder (354 of the 965 found AA
+        contrast failures, fixed in `local-site-studio` and
+        `ai-first-markets`) awaiting the account owner's sign-off per
+        `CLAUDE.md`'s "breaking changes to deployable `ventures/*` code"
+        row. Commented on #523 pointing to #524 and noting the remaining
+        branch will need a rebase before it can merge cleanly, since #524
+        now carries the engine/research changes #523's diff duplicates.
+      - >-
+        Net effect: the 98.76%-decidable / 965-failure colour-contrast
+        finding and its probe engine are now on `main`, verified, without
+        an extra research pass or a human decision needed to get there;
+        only the venture-code question is left waiting. No revenue and no
+        candidate score moved; the standing $0 revenue ceiling and the
+        publish/payout blocker on issue #139 are unchanged.
+    mrr_end: null
