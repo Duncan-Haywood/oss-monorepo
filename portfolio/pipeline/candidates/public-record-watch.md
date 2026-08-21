@@ -8,7 +8,7 @@ changed, with the source document attached.
 (no human in the loop, no customer data, no advice), and the distribution is the
 worst. Two weeks against one vertical decides it.
 
-Scored 2026-08-18. Composite 7.0 · floor 4 (distribution).
+Scored 2026-08-18. Composite 6.625 · floor 4 (distribution).
 
 | Dimension | Score | Why |
 |---|---|---|
@@ -19,7 +19,7 @@ Scored 2026-08-18. Composite 7.0 · floor 4 (distribution).
 | Defensibility | 5 | The pipeline is copyable; the history archive is not, and it compounds |
 | Distribution | 4 | No warm channel. Needs a newsletter, a niche community, or a partner |
 | Liability containment | 8 | Public data, attributed, with the source document linked |
-| Ethical robustness | 9 | Redistributing public information to people entitled to it, with provenance |
+| Ethical robustness | 6 | Measured 2026-08-21, 9 → 6. Redistributing public information to people entitled to it, with provenance — but held-out recall is 0.35, the subscriber sees the same silence whether a source is quiet or the watch missed it, and nuisance alarms cost the operator churn while a miss costs nothing. See [`portfolio/research/error-rate-disclosure/`](../../research/error-rate-disclosure/) |
 
 ## The shape
 

@@ -1,0 +1,59 @@
+name: error-rate-disclosure CI
+
+# Test coverage for the disclosure measurement under
+# portfolio/research/error-rate-disclosure/, which took the pipeline's second
+# gate measurement (ethical_robustness, on the four candidates that have a
+# probe). It runs offline: it renders each probe's own customer-facing artifact
+# from code already in this repository and asks whether that artifact carries
+# the probe's measured error rate. No network, no clock read.
+#
+# Mirrors the sibling research runners (substitute-supply, register-change-rate,
+# a11y-*). Publishes nothing, registers nothing, spends no API budget — a test
+# runner, not the unattended-automation kind of workflow CLAUDE.md gates.
+#
+# The trigger paths deliberately include the four probes, not just this
+# directory. The committed classifications are pinned by tests, so a probe that
+# starts printing its accuracy figure must fail this suite rather than leave a
+# research directory reporting a gap that has been closed. That is the intended
+# way for this measurement to be retired.
+
+on:
+  pull_request:
+    paths:
+      - "portfolio/research/error-rate-disclosure/**"
+      - "portfolio/pipeline/probes/**"
+      - "portfolio/pipeline/candidates.yaml"
+      - ".github/workflows/error-rate-disclosure-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "portfolio/research/error-rate-disclosure/**"
+      - "portfolio/pipeline/probes/**"
+      - "portfolio/pipeline/candidates.yaml"
+      - ".github/workflows/error-rate-disclosure-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A second push to the same branch makes the first run irrelevant.
+concurrency:
+  group: error-rate-disclosure-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: portfolio/research/error-rate-disclosure
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # PyYAML only, to read candidates.yaml back and check it agrees with the
+      # score this directory derived. Everything else is standard library.
+      - run: pip install pyyaml
+      - run: python3 -m unittest discover -p 'test_*.py'

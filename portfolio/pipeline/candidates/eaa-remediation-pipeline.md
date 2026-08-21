@@ -8,7 +8,7 @@ assistive-technology testing, and a dated evidence record.
 as a new venture.** Same buyer, same delivery surface, and the venture already
 has Stripe, a lead pipeline, and a dashboard. If it sells, split it out then.
 
-Scored 2026-08-18. Composite 7.125 · floor 5 (liability containment).
+Scored 2026-08-18. Composite 6.75 · floor 5 (liability containment).
 
 | Dimension | Score | Why |
 |---|---|---|
@@ -19,7 +19,7 @@ Scored 2026-08-18. Composite 7.125 · floor 5 (liability containment).
 | Defensibility | 5 | The method is copyable. What accrues is a re-test archive per customer and a fix library per platform |
 | Distribution | 8 | High-intent moment, and `local-site-studio` already talks to this buyer |
 | Liability containment | 5 | Real exposure if we overclaim; contained by selling evidence, never a compliance guarantee. **Measured 2026-08-21, 6 → 5** — see the amendment below |
-| Ethical robustness | 9 | The output is a site disabled users can actually use — the interests line up |
+| Ethical robustness | 6 | Measured 2026-08-21, 9 → 6. The output is a site disabled users can actually use, and the interests do line up on the *remediation*. They come apart on the *record*: it discloses its scope in full and says nothing about its own accuracy, while an out-of-sample precision of 0.821–0.881 is committed elsewhere in this repository and printed nowhere a customer reads. See [`portfolio/research/error-rate-disclosure/`](../../research/error-rate-disclosure/) |
 
 ## Amendment (2026-08-21): the first gate measurement, and it costs this candidate its margin
 
