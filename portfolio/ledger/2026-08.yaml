@@ -15982,3 +15982,115 @@ entries:
         and re-verify that directory's own numbers -- flagged above,
         not attempted here.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business
+        projects" session, designated branch
+        `claude/laughing-pasteur-rentr5`. Ran `session_gate.py` first
+        (**PROCEED** -- cadence 0.00 sessions/hour, at the maintenance
+        rate the $0-ceiling branch implies). Per `CLAUDE.md`'s intake
+        gate this brief is answered and a candidate list has negative
+        value, so took the first move it names instead: advance
+        something already specified in `portfolio/pipeline/`. `git
+        fetch origin main` first; checked the open PRs (#567, #531/#523,
+        #372, #368) before starting. #567 was a concurrent session's
+        a11y-recall work and merged mid-session; merged it in and cited
+        it rather than overlapping.
+      - >-
+        Took the pipeline's **second gate measurement**, the standing
+        open question `pipeline/README.md` and `score_sensitivity.py`
+        both named: `ethical_robustness` was the remaining unmeasured
+        gate, on all eight candidates, and every score for it was a
+        2026-08-18 estimate in the 8-9 band. A dimension phrased as
+        "the business gets better for customers as it scales" invites
+        an estimate, which is why it stayed one through eleven
+        screening passes and four probes. It becomes measurable once
+        the mechanism is named: the customer acts on a record whose
+        errors are invisible to them, in a direction the operator
+        profits from -- and both halves are checkable from this
+        repository alone.
+      - >-
+        Finding, in four of four: **no probe's customer-facing artifact
+        carries its own error rate.** New
+        `portfolio/research/error-rate-disclosure/` renders each of the
+        four probes' own artifact (offline, their own code, real input)
+        and evaluates three disclosure classes by three deliberately
+        different methods -- scope structurally, direction lexically
+        with every match quoted, rate numerically with the citation
+        re-verified against its source file on every run. Two probes
+        have a committed accuracy number and neither prints it
+        (out-of-sample precision 0.821-0.881; held-out recall 0.35).
+        Two render no customer record at all. The one artifact that
+        names the direction it errs in has never measured the rate for
+        that direction.
+      - >-
+        The sharp part is that **scope disclosure is not accuracy
+        disclosure**, and this pipeline had been reading the first as
+        evidence about the second for four passes. `eaa-wcag-triage`'s
+        record is the most careful disclosure artifact in the
+        repository -- every criterion labelled, every undecidable
+        element named with its reason -- and it never says a finding in
+        the list can be wrong, when 12-18% of them are not defects. And
+        `source-silence-detector` prints `MISSED` beside a source whose
+        dormancy it failed to catch, in an operator table no subscriber
+        sees: a subscriber sees the same silence either way, so unlike
+        a false positive that error is unobservable from outside.
+      - >-
+        Scores, applied under a rubric stated before it was applied and
+        uniformly: `eaa-remediation-pipeline` 9 -> 6,
+        `public-record-watch` 9 -> 6, `cra-evidence-desk` 8 -> 6,
+        `agent-permission-harness` 9 -> 7. In three of four the
+        undisclosed direction is the one that increases operator
+        revenue, read off each candidate's own stated pricing rather
+        than assumed; the fourth states no revenue model, so no
+        alignment deduction was taken and it loses points for not
+        knowing its error rates rather than for concealing them. **No
+        candidate crosses the gate**, and that is the honest headline:
+        the mitigations are one line of rendering each. `probes/README.md`
+        gains the rule that follows.
+      - >-
+        Two things this broke and fixed in `score_sensitivity.py`. It
+        claimed as fixed prose that every revision is "down by one" --
+        two of these are -2 and one is -3, so that sentence is derived
+        now and the script **withholds** its rank extrapolation rather
+        than applying a magnitude it does not have (withheld, not set
+        to zero: an unlooked-at cell is not thereby confirmed). More
+        seriously, it used to `return` at that point, so a second
+        measured dimension would have silently deleted sections 4 and
+        the verdict along with the extrapolation -- including the news
+        that both gates are now measured. Fixed, with a test pinning it.
+      - >-
+        Verified before merging: 17 new tests (including ones that pin
+        the four classifications, so a probe that starts printing its
+        accuracy figure fails this suite rather than leaving a research
+        directory reporting a closed gap -- the intended way to retire
+        this measurement); all 22 score-sensitivity tests, 2 rewritten
+        because they asserted behaviour this change deliberately
+        reverses; the full `portfolio-validate` sequence locally; all
+        four probe suites (npm 197, eaa 112, silence 99, harness 61)
+        and `eaa-wcag-triage`'s committed validation record regenerated
+        byte-identical; `measure.py` re-run reproduces its results file
+        exactly. Merged as #570 with all 3 attached checks green --
+        agent-decidable per `CLAUDE.md` (`portfolio/pipeline` +
+        `portfolio/research` + one path-filtered test-runner workflow,
+        no `ventures/*` app code, publishes/registers/spends nothing).
+      - >-
+        No revenue; the $0 ceiling is unchanged. Backlog unchanged:
+        same three PRs (#531/#523, #372, #368), already reflected on
+        #139, all still correctly human-gated. Named but not done, for
+        the next pass, in priority order: **print the numbers into the
+        artifacts** -- three of the four deductions above are
+        recoverable by four lines of rendering, and doing it would make
+        `error-rate-disclosure`'s own tests fail, which is how it is
+        meant to work. The prior entry's `a11y-own-sites/`
+        missing-stylesheet follow-up was **not** attempted here and did
+        not need to be: a concurrent session landed it as #572 while
+        this entry was being written. Re-checked afterwards --
+        `error-rate-disclosure`'s pinned citation to that directory's
+        precision figures still resolves and its 17 tests still pass,
+        since #572's amendment scopes those numbers (contrast was never
+        in their denominator) rather than revising them.
+    mrr_end: null
