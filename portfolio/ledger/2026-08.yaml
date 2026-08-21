@@ -16085,6 +16085,12 @@ entries:
         artifacts** -- three of the four deductions above are
         recoverable by four lines of rendering, and doing it would make
         `error-rate-disclosure`'s own tests fail, which is how it is
-        meant to work; and the prior entry's `a11y-own-sites/`
-        missing-stylesheet bug is still open, not attempted here.
+        meant to work. The prior entry's `a11y-own-sites/`
+        missing-stylesheet follow-up was **not** attempted here and did
+        not need to be: a concurrent session landed it as #572 while
+        this entry was being written. Re-checked afterwards --
+        `error-rate-disclosure`'s pinned citation to that directory's
+        precision figures still resolves and its 17 tests still pass,
+        since #572's amendment scopes those numbers (contrast was never
+        in their denominator) rather than revising them.
     mrr_end: null
