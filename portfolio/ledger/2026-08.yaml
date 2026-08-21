@@ -11355,3 +11355,73 @@ entries:
         agent time -- consistent with this venture's own recent self-merge
         precedent (#387, #397, #399, #402).
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process, increase profit, more strategic work" session, designated
+        branch claude/wizardly-albattani-c5kvvk. Ran
+        `portfolio/ledger/session_gate.py` first (PROCEED -- meta-work
+        share 56%, below the 70% threshold). `git fetch origin main` first;
+        checked the 5 open PRs (#372, #368, #144, #19, plus the
+        just-opened #398) and issue #139 before touching anything.
+      - >-
+        #398 was a clean, ledger-only, agent-decidable PR (single-file
+        YAML append recording #389's duplicate-close and #397's merge, no
+        code, `yaml.safe_load` clean, `mergeable_state: clean` against
+        current main) -- merged it directly rather than leaving it for a
+        future session to fold in. #372/#368/#144/#19 were re-confirmed
+        (not re-verified from scratch) as still correctly owner-gated by
+        the immediately preceding session's ledger entry; nothing had
+        changed. Issue #139 was already current: Ask 8 already superseded
+        by `break-even.md`'s binary framing, no owner response on any ask
+        yet, no duplicate asks outstanding.
+      - >-
+        `portfolio/router/allocate.py` confirmed photos-import-tools is
+        still the only dispatchable venture (9 of 10 blocked on the
+        owner's publish decision, 42.67 total merit sitting on that one
+        call). Rather than grind another rephrase of the venture's 13
+        existing hypothesis themes, had an Explore agent hunt specifically
+        outside them (watchdog resource management / "what if the
+        watchdog itself crashes" -- the one angle none of the 13 touched).
+        It found a real one: `run_watchdog()`'s worker-restart path passed
+        `subprocess.Popen` a `stdout=log_path.open("ab")` file object that
+        was never closed. `Popen` dup()s the fd into the child during
+        fork, so the parent's own copy is safe to close right after
+        `Popen()` returns -- but nothing did, leaking one fd per worker
+        (re)start. An unattended run against a flaky card/connection that
+        restarts the worker repeatedly (every exit or every 900s stall)
+        would eventually hit the watchdog process's own open-file ulimit
+        and crash it uncaught, silently stalling the import with
+        `status.json` still reading `worker_running: true`.
+      - >-
+        Fixed by opening the log file as a context manager around the
+        `Popen()` call, matching the pattern already used elsewhere in the
+        file. Added a regression test with a fake `Popen` capturing the
+        `stdout=` handle; confirmed it fails against the pre-fix code via
+        manual revert and passes against the fix. Before considering it
+        done, checked `git merge-tree` against the concurrently-merging
+        #407 (SIGKILL-survival fix, same file) to confirm no line overlap
+        -- genuinely independent, not a re-derivation.
+      - >-
+        Two concurrent sessions landed unrelated photos-import-tools work
+        on main mid-session (#406/#407 SIGKILL-survival fix, plus a
+        basename-collision fix and a disk-space-stat-retry hypothesis);
+        merged main into the branch twice as main moved, resolving two
+        rounds of a purely position-based `VENTURE.yaml`
+        hypothesis-list conflict (concurrent appends, no logic overlap)
+        by keeping every entry both times, and one round of an import-style
+        conflict in the test file. Re-verified after each merge: full
+        suite 69/69, ruff/mypy clean, all four portfolio validators green,
+        plus `break_even.py --check` and `verification_status.py --check`.
+      - >-
+        Opened PR #408, waited for CI (test/lint/validate all green
+        against main tip `67ae951`), confirmed `mergeable_state: clean`,
+        and self-merged as agent-decidable: prototype-stage local macOS
+        tool (`links.production: null`, no live site), no new dependency,
+        no account, no credential, no unattended automation, no spend
+        beyond agent time -- consistent with this venture's own recent
+        self-merge precedent (#387/#397/#399/#402/#406).
+    mrr_end: null
