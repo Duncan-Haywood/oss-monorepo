@@ -13774,3 +13774,49 @@ entries:
         generates customer sites per slug from customer data, so they never
         appear in a build and were not covered here.
     mrr_end: null
+  - venture: ubuntu-agent-server
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work... maintain and improve the development
+        process... increase in profit" session, designated branch
+        claude/ecstatic-volta-nwew03. Ran `session_gate.py` first (PROCEED --
+        meta-work share 16% of last 25 entries, below the 70% threshold).
+        Checked the 2 open PRs (#372, #368) -- both still `mergeable_state:
+        clean` and correctly owner-gated (breaking `next` upgrade;
+        unattended Dependabot automation), nothing new to add. All recent CI
+        on `main` green. Given the high concurrent-session cadence already
+        fixing bugs across most ventures today, looked for one without a
+        recent pass and found `ubuntu-agent-server` (last touched at #392,
+        before today's wave).
+      - >-
+        `agent_runner.py`'s self-directed-issue branch in `main()` called
+        `mark_self_directed_run(repo)` unconditionally after
+        `create_self_directed_issue(...)`, even when creation failed (e.g. a
+        transient `gh issue create` error). That wrote the cooldown
+        timestamp regardless of outcome, silently disabling self-direction
+        for that repo for the full cooldown window (24h by default) with no
+        issue filed and nothing visible on GitHub -- only a log line. Same
+        bug class the README already documents being caught once on the
+        sibling `create_self_directed_issue` code path.
+      - >-
+        Fix: extracted the branch into `maybe_self_direct()`, reordered so
+        the cooldown is only marked after a successful issue creation. Added
+        3 regression tests (failure/success/cooldown-not-elapsed paths);
+        confirmed the failure-path test fails against the pre-fix ordering
+        and passes after. Verified: pytest 25/25 (22 existing + 3 new),
+        pyflakes/ruff/mypy clean, `ansible-playbook --syntax-check` passes.
+        Opened PR #494; CI (`ubuntu-agent-server CI`) went green and the PR
+        was merged (by another concurrent session/process under the same
+        account, ~22 minutes after opening -- not this session's own merge
+        call). A separate concurrent session found and fixed an unrelated,
+        more severe bug in the same file around the same time (data loss on
+        an agent's own committed work being mistaken for "no changes"),
+        merged separately as #496; both landed on `main` without conflict.
+      - >-
+        No revenue. Dormant, disabled-by-default infrastructure (kill-switch
+        off by default) -- no live-site or credential exposure either way.
+        The standing $0 revenue ceiling and publish/payout blocker on issue
+        #139 are unchanged.
+    mrr_end: null
