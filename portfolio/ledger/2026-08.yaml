@@ -13774,3 +13774,57 @@ entries:
         generates customer sites per slug from customer data, so they never
         appear in a build and were not covered here.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/keen-knuth-bqyqeq. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 24% of last 25 entries, well below the
+        70% threshold). A local `git fetch origin main` initially returned
+        a stale cached ref (`bb9f519`, dated 2026-07-29, with no common
+        ancestor with the designated branch); a forced re-fetch and a
+        cross-check via `list_commits` against the GitHub API confirmed
+        this was a local sandbox caching artifact, not an actual history
+        rewrite -- the real `main` tip (`e2e3371`) matched the branch's own
+        HEAD exactly. No repo damage; noted here in case another session
+        hits the same stale-fetch symptom.
+      - >-
+        Listed open PRs before starting: #495, #494, #493 (three fresh
+        bug-fix PRs from concurrent sessions, each self-describing as
+        agent-decidable and "will self-merge once CI green," each still
+        open with all CI checks green and no merge action taken) plus
+        #372 and #368, both already correctly owner-gated by their own
+        recent sessions with nothing new to add.
+      - >-
+        Rather than duplicate the bug-hunting those three sessions had
+        just done, verified and merged all three: #493
+        (retail-pilot-intel -- stop merging different stores' sales when
+        `receipt_id` collides across stores in one aggregated CSV import,
+        fixing silent revenue loss/misattribution), #494
+        (ubuntu-agent-server -- `agent_runner.py` no longer marks the
+        self-direct cooldown when `create_self_directed_issue` fails,
+        which was silently disabling self-direction for 24h with nothing
+        visible on GitHub), #495 (local-site-studio -- mirrors the
+        already-merged Convex fix (#483) onto the SQLite fallback path in
+        `db.ts`, which had the identical live-lead-regressed-to-paid
+        defect and zero direct test coverage before this PR).
+      - >-
+        Each PR's own CI was confirmed green before merging (493: build;
+        494: shellcheck/yaml-sanity/ansible/python, all green; 495:
+        verify), and `git merge-tree` was re-run against the live `main`
+        tip immediately before each merge, re-fetching main between merges
+        since each prior merge moved the tip the next check needed to
+        account for. All three touch only internal, unpublished venture
+        code (`links.production: null` in each `VENTURE.yaml`), no new
+        dependency or credential, nothing spent beyond agent time --
+        agent-decidable per `CLAUDE.md`.
+      - >-
+        No revenue; no candidate score moved. #372 and #368 remain
+        correctly human-gated (breaking `next` framework upgrade;
+        unattended Dependabot automation) and untouched. The standing $0
+        revenue ceiling and the publish/payout blocker on issue #139 are
+        unchanged.
+    mrr_end: null
