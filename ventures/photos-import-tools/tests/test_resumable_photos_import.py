@@ -229,6 +229,51 @@ class ResumablePhotosImportTests(unittest.TestCase):
             self.assertEqual(state.get_status(photo), "imported")
             self.assertEqual(importer.imported_paths, [])
 
+    def test_batch_of_only_terminally_resolved_items_does_not_end_the_run(self):
+        # prepare_batch() claims a batch via claim_next_batch(), then can
+        # resolve every claimed item to a terminal status itself -- a Photos
+        # preflight match (mark_imported) or a wait_for_file() timeout
+        # (mark_skipped_permanent) -- without adding either to `ready`. An
+        # unlucky claim (e.g. batch_size=1 landing on an iCloud placeholder
+        # that never finishes downloading) can therefore return an empty
+        # `ready` batch even though other items are still pending. Before
+        # this fix, run() treated "this pass's ready list is empty" as "the
+        # whole manifest is done", printed "Complete", and returned 0 while
+        # the still-pending item was silently never imported.
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            # Sorts before "pending" so claim_next_batch() (ORDER BY path)
+            # claims it first with batch_size=1. It is never written to disk,
+            # so file_is_ready() reports it not-ready forever, the same as an
+            # iCloud placeholder that never finishes syncing.
+            vanished = root / "a-vanished.JPG"
+            pending = root / "z-pending.JPG"
+            pending.write_bytes(b"jpeg")
+            state = ImportState(root / "state.sqlite3")
+            state.upsert(vanished, "pending")
+            state.upsert(pending, "pending")
+            importer = FakePhotosImporter(
+                state=state,
+                state_dir=root,
+                event_log=root / "events.jsonl",
+                error_log=root / "errors.jsonl",
+                status_path=root / "status.json",
+                stop_file=root / "STOP",
+                per_file_timeout_seconds=1,
+                attempts=1,
+                batch_size=1,
+                photos_db=root / "missing.sqlite",
+                existing_filenames=set(),
+            )
+
+            with mock.patch("resumable_photos_import.time.sleep", return_value=None):
+                exit_code = importer.run()
+
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(state.get_status(vanished), "skipped_permanent")
+            self.assertEqual(state.get_status(pending), "imported")
+            self.assertEqual(importer.imported_paths, [pending])
+
     def test_pending_file_imports_without_photos_duplicate_check(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
@@ -328,7 +373,16 @@ class ResumablePhotosImportTests(unittest.TestCase):
 
             self.assertEqual(exit_code, 0)
             self.assertEqual(state.get_status(good), "imported")
-            self.assertEqual(state.get_status(flaky), "failed")
+            # flaky.JPG fails unconditionally, so this exhausts every
+            # retry and must land on skipped_permanent, not stay "failed"
+            # forever -- handle_item_error()'s retry-limit check used to
+            # read the stale pre-increment attempts count claim_next_batch()
+            # handed it, one claim behind the query's own post-increment
+            # `attempts < MAX_TRANSIENT_ATTEMPTS` filter, so the item
+            # dropped out of that filter's results a claim before this
+            # check ever reclassified it -- stuck at "failed" forever,
+            # unclaimable but still counted in summary()["remaining"].
+            self.assertEqual(state.get_status(flaky), "skipped_permanent")
 
     def test_stale_scratch_file_removal_failure_is_retried_not_fatal_to_the_run(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -385,7 +439,12 @@ class ResumablePhotosImportTests(unittest.TestCase):
 
             self.assertEqual(exit_code, 0)
             self.assertEqual(state.get_status(good), "imported")
-            self.assertEqual(state.get_status(flaky), "failed")
+            # Same retry-limit off-by-one as
+            # test_scratch_copy_failure_is_retried_not_fatal_to_the_run:
+            # flaky.JPG fails unconditionally, so it must exhaust every
+            # retry and land on skipped_permanent rather than getting stuck
+            # at "failed" forever.
+            self.assertEqual(state.get_status(flaky), "skipped_permanent")
 
     def test_check_disk_space_survives_transient_stat_failure(self):
         # state_dir is typically an iCloud-synced path; a transient stat

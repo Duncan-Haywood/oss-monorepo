@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -420,6 +421,40 @@ class OffloadCardTests(unittest.TestCase):
             self.assertIsNotNone(stats.finished_at)
             self.assertNotEqual(stats.finished_at, "")
             self.assertTrue((root / "manifest.json").exists())
+
+    def test_card_ejected_mid_offload_is_flagged_not_reported_clean(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            card = self._make_card(root)
+            (card.source / "DCIM" / "IMG_1.JPG").write_bytes(b"12345")
+            (card.source / "MISC" / "IMG_2.JPG").write_bytes(b"67890")
+
+            # Simulates a flaky USB card reader / early eject: card.source
+            # itself (not just one include path) disappears partway through
+            # the include_paths loop, right after DCIM finishes copying and
+            # before MISC is attempted. Before this fix, MISC's `source.
+            # exists()` guard silently skipped it (no error recorded), and
+            # verify_and_manifest()'s iter_media_files(source_root) returned
+            # [] for the vanished root instead of raising, so stats.errors
+            # stayed empty and offload_exit_code() reported a clean 0 exit
+            # for a card that was never fully offloaded.
+            def fake_rsync_copy(source, dest, log_path):
+                dest.mkdir(parents=True, exist_ok=True)
+                for path in source.iterdir():
+                    (dest / path.name).write_bytes(path.read_bytes())
+                if source.name == "DCIM":
+                    shutil.rmtree(card.source)
+
+            with mock.patch("sd_offload.wait_for_disk_space", return_value=None), \
+                    mock.patch("sd_offload.rsync_copy", side_effect=fake_rsync_copy):
+                stats = offload_card(
+                    card,
+                    root / "card.log",
+                    root / "manifest.json",
+                )
+
+            self.assertTrue(any("unmounted mid-offload" in e for e in stats.errors))
+            self.assertEqual(offload_exit_code([{"errors": stats.errors}]), 1)
 
 
 class OffloadExitCodeTests(unittest.TestCase):
