@@ -176,11 +176,72 @@ class SavedResults(unittest.TestCase):
     def test_agreement_rate(self):
         agree = own.agreement(self.data)
         self.assertEqual(agree["pages"], 118)
-        self.assertEqual(agree["agreeing"], 89)
+        self.assertEqual(agree["agreeing"], 91)
 
     def test_every_disagreement_is_a_relabelling_not_a_missed_defect(self):
         agree = own.agreement(self.data)
         self.assertEqual(agree["pure_relabellings"], agree["disagreeing"])
+
+    def test_contrast_is_evaluated_not_silently_absent(self):
+        """2026-08-21: both adapters used to call their engine with no
+        stylesheet at all, so 1.4.3 always found nothing to decide on every
+        page in this corpus (see the `css_for_app`/`stylesheet_for_app`
+        fix). A saved run with zero 1.4.3 findings anywhere is that bug, not
+        a clean corpus — the fixed adapters find it on 4 of 7 apps.
+        """
+        table = own.defects_by_app(self.data)
+        apps_with_contrast = [
+            app for app, counts in table.items()
+            if any(k.startswith("1.4.3") for k in counts)
+        ]
+        self.assertTrue(apps_with_contrast)
+
+
+class StylesheetIsFed(unittest.TestCase):
+    """The bug this pass fixed: both adapters used to call their engine with
+    no stylesheet, so 1.4.3 silently found nothing to decide. Pin the fix on
+    a synthetic page so a future edit that drops the stylesheet argument
+    fails a test rather than quietly reintroducing the gap.
+    """
+
+    LOW_CONTRAST_PAGE = (
+        "<html lang='en'><body>"
+        "<p class='low'>text</p>"
+        "</body></html>"
+    )
+    LOW_CONTRAST_CSS = ".low { color: #777777; background-color: #808080; }"
+
+    def test_css_for_app_reads_the_whole_next_directory(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            app = pathlib.Path(tmp)
+            # CSS lives under `.next/static/css/`, a sibling of `server/` —
+            # not under either of the BUILD_DIRS `discover()` walks for HTML.
+            css_dir = app / ".next" / "static" / "css"
+            css_dir.mkdir(parents=True)
+            (css_dir / "app.css").write_text(self.LOW_CONTRAST_CSS)
+            self.assertIn("low", own.css_for_app(app))
+
+    def test_stylesheet_for_app_is_none_with_no_css(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertIsNone(own.stylesheet_for_app(pathlib.Path(tmp)))
+
+    def test_probe_finds_contrast_only_when_given_the_stylesheet(self):
+        without = own.probe_findings(self.LOW_CONTRAST_PAGE, stylesheet=None)
+        self.assertFalse(any(f["criterion"] == "1.4.3" for f in without))
+
+        import audit
+        sheet = audit.merge_stylesheets([self.LOW_CONTRAST_CSS])
+        with_sheet = own.probe_findings(self.LOW_CONTRAST_PAGE, stylesheet=sheet)
+        self.assertTrue(any(f["criterion"] == "1.4.3" for f in with_sheet))
+
+    def test_audit_py_finds_contrast_only_when_given_the_stylesheet(self):
+        without = own.audit_py_criteria(self.LOW_CONTRAST_PAGE, stylesheet=None)
+        self.assertNotIn("1.4.3", without)
+
+        import audit
+        sheet = audit.merge_stylesheets([self.LOW_CONTRAST_CSS])
+        with_sheet = own.audit_py_criteria(self.LOW_CONTRAST_PAGE, stylesheet=sheet)
+        self.assertIn("1.4.3", with_sheet)
 
 
 if __name__ == "__main__":
