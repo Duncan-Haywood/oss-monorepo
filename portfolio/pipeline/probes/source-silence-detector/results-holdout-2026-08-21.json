@@ -1,0 +1,1866 @@
+{
+  "anchor_decay": [
+    {
+      "anchor": "max",
+      "by_age": {
+        "1-3y": {
+          "detected": 2,
+          "episodes": 6,
+          "recall": 0.333
+        },
+        "3-6y": {
+          "detected": 1,
+          "episodes": 5,
+          "recall": 0.2
+        },
+        "<1y": {
+          "detected": 2,
+          "episodes": 3,
+          "recall": 0.667
+        },
+        ">=6y": {
+          "detected": 1,
+          "episodes": 3,
+          "recall": 0.333
+        }
+      }
+    },
+    {
+      "anchor": "quantile:0.5",
+      "by_age": {
+        "1-3y": {
+          "detected": 6,
+          "episodes": 6,
+          "recall": 1.0
+        },
+        "3-6y": {
+          "detected": 5,
+          "episodes": 5,
+          "recall": 1.0
+        },
+        "<1y": {
+          "detected": 3,
+          "episodes": 3,
+          "recall": 1.0
+        },
+        ">=6y": {
+          "detected": 3,
+          "episodes": 3,
+          "recall": 1.0
+        }
+      }
+    },
+    {
+      "anchor": "quantile:0.75",
+      "by_age": {
+        "1-3y": {
+          "detected": 6,
+          "episodes": 6,
+          "recall": 1.0
+        },
+        "3-6y": {
+          "detected": 5,
+          "episodes": 5,
+          "recall": 1.0
+        },
+        "<1y": {
+          "detected": 3,
+          "episodes": 3,
+          "recall": 1.0
+        },
+        ">=6y": {
+          "detected": 3,
+          "episodes": 3,
+          "recall": 1.0
+        }
+      }
+    },
+    {
+      "anchor": "quantile:0.9",
+      "by_age": {
+        "1-3y": {
+          "detected": 4,
+          "episodes": 6,
+          "recall": 0.667
+        },
+        "3-6y": {
+          "detected": 5,
+          "episodes": 5,
+          "recall": 1.0
+        },
+        "<1y": {
+          "detected": 3,
+          "episodes": 3,
+          "recall": 1.0
+        },
+        ">=6y": {
+          "detected": 2,
+          "episodes": 3,
+          "recall": 0.667
+        }
+      }
+    },
+    {
+      "anchor": "quantile:0.95",
+      "by_age": {
+        "1-3y": {
+          "detected": 3,
+          "episodes": 6,
+          "recall": 0.5
+        },
+        "3-6y": {
+          "detected": 2,
+          "episodes": 5,
+          "recall": 0.4
+        },
+        "<1y": {
+          "detected": 2,
+          "episodes": 3,
+          "recall": 0.667
+        },
+        ">=6y": {
+          "detected": 2,
+          "episodes": 3,
+          "recall": 0.667
+        }
+      }
+    },
+    {
+      "anchor": "quantile:0.99",
+      "by_age": {
+        "1-3y": {
+          "detected": 2,
+          "episodes": 6,
+          "recall": 0.333
+        },
+        "3-6y": {
+          "detected": 2,
+          "episodes": 5,
+          "recall": 0.4
+        },
+        "<1y": {
+          "detected": 2,
+          "episodes": 3,
+          "recall": 0.667
+        },
+        ">=6y": {
+          "detected": 2,
+          "episodes": 3,
+          "recall": 0.667
+        }
+      }
+    },
+    {
+      "anchor": "quantile:1",
+      "by_age": {
+        "1-3y": {
+          "detected": 2,
+          "episodes": 6,
+          "recall": 0.333
+        },
+        "3-6y": {
+          "detected": 1,
+          "episodes": 5,
+          "recall": 0.2
+        },
+        "<1y": {
+          "detected": 2,
+          "episodes": 3,
+          "recall": 0.667
+        },
+        ">=6y": {
+          "detected": 1,
+          "episodes": 3,
+          "recall": 0.333
+        }
+      }
+    }
+  ],
+  "budget_days_per_source_year": 5.0,
+  "budget_sweep": [
+    {
+      "anchors_selected": [
+        "max"
+      ],
+      "budget_days_per_source_year": 2.0,
+      "held_out_detected": 6,
+      "held_out_episodes": 17,
+      "held_out_median_latency_days": 114.5,
+      "held_out_nuisance_days_per_source_year": 1.9,
+      "held_out_recall": 0.353,
+      "unanimous": true
+    },
+    {
+      "anchors_selected": [
+        "max",
+        "quantile:0.99"
+      ],
+      "budget_days_per_source_year": 5.0,
+      "held_out_detected": 6,
+      "held_out_episodes": 17,
+      "held_out_median_latency_days": 110.0,
+      "held_out_nuisance_days_per_source_year": 3.91,
+      "held_out_recall": 0.353,
+      "unanimous": false
+    },
+    {
+      "anchors_selected": [
+        "max",
+        "quantile:0.95",
+        "quantile:0.99"
+      ],
+      "budget_days_per_source_year": 10.0,
+      "held_out_detected": 6,
+      "held_out_episodes": 17,
+      "held_out_median_latency_days": 110.0,
+      "held_out_nuisance_days_per_source_year": 9.2,
+      "held_out_recall": 0.353,
+      "unanimous": false
+    },
+    {
+      "anchors_selected": [
+        "quantile:0.9",
+        "quantile:0.95"
+      ],
+      "budget_days_per_source_year": 20.0,
+      "held_out_detected": 9,
+      "held_out_episodes": 17,
+      "held_out_median_latency_days": 101.5,
+      "held_out_nuisance_days_per_source_year": 18.56,
+      "held_out_recall": 0.529,
+      "unanimous": false
+    },
+    {
+      "anchors_selected": [
+        "quantile:0.75",
+        "quantile:0.9"
+      ],
+      "budget_days_per_source_year": 50.0,
+      "held_out_detected": 14,
+      "held_out_episodes": 17,
+      "held_out_median_latency_days": 35.5,
+      "held_out_nuisance_days_per_source_year": 42.55,
+      "held_out_recall": 0.824,
+      "unanimous": false
+    }
+  ],
+  "config": {
+    "anchor": "max",
+    "fallback": "none",
+    "fallback_days": 30,
+    "floor_days": 7,
+    "min_gaps": 5,
+    "multiplier": 1.5,
+    "quantile": 0.99,
+    "warmup_days": 30
+  },
+  "dormancy_days": 120,
+  "dormancy_sweep": [
+    {
+      "anchors_selected": [
+        "quantile:0.95",
+        "quantile:0.99"
+      ],
+      "dormancy_days": 60,
+      "episodes_evaluable": 36,
+      "held_out_nuisance_days_per_source_year": 5.76,
+      "held_out_recall": 0.361,
+      "unanimous": false
+    },
+    {
+      "anchors_selected": [
+        "quantile:0.95",
+        "quantile:0.99"
+      ],
+      "dormancy_days": 90,
+      "episodes_evaluable": 23,
+      "held_out_nuisance_days_per_source_year": 6.13,
+      "held_out_recall": 0.522,
+      "unanimous": false
+    },
+    {
+      "anchors_selected": [
+        "max",
+        "quantile:0.99"
+      ],
+      "dormancy_days": 120,
+      "episodes_evaluable": 17,
+      "held_out_nuisance_days_per_source_year": 3.91,
+      "held_out_recall": 0.353,
+      "unanimous": false
+    },
+    {
+      "anchors_selected": [
+        "max"
+      ],
+      "dormancy_days": 180,
+      "episodes_evaluable": 8,
+      "held_out_nuisance_days_per_source_year": 4.07,
+      "held_out_recall": 0.375,
+      "unanimous": true
+    },
+    {
+      "anchors_selected": [
+        "max"
+      ],
+      "dormancy_days": 365,
+      "episodes_evaluable": 5,
+      "held_out_nuisance_days_per_source_year": 5.35,
+      "held_out_recall": 0.4,
+      "unanimous": true
+    }
+  ],
+  "in_sample": [
+    {
+      "anchor": "max",
+      "episodes_detected": 6,
+      "episodes_evaluable": 17,
+      "episodes_skipped_uncalibrated": 0,
+      "median_latency_days": 114.5,
+      "nuisance_alarm_days": 141,
+      "nuisance_alarm_episodes": 9,
+      "nuisance_days_per_source_year": 1.9,
+      "observed_source_days": 27118,
+      "per_source": {
+        "FDA/openfda": {
+          "episodes": 9,
+          "episodes_detected": 3,
+          "episodes_evaluable": 9,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 877,
+          "median_latency_days": 240,
+          "misses": [
+            {
+              "gap_days": 129,
+              "last_change": "2015-04-28",
+              "threshold": 239
+            },
+            {
+              "gap_days": 130,
+              "last_change": "2015-09-04",
+              "threshold": 239
+            },
+            {
+              "gap_days": 205,
+              "last_change": "2017-01-09",
+              "threshold": 503
+            },
+            {
+              "gap_days": 418,
+              "last_change": "2017-08-02",
+              "threshold": 503
+            },
+            {
+              "gap_days": 584,
+              "last_change": "2018-09-24",
+              "threshold": 627
+            },
+            {
+              "gap_days": 187,
+              "last_change": "2021-03-17",
+              "threshold": 876
+            }
+          ],
+          "nuisance_alarm_days": 17,
+          "nuisance_alarm_episodes": 1,
+          "nuisance_days_per_year": 1.39,
+          "observed_days": 4464,
+          "recall": 0.333
+        },
+        "cisagov/kev-data": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 0,
+          "nuisance_alarm_episodes": 0,
+          "nuisance_days_per_year": 0.0,
+          "observed_days": 571,
+          "recall": null
+        },
+        "datasets/covid-19": {
+          "episodes": 3,
+          "episodes_detected": 1,
+          "episodes_evaluable": 3,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 18,
+          "median_latency_days": 18,
+          "misses": [
+            {
+              "gap_days": 498,
+              "last_change": "2024-10-25",
+              "threshold": 1362
+            },
+            {
+              "gap_days": 150,
+              "last_change": "2026-03-24",
+              "threshold": 1362
+            }
+          ],
+          "nuisance_alarm_days": 0,
+          "nuisance_alarm_episodes": 0,
+          "nuisance_days_per_year": 0.0,
+          "observed_days": 2358,
+          "recall": 0.333
+        },
+        "github/advisory-database": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 0,
+          "nuisance_alarm_episodes": 0,
+          "nuisance_days_per_year": 0.0,
+          "observed_days": 1652,
+          "recall": null
+        },
+        "opensanctions/opensanctions": {
+          "episodes": 4,
+          "episodes_detected": 1,
+          "episodes_evaluable": 4,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 151,
+          "median_latency_days": 151,
+          "misses": [
+            {
+              "gap_days": 169,
+              "last_change": "2017-08-04",
+              "threshold": 230
+            },
+            {
+              "gap_days": 134,
+              "last_change": "2018-05-28",
+              "threshold": 254
+            },
+            {
+              "gap_days": 139,
+              "last_change": "2020-01-14",
+              "threshold": 254
+            }
+          ],
+          "nuisance_alarm_days": 44,
+          "nuisance_alarm_episodes": 2,
+          "nuisance_days_per_year": 4.11,
+          "observed_days": 3912,
+          "recall": 0.25
+        },
+        "openstates/people": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 30,
+          "nuisance_alarm_episodes": 3,
+          "nuisance_days_per_year": 3.8,
+          "observed_days": 2886,
+          "recall": null
+        },
+        "ossf/malicious-packages": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 0,
+          "nuisance_alarm_episodes": 0,
+          "nuisance_days_per_year": 0.0,
+          "observed_days": 1261,
+          "recall": null
+        },
+        "rubysec/ruby-advisory-db": {
+          "episodes": 1,
+          "episodes_detected": 1,
+          "episodes_evaluable": 1,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 78,
+          "median_latency_days": 78,
+          "misses": [],
+          "nuisance_alarm_days": 19,
+          "nuisance_alarm_episodes": 2,
+          "nuisance_days_per_year": 1.41,
+          "observed_days": 4938,
+          "recall": 1.0
+        },
+        "unitedstates/congress-legislators": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 31,
+          "nuisance_alarm_episodes": 1,
+          "nuisance_days_per_year": 2.23,
+          "observed_days": 5076,
+          "recall": null
+        }
+      },
+      "recall": 0.353,
+      "sources": 9
+    },
+    {
+      "anchor": "quantile:0.5",
+      "episodes_detected": 17,
+      "episodes_evaluable": 17,
+      "episodes_skipped_uncalibrated": 0,
+      "median_latency_days": 10.0,
+      "nuisance_alarm_days": 5246,
+      "nuisance_alarm_episodes": 445,
+      "nuisance_days_per_source_year": 70.66,
+      "observed_source_days": 27118,
+      "per_source": {
+        "FDA/openfda": {
+          "episodes": 9,
+          "episodes_detected": 9,
+          "episodes_evaluable": 9,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 57,
+          "median_latency_days": 43,
+          "misses": [],
+          "nuisance_alarm_days": 351,
+          "nuisance_alarm_episodes": 11,
+          "nuisance_days_per_year": 28.72,
+          "observed_days": 4464,
+          "recall": 1.0
+        },
+        "cisagov/kev-data": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 12,
+          "nuisance_alarm_episodes": 4,
+          "nuisance_days_per_year": 7.68,
+          "observed_days": 571,
+          "recall": null
+        },
+        "datasets/covid-19": {
+          "episodes": 3,
+          "episodes_detected": 3,
+          "episodes_evaluable": 3,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 8,
+          "median_latency_days": 8,
+          "misses": [],
+          "nuisance_alarm_days": 20,
+          "nuisance_alarm_episodes": 4,
+          "nuisance_days_per_year": 3.1,
+          "observed_days": 2358,
+          "recall": 1.0
+        },
+        "github/advisory-database": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 0,
+          "nuisance_alarm_episodes": 0,
+          "nuisance_days_per_year": 0.0,
+          "observed_days": 1652,
+          "recall": null
+        },
+        "opensanctions/opensanctions": {
+          "episodes": 4,
+          "episodes_detected": 4,
+          "episodes_evaluable": 4,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 13,
+          "median_latency_days": 12.0,
+          "misses": [],
+          "nuisance_alarm_days": 845,
+          "nuisance_alarm_episodes": 34,
+          "nuisance_days_per_year": 78.89,
+          "observed_days": 3912,
+          "recall": 1.0
+        },
+        "openstates/people": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 634,
+          "nuisance_alarm_episodes": 77,
+          "nuisance_days_per_year": 80.24,
+          "observed_days": 2886,
+          "recall": null
+        },
+        "ossf/malicious-packages": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 6,
+          "nuisance_alarm_episodes": 2,
+          "nuisance_days_per_year": 1.74,
+          "observed_days": 1261,
+          "recall": null
+        },
+        "rubysec/ruby-advisory-db": {
+          "episodes": 1,
+          "episodes_detected": 1,
+          "episodes_evaluable": 1,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 8,
+          "median_latency_days": 8,
+          "misses": [],
+          "nuisance_alarm_days": 1573,
+          "nuisance_alarm_episodes": 158,
+          "nuisance_days_per_year": 116.35,
+          "observed_days": 4938,
+          "recall": 1.0
+        },
+        "unitedstates/congress-legislators": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 1805,
+          "nuisance_alarm_episodes": 155,
+          "nuisance_days_per_year": 129.88,
+          "observed_days": 5076,
+          "recall": null
+        }
+      },
+      "recall": 1.0,
+      "sources": 9
+    },
+    {
+      "anchor": "quantile:0.75",
+      "episodes_detected": 17,
+      "episodes_evaluable": 17,
+      "episodes_skipped_uncalibrated": 0,
+      "median_latency_days": 35.5,
+      "nuisance_alarm_days": 3200,
+      "nuisance_alarm_episodes": 295,
+      "nuisance_days_per_source_year": 43.1,
+      "observed_source_days": 27118,
+      "per_source": {
+        "FDA/openfda": {
+          "episodes": 9,
+          "episodes_detected": 9,
+          "episodes_evaluable": 9,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 196,
+          "median_latency_days": 126,
+          "misses": [],
+          "nuisance_alarm_days": 77,
+          "nuisance_alarm_episodes": 3,
+          "nuisance_days_per_year": 6.3,
+          "observed_days": 4464,
+          "recall": 1.0
+        },
+        "cisagov/kev-data": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 12,
+          "nuisance_alarm_episodes": 4,
+          "nuisance_days_per_year": 7.68,
+          "observed_days": 571,
+          "recall": null
+        },
+        "datasets/covid-19": {
+          "episodes": 3,
+          "episodes_detected": 3,
+          "episodes_evaluable": 3,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 8,
+          "median_latency_days": 8,
+          "misses": [],
+          "nuisance_alarm_days": 20,
+          "nuisance_alarm_episodes": 4,
+          "nuisance_days_per_year": 3.1,
+          "observed_days": 2358,
+          "recall": 1.0
+        },
+        "github/advisory-database": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 0,
+          "nuisance_alarm_episodes": 0,
+          "nuisance_days_per_year": 0.0,
+          "observed_days": 1652,
+          "recall": null
+        },
+        "opensanctions/opensanctions": {
+          "episodes": 4,
+          "episodes_detected": 4,
+          "episodes_evaluable": 4,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 72,
+          "median_latency_days": 56.0,
+          "misses": [],
+          "nuisance_alarm_days": 224,
+          "nuisance_alarm_episodes": 8,
+          "nuisance_days_per_year": 20.91,
+          "observed_days": 3912,
+          "recall": 1.0
+        },
+        "openstates/people": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 622,
+          "nuisance_alarm_episodes": 74,
+          "nuisance_days_per_year": 78.72,
+          "observed_days": 2886,
+          "recall": null
+        },
+        "ossf/malicious-packages": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 0,
+          "nuisance_alarm_episodes": 0,
+          "nuisance_days_per_year": 0.0,
+          "observed_days": 1261,
+          "recall": null
+        },
+        "rubysec/ruby-advisory-db": {
+          "episodes": 1,
+          "episodes_detected": 1,
+          "episodes_evaluable": 1,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 15,
+          "median_latency_days": 15,
+          "misses": [],
+          "nuisance_alarm_days": 689,
+          "nuisance_alarm_episodes": 67,
+          "nuisance_days_per_year": 50.96,
+          "observed_days": 4938,
+          "recall": 1.0
+        },
+        "unitedstates/congress-legislators": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 1556,
+          "nuisance_alarm_episodes": 135,
+          "nuisance_days_per_year": 111.96,
+          "observed_days": 5076,
+          "recall": null
+        }
+      },
+      "recall": 1.0,
+      "sources": 9
+    },
+    {
+      "anchor": "quantile:0.9",
+      "episodes_detected": 14,
+      "episodes_evaluable": 17,
+      "episodes_skipped_uncalibrated": 0,
+      "median_latency_days": 71.75,
+      "nuisance_alarm_days": 1515,
+      "nuisance_alarm_episodes": 128,
+      "nuisance_days_per_source_year": 20.41,
+      "observed_source_days": 27118,
+      "per_source": {
+        "FDA/openfda": {
+          "episodes": 9,
+          "episodes_detected": 6,
+          "episodes_evaluable": 9,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 504,
+          "median_latency_days": 252.5,
+          "misses": [
+            {
+              "gap_days": 130,
+              "last_change": "2015-09-04",
+              "threshold": 194
+            },
+            {
+              "gap_days": 205,
+              "last_change": "2017-01-09",
+              "threshold": 239
+            },
+            {
+              "gap_days": 187,
+              "last_change": "2021-03-17",
+              "threshold": 503
+            }
+          ],
+          "nuisance_alarm_days": 36,
+          "nuisance_alarm_episodes": 2,
+          "nuisance_days_per_year": 2.95,
+          "observed_days": 4464,
+          "recall": 0.667
+        },
+        "cisagov/kev-data": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 7,
+          "nuisance_alarm_episodes": 3,
+          "nuisance_days_per_year": 4.48,
+          "observed_days": 571,
+          "recall": null
+        },
+        "datasets/covid-19": {
+          "episodes": 3,
+          "episodes_detected": 3,
+          "episodes_evaluable": 3,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 8,
+          "median_latency_days": 8,
+          "misses": [],
+          "nuisance_alarm_days": 20,
+          "nuisance_alarm_episodes": 4,
+          "nuisance_days_per_year": 3.1,
+          "observed_days": 2358,
+          "recall": 1.0
+        },
+        "github/advisory-database": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 0,
+          "nuisance_alarm_episodes": 0,
+          "nuisance_days_per_year": 0.0,
+          "observed_days": 1652,
+          "recall": null
+        },
+        "opensanctions/opensanctions": {
+          "episodes": 4,
+          "episodes_detected": 4,
+          "episodes_evaluable": 4,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 151,
+          "median_latency_days": 112.5,
+          "misses": [],
+          "nuisance_alarm_days": 44,
+          "nuisance_alarm_episodes": 2,
+          "nuisance_days_per_year": 4.11,
+          "observed_days": 3912,
+          "recall": 1.0
+        },
+        "openstates/people": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 338,
+          "nuisance_alarm_episodes": 30,
+          "nuisance_days_per_year": 42.78,
+          "observed_days": 2886,
+          "recall": null
+        },
+        "ossf/malicious-packages": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 0,
+          "nuisance_alarm_episodes": 0,
+          "nuisance_days_per_year": 0.0,
+          "observed_days": 1261,
+          "recall": null
+        },
+        "rubysec/ruby-advisory-db": {
+          "episodes": 1,
+          "episodes_detected": 1,
+          "episodes_evaluable": 1,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 31,
+          "median_latency_days": 31,
+          "misses": [],
+          "nuisance_alarm_days": 183,
+          "nuisance_alarm_episodes": 15,
+          "nuisance_days_per_year": 13.54,
+          "observed_days": 4938,
+          "recall": 1.0
+        },
+        "unitedstates/congress-legislators": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 887,
+          "nuisance_alarm_episodes": 72,
+          "nuisance_days_per_year": 63.83,
+          "observed_days": 5076,
+          "recall": null
+        }
+      },
+      "recall": 0.824,
+      "sources": 9
+    },
+    {
+      "anchor": "quantile:0.95",
+      "episodes_detected": 9,
+      "episodes_evaluable": 17,
+      "episodes_skipped_uncalibrated": 0,
+      "median_latency_days": 101.5,
+      "nuisance_alarm_days": 868,
+      "nuisance_alarm_episodes": 71,
+      "nuisance_days_per_source_year": 11.69,
+      "observed_source_days": 27118,
+      "per_source": {
+        "FDA/openfda": {
+          "episodes": 9,
+          "episodes_detected": 3,
+          "episodes_evaluable": 9,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 628,
+          "median_latency_days": 240,
+          "misses": [
+            {
+              "gap_days": 129,
+              "last_change": "2015-04-28",
+              "threshold": 239
+            },
+            {
+              "gap_days": 130,
+              "last_change": "2015-09-04",
+              "threshold": 239
+            },
+            {
+              "gap_days": 205,
+              "last_change": "2017-01-09",
+              "threshold": 503
+            },
+            {
+              "gap_days": 418,
+              "last_change": "2017-08-02",
+              "threshold": 503
+            },
+            {
+              "gap_days": 584,
+              "last_change": "2018-09-24",
+              "threshold": 627
+            },
+            {
+              "gap_days": 187,
+              "last_change": "2021-03-17",
+              "threshold": 627
+            }
+          ],
+          "nuisance_alarm_days": 17,
+          "nuisance_alarm_episodes": 1,
+          "nuisance_days_per_year": 1.39,
+          "observed_days": 4464,
+          "recall": 0.333
+        },
+        "cisagov/kev-data": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 3,
+          "nuisance_alarm_episodes": 2,
+          "nuisance_days_per_year": 1.92,
+          "observed_days": 571,
+          "recall": null
+        },
+        "datasets/covid-19": {
+          "episodes": 3,
+          "episodes_detected": 3,
+          "episodes_evaluable": 3,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 8,
+          "median_latency_days": 8,
+          "misses": [],
+          "nuisance_alarm_days": 20,
+          "nuisance_alarm_episodes": 4,
+          "nuisance_days_per_year": 3.1,
+          "observed_days": 2358,
+          "recall": 1.0
+        },
+        "github/advisory-database": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 0,
+          "nuisance_alarm_episodes": 0,
+          "nuisance_days_per_year": 0.0,
+          "observed_days": 1652,
+          "recall": null
+        },
+        "opensanctions/opensanctions": {
+          "episodes": 4,
+          "episodes_detected": 2,
+          "episodes_evaluable": 4,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 151,
+          "median_latency_days": 151.0,
+          "misses": [
+            {
+              "gap_days": 134,
+              "last_change": "2018-05-28",
+              "threshold": 230
+            },
+            {
+              "gap_days": 139,
+              "last_change": "2020-01-14",
+              "threshold": 150
+            }
+          ],
+          "nuisance_alarm_days": 44,
+          "nuisance_alarm_episodes": 2,
+          "nuisance_days_per_year": 4.11,
+          "observed_days": 3912,
+          "recall": 0.5
+        },
+        "openstates/people": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 202,
+          "nuisance_alarm_episodes": 15,
+          "nuisance_days_per_year": 25.56,
+          "observed_days": 2886,
+          "recall": null
+        },
+        "ossf/malicious-packages": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 0,
+          "nuisance_alarm_episodes": 0,
+          "nuisance_days_per_year": 0.0,
+          "observed_days": 1261,
+          "recall": null
+        },
+        "rubysec/ruby-advisory-db": {
+          "episodes": 1,
+          "episodes_detected": 1,
+          "episodes_evaluable": 1,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 52,
+          "median_latency_days": 52,
+          "misses": [],
+          "nuisance_alarm_days": 69,
+          "nuisance_alarm_episodes": 6,
+          "nuisance_days_per_year": 5.1,
+          "observed_days": 4938,
+          "recall": 1.0
+        },
+        "unitedstates/congress-legislators": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 513,
+          "nuisance_alarm_episodes": 41,
+          "nuisance_days_per_year": 36.91,
+          "observed_days": 5076,
+          "recall": null
+        }
+      },
+      "recall": 0.529,
+      "sources": 9
+    },
+    {
+      "anchor": "quantile:0.99",
+      "episodes_detected": 8,
+      "episodes_evaluable": 17,
+      "episodes_skipped_uncalibrated": 0,
+      "median_latency_days": 110.0,
+      "nuisance_alarm_days": 307,
+      "nuisance_alarm_episodes": 18,
+      "nuisance_days_per_source_year": 4.13,
+      "observed_source_days": 27118,
+      "per_source": {
+        "FDA/openfda": {
+          "episodes": 9,
+          "episodes_detected": 3,
+          "episodes_evaluable": 9,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 877,
+          "median_latency_days": 240,
+          "misses": [
+            {
+              "gap_days": 129,
+              "last_change": "2015-04-28",
+              "threshold": 239
+            },
+            {
+              "gap_days": 130,
+              "last_change": "2015-09-04",
+              "threshold": 239
+            },
+            {
+              "gap_days": 205,
+              "last_change": "2017-01-09",
+              "threshold": 503
+            },
+            {
+              "gap_days": 418,
+              "last_change": "2017-08-02",
+              "threshold": 503
+            },
+            {
+              "gap_days": 584,
+              "last_change": "2018-09-24",
+              "threshold": 627
+            },
+            {
+              "gap_days": 187,
+              "last_change": "2021-03-17",
+              "threshold": 876
+            }
+          ],
+          "nuisance_alarm_days": 17,
+          "nuisance_alarm_episodes": 1,
+          "nuisance_days_per_year": 1.39,
+          "observed_days": 4464,
+          "recall": 0.333
+        },
+        "cisagov/kev-data": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 0,
+          "nuisance_alarm_episodes": 0,
+          "nuisance_days_per_year": 0.0,
+          "observed_days": 571,
+          "recall": null
+        },
+        "datasets/covid-19": {
+          "episodes": 3,
+          "episodes_detected": 3,
+          "episodes_evaluable": 3,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 8,
+          "median_latency_days": 8,
+          "misses": [],
+          "nuisance_alarm_days": 17,
+          "nuisance_alarm_episodes": 3,
+          "nuisance_days_per_year": 2.63,
+          "observed_days": 2358,
+          "recall": 1.0
+        },
+        "github/advisory-database": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 0,
+          "nuisance_alarm_episodes": 0,
+          "nuisance_days_per_year": 0.0,
+          "observed_days": 1652,
+          "recall": null
+        },
+        "opensanctions/opensanctions": {
+          "episodes": 4,
+          "episodes_detected": 1,
+          "episodes_evaluable": 4,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 151,
+          "median_latency_days": 151,
+          "misses": [
+            {
+              "gap_days": 169,
+              "last_change": "2017-08-04",
+              "threshold": 230
+            },
+            {
+              "gap_days": 134,
+              "last_change": "2018-05-28",
+              "threshold": 254
+            },
+            {
+              "gap_days": 139,
+              "last_change": "2020-01-14",
+              "threshold": 254
+            }
+          ],
+          "nuisance_alarm_days": 44,
+          "nuisance_alarm_episodes": 2,
+          "nuisance_days_per_year": 4.11,
+          "observed_days": 3912,
+          "recall": 0.25
+        },
+        "openstates/people": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 90,
+          "nuisance_alarm_episodes": 4,
+          "nuisance_days_per_year": 11.39,
+          "observed_days": 2886,
+          "recall": null
+        },
+        "ossf/malicious-packages": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 0,
+          "nuisance_alarm_episodes": 0,
+          "nuisance_days_per_year": 0.0,
+          "observed_days": 1261,
+          "recall": null
+        },
+        "rubysec/ruby-advisory-db": {
+          "episodes": 1,
+          "episodes_detected": 1,
+          "episodes_evaluable": 1,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 69,
+          "median_latency_days": 69,
+          "misses": [],
+          "nuisance_alarm_days": 19,
+          "nuisance_alarm_episodes": 2,
+          "nuisance_days_per_year": 1.41,
+          "observed_days": 4938,
+          "recall": 1.0
+        },
+        "unitedstates/congress-legislators": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 120,
+          "nuisance_alarm_episodes": 6,
+          "nuisance_days_per_year": 8.63,
+          "observed_days": 5076,
+          "recall": null
+        }
+      },
+      "recall": 0.471,
+      "sources": 9
+    },
+    {
+      "anchor": "quantile:1",
+      "episodes_detected": 6,
+      "episodes_evaluable": 17,
+      "episodes_skipped_uncalibrated": 0,
+      "median_latency_days": 114.5,
+      "nuisance_alarm_days": 141,
+      "nuisance_alarm_episodes": 9,
+      "nuisance_days_per_source_year": 1.9,
+      "observed_source_days": 27118,
+      "per_source": {
+        "FDA/openfda": {
+          "episodes": 9,
+          "episodes_detected": 3,
+          "episodes_evaluable": 9,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 877,
+          "median_latency_days": 240,
+          "misses": [
+            {
+              "gap_days": 129,
+              "last_change": "2015-04-28",
+              "threshold": 239
+            },
+            {
+              "gap_days": 130,
+              "last_change": "2015-09-04",
+              "threshold": 239
+            },
+            {
+              "gap_days": 205,
+              "last_change": "2017-01-09",
+              "threshold": 503
+            },
+            {
+              "gap_days": 418,
+              "last_change": "2017-08-02",
+              "threshold": 503
+            },
+            {
+              "gap_days": 584,
+              "last_change": "2018-09-24",
+              "threshold": 627
+            },
+            {
+              "gap_days": 187,
+              "last_change": "2021-03-17",
+              "threshold": 876
+            }
+          ],
+          "nuisance_alarm_days": 17,
+          "nuisance_alarm_episodes": 1,
+          "nuisance_days_per_year": 1.39,
+          "observed_days": 4464,
+          "recall": 0.333
+        },
+        "cisagov/kev-data": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 0,
+          "nuisance_alarm_episodes": 0,
+          "nuisance_days_per_year": 0.0,
+          "observed_days": 571,
+          "recall": null
+        },
+        "datasets/covid-19": {
+          "episodes": 3,
+          "episodes_detected": 1,
+          "episodes_evaluable": 3,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 18,
+          "median_latency_days": 18,
+          "misses": [
+            {
+              "gap_days": 498,
+              "last_change": "2024-10-25",
+              "threshold": 1362
+            },
+            {
+              "gap_days": 150,
+              "last_change": "2026-03-24",
+              "threshold": 1362
+            }
+          ],
+          "nuisance_alarm_days": 0,
+          "nuisance_alarm_episodes": 0,
+          "nuisance_days_per_year": 0.0,
+          "observed_days": 2358,
+          "recall": 0.333
+        },
+        "github/advisory-database": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 0,
+          "nuisance_alarm_episodes": 0,
+          "nuisance_days_per_year": 0.0,
+          "observed_days": 1652,
+          "recall": null
+        },
+        "opensanctions/opensanctions": {
+          "episodes": 4,
+          "episodes_detected": 1,
+          "episodes_evaluable": 4,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 151,
+          "median_latency_days": 151,
+          "misses": [
+            {
+              "gap_days": 169,
+              "last_change": "2017-08-04",
+              "threshold": 230
+            },
+            {
+              "gap_days": 134,
+              "last_change": "2018-05-28",
+              "threshold": 254
+            },
+            {
+              "gap_days": 139,
+              "last_change": "2020-01-14",
+              "threshold": 254
+            }
+          ],
+          "nuisance_alarm_days": 44,
+          "nuisance_alarm_episodes": 2,
+          "nuisance_days_per_year": 4.11,
+          "observed_days": 3912,
+          "recall": 0.25
+        },
+        "openstates/people": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 30,
+          "nuisance_alarm_episodes": 3,
+          "nuisance_days_per_year": 3.8,
+          "observed_days": 2886,
+          "recall": null
+        },
+        "ossf/malicious-packages": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 0,
+          "nuisance_alarm_episodes": 0,
+          "nuisance_days_per_year": 0.0,
+          "observed_days": 1261,
+          "recall": null
+        },
+        "rubysec/ruby-advisory-db": {
+          "episodes": 1,
+          "episodes_detected": 1,
+          "episodes_evaluable": 1,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": 78,
+          "median_latency_days": 78,
+          "misses": [],
+          "nuisance_alarm_days": 19,
+          "nuisance_alarm_episodes": 2,
+          "nuisance_days_per_year": 1.41,
+          "observed_days": 4938,
+          "recall": 1.0
+        },
+        "unitedstates/congress-legislators": {
+          "episodes": 0,
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "episodes_skipped_uncalibrated": 0,
+          "max_latency_days": null,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 31,
+          "nuisance_alarm_episodes": 1,
+          "nuisance_days_per_year": 2.23,
+          "observed_days": 5076,
+          "recall": null
+        }
+      },
+      "recall": 0.353,
+      "sources": 9
+    }
+  ],
+  "input": {
+    "change_days": 7692,
+    "dropped_sources": [],
+    "fetched_at": "2026-08-21T02:16:36+00:00",
+    "observed_through": "2026-08-21",
+    "path": "prior-history-2026-08-21.json",
+    "sources": 9
+  },
+  "leave_one_source_out": {
+    "anchors_selected": [
+      "max",
+      "quantile:0.99"
+    ],
+    "budget_days_per_source_year": 5.0,
+    "folds": [
+      {
+        "held_out": "FDA/openfda",
+        "selected_anchor": "quantile:0.99",
+        "test": {
+          "episodes_detected": 3,
+          "episodes_evaluable": 9,
+          "median_latency_days": 240,
+          "misses": [
+            {
+              "gap_days": 129,
+              "last_change": "2015-04-28",
+              "threshold": 239
+            },
+            {
+              "gap_days": 130,
+              "last_change": "2015-09-04",
+              "threshold": 239
+            },
+            {
+              "gap_days": 205,
+              "last_change": "2017-01-09",
+              "threshold": 503
+            },
+            {
+              "gap_days": 418,
+              "last_change": "2017-08-02",
+              "threshold": 503
+            },
+            {
+              "gap_days": 584,
+              "last_change": "2018-09-24",
+              "threshold": 627
+            },
+            {
+              "gap_days": 187,
+              "last_change": "2021-03-17",
+              "threshold": 876
+            }
+          ],
+          "nuisance_alarm_days": 17,
+          "nuisance_days_per_year": 1.39,
+          "recall": 0.333
+        },
+        "train_episodes_evaluable": 8,
+        "train_recall": 0.625
+      },
+      {
+        "held_out": "cisagov/kev-data",
+        "selected_anchor": "quantile:0.99",
+        "test": {
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 0,
+          "nuisance_days_per_year": 0.0,
+          "recall": null
+        },
+        "train_episodes_evaluable": 17,
+        "train_recall": 0.471
+      },
+      {
+        "held_out": "datasets/covid-19",
+        "selected_anchor": "max",
+        "test": {
+          "episodes_detected": 1,
+          "episodes_evaluable": 3,
+          "median_latency_days": 18,
+          "misses": [
+            {
+              "gap_days": 498,
+              "last_change": "2024-10-25",
+              "threshold": 1362
+            },
+            {
+              "gap_days": 150,
+              "last_change": "2026-03-24",
+              "threshold": 1362
+            }
+          ],
+          "nuisance_alarm_days": 0,
+          "nuisance_days_per_year": 0.0,
+          "recall": 0.333
+        },
+        "train_episodes_evaluable": 14,
+        "train_recall": 0.357
+      },
+      {
+        "held_out": "github/advisory-database",
+        "selected_anchor": "quantile:0.99",
+        "test": {
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 0,
+          "nuisance_days_per_year": 0.0,
+          "recall": null
+        },
+        "train_episodes_evaluable": 17,
+        "train_recall": 0.471
+      },
+      {
+        "held_out": "opensanctions/opensanctions",
+        "selected_anchor": "quantile:0.99",
+        "test": {
+          "episodes_detected": 1,
+          "episodes_evaluable": 4,
+          "median_latency_days": 151,
+          "misses": [
+            {
+              "gap_days": 169,
+              "last_change": "2017-08-04",
+              "threshold": 230
+            },
+            {
+              "gap_days": 134,
+              "last_change": "2018-05-28",
+              "threshold": 254
+            },
+            {
+              "gap_days": 139,
+              "last_change": "2020-01-14",
+              "threshold": 254
+            }
+          ],
+          "nuisance_alarm_days": 44,
+          "nuisance_days_per_year": 4.11,
+          "recall": 0.25
+        },
+        "train_episodes_evaluable": 13,
+        "train_recall": 0.538
+      },
+      {
+        "held_out": "openstates/people",
+        "selected_anchor": "quantile:0.99",
+        "test": {
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 90,
+          "nuisance_days_per_year": 11.39,
+          "recall": null
+        },
+        "train_episodes_evaluable": 17,
+        "train_recall": 0.471
+      },
+      {
+        "held_out": "ossf/malicious-packages",
+        "selected_anchor": "quantile:0.99",
+        "test": {
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 0,
+          "nuisance_days_per_year": 0.0,
+          "recall": null
+        },
+        "train_episodes_evaluable": 17,
+        "train_recall": 0.471
+      },
+      {
+        "held_out": "rubysec/ruby-advisory-db",
+        "selected_anchor": "quantile:0.99",
+        "test": {
+          "episodes_detected": 1,
+          "episodes_evaluable": 1,
+          "median_latency_days": 69,
+          "misses": [],
+          "nuisance_alarm_days": 19,
+          "nuisance_days_per_year": 1.41,
+          "recall": 1.0
+        },
+        "train_episodes_evaluable": 16,
+        "train_recall": 0.438
+      },
+      {
+        "held_out": "unitedstates/congress-legislators",
+        "selected_anchor": "quantile:0.99",
+        "test": {
+          "episodes_detected": 0,
+          "episodes_evaluable": 0,
+          "median_latency_days": null,
+          "misses": [],
+          "nuisance_alarm_days": 120,
+          "nuisance_days_per_year": 8.63,
+          "recall": null
+        },
+        "train_episodes_evaluable": 17,
+        "train_recall": 0.471
+      }
+    ],
+    "held_out_pooled": {
+      "episodes_detected": 6,
+      "episodes_evaluable": 17,
+      "episodes_skipped_uncalibrated": 0,
+      "median_latency_days": 110.0,
+      "nuisance_alarm_days": 290,
+      "nuisance_alarm_episodes": 15,
+      "nuisance_days_per_source_year": 3.91,
+      "observed_source_days": 27118,
+      "recall": 0.353,
+      "sources": 9
+    },
+    "objective": "maximise episodes detected on the 8 training sources subject to nuisance <= 5.0 alarm-days per source-year; ties to lowest median latency",
+    "unanimous": false
+  },
+  "quantile_degeneracy": {
+    "degenerate_sources": [
+      "FDA/openfda"
+    ],
+    "episodes_on_degenerate_sources": 9,
+    "episodes_total": 17,
+    "gaps_needed_for_a_non_degenerate_anchor": 100,
+    "per_source": {
+      "FDA/openfda": {
+        "anchor_gap_days": 1373,
+        "closed_gaps": 37,
+        "degenerate": true,
+        "detected_max": 3,
+        "detected_quantile": 3,
+        "dormancy_episodes": 9,
+        "final_threshold_max": 2060,
+        "final_threshold_quantile": 2060,
+        "max_gap_days": 1373,
+        "nearest_rank": 37
+      },
+      "cisagov/kev-data": {
+        "anchor_gap_days": 11,
+        "closed_gaps": 223,
+        "degenerate": false,
+        "detected_max": 0,
+        "detected_quantile": 0,
+        "dormancy_episodes": 0,
+        "final_threshold_max": 18,
+        "final_threshold_quantile": 17,
+        "max_gap_days": 12,
+        "nearest_rank": 221
+      },
+      "datasets/covid-19": {
+        "anchor_gap_days": 2,
+        "closed_gaps": 744,
+        "degenerate": false,
+        "detected_max": 1,
+        "detected_quantile": 3,
+        "dormancy_episodes": 3,
+        "final_threshold_max": 1362,
+        "final_threshold_quantile": 7,
+        "max_gap_days": 908,
+        "nearest_rank": 737
+      },
+      "github/advisory-database": {
+        "anchor_gap_days": 2,
+        "closed_gaps": 1599,
+        "degenerate": false,
+        "detected_max": 0,
+        "detected_quantile": 0,
+        "dormancy_episodes": 0,
+        "final_threshold_max": 8,
+        "final_threshold_quantile": 7,
+        "max_gap_days": 5,
+        "nearest_rank": 1584
+      },
+      "opensanctions/opensanctions": {
+        "anchor_gap_days": 39,
+        "closed_gaps": 1538,
+        "degenerate": false,
+        "detected_max": 1,
+        "detected_quantile": 1,
+        "dormancy_episodes": 4,
+        "final_threshold_max": 254,
+        "final_threshold_quantile": 59,
+        "max_gap_days": 169,
+        "nearest_rank": 1523
+      },
+      "openstates/people": {
+        "anchor_gap_days": 25,
+        "closed_gaps": 801,
+        "degenerate": false,
+        "detected_max": 0,
+        "detected_quantile": 0,
+        "dormancy_episodes": 0,
+        "final_threshold_max": 149,
+        "final_threshold_quantile": 38,
+        "max_gap_days": 99,
+        "nearest_rank": 793
+      },
+      "ossf/malicious-packages": {
+        "anchor_gap_days": 4,
+        "closed_gaps": 1056,
+        "degenerate": false,
+        "detected_max": 0,
+        "detected_quantile": 0,
+        "dormancy_episodes": 0,
+        "final_threshold_max": 113,
+        "final_threshold_quantile": 7,
+        "max_gap_days": 75,
+        "nearest_rank": 1046
+      },
+      "rubysec/ruby-advisory-db": {
+        "anchor_gap_days": 39,
+        "closed_gaps": 832,
+        "degenerate": false,
+        "detected_max": 1,
+        "detected_quantile": 1,
+        "dormancy_episodes": 1,
+        "final_threshold_max": 213,
+        "final_threshold_quantile": 59,
+        "max_gap_days": 142,
+        "nearest_rank": 824
+      },
+      "unitedstates/congress-legislators": {
+        "anchor_gap_days": 42,
+        "closed_gaps": 853,
+        "degenerate": false,
+        "detected_max": 0,
+        "detected_quantile": 0,
+        "dormancy_episodes": 0,
+        "final_threshold_max": 173,
+        "final_threshold_quantile": 63,
+        "max_gap_days": 115,
+        "nearest_rank": 845
+      }
+    },
+    "quantile": 0.99
+  }
+}

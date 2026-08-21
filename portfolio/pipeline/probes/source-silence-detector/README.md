@@ -3,7 +3,11 @@
 **Built and backtested 2026-08-21. Extended the same day with full-history
 calibration, which inverted the result — read
 [the amendment](#amendment-2026-08-21-calibrating-on-full-history-inverts-this-probes-finding)
-before acting on results 1 and 2 below.**
+before acting on results 1 and 2 below. Extended again the same day with the
+held-out validation this file's own closing caveat asked for, which keeps the
+anchor *family* and refutes the anchor *setting* — read
+[the second amendment](#amendment-2-2026-08-21-the-held-out-validation-keeps-the-family-and-breaks-the-setting)
+before acting on the p99 operating point.**
 
 Reproduce the negative result (the rule exactly as specified):
 
@@ -31,13 +35,20 @@ the network, ~4 minutes, anonymous public clones):
 python3 fetch_prior_history.py --json prior-history-2026-08-21.json
 ```
 
+Reproduce the held-out validation of that operating point (amendment 2):
+
+```
+python3 holdout_backtest.py
+```
+
 Parameter sensitivity: add `--sweep`. Saved runs:
 [`results-per-source-only-2026-08-21.json`](results-per-source-only-2026-08-21.json),
 [`results-pooled-2026-08-21.json`](results-pooled-2026-08-21.json),
 [`results-full-history-max-2026-08-21.json`](results-full-history-max-2026-08-21.json),
-[`results-full-history-p99-2026-08-21.json`](results-full-history-p99-2026-08-21.json).
+[`results-full-history-p99-2026-08-21.json`](results-full-history-p99-2026-08-21.json),
+[`results-holdout-2026-08-21.json`](results-holdout-2026-08-21.json).
 Tests: `python3 -m unittest discover -s portfolio/pipeline/probes/source-silence-detector`
-(57 tests, all offline).
+(99 tests, all offline).
 
 ## The claim under test
 
@@ -382,12 +393,146 @@ being uncalibratable, then by being calibrated to a 5.6-year threshold. Both
 times the failure looked like a clean dashboard. That is worth carrying into any
 version of this product as a design fact rather than a lesson to relearn.
 
+## Amendment 2 (2026-08-21): the held-out validation keeps the family and breaks the setting
+
+Amendment 1 closed by naming its own weakest point:
+
+> **`p99` is selected on the same two events it is scored on.** With one quiet
+> source detected, the quantile sweep is a demonstration that the anchor matters
+> and roughly where the knee sits, not a tuned parameter with a held-out
+> validation. Re-derive it on the next mirrored register that dies.
+
+Waiting for the next register to die is a plan with no date on it, and the data
+to avoid waiting was already committed. The nine mirrors' full history contains
+dormancy episodes that *already happened*: 17 stretches of at least 120 days in
+which a source published nothing. `detect_silence.py` cannot see them because it
+scores only the 180-day window, where a source is either quiet at the end or it
+is not, and exactly two were.
+
+[`holdout_backtest.py`](holdout_backtest.py) scores the same detector over every
+historical gap instead, and picks the anchor by leave-one-source-out
+cross-validation, so no source is ever scored under a setting it helped choose.
+Labels use hindsight — a gap is a dormancy episode if it *turned out* to run 120
+days — and the detector never does: on any day it sees only changes at or before
+that day, fitted only on gaps that had already closed. The closed-form replay it
+uses in place of the day loop is asserted equal to `detect_silence`'s day loop on
+280 generated histories across all seven anchors, because a faster replay that
+disagreed with the detector would make every number below a plausible fiction.
+
+### What survives
+
+**The anchor family.** Under a nuisance budget of 5 alarm-days per source-year,
+8 of the 9 folds independently select `quantile:0.99`; the ninth selects `max`,
+which is a near-tie at that budget. Sweeping the dormancy label from 60 to 365
+days never moves the selection outside `{max, quantile:0.95, quantile:0.99}`.
+"Anchor high on the source's own distribution" is not an artifact of the two
+events that suggested it.
+
+### What does not
+
+**The operating point.** Held out, the recommended anchor detects **6 of 17**
+episodes (0.35) at a median latency of 110 days. In sample it detects 8 of 17
+(0.47). Amendment 1's headline — "1 of 2" — reads as 50% and is the optimistic
+half of a two-event sample.
+
+**And the trade behind it is worse than either number suggests.** Recall and
+nuisance move together monotonically, with no quiet-and-sensitive setting
+anywhere on the curve:
+
+| budget (alarm-days/source-year) | anchor selected | held-out recall | median latency |
+|---|---|---|---|
+| 2 | `max` | 6/17 | 114.5d |
+| 5 | `quantile:0.99` | 6/17 | 110d |
+| 10 | `quantile:0.95`/`0.99` | 6/17 | 110d |
+| 20 | `quantile:0.9`/`0.95` | 9/17 | 101.5d |
+| 50 | `quantile:0.75`/`0.9` | 14/17 | 35.5d |
+
+Detecting most dormancy costs roughly six weeks a year, per source, of a source
+being flagged that had not stopped. That is the product constraint, and it is
+new: the 180-day window was too short to price it.
+
+### The recommended fix is inert on the source it was diagnosed from
+
+This is the finding worth carrying furthest, and it is a property of the
+estimator rather than of the sample.
+
+`anchor_gap` takes the nearest rank, `ordered[ceil(q * n) - 1]`. That index *is*
+the last element — the maximum — whenever `ceil(q * n) == n`, which is every `n`
+below `1 / (1 - q)`. At `q = 0.99` that is **every source with fewer than 100
+closed gaps**.
+
+`FDA/openfda` has 37. Its `p99` threshold is therefore 2060 days — the same
+5.6-year threshold amendment 1 cited as proof that `max` was broken. On that
+source the recommended anchor and the anchor it replaced are not merely similar,
+they are the same integer and therefore the same detector, and both detect 3 of
+its 9 episodes. `FDA/openfda` carries 9 of the 17 episodes in the sample and is
+one of the two registers amendment 1 was written about.
+
+So the entire `p99`-beats-`max` result came from `datasets/covid-19`, which has
+744 gaps and a `p99` threshold of 7 days against a `max` threshold of 1362. The
+win is real and large where a source is dense. It is exactly zero where a source
+is sparse — and sparsity is not an incidental property here. A register that
+publishes daily accumulates thousands of gaps and gets a genuine quantile; a
+register that publishes a few times a year accumulates dozens, never reaches
+100, and silently inherits `max`, which is the anchor the amendment adopted
+`quantile` to escape. The sources most likely to go dark are the ones the fix
+cannot reach.
+
+Anyone shipping this needs a small-sample anchor — a fixed high percentile of a
+*pooled* gap distribution, or a parametric fit, or simply a stated refusal to
+calibrate a source with under 100 gaps — rather than a quantile that quietly
+degrades to the estimator it was chosen over.
+
+### One claim tested and left unproven
+
+Amendment 1 explained `max`'s failure by a mechanism it conceded was "checkable
+by inspection": `max` is monotone in history length, so a source's threshold can
+only ever loosen. If that drives the failure, `max` should detect episodes early
+in a source's life and miss late ones, while a quantile stays flat. Measured by
+how much history preceded each episode:
+
+| anchor | <1y | 1–3y | 3–6y | ≥6y |
+|---|---|---|---|---|
+| `max` | 2/3 | 2/6 | 1/5 | 1/3 |
+| `quantile:0.99` | 2/3 | 2/6 | 2/5 | 2/3 |
+
+The direction is right and the sample is far too small to call it — three to six
+episodes a cell, most of them from one source. Recorded as **not confirmed**,
+not as support. The monotonicity itself is still true by inspection; what remains
+unmeasured is whether it is what does the damage.
+
+### What this changes
+
+**No score moves and no verdict moves.** `public-record-watch` stays at composite
+7.0, floor 4, and the floor is still distribution. This is the third pass over an
+operational premise on a candidate whose binding constraint is that it has no
+channel to sell through, and the third to find the premise weaker than the pass
+before it. That pattern is itself worth reading: each pass improved the detector
+and none of them moved the thing that decides.
+
+What it changes for anyone picking this up is the inheritance. Before this, they
+would have shipped `q = 0.99`, believed a 50% detection rate, and got 35% — with
+the failure concentrated on precisely the sparse, slow-publishing registers the
+product exists to watch, and no way to see that the recommended fix had silently
+become the rejected one. They now inherit a measured operating point, a priced
+recall/nuisance trade, and a named defect in the estimator with the arithmetic
+that produces it.
+
+The candidate's own stated failure mode was *"a monitor that quietly stopped is
+worse than no monitor."* Three passes have now found three different ways for the
+detector meant to prevent that to fail while its metrics read as success:
+uncalibratable, calibrated to 5.6 years, and calibrated to 5.6 years again under
+a different name. Each time the dashboard looked clean.
+
 ## Rules this probe follows
 
 Per [`probes/README.md`](../README.md): no compliance claim, no payment, no
 personal data, no account requiring an identity artifact, coverage limits stated
 here rather than buried. `detect_silence.py` makes **no network calls**, reads
 committed JSON, handles no customer data, and publishes nothing.
+[`holdout_backtest.py`](holdout_backtest.py) likewise makes **no network calls**
+and reads only the committed history file — a test asserts the module imports no
+network library, so the claim is checked rather than promised.
 [`fetch_prior_history.py`](fetch_prior_history.py) is the one part that touches
 the network, and only as anonymous read-only `git clone` against public
 repositories — no credential, no account, no writes, and nothing fetched that
@@ -402,13 +547,27 @@ records on 2026-08-21; and of those nine repositories' **full commit history**,
 fetched 2026-08-21 and reaching back to each repository's first commit (2012–2025
 depending on the mirror).
 
-Sample-size caveats, which the amendment does not remove:
+Amendment 2 adds a third measurement over the same nine repositories: every
+historical gap replayed rather than only the 180-day window, 17 dormancy
+episodes at the default 120-day label, scored by leave-one-source-out
+cross-validation. Saved as
+[`results-holdout-2026-08-21.json`](results-holdout-2026-08-21.json).
 
-- **Two quiet sources is still the sample.** Every detection number here rests on
-  `FDA/openfda` and `datasets/covid-19`. The quantile anchor beating the max
-  anchor is an argument from a mechanism that is checkable by inspection (max is
-  monotone in history length; a quantile is not), but the *size* of the win is
-  measured on two events.
+Sample-size caveats:
+
+- ~~**Two quiet sources is still the sample.**~~ **Superseded by amendment 2**,
+  which raises the sample to 17 episodes and cross-validates the choice. The
+  replacement caveat is narrower and worse: 9 of those 17 episodes come from
+  `FDA/openfda` alone, so a pooled recall figure is closer to a statement about
+  that one register than the count suggests. Four of the nine sources contribute
+  no episodes at all.
+- **The dormancy label is a judgement, not a measurement.** 120 days is set
+  without reference to any source's own distribution, deliberately, so the label
+  cannot be tuned by the same statistic the detector is fitted on. It is swept
+  from 60 to 365 days; the anchor family is stable across that range and the
+  held-out recall is not (0.35–0.52).
+- **Nine sources means nine folds**, and a fold that holds out one of the four
+  sources with no episodes tests only that anchor's nuisance rate.
 - **The 38% figure for `FDA/openfda` is a fact about that repository**, not a
   rate across dormant registers. It shows the limit is real for at least one
   source; it does not say how common such sources are.
