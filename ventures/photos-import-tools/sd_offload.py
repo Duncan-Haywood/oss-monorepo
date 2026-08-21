@@ -349,6 +349,21 @@ def offload_card(
             # with errors" (1) rather than losing the rest of the card.
             stats.errors.append(f"Copy failed for {include}: {error}")
             log(f"Copy failed for {include}: {error}", log_path)
+    if not card.source.exists():
+        # offload_all() already confirmed card.source existed before calling
+        # offload_card(), so its root disappearing here means the card was
+        # unmounted/ejected mid-offload (a flaky USB card reader, a card
+        # pulled early) -- not a card that was never there. Without this
+        # check, every remaining include_paths iteration above silently
+        # no-ops via the `source.exists()` guard, and verify_and_manifest()
+        # below finds nothing under a vanished root either (iter_media_files()
+        # returns [] for a missing path rather than raising), so stats.errors
+        # stays empty and offload_exit_code() reports a clean 0 exit for a
+        # card that was never actually fully offloaded -- exactly the false
+        # "safe to eject" signal its own docstring warns against.
+        message = f"Card unmounted mid-offload: {card.source} is no longer present"
+        stats.errors.append(message)
+        log(message, log_path)
     verify_and_manifest(card, stats, manifest_path, log_path, verify_hash=verify_hash)
     stats.finished_at = iso_now()
     return stats

@@ -129,6 +129,18 @@ hypotheses:
     status: supported
     checked: 2026-08-21
     evidence: in-repo
+  - claim: run()'s while loop does not report "Complete" and exit while pending or in-progress items remain in the manifest just because the batch prepare_batch() claimed this pass resolved to zero importable items -- e.g. every claimed item matched an existing Photos.app entry via preflight, or timed out in wait_for_file() waiting on an undownloaded iCloud placeholder, either of which resolves the item to a terminal status without adding it to the ready-to-import list.
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
+  - claim: When a per-item import attempt fails with a transient error, handle_item_error()'s retry-limit check agrees with claim_next_batch()'s own claimability filter about exactly when an item has exhausted MAX_TRANSIENT_ATTEMPTS retries -- an item does not get permanently excluded from being reclaimed while still sitting at status "failed" (as opposed to "skipped_permanent"), which would leave it silently uncounted-as-claimable yet still counted in summary()["remaining"] forever. (Found refuted, then fixed -- handle_item_error() checked the pre-increment attempts count claim_next_batch() had handed it with the claimed item, one claim behind the query's own post-increment "attempts < MAX_TRANSIENT_ATTEMPTS" filter, so an item's last retry was recorded as "failed" one claim after the filter would already have started excluding it from further claims.)
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
+  - claim: When a card is unmounted or ejected partway through offload_card() -- after being confirmed mounted at the start of the run -- the offload is not reported as a clean, verified success (exit 0); the disappearance is recorded as an error so offload_exit_code() reports "offloaded with errors" (1) instead of the false "safe to eject" signal its own docstring warns against. (Found refuted, then fixed -- every remaining include_paths iteration silently no-opped via the per-path `source.exists()` guard, and verify_and_manifest()'s iter_media_files() returned an empty list for the vanished source root rather than raising, so stats.errors stayed empty.)
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
 
 economics:
   currency: USD

@@ -494,10 +494,22 @@ class PhotosImporter:
 
             batch = self.prepare_batch()
             if not batch:
-                print(format_summary("Complete", self.state.summary()), flush=True)
-                self.write_status("complete")
-                self.write_completion_report()
-                return 0
+                # prepare_batch() claims a batch via claim_next_batch(), then
+                # resolves some claimed items to a terminal status itself
+                # (Photos preflight match -> mark_imported; wait_for_file()
+                # timeout -> mark_skipped_permanent) without adding them to
+                # `ready`. So an empty `ready` list only means "nothing to
+                # import this pass" -- not "the manifest is done". Checking
+                # summary()["remaining"] instead of trusting an empty batch
+                # is what prevents an early "Complete" while pending items
+                # (or items "importing" under another process) still exist.
+                if self.state.summary()["remaining"] == 0:
+                    print(format_summary("Complete", self.state.summary()), flush=True)
+                    self.write_status("complete")
+                    self.write_completion_report()
+                    return 0
+                time.sleep(1)
+                continue
 
             if not self.check_disk_space():
                 # prepare_batch() already claimed this batch (status
@@ -660,6 +672,23 @@ class PhotosImporter:
             self.stats.consecutive_failures = 0
             return
 
+        # `item` is the object claim_next_batch() returned, built from the
+        # manifest row *before* that same call's UPDATE incremented
+        # attempts -- so item.attempts always trails the current DB value
+        # by one. Using it directly here let an item exhaust its retries
+        # one claim before claim_next_batch()'s own `attempts < max_attempts`
+        # filter started excluding it: the retry-limit check below never
+        # fired (it was still comparing last attempt's count), so the item
+        # was marked "failed" one final time, then silently became
+        # unclaimable -- stuck at "failed" forever, never reclassified to
+        # skipped_permanent, yet still counted in summary()["remaining"]
+        # since "failed" is one of the statuses that sums to it. Re-fetching
+        # the current row (as the batch-exception path in run() already
+        # does) reads the same post-increment value the claim query itself
+        # uses, so both agree on when an item is truly exhausted.
+        current = self.state.get_item(item.path)
+        attempts = current.attempts if current is not None else item.attempts
+
         next_action = classified.action.value
         if classified.category == ErrorCategory.PERMANENT:
             self.state.mark_skipped_permanent(item.path, str(error))
@@ -667,19 +696,19 @@ class PhotosImporter:
         elif classified.action == ErrorAction.RELAUNCH_PHOTOS:
             self.relaunch_photos()
             self.state.mark_pending(item.path, str(error))
-        elif item.attempts >= MAX_TRANSIENT_ATTEMPTS:
+        elif attempts >= MAX_TRANSIENT_ATTEMPTS:
             self.state.mark_skipped_permanent(item.path, f"Exceeded retry limit: {error}")
             next_action = ErrorAction.SKIP_PERMANENT.value
         else:
             self.state.mark_failed(item.path, str(error))
-            delay = min(2 ** min(item.attempts, 6), 120) + random.uniform(0, 2)
+            delay = min(2 ** min(attempts, 6), 120) + random.uniform(0, 2)
             time.sleep(delay)
 
         self.log_structured_error(
             path=item.path,
             message=str(error),
             classified=classified,
-            attempt=item.attempts,
+            attempt=attempts,
             next_action=next_action,
         )
         print(self.progress_line("failed", item.path, str(error)), flush=True)
