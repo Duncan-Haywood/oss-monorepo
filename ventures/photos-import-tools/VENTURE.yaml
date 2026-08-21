@@ -105,6 +105,10 @@ hypotheses:
     status: supported
     checked: 2026-08-21
     evidence: in-repo
+  - claim: When the watchdog is asked to stop (the operator's Ctrl-C/SIGTERM, or a STOP file) while the worker is stuck in an uninterruptible I/O wait and survives SIGKILL, the watchdog does not report "stopped" with worker_running false until the worker is actually confirmed dead; it does not exit believing the worker is gone while an orphaned importer process keeps driving Photos.app, unsupervised, with a status file that says otherwise.
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
 
 economics:
   currency: USD

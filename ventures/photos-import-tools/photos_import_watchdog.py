@@ -301,8 +301,18 @@ def run_watchdog(
             return 0
 
         if stop_path.exists() or signal_stop_requested["flag"]:
-            if process is not None:
-                terminate_process_group(process)
+            if process is not None and not terminate_process_group(process):
+                # Still alive despite SIGKILL -- do not report "stopped" while
+                # the worker is actually running unsupervised; retry next poll
+                # instead of exiting with a status that lies about the worker.
+                with log_path.open("ab") as log_handle:
+                    log_handle.write(
+                        f"[{iso_now()}] worker still alive after SIGKILL "
+                        "during shutdown (stuck in uninterruptible I/O?); "
+                        "retrying next poll\n".encode()
+                    )
+                time.sleep(poll_seconds)
+                continue
             message = "stopped by STOP file" if stop_path.exists() else "stopped by signal"
             write_status(
                 phase.status_path,
