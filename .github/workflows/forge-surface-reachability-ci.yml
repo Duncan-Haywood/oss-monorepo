@@ -1,0 +1,58 @@
+name: forge-surface-reachability CI
+
+# Test coverage for the forge-surface probes under
+# portfolio/research/forge-surface-reachability/. Both are standard-library-only
+# and the suite needs no network — every test drives the derivation half from
+# synthetic records, or re-derives the committed results files — so this
+# workflow does no more than a contributor runs locally: run the tests. It
+# publishes nothing, registers nothing, and spends no API budget; it is a test
+# runner, not the unattended-automation kind of workflow CLAUDE.md gates.
+#
+# Matching the runners the sibling research probes already have
+# (register-change-rate, a11y-evidence-record in #302, eaa-wcag-triage in #344).
+#
+# The invariant worth protecting here is the classifier. This environment denies
+# egress in a signature that arrives as a real HTTP 403, indistinguishable from
+# an origin's own 403 by status code alone — egress-reachability/ found three
+# prior passes misreading exactly that. A regression there does not raise an
+# error; it silently reports a denied host as reachable, which is how a wrong
+# reachability table gets built on top of a right one.
+
+on:
+  pull_request:
+    paths:
+      - "portfolio/research/forge-surface-reachability/**"
+      - ".github/workflows/forge-surface-reachability-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "portfolio/research/forge-surface-reachability/**"
+      - ".github/workflows/forge-surface-reachability-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A second push to the same branch makes the first run irrelevant.
+concurrency:
+  group: forge-surface-reachability-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: portfolio/research/forge-surface-reachability
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # Standard-library unittest only: no pip install step, by design.
+      - run: python3 -m unittest discover -p 'test_*.py'
+      # The saved results must stay re-derivable offline — that is the contract
+      # the README's tables rest on, and it breaks silently if the schema drifts.
+      - run: python3 probe_forges.py --recompute-from results-2026-08-21.json
+      - run: python3 search_registers.py --recompute-from register-search-2026-08-21.json

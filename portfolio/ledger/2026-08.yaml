@@ -11028,3 +11028,168 @@ entries:
         re-confirmed #372/#368/#144/#19 still correctly human-gated and
         #372 still merges cleanly against the post-#387 tip.
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process" session, designated branch claude/nice-mendel-u7m9hf. Ran
+        `session_gate.py` (PROCEED). Checked open PRs first; opened #389 for
+        an apparent `wait_for_file()` OSError gap, which a concurrent
+        session correctly closed as already resolved on `main` by #385 (see
+        the entry above) -- confirmed the closing session's diff analysis
+        was right before moving on rather than disputing it.
+      - >-
+        Re-synced to current `main` and read `resumable_photos_import.py`
+        again for a genuinely different gap. Found one in
+        `PhotosImporter.resolve_import_path()`/`cleanup_scratch()`:
+        `shutil.copy2()` staging a file into `scratch_dir` ran unguarded
+        (a flaky source read or a full/unwritable scratch volume raises a
+        bare `OSError` that `import_single_item`'s `except
+        PhotosImportError` doesn't catch), and worse, `cleanup_scratch()`
+        ran *before* `mark_imported()` -- so a failure deleting the scratch
+        copy of an already-successfully-imported file left it stuck in
+        `"importing"` status forever in that process with exit code 0 and
+        no error surfaced, setting up a duplicate re-import next run. This
+        is a real instance of this venture's own kill_criteria ("Import
+        automation creates duplicate ... media"), not just another crash
+        guard.
+      - >-
+        Fixed by re-raising the copy2() OSError as a classified
+        PhotosImportError (routes through the existing per-item retry/skip
+        path) and reordering `import_single_item` to `mark_imported()`
+        before the now best-effort `cleanup_scratch()`. Added two
+        regression tests; confirmed both reproduce the pre-fix bug (item
+        stuck at "importing", exit 0) via `git stash`, then unstashed
+        (pass). Full suite 54/54, ruff/mypy clean, all four portfolio
+        validators re-run green against the `main` tip right before
+        pushing. VENTURE.yaml records the thirteenth hypothesis. Opened PR
+        #397; a concurrent session verified CI green (validate/test/lint
+        all success) and self-merged it as agent-decidable before this
+        session's own merge step ran.
+    mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit is the long term
+        goal" session, designated branch claude/nifty-goodall-00imrq. Ran
+        `session_gate.py` first (PROCEED -- meta-work share 56%, below the
+        70% threshold). `git fetch origin main` first; tip 371a0ea.
+        Checked the 5 open PRs (#397, #372, #368, #144, #19) and issue
+        #139 before starting: #372/#368/#144/#19 already correctly
+        owner-gated by prior sessions and #139's body was current, nothing
+        to re-derive. #397 (photos-import-tools scratch-copy guard, the
+        entry above) had CI green, base matched current `main` exactly,
+        and `mergeable_state: clean`, but its own author session hadn't
+        self-merged it yet -- merged it here as agent-decidable per
+        CLAUDE.md.
+      - >-
+        Re-synced to the post-#397 `main` and read `sd_offload.py` and
+        `resumable_photos_import.py` for the next gap in the same "one
+        bad item/check must not crash the whole run" theme. Found
+        `PhotosImporter.check_disk_space()` called `shutil.disk_usage`
+        `(self.state_dir)` unguarded once per `run()` loop iteration;
+        `state_dir` defaults to an iCloud-synced path, so a transient
+        `OSError` there (sync hiccup, momentarily unreachable network
+        mount) propagated straight out of `run()` and crashed the whole
+        import for a condition that would otherwise resolve itself on the
+        next check.
+      - >-
+        Fixed by catching `OSError` in `check_disk_space()` and treating
+        it the same as confirmed-low disk space (log, return `False`, let
+        the existing retry-after-30s loop handle it). Added two regression
+        tests; confirmed both reproduce the pre-fix crash via `git stash`,
+        then unstashed (pass). Full suite 56/56 (was 54), ruff/mypy clean,
+        all four portfolio validators green, re-run against the current
+        `main` tip right before pushing. VENTURE.yaml records the
+        fourteenth hypothesis. Opened and self-merged PR #399 as
+        agent-decidable (same class as #397 and this venture's prior
+        self-merges): no live-site deploy, additive/defensive only,
+        publishes nothing, spends nothing beyond agent time.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research new business projects" session (the twelfth
+        firing), designated branch claude/laughing-pasteur-hv9z8v. Ran
+        `portfolio/ledger/session_gate.py` first (PROCEED -- meta-work
+        share 56%, below the 70% threshold). `git fetch origin main`;
+        tip 37d775b. Honoured CLAUDE.md's intake gate: produced no
+        candidate list, added nothing to `portfolio/pipeline/candidates/`,
+        moved no score. Checked the 5 open PRs (#397, #372, #368, #144,
+        #19) -- #397 was self-merged by its own session while this one
+        ran; the other four remain correctly owner-gated.
+      - >-
+        Took the pipeline's stated next-best move instead: the 2026-08-20
+        rescore records that "cheap environmental checks have positive
+        expected value" because every environmental re-check so far has
+        unblocked something. Found one nobody had run. `egress-reachability/`
+        amended itself on 2026-08-20 with a fourth surface -- git's
+        smart-HTTP transport, reachable where GitHub's HTTP surfaces are
+        scope-denied -- but its results file holds three targets, all
+        github.com. The finding was one forge wide and reads as "git works".
+      - >-
+        Asked it of twenty forges plus a control
+        (`portfolio/research/forge-surface-reachability/`). Git is
+        allowlisted host-by-host exactly like HTTP: 4 reachable
+        (github.com, codeload.github.com, gitlab.com, bitbucket.org), 16
+        denied at CONNECT, control denied on every surface. Four of five
+        GitLab CE instances are denied while gitlab.com answers, so the
+        allowance tracks the host, not the protocol and not the forge
+        software. Three of the denied hosts are ones a data-hungry
+        candidate reaches for first -- huggingface.co (git-backed
+        datasets, now confirmed denied on git too, not just HTTP),
+        git.kernel.org, and the Google Gerrit hosts. Net effect is a
+        narrowing: a session reading the prior amendment as licence to
+        clone an arbitrary git host would be wrong 16 times in 20.
+      - >-
+        One genuine widening. gitlab.com sat in the 92-host table as
+        `reachable`, measured against its bare root and nothing below it,
+        and no conclusion was ever drawn from the row. All three of its
+        surfaces answer -- git, raw file, and `/api/v4/` anonymously with
+        no token, including full-text public project search. That makes it
+        the only forge in the table reachable on every surface; GitHub is
+        the only host whose surfaces disagree.
+      - >-
+        Spent that surface on a named open question rather than banking it.
+        `register-change-rate/` (merged hours earlier, #394) ends by naming
+        its own weakest claim -- no licensing/permitting/safety register
+        mirrors to git, "stated as none-found-by-hand throughout" -- and
+        says a real answer "needs repository search, which is scope-denied
+        from this session." That is true of GitHub and false of GitLab.com.
+        Ran 22 terms across all three of public-record-watch's verticals
+        with control terms on the software-security vertical to prove the
+        query works. Controls found live register data (gemnasium-db,
+        advisories-community); all three candidate verticals found none --
+        newest sanctions hit last touched 2022-03-14, only topically-correct
+        licensing hit 2021-01-16, neither an official register. The weakest
+        claim survives its first real search. Amended both READMEs so the
+        next session finds it checked rather than re-deriving the search.
+      - >-
+        Negative result, deliberately landed. No score moved and no ask was
+        added to #139: per the 2026-08-20 rescore, egress constrains what
+        this sandbox can build and measure, not what a deployed product
+        could fetch, so reachability is a build constraint and never a
+        `defensibility`/`distribution` input. By-product worth one line:
+        gitlab.com/gitlab-org/security-products/gemnasium-db is a live,
+        clonable, per-CVE advisory corpus on a host nobody had looked at,
+        which makes cra-evidence-desk's "archive half is public data"
+        reading stronger, not weaker.
+      - >-
+        Verified: 22 offline tests pass, both saved results files
+        re-derive with `--recompute-from` and no network, control host
+        denied on every surface, and all four portfolio validators green
+        (doc-consistency 8/8, candidates 8/8, router 10/10, workflows
+        26/26). Added a path-filtered CI test runner matching the one
+        #394 added for the sibling probe -- standard-library unittest,
+        no install step, no network, `permissions: contents: read`, no
+        spend. Self-merged as agent-decidable: internal
+        `portfolio/research/` only, publishes nothing, registers nothing,
+        uses no credential, enables no unattended spend.
+    mrr_end: null
