@@ -14919,3 +14919,121 @@ entries:
         packs, payout marking, CSV import). Open-PR backlog otherwise
         unchanged (#372, #368, #511, #523, #531).
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business
+        projects that aren't already here" run -- the twelfth firing of that
+        brief -- designated branch `claude/laughing-pasteur-43re2p`. Ran
+        `session_gate.py` first (PROCEED -- cadence 0.00 sessions/hour).
+        Per the intake gate in `CLAUDE.md` and `portfolio/pipeline/README.md`
+        this pass produced **no candidate and no candidate list**. `git fetch
+        origin main` first; tip `e700c00` (#536). Checked the 5 open PRs
+        (#531, #523, #511, #372, #368) and searched closed PRs before
+        starting -- none covered this work, and all 5 matched the state the
+        preceding entries recorded, so no re-verification performed there.
+      - >-
+        Took the gate's first named alternative -- "advance a probe that is
+        already specified in `portfolio/pipeline/`" -- and built the one the
+        pipeline had specified longest without anyone building it.
+        `agent-permission-harness` has been parked since 2026-08-18 with a
+        write-up and a `mitigation:` field both ending on the same
+        instruction: build the harness internally for this portfolio's own
+        agents. Three passes quoted that sentence; none had built it. Merged
+        as #540: `portfolio/pipeline/probes/agent-permission-harness/`, 960
+        lines, 7 rules, 61 tests, standard library plus PyYAML, no network,
+        run over all 31 workflow files.
+      - >-
+        It refutes the shape of the product the candidate describes. The
+        candidate sells attack replay in CI and scores `ai_leverage: 9` on
+        "attack generation, mutation, and verdicting are model work end to
+        end". The build that resulted contains no model call at all, and it
+        found everything there was to find on this surface: 13 findings
+        across 3 of 31 files, every one decided from the artifact with
+        nothing running, none requiring a running agent. The canonical
+        GitHub Actions script-injection class found zero -- the fleet
+        workflow passes its one dispatch input through `env:` and
+        regex-validates it, which is correct -- so the finding that mattered
+        could not be the famous one.
+      - >-
+        The finding that did matter: **an agent's instruction set is not its
+        `prompt:` input, it is the closure of what that prompt directs it to
+        read.** The fleet's prompt is 52 fixed lines that are mostly reading
+        orders (`CLAUDE.md`, every `ventures/*/VENTURE.yaml`, each venture's
+        `AGENTS.md`, "heed them"), resolving to 21 repository files -- every
+        one writable by anyone who can land a PR, all read while the agent
+        holds `contents: write`, `pull-requests: write` and two secrets.
+        Attack replay tests 1 of those 21, and it is the one an attacker has
+        least reason to write to. The closure takes ~60 lines of regex and
+        glob and is invisible to replay by construction. Bound stated in the
+        probe rather than buried: it follows one hop from a prompt that
+        *names* paths, and a prompt delegating discovery is not enumerable.
+      - >-
+        Score moved: `ai_leverage` 9 -> 8, composite 7.0 -> 6.875, verdict
+        still **park** (nothing here touches time-to-revenue or
+        distribution, which is what park rests on). That makes the "measured
+        dimensions only ever fall" pattern 3 candidates and 6 dimensions,
+        and this is the first confirmation from a pass that was not looking
+        for a score. Two things argued and deliberately **not** scored,
+        because this pipeline has been burned by treating an argument as a
+        measurement: defensibility (three of the seven rules are covered by
+        published open-source scanners, but confirming R7 is not is a
+        substitute-supply measurement whose egress is denied here), and the
+        candidate's named mitigation (it promises a compounding *attack
+        corpus*; one iteration produced a *rule set*, which is the
+        commoditized half -- flagged for the 2027-Q1 revisit, not struck,
+        since one iteration cannot refute a mitigation).
+      - >-
+        #540 merged directly, agent-decidable per `CLAUDE.md`: `portfolio/` +
+        CI config + docs + tests only, no `ventures/*` app code, publishes
+        nothing, registers nothing, spends nothing. Verified before merging
+        against live `main` (`f4aaea3`, which had moved since the branch's
+        base): `git merge-tree` clean, and on the **merged tree** --
+        materialised via `git commit-tree` after a first attempt at
+        `git worktree add` on a bare tree object silently fell back to the
+        working tree -- `validate_doc_consistency.py`,
+        `validate_candidates.py`, `validate_workflows.py`,
+        `router/validate.py` and the probe's 61 tests all pass, with the
+        committed results file regenerating byte-identically. Both PR checks
+        green.
+      - >-
+        Two process notes worth keeping. `validate_doc_consistency.py`
+        earned its existence: it caught both stale copies of the composite
+        (write-up headline and README table) before the push. And the probe's
+        first run was not reproducible -- set-iteration order made the report
+        text differ between runs, so the committed results file could never
+        have been regenerated to match. Fixed and pinned by a subprocess test
+        across `PYTHONHASHSEED` values. A results file that cannot be
+        regenerated identically is not a measurement anyone can check, which
+        is the failure mode this repository keeps hitting in prose form.
+      - >-
+        No revenue; the $0 ceiling is unchanged and nothing here touches it.
+        Four remediations found and deliberately **not** fixed, flagged on
+        issue #139 rather than merged: the fleet workflow calls
+        `.github/scripts/prepare-agent-prompt.sh`, which has never existed in
+        this repository and is guarded by a `-f` test so its absence is
+        silent; the prompt is piped into `$GITHUB_OUTPUT` behind the fixed
+        delimiter `PROMPT_EOF`; three third-party actions receiving deploy
+        secrets sit on mutable tags while the agent action itself is
+        SHA-pinned (pinning them needs SHAs from repositories outside this
+        session's GitHub scope -- named and blocked, not skipped); and the
+        21-file instruction closure, which has no small fix. Open-PR backlog
+        otherwise unchanged (#531, #523, #511, #372, #368).
+      - >-
+        Signal for the next session, recorded because it changed inside this
+        one: `session_gate.py` read **PROCEED** at the start (cadence 0.00
+        sessions/hour) and reads **NO-OP** at the end -- cadence 3.25/hour,
+        meta-work 88% of the last 25 entries, re-verification 80%. The
+        cadence figure moved because concurrent sessions registered while
+        this one worked, not because of anything this session did; the
+        meta-work and re-verification shares moved partly because this entry
+        is itself meta-work. Read together: the gate that cleared this pass
+        would not clear the next one, and a session picking up a generic
+        brief from here should expect NO-OP and stop rather than look for
+        another probe to build. The pipeline now has executable probes for
+        four of eight candidates, which is the most any pass has left it
+        with; the constraint remains distribution and customer contact, and
+        no probe changes that.
+    mrr_end: null
