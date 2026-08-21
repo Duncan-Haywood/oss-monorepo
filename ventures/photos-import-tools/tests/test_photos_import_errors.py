@@ -41,6 +41,25 @@ class ErrorClassificationTests(unittest.TestCase):
         self.assertEqual(result.action, ErrorAction.RUN_PREFLIGHT)
         self.assertEqual(result.code, "preflight_timeout")
 
+    def test_file_missing_after_icloud_wait_is_classified_permanent(self):
+        # resumable_photos_import.wait_for_file() gives up after
+        # ICLOUD_WAIT_ATTEMPTS and classifies the literal message
+        # f"file missing after {ICLOUD_WAIT_ATTEMPTS} iCloud wait attempts".
+        # The permanent "file_missing" pattern was written as
+        # "file missing after.*retries|permanently unavailable", but that
+        # generated message says "wait attempts", not "retries" -- so the
+        # pattern never matched the one message it exists to catch. It fell
+        # through to every other transient/permanent pattern (none of which
+        # match either) and landed on ErrorCategory.UNKNOWN /
+        # ErrorAction.RETRY_BACKOFF, misreporting a legitimate permanent skip
+        # (mark_skipped_permanent is called unconditionally at that call
+        # site regardless of classification) as "unknown" in the error log
+        # and in `status`'s "Recent errors" listing.
+        result = classify_error("file missing after 6 iCloud wait attempts")
+        self.assertEqual(result.category, ErrorCategory.PERMANENT)
+        self.assertEqual(result.action, ErrorAction.SKIP_PERMANENT)
+        self.assertEqual(result.code, "file_missing")
+
     def test_no_transient_pattern_is_shadowed_by_an_earlier_one(self):
         # Regression guard for the class of bug above, not just the one
         # instance: classify_error returns on the first pattern that matches,
