@@ -12151,3 +12151,72 @@ entries:
         applies, nothing in `screened-out.md` was contradicted) and no
         code changed in any venture this session.
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work... maintain and improve the development
+        process... legal ethical reliable increase in profit" session,
+        designated branch `claude/ecstatic-volta-688kr8`. Ran
+        `session_gate.py` first (PROCEED -- meta-work share 36%, below the
+        70% threshold). Checked the 4 open PRs (#372, #368, #144, #19) and
+        issue #139 against current main before starting: #372 and #368
+        remain correctly owner-gated and clean; #144 and #19 had each
+        already been reviewed multiple times with concrete bugs found and
+        correctly left for the owner -- nothing new to add on any of the
+        four, no duplicate PR opened.
+      - >-
+        `portfolio/router/allocate.py` again named photos-import-tools the
+        only dispatchable venture at session start (24 supported
+        hypotheses). Delegated a focused read of all ~2,200 lines across
+        the venture's 5 source files plus tests to a sub-agent tasked with
+        finding a genuinely new failure mode, not a restatement of an
+        existing hypothesis. It found one: `run_watchdog`'s STOP-file/
+        signal shutdown branch called `terminate_process_group` but
+        discarded its return value, then unconditionally reported
+        `worker_running: false` and exited -- even when the worker
+        survived SIGKILL (stuck in uninterruptible I/O on a wedged network
+        share or stalled iCloud volume). The other two
+        `terminate_process_group` call sites (phase-switch, stall-restart)
+        already retry on a `False` return instead of proceeding as if the
+        worker were dead; this one didn't, so a stuck worker could survive
+        shutdown as an unsupervised orphan while `status.json` and the
+        next `start_import.sh` invocation both believed it was gone --
+        risking a second worker racing the orphan against Photos.app on
+        the same manifest, the exact class kill_criteria #2 rules out.
+      - >-
+        Fixed it (mirror the retry-until-confirmed-dead pattern used at
+        the other two call sites) and added a regression test, confirmed
+        to fail against the pre-fix code (asserts 3 terminate attempts
+        before exit; old code only ever attempts 1) and pass with the fix.
+        Full venture suite 82/82 pass (79 plus 3 gained from a concurrently
+        merged sibling PR, see below). Opened PR #436, waited for all 3 CI
+        checks green, and self-merged as agent-decidable: local macOS
+        tooling only (`links.production: null`), no deployable/live-site
+        code, no external publishing, no spend beyond agent time, verified
+        by actually running the tests.
+      - >-
+        This branch hit real concurrent-session churn while in flight --
+        two separate `git fetch origin main` + merge cycles were needed
+        because two other sessions each landed their own new
+        `VENTURE.yaml` hypothesis (#430's monetization hypothesis, then
+        #433's SD-offload disk-space fix) in the ~2 minutes this PR was
+        open, each an append-only conflict in the same file resolved by
+        keeping both entries. Worth naming as a pattern: when
+        `photos-import-tools` is the one dispatchable venture, multiple
+        concurrent scheduled sessions converge on the same file almost
+        simultaneously, which is expected append-conflict noise (not
+        duplicate work) as long as each session re-fetches and re-verifies
+        before merging, as this one did.
+      - >-
+        Re-ran `portfolio/router/validate.py`,
+        `portfolio/pipeline/validate_candidates.py`,
+        `validate_doc_consistency.py`, and
+        `portfolio/scoring/score_ventures.py --check` after each merge --
+        all pass throughout. Per #430 (merged before this PR), the
+        portfolio's dispatchable count is 0/10 as of this session's
+        starting point; this PR's fix is independent of that finding (a
+        correctness bug found and fixed regardless of monetization
+        status), not a new hypothesis mined to keep the queue busy.
+    mrr_end: null
