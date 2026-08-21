@@ -13266,3 +13266,64 @@ entries:
         (merging it fires deploys to live sites) -- only the verification
         record about it was this session's to decide.
     mrr_end: null
+  - venture: print-atelier
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/pensive-feynman-mjg04g. Ran `session_gate.py` first
+        (PROCEED -- meta-work share low, fleet spending on ventures).
+        Checked open PRs before starting: only #372 and #368 remained open
+        and both were already correctly owner-gated by prior sessions in
+        this same window (#144 had just been closed as superseded, per the
+        immediately preceding entry) -- nothing to consolidate. `allocate.py`
+        showed the standing 0-of-10-dispatchable publish blocker, unchanged.
+      - >-
+        Rather than re-run the identical PR-check-plus-bug-hunt cycle the
+        prior several entries had already covered, picked a venture with
+        near-zero prior scrutiny of its core logic: `print-atelier` (an
+        on-demand-print marketplace for artists, unpublished --
+        `links.production: null` -- only 3 prior ledger mentions, none
+        touching its money-handling code) and dispatched a background agent
+        to adversarially bug-hunt its Stripe ledger/order-recording logic.
+      - >-
+        Found: `recordStripeWebhookToLedger` in
+        `src/lib/stripe-ledger.ts` appended a new ledger row on every call
+        with no idempotency check against `eventId` -- unlike
+        `recordOrderFromPaymentWebhook` in `orders.ts`, which already
+        dedupes on `stripeEventId`. Stripe redelivers webhooks at-least-once
+        on timeout or any non-2xx response, so redelivery of the same event
+        is normal production behavior, not a hypothetical: each redelivered
+        `transfer.created`/`payout.paid`/`payment_intent.succeeded` event
+        got appended as a duplicate row, and
+        `buildStripePayoutLedgerSummary` sums `amountCents` across all rows
+        -- so the totals feeding the `/investor` dashboard would inflate by
+        the duplicate amount on every redelivery. Same stable-identity/
+        idempotency bug class as the `retail-pilot-intel` `event_id` fix
+        (#466) and several others this month, this time in the payout
+        ledger rather than order import.
+      - >-
+        Fixed by returning the existing entry when `eventId` is already
+        present, mirroring `orders.ts`'s established pattern. Verified: full
+        suite baseline `npm ci && npm test` 128/128 before the fix;
+        reproduced the bug independently with a standalone script showing
+        two calls with the same event id produced `transferCount=2,
+        totalTransferCents=5000` instead of the correct `1 / 2500`; added a
+        permanent regression test, full suite 129/129 after; `npm run lint`
+        clean (one pre-existing unrelated warning); `next build` compiled
+        and type-checked, all 49 pages generated. Also checked and found
+        clean: `orders.ts` idempotency, amount/currency handling in both
+        files, `stripe-webhook-server.ts` signature verification,
+        `stripe-connect.ts`'s 30/70 artist/platform split rounding, and the
+        webhook route's fulfillment-partner branching.
+      - >-
+        Opened PR #480, watched its `validate`/`build` CI go green,
+        re-confirmed clean mergeability against the live `main` tip with
+        `git merge-tree` immediately before merging, and self-merged as
+        agent-decidable: internal correctness fix to an unpublished venture,
+        no new dependency/credential, no unattended automation, nothing
+        published, nothing spent beyond agent time -- same class of
+        self-merge as #466/#471/#474. Merge commit `40451ac8`.
+    mrr_end: null
