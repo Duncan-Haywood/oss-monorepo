@@ -235,5 +235,226 @@ class TestHeadlineNumbersAgainstRealData(unittest.TestCase):
             self.assertIn(repo, text)
 
 
+# ---------------------------------------------------------------------------
+# Full-history calibration (the 2026-08-21 amendment)
+# ---------------------------------------------------------------------------
+
+
+def prior(repos: dict[str, list[str]], since_ts: int, until_ts: int) -> dict:
+    """A `fetch_prior_history.py`-shaped payload, agreeing by construction."""
+    return {
+        "fetched_at": "2026-08-21T00:00:00+00:00",
+        "window": {"since_ts": since_ts, "until_ts": until_ts},
+        "repos": [
+            {
+                "repo": name,
+                "status": "ok",
+                "change_days": days,
+                "window_agreement": {"comparable": True, "agrees": True},
+            }
+            for name, days in repos.items()
+        ],
+    }
+
+
+class TestAnchor(unittest.TestCase):
+    def test_quantile_one_reproduces_max_exactly(self):
+        """The two anchors are one dial, not two rules; if this drifts apart the
+        quantile results stop being comparable to the original finding."""
+        for gaps in ([1, 2, 3], [5], [1, 1, 1, 900], list(range(1, 40))):
+            with self.subTest(gaps=gaps):
+                self.assertEqual(
+                    ds.anchor_gap(gaps, ds.Config(anchor="quantile", quantile=1.0)),
+                    ds.anchor_gap(gaps, ds.Config(anchor="max")),
+                )
+
+    def test_quantile_outside_zero_to_one_clamps_instead_of_raising(self):
+        gaps = [1, 2, 3, 4, 5]
+        self.assertEqual(ds.anchor_gap(gaps, ds.Config(anchor="quantile", quantile=1.4)), 5)
+        self.assertEqual(ds.anchor_gap(gaps, ds.Config(anchor="quantile", quantile=-0.2)), 1)
+
+    def test_quantile_is_nearest_rank(self):
+        gaps = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        cfg = ds.Config(anchor="quantile", quantile=0.9)
+        self.assertEqual(ds.anchor_gap(gaps, cfg), 9)
+
+    def test_quantile_ignores_a_single_historic_dormancy(self):
+        """`datasets/covid-19` in miniature: daily for years, then one huge gap."""
+        gaps = [1] * 99 + [900]
+        self.assertEqual(ds.anchor_gap(gaps, ds.Config(anchor="max")), 900)
+        self.assertEqual(
+            ds.anchor_gap(gaps, ds.Config(anchor="quantile", quantile=0.99)), 1
+        )
+
+    def test_max_anchor_is_monotone_in_history_but_quantile_is_not(self):
+        """The mechanism behind the whole amendment, as an assertion.
+
+        A max-anchored threshold can only rise as history grows, so more history
+        strictly weakens the detector. A quantile-anchored one can fall back
+        toward what the source normally does.
+        """
+        short = [1, 1, 1, 1, 1]
+        long = [900] + short * 40
+        mx, qt = ds.Config(anchor="max"), ds.Config(anchor="quantile", quantile=0.99)
+        self.assertGreater(ds.anchor_gap(long, mx), ds.anchor_gap(short, mx))
+        self.assertEqual(ds.anchor_gap(long, qt), ds.anchor_gap(short, qt))
+
+
+class TestPriorHistory(unittest.TestCase):
+    def setUp(self):
+        start, end = date(2026, 3, 1), date(2026, 6, 1)
+        # In-window: two changes then silence. Alone that is uncalibratable.
+        self.p = payload({"slow/dead": ["2026-03-01", "2026-03-04"]},
+                         start.isoformat(), end.isoformat())
+        self.since_ts, self.until_ts = ts(start.isoformat()), ts(end.isoformat())
+
+    def test_prior_days_make_a_thin_source_calibratable(self):
+        without = ds.evaluate_all(self.p, ds.Config(fallback="none"))
+        self.assertEqual(without["totals"]["never_calibrated"], ["slow/dead"])
+
+        history = [f"2026-01-{d:02d}" for d in range(1, 20)]
+        with_prior = ds.evaluate_all(
+            self.p, ds.Config(fallback="none"), prior({"slow/dead": history}, self.since_ts, self.until_ts)
+        )
+        self.assertEqual(with_prior["totals"]["never_calibrated"], [])
+
+    def test_prior_days_after_the_window_start_are_ignored(self):
+        """Only pre-window days are prior history; anything else would double-count
+        the in-window record the detector already has."""
+        history = ["2026-01-05", "2026-04-01", "2026-05-01"]
+        got = ds.prior_days_by_repo(
+            prior({"slow/dead": history}, self.since_ts, self.until_ts), date(2026, 3, 1)
+        )
+        self.assertEqual(got["slow/dead"], [date(2026, 1, 5)])
+
+    def test_a_source_whose_window_days_disagree_is_dropped_not_half_trusted(self):
+        payload_prior = prior({"slow/dead": ["2026-01-05"]}, self.since_ts, self.until_ts)
+        payload_prior["repos"][0]["window_agreement"] = {"comparable": True, "agrees": False}
+        self.assertEqual(ds.prior_days_by_repo(payload_prior, date(2026, 3, 1)), {})
+
+    def test_ground_truth_does_not_move_when_calibration_changes(self):
+        """Prior history may change what the detector believes, never what it is
+        graded against — otherwise the calibration sets its own exam."""
+        history = [f"2026-01-{d:02d}" for d in range(1, 20)]
+        a = ds.evaluate_all(self.p, ds.Config())
+        b = ds.evaluate_all(
+            self.p, ds.Config(), prior({"slow/dead": history}, self.since_ts, self.until_ts)
+        )
+        for key in ("quiet_at_window_end", "last_change", "trailing_silence_days", "change_days"):
+            with self.subTest(key=key):
+                self.assertEqual(a["sources"]["slow/dead"][key], b["sources"]["slow/dead"][key])
+
+    def test_prior_history_removes_the_cold_start_category(self):
+        """Cold-start alarms are an artifact of history starting at the window.
+        With prior history there is no such thing, so they are counted as the
+        real mid-window alarms they are rather than discounted."""
+        start, end = date(2026, 3, 1), date(2026, 6, 1)
+        late = payload({"late/start": ["2026-05-20", "2026-05-21"]},
+                       start.isoformat(), end.isoformat())
+        without = ds.evaluate_all(late, ds.Config(fallback="fixed"))
+        self.assertGreater(without["totals"]["cold_start_alarm_days_total"], 0)
+
+        history = [f"2026-01-{d:02d}" for d in range(1, 20)]
+        with_prior = ds.evaluate_all(
+            late, ds.Config(fallback="fixed"),
+            prior({"late/start": history}, ts(start.isoformat()), ts(end.isoformat())),
+        )
+        self.assertEqual(with_prior["totals"]["cold_start_alarm_days_total"], 0)
+
+
+class TestFullHistoryFindingsAgainstRealData(unittest.TestCase):
+    """Pins the 2026-08-21 amendment against the fetched full history."""
+
+    @classmethod
+    def setUpClass(cls):
+        if not ds.DEFAULT_RESULTS.exists():  # pragma: no cover - depends on checkout
+            raise unittest.SkipTest(f"missing {ds.DEFAULT_RESULTS}")
+        prior_path = Path(__file__).with_name("prior-history-2026-08-21.json")
+        if not prior_path.exists():  # pragma: no cover - depends on checkout
+            raise unittest.SkipTest(f"missing {prior_path}")
+        cls.payload = json.loads(ds.DEFAULT_RESULTS.read_text())
+        cls.prior = json.loads(prior_path.read_text())
+
+    def test_every_source_agreed_with_the_saved_records_in_window(self):
+        """The seam check. If a fetch ever disagrees, the pre-window days are
+        measuring something else and every number below is void."""
+        for entry in self.prior["repos"]:
+            with self.subTest(repo=entry["repo"]):
+                self.assertEqual(entry["status"], "ok")
+                self.assertTrue(entry["window_agreement"]["agrees"])
+
+    def test_full_history_calibrates_every_source_including_both_quiet_ones(self):
+        """Refutes the window-only finding's generalisation: being uncalibratable
+        was a property of the 180-day clone, not of these sources."""
+        r = ds.evaluate_all(self.payload, ds.Config(), self.prior)
+        self.assertEqual(r["totals"]["never_calibrated"], [])
+        for repo in ("FDA/openfda", "datasets/covid-19"):
+            with self.subTest(repo=repo):
+                self.assertEqual(r["sources"][repo]["calibrated_day_share"], 1.0)
+
+    def test_more_history_makes_the_max_anchored_rule_catch_strictly_less(self):
+        """The inversion. The probe's shipped operating point caught 2 of 2 only
+        because its history was too short to know better; on full history the
+        same configuration catches nothing."""
+        cfg = ds.Config(fallback="pooled", multiplier=2.0, min_gaps=2)
+        window_only = ds.evaluate_all(self.payload, cfg)
+        full = ds.evaluate_all(self.payload, cfg, self.prior)
+        self.assertEqual(window_only["totals"]["detected_terminal_silence"], 2)
+        self.assertEqual(full["totals"]["detected_terminal_silence"], 0)
+
+    def test_max_anchor_on_full_history_catches_nothing_at_any_setting(self):
+        for multiplier in (1.0, 1.5, 2.0, 3.0):
+            for fallback in ("none", "fixed", "pooled"):
+                cfg = ds.Config(multiplier=multiplier, min_gaps=2, fallback=fallback)
+                r = ds.evaluate_all(self.payload, cfg, self.prior)
+                with self.subTest(multiplier=multiplier, fallback=fallback):
+                    self.assertEqual(r["totals"]["detected_terminal_silence"], 0)
+
+    def test_p99_quantile_on_full_history_is_the_operating_point(self):
+        """1 of 2 caught at 8 days, with one nuisance alarm-day in 180 across
+        nine sources — against the shipped point's 10, plus 74 cold-start days."""
+        cfg = ds.Config(anchor="quantile", quantile=0.99, fallback="none")
+        r = ds.evaluate_all(self.payload, cfg, self.prior)
+        self.assertEqual(r["totals"]["detected_terminal_silence"], 1)
+        self.assertEqual(r["totals"]["missed_quiet_sources"], ["FDA/openfda"])
+        self.assertEqual(r["sources"]["datasets/covid-19"]["detection_latency_days"], 8)
+        self.assertEqual(r["totals"]["mid_window_alarm_days_total"], 1)
+
+    def test_the_paying_registers_stay_silent_under_the_new_operating_point(self):
+        cfg = ds.Config(anchor="quantile", quantile=0.99, fallback="none")
+        r = ds.evaluate_all(self.payload, cfg, self.prior)
+        for repo in ("github/advisory-database", "ossf/malicious-packages", "cisagov/kev-data"):
+            with self.subTest(repo=repo):
+                self.assertEqual(r["sources"][repo]["mid_window_alarm_days"], 0)
+
+    def test_catching_the_missed_source_costs_two_orders_of_magnitude_in_noise(self):
+        """Why the miss is accepted rather than tuned away."""
+        p99 = ds.evaluate_all(
+            self.payload, ds.Config(anchor="quantile", quantile=0.99), self.prior
+        )
+        p50 = ds.evaluate_all(
+            self.payload, ds.Config(anchor="quantile", quantile=0.50), self.prior
+        )
+        self.assertEqual(p50["totals"]["detected_terminal_silence"], 2)
+        self.assertGreater(
+            p50["totals"]["mid_window_alarm_days_total"],
+            100 * p99["totals"]["mid_window_alarm_days_total"],
+        )
+
+    def test_the_missed_source_is_undetectable_rather_than_mistuned(self):
+        """`FDA/openfda`'s own history contains 14 gaps at least as long as the
+        73-day silence it is being asked to flag, out of 37. Any threshold that
+        calls that silence anomalous calls 38% of the source's normal behaviour
+        anomalous too — a fact about the source, not about the estimator."""
+        entry = next(e for e in self.prior["repos"] if e["repo"] == "FDA/openfda")
+        days = [date.fromisoformat(d) for d in entry["change_days"]]
+        gaps = ds.gaps_between(days)
+        trailing = 73
+        over = [g for g in gaps if g >= trailing]
+        self.assertEqual(len(gaps), 37)
+        self.assertEqual(len(over), 14)
+        self.assertGreater(len(over) / len(gaps), 0.35)
+
+
 if __name__ == "__main__":
     unittest.main()

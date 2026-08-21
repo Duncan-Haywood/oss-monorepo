@@ -66,6 +66,15 @@ DEFAULT_MIN_GAPS = 5  # gaps needed before a per-source threshold is trusted
 DEFAULT_WARMUP_DAYS = 30  # no alarms while the monitor is still learning
 DEFAULT_FALLBACK_DAYS = 30  # used only by --fallback fixed
 
+# Which historical gap the threshold is anchored to. `max` is the rule
+# `register-change-rate` specified and this probe first measured; `quantile` is
+# the alternative it turned out to need. The distinction only becomes visible
+# with full history, which is why the first pass could not have found it: on 180
+# days of a source that changes daily, the max gap and the 99th percentile gap
+# are the same number.
+DEFAULT_ANCHOR = "max"
+DEFAULT_QUANTILE = 0.99  # nearest-rank; 1.0 reproduces `max` exactly
+
 # Ground truth for "this source went quiet and nobody said so" is taken from the
 # data rather than hand-labelled: a source whose trailing silence at the window's
 # end exceeds this many days had stopped publishing while the window was still
@@ -86,6 +95,8 @@ class Config:
         warmup_days: int = DEFAULT_WARMUP_DAYS,
         fallback: str = "none",
         fallback_days: int = DEFAULT_FALLBACK_DAYS,
+        anchor: str = DEFAULT_ANCHOR,
+        quantile: float = DEFAULT_QUANTILE,
     ) -> None:
         self.multiplier = multiplier
         self.floor_days = floor_days
@@ -93,6 +104,8 @@ class Config:
         self.warmup_days = warmup_days
         self.fallback = fallback
         self.fallback_days = fallback_days
+        self.anchor = anchor
+        self.quantile = quantile
 
     def as_dict(self) -> dict:
         return {
@@ -102,6 +115,8 @@ class Config:
             "warmup_days": self.warmup_days,
             "fallback": self.fallback,
             "fallback_days": self.fallback_days,
+            "anchor": self.anchor,
+            "quantile": self.quantile,
         }
 
 
@@ -130,17 +145,34 @@ def gaps_between(days: list[date]) -> list[int]:
     return [(b - a).days for a, b in zip(days, days[1:])]
 
 
-def cadence_threshold(gaps: list[int], cfg: Config) -> int | None:
-    """Per-source silence threshold in days, or None when history is too thin.
+def anchor_gap(gaps: list[int], cfg: Config) -> int:
+    """The historical gap the threshold is built from.
 
-    Anchored on the worst gap the source has actually shown rather than on its
-    median: the question a silence alarm asks is "is this longer than this
-    source's normal worst", and a median-anchored threshold pages every time a
-    weekly register takes a holiday.
+    `max` is the rule as specified: "is this longer than this source's normal
+    worst". Its defect is that it is **monotonically non-decreasing in history
+    length** — every long gap a source survives permanently raises its own alarm
+    threshold — so the sources most likely to go dormant are exactly the ones
+    whose threshold has already been stretched past any silence worth alarming
+    on. Full history makes that stretch enormous rather than curing it.
+
+    `quantile` (nearest-rank) is not monotone: it converges on what the source
+    normally does and treats one historical dormancy as the outlier it is.
+    Quantile 1.0 is `max`, so the two are one dial rather than two rules.
     """
+    if cfg.anchor == "quantile":
+        ordered = sorted(gaps)
+        # Clamped at both ends so a quantile outside [0, 1] degrades to the
+        # nearest sensible anchor rather than raising from inside the day loop.
+        rank = min(len(ordered), max(1, math.ceil(cfg.quantile * len(ordered))))
+        return ordered[rank - 1]
+    return max(gaps)
+
+
+def cadence_threshold(gaps: list[int], cfg: Config) -> int | None:
+    """Per-source silence threshold in days, or None when history is too thin."""
     if len(gaps) < cfg.min_gaps:
         return None
-    return max(cfg.floor_days, math.ceil(max(gaps) * cfg.multiplier))
+    return max(cfg.floor_days, math.ceil(anchor_gap(gaps, cfg) * cfg.multiplier))
 
 
 def _pooled_threshold(per_source_thresholds: list[int], cfg: Config) -> int | None:
@@ -163,12 +195,22 @@ def evaluate_source(
     until: date,
     cfg: Config,
     pooled_by_day: dict[date, int] | None = None,
+    prior: list[date] | None = None,
 ) -> dict:
     """Replay the window one day at a time with no lookahead.
 
     On each day the detector sees only changes at or before that day, which is
     the only way a backtest of a monitor means anything.
+
+    `prior` is the source's change days from *before* the window, as fetched by
+    `fetch_prior_history.py`. Supplying it models a monitor that cloned full
+    history on the day it was switched on; omitting it models one whose history
+    begins at the window's first day, which is what the saved `--shallow-since`
+    records force and what this probe originally measured. Prior days are used
+    for calibration and for "when did this source last change", never for
+    scoring: ground truth still comes from in-window behaviour alone.
     """
+    prior = prior or []
     alarms: list[dict] = []
     calibrated_days = 0
     total_days = 0
@@ -178,7 +220,7 @@ def evaluate_source(
     while day <= until:
         total_days += 1
         idx = bisect.bisect_right(days, day)
-        history = days[:idx]
+        history = prior + days[:idx]
         seen_gaps = gaps_between(history)
         threshold = cadence_threshold(seen_gaps, cfg)
         source = "per-source"
@@ -216,7 +258,7 @@ def evaluate_source(
 
     # Derived from the whole window rather than from the loop's last iteration,
     # so the summary does not depend on where the loop happened to stop.
-    return _score(days, alarms, calibrated_days, total_days, first_calibrated, until, cfg)
+    return _score(days, alarms, calibrated_days, total_days, first_calibrated, until, cfg, prior)
 
 
 def _score(
@@ -227,8 +269,14 @@ def _score(
     first_calibrated: date | None,
     until: date,
     cfg: Config,
+    prior: list[date] | None = None,
 ) -> dict:
-    final_gaps = gaps_between(days)
+    prior = prior or []
+    # The threshold and gap columns describe what the detector was fitted on, so
+    # they span prior history too. The ground-truth columns below deliberately do
+    # not: whether a source went quiet is a fact about the window, and letting
+    # prior history touch it would let the calibration change its own exam.
+    final_gaps = gaps_between(prior + days)
     terminal = [a for a in alarms if a["terminal"]]
     resolved = [a for a in alarms if not a["terminal"]]
     last_change = days[-1] if days else None
@@ -239,7 +287,13 @@ def _score(
     # in-window commit lands late looks silent from day one for a reason that is
     # an artifact of the clone depth, not a property of the source. Counted
     # separately so the honest nuisance figure is the mid-window one.
-    first_change = days[0] if days else None
+    #
+    # With prior history supplied, that artifact cannot arise: the monitor knows
+    # when the source last changed before the window, so an early alarm is a real
+    # claim about a real silence and is counted as mid-window like any other.
+    # This is why the cold-start column goes to zero under `--prior-history`
+    # rather than staying constant — the category stops existing.
+    first_change = prior[0] if prior else (days[0] if days else None)
     def _is_cold_start(alarm: dict) -> bool:
         return first_change is None or date.fromisoformat(alarm["day"]) < first_change
 
@@ -273,7 +327,32 @@ def _score(
     }
 
 
-def evaluate_all(payload: dict, cfg: Config) -> dict:
+def prior_days_by_repo(prior_payload: dict, since: date) -> dict[str, list[date]]:
+    """Pre-window change days per repo, from `fetch_prior_history.py`'s output.
+
+    Only days strictly before the window are kept. The in-window days keep coming
+    from the saved measurement, which the fetcher verified it agrees with
+    day-for-day, so the two halves of the history are the same kind of number and
+    the seam introduces nothing.
+
+    A source whose fetch did not succeed, or whose in-window days disagreed with
+    the saved records, is dropped rather than half-trusted: a mismatch means the
+    two derivations are measuring different things, and splicing them would put
+    that difference inside the detector where it would read as a gap.
+    """
+    out: dict[str, list[date]] = {}
+    for entry in prior_payload.get("repos", []):
+        if entry.get("status") != "ok":
+            continue
+        agreement = entry.get("window_agreement", {})
+        if agreement.get("comparable") and not agreement.get("agrees"):
+            continue
+        days = [date.fromisoformat(d) for d in entry.get("change_days", [])]
+        out[entry["repo"]] = [d for d in days if d < since]
+    return out
+
+
+def evaluate_all(payload: dict, cfg: Config, prior_payload: dict | None = None) -> dict:
     since_ts = payload["window"]["since_ts"]
     until_ts = payload["window"]["until_ts"]
     since = datetime.fromtimestamp(since_ts, timezone.utc).date()
@@ -284,32 +363,47 @@ def evaluate_all(payload: dict, cfg: Config) -> dict:
         for entry in payload["repos"]
         if entry.get("status") == "ok"
     }
+    prior_by_repo = prior_days_by_repo(prior_payload, since) if prior_payload else {}
 
-    pooled_by_day = _pooled_schedule(days_by_repo, since, until, cfg) if cfg.fallback == "pooled" else None
+    pooled_by_day = (
+        _pooled_schedule(days_by_repo, since, until, cfg, prior_by_repo)
+        if cfg.fallback == "pooled"
+        else None
+    )
 
     rows = {
-        repo: evaluate_source(days, since, until, cfg, pooled_by_day)
+        repo: evaluate_source(days, since, until, cfg, pooled_by_day, prior_by_repo.get(repo))
         for repo, days in days_by_repo.items()
     }
     return {
         "source_measurement": payload.get("measured_at"),
         "window": {"since": since.isoformat(), "until": until.isoformat()},
         "config": cfg.as_dict(),
+        "calibration": {
+            "prior_history": bool(prior_payload),
+            "fetched_at": (prior_payload or {}).get("fetched_at"),
+            "sources_with_prior": sorted(k for k, v in prior_by_repo.items() if v),
+        },
         "sources": rows,
         "totals": _totals(rows),
     }
 
 
 def _pooled_schedule(
-    days_by_repo: dict[str, list[date]], since: date, until: date, cfg: Config
+    days_by_repo: dict[str, list[date]],
+    since: date,
+    until: date,
+    cfg: Config,
+    prior_by_repo: dict[str, list[date]] | None = None,
 ) -> dict[date, int]:
     """Per-day pooled threshold, using only history available on that day."""
+    prior_by_repo = prior_by_repo or {}
     schedule: dict[date, int] = {}
     day = since
     while day <= until:
         thresholds = []
-        for days in days_by_repo.values():
-            history = days[: bisect.bisect_right(days, day)]
+        for repo, days in days_by_repo.items():
+            history = prior_by_repo.get(repo, []) + days[: bisect.bisect_right(days, day)]
             thresholds.append(cadence_threshold(gaps_between(history), cfg))
         pooled = _pooled_threshold(thresholds, cfg)
         if pooled is not None:
@@ -346,9 +440,23 @@ def render(result: dict) -> str:
     out = [
         f"Window {result['window']['since']} .. {result['window']['until']}  "
         f"(from measurement {result['source_measurement']})",
-        f"Rule: alarm when current gap > max(worst historical gap x {cfg['multiplier']}, "
+        f"Rule: alarm when current gap > max("
+        + (
+            f"p{cfg['quantile'] * 100:g} historical gap"
+            if cfg["anchor"] == "quantile"
+            else "worst historical gap"
+        )
+        + f" x {cfg['multiplier']}, "
         f"{cfg['floor_days']}d), needs >= {cfg['min_gaps']} gaps to calibrate, "
         f"{cfg['warmup_days']}d warmup, fallback={cfg['fallback']}",
+        "Calibrated on: "
+        + (
+            f"full history ({len(result['calibration']['sources_with_prior'])} of "
+            f"{len(result['sources'])} sources have pre-window days), "
+            f"fetched {result['calibration']['fetched_at']}"
+            if result.get("calibration", {}).get("prior_history")
+            else "the observation window only (no pre-window history)"
+        ),
         "",
         f"{'source':38s} {'thr':>5s} {'med':>5s} {'max':>5s} {'cal%':>6s} "
         f"{'last change':>12s} {'quiet?':>7s} {'lat':>5s} {'mid-win':>8s} {'cold':>5s}",
@@ -383,7 +491,7 @@ def render(result: dict) -> str:
     return "\n".join(out)
 
 
-def render_sweep(payload: dict, base: Config) -> str:
+def render_sweep(payload: dict, base: Config, prior_payload: dict | None = None) -> str:
     """Sensitivity of the headline numbers to the two parameters that matter."""
     out = [
         "Sensitivity sweep (fallback held at "
@@ -401,8 +509,10 @@ def render_sweep(payload: dict, base: Config) -> str:
                 warmup_days=base.warmup_days,
                 fallback=base.fallback,
                 fallback_days=base.fallback_days,
+                anchor=base.anchor,
+                quantile=base.quantile,
             )
-            r = evaluate_all(payload, cfg)
+            r = evaluate_all(payload, cfg, prior_payload)
             t = r["totals"]
             lats = [
                 s["detection_latency_days"]
@@ -433,13 +543,40 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--warmup-days", type=int, default=DEFAULT_WARMUP_DAYS)
     ap.add_argument("--fallback", choices=("none", "fixed", "pooled"), default="none")
     ap.add_argument("--fallback-days", type=int, default=DEFAULT_FALLBACK_DAYS)
+    ap.add_argument(
+        "--anchor",
+        choices=("max", "quantile"),
+        default=DEFAULT_ANCHOR,
+        help="which historical gap the threshold is built from (default: max, the rule as specified)",
+    )
+    ap.add_argument(
+        "--quantile",
+        type=float,
+        default=DEFAULT_QUANTILE,
+        help="nearest-rank quantile for --anchor quantile; 1.0 reproduces --anchor max",
+    )
     ap.add_argument("--sweep", action="store_true", help="print the parameter sensitivity table")
+    ap.add_argument(
+        "--prior-history",
+        type=Path,
+        help=(
+            "calibrate on full history from fetch_prior_history.py, instead of on "
+            "the observation window alone"
+        ),
+    )
     ap.add_argument("--json", type=Path, help="write the full result, alarms included")
     args = ap.parse_args(argv)
 
     if not args.results.exists():
         print(f"results file not found: {args.results}", file=sys.stderr)
         return 2
+
+    prior_payload = None
+    if args.prior_history:
+        if not args.prior_history.exists():
+            print(f"prior-history file not found: {args.prior_history}", file=sys.stderr)
+            return 2
+        prior_payload = json.loads(args.prior_history.read_text())
 
     payload = json.loads(args.results.read_text())
     cfg = Config(
@@ -449,13 +586,15 @@ def main(argv: list[str]) -> int:
         warmup_days=args.warmup_days,
         fallback=args.fallback,
         fallback_days=args.fallback_days,
+        anchor=args.anchor,
+        quantile=args.quantile,
     )
 
-    result = evaluate_all(payload, cfg)
+    result = evaluate_all(payload, cfg, prior_payload)
     print(render(result))
     if args.sweep:
         print()
-        print(render_sweep(payload, cfg))
+        print(render_sweep(payload, cfg, prior_payload))
     if args.json:
         args.json.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
         print(f"\nwrote {args.json}")

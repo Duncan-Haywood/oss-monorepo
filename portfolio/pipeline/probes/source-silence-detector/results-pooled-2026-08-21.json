@@ -1,10 +1,17 @@
 {
+  "calibration": {
+    "fetched_at": null,
+    "prior_history": false,
+    "sources_with_prior": []
+  },
   "config": {
+    "anchor": "max",
     "fallback": "pooled",
     "fallback_days": 30,
     "floor_days": 7,
     "min_gaps": 2,
     "multiplier": 2.0,
+    "quantile": 0.99,
     "warmup_days": 30
   },
   "source_measurement": "2026-08-20T00:00:00+00:00",
