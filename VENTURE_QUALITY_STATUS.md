@@ -9,16 +9,32 @@ This document tracks the quality and completeness status of each venture against
 | Venture | Tier 1 | Tier 2 | Tier 3 | Status |
 |---------|--------|--------|--------|--------|
 | ai-engineering-academy | ✅ | 🔶 | ❌ | Foundation |
-| ai-first-markets | ✅ | 🟡 | ❌ | Foundation+ |
+| ai-first-markets | ✅ | ✅ | ❌ | Mature |
 | garmin-world-traveler-watchface | ✅ | ❌ | ❌ | Foundation |
 | local-site-studio | ✅ | ✅ | 🟡 | Mature |
 | photo-editing | ✅ | 🟡 | ❌ | Foundation+ |
 | photos-import-tools | ✅ | 🟡 | ❌ | Foundation+ |
 | print-atelier | ✅ | ✅ | 🟡 | Mature |
-| quick-pick-survey | ✅ | 🟡 | ❌ | Foundation+ |
+| quick-pick-survey | ✅ | ✅ | ❌ | Mature |
 | real-estate-agent-photo-app | ✅ | ❌ | ❌ | Foundation |
-| retail-pilot-intel | ✅ | 🟡 | ❌ | Foundation+ |
+| retail-pilot-intel | ✅ | ✅ | ❌ | Mature |
 | world-clock-widget | ✅ | ❌ | ❌ | Foundation |
+
+**Corrected 2026-08-21** (same day as this document's own creation): the three
+rows above marked Mature were originally scored Foundation+ with "no tests /
+no linting / no CI / no TypeScript" gaps. Checked directly against the
+filesystem (`find` for test files, `eslint`/`tsconfig` configs, `.github/workflows/`)
+rather than trusted from the original pass: `ai-first-markets` has 5 test
+files, a `vitest.config.mts`, an ESLint config, and two CI workflows
+(`ai-first-markets-ci.yml`, `ai-first-markets-deploy.yml`); `quick-pick-survey`
+has 36 test files including integration tests, a `vitest.config.ts`, and
+`quick-pick-survey-ci.yml`; `retail-pilot-intel` is a pnpm workspace with a
+`tsconfig.base.json` plus six per-package `tsconfig.json` files, an
+`eslint.config.js`, 5 test files across its `pos`/`analytics` packages, and
+both `retail-pilot-intel-ci.yml` and `retail-pilot-intel-deploy-docs.yml`. All
+three originally-claimed gaps were checked and found false for each of these
+three ventures. See each venture's corrected entry below for what documentation
+gap, if any, is still real and unverified rather than asserted either way.
 
 **Legend**: ✅ = Complete, 🟡 = Partial, 🔶 = Minimal, ❌ = Missing
 
@@ -84,27 +100,56 @@ This document tracks the quality and completeness status of each venture against
   - [ ] Security audit
   - [ ] Mobile/accessibility testing
 
-### 🚀 FOUNDATION+ VENTURES (Moving to Maturity)
-
 #### ai-first-markets
-- **Status**: Foundation+
-- **Strengths**:
-  - ✅ VENTURE.yaml and README.md present
-  - ✅ TypeScript configured
-  - ✅ package.json with dependencies
+- **Status**: Mature (corrected 2026-08-21 — see summary table note)
+- **Current Tier**: Tier 2
+- **Tier 1 - Foundation**: ✅ Complete
+- **Tier 2 - Maturity**: ✅ Nearly Complete
+  - Testing: ✅ (5 test files, `vitest.config.mts`)
+  - Linting: ✅ (ESLint configured)
+  - Type checking: ✅ (TypeScript, `tsconfig.json`)
+  - Package management: ✅ (`package.json` + `package-lock.json`)
+  - CI/CD: ✅ (`ai-first-markets-ci.yml`, `ai-first-markets-deploy.yml`)
+  - Documentation: 🟡 (no dedicated `docs/` directory found; API/JSDoc depth not verified)
 
-- **Gaps**:
-  - ❌ No automated tests
-  - ❌ No CI/CD pipeline visible
-  - ❌ Limited API documentation
-  - ❌ No linting configuration
+- **Next Steps**:
+  - [ ] Add API documentation (JSDoc) if the data/idea-library surface warrants it
+  - [ ] Confirm test coverage percentage (no coverage report checked in)
+  - [ ] Tier 3: security audit, performance profiling, accessibility audit
 
-- **Recommended Actions**:
-  - [ ] Set up ESLint and Prettier
-  - [ ] Add Jest/Vitest for unit testing
-  - [ ] Configure GitHub Actions workflow
-  - [ ] Add API documentation (JSDoc)
-  - [ ] Target Tier 2 completion in 2 weeks
+#### quick-pick-survey
+- **Status**: Mature (corrected 2026-08-21 — see summary table note)
+- **Current Tier**: Tier 2
+- **Tier 1 - Foundation**: ✅ Complete
+- **Tier 2 - Maturity**: ✅ Nearly Complete
+  - Testing: ✅ (36 test files, including integration tests under `src/app/api/**`; `vitest.config.ts`)
+  - Linting: ✅ (ESLint configured)
+  - Type checking: ✅ (TypeScript)
+  - Package management: ✅ (`package.json` + `package-lock.json`)
+  - CI/CD: ✅ (`quick-pick-survey-ci.yml`)
+  - Documentation: 🟡 (has a `docs/` directory; API/architecture depth not verified)
+
+- **Next Steps**:
+  - [ ] Confirm test coverage percentage (no coverage report checked in)
+  - [ ] Tier 3: security audit, performance profiling, accessibility audit (this venture is also the subject of `portfolio/research/a11y-own-sites/`, which fixed defects in venture source separately)
+
+#### retail-pilot-intel
+- **Status**: Mature (corrected 2026-08-21 — see summary table note)
+- **Current Tier**: Tier 2
+- **Tier 1 - Foundation**: ✅ Complete
+- **Tier 2 - Maturity**: ✅ Nearly Complete
+  - Testing: ✅ (5 test files across the `pos`/`analytics` packages; `pnpm run test` reported 13/13 passing in PR #372's own verification)
+  - Linting: ✅ (`eslint.config.js`)
+  - Type checking: ✅ (`tsconfig.base.json` plus six per-package `tsconfig.json` files — this is a pnpm workspace, not a single-root app, which is why a root-level `tsconfig.json` alone does not show it)
+  - Package management: ✅ (`pnpm-lock.yaml`, workspace `package.json`s)
+  - CI/CD: ✅ (`retail-pilot-intel-ci.yml`, `retail-pilot-intel-deploy-docs.yml`)
+  - Documentation: 🟡 (has `apps/docs` and a `docs/` directory; API/data-model documentation depth not verified)
+
+- **Next Steps**:
+  - [ ] Confirm test coverage percentage across all workspace packages (no coverage report checked in)
+  - [ ] Tier 3: security audit (an `npm audit --audit-level=high` in PR #372 found 0 vulnerabilities at that point in time, not a full audit), performance profiling
+
+### 🚀 FOUNDATION+ VENTURES (Moving to Maturity)
 
 #### photo-editing
 - **Status**: Foundation+
@@ -145,46 +190,6 @@ This document tracks the quality and completeness status of each venture against
   - [ ] Add type safety
   - [ ] Expand API documentation
   - [ ] Create example/tutorial
-
-#### quick-pick-survey
-- **Status**: Foundation+
-- **Strengths**:
-  - ✅ TypeScript configured
-  - ✅ package.json present
-  - ✅ README.md with setup
-
-- **Gaps**:
-  - ❌ No automated tests
-  - ❌ CI/CD not configured
-  - ❌ Limited documentation depth
-  - ❌ No type coverage metrics
-
-- **Recommended Actions**:
-  - [ ] Add Jest/Vitest test suite
-  - [ ] Set up GitHub Actions for CI/CD
-  - [ ] Add test coverage reporting
-  - [ ] Expand architecture documentation
-  - [ ] Add JSDoc/TSDoc comments
-
-#### retail-pilot-intel
-- **Status**: Foundation+
-- **Strengths**:
-  - ✅ VENTURE.yaml and README.md complete
-  - ✅ package.json with dependencies
-  - ✅ Structured codebase
-
-- **Gaps**:
-  - ❌ No tests visible
-  - ❌ No TypeScript
-  - ❌ No linting configuration
-  - ❌ Dependency documentation sparse
-
-- **Recommended Actions**:
-  - [ ] Set up ESLint and Prettier
-  - [ ] Migrate to TypeScript (or strict JSDoc)
-  - [ ] Create test suite with Jest
-  - [ ] Document data models and API
-  - [ ] Configure CI/CD pipeline
 
 ### 🏗️ FOUNDATION VENTURES (Needs Development Focus)
 
@@ -322,8 +327,8 @@ This document tracks the quality and completeness status of each venture against
 ## Success Metrics
 
 ### Coverage
-- **Tier 1 (Foundation)**: 100% of ventures (current: ~100%)
-- **Tier 2 (Maturity)**: 70% of ventures (current: ~20%)
+- **Tier 1 (Foundation)**: 100% of ventures (current: 100%, 11/11)
+- **Tier 2 (Maturity)**: 70% of ventures (current: 45%, 5/11 — corrected 2026-08-21, was reported as ~20% before three ventures' actual test/lint/CI/TypeScript setups were checked against the filesystem)
 - **Tier 3 (Excellence)**: 30% of ventures (current: 0%)
 
 ### Velocity
