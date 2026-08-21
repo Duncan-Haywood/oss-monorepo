@@ -257,7 +257,7 @@ def _classify(
     # Rule 4 — deployment surface. Requires the project to definitely not ship a
     # server *and* the advisory to definitely describe a server-only surface.
     if profile.mode == deployment_mod.STATIC_EXPORT and profile.confidence == "high":
-        verdict = surfaces.classify(advisory.text)
+        verdict = surfaces.classify(advisory.summary, advisory.details)
         if verdict.server_only:
             return finding(
                 NOT_DEPLOYED,

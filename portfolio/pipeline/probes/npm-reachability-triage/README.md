@@ -423,19 +423,22 @@ What the verification actually checked, per rule:
   via server-originated requests) are confirmed absent, not just assumed
   absent from the mode label.
 
-**One labeling imprecision found, not a wrong suppression.**
-`GHSA-89xv-2m56-2m9x` ("SSRF in Server Actions on custom servers") is tagged
+**One labeling imprecision found, not a wrong suppression — fixed.**
+`GHSA-89xv-2m56-2m9x` ("SSRF in Server Actions on custom servers") was tagged
 `server-surface:middleware`, not `server-surface:server-actions` or
-`server-surface:ssrf`. `surfaces.classify()` matches the first rule in
-`SERVER_ONLY_RULES` whose pattern hits anywhere in `summary + details`, and
-this advisory's details mention "middleware/proxy authorization" alongside its
-actual subject. The verdict is still correct — both the matched surface and
-the advisory's real one require a live server — but the label a reviewer sees
-does not name the mechanism they would expect. Fixing it safely means ranking
-matches by which appear in the advisory's `summary` before falling back to
-`details`, which changes `classify()`'s signature and needs its own pass
-against `tests/test_surfaces.py`; left as a follow-up rather than done inside
-this verification pass.
+`server-surface:ssrf`. `surfaces.classify()` matched the first rule in
+`SERVER_ONLY_RULES` whose pattern hit anywhere in `summary + details`, and this
+advisory's details mentioned "middleware/proxy authorization" alongside its
+actual subject. The verdict was correct either way — both the matched surface
+and the advisory's real one require a live server — but the label a reviewer
+saw did not name the mechanism they would expect. `classify()` now takes
+`summary` and `details` separately and matches against `summary` first,
+falling back to the combined text only when nothing in the summary matches, so
+a rule the details merely mention in passing no longer outranks the one the
+advisory's own summary states. This advisory now labels as
+`server-surface:server-actions`. Pinned by
+`tests/test_surfaces.py::TestSummaryTakesPriorityOverDetails`, including a case
+proving the fallback still catches a rule named only in `details`.
 
 **What this measurement does not cover.** It is one portfolio's sample — the
 same limit stated above (four of nine products are documentation sites). It
