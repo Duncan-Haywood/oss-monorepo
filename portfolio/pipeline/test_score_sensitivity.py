@@ -171,8 +171,12 @@ class ReportClaimsFollowTheData(unittest.TestCase):
                 measured={"ai_leverage": "7 -> 8, a pass that found it better."},
             )
         )
+        # The bias analysis is suppressed; the rest of the report is not. It
+        # used to `return` here, which also deleted section 4 and the verdict.
         self.assertIn("No single consistent bias", text)
-        self.assertNotIn("GATE SENSITIVITY", text)
+        self.assertNotIn("Applying", text)
+        self.assertIn("mixed in direction", text)
+        self.assertNotIn("it is revised downward", text)
 
     def test_a_two_point_revision_suppresses_the_bias_analysis(self):
         text = self._report(
@@ -183,6 +187,7 @@ class ReportClaimsFollowTheData(unittest.TestCase):
             )
         )
         self.assertIn("No single consistent bias", text)
+        self.assertNotIn("Applying", text)
 
     def test_gate_crossing_is_reported(self):
         text = self._report(
@@ -213,14 +218,40 @@ class AgainstTheLiveFile(unittest.TestCase):
         self.candidates, self.revisions = ss.load(LIVE)
         self.text = "\n".join(ss.report(self.candidates, self.revisions))
 
-    def test_every_revision_is_downward_by_one(self):
+    def test_every_revision_is_downward(self):
+        """Direction, which is the claim the README actually makes.
+
+        This asserted ``{-1}`` until 2026-08-21, when the first
+        ethical_robustness measurement revised by 2 and by 3
+        (portfolio/research/error-rate-disclosure/). Direction is what the
+        pipeline's prose rests on; magnitude is pinned separately below so a
+        change there is still visible rather than silently absorbed.
+        """
         self.assertTrue(self.revisions, "candidates.yaml records no revisions at all")
-        self.assertEqual(
-            {r.delta for r in self.revisions},
-            {-1},
+        self.assertTrue(
+            all(r.delta < 0 for r in self.revisions),
             "the one-directional pattern the README states no longer holds; "
             "update the README rather than this test",
         )
+
+    def test_observed_magnitudes_are_pinned(self):
+        self.assertEqual(
+            sorted({abs(r.delta) for r in self.revisions}),
+            [1, 2, 3],
+            "the set of revision magnitudes moved; section 2's derived sentence "
+            "and pipeline/README.md both quote this range",
+        )
+
+    def test_a_varying_magnitude_withholds_the_extrapolation(self):
+        """Withheld, not set to zero, and not fatal to the rest of the report.
+
+        The bias analysis used to `return` here, so a second measured dimension
+        would have deleted sections 4 and the verdict along with it.
+        """
+        self.assertIn("No single consistent bias", self.text)
+        self.assertIn("withheld rather than set to zero", self.text)
+        self.assertIn("4. GATE SENSITIVITY", self.text)
+        self.assertIn("VERDICT", self.text)
 
     # These three replace tripwires that asserted no gate dimension had ever
     # been measured. The tripwires fired on 2026-08-21, when
@@ -234,10 +265,20 @@ class AgainstTheLiveFile(unittest.TestCase):
                           if d in ss.GATE_DIMENSIONS}
         untouched = [d for d in ss.GATE_DIMENSIONS
                      if not any(d in c.settled for c in self.candidates)]
+        # Which wording section 4 uses depends on whether section 3 had a
+        # magnitude to carry; that a measured gate is labelled as measured, and
+        # an untouched one as an extrapolation, does not.
+        extrapolating = "nothing to apply" not in self.text
         for dimension in measured_gates:
-            self.assertIn(f"Observed bias for {dimension}", self.text)
+            if extrapolating:
+                self.assertIn(f"Observed bias for {dimension}", self.text)
+            else:
+                self.assertIn(f"{dimension}: measured on", self.text)
         for dimension in untouched:
-            self.assertIn(f"Extrapolation for {dimension}", self.text)
+            if extrapolating:
+                self.assertIn(f"Extrapolation for {dimension}", self.text)
+            else:
+                self.assertNotIn(f"Extrapolation for {dimension}", self.text)
         # A gate cannot be in both halves.
         self.assertTrue(measured_gates.isdisjoint(untouched))
 
@@ -252,8 +293,19 @@ class AgainstTheLiveFile(unittest.TestCase):
             self.assertIn("No pass has attempted one", self.text)
 
     def test_top_of_table_claim_matches_the_arithmetic(self):
+        """Only when the report makes that claim at all.
+
+        Since 2026-08-21 the live file's revision magnitudes vary, so section 3
+        withholds the extrapolation and prints no table. The point of this test
+        is that a printed claim matches the arithmetic — not that a claim is
+        printed — so an absent table is checked as absent.
+        """
         measured_dims = [d for d in ss.DIMENSIONS
                          if any(d in c.measured for c in self.candidates)]
+        sizes = {abs(r.delta) for r in self.revisions}
+        if sizes != {1} or any(r.delta > 0 for r in self.revisions):
+            self.assertNotIn("Top of the table", self.text)
+            return
         before = ss.ranking([(c.slug, ss.composite(c.scores))
                              for c in self.candidates])
         after = ss.ranking([(c.slug, ss.composite(ss.adjust(c, measured_dims, -1)))

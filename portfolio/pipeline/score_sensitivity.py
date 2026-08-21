@@ -250,81 +250,116 @@ def report(candidates: list[Candidate], revisions: list[Revision]) -> list[str]:
         f"     {examined_total} such case{plural} recorded explicitly "
         f"(`flagged_unmeasured`); any others are not."
     )
+    # The magnitude used to be uniformly 1, and this sentence used to say so as
+    # fixed prose. The first ethical_robustness measurement revised by 2 and 3,
+    # so it is derived now: what the record supports is a direction plus the
+    # smallest magnitude ever observed, not a constant.
+    span = "by one" if sizes == {1} else f"by {min(sizes)} to {max(sizes)} points"
     say("   - So the claim this supports is the narrow one: *when a score in these")
-    say("     dimensions is revised, it is revised down by one*. Not: measurement")
-    say("     always lowers a score.")
+    if len(down) == len(revisions):
+        say(f"     dimensions is revised, it is revised downward, {span}*. Not:")
+        say("     measurement always lowers a score.")
+    else:
+        say("     dimensions is revised, it moves*. The record holds revisions in")
+        say("     both directions, so it licenses no claim about which way.")
     say("")
 
     bias = -1 if down and len(down) == len(revisions) and sizes == {1} else 0
+    rank_stable = None
 
     # --------------------------------------------------------- rank sensitivity
     say("3. RANK SENSITIVITY (bias applied only where it was observed)")
     say("")
     if bias == 0:
         say("   No single consistent bias in the record; nothing to apply.")
+        if len(sizes) > 1:
+            say(f"   Every revision is downward, but the magnitudes are {sorted(sizes)},")
+            say("   so there is no single number to carry to the cells nobody has")
+            say("   looked at. The extrapolation is withheld rather than set to zero:")
+            say("   an unlooked-at cell is not thereby confirmed.")
         say("")
-        return out
-
-    say(
-        f"   Applying {bias:+d} to {', '.join(measured_dims)} on every candidate where"
-    )
-    say("   that dimension has not been looked at.")
-    say("")
-    before = [(c.slug, composite(c.scores)) for c in candidates]
-    after_scores = {c.slug: adjust(c, measured_dims, bias) for c in candidates}
-    after = [(c.slug, composite(after_scores[c.slug])) for c in candidates]
-    rank_before, rank_after = ranking(before), ranking(after)
-    by_slug = {c.slug: c for c in candidates}
-
-    say(f"   {'candidate':<26} {'composite':>9} {'adjusted':>9}   {'rank':>9}   floor")
-    for slug, value in sorted(before, key=lambda r: (-r[1], r[0])):
-        adjusted = dict(after).get(slug, value)
-        move = f"{rank_before[slug]} -> {rank_after[slug]}"
-        floor_after = min(after_scores[slug][d] for d in DIMENSIONS)
+        # Sections 4 and the verdict do not depend on the extrapolation for the
+        # part that matters — where the *measured* gate scores actually sit —
+        # and this used to return here, which meant a second measured dimension
+        # silently deleted the report's conclusion.
+    else:
         say(
-            f"   {slug:<26} {fmt(value):>9} {fmt(adjusted):>9}   {move:>9}   "
-            f"{min(by_slug[slug].scores.values())} -> {floor_after}"
+            f"   Applying {bias:+d} to {', '.join(measured_dims)} on every candidate where"
         )
-    say("")
-    displacement = max(abs(rank_after[s] - rank_before[s]) for s in rank_before)
-    top_before = [s for s, r in rank_before.items() if r == 1]
-    top_after = [s for s, r in rank_after.items() if r == 1]
-    say(f"   Largest rank displacement: {displacement} position(s).")
-    say(
-        f"   Top of the table {'unchanged' if set(top_before) == set(top_after) else 'CHANGES'}: "
-        f"{', '.join(sorted(top_before))} -> {', '.join(sorted(top_after))}."
-    )
-    say("")
-    if displacement <= 2 and set(top_before) == set(top_after):
-        say("   So the bias the pipeline has spent five passes measuring does not")
-        say("   change what to work on. Further rank-scoring has no decision value —")
-        say("   that was argued in rescore-2026-08-20.md and this is the arithmetic.")
-    say("")
+        say("   that dimension has not been looked at.")
+        say("")
+    if bias:
+        before = [(c.slug, composite(c.scores)) for c in candidates]
+        after_scores = {c.slug: adjust(c, measured_dims, bias) for c in candidates}
+        after = [(c.slug, composite(after_scores[c.slug])) for c in candidates]
+        rank_before, rank_after = ranking(before), ranking(after)
+        by_slug = {c.slug: c for c in candidates}
+
+        say(f"   {'candidate':<26} {'composite':>9} {'adjusted':>9}   {'rank':>9}   floor")
+        for slug, value in sorted(before, key=lambda r: (-r[1], r[0])):
+            adjusted = dict(after).get(slug, value)
+            move = f"{rank_before[slug]} -> {rank_after[slug]}"
+            floor_after = min(after_scores[slug][d] for d in DIMENSIONS)
+            say(
+                f"   {slug:<26} {fmt(value):>9} {fmt(adjusted):>9}   {move:>9}   "
+                f"{min(by_slug[slug].scores.values())} -> {floor_after}"
+            )
+        say("")
+        displacement = max(abs(rank_after[s] - rank_before[s]) for s in rank_before)
+        top_before = [s for s, r in rank_before.items() if r == 1]
+        top_after = [s for s, r in rank_after.items() if r == 1]
+        say(f"   Largest rank displacement: {displacement} position(s).")
+        say(
+            f"   Top of the table {'unchanged' if set(top_before) == set(top_after) else 'CHANGES'}: "
+            f"{', '.join(sorted(top_before))} -> {', '.join(sorted(top_after))}."
+        )
+        say("")
+        rank_stable = displacement <= 2 and set(top_before) == set(top_after)
+        if rank_stable:
+            say("   So the bias the pipeline has spent five passes measuring does not")
+            say("   change what to work on. Further rank-scoring has no decision value —")
+            say("   that was argued in rescore-2026-08-20.md and this is the arithmetic.")
+        else:
+            say("   The middle of the table now moves under the extrapolation, which it")
+            say("   did not while every revision was one point. The top is still the same")
+            say("   candidate, so what to work on is unchanged; what has stopped holding")
+            say("   is the stronger claim that the ordering below it is insensitive.")
+        say("")
 
     # --------------------------------------------------------- gate sensitivity
     say("4. GATE SENSITIVITY (extrapolation, not measurement)")
     say("")
-    say(f"   The same {bias:+d}, applied to {', '.join(GATE_DIMENSIONS)}. It is run")
-    say("   because the gates reject regardless of composite, so an error there")
-    say("   changes an admission decision rather than an ordering.")
+    if bias:
+        say(f"   The same {bias:+d}, applied to {', '.join(GATE_DIMENSIONS)}. It is run")
+        say("   because the gates reject regardless of composite, so an error there")
+        say("   changes an admission decision rather than an ordering.")
+    else:
+        say("   No extrapolation to run — section 3 found no single magnitude to")
+        say("   carry. What survives without one is where the gate scores already")
+        say("   sit, which is a reading of the file rather than an inference from it.")
     say("")
     # Which half of this is extrapolation is no longer fixed. Once a gate
     # dimension has been measured, applying the observed bias to its unlooked
     # cells is the same operation section 3 performs, and only the gates
     # nobody has touched are still an extrapolation across families.
-    if untouched_gates:
+    if bias and untouched_gates:
         say(f"   Extrapolation for {', '.join(untouched_gates)}: no measurement has")
         say("   ever been taken there, so this carries the bias across dimension")
         say("   families and is labelled as such.")
     for dimension in (d for d in GATE_DIMENSIONS if d not in untouched_gates):
-        say(f"   Observed bias for {dimension}: measured on")
-        say(f"   {len([c for c in candidates if dimension in c.measured])} candidate(s), "
-            "so this is section 3's operation, not an extrapolation.")
+        count = len([c for c in candidates if dimension in c.measured])
+        if bias:
+            say(f"   Observed bias for {dimension}: measured on")
+            say(f"   {count} candidate(s), so this is section 3's operation, not an "
+                "extrapolation.")
+        else:
+            say(f"   {dimension}: measured on {count} candidate(s); the scores below "
+                "are those measurements.")
     say("")
     crossings: list[str] = []
     margins: list[str] = []
     for candidate in sorted(candidates, key=lambda c: c.slug):
-        adjusted = adjust(candidate, GATE_DIMENSIONS, bias)
+        adjusted = adjust(candidate, GATE_DIMENSIONS, bias) if bias else candidate.scores
         for dimension in GATE_DIMENSIONS:
             was, now = candidate.scores[dimension], adjusted[dimension]
             if was >= GATE_MINIMUM > now:
@@ -340,7 +375,7 @@ def report(candidates: list[Candidate], revisions: list[Revision]) -> list[str]:
         say(f"   {len(crossings)} candidate-dimension(s) would cross below the gate:")
         for line in crossings:
             say(f"     - {line}")
-    else:
+    elif bias:
         say("   No candidate crosses the gate under the extrapolation.")
     say("")
     if margins:
@@ -364,9 +399,26 @@ def report(candidates: list[Candidate], revisions: list[Revision]) -> list[str]:
     say("")
     say("VERDICT")
     say("")
-    say("   The measurement record is real, one-directional, and confined to the")
-    say("   dimensions that decide rank — where, as section 3 shows, it changes")
-    say("   nothing.")
+    # Was fixed prose reading "confined to the dimensions that decide rank".
+    # That stopped being true the moment a gate dimension was measured, and
+    # fixed prose cannot notice. Derived from the same blocks as everything
+    # else now.
+    revised_dims = sorted({r.dimension for r in revisions})
+    gates_revised = [d for d in GATE_DIMENSIONS if d in revised_dims]
+    direction = "one-directional" if len(down) == len(revisions) else "mixed in direction"
+    say(f"   The measurement record is real, {direction}, and covers "
+        f"{len(revised_dims)} of {len(DIMENSIONS)}")
+    if gates_revised:
+        say(f"   dimensions, {len(gates_revised)} of them a gate: "
+            f"{', '.join(gates_revised)}.")
+    else:
+        say("   dimensions, none of them a gate.")
+    if rank_stable is None:
+        say("   Section 3 had no single magnitude to extrapolate with, so the")
+        say("   ranking's sensitivity is untested this run rather than confirmed.")
+    else:
+        say(f"   Under section 3's extrapolation the ranking is "
+            f"{'insensitive' if rank_stable else 'no longer insensitive'}.")
     say("")
     # This verdict used to be fixed prose ending "No pass has attempted one."
     # A pass then attempted one, and fixed prose cannot notice that. It is
