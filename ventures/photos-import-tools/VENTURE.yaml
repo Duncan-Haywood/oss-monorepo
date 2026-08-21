@@ -85,6 +85,10 @@ hypotheses:
     status: supported
     checked: 2026-08-21
     evidence: in-repo
+  - claim: Clearing a stale leftover scratch-dir file from a killed prior attempt does not crash the whole run if the removal itself fails (e.g. a network/iCloud-backed scratch mount hiccup); the failure is treated like any other per-item staging failure and the item is retried, not left stuck in "importing" with the exception escaping the run() loop uncaught.
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
 
 economics:
   currency: USD

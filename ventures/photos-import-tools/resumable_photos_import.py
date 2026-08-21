@@ -658,19 +658,21 @@ class PhotosImporter:
             return path
         self.scratch_dir.mkdir(parents=True, exist_ok=True)
         scratch_path = self.scratch_dir / path.name
-        if scratch_path.exists():
-            scratch_path.unlink()
         try:
+            if scratch_path.exists():
+                scratch_path.unlink(missing_ok=True)
             shutil.copy2(path, scratch_path)
         except OSError as error:
-            # A flaky read on the source (e.g. a stalled iCloud download) or
-            # a full/unwritable scratch volume must not crash straight out
-            # of import_single_item -- only PhotosImportError is caught
-            # there, so a bare OSError ran uncaught before this fix and took
-            # down the whole batch (import_batch_with_split's sequential
-            # left/right calls never reach the sibling once one side
-            # raises), not just this one item, the way any other per-item
-            # import failure is isolated and retried.
+            # A flaky read on the source (e.g. a stalled iCloud download), a
+            # full/unwritable scratch volume, or a stale leftover scratch
+            # file from a killed prior attempt that can't be removed (e.g. a
+            # network/iCloud-backed scratch mount hiccup) must not crash
+            # straight out of import_single_item -- only PhotosImportError is
+            # caught there, so a bare OSError ran uncaught before this fix
+            # and took down the whole batch (import_batch_with_split's
+            # sequential left/right calls never reach the sibling once one
+            # side raises), not just this one item, the way any other
+            # per-item import failure is isolated and retried.
             raise PhotosImportError(
                 f"Failed to stage {path.name} into scratch dir: {error}",
                 classified=classify_error(str(error)),
