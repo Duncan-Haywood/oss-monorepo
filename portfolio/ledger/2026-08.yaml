@@ -12487,3 +12487,66 @@ entries:
         still correctly owner-gated -- no status change, nothing new
         posted to #139.
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve the
+        development process... legal ethical reliable increase in profit"
+        session, designated branch claude/charming-hawking-jho41r. Ran
+        `session_gate.py` first (PROCEED -- meta-work share 28% of last 25
+        entries, below the 70% threshold). The branch's prior tip (commit
+        6003fb8) turned out to already be a fully-merged ancestor of current
+        `main` even though no PR existed for that exact head ref (`main` was
+        only 4 commits ahead of it) -- restarted the branch from current
+        `main` per CLAUDE.md's stale-branch protocol rather than stacking
+        new work on already-landed history.
+      - >-
+        Listed the 3 open PRs (#372, #368, #144) against current `main`:
+        all three remain correctly owner-gated by prior sessions (a
+        breaking ventures/* framework upgrade, an unattended dependabot
+        proposal, and an unattended agent-fleet automation proposal) --
+        nothing new to add. `portfolio/router/allocate.py` showed 0/10
+        ventures dispatchable (every venture blocked on an unpublished
+        links.production, per the standing #139/#311/#312 finding), so no
+        venture had fresh work an agent could start on its own. Dispatched
+        an agent to read photos-import-tools' photos_import_errors.py,
+        resumable_photos_import.py, and atomic_io.py end to end against its
+        ~40 already-supported VENTURE.yaml hypotheses, looking for one more
+        genuine bug without duplicating prior findings.
+      - >-
+        Found: the permanent "file_missing" classify_error pattern
+        (`r"file missing after.*retries|permanently unavailable"`) required
+        the word "retries", but wait_for_file()'s actual give-up message
+        says "file missing after N iCloud wait attempts" -- the pattern was
+        unreachable dead code that never matched the one message it existed
+        to catch. The message fell through to ErrorCategory.UNKNOWN /
+        RETRY_BACKOFF instead of PERMANENT / SKIP_PERMANENT /
+        "file_missing". Not a crash or data-loss path
+        (mark_skipped_permanent runs unconditionally at that call site
+        regardless of classification), but it corrupted the error log and
+        `status`'s "Recent errors" listing -- a legitimate permanent
+        iCloud-file-missing skip was indistinguishable from a genuinely
+        unclassified error. Same failure class as the earlier
+        pattern-shadowing hypothesis, different root cause (wording drift
+        vs. list order).
+      - >-
+        Fixed by widening the pattern to accept both "retries" and
+        "attempts"; added a regression test that fails pre-fix
+        (`AssertionError: UNKNOWN != PERMANENT`) and passes post-fix;
+        recorded the hypothesis in VENTURE.yaml. Verified: `pytest tests/`
+        87/87 pass (86 pre-existing + 1 new),
+        `portfolio/router/validate.py`,
+        `portfolio/pipeline/validate_candidates.py`,
+        `validate_doc_consistency.py`, and
+        `portfolio/scoring/score_ventures.py --check` all pass, both before
+        and after rebasing onto the live `main` tip with no upstream
+        changes to the touched files. Opened PR #450, watched CI to green
+        (`photos-import-tools CI` success), re-confirmed clean
+        mergeability against the live `main` tip immediately before
+        merging, and self-merged as agent-decidable: internal Python
+        tooling only (`links.production: null`), no live-site code, no new
+        dependency, no credential, no unattended automation, nothing
+        published, nothing spent beyond agent time.
+    mrr_end: null
