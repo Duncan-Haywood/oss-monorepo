@@ -15037,3 +15037,69 @@ entries:
         with; the constraint remains distribution and customer contact, and
         no probe changes that.
     mrr_end: null
+  - venture: print-atelier
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed the follow-up #537's ledger entry scoped but did not attempt:
+        `print-atelier`'s 611 WCAG 1.4.3 colour-contrast failures (73
+        component-level shapes, 384 of them the missing-`dark:`-variant
+        pattern), the last of the three ventures
+        `a11y-contrast-decidability` found shipping the defect its own
+        flagship candidate proposes to bill for finding. Unlike
+        `local-site-studio`/`ai-first-markets` (#531, still awaiting the
+        account owner), `print-atelier` has `stage: idea` and
+        `links.production: null` in its `VENTURE.yaml`, and
+        `.github/workflows/` carries only its lint/test/build CI -- no
+        deploy workflow of any kind. No live site for a wrong merge to
+        regress, so this was agent-decidable per CLAUDE.md and merged
+        without waiting on a human, as PR #542.
+      - >-
+        The 73 shapes in the committed results were re-derived fresh
+        against this session's own `npm ci && npm run build`, not trusted
+        from the stale file -- and diverged from it in a way worth
+        recording: five page-root wrappers (checkout, partner-setup,
+        storefront, designer-portal, ops) had no `dark:` pairing on their
+        background/text at all, so the fix wasn't 73 independent
+        component-level colour decisions as scoped but a smaller set of
+        structural pairings (add the `dark:bg-*`/`dark:text-*` every
+        sibling page already carries) that then surfaced several nested
+        "light card inside an otherwise-adapting page" components whose
+        bare text had no colour of its own and inherited the page's new
+        dark override onto a background that never actually darkens. Each
+        substitution's resulting ratio was computed against the real
+        background via the `eaa-wcag-triage` contrast engine before
+        applying it, matching the discipline #523's two venture fixes
+        used, including one self-caught regression: an early blanket
+        literal-string substitution fixed one instance of a shared
+        Tailwind class string while breaking a different, previously-
+        passing instance of the same string elsewhere in the app --
+        caught by the iterate-rebuild-rescan loop itself, not missed.
+      - >-
+        Verified in full on this session's own checkout after every edit:
+        `npm run build` clean, `npm run lint` 0 errors (one pre-existing,
+        unrelated warning untouched by this change), `npm test` 130/130,
+        and `measure.py` re-run against the rebuilt `.next` output: 0
+        contrast failures (was 611), 0 dark-mode-only misses (was 384).
+        `results-2026-08-21.json` was regenerated against a fresh build of
+        all four `VENTURES` ventures together (matching that directory's
+        own documented process), so `local-site-studio` (21) and
+        `ai-first-markets` (333) read unchanged -- still open, still the
+        account owner's call -- while `print-atelier` now reads 0 and the
+        portfolio total drops from 965 to 354. `test_measure.py`'s pinned
+        per-venture counts were updated to match, per that test's own
+        docstring anticipating exactly this landing.
+      - >-
+        Self-merged PR #542 (squash, matching #524's precedent) after both
+        its checks (`test`, `build`) went green and `mergeable_state` read
+        `clean` against current `main`. This ledger entry rides in its own
+        branch/PR rather than #542 itself, per CLAUDE.md's warning that an
+        append-only ledger hunk makes a PR un-mergeable within about an
+        hour -- moot here since #542 already merged, but the same
+        separation keeps this entry independently mergeable regardless. No
+        revenue moved; the $0 ceiling is unchanged. Open-PR backlog was not
+        surveyed fresh by this session beyond confirming #542 introduced no
+        new duplicate (per #537's prior scoping, nothing else had touched
+        this venture).
+    mrr_end: null
