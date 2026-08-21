@@ -9,6 +9,23 @@ hypotheses:
     status: untested
     checked: 2026-08-08
     evidence: customer-contact
+  - claim: CityData's DST math correctly derives every zone's fall-back/spring-forward instant from the IANA-published legal transition rules, so no city's displayed time is ever off by an hour around a DST boundary.
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
+    note: >-
+      isDstUs's November end-of-DST key was 02:00 on the standard-time clock
+      it compares against, but the US legal transition is defined at 2:00
+      a.m. on the *prevailing* (daylight) clock -- 01:00 standard, not
+      02:00. Verified against Python's zoneinfo for America/New_York 2026
+      (binary-searched the exact UTC instant, converted to both the
+      standard- and daylight-time reading) before and after the fix; the
+      March start and the AU/NZ rules were independently re-derived from
+      IANA tzdata's Rule lines and found already correct. Fixed in
+      CityData.mc; no test harness exists for Monkey C in this repo (CI
+      only XML-validates manifest/resources, per the venture's own CI
+      workflow), so this is verified by the tzdata cross-check above, not
+      by an automated regression test.
 
 economics:
   currency: USD
