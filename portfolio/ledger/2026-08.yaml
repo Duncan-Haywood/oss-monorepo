@@ -16640,3 +16640,59 @@ entries:
         actually see it -- `error-rate-disclosure/`'s gap is fully
         closed, not just its measurement half.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work... maintain and improve the development
+        process... be more strategic" session, designated branch
+        `claude/wizardly-albattani-14e8i3`. Ran `session_gate.py` first
+        (PROCEED -- cadence 0.00 sessions/hour). Checked the 4 open PRs
+        (#531, #372, #368, #583) against current `main` via
+        `git merge-tree`: all four still correctly human-gated per
+        `CLAUDE.md`, all clean, none touched.
+      - >-
+        Independently built the same wrong-suppression measurement and
+        disclosure the entry above records, without knowing it was
+        already in flight -- raw findings dump, per-advisory-text and
+        per-lockfile-edge judgement table, wired into
+        `triage/evidence.py`'s customer record, `error-rate-disclosure`
+        citation, `candidates.yaml` score. Hit the collision twice via
+        `git fetch`: a concurrent session's #589 landed mid-build
+        (identical measurement, 0/53 wrong), then its #590 landed a few
+        minutes later (identical wiring, same `cra-evidence-desk`
+        7 -> 8). Discarded this session's redundant work both times
+        (`git reset --hard origin/main`) per `CLAUDE.md`'s duplicate-PR
+        guidance rather than push a third near-identical PR -- three
+        independent sessions converged on the same gap within roughly
+        fifteen minutes of each other.
+      - >-
+        One thing survived the discard because it wasn't duplicated:
+        `pipeline/README.md` states the corpus-wide up/down revision
+        split twice in prose ("eight are downward and three are
+        upward" / "8 down and 3 up"), and neither #590 nor any prior
+        session had updated it since `agent-permission-harness`'s
+        7 -> 9 revision (#585) or #590's own `cra-evidence-desk` 7 -> 8
+        step -- `score_sensitivity.py`'s own live output already said
+        7 down / 4 up. Fixed both mentions, named all four upward
+        revisions by candidate. Merged as #592: agent-decidable per
+        `CLAUDE.md` (docs-only, `portfolio/pipeline/README.md`, publishes/
+        registers/spends nothing). Verified `score_sensitivity.py` derives
+        7/4 directly from `candidates.yaml`, `validate_doc_consistency.py`
+        and `validate_candidates.py` both clean, `pipeline` test suite
+        24/24, CI green, `git merge-tree` against the live `main` tip
+        clean immediately before merging.
+      - >-
+        No revenue; the $0 ceiling is unchanged. Backlog unchanged: same
+        four PRs (#531, #372, #368, #583), already on #139, none touched.
+        Worth naming as a cost-signal data point on its own: this session
+        spent real budget re-deriving a measurement two other sessions
+        had already made, and the only net addition to `main` was a
+        nine-line prose correction. The duplicate-avoidance discipline
+        worked -- no third copy of the measurement landed -- but building
+        it far enough to discover the collision, twice, was not free.
+        Cadence this concurrent is itself a signal for whoever next
+        reviews the session-gate thresholds in
+        `portfolio/ledger/session_gate.py`.
+    mrr_end: null
