@@ -12901,6 +12901,100 @@ entries:
         published, nothing spent beyond agent time -- same pattern PR #457
         used for a source fix to another unpublished venture.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business
+        projects that aren't already here" session, designated branch
+        claude/laughing-pasteur-1868zg. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 16% of last 25 entries, below the 70%
+        threshold). `git fetch origin main` first; tip `61bbe90`. Per
+        `CLAUDE.md`, this brief is already answered and a candidate list
+        is not the deliverable, so took the first listed alternative
+        instead: advance a probe already specified in
+        `portfolio/pipeline/`. No new candidate proposed, no score moved,
+        nothing added to `screened-out.md`. Checked the 3 open PRs (#372,
+        #368, #144) -- all correctly owner-gated by prior sessions, no
+        consolidation backlog.
+      - >-
+        Investigated the named gap in `npm-reachability-triage`, whose
+        2026-08-20 validation suppressed 78.6%/68.4% on the two
+        static-export products against a manual review's ~98%/~97% and
+        described the remainder as "noise the rule table cannot yet
+        recognise." It was not noise. `GHSA-3h52-269p-cp9r` ("Information
+        exposure in Next.js dev server") was being reported as shipped
+        code on all seven portfolio products that have `next` installed,
+        and every one of them was already patched. On `quick-pick-survey`
+        it was the only finding the tool produced.
+      - >-
+        Root cause: the advisory's second affected range is
+        `introduced: "13.0"` -- two components, not valid semver. The
+        range therefore failed to parse, and while the engine correctly
+        declined to treat an unreadable range as evidence of safety, the
+        finding also skipped the suppression stage, so the
+        `dev-server-surface` rule written for exactly this advisory never
+        fired. Two properties made it worse than one bad row: the failure
+        is not proportional to distance from the vulnerable range (one
+        malformed bound flags every version of the package -- two products
+        were on `next@16.3.1`, three majors past anything the advisory
+        describes), and it cannot age out, because the comparison that
+        would clear it is the one that fails to parse.
+      - >-
+        Fixed via `semver.parse_bound`, applying two lossless numeric
+        readings to OSV event bounds (zero-fill missing components, strip
+        leading zeros), scoped to the OSV path only because an OSV bound
+        is a timeline point while `1.2` in an npm range string is the
+        X-range `>=1.2.0 <1.3.0`. Checked the boundary against the whole
+        feed rather than asserting it: of 227,147 npm advisories, 40 carry
+        an unparseable bound, the coercion resolves 32 and still refuses
+        8 -- and all 8 refusals are cross-ecosystem records where Ruby,
+        Python or git-SHA version grammar leaked into an npm advisory,
+        which is exactly the class that must keep reporting.
+      - >-
+        Worth recording as a general finding: feed-level rarity is not
+        product-level rarity. The defect affects 0.02% of advisories but
+        lands on `next`, `directus`, `nocodb`, `handlebars`,
+        `@solana/web3.js`, `nodebb` and `ckeditor4` -- advisory prevalence
+        is uniform across a feed, exposure is weighted by package
+        popularity, which is how a 0.02% feed defect produced a 100% hit
+        rate across this portfolio's Next.js products.
+      - >-
+        Verified by actually running it: 133 tests pass (was 112; 21
+        added), full portfolio re-validation against the live OSV feed
+        re-fetched 2026-08-21, committed as `validation-2026-08-21.json`.
+        Effect isolated from `main` drift by running the sample twice on
+        one checkout with the coercion off and on -- exactly 7 findings
+        removed, one per `next`-using product, all from the `shipped`
+        column, with `dev-only` (40) and `not-deployed` (32) identical
+        before and after, so the fix removes false positives and
+        suppresses nothing new. All 7 removals hand-confirmed as true
+        negatives. Also scanned the feed for the one edge case the change
+        introduces (a `fixed: "0"` bound) and found zero instances.
+        `validate_candidates.py`, `validate_doc_consistency.py` and
+        `router/validate.py` all pass.
+      - >-
+        Also replaced the "noise" description of the residual with its
+        actual decomposition, so the next session inherits it rather than
+        re-deriving it. Both static-export products carry the same 11
+        residual findings: postcss build-time toolchain (4), Next.js
+        Server Components / CSP nonce surfaces (4), nanoid
+        caller-controlled size (2), and one genuine client-side true
+        positive (beforeInteractive script XSS). The honest suppression
+        ceiling is 10 of 11, not 11 -- a rule table that suppressed all of
+        them would be wrong, not better. The first two groups are the
+        specified next step for this probe.
+      - >-
+        Opened PR #467, both CI checks green (`test`, `validate`),
+        re-checked mergeability against the live `main` tip after it moved
+        twice mid-session, and self-merged as agent-decidable: touches
+        only `portfolio/pipeline/probes/`, no `ventures/*` app code,
+        nothing published, no credential, no unattended automation,
+        nothing spent beyond agent time. The probe's status is unchanged
+        -- still built and not published, still blocked on Ask 1 (GitHub
+        App scope).
+    mrr_end: null
   - venture: retail-pilot-intel
     agent_spend_usd: null
     human_hours: 0
