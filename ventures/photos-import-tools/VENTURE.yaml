@@ -133,6 +133,10 @@ hypotheses:
     status: supported
     checked: 2026-08-21
     evidence: in-repo
+  - claim: PhotosImporter.run() only reports "Complete" and exits when the manifest genuinely has no importable rows left, never merely because one particular claimed chunk happened to contain nothing importable -- claim_next_batch() pulls at most batch_size rows per call, so a chunk that is fully resolved out-of-band (every row matched by the Photos-preflight check, or an iCloud placeholder whose wait_for_file() retries all ran out) leaving zero items for import_batch_with_split does not by itself mean later, still-pending rows elsewhere in the table were ever even claimed. (Found refuted, then fixed -- run()'s while loop treated an empty ready-batch from prepare_batch() as equivalent to "nothing left in the manifest" and returned 0 with a "Complete" status/completion report, silently abandoning every not-yet-claimed pending file for the rest of the process's life. That is exactly the kind of false-success status a wrapper script (eject the card, delete the originals) would trust. Fixed by having prepare_batch() also return how many rows claim_next_batch() actually claimed, so run() can tell "this chunk had nothing ready" apart from "the manifest is exhausted" and keep looping in the former case instead of exiting early.)
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
 
 economics:
   currency: USD

@@ -492,12 +492,34 @@ class PhotosImporter:
             if self.stats.consecutive_failures >= CIRCUIT_BREAKER_THRESHOLD:
                 self.handle_circuit_breaker()
 
-            batch = self.prepare_batch()
+            batch, claimed_count = self.prepare_batch()
             if not batch:
-                print(format_summary("Complete", self.state.summary()), flush=True)
-                self.write_status("complete")
-                self.write_completion_report()
-                return 0
+                if claimed_count == 0:
+                    # claim_next_batch() itself found nothing left to claim
+                    # (no pending/uncertain/retryable-failed rows) -- this is
+                    # the real "nothing left in the manifest" signal.
+                    print(format_summary("Complete", self.state.summary()), flush=True)
+                    self.write_status("complete")
+                    self.write_completion_report()
+                    return 0
+                # claimed_count > 0: prepare_batch() DID claim rows this
+                # pass, but every one of them got resolved right there (a
+                # preflight match, an iCloud placeholder whose wait_for_file
+                # attempts ran out) without any reaching
+                # import_batch_with_split. That is not the same as "the
+                # manifest has nothing left" -- claim_next_batch() only pulls
+                # up to batch_size rows per call, so later still-pending rows
+                # elsewhere in the table were never even claimed by this
+                # pass. Before this fix, run() treated an empty ready-list
+                # the same as "the whole run is done", reporting "Complete"
+                # and exiting while those later files sat "pending" forever
+                # -- exactly the false-success status a wrapper script (eject
+                # the card, delete the originals) would trust. Loop again
+                # instead, with a short sleep so a manifest stuck for some
+                # other reason (see claim_next_batch's own status filter)
+                # doesn't spin a tight, sleepless loop.
+                time.sleep(1)
+                continue
 
             if not self.check_disk_space():
                 # prepare_batch() already claimed this batch (status
@@ -569,7 +591,15 @@ class PhotosImporter:
         self.write_status("stopped")
         return 130
 
-    def prepare_batch(self) -> list[ImportItem]:
+    def prepare_batch(self) -> tuple[list[ImportItem], int]:
+        # Returns (ready, claimed_count) rather than just `ready`: the two
+        # differ whenever claim_next_batch() hands back rows, every one of
+        # which then gets resolved right here in this method (a preflight
+        # match, an iCloud placeholder whose wait_for_file() attempts are
+        # exhausted) without any reaching import_batch_with_split. run()
+        # needs claimed_count to tell "this particular chunk had nothing
+        # importable" apart from "the manifest has nothing left" -- see the
+        # call site.
         items = self.state.claim_next_batch(self.stats.current_batch_size, MAX_TRANSIENT_ATTEMPTS)
         ready: list[ImportItem] = []
         for item in items:
@@ -580,7 +610,7 @@ class PhotosImporter:
             if not self.wait_for_file(item.path):
                 continue
             ready.append(item)
-        return ready
+        return ready, len(items)
 
     def import_batch_with_split(self, batch: list[ImportItem]) -> None:
         if not batch:

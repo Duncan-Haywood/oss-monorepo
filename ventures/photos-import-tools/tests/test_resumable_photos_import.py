@@ -764,6 +764,66 @@ class ResumablePhotosImportTests(unittest.TestCase):
             self.assertFalse(importer.photos_contains_file(second))
             self.assertFalse(importer.filename_in_photos("DSC00001.JPG"))
 
+    def test_run_does_not_report_complete_while_later_pending_files_are_unclaimed(self):
+        # claim_next_batch() only pulls up to batch_size rows per call
+        # (ORDER BY path LIMIT n). If every row in one claimed chunk resolves
+        # out-of-band inside prepare_batch() -- here, all matched by the
+        # Photos-preflight check -- without a single one landing in
+        # import_batch_with_split, prepare_batch() returns an empty `ready`
+        # list. run() must not treat that empty batch as "nothing left in
+        # the whole manifest": later files, sorted after this chunk and
+        # never even claimed yet, are still sitting "pending". Before this
+        # fix, run() reported "Complete" and returned as soon as any single
+        # claimed chunk produced zero ready items, silently abandoning every
+        # not-yet-claimed pending file for the rest of the process's life --
+        # exactly the kind of false-success status a wrapper script (eject
+        # the card, delete the originals) would trust.
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            already_there = []
+            for i in range(2):
+                photo = root / f"already{i}.JPG"
+                photo.write_bytes(b"jpeg")
+                already_there.append(photo)
+            remaining = []
+            for i in range(2):
+                photo = root / f"zremaining{i}.JPG"
+                photo.write_bytes(b"jpeg")
+                remaining.append(photo)
+            state = ImportState(root / "state.sqlite3")
+            for photo in already_there + remaining:
+                state.upsert(photo, "pending")
+
+            importer = FakePhotosImporter(
+                state=state,
+                state_dir=root,
+                event_log=root / "events.jsonl",
+                error_log=root / "errors.jsonl",
+                status_path=root / "status.json",
+                stop_file=root / "STOP",
+                per_file_timeout_seconds=1,
+                attempts=1,
+                # batch_size=2 so the first claimed chunk is exactly the two
+                # "already{i}" files (path-sorted ahead of "zremaining{i}"),
+                # every one of which the preflight check resolves without
+                # importing -- reproducing the empty-but-not-done batch.
+                batch_size=2,
+                photos_db=root / "missing.sqlite",
+                use_photos_preflight=True,
+                existing_filenames={p.name for p in already_there},
+            )
+
+            exit_code = importer.run()
+
+            self.assertEqual(exit_code, 0)
+            for photo in already_there:
+                self.assertEqual(state.get_status(photo), "imported")
+            # The bug: these were never claimed because run() had already
+            # exited believing the whole import was complete.
+            for photo in remaining:
+                self.assertEqual(state.get_status(photo), "imported")
+            self.assertEqual(set(importer.imported_paths), set(remaining))
+
     def test_photos_contains_file_still_shortcuts_unique_basename(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
