@@ -16753,3 +16753,76 @@ entries:
         duplicated work from each (a doc fix, then this engine fix) was
         worth landing. Nothing further to add to that observation here.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch `claude/pensive-feynman-xp8tno`. Ran `session_gate.py` first
+        (PROCEED, cadence at the maintenance rate). Checked the 4 open PRs
+        (#531, #372, #368, #583) and issue #139 -- all four still correctly
+        human-gated, none touched -- then picked up the same item the
+        ledger's most recent entries flagged as remaining:
+        `npm-reachability-triage`'s wrong-suppression rate.
+      - >-
+        Independently built the same measurement a fourth time this hour:
+        deduped 102 suppressed findings to 53 unique (rule, advisory,
+        package) claims, checked each against raw lockfile/advisory
+        evidence with a mutation-tested checker script, got the same result
+        (0/53 wrong). Two collisions on one `git fetch`, not one: #589/#590
+        (the disclosure pass) had already merged, and separately #594 (the
+        `dependency-path` `uses_directly` guard) had also merged and
+        committed its own `verify_suppressions.py` at the same path mine
+        used. Discarded both duplicated halves (`git checkout origin/main
+        --` the score/README/candidates files, deleted the redundant
+        script) rather than push a third measurement or a competing
+        same-named file.
+      - >-
+        What survived because neither prior PR touched it: a real labeling
+        bug in `surfaces.classify()`, the exact gap #589's own hand
+        verification named and deliberately left as a follow-up.
+        `classify()` searched the whole concatenated summary+details text
+        for the first matching rule in `SERVER_ONLY_RULES`, so
+        `GHSA-89xv-2m56-2m9x` ("SSRF in Server Actions on custom servers")
+        was labelled `server-surface:middleware` because its details
+        mention "middleware/proxy authorization" in passing and that rule
+        sits earlier in the tuple than `server-actions` or `ssrf`. The
+        suppression verdict was correct either way; only the label was
+        wrong. Fixed by matching against `summary` first and falling back
+        to the combined text only when nothing in the summary matches --
+        general rather than a one-off patch, so it also caught a second,
+        previously unnamed case: `GHSA-955p-x3mx-jcvp`'s summary names
+        "Server Function endpoints" but its details mention Server Actions,
+        so it moves `server-actions` -> `server-functions`.
+      - >-
+        Merged as #596: agent-decidable per `CLAUDE.md` (touches only
+        `portfolio/pipeline/probes/npm-reachability-triage/`, publishes/
+        registers/spends nothing). Verified before opening: full probe
+        suite 205/205, `run_portfolio_sample.py` re-run against a fresh OSV
+        feed before and after (identical 132/30/102 split -- the fix only
+        moves labels), #594's own `verify_suppressions.py` re-run
+        (`wrong_suppression_rate` still 0.0, `by_rule` breakdown shifted as
+        expected and the committed JSON updated to match),
+        `validate_candidates.py` and `validate_doc_consistency.py` clean.
+        CI green (3/3 checks), `git merge-tree` against the live `main` tip
+        clean immediately before merging.
+      - >-
+        No revenue; the $0 ceiling is unchanged. Backlog unchanged: same
+        four PRs, already on #139, none touched here. Fourth collision on
+        this exact probe within roughly an hour, following the same
+        discard-the-duplicate-keep-the-residual pattern the prior entry
+        established -- worth naming once more because the pattern is now
+        four data points deep, not because it needs a new response: the
+        cost is real (a full independent OSV fetch and hand/automated
+        re-derivation, discarded) but bounded (each session checked
+        `main` before opening a PR and found the genuine residual rather
+        than compounding the duplication), and `session_gate.py`'s cadence
+        reading is not currently distinguishing "one session an hour" from
+        "several scheduled fleets landing in the same fifteen-minute
+        window," which is the actual mechanism behind all four collisions
+        today. Not fixed here -- named as the concrete next question for
+        whoever next reviews `session_gate.py`'s thresholds, same as the
+        entry above already flagged.
+    mrr_end: null
