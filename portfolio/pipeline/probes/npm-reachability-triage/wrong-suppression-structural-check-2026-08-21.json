@@ -1,0 +1,16 @@
+{
+  "total_suppressed": 102,
+  "by_rule": {
+    "build-surface": 24,
+    "dependency-path": 40,
+    "server-surface:cache-poisoning": 8,
+    "server-surface:image-optimizer": 6,
+    "server-surface:middleware": 6,
+    "server-surface:request-smuggling": 2,
+    "server-surface:server-actions": 6,
+    "server-surface:server-functions": 6,
+    "server-surface:ssrf": 4
+  },
+  "wrong_suppressions": [],
+  "wrong_suppression_rate": 0.0
+}

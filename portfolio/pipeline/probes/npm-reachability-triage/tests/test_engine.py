@@ -86,6 +86,40 @@ class TestDependencyPathRule:
         assert findings[0].verdict == DEV_ONLY
         assert findings[0].versions == ("10.3.10",)
 
+    def test_a_direct_import_of_a_dev_only_package_blocks_suppression(self):
+        # A dev-only lockfile classification only means "not published" if the
+        # project's own source never resolves the package directly. A build
+        # bundles whatever it can reach on disk, regardless of that
+        # classification, which is why rule 3 guards on this and rule 1 must
+        # too.
+        context = ProjectContext(source_imports=frozenset({"glob"}))
+        findings = triage(
+            [pkg("glob", "10.3.10", "node_modules/rimraf/node_modules/glob", dev=True)],
+            [advisory("glob", range_text=">=10.2.0 <10.5.0")],
+            SERVER_PROFILE,
+            context,
+        )
+        assert findings[0].verdict == SHIPPED
+
+    def test_a_declared_production_dependency_also_blocks_it(self):
+        context = ProjectContext(declared_dependencies=frozenset({"glob"}))
+        findings = triage(
+            [pkg("glob", "10.3.10", "node_modules/rimraf/node_modules/glob", dev=True)],
+            [advisory("glob", range_text=">=10.2.0 <10.5.0")],
+            SERVER_PROFILE,
+            context,
+        )
+        assert findings[0].verdict == SHIPPED
+
+    def test_no_context_keeps_the_pre_guard_behaviour(self):
+        """A caller that passes no context gets exactly rule 1's old behaviour."""
+        findings = triage(
+            [pkg("glob", "10.3.10", "node_modules/rimraf/node_modules/glob", dev=True)],
+            [advisory("glob", range_text=">=10.2.0 <10.5.0")],
+            SERVER_PROFILE,
+        )
+        assert findings[0].verdict == DEV_ONLY
+
 
 class TestDeploymentSurfaceRule:
     def test_suppresses_server_surface_on_a_static_export(self):
