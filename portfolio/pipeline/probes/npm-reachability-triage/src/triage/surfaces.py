@@ -176,24 +176,40 @@ def is_dev_server_only(text: str) -> bool:
     return bool(DEV_SERVER_RE.search(text)) and not DEV_SERVER_VETO_RE.search(text)
 
 
-def classify(text: str) -> SurfaceVerdict:
-    """Decide whether ``text`` describes an exclusively server-side surface.
+def _first_match(rules: tuple[SurfaceRule, ...], text: str) -> SurfaceRule | None:
+    if not text or not text.strip():
+        return None
+    return next((rule for rule in rules if rule.pattern.search(text)), None)
+
+
+def classify(summary: str, details: str = "") -> SurfaceVerdict:
+    """Decide whether the advisory describes an exclusively server-side surface.
+
+    Matches against ``summary`` first, and only falls back to the combined
+    ``summary + details`` if nothing in the summary matches. An advisory's
+    ``details`` often mention more than one server mechanism in passing — e.g.
+    "...via crafted Server Actions requests...", followed later by "...also
+    touches middleware/proxy authorization..." — and searching the whole
+    concatenated text for the *first* pattern in ``SERVER_ONLY_RULES`` that
+    hits anywhere picks whichever rule happens to be listed earliest in that
+    tuple, not the one the advisory is actually about. The summary is written
+    to state the subject; a mechanism it names should win over one only the
+    details happen to mention in a supporting clause.
 
     Returns ``server_only=False`` for anything unrecognised, which is what makes
     an unknown advisory count as shipped.
     """
-    if not text or not text.strip():
+    combined = f"{summary}\n{details}".strip()
+    if not combined:
         return SurfaceVerdict(False, None, None)
 
-    match = next(
-        (rule for rule in SERVER_ONLY_RULES if rule.pattern.search(text)), None
+    match = _first_match(SERVER_ONLY_RULES, summary) or _first_match(
+        SERVER_ONLY_RULES, combined
     )
     if match is None:
         return SurfaceVerdict(False, None, None)
 
-    veto = next(
-        (rule for rule in CLIENT_OR_BUILD_RULES if rule.pattern.search(text)), None
-    )
+    veto = _first_match(CLIENT_OR_BUILD_RULES, combined)
     if veto is not None:
         return SurfaceVerdict(False, match.name, None, vetoed_by=veto.name)
 

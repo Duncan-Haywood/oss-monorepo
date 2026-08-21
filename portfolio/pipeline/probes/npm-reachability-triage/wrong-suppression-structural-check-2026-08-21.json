@@ -5,10 +5,10 @@
     "dependency-path": 40,
     "server-surface:cache-poisoning": 8,
     "server-surface:image-optimizer": 6,
-    "server-surface:middleware": 6,
+    "server-surface:middleware": 4,
     "server-surface:request-smuggling": 2,
     "server-surface:server-actions": 6,
-    "server-surface:server-functions": 6,
+    "server-surface:server-functions": 8,
     "server-surface:ssrf": 4
   },
   "wrong_suppressions": [],

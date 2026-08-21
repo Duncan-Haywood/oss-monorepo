@@ -155,3 +155,43 @@ class TestServerFunctionSurface:
             rule.pattern.search("uses React Server Components at build time")
             for rule in SERVER_ONLY_RULES
         )
+
+
+class TestSummaryTakesPriorityOverDetails:
+    """GHSA-89xv-2m56-2m9x, found during the 2026-08-21 wrong-suppression
+    verification: its summary is "Server-Side Request Forgery in Server
+    Actions on custom servers", but its details mention "middleware/proxy
+    authorization" in a supporting clause. Searching the concatenated
+    summary+details text picked "middleware" only because that rule is listed
+    earlier in SERVER_ONLY_RULES than "server-actions" or "ssrf" — a tuple
+    ordering artefact, not a reading of what the advisory is about. The
+    verdict (suppressible on a static export) was still correct either way,
+    but the label a reviewer sees should name the mechanism the advisory's own
+    summary states.
+    """
+
+    def test_a_rule_named_only_in_details_loses_to_one_named_in_summary(self):
+        verdict = classify(
+            "Server-Side Request Forgery in Server Actions on custom servers",
+            "This also touches middleware/proxy authorization in some "
+            "configurations.",
+        )
+        assert verdict.matched_rule != "middleware"
+        assert verdict.matched_rule == "server-actions"
+
+    def test_details_only_match_still_falls_through_when_summary_has_none(self):
+        """A rule that appears only in details, with nothing in the summary,
+        must still be found — the fallback exists precisely for advisories
+        whose summary is generic ("Denial of Service") and whose details name
+        the actual surface."""
+        verdict = classify(
+            "Denial of Service in Next.js",
+            "Triggered by requests handled by Middleware.",
+        )
+        assert verdict.server_only is True
+        assert verdict.matched_rule == "middleware"
+
+    def test_single_argument_calls_are_unaffected(self):
+        """Every pre-existing call in this file passes one combined string;
+        the two-argument split must not change behaviour for them."""
+        assert classify("Authorization bypass in Next.js Middleware").matched_rule == "middleware"
