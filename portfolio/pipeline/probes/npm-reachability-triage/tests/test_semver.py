@@ -119,3 +119,90 @@ class TestOsvRanges:
 
     def test_git_style_events_yield_no_match(self):
         assert not semver.in_osv_range("1.0.0", [])
+
+
+class TestParseBound:
+    """OSV event bounds are timeline points, so partial values are coercible.
+
+    Kept separate from :class:`TestParse` deliberately: the same strings must
+    keep raising in the npm-range dialect, where ``1.2`` is an X-range rather
+    than a point. :class:`TestBoundCoercionIsScopedToOsv` pins that split.
+    """
+
+    @pytest.mark.parametrize(
+        ("text", "expected"),
+        [
+            ("13.0", semver.Version(13, 0, 0)),
+            ("8.0", semver.Version(8, 0, 0)),
+            ("1.2", semver.Version(1, 2, 0)),
+            ("7.80", semver.Version(7, 80, 0)),
+            ("8", semver.Version(8, 0, 0)),
+        ],
+    )
+    def test_zero_fills_partial_versions(self, text, expected):
+        assert semver.parse_bound(text) == expected
+
+    @pytest.mark.parametrize(
+        ("text", "expected"),
+        [
+            ("2026.05.1", semver.Version(2026, 5, 1)),
+            ("2026.04.1", semver.Version(2026, 4, 1)),
+            ("2025.08.14", semver.Version(2025, 8, 14)),
+            ("20260509.0340.15", semver.Version(20260509, 340, 15)),
+        ],
+    )
+    def test_strips_leading_zeros(self, text, expected):
+        assert semver.parse_bound(text) == expected
+
+    def test_still_parses_ordinary_versions(self):
+        assert semver.parse_bound("14.2.30") == semver.Version(14, 2, 30)
+        assert semver.parse_bound("1.0.0-alpha.1").prerelease == ("alpha", 1)
+
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "2270aaf21bd02c6a6a102282",  # commit SHA
+            "0.30.0b3",  # Python-style prerelease
+            "2.0a1",
+            "3.5.0.pre0",  # Ruby-style, four components
+            "3.5.0.rc4",
+            "1.2.3.4",
+            "latest",
+            "",
+        ],
+    )
+    def test_refuses_to_guess_at_anything_else(self, text):
+        # Coercing these could silently drop a real finding, which is the one
+        # failure mode this tool exists to avoid.
+        with pytest.raises(semver.UnparseableRange):
+            semver.parse_bound(text)
+
+
+class TestBoundCoercionIsScopedToOsv:
+    def test_osv_range_with_partial_bound_resolves(self):
+        # GHSA-3h52-269p-cp9r: `introduced: "13.0"` made the whole range
+        # unparseable, so next@14.2.35 — patched in 14.2.30 — was reported as
+        # a shipped vulnerability.
+        events = [
+            {"introduced": "15.0.0"},
+            {"fixed": "15.2.2"},
+            {"introduced": "13.0"},
+            {"fixed": "14.2.30"},
+        ]
+        assert not semver.in_osv_range("14.2.35", events)
+        assert semver.in_osv_range("14.2.29", events)
+        assert semver.in_osv_range("15.1.0", events)
+        assert not semver.in_osv_range("15.2.2", events)
+
+    def test_npm_range_dialect_still_rejects_partial_versions(self):
+        # `1.2` in an npm range is the X-range `>=1.2.0 <1.3.0`, not the point
+        # 1.2.0, so the coercion must not leak into `satisfies`.
+        with pytest.raises(semver.UnparseableRange):
+            semver.satisfies("1.2.5", "<1.2")
+        with pytest.raises(semver.UnparseableRange):
+            semver.parse("1.2")
+
+    def test_unparseable_bound_still_raises_from_osv_path(self):
+        events = [{"introduced": "0"}, {"fixed": "2270aaf21bd02c6a6a102282"}]
+        with pytest.raises(semver.UnparseableRange):
+            semver.in_osv_range("1.0.0", events)

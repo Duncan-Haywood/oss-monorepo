@@ -7,7 +7,10 @@ implementation and does not try to be one.
 Two range dialects are supported:
 
 * **OSV structured ranges** — ``introduced`` / ``fixed`` / ``last_affected``
-  event lists. This is the preferred input because it is unambiguous.
+  event lists. This is the preferred input because it is unambiguous. Bounds go
+  through :func:`parse_bound`, which zero-fills partial values and strips
+  leading zeros; see its docstring for why that coercion is correct here and
+  wrong for npm range strings.
 * **npm range strings** — ``">=10.2.0 <10.5.0"``, ``"<14.2.32"``, ``"1.2.3"``.
   Comparator sets separated by ``||`` are supported.
 
@@ -77,6 +80,50 @@ def parse(text: str) -> Version:
         int(match.group("patch")),
         prerelease,
     )
+
+
+_NUMERIC_COMPONENT_RE = re.compile(r"^\d+$")
+
+
+def parse_bound(text: str) -> Version:
+    """Parse an **OSV event bound** into a :class:`Version`.
+
+    Distinct from :func:`parse` on purpose. An OSV ``introduced`` / ``fixed`` /
+    ``last_affected`` value is a single point on a version timeline, so a
+    partial value like ``"13.0"`` denotes exactly one version — ``13.0.0``. In
+    an *npm range string* the same text means something else entirely (``1.2``
+    is the X-range ``>=1.2.0 <1.3.0``), which is why this coercion lives here
+    and never in :func:`parse`.
+
+    Two lossless numeric readings are applied, in this order:
+
+    * **Missing components are zero-filled.** ``"8"`` → ``8.0.0``,
+      ``"13.0"`` → ``13.0.0``. There is no version between ``13.0`` and
+      ``13.0.0``; they are the same point.
+    * **Leading zeros are stripped.** ``"2026.05.1"`` → ``2026.5.1``. Semver §2
+      forbids leading zeros, so npm cannot have published the literal string;
+      the numeric value is the only available reading.
+
+    Anything else still raises :class:`UnparseableRange`. A commit SHA, a
+    Ruby-style ``3.5.0.pre0``, or a Python-style ``0.30.0b3`` has no unambiguous
+    semver point, and guessing one could silently drop a real finding — which is
+    the failure mode this tool exists to avoid.
+    """
+    stripped = text.strip()
+    try:
+        return parse(stripped)
+    except UnparseableRange:
+        pass
+
+    candidate = stripped[1:] if stripped[:1] == "v" else stripped
+    components = candidate.split(".")
+    if not 1 <= len(components) <= 3:
+        raise UnparseableRange(f"not a coercible OSV bound: {text!r}")
+    if not all(_NUMERIC_COMPONENT_RE.match(part) for part in components):
+        raise UnparseableRange(f"not a coercible OSV bound: {text!r}")
+
+    components += ["0"] * (3 - len(components))
+    return parse(".".join(str(int(part)) for part in components))
 
 
 def _precedence(version: Version) -> tuple:
@@ -171,7 +218,7 @@ def in_osv_range(version_text: str, events: list[dict]) -> bool:
                 # OSV's sentinel for "from the beginning of time".
                 checkpoints.append((Version(0, 0, 0, ("0",)), index, kind))
             else:
-                checkpoints.append((parse(raw), index, kind))
+                checkpoints.append((parse_bound(raw), index, kind))
 
     if not checkpoints:
         return False
