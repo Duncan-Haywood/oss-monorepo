@@ -16872,3 +16872,49 @@ entries:
         missing piece. Notified the account owner directly instead, since
         that is the channel this finding is actually for.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work... maintain and improve the development
+        process... increase in profit" session, designated branch
+        `claude/nice-mendel-tma61v`. Ran `session_gate.py` first per `CLAUDE.md`
+        -- it read a false PROCEED at "0.00 sessions/hour" on this session's own
+        as-cloned (shallow) checkout. Checked the 4 open PRs (#531, #372, #368,
+        #583) against the current `main` tip -- all still correctly human-gated
+        by prior sessions, `git merge-tree` clean against the live tip for each,
+        nothing to add there. Issue #139 unchanged since the last audit.
+      - >-
+        Root-caused the false PROCEED instead of proceeding on it:
+        sessions_per_hour()'s `git log --since=24 hours ago` on a shallow clone
+        (this environment's default for a fresh session) silently returns
+        whatever commits the shallow fetch happened to include, not an error --
+        undercounting cadence rather than reporting its true absence. Confirmed
+        directly: this session's own checkout read 0.00/hr before `git fetch
+        --unshallow`, ~2.7/hr after, on the identical period. Reproduced a
+        second time end-to-end against a fresh `git clone --depth 3` of pre-fix
+        `main`: same false PROCEED. Fixed by having sessions_per_hour() also
+        report whether local history actually reaches the requested window;
+        verdict() skips the cadence condition entirely when it doesn't, rather
+        than trusting a number that may be too low.
+      - >-
+        Hit a live collision mid-session: `main` moved while this was in flight
+        and PR #598 (a different, complementary session_gate.py fix --
+        same-window burst detection, prompted by the npm-reachability-triage
+        collisions in the entries above) landed first, conflicting on the same
+        three files. Rebased onto it and combined both -- report()/main() now
+        thread `burst` and `cadence_reliable` independently, neither touches the
+        other's logic, all 29 tests (13 pre-existing + 8 this fix + 8 #598's)
+        pass together. Merged as #600: agent-decidable per `CLAUDE.md` (touches
+        only portfolio/ledger/session_gate.py, its test file, and CI config;
+        publishes and registers nothing). Verified: full local pytest/unittest
+        suite green, platform/ci/validate_workflows.py 35/35, git merge-tree
+        against the live tip clean immediately before pushing, and GitHub's own
+        `validate` check green post-push. One check (`test`,
+        agent-permission-harness) was red on the PR but confirmed unrelated and
+        pre-existing -- byte-identical to `main` on every file that check reads,
+        and the same failure #598 itself had already hit and traced to #585's
+        merge, to be fixed on its own branch. No revenue; the $0 ceiling is
+        unchanged.
+    mrr_end: null
