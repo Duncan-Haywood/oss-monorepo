@@ -1,16 +1,16 @@
 {
   "totals": {
     "both_schemes": {
-      "fail": 611,
-      "pass": 9914,
+      "fail": 965,
+      "pass": 9560,
       "undecidable": 132
     },
     "dark_only_failures": 384,
     "decidable_share": 0.9876,
     "elements": 10657,
     "light_only": {
-      "fail": 227,
-      "pass": 10298,
+      "fail": 581,
+      "pass": 9944,
       "undecidable": 132
     },
     "pages": 85,
@@ -23,13 +23,56 @@
   "ventures": [
     {
       "both_schemes": {
-        "pass": 6149
+        "fail": 21,
+        "pass": 6128
       },
       "decidable_share": 1.0,
       "elements": 6149,
-      "light_failure_shapes": [],
+      "light_failure_shapes": [
+        {
+          "background": "#ffffff",
+          "classes": "text-zinc-400",
+          "count": 8,
+          "foreground": "#9f9fa9",
+          "ratio": 2.623,
+          "threshold": 4.5
+        },
+        {
+          "background": "#18181b",
+          "classes": "text-zinc-500",
+          "count": 4,
+          "foreground": "#71717b",
+          "ratio": 3.67,
+          "threshold": 4.5
+        },
+        {
+          "background": "#fafafa",
+          "classes": "mt-1 text-zinc-400",
+          "count": 4,
+          "foreground": "#9f9fa9",
+          "ratio": 2.513,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "text-sm font-medium text-zinc-400",
+          "count": 3,
+          "foreground": "#9f9fa9",
+          "ratio": 2.623,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "mt-4 text-xs text-zinc-400",
+          "count": 2,
+          "foreground": "#9f9fa9",
+          "ratio": 2.623,
+          "threshold": 4.5
+        }
+      ],
       "light_only": {
-        "pass": 6149
+        "fail": 21,
+        "pass": 6128
       },
       "pages": 17,
       "stylesheet_bytes": 50289,
@@ -38,16 +81,139 @@
     },
     {
       "both_schemes": {
-        "pass": 1462
+        "fail": 333,
+        "pass": 1129
       },
       "decidable_share": 1.0,
       "elements": 1462,
-      "light_failure_shapes": [],
+      "light_failure_shapes": [
+        {
+          "background": "#111113",
+          "classes": "text-xs text-zinc-500",
+          "count": 93,
+          "foreground": "#71717b",
+          "ratio": 3.919,
+          "threshold": 4.5
+        },
+        {
+          "background": "#09090b",
+          "classes": "mt-1.5 text-xs text-zinc-500",
+          "count": 48,
+          "foreground": "#71717b",
+          "ratio": 4.12,
+          "threshold": 4.5
+        },
+        {
+          "background": "#111113",
+          "classes": "text-zinc-500",
+          "count": 48,
+          "foreground": "#71717b",
+          "ratio": 3.919,
+          "threshold": 4.5
+        },
+        {
+          "background": "#111113",
+          "classes": "",
+          "count": 35,
+          "foreground": "#71717b",
+          "ratio": 3.919,
+          "threshold": 4.5
+        },
+        {
+          "background": "#111113",
+          "classes": "text-xs font-medium uppercase text-zinc-500",
+          "count": 32,
+          "foreground": "#71717b",
+          "ratio": 3.919,
+          "threshold": 4.5
+        },
+        {
+          "background": "#09090b",
+          "classes": "text-xs text-zinc-500",
+          "count": 19,
+          "foreground": "#71717b",
+          "ratio": 4.12,
+          "threshold": 4.5
+        },
+        {
+          "background": "#111113",
+          "classes": "font-mono text-sm text-zinc-500",
+          "count": 16,
+          "foreground": "#71717b",
+          "ratio": 3.919,
+          "threshold": 4.5
+        },
+        {
+          "background": "#111113",
+          "classes": "mt-1 text-sm text-zinc-500",
+          "count": 12,
+          "foreground": "#71717b",
+          "ratio": 3.919,
+          "threshold": 4.5
+        },
+        {
+          "background": "#111113",
+          "classes": "text-sm text-zinc-500",
+          "count": 8,
+          "foreground": "#71717b",
+          "ratio": 3.919,
+          "threshold": 4.5
+        },
+        {
+          "background": "#111113",
+          "classes": "mt-3 text-sm text-zinc-500",
+          "count": 8,
+          "foreground": "#71717b",
+          "ratio": 3.919,
+          "threshold": 4.5
+        },
+        {
+          "background": "#3a3a3c",
+          "classes": "rounded-lg px-3 py-2 text-sm text-zinc-400 transition hover:",
+          "count": 4,
+          "foreground": "#9f9fa9",
+          "ratio": 4.305,
+          "threshold": 4.5
+        },
+        {
+          "background": "#111113",
+          "classes": "text-xs font-medium uppercase tracking-wider text-zinc-500",
+          "count": 4,
+          "foreground": "#71717b",
+          "ratio": 3.919,
+          "threshold": 4.5
+        },
+        {
+          "background": "#111113",
+          "classes": "mt-3 text-xs text-zinc-500",
+          "count": 4,
+          "foreground": "#71717b",
+          "ratio": 3.919,
+          "threshold": 4.5
+        },
+        {
+          "background": "#2f5449",
+          "classes": "flex h-8 w-8 items-center justify-center rounded-lg bg-emera",
+          "count": 1,
+          "foreground": "#00d492",
+          "ratio": 4.376,
+          "threshold": 4.5
+        },
+        {
+          "background": "#3a3a3c",
+          "classes": "text-xs text-zinc-500",
+          "count": 1,
+          "foreground": "#71717b",
+          "ratio": 2.344,
+          "threshold": 4.5
+        }
+      ],
       "light_only": {
-        "pass": 1462
+        "fail": 333,
+        "pass": 1129
       },
       "pages": 20,
-      "stylesheet_bytes": 26346,
+      "stylesheet_bytes": 26383,
       "undecidable_reasons": {},
       "venture": "ai-first-markets"
     },
