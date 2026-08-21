@@ -1,4 +1,6 @@
 import json
+import os
+import signal
 import sqlite3
 import subprocess
 import tempfile
@@ -356,6 +358,82 @@ class PhotosImportWatchdogTests(unittest.TestCase):
                 captured["stdout_handle"].closed,
                 "worker's stdout log file was never closed after Popen() -- fd leak on every restart",
             )
+
+    def test_run_watchdog_terminates_worker_on_sigterm_instead_of_orphaning_it(self):
+        # start_import.sh execs this script directly ("exec caffeinate -dims
+        # ... photos_import_watchdog.py"), so the watchdog process itself --
+        # not some wrapper -- is the direct target of an operator's Ctrl-C or
+        # a supervisor's `kill`/launchd stop. Before this fix, run_watchdog
+        # installed no signal handlers at all, so SIGTERM used Python's
+        # default disposition (immediate termination, no cleanup) and never
+        # reached terminate_process_group. The worker is started with
+        # start_new_session=True precisely so a *worker* stall doesn't take
+        # the watchdog down with it, but that same detachment means a dead
+        # watchdog leaves the worker running as an unsupervised orphan, still
+        # driving Photos.app with no stall detection or restart logic. A
+        # later watchdog run has no way to see that orphan and starts a
+        # fresh worker alongside it -- racing two importer processes against
+        # Photos.app on the same manifest, the same risk kill_criteria #2
+        # already rules out for a worker surviving SIGKILL.
+        original_sigterm = signal.getsignal(signal.SIGTERM)
+        original_sigint = signal.getsignal(signal.SIGINT)
+        self.addCleanup(signal.signal, signal.SIGTERM, original_sigterm)
+        self.addCleanup(signal.signal, signal.SIGINT, original_sigint)
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            state_dir = Path(temp_dir)
+            db_path = state_dir / "photos_import.sqlite3"
+            with sqlite3.connect(db_path) as connection:
+                connection.execute(
+                    "CREATE TABLE imports (path TEXT PRIMARY KEY, status TEXT NOT NULL, "
+                    "attempts INTEGER NOT NULL DEFAULT 0, last_error TEXT, "
+                    "first_seen_at TEXT NOT NULL, updated_at TEXT NOT NULL)"
+                )
+                connection.execute(
+                    "INSERT INTO imports VALUES ('/tmp/pending.jpg', 'pending', 0, NULL, 'now', 'now')"
+                )
+                connection.commit()
+
+            worker = FakeProcess(poll_results=[None] * 20, wait_results=[])
+            terminated_with = []
+
+            def fake_terminate(proc):
+                terminated_with.append(proc)
+                return True
+
+            sleep_calls = {"count": 0}
+
+            def fake_sleep(_seconds):
+                sleep_calls["count"] += 1
+                if sleep_calls["count"] == 1:
+                    # Simulate an operator/supervisor terminating the
+                    # watchdog itself while a worker is running.
+                    os.kill(os.getpid(), signal.SIGTERM)
+                if sleep_calls["count"] >= 5:
+                    raise _HaltLoop
+                return None
+
+            with mock.patch("photos_import_watchdog.subprocess.Popen", return_value=worker), \
+                    mock.patch(
+                        "photos_import_watchdog.terminate_process_group", side_effect=fake_terminate
+                    ), \
+                    mock.patch("photos_import_watchdog.time.sleep", side_effect=fake_sleep):
+                exit_code = run_watchdog(
+                    root=state_dir,
+                    state_dir=state_dir,
+                    tool_dir=state_dir,
+                    poll_seconds=0,
+                    stall_seconds=99999,
+                    timeout_seconds=180,
+                    attempts=3,
+                    batch_size=10,
+                    include_raws=False,
+                    raw_batch_size=3,
+                    raw_timeout_seconds=600,
+                )
+
+        self.assertEqual(exit_code, 130)
+        self.assertEqual(terminated_with, [worker])
 
     def test_combined_summary_sums_across_initialized_and_uninitialized_phases(self):
         with tempfile.TemporaryDirectory() as temp_dir:
