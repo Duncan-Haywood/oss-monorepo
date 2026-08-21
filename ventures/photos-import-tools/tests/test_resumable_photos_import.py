@@ -1,5 +1,6 @@
 import sqlite3
 import tempfile
+import threading
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -89,6 +90,83 @@ class ResumablePhotosImportTests(unittest.TestCase):
 
             self.assertEqual(len(batch), 1)
             self.assertEqual(batch[0].path, second)
+
+    def test_claim_next_batch_marks_items_importing(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            first = root / "a.JPG"
+            second = root / "b.JPG"
+            for path in (first, second):
+                path.write_bytes(b"jpeg")
+            state = ImportState(root / "state.sqlite3")
+            state.upsert(first, "pending")
+            state.upsert(second, "pending")
+
+            claimed = state.claim_next_batch(5, 8)
+
+            self.assertEqual({item.path for item in claimed}, {first, second})
+            self.assertEqual({item.status for item in claimed}, {"pending"})
+            self.assertEqual(state.get_status(first), "importing")
+            self.assertEqual(state.get_status(second), "importing")
+            self.assertEqual(state.get_item(first).attempts, 1)
+            # Already-claimed rows must not be handed out again.
+            self.assertEqual(state.claim_next_batch(5, 8), [])
+
+    def test_claim_next_batch_prevents_concurrent_double_claim(self):
+        # Reproduces the gap this fix closes: two processes (a manual run
+        # started alongside the watchdog's worker, a duplicate launch) share
+        # one manifest with no lock file anywhere in this codebase. Before
+        # this fix, selecting the batch and marking it 'importing' were two
+        # separate statements, so two connections could both select the same
+        # pending rows before either UPDATE landed -- each would then import
+        # its batch with duplicate detection off (every row still looked
+        # "pending"), silently double-importing into Photos. Two real
+        # sqlite3 connections against the same file, racing via a thread
+        # barrier, is what actually exercises the file-level lock BEGIN
+        # IMMEDIATE relies on -- a single-connection test cannot catch this.
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            db_path = root / "state.sqlite3"
+            paths = [root / f"img{i:02d}.JPG" for i in range(20)]
+            for path in paths:
+                path.write_bytes(b"jpeg")
+
+            seed_state = ImportState(db_path)
+            for path in paths:
+                seed_state.upsert(path, "pending")
+            seed_state.close()
+
+            barrier = threading.Barrier(2)
+            results: dict[str, list] = {}
+            errors: list[BaseException] = []
+
+            def claim(key: str) -> None:
+                # Each simulated process gets its own sqlite3 connection --
+                # created here, inside the thread, since sqlite3 connections
+                # are single-thread-affine by default.
+                state = ImportState(db_path)
+                barrier.wait(timeout=5)
+                try:
+                    results[key] = state.claim_next_batch(20, 8)
+                except BaseException as error:  # noqa: BLE001 - surfaced via errors list
+                    errors.append(error)
+                    results[key] = []
+                finally:
+                    state.close()
+
+            t_a = threading.Thread(target=claim, args=("a",))
+            t_b = threading.Thread(target=claim, args=("b",))
+            t_a.start()
+            t_b.start()
+            t_a.join(timeout=10)
+            t_b.join(timeout=10)
+
+            self.assertEqual(errors, [])
+            claimed_a = {item.path for item in results["a"]}
+            claimed_b = {item.path for item in results["b"]}
+
+            self.assertEqual(claimed_a & claimed_b, set())
+            self.assertEqual(claimed_a | claimed_b, set(paths))
 
     def test_recover_interrupted_marks_importing_pending(self):
         with tempfile.TemporaryDirectory() as temp_dir:
