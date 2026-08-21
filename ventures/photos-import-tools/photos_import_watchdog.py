@@ -314,9 +314,23 @@ def run_watchdog(
                 time.sleep(poll_seconds)
                 continue
             message = "stopped by STOP file" if stop_path.exists() else "stopped by signal"
+            # Like the "complete" and "blocked" terminal writes below, this
+            # must go to phases[0].status_path ("status.json") with
+            # combined_summary(phases), not to the *currently active*
+            # phase's own status_path/summary. With --include-raws and a
+            # STOP/SIGTERM landing during the raw phase, phase.status_path is
+            # status_raw.json -- writing only there left status.json (the
+            # file external tooling watches as the whole run's status, per
+            # combined_summary's docstring) never updated for this exit at
+            # all, frozen at whatever the jpeg phase last wrote (typically
+            # worker_running=True, message="running") even though the
+            # watchdog process has already exited. combined_summary()
+            # degrades correctly for an uninitialized phase (see
+            # never_initialized_phases) since it contributes zero rather than
+            # replacing another phase's data.
             write_status(
-                phase.status_path,
-                read_summary(phase.db_path),
+                phases[0].status_path,
+                combined_summary(phases),
                 worker_running=False,
                 message=message,
                 extra={"phase": phase.media_type},
