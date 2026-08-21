@@ -8,7 +8,7 @@ matching, and a pre-drafted 24-hour incident report they can send in minutes.
 below). Sell the reporting-readiness slice only. Do not sell conformity
 assessment, do not sign anything, do not file on anyone's behalf.
 
-Scored 2026-08-18. Composite 6.75 · floor 3 (defensibility). Rescored down from
+Scored 2026-08-18. Composite 6.5 · floor 3 (defensibility). Rescored down from
 7.0/floor 4 on 2026-08-20 (PRs #250, #253 — see the amendment below).
 
 | Dimension | Score | Why |
@@ -20,7 +20,7 @@ Scored 2026-08-18. Composite 6.75 · floor 3 (defensibility). Rescored down from
 | Defensibility | ~~4~~ 3 | SBOM generation is commodity and partly open source; the archive is public advisory data and the EUVD mapping is egress-denied — neither named durable part holds, see the amendment below |
 | Distribution | 6 | Reachable through open-source maintainer channels and CRA-deadline content, but no warm list today |
 | Liability containment | 6 | Compliance-adjacent; contained by refusing the advice and filing positions |
-| Ethical robustness | 8 | Pushes small vendors toward genuinely knowing what is in their software |
+| Ethical robustness | 6 | Measured 2026-08-21, 8 → 6. Pushes small vendors toward genuinely knowing what is in their software, and its record is the only one of four that names the direction it can be wrong in. But the rate for that direction — a suppression that should not have happened — has never been measured, and suppression is what the subscription is sold on. See [`portfolio/research/error-rate-disclosure/`](../../research/error-rate-disclosure/) |
 
 ## Why now
 

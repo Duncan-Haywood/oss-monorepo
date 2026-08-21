@@ -43,8 +43,8 @@ candidates:
       defensibility: 5
       distribution: 8
       liability_containment: 5
-      ethical_robustness: 9
-    composite: 7.125
+      ethical_robustness: 6
+    composite: 6.75
     floor: 5
     floor_dimension: liability_containment
     measured:
@@ -65,6 +65,25 @@ candidates:
         granularity is structural and is what moves the score. Still at the
         gate rather than below it: nothing is filed, signed or certified.
         See portfolio/research/a11y-external-coverage-reference/.
+      ethical_robustness: >-
+        9 -> 6, the pipeline's first ethical-robustness measurement. The
+        dimension asks whether the business gets better for customers as it
+        scales; the way an evidence business gets worse is specific — the
+        customer acts on a record whose errors are invisible to them, in a
+        direction the operator profits from. Measured in
+        portfolio/research/error-rate-disclosure/ by rendering this probe's own
+        customer record and looking in it. It declares its coverage in full
+        (what was not checked, and every undecidable element by reason) and is
+        the strongest scope disclosure in the repository, but scope disclosure
+        is not accuracy disclosure: the record nowhere states that a finding in
+        the list can be wrong (-1), and it does not carry the out-of-sample
+        precision of 0.821-0.881 that portfolio/research/a11y-own-sites/ has
+        committed, so 12-18% of the list is not a defect and the reader cannot
+        tell (-1). The audit is the qualification step that sells a EUR900-1,800
+        fixed-price job, which makes over-reporting the direction that converts
+        (-1). Mitigation: print the measured precision, and the build-artifact
+        filter a11y-own-sites asked for, in the record itself — each is a line
+        of rendering and each is worth a point back.
     floor_note: >-
       Two dimensions tie at the floor. `floor_dimension` names
       liability_containment because it is a gate: at 5 it rejects on the next
@@ -142,11 +161,26 @@ candidates:
       defensibility: 3
       distribution: 6
       liability_containment: 6
-      ethical_robustness: 8
-    composite: 6.75
+      ethical_robustness: 6
+    composite: 6.5
     floor: 3
     floor_dimension: defensibility
     measured:
+      ethical_robustness: >-
+        8 -> 6, 2026-08-21, portfolio/research/error-rate-disclosure/. Of the
+        four probes with a rendered artifact, this one alone names the
+        direction it can be wrong in — "False positives are expected; a
+        suppressed finding that should not have been is the failure this tool
+        is built to avoid" — so it takes no direction deduction. The rate for
+        that direction has never been measured:
+        validation-2026-08-21-build-surface.json records suppression *rates*,
+        which say how much was suppressed and nothing about how much of that
+        was wrong (-1). And the product is sold on cutting the customer's alert
+        count at EUR99-399/month, so a suppression that should not have
+        happened both improves the headline the subscription is sold on and is
+        invisible to the subscriber (-1). Mitigation: measure the
+        false-suppression rate against a labelled sample before selling the
+        suppression, and print it in the record.
       ai_leverage: >-
         8 -> 7, PR #250 step 1. The false-positive rate is 64.6-66.0% across
         3,573 components in 9 real products, and it is bimodal rather than
@@ -230,10 +264,27 @@ candidates:
       defensibility: 5
       distribution: 4
       liability_containment: 8
-      ethical_robustness: 9
-    composite: 7.0
+      ethical_robustness: 6
+    composite: 6.625
     floor: 4
     floor_dimension: distribution
+    measured:
+      ethical_robustness: >-
+        9 -> 6, 2026-08-21, portfolio/research/error-rate-disclosure/. This
+        probe has no customer-facing record module at all. The closest artifact
+        it renders is an operator table which prints MISSED beside a source
+        whose dormancy the detector failed to catch, and nothing carries either
+        that fact or a rate to a subscriber (-1 direction, -1 rate) — while the
+        probe's own README commits a held-out recall of 0.35, six of seventeen
+        dormancy episodes. The customer sees the same silence whether a source
+        is quiet or the detector missed it, so unlike a false positive this
+        error is unobservable from the outside. Nuisance alarms cost the
+        operator churn (43 alarm-days per source-year at the high-recall
+        setting) while a miss costs nothing, which makes the cheapest tuning
+        the one that fails the subscriber (-1). Mitigation: ship the per-source
+        detectability with the feed — this source has 37 historical gaps and 14
+        of them exceed the silence you are asking us to flag — so the customer
+        buys a stated recall rather than an implied one.
     mitigation: Probe tests distribution first, not the product — fifty reachable buyers in one vertical inside a week, or move to the next vertical.
     first_experiment_days: 14
     first_experiment_budget_usd: 150
@@ -254,11 +305,22 @@ candidates:
       defensibility: 5
       distribution: 4
       liability_containment: 8
-      ethical_robustness: 9
-    composite: 6.875
+      ethical_robustness: 7
+    composite: 6.625
     floor: 4
     floor_dimension: time_to_revenue
     measured:
+      ethical_robustness: >-
+        9 -> 7, 2026-08-21, portfolio/research/error-rate-disclosure/. The
+        rendered findings declare no limits block and make no accuracy claim
+        (-1), and there is no accuracy measurement to declare: the probe has
+        been run on one corpus (this repository's 31 workflow files) with no
+        ground-truth labelling, so neither a false-positive nor a
+        false-negative rate is known (-1). No adverse-alignment deduction — the
+        write-up states no revenue model, so there is nothing to align against,
+        and that is left unscored rather than assumed benign. This is the one
+        of the four measured candidates whose deduction is entirely about not
+        knowing rather than about not telling.
       ai_leverage: >-
         9 -> 8, 2026-08-21, probes/agent-permission-harness/. The 9 was
         justified as "attack generation, mutation, and verdicting are model work

@@ -42,6 +42,16 @@ and does not license", and from the positioning constraints in
 - **No payment, no personal data, no account requiring an identity artifact.**
 - **Coverage limits stated in the product**, not buried in terms. A customer who
   believes coverage is total is the one who gets hurt.
+- **The measured error rate stated in the product too**, and which direction it
+  runs in. Added 2026-08-21 after
+  [`error-rate-disclosure`](../../research/error-rate-disclosure/) rendered all
+  four artifacts above and found that **none of them carries an accuracy figure**
+  — including the two whose accuracy this repository has already measured and
+  committed. Coverage answers "what did you look at"; accuracy answers "is what
+  came back right", and the rule above had been doing duty for both. Two of the
+  four probes here satisfy the coverage rule and two render no customer record at
+  all; all four fail this one, which is what moved `ethical_robustness` on all
+  four candidates.
 - **Publishing is a separate decision from building.** A probe may be built and
   committed here freely; putting this portfolio's name on a public listing is
   the account owner's call.

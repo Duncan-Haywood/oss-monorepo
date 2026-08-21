@@ -86,25 +86,33 @@ Rescored 2026-08-20 for the two candidates that have actually been probed — se
 [rescore-2026-08-20.md](rescore-2026-08-20.md) for the derivation. Scores with no
 `measured:` block in `candidates.yaml` are still the original estimates.
 
+Both gates were measured on 2026-08-21 — see the two sections below — so the
+four candidates carrying a probe have moved and the table is re-ordered.
+
 | # | Candidate | Composite | Floor | Verdict |
 |---|---|---|---|---|
-| 1 | [Shopify accessibility evidence app](candidates/shopify-a11y-evidence.md) | 7.25 | 4 | Probe the channel — scored 2026-08-19 |
-| 2 | [EAA remediation pipeline](candidates/eaa-remediation-pipeline.md) | 7.125 | 5 | Build now, as a `local-site-studio` product line. Gate-measured 2026-08-21 — `liability_containment` 6→5, now **on** the gate |
-| 3 | [Public-record watch](candidates/public-record-watch.md) | 7.0 | 4 | Cheap probe — one vertical, two weeks |
-| 4 | [Agent permission harness](candidates/agent-permission-harness.md) | 6.875 | 4 | Park; revisit 2027-Q1. Probed 2026-08-21 — internal build done, `ai_leverage` 9→8 |
-| 5 | [MCP supply-chain watch](candidates/mcp-supply-chain-watch.md) | 6.75 | 3 | Probe: steps 1–2 run; mitigation refuted, cannot graduate as scored |
-| 6 | [CRA evidence desk](candidates/cra-evidence-desk.md) | 6.75 | 3 | Probe (was build-now); wedge is egress-blocked |
-| 7 | [Tender radar](candidates/tender-radar.md) | 6.625 | 4 | Park; needs a channel partner |
+| 1 | [Shopify accessibility evidence app](candidates/shopify-a11y-evidence.md) | 7.25 | 4 | Probe the channel — scored 2026-08-19. Top of the table only because nobody has probed it |
+| 2 | [EAA remediation pipeline](candidates/eaa-remediation-pipeline.md) | 6.75 | 5 | Build now, as a `local-site-studio` product line. Both gates measured 2026-08-21 — `liability_containment` 6→5 (**on** the gate), `ethical_robustness` 9→6 |
+| 3 | [MCP supply-chain watch](candidates/mcp-supply-chain-watch.md) | 6.75 | 3 | Probe: steps 1–2 run; mitigation refuted, cannot graduate as scored |
+| 4 | [Public-record watch](candidates/public-record-watch.md) | 6.625 | 4 | Cheap probe — one vertical, two weeks. `ethical_robustness` 9→6 on 2026-08-21 |
+| 5 | [Agent permission harness](candidates/agent-permission-harness.md) | 6.625 | 4 | Park; revisit 2027-Q1. Probed 2026-08-21 — internal build done, `ai_leverage` 9→8, `ethical_robustness` 9→7 |
+| 6 | [Tender radar](candidates/tender-radar.md) | 6.625 | 4 | Park; needs a channel partner |
+| 7 | [CRA evidence desk](candidates/cra-evidence-desk.md) | 6.5 | 3 | Probe (was build-now); wedge is egress-blocked. `ethical_robustness` 8→6 on 2026-08-21 |
 | 8 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
 
-Every rescored candidate has fallen, one point per measured dimension, and no
-measured dimension has ever risen. That now holds across three candidates and
-six measured dimensions: `agent-permission-harness` joined the pattern on
-2026-08-21 (`ai_leverage` 9→8) from a probe written to test something else
-entirely, which is the third independent confirmation and the first from a pass
-that was not looking for a score. Read the five unmeasured rows as upper bounds
-rather than as better candidates — [rescore-2026-08-20.md](rescore-2026-08-20.md)
-has the pattern and what follows from it.
+Every rescored candidate has fallen and no measured dimension has ever risen.
+That now holds across four candidates and eleven revisions. **What no longer
+holds is the magnitude.** Until 2026-08-21 every revision was exactly one point,
+and this file said so; the first `ethical_robustness` measurement revised by two
+and by three, so what the record supports is a direction and a range (1–3),
+not a constant. `score_sensitivity.py` derives that sentence rather than
+asserting it, and now **withholds** its rank extrapolation, because there is no
+single magnitude to carry to the cells nobody has looked at — withheld rather
+than set to zero, since an unlooked-at cell is not thereby confirmed. Read the
+four unmeasured rows as upper bounds rather than as better candidates —
+[rescore-2026-08-20.md](rescore-2026-08-20.md) has the pattern and what follows
+from it, and the top of this table is now the clearest case of it: the leading
+candidate leads because it has never been probed.
 
 ### The pattern is narrower than it reads, and it points somewhere else
 
@@ -112,23 +120,25 @@ has the pattern and what follows from it.
 sentence above. Three findings, all of them checkable from
 [candidates.yaml](candidates.yaml) alone and none of them requiring a market:
 
-1. **The measurement record covers three of eight dimensions.** All six
-   revisions land in `ai_leverage`, `defensibility` and `distribution`. So "no
-   measured dimension has ever risen" is a statement about the dimensions that
-   decide *rank*, and generalising it to the other five is the estimate-as-
-   measurement error this directory keeps writing rules against. The claim the
-   data supports is the narrow one: **when a score in those three dimensions is
-   revised, it is revised down by one.** Not that measurement always lowers a
-   score — a pass that measures a dimension and leaves it alone records no
-   revision at all, so confirmations are nearly invisible here, and exactly one
-   is recorded explicitly (`agent-permission-harness`'s `flagged_unmeasured`
-   defensibility).
-2. **Applying that bias to every unmeasured cell of those three dimensions does
-   not change what to work on.** Composites all fall, the largest rank
-   displacement is two positions, and the top and bottom of the table are
-   unchanged. `rescore-2026-08-20.md` argued that further rank-scoring has no
-   decision value; this is the arithmetic behind it. A pass tempted to re-rank
-   should run the script and stop.
+1. **The measurement record now covers five of eight dimensions**, including
+   both gates: the three rank dimensions (`ai_leverage`, `defensibility`,
+   `distribution`) plus `liability_containment` and `ethical_robustness`, both
+   measured on 2026-08-21. "No measured dimension has ever risen" still holds,
+   across eleven revisions. Not that measurement always lowers a score — a pass
+   that measures a dimension and leaves it alone records no revision at all, so
+   confirmations are nearly invisible here, and two are recorded explicitly
+   (`flagged_unmeasured` blocks).
+2. **The magnitude claim did not survive the gate measurements, and the
+   extrapolation went with it.** This section used to read "revised down by
+   one", which was true of all six revisions it was written about. The first
+   `ethical_robustness` measurement revised by 2 and by 3, so the script now
+   derives a *range* (1–3) and withholds the rank extrapolation entirely: with
+   no single magnitude there is nothing to carry to the cells nobody has looked
+   at, and setting it to zero would quietly assert those cells are fine.
+   `rescore-2026-08-20.md`'s conclusion — that further rank-scoring has no
+   decision value — is unaffected, and is now the *only* thing this section
+   claims about rank. A pass tempted to re-rank should still run the script and
+   stop.
 3. **The dimensions that decide admission were the ones nobody had measured.**
    Liability containment and ethical robustness are gates, not weights — below
    5 rejects regardless of composite. When this section was written all sixteen
@@ -172,9 +182,71 @@ Two consequences for what to do next:
 
 - **The pipeline's only `build-now` now sits *on* the gate**, tied at the floor
   with `defensibility`. One more measured point in liability rejects it.
-- **`ethical_robustness` is now the remaining unmeasured gate**, on all eight
+- **`ethical_robustness` was then the remaining unmeasured gate**, on all eight
   candidates. `score_sensitivity.py` derives this rather than asserting it, so
-  it will stop asking once someone measures it.
+  it stopped asking when the next section measured it.
+
+### The second gate measurement, the same day (2026-08-21)
+
+`ethical_robustness`, on the four candidates that have a built probe:
+`eaa-remediation-pipeline` **9 → 6**, `public-record-watch` **9 → 6**,
+`cra-evidence-desk` **8 → 6**, `agent-permission-harness` **9 → 7**. Derivation,
+rubric and the script that produced it are in
+[`portfolio/research/error-rate-disclosure/`](../research/error-rate-disclosure/).
+The other four are untouched: they have no probe, so there is nothing to
+measure and their 8s and 9s remain screening estimates.
+
+The dimension asks whether the business gets better for customers as it scales.
+That is answerable rather than atmospheric once you name the mechanism by which
+an evidence business gets *worse*: **the customer acts on a record whose errors
+are invisible to them, in a direction the operator profits from.** Both halves
+are checkable from this repository alone, and neither had been checked.
+
+What the measurement found, by rendering each probe's own customer-facing
+artifact and looking in it:
+
+- **Every probe that renders a customer record discloses its scope. None of
+  the four discloses its accuracy.** Four of four artifacts carry no error rate — including the two whose rate this
+  repository has already measured and committed (`eaa-wcag-triage`'s
+  out-of-sample precision of 0.821–0.881; `source-silence-detector`'s held-out
+  recall of 0.35). The numbers exist. They stop at the research directory.
+- **Scope disclosure is not accuracy disclosure**, and this pipeline had been
+  treating them as one thing. `eaa-wcag-triage`'s record is the most careful
+  disclosure artifact in the repository — every criterion labelled, every
+  undecidable element named with its reason — and it never says that a finding
+  in the list can be wrong. Out of sample, 12–18% of them are not defects.
+- **Only one artifact names the direction it errs in**
+  (`npm-reachability-triage`: *"False positives are expected; a suppressed
+  finding that should not have been is the failure this tool is built to
+  avoid"*) — and that is precisely the direction whose rate has never been
+  measured. Saying which way you are wrong without saying how often, and
+  measuring how often without saying which way, are the two halves of the same
+  omission, and the four probes split evenly between them.
+- **Two candidates' products have no customer-facing record module at all.**
+  `source-silence-detector`'s closest artifact prints `MISSED` beside a source
+  whose dormancy it failed to catch — the detector knows, and nothing carries
+  that to a subscriber.
+- **In three of four, the undisclosed direction is the one that pays.** The
+  accessibility audit is the qualification step that sells the fixed-price job,
+  so over-reporting converts. The dependency triage is sold on cutting the
+  alert count, so a wrong suppression improves the headline. The register watch
+  loses subscribers to nuisance alarms and loses nothing to a miss, so the
+  cheapest tuning is the one that fails them. The fourth,
+  `agent-permission-harness`, states no revenue model, so no alignment
+  deduction was taken — it loses two points for not knowing its error rates
+  rather than for not disclosing them.
+
+**No candidate crossed the gate**, and that is the honest headline: the errors
+are real and the mitigations are cheap. Printing the measured precision in the
+record is one line of rendering, and is worth a point back on the pipeline's
+only `build-now`. The gap this measures is a disclosure gap, not a business
+model that has to harm someone to work.
+
+It also says something about the last four passes over this directory. Every
+one of them measured an accuracy number and wrote it *here*, where the pipeline
+reads, rather than into the artifact where a customer would. That is a
+reasonable division while nothing ships, and it stops being reasonable at the
+moment anything does.
 
 Step 1 of `public-record-watch`'s first experiment has since been run — see the
 amendment in [its write-up](candidates/public-record-watch.md) and the
