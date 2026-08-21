@@ -1,0 +1,318 @@
+{
+ "summary": {
+  "packages": 22,
+  "packages_with_any_stylesheet_file": 15,
+  "packages_with_at_least_one_literal_css_file": 9,
+  "stylesheet_file_extension_totals": {
+   ".scss": 469,
+   ".css": 161,
+   ".sass": 1
+  },
+  "css_files_total": 161,
+  "css_files_literal": 158,
+  "css_files_needing_a_preprocessor": 3,
+  "class_attributes_total": 8591,
+  "class_attributes_with_expression": 138,
+  "class_attributes_expression_share_pct": 1.6
+ },
+ "rows": [
+  {
+   "package": "@ecomplus/storefront-app",
+   "version": "2.0.0-beta.228",
+   "markup_files": 20,
+   "stylesheet_files": {
+    ".scss": 7
+   },
+   "css_literal": 0,
+   "css_needs_preprocessor": 0,
+   "class_attrs_total": 265,
+   "class_attrs_with_expr": 0,
+   "has_any_stylesheet": true,
+   "has_literal_css": false
+  },
+  {
+   "package": "@ecomplus/storefront-components",
+   "version": "1.0.0-beta.195",
+   "markup_files": 78,
+   "stylesheet_files": {
+    ".scss": 29
+   },
+   "css_literal": 0,
+   "css_needs_preprocessor": 0,
+   "class_attrs_total": 714,
+   "class_attrs_with_expr": 0,
+   "has_any_stylesheet": true,
+   "has_literal_css": false
+  },
+  {
+   "package": "@ecomplus/storefront-template",
+   "version": "2.0.0-beta.300",
+   "markup_files": 66,
+   "stylesheet_files": {
+    ".css": 2,
+    ".scss": 108
+   },
+   "css_literal": 2,
+   "css_needs_preprocessor": 0,
+   "class_attrs_total": 354,
+   "class_attrs_with_expr": 27,
+   "has_any_stylesheet": true,
+   "has_literal_css": true
+  },
+  {
+   "package": "@ecomplus/storefront-twbs",
+   "version": "7.3.6",
+   "markup_files": 5,
+   "stylesheet_files": {
+    ".css": 30,
+    ".scss": 204
+   },
+   "css_literal": 30,
+   "css_needs_preprocessor": 0,
+   "class_attrs_total": 1550,
+   "class_attrs_with_expr": 0,
+   "has_any_stylesheet": true,
+   "has_literal_css": true
+  },
+  {
+   "package": "@fleetbase/storefront-engine",
+   "version": "0.4.19",
+   "markup_files": 384,
+   "stylesheet_files": {
+    ".css": 1
+   },
+   "css_literal": 1,
+   "css_needs_preprocessor": 0,
+   "class_attrs_total": 1263,
+   "class_attrs_with_expr": 26,
+   "has_any_stylesheet": true,
+   "has_literal_css": true
+  },
+  {
+   "package": "@mcptoolshop/site-theme",
+   "version": "2.1.0",
+   "markup_files": 36,
+   "stylesheet_files": {
+    ".css": 2
+   },
+   "css_literal": 1,
+   "css_needs_preprocessor": 1,
+   "class_attrs_total": 1,
+   "class_attrs_with_expr": 0,
+   "has_any_stylesheet": true,
+   "has_literal_css": true
+  },
+  {
+   "package": "@molsoft/molsoft-tools",
+   "version": "3.1.1",
+   "markup_files": 0,
+   "stylesheet_files": {},
+   "css_literal": 0,
+   "css_needs_preprocessor": 0,
+   "class_attrs_total": 0,
+   "class_attrs_with_expr": 0,
+   "has_any_stylesheet": false,
+   "has_literal_css": false
+  },
+  {
+   "package": "@nuskin/ns-shop-elements",
+   "version": "5.44.0",
+   "markup_files": 50,
+   "stylesheet_files": {},
+   "css_literal": 0,
+   "css_needs_preprocessor": 0,
+   "class_attrs_total": 469,
+   "class_attrs_with_expr": 0,
+   "has_any_stylesheet": false,
+   "has_literal_css": false
+  },
+  {
+   "package": "@pradip1995/create-storefront-app",
+   "version": "0.6.19",
+   "markup_files": 9,
+   "stylesheet_files": {
+    ".css": 1
+   },
+   "css_literal": 1,
+   "css_needs_preprocessor": 0,
+   "class_attrs_total": 151,
+   "class_attrs_with_expr": 0,
+   "has_any_stylesheet": true,
+   "has_literal_css": true
+  },
+  {
+   "package": "@vue-storefront/nuxt-theme",
+   "version": "2.8.0",
+   "markup_files": 45,
+   "stylesheet_files": {},
+   "css_literal": 0,
+   "css_needs_preprocessor": 0,
+   "class_attrs_total": 399,
+   "class_attrs_with_expr": 0,
+   "has_any_stylesheet": false,
+   "has_literal_css": false
+  },
+  {
+   "package": "@vue-storefront/theme-default",
+   "version": "1.7.0",
+   "markup_files": 114,
+   "stylesheet_files": {
+    ".scss": 23
+   },
+   "css_literal": 0,
+   "css_needs_preprocessor": 0,
+   "class_attrs_total": 1183,
+   "class_attrs_with_expr": 0,
+   "has_any_stylesheet": true,
+   "has_literal_css": false
+  },
+  {
+   "package": "@zalify/theme-templates",
+   "version": "0.5.0",
+   "markup_files": 76,
+   "stylesheet_files": {
+    ".css": 119
+   },
+   "css_literal": 117,
+   "css_needs_preprocessor": 2,
+   "class_attrs_total": 248,
+   "class_attrs_with_expr": 26,
+   "has_any_stylesheet": true,
+   "has_literal_css": true
+  },
+  {
+   "package": "altify-shopify-pipeline",
+   "version": "0.4.4",
+   "markup_files": 8,
+   "stylesheet_files": {
+    ".scss": 2
+   },
+   "css_literal": 0,
+   "css_needs_preprocessor": 0,
+   "class_attrs_total": 0,
+   "class_attrs_with_expr": 0,
+   "has_any_stylesheet": true,
+   "has_literal_css": false
+  },
+  {
+   "package": "bootstrap-shopify-theme",
+   "version": "1.4.5",
+   "markup_files": 37,
+   "stylesheet_files": {
+    ".scss": 21
+   },
+   "css_literal": 0,
+   "css_needs_preprocessor": 0,
+   "class_attrs_total": 412,
+   "class_attrs_with_expr": 14,
+   "has_any_stylesheet": true,
+   "has_literal_css": false
+  },
+  {
+   "package": "create-brainerce-store",
+   "version": "1.67.0",
+   "markup_files": 39,
+   "stylesheet_files": {
+    ".css": 2
+   },
+   "css_literal": 2,
+   "css_needs_preprocessor": 0,
+   "class_attrs_total": 0,
+   "class_attrs_with_expr": 0,
+   "has_any_stylesheet": true,
+   "has_literal_css": true
+  },
+  {
+   "package": "create-shopify-theme",
+   "version": "0.0.5",
+   "markup_files": 22,
+   "stylesheet_files": {
+    ".scss": 1
+   },
+   "css_literal": 0,
+   "css_needs_preprocessor": 0,
+   "class_attrs_total": 1,
+   "class_attrs_with_expr": 1,
+   "has_any_stylesheet": true,
+   "has_literal_css": false
+  },
+  {
+   "package": "fassbender-shopify-theme",
+   "version": "1.4.0",
+   "markup_files": 114,
+   "stylesheet_files": {
+    ".css": 3,
+    ".scss": 74
+   },
+   "css_literal": 3,
+   "css_needs_preprocessor": 0,
+   "class_attrs_total": 870,
+   "class_attrs_with_expr": 44,
+   "has_any_stylesheet": true,
+   "has_literal_css": true
+  },
+  {
+   "package": "gatsby-shopify-theme",
+   "version": "1.0.6",
+   "markup_files": 11,
+   "stylesheet_files": {
+    ".css": 1,
+    ".sass": 1
+   },
+   "css_literal": 1,
+   "css_needs_preprocessor": 0,
+   "class_attrs_total": 528,
+   "class_attrs_with_expr": 0,
+   "has_any_stylesheet": true,
+   "has_literal_css": true
+  },
+  {
+   "package": "pinelab-storefront",
+   "version": "1.4.3",
+   "markup_files": 19,
+   "stylesheet_files": {},
+   "css_literal": 0,
+   "css_needs_preprocessor": 0,
+   "class_attrs_total": 183,
+   "class_attrs_with_expr": 0,
+   "has_any_stylesheet": false,
+   "has_literal_css": false
+  },
+  {
+   "package": "shopify-cms",
+   "version": "5.1.26",
+   "markup_files": 42,
+   "stylesheet_files": {},
+   "css_literal": 0,
+   "css_needs_preprocessor": 0,
+   "class_attrs_total": 0,
+   "class_attrs_with_expr": 0,
+   "has_any_stylesheet": false,
+   "has_literal_css": false
+  },
+  {
+   "package": "shopify-theme-dev",
+   "version": "3.0.11",
+   "markup_files": 39,
+   "stylesheet_files": {},
+   "css_literal": 0,
+   "css_needs_preprocessor": 0,
+   "class_attrs_total": 0,
+   "class_attrs_with_expr": 0,
+   "has_any_stylesheet": false,
+   "has_literal_css": false
+  },
+  {
+   "package": "shopify-typed-settings",
+   "version": "1.0.12",
+   "markup_files": 39,
+   "stylesheet_files": {},
+   "css_literal": 0,
+   "css_needs_preprocessor": 0,
+   "class_attrs_total": 0,
+   "class_attrs_with_expr": 0,
+   "has_any_stylesheet": false,
+   "has_literal_css": false
+  }
+ ]
+}
