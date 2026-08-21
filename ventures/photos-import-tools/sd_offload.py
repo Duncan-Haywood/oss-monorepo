@@ -72,6 +72,23 @@ def evict(path: Path) -> bool:
         return False
 
 
+def _dest_device_id(path: Path) -> int:
+    # Path.mkdir(parents=True, exist_ok=True) doesn't care whether the
+    # ancestor it has to recreate used to be a distinct mount: if the
+    # destination volume (an external staging drive) is unmounted mid-run,
+    # its mount-point directory disappears too, and mkdir will happily
+    # rebuild the rest of the tree under whatever filesystem the nearest
+    # surviving ancestor sits on -- typically the boot volume. That succeeds,
+    # so rsync then succeeds writing there, and verify_and_manifest finds
+    # matching sizes, so nothing here ever notices the files landed on the
+    # wrong disk. Comparing the device id of the nearest existing ancestor
+    # before and after is what catches that the mount changed underneath us.
+    candidate = path
+    while not candidate.exists():
+        candidate = candidate.parent
+    return os.stat(candidate).st_dev
+
+
 def wait_for_disk_space(path: Path, min_gb: float = 5.0, log_path: Path | None = None) -> None:
     # statvfs the destination's own filesystem, not the boot volume: --staging-root
     # routinely points at an external drive with plenty of room even when the
@@ -325,12 +342,29 @@ def offload_card(
         log_path,
     )
     wait_for_disk_space(card.dest, min_gb=8.0, log_path=log_path)
+    expected_device = _dest_device_id(card.dest)
     for include in card.include_paths:
         source = card.source / include
         if not source.exists():
             log(f"Skipping missing path: {source}", log_path)
             continue
         dest = card.dest / include
+        if _dest_device_id(dest) != expected_device:
+            # The destination's mount vanished since this card's offload
+            # started (a flaky USB staging drive, an early unplug) and its
+            # path now resolves onto a different filesystem than the one
+            # verified at the top of this function. Writing here would
+            # silently succeed on the wrong disk -- refuse instead, the same
+            # way the source-side checks below refuse to treat a vanished
+            # card as a clean offload.
+            message = (
+                f"Destination volume for {card.name} is no longer mounted at "
+                f"{card.dest} (filesystem changed) -- refusing to write "
+                f"{include} there"
+            )
+            stats.errors.append(message)
+            log(message, log_path)
+            continue
         try:
             wait_for_disk_space(dest, min_gb=8.0, log_path=log_path)
             rsync_copy(source, dest, log_path)

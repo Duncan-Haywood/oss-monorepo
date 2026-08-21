@@ -456,6 +456,38 @@ class OffloadCardTests(unittest.TestCase):
             self.assertTrue(any("unmounted mid-offload" in e for e in stats.errors))
             self.assertEqual(offload_exit_code([{"errors": stats.errors}]), 1)
 
+    def test_destination_volume_change_mid_offload_blocks_write_instead_of_silently_redirecting(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            card = self._make_card(root)
+            (card.source / "DCIM" / "IMG_1.JPG").write_bytes(b"12345")
+            (card.source / "MISC" / "IMG_2.JPG").write_bytes(b"67890")
+
+            def fake_rsync_copy(source, dest, log_path):
+                dest.mkdir(parents=True, exist_ok=True)
+                for path in source.iterdir():
+                    (dest / path.name).write_bytes(path.read_bytes())
+
+            # Simulates the destination's mount (an external staging drive)
+            # disappearing after DCIM finishes and before MISC starts: the
+            # nearest-existing-ancestor device id changes from what was
+            # captured at the top of offload_card. Without the check, MISC
+            # would still be rsync'd -- mkdir(parents=True) doesn't care that
+            # the ancestor it's recreating used to be a different mount -- and
+            # verify_and_manifest would report it "verified" despite the
+            # files actually landing on the wrong disk.
+            devices = iter([1, 1, 999])
+
+            with mock.patch("sd_offload.wait_for_disk_space", return_value=None), \
+                    mock.patch("sd_offload.rsync_copy", side_effect=fake_rsync_copy), \
+                    mock.patch("sd_offload._dest_device_id", side_effect=lambda p: next(devices)):
+                stats = offload_card(card, root / "card.log", root / "manifest.json")
+
+            self.assertTrue(any("no longer mounted" in e for e in stats.errors))
+            self.assertFalse((card.dest / "MISC").exists())
+            self.assertTrue((card.dest / "DCIM" / "IMG_1.JPG").exists())
+            self.assertEqual(offload_exit_code([{"errors": stats.errors}]), 1)
+
 
 class OffloadExitCodeTests(unittest.TestCase):
     def test_no_card_mounted_is_not_reported_as_success(self):
