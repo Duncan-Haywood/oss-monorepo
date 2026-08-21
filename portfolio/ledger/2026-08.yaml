@@ -13266,3 +13266,65 @@ entries:
         (merging it fires deploys to live sites) -- only the verification
         record about it was this session's to decide.
     mrr_end: null
+  - venture: ai-first-markets
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process / increase profit" session, designated branch
+        claude/charming-hawking-qs1q5v. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 8%, below the 70% threshold). Fetched
+        `origin/main` fresh and checked the 3 open PRs (#372, #368, #144):
+        all already correctly owner-gated by prior sessions, nothing new
+        to add. `allocate.py` showed 0 of 10 scored ventures dispatchable
+        (same standing links.production publish blocker), so picked up the
+        productive pattern the two immediately preceding entries
+        established: bug-hunt an under-mined, unpublished venture's real
+        business logic rather than re-derive the PR/router state again.
+        `ai-first-markets` (14 prior ledger mentions, one of only two
+        ventures the router calls internally dispatchable since it has
+        nothing to publish) was the least-mined candidate not already
+        touched by the prior two sessions.
+      - >-
+        Dispatched a background agent to bug-hunt `ai-first-markets`'
+        market-selection/idea-scoring logic (`src/lib`, `src/data`). It
+        found that the Path to $1M ARR report
+        (`src/app/reports/[slug]/page.tsx`) formatted plans' *monthly*
+        `pricing.averageRevenue` figures with `formatArr()` -- a formatter
+        built for annual targets that abbreviates values >= $1,000 as
+        `$Nk` and appends " ARR". `contract-review-api`'s 1m plan has
+        `averageRevenue: 1042`, the only monthly figure in the dataset
+        over $999, so the report silently rendered `$1k ARR/mo avg`
+        instead of `$1,042/mo avg` in the venture's own decision-support
+        output -- a >99.9% rounding loss plus a wrong unit label, the same
+        silent-data-corruption bug class as the retail-pilot-intel (#466)
+        and real-estate-agent-photo-app (#474) fixes two entries prior,
+        this time in report formatting rather than ids or dates.
+      - >-
+        Fixed by adding `formatMonthlyRevenue()` to `src/lib/utils.ts`
+        (delegates to the existing `formatCurrency`, no abbreviation or
+        suffix) and switching the one affected call site to it;
+        `formatArr` was left untouched since it's still correctly used
+        elsewhere for genuinely-annual `plan.targetArr` fields. Added
+        `src/lib/utils.test.ts` (didn't exist before), including a test
+        that iterates every plan's `averageRevenue` across all 8 ideas to
+        guard against the bug class recurring. Hand-confirmed the
+        regression test actually catches the bug: pointed the new
+        formatter at `formatArr` temporarily, watched all 3 new tests fail
+        with `expected "$1,042", got "$1k ARR"`, then restored the fix and
+        watched them pass. Verified with the venture's own checks: `npm
+        ci` (662 packages, clean), `npm run lint` (0 problems), `npm run
+        typecheck` (clean), `npm test` (60/60 pass, 57 pre-existing + 3
+        new), `npm run build` (26/26 static pages, only pre-existing
+        unrelated jose/Edge-Runtime warnings).
+      - >-
+        Opened PR #479, watched its `verify` CI check go green,
+        re-confirmed clean mergeability against the live `main` tip with
+        `git merge-tree` immediately before merging (main had not moved in
+        between), and self-merged as agent-decidable: internal correctness
+        fix to an unpublished venture (`links.production: null`), no new
+        dependency, no credential, no unattended automation, nothing
+        published, nothing spent beyond agent time -- same class of
+        self-merge as #466 and #474 above. Squash-merged as `d77accd`.
+    mrr_end: null
