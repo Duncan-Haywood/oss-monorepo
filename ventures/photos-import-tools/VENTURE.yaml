@@ -89,6 +89,10 @@ hypotheses:
     status: supported
     checked: 2026-08-21
     evidence: in-repo
+  - claim: When an exception that is not a PhotosImportError escapes import_batch_with_split entirely (e.g. osascript itself being transiently missing from PATH, which subprocess.run reports as a bare FileNotFoundError that only PhotosImportError-catching call sites are guarded against), the run() loop's own top-level handler resets every item in that batch out of "importing" instead of leaving them permanently stuck and unretried while the run goes on to report "Complete".
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
   - claim: The unattended watchdog installs its own SIGINT/SIGTERM handlers, so an operator's Ctrl-C or a supervisor's kill/launchd stop (start_import.sh execs the watchdog directly, making it the signal's direct target) terminates the current worker's process group before the watchdog exits instead of leaving the worker running as an unsupervised orphan that a later watchdog run has no way to see and would start a second worker alongside, racing two importer processes against Photos.app on the same manifest.
     status: supported
     checked: 2026-08-21
