@@ -196,6 +196,24 @@ ship in a customer-facing record.
   is weaker evidence than agreement with axe-core would be, and axe-core's
   distribution hosts are egress-denied from here.
 
+## Amendment (2026-08-21): a new divergence, declared rather than discovered later
+
+The probe gained colour contrast (SC 1.4.3) and `audit.py` did not — see
+[`a11y-contrast-decidability`](../a11y-contrast-decidability/). The engines are
+asymmetric again, and `results-2026-08-21.json` was regenerated to record it:
+1.4.3 moved from the probe's `declared_untested` list to its checked catalog,
+one line.
+
+This is deliberately **not** a silent gap, which is the failure mode this
+directory exists to catch. `audit.py` still declares 1.4.3 as manual in its own
+coverage statement, so a record from either engine says truthfully what it did
+and did not check, and `reconcile.py`'s silent-gap lists are unchanged. Closing
+the asymmetry means porting the resolver to `audit.py`, which is a real piece of
+work — that engine reads storefront *templates*, where the stylesheet is a
+separate file in the same package and the class names are frequently built from
+expressions, so its decidable share is an open question rather than a port.
+Named here as the follow-up.
+
 ## Status of these claims
 
 Primary measurement, re-derivable offline. Every number in this document comes
