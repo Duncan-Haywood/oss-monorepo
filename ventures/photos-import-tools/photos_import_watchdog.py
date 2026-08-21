@@ -104,21 +104,35 @@ def write_status(
     write_json_atomic(status_path, payload, sort_keys=True)
 
 
-def terminate_process_group(process: subprocess.Popen[bytes]) -> None:
+def terminate_process_group(process: subprocess.Popen[bytes]) -> bool:
+    # Returns True once the process is confirmed dead, False if it's still
+    # alive despite SIGKILL. A process blocked in an uninterruptible kernel
+    # wait (e.g. rsync/osascript stuck on a wedged network share or a stalled
+    # iCloud volume -- exactly the I/O this tool depends on) does not die
+    # immediately even from SIGKILL, so the second wait() below can time out
+    # too. That ran unguarded before this fix: the uncaught TimeoutExpired
+    # propagated out of run_watchdog's loop and killed the watchdog itself,
+    # the one process meant to keep running unattended overnight.
     if process.poll() is not None:
-        return
+        return True
     try:
         os.killpg(process.pid, signal.SIGTERM)
     except ProcessLookupError:
-        return
+        return True
     try:
         process.wait(timeout=10)
+        return True
     except subprocess.TimeoutExpired:
-        try:
-            os.killpg(process.pid, signal.SIGKILL)
-        except ProcessLookupError:
-            pass
+        pass
+    try:
+        os.killpg(process.pid, signal.SIGKILL)
+    except ProcessLookupError:
+        return True
+    try:
         process.wait(timeout=10)
+        return True
+    except subprocess.TimeoutExpired:
+        return False
 
 
 def build_phases(
@@ -246,7 +260,21 @@ def run_watchdog(
 
         if current_phase is not None and phase.media_type != current_phase.media_type:
             if process is not None:
-                terminate_process_group(process)
+                if not terminate_process_group(process):
+                    # Old phase's worker is still alive despite SIGKILL --
+                    # spawning a new worker for the new phase now would run
+                    # two importer processes against Photos.app at once.
+                    # `current_phase` is deliberately left unchanged so this
+                    # same branch retries next poll instead of assuming the
+                    # switch happened.
+                    with log_path.open("ab") as log_handle:
+                        log_handle.write(
+                            f"[{iso_now()}] worker still alive after SIGKILL "
+                            "(stuck in uninterruptible I/O?); deferring phase "
+                            "switch\n".encode()
+                        )
+                    time.sleep(poll_seconds)
+                    continue
             process = None
             current_batch_size = phase.batch_size
             with log_path.open("ab") as log_handle:
@@ -318,7 +346,19 @@ def run_watchdog(
         if time.monotonic() - last_progress_at > stall_seconds:
             with log_path.open("ab") as log_handle:
                 log_handle.write(f"[{iso_now()}] worker stalled; restarting process group\n".encode())
-            terminate_process_group(process)
+            if not terminate_process_group(process):
+                # Still alive despite SIGKILL -- leave `process` and
+                # `last_progress_at` as they are so this branch retries next
+                # poll instead of falling through to the spawn block below
+                # and running a second worker alongside the stuck one.
+                with log_path.open("ab") as log_handle:
+                    log_handle.write(
+                        f"[{iso_now()}] worker still alive after SIGKILL "
+                        "(stuck in uninterruptible I/O?); will retry next "
+                        "poll\n".encode()
+                    )
+                time.sleep(poll_seconds)
+                continue
             process = None
             last_progress_at = time.monotonic()
 

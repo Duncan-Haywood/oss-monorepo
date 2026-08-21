@@ -65,6 +65,10 @@ hypotheses:
     status: supported
     checked: 2026-08-21
     evidence: in-repo
+  - claim: When the watchdog tries to kill a stalled or phase-switching worker and the worker survives SIGKILL (stuck in an uninterruptible I/O wait on a wedged network share or a stalled iCloud volume), the watchdog neither crashes nor starts a second worker alongside the still-alive one; it keeps retrying the kill instead of racing two importer processes against Photos.app on the same manifest.
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
 
 economics:
   currency: USD
