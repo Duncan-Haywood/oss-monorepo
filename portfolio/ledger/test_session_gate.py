@@ -10,6 +10,8 @@ must come from the ledger rather than from constants.
 
 from __future__ import annotations
 
+import time
+
 import yaml
 
 import session_gate as sg
@@ -185,3 +187,86 @@ def test_commits_with_sessions_parses_multiline_bodies():
     ):
         pairs = sg.commits_with_sessions(hours=6)
     assert pairs == [(1700000000, "session_abc123")]
+
+
+# --- a shallow clone must not manufacture a false PROCEED ---------------------
+#
+# `git log --since` on a shallow clone returns whatever commits the shallow
+# fetch happened to include, not an error -- so an undercounted cadence looks
+# exactly like a genuinely low one. Measured on this session's own as-cloned
+# checkout: session_gate.py read 0.00 sessions/hour before the clone was
+# deepened, on a period the ledger shows ran at roughly 2.7/hour.
+
+
+def test_history_span_hours_from_timestamps():
+    now = time.time()
+    assert abs(sg.history_span_hours([now - 3600 * 5]) - 5) < 0.01
+
+
+def test_history_span_hours_uses_the_oldest_timestamp():
+    now = time.time()
+    assert abs(sg.history_span_hours([now - 3600 * 2, now - 3600 * 9]) - 9) < 0.01
+
+
+def test_history_span_hours_empty_is_zero():
+    assert sg.history_span_hours([]) == 0.0
+
+
+def test_unreliable_cadence_does_not_clear_the_gate():
+    """Same (falsely low) cadence reading; only the reliable one may PROCEED on it."""
+    entries = [entry("portfolio")] * sg.WINDOW  # meta_share = 1.0, no revenue recorded
+    reliable = sg.report(entries, cadence=0.0, cadence_reliable=True)
+    unreliable = sg.report(entries, cadence=0.0, cadence_reliable=False)
+    assert reliable["verdict"] == "PROCEED"
+    assert unreliable["verdict"] == "NO-OP"
+    assert unreliable["sessions_per_hour"] == 0.0  # still reported, just not trusted
+    assert not unreliable["cadence_reliable"]
+
+
+def test_render_flags_unreliable_cadence_visibly():
+    entries = [entry("portfolio")] * sg.WINDOW
+    r = sg.report(entries, cadence=0.0, cadence_reliable=False)
+    rendered = sg.render(r)
+    assert "undercounted" in rendered
+    assert "shallow clone" in rendered
+
+
+def test_sessions_per_hour_flags_unreliable_on_a_shallow_history(monkeypatch):
+    """Local history only reaches back 1h of a requested 24h window -> unreliable."""
+    now = time.time()
+
+    def fake_run(cmd, **kwargs):
+        class Result:
+            pass
+
+        result = Result()
+        if "--pretty=%B" in cmd:
+            result.stdout = ""  # no session trailers found in the truncated window
+        else:
+            result.stdout = str(int(now - 3600))  # one commit, 1h old
+        return result
+
+    monkeypatch.setattr(sg.subprocess, "run", fake_run)
+    cadence, reliable = sg.sessions_per_hour(hours=24)
+    assert reliable is False
+    assert cadence == 0.0
+
+
+def test_sessions_per_hour_trusts_history_that_covers_the_window(monkeypatch):
+    now = time.time()
+
+    def fake_run(cmd, **kwargs):
+        class Result:
+            pass
+
+        result = Result()
+        if "--pretty=%B" in cmd:
+            result.stdout = "Claude-Session: https://claude.ai/code/session_abc123\n"
+        else:
+            result.stdout = str(int(now - 3600 * 30))  # 30h of real history
+        return result
+
+    monkeypatch.setattr(sg.subprocess, "run", fake_run)
+    cadence, reliable = sg.sessions_per_hour(hours=24)
+    assert reliable is True
+    assert cadence == 1 / 24
