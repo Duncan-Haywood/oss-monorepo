@@ -12,7 +12,6 @@ Status: `ready` | `in_progress` | `done`
 
 - [ ] **ready** — Extend `dailySummary` with revenue cents + revenue per entrant from `sale_events`
 - [ ] **ready** — Hourly rollup table + CLI `report --hour` for same-day ops
-- [ ] **ready** — Archive processed inbox JSON after sync (idempotent ingest)
 - [ ] **ready** — POS adapter v0: watch `data/pos/inbox` for Tilby-style CSV export (document format in package README)
 
 ### [platform] Edge & join
@@ -46,6 +45,7 @@ _(empty — orchestrator assigns when a run starts themed work)_
 
 ## Done
 
+- [x] **done** — Archive processed inbox JSON after sync (moves each file to a sibling `archive/` dir once inserted; `sale_events`/`aggregate_events` are already keyed on `event_id` with `INSERT OR REPLACE`, so this is a performance/hygiene fix — unbounded inbox re-scan on every sync — not a correctness one; `archive: false` opt-out kept for tests/tooling)
 - [x] **done** — Unit tests for `packages/analytics` (`dailySummary`, `syncInbox`, schema inserts) — `node:test` via `tsx`, wired into `pnpm run test` / `pnpm run ci`
 - [x] **done** — M0: TSX docs site + commercial viability pages + CI (`pnpm run ci`)
 - [x] **done** — Event schemas + SQLite schema + inbox sync path
