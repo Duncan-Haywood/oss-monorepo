@@ -106,7 +106,10 @@ from one afternoon of the product's own output.
 
 ## Finding 3 — both known relabellings now have a named cause
 
-`a11y-own-sites` measured the two engines disagreeing on 24.6% of real pages,
+`a11y-own-sites` measured the two engines disagreeing on 24.6% of real pages
+(revised to 22.9%, 27/118, after that directory's own stylesheet-argument fix
+— the disagreement count itself is unaffected by contrast, only by unrelated
+venture-source drift; see its README),
 found every disagreement to be a relabelling rather than a miss, and left the
 cause open as "a normative reading this environment cannot settle." It could
 name the criterion pairs but not the defect behind them, because the defects
