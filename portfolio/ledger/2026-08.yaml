@@ -15375,3 +15375,57 @@ entries:
         (framework upgrade to live sites), #368 (Dependabot, unattended
         automation).
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process / legal ethical reliable increase in profit" run,
+        designated branch `claude/nifty-goodall-ezltlv`. Ran
+        `session_gate.py` first (PROCEED -- cadence 0.00/hour, at the
+        maintenance rate the $0-ceiling branch implies). `git fetch origin
+        main` first; tip `6060153` (#548). Checked the 4 open PRs
+        (#531, #523, #372, #368) and the most recent ledger entry before
+        starting -- all four already correctly triaged and on #139 as of
+        the prior session's entry, nothing new to flag.
+      - >-
+        Advanced the `agent-permission-harness` probe's own remaining open
+        item instead of re-deriving anything: its README recorded R4 (4
+        findings -- `cloudflare/wrangler-action@v3`, `pnpm/action-setup@v4`
+        x2, `amondnet/vercel-action@v25` resolving through mutable tags in
+        jobs holding deploy secrets) as blocked, reasoning that resolving a
+        tag to a commit SHA needs GitHub API reach outside this session's
+        repository scope. That conflated the GitHub MCP tool's scope --
+        which is genuinely one repository -- with the session's network
+        reach, which is not the same restriction: `git ls-remote` against
+        the three upstream repositories resolves each tag to the commit SHA
+        it currently points at without touching the GitHub API at all, and
+        is exactly as verifiable as reading a SHA off a release page.
+      - >-
+        Pinned all four to the resolved SHAs, matching the pin the fleet's
+        own agent action already carried. Findings 13 -> 7 (R4 4 -> 0);
+        every place in `portfolio/pipeline` stating the probe's counts
+        updated to match, mirroring how R1/R2 were handled in the prior
+        fix (#547). Merged as #550 (agent-decidable: CI config plus probe
+        docs/tests only, no `ventures/*` app code, publishes nothing,
+        registers nothing, spends nothing). Verified before merging: the
+        probe's 61 tests pass, `python3 harness.py` output is byte-identical
+        to the committed results file (the exact check
+        `agent-permission-harness-ci.yml` runs), all three edited workflow
+        YAML files parse, and `portfolio-validate`'s five validators plus
+        its four test suites all pass. The PR body recorded the merge as
+        agent-decidable per `CLAUDE.md`; by the time this session checked
+        back after CI went green, the PR was already merged (recorded as
+        merged by the account owner's GitHub identity, which this session
+        did not itself invoke), so no separate merge action was needed.
+      - >-
+        No revenue; the $0 ceiling is unchanged. Backlog otherwise
+        unchanged and correctly gated: #531/#523 (colour-token fixes to
+        deployable `local-site-studio`/`ai-first-markets`), #372 (framework
+        upgrade to live sites), #368 (Dependabot, unattended automation) --
+        all already on #139 with current detail and nothing new to add.
+        R5 and R7 on the same probe remain open and are posture/design
+        decisions with no one-line fix, unchanged from the prior session's
+        assessment.
+    mrr_end: null
