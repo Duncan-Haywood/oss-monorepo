@@ -11954,6 +11954,64 @@ entries:
         session's verified fix reached main without being lost or
         duplicated.
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work... maintain and improve the development
+        process... increase in profit" session, designated branch
+        claude/nifty-goodall-xjytvi. Ran session_gate.py first (PROCEED --
+        meta-work share 36% of last 25 entries, below the 70% threshold).
+        Checked the 4 open PRs (#372/#368/#144/#19) against current main:
+        all four already correctly owner-gated by prior sessions (deployable
+        ventures/* upgrade, unattended-automation proposals), consistent
+        with the immediately preceding ledger entry's own check of the same
+        four -- nothing new to add, no duplicate PR opened.
+      - >-
+        `portfolio/router/allocate.py` again named photos-import-tools the
+        only dispatchable venture, task "every recorded hypothesis is
+        settled -- write the next one in VENTURE.yaml, then test it." With
+        24 supported hypotheses already recorded, all of them technical
+        robustness (SIGKILL survival, fd leaks, scratch-dir orphaning,
+        manifest races, etc.) and none of them monetization, read why this
+        keeps recurring before writing a 25th: `portfolio/router/README.md`
+        ("dispatchability anti-selects for commercial intent") and
+        `portfolio/scoring/README.md` Finding 1 (photos-import-tools "has no
+        packaging, no pricing, and no monetization language anywhere...
+        There is no launch to block", leaving open whether the directory
+        should be reclassified).
+      - >-
+        Applied the router's own already-documented rule instead of mining
+        another edge case: added the venture's first monetization
+        hypothesis -- would a packaged, priced version attract paying Mac
+        photographers/videographers beyond this repo's own use -- typed
+        `evidence: customer-contact`, `status: untested`, matching every
+        other venture's monetization-claim shape (e.g. local-site-studio's
+        "$500 flat for a pre-built website"). This correctly reclassifies
+        photos-import-tools as BLOCKED (no links.production, so no customer
+        can respond) instead of perpetually dispatchable for further
+        hardening.
+      - >-
+        Verified: `portfolio/router/validate.py` (10/10 valid),
+        `portfolio/pipeline/validate_candidates.py`,
+        `portfolio/pipeline/validate_doc_consistency.py`, and
+        `portfolio/scoring/score_ventures.py --check` all pass.
+        `allocate.py` now reports **0 of 10 ventures dispatchable** -- every
+        venture in the portfolio is honestly blocked on an account-owner
+        publish/customer-contact decision. Opened PR #430, waited for CI
+        (Portfolio validate green), confirmed mergeable_state clean against
+        the live main tip, and self-merged as agent-decidable: touches only
+        venture metadata, no ventures/* deploy, no new dependency, no
+        account, no credential, no unattended automation, nothing published,
+        nothing spent beyond agent time.
+      - >-
+        The 0/10 finding is itself the significant result of this session,
+        not a side effect -- it means the portfolio's code-side work is, for
+        now, correctly exhausted, and the next real progress on any venture
+        requires an account-owner publish decision rather than another
+        scheduled session finding more in-repo work to do.
+    mrr_end: null
   - venture: portfolio
     agent_spend_usd: null
     human_hours: 0
@@ -11998,23 +12056,26 @@ entries:
         checks green. Both correctly remain owner-gated; nothing changed
         that needed a new pass.
       - >-
-        Posted one consolidated comment to #139 recording the #19 close,
-        the #144/#372/#368 status, and a strategic observation (not a
-        decision ask): `photos-import-tools`, the only dispatchable
-        venture per `allocate.py`, is at 21 supported hypotheses (0
-        refuted) after roughly 20 sessions, `mrr_end` still null
-        throughout, and the hypotheses being found have narrowed to
-        internal concurrency edge cases rather than anything
-        customer-visible -- the expected shape of a nearly-saturated
-        hypothesis space. Doesn't argue for closing the venture or
-        changing the standing task; recorded as a number for when Ask
-        3/7/5/6 on #139 eventually get answered and effort can redirect
-        toward a channel instead of more hypothesis-hunting on the one
-        venture agents can currently touch unattended.
+        Posted one consolidated comment to #139 recording the #19 close and
+        the #144/#372/#368 status, plus a strategic observation about
+        `photos-import-tools`' then-21 supported hypotheses and null MRR
+        being the expected shape of a nearly-saturated hypothesis space --
+        written before discovering, on merging main into this branch, that
+        a concurrent session (claude/nifty-goodall-xjytvi, previous ledger
+        entry above) had independently reached the same conclusion by a
+        more direct route: it read `portfolio/router/README.md` and
+        `portfolio/scoring/README.md`'s own already-documented finding that
+        "dispatchability anti-selects for commercial intent," and instead
+        of describing the saturation, fixed its cause -- added
+        photos-import-tools' first monetization hypothesis, which
+        reclassifies it as BLOCKED like the other 9 ventures. `allocate.py`
+        now reports 0/10 dispatchable, portfolio-wide, superseding this
+        session's #139 comment before it was even posted. Two independent
+        sessions converging on the same diagnosis from different evidence
+        is itself worth recording; the fix, not the diagnosis-as-comment,
+        is what actually moved the portfolio forward.
       - >-
         No new candidate written to `portfolio/pipeline/` (intake gate
         applies, nothing in `screened-out.md` was contradicted) and no
-        code changed in any venture this session -- the highest-value
-        action available was PR-backlog triage and one accurate status
-        report, not a 22nd hypothesis.
+        code changed in any venture this session.
     mrr_end: null
