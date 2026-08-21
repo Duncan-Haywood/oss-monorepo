@@ -12842,3 +12842,62 @@ entries:
         no credential, no unattended automation, nothing published,
         nothing spent beyond agent time.
     mrr_end: null
+  - venture: retail-pilot-intel
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/charming-hawking-uhjdox. Ran `session_gate.py` first
+        (PROCEED). `git fetch origin main` first; tip `61bbe90`. Listed
+        the 3 open PRs (#372, #368, #144) and read their current bodies/
+        comments in full: all three already correctly triaged by prior
+        sessions -- #372 and #368 are human-gated (live-site Next.js
+        upgrade, Dependabot automation) and fully verified, waiting on the
+        account owner; #144 is a known-broken autonomous-agent-workflow
+        proposal already reviewed four times over (work_items never
+        populated, get_open_prs blind in CI, a nonexistent allocate_work
+        import, an unconditional schedule re-add), with its premise about
+        the Actions outage's cause and the real economic gate already
+        corrected on `main`. Nothing new to add to any of the three, so
+        re-reviewing again would only repeat the re-verification waste
+        `CLAUDE.md` warns about.
+      - >-
+        `portfolio/router/allocate.py` showed 0 of 10 ventures
+        dispatchable, matching the immediately preceding ledger entry --
+        every venture still blocked on an unpublished `links.production`.
+        `portfolio/pipeline/probes/` shows all three built probes already
+        tested and validated; no new candidate work fit the "do not
+        generate more candidates" rule in `distribution-first.md`.
+      - >-
+        With no fresh PR, router work, or probe work available, picked a
+        "ready" item off `ventures/retail-pilot-intel/docs/BACKLOG.md`
+        instead: `syncInbox()` in `packages/analytics/src/sync-inbox.ts`
+        re-scanned and re-parsed every file ever dropped into
+        `data/aggregates/outbox` and `data/pos/inbox` on every sync call,
+        forever -- never a correctness bug (`sale_events`/`aggregate_events`
+        are already keyed on `event_id` with `INSERT OR REPLACE`), only an
+        unbounded-growth one. Added archiving: each processed file moves to
+        a sibling `archive/` dir once inserted, with an `archive: false`
+        opt-out kept for tests/tooling. Added 3 tests (archives-by-default,
+        re-sync-doesn't-recount, opt-out leaves files in place) alongside
+        the 13 existing ones.
+      - >-
+        Verified by actually running it: `pnpm install --frozen-lockfile`
+        clean, `pnpm run lint` 0 errors, `pnpm run typecheck` clean across
+        all 6 workspace packages, `pnpm run build` succeeds, `pnpm run
+        test` 16/16 pass in `packages/analytics` with the full workspace
+        suite green, `pnpm audit --audit-level=high` 0 vulnerabilities.
+        `data/*` is already gitignored so the new `archive/` dirs never
+        reach git.
+      - >-
+        Opened PR #465, watched its `build` check to green, re-confirmed
+        clean mergeability against the live `main` tip (`git merge-tree
+        --write-tree`, single tree hash, no conflicts) immediately before
+        merging, and self-merged as agent-decidable: internal source fix
+        to an unpublished venture (`links.production: null`), no new
+        dependency, no credential, no unattended automation, nothing
+        published, nothing spent beyond agent time -- same pattern PR #457
+        used for a source fix to another unpublished venture.
+    mrr_end: null
