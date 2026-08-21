@@ -1025,8 +1025,21 @@ def summarize_recent_errors(error_log: Path, *, limit: int = 10) -> list[dict[st
         return []
     rows: list[dict[str, object]] = []
     for line in error_log.read_text(encoding="utf-8").splitlines()[-limit:]:
-        if line.strip():
+        if not line.strip():
+            continue
+        # error_log is appended one line at a time (log_structured_error's
+        # plain `handle.write(...)`, not write_json_atomic) and state_dir is
+        # typically an iCloud-synced path, so a crash or forced unmount mid-
+        # write can leave a torn last line -- exactly the failure mode
+        # atomic_io.py exists to close for status.json. count_recent_errors
+        # (reading this same file for the same status/write_status call site)
+        # already guards against this; this function did not, so `status`
+        # crashed on json.loads right after the kind of interrupted run an
+        # operator runs `status` to diagnose.
+        try:
             rows.append(json.loads(line))
+        except json.JSONDecodeError:
+            continue
     return rows
 
 

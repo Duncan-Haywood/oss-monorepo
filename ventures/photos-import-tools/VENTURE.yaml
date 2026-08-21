@@ -145,6 +145,10 @@ hypotheses:
     status: supported
     checked: 2026-08-21
     evidence: in-repo
+  - claim: Running `resumable_photos_import.py status` after a crash or interruption does not itself crash with an unhandled JSONDecodeError just because the last line of the error log was torn (log_structured_error appends with a plain, non-atomic write() to a path that is typically iCloud-synced, so a crash or sync hiccup mid-write can leave a partial trailing line). (Found refuted, then fixed -- summarize_recent_errors(), which the `status` command calls to print recent errors, parsed every line with a bare json.loads() and let JSONDecodeError propagate uncaught; count_recent_errors(), reading the very same file for the very same status/write_status call site, already guarded against exactly this and simply skipped the bad line.)
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
 
 economics:
   currency: USD
