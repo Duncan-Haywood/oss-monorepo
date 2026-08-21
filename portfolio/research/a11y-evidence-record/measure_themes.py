@@ -162,6 +162,24 @@ def candidate_packages(pause: float) -> list[dict]:
 
 def markup_from_tarball(blob: bytes) -> list[tuple[str, str]]:
     """(path, source) for every template-ish file in an npm tarball."""
+    return _files_from_tarball(blob, audit.MARKUP_EXT)
+
+
+def css_from_tarball(blob: bytes) -> list[tuple[str, str]]:
+    """(path, source) for every plain `.css` file in an npm tarball.
+
+    `.scss`/`.less`/`.sass` are deliberately excluded: `wcag_triage.css` reads
+    plain CSS syntax (see its own docstring on what it refuses), and a
+    preprocessor file full of variables and mixins would either parse into
+    nonsense or, worse, parse into something that *looks* like a resolved
+    colour and is not. A package that ships only preprocessor sources
+    therefore contributes no stylesheet here, which contrast_pass.py's
+    `no-declared-color` already reports honestly rather than silently.
+    """
+    return _files_from_tarball(blob, (".css",))
+
+
+def _files_from_tarball(blob: bytes, extensions: tuple) -> list[tuple[str, str]]:
     out: list[tuple[str, str]] = []
     try:
         archive = tarfile.open(fileobj=io.BytesIO(blob), mode="r:gz")
@@ -171,7 +189,7 @@ def markup_from_tarball(blob: bytes) -> list[tuple[str, str]]:
         if not member.isfile() or member.size > 2_000_000:
             continue
         path = member.name
-        if not path.endswith(audit.MARKUP_EXT):
+        if not path.endswith(extensions):
             continue
         if any(token in path for token in SKIP_DIRS):
             continue
@@ -212,16 +230,27 @@ def audit_package(package: dict, pause: float) -> dict | None:
     if len(files) < MIN_MARKUP_FILES:
         return None
 
+    # Every `.css` file in the package, merged into one stylesheet and applied
+    # to every template in it -- see `css_from_tarball`'s docstring and
+    # `contrast_pass.py`'s module docstring for what this does and does not
+    # get right. A package shipping more than one *independent* stylesheet
+    # (locale or brand variants sharing templates) would over-apply here; this
+    # is not detected or corrected, only disclosed, in `summarise()` and the
+    # README.
+    css_files = css_from_tarball(blob)
+    stylesheet = audit.merge_stylesheets([source for _, source in css_files]) if css_files else None
+
     results = []
     for path, source in files:
         try:
-            results.append(audit.audit_source(source, path))
+            results.append(audit.audit_source(source, path, stylesheet=stylesheet))
         except Exception as exc:
             print(f"{name}:{path}: audit failed: {exc}", file=sys.stderr)
 
     findings = [f for r in results for f in r["findings"]]
     undecided = [u for r in results for u in r["undecidable"]]
     severity = collections.Counter(f["severity"] for f in findings)
+    contrast_undecided = [u for u in undecided if u["check"] == "text-contrast-fail"]
     return {
         "package": name,
         "version": version,
@@ -229,12 +258,16 @@ def audit_package(package: dict, pause: float) -> dict | None:
         "files": len(results),
         "fragments": sum(1 for r in results if r["is_fragment"]),
         "elements": sum(r["elements"] for r in results),
+        "css_files": len(css_files),
         "findings": len(findings),
         "blocking": severity["blocking"],
         "degrading": severity["degrading"],
         "undecidable": len(undecided),
         "by_check": dict(collections.Counter(f["check"] for f in findings)),
         "undecidable_by_check": dict(collections.Counter(u["check"] for u in undecided)),
+        "contrast_findings": sum(1 for f in findings if f["check"] == "text-contrast-fail"),
+        "contrast_undecidable_by_reason": dict(
+            collections.Counter(u["reason"] for u in contrast_undecided).most_common()),
     }
 
 
@@ -267,21 +300,41 @@ def summarise(rows: list[dict]) -> dict:
         undecidable_by_check.update(row["undecidable_by_check"])
 
     # Per-package undecidable share, on the checks where "undecidable" is even a
-    # possible answer. A package-level distribution, not one ratio over the pool,
-    # so a single huge theme cannot carry the headline.
+    # possible answer, EXCLUDING `text-contrast-fail`. A package-level
+    # distribution, not one ratio over the pool, so a single huge theme cannot
+    # carry the headline -- and contrast is excluded from it for the reason
+    # given above `contrast_findings` below: its undecidable rate tracks
+    # whether a package's CSS was found, which would otherwise dominate and
+    # relabel this as a corpus-coverage statistic under a decidability name.
     shares = []
     for row in rows:
-        local = row["findings"] + row["undecidable"]
+        non_contrast_findings = row["findings"] - row["contrast_findings"]
+        non_contrast_undecided = row["undecidable"] - sum(row["contrast_undecidable_by_reason"].values())
+        local = non_contrast_findings + non_contrast_undecided
         if local >= 10:
-            shares.append(row["undecidable"] / local * 100)
+            shares.append(non_contrast_undecided / local * 100)
 
-    # Only four checks have an "undecidable" branch at all -- the ones whose
+    # A handful of checks have an "undecidable" branch at all -- the ones whose
     # answer can be supplied by a template expression. Measuring the undecidable
     # share against *every* check would let the ratio be moved by adding checks
     # that can never be undecidable, so the restricted denominator is the honest
-    # one and is reported alongside the raw figure.
-    capable = set(undecidable_by_check)
+    # one and is reported alongside the raw figure. `text-contrast-fail` is
+    # excluded here for the same reason it is excluded from `shares` above.
+    capable = set(undecidable_by_check) - {"text-contrast-fail"}
     capable_findings = sum(n for check, n in by_check.items() if check in capable)
+    capable_undecided = sum(n for check, n in undecidable_by_check.items() if check in capable)
+
+    # Contrast reported separately from the pooled undecidable-share figures
+    # above: its undecidable rate is dominated by whether a package's CSS was
+    # found at all, which is a corpus-coverage question, not a per-check
+    # decidability one, and pooling it in would move the headline ratio for a
+    # reason unrelated to what that ratio is meant to measure.
+    contrast_findings = sum(r["contrast_findings"] for r in rows)
+    contrast_undecidable_reasons: collections.Counter = collections.Counter()
+    for row in rows:
+        contrast_undecidable_reasons.update(row["contrast_undecidable_by_reason"])
+    contrast_undecidable = sum(contrast_undecidable_reasons.values())
+    contrast_total = contrast_findings + contrast_undecidable
 
     return {
         "packages": len(rows),
@@ -294,8 +347,8 @@ def summarise(rows: list[dict]) -> dict:
         "undecidable_share_pct": round(undecided / decided_or_not * 100, 1) if decided_or_not else 0,
         "checks_with_an_undecidable_branch": sorted(capable),
         "undecidable_share_on_those_checks_pct": (
-            round(undecided / (capable_findings + undecided) * 100, 1)
-            if (capable_findings + undecided) else 0
+            round(capable_undecided / (capable_findings + capable_undecided) * 100, 1)
+            if (capable_findings + capable_undecided) else 0
         ),
         "undecidable_share_per_package_pct": _percentiles(shares),
         "blocking_per_1000_elements": _percentiles(
@@ -304,6 +357,13 @@ def summarise(rows: list[dict]) -> dict:
         "packages_with_zero_blocking": sum(1 for r in rows if r["blocking"] == 0),
         "by_check": dict(by_check.most_common()),
         "undecidable_by_check": dict(undecidable_by_check.most_common()),
+        "packages_with_a_stylesheet": sum(1 for r in rows if r["css_files"] > 0),
+        "contrast_findings": contrast_findings,
+        "contrast_undecidable": contrast_undecidable,
+        "contrast_decidable_share_pct": (
+            round(contrast_findings / contrast_total * 100, 1) if contrast_total else 0
+        ),
+        "contrast_undecidable_by_reason": dict(contrast_undecidable_reasons.most_common()),
     }
 
 

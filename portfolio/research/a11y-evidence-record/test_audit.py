@@ -32,7 +32,22 @@ def checks(source, path="t.liquid"):
 
 
 def undecidable(source, path="t.liquid"):
-    return sorted(u["check"] for u in audit.audit_source(source, path)["undecidable"])
+    # "text-contrast-fail" excluded: every text-bearing fixture in this file
+    # is undecidable for contrast by construction (none carries a stylesheet
+    # or even a class worth resolving), so it would appear in nearly every
+    # list below and say nothing about the check the test is actually
+    # exercising. The `Contrast` class asserts on it directly, unfiltered.
+    return sorted(
+        u["check"] for u in audit.audit_source(source, path)["undecidable"]
+        if u["check"] != "text-contrast-fail"
+    )
+
+
+def all_undecidable(source, path="t.liquid", stylesheet=None):
+    return sorted(
+        u["check"]
+        for u in audit.audit_source(source, path, stylesheet=stylesheet)["undecidable"]
+    )
 
 
 DOC = "<html lang='en'><head><title>Shop</title></head><body>{}</body></html>"
@@ -473,6 +488,89 @@ class InteractiveAriaHidden(unittest.TestCase):
             checks("<a href='/cart'>Cart<span class='i' aria-hidden='true'></span></a>"), [])
 
 
+class Contrast(unittest.TestCase):
+    """1.4.3, ported 2026-08-21 from the sibling engine's resolver
+    (`portfolio/pipeline/probes/eaa-wcag-triage/`, PR #523). See
+    `contrast_pass.py` for what porting it to *templates* -- rather than the
+    rendered HTML/CSS pairs #523 measured -- had to change.
+    """
+
+    def test_clear_failure_is_reported(self):
+        sheet = audit.merge_stylesheets(
+            [".txt { color: #cccccc; } body { background: #ffffff; }"])
+        result = audit.audit_source(
+            '<body><p class="txt">Hello world</p></body>', "p.html", stylesheet=sheet)
+        self.assertEqual([f["check"] for f in result["findings"]], ["text-contrast-fail"])
+        self.assertEqual(result["findings"][0]["success_criterion"], "1.4.3 Contrast (Minimum)")
+        self.assertEqual(result["undecidable"], [])
+
+    def test_clear_pass_is_neither_a_finding_nor_an_undecidable(self):
+        sheet = audit.merge_stylesheets(
+            [".txt { color: #000000; } body { background: #ffffff; }"])
+        result = audit.audit_source(
+            '<body><p class="txt">Hello world</p></body>', "p.html", stylesheet=sheet)
+        self.assertEqual(result["findings"], [])
+        self.assertEqual(result["undecidable"], [])
+
+    def test_no_stylesheet_at_all_is_an_honest_undecidable_not_a_silent_skip(self):
+        # The coverage-boundary rule this whole module follows: a criterion
+        # this pass is capable of checking must never come back silent just
+        # because this particular call had nothing to check it with.
+        self.assertEqual(
+            all_undecidable("<p>Hello there friend</p>"), ["text-contrast-fail"])
+
+    def test_element_under_a_dynamically_classed_ancestor_is_undecidable(self):
+        # A wrapper's `{{ x }}`-driven class could add a `dark:` or colour
+        # override this template does not settle -- see contrast_pass.py.
+        sheet = audit.merge_stylesheets(
+            [".txt { color: #cccccc; } body { background: #ffffff; }"])
+        source = '<body><div class="{{ x }}"><p class="txt">Hello</p></div></body>'
+        result = audit.audit_source(source, "p.html", stylesheet=sheet)
+        self.assertEqual(result["findings"], [])
+        self.assertEqual(
+            [(u["check"], u["reason"]) for u in result["undecidable"]],
+            [("text-contrast-fail", "class-is-template-expression")])
+
+    def test_dynamically_bound_own_class_is_undecidable_too(self):
+        sheet = audit.merge_stylesheets(
+            [".txt { color: #cccccc; } body { background: #ffffff; }"])
+        source = '<body><p class="txt {{ extra }}">Hello</p></body>'
+        result = audit.audit_source(source, "p.html", stylesheet=sheet)
+        self.assertEqual(result["findings"], [])
+        self.assertEqual(
+            [u["reason"] for u in result["undecidable"]], ["class-is-template-expression"])
+
+    def test_dynamic_inline_style_is_undecidable(self):
+        source = '<body><p style="color: {{ c }}">Hello there</p></body>'
+        result = audit.audit_source(source, "p.html")
+        self.assertEqual(result["findings"], [])
+        self.assertEqual(
+            [u["reason"] for u in result["undecidable"]], ["style-is-template-expression"])
+
+    def test_a_components_own_inline_style_block_is_read_with_no_external_sheet(self):
+        # Vue/Svelte single-file components carry their CSS in the same file.
+        source = (
+            "<html lang='en'><head><title>t</title>"
+            "<style>.txt{color:#cccccc} body{background:#ffffff}</style>"
+            "</head><body><p class='txt'>Hello there friend</p></body></html>"
+        )
+        result = audit.audit_source(source, "widget.vue")
+        self.assertEqual([f["check"] for f in result["findings"]], ["text-contrast-fail"])
+
+    def test_1_4_3_is_checked_not_declared_untested(self):
+        self.assertIn("text-contrast-fail", audit.CHECKS)
+        untested_numbers = {c.split()[0] for c, _ in audit.NOT_TESTED}
+        self.assertNotIn("1.4.3", untested_numbers)
+
+    def test_evidence_record_counts_contrast_findings(self):
+        sheet = audit.merge_stylesheets(
+            [".txt { color: #cccccc; } body { background: #ffffff; }"])
+        result = audit.audit_source(
+            '<body><p class="txt">Hello world</p></body>', "p.html", stylesheet=sheet)
+        record = audit.evidence_record([result], "Test", date="2026-08-21")
+        self.assertEqual(record["summary"]["by_check"].get("text-contrast-fail"), 1)
+
+
 class CoverageBoundaryIsComplete(unittest.TestCase):
     """The invariant that would have caught 1.2.2 going missing.
 
@@ -498,7 +596,7 @@ class CoverageBoundaryIsComplete(unittest.TestCase):
         # Criteria the sibling engine demonstrates are reachable from static
         # markup. Any of these missing from both lists is a silent gap.
         statically_reachable = {
-            "1.1.1", "1.2.2", "1.3.1", "1.4.2", "1.4.4",
+            "1.1.1", "1.2.2", "1.3.1", "1.4.2", "1.4.3", "1.4.4",
             "2.4.2", "2.4.3", "2.4.4", "3.1.1", "3.3.2", "4.1.2",
         }
         self.assertEqual(statically_reachable - checked - declared, set())

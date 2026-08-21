@@ -214,6 +214,30 @@ separate file in the same package and the class names are frequently built from
 expressions, so its decidable share is an open question rather than a port.
 Named here as the follow-up.
 
+## Amendment (2026-08-21): the follow-up landed, and the two engines diverge differently now
+
+`audit.py` gained 1.4.3 too — see
+[`../a11y-evidence-record/contrast_pass.py`](../a11y-evidence-record/contrast_pass.py). The
+resolver is reused unmodified via the same `sys.path` import this directory's
+own `reconcile.py` already relies on (`colors.py`/`css.py`/`contrast.py`), not
+reimplemented, so the arithmetic risk this measurement exists to catch was not
+duplicated. `results-2026-08-21.json` was regenerated again: 1.4.3 moved from
+`audit.py`'s `declared_untested` list to its checked catalog, the mirror of the
+first move, and `test_results_file_matches_a_live_run` passed against the
+regenerated file with no other line changing — confirming this is the only
+catalog effect of the port.
+
+The port is not a straight copy, because a template's `class`/`style` are
+render-time output rather than fixed facts (see `contrast_pass.py`'s module
+docstring for the guard this made necessary) and its stylesheet is often a
+separate file the resolver has no way to associate with any one template
+automatically. Both engines now check 1.4.3, so the asymmetry the first
+amendment recorded is closed; what's left to measure is *how much* of it
+`audit.py` can decide on real theme packages, given those two constraints —
+tracked in [`../a11y-evidence-record/README.md`](../a11y-evidence-record/README.md)
+rather than here, since it is a property of one engine's corpus, not of
+whether the two agree.
+
 ## Status of these claims
 
 Primary measurement, re-derivable offline. Every number in this document comes

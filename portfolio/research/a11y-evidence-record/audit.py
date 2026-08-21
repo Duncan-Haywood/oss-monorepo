@@ -232,6 +232,24 @@ class Node:
             yield child
             yield from child.descendants()
 
+    def iter(self):
+        """Depth-first pre-order over this node and its descendants.
+
+        Distinct from `descendants()` (which excludes `self`) because
+        `contrast_pass.py` reuses the sibling probe's `wcag_triage.contrast`
+        functions unmodified, and that module's `text_elements()` calls
+        `root.iter()` expecting the root included.
+        """
+        yield self
+        yield from self.descendants()
+
+    def ancestors(self):
+        """Nearest ancestor first, matching `wcag_triage.parser.Node.ancestors()`."""
+        node = self.parent
+        while node is not None:
+            yield node
+            node = node.parent
+
 
 class Tree(HTMLParser):
     """A forgiving element tree. Unclosed `<p>`/`<li>` are normal in templates."""
@@ -319,6 +337,13 @@ CHECKS = {
     # about them -- see `portfolio/research/a11y-engine-agreement/`.
     "media-no-captions":     ("1.2.2 Captions (Prerecorded)", "blocking"),
     "interactive-aria-hidden": ("4.1.2 Name, Role, Value", "blocking"),
+    # Added 2026-08-21, porting the resolver #523 built for the sibling engine
+    # (portfolio/pipeline/probes/eaa-wcag-triage/) — see contrast_pass.py for
+    # what the port had to change and why. Only produces a finding when the
+    # caller supplied a stylesheet AND the element's colours are undisturbed
+    # by any dynamically-rendered class/style up its ancestor chain; every
+    # other case is an honestly-reasoned undecidable, never a silent skip.
+    "text-contrast-fail":    ("1.4.3 Contrast (Minimum)", "blocking"),
 }
 
 FILENAME_ALT = re.compile(
@@ -397,8 +422,17 @@ def _undecidable(kind, node, reason, source):
     }
 
 
-def audit_source(source: str, path: str = "<string>") -> dict:
-    """Audit one template. Returns findings, undecidables, and element counts."""
+def audit_source(source: str, path: str = "<string>", stylesheet=None) -> dict:
+    """Audit one template. Returns findings, undecidables, and element counts.
+
+    `stylesheet` is an optional `wcag_triage.css.Stylesheet` -- external CSS
+    the caller has for this template (see `contrast_pass.merge_stylesheets`).
+    Contrast (1.4.3) is always evaluated, stylesheet or not: with none, every
+    text-bearing element still gets an honestly-reasoned `no-declared-color`
+    undecidable rather than being silently skipped -- the same coverage-
+    boundary rule the rest of this module follows. A template's own inline
+    `<style>` blocks are picked up either way.
+    """
     tree = parse(source)
     findings: list[dict] = []
     undecided: list[dict] = []
@@ -737,6 +771,19 @@ def audit_source(source: str, path: str = "<string>") -> dict:
                     f"id {dup_id!r} appears {count} times and is referenced by a "
                     "label or aria attribute, so the association is ambiguous", path))
 
+    # --- 1.4.3 contrast -------------------------------------------------
+    # Local import: contrast_pass.py imports this module back (it calls
+    # audit.Node.ancestors(), audit.is_expr(), audit._finding/_undecidable),
+    # so importing it at module level here would be a straight circular
+    # import at load time. Deferring it to call time -- by which point this
+    # module has finished initialising -- is the standard way out.
+    import contrast_pass
+    sheet = contrast_pass.stylesheet_for(tree.root, stylesheet)
+    contrast_findings, contrast_undecided = contrast_pass.findings_and_undecidables(
+        tree.root, sheet, path)
+    findings.extend(contrast_findings)
+    undecided.extend(contrast_undecided)
+
     # --- heading order (advisory) -------------------------------------------
     levels = [
         (n, int(n.tag[1]))
@@ -772,8 +819,12 @@ def audit_source(source: str, path: str = "<string>") -> dict:
 # ---------------------------------------------------------------------------
 
 NOT_TESTED = [
-    ("1.4.3 Contrast (Minimum)", "needs rendered colours; stylesheets, theme settings and images all participate"),
-    ("1.4.11 Non-text Contrast", "same reason"),
+    # 1.4.3 moved to CHECKS 2026-08-21 -- see the "text-contrast-fail" entry
+    # there and contrast_pass.py. 1.4.11 stays here: it is about non-text
+    # elements (control borders, focus indicators, icon fills) whose colour
+    # and *state* this pass cannot resolve even with a stylesheet, because it
+    # needs rendered geometry, not just a declared colour.
+    ("1.4.11 Non-text Contrast", "needs rendered control borders and state colours; only text colour against its background is resolved"),
     ("1.4.10 Reflow", "needs a rendered viewport at 320 CSS px"),
     ("1.4.12 Text Spacing", "needs rendering"),
     ("2.1.1 Keyboard", "needs interaction; a static tree cannot show whether a custom control responds to Enter"),
@@ -906,7 +957,18 @@ def walk(paths: list[str], limit: int | None = None) -> list[str]:
     return found[:limit] if limit else found
 
 
-def audit_paths(paths: list[str], limit: int | None = None) -> list[dict]:
+def merge_stylesheets(css_sources: "list[str]"):
+    """`wcag_triage.css.Stylesheet` from external CSS file contents.
+
+    Thin re-export of `contrast_pass.merge_stylesheets` so a caller (this
+    module's own CLI, `measure_themes.py`) never has to import the sibling
+    probe package directly.
+    """
+    import contrast_pass
+    return contrast_pass.merge_stylesheets(css_sources)
+
+
+def audit_paths(paths: list[str], limit: int | None = None, stylesheet=None) -> list[dict]:
     results = []
     for path in walk(paths, limit):
         try:
@@ -916,7 +978,7 @@ def audit_paths(paths: list[str], limit: int | None = None) -> list[dict]:
             print(f"{path}: {exc}", file=sys.stderr)
             continue
         try:
-            results.append(audit_source(source, path))
+            results.append(audit_source(source, path, stylesheet=stylesheet))
         except Exception as exc:  # a malformed template must not stop the pass
             print(f"{path}: parse failed: {exc}", file=sys.stderr)
     return results
@@ -930,9 +992,20 @@ def main() -> int:
     parser.add_argument("--scope", default="unnamed subject", help="what was tested, for the record")
     parser.add_argument("--date", default=None, help="ISO date to stamp the record with")
     parser.add_argument("--limit", type=int, default=None, help="stop after N files")
+    parser.add_argument(
+        "--stylesheet", action="append", default=[],
+        help="external CSS file this corpus is built from, for 1.4.3; repeatable")
     args = parser.parse_args()
 
-    results = audit_paths(args.paths, args.limit)
+    sheet = None
+    if args.stylesheet:
+        css_sources = []
+        for css_path in args.stylesheet:
+            with open(css_path, encoding="utf-8", errors="ignore") as handle:
+                css_sources.append(handle.read())
+        sheet = merge_stylesheets(css_sources)
+
+    results = audit_paths(args.paths, args.limit, stylesheet=sheet)
     record = evidence_record(results, args.scope, args.date)
 
     if args.record:
