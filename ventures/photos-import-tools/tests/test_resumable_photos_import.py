@@ -238,6 +238,74 @@ class ResumablePhotosImportTests(unittest.TestCase):
             self.assertEqual(state.get_status(good), "imported")
             self.assertEqual(state.get_status(flaky), "failed")
 
+    def test_check_disk_space_survives_transient_stat_failure(self):
+        # state_dir is typically an iCloud-synced path; a transient stat
+        # failure there (sync hiccup, momentarily unreachable network mount)
+        # ran unguarded before this fix, raising straight out of
+        # check_disk_space() -- uncaught anywhere in run()'s while loop --
+        # and crashing the whole import instead of being treated like any
+        # other retryable condition.
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            state = ImportState(root / "state.sqlite3")
+            importer = FakePhotosImporter(
+                state=state,
+                state_dir=root,
+                event_log=root / "events.jsonl",
+                error_log=root / "errors.jsonl",
+                status_path=root / "status.json",
+                stop_file=root / "STOP",
+                per_file_timeout_seconds=1,
+                attempts=1,
+                batch_size=1,
+                photos_db=root / "missing.sqlite",
+                existing_filenames=set(),
+            )
+
+            with mock.patch(
+                "resumable_photos_import.shutil.disk_usage",
+                side_effect=OSError("Input/output error"),
+            ):
+                self.assertFalse(importer.check_disk_space())
+
+    def test_run_survives_transient_disk_space_check_failure(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            photo = root / "photo.JPG"
+            photo.write_bytes(b"jpeg")
+            state = ImportState(root / "state.sqlite3")
+            state.upsert(photo, "pending")
+            importer = FakePhotosImporter(
+                state=state,
+                state_dir=root,
+                event_log=root / "events.jsonl",
+                error_log=root / "errors.jsonl",
+                status_path=root / "status.json",
+                stop_file=root / "STOP",
+                per_file_timeout_seconds=1,
+                attempts=1,
+                batch_size=1,
+                photos_db=root / "missing.sqlite",
+                existing_filenames=set(),
+            )
+
+            real_disk_usage = __import__("shutil").disk_usage
+            calls = {"count": 0}
+
+            def flaky_disk_usage(path):
+                calls["count"] += 1
+                if calls["count"] == 1:
+                    raise OSError("Input/output error")
+                return real_disk_usage(path)
+
+            with mock.patch(
+                "resumable_photos_import.shutil.disk_usage", side_effect=flaky_disk_usage
+            ), mock.patch("resumable_photos_import.time.sleep", return_value=None):
+                exit_code = importer.run()
+
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(state.get_status(photo), "imported")
+
     def test_cleanup_scratch_failure_does_not_lose_the_imported_marking(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
