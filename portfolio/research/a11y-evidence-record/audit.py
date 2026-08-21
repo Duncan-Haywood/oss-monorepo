@@ -59,6 +59,7 @@ from __future__ import annotations
 import argparse
 import collections
 import datetime
+import hashlib
 import json
 import os
 import re
@@ -81,7 +82,20 @@ VOID = {
 # Template expression syntaxes, replaced by a sentinel before parsing so that
 # `alt="{{ x }}"` reads as "attribute present, value unknown" rather than as
 # malformed markup or as an empty string.
-EXPR = "\x00expr\x00"
+# Expressions are replaced by a sentinel that encodes a digest of the
+# expression's own normalised source, so two attribute values written from the
+# same expression compare equal while two written from different expressions do
+# not. A single opaque sentinel -- what this used to be -- collapses every
+# expression to one string, which loses that distinction in both directions: a
+# control and its own `<label for>` in the same file looked unresolvable, and
+# two unrelated expressions looked identical. See finding 3 in
+# ../a11y-theme-resolution/README.md, which measured 64 of 69 supposedly
+# "cross-partial" labels as having been in the same file all along.
+#
+# The digest is hex, so a sentinel can never contain a template delimiter and
+# can never be re-matched by a later pattern in EXPR_SYNTAX.
+EXPR_MARK = "\x00e:"
+EXPR_SENTINEL = re.compile(r"\x00e:[0-9a-f]+\x00")
 EXPR_SYNTAX = [
     re.compile(r"\{%.*?%\}", re.S),        # Liquid / Twig / Nunjucks statements
     re.compile(r"\{\{.*?\}\}", re.S),      # Liquid / Handlebars / Vue / Twig
@@ -97,19 +111,84 @@ EXPR_SYNTAX = [
 BINDING_PREFIXES = (":", "v-bind:", "bind:", "x-bind:", "@")
 
 
+def _sentinel(match: "re.Match") -> str:
+    # All whitespace is removed before digesting, so `{{ id_prefix }}` and
+    # `{{id_prefix}}` -- which render identically -- also compare identically.
+    normalised = "".join(match.group(0).split())
+    digest = hashlib.sha1(normalised.encode("utf-8")).hexdigest()[:12]
+    return EXPR_MARK + digest + "\x00"
+
+
 def strip_expressions(text: str) -> str:
+    # NULs would forge a sentinel; templates never legitimately contain one.
+    text = text.replace("\x00", "")
     for pattern in EXPR_SYNTAX:
-        text = pattern.sub(EXPR, text)
+        text = pattern.sub(_sentinel, text)
     return text
 
 
 def is_expr(value: str | None) -> bool:
-    return bool(value) and EXPR in value
+    return bool(value) and EXPR_MARK in value
 
 
 def expr_free(value: str | None) -> str:
     """The literal part of an attribute value, with expressions removed."""
-    return (value or "").replace(EXPR, "").strip()
+    return EXPR_SENTINEL.sub("", value or "").strip()
+
+
+def _expr_pattern(value: str) -> "re.Pattern":
+    """`value` as a regex in which each expression stands for any string."""
+    literals = EXPR_SENTINEL.split(value)
+    return re.compile(".*".join(re.escape(part) for part in literals), re.S)
+
+
+def refs_can_match(a: str | None, b: str | None) -> bool:
+    """Could these two raw attribute values ever render to the same id?
+
+    Three cases, in increasing order of doubt:
+
+    * Two literals match only when equal.
+    * A literal against an expression-bearing value matches when the literal
+      fits the pattern the expressions leave behind -- which is what makes
+      `for="mce-NAME"` against `id="{{ p }}_mce-NAME"` a provable mismatch
+      rather than an unknown, since no rendering of `p` puts the required `_`
+      in front.
+    * Two expression-bearing values built from the same expressions in the same
+      order reduce to their literal parts, because the same expression renders
+      the same way twice. Otherwise only the fixed text at each end can be
+      checked, and anything that survives that returns True.
+
+    True therefore means "cannot be ruled out", not "matches". Callers must
+    treat it as undecidable rather than as a resolved label, because the whole
+    positioning of this tool forbids claiming a defect it cannot prove.
+    """
+    a, b = a or "", b or ""
+    if a == b:
+        return True
+    a_expr, b_expr = is_expr(a), is_expr(b)
+    if not a_expr and not b_expr:
+        return False
+    if a_expr != b_expr:
+        literal, pattern = (b, a) if a_expr else (a, b)
+        return bool(_expr_pattern(pattern).fullmatch(literal))
+
+    # Both carry expressions. Identical expressions render identically, so when
+    # the two values are built from the same expressions in the same order,
+    # equality reduces to their literal parts -- which is what separates
+    # `id="{{ p }}_mce-NAME"` from a sibling `<label for="{{ p }}_gdpr_2201">`.
+    # Without this, every expression-bearing label in a file looks like a
+    # possible match for every expression-bearing control in it.
+    a_lits, b_lits = EXPR_SENTINEL.split(a), EXPR_SENTINEL.split(b)
+    if EXPR_SENTINEL.findall(a) == EXPR_SENTINEL.findall(b):
+        return a_lits == b_lits
+
+    # Different expressions: unknowable in general, but the fixed text at each
+    # end still has to line up for any rendering to make them equal.
+    if not (a_lits[0].startswith(b_lits[0]) or b_lits[0].startswith(a_lits[0])):
+        return False
+    if not (a_lits[-1].endswith(b_lits[-1]) or b_lits[-1].endswith(a_lits[-1])):
+        return False
+    return True
 
 
 class Node:
@@ -191,10 +270,10 @@ class Tree(HTMLParser):
         # Stray close tag: ignore rather than reshuffle the tree.
 
     def handle_data(self, data):
-        cleaned = data.replace(EXPR, " ").strip()
+        cleaned = EXPR_SENTINEL.sub(" ", data).strip()
         if cleaned:
             self.stack[-1].text_parts.append(cleaned)
-        elif EXPR in data:
+        elif EXPR_MARK in data:
             # Text that is entirely a template expression: not literal text, but
             # not nothing either. Recorded so link/button checks can say
             # "undecidable" instead of "empty".
@@ -227,6 +306,7 @@ CHECKS = {
     "iframe-no-title":       ("4.1.2 Name, Role, Value", "blocking"),
     "aria-reference-broken": ("1.3.1 Info and Relationships", "blocking"),
     "label-for-broken":      ("3.3.2 Labels or Instructions", "blocking"),
+    "label-for-id-mismatch": ("3.3.2 Labels or Instructions", "blocking"),
     "duplicate-referenced-id": ("1.3.1 Info and Relationships", "blocking"),
     "positive-tabindex":     ("2.4.3 Focus Order", "blocking"),
     "viewport-scaling-blocked": ("1.4.4 Resize Text", "blocking"),
@@ -316,6 +396,9 @@ def audit_source(source: str, path: str = "<string>") -> dict:
     # and aria-controls means neither.
     referenced_ids: set[str] = set()
     labelling_ids: set[str] = set()
+    # Raw `<label for>` targets, expressions intact, for the render-aware
+    # matching in the resolution pass below.
+    labelling_raw: set[str] = set()
     is_fragment = by_tag.get("html", 0) == 0
 
     for node in nodes:
@@ -384,7 +467,7 @@ def audit_source(source: str, path: str = "<string>") -> dict:
                     or node.has_attr("aria-labelledby")
                     or node.has_attr("title")
                 )
-                node_id = expr_free(node.attr("id"))
+                raw_id = node.attr("id") or ""
                 wrapped = False
                 ancestor = node.parent
                 while ancestor is not None:
@@ -393,14 +476,12 @@ def audit_source(source: str, path: str = "<string>") -> dict:
                         break
                     ancestor = ancestor.parent
                 if not labelled and not wrapped:
-                    if node_id:
-                        # Resolved after the pass, once every <label for> is known.
-                        node.attrs["__needs_label_for"] = node_id
-                    elif is_expr(node.attr("id")):
-                        undecided.append(_undecidable(
-                            "control-no-label", node,
-                            "control id is a template expression, so a matching "
-                            "<label for> cannot be resolved statically", path))
+                    if raw_id:
+                        # Resolved after the pass, once every <label for> is
+                        # known. The *raw* id is carried, expressions included,
+                        # so the resolution can tell "same expression" from
+                        # "some expression".
+                        node.attrs["__needs_label_for"] = raw_id
                     else:
                         findings.append(_finding(
                             "control-no-label", node,
@@ -465,6 +546,10 @@ def audit_source(source: str, path: str = "<string>") -> dict:
                 referenced_ids.update(expr_free(value).split())
         if node.tag == "label":
             target = node.attr("for")
+            if target:
+                # Raw, so an expression-bearing `for` is still a candidate
+                # label rather than being dropped from consideration entirely.
+                labelling_raw.add(target)
             if target and not is_expr(target):
                 referenced_ids.add(expr_free(target))
                 labelling_ids.add(expr_free(target))
@@ -494,21 +579,60 @@ def audit_source(source: str, path: str = "<string>") -> dict:
 
     # --- resolve label/aria references now that every id is known -----------
     known_ids = set(tree.ids)
+
+    # A `<label for>` that can match no id in this file under any rendering is
+    # dead: the label was written, and nothing it names can ever exist here.
+    all_raw_ids = {n.attrs["id"] for n in nodes if n.attrs.get("id")}
+    dangling_labels = sorted(
+        t for t in labelling_raw
+        if not any(refs_can_match(t, raw) for raw in all_raw_ids)
+    )
+
     for node in nodes:
         pending = node.attrs.get("__needs_label_for")
-        if pending is not None:
-            del node.attrs["__needs_label_for"]
-            if pending in labelling_ids:
-                continue
-            if is_fragment:
-                undecided.append(_undecidable(
-                    "control-no-label", node,
-                    f"no <label for={pending!r}> in this file; the label may live "
-                    "in another partial of the same page", path))
-            else:
-                findings.append(_finding(
-                    "control-no-label", node,
-                    f"no <label for={pending!r}> anywhere in the document", path))
+        if pending is None:
+            continue
+        del node.attrs["__needs_label_for"]
+        shown = expr_free(pending) or "<expression>"
+
+        # Certain match: the same raw text, so the same render. This is the
+        # case finding 3 measured as 64 of 69 -- a control and its own label,
+        # in one file, previously reported undecidable.
+        if pending in labelling_raw or (
+            not is_expr(pending) and pending in labelling_ids
+        ):
+            continue
+
+        possible = [t for t in labelling_raw if refs_can_match(pending, t)]
+        if possible:
+            # Some label here could name it, depending on what the expressions
+            # render to. Not provable either way from the template alone.
+            undecided.append(_undecidable(
+                "control-no-label", node,
+                f"no <label for={shown!r}> in this file matches for certain; "
+                f"{len(possible)} label(s) here could match depending on what "
+                "the template expressions render to", path))
+        elif not is_fragment:
+            findings.append(_finding(
+                "control-no-label", node,
+                f"no <label for={shown!r}> anywhere in the document", path))
+        elif dangling_labels:
+            # Both halves of the fassbender mechanism are present in one file:
+            # an unlabelled control, and a label naming an id nothing here can
+            # render. Reported as a finding rather than an undecidable, per
+            # finding 3 -- a literal-only comparison cannot see this, because it
+            # reads the id it cannot resolve as "unknown" instead of "wrong".
+            findings.append(_finding(
+                "label-for-id-mismatch", node,
+                f"<{node.tag}> is unlabelled, and this file's "
+                f"<label for={expr_free(dangling_labels[0])!r}> matches no "
+                "control here under any rendering, so the label written for it "
+                "is dead in the rendered page", path))
+        else:
+            undecided.append(_undecidable(
+                "control-no-label", node,
+                f"no <label for={shown!r}> in this file; the label may live "
+                "in another partial of the same page", path))
 
     if not is_fragment:
         for node in nodes:

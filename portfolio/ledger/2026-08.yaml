@@ -12156,6 +12156,85 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/zealous-curie-ub533t. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 36% of last 25 entries, below the 70%
+        threshold). Listed the 4 open PRs (#372/#368/#144/#19) before
+        starting: all already correctly owner-gated by prior sessions.
+        Investigated each independently rather than trusting the prior
+        gating: #368 (Dependabot config) confirmed still human-gated
+        despite a clean, internal-only diff, because merging it enables
+        unattended recurring PR-opening automation, not because anything
+        about the diff itself is unverified. #144 (entrypoint pattern) is
+        not agent-decidable -- confirmed `mergeable_state: dirty` against
+        current `main` (severely stale, predates ~285 PRs' worth of the
+        same files), mixes a docs-only part with a rewrite of the disabled
+        agent-fleet workflow's job graph and an unrelated 561-line
+        force-push migration runbook. Already tracked as an
+        automation/spend decision on #139 since 2026-08-19; nothing new
+        posted there.
+      - >-
+        `verification_status.py` flagged #372's existing pass record
+        `CHECKS STALE` (4 workflow files changed since). Re-checked fresh
+        rather than re-running the underlying builds (BUILD stayed VALID --
+        none of #372's five affected ventures had moved on `main`): all 9
+        CI checks on #372's existing head are green and it is still
+        `mergeable_state: clean`. Updated the ledger's verification record
+        (PR #432, self-merged -- internal-only, `verifications.yaml` alone)
+        so the next session inherits `CHECKS VALID` instead of re-deriving
+        it. #372 itself stays owner-gated (fires deploys to live sites);
+        only the verification bookkeeping changed.
+      - >-
+        Router's `allocate.py` still named photos-import-tools the
+        standing dispatchable task ("every recorded hypothesis is settled
+        -- write the next one") at the start of this session, before a
+        concurrent session's monetization-hypothesis fix (recorded in the
+        ledger entry immediately above) reclassified it BLOCKED partway
+        through. Dispatched an Explore agent to read every module against
+        the then-27 recorded hypotheses and find one genuinely uncovered
+        gap. It found one: in `PhotosImporter.run()`'s loop,
+        `import_batch_with_split` recurses left/right on a failing batch,
+        committing `"imported"` for each half via its own `osascript`
+        call. If the left half's call genuinely succeeds before the right
+        half raises an exception that escapes the whole call uncaught
+        (e.g. `osascript` transiently missing from `PATH` -- the same
+        class hypothesis #21/PR #424 already handles, but only ever
+        exercised at `batch_size=1`), `run()`'s top-level handler iterated
+        the *original* full batch and force-relabeled every item,
+        including the left half's genuine `"imported"`, back to
+        `"failed"`/`"skipped_permanent"` -- silently overwriting a real
+        success and queuing an already-imported file for a needless
+        re-import.
+      - >-
+        Verified by reproducing against pre-fix code (failed with
+        `imported=0 failed=4` on a 4-item batch where 2 genuinely
+        succeeded) and confirming the fix corrects it (`imported=2
+        failed=2`). Fixed by skipping any item whose live status is no
+        longer `"importing"` before relabeling. Full suite 83/83 (after
+        merging two concurrent sessions' landings first), ruff/mypy clean,
+        all four portfolio validators green. Recorded as the 28th
+        hypothesis. Opened PR #440; another concurrent session (or the
+        established self-merge precedent) merged it before this session's
+        own CI-watch loop acted -- confirmed the merge on `main` matches
+        this session's diff exactly.
+      - >-
+        By the time this entry is written, `allocate.py` reports 0 of 10
+        ventures dispatchable -- every venture, including
+        photos-import-tools, now carries an untested monetization
+        hypothesis and is BLOCKED pending customer contact only the
+        account owner can make. Not a new decision surface: the same root
+        cause (nothing published, nothing priced) is already the subject
+        of #139's whole ask table and `break-even.md`'s $0 ceiling, so no
+        push notification sent and no new comment posted to #139 -- this
+        entry is the record for whoever next asks "why is nothing
+        dispatchable."
+    mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Scheduled "continue work... maintain and improve the development
         process... legal ethical reliable increase in profit" session,
         designated branch `claude/ecstatic-volta-688kr8`. Ran
@@ -12272,5 +12351,202 @@ entries:
         agent-decidable: local macOS tooling only (`links.production:
         null`), no deployable/live-site code, no new dependency, no
         account or credential, no unattended automation, nothing
+        published, nothing spent beyond agent time.
+    mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/nifty-goodall-2fq3ll. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 28% of last 25 entries, below the 70%
+        threshold). Listed the 5 open PRs (#442, #440, #372, #368, #144)
+        before starting: #372/#368/#144 already correctly owner-gated by
+        prior sessions, nothing new to add. #442 and #440 were both fresh
+        photos-import-tools fixes from independent concurrent sessions
+        (STOP/SIGTERM combined-status-file fix and partial-split
+        relabeling fix), each already fully verified in its own PR body
+        with all CI checks green and `mergeable_state: clean`, touching
+        disjoint files (photos_import_watchdog.py vs
+        photos_import_errors.py/resumable_photos_import.py).
+      - >-
+        Re-checked both against the live `main` tip with `git merge-tree`
+        immediately before acting (both clean), then merged #440 first,
+        re-fetched, re-ran `git merge-tree` for #442 against the new tip
+        (still clean), and merged #442. Both fully agent-decidable per
+        `CLAUDE.md`: local macOS CLI tooling only (`links.production:
+        null`), no deployable/live-site code, no new dependency, no
+        account or credential, no unattended automation, nothing
+        published, nothing spent beyond agent time -- verified by CI
+        actually running each PR's tests rather than trusting the diff.
+      - >-
+        No new hypothesis mined this session; #368/#372/#144 remain
+        correctly parked on issue #139 for the account owner (Dependabot
+        proposal, `next` 16.3.1 six-venture upgrade, and the entrypoint
+        automation pattern respectively) -- none of their status changed.
+    mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/keen-knuth-t0ile1. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 28% of last 25 entries, below the 70%
+        threshold). Listed the 4 open PRs (#440/#372/#368/#144) before
+        starting: #372/#368/#144 were already correctly owner-gated by
+        prior sessions and flagged on #139 (nothing new to add); #440 was
+        a separate in-flight photos-import-tools fix (partial-split
+        relabeling) being driven by its own session, independent of this
+        one. `ventures/photos-import-tools` already carried 29 recorded
+        hypotheses -- the one venture in this portfolio that's local
+        tooling rather than a deployable web app, so it's the standing
+        target for agent-decidable reliability passes.
+      - >-
+        Dispatched an agent to read `photos_import_watchdog.py` end to end
+        against the existing hypothesis list (all 29 claims passed in,
+        including the in-flight #440 one, to rule out duplication before
+        starting). It found that `run_watchdog`'s STOP/SIGTERM shutdown
+        branch wrote the terminal status using `phase.status_path` and
+        `read_summary(phase.db_path)` -- the currently active phase's own
+        file and own counts -- instead of `combined_summary(phases)` to
+        `phases[0].status_path` ("status.json") the way the "complete" and
+        "blocked" terminal exits already do. With `--include-raws`, once
+        the jpeg phase finishes and the watchdog moves to the raw phase,
+        `phase.status_path` becomes `status_raw.json`; a STOP/SIGTERM
+        landing during the raw phase then left `status.json` completely
+        untouched by this exit, frozen at whatever the jpeg phase last
+        wrote (typically `worker_running=True, message="running"`) even
+        though the watchdog process had already exited -- a supervisor or
+        human watching `status.json` would see a stale "still running"
+        status after the process was gone.
+      - >-
+        Fixed by matching the complete/blocked convention. Added a
+        regression test (jpeg phase fully imported, raw phase active with
+        one pending item, STOP file touched mid-raw-phase; asserts
+        `status.json` reflects the combined totals), confirmed to fail
+        with `FileNotFoundError` against the pre-fix code and pass after.
+        Full suite 85/85 pass, `ruff check .` clean, `mypy .` clean,
+        `portfolio/router/validate.py` all 10 VENTURE.yaml files valid.
+      - >-
+        Opened PR #442. `git merge-tree` against the live main tip was
+        clean throughout (main had not moved since this session's
+        checkout). The account owner merged it directly shortly after
+        (merged_by: Duncan-Haywood) rather than this session self-merging
+        -- recording the verification here regardless, per this venture's
+        established agent-decidable precedent, since the work was verified
+        by actually running the tests/lint/typecheck/validators before the
+        PR was opened. #440 also merged in the same window (a separate
+        session's work, not re-verified or re-recorded here).
+    mrr_end: null
+  - venture: photo-editing
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Continuation of the same scheduled "continue work... maintain and
+        improve the development process... increase in profit" session,
+        designated branch claude/nifty-goodall-2fq3ll (restarted from
+        `main`'s new tip after this branch's own prior PR, #443, merged).
+        After merging #440/#442 (recorded above), re-listed open PRs and
+        found #446: an a11y-audit engine fix in
+        `portfolio/research/a11y-theme-resolution/`, independent of the
+        photos-import-tools work, already fully verified in its own PR
+        body (61/61 new/changed tests, a controlled A/B over 1,121 markup
+        files showing the predicted 64 files move from undecidable to
+        resolved with no other check's result changing, all CI green,
+        `mergeable_state: clean`).
+      - >-
+        Re-checked `git merge-tree` against the live `main` tip
+        immediately before acting (clean) and merged #446. Agent-decidable
+        per `CLAUDE.md`: `portfolio/research/` only, no `ventures/*` app
+        code, no live site, no new dependency, no account or credential,
+        no unattended automation, nothing published, nothing spent beyond
+        agent time -- verified by CI actually running the new tests, not
+        by trusting the diff.
+      - >-
+        Also found #447 (a rebase of #444's ledger content, opened because
+        a cross-branch push failed with HTTP 403) had gone fully redundant
+        by the time it was checked: #444 had already merged, and
+        `git diff origin/main..origin/claude/wizardly-albattani-2holir --
+        portfolio/ledger/2026-08.yaml` showed zero net additions relative
+        to current `main`. Closed #447 with a comment pointing to #444 as
+        the reason, per `CLAUDE.md`'s guidance to close duplicates
+        explicitly rather than leave them open. This is the
+        concurrent-session ledger-duplication pattern `CLAUDE.md` already
+        documents (multiple sessions independently recording the same
+        merged PR within minutes of each other) -- #443/#444/#445 all
+        landed near-simultaneous entries about #440/#442 before this
+        session could finish; nothing further needed beyond closing the
+        one that ended up contributing nothing.
+      - >-
+        Remaining open PRs (#372, #368, #144) re-checked and confirmed
+        still correctly owner-gated -- no status change, nothing new
+        posted to #139.
+    mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve the
+        development process... legal ethical reliable increase in profit"
+        session, designated branch claude/charming-hawking-jho41r. Ran
+        `session_gate.py` first (PROCEED -- meta-work share 28% of last 25
+        entries, below the 70% threshold). The branch's prior tip (commit
+        6003fb8) turned out to already be a fully-merged ancestor of current
+        `main` even though no PR existed for that exact head ref (`main` was
+        only 4 commits ahead of it) -- restarted the branch from current
+        `main` per CLAUDE.md's stale-branch protocol rather than stacking
+        new work on already-landed history.
+      - >-
+        Listed the 3 open PRs (#372, #368, #144) against current `main`:
+        all three remain correctly owner-gated by prior sessions (a
+        breaking ventures/* framework upgrade, an unattended dependabot
+        proposal, and an unattended agent-fleet automation proposal) --
+        nothing new to add. `portfolio/router/allocate.py` showed 0/10
+        ventures dispatchable (every venture blocked on an unpublished
+        links.production, per the standing #139/#311/#312 finding), so no
+        venture had fresh work an agent could start on its own. Dispatched
+        an agent to read photos-import-tools' photos_import_errors.py,
+        resumable_photos_import.py, and atomic_io.py end to end against its
+        ~40 already-supported VENTURE.yaml hypotheses, looking for one more
+        genuine bug without duplicating prior findings.
+      - >-
+        Found: the permanent "file_missing" classify_error pattern
+        (`r"file missing after.*retries|permanently unavailable"`) required
+        the word "retries", but wait_for_file()'s actual give-up message
+        says "file missing after N iCloud wait attempts" -- the pattern was
+        unreachable dead code that never matched the one message it existed
+        to catch. The message fell through to ErrorCategory.UNKNOWN /
+        RETRY_BACKOFF instead of PERMANENT / SKIP_PERMANENT /
+        "file_missing". Not a crash or data-loss path
+        (mark_skipped_permanent runs unconditionally at that call site
+        regardless of classification), but it corrupted the error log and
+        `status`'s "Recent errors" listing -- a legitimate permanent
+        iCloud-file-missing skip was indistinguishable from a genuinely
+        unclassified error. Same failure class as the earlier
+        pattern-shadowing hypothesis, different root cause (wording drift
+        vs. list order).
+      - >-
+        Fixed by widening the pattern to accept both "retries" and
+        "attempts"; added a regression test that fails pre-fix
+        (`AssertionError: UNKNOWN != PERMANENT`) and passes post-fix;
+        recorded the hypothesis in VENTURE.yaml. Verified: `pytest tests/`
+        87/87 pass (86 pre-existing + 1 new),
+        `portfolio/router/validate.py`,
+        `portfolio/pipeline/validate_candidates.py`,
+        `validate_doc_consistency.py`, and
+        `portfolio/scoring/score_ventures.py --check` all pass, both before
+        and after rebasing onto the live `main` tip with no upstream
+        changes to the touched files. Opened PR #450, watched CI to green
+        (`photos-import-tools CI` success), re-confirmed clean
+        mergeability against the live `main` tip immediately before
+        merging, and self-merged as agent-decidable: internal Python
+        tooling only (`links.production: null`), no live-site code, no new
+        dependency, no credential, no unattended automation, nothing
         published, nothing spent beyond agent time.
     mrr_end: null

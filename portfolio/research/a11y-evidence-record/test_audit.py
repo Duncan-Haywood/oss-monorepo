@@ -277,6 +277,89 @@ class LabelResolutionPrecision(unittest.TestCase):
         self.assertEqual(checks(source, "page.html"), ["control-no-label"])
 
 
+class ExpressionAwareLabelMatching(unittest.TestCase):
+    """Finding 3 of ../a11y-theme-resolution/: match `<label for>` on raw
+    template text, not on the expression-stripped literal.
+
+    Two named corpus regressions are locked here. Both were measured, and both
+    were previously reported as `control-no-label` undecidables:
+
+    * 64 of the 69 supposedly "cross-partial" labels were in the same file all
+      along, separated from their control only by an expression the comparison
+      threw away.
+    * The `fassbender-shopify-theme` newsletter and search fields carry a
+      `<label for>` whose target the theme can never render, which a
+      literal-only comparison reads as "unknown" instead of "wrong".
+    """
+
+    def test_control_and_its_own_label_in_one_file_resolve(self):
+        # The 64-of-69 case. Same expression, differing only in inner spacing,
+        # which renders identically.
+        source = (
+            "<form><label for='{{id_prefix}}FirstName'>First name</label>"
+            "<input type='text' id='{{ id_prefix }}FirstName'></form>"
+        )
+        self.assertEqual(checks(source), [])
+        self.assertEqual(undecidable(source), [])
+
+    def test_dead_for_reference_is_a_finding_not_an_undecidable(self):
+        # fassbender-shopify-theme, theme/sections/newsletter.liquid:69. No
+        # rendering of `idPrefix` puts the required `_` in front of `mce-NAME`.
+        source = (
+            "<form><label for='mce-NAME'>Name</label>"
+            "<input type='text' id='{{ idPrefix }}_mce-NAME'></form>"
+        )
+        self.assertEqual(checks(source), ["label-for-id-mismatch"])
+        self.assertEqual(undecidable(source), [])
+
+    def test_different_expressions_are_not_accused(self):
+        # Two different expressions could render to the same string, so this
+        # stays undecidable. Precision over recall: a false defect claimed
+        # against a shop's markup is the failure mode positioning forbids.
+        source = (
+            "<form><label for='{{ a }}X'>X</label>"
+            "<input type='text' id='{{ b }}X'></form>"
+        )
+        self.assertEqual(checks(source), [])
+        self.assertEqual(undecidable(source), ["control-no-label"])
+
+    def test_expression_that_could_render_empty_is_not_accused(self):
+        # `{{ p }}` rendering empty makes this a match, so it is not provable.
+        source = (
+            "<form><label for='X'>X</label>"
+            "<input type='text' id='{{ p }}X'></form>"
+        )
+        self.assertEqual(checks(source), [])
+        self.assertEqual(undecidable(source), ["control-no-label"])
+
+    def test_genuinely_absent_label_in_a_fragment_stays_undecidable(self):
+        # No label at all in the file, so nothing rules out another partial.
+        source = "<form><input type='text' id='orphan'></form>"
+        self.assertEqual(checks(source), [])
+        self.assertEqual(undecidable(source), ["control-no-label"])
+
+    def test_same_expression_used_for_two_controls_stays_distinct(self):
+        # The sentinel encodes the expression, so `{{ a }}` and `{{ b }}` are
+        # different ids -- the bug the single opaque sentinel would reintroduce.
+        source = (
+            "<form><label for='{{ a }}N'>N</label>"
+            "<input type='text' id='{{ a }}N'>"
+            "<input type='text' id='{{ b }}N'></form>"
+        )
+        # First control resolves against its own label; the second does not,
+        # but could match depending on rendering, so it stays undecidable.
+        self.assertEqual(checks(source), [])
+        self.assertEqual(undecidable(source), ["control-no-label"])
+
+    def test_expression_only_id_can_resolve_against_the_same_expression(self):
+        source = (
+            "<form><label for='{{ field.id }}'>Email</label>"
+            "<input type='text' id='{{ field.id }}'></form>"
+        )
+        self.assertEqual(checks(source), [])
+        self.assertEqual(undecidable(source), [])
+
+
 class Robustness(unittest.TestCase):
     def test_malformed_markup_does_not_raise(self):
         for source in ("<div><span></div>", "<<>>", "<a href=", "</p></p>", ""):
