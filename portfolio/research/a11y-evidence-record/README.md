@@ -304,7 +304,9 @@ premise that most of this codebase already uses everywhere else: decide what
 is decidable, name what is not, rather than declining a whole criterion
 because it cannot cover everything. See finding 5 for the numbers and the
 reasoning against this amendment's original conclusion; the original text
-below is left unedited.
+below is preserved, with a small number of inline notes -- in parentheses, or
+struck through -- marking exactly where finding 5 speaks to a specific claim
+made here.
 
 #523 ported colour-contrast decidability into `eaa-wcag-triage/` (the sibling
 engine over *built* HTML output) and named porting the same resolver into this
