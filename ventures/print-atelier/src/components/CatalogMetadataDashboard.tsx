@@ -8,9 +8,9 @@ import {
 } from "@/lib/catalog-intelligence";
 
 const confidenceColors = {
-  high: "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30",
-  medium: "text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30",
-  low: "text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/30",
+  high: "text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30",
+  medium: "text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30",
+  low: "text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/30",
 };
 
 export default function CatalogMetadataDashboard() {
@@ -34,21 +34,21 @@ export default function CatalogMetadataDashboard() {
 
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase">Avg confidence</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">Avg confidence</p>
           <p className="text-3xl font-bold">{dashboard.averageConfidence}%</p>
         </div>
         <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase">AI-ready listings</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">AI-ready listings</p>
           <p className="text-3xl font-bold text-emerald-700 dark:text-emerald-300">{dashboard.aiReadyCount}</p>
         </div>
         <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase">Needs attention</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">Needs attention</p>
           <p className="text-3xl font-bold text-amber-700 dark:text-amber-300">
             {dashboard.needsAttentionCount}
           </p>
         </div>
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase">Top gap</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">Top gap</p>
           <p className="text-sm font-semibold mt-2">{dashboard.topGaps[0] ?? "—"}</p>
         </div>
       </section>
@@ -76,9 +76,9 @@ export default function CatalogMetadataDashboard() {
                   {item.overallConfidence}%
                 </span>
               </div>
-              <p className="text-xs text-gray-500 mt-1">{item.artistName}</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{item.artistName}</p>
               {item.blockers.length > 0 && (
-                <p className="text-xs text-amber-600 dark:text-amber-400 mt-1 truncate">
+                <p className="text-xs text-amber-700 dark:text-amber-400 mt-1 truncate">
                   {item.blockers.slice(0, 2).join(" · ")}
                 </p>
               )}
@@ -90,7 +90,7 @@ export default function CatalogMetadataDashboard() {
           <div className="border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 p-5 space-y-4">
             <div>
               <h2 className="text-xl font-bold">{selected.artworkTitle}</h2>
-              <p className="text-sm text-gray-500">{selected.artistName}</p>
+              <p className="text-sm text-gray-700 dark:text-gray-400">{selected.artistName}</p>
               <p className="text-sm mt-2">
                 Overall confidence:{" "}
                 <span className="font-bold">{selected.overallConfidence}%</span>
@@ -118,7 +118,7 @@ export default function CatalogMetadataDashboard() {
                   </div>
                   <p className="text-xs text-gray-600 dark:text-gray-300 mt-2">{dimension.recommendation}</p>
                   {dimension.gaps.length > 0 && (
-                    <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                    <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">
                       Gaps: {dimension.gaps.join(", ")}
                     </p>
                   )}

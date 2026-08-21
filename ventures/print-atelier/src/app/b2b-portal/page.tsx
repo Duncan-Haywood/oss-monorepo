@@ -62,8 +62,8 @@ export default function B2BPortal() {
                   }`}
                 >
                   <div className="font-medium text-sm text-slate-900 dark:text-white">{p.name}</div>
-                  <div className="text-xs text-slate-500 dark:text-gray-400 mt-1">{p.client}</div>
-                  <div className="text-xs text-slate-400 mt-1">{p.pieces} pieces • {p.budget}</div>
+                  <div className="text-xs text-slate-600 dark:text-gray-400 mt-1">{p.client}</div>
+                  <div className="text-xs text-slate-600 dark:text-slate-400 mt-1">{p.pieces} pieces • {p.budget}</div>
                 </button>
               ))}
             </div>
@@ -102,7 +102,7 @@ export default function B2BPortal() {
                     <td className="py-3">{item.artist}</td>
                     <td className="py-3">{item.size}</td>
                     <td className="py-3 text-right font-mono text-indigo-600 dark:text-indigo-400">{item.trade}</td>
-                    <td className="py-3 text-right font-mono text-slate-400 line-through">{item.retail}</td>
+                    <td className="py-3 text-right font-mono text-slate-500 dark:text-slate-400 line-through">{item.retail}</td>
                     <td className="py-3 text-right">
                       <button className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-md hover:bg-indigo-500">Add to Project</button>
                     </td>
@@ -120,7 +120,7 @@ export default function B2BPortal() {
               <span className="text-slate-600 dark:text-gray-400">12 pieces • Mixed sizes • White-glove packaging</span>
               <div className="text-right">
                 <div className="text-2xl font-bold text-slate-900 dark:text-white">$4,200</div>
-                <div className="text-xs text-emerald-600">Est. delivery: 7–10 business days</div>
+                <div className="text-xs text-emerald-700 dark:text-emerald-500">Est. delivery: 7–10 business days</div>
               </div>
             </div>
             <button className="mt-4 w-full bg-slate-900 dark:bg-indigo-600 text-white py-3 rounded-lg font-medium hover:opacity-90 transition">

@@ -450,7 +450,7 @@ export default function RevenueModel() {
                           {allocation.eligible ? "Eligible" : "Hold spend"}
                         </span>
                       </div>
-                      <p className="mt-1 text-xs text-gray-500">
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                         CAC ${allocation.baselineCAC} → ${allocation.adjustedCAC} after {allocation.previewLiftPercent}% preview lift · LTV:CAC {allocation.ltvToCacRatio.toFixed(2)}x · Profit after CAC ${allocation.profitAfterCAC.toFixed(2)}
                       </p>
                       {allocation.blockers.length > 0 && (
@@ -463,7 +463,7 @@ export default function RevenueModel() {
                       <p className="font-mono text-xl font-bold text-gray-900 dark:text-white">
                         ${allocation.recommendedWeeklyBudget.toLocaleString()}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-800 dark:text-gray-400">
                         {allocationPercent}% of budget · cap ${allocation.weeklyBudgetCap.toLocaleString()}
                       </p>
                     </div>

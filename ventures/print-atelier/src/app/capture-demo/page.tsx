@@ -55,7 +55,7 @@ export default function CaptureDemo() {
                     }`}
                   >
                     <s.icon className={`w-5 h-5 ${i <= step ? "text-indigo-400" : "text-gray-600"}`} />
-                    <span className={i <= step ? "text-white" : "text-gray-500"}>{s.label}</span>
+                    <span className={i <= step ? "text-white" : "text-gray-400"}>{s.label}</span>
                     {i < step && <CheckCircle2 className="w-4 h-4 text-green-400 ml-auto" />}
                     {i === step && processing && (
                       <span className="ml-auto w-4 h-4 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin"></span>

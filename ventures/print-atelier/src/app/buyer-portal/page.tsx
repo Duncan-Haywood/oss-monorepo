@@ -97,7 +97,7 @@ export default function BuyerPortal() {
                     <span className="font-medium text-stone-900 dark:text-white">{art.price}</span>
                   </div>
                   <p className="text-sm text-stone-500 dark:text-gray-400 mb-1">{art.artist}</p>
-                  <p className="text-xs text-stone-400 dark:text-gray-500">Archival Print • {art.size}</p>
+                  <p className="text-xs text-stone-500 dark:text-gray-400">Archival Print • {art.size}</p>
                 </div>
               </div>
             ))}

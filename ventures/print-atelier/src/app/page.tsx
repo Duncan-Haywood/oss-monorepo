@@ -67,7 +67,7 @@ export default function Home() {
           </button>
         </div>
         <nav className="p-4 space-y-1 flex-1 overflow-y-auto">
-          <p className="px-4 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Business Plan</p>
+          <p className="px-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Business Plan</p>
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -86,7 +86,7 @@ export default function Home() {
           ))}
 
           <div className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
-            <p className="px-4 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Live Demos</p>
+            <p className="px-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Live Demos</p>
             {demoLinks.map((link) => (
               <Link
                 key={link.href}

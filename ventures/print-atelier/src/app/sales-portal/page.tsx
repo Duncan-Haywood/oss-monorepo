@@ -69,13 +69,13 @@ export default function SalesPortal() {
                 </div>
                 <Target className="w-8 h-8 text-blue-500" />
               </div>
-              <div className="text-xs mt-3 text-emerald-600">{c.status}</div>
+              <div className="text-xs mt-3 text-emerald-700 dark:text-emerald-500">{c.status}</div>
             </button>
           ))}
           <div className="p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex flex-col justify-center">
-            <div className="text-sm text-gray-500 dark:text-gray-400">Ready to Onboard</div>
+            <div className="text-sm text-gray-700 dark:text-gray-400">Ready to Onboard</div>
             <div className="text-4xl font-bold mt-1 text-gray-900 dark:text-white">{summary.readyForOnboarding}</div>
-            <div className="text-xs text-emerald-500 mt-1">{summary.automationLabel}</div>
+            <div className="text-xs text-emerald-700 dark:text-emerald-500 mt-1">{summary.automationLabel}</div>
           </div>
         </div>
 
@@ -95,19 +95,19 @@ export default function SalesPortal() {
           </div>
           <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="rounded-lg bg-white/80 dark:bg-gray-900/40 p-4">
-              <p className="text-xs text-gray-500 uppercase">Median reply → live</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">Median reply → live</p>
               <p className="text-2xl font-bold">{compression.medianHoursReplyToLive ?? "—"}h</p>
             </div>
             <div className="rounded-lg bg-white/80 dark:bg-gray-900/40 p-4">
-              <p className="text-xs text-gray-500 uppercase">7-day track</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">7-day track</p>
               <p className="text-2xl font-bold">{compression.onTrackCount}/{compression.cohortPlan.length}</p>
             </div>
             <div className="rounded-lg bg-white/80 dark:bg-gray-900/40 p-4">
-              <p className="text-xs text-gray-500 uppercase">Live listings</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">Live listings</p>
               <p className="text-2xl font-bold">{compression.liveCount}</p>
             </div>
             <div className="rounded-lg bg-white/80 dark:bg-gray-900/40 p-4">
-              <p className="text-xs text-gray-500 uppercase">In pipeline</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">In pipeline</p>
               <p className="text-2xl font-bold">{compression.inPipelineCount}</p>
             </div>
           </div>
@@ -115,11 +115,11 @@ export default function SalesPortal() {
             <table className="min-w-full text-sm">
               <thead className="bg-white/60 dark:bg-gray-900/60">
                 <tr>
-                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500">Artist</th>
-                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500">Stage</th>
-                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500">Hours since reply</th>
-                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500">Proj. days to live</th>
-                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500">Next milestone</th>
+                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500 dark:text-gray-400">Artist</th>
+                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500 dark:text-gray-400">Stage</th>
+                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500 dark:text-gray-400">Hours since reply</th>
+                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500 dark:text-gray-400">Proj. days to live</th>
+                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500 dark:text-gray-400">Next milestone</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-indigo-100 dark:divide-indigo-900/40">
@@ -157,15 +157,15 @@ export default function SalesPortal() {
             </div>
             <div className="grid grid-cols-3 gap-3 text-center text-sm">
               <div className="rounded-lg bg-white/80 dark:bg-gray-900/40 px-3 py-2">
-                <p className="text-xs text-gray-500 uppercase">Reply rate</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">Reply rate</p>
                 <p className="text-xl font-bold">{attribution.conversionRates.replyRate}%</p>
               </div>
               <div className="rounded-lg bg-white/80 dark:bg-gray-900/40 px-3 py-2">
-                <p className="text-xs text-gray-500 uppercase">Onboard rate</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">Onboard rate</p>
                 <p className="text-xl font-bold">{attribution.conversionRates.onboardRate}%</p>
               </div>
               <div className="rounded-lg bg-white/80 dark:bg-gray-900/40 px-3 py-2">
-                <p className="text-xs text-gray-500 uppercase">Live rate</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">Live rate</p>
                 <p className="text-xl font-bold">{attribution.conversionRates.liveRate}%</p>
               </div>
             </div>
@@ -173,9 +173,9 @@ export default function SalesPortal() {
           <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-3">
             {attribution.platformBreakdown.map((platform) => (
               <div key={platform.platform} className="rounded-lg border border-emerald-200/60 bg-white/70 p-3 dark:border-emerald-900/30 dark:bg-gray-900/40">
-                <p className="text-xs font-medium text-gray-500">{platform.platform}</p>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400">{platform.platform}</p>
                 <p className="text-lg font-bold">{platform.live}/{platform.replied} live</p>
-                <p className="text-xs text-gray-500">${platform.projectedPayout.toLocaleString()}/mo projected</p>
+                <p className="text-xs text-gray-800 dark:text-gray-400">${platform.projectedPayout.toLocaleString()}/mo projected</p>
               </div>
             ))}
           </div>
@@ -183,11 +183,11 @@ export default function SalesPortal() {
             <table className="min-w-full text-sm">
               <thead className="bg-white/60 dark:bg-gray-900/60">
                 <tr>
-                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500">Artist</th>
-                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500">Attribution</th>
-                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500">Platform</th>
-                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500">Drop-off</th>
-                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500">Onboard</th>
+                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500 dark:text-gray-400">Artist</th>
+                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500 dark:text-gray-400">Attribution</th>
+                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500 dark:text-gray-400">Platform</th>
+                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500 dark:text-gray-400">Drop-off</th>
+                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500 dark:text-gray-400">Onboard</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-emerald-100 dark:divide-emerald-900/30">
@@ -195,7 +195,7 @@ export default function SalesPortal() {
                   <tr key={row.handle} className="bg-white/40 dark:bg-gray-900/20">
                     <td className="px-4 py-3">
                       <div className="font-medium">{row.name}</div>
-                      <div className="text-xs text-gray-500">{row.handle}</div>
+                      <div className="text-xs text-gray-800 dark:text-gray-400">{row.handle}</div>
                     </td>
                     <td className="px-4 py-3">
                       <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200">
@@ -213,7 +213,7 @@ export default function SalesPortal() {
                           Open intake <ArrowUpRight className="h-3 w-3" />
                         </Link>
                       ) : (
-                        <span className="text-xs text-gray-400">—</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">—</span>
                       )}
                     </td>
                   </tr>
@@ -285,10 +285,10 @@ export default function SalesPortal() {
             <table className="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-900/60">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">Artist</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">Intent</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">Priority</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">Next action</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Artist</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Intent</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Priority</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Next action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -296,7 +296,7 @@ export default function SalesPortal() {
                   <tr key={prospect.handle} className="bg-white transition hover:bg-blue-50/50 dark:bg-gray-800 dark:hover:bg-blue-950/20">
                     <td className="px-4 py-4 align-top">
                       <div className="font-semibold text-gray-900 dark:text-white">{prospect.name}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                      <div className="text-xs text-gray-800 dark:text-gray-400">
                         {prospect.handle} • {prospect.platform} • {prospect.followers.toLocaleString()} followers
                       </div>
                       <div className="mt-2 max-w-xs text-xs text-gray-500 dark:text-gray-400">{prospect.styleSignal}</div>
@@ -317,7 +317,7 @@ export default function SalesPortal() {
                     </td>
                     <td className="px-4 py-4 align-top">
                       <div className="font-mono text-xl font-bold text-gray-900 dark:text-white">{prospect.priorityScore}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">Fit {prospect.fitScore}</div>
+                      <div className="text-xs text-gray-800 dark:text-gray-400">Fit {prospect.fitScore}</div>
                     </td>
                     <td className="px-4 py-4 align-top">
                       {isOnboardingDeepLinkEligible(prospect) ? (
@@ -370,7 +370,7 @@ export default function SalesPortal() {
               capture and we&apos;ll return an earnings estimate, proof mockup, and first listing draft.&quot;
             </p>
           </div>
-          <p className="text-xs text-center mt-8 text-gray-400">
+          <p className="text-xs text-center mt-8 text-gray-500 dark:text-gray-400">
             100% automated triage via shared TypeScript logic • Persistence and reply sync are tracked in backlog
           </p>
         </div>

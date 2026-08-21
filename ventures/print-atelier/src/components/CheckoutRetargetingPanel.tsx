@@ -36,15 +36,15 @@ export default function CheckoutRetargetingPanel() {
       <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
         <div className="rounded-xl border border-stone-200 bg-white p-3">
           <p className="text-xs text-stone-500">Platforms ready</p>
-          <p className="text-2xl font-bold">{envStatus.platformsReady}/3</p>
+          <p className="text-2xl font-bold text-stone-900">{envStatus.platformsReady}/3</p>
         </div>
         <div className="rounded-xl border border-stone-200 bg-white p-3">
           <p className="text-xs text-stone-500">Sessions tracked</p>
-          <p className="text-2xl font-bold">{summary?.uniqueSessions ?? 0}</p>
+          <p className="text-2xl font-bold text-stone-900">{summary?.uniqueSessions ?? 0}</p>
         </div>
         <div className="rounded-xl border border-stone-200 bg-white p-3">
           <p className="text-xs text-stone-500">Pixel events</p>
-          <p className="text-2xl font-bold">{summary?.totalEvents ?? 0}</p>
+          <p className="text-2xl font-bold text-stone-900">{summary?.totalEvents ?? 0}</p>
         </div>
         <div className="rounded-xl border border-stone-200 bg-white p-3">
           <p className="text-xs text-stone-500">Meta CAPI live</p>

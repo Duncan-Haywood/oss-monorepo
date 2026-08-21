@@ -218,7 +218,7 @@ export default function ArtistPitch() {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <h3 className="font-semibold text-gray-950 dark:text-white">{model.label}</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{model.basis}</p>
+                    <p className="text-xs text-gray-800 dark:text-gray-400">{model.basis}</p>
                   </div>
                   <p className="text-right text-sm font-bold text-gray-800 dark:text-gray-100">
                     {formatCurrency(model.artistPayoutPerOrder)}

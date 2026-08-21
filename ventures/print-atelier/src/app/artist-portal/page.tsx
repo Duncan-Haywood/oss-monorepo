@@ -90,12 +90,12 @@ export default function ArtistPortal() {
                   <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-stone-200 dark:border-gray-700 shadow-sm">
                     <p className="text-sm text-stone-500 dark:text-gray-400 font-medium mb-1">Projected Monthly Payout</p>
                     <h3 className="text-3xl font-bold text-stone-900 dark:text-white">${summary.projectedMonthlyArtistPayout.toLocaleString()}</h3>
-                    <p className="text-sm text-green-600 mt-2">From shared catalog economics</p>
+                    <p className="text-sm text-green-700 dark:text-green-500 mt-2">From shared catalog economics</p>
                   </div>
                   <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-stone-200 dark:border-gray-700 shadow-sm">
                     <p className="text-sm text-stone-500 dark:text-gray-400 font-medium mb-1">Prints Sold</p>
                     <h3 className="text-3xl font-bold text-stone-900 dark:text-white">{totalSales}</h3>
-                    <p className="text-sm text-green-600 mt-2">Last 30 days</p>
+                    <p className="text-sm text-green-700 dark:text-green-500 mt-2">Last 30 days</p>
                   </div>
                   <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-stone-200 dark:border-gray-700 shadow-sm">
                     <p className="text-sm text-stone-500 dark:text-gray-400 font-medium mb-1">Catalog Readiness</p>
@@ -168,8 +168,8 @@ export default function ArtistPortal() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="font-medium text-green-600 dark:text-green-400">+${economics.artistShare.toFixed(2)}</p>
-                          <p className="text-xs text-stone-400 font-mono">Net 30% of ${sale.retailPrice}</p>
+                          <p className="font-medium text-green-700 dark:text-green-400">+${economics.artistShare.toFixed(2)}</p>
+                          <p className="text-xs text-stone-500 dark:text-stone-400 font-mono">Net 30% of ${sale.retailPrice}</p>
                         </div>
                       </div>
                       );

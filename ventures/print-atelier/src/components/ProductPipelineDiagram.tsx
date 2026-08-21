@@ -31,11 +31,11 @@ export default function ProductPipelineDiagram() {
           </p>
         </div>
         <div className="text-right">
-          <p className="text-xs uppercase tracking-wider text-gray-500">Overall readiness</p>
+          <p className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Overall readiness</p>
           <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
             {pipeline.overallReadiness}%
           </p>
-          <p className="text-xs text-gray-500 mt-1">{pipeline.summaryLabel}</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{pipeline.summaryLabel}</p>
         </div>
       </div>
 
@@ -55,7 +55,7 @@ export default function ProductPipelineDiagram() {
                 </div>
                 <p className="text-sm font-semibold truncate">{stage.headline}</p>
                 <p className="text-lg font-bold mt-2">{stage.metricValue}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{stage.metricLabel}</p>
+                <p className="text-xs text-gray-800 dark:text-gray-400">{stage.metricLabel}</p>
                 <div className="mt-3 h-1.5 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
                   <div
                     className="h-full rounded-full bg-indigo-500 transition-all duration-700"
@@ -63,7 +63,7 @@ export default function ProductPipelineDiagram() {
                   />
                 </div>
                 {stage.blockers.length > 0 && (
-                  <p className="text-xs text-rose-600 dark:text-rose-400 mt-2 line-clamp-2">
+                  <p className="text-xs text-rose-700 dark:text-rose-400 mt-2 line-clamp-2">
                     {stage.blockers[0]}
                   </p>
                 )}
@@ -87,7 +87,7 @@ export default function ProductPipelineDiagram() {
             className={`rounded-xl border px-4 py-3 flex items-center justify-between hover:shadow-sm transition-shadow ${statusStyles[engine.status]}`}
           >
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+              <p className="text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400">
                 Growth engine
               </p>
               <p className="font-medium">{engine.label}</p>

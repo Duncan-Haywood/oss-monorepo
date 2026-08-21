@@ -47,19 +47,19 @@ export default function SeoLandingLab() {
 
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase">Pages generated</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">Pages generated</p>
           <p className="text-3xl font-bold">{result.pages.length}</p>
         </div>
         <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase">Live at /prints</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">Live at /prints</p>
           <p className="text-3xl font-bold text-emerald-700 dark:text-emerald-300">{publishableCount}</p>
         </div>
         <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase">Blocked by readiness</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">Blocked by readiness</p>
           <p className="text-3xl font-bold text-amber-700 dark:text-amber-300">{result.blockedCount}</p>
         </div>
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase">Top intent</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">Top intent</p>
           <p className="text-sm font-semibold mt-2">
             {(() => {
               const top = Object.entries(result.topIntents).sort((a, b) => b[1] - a[1])[0];
@@ -101,13 +101,13 @@ export default function SeoLandingLab() {
             >
               <div className="flex items-center justify-between gap-2">
                 <p className="font-medium text-sm truncate">{page.title}</p>
-                <span className="text-xs text-gray-500 shrink-0">{formatSeoVolume(page.estimatedMonthlySearchVolume)}</span>
+                <span className="text-xs text-gray-600 dark:text-gray-400 shrink-0">{formatSeoVolume(page.estimatedMonthlySearchVolume)}</span>
               </div>
-              <p className="text-xs text-gray-500 mt-1">/{page.slug}</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">/{page.slug}</p>
               {page.publishState.publishable ? (
-                <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">Published</p>
+                <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-1">Published</p>
               ) : (
-                <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">
                   Blocked: {page.publishState.blockers.join(", ")}
                 </p>
               )}
@@ -128,15 +128,15 @@ export default function SeoLandingLab() {
             </div>
             <div className="p-5 space-y-4 text-sm">
               <div>
-                <p className="text-xs text-gray-500 uppercase">SEO title</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">SEO title</p>
                 <p className="font-medium">{selected.title}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500 uppercase">Meta description</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">Meta description</p>
                 <p className="text-gray-600 dark:text-gray-300">{selected.metaDescription}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500 uppercase">URL slug</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">URL slug</p>
                 <Link
                   href={`/prints/${selected.slug}`}
                   className="font-mono text-indigo-600 dark:text-indigo-400 hover:underline"
@@ -144,13 +144,13 @@ export default function SeoLandingLab() {
                   /prints/{selected.slug}
                 </Link>
                 {selected.publishState.publishable ? (
-                  <p className="text-xs text-emerald-600 mt-1">Indexable — consent + readiness cleared</p>
+                  <p className="text-xs text-emerald-700 dark:text-emerald-500 mt-1">Indexable — consent + readiness cleared</p>
                 ) : (
                   <p className="text-xs text-amber-600 mt-1">noindex preview — {selected.publishState.blockers[0]}</p>
                 )}
               </div>
               <div>
-                <p className="text-xs text-gray-500 uppercase">Tags</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">Tags</p>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {selected.tags.map((tag) => (
                     <span key={tag} className="text-xs bg-gray-100 dark:bg-gray-900 px-2 py-0.5 rounded">
@@ -161,11 +161,11 @@ export default function SeoLandingLab() {
               </div>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div className="bg-gray-50 dark:bg-gray-900 rounded p-2">
-                  <p className="text-gray-500">Artwork</p>
+                  <p className="text-gray-500 dark:text-gray-400">Artwork</p>
                   <p className="font-medium">{selected.artworkTitle}</p>
                 </div>
                 <div className="bg-gray-50 dark:bg-gray-900 rounded p-2">
-                  <p className="text-gray-500">Artist</p>
+                  <p className="text-gray-500 dark:text-gray-400">Artist</p>
                   <p className="font-medium">{selected.artistName}</p>
                 </div>
               </div>

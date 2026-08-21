@@ -108,7 +108,7 @@ export default function AdminPortal() {
       <header className="bg-slate-950 border-b border-slate-800 px-6 py-4 flex justify-between items-center sticky top-0 z-20 shadow-sm">
         <div className="flex items-center gap-3 text-white">
           <Zap className="w-6 h-6 text-blue-500" />
-          <h1 className="text-xl font-bold tracking-tight">Print Atelier <span className="text-slate-500 font-normal">| Operations Command</span></h1>
+          <h1 className="text-xl font-bold tracking-tight">Print Atelier <span className="text-slate-400 font-normal">| Operations Command</span></h1>
         </div>
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-2 text-xs font-medium bg-green-500/10 text-green-400 px-3 py-1 rounded-full border border-green-500/20">
@@ -133,7 +133,7 @@ export default function AdminPortal() {
               <div>
                 <p className="text-slate-400 text-sm font-medium mb-1">{kpi.label}</p>
                 <p className="text-3xl font-bold text-white mb-2">{kpi.value}</p>
-                <span className="text-xs text-slate-500">{kpi.trend} today</span>
+                <span className="text-xs text-slate-400">{kpi.trend} today</span>
               </div>
               <div className="p-2 bg-slate-800 rounded-lg border border-slate-700">{kpi.icon}</div>
             </div>
@@ -206,19 +206,19 @@ export default function AdminPortal() {
           </div>
           <div className="grid grid-cols-1 gap-4 p-5 lg:grid-cols-[0.85fr_1.15fr]">
             <div className="rounded-xl border border-slate-700 bg-slate-900/60 p-4">
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Catalog risk summary</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Catalog risk summary</p>
               <div className="mt-4 grid grid-cols-3 gap-3 text-center">
                 <div>
                   <p className="text-2xl font-bold text-white">{catalogSummary.totalArtworks}</p>
-                  <p className="text-xs text-slate-500">SKUs</p>
+                  <p className="text-xs text-slate-400">SKUs</p>
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-emerald-300">{catalogSummary.liveArtworks}</p>
-                  <p className="text-xs text-slate-500">Live SKUs</p>
+                  <p className="text-xs text-slate-400">Live SKUs</p>
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-amber-300">{payoutQueue.length}</p>
-                  <p className="text-xs text-slate-500">Guardrail holds</p>
+                  <p className="text-xs text-slate-400">Guardrail holds</p>
                 </div>
               </div>
               <p className="mt-4 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3 text-sm text-emerald-100">
@@ -242,12 +242,12 @@ export default function AdminPortal() {
                           {item.severity}
                         </span>
                         <h3 className="text-lg font-semibold text-white">{item.artwork.title}</h3>
-                        <span className="text-sm text-slate-500">by {item.artwork.artistName}</span>
+                        <span className="text-sm text-slate-400">by {item.artwork.artistName}</span>
                       </div>
                       <p className="mt-2 text-sm text-slate-400">{item.holdMessage}</p>
                     </div>
                     <div className="text-left md:text-right">
-                      <p className="text-xs uppercase tracking-wide text-slate-500">Suggested retail</p>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Suggested retail</p>
                       <p className="text-2xl font-bold text-white">${item.suggestedRetailPrice}</p>
                     </div>
                   </div>
@@ -324,7 +324,7 @@ export default function AdminPortal() {
                       </span>
                     </div>
                     <h3 className="mt-3 text-lg font-semibold text-white">{decision.artwork.title}</h3>
-                    <p className="text-sm text-slate-500">by {decision.artwork.artistName}</p>
+                    <p className="text-sm text-slate-400">by {decision.artwork.artistName}</p>
                   </div>
                   <div className="mt-1 grid w-full grid-cols-2 gap-2 rounded-lg border border-slate-700 bg-slate-950/50 p-3 text-xs md:mt-0 md:w-56">
                     <div className="text-left">
@@ -344,7 +344,7 @@ export default function AdminPortal() {
                     {decision.artistFacingCopy}
                   </p>
                   <div className="rounded-lg border border-slate-700 bg-slate-950/60 p-3 text-right">
-                    <p className="text-xs uppercase tracking-wide text-slate-500">Suggested retail</p>
+                    <p className="text-xs uppercase tracking-wide text-slate-400">Suggested retail</p>
                     <p className="text-2xl font-bold text-white">${decision.suggestedRetailPrice}</p>
                   </div>
                 </div>
@@ -444,10 +444,10 @@ export default function AdminPortal() {
                       </span>
                     </div>
                     <h3 className="mt-3 text-lg font-semibold text-white">{item.artwork.title}</h3>
-                    <p className="text-sm text-slate-500">by {item.artwork.artistName}</p>
+                    <p className="text-sm text-slate-400">by {item.artwork.artistName}</p>
                   </div>
                   <div className="rounded-lg border border-slate-700 bg-slate-950/50 p-3 text-xs md:w-56">
-                    <p className="uppercase tracking-wide text-slate-500">Allowed channels</p>
+                    <p className="uppercase tracking-wide text-slate-400">Allowed channels</p>
                     <p className="mt-1 font-semibold text-white">
                       {item.allowedChannels.length > 0 ? item.allowedChannels.join(", ") : "None yet"}
                     </p>
@@ -478,7 +478,7 @@ export default function AdminPortal() {
             <div className="bg-slate-800/50 rounded-xl border border-slate-700/50 overflow-hidden">
               <div className="px-5 py-4 border-b border-slate-700/50 flex justify-between items-center bg-slate-800">
                 <h2 className="font-semibold text-white flex items-center gap-2"><Database className="w-4 h-4" /> AI Enhancement Pipeline</h2>
-                <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">Live Feed</span>
+                <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-1 rounded">Live Feed</span>
               </div>
               <div className="p-0">
                 <table className="w-full text-sm text-left">
@@ -507,7 +507,7 @@ export default function AdminPortal() {
                           {row.status === "Processing" && <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping"></span>}
                           {row.status}
                         </td>
-                        <td className="px-5 py-3 text-slate-500 text-right">{row.time}</td>
+                        <td className="px-5 py-3 text-slate-400 text-right">{row.time}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -560,7 +560,7 @@ export default function AdminPortal() {
                   <Database className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
                   <div>
                     <p className="text-sm text-slate-300 font-medium">DB Snapshot Complete</p>
-                    <p className="text-xs text-slate-500 mt-0.5">Routine snapshot saved to S3 bucket /backups/daily.</p>
+                    <p className="text-xs text-slate-400 mt-0.5">Routine snapshot saved to S3 bucket /backups/daily.</p>
                   </div>
                 </div>
               </div>

@@ -62,28 +62,28 @@ export default function BusinessOverview() {
           <p className="text-sm opacity-90 mt-1">{snapshot.marketLaunch.label}</p>
         </div>
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-5">
-          <div className="flex items-center gap-2 text-emerald-600">
+          <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-500">
             <Palette className="w-4 h-4" />
             <p className="text-xs font-semibold uppercase tracking-wider">Supply</p>
           </div>
           <p className="text-3xl font-bold mt-2">{snapshot.catalog.liveArtworks}</p>
-          <p className="text-sm text-gray-500">live SKUs · {snapshot.outreach.readyForOnboarding} onboarding-ready</p>
+          <p className="text-sm text-gray-700 dark:text-gray-400">live SKUs · {snapshot.outreach.readyForOnboarding} onboarding-ready</p>
         </div>
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-5">
-          <div className="flex items-center gap-2 text-blue-600">
+          <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
             <Users className="w-4 h-4" />
             <p className="text-xs font-semibold uppercase tracking-wider">Demand</p>
           </div>
           <p className="text-3xl font-bold mt-2">{snapshot.advertising.creativesReady}</p>
-          <p className="text-sm text-gray-500">ad-ready creatives · {snapshot.advertising.score}% ad score</p>
+          <p className="text-sm text-gray-700 dark:text-gray-400">ad-ready creatives · {snapshot.advertising.score}% ad score</p>
         </div>
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-5">
-          <div className="flex items-center gap-2 text-amber-600">
+          <div className="flex items-center gap-2 text-amber-700 dark:text-amber-500">
             <DollarSign className="w-4 h-4" />
             <p className="text-xs font-semibold uppercase tracking-wider">Unit economics</p>
           </div>
           <p className="text-3xl font-bold mt-2">${snapshot.unitEconomics.artistShare.toFixed(0)}</p>
-          <p className="text-sm text-gray-500">artist payout / print at $85 retail</p>
+          <p className="text-sm text-gray-700 dark:text-gray-400">artist payout / print at $85 retail</p>
         </div>
       </section>
 
@@ -107,7 +107,7 @@ export default function BusinessOverview() {
               <p className="font-semibold group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                 {step.label}
               </p>
-              <p className="text-sm text-gray-500 mt-1">{step.desc}</p>
+              <p className="text-sm text-gray-700 dark:text-gray-400 mt-1">{step.desc}</p>
             </Link>
           ))}
         </div>
@@ -118,7 +118,7 @@ export default function BusinessOverview() {
           <h2 className="text-lg font-semibold mb-3">Dual-sided marketplace</h2>
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
-              <p className="text-xs font-bold text-violet-600 uppercase">Supply — Artists</p>
+              <p className="text-xs font-bold text-violet-600 dark:text-violet-400 uppercase">Supply — Artists</p>
               <ul className="mt-2 space-y-1 text-sm text-gray-600 dark:text-gray-300">
                 <li>AI outreach + reply triage</li>
                 <li>Phone capture → proof queue</li>
@@ -127,7 +127,7 @@ export default function BusinessOverview() {
               </ul>
             </div>
             <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
-              <p className="text-xs font-bold text-emerald-600 uppercase">Demand — Buyers</p>
+              <p className="text-xs font-bold text-emerald-700 dark:text-emerald-500 uppercase">Demand — Buyers</p>
               <ul className="mt-2 space-y-1 text-sm text-gray-600 dark:text-gray-300">
                 <li>Room-preview conversion lab</li>
                 <li>Programmatic SEO + paid social</li>
@@ -176,7 +176,7 @@ export default function BusinessOverview() {
           Investor dashboard
           <ArrowRight className="w-4 h-4" />
         </Link>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-gray-700 dark:text-gray-400">
           {snapshot.fulfillmentPartnerCount} fulfillment partners configured · {snapshot.consent.clearedCount} consent-cleared
           listings · ${snapshot.channelBudget.allocatedBudget}/wk guarded ad spend
         </p>

@@ -73,19 +73,19 @@ export default function MarketingPortal() {
             </div>
             <div className="text-4xl font-mono text-gray-900 dark:text-white">{summary.totalArtworks}</div>
             <div className="text-sm mt-1 text-gray-600 dark:text-gray-400">Catalog artworks available</div>
-            <div className="text-xs text-emerald-500 mt-2">{scalableArtworks} ready for paid concept testing</div>
+            <div className="text-xs text-emerald-700 dark:text-emerald-500 mt-2">{scalableArtworks} ready for paid concept testing</div>
           </div>
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
             <div className="flex justify-between mb-4"><Sparkles className="text-amber-500" /></div>
             <div className="text-4xl font-mono text-gray-900 dark:text-white">{readiness.score}</div>
             <div className="text-sm mt-1 text-gray-600 dark:text-gray-400">Creative readiness score</div>
-            <div className="text-xs text-emerald-500 mt-2">{readiness.predictedCacReductionPercent.toFixed(0)}% CAC reduction potential</div>
+            <div className="text-xs text-emerald-700 dark:text-emerald-500 mt-2">{readiness.predictedCacReductionPercent.toFixed(0)}% CAC reduction potential</div>
           </div>
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
             <div className="flex justify-between mb-4"><Users className="text-blue-500" /></div>
             <div className="text-4xl font-mono text-gray-900 dark:text-white">${readiness.predictedCAC.toFixed(2)}</div>
             <div className="text-sm mt-1 text-gray-600 dark:text-gray-400">Predicted CAC after creative lift</div>
-            <div className={`text-xs mt-2 ${readiness.similarityRisk === "Low" ? "text-emerald-500" : readiness.similarityRisk === "Moderate" ? "text-amber-500" : "text-red-500"}`}>
+            <div className={`text-xs mt-2 ${readiness.similarityRisk === "Low" ? "text-emerald-700 dark:text-emerald-500" : readiness.similarityRisk === "Moderate" ? "text-amber-500" : "text-red-500"}`}>
               {readiness.similarityRisk} similarity risk
             </div>
           </div>
@@ -121,7 +121,7 @@ export default function MarketingPortal() {
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <p className="font-semibold text-gray-900 dark:text-white">{artwork.title}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{artwork.artistName} · {artwork.tags.join(", ")}</p>
+                        <p className="text-xs text-gray-800 dark:text-gray-400">{artwork.artistName} · {artwork.tags.join(", ")}</p>
                       </div>
                       <span className={`rounded-full px-2 py-1 text-xs font-bold ${
                         artworkReadiness.score >= 85
@@ -159,10 +159,10 @@ export default function MarketingPortal() {
               <div>
                 <p className="text-xs font-bold uppercase tracking-wide text-blue-600 dark:text-blue-300">Creative brief</p>
                 <h2 className="mt-1 text-2xl font-bold text-gray-900 dark:text-white">{selectedArtwork.title}</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{readiness.label} · {activeChannel.note}</p>
+                <p className="text-sm text-gray-700 dark:text-gray-400">{readiness.label} · {activeChannel.note}</p>
               </div>
               <div className="rounded-lg bg-gray-50 p-3 text-right dark:bg-gray-900">
-                <p className="text-xs uppercase tracking-wide text-gray-500">Projected CAC</p>
+                <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Projected CAC</p>
                 <p className="font-mono text-2xl font-bold text-gray-900 dark:text-white">${readiness.predictedCAC.toFixed(2)}</p>
               </div>
             </div>
@@ -201,13 +201,13 @@ export default function MarketingPortal() {
               {concepts.map((concept) => (
                 <article key={concept.format} className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900">
                   <Palette className="mb-3 h-5 w-5 text-violet-500" />
-                  <p className="text-xs font-bold uppercase tracking-wide text-gray-500">{concept.format}</p>
+                  <p className="text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">{concept.format}</p>
                   <h3 className="mt-2 font-semibold text-gray-900 dark:text-white">{concept.hook}</h3>
                   <p className="mt-3 text-sm leading-6 text-gray-600 dark:text-gray-300">{concept.message}</p>
                 </article>
               ))}
             </div>
-            <p className="mt-5 text-xs text-gray-400">
+            <p className="mt-5 text-xs text-gray-500 dark:text-gray-400">
               Next real implementation path: persist creative tests, connect channel spend, and compare predicted CAC against actual cohorts.
             </p>
           </section>

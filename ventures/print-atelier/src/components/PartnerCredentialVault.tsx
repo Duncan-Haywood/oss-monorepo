@@ -38,9 +38,9 @@ function CredentialCard({ credential }: { credential: PartnerCredential }) {
             ) : (
               <Circle className="h-4 w-4 text-stone-300" />
             )}
-            <span className={item.configured ? "text-stone-700" : "text-stone-500"}>
+            <span className={item.configured ? "text-stone-700" : "text-stone-600"}>
               {item.label}
-              <span className="ml-1 font-mono text-[10px] text-stone-400">({item.key})</span>
+              <span className="ml-1 font-mono text-[10px] text-stone-500">({item.key})</span>
             </span>
           </li>
         ))}
@@ -120,11 +120,11 @@ export default function PartnerCredentialVault() {
       )}
 
       <section>
-        <h3 className="mb-3 text-lg font-bold text-stone-900">Fulfillment partners</h3>
+        <h3 className="mb-3 text-lg font-bold text-stone-900 dark:text-stone-400">Fulfillment partners</h3>
         <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-3">
           {fulfillmentPartners.map((partner) => (
             <div key={partner.id} className="rounded-lg border border-stone-200 bg-stone-50 p-3 text-sm">
-              <p className="font-semibold">{partner.name}</p>
+              <p className="font-semibold text-stone-900">{partner.name}</p>
               <p className="text-stone-600">{partner.regions.join(" · ")}</p>
               <p className="mt-1 text-xs text-stone-500">Avg POD: ${partner.avgFulfillmentCost}</p>
             </div>
@@ -138,7 +138,7 @@ export default function PartnerCredentialVault() {
       </section>
 
       <section>
-        <h3 className="mb-3 text-lg font-bold text-stone-900">Ad platform credentials</h3>
+        <h3 className="mb-3 text-lg font-bold text-stone-900 dark:text-stone-400">Ad platform credentials</h3>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {ads.map((credential) => (
             <CredentialCard key={credential.partnerId} credential={credential} />
@@ -151,7 +151,7 @@ export default function PartnerCredentialVault() {
       <GelatoVariantMapper />
 
       <section>
-        <h3 className="mb-3 text-lg font-bold text-stone-900">Payments</h3>
+        <h3 className="mb-3 text-lg font-bold text-stone-900 dark:text-stone-400">Payments</h3>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {payments.map((credential) => (
             <CredentialCard key={credential.partnerId} credential={credential} />
