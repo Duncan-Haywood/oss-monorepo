@@ -24,25 +24,29 @@
 records:
 - pr: 372
   head_sha: 14960d9ee0cf100c581ab835eccab745d318b419
-  verified_against_main: 52416c5c5709286ccfce9a196832c819150455fb
-  verified_at: "2026-08-21T06:24:49Z"
+  verified_against_main: 112e976705937c9b62600c5c4ec9f5e44a08c64a
+  verified_at: "2026-08-21T10:27:38Z"
   result: pass
   note: >-
     Re-verification triggered by `verification_status.py` reporting BUILD
-    STALE for retail-pilot-intel and real-estate-agent-photo-app: two
-    unrelated fixes landed on `main` after the prior record (`e4589d8`) --
-    #474 (log-lead UTC-vs-local date bug, real-estate-agent-photo-app) and
-    #466 (event_id dedup + inbox archiving, retail-pilot-intel). Confirmed
-    this is not a fourth conflict: `git merge origin/main --no-edit` into
-    #372's branch (head `14960d9`) in a scratch worktree produced 0
-    conflicts, and both landed fixes are byte-identical in the merged tree
-    to their `main` versions (diffed directly), so merging #372 would not
-    revert either. Rebuilt the two flagged ventures on that merged tree per
-    `re-verification.md`'s BUILD-STALE scope (the other four are untouched
-    by this drift, not re-run): retail-pilot-intel -- `pnpm install
-    --frozen-lockfile`, lint, typecheck (6/6 packages), build, test (27/27:
-    11 pos + 16 analytics, up from 13 since #466 added `importer.test.ts`),
-    `audit --audit-level=high` all clean. real-estate-agent-photo-app/docs-site
-    -- `npm ci`, lint, build (Next.js 16.3.1, 8 pages generated), `audit
-    --audit-level=high` all clean. Still owner-gated: merging fires deploys
+    STALE for ai-first-markets, print-atelier, retail-pilot-intel: routine
+    fixes landed on `main` after the prior record (`52416c5`) that touch
+    those three -- #493 (retail-pilot-intel receipt_id/store_id collision),
+    #480 (print-atelier Stripe ledger dedup by event id), print-atelier icon
+    button labelling, and #479 (ai-first-markets average-revenue figure).
+    `git merge origin/main --no-edit` into #372's branch (head `14960d9`) in
+    a scratch worktree produced 0 conflicts. Rebuilt the three flagged
+    ventures on that merged tree per `re-verification.md`'s BUILD-STALE
+    scope (photo-editing and real-estate-agent-photo-app untouched by this
+    drift, not re-run): retail-pilot-intel -- `pnpm install --frozen-lockfile`,
+    lint, typecheck (6/6 packages), build, test (28/28: 12 pos + 16
+    analytics), `audit --audit-level=high` all clean. print-atelier -- `npm
+    ci`, lint (0 errors, pre-existing warnings only), test (130/130), build
+    (Next.js, all routes generated), `audit --audit-level=high` all clean.
+    ai-first-markets -- `npm ci`, lint, typecheck, test (60/60), build
+    (Next.js), `audit --audit-level=high` all clean. CHECKS STALE flagged 4
+    changed workflow files (`a11y-engine-agreement-ci`,
+    `a11y-generated-sites-ci`, `a11y-own-sites-ci`,
+    `source-silence-detector-ci`) -- none in #372's scope or attached to its
+    checks, so not meaningful here. Still owner-gated: merging fires deploys
     to live sites, not because anything is unverified.
