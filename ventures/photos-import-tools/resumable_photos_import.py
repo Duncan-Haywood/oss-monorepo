@@ -736,7 +736,19 @@ class PhotosImporter:
         return self._photos_names_cache
 
     def check_disk_space(self) -> bool:
-        usage = shutil.disk_usage(self.state_dir)
+        try:
+            usage = shutil.disk_usage(self.state_dir)
+        except OSError as error:
+            # state_dir is typically an iCloud-synced path (see the default
+            # in parse_args); a transient stat failure there -- a sync
+            # hiccup, a momentarily unreachable network mount -- ran
+            # unguarded here before this fix, raising straight out of
+            # run()'s while loop and aborting the whole import for a
+            # condition that resolves itself. Treat it the same as
+            # confirmed-low disk space: skip this iteration and let the
+            # loop retry rather than crash.
+            self.log_event("disk_space_check_failed", {"error": str(error)})
+            return False
         free_gb = usage.free / (1024 ** 3)
         if free_gb < 2:
             self.log_event("low_disk_space", {"free_gb": round(free_gb, 2)})

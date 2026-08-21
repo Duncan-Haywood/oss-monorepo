@@ -9,6 +9,7 @@ from sd_offload import (
     OffloadStats,
     build_rsync_cmd,
     count_source,
+    evict_tree,
     iter_media_files,
     offload_all,
     offload_card,
@@ -379,6 +380,35 @@ class OffloadExitCodeTests(unittest.TestCase):
         self.assertEqual(
             offload_exit_code([{"errors": []}, {"errors": ["Size mismatch: x"]}]), 1
         )
+
+
+class EvictTreeTests(unittest.TestCase):
+    def test_skips_rsync_in_flight_temp_file(self):
+        # rsync writes to a hidden temp file with a random suffix (e.g.
+        # ".IMG_0001.JPG.a1B2c3") while a copy is still in progress, renaming
+        # it to the real name only once the transfer completes. The
+        # background evictor thread runs on a timer *concurrently* with
+        # rsync, so if evict_tree ever walks into that temp file it would be
+        # calling brctl evict on a file rsync still has open for write -- a
+        # silent corruption risk on whatever file rsync happens to be
+        # mid-transfer on. It must only ever touch finished, media-extension
+        # files, the same set iter_media_files already restricts to.
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / "IMG_0001.JPG").write_bytes(b"done")
+            (root / ".IMG_0002.JPG.a1B2c3").write_bytes(b"in-flight")
+            (root / "notes.txt").write_bytes(b"not media")
+
+            with mock.patch("sd_offload.evict", return_value=True) as mock_evict:
+                count = evict_tree(root)
+
+            evicted = {call.args[0].name for call in mock_evict.call_args_list}
+            self.assertEqual(evicted, {"IMG_0001.JPG"})
+            self.assertEqual(count, 1)
+
+    def test_missing_root_returns_zero(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.assertEqual(evict_tree(Path(temp_dir) / "nope"), 0)
 
 
 class BuildRsyncCmdTests(unittest.TestCase):
