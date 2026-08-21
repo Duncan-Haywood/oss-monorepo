@@ -4,7 +4,7 @@ import {
   processStripeConnectWebhookEvent,
   type StripeConnectWebhookEvent,
 } from "@/lib/stripe-connect";
-import { recordOrderFromPaymentWebhook } from "@/lib/orders";
+import { hasOrderForStripeEvent, recordOrderFromPaymentWebhook } from "@/lib/orders";
 import {
   queueGelatoFulfillmentFromOrder,
   recordGelatoFulfillmentSubmission,
@@ -58,6 +58,12 @@ export async function POST(request: Request) {
       ? (paymentObject.metadata as Record<string, unknown>)
       : {};
 
+  // Stripe redelivers webhooks it didn't get a fast 2xx for. recordOrderFromPaymentWebhook
+  // already dedupes the OrderRecord itself, but that alone doesn't stop this handler from
+  // re-running below — check for a prior delivery of this exact event *before* recording,
+  // so a retry doesn't submit a second physical order to Printful/Gelato.
+  const isRetriedDelivery = hasOrderForStripeEvent(event.id);
+
   const orderRecord = recordOrderFromPaymentWebhook(
     event.id,
     event.type,
@@ -66,7 +72,7 @@ export async function POST(request: Request) {
   );
 
   let fulfillmentSubmission = null;
-  if (orderRecord) {
+  if (orderRecord && !isRetriedDelivery) {
     if (orderRecord.fulfillmentPartnerId === "gelato") {
       fulfillmentSubmission = await queueGelatoFulfillmentFromOrder(
         orderRecord,

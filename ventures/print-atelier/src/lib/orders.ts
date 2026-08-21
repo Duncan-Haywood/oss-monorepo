@@ -110,6 +110,18 @@ export function recordOrderFromPaymentWebhook(
   return order;
 }
 
+/**
+ * Returns true if an order was already recorded for this Stripe event id.
+ * Stripe retries webhook deliveries (timeouts, non-2xx responses, manual
+ * redelivery), so callers must check this before triggering side effects
+ * that are not themselves idempotent (e.g. submitting a fulfillment order
+ * to a print-on-demand partner) — recordOrderFromPaymentWebhook alone only
+ * protects the OrderRecord store, not downstream actions.
+ */
+export function hasOrderForStripeEvent(stripeEventId: string): boolean {
+  return orderStore.some((order) => order.stripeEventId === stripeEventId);
+}
+
 export function getOrderRecords(): OrderRecord[] {
   return [...orderStore];
 }
