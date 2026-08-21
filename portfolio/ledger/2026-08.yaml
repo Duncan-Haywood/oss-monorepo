@@ -16488,3 +16488,58 @@ entries:
         so it was deliberately left rather than attempted at lower
         confidence than this pass.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work... maintain and improve the development
+        process... increase in profit" session, designated branch
+        claude/charming-hawking-wyjdik. Ran `session_gate.py` first
+        (PROCEED -- cadence 0.00 sessions/hour over the last 24h, well
+        below the 1.00 threshold). Checked the 4 open PRs (#583, #531,
+        #372, #368) against current `main`: all four already correctly
+        identified by their own sessions as human-gated (deployable
+        `ventures/*` app code or unattended automation) and not
+        agent-mergeable -- left untouched. The ledger was already current
+        as of `main`'s tip (14e103d, #585/#586).
+      - >-
+        Delegated a search for other agent-decidable work to a subagent,
+        which found real doc drift: #585 (merged, already on `main`) added
+        `validate_accuracy.py` and a "How this can be wrong" disclosure to
+        `agent-permission-harness`, taking `ethical_robustness` 7 -> 9 --
+        but never touched `portfolio/pipeline/probes/README.md` (its own
+        table row and the "what remains is a measurement, not a rendering"
+        section) or `portfolio/research/error-rate-disclosure/README.md`'s
+        "what is still open" section, both of which still described the
+        probe as having no customer record module and no measured error
+        rate. `portfolio/research/README.md`'s `error-rate-disclosure/`
+        index entry was stale the same way for three earlier amendments
+        too (`eaa-wcag-triage`, `source-silence-detector`, the
+        `cra-evidence-desk` rubric-bug fix), not just this one.
+      - >-
+        Fixed all three (prose only, no `candidates.yaml` changes).
+        Verified `validate_doc_consistency.py` and `validate_candidates.py`
+        both clean; reran the two affected suites,
+        `probes/agent-permission-harness` 69/69 and
+        `research/error-rate-disclosure` 26/26; grepped for any script
+        parsing these three READMEs' content (as opposed to just
+        referencing their paths in a docstring) -- none found, so nothing
+        pinned the stale wording.
+      - >-
+        Merged as #587: agent-decidable per `CLAUDE.md` (`portfolio/` docs
+        only, publishes/registers/spends nothing), both CI checks (test,
+        validate) green, `mergeable_state: clean` immediately before
+        merge.
+      - >-
+        No revenue; the $0 ceiling is unchanged. Backlog unchanged: same
+        four PRs (#531, #372, #368, #583), already on #139, none touched
+        here. `npm-reachability-triage`'s wrong-suppression rate remains
+        the only unmeasured accuracy figure among the four probes --
+        deliberately not attempted this session either, for the same
+        reason the prior session gave: it needs hand-verifying real CVE
+        suppressions against advisory text and lockfile evidence, which is
+        lower-confidence, higher-effort work than a doc-drift fix and
+        deserves a session that can give it full attention rather than be
+        squeezed in after.
+    mrr_end: null
