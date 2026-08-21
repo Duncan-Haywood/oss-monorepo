@@ -15911,3 +15911,74 @@ entries:
         step is running axe-core itself over the existing 118-page
         corpus, which needs a headless browser.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process" session, designated branch `claude/keen-knuth-j0r93f`.
+        Ran `session_gate.py` first (PROCEED). `git fetch origin main`
+        first; tip `aa8aebd` (#565/#566, the pipeline's first gate
+        measurement). Re-checked the 3 open PRs (#531/#523, #372, #368)
+        with `git merge-tree` against that tip -- all three still merge
+        cleanly and remain correctly human-gated per their own bodies,
+        matching the prior entry exactly; nothing new for #139.
+      - >-
+        Took the next step that same entry named: out-of-sample
+        **recall** was the one asymmetry never measured (precision
+        0.821-0.881, the only recall number anywhere was 1.0 on a
+        three-page fixture set) and axe-core over the 118-page corpus
+        was named as the cheapest honest step, blocked only on a
+        headless browser -- already present in this environment
+        (Playwright + Chromium pre-installed, `registry.npmjs.org`
+        already measured reachable). Built
+        `portfolio/research/a11y-axe-recall/`.
+      - >-
+        A naive first run measured recall at **0.200** and was wrong.
+        Two bugs, found before trusting it: a page loaded via bare
+        `file://` cannot resolve its own linked CSS, so axe-core ran
+        against an unstyled DOM; and once CSS loading was fixed,
+        `a11y-own-sites/audit_own_sites.py`'s adapters turned out to
+        call both WCAG engines with **no stylesheet at all** -- both
+        engines are explicit that with none, contrast (1.4.3) "finds
+        nothing to decide." That is a real, confirmed gap in an
+        already-merged directory the pipeline's liability score cites,
+        across all 118 of that study's pages. Named in the new
+        directory's README, not fixed there -- correcting it means
+        regenerating and re-verifying `a11y-own-sites/`'s own committed
+        numbers and prose, a separate pass.
+      - >-
+        Fixed both in the new module's own adapters (routes build
+        sub-resources by pathname; reads and feeds each app's real CSS
+        to both engines, same as `a11y-contrast-decidability/` already
+        does). Recall: **0.975** (39 of 40 axe-flagged, checked-criterion
+        instances corroborated). The one miss is the same
+        already-recorded, normatively-contested disabled checkbox
+        `a11y-own-sites/` found -- not a fresh detection gap. This is
+        evidence *for* the liability mitigation holding, the first
+        measurement in this family to point that direction; recorded as
+        evidence rather than moving `eaa-remediation-pipeline`'s score,
+        since the corpus is small and narrow (2 of 13 checked criteria
+        actually exercised).
+      - >-
+        Verified before merging: 10 new tests including a behavioural
+        guard that the stylesheet fix changes the answer on a synthetic
+        page (so a future edit that drops it fails a test rather than
+        silently reintroducing Finding 0); `--recompute-from` re-derives
+        the summary offline; sibling suites unaffected (`a11y-own-sites`
+        16/16, `a11y-external-coverage-reference` 21/21). Added
+        `a11y-axe-recall-ci.yml` matching its siblings' shape, validated
+        against `platform/ci/validate_workflows.py`. Merged as #567
+        with all 3 checks green: agent-decidable per `CLAUDE.md`
+        (`portfolio/research/` and CI config only, no `ventures/*` app
+        code, publishes/registers/spends nothing beyond the one
+        documented `npm install`), re-checked merge-clean against the
+        live `main` tip immediately before merging.
+      - >-
+        No revenue; the $0 ceiling is unchanged. Backlog unchanged: same
+        three PRs, already reflected on #139. Named but not done, for
+        the next pass: fix `a11y-own-sites/`'s missing-stylesheet bug
+        and re-verify that directory's own numbers -- flagged above,
+        not attempted here.
+    mrr_end: null
