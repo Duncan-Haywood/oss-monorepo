@@ -295,6 +295,67 @@ class PhotosImportWatchdogTests(unittest.TestCase):
 
             popen.assert_called_once()
 
+    def test_run_watchdog_closes_worker_log_handle_after_spawning(self):
+        # Regression: stdout=log_path.open("ab") used to hand subprocess.Popen
+        # a file object that nothing ever closed. Popen dup()s the fd into the
+        # child during fork, so the parent's own copy is safe to close right
+        # after Popen() returns -- but the code never did, leaking one fd per
+        # worker (re)start. An unattended multi-hour run that restarts the
+        # worker repeatedly (on every exit or stall) would eventually hit the
+        # process's open-file ulimit and crash the watchdog itself, silently
+        # stalling the import with no error recorded anywhere.
+        with tempfile.TemporaryDirectory() as temp_dir:
+            state_dir = Path(temp_dir)
+            db_path = state_dir / "photos_import.sqlite3"
+            with sqlite3.connect(db_path) as connection:
+                connection.execute(
+                    "CREATE TABLE imports (path TEXT PRIMARY KEY, status TEXT NOT NULL, "
+                    "attempts INTEGER NOT NULL DEFAULT 0, last_error TEXT, "
+                    "first_seen_at TEXT NOT NULL, updated_at TEXT NOT NULL)"
+                )
+                connection.execute(
+                    "INSERT INTO imports VALUES ('/tmp/pending.jpg', 'pending', 0, NULL, 'now', 'now')"
+                )
+                connection.commit()
+
+            captured = {}
+
+            class FakePopen:
+                def __init__(self, command, cwd=None, stdout=None, stderr=None, start_new_session=None):
+                    captured["stdout_handle"] = stdout
+                    self.returncode = None
+                    # Simulate the STOP file appearing right after the worker
+                    # is spawned, so the loop exits after exactly one restart
+                    # instead of spawning workers forever.
+                    (state_dir / "STOP").touch()
+
+                def poll(self):
+                    return self.returncode
+
+            with mock.patch("photos_import_watchdog.subprocess.Popen", FakePopen), mock.patch(
+                "photos_import_watchdog.terminate_process_group"
+            ):
+                exit_code = run_watchdog(
+                    root=state_dir,
+                    state_dir=state_dir,
+                    tool_dir=state_dir,
+                    poll_seconds=1,
+                    stall_seconds=900,
+                    timeout_seconds=180,
+                    attempts=3,
+                    batch_size=10,
+                    include_raws=False,
+                    raw_batch_size=3,
+                    raw_timeout_seconds=600,
+                )
+
+            self.assertEqual(exit_code, 130)
+            self.assertIn("stdout_handle", captured)
+            self.assertTrue(
+                captured["stdout_handle"].closed,
+                "worker's stdout log file was never closed after Popen() -- fd leak on every restart",
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

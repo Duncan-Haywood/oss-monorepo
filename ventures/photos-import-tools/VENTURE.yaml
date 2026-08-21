@@ -73,6 +73,10 @@ hypotheses:
     status: supported
     checked: 2026-08-21
     evidence: in-repo
+  - claim: The unattended watchdog does not leak a file descriptor on every worker (re)start, so a long run that restarts the worker repeatedly (on each exit or stall) never exhausts the process's open-file limit and crashes the watchdog itself before the import finishes.
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
 
 economics:
   currency: USD
