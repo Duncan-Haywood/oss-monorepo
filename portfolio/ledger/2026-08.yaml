@@ -14652,3 +14652,63 @@ entries:
         revenue ceiling and the publish/payout blocker on issue #139 are
         unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Continuation of this session's earlier entry (PR #529, merged as
+        `3307730b`): closed #525 as a duplicate of #524, resolved a
+        follow-on ledger merge conflict against a concurrent #528/#530
+        entry, and merged a photos-import-tools correctness fix. This
+        entry records what happened next, once the background bug-hunt
+        pass and the #523-narrowing work both landed.
+      - >-
+        The bounded photos-import-tools bug-hunt (launched because
+        `allocate.py` now reports 0 of 10 ventures dispatchable, down
+        from the 1-of-10 several recent entries recorded) found one
+        genuine bug: `summarize_recent_errors()`, used by the `status`
+        CLI command, parsed each error-log line with a bare `json.loads`
+        and let a torn trailing line (possible after a crash or an
+        iCloud-sync hiccup mid-`write()`, since the log isn't written
+        atomically) crash the exact command an operator reaches for right
+        after an interrupted run -- while its sibling
+        `count_recent_errors()`, reading the same file at the same call
+        site, already guarded against this. Fixed to match, regression
+        test added, new `supported` hypothesis recorded in
+        `VENTURE.yaml`. Verified: 91/91 tests, ruff and mypy clean, all
+        three CI checks green. Self-merged via #529 -- agent-decidable,
+        internal correctness fix to an unpublished venture
+        (`links.production: null`), no live site or credential involved.
+      - >-
+        Separately, three more concurrent sessions converged on the same
+        #523-narrowing task within about 90 seconds of each other: #531,
+        #532 and #533 all rebased #523's identical venture-only remainder
+        (11 files, 31 lines, the same colour-token substitutions) onto
+        current `main` after #524 landed underneath it. Confirmed
+        byte-identical rather than assumed from matching titles -- `git
+        diff pr531 pr532 -- ventures/` and `git diff pr531 pr533 --
+        ventures/` are both empty, and all three report the same test
+        results (1213/1213 `local-site-studio`, 60/60 `ai-first-markets`,
+        0 contrast failures on rebuild). Closed #532 and #533 with
+        comments pointing to #531 (opened first, and a direct
+        continuation of the same session that landed #524) per
+        `CLAUDE.md`'s consolidation guidance, rather than leaving all
+        three for the account owner to triage. #531 itself is unchanged
+        by this and still needs the account owner's sign-off -- it's the
+        same human-gated venture-colour-token decision #523 already
+        described, just on a conflict-free head. Left #523 open for
+        reference, matching the #191/#208/#222 precedent for a stale but
+        superseded PR in the same position.
+      - >-
+        No revenue and no candidate score moved. The standing $0 revenue
+        ceiling and the publish/payout blocker on issue #139 are
+        unchanged. Net effect of this session on the open-PR backlog:
+        started at 4 open PRs (#372, #368, #511, #523), ended at 5
+        (#372, #368, #511, #523, #531) despite six PRs opening across
+        concurrent sessions during the session (#524-#530, #531-#533) --
+        five of those six were consolidated down to zero net new
+        decision-pending items, and the sixth (#531) replaces #523's
+        mergeability with a conflict-free equivalent rather than adding a
+        new decision.
+    mrr_end: null
