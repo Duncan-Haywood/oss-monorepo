@@ -288,11 +288,12 @@ coverage statement, applied here to this directory's measurement of it.
 
 ## What could not be measured here
 
-- **No render, no interaction, no assistive technology.** Every criterion the
-  engines mark `manual` — contrast, keyboard operability, focus order and
-  visibility, target size, error identification — is untouched. On the
-  candidate's own economics this is the deliberate contractor step, and nothing
-  in this directory shrinks it.
+- **No render, no interaction, no assistive technology, beyond contrast.**
+  Finding 4 closed the gap on 1.4.3. The rest of what both engines mark
+  `manual` — keyboard operability, focus order and visibility, target size,
+  error identification — is still untouched by a build-directory corpus with
+  no browser and no interaction. On the candidate's own economics this is the
+  deliberate contractor step, and nothing in this directory shrinks it.
 - **Prerendered output is not the delivered page.** The corpus is what the build
   emits before hydration. A control whose accessible name is attached by client
   JavaScript reads as unnamed here, and one whose name is *removed* on the
