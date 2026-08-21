@@ -40,9 +40,8 @@ Then in Xcode, for **both** the `WorldClockApp` and `WorldClockWidgetExtension` 
 2. Confirm the **App Groups** capability is present with `group.com.duncanhaywood.worldclock`
    (already wired up via `project.yml`'s `entitlements` blocks — Xcode just needs to register it
    against your Apple Developer account the first time you build).
-3. Add a real 1024×1024 app icon to `Sources/WorldClockApp/Assets.xcassets/AppIcon.appiconset`
-   (a placeholder `Contents.json` with no image is checked in so the project builds and runs
-   locally; App Store validation will require an actual icon image before archiving).
+3. The app icon is already checked in (`AppIcon-1024.png`, a globe/clock/sunrise motif matching
+   the app's design language), so no icon work is needed before archiving.
 
 Run the `WorldClock` scheme on a simulator or device. Long-press the home screen → **+** →
 search "World Clock" to add the widget; long-press the widget → **Edit Widget** to choose which
