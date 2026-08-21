@@ -16348,3 +16348,85 @@ entries:
         named again for whoever next looks at session cadence or
         pre-claim coordination.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research new business projects" session, designated
+        branch `claude/laughing-pasteur-5hd7eg`. Hit `CLAUDE.md`'s intake
+        gate, added no candidate and screened nothing. Ran
+        `session_gate.py` first (PROCEED, cadence 0.00/h) and checked open
+        PRs before starting: three open (#531, #372, #368), unchanged, no
+        overlap with what follows.
+      - >-
+        Took the follow-up `portfolio/research/error-rate-disclosure/` had
+        named and left undone -- "print the number each probe already knows
+        into the artifact it already emits [...] doing it would make this
+        directory's own tests fail, which is how it is meant to work." Two
+        of the four probes had a committed accuracy figure that stopped at
+        the research directory. `eaa-wcag-triage` now renders an ACCURACY
+        block twice (summary headline, and a full section immediately above
+        the findings table): precision 0.821-0.881 over-reporting, recall
+        0.975 under-reporting, each with corpus, date, derivation path and
+        the reason it is not the last word -- plus the sentence deduction 3
+        actually asks for, that over-reporting is the direction that pays
+        us. `source-silence-detector` had no customer surface at all, so
+        `subscriber_record.py` was built: it prints the held-out detection
+        rate (6 of 17) and median latency (110d), refuses to render an
+        absence of alerts as health (a test fails on "active", "healthy",
+        "OK", "clear", "fine"), carries a standing caveat that its own
+        silence is no evidence, and names `FDA/openfda` as effectively
+        unwatched at a 2060-day threshold rather than leaving "no alert"
+        to read as reassurance.
+      - >-
+        Three defects found while doing it, each the same shape as the
+        finding the directory exists to report. (1) `score()` charged the
+        adverse-alignment deduction unconditionally while the rubric it
+        publishes conditions it on the direction being *undisclosed*, so an
+        artifact could disclose everything and still be charged -- the
+        mitigation was unrecoverable by construction. It survived because
+        `test_full_disclosure_costs_nothing` only ever ran against the one
+        candidate whose alignment is not adverse. (2) `sentences()` split
+        on any period, so an artifact printing "0.821-0.881" produced
+        quoted evidence like ["**Precision 0.", "881, recall 0."] -- the
+        booleans were right and D2's justification is that every match is
+        quoted so it can be checked, which a fragment cannot be. (3)
+        `score_sensitivity.py` asserted "Every revision is downward" as
+        fixed prose, the same failure mode as the "revised down by one"
+        sentence above it; now derived, and the record runs 8 down and 3
+        up.
+      - >-
+        `ethical_robustness`: `eaa-remediation-pipeline` 6 -> 9 (composite
+        6.75 -> 7.125), `public-record-watch` 6 -> 9 (6.625 -> 7.0),
+        `cra-evidence-desk` 6 -> 7 (6.5 -> 6.625, a harness correction, not
+        a re-probe -- its artifact is byte-identical). These are the first
+        upward revisions in `candidates.yaml`, and the distinction worth
+        keeping is that each follows a *changed artifact* re-measured by
+        the same harness, never a later pass re-estimating; the test suite
+        now pins that. Recorded in three places that they are disclosure
+        scores only: no probe got more accurate, the silence detector still
+        misses two thirds of what it is sold to find, and
+        `eaa-remediation-pipeline`'s `liability_containment` is unchanged
+        at 5, still on the gate -- what decides that candidate did not
+        move.
+      - >-
+        Merged as #582 with all 10 check runs green; agent-decidable per
+        `CLAUDE.md` (`portfolio/` only, publishes/registers/spends
+        nothing). Also verified locally before pushing: full
+        portfolio-validate suite, `eaa-wcag-triage` 112 -> 126 tests with
+        its committed fixture record byte-identical,
+        `source-silence-detector` 99 -> 113, `error-rate-disclosure` 17 ->
+        25, sibling probes unaffected. `git merge-tree` against the live
+        `main` tip immediately before opening, clean.
+      - >-
+        No revenue; the $0 ceiling is unchanged. Backlog unchanged: same
+        three PRs (#531/#523, #372, #368), already on #139, none touched
+        here. Still open in this thread and deliberately not closed:
+        `npm-reachability-triage` has never measured the rate for the
+        direction its own record calls "the failure this tool is built to
+        avoid", and `agent-permission-harness` has neither a record module
+        nor a measured rate -- both need a measurement, not a rendering,
+        which is why this pass could close 9 of the 10 deductions and not
+        the tenth.
+    mrr_end: null
