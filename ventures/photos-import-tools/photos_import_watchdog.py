@@ -14,7 +14,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Iterable
+from typing import Callable, Iterable
 
 from atomic_io import write_json_atomic
 
@@ -207,6 +207,29 @@ def combined_summary(phases: list[ImportPhase]) -> dict[str, int]:
     return totals
 
 
+def install_signal_handlers(request_stop: Callable[[], None]) -> None:
+    # start_import.sh execs this script directly ("exec caffeinate -dims ...
+    # photos_import_watchdog.py"), so the watchdog process itself -- not some
+    # wrapper -- is the direct target of an operator's Ctrl-C or a
+    # supervisor's `kill`/launchd stop. Python's default disposition for
+    # SIGTERM is immediate termination with no cleanup at all, and SIGINT's
+    # default KeyboardInterrupt propagates out uncaught just the same. The
+    # worker is started with start_new_session=True precisely so a *worker*
+    # stall can't take the watchdog down with it, but that same detachment
+    # means a watchdog that dies without calling terminate_process_group
+    # first leaves the worker running as an unsupervised orphan, still
+    # driving Photos.app with no stall detection or restart logic. A later
+    # watchdog run has no way to see that orphan and starts a fresh worker
+    # alongside it, racing two importer processes against Photos.app on the
+    # same manifest -- the same risk kill_criteria #2 already rules out for a
+    # worker surviving SIGKILL.
+    def _handle(_signum: int, _frame: object) -> None:
+        request_stop()
+
+    signal.signal(signal.SIGINT, _handle)
+    signal.signal(signal.SIGTERM, _handle)
+
+
 def run_watchdog(
     *,
     root: Path,
@@ -233,6 +256,13 @@ def run_watchdog(
         raw_batch_size=raw_batch_size,
         raw_timeout_seconds=raw_timeout_seconds,
     )
+
+    signal_stop_requested = {"flag": False}
+
+    def _request_stop() -> None:
+        signal_stop_requested["flag"] = True
+
+    install_signal_handlers(_request_stop)
 
     process: subprocess.Popen[bytes] | None = None
     current_phase: ImportPhase | None = None
@@ -270,14 +300,15 @@ def run_watchdog(
             )
             return 0
 
-        if stop_path.exists():
+        if stop_path.exists() or signal_stop_requested["flag"]:
             if process is not None:
                 terminate_process_group(process)
+            message = "stopped by STOP file" if stop_path.exists() else "stopped by signal"
             write_status(
                 phase.status_path,
                 read_summary(phase.db_path),
                 worker_running=False,
-                message="stopped by STOP file",
+                message=message,
                 extra={"phase": phase.media_type},
             )
             return 130
