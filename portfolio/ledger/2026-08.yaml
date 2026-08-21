@@ -12634,3 +12634,58 @@ entries:
         still correctly owner-gated -- no status change, nothing new
         posted to #139.
     mrr_end: null
+  - venture: garmin-world-traveler-watchface
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit... more strategic
+        work" session, designated branch claude/wizardly-albattani-u1i47l.
+        Ran `session_gate.py` first (PROCEED -- meta-work share 24% of last
+        25 entries, below the 70% threshold, so continued venture spend was
+        the right call). Listed the 3 open PRs (#372, #368, #144) and
+        re-read `portfolio/router/allocate.py` (0 of 10 dispatchable, all
+        blocked on an unpublished `links.production`) and issue #139 (last
+        updated minutes before this session started, already current):
+        nothing new to add to any of the three, consistent with the entry
+        immediately above this one.
+      - >-
+        With no fresh PR or router work available, applied the
+        photos-import-tools bug-hunt pattern to a venture with zero prior
+        ledger entries: `garmin-world-traveler-watchface`
+        (`portfolio/router/allocate.py`'s `ledger` column showed 0). Read
+        its DST logic (`CityData.mc`) end to end. Found `isDstUs()`'s
+        November end-of-DST key was `02:00` on the standard-time-anchored
+        clock it compares against, but the US legal transition is defined
+        at 2:00 a.m. on the *prevailing* (daylight) clock, which is `01:00`
+        standard, not `02:00` -- a genuine off-by-one-hour bug affecting 7
+        of 42 cities (every `:dst => :us` entry) for the hour immediately
+        following each real fall-back.
+      - >-
+        Verified against Python's `zoneinfo` for `America/New_York` 2026:
+        binary-searched the exact UTC fall-back instant
+        (`2026-11-01T06:00:00Z`), confirmed its standard-time reading is
+        `01:00` (code needed) vs. its daylight-time reading `02:00` (what
+        the legal text literally says and what the buggy code used). Same
+        method confirmed the March start key was already correct.
+        Independently re-derived the AU/NZ rules from IANA tzdata's `Rule`
+        lines and confirmed those were already correct -- only the US
+        November end needed the fix. No Monkey C test harness exists in
+        this repo (CI only XML-validates manifest/resources; full
+        compilation needs the Garmin Connect IQ SDK, unavailable in
+        Actions), so this is the verification method rather than a driven
+        regression test. Recorded the hypothesis and its evidence in
+        `VENTURE.yaml`.
+      - >-
+        Fixed in `CityData.mc`; `portfolio/router/validate.py`,
+        `portfolio/scoring/score_ventures.py --check`,
+        `portfolio/pipeline/validate_candidates.py`, and
+        `validate_doc_consistency.py` all passed. Opened PR #457, watched
+        its `validate` check to green, re-confirmed clean mergeability
+        against the live `main` tip immediately before merging, and
+        self-merged as agent-decidable: internal source fix to an
+        unpublished venture (`links.production: null`), no new dependency,
+        no credential, no unattended automation, nothing published,
+        nothing spent beyond agent time.
+    mrr_end: null
