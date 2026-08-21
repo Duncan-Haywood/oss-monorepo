@@ -35,7 +35,9 @@ and why"* — as a function rather than a promise.
 | [`audit.py`](audit.py) | 19 static WCAG 2.2 AA checks over HTML, Liquid, Twig, Blade/PHP, EJS, Vue and Svelte templates, plus `evidence_record()` |
 | [`test_audit.py`](test_audit.py) | 75 tests, standard-library `unittest`, no install step |
 | [`measure_themes.py`](measure_themes.py) | Runs the pass over published storefront themes on npm and reports the distribution |
+| [`measure_stylesheet_reachability.py`](measure_stylesheet_reachability.py) | Measures whether a 1.4.3 contrast port is buildable against the same corpus (see amendment below) |
 | [`results-2026-08-20.json`](results-2026-08-20.json) | Every per-package row behind the numbers below |
+| [`results-stylesheet-reachability-2026-08-21.json`](results-stylesheet-reachability-2026-08-21.json) | Raw rows behind the contrast-port feasibility amendment |
 | [`example-record-2026-08-20.md`](example-record-2026-08-20.md) | A record generated against this portfolio's own HTML |
 
 Standard library only, in both scripts. Read-only: `audit.py` has no write path
@@ -69,6 +71,83 @@ tarballs; `--recompute-from` cannot do it, because the saved rows hold
 per-package results rather than the markup. The measurement and the full
 reasoning are in
 [`../a11y-engine-agreement/`](../a11y-engine-agreement/).
+
+## Amendment, 2026-08-21 — the 1.4.3 contrast port is not generally buildable, measured
+
+#523 ported colour-contrast decidability into `eaa-wcag-triage/` (the sibling
+engine over *built* HTML output) and named porting the same resolver into this
+engine's `audit.py` as a follow-up — flagged there as "non-trivial … an open
+question rather than a port," because this engine reads *source* theme
+*packages*, not a rendered page with one linked, compiled stylesheet. That
+question is now measured rather than assumed, with
+[`measure_stylesheet_reachability.py`](measure_stylesheet_reachability.py)
+run against the exact 22-package corpus `measure_themes.py` audited (pinned to
+the same names and versions, so both measurements describe the same
+population). Raw rows in
+[`results-stylesheet-reachability-2026-08-21.json`](results-stylesheet-reachability-2026-08-21.json).
+
+The answer splits into two separate blockers, of unequal size:
+
+| | packages |
+|---|---:|
+| Total | 22 |
+| Ship **no** stylesheet file at all in the package | 7 (32%) |
+| Ship a stylesheet, but only as Sass/Less **source** (no literal `.css`) | 6 (27%) |
+| Ship at least one literal `.css` file | 9 (41%) |
+
+**Blocker 1 — for 7 of 22 packages, the stylesheet is not in the package at
+all.** `@nuskin/ns-shop-elements` (469 class attributes across 50 markup
+files), `@vue-storefront/nuxt-theme` (399 classes, 45 files) and
+`pinelab-storefront` (183 classes, 19 files) are representative: these are
+component kits meant to be styled by a downstream consumer project, so there
+is no CSS to resolve against — not undecidable, *absent*. No resolver design
+closes this; the stylesheet genuinely is not there to read.
+
+**Blocker 2 — of the 15 packages that do ship stylesheets, 469 files are
+`.scss` against 161 `.css`, and only 9 packages ship any literal, unprocessed
+`.css` at all.** `fassbender-shopify-theme` (the package #523's own template
+port worked from) is representative of the majority case: 74 `.scss` files
+against 3 `.css` files, and its `_variables.scss` opens with
+`@import '../../node_modules/bootstrap/scss/variables'` and a `map-merge` —
+real Sass control flow, not a file `css.py`'s selector-and-value parser could
+read a colour out of without first running a Sass compiler. That is a
+different kind of change than the port asked for: `eaa-wcag-triage/css.py` is
+deliberately standard-library-only, no install step, per this portfolio's
+research-tooling norm; adding Sass compilation means either a third-party
+dependency or a per-package `npm install` + build step, which the corpus's own
+`node_modules`-relative imports show would need the package's *own*
+`node_modules` to resolve correctly — fragile in a way the current
+zero-dependency, read-only design is not.
+
+**What is not blocked.** The class-attribute side of #523's concern —
+"class names are often built from expressions" — measures as the *small*
+problem: 138 of 8,591 class attributes (1.6%) carry a template expression
+across the whole corpus. `audit.py`'s existing `is_expr`/`refs_can_match`
+machinery already handles exactly this case for other attributes, so if a
+resolvable stylesheet is ever available (say, a future stage that runs after
+[`../a11y-render-recovery/`](../a11y-render-recovery/)'s theme-rendering step,
+where the render already implies a Sass build happened), matching a class
+attribute to a selector is the easy half. The stylesheet not being literal CSS
+in the source package is the actual blocker, and it is concentrated rather
+than evenly spread: of the 158 literal `.css` files in the whole corpus, 147
+(93%) sit in just two packages — `@zalify/theme-templates` (117, and the only
+package with zero `.scss` at all) and `@ecomplus/storefront-twbs` (30, a
+compiled-Bootstrap bundle shipped alongside its own 204 `.scss` source files).
+The other seven packages with any literal CSS have one to three files each —
+plausibly a vendored reset or a single component stylesheet rather than the
+theme's own styling, not checked further here. A resolver built against this
+corpus would have real, non-trivial coverage on two packages out of
+twenty-two and near nothing on the rest.
+
+**Consequence.** 1.4.3 and 1.4.11 stay in `NOT_TESTED` for this engine, and
+should — the reason given there ("needs rendered colours; stylesheets, theme
+settings and images all participate") already covers this finding without
+needing to be rewritten. The distinction from `eaa-wcag-triage/` is not a gap
+in this engine; it is the two engines auditing different artifacts (source
+template packages vs. one project's built output) where only one of those
+artifacts ships a stylesheet a standard-library parser can read. Closing this
+for template packages generally would need a Sass/Less build stage, which is a
+different, larger decision than a port and is not proposed here.
 
 ## Finding 1 — the record cannot be published without its own coverage boundary
 
