@@ -12995,6 +12995,68 @@ entries:
         -- still built and not published, still blocked on Ask 1 (GitHub
         App scope).
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit... this run should
+        be more strategic work" session, designated branch
+        claude/wizardly-albattani-7me512. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 16% of last 25 entries, below the 70%
+        threshold). `git fetch origin main` first. Checked the 3 open PRs
+        (#372, #368, #144) and issue #139's most recent comment (04:26Z)
+        before touching anything: all three remain correctly owner-gated
+        and unchanged -- nothing to consolidate, nothing new to add.
+        `portfolio/router/allocate.py` showed 0 of 10 ventures
+        dispatchable in the monetization sense, consistent with the
+        standing finding that every venture is blocked on an unpublished
+        `links.production`.
+      - >-
+        `photos-import-tools` is the venture recent sessions have used for
+        internal reliability work instead. It is heavily mined (33 prior
+        ledger entries), so read `sd_offload.py` in full rather than
+        skimming. Found a gap in the same class as this venture's other
+        fixes: `Path.mkdir(parents=True, exist_ok=True)` inside
+        `rsync_copy` doesn't care whether the ancestor it has to recreate
+        used to be a distinct mount point. If the staging drive is
+        unmounted between one `include_path` and the next, `mkdir`
+        silently rebuilds the rest of the destination tree on whatever
+        filesystem the nearest surviving ancestor sits on (typically the
+        boot volume) -- rsync then succeeds writing there, and
+        `verify_and_manifest` reports the files "verified" despite them
+        being on the wrong disk. No error, clean exit code, silent
+        redirection of the media this venture exists to protect --
+        exactly the "dangerous case" `offload_exit_code`'s own docstring
+        names, and the destination-side gap in a guard that already
+        existed for the source side (`card.source.exists()` mid-offload).
+      - >-
+        Added `_dest_device_id()` (device id of the nearest existing
+        ancestor, reusing `wait_for_disk_space`'s climb-to-ancestor
+        pattern) captured once per card and re-checked before each
+        include's `rsync_copy` call; a mismatch is now recorded as an
+        error and that include is skipped rather than silently written
+        elsewhere. Scoped to the mount vanishing mid-run (symmetric with
+        the existing source-side check), not "never mounted at all,"
+        which would need assumptions about the caller's setup the module
+        doesn't otherwise make.
+      - >-
+        Verified rather than trusted: `python3 -m unittest discover -s
+        tests` 90/90 pass (89 existing + 1 new, which simulates the mount
+        changing between two include paths and asserts the second is
+        blocked rather than written), `ruff check .` clean, `mypy .`
+        clean, `portfolio/router/validate.py` and
+        `portfolio/pipeline/validate_candidates.py` both green. Opened PR
+        #471, watched both CI checks (`test`, `lint`) go green, re-checked
+        mergeability against the live `main` tip with `git merge-tree`
+        immediately before merging (main had moved twice mid-session), and
+        self-merged as agent-decidable: `links.production: null`,
+        defensive/additive fix to internal macOS CLI tooling, no new
+        dependency, no credential, no unattended automation, nothing
+        published, nothing spent beyond agent time -- same class as this
+        venture's many prior self-merges.
+    mrr_end: null
   - venture: retail-pilot-intel
     agent_spend_usd: null
     human_hours: 0
