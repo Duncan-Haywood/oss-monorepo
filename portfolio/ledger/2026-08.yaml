@@ -14135,3 +14135,51 @@ entries:
         moved the thing that decides. The standing $0 revenue ceiling and
         the publish/payout blocker on issue #139 are unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/zealous-curie-9kmie3. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 44% of last 25 entries, below the 70%
+        threshold). `git fetch origin main` first; tip `112e976` (#510,
+        held-out validation merge). Checked the 2 open PRs (#372, #368) and
+        issue #139 before touching anything -- both already correctly
+        owner-gated by prior sessions, nothing new to add. Confirmed via
+        `git merge-tree --write-tree` that both still merge cleanly against
+        the live tip.
+      - >-
+        Ran `verification_status.py`, which flagged #372's record (from
+        `06:24:49Z` against tip `52416c5`) `BUILD STALE` for
+        `ai-first-markets`, `print-atelier`, `retail-pilot-intel` --
+        routine fixes had landed since (#493 receipt_id/store_id collision,
+        #480 Stripe ledger dedup + an icon-button label fix, #479
+        average-revenue figure fix). Per `re-verification.md`, a `BUILD
+        STALE` line is an instruction to go run something, so merged
+        `main` into #372's branch in a scratch worktree (0 conflicts) and
+        rebuilt all three: retail-pilot-intel (lint, typecheck 6/6, build,
+        test 28/28, audit clean), print-atelier (lint 0 errors, test
+        130/130, build, audit clean), ai-first-markets (lint, typecheck,
+        test 60/60, build, audit clean). `CHECKS STALE` also fired (4
+        workflow files changed) but none are in #372's scope or attached to
+        its checks. Replaced #372's record in `verifications.yaml`;
+        `verification_status.py` now reports `BUILD VALID` / `CHECKS
+        VALID`. Opened and self-merged #512 as agent-decidable per
+        `CLAUDE.md` -- `portfolio/ledger/verifications.yaml` only, no
+        `ventures/*` app code, verified by actually running the checks.
+      - >-
+        No revenue; no candidate score moved. #372 itself is unchanged and
+        still correctly on the account owner's queue via issue #139 (a
+        framework-version change to deployable `ventures/*` code) -- this
+        session only kept its verification record accurate so the next
+        session doesn't have to re-derive it. Checked `portfolio/pipeline/`
+        for an advanceable probe and `channel-inventory.md` for an
+        unblocked ship: both remaining built probes
+        (`eaa-wcag-triage`, `npm-reachability-triage`) are complete and
+        blocked on the account owner (live shop themes + a contractor;
+        GitHub App scope respectively), already recorded on issue #139 --
+        nothing new there either. The standing $0 revenue ceiling is
+        unchanged.
+    mrr_end: null
