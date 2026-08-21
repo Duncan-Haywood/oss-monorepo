@@ -13402,3 +13402,65 @@ entries:
         every venture still has `links.production: null` and the publish/payout asks
         remain on issue #139 for the account owner.'
     mrr_end: null
+  - venture: world-clock-widget
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/ecstatic-volta-vfdcfl. Ran `session_gate.py` first
+        (PROCEED). Listed the 3 open PRs (#372, #368, #144): all already
+        correctly owner-gated by prior sessions -- nothing new to add.
+        `portfolio/router/allocate.py` showed 0 of 10 ventures dispatchable,
+        the standing `links.production` blocker. Dispatched a background
+        agent to adversarially bug-hunt `world-clock-widget`, the
+        least-mined venture in the ledger (1 prior mention) with real test
+        infrastructure (Swift Package Manager, `Tests/WorldClockCoreTests`).
+      - >-
+        Found that `SolarCalculator.time(for:city:on:)` anchored its
+        sunrise/sunset instant to midnight UTC of the requested *local*
+        calendar date -- correct only when a city's civil UTC offset closely
+        matches its raw `longitude / 15`. For most cities away from the
+        Greenwich meridian the two diverge enough that the returned `Date`
+        lands on the wrong local calendar day once converted back to city
+        time: Tokyo's computed sunrise on 2026-06-21 came back dated
+        2026-06-22 JST; Los Angeles's sunset the same day came back dated
+        2026-06-20 PDT. A full-year, full-catalog numeric sweep (Python port
+        of the same formula, cross-checked against `zoneinfo`) found
+        sunrise-after-sunset anomalies on ~6,600 of ~14,600 city/day
+        combinations -- routine for roughly half the shipped city catalog
+        (`los-angeles`, `tokyo`, `sydney`, `singapore`, `hong-kong`, and
+        others, every day of the year), not the rare International-Date-Line
+        edge case the existing code comment suggested. Directly affects
+        `CityClockSnapshot.isDaytime` (wrong day/night icon and gradient for
+        the small-widget view) since it only had a fallback for
+        `sunrise >= sunset`, not a fix for the underlying date being wrong.
+        The one existing ordering test covered only London, which sits at
+        the Greenwich meridian where the bug doesn't manifest.
+      - >-
+        Fixed by checking whether the algorithm's candidate instant actually
+        falls on the requested local calendar day in the city's own time
+        zone, nudging by +/-1 day until it does. Added three regression
+        tests (Tokyo/east-of-Greenwich, Los Angeles/west-of-Greenwich, and a
+        full-catalog ordering check at the equinox) to
+        `SolarCalculatorTests.swift`; confirmed each fails against the
+        pre-fix code and passes after. Verified two ways: (1) the same
+        full-year Python sweep re-run with the fix applied brought the
+        anomaly count from 6,571 down to 13, all pre-existing and already
+        documented Reykjavik near-Arctic imprecision, unrelated to this bug;
+        (2) this repo's own CI (`world-clock-widget CI`: `swift build` +
+        `swift test` in the real `swift:5.9` container) ran green on the PR
+        head -- the sandbox itself had no local Swift toolchain and its
+        egress policy blocked pulling the `swift:5.9` image, so CI was the
+        only place the real test suite could run.
+      - >-
+        Opened PR #487, watched its CI go green, re-confirmed clean
+        mergeability against the live `main` tip with `git merge-tree`
+        immediately before merging (`links.production: null` re-checked in
+        `VENTURE.yaml`), and self-merged as agent-decidable: internal
+        correctness fix to an unpublished venture, no new dependency, no
+        credential, no unattended automation, nothing published, nothing
+        spent beyond agent time -- same class as this portfolio's many
+        prior self-merges.
+    mrr_end: null
