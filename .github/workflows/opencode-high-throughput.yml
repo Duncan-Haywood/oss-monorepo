@@ -134,33 +134,27 @@ jobs:
       - name: Prepare prompt
         id: prompt
         run: |
-          chmod +x .github/scripts/prepare-agent-prompt.sh 2>/dev/null || true
-          if [[ -f .github/scripts/prepare-agent-prompt.sh ]]; then
-            .github/scripts/prepare-agent-prompt.sh \
-              ".github/prompts/portfolio-work.md" \
-              "opencode-agent-${{ matrix.agent_id }}" \
-              "portfolio-work"
-            PROMPT_PATH="${RUNNER_TEMP:-/tmp}/agent-prompt.md"
-          else
-            # Fallback if script doesn't exist yet
-            PROMPT_PATH="${RUNNER_TEMP:-/tmp}/agent-prompt.md"
-            {
-              cat ".github/prompts/portfolio-work.md"
-              echo
-              echo "## Run context"
-              echo
-              echo "- Agent: opencode-agent-${{ matrix.agent_id }}"
-              echo "- Prompt: portfolio-work"
-              echo "- Repository: ${GITHUB_REPOSITORY:-unknown}"
-              echo "- Workflow run: ${GITHUB_RUN_ID:-unknown}"
-              echo
-              echo "Start now. Consult the router, claim work, implement, verify, and open a PR."
-            } > "$PROMPT_PATH"
-          fi
+          PROMPT_PATH="${RUNNER_TEMP:-/tmp}/agent-prompt.md"
           {
-            echo "body<<PROMPT_EOF"
+            cat ".github/prompts/portfolio-work.md"
+            echo
+            echo "## Run context"
+            echo
+            echo "- Agent: opencode-agent-${{ matrix.agent_id }}"
+            echo "- Prompt: portfolio-work"
+            echo "- Repository: ${GITHUB_REPOSITORY:-unknown}"
+            echo "- Workflow run: ${GITHUB_RUN_ID:-unknown}"
+            echo
+            echo "Start now. Consult the router, claim work, implement, verify, and open a PR."
+          } > "$PROMPT_PATH"
+
+          # portfolio-work.md is REPO_WRITE, so a line equal to a fixed delimiter
+          # would close this value early and the rest would parse as more outputs.
+          DELIM="PROMPT_EOF_$(openssl rand -hex 16)"
+          {
+            echo "body<<${DELIM}"
             cat "$PROMPT_PATH"
-            echo "PROMPT_EOF"
+            echo "${DELIM}"
           } >> "$GITHUB_OUTPUT"
 
       - name: Run OpenCode agent

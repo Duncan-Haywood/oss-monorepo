@@ -56,16 +56,21 @@ itself in exactly those terms. Writer sets are ordered, widest last:
 Full report: [`results-2026-08-21.md`](results-2026-08-21.md). Regenerate with
 `python3 harness.py`.
 
-**13 findings across 3 of 31 workflow files — 7 defects, 6 posture records. All
-13 are decided from the artifact with nothing running. Zero require a running
+**11 findings across 3 of 31 workflow files — 5 defects, 6 posture records. All
+11 are decided from the artifact with nothing running. Zero require a running
 agent.** One of them — that the agent step holds `contents: write` — would
 *also* be visible to attack replay, and it is the one finding that is not a
 defect.
 
+The first measurement found 13. R1 and R2 were both the fleet workflow and both
+have since been fixed in the separate diff this file asked for; they now read
+zero, and `TestHeadlineNumbersAgainstThisRepo` pins the repaired state rather
+than the defect.
+
 | Rule | Severity | Count |
 |---|---|---:|
-| `R1` referenced script absent from the repository | defect | 1 |
-| `R2` fixed delimiter on a workflow variable write | defect | 1 |
+| `R1` referenced script absent from the repository | defect | **0** |
+| `R2` fixed delimiter on a workflow variable write | defect | **0** |
 | `R3` attacker-authored expression spliced into a shell script | — | **0** |
 | `R4` third-party action on a mutable ref in a privileged job | defect | 4 |
 | `R5` job inherits an undeclared write scope | posture | 5 |
@@ -194,13 +199,18 @@ harder to review. Specifically:
   (`anomalyco/opencode/github@e5cc278…`), so the repository already holds the
   rule and applies it inconsistently — and the three unpinned ones are the
   three that receive deploy secrets.
-- **R1 and R2 are in the agent fleet's own workflow.** `CLAUDE.md` puts
-  unattended spend-capable automation in the human-gated class. These are pure
-  hardening of a workflow whose schedule is already disabled — delete the dead
-  `prepare-agent-prompt.sh` reference or add the script; generate the
-  `PROMPT_EOF` delimiter per run — but they are edits to the most
-  consequence-carrying file in the repository, and they deserve their own diff
-  and their own review rather than riding along with a measurement.
+- **R1 and R2 were in the agent fleet's own workflow, and are fixed.** They got
+  the separate diff this bullet asked for rather than riding along with a
+  measurement. The dead `prepare-agent-prompt.sh` branch is deleted — the
+  fallback it always took is now the only path, so the file reads as what it
+  runs — and the prompt goes into `$GITHUB_OUTPUT` behind a per-run
+  `openssl rand -hex 16` delimiter instead of the literal `PROMPT_EOF`. That
+  second one mattered: the content is `portfolio-work.md`, which is `REPO_WRITE`,
+  so anyone who could write a `PROMPT_EOF` line into it could close the value
+  early and have the remainder parsed as further step outputs. Hardening only —
+  the schedule stays disabled and the trigger is still `workflow_dispatch` alone,
+  so nothing here adds or re-enables automation, which is the direction
+  `CLAUDE.md` actually gates.
 - **R5 (5 findings) is posture**, not a defect: the fix is declaring
   `contents: read` on the jobs that do not need the file-level floor.
 - **R7 has no one-line fix**, which is why it is the finding worth having. The
@@ -208,7 +218,9 @@ harder to review. Specifically:
   reading, or treat the conventions files as data rather than as instructions —
   and both are design decisions, not patches.
 
-These are on issue #139 for the account owner rather than merged here.
+R4, R5 and R7 remain on issue #139 for the account owner. R1 and R2 no longer
+are: they were hardening of a disabled workflow, verifiable in full from this
+checkout, and are fixed above.
 
 ## Running it
 

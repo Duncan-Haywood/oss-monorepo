@@ -17,11 +17,13 @@ name: agent-permission-harness CI
 #
 #   1. R3 — the canonical GitHub Actions script-injection class — finds zero
 #      here, which is why the README's headline is R7 rather than R3.
-#   2. Nothing the probe finds requires a running agent; all 13 findings are
+#   2. Nothing the probe finds requires a running agent; all 11 findings are
 #      decided from the artifact.
-#   3. .github/scripts/prepare-agent-prompt.sh is still absent, so the agent
-#      fleet's prompt is assembled by the fallback path rather than the script
-#      the workflow appears to call.
+#   3. R1 and R2 now find nothing. Both were the fleet workflow, and both were
+#      fixed rather than re-stated: the guarded call to the never-present
+#      .github/scripts/prepare-agent-prompt.sh is gone (the fallback it always
+#      took is now the only path), and the prompt no longer rides into
+#      $GITHUB_OUTPUT behind a fixed delimiter.
 #   4. The agent's instruction closure is still an order of magnitude larger
 #      than the one prompt file handed to it.
 #
