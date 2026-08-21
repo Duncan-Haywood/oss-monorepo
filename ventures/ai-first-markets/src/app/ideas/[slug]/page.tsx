@@ -134,25 +134,25 @@ export default async function IdeaDetailPage({ params }: IdeaPageProps) {
 
               <div className="mt-4 space-y-3 text-sm">
                 <div>
-                  <p className="text-zinc-500">Timeline (realistic)</p>
+                  <p className="text-zinc-400">Timeline (realistic)</p>
                   <p className="text-zinc-300">
                     {monthsLabel(plan.timelineMonths.realistic)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-zinc-500">Customers needed</p>
+                  <p className="text-zinc-400">Customers needed</p>
                   <p className="text-zinc-300">
                     {plan.customerCount.count} {plan.customerCount.unit}
                   </p>
                 </div>
                 <div>
-                  <p className="text-zinc-500">Pricing</p>
+                  <p className="text-zinc-400">Pricing</p>
                   <p className="text-zinc-300">{plan.pricing.model}</p>
                 </div>
               </div>
 
               <div className="mt-4 border-t border-zinc-800 pt-4">
-                <p className="text-xs font-medium uppercase text-zinc-500">
+                <p className="text-xs font-medium uppercase text-zinc-400">
                   Key milestones
                 </p>
                 <ol className="mt-2 list-inside list-decimal space-y-1 text-sm text-zinc-400">
@@ -163,10 +163,10 @@ export default async function IdeaDetailPage({ params }: IdeaPageProps) {
               </div>
 
               <div className="mt-4 border-t border-zinc-800 pt-4">
-                <p className="text-xs font-medium uppercase text-zinc-500">
+                <p className="text-xs font-medium uppercase text-zinc-400">
                   Risks
                 </p>
-                <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-zinc-500">
+                <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-zinc-400">
                   {plan.risks.map((r) => (
                     <li key={r}>{r}</li>
                   ))}

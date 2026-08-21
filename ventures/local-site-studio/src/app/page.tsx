@@ -129,7 +129,7 @@ export default function Home() {
           <div className="mt-10 grid gap-8 sm:grid-cols-3">
             {steps.map((step, index) => (
               <div key={step.title} className="rounded-2xl bg-white p-6 shadow-sm">
-                <p className="text-sm font-medium text-zinc-400">Step {index + 1}</p>
+                <p className="text-sm font-medium text-zinc-500">Step {index + 1}</p>
                 <h3 className="mt-2 text-lg font-semibold">{step.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-zinc-600">{step.description}</p>
               </div>
@@ -191,7 +191,7 @@ export default function Home() {
               <ul className="mt-6 flex-1 space-y-3 text-sm">
                 {bundle.features.map((feature) => (
                   <li key={feature} className="flex items-start gap-2">
-                    <span className={bundle.highlighted ? "text-zinc-500" : "text-zinc-400"}>
+                    <span className={bundle.highlighted ? "text-zinc-400" : "text-zinc-500"}>
                       ✓
                     </span>
                     <span className={bundle.highlighted ? "text-zinc-200" : "text-zinc-700"}>
@@ -237,7 +237,7 @@ export default function Home() {
               <ul className="mt-6 space-y-3 text-sm text-zinc-700">
                 {commerceFeatures.map((feature) => (
                   <li key={feature} className="flex items-start gap-2">
-                    <span className="mt-1 text-zinc-400">✓</span>
+                    <span className="mt-1 text-zinc-500">✓</span>
                     {feature}
                   </li>
                 ))}
