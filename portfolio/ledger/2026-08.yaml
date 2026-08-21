@@ -14060,3 +14060,78 @@ entries:
         unchanged and still correctly on the account owner's queue via
         issue #139. The standing $0 revenue ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business
+        projects that aren't already here" session, designated branch
+        claude/laughing-pasteur-ipbf1p. Hit `CLAUDE.md`'s intake gate and
+        added no candidate. Ran `session_gate.py` first (PROCEED --
+        meta-work share 40% of last 25 entries, below the 70% threshold)
+        and `verification_status.py`. `git fetch origin main` first.
+        Checked the 2 open PRs before starting: #372 (six-venture next
+        16.3.1 upgrade) and #368 (Dependabot config) are both correctly
+        owner-gated by prior sessions -- one is a framework change to
+        deployable `ventures/*` code, the other is unattended automation --
+        with nothing new to add to either.
+      - >-
+        Took the gate's first listed move, "advance a probe that is already
+        specified in `portfolio/pipeline/`", and picked the open limit
+        `source-silence-detector`'s README named for itself: its
+        recommended p99 quantile anchor was "selected on the same two
+        events it is scored on", with the next step recorded as "re-derive
+        it on the next mirrored register that dies". Built
+        `holdout_backtest.py`, which replays the detector over every gap in
+        the nine mirrors' already-committed full history rather than only
+        the 180-day window -- 17 dormancy episodes instead of 2 -- and
+        selects the anchor by leave-one-source-out cross-validation, so no
+        source is scored under a setting it helped choose. Labels use
+        hindsight; the detector never does.
+      - >-
+        The anchor *family* survives: under a 5 alarm-day/source-year
+        nuisance budget 8 of 9 folds independently pick p99, and sweeping
+        the dormancy label from 60 to 365 days never moves the selection
+        outside {max, p95, p99}. The *operating point* does not: held out,
+        p99 detects 6 of 17 episodes (0.35) at 110d median latency against
+        8 of 17 in sample, and the recall/nuisance trade is priced for the
+        first time -- reaching 14 of 17 costs 43 nuisance alarm-days per
+        source-year, so no setting on the curve is both quiet and
+        sensitive.
+      - >-
+        The finding worth carrying furthest is arithmetic, not sampling.
+        Nearest-rank p99 is `ordered[ceil(0.99*n) - 1]`, which *is* the
+        maximum for any source with fewer than 100 closed gaps.
+        `FDA/openfda` has 37, so its p99 threshold is 2060 days -- the same
+        5.6-year threshold the previous amendment cited as proof the max
+        anchor was broken -- and it carries 9 of the 17 episodes. The
+        recommended fix and the rejected one are the same integer on the
+        source the fix was diagnosed from; the whole p99-beats-max result
+        came from `datasets/covid-19` (744 gaps). Sparse registers are both
+        the likeliest to go dark and the ones the fix cannot reach. Also
+        tested and recorded as *not confirmed* rather than as support: the
+        monotone-stretching mechanism the previous amendment used to
+        explain max's failure is directionally consistent and far too small
+        to call.
+      - >-
+        Opened and self-merged as agent-decidable per `CLAUDE.md`:
+        `portfolio/` research plus one path-filtered CI workflow that is a
+        test runner, no `ventures/*` app code, publishes nothing, registers
+        nothing, spends nothing. Verified by running the checks rather than
+        reading the diff -- 99 offline tests pass (36 new), including 280
+        generated-history subtests asserting the closed-form replay agrees
+        day-for-day with `detect_silence`'s day loop under all seven
+        anchors; both pipeline validators clean; every invocation the
+        READMEs and the workflow document re-run locally; the committed
+        results JSON regenerates byte-identically.
+      - >-
+        No revenue; no candidate score moved. `public-record-watch` stays
+        at composite 7.0, floor 4, and the floor is still distribution --
+        this is the third pass over an operational premise on a candidate
+        whose binding constraint is that it has no channel to sell through,
+        and the third to find the premise weaker than the pass before it.
+        Worth stating plainly: each pass improved the detector and none
+        moved the thing that decides. The standing $0 revenue ceiling and
+        the publish/payout blocker on issue #139 are unchanged.
+    mrr_end: null
