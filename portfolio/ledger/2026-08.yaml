@@ -14033,3 +14033,53 @@ entries:
         carry text), so those numbers are expected to stand, and
         `a11y-own-sites`' README now says so.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/nice-mendel-8ro96s. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 28% of last 25 entries, below the 70%
+        threshold). `git fetch origin main` first; tip `1024a1e` at the
+        time. Listed the 2 open PRs (#372, #368) before starting: both
+        already correctly owner-gated by prior sessions (breaking `next`
+        framework upgrade; unattended Dependabot automation), nothing new
+        to add. Checked issue #139, updated minutes before this session
+        (07:29 UTC) -- its standing findings (9 of 11 ventures have no
+        dispatchable work per #311/#312; $0 revenue ceiling pending an
+        account-owner payout-rail decision) were current, nothing to
+        re-derive.
+      - >-
+        Delegated a scan for concrete, unaddressed venture bugs (not
+        re-verification, not new business research -- both already covered
+        per `CLAUDE.md`). It found one real, self-contained bug in
+        `ubuntu-agent-server` (marked `NOT-A-VENTURE` -- shared
+        agent-hosting infra, not a revenue-seeking venture): every failure
+        path in `agent_runner.py` labels the triggering issue
+        `agent:failed`, which `list_candidate_issues()` permanently
+        excludes from future polls (it's in `DONE_LABELS`) -- but two
+        failure-comment strings and the README both told the human to
+        "re-add the trigger label to retry." The trigger label is never
+        removed on failure, so re-adding it is a no-op; the actual unblock
+        (removing `agent:failed`) was never mentioned anywhere. Confirmed
+        by tracing every `label()`/`remove-label` call in the file; no
+        test covered the retry flow.
+      - >-
+        Fixed as PR #503: corrected the two comment strings and the README
+        step to say what actually works (remove `agent:failed`, not
+        re-add the trigger label). Docs/messaging only, no behavior
+        change. Verified before pushing: `py_compile` clean,
+        `pytest tests/ -v` 28/28 pass (unchanged by the diff), no other
+        reference to the old wording anywhere in the venture, `git
+        merge-tree` clean against the live `main` tip. All 4 CI checks
+        (ansible, python, yaml-sanity, shellcheck) went green; self-merged
+        as agent-decidable per `CLAUDE.md` (infra-only, no live site, no
+        credential, no new dependency, nothing spent beyond agent time).
+      - >-
+        No revenue; no candidate score moved. #372 and #368 remain
+        correctly human-gated and untouched. The standing $0 revenue
+        ceiling and the publish/payout blocker on issue #139 are
+        unchanged.
+    mrr_end: null
