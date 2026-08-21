@@ -17,6 +17,14 @@ class TestServerOnlySurfaces:
             ("Flaw in server-side rendering of untrusted input", "server-rendering"),
             ("Issue in getServerSideProps error handling", "server-rendering"),
             ("Improper access control in API routes", "route-handlers"),
+            ("Denial of Service with Server Components", "server-components"),
+            (
+                "A specially crafted HTTP request can be sent to any App Router "
+                "Server Function endpoint that, when deserialized, may trigger "
+                "excessive CPU usage",
+                "server-functions",
+            ),
+            ("React Server Components packages are affected", "server-components"),
         ],
     )
     def test_recognised_server_surfaces(self, text, expected_rule):

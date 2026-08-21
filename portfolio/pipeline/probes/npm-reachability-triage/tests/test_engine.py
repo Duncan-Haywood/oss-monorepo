@@ -7,7 +7,7 @@ evidence and that every uncertain path falls through to ``shipped``.
 
 from triage.advisories import AffectedRange, Advisory
 from triage.deployment import DeploymentProfile, SERVER, STATIC_EXPORT, UNKNOWN
-from triage.engine import DEV_ONLY, NOT_DEPLOYED, SHIPPED, triage
+from triage.engine import BUILD_TOOLCHAIN_PACKAGES, DEV_ONLY, NOT_DEPLOYED, SHIPPED, triage
 from triage.lockfile import InstalledPackage
 
 STATIC = DeploymentProfile(STATIC_EXPORT, "high", ('`output: "export"`',))
@@ -125,6 +125,98 @@ class TestDeploymentSurfaceRule:
         findings = triage(
             [pkg("lodash", "4.17.20")],
             [advisory("lodash", range_text="*", summary="Prototype pollution")],
+            STATIC,
+        )
+        assert findings[0].verdict == SHIPPED
+
+
+class TestBuildToolchainRule:
+    def test_suppresses_a_known_build_toolchain_package_on_a_static_export(self):
+        findings = triage(
+            [pkg("postcss", "8.5.5")],
+            [advisory("postcss", range_text="*", summary="PostCSS has XSS via Unescaped </style>")],
+            STATIC,
+        )
+        assert findings[0].verdict == NOT_DEPLOYED
+        assert findings[0].rule == "build-toolchain"
+
+    def test_does_not_suppress_on_a_server_build(self):
+        # Not (yet) validated for server deployments — see BUILD_TOOLCHAIN_PACKAGES.
+        findings = triage(
+            [pkg("postcss", "8.5.5")],
+            [advisory("postcss", range_text="*", summary="PostCSS has XSS via Unescaped </style>")],
+            SERVER_PROFILE,
+        )
+        assert findings[0].verdict == SHIPPED
+
+    def test_does_not_suppress_a_package_outside_the_allowlist(self):
+        findings = triage(
+            [pkg("nanoid", "3.0.0")],
+            [advisory("nanoid", range_text="*", summary="nanoid loops indefinitely with negative size")],
+            STATIC,
+        )
+        assert findings[0].verdict == SHIPPED
+
+    def test_uncertain_match_beats_the_build_toolchain_rule(self):
+        findings = triage(
+            [pkg("postcss", "1.0.0")],
+            [advisory("postcss", range_text="~1.0.0", summary="PostCSS XSS")],
+            STATIC,
+        )
+        assert findings[0].verdict == SHIPPED
+
+    def test_allowlist_is_exactly_what_the_readme_measured(self):
+        assert BUILD_TOOLCHAIN_PACKAGES == frozenset({"postcss"})
+
+
+class TestServerComponentsAndFunctionsRule:
+    def test_suppresses_server_components_dos_on_a_static_export(self):
+        findings = triage(
+            [pkg("next", "16.0.0")],
+            [advisory("next", range_text="*", summary="Denial of Service with Server Components")],
+            STATIC,
+        )
+        assert findings[0].verdict == NOT_DEPLOYED
+        assert findings[0].rule == "server-surface:server-components"
+
+    def test_suppresses_server_function_request_deserialization_on_a_static_export(self):
+        findings = triage(
+            [pkg("next", "16.0.0")],
+            [
+                advisory(
+                    "next",
+                    range_text="*",
+                    summary="A crafted request to a Server Function endpoint triggers excessive CPU usage",
+                )
+            ],
+            STATIC,
+        )
+        assert findings[0].verdict == NOT_DEPLOYED
+        assert findings[0].rule == "server-surface:server-functions"
+
+    def test_does_not_suppress_the_same_advisory_on_a_server_build(self):
+        findings = triage(
+            [pkg("next", "16.0.0")],
+            [advisory("next", range_text="*", summary="Denial of Service with Server Components")],
+            SERVER_PROFILE,
+        )
+        assert findings[0].verdict == SHIPPED
+
+    def test_csp_nonce_xss_advisory_is_not_suppressed(self):
+        # Genuinely arguable (manual review's own "arguable" bucket): the nonce
+        # is generated per-request, but the advisory's own text names XSS,
+        # which nothing in SERVER_ONLY_RULES matches on this text — it falls
+        # through to shipped rather than being force-classified either way.
+        findings = triage(
+            [pkg("next", "16.0.0")],
+            [
+                advisory(
+                    "next",
+                    range_text="*",
+                    summary="Next.js vulnerable to cross-site scripting in App Router "
+                    "applications using CSP nonces",
+                )
+            ],
             STATIC,
         )
         assert findings[0].verdict == SHIPPED

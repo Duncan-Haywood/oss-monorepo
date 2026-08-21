@@ -46,7 +46,7 @@ that build.
 
 ## What it does
 
-Three suppression rules. Each requires positive, named evidence; there is no
+Four suppression rules. Each requires positive, named evidence; there is no
 path through the engine that suppresses a finding because something could not
 be determined.
 
@@ -54,6 +54,7 @@ be determined.
 |---|---|---|
 | `dependency-path` | every install location in the advisory's range is dev-only | npm's own per-location `dev` flag in `package-lock.json` |
 | `dev-server-surface` | the advisory is scoped to the development server | advisory text names `next dev` / "development server" and never "production" |
+| `build-toolchain` | the package is a known build-only tool and the project ships no server | package name is in `BUILD_TOOLCHAIN_PACKAGES`, plus `output: "export"` in `next.config.*` |
 | `server-surface:*` | the project ships no server and the advisory describes a server-only surface | `output: "export"` in `next.config.*`, plus a named surface rule |
 
 Everything else is reported as **shipped**, including every finding whose
@@ -63,9 +64,11 @@ version match could not be made reliably.
 
 Run across the same nine products the manual review covered, using the live OSV
 npm feed (`storage.googleapis.com/osv-vulnerabilities/npm/all.zip`, re-fetched
-2026-08-21). Raw output:
-[`validation-2026-08-21.json`](validation-2026-08-21.json); the previous run is
-kept at [`validation-2026-08-20.json`](validation-2026-08-20.json).
+2026-08-21, after the `build-toolchain` and `server-surface` rules below were
+added). Raw output: [`validation-2026-08-21.json`](validation-2026-08-21.json);
+the two prior runs are kept at
+[`validation-2026-08-20.json`](validation-2026-08-20.json) and in git history
+for the mid-day, pre-rule-addition state of the 2026-08-21 file.
 
 | Product | Mode | Findings | Deployed | Suppressed | Rate | Manual review |
 |---|---|---|---|---|---|---|
@@ -74,41 +77,32 @@ kept at [`validation-2026-08-20.json`](validation-2026-08-20.json).
 | `photo-editing/docs-site` | server | 5 | 5 | 0 | 0.0% | 0% |
 | `print-atelier` | server | 27 | 25 | 2 | 7.4% | 4% |
 | `quick-pick-survey` | server | 0 | 0 | 0 | — | — |
-| `real-estate-agent-photo-app/docs-site` | static-export | 55 | 11 | 44 | **80.0%** | ~98% |
-| `real-estate-agent-photo-app/research` | static-export | 37 | 11 | 26 | **70.3%** | ~97% |
-| **Total** | | **132** | **60** | **72** | **54.5%** | 64.6–66.0% |
-
-Two independent things moved this table since 2026-08-20, and they are worth
-separating because only one of them is a change to this tool:
-
-- **The partial-bound fix below removed exactly 7 findings**, one from every
-  product that has `next` installed — measured on a single checkout by running
-  the sample with the coercion disabled and again with it enabled, so nothing
-  else varies.
-- **The rest is `main` drift.** `local-site-studio` fell from 16 findings to 2
-  before this fix was applied at all, because its `next` upgrade landed in the
-  meantime. Comparing the two dated JSON files without accounting for that will
-  attribute the drop to the wrong cause.
+| `real-estate-agent-photo-app/docs-site` | static-export | 55 | 4 | 51 | **92.7%** | ~98% |
+| `real-estate-agent-photo-app/research` | static-export | 37 | 4 | 33 | **89.2%** | ~97% |
+| **Total** | | **132** | **46** | **86** | **65.2%** | 64.6–66.0% |
 
 Two results matter more than the headline:
 
 1. **The bimodality reproduces.** Four server-mode products suppress at 0–7%;
-   the two static-export products suppress at 70–80%. The automated split lands
+   the two static-export products suppress at 89–93%. The automated split lands
    in the same place the manual split did, from the same signal.
-2. **It errs towards reporting.** 80.0% against a manual 98%, and 70.3% against
-   ~97%. The gap is findings left in front of the user. That is the direction
-   the error has to point, and the gap is the honest measure of how much of
-   this is still manual judgement. It is no longer unexplained, though — see
-   [what the residual actually is](#what-the-residual-actually-is) below.
+2. **It errs towards reporting, and now says exactly why.** 92.7% against a
+   manual ~98%, and 89.2% against ~97%. The residual on both static-export
+   products is the same 4 findings: 2 `nanoid` (needs call-graph analysis this
+   tool does not do) and 2 `next` (one true positive, one genuinely arguable —
+   see [what the residual actually is](#what-the-residual-actually-is)). Both
+   are deliberate, not missing coverage.
 
 Counts differ slightly from the manual review because this uses the complete
 OSV feed rather than the npm bulk endpoint, and runs against a feed that
 updates daily.
 
-All 16 `server-surface` suppressions on `docs-site` were inspected by hand:
-Middleware, Server Actions, the Image Optimizer, rewrites, SSRF, cache
+All 16 pre-existing `server-surface` suppressions on `docs-site` were inspected
+by hand: Middleware, Server Actions, the Image Optimizer, rewrites, SSRF, cache
 poisoning and request smuggling — none of which exists in a statically exported
-site. No suppression in the sample was wrong.
+site. The 7 new `build-toolchain`/`server-surface` suppressions this run added
+are the `postcss` group and the `next` Server Components/Server Function group
+described below. No suppression in the sample was wrong.
 
 ## A false positive on every Next.js product in the portfolio (2026-08-21)
 
@@ -185,28 +179,36 @@ here.
 
 ## What the residual actually is
 
-The 2026-08-20 write-up called the remaining gap "noise the rule table cannot
-yet recognise." It is not noise, and leaving it described that way invites the
-next session to re-derive it. Both static-export products carry the **same 11
-residual findings**, in four groups:
+The 2026-08-20 write-up decomposed the (then 11-finding) residual into four
+groups and named two of them — `postcss` and the `next` Server
+Components/Server Function group — as suppressible with rules this probe did
+not yet have. Both are now built: `build-toolchain` (engine.py) covers
+`postcss`, and two new `SERVER_ONLY_RULES` entries (`server-functions`,
+`server-components`, surfaces.py) cover the DoS group. What's left is the
+**same 4 findings on both static-export products**:
 
 | Group | Count | What it is | Suppressible? |
 |---|---|---|---|
-| `postcss` sourceMappingURL / stringify | 4 | Build-time CSS toolchain; the vulnerable code runs during `next build`, never in the deployed artifact | Needs a **build-surface** rule — the largest single win left |
-| `next` Server Components / RSC / CSP nonce | 4 | Surfaces a static export does not emit; the existing table has no pattern for "Server Components" or per-request CSP nonces | Yes, by extending `SERVER_ONLY_RULES` |
+| `postcss` sourceMappingURL / stringify | 4 | Build-time CSS toolchain; the vulnerable code runs during `next build`, never in the deployed artifact | **Suppressed** by `build-toolchain` |
+| `next` Server Components / Server Function DoS | 3 | Surfaces a static export does not emit — a live App Router endpoint deserializing a crafted request | **Suppressed** by `server-surface:server-components` / `server-surface:server-functions` |
+| `next` CSP-nonce XSS (`GHSA-ffhc-5mcf-pf4q`) | 1 | Nonces are generated per request by a live server, which a static export has none of — but the advisory's own title says "cross-site scripting," so nothing in `SERVER_ONLY_RULES` matches this text and it falls through to shipped | **No — genuinely arguable.** The manual review's own ground truth (`cra-advisory-reachability/review.py`) calls this exact advisory `arguable`, not `false_positive`, for the same reason: whether the code path is reachable is a deployment-mode fact, but the text also names a client-visible symptom, and the veto system that protects every other rule from over-suppressing on ambiguous text would have to be bypassed to force this one through. Left unsuppressed on purpose. |
 | `nanoid` infinite loop on negative/zero size | 2 | Requires the *caller* to pass an attacker-controlled size, which is a property of application code, not of the dependency | Not without call-graph analysis; correctly reported |
 | `next` `beforeInteractive` script XSS | 1 | Genuinely client-side — it does ship in a static export | **No. This is the true positive** |
 
-That last row is the useful one. Manual review put these products at ~97–98%
-suppressible, and this decomposition says the honest ceiling is **10 of 11**,
-because one finding in the residual is real. A rule table that suppressed all
-11 would be wrong, not better.
+Manual review put these products at ~97–98% suppressible; this run reaches
+92.7% and 89.2%. The gap is exactly the last three rows — 4 findings, not 1 —
+and every one of them was left unsuppressed on purpose, not missed: `nanoid`
+needs analysis this tool doesn't do, the CSP-nonce finding is the one case even
+the manual ground truth wouldn't call a clean false positive, and the
+`beforeInteractive` finding is real. A rule table that suppressed all of them
+would be wrong, not better.
 
-The `postcss` and Server Components groups are the specified next step for this
-probe. Both need positive evidence in the same style as the existing rules — a
-named build-toolchain classification for the first, new surface patterns for the
-second — and neither should fire when the project's own source imports the
-package directly.
+`postcss` was validated for `STATIC_EXPORT` only —
+`BUILD_TOOLCHAIN_PACKAGES` in `engine.py` says so and stays that way until a
+server deployment's request path is checked the same way a static export's
+was. The reasoning generalizes (nothing in a running Next.js server re-invokes
+PostCSS on request-time input either), but "generalizes" is not "measured," and
+this tool suppresses only on the second.
 
 ## Usage
 
@@ -297,7 +299,7 @@ decision away from a live listing.
 ## Development
 
 ```bash
-python3 -m pytest                            # 133 tests, no network required
+python3 -m pytest                            # 145 tests, no network required
 python3 run_portfolio_sample.py <osv.zip>    # re-run the validation
 ```
 

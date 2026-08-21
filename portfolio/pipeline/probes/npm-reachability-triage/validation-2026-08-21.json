@@ -64,10 +64,10 @@
     "mode": "static-export",
     "components": 614,
     "findings": 55,
-    "shipped": 11,
+    "shipped": 4,
     "dev_only": 28,
-    "not_deployed": 16,
-    "suppression_rate": 80.0
+    "not_deployed": 23,
+    "suppression_rate": 92.7
   },
   {
     "project": "ventures/real-estate-agent-photo-app/pipeline",
@@ -84,9 +84,9 @@
     "mode": "static-export",
     "components": 422,
     "findings": 37,
-    "shipped": 11,
+    "shipped": 4,
     "dev_only": 10,
-    "not_deployed": 16,
-    "suppression_rate": 70.3
+    "not_deployed": 23,
+    "suppression_rate": 89.2
   }
 ]

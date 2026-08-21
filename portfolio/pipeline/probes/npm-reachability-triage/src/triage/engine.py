@@ -25,6 +25,20 @@ NOT_DEPLOYED = "not-deployed"
 #: Verdicts that mean "this finding does not describe deployed code".
 SUPPRESSED_VERDICTS = frozenset({DEV_ONLY, NOT_DEPLOYED})
 
+#: Packages whose only vulnerable code path is invoked by the project's own
+#: build tooling (a webpack/PostCSS loader run during `next build`) against
+#: the project's own source files, never against request-time input. Once the
+#: build finishes, a statically exported site has no process left that could
+#: call back into the package.
+#:
+#: Scoped to exactly the package this was measured against
+#: (`npm-reachability-triage`'s README, "What the residual actually is"). A
+#: server deployment keeps a live Node process running after the build, and
+#: whether that process ever re-invokes this package on request-time input is
+#: a claim nobody has checked yet — so this does not fire outside
+#: STATIC_EXPORT. Widen it only after validating the server case the same way.
+BUILD_TOOLCHAIN_PACKAGES = frozenset({"postcss"})
+
 
 @dataclass(frozen=True)
 class Finding:
@@ -164,8 +178,28 @@ def _classify(
             rule="dev-server-surface",
         )
 
-    # Rule 3 — deployment surface. Requires the project to definitely not ship a
-    # server *and* the advisory to definitely describe a server-only surface.
+    # Rule 3 — build toolchain. A known build-only package, matched on name
+    # rather than advisory text because these advisories describe a code path
+    # (processing CSS text) that is unreachable for a structural reason —
+    # nothing left running after the build — not because of what the text
+    # says. See BUILD_TOOLCHAIN_PACKAGES for why this is scoped to a static
+    # export only.
+    if (
+        package in BUILD_TOOLCHAIN_PACKAGES
+        and profile.mode == deployment_mod.STATIC_EXPORT
+        and profile.confidence == "high"
+    ):
+        return finding(
+            NOT_DEPLOYED,
+            f"{package} is invoked only by the build pipeline, never by "
+            f"request-time code, and this project builds a static export "
+            f"({'; '.join(profile.evidence)}), so no process remains after "
+            f"the build to reach the vulnerable code path.",
+            rule="build-toolchain",
+        )
+
+    # Rule 4 — deployment surface. Requires the project to definitely not ship
+    # a server *and* the advisory to definitely describe a server-only surface.
     if profile.mode == deployment_mod.STATIC_EXPORT and profile.confidence == "high":
         verdict = surfaces.classify(advisory.text)
         if verdict.server_only:

@@ -50,6 +50,18 @@ SERVER_ONLY_RULES: tuple[SurfaceRule, ...] = (
         "Server Actions are RPC endpoints handled by the server runtime",
     ),
     _rule(
+        "server-functions",
+        r"\bserver function(s)?\b",
+        "Server Functions are RPC endpoints handled by the server runtime",
+    ),
+    _rule(
+        "server-components",
+        r"\b(react )?server components?\b",
+        "React Server Components render inside the server runtime; a static "
+        "export ships their pre-rendered output, not the runtime that renders "
+        "them on each request",
+    ),
+    _rule(
         "image-optimizer",
         r"\bimage optimi[sz](ation|er)\b|\b_next/image\b",
         "The Image Optimizer is a server route; static export requires it disabled",
