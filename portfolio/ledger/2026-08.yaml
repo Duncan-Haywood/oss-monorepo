@@ -15520,3 +15520,68 @@ entries:
         automation) -- all already reflected on #139, nothing new to add
         there this session.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process / legal ethical reliable increase in profit" run,
+        designated branch `claude/ecstatic-volta-5ojald`. Ran
+        `session_gate.py` first (PROCEED -- cadence 0.00 sessions/hour,
+        at the maintenance rate the $0-ceiling branch implies). `git
+        fetch origin main` first; tip `43ef825` (#554). Checked the 4
+        open PRs (#531, #523, #372, #368) and the latest ledger entry
+        before starting -- all already correctly triaged as human-gated
+        per `CLAUDE.md`, nothing new to flag there.
+      - >-
+        Advanced the a11y-evidence-record contrast-port follow-up named
+        in #523 instead of re-deriving anything: two prior sessions had
+        left it available, flagged "non-trivial ... an open question
+        rather than a port," because that engine reads source theme
+        *packages* rather than one project's built output. Wrote
+        `measure_stylesheet_reachability.py` and ran it against the
+        exact 22-package corpus `measure_themes.py` already audited
+        (same names and versions, for comparability), rather than
+        assuming the answer.
+      - >-
+        Finding: two separate blockers, of unequal size. 7 of 22
+        packages ship no stylesheet file in the package at all --
+        component kits meant to be styled by a downstream consumer, not
+        undecidable but absent. Of the 15 that do ship one, 469 files
+        are `.scss` against 161 `.css`, only 9 packages ship any literal
+        `.css`, and 93% of the literal CSS (147 of 158 files) sits in
+        just two packages -- the rest is 1-3 files each, plausibly
+        vendored resets rather than the theme's own styling. The
+        class-attribute half of #523's concern, by contrast, measures as
+        the small problem: only 1.6% (138/8,591) of class attributes
+        corpus-wide carry a template expression, and `audit.py`'s
+        existing `is_expr`/`refs_can_match` machinery already handles
+        that case for other attributes.
+      - >-
+        This closes #523's open question rather than leaving it
+        deferred again: not a small port, because the blocker is Sass
+        source with real control flow (`map-merge`, `@import` of
+        `node_modules` partials) that `eaa-wcag-triage/css.py`'s
+        standard-library-only parser cannot read without a Sass
+        compiler -- a different, larger decision than a port, and not
+        proposed here. 1.4.3 and 1.4.11 correctly stay in `NOT_TESTED`
+        for this engine; the existing reason there already covers this
+        finding without needing to change. Recorded as a dated amendment
+        in `a11y-evidence-record/README.md`, raw rows committed in
+        `results-stylesheet-reachability-2026-08-21.json`.
+      - >-
+        Verified before merging: all 80 of the engine's existing tests
+        pass unchanged, the new script's `--recompute-from` reproduces
+        its own summary byte-for-byte with no network access, and
+        `validate_candidates.py`, `validate_doc_consistency.py` and
+        `portfolio/router/validate.py` all pass. No candidate score
+        moved, no `ventures/*` app code touched, nothing published,
+        registered or spent beyond agent time -- agent-decidable per
+        `CLAUDE.md`, merged this session rather than left open.
+      - >-
+        No revenue; the $0 ceiling is unchanged. Backlog unchanged: the
+        same three PRs (#531/#523, #372, #368) remain correctly
+        human-gated and are already reflected on #139, nothing new to
+        add there this session.
+    mrr_end: null
