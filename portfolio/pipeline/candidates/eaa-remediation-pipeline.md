@@ -154,6 +154,29 @@ Two consequences for what is sold:
   could not read your site." Both gaps above would have produced a clean report
   on a page that was not clean.
 
+## Amendment (2026-08-21): 389 of the newly-fixed engine's contrast findings have no remediation in progress
+
+`a11y-own-sites`'s missing-stylesheet fix (already merged, `c2987af`) recorded
+its pipeline effect as **"no score moves"** — accurate for the 354 findings
+(`local-site-studio`, `ai-first-markets`) that duplicate what
+[`a11y-contrast-decidability`](../../research/a11y-contrast-decidability/)
+already found and that #523 already carries to the account owner, and for the
+611 (`print-atelier`) already fixed same-day in #542. It is a different
+statement for the remaining **389**, on `real-estate-agent-photo-app` (both
+apps) and `photo-editing/docs-site`: those were outside every prior
+contrast-measuring corpus in this repository, are now independently
+corroborated (every reported ratio recomputed from its own stated colours,
+zero arithmetic false positives; cross-checked against
+`a11y-contrast-decidability`'s and `a11y-axe-recall`'s exact-match counts on
+the four apps they cover), and **carry no fix, written or in progress,
+anywhere in this repository** — unlike the other 354.
+
+This does not move `liability_containment` by itself; it is one more data
+point in the direction Finding 0 of `a11y-own-sites/README.md` already names
+as "worse, not better." Recorded so the next session that touches this
+score, or that owns `real-estate-agent-photo-app` or `photo-editing`, does
+not have to re-derive which findings already have an owner and which do not.
+
 ## Buyer-segment correction (2026-08-19, per ledger PR #96)
 
 **The "ten German or Swedish shops" in the first experiment below is largely the

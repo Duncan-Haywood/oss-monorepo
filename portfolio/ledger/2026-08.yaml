@@ -16170,6 +16170,59 @@ entries:
     outcomes:
       - >-
         Scheduled "continue work, maintain and improve the development
+        process" session, designated branch `claude/charming-hawking-ipz881`.
+        Ran `session_gate.py` first (PROCEED -- at the maintenance rate the
+        $0-ceiling branch implies). Checked the 3 open PRs (#531/#523, #372,
+        #368) before starting -- all still clean and correctly human-gated,
+        matching the prior entry exactly. The prior entry named a concrete
+        next step: `a11y-own-sites/`'s missing-stylesheet bug (diagnosed but
+        deliberately not fixed by the `a11y-axe-recall` pass). Dispatched a
+        background agent to fix it.
+      - >-
+        While that agent was rebuilding all 7 ventures and re-verifying, a
+        concurrent session found and fixed the identical bug and merged it
+        straight to `main` (#572/#574) before this branch could open a PR --
+        confirmed by both sessions landing on identical numbers from
+        independent measurements (780 total findings, 743 of them 1.4.3,
+        91/118 agreement, exact per-app match). Reset this branch onto
+        current `main` rather than duplicate the merged fix, per `CLAUDE.md`'s
+        instruction to consolidate rather than join a duplicate.
+      - >-
+        Reviewing what the merged fix left incomplete found two things worth
+        a small follow-up rather than a full re-derivation: three README
+        citations (`portfolio/research/README.md`,
+        `portfolio/pipeline/probes/README.md`,
+        `a11y-generated-sites/README.md`) still quoted the pre-fix
+        0.821-0.881/89-118/24.6% numbers after the merge landed, and
+        #572/#574's own "no score moves" pipeline-effect writeup was accurate
+        for 354 of the 743 new findings (already known, already pending
+        sign-off in #523) and 611 (already fixed in #542) but silent on
+        whether the remaining **389** -- on `real-estate-agent-photo-app` and
+        `photo-editing/docs-site`, outside every prior contrast-measuring
+        corpus -- carry a fix anywhere. They do not.
+      - >-
+        Verified before merging: `python3 -m unittest discover` in
+        `a11y-own-sites/` (21 tests) and `a11y-generated-sites/` (16 tests),
+        both green and unaffected by doc-only changes; `git status` confirmed
+        only 4 markdown files touched, no `ventures/*`, no code, no results
+        file; `git merge-tree` against the live `main` tip immediately before
+        opening. Merged as #577: agent-decidable per `CLAUDE.md`
+        (`portfolio/research/` and `portfolio/pipeline/` docs only, publishes
+        nothing, spends nothing beyond agent time).
+      - >-
+        No score moved and no revenue; the $0 ceiling is unchanged. Added an
+        amendment to `eaa-remediation-pipeline.md` naming the 389 unowned
+        findings explicitly, so the next session that touches
+        `liability_containment` or owns those two apps does not have to
+        re-derive which of the 743 findings already have an owner. Backlog
+        unchanged: same three PRs, already reflected on #139.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
         process" session, designated branch `claude/nifty-goodall-5jxywj`.
         Ran `session_gate.py` first (PROCEED). `git fetch origin main`
         first; tip `a78bd38` (#568, ledger entry for #567). Re-checked the 3
@@ -16184,7 +16237,10 @@ entries:
         landed the same fix seconds earlier as #572, with two more near-
         duplicates open behind it (#569, an incomplete version of the same
         fix; #574, that session's own ledger entry). This is the exact
-        duplicate-PR pattern `CLAUDE.md` documents at length.
+        duplicate-PR pattern `CLAUDE.md` documents at length -- and, as this
+        very merge conflict shows, a *third* concurrent session
+        (`claude/charming-hawking-ipz881`, previous entry above) hit the same
+        collision independently and reached the same conclusion.
       - >-
         Consolidated rather than joining the pile: closed #573 (mine, full
         duplicate of merged #572) and #569 (incomplete duplicate, already
@@ -16202,7 +16258,12 @@ entries:
         bullet and merged as #575 (21/21 tests, agent-decidable -- prose
         only, no `ventures/*` code); flagged the venture findings on #139
         directly, noting the venture is `stage: idea` with no live customer
-        contacts, so not escalated.
+        contacts, so not escalated. Distinct from #577 (previous entry): that
+        session fixed three other README citations and named the 389 unowned
+        findings on the pipeline candidate doc; this one fixed the
+        `a11y-own-sites/README.md` "what could not be measured" bullet and
+        put the venture findings on #139 directly. No overlap between the two
+        diffs.
       - >-
         No score moved and no revenue; the $0 ceiling is unchanged. Backlog
         unchanged: same three PRs, already reflected on #139, plus the new
@@ -16215,5 +16276,7 @@ entries:
         naming for the next pass: re-fetch and re-check open PRs immediately
         before opening one of your own, not just at a session's start, when
         the fix in hand took long enough to build that another session could
-        plausibly have landed the same thing in the meantime.
+        plausibly have landed the same thing in the meantime -- and expect
+        this ledger append itself to conflict, since at least three sessions
+        converged on this exact same finding within minutes.
     mrr_end: null
