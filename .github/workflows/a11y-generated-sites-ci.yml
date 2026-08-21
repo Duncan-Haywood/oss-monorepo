@@ -1,0 +1,79 @@
+name: a11y-generated-sites CI
+
+# Test coverage for the delivered-customer-site accessibility pass under
+# portfolio/research/a11y-generated-sites/. Standard-library-only, no network,
+# so this workflow does no more than a contributor runs locally: run the tests.
+# It publishes nothing, registers nothing, and spends no API budget — it is a
+# test runner, not the unattended-automation kind of workflow CLAUDE.md gates.
+# Same shape as its siblings (a11y-own-sites-ci.yml, a11y-engine-agreement-ci.yml,
+# a11y-evidence-record-ci.yml, a11y-render-recovery-ci.yml,
+# a11y-theme-resolution-ci.yml).
+#
+# What this suite is here to hold, beyond the usual pinning of a committed
+# results file: this directory's headline finding is that the delivered pages
+# are *clean*, which is the one result that looks identical to a broken scan.
+# What separates them is the mutation control — edit the customer's own page,
+# check the rule fires. So the tests assert that every mutation still bites the
+# reference page, and that the committed corpus still contains the markup the
+# control depends on (a frame on every page, a title, a lang). A refactor that
+# drops the map embed would silently stop exercising the 4.1.2 frame rule this
+# corpus was what found missing.
+#
+# Note the corpus itself is committed, unlike a11y-own-sites' build output, so
+# the whole suite runs with no npm, no build, and no node_modules.
+#
+# Both engines' paths are watched, because this suite imports them directly and
+# a change to either can break it without touching this directory. So is the
+# venture whose product the corpus is rendered from: if the delivered markup
+# changes, the committed corpus is stale and needs re-rendering by hand (see
+# render_corpus.mjs) — this workflow cannot regenerate it, and is not meant to.
+
+on:
+  pull_request:
+    paths:
+      - "portfolio/research/a11y-generated-sites/**"
+      - "portfolio/research/a11y-evidence-record/**"
+      - "portfolio/pipeline/probes/eaa-wcag-triage/**"
+      - "ventures/local-site-studio/src/components/preview/**"
+      - "ventures/local-site-studio/src/app/layout.tsx"
+      - ".github/workflows/a11y-generated-sites-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "portfolio/research/a11y-generated-sites/**"
+      - "portfolio/research/a11y-evidence-record/**"
+      - "portfolio/pipeline/probes/eaa-wcag-triage/**"
+      - "ventures/local-site-studio/src/components/preview/**"
+      - "ventures/local-site-studio/src/app/layout.tsx"
+      - ".github/workflows/a11y-generated-sites-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A second push to the same branch makes the first run irrelevant.
+concurrency:
+  group: a11y-generated-sites-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: portfolio/research/a11y-generated-sites
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # Standard-library unittest only: no pip install step, by design.
+      - run: python3 -m unittest discover -p 'test_*.py'
+      # The summary in README.md must still re-derive from the committed
+      # results with no network and no build. Catches a hand-edited number.
+      - run: python3 audit_generated_sites.py --recompute-from results-2026-08-21.json
+      # Running the engines over the committed corpus for real is asserted in
+      # the suite above (DeliveredCorpus), not repeated here: `audit_generated_
+      # sites.py` with no arguments prints its findings and exits 0 either way,
+      # so it would look like a check while asserting nothing.

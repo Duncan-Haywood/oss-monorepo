@@ -105,7 +105,11 @@ revealed.
 
 29 pages disagree. Every one of them is a **pure relabelling** — both engines
 find the same defect and cite a different success criterion. Not one page in
-118 has a defect that only one engine detects. That split is the useful part,
+118 has a defect that only one engine detects. (That holds for this corpus and
+does not generalise: [`a11y-generated-sites/`](../a11y-generated-sites/) found a
+genuine detection gap in each engine on 14 pages of a corpus these 118 could not
+include. It also names the defect behind each relabelling below — a skipped
+heading level, and a control with no accessible name.) That split is the useful part,
 and the script tests for it explicitly, because the two failures have opposite
 consequences: a detection gap means a customer's barrier goes unreported, while
 a relabelling means two runs of "the same" audit hand procurement two different
@@ -207,6 +211,19 @@ two.
   build. That is the corpus worth auditing next, and it is the one that carries
   the actual liability — every defect in a generated theme ships to every
   customer who buys one.
+
+  **Done, 2026-08-21: [`a11y-generated-sites/`](../a11y-generated-sites/).** The
+  delivered pages are clean — 0 findings on 14, both engines agreeing — but the
+  pass found a detection gap in *each* engine, which is the class this
+  directory reported seeing none of in 118 pages. The probe had no `<iframe>`
+  rule, and the repository's only frame is the map on every delivered page: the
+  one element on the one route a build-directory corpus cannot reach. `audit.py`
+  accepted a control wrapped in a text-less `<label>`. Both are fixed there,
+  which means **the numbers on this page were measured with the pre-fix
+  engines.** Both fixes can only add findings, and only on markup this corpus
+  had none of — a source survey found the single frame above, and all 82
+  wrapping `<label>` occurrences under `ventures/` carry text — so these
+  numbers are expected to stand. They have not been re-run.
 
 ## Effect on the pipeline
 
