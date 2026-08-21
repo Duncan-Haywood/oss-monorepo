@@ -486,10 +486,34 @@ class PhotosImporter:
                         self.stats.preflight_runs += 1
                         self.log_event("periodic_preflight", {"marked_imported": marked})
             except Exception as error:
+                # An exception here escaped import_batch_with_split entirely
+                # (e.g. a non-PhotosImportError raised by import_paths_osascript,
+                # such as osascript itself being transiently missing), so none
+                # of the per-item error handling in handle_item_error ran. Every
+                # item in the batch is still marked "importing" from the loop
+                # above -- and next_importable_batch never selects "importing"
+                # rows -- so without resetting them here they would be stuck
+                # for the rest of this process's life: never retried, and
+                # silently excluded from "remaining" once they run out, so the
+                # run could report "Complete" while imports never happened.
+                self.stats.consecutive_failures += 1
+                self.stats.total_errors += 1
+                self.stats.last_error = str(error)
+                classified = classify_error(str(error))
+                self.stats.last_error_category = classified.category.value
+                for item in batch:
+                    current = self.state.get_item(item.path)
+                    attempts = current.attempts if current is not None else item.attempts
+                    if classified.category == ErrorCategory.PERMANENT:
+                        self.state.mark_skipped_permanent(item.path, str(error))
+                    elif attempts >= MAX_TRANSIENT_ATTEMPTS:
+                        self.state.mark_skipped_permanent(item.path, f"Exceeded retry limit: {error}")
+                    else:
+                        self.state.mark_failed(item.path, str(error))
                 self.log_structured_error(
                     path=None,
                     message=str(error),
-                    classified=classify_error(str(error)),
+                    classified=classified,
                     attempt=0,
                     next_action="batch_abort",
                 )

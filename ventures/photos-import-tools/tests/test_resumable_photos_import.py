@@ -363,6 +363,56 @@ class ResumablePhotosImportTests(unittest.TestCase):
             self.assertEqual(state.get_status(photo), "imported")
             self.assertEqual(len(importer.imported_paths), 1)
 
+    def test_non_photos_import_error_does_not_strand_item_in_importing(self):
+        # Before this fix, run()'s outer `except Exception` around
+        # import_batch_with_split only logged the error -- it never reset the
+        # batch's items, which the loop above had already marked "importing".
+        # Since next_importable_batch() never selects "importing" rows and
+        # nothing else resets them mid-run, an exception that escapes
+        # import_batch_with_split entirely (anything that isn't a
+        # PhotosImportError, e.g. osascript itself being transiently missing)
+        # stranded the item forever: prepare_batch() would find nothing left,
+        # run() would report "Complete", and the file would simply never be
+        # retried or imported in this process.
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            photo = root / "photo.JPG"
+            photo.write_bytes(b"jpeg")
+            state = ImportState(root / "state.sqlite3")
+            state.upsert(photo, "pending")
+            importer = FakePhotosImporter(
+                state=state,
+                state_dir=root,
+                event_log=root / "events.jsonl",
+                error_log=root / "errors.jsonl",
+                status_path=root / "status.json",
+                stop_file=root / "STOP",
+                per_file_timeout_seconds=1,
+                attempts=1,
+                batch_size=1,
+                photos_db=root / "missing.sqlite",
+                existing_filenames=set(),
+            )
+
+            calls = {"count": 0}
+            real_import = importer.import_paths_osascript
+
+            def flaky_import(paths, *, duplicate_check):
+                calls["count"] += 1
+                if calls["count"] == 1:
+                    raise FileNotFoundError("osascript")
+                return real_import(paths, duplicate_check=duplicate_check)
+
+            with mock.patch.object(
+                importer, "import_paths_osascript", side_effect=flaky_import
+            ), mock.patch("resumable_photos_import.time.sleep", return_value=None):
+                exit_code = importer.run()
+
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(state.get_status(photo), "imported")
+            self.assertEqual(len(importer.imported_paths), 1)
+            self.assertEqual(calls["count"], 2)
+
     def test_ambiguous_names_flags_shared_basename_across_directories(self):
         # Camera-generated basenames (DSC00001.JPG) aren't globally unique --
         # two distinct source files from different cards/folders can share
