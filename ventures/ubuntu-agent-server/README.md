@@ -385,7 +385,7 @@ tests/                              unit tests for agent_runner.py's pure logic 
   the agent runner opens against its own repo, once self-directed mode is
   enabled for it — the same review gate applies to changes to its own
   orchestration code as to anything else.
-- `tests/` has 22 unit tests for `agent_runner.py`'s pure logic
+- `tests/` has 28 unit tests for `agent_runner.py`'s pure logic
   (`make test`, or `pytest tests/`) — model-tier selection, self-directed
   cooldown tracking, docker command construction, prompt building, issue
   filtering. Two real bugs were caught this way, not by inspection alone:
