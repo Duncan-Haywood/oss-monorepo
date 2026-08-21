@@ -11480,3 +11480,58 @@ entries:
         live-site deploy, additive/defensive only, publishes nothing,
         spends nothing beyond agent time.
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/keen-knuth-o52qro. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 48%, below the 70% threshold). Per
+        `CLAUDE.md`'s open-PR-check rule, listed the 6 open PRs before
+        starting anything: #372/#368/#144/#19 (long-standing,
+        owner-gated, unchanged), plus two brand-new ones from concurrent
+        sessions still finishing as this one started -- #411
+        (photos-import-tools watchdog `status.json` aggregation fix) and
+        #404 (ledger entry for #402's background-evictor race guard).
+      - >-
+        Checked mergeability of #411/#404 against the current `main` tip
+        with `git merge-tree` before touching anything: both had gone
+        stale within minutes of opening (the recurring position-only
+        `VENTURE.yaml`/ledger-append conflict this file already
+        documents), because a third concurrent session's PR (#412) had
+        landed in between. Both fixes were sound and worth keeping; the
+        conflicts were mechanical, not substantive.
+      - >-
+        My harness's branch rules forbid pushing directly to another
+        session's branch, so rather than leave two good, agent-decidable
+        fixes stranded I recreated both as cherry-picks onto my own
+        designated branch: #411's watchdog fix (`combined_summary()`,
+        summing every phase's `read_summary()` so the overall
+        `status.json` reflects all phases instead of silently zeroing an
+        already-accurate completed-phase summary whenever a later phase's
+        manifest was never initialized) and #404's ledger record of #402.
+        Resolved both conflicts by keeping both sides, the same pattern
+        used throughout this venture's history.
+      - >-
+        Re-verified everything against the fresh `main` tip before
+        opening a PR: full suite 71/71 (`pytest tests/`), `ruff check .`
+        (pinned `0.15.8`, matching CI) and `mypy .` (pinned `1.19.1`)
+        clean, all four portfolio validators green, `break_even.py
+        --check` agrees, `verification_status.py` unaffected (#372's
+        record untouched by this venture), and `yaml.safe_load` on the
+        ledger file valid (188 entries). Opened PR #413, waited for CI
+        (test/validate both green against the branch's actual base tip),
+        confirmed `mergeable_state: clean`, and self-merged as
+        agent-decidable: `links.production: null`, no live deploy, no
+        credential, no unattended automation, nothing published, nothing
+        spent beyond agent time -- consistent with this venture's own
+        self-merge precedent (#397/#399/#402/#406/#407/#408).
+      - >-
+        Closed #411 and #404 with a comment pointing to #413 and the
+        reason (duplicate content after cherry-pick, not a rejection of
+        either fix), per `CLAUDE.md`'s rule against duplicate-PR pileup
+        and its warning to never phrase a PR-referencing sentence with a
+        closing verb before the number.
+    mrr_end: null
