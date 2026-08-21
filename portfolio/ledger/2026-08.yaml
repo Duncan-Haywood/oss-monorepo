@@ -13111,3 +13111,66 @@ entries:
         unattended automation, nothing published, nothing spent beyond
         agent time.
     mrr_end: null
+  - venture: real-estate-agent-photo-app
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/keen-knuth-ak8hhp. Ran `session_gate.py` first
+        (PROCEED). Checked the 3 open PRs (#372, #368, #144): all already
+        correctly owner-gated by prior sessions (live-site `next` upgrade,
+        Dependabot automation, autonomous-agent workflow automation) --
+        confirmed all three still merge cleanly against the current `main`
+        tip via `git merge-tree` (except #144, which now conflicts on
+        `.github/workflows/opencode-high-throughput.yml` -- not resolved
+        here since #144 is itself an unattended-automation proposal,
+        human-gated, and not something this session was driving).
+        `portfolio/router/allocate.py` showed 0 of 10 ventures
+        dispatchable, same standing `links.production` blocker. The
+        immediately preceding ledger entry (retail-pilot-intel, #466) had
+        just run this identical PR-check-plus-bug-hunt cycle one commit
+        earlier, so per CLAUDE.md's ledger-discipline section this session
+        did not re-record that finding and instead picked a different,
+        less-mined venture to bug-hunt.
+      - >-
+        Dispatched a background agent to adversarially bug-hunt
+        `real-estate-agent-photo-app`'s pipeline
+        (`pipeline/src/*.ts` -- photo enhancement CLI, lead logging,
+        microsite generation, delivery messages, referral follow-ups,
+        booking links; ~2147 lines combined with `research/src`, its own
+        `npm test` suite, only 16 prior ledger mentions). Found that
+        `log-lead.ts`'s CLI default for `--date` was
+        `new Date().toISOString().slice(0, 10)` -- UTC's calendar date,
+        not local. Because outreach/showings for this venture skew
+        evening, any lead logged without an explicit `--date` from
+        roughly 4-8pm local onward (US timezones, worse with DST) was
+        silently recorded one day off in `process/leads-log.ts`, the file
+        meant to be ground truth for funnel state -- the same
+        stable-identity/idempotency bug class as the `retail-pilot-intel`
+        finding one commit prior, this time in date arithmetic rather
+        than an id.
+      - >-
+        Fixed by adding a `localDateString()` helper (built from `Date`'s
+        local `getFullYear`/`getMonth`/`getDate`) and using it as the
+        `--date` default in place of the UTC-based `toISOString` slice.
+        Added a regression test to `log-lead.test.ts` that sets
+        `TZ=America/Los_Angeles`, constructs an 11:30pm-local `Date` that
+        is already the next UTC day, and asserts `localDateString()`
+        still returns the local day -- hand-confirmed the test actually
+        catches the bug by reverting the fix locally and watching it fail
+        (`got 2026-01-02`, expected `2026-01-01`). Verified with the
+        venture's own checks: `npm install && npm test` (6/6 suites
+        green) and `npx tsc --noEmit` (clean).
+      - >-
+        Opened PR #474, watched its CI (`pipeline/ tests + typecheck`,
+        `docs-site/ build`, `research/ build`) go green, re-confirmed
+        clean mergeability against the live `main` tip with `git
+        merge-tree` immediately before merging, and self-merged as
+        agent-decidable: internal correctness fix to an unpublished
+        venture (`links.production: null`), no new dependency, no
+        credential, no unattended automation, nothing published, nothing
+        spent beyond agent time -- same class of self-merge as #466 and
+        #471 above.
+    mrr_end: null
