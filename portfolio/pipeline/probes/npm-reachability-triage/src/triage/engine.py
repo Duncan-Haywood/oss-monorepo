@@ -212,8 +212,12 @@ def _classify(
         )
 
     # Rule 1 — dependency path. npm computes `dev` per install location, so this
-    # is a structural fact about the lockfile, not an inference.
-    if all(location.dev for location in locations):
+    # is a structural fact about the lockfile, not an inference. That fact only
+    # implies "not in the published artifact" if the project's own source never
+    # imports the package directly — a direct import resolves against whatever
+    # is on disk at build time regardless of its devDependency classification,
+    # the same hazard `context.uses_directly` guards against in rule 3.
+    if all(location.dev for location in locations) and not context.uses_directly(package):
         paths = ", ".join(location.path for location in locations[:3])
         return finding(
             DEV_ONLY,

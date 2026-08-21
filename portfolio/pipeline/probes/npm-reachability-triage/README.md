@@ -447,6 +447,50 @@ already names — 24 of 102 suppressions here trace to one edge claim,
 `next → postcss` — still holds: this pass confirmed that edge is correct
 today, not that it always will be.
 
+### A structural cross-check, and a real gap it found (2026-08-21)
+
+The hand review above reads advisory text and reasons about it — the only way
+to check a *text-matched* rule (`server-surface:*`, `dev-server-surface`). The
+two *structural* rules, `dependency-path` and `build-surface`, rest on a fact
+on disk rather than a reading of prose, so that fact can be re-derived a
+second way instead of re-read by hand.
+[`verify_suppressions.py`](verify_suppressions.py) does that — `json.load`s
+`package-lock.json` and `package.json` directly, bypassing `triage.lockfile`
+and `triage.sources` entirely, so a bug shared between the engine and the
+check would have to be the same bug written twice:
+
+```
+python3 verify_suppressions.py <osv-npm-all.zip>   # writes wrong-suppression-structural-check-2026-08-21.json, exits 1 if any problem found
+```
+
+Raw output: [`wrong-suppression-structural-check-2026-08-21.json`](wrong-suppression-structural-check-2026-08-21.json).
+Same result as the hand review: 0 of 102 raw findings disagree with the raw
+lockfile or manifest.
+
+Running it surfaced a real gap, not just a confirmation. `build-surface`
+already refused to suppress a package the project imports directly
+(`context.uses_directly`, described above). `dependency-path` did not have the
+same guard — it suppressed on the lockfile's `dev` flag alone. That flag is a
+structural fact about what `npm install` resolves, not about what a bundler
+resolves: this portfolio's own deploy workflows run plain `npm ci`, which
+installs devDependencies too, so a devDependency the project's *own source*
+imports directly would still end up bundled into a server build, and
+`dependency-path` would suppress the finding anyway. `build-surface` guards
+against exactly this; `dependency-path` did not.
+
+No suppression in this sample was wrong for that reason — every project either
+ships no server at all (static export) or the specific devDependency-only
+packages here (`eslint`, `glob`) are never imported by the project's own
+source, checked directly. But the rule shouldn't have relied on that being
+true by chance. `dependency-path` now carries the same `context.uses_directly`
+guard `build-surface` does — a package the project declares in `dependencies`
+or imports anywhere in its own source is never suppressed by rule 1 either,
+however the lockfile marks it. `tests/test_engine.py::TestDependencyPathRule`
+pins the three new cases (direct import, declared production dependency, and
+the pre-guard behaviour when no context is passed). Re-running the full
+sample against the live feed after the fix produced the identical 102/30
+split, so the fix closes a real gap without changing this sample's answer.
+
 ## Usage
 
 ```bash
@@ -536,7 +580,7 @@ decision away from a live listing.
 ## Development
 
 ```bash
-python3 -m pytest                            # 133 tests, no network required
+python3 -m pytest                            # 202 tests, no network required
 python3 run_portfolio_sample.py <osv.zip>    # re-run the validation
 ```
 
