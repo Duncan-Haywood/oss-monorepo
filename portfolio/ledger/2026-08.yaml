@@ -16543,3 +16543,100 @@ entries:
         deserves a session that can give it full attention rather than be
         squeezed in after.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work... maintain and improve the development
+        process... increase in profit" session, designated branch
+        claude/ecstatic-volta-fsw1ck. Ran `session_gate.py` first (PROCEED
+        -- cadence 0.00 sessions/hour). Checked the 4 open PRs (#583,
+        #531, #372, #368) against current `main` and the latest ledger
+        entry (committed ~16 minutes before this session started): all
+        four already correctly human-gated by their own sessions, all
+        clean and unchanged -- nothing to re-triage. That entry named the
+        one open gap explicitly: `npm-reachability-triage`'s
+        wrong-suppression rate had never been measured, deliberately left
+        by two prior sessions because it needs hand-verifying real CVE
+        suppressions against advisory text and lockfile evidence rather
+        than a synthetic fixture corpus. Took that on.
+      - >-
+        Downloaded a fresh OSV npm feed and re-ran the triage engine
+        across all seven npm products in the portfolio -- the same 102
+        suppressed findings the committed validation JSON already shows,
+        reducing to 53 distinct `(advisory, rule, package)` claims. Hand-
+        checked every one against its real advisory text and lockfile/
+        source evidence: `dependency-path` (28 claims) against the
+        lockfile's per-location `dev` flag, production reachability, and
+        a direct-source-import cross-check the rule itself doesn't
+        perform; `build-surface` (6 claims, 4 PostCSS + 2 nanoid CVEs)
+        against the specific vendored install location each suppression
+        names; `server-surface:*` (19 claims across 7 sub-rules) against
+        the two static-export products' actual `next.config.js` and the
+        confirmed absence of `middleware.*` or `'use server'` in their
+        source.
+      - >-
+        Result: 0 of 53 distinct claims (0 of 102 raw suppressed
+        findings) suppress a vulnerability actually present in the
+        deployed artifact. One labeling imprecision found and documented,
+        not a wrong suppression: `GHSA-89xv-2m56-2m9x` is tagged
+        `server-surface:middleware` instead of `server-actions`/`ssrf`,
+        because `classify()` matches the first pattern that hits anywhere
+        in `summary + details` rather than ranking the advisory's own
+        summary first. The suppression verdict is still correct either
+        way; fixing the label safely changes `classify()`'s signature and
+        needs its own test pass, so it's recorded as a named follow-up in
+        the README rather than fixed inside this measurement pass.
+      - >-
+        Merged as #589: agent-decidable per `CLAUDE.md` (`portfolio/`
+        docs plus a new evidence JSON only, publishes/registers/spends
+        nothing). Verified `python3 -m pytest` 133/133 (no code changed),
+        both CI checks (test x2, validate) green, and `git merge-tree`
+        against the live `main` tip clean immediately before merging.
+      - >-
+        Follow-up in the same session, merged as #590: a committed
+        figure that never reaches the customer-facing artifact is a
+        rendering gap `error-rate-disclosure/` treats the same as never
+        having measured one, and `npm-reachability-triage` was the one
+        probe of four still failing that check. `triage/evidence.py`
+        gained an `ACCURACY_NOTE` constant -- the same shape
+        `agent-permission-harness`'s `harness.py` uses for its own
+        figure -- rendered into both the markdown and JSON records
+        under a "How this can be wrong" section, with new tests pinning
+        it. `error-rate-disclosure/measure.py`'s citation moved from
+        `None` to a real `Citation` verified against the probe's README
+        on every run; `rate_in_artifact` flips to `True`, closing the
+        last of the four gaps that directory tracks.
+      - >-
+        `ethical_robustness`: `cra-evidence-desk` 7 -> 8 (composite
+        6.625 -> 6.75) -- a disclosure score, not a re-probe: the
+        triage engine's suppression logic is byte-identical, only what
+        its record says about its own accuracy changed. Updated in
+        `candidates.yaml`, the write-up's own dated amendment section,
+        and `pipeline/README.md`'s ranked table (now tied with
+        `mcp-supply-chain-watch` at 6.75). Doc drift also fixed in the
+        three other places that still described this gap as open --
+        the same class #587 fixed for three other probes after their
+        gaps closed: `portfolio/research/README.md`'s index entry,
+        `error-rate-disclosure/README.md`'s "what changed" section, and
+        `probes/README.md`'s "what remains is a measurement" paragraph.
+      - >-
+        Verified before merging #590: full suites green in every
+        touched package (`npm-reachability-triage` 139/139,
+        `error-rate-disclosure` 25/25, `agent-permission-harness`
+        69/69, `pipeline` top-level 24/24; `eaa-wcag-triage` and
+        `source-silence-detector` unaffected), `validate_doc_consistency.py`
+        and `validate_candidates.py` both clean, `score_sensitivity.py`
+        runs clean against the new `measured:` block with nothing
+        hardcoded to update, `git merge-tree` against the live `main`
+        tip clean immediately before opening.
+      - >-
+        No revenue; the $0 ceiling is unchanged. Backlog unchanged: same
+        four PRs (#531, #372, #368, #583), already on #139, none touched
+        here. All four probes in `portfolio/pipeline/probes/` now carry
+        a measured accuracy or wrong-suppression figure, and for the
+        first time all four also render it where a customer would
+        actually see it -- `error-rate-disclosure/`'s gap is fully
+        closed, not just its measurement half.
+    mrr_end: null
