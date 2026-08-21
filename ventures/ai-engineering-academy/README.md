@@ -21,9 +21,10 @@ strategy, competitive analysis, and a 10-year roadmap.
 ## Status
 
 Early-stage / pre-product. Vision and constitution drafted; curriculum and
-platform design not yet started. `site/` renders the constitution's
-markdown into a static HTML site (`npm run build` in `site/`) — that is
-the only code here so far, not a learning platform.
+platform design not yet started. The only code so far is `site/` — a static
+build (`npm run build`) that renders the constitution's markdown into a
+browsable HTML site (`docs/00-overview.md` and friends). No learner-facing
+product exists yet.
 
 ## Next steps
 
