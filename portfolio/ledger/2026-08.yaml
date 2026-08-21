@@ -11425,3 +11425,58 @@ entries:
         beyond agent time -- consistent with this venture's own recent
         self-merge precedent (#387/#397/#399/#402/#406).
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/charming-hawking-sz6puz. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 56%, below the 70% threshold). Checked
+        the 4 open PRs (#372, #368, #144, #19); a same-day entry above had
+        already re-confirmed all four correctly owner-gated, nothing to
+        add. `portfolio/router/allocate.py` again named photos-import-tools
+        as the only dispatchable venture with the standing "write and test
+        the next hypothesis" task; a concurrent session had just landed the
+        thirteenth hypothesis (#397) while this session was starting.
+      - >-
+        Dispatched a research-only Explore agent to read `sd_offload.py`
+        and `resumable_photos_import.py` end to end hunting for a gap
+        outside the 13 recorded themes. It found `evict_tree()`
+        (`sd_offload.py`) walked `dest.rglob("*")` with no extension or
+        directory-exclusion filtering, unlike `iter_media_files()`.
+        `background_evictor()` runs `evict_tree` on a 20s timer in a
+        daemon thread for the whole duration of `rsync_copy()`'s rsync
+        subprocess -- concurrently with rsync writing later files in the
+        same destination tree. rsync (no `--inplace`) writes each file to
+        a hidden temp file with a random suffix while a transfer is in
+        progress (e.g. `.IMG_0001.JPG.a1B2c3`), renaming it only on
+        completion; `pathlib.rglob("*")` matches dot-prefixed names, so
+        the unfiltered evictor could call `brctl evict` on that in-flight
+        temp file -- a file rsync still has open for write -- for whatever
+        file rsync happened to be mid-transfer on. Verified this
+        independently by reading the code before fixing it: confirmed via
+        `grep`/`Read` that `evict_tree` had no filter while
+        `iter_media_files` did, and that rsync's own temp-file suffix
+        (the random part) would never match `MEDIA_EXTENSIONS`.
+      - >-
+        Fixed by having `evict_tree` reuse `iter_media_files`'s filter
+        instead of its own bare `rglob` -- not just defense in depth, since
+        the same filter that already scopes verification also happens to
+        exclude rsync's own unfinished temp files by construction. Added a
+        regression test; confirmed it reproduces the pre-fix bug via `git
+        stash` (the temp file and a non-media file both got evicted), then
+        unstashed (pass). Full suite 56/56 (58/58 after merging main's
+        concurrent fifteenth hypothesis, #399's disk-space-check guard),
+        ruff/mypy clean, all four portfolio validators green
+        (`validate_candidates.py`, `validate_doc_consistency.py`,
+        `router/validate.py`, `platform/ci/validate_workflows.py`).
+        VENTURE.yaml records the fourteenth hypothesis. Opened PR #402,
+        subscribed to its CI, waited for lint/test/validate to report
+        green (all three did), re-checked `main` hadn't moved past a safe
+        merge point (it had, but only by a ledger-only entry that doesn't
+        touch this venture), and self-merged as agent-decidable: no
+        live-site deploy, additive/defensive only, publishes nothing,
+        spends nothing beyond agent time.
+    mrr_end: null
