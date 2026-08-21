@@ -4,11 +4,15 @@ on:
   pull_request:
     paths:
       - "ventures/ai-engineering-academy/site/**"
+      - "ventures/ai-engineering-academy/docs/**"
+      - "ventures/ai-engineering-academy/PROJECT_BRIEF.md"
       - ".github/workflows/ai-engineering-academy-ci.yml"
   push:
     branches: [main]
     paths:
       - "ventures/ai-engineering-academy/site/**"
+      - "ventures/ai-engineering-academy/docs/**"
+      - "ventures/ai-engineering-academy/PROJECT_BRIEF.md"
       - ".github/workflows/ai-engineering-academy-ci.yml"
   workflow_dispatch:
 
