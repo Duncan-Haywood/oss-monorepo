@@ -93,8 +93,12 @@ class LinksAndButtons(unittest.TestCase):
     def test_submit_input_without_value_is_reported(self):
         self.assertEqual(checks("<input type='submit'>"), ["button-no-accessible-name"])
 
-    def test_aria_hidden_link_is_skipped(self):
-        self.assertEqual(checks("<a href='/x' aria-hidden='true'></a>"), [])
+    def test_aria_hidden_link_is_skipped_by_the_name_check(self):
+        # The name check must not fire on an element that is out of the
+        # accessibility tree. The element is still reported, by the 4.1.2
+        # check below, for being focusable while hidden from it.
+        self.assertNotIn(
+            "link-no-accessible-name", checks("<a href='/x' aria-hidden='true'></a>"))
 
 
 class FormControls(unittest.TestCase):
@@ -192,11 +196,18 @@ class OtherElements(unittest.TestCase):
     def test_titled_iframe(self):
         self.assertEqual(checks("<iframe src='x' title='Map'></iframe>"), [])
 
+    # Both fixtures carry a captions track so that these two tests measure the
+    # autoplay rule alone rather than also tripping the 1.2.2 check.
+    CAPTIONED = "<track kind='captions' src='c.vtt'>"
+
     def test_autoplay_video_without_muted(self):
-        self.assertEqual(checks("<video autoplay src='x.mp4'></video>"), ["autoplay-unmuted"])
+        self.assertEqual(
+            checks(f"<video autoplay src='x.mp4'>{self.CAPTIONED}</video>"),
+            ["autoplay-unmuted"])
 
     def test_muted_autoplay_is_accepted(self):
-        self.assertEqual(checks("<video autoplay muted src='x.mp4'></video>"), [])
+        self.assertEqual(
+            checks(f"<video autoplay muted src='x.mp4'>{self.CAPTIONED}</video>"), [])
 
     def test_data_table_without_headers(self):
         source = "<table><tr><td>a</td></tr><tr><td>b</td></tr></table>"
@@ -358,6 +369,98 @@ class ExpressionAwareLabelMatching(unittest.TestCase):
         )
         self.assertEqual(checks(source), [])
         self.assertEqual(undecidable(source), [])
+
+
+class Captions(unittest.TestCase):
+    """1.2.2. Added 2026-08-21; see portfolio/research/a11y-engine-agreement/."""
+
+    def test_video_without_a_captions_track_is_blocking(self):
+        self.assertEqual(checks("<video src='x.mp4'></video>"), ["media-no-captions"])
+
+    def test_captions_track_satisfies_it(self):
+        self.assertEqual(
+            checks("<video src='x.mp4'><track kind='captions' src='c.vtt'></video>"), [])
+
+    def test_subtitles_track_is_accepted(self):
+        self.assertEqual(
+            checks("<video src='x.mp4'><track kind='subtitles' src='c.vtt'></video>"), [])
+
+    def test_a_non_caption_track_does_not_satisfy_it(self):
+        self.assertEqual(
+            checks("<video src='x.mp4'><track kind='descriptions' src='d.vtt'></video>"),
+            ["media-no-captions"])
+
+    def test_audio_only_is_not_claimed(self):
+        # 1.2.2 is synchronized media; audio-only is 1.2.1 and needs a
+        # transcript this pass cannot see.
+        self.assertEqual(checks("<audio src='x.mp3'></audio>"), [])
+
+    def test_expression_track_kind_is_undecidable_not_a_finding(self):
+        source = "<video src='x.mp4'><track kind='{{ t.kind }}' src='c.vtt'></video>"
+        self.assertEqual(checks(source), [])
+        self.assertEqual(undecidable(source), ["media-no-captions"])
+
+
+class InteractiveAriaHidden(unittest.TestCase):
+    """4.1.2. Added 2026-08-21; see portfolio/research/a11y-engine-agreement/."""
+
+    def test_focusable_link_hidden_from_the_tree_is_blocking(self):
+        self.assertEqual(
+            checks("<a href='/x' aria-hidden='true'>Cart</a>"),
+            ["interactive-aria-hidden"])
+
+    def test_button_and_input_are_covered(self):
+        self.assertEqual(
+            checks("<button aria-hidden='true'>Go</button>"), ["interactive-aria-hidden"])
+        self.assertEqual(
+            checks("<input type='text' aria-label='q' aria-hidden='true'>"),
+            ["interactive-aria-hidden"])
+
+    def test_tabindex_minus_one_removes_it_from_the_tab_order(self):
+        self.assertEqual(
+            checks("<button aria-hidden='true' tabindex='-1'>Go</button>"), [])
+
+    def test_hidden_attribute_removes_it_too(self):
+        self.assertEqual(checks("<button aria-hidden='true' hidden>Go</button>"), [])
+
+    def test_anchor_without_href_is_not_focusable(self):
+        self.assertEqual(checks("<a aria-hidden='true'>x</a>"), [])
+
+    def test_decorative_span_inside_a_named_link_is_not_flagged(self):
+        # The common, correct icon pattern. A span is not focusable.
+        self.assertEqual(
+            checks("<a href='/cart'>Cart<span class='i' aria-hidden='true'></span></a>"), [])
+
+
+class CoverageBoundaryIsComplete(unittest.TestCase):
+    """The invariant that would have caught 1.2.2 going missing.
+
+    A record's reader can only distinguish "checked and passed" from "not
+    looked at" by the two lists the record carries. So every criterion this
+    engine reasons about must appear in exactly one of them: a criterion that
+    is in neither is silently absent, which is the defect
+    `portfolio/research/a11y-engine-agreement/` measured.
+    """
+
+    @staticmethod
+    def _number(criterion):
+        return criterion.split()[0]
+
+    def test_no_criterion_is_both_checked_and_declared_untested(self):
+        checked = {self._number(sc) for sc, _ in audit.CHECKS.values()}
+        declared = {self._number(c) for c, _ in audit.NOT_TESTED}
+        self.assertEqual(checked & declared, set())
+
+    def test_every_statically_detectable_criterion_is_accounted_for(self):
+        checked = {self._number(sc) for sc, _ in audit.CHECKS.values()}
+        declared = {self._number(c) for c, _ in audit.NOT_TESTED}
+        # Criteria the sibling engine demonstrates are reachable from static
+        # markup. Any of these missing from both lists is a silent gap.
+        statically_reachable = {
+            "1.1.1", "1.2.2", "1.3.1", "1.4.2", "1.4.4",
+            "2.4.2", "2.4.3", "2.4.4", "3.1.1", "3.3.2", "4.1.2",
+        }
+        self.assertEqual(statically_reachable - checked - declared, set())
 
 
 class Robustness(unittest.TestCase):

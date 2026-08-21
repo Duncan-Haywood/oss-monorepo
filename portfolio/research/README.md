@@ -38,6 +38,16 @@ executable probes under [`portfolio/pipeline/probes/`](../pipeline/probes/) are
 separate directories that answer overlapping questions — read both indexes
 before building either.
 
+**Amended 2026-08-21: that warning was right, and the cost was already on the
+books.** Run on the same input for the first time, the two engines disagreed —
+each was silently blind to two checks the other had, in opposite directions,
+and neither listed the other's checks in its own coverage statement. Against
+the only hand-labeled ground truth either has, `audit.py` scored recall 0.857
+to the probe's 1.0. Closed, with the invariant that makes the next such gap
+fail a test, in [`a11y-engine-agreement/`](a11y-engine-agreement/). The general
+lesson is the one this section already states, now with a number attached:
+duplicated tooling does not stay in agreement on its own.
+
 ## 1. Is there demand, and does the product premise hold?
 
 | Directory | Question | Finding |
@@ -53,6 +63,7 @@ before building either.
 | [`a11y-evidence-record/`](a11y-evidence-record/) | How much of the `eaa-remediation-pipeline` audit is automatable from templates alone? | **63.2% is undecidable without rendering or store data**; **70.4%** on the four checks where "undecidable" is even a possible answer. Two defect classes (unnamed buttons, unlabelled controls) carry **71% of blocking findings**; missing image alt is 5.6% |
 | [`a11y-render-recovery/`](a11y-render-recovery/) | What does rendering actually recover from that undecidable share? | **50.5% is theme-recoverable** at build time with no store data; **11.0% requires per-store merchant data** (where empty alts become real blocking failures at that store); **38.5% is context-dependent** — undecidable even as to provenance from the template alone. "Almost all" splits into three shares, only one of which is a build step |
 | [`a11y-theme-resolution/`](a11y-theme-resolution/) | The theme-recoverable share is a *ceiling*. What does it recover **to** — a pass, or a defect? | **A pass, overwhelmingly.** 68.5% of the 248 theme-recoverable undecidables resolve to a name that is present; **2.0% (5 of 248) are real blocking failures**. The build step is a coverage step, not a finding-generator. All five defects are one mechanically-detectable class (a `<label for>` whose target id the theme builds from an expression), and 64 of the 69 "cross-partial label" cases were in the same file all along — a fix both audit engines can adopt |
+| [`a11y-engine-agreement/`](a11y-engine-agreement/) | This portfolio has **two** WCAG engines for the same candidate. Run on the same input, do they agree? | **No, and each was silent about it.** Each engine was blind to two checks the other had, in opposite directions, and neither listed the other's in its own coverage statement — so a record could not distinguish "checked and passed" from "never looked at". Against the only hand-labeled ground truth, `audit.py` scored recall **0.857** to the probe's 1.0, missing captions (1.2.2) and `aria-hidden` on a focusable control (4.1.2); the probe missed 1.4.2 and 1.4.4. All four closed, with a coverage-boundary invariant in each engine. The residual disagreement is **attribution** — two defects both engines catch but cite under different criteria — left open because settling it is a normative WCAG reading and the spec hosts are egress-denied |
 | [`register-change-rate/`](register-change-rate/) | `public-record-watch`'s kill criterion — how often does a public register actually change? | **Weekly or better for six of nine git-mirrored registers**, and the software-security ones change on 85–180 of 180 days. But cheap-to-monitor and expensive-to-miss are anti-correlated: none of the candidate's three named verticals has a usable mirror, and for the ones that do, the "archive a new entrant cannot fetch" moat is one clone (388 commits of CISA KEV history, in seconds). Also retires the €150/two-week budget for step 1 of that candidate's experiment, for any mirrored source |
 | [`substitute-supply/`](substitute-supply/) | For each pipeline candidate's core function, does a live, adopted, free implementation already exist on npm? | **7 of 10 measurable functions are commoditised.** Four candidates' prose "commodity" claims are confirmed with numbers; `mcp-supply-chain-watch` gets an independent second reason its `defensibility: 3` floor sits where it does (both mechanisms are free); `public-record-watch`'s polling-and-diffing engine is the one function that is **not** commoditised on npm (2 relevant packages, none above 1k/mo) |
 
