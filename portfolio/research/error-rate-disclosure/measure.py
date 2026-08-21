@@ -219,7 +219,11 @@ def render_npm() -> tuple[str, str | None, list[str]]:
         ),
     )
     text = evidence.to_markdown(report) + "\n" + evidence.to_json(report)
-    return text, "src/triage/evidence.py", ["COVERAGE_LIMITS", "NOT_AN_ATTESTATION"]
+    return text, "src/triage/evidence.py", [
+        "COVERAGE_LIMITS",
+        "NOT_AN_ATTESTATION",
+        "ACCURACY_NOTE",
+    ]
 
 
 def render_silence() -> tuple[str, str | None, list[str]]:
@@ -288,13 +292,15 @@ PROBE_SPECS = (
         "probe": "npm-reachability-triage",
         "candidate": "cra-evidence-desk",
         "render": render_npm,
-        "citation": None,
-        "citation_absent_because": (
-            "The direction this tool's own record calls \"the failure this tool is built "
-            "to avoid\" — a suppression that should not have happened — has never been "
-            "measured. validation-2026-08-21-build-surface.json records suppression "
-            "*rates*, which say how much was suppressed and nothing about how much of "
-            "that was wrong."
+        "citation": Citation(
+            "portfolio/pipeline/probes/npm-reachability-triage/README.md",
+            "0 of 53 distinct claims",
+            ("0 of 53", "0 of 102", "0/53", "0/102"),
+            "0 of 53 hand-verified suppression claims (0 of 102 raw suppressed "
+            "findings) were wrong, checked on 2026-08-21 against real advisory "
+            "text and lockfile evidence across all seven npm products in the "
+            "portfolio — a sample, not a general proof the rules cannot "
+            "misfire on a different project's lockfile shape.",
         ),
         "prior": 8,
         "revenue_model": "€99–€399/month subscription by dependency count "

@@ -52,7 +52,7 @@ and does not license", and from the positioning constraints in
   failed this rule, which is what moved `ethical_robustness` on all four
   candidates.
 
-  **Three now pass it.** `eaa-wcag-triage` prints both of its committed figures
+  **All four now pass it.** `eaa-wcag-triage` prints both of its committed figures
   with corpus, date, derivation and limits, names both directions it errs in,
   and states which direction pays the operator — taking `eaa-remediation-pipeline`
   6 → 9, the first upward revision in `candidates.yaml`.
@@ -65,13 +65,18 @@ and does not license", and from the positioning constraints in
   "How this can be wrong" section in its rendered markdown stating that figure,
   its direction and its honest limits (author-authored fixtures, not held-out)
   — `ethical_robustness` 7 → 9, composite 6.625 → 6.875.
-
-  **What remains is a measurement, not a rendering.**
-  `npm-reachability-triage` has never measured an error rate, so it has no
-  figure to withhold. The missing rate is for the direction its own record
-  calls "the failure this tool is built to avoid" — a suppression that should
-  not have happened. It is the last probe here without a committed accuracy
-  figure.
+  `npm-reachability-triage` closed the last gap, and it needed a measurement
+  rather than a rendering: unlike the other three, no accuracy figure existed
+  anywhere to print. 102 suppressed findings from a live run across this
+  portfolio's seven npm products reduce to 53 distinct `(advisory, rule,
+  package)` claims — the same advisory suppressed the same way on more than one
+  product counts once — each hand-checked against its real advisory text and
+  the actual lockfile/source evidence the suppression rule cites. **0 of 53 (0
+  of 102 raw findings) were wrong.** `triage/evidence.py` gained the same
+  `ACCURACY_NOTE` shape `harness.py` uses — `ethical_robustness` 7 → 8,
+  composite 6.625 → 6.75. See the probe's own README for the full
+  methodology, including the one labeling imprecision the review found (not a
+  wrong suppression, and left as a named follow-up).
 
   A figure printed at a customer must not be able to go stale. `eaa-wcag-triage`'s
   `tests/test_accuracy_citations.py` checks each printed value against the

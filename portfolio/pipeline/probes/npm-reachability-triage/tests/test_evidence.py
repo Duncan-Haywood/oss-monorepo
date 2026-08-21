@@ -8,7 +8,16 @@ import json
 
 from triage.deployment import DeploymentProfile, STATIC_EXPORT
 from triage.engine import DEV_ONLY, NOT_DEPLOYED, SHIPPED, Finding
-from triage.evidence import COVERAGE_LIMITS, Report, to_json, to_markdown
+from triage.evidence import (
+    ACCURACY_DISTINCT_CLAIMS,
+    ACCURACY_RAW_FINDINGS,
+    ACCURACY_WRONG_CLAIMS,
+    ACCURACY_WRONG_RAW_FINDINGS,
+    COVERAGE_LIMITS,
+    Report,
+    to_json,
+    to_markdown,
+)
 from triage.lockfile import InstalledPackage
 
 PROFILE = DeploymentProfile(STATIC_EXPORT, "high", ('`output: "export"`',), "next.config.js")
@@ -66,6 +75,15 @@ class TestJson:
         payload = json.loads(to_json(_report()))
         assert "not an attestation" in payload["not_an_attestation"].lower()
 
+    def test_includes_the_hand_verified_wrong_suppression_rate(self):
+        payload = json.loads(to_json(_report()))
+        rate = payload["wrong_suppression_rate"]
+        assert rate["distinct_claims"] == ACCURACY_DISTINCT_CLAIMS
+        assert rate["distinct_claims_wrong"] == ACCURACY_WRONG_CLAIMS
+        assert rate["raw_findings"] == ACCURACY_RAW_FINDINGS
+        assert rate["raw_findings_wrong"] == ACCURACY_WRONG_RAW_FINDINGS
+        assert str(ACCURACY_DISTINCT_CLAIMS) in rate["note"]
+
 
 class TestMarkdown:
     def test_lists_suppressed_findings_with_their_reasons(self):
@@ -99,6 +117,12 @@ class TestMarkdown:
     def test_shows_deployment_evidence(self):
         rendered = to_markdown(_report())
         assert 'output: "export"' in rendered
+
+    def test_states_the_hand_verified_wrong_suppression_rate(self):
+        rendered = to_markdown(_report())
+        assert "How this can be wrong" in rendered
+        assert f"{ACCURACY_WRONG_CLAIMS} of {ACCURACY_DISTINCT_CLAIMS} distinct claims" in rendered
+        assert f"{ACCURACY_WRONG_RAW_FINDINGS} of {ACCURACY_RAW_FINDINGS} raw findings" in rendered
 
     def test_escapes_pipes_so_tables_survive(self):
         finding = Finding(

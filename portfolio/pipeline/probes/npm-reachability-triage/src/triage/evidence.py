@@ -58,6 +58,41 @@ NOT_AN_ATTESTATION = (
     "not state that this project meets any regulatory obligation."
 )
 
+#: The measured wrong-suppression figures, held here as named constants rather
+#: than hand-copied into the prose below, so the rendered number cannot drift
+#: from the value this module actually holds. The verification itself lives in
+#: this probe's own README and its committed evidence file, not in code --
+#: unlike agent-permission-harness's fixture corpus, this measurement is a
+#: one-time hand review of real advisories against real lockfile evidence, not
+#: something a test suite regenerates on every run.
+ACCURACY_VERIFIED_ON = "2026-08-21"
+ACCURACY_DISTINCT_CLAIMS = 53
+ACCURACY_WRONG_CLAIMS = 0
+ACCURACY_RAW_FINDINGS = 102
+ACCURACY_WRONG_RAW_FINDINGS = 0
+
+ACCURACY_NOTE = (
+    "## How this can be wrong\n\n"
+    f"Hand-verified on {ACCURACY_VERIFIED_ON} against a freshly downloaded OSV "
+    "feed across all seven npm products in this portfolio: every one of the "
+    f"{ACCURACY_RAW_FINDINGS} suppressed findings that run produced reduces to "
+    f"{ACCURACY_DISTINCT_CLAIMS} distinct (advisory, rule, package) claims (the "
+    "same advisory suppressed the same way on more than one product counts "
+    "once), each checked against its real advisory text and the actual "
+    "lockfile or source evidence the rule cites. "
+    f"**{ACCURACY_WRONG_CLAIMS} of {ACCURACY_DISTINCT_CLAIMS} distinct claims "
+    f"({ACCURACY_WRONG_RAW_FINDINGS} of {ACCURACY_RAW_FINDINGS} raw findings) "
+    "were wrong** — suppressed a vulnerability actually present in the "
+    "deployed artifact, the failure this tool is built to avoid.\n\n"
+    "This is one portfolio's sample, not a general proof the suppression rules "
+    "cannot misfire on a different project's lockfile shape: four of the nine "
+    "products this measurement's own sample covers are documentation sites, "
+    "and 24 of the 102 suppressions checked trace to a single edge claim, "
+    "`next -> postcss`. See this probe's README and "
+    "`wrong-suppression-verification-2026-08-21.json` for the full per-claim "
+    "record."
+)
+
 
 @dataclass(frozen=True)
 class Report:
@@ -119,6 +154,14 @@ def to_json(report: Report) -> str:
         },
         "counts": report.counts(),
         "coverage_limits": list(COVERAGE_LIMITS),
+        "wrong_suppression_rate": {
+            "verified_on": ACCURACY_VERIFIED_ON,
+            "distinct_claims": ACCURACY_DISTINCT_CLAIMS,
+            "distinct_claims_wrong": ACCURACY_WRONG_CLAIMS,
+            "raw_findings": ACCURACY_RAW_FINDINGS,
+            "raw_findings_wrong": ACCURACY_WRONG_RAW_FINDINGS,
+            "note": ACCURACY_NOTE,
+        },
         "findings": [_finding_to_dict(finding) for finding in report.findings],
     }
     return json.dumps(payload, indent=2, sort_keys=False)
@@ -186,6 +229,9 @@ def to_markdown(report: Report) -> str:
     lines.append("## What this record does not cover")
     lines.append("")
     lines.extend(f"- {limit}" for limit in COVERAGE_LIMITS)
+    lines.append("")
+
+    lines.append(ACCURACY_NOTE)
     lines.append("")
 
     return "\n".join(lines)

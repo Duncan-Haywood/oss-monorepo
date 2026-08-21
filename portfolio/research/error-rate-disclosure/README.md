@@ -325,25 +325,55 @@ Held out, this detector still finds 6 of 17 dormancy episodes at a median 110
 days, and reaching 14 of 17 costs ~43 nuisance alarm-days per source-year. None
 of that improved. What changed is that a subscriber is now told it.
 
-### 5. What is still open
+### 5. `agent-permission-harness` closed its gap — `ethical_robustness` 7 → 9
 
-- **`agent-permission-harness` closed its gap — `ethical_robustness` 7 → 9.**
-  `validate_accuracy.py` (a labeled 34-case synthetic fixture corpus, run for
-  real through `harness.analyse()`) measured 0 false positives / 0 false
-  negatives on the 16/34 positive-rule opportunities those fixtures cover, and
-  `render_markdown()` now states that figure, its direction, and its honest
-  limits (author-authored fixtures, not held-out; silent on attack classes none
-  of the seven rules encode) in a "How this can be wrong" section. `measure.py`
-  cites the committed figure for real instead of `citation=None`. See
-  [`portfolio/pipeline/probes/agent-permission-harness/`](../../pipeline/probes/agent-permission-harness/).
-- **`npm-reachability-triage` needs a measurement, not a module.** Its record
-  already names its adverse direction, in the body rather than a footnote. The
-  rate for that direction — a suppression that should not have happened — has
-  never been measured, so there is no figure to print. That is the last
-  remaining deduction this pass could not close.
+`validate_accuracy.py` (a labeled 34-case synthetic fixture corpus, run for
+real through `harness.analyse()`) measured 0 false positives / 0 false
+negatives on the 16/34 positive-rule opportunities those fixtures cover, and
+`render_markdown()` now states that figure, its direction, and its honest
+limits (author-authored fixtures, not held-out; silent on attack classes none
+of the seven rules encode) in a "How this can be wrong" section. `measure.py`
+cites the committed figure for real instead of `citation=None`. See
+[`portfolio/pipeline/probes/agent-permission-harness/`](../../pipeline/probes/agent-permission-harness/).
 
-Consequences recorded elsewhere: four `measured:` blocks and two composites in
-[`candidates.yaml`](../../pipeline/candidates.yaml), the two write-ups, the
+### 6. `npm-reachability-triage` closed the last gap, by measuring rather than rendering — `cra-evidence-desk` 7 → 8
+
+Every other gap here closed by building a record module or adding a rendering
+line onto a rate that already existed. This one had no rate to render: the
+tool's own copy names its adverse direction — *"a suppressed finding that
+should not have been is the failure this tool is built to avoid"* — but nobody
+had checked how often that failure actually happens.
+
+Closed by hand, not by a fixture corpus like `agent-permission-harness` used
+(that direction needs real advisories and real lockfiles, not synthetic
+cases). A fresh OSV feed run across the portfolio's seven npm products
+produces 102 suppressed findings, reducing to 53 distinct `(advisory, rule,
+package)` claims once the same advisory suppressed the same way on more than
+one product is counted once. Each was checked against its real advisory text
+and the actual lockfile/source evidence the suppression rule cites — **0 of 53
+(0 of 102 raw findings) were wrong.**
+
+`triage/evidence.py` gained the same shape `harness.py` used for its own
+figure: an `ACCURACY_NOTE` constant, declared at module level and rendered
+into both the markdown and JSON records under a "How this can be wrong"
+section. `measure.py` now cites the figure for real, pinned against this
+probe's own README by `Citation.verify()` on every run, instead of
+`citation=None`.
+
+One real but non-blocking finding came out of the review, and it is disclosed
+in the probe's README rather than fixed here: `GHSA-89xv-2m56-2m9x` is tagged
+`server-surface:middleware` when its actual subject is SSRF in Server
+Actions, because `classify()` matches the first pattern that hits anywhere in
+the advisory text rather than ranking the summary first. The suppression
+verdict is still correct; only the audit label a reviewer sees is imprecise.
+
+**This closes the directory.** All four probes now have both a committed
+accuracy figure and a rendering that carries it, so `rate_in_artifact` is
+`True` across the board for the first time. See
+[`portfolio/pipeline/probes/npm-reachability-triage/`](../../pipeline/probes/npm-reachability-triage/)
+and its `wrong-suppression-verification-2026-08-21.json`.
+
+Consequences recorded elsewhere: five `measured:` blocks and three composites
+in [`candidates.yaml`](../../pipeline/candidates.yaml), the two write-ups, the
 pipeline table, and `score_sensitivity.py`, whose section 3 asserted "Every
-revision is downward" as fixed prose and is now derived — the record runs 11
-down and 2 up.
+revision is downward" as fixed prose and is now derived.
