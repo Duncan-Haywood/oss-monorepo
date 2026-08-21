@@ -14315,3 +14315,56 @@ entries:
         not on publish approval. The standing $0 revenue ceiling and the
         publish/payout blocker on issue #139 are unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/keen-knuth-wq92kx. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 56% of last 25 entries, below the 70%
+        threshold). `git fetch origin main` first; tip `45080f5` (#518,
+        the just-landed build-surface ledger entry). Listed the 4 open
+        PRs before starting: #372 and #368 were both re-verified by
+        sessions earlier the same day and already correctly owner-gated,
+        nothing new to add; #511 (world-clock-widget app icon) is a
+        `ventures/*` change correctly left for human review since no
+        Xcode toolchain is available here to confirm the asset catalog
+        compiles.
+      - >-
+        #515 ("npm-reachability-triage: build-toolchain and Server
+        Components/Function suppression rules") was opened at 10:31 UTC,
+        four minutes after #517 -- a different, more thorough pass at the
+        exact same probe README next-step -- merged to `main` as
+        `df82b1b`. `git merge-tree` against current `main` showed real
+        conflicts, not a stale-base false positive. Diffed both changes
+        directly: #515's `build-toolchain` rule suppressed `postcss` by a
+        name allowlist scoped to static exports only; #517's already-merged
+        `build-surface` rule does the same job from the lockfile's actual
+        production-dependency graph, fires on server-rendered deployments
+        too (0%->22-80% suppression there), and independently re-derives
+        the two `nanoid` advisories #515's own body said it had to leave
+        unsuppressed. #515's `server-functions` addition duplicated
+        `server-actions`/`server-functions` rules #517 already shipped
+        verbatim. #515's `server-components` addition was the pattern
+        #517's authors explicitly wrote a rule *and* a pinned test
+        against, with the reasoning in `surfaces.py` itself: a static
+        export still executes Server Components at build time, so a
+        components-name match would wrongly suppress advisories about
+        that build-time rendering.
+      - >-
+        No unique contribution survived the overlap, so closed #515 with
+        a comment walking through all three points and pointing to #517
+        rather than leaving it to accumulate in the backlog this file has
+        repeatedly warned about -- closed as `not_planned`, not merged,
+        no ledger verification record needed. Re-read the probe's own
+        README afterward for a further specified next step; found none --
+        the two residual findings (the CSP-nonce advisory and the
+        `beforeInteractive` true positive) are both deliberately left
+        reported with their reasoning already written up, so there was no
+        further low-risk probe advance to make this session without
+        re-deriving work already done. No revenue and no candidate score
+        moved; the standing $0 revenue ceiling and the publish/payout
+        blocker on issue #139 are unchanged.
+    mrr_end: null
