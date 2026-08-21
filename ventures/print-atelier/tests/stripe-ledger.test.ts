@@ -28,6 +28,29 @@ test("recordStripeWebhookToLedger appends handled events", () => {
   assert.equal(getStripeLedgerEntries().length, 1);
 });
 
+test("recordStripeWebhookToLedger does not double-count a retried Stripe webhook delivery", () => {
+  clearStripeLedgerForTests();
+
+  const result = processStripeConnectWebhookEvent({
+    id: "evt_ledger_retry",
+    type: "payment_intent.succeeded",
+    created: 1710000010,
+    livemode: false,
+    data: { object: { amount: 6000 } },
+  });
+
+  const first = recordStripeWebhookToLedger("evt_ledger_retry", "payment_intent.succeeded", result);
+  assert.ok(first);
+  assert.equal(getStripeLedgerEntries().length, 1);
+
+  // Stripe redelivers the same event id (retry after timeout / non-2xx / manual redelivery).
+  const retried = recordStripeWebhookToLedger("evt_ledger_retry", "payment_intent.succeeded", result);
+
+  assert.equal(retried?.ledgerId, first?.ledgerId);
+  assert.equal(getStripeLedgerEntries().length, 1);
+  assert.equal(buildStripePayoutLedgerSummary().totalPaymentCents, 6000);
+});
+
 test("buildStripePayoutLedgerSummary totals transfers and payments", () => {
   clearStripeLedgerForTests();
 

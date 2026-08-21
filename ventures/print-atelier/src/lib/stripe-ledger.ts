@@ -39,6 +39,11 @@ export function recordStripeWebhookToLedger(
     return null;
   }
 
+  const existing = ledgerStore.find((entry) => entry.eventId === eventId);
+  if (existing) {
+    return existing;
+  }
+
   const entry: StripeLedgerEntry = {
     ledgerId: generateLedgerId(),
     eventId,

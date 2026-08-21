@@ -5,6 +5,7 @@ import {
   buildOrderSummary,
   clearOrdersForTests,
   getOrderRecords,
+  hasOrderForStripeEvent,
   recordOrderFromPaymentWebhook,
 } from "../src/lib/orders.ts";
 
@@ -49,6 +50,44 @@ test("recordOrderFromPaymentWebhook ignores non-payment events", () => {
 
   assert.equal(order, null);
   assert.equal(getOrderRecords().length, 0);
+});
+
+test("recordOrderFromPaymentWebhook is idempotent for a retried Stripe event, and hasOrderForStripeEvent flags the retry", () => {
+  clearOrdersForTests();
+
+  assert.equal(hasOrderForStripeEvent("evt_retry_1"), false);
+
+  const first = recordOrderFromPaymentWebhook(
+    "evt_retry_1",
+    "payment_intent.succeeded",
+    {
+      id: "pi_retry_1",
+      amount: 4200,
+      currency: "usd",
+      metadata: { fulfillmentPartnerId: "printful" },
+    },
+    true,
+  );
+
+  assert.ok(first);
+  assert.equal(getOrderRecords().length, 1);
+  assert.equal(hasOrderForStripeEvent("evt_retry_1"), true);
+
+  // Stripe redelivers the same event (e.g. after a timeout or non-2xx response).
+  const retried = recordOrderFromPaymentWebhook(
+    "evt_retry_1",
+    "payment_intent.succeeded",
+    {
+      id: "pi_retry_1",
+      amount: 4200,
+      currency: "usd",
+      metadata: { fulfillmentPartnerId: "printful" },
+    },
+    true,
+  );
+
+  assert.equal(retried?.orderId, first?.orderId);
+  assert.equal(getOrderRecords().length, 1);
 });
 
 test("buildOrderSummary totals revenue and fulfillment queue", () => {
