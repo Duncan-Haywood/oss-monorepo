@@ -75,6 +75,7 @@ what each pass established and are kept for provenance; where they disagree with
 | [`primary-source-egress/`](primary-source-egress/) | **Nobody had run a control.** `example.com` produces a byte-identical denial to `api.wordpress.org`, so the WordPress denial is not evidence about WordPress — it is evidence of a general policy, and Asks 3 and 7 are therefore one decision rather than several |
 | [`runtime-data-reachability/`](runtime-data-reachability/) | A third question the other two do not answer: can a product **fetch its own input data**? For only one of eight candidates. A candidate can be publishable and still impossible to develop |
 | [`data-reachability/`](data-reachability/) | Probe every distribution channel a feed publishes, not just its canonical one. Under that rule the policy is not "registries only" but **general-web hosts denied, code/package/object-storage infrastructure allowed** — OSV's bulk export and the CISA KEV git mirror both answer while their APIs do not |
+| [`forge-surface-reachability/`](forge-surface-reachability/) | The git-surface amendment below was measured on **one forge**. Asked of twenty: **git is allowlisted host-by-host, exactly like HTTP — 4 reachable, 16 egress-denied**, with four of five GitLab CE instances denied while `gitlab.com` answers, so the allowance tracks the host, not the protocol. `gitlab.com` is the **only forge reachable on every surface** (git, `/api/v4/` anonymously, raw), and its project search is the "repository search" [`register-change-rate/`](register-change-rate/) named as scope-denied — run, with working controls, it finds **no live register mirror** in any of `public-record-watch`'s verticals, strengthening that directory's self-declared weakest claim |
 | [`egress-reachability/`](egress-reachability/) | **Current.** All nine passes reconciled: 92 hosts, **25 reachable, 64 egress-denied, 3 GitHub-scope-denied**. Establishes that this environment denies egress in *three* signatures, one of which fires intermittently on ~6% of requests and is indistinguishable from an origin 403 by status code — enough on its own to generate ~4 spurious "reachable" verdicts per pass, a different four each time. **Amended 2026-08-20:** the three GitHub scope-denials are verdicts about the *HTTP* surface. Git's smart-HTTP transport is a fourth surface and is not scoped — full-history `git clone` of repositories this session has no scope over succeeds, on `github.com` and `codeload.github.com` alike (`consolidate.py --git-surface`) |
 
 ### The bottom line these converge on
@@ -118,6 +119,16 @@ Stated once here so a tenth pass does not rediscover them:
 > form is that a verdict belongs to a surface and never to a host, and a
 > recorded denial is only as broad as the surface it was measured on
 > ([`egress-reachability/`](egress-reachability/)).
+>
+> **Amended 2026-08-21: the rule cuts both ways, and the second edge is easier
+> to miss.** A verdict does not generalise across surfaces — *and it does not
+> generalise across hosts either.* The git-surface amendment was measured on
+> `github.com` alone; asked of twenty forges, git is allowlisted host-by-host
+> exactly like HTTP (4 reachable, 16 denied at CONNECT, control denied). "Git is
+> a fourth surface and is not scoped" is true of GitHub's **scope** gate and
+> says nothing about the **egress** gate, which is what denies the other
+> sixteen. Do not read it as licence to reach an arbitrary git host — measure
+> the host ([`forge-surface-reachability/`](forge-surface-reachability/)).
 
 > **2. A status code is not evidence about reachability in this environment.**
 > Denials arrive in three signatures, two of which are ordinary-looking HTTP
