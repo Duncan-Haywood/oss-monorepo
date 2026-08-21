@@ -99,12 +99,18 @@
     {
       "probe": "source-silence-detector",
       "candidate": "public-record-watch",
-      "artifact_chars": 1604,
-      "record_module": null,
-      "declared_coverage_constants": [],
-      "scope_disclosed": false,
-      "direction_disclosed": false,
-      "direction_evidence": [],
+      "artifact_chars": 11104,
+      "record_module": "subscriber_record.py",
+      "declared_coverage_constants": [
+        "COVERAGE_STATEMENT",
+        "SILENCE_CAVEAT"
+      ],
+      "scope_disclosed": true,
+      "direction_disclosed": true,
+      "direction_evidence": [
+        "**Accuracy (detection rate 6 of 17 (0.35), detection latency 110 days (median)):** this watch misses most dormancy and reports late.",
+        "\"accuracy_statement\": \"These figures come from replaying this watch over the recorded history of the mirrors it follows, holding each source out in turn."
+      ],
       "rate_committed": {
         "path": "portfolio/pipeline/probes/source-silence-detector/README.md",
         "quote": "episodes (0.35) at a median latency of 110 days",
@@ -117,8 +123,11 @@
         "reads": "roughly two thirds of the dormancy episodes the customer is paying to be told about are not detected"
       },
       "rate_absent_because": null,
-      "rate_in_artifact": false,
-      "rate_matches": [],
+      "rate_in_artifact": true,
+      "rate_matches": [
+        "0.35",
+        "6 of 17"
+      ],
       "revenue_model": "\u20ac30\u2013\u20ac150/month subscription (candidates/public-record-watch.md)",
       "measured_error_direction": "under-reporting (missed silence)"
     },
@@ -163,14 +172,10 @@
     {
       "candidate": "public-record-watch",
       "ethical_robustness_was": 9,
-      "ethical_robustness_now": 6,
-      "deductions_applied": [
-        "rate_undisclosed",
-        "direction_undisclosed",
-        "adverse_alignment"
-      ],
+      "ethical_robustness_now": 9,
+      "deductions_applied": [],
       "alignment_adverse": true,
-      "alignment_charged": true,
+      "alignment_charged": false,
       "alignment_reasoning": "Nuisance alarms cost the operator churn \u2014 the probe measures 43 alarm-days per source-year at the high-recall setting \u2014 while a missed dormancy episode costs nothing and cannot be observed by the customer, who sees silence either way. The cheapest tuning is the one that fails them."
     },
     {
@@ -188,9 +193,9 @@
   ],
   "summary": {
     "probes": 4,
-    "scope_disclosed": 2,
-    "direction_disclosed": 2,
+    "scope_disclosed": 3,
+    "direction_disclosed": 3,
     "rate_committed": 2,
-    "rate_in_artifact": 1
+    "rate_in_artifact": 2
   }
 }

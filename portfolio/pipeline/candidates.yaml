@@ -298,13 +298,33 @@ candidates:
       defensibility: 5
       distribution: 4
       liability_containment: 8
-      ethical_robustness: 6
-    composite: 6.625
+      ethical_robustness: 9
+    composite: 7.0
     floor: 4
     floor_dimension: distribution
     measured:
       ethical_robustness: >-
-        9 -> 6, 2026-08-21, portfolio/research/error-rate-disclosure/. This
+        6 -> 9, 2026-08-21. The mitigation below was built: subscriber_record.py
+        is the customer-facing surface this probe did not have, and the same
+        harness re-scored it. It prints the held-out detection rate (6 of 17,
+        0.35) and median latency (110d) at the top of every record with their
+        corpus, derivation and limits; it names the direction (under-reporting);
+        it discloses the conflict verbatim — "a false alarm costs us a
+        subscriber, and a miss costs us nothing and is invisible to you, so our
+        commercial incentive runs toward tuning this watch to stay quiet"; and
+        it refuses to render an absence of alerts as health, carrying instead
+        the standing caveat that no alert from us is not evidence a register is
+        active. It also names the per-source detectability the mitigation asked
+        for: FDA/openfda calibrates to a 2060-day threshold, so the record lists
+        it as effectively unwatched rather than leaving "no alert" to be read as
+        reassurance. All three deductions lapse. Read the 9 as the screening
+        estimate no longer being reduced, NOT as a finding that the product is
+        good: this rubric measures disclosure only, and the detector still
+        misses roughly two thirds of the dormancy it is sold to find. That is a
+        product problem, priced in ai_leverage and distribution, and it is now
+        disclosed rather than hidden.
+        HISTORY. Earlier the same day this went 9 -> 6,
+        portfolio/research/error-rate-disclosure/. This
         probe has no customer-facing record module at all. The closest artifact
         it renders is an operator table which prints MISSED beside a source
         whose dormancy the detector failed to catch, and nothing carries either

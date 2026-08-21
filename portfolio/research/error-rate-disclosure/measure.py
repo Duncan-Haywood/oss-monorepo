@@ -223,8 +223,18 @@ def render_npm() -> tuple[str, str | None, list[str]]:
 
 
 def render_silence() -> tuple[str, str | None, list[str]]:
+    """The subscriber record, not the operator table.
+
+    Until 2026-08-21 this rendered ``detect_silence.render`` and reported "no
+    record module" — correctly, because there was none: the only rendered
+    artifact was a diagnostic table whose ``MISSED`` column told the operator
+    something no subscriber ever saw. ``subscriber_record.py`` is that missing
+    surface, so this now measures it. The operator table still exists and is
+    still not a customer artifact.
+    """
     _add_path("source-silence-detector")
     import detect_silence  # noqa: PLC0415
+    import subscriber_record  # noqa: PLC0415
 
     payload = json.loads(
         (REPO / "portfolio/research/register-change-rate/results-2026-08-20.json").read_text()
@@ -233,7 +243,9 @@ def render_silence() -> tuple[str, str | None, list[str]]:
     prior = json.loads(prior_path.read_text()) if prior_path.exists() else None
     cfg = detect_silence.Config(anchor="quantile", quantile=0.99)
     result = detect_silence.evaluate_all(payload, cfg, prior)
-    return detect_silence.render(result), None, []
+    record = subscriber_record.build_record(result, "2026-08-21T00:00:00Z")
+    text = subscriber_record.to_markdown(record) + "\n" + subscriber_record.to_json(record)
+    return text, "subscriber_record.py", ["COVERAGE_STATEMENT", "SILENCE_CAVEAT"]
 
 
 def render_harness() -> tuple[str, str | None, list[str]]:

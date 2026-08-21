@@ -93,9 +93,9 @@ four candidates carrying a probe have moved and the table is re-ordered.
 |---|---|---|---|---|
 | 1 | [Shopify accessibility evidence app](candidates/shopify-a11y-evidence.md) | 7.25 | 4 | Probe the channel — scored 2026-08-19. Top of the table only because nobody has probed it |
 | 2 | [EAA remediation pipeline](candidates/eaa-remediation-pipeline.md) | 7.125 | 5 | Build now, as a `local-site-studio` product line. Both gates measured 2026-08-21 — `liability_containment` 6→5 (**on** the gate, unmoved), `ethical_robustness` 9→6→9 after the record began printing its error rates |
-| 3 | [MCP supply-chain watch](candidates/mcp-supply-chain-watch.md) | 6.75 | 3 | Probe: steps 1–2 run; mitigation refuted, cannot graduate as scored |
-| 4 | [Public-record watch](candidates/public-record-watch.md) | 6.625 | 4 | Cheap probe — one vertical, two weeks. `ethical_robustness` 9→6 on 2026-08-21; **the one probe holding a measured rate it does not print** |
-| 5 | [Agent permission harness](candidates/agent-permission-harness.md) | 6.625 | 4 | Park; revisit 2027-Q1. Probed 2026-08-21 — internal build done, `ai_leverage` 9→8, `ethical_robustness` 9→7 |
+| 3 | [Public-record watch](candidates/public-record-watch.md) | 7.0 | 4 | Cheap probe — one vertical, two weeks. `ethical_robustness` 9→6→9 on 2026-08-21, after the subscriber record was built; the detector still misses two thirds of the dormancy it looks for |
+| 4 | [MCP supply-chain watch](candidates/mcp-supply-chain-watch.md) | 6.75 | 3 | Probe: steps 1–2 run; mitigation refuted, cannot graduate as scored |
+| 5 | [Agent permission harness](candidates/agent-permission-harness.md) | 6.625 | 4 | Park; revisit 2027-Q1. Probed 2026-08-21 — internal build done, `ai_leverage` 9→8, `ethical_robustness` 9→7. **The last probe with no customer record at all** |
 | 6 | [Tender radar](candidates/tender-radar.md) | 6.625 | 4 | Park; needs a channel partner |
 | 7 | [CRA evidence desk](candidates/cra-evidence-desk.md) | 6.625 | 3 | Probe (was build-now); wedge is egress-blocked. `ethical_robustness` 8→6→7 on 2026-08-21 (harness correction, not a re-probe) |
 | 8 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
@@ -105,14 +105,21 @@ stopped being true is the useful part.** This file said it across four
 candidates and eleven revisions, and before that it said every revision was
 exactly one point until an `ethical_robustness` measurement revised by two and
 by three. Both sentences were fixed prose describing a sample that kept moving.
-Of thirteen revisions now recorded, **eleven are downward and two are upward**,
-and neither upward one is a later pass liking a candidate more: the artifact
-being measured was changed and the same harness was re-run. `eaa-remediation-pipeline`
-printed its committed error rates into its customer record (6 → 9); `cra-evidence-desk`
-got back a point a rubric bug had charged it (6 → 7). That distinction is the
-thing to preserve — **a score may rise because someone fixed the thing being
-measured, never because someone re-estimated it** — and
-`test_score_sensitivity.py` now pins it rather than trusting it.
+Of the eleven revisions recorded, **eight are downward and three are upward**,
+and no upward one is a later pass liking a candidate more. In each case the
+artifact being measured was changed and the same harness was re-run:
+`eaa-remediation-pipeline` printed its committed error rates into its customer
+record (6 → 9), `public-record-watch` gained the subscriber record it did not
+have (6 → 9), and `cra-evidence-desk` got back a point a rubric bug had charged
+it (6 → 7). That distinction is the thing to preserve — **a score may rise
+because someone fixed the thing being measured, never because someone
+re-estimated it** — and `test_score_sensitivity.py` now pins it rather than
+trusting it.
+
+(A `measured:` block holds one revision per dimension and its opener states the
+current one, so the intermediate 9 → 6 steps are prose inside those blocks
+rather than extra rows in this count. The count is of *dimensions revised*, not
+of times anyone changed a number.)
 
 `score_sensitivity.py` derives all of this rather than asserting it, and
 **withholds** its rank extrapolation: with revisions in both directions there is
@@ -134,7 +141,7 @@ sentence above. Three findings, all of them checkable from
    both gates: the three rank dimensions (`ai_leverage`, `defensibility`,
    `distribution`) plus `liability_containment` and `ethical_robustness`, both
    measured on 2026-08-21. "No measured dimension has ever risen" held across
-   eleven revisions and then stopped: it is 11 down and 2 up across thirteen.
+   eleven revisions and then stopped: it is now 8 down and 3 up across eleven.
    It never meant that measurement always lowers a score — a pass
    that measures a dimension and leaves it alone records no revision at all, so
    confirmations are nearly invisible here, and two are recorded explicitly

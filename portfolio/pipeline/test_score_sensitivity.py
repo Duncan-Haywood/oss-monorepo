@@ -259,6 +259,7 @@ class AgainstTheLiveFile(unittest.TestCase):
             [
                 ("cra-evidence-desk", "ethical_robustness"),
                 ("eaa-remediation-pipeline", "ethical_robustness"),
+                ("public-record-watch", "ethical_robustness"),
             ],
         )
 

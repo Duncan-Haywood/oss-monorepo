@@ -16,20 +16,25 @@ first: `ethical_robustness` on the four candidates that have a probe —
 `cra-evidence-desk` 8 → 6, `agent-permission-harness` 9 → 7. No candidate
 crossed the gate.
 
-> **Amended the same day: one of the four gaps is closed and the scores moved.**
+> **Amended the same day: three of the four gaps are closed and the scores moved.**
 > `eaa-wcag-triage` now prints both of its committed figures, names both
 > directions, and states which one pays the operator — `eaa-remediation-pipeline`
-> **6 → 9**. A rubric bug that charged the alignment deduction to an artifact
-> that discloses its adverse direction was fixed — `cra-evidence-desk` **6 → 7**.
-> Current scores: 9, 6, 7, 7. The two probes with no record module are
-> unchanged. Full account in [What changed after this was
+> **6 → 9**. `source-silence-detector` gained the customer-facing record it did
+> not have, which prints its held-out detection rate and refuses to render an
+> absence of alerts as health — `public-record-watch` **6 → 9**. A rubric bug
+> that charged the alignment deduction to an artifact that discloses its adverse
+> direction was fixed — `cra-evidence-desk` **6 → 7**.
+> Current scores: 9, 9, 7, 7. **What remains is
+> `agent-permission-harness`**, which has no record module and no measured rate,
+> and `npm-reachability-triage`, whose adverse direction has never been measured
+> so there is no figure to print. Full account in [What changed after this was
 > measured](#what-changed-after-this-was-measured); the tables and findings below
 > are left as measured, because the whole point of the directory is what the
 > artifacts said at the moment they were looked at.
 
 ```
 python3 measure.py 2026-08-21          # offline, no network, no clock read
-python3 -m unittest discover -s . -t . # 17 tests
+python3 -m unittest discover -s . -t . # 25 tests
 ```
 
 ## Why this is the gate and not an essay
@@ -284,21 +289,54 @@ decimal point; a newline still ends a sentence; three tests pin it, including
 one that renders all four artifacts and asserts no quoted match ends
 mid-number.
 
-### 4. What is still open, and which kind of work it is
+### 4. `source-silence-detector` gained the record it never had — `public-record-watch` 6 → 9
 
-The two untouched probes are untouched because neither is a rendering job:
+This was the sharp one, and it needed a build rather than a rendering line. The
+probe had no customer-facing module at all: its operator table printed `MISSED`
+beside a register whose dormancy the detector failed to catch, and nothing
+carried that — or the committed held-out recall of 0.35 — to a subscriber.
 
-- **`source-silence-detector` is the sharp one.** It holds a committed held-out
-  recall of **0.35** and has no customer-facing record module to print it on.
-  Its operator table prints `MISSED` beside a source whose dormancy it failed to
-  catch and nothing carries that to a subscriber — who sees the same silence
-  whether the register is quiet or the watch failed. Building that module is the
-  single highest-value item this directory leaves behind.
-- **`npm-reachability-triage` and `agent-permission-harness` need a
-  measurement, not a module.** Neither has ever measured an error rate, so
-  neither has a figure to withhold. For the first, the direction whose rate is
-  missing is the one its own record calls "the failure this tool is built to
-  avoid".
+`probes/source-silence-detector/subscriber_record.py` is that surface. The rate
+and the direction are there, as for the accessibility probe. Two things are
+specific to this product, and they are the reason a rate alone would not have
+been enough:
+
+- **A miss here is unobservable from outside.** A false alarm announces itself;
+  a missed dormancy looks exactly like good news, because the subscriber sees
+  nothing either way. So the record carries a standing caveat that its own
+  silence is worthless as evidence — *"NO ALERT FROM US IS NOT EVIDENCE THAT A
+  REGISTER IS ACTIVE... treat an alert from us as a prompt to look, and the
+  absence of one as no information at all"* — and a test enumerates every state
+  string the record can emit and fails on "active", "healthy", "OK", "clear",
+  "fine". The record says `no alert`, never anything that implies health.
+- **A nominally-watched source can be effectively unwatched.** The anchor is a
+  high quantile of each source's own gaps, and nearest-rank p99 *is* the maximum
+  below 100 gaps, so `FDA/openfda` — which contributes 9 of the 17 holdout
+  episodes — calibrates to a 2060-day threshold. Its row would otherwise read
+  `no alert` beside a months-old last change. It is now listed by name under
+  "sources this watch does not usefully cover", with the arithmetic.
+
+The alignment disclosure is the blunt one this candidate needs: *"a false alarm
+costs us a subscriber, and a miss costs us nothing and is invisible to you — so
+our commercial incentive runs toward tuning this watch to stay quiet."*
+
+**The same caution as (1) applies harder here.** The 9 is a disclosure score.
+Held out, this detector still finds 6 of 17 dormancy episodes at a median 110
+days, and reaching 14 of 17 costs ~43 nuisance alarm-days per source-year. None
+of that improved. What changed is that a subscriber is now told it.
+
+### 5. What is still open
+
+- **`agent-permission-harness` is the last probe with no customer record at
+  all** — and, unlike the silence detector, no measured rate to put in one. It
+  has been run on a single unlabelled corpus, so neither a false-positive nor a
+  false-negative rate exists. Its candidate is `park`, so this is the least
+  urgent of the four.
+- **`npm-reachability-triage` needs a measurement, not a module.** Its record
+  already names its adverse direction, in the body rather than a footnote. The
+  rate for that direction — a suppression that should not have happened — has
+  never been measured, so there is no figure to print. That is its one remaining
+  deduction and the only one of the ten this pass could not close.
 
 Consequences recorded elsewhere: four `measured:` blocks and two composites in
 [`candidates.yaml`](../../pipeline/candidates.yaml), the two write-ups, the

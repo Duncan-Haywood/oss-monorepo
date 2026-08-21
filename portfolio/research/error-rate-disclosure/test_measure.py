@@ -182,41 +182,49 @@ class CommittedResult(unittest.TestCase):
         cls.payload = json.loads(RESULTS.read_text())
         cls.by_probe = {r["probe"]: r for r in cls.payload["disclosure"]}
 
-    def test_exactly_one_artifact_now_carries_its_error_rate(self):
-        self.assertEqual(self.payload["summary"]["rate_in_artifact"], 1)
-        self.assertTrue(self.by_probe["eaa-wcag-triage"]["rate_in_artifact"])
+    def test_both_probes_with_a_committed_rate_now_print_it(self):
+        self.assertEqual(self.payload["summary"]["rate_in_artifact"], 2)
+        for probe in ("eaa-wcag-triage", "source-silence-detector"):
+            with self.subTest(probe=probe):
+                self.assertTrue(self.by_probe[probe]["rate_in_artifact"])
 
-    def test_the_remaining_three_still_do_not(self):
-        """Two never measured a rate; one measured one and does not print it."""
-        for probe in (
-            "npm-reachability-triage",
-            "source-silence-detector",
-            "agent-permission-harness",
-        ):
+    def test_the_remaining_two_have_no_rate_to_print(self):
+        """The distinction that decides what work each one needs.
+
+        Withholding a measured rate is a rendering gap. Never having measured
+        one is a measurement gap, and no amount of rendering closes it.
+        """
+        for probe in ("npm-reachability-triage", "agent-permission-harness"):
             with self.subTest(probe=probe):
                 self.assertFalse(self.by_probe[probe]["rate_in_artifact"])
-        # source-silence-detector is the one that has the number and withholds
-        # it — a different failure from never having measured, and the reason
-        # its candidate is still the lowest scored of the four.
-        self.assertIsNotNone(self.by_probe["source-silence-detector"]["rate_committed"])
-        for probe in ("npm-reachability-triage", "agent-permission-harness"):
-            self.assertIsNone(self.by_probe[probe]["rate_committed"])
+                self.assertIsNone(self.by_probe[probe]["rate_committed"])
+                self.assertTrue(self.by_probe[probe]["rate_absent_because"].strip())
 
     def test_scope_and_direction_split_as_recorded(self):
-        self.assertEqual(self.payload["summary"]["scope_disclosed"], 2)
-        self.assertEqual(self.payload["summary"]["direction_disclosed"], 2)
+        self.assertEqual(self.payload["summary"]["scope_disclosed"], 3)
+        self.assertEqual(self.payload["summary"]["direction_disclosed"], 3)
 
-    def test_direction_is_disclosed_by_the_two_probes_with_a_record_module(self):
-        for probe in ("npm-reachability-triage", "eaa-wcag-triage"):
+    def test_direction_is_disclosed_by_every_probe_with_a_record_module(self):
+        for probe in ("npm-reachability-triage", "eaa-wcag-triage", "source-silence-detector"):
             with self.subTest(probe=probe):
                 self.assertTrue(self.by_probe[probe]["direction_disclosed"])
-        for other in ("source-silence-detector", "agent-permission-harness"):
-            with self.subTest(probe=other):
-                self.assertFalse(self.by_probe[other]["direction_disclosed"])
+        self.assertFalse(self.by_probe["agent-permission-harness"]["direction_disclosed"])
 
-    def test_two_probes_have_no_record_module_at_all(self):
+    def test_one_probe_still_has_no_record_module_at_all(self):
         missing = [r["probe"] for r in self.payload["disclosure"] if r["record_module"] is None]
-        self.assertEqual(sorted(missing), ["agent-permission-harness", "source-silence-detector"])
+        self.assertEqual(missing, ["agent-permission-harness"])
+
+    def test_the_silence_detector_never_renders_no_alert_as_health(self):
+        """The mitigation for an error the customer structurally cannot see.
+
+        This product's miss is unobservable from outside — a subscriber sees the
+        same silence whether the register is quiet or the watch failed — so the
+        rate alone is not enough. The record has to say what its own silence is
+        worth.
+        """
+        text, _, _ = measure.render_silence()
+        self.assertIn("NO ALERT FROM US IS NOT EVIDENCE THAT A REGISTER IS ACTIVE", text)
+        self.assertIn("a miss costs us nothing and is invisible to you", text)
 
     def test_scores_land_where_the_readme_says(self):
         got = {s["candidate"]: s["ethical_robustness_now"] for s in self.payload["scoring"]}
@@ -225,7 +233,7 @@ class CommittedResult(unittest.TestCase):
             {
                 "eaa-remediation-pipeline": 9,
                 "cra-evidence-desk": 7,
-                "public-record-watch": 6,
+                "public-record-watch": 9,
                 "agent-permission-harness": 7,
             },
         )
