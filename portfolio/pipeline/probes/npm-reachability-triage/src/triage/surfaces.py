@@ -84,7 +84,30 @@ SERVER_ONLY_RULES: tuple[SurfaceRule, ...] = (
         r"\broute handler(s)?\b|\bapi route(s)?\b",
         "Route handlers are server endpoints and are not emitted by static export",
     ),
+    _rule(
+        "server-functions",
+        r"\bserver function(s)?\b",
+        "Server Functions are RPC endpoints reached by an inbound HTTP request; "
+        "a static export emits none",
+    ),
 )
+
+# There is deliberately no `server-components` rule, and the reason belongs
+# next to the rules rather than in a commit message.
+#
+# The obvious way to catch the React Server Components advisories is a
+# `\bserver components?\b` pattern. It is wrong. A statically exported Next.js
+# build *does* execute Server Components — at build time, to produce the
+# pre-rendered HTML. What it does not have is the request-handling half: the
+# advisories that matter here all describe "a specially crafted HTTP request
+# sent to any App Router Server Function endpoint", and it is the **endpoint**
+# a static export lacks, not the component model.
+#
+# So `server-functions` above matches the endpoint, exactly as `server-actions`
+# already does for the other name of the same thing, and the RSC advisories are
+# caught because each one names the endpoint it is reached through. An RSC
+# advisory describing build-time rendering would not be suppressed — which is
+# correct, and is what a "Server Components" pattern would have got wrong.
 
 #: Any of these vetoes a server-only classification, because they describe code
 #: that a static build either executes at build time or ships to the browser.

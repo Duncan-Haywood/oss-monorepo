@@ -21,8 +21,13 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from triage.advisories import load_osv_zip  # noqa: E402
 from triage.deployment import detect  # noqa: E402
-from triage.engine import DEV_ONLY, NOT_DEPLOYED, SHIPPED, triage  # noqa: E402
+from triage.engine import DEV_ONLY, NOT_DEPLOYED, SHIPPED, ProjectContext, triage  # noqa: E402
+from triage.graph import build_from_lockfile  # noqa: E402
 from triage.lockfile import parse_lockfile  # noqa: E402
+from triage.sources import (  # noqa: E402
+    declared_production_dependencies,
+    scan_project_imports,
+)
 
 
 def main() -> int:
@@ -46,10 +51,21 @@ def main() -> int:
         names = {package.name for package in installed}
         advisories = load_osv_zip(archive, names)
         profile = detect(project)
-        findings = triage(installed, advisories, profile)
+        context = ProjectContext(
+            dependency_graph=build_from_lockfile(lockfile),
+            declared_dependencies=declared_production_dependencies(project),
+            source_imports=scan_project_imports(project),
+        )
+        findings = triage(installed, advisories, profile, context)
 
         total = len(findings)
         shipped = sum(1 for f in findings if f.verdict == SHIPPED)
+        # Per-rule counts, so a change in the headline rate can be attributed to
+        # the rule that caused it rather than to feed drift.
+        rules: dict[str, int] = {}
+        for finding in findings:
+            if finding.suppressed and finding.rule:
+                rules[finding.rule] = rules.get(finding.rule, 0) + 1
         rows.append(
             {
                 "project": str(project.relative_to(root)),
@@ -60,6 +76,8 @@ def main() -> int:
                 "dev_only": sum(1 for f in findings if f.verdict == DEV_ONLY),
                 "not_deployed": sum(1 for f in findings if f.verdict == NOT_DEPLOYED),
                 "suppression_rate": round(100 * (total - shipped) / total, 1) if total else 0.0,
+                "rules": dict(sorted(rules.items())),
+                "still_shipped": sorted(f.advisory_id for f in findings if f.verdict == SHIPPED),
             }
         )
 

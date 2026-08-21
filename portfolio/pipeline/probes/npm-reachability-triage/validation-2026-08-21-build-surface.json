@@ -1,0 +1,173 @@
+[
+  {
+    "project": "ventures/ai-engineering-academy/site",
+    "mode": "unknown",
+    "components": 1,
+    "findings": 0,
+    "shipped": 0,
+    "dev_only": 0,
+    "not_deployed": 0,
+    "suppression_rate": 0.0,
+    "rules": {},
+    "still_shipped": []
+  },
+  {
+    "project": "ventures/ai-first-markets",
+    "mode": "server",
+    "components": 858,
+    "findings": 7,
+    "shipped": 3,
+    "dev_only": 0,
+    "not_deployed": 4,
+    "suppression_rate": 57.1,
+    "rules": {
+      "build-surface": 4
+    },
+    "still_shipped": [
+      "GHSA-8h3q-9fpp-c883",
+      "GHSA-f88m-g3jw-g9cj",
+      "GHSA-gv7w-rqvm-qjhr"
+    ]
+  },
+  {
+    "project": "ventures/local-site-studio",
+    "mode": "server",
+    "components": 516,
+    "findings": 1,
+    "shipped": 1,
+    "dev_only": 0,
+    "not_deployed": 0,
+    "suppression_rate": 0.0,
+    "rules": {},
+    "still_shipped": [
+      "GHSA-gv7w-rqvm-qjhr"
+    ]
+  },
+  {
+    "project": "ventures/photo-editing/docs-site",
+    "mode": "server",
+    "components": 378,
+    "findings": 5,
+    "shipped": 1,
+    "dev_only": 0,
+    "not_deployed": 4,
+    "suppression_rate": 80.0,
+    "rules": {
+      "build-surface": 4
+    },
+    "still_shipped": [
+      "GHSA-f88m-g3jw-g9cj"
+    ]
+  },
+  {
+    "project": "ventures/print-atelier",
+    "mode": "server",
+    "components": 454,
+    "findings": 27,
+    "shipped": 21,
+    "dev_only": 2,
+    "not_deployed": 4,
+    "suppression_rate": 22.2,
+    "rules": {
+      "build-surface": 4,
+      "dependency-path": 2
+    },
+    "still_shipped": [
+      "GHSA-36qx-fr4f-26g5",
+      "GHSA-3g8h-86w9-wvmq",
+      "GHSA-3x4c-7xq6-9pq8",
+      "GHSA-4633-3j49-mh5q",
+      "GHSA-4c39-4ccg-62r3",
+      "GHSA-68g3-v927-f742",
+      "GHSA-89xv-2m56-2m9x",
+      "GHSA-8h8q-6873-q5fj",
+      "GHSA-955p-x3mx-jcvp",
+      "GHSA-9g9p-9gw9-jx7f",
+      "GHSA-c4j6-fc7j-m34r",
+      "GHSA-ffhc-5mcf-pf4q",
+      "GHSA-ggv3-7p47-pfv8",
+      "GHSA-gx5p-jg67-6x7h",
+      "GHSA-h25m-26qc-wcjf",
+      "GHSA-h64f-5h5j-jqjh",
+      "GHSA-m99w-x7hq-7vfj",
+      "GHSA-p9j2-gv94-2wf4",
+      "GHSA-q4gf-8mx6-v5v3",
+      "GHSA-vfv6-92ff-j949",
+      "GHSA-wfc6-r584-vfw7"
+    ]
+  },
+  {
+    "project": "ventures/quick-pick-survey",
+    "mode": "server",
+    "components": 572,
+    "findings": 0,
+    "shipped": 0,
+    "dev_only": 0,
+    "not_deployed": 0,
+    "suppression_rate": 0.0,
+    "rules": {},
+    "still_shipped": []
+  },
+  {
+    "project": "ventures/real-estate-agent-photo-app/docs-site",
+    "mode": "static-export",
+    "components": 614,
+    "findings": 55,
+    "shipped": 2,
+    "dev_only": 28,
+    "not_deployed": 25,
+    "suppression_rate": 96.4,
+    "rules": {
+      "build-surface": 6,
+      "dependency-path": 28,
+      "server-surface:cache-poisoning": 4,
+      "server-surface:image-optimizer": 3,
+      "server-surface:middleware": 3,
+      "server-surface:request-smuggling": 1,
+      "server-surface:server-actions": 3,
+      "server-surface:server-functions": 3,
+      "server-surface:ssrf": 2
+    },
+    "still_shipped": [
+      "GHSA-ffhc-5mcf-pf4q",
+      "GHSA-gx5p-jg67-6x7h"
+    ]
+  },
+  {
+    "project": "ventures/real-estate-agent-photo-app/pipeline",
+    "mode": "unknown",
+    "components": 64,
+    "findings": 0,
+    "shipped": 0,
+    "dev_only": 0,
+    "not_deployed": 0,
+    "suppression_rate": 0.0,
+    "rules": {},
+    "still_shipped": []
+  },
+  {
+    "project": "ventures/real-estate-agent-photo-app/research",
+    "mode": "static-export",
+    "components": 422,
+    "findings": 37,
+    "shipped": 2,
+    "dev_only": 10,
+    "not_deployed": 25,
+    "suppression_rate": 94.6,
+    "rules": {
+      "build-surface": 6,
+      "dependency-path": 10,
+      "server-surface:cache-poisoning": 4,
+      "server-surface:image-optimizer": 3,
+      "server-surface:middleware": 3,
+      "server-surface:request-smuggling": 1,
+      "server-surface:server-actions": 3,
+      "server-surface:server-functions": 3,
+      "server-surface:ssrf": 2
+    },
+    "still_shipped": [
+      "GHSA-ffhc-5mcf-pf4q",
+      "GHSA-gx5p-jg67-6x7h"
+    ]
+  }
+]
