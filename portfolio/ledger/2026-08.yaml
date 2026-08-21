@@ -13584,3 +13584,107 @@ entries:
         `links.production: null` -- the standing publish/payout blocker on
         issue #139 is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/nifty-goodall-xe7wdn (fresh, based on current `main`,
+        no prior work). Ran `session_gate.py` first (PROCEED -- meta-work
+        share 16% of last 25 entries, well below the 70% threshold).
+      - >-
+        Listed open PRs before starting: #489 (ledger-only, recording
+        #483's self-merge), #372, #368. Found #489 was a stale duplicate --
+        #490, opened five minutes later by the session that authored #489,
+        already recorded the same #483/#481 outcomes plus the #372/#368
+        recheck and had already merged (`mergeable_state: dirty` on #489
+        was this collision, not a real conflict). Closed #489 with a
+        comment pointing to #490 rather than resolving a conflict whose
+        content was already on `main`.
+      - >-
+        #372 and #368 were re-checked against the post-#490 `main` tip only
+        by reading their existing state (both `pending`/no new CI, no new
+        commits, no new review activity) -- not re-verified by hand, since
+        #490 had re-confirmed both clean and correctly owner-gated minutes
+        earlier and nothing on `main` had touched either since.
+      - >-
+        Read issue #139's most recent comments in full before looking for
+        venture work: the standing revenue-ceiling finding ($0 structurally,
+        per `break-even.md`) and the effort-side finding (9 of 11 ventures
+        have no dispatchable work, per #311/#312) are both unchanged since
+        2026-08-20 and already pushed to the account owner directly --
+        not re-flagging a decision that's already in front of them with
+        nothing new to add.
+      - >-
+        Checked recent Actions history: roughly 30 venture-CI runs across a
+        dozen ventures completed green in the ~3.5 hours before this
+        session started, each a narrow, already-verified bug fix from a
+        concurrent scheduled session. Given that cadence, did not open a
+        new venture bug-hunt this session -- the realistic marginal outcome
+        was colliding with a session already mid-fix on the same file, which
+        is exactly the wasted-duplicate-PR pattern `CLAUDE.md` warns about,
+        not genuine parallelism. No revenue, no code changes; the only
+        action taken was closing the duplicate PR above.
+    mrr_end: null
+  - venture: ubuntu-agent-server
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/pensive-feynman-kowzv8. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 16% of last 25 entries, below the 70%
+        threshold). Checked the 2 open PRs (#372, #368) -- both already
+        `mergeable_state: clean` and correctly owner-gated by prior
+        sessions, nothing new to add. CI on `main` green across roughly 30
+        recent venture-CI runs.
+      - >-
+        Given the high concurrent-session cadence already fixing bugs
+        across most ventures in the preceding few hours, delegated a
+        bounded audit to the two ventures with no bug-fix activity in that
+        window (to avoid colliding with concurrent work): `ai-engineering-
+        academy` (no genuine bug found after a real look at its markdown->
+        HTML static-site generator) and `ubuntu-agent-server`, where a real
+        bug turned up.
+      - >-
+        `roles/agent_runner/files/agent_runner.py`'s `_process_issue_inner`
+        decided whether a coding-agent tool "made changes" using only `git
+        status --porcelain` right after the tool exited. `claude.sh`'s own
+        comment documents that `auto` permission mode allows the tool to
+        commit its own work, not just leave it uncommitted -- when it does,
+        the working tree is clean either way, so the runner mislabelled a
+        completed run `agent:failed` ("made no changes... declined") and
+        then unconditionally `shutil.rmtree`d the workspace, permanently
+        destroying real, committed work. Reproduced with plain git: commit
+        on the branch -> `git status --porcelain` empty, `git rev-list
+        --count main..HEAD` = 1. Secondary bug from the same root cause:
+        gitleaks would scan an empty staged diff in this scenario, silently
+        skipping the secret scan on content the agent had already
+        committed.
+      - >-
+        Fix: `fold_changes_into_staged()` stages uncommitted edits then
+        soft-resets onto `base_branch`, folding any self-made commits back
+        into the staged diff before both the change check and the gitleaks
+        scan run. Added three regression tests using real git via
+        `tmp_path` (confirmed to fail pre-fix, pass post-fix). Verified:
+        `pytest` 25/25 (22 pre-existing + 3 new), `ruff check` clean,
+        `mypy` clean (one pre-existing unrelated `yaml` stub note), all 4
+        CI checks green. Opened PR #496, re-confirmed clean `git merge-tree`
+        against the live `main` tip immediately before merging, self-merged
+        as agent-decidable per `CLAUDE.md`: dormant, disabled-by-default
+        infrastructure (kill-switch off, `dry_run: true` by default --
+        `NOT-A-VENTURE` marker), internal only, no live site, no
+        credential, nothing published or spent beyond agent time.
+      - >-
+        No revenue. This is shared agent-hosting infrastructure, not a
+        revenue-seeking venture, and was already disabled by default -- the
+        bug could only have bitten if the account owner had already enabled
+        it, which the ledger has no record of. Fixing it before that
+        happens closes a real data-loss risk (silently discarding an
+        agent's completed, committed work and mislabeling the issue) ahead
+        of it being live. Standing $0 revenue ceiling and the publish/payout
+        blocker on issue #139 are unchanged.
+    mrr_end: null

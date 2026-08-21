@@ -333,6 +333,29 @@ def scan_for_secrets(workspace: Path, run_log: RunLog) -> bool:
     return result.returncode == 0
 
 
+def fold_changes_into_staged(workspace: Path, base_branch: str) -> str:
+    """Stage any uncommitted edits, then fold them together with any
+    commits the tool made on its own directly onto base_branch's tip, so
+    the result is one staged diff representing the branch's full
+    contribution relative to base_branch. Returns `git status --porcelain`
+    after folding — an empty string means the tool genuinely made no
+    changes at all.
+
+    Agentic CLIs running in a permissive mode may commit their own work
+    as part of "normal dev work" instead of leaving it as uncommitted
+    edits (see claude.sh's `auto` permission-mode comment: it explicitly
+    allows commits). Right after the tool exits, `git status --porcelain`
+    alone can't tell "the tool committed real work" apart from "the tool
+    made no changes" — both leave a clean working tree. Soft-resetting
+    onto base_branch turns any such commits back into staged changes, so
+    both this check and the secret scan that follows it see everything
+    the branch actually did, not just its uncommitted tail.
+    """
+    git("add", "-A", cwd=workspace)
+    git("reset", "--soft", base_branch, cwd=workspace)
+    return git("status", "--porcelain", cwd=workspace).stdout.strip()
+
+
 def build_prompt(issue: dict) -> str:
     return (
         f"You are working autonomously and unattended — there is no human "
@@ -439,8 +462,6 @@ def _process_issue_inner(
     run_log.write(f"--- {tool} stderr ---\n{result.stderr}")
     prompt_file.unlink(missing_ok=True)
 
-    diff = git("status", "--porcelain", cwd=workspace).stdout.strip()
-
     if result.returncode != 0:
         run_log.write(f"[{repo}#{number}] tool exited {result.returncode}")
         label(repo, number, LABEL_FAILED)
@@ -452,6 +473,11 @@ def _process_issue_inner(
             f"transcript. Re-add the trigger label to retry.",
         )
         return
+
+    # Folds in any commits the tool made on its own, not just uncommitted
+    # edits — see fold_changes_into_staged()'s docstring. Also leaves
+    # everything staged, which is what gitleaks --staged scans below.
+    diff = fold_changes_into_staged(workspace, base_branch)
 
     if not diff:
         run_log.write(f"[{repo}#{number}] tool ran but made no changes")
@@ -465,11 +491,6 @@ def _process_issue_inner(
             f"for its reasoning.",
         )
         return
-
-    # Staged before scanning (not just before commit) so gitleaks --staged
-    # sees exactly the changes this run made — see scan_for_secrets()'s
-    # docstring for why that matters.
-    git("add", "-A", cwd=workspace)
 
     if not scan_for_secrets(workspace, run_log):
         run_log.write(f"[{repo}#{number}] gitleaks found a likely secret in the diff — blocking push")
