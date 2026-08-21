@@ -45,7 +45,7 @@ The resolver itself lives with the probe it belongs to, in
 [`portfolio/pipeline/probes/eaa-wcag-triage/`](../../pipeline/probes/eaa-wcag-triage/)
 — `colors.py` (colour syntax, alpha compositing, the WCAG ratio), `css.py` (a
 deliberately small stylesheet reader), `contrast.py` (per-element resolution).
-111 tests.
+112 tests.
 
 ## Finding 1 — 98.76% of it is decidable, and the residue has names
 
@@ -83,7 +83,7 @@ states, and the stylesheet spells out both, so each is decidable — the page mu
 satisfy 1.4.3 in whichever one the visitor's system asks for. Scoring both and
 taking the worse verdict is therefore not conservatism; it is the criterion.
 
-At first measurement, before any fix:
+Over the corpus as `main` builds it:
 
 | | Failures found |
 |---|---:|
@@ -129,20 +129,25 @@ The scan found **965 decided AA failures** on this portfolio's own built pages.
 Not marginal ones: `text-zinc-400` on white is **2.62:1** against a required
 4.5:1.
 
-Fixed on the branch that ran this measurement, verified by rebuilding each
-venture and re-running the scan — but not yet on `main`. The change to this
-research and to the probe engine (this pass) is agent-decidable per
-`CLAUDE.md` and lands on its own; the colour-token edits below touch
-deployable `ventures/*` app code, which is the account owner's call, and are
-proposed in [#523](https://github.com/Duncan-Haywood/monorepo-projects/pull/523)
-pending that sign-off:
+All 965 are still open on `main`, and
+[`results-2026-08-21.json`](results-2026-08-21.json) measures them there — see
+[**Why the committed file measures `main`**](#why-the-committed-file-measures-main)
+below. Every one is a remediation of venture source, which is the one thing
+this measurement is not allowed to land on its own: `CLAUDE.md` puts any change
+to deploying `ventures/*` code in the human-gated class.
 
-| Venture | Failures before | After | What changed |
-|---|---:|---:|---|
-| `local-site-studio` | 21 | **0** | `text-zinc-400` → `text-zinc-500` on light panels; one ternary in `page.tsx` had its two branches the wrong way round, putting the lighter grey on the white card and the darker on the near-black one, so both sides failed |
-| `ai-first-markets` | 333 | **0** | `text-zinc-500` → `text-zinc-400` throughout (the site is dark-themed, so the muted step was one shade too dark); three residual near-misses in `AppNav` |
+| Venture | Failures on `main` | Diagnosed remediation | Held in |
+|---|---:|---|---|
+| `local-site-studio` | 21 | `text-zinc-400` → `text-zinc-500` on light panels; one ternary in `page.tsx` has its two branches the wrong way round, putting the lighter grey on the white card and the darker on the near-black one, so both sides fail | [#523](https://github.com/Duncan-Haywood/monorepo-projects/pull/523) |
+| `ai-first-markets` | 333 | `text-zinc-500` → `text-zinc-400` throughout (the site is dark-themed, so the muted step is one shade too dark); three residual near-misses in `AppNav` | [#523](https://github.com/Duncan-Haywood/monorepo-projects/pull/523) |
+| `print-atelier` | 611 | 73 component-level colour decisions, 384 of them the missing-`dark:`-variant pattern | not written |
 
-**Not fixed, and named here rather than quietly carried:** `print-atelier`'s
+The first two are written and verified by rebuild: 62 lines of Tailwind
+class-name substitution across 11 files, each substitution's resulting ratio
+computed before it was applied, the lowest 4.63:1 against a required 4.5:1.
+They wait on the account owner, not on any further measurement.
+
+**Named here rather than quietly carried:** `print-atelier`'s
 **611** failures, across 73 distinct colour/background shapes. 384 of them are
 the missing-`dark:`-variant pattern above. This is a mechanical remediation —
 add the dark counterpart each component is missing — but it is 73 separate
@@ -151,6 +156,40 @@ introduces the measurement would make neither reviewable. It is the obvious next
 piece of work and it is fully specified by
 [`results-2026-08-21.json`](results-2026-08-21.json), which lists every shape
 with its ratio and its element count.
+
+## Why the committed file measures `main`
+
+This directory, the resolver behind it and the two venture colour fixes were
+built as one pass and opened as
+[#523](https://github.com/Duncan-Haywood/monorepo-projects/pull/523). Bundling
+the fixes put the whole 4,542-line diff in the human-gated class — engine,
+tests and measurement included, none of which touch a live site — so #523
+offered to split, and
+[#524](https://github.com/Duncan-Haywood/monorepo-projects/pull/524) took the
+split and landed the internal half.
+
+What #524 carried across unchanged was **#523's results file**, and that file is
+a measurement of #523's tree, where the two ventures are already fixed and read
+`0`. On `main` they are not fixed. So the prose here said 965 open failures
+while the artifact beside it totalled 611, and
+[this directory's CI workflow](../../../.github/workflows/a11y-contrast-decidability-ci.yml)
+cannot catch that — its own header comment says so: *"a colour change in venture
+source makes the committed results stale — CI cannot detect that, only a re-run
+with builds can."* Nothing was wrong with the engine; the artifact simply
+described a different tree than the one it was committed to.
+
+This pass re-ran it with builds. All four ventures rebuilt from `main`'s source
+with `npm ci && npm run build`, rescanned, results file replaced. The numbers it
+produced are #523's own pre-fix column, re-derived from a second checkout: 85
+pages, 10,657 elements, 98.76% decidable, 965 failures against 581 light-only,
+384 dark-only, and the same 106 / 24 / 2 split across the three undecidable
+reasons. Two sessions, two checkouts, same arithmetic — which is the strongest
+evidence this measurement has that it is reproducible at all.
+
+`test_measure.py` now pins the per-venture counts instead of asserting the two
+ventures are clean. Whenever #523 or the `print-atelier` work lands, this suite
+fails until the corpus is rebuilt and the file regenerated. That is the same
+coupling the original guard enforced, pointed at the tree that actually exists.
 
 ## What could not be measured here
 
