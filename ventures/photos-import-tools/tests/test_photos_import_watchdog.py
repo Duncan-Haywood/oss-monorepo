@@ -435,6 +435,80 @@ class PhotosImportWatchdogTests(unittest.TestCase):
         self.assertEqual(exit_code, 130)
         self.assertEqual(terminated_with, [worker])
 
+    def test_run_watchdog_retries_shutdown_until_worker_confirmed_dead(self):
+        # Before this fix, the STOP/signal shutdown branch called
+        # terminate_process_group but discarded its return value, then
+        # unconditionally wrote worker_running=False and exited 130 -- even
+        # when the worker survived SIGKILL (stuck in an uninterruptible I/O
+        # wait on a wedged network share or stalled iCloud volume). That
+        # leaves an orphaned importer process nothing is watching, with a
+        # status file that falsely claims it stopped: the next
+        # start_import.sh invocation removes the STOP file and execs a fresh
+        # watchdog with process=None, spawning a second worker alongside the
+        # still-alive orphan -- both racing Photos.app on the same manifest.
+        # The other two terminate_process_group call sites (phase-switch,
+        # stall-restart) already retry instead of proceeding; this proves the
+        # shutdown branch now matches them.
+        with tempfile.TemporaryDirectory() as temp_dir:
+            state_dir = Path(temp_dir)
+            db_path = state_dir / "photos_import.sqlite3"
+            with sqlite3.connect(db_path) as connection:
+                connection.execute(
+                    "CREATE TABLE imports (path TEXT PRIMARY KEY, status TEXT NOT NULL, "
+                    "attempts INTEGER NOT NULL DEFAULT 0, last_error TEXT, "
+                    "first_seen_at TEXT NOT NULL, updated_at TEXT NOT NULL)"
+                )
+                connection.execute(
+                    "INSERT INTO imports VALUES ('/tmp/pending.jpg', 'pending', 0, NULL, 'now', 'now')"
+                )
+                connection.commit()
+
+            worker = FakeProcess(poll_results=[None] * 20, wait_results=[])
+            terminate_results = [False, False, True]
+            terminated_with = []
+
+            def fake_terminate(proc):
+                terminated_with.append(proc)
+                return terminate_results.pop(0)
+
+            sleep_calls = {"count": 0}
+
+            def fake_sleep(_seconds):
+                sleep_calls["count"] += 1
+                if sleep_calls["count"] == 1:
+                    (state_dir / "STOP").touch()
+                if sleep_calls["count"] >= 10:
+                    raise _HaltLoop
+                return None
+
+            with mock.patch("photos_import_watchdog.subprocess.Popen", return_value=worker), \
+                    mock.patch(
+                        "photos_import_watchdog.terminate_process_group", side_effect=fake_terminate
+                    ), \
+                    mock.patch("photos_import_watchdog.time.sleep", side_effect=fake_sleep):
+                exit_code = run_watchdog(
+                    root=state_dir,
+                    state_dir=state_dir,
+                    tool_dir=state_dir,
+                    poll_seconds=0,
+                    stall_seconds=99999,
+                    timeout_seconds=180,
+                    attempts=3,
+                    batch_size=10,
+                    include_raws=False,
+                    raw_batch_size=3,
+                    raw_timeout_seconds=600,
+                )
+
+            self.assertEqual(exit_code, 130)
+            # Three terminate attempts (two failed, one succeeded) prove the
+            # loop kept retrying instead of exiting on the first SIGKILL
+            # failure.
+            self.assertEqual(terminated_with, [worker, worker, worker])
+            status = json.loads((state_dir / "status.json").read_text())
+            self.assertFalse(status["worker_running"])
+            self.assertEqual(status["message"], "stopped by STOP file")
+
     def test_combined_summary_sums_across_initialized_and_uninitialized_phases(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             state_dir = Path(temp_dir)

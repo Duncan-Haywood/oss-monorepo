@@ -105,6 +105,14 @@ hypotheses:
     status: supported
     checked: 2026-08-21
     evidence: in-repo
+  - claim: The SD offload's pre-flight disk-space check inspects the actual destination filesystem, not the boot volume, so pointing --staging-root at a separate drive (the normal way to offload a card's worth of RAW/video onto storage the boot volume doesn't have room for) cannot make the tool hang forever waiting on free space that was never the constraint, nor skip the wait when the boot volume has room but the real destination does not.
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
+  - claim: When the watchdog is asked to stop (the operator's Ctrl-C/SIGTERM, or a STOP file) while the worker is stuck in an uninterruptible I/O wait and survives SIGKILL, the watchdog does not report "stopped" with worker_running false until the worker is actually confirmed dead; it does not exit believing the worker is gone while an orphaned importer process keeps driving Photos.app, unsupervised, with a status file that says otherwise.
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
   - claim: classify_error's pattern-based taxonomy in photos_import_errors.py does not silently misclassify a specific failure as a more generic one just because a later, more specific pattern happens to share a substring with an earlier, broader pattern -- every transient pattern is reachable and gets to fire for the message it was written to catch instead of being permanently shadowed by list order. (Found refuted, then fixed -- _TRANSIENT_PATTERNS listed the generic "timed out|timeout" pattern before the specific "duplicate preflight timed out" pattern; since classify_error returns on the first regex match and that message contains the substring "timed out", the specific pattern, and its RUN_PREFLIGHT recovery action, was completely unreachable. Fixed by moving the specific pattern ahead of the generic one.)
     status: supported
     checked: 2026-08-21
