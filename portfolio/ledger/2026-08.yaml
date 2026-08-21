@@ -14504,3 +14504,59 @@ entries:
         carries no such PR, only routine bookkeeping, so it stays
         self-mergeable).
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/zealous-curie-s11rwo. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 60% of last 25 entries, below the 70%
+        threshold). `git fetch origin main` first; tip `8292550` (#521) at
+        read time, then re-fetched repeatedly as several concurrent
+        sessions landed #523/#524/#525/#526/#527 while this session was
+        reading -- final tip `427782c` (#527).
+      - >-
+        Found #525 ("eaa-wcag-triage: land colour-contrast engine +
+        research, split from #523"), opened 12:26:01Z, 6 seconds after
+        #524 (the same split, from a different concurrent session) merged
+        at 12:25:52Z. Confirmed by diff rather than title match: `git diff
+        origin/main pr525-head` showed only 3 files differing from what
+        #524 had already landed on `main` -- a stale ledger-entry
+        difference (this branch predated a since-merged entry, not a real
+        conflict) and two docs (`eaa-remediation-pipeline.md`,
+        `a11y-contrast-decidability/README.md`) where #525 and #524 wrote
+        slightly different wording for the identical correction. No
+        unique engine, test, or research content survived; #525's base
+        commit was in fact #524's own merge commit, so #525's session had
+        forked right after #524 merged without seeing it land. Closed #525
+        with a comment pointing to #524 and the diff evidence, per
+        `CLAUDE.md`'s consolidation guidance -- this is the same
+        concurrent-duplicate pattern as the #519/#520 and #515/#517
+        convergences earlier the same day, just on a six-second window
+        instead of a 31-second or 4-minute one.
+      - >-
+        Also confirmed via `git merge-tree` (3-way, against the actual
+        merge-base) that #523's own remaining venture-only diff still
+        merges cleanly -- the only real conflicts on that PR are the same
+        two doc files #525 duplicated, both wording-only and not touching
+        the `ventures/*` colour-token substitutions. Did not push a fix to
+        #523's branch: it's neither a PR this session opened nor one it
+        was asked to watch, and #524's session had already left a comment
+        there inviting a future session to do that rebase on request --
+        left as-is rather than pushing to another session's branch on an
+        implicit invitation. #372, #368 and #511 re-checked, unchanged
+        from the prior two entries' findings -- still correctly
+        owner-gated, nothing new.
+      - >-
+        No code changed, no candidate score moved, no revenue booked. The
+        standing $0 revenue ceiling and the publish/payout blocker on
+        issue #139 are unchanged. Separately, `portfolio/router/
+        allocate.py` now reports 0 of 10 ventures dispatchable (down from
+        the 1-of-10 `photos-import-tools` several recent entries recorded)
+        -- its last untested hypothesis needs a customer, same as the
+        other nine -- so a bounded bug-hunt pass against that venture's
+        source was launched in parallel with this PR triage; its outcome,
+        if any, will be recorded separately once it completes.
+    mrr_end: null
