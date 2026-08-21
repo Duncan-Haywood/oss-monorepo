@@ -77,6 +77,10 @@ hypotheses:
     status: supported
     checked: 2026-08-21
     evidence: in-repo
+  - claim: The watchdog's overall status.json, written when a run is blocked (a manifest was never initialized) or complete, always reflects every phase's real progress rather than only the last phase's; it does not silently overwrite an already-accurate completed-phase summary with an all-zero one just because a later phase's manifest db does not exist yet.
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
 
 economics:
   currency: USD
