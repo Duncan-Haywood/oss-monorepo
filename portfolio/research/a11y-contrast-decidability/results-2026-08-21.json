@@ -1,0 +1,682 @@
+{
+  "totals": {
+    "both_schemes": {
+      "fail": 611,
+      "pass": 9914,
+      "undecidable": 132
+    },
+    "dark_only_failures": 384,
+    "decidable_share": 0.9876,
+    "elements": 10657,
+    "light_only": {
+      "fail": 227,
+      "pass": 10298,
+      "undecidable": 132
+    },
+    "pages": 85,
+    "undecidable_reasons": {
+      "conditional-background": 106,
+      "conditional-color": 2,
+      "opacity-in-chain": 24
+    }
+  },
+  "ventures": [
+    {
+      "both_schemes": {
+        "pass": 6149
+      },
+      "decidable_share": 1.0,
+      "elements": 6149,
+      "light_failure_shapes": [],
+      "light_only": {
+        "pass": 6149
+      },
+      "pages": 17,
+      "stylesheet_bytes": 50289,
+      "undecidable_reasons": {},
+      "venture": "local-site-studio"
+    },
+    {
+      "both_schemes": {
+        "pass": 1462
+      },
+      "decidable_share": 1.0,
+      "elements": 1462,
+      "light_failure_shapes": [],
+      "light_only": {
+        "pass": 1462
+      },
+      "pages": 20,
+      "stylesheet_bytes": 26346,
+      "undecidable_reasons": {},
+      "venture": "ai-first-markets"
+    },
+    {
+      "both_schemes": {
+        "pass": 100,
+        "undecidable": 53
+      },
+      "decidable_share": 0.6536,
+      "elements": 153,
+      "light_failure_shapes": [],
+      "light_only": {
+        "pass": 100,
+        "undecidable": 53
+      },
+      "pages": 10,
+      "stylesheet_bytes": 40466,
+      "undecidable_reasons": {
+        "conditional-background": 51,
+        "conditional-color": 2
+      },
+      "venture": "quick-pick-survey"
+    },
+    {
+      "both_schemes": {
+        "fail": 611,
+        "pass": 2203,
+        "undecidable": 79
+      },
+      "decidable_share": 0.9727,
+      "elements": 2893,
+      "light_failure_shapes": [
+        {
+          "background": "#f5f7ff",
+          "classes": "text-stone-500",
+          "count": 32,
+          "foreground": "#78716c",
+          "ratio": 4.489,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "ml-1 font-mono text-[10px] text-stone-400",
+          "count": 14,
+          "foreground": "#a8a29e",
+          "ratio": 2.522,
+          "threshold": 4.5
+        },
+        {
+          "background": "#121b2d",
+          "classes": "text-sm text-slate-500",
+          "count": 13,
+          "foreground": "#64748b",
+          "ratio": 3.625,
+          "threshold": 4.5
+        },
+        {
+          "background": "#e5e7eb",
+          "classes": "px-5 py-3 rounded-lg font-medium transition bg-gray-200 dark",
+          "count": 13,
+          "foreground": "#6b7280",
+          "ratio": 3.905,
+          "threshold": 4.5
+        },
+        {
+          "background": "#f9fafb",
+          "classes": "text-xs text-amber-600 dark:text-amber-400 mt-1",
+          "count": 13,
+          "foreground": "#d97706",
+          "ratio": 3.049,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "inline-flex items-center gap-1 text-sm text-gray-400 mt-3 gr",
+          "count": 11,
+          "foreground": "#9ca3af",
+          "ratio": 2.539,
+          "threshold": 4.5
+        },
+        {
+          "background": "#080e20",
+          "classes": "text-xs uppercase tracking-wide text-slate-500",
+          "count": 6,
+          "foreground": "#64748b",
+          "ratio": 4.027,
+          "threshold": 4.5
+        },
+        {
+          "background": "#0a1022",
+          "classes": "uppercase tracking-wide text-slate-500",
+          "count": 6,
+          "foreground": "#64748b",
+          "ratio": 3.968,
+          "threshold": 4.5
+        },
+        {
+          "background": "#fafaf9",
+          "classes": "text-xs text-stone-400 dark:text-gray-500",
+          "count": 6,
+          "foreground": "#a8a29e",
+          "ratio": 2.415,
+          "threshold": 4.5
+        },
+        {
+          "background": "#162032",
+          "classes": "px-5 py-3 text-slate-500 text-right",
+          "count": 5,
+          "foreground": "#64748b",
+          "ratio": 3.424,
+          "threshold": 4.5
+        },
+        {
+          "background": "#0d9488",
+          "classes": "inline-flex items-center gap-1 rounded-lg bg-teal-600 px-2 p",
+          "count": 5,
+          "foreground": "#ffffff",
+          "ratio": 3.744,
+          "threshold": 4.5
+        },
+        {
+          "background": "#162032",
+          "classes": "text-xs text-slate-500",
+          "count": 4,
+          "foreground": "#64748b",
+          "ratio": 3.424,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "py-3 text-right font-mono text-slate-400 line-through",
+          "count": 4,
+          "foreground": "#94a3b8",
+          "ratio": 2.564,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "text-xs text-gray-400 mt-3",
+          "count": 4,
+          "foreground": "#9ca3af",
+          "ratio": 2.539,
+          "threshold": 4.5
+        },
+        {
+          "background": "#18202f",
+          "classes": "text-gray-500",
+          "count": 4,
+          "foreground": "#6b7280",
+          "ratio": 3.362,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "text-xs text-green-600 mt-1",
+          "count": 4,
+          "foreground": "#16a34a",
+          "ratio": 3.296,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "text-2xl font-bold",
+          "count": 3,
+          "foreground": "#cbd5e1",
+          "ratio": 1.485,
+          "threshold": 3.0
+        },
+        {
+          "background": "#121b2d",
+          "classes": "text-xs text-slate-500",
+          "count": 3,
+          "foreground": "#64748b",
+          "ratio": 3.625,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "font-medium text-green-600 dark:text-green-400",
+          "count": 3,
+          "foreground": "#16a34a",
+          "ratio": 3.296,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "text-xs text-stone-400 font-mono",
+          "count": 3,
+          "foreground": "#a8a29e",
+          "ratio": 2.522,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "text-xs text-amber-600 dark:text-amber-400 mt-1",
+          "count": 3,
+          "foreground": "#d97706",
+          "ratio": 3.186,
+          "threshold": 4.5
+        },
+        {
+          "background": "#f4fef9",
+          "classes": "text-xs text-gray-400",
+          "count": 3,
+          "foreground": "#9ca3af",
+          "ratio": 2.46,
+          "threshold": 4.5
+        },
+        {
+          "background": "#f5f3ff",
+          "classes": "text-xs text-gray-500 uppercase",
+          "count": 2,
+          "foreground": "#6b7280",
+          "ratio": 4.408,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "text-sm text-green-600 mt-2",
+          "count": 2,
+          "foreground": "#16a34a",
+          "ratio": 3.296,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "text-xs text-slate-400 mt-1",
+          "count": 2,
+          "foreground": "#94a3b8",
+          "ratio": 2.564,
+          "threshold": 4.5
+        },
+        {
+          "background": "#fff1f2",
+          "classes": "text-xs px-2 py-0.5 rounded-full font-medium text-rose-600 d",
+          "count": 2,
+          "foreground": "#e11d48",
+          "ratio": 4.276,
+          "threshold": 4.5
+        },
+        {
+          "background": "#fff1f2",
+          "classes": "text-xs text-gray-500 dark:text-gray-400",
+          "count": 2,
+          "foreground": "#6b7280",
+          "ratio": 4.401,
+          "threshold": 4.5
+        },
+        {
+          "background": "#fff1f2",
+          "classes": "text-xs text-rose-600 dark:text-rose-400 mt-2 line-clamp-2",
+          "count": 2,
+          "foreground": "#e11d48",
+          "ratio": 4.276,
+          "threshold": 4.5
+        },
+        {
+          "background": "#fff1f2",
+          "classes": "text-xs font-semibold uppercase tracking-wider text-gray-500",
+          "count": 2,
+          "foreground": "#6b7280",
+          "ratio": 4.401,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "px-4 text-xs font-bold text-gray-400 uppercase tracking-wide",
+          "count": 2,
+          "foreground": "#9ca3af",
+          "ratio": 2.539,
+          "threshold": 4.5
+        },
+        {
+          "background": "#f9fafb",
+          "classes": "text-4xl font-bold tabular-nums text-emerald-500",
+          "count": 2,
+          "foreground": "#10b981",
+          "ratio": 2.427,
+          "threshold": 3.0
+        },
+        {
+          "background": "#ffffff",
+          "classes": "text-xs text-emerald-500 mt-2",
+          "count": 2,
+          "foreground": "#10b981",
+          "ratio": 2.537,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "font-mono font-bold text-green-600",
+          "count": 2,
+          "foreground": "#16a34a",
+          "ratio": 3.296,
+          "threshold": 4.5
+        },
+        {
+          "background": "#e7e5e4",
+          "classes": "mt-4 w-full rounded-lg px-4 py-2.5 text-sm font-medium trans",
+          "count": 2,
+          "foreground": "#78716c",
+          "ratio": 3.821,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "text-xs mt-3 text-emerald-600",
+          "count": 2,
+          "foreground": "#059669",
+          "ratio": 3.768,
+          "threshold": 4.5
+        },
+        {
+          "background": "#f9fafb",
+          "classes": "text-xs text-emerald-600 dark:text-emerald-400 mt-1",
+          "count": 2,
+          "foreground": "#059669",
+          "ratio": 3.606,
+          "threshold": 4.5
+        },
+        {
+          "background": "#eff6ff",
+          "classes": "text-xs text-gray-500 uppercase",
+          "count": 1,
+          "foreground": "#6b7280",
+          "ratio": 4.442,
+          "threshold": 4.5
+        },
+        {
+          "background": "#020617",
+          "classes": "text-slate-500 font-normal",
+          "count": 1,
+          "foreground": "#64748b",
+          "ratio": 4.239,
+          "threshold": 4.5
+        },
+        {
+          "background": "#121b2d",
+          "classes": "text-xs font-medium uppercase tracking-wide text-slate-500",
+          "count": 1,
+          "foreground": "#64748b",
+          "ratio": 3.625,
+          "threshold": 4.5
+        },
+        {
+          "background": "#121b2d",
+          "classes": "text-xs uppercase tracking-wide text-slate-500",
+          "count": 1,
+          "foreground": "#64748b",
+          "ratio": 3.625,
+          "threshold": 4.5
+        },
+        {
+          "background": "#243b60",
+          "classes": "text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded",
+          "count": 1,
+          "foreground": "#60a5fa",
+          "ratio": 4.426,
+          "threshold": 4.5
+        },
+        {
+          "background": "#1f2a3d",
+          "classes": "text-xs text-slate-500 mt-0.5",
+          "count": 1,
+          "foreground": "#64748b",
+          "ratio": 3.032,
+          "threshold": 4.5
+        },
+        {
+          "background": "#eef2ff",
+          "classes": "text-xs text-slate-500 dark:text-gray-400 mt-1",
+          "count": 1,
+          "foreground": "#64748b",
+          "ratio": 4.256,
+          "threshold": 4.5
+        },
+        {
+          "background": "#eef2ff",
+          "classes": "text-xs text-slate-400 mt-1",
+          "count": 1,
+          "foreground": "#94a3b8",
+          "ratio": 2.293,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "text-xs text-emerald-600",
+          "count": 1,
+          "foreground": "#059669",
+          "ratio": 3.768,
+          "threshold": 4.5
+        },
+        {
+          "background": "#f4f6fd",
+          "classes": "text-xs text-gray-500",
+          "count": 1,
+          "foreground": "#6b7280",
+          "ratio": 4.473,
+          "threshold": 4.5
+        },
+        {
+          "background": "#f4f6fd",
+          "classes": "text-xs text-gray-400 mt-3",
+          "count": 1,
+          "foreground": "#9ca3af",
+          "ratio": 2.349,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "text-emerald-600",
+          "count": 1,
+          "foreground": "#059669",
+          "ratio": 3.768,
+          "threshold": 4.5
+        },
+        {
+          "background": "#f5f3ff",
+          "classes": "text-xs text-gray-500 mt-1",
+          "count": 1,
+          "foreground": "#6b7280",
+          "ratio": 4.408,
+          "threshold": 4.5
+        },
+        {
+          "background": "#f5f3ff",
+          "classes": "text-xs text-amber-600 dark:text-amber-400 mt-1 truncate",
+          "count": 1,
+          "foreground": "#d97706",
+          "ratio": 2.905,
+          "threshold": 4.5
+        },
+        {
+          "background": "#fffbeb",
+          "classes": "text-xs px-2 py-0.5 rounded-full font-medium text-amber-600 ",
+          "count": 1,
+          "foreground": "#d97706",
+          "ratio": 3.072,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ecfdf5",
+          "classes": "text-xs px-2 py-0.5 rounded-full font-medium text-emerald-60",
+          "count": 1,
+          "foreground": "#059669",
+          "ratio": 3.577,
+          "threshold": 4.5
+        },
+        {
+          "background": "#f3f4f6",
+          "classes": "text-sm text-gray-500 flex items-center gap-1 mt-1",
+          "count": 1,
+          "foreground": "#6b7280",
+          "ratio": 4.393,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "text-xs font-semibold uppercase tracking-wider text-emerald-",
+          "count": 1,
+          "foreground": "#059669",
+          "ratio": 3.768,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "text-xs font-semibold uppercase tracking-wider text-amber-60",
+          "count": 1,
+          "foreground": "#d97706",
+          "ratio": 3.186,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "text-xs font-semibold uppercase tracking-wider",
+          "count": 1,
+          "foreground": "#059669",
+          "ratio": 3.768,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "text-xs font-semibold uppercase tracking-wider",
+          "count": 1,
+          "foreground": "#d97706",
+          "ratio": 3.186,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "text-xs font-bold text-emerald-600 uppercase",
+          "count": 1,
+          "foreground": "#059669",
+          "ratio": 3.768,
+          "threshold": 4.5
+        },
+        {
+          "background": "#f9fafb",
+          "classes": "text-xs text-gray-400 mt-2",
+          "count": 1,
+          "foreground": "#9ca3af",
+          "ratio": 2.429,
+          "threshold": 4.5
+        },
+        {
+          "background": "#059669",
+          "classes": "px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-",
+          "count": 1,
+          "foreground": "#ffffff",
+          "ratio": 3.768,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "text-xs mt-2 text-emerald-500",
+          "count": 1,
+          "foreground": "#10b981",
+          "ratio": 2.537,
+          "threshold": 4.5
+        },
+        {
+          "background": "#f5f3ff",
+          "classes": "text-xs text-gray-500 dark:text-gray-400",
+          "count": 1,
+          "foreground": "#6b7280",
+          "ratio": 4.408,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "mt-5 text-xs text-gray-400",
+          "count": 1,
+          "foreground": "#9ca3af",
+          "ratio": 2.539,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "font-mono font-bold text-amber-600",
+          "count": 1,
+          "foreground": "#d97706",
+          "ratio": 3.186,
+          "threshold": 4.5
+        },
+        {
+          "background": "#f9fafb",
+          "classes": "text-sm font-medium text-emerald-600 dark:text-emerald-400 u",
+          "count": 1,
+          "foreground": "#059669",
+          "ratio": 3.606,
+          "threshold": 4.5
+        },
+        {
+          "background": "#eef2ff",
+          "classes": "text-xs text-gray-500 uppercase",
+          "count": 1,
+          "foreground": "#6b7280",
+          "ratio": 4.323,
+          "threshold": 4.5
+        },
+        {
+          "background": "#eff6ff",
+          "classes": "text-xs mt-3 text-emerald-600",
+          "count": 1,
+          "foreground": "#059669",
+          "ratio": 3.463,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "text-xs text-emerald-500 mt-1",
+          "count": 1,
+          "foreground": "#10b981",
+          "ratio": 2.537,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "text-xs text-center mt-8 text-gray-400",
+          "count": 1,
+          "foreground": "#9ca3af",
+          "ratio": 2.539,
+          "threshold": 4.5
+        },
+        {
+          "background": "#eef2ff",
+          "classes": "text-xs text-gray-500 shrink-0",
+          "count": 1,
+          "foreground": "#6b7280",
+          "ratio": 4.323,
+          "threshold": 4.5
+        },
+        {
+          "background": "#eef2ff",
+          "classes": "text-xs text-gray-500 mt-1",
+          "count": 1,
+          "foreground": "#6b7280",
+          "ratio": 4.323,
+          "threshold": 4.5
+        },
+        {
+          "background": "#eef2ff",
+          "classes": "text-xs text-emerald-600 dark:text-emerald-400 mt-1",
+          "count": 1,
+          "foreground": "#059669",
+          "ratio": 3.37,
+          "threshold": 4.5
+        },
+        {
+          "background": "#ffffff",
+          "classes": "text-xs text-emerald-600 mt-1",
+          "count": 1,
+          "foreground": "#059669",
+          "ratio": 3.768,
+          "threshold": 4.5
+        }
+      ],
+      "light_only": {
+        "fail": 227,
+        "pass": 2587,
+        "undecidable": 79
+      },
+      "pages": 38,
+      "stylesheet_bytes": 74360,
+      "undecidable_reasons": {
+        "conditional-background": 55,
+        "opacity-in-chain": 24
+      },
+      "venture": "print-atelier"
+    }
+  ]
+}

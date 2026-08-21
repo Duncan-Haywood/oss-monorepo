@@ -29,7 +29,7 @@ export function IdeaCard({ idea, milestone = "100k" }: IdeaCardProps) {
             <span className="rounded bg-zinc-800 px-2 py-0.5 font-mono text-xs text-zinc-400">
               #{rank}
             </span>
-            <span className="text-xs text-zinc-500">
+            <span className="text-xs text-zinc-400">
               {categoryLabel(idea.category)}
             </span>
           </div>
@@ -40,14 +40,14 @@ export function IdeaCard({ idea, milestone = "100k" }: IdeaCardProps) {
         </div>
         <div className="text-right">
           <p className="text-2xl font-semibold text-zinc-100">{score}</p>
-          <p className="text-xs text-zinc-500">score</p>
+          <p className="text-xs text-zinc-400">score</p>
         </div>
       </div>
 
       {plan && (
         <div className="mt-4 flex items-center justify-between border-t border-zinc-800 pt-4">
           <div>
-            <p className="text-xs text-zinc-500">Path to {formatArr(plan.targetArr)}</p>
+            <p className="text-xs text-zinc-400">Path to {formatArr(plan.targetArr)}</p>
             <p className="text-sm text-zinc-300">
               {plan.timelineMonths.realistic} months realistic
             </p>

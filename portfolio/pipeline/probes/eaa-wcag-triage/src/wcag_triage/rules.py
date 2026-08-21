@@ -21,6 +21,7 @@ import re
 from dataclasses import dataclass
 from typing import Callable, Optional
 
+from . import contrast
 from .parser import Node
 
 BLOCKING = "blocking"
@@ -92,11 +93,22 @@ COVERAGE: tuple = (
               "Autoplaying media with sound is detectable from the attributes; whether a page-level stop control exists is not."),
     Criterion("1.4.4", "Resize Text", "AA", "partial",
               "A viewport meta that blocks zoom is detectable; whether the layout survives 200% is not."),
-    # The gap the candidate sells against: these fail constantly and no static
-    # pass can see them.
-    Criterion("1.4.3", "Contrast (Minimum)", "AA", "manual",
-              "Needs computed colour, which needs CSS and rendering."),
-    Criterion("1.4.11", "Non-text Contrast", "AA", "manual", "Needs rendering."),
+    # Moved from "manual" to "partial" on 2026-08-21. The old note said this
+    # "needs computed colour, which needs CSS and rendering", and the second
+    # half of that was never tested: a delivered page ships the CSS that names
+    # its colours, and the arithmetic from a named colour to a contrast ratio
+    # is exact. What genuinely needs rendering is the *residue* -- a colour a
+    # media query redefines, a background image, an unresolvable unit -- and
+    # `wcag_triage.contrast` reports that residue per element with a named
+    # reason rather than declining the whole criterion. See
+    # portfolio/research/a11y-contrast-decidability/.
+    Criterion("1.4.3", "Contrast (Minimum)", "AA", "partial",
+              "Decidable where the page's own stylesheet names the colours; "
+              "elements whose colour depends on a media query, a background "
+              "image, or a context-relative unit are reported as undecidable "
+              "and still need a human."),
+    Criterion("1.4.11", "Non-text Contrast", "AA", "manual",
+              "Needs the rendered borders and states of controls, not just text colour."),
     Criterion("2.1.1", "Keyboard", "A", "manual",
               "Needs interaction: can every control be reached and operated by keyboard alone."),
     Criterion("2.1.2", "No Keyboard Trap", "A", "manual", "Needs interaction."),
@@ -428,6 +440,41 @@ def rule_data_table_headers(root: Node, label_targets: set):
                 'Mark header cells with <th> and a scope, or set role="presentation" if the table is layout-only.',
                 seq=node.order,
             )
+
+
+def rule_text_contrast(results):
+    """SC 1.4.3, for the elements whose colours the artifact actually states.
+
+    Takes the already-computed ``[(node, ContrastResult), ...]`` rather than a
+    document, because the engine needs the same list twice: once for the
+    findings below, and once for the decidability tally that goes in the
+    evidence record.
+
+    Fires only on a *decided* failure. Everything the resolver cannot settle —
+    a colour a media query redefines, a background image, a unit it cannot
+    convert — yields nothing here and is counted in the evidence record's
+    undecidable tally instead, where it reads as measured manual-review scope
+    rather than as a silent gap.
+
+    The impact split follows the same test as every other rule: below 3:1 text
+    is not readable at all for the users this criterion protects, which blocks
+    the task; between 3:1 and the 4.5:1 the criterion asks for at this size,
+    the text is legible but hard, which degrades it.
+    """
+    for node, result in results:
+        if result.verdict != contrast.FAIL:
+            continue
+        impact = BLOCKING if result.min_ratio < contrast.LARGE_TEXT_RATIO else DEGRADING
+        size = f"{result.font_px:g}px{' bold' if result.bold else ''}"
+        background = " over ".join(result.backgrounds)
+        yield Finding(
+            "1.4.3", "Contrast (Minimum)", "AA", impact, node.tag, node.line,
+            f"Text contrast is {result.min_ratio}:1 ({result.foreground} on {background}) "
+            f"at {size}, below the {result.threshold}:1 this size requires.",
+            f"Darken the text or lighten its background until the ratio reaches "
+            f"{result.threshold}:1.",
+            seq=node.order,
+        )
 
 
 ALL_RULES: tuple = (

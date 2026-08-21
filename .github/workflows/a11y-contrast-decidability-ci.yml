@@ -1,0 +1,69 @@
+name: a11y-contrast-decidability CI
+
+# Test coverage for the contrast-decidability measurement under
+# portfolio/research/a11y-contrast-decidability/. Standard-library-only, no
+# network, so this workflow does no more than a contributor runs locally: run
+# the tests. It publishes nothing, registers nothing, and spends no API budget
+# — it is a test runner, not the unattended-automation kind of workflow
+# CLAUDE.md gates. Same shape as its siblings (a11y-generated-sites-ci.yml,
+# a11y-own-sites-ci.yml, a11y-engine-agreement-ci.yml).
+#
+# What this suite holds that its siblings do not: this directory's numbers are
+# quoted in four other documents (the probe README, the probes index, the
+# research index, and the candidate write-up), and unlike every other corpus in
+# this repository its own corpus **cannot be regenerated in CI** — it is built
+# venture output, which needs npm and a full `next build` per venture. So the
+# committed results file is the only artifact, and the suite's job is to keep it
+# honest: the totals must re-derive from the per-venture rows, and every
+# undecidable reason in it must still be one the engine can emit. A rule change
+# that renames or drops a reason therefore fails here rather than leaving a
+# stale figure in four READMEs.
+#
+# The probe's path is watched because this directory imports the resolver
+# directly, and a change there can invalidate these results without touching
+# this directory. The four scanned ventures' source is watched for the same
+# reason in reverse — a colour change in venture source makes the committed
+# results stale — but note CI cannot detect that, only a re-run with builds can;
+# the watch exists so the diff shows up next to this file in review.
+
+on:
+  pull_request:
+    paths:
+      - "portfolio/research/a11y-contrast-decidability/**"
+      - "portfolio/pipeline/probes/eaa-wcag-triage/**"
+      - ".github/workflows/a11y-contrast-decidability-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "portfolio/research/a11y-contrast-decidability/**"
+      - "portfolio/pipeline/probes/eaa-wcag-triage/**"
+      - ".github/workflows/a11y-contrast-decidability-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A second push to the same branch makes the first run irrelevant.
+concurrency:
+  group: a11y-contrast-decidability-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: portfolio/research/a11y-contrast-decidability
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # Standard-library unittest only: no pip install step, by design. The
+      # corpus-dependent cases skip themselves when no build is present, which
+      # is always the case here.
+      - run: python3 -m unittest discover -p 'test_*.py'
+      # The summary in README.md must still re-derive from the committed
+      # results with no network and no build. Catches a hand-edited number.
+      - run: python3 measure.py --recompute-from results-2026-08-21.json
