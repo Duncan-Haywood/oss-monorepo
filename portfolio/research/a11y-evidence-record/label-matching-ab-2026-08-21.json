@@ -1,0 +1,73 @@
+{
+  "question": "What does matching <label for> on raw template text, instead of on the expression-stripped literal, change in audit.py?",
+  "method": "Controlled A/B: one pinned corpus of npm storefront-theme tarballs, every markup file audited twice -- once with audit.py as of the parent commit, once with the fixed audit.py. Same files, same order, only the engine differs.",
+  "date": "2026-08-21",
+  "corpus_packages": [
+    "@ecomplus/storefront-app@2.0.0-beta.228",
+    "@ecomplus/storefront-components@1.0.0-beta.195",
+    "@ecomplus/storefront-template@2.0.0-beta.300",
+    "@ecomplus/storefront-twbs@7.3.6",
+    "@fleetbase/storefront-engine@0.4.19",
+    "@mcptoolshop/site-theme@2.1.0",
+    "@molsoft/molsoft-tools@3.1.1",
+    "@nuskin/ns-shop-elements@5.44.0",
+    "@pradip1995/create-storefront-app@0.6.19",
+    "@vue-storefront/nuxt-theme@2.8.0",
+    "@vue-storefront/theme-default@1.7.0",
+    "@zalify/theme-templates@0.5.0",
+    "altify-shopify-pipeline@0.4.4",
+    "bootstrap-shopify-theme@1.4.5",
+    "create-brainerce-store@1.68.0",
+    "create-shopify-theme@0.0.5",
+    "fassbender-shopify-theme@1.4.0",
+    "gatsby-shopify-theme@1.0.6"
+  ],
+  "markup_files": 1121,
+  "results": {
+    "pre_fix": {
+      "findings_total": 273,
+      "undecidable_total": 491,
+      "by_check": {
+        "button-no-accessible-name": 88,
+        "control-no-label": 79,
+        "data-table-no-header": 4,
+        "heading-level-skipped": 21,
+        "html-lang-missing": 14,
+        "iframe-no-title": 7,
+        "img-alt-missing": 14,
+        "link-no-accessible-name": 23,
+        "title-missing": 22,
+        "viewport-scaling-blocked": 1
+      },
+      "undecidable_by_check": {
+        "button-no-accessible-name": 157,
+        "control-no-label": 70,
+        "img-alt-missing": 43,
+        "link-no-accessible-name": 221
+      }
+    },
+    "post_fix": {
+      "findings_total": 275,
+      "undecidable_total": 425,
+      "by_check": {
+        "button-no-accessible-name": 88,
+        "control-no-label": 79,
+        "data-table-no-header": 4,
+        "heading-level-skipped": 21,
+        "html-lang-missing": 14,
+        "iframe-no-title": 7,
+        "img-alt-missing": 14,
+        "label-for-id-mismatch": 2,
+        "link-no-accessible-name": 23,
+        "title-missing": 22,
+        "viewport-scaling-blocked": 1
+      },
+      "undecidable_by_check": {
+        "button-no-accessible-name": 157,
+        "control-no-label": 4,
+        "img-alt-missing": 43,
+        "link-no-accessible-name": 221
+      }
+    }
+  }
+}

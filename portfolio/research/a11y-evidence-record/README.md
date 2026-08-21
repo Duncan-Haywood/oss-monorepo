@@ -164,20 +164,53 @@ measured.
   generation against a customer's theme is a write path into someone else's
   site, and the write-up's own rule — staging-only, rollback, first ten reviewed
   — describes work with a human in it.
-- **`audit.py` over-reports `control-no-label` as undecidable, by 64.**
-  Found 2026-08-20 by [`../a11y-theme-resolution/`](../a11y-theme-resolution/).
-  This engine records the expression-*stripped* id (`id="{{ id_prefix }}FirstName"`
-  becomes `FirstName`) and skips any `<label for>` whose target contains an
-  expression, so a control and its label can sit six lines apart in one file and
-  still be reported undecidable. **64 of the 491 undecidables here (13.0%) are
-  that artifact**, which restates the 63.2% headline below as **59.9%** (427
-  undecidable against 286 findings). Matching label references on the raw
-  template text settles them, and the same change turns the genuinely broken
-  case — a literal `for` against an expression-built `id`, which can never
-  match — from an undecidable into a finding. The numbers in this document are
-  left as measured; the fix belongs in `audit.py` and in
-  [`../../pipeline/probes/eaa-wcag-triage/`](../../pipeline/probes/eaa-wcag-triage/),
-  not in a retrospective edit of a committed result.
+- **~~`audit.py` over-reports `control-no-label` as undecidable, by 64.~~**
+  Found 2026-08-20 by [`../a11y-theme-resolution/`](../a11y-theme-resolution/);
+  **fixed in `audit.py` on 2026-08-21, and the predicted 64 was confirmed
+  exactly.** This engine used to record the expression-*stripped* id
+  (`id="{{ id_prefix }}FirstName"` became `FirstName`) and to skip any
+  `<label for>` whose target contained an expression, so a control and its label
+  could sit six lines apart in one file and still be reported undecidable.
+
+  Expressions are now replaced by a sentinel that encodes a digest of the
+  expression's own normalised source, so two attribute values built from the
+  same expression compare equal and two built from different expressions do
+  not. Measured as a controlled A/B over **1,121 identical markup files** (the
+  same 18 packages audited twice, once with each engine):
+
+  | | pre-fix | post-fix |
+  |---|---:|---:|
+  | `control-no-label` undecidable | 70 | 4 |
+  | `label-for-id-mismatch` findings | 0 | 2 |
+  | undecidable, all checks | 491 | 425 |
+  | undecidable share | 64.3% | 60.7% |
+
+  Raw per-check counts for both engines, and the pinned corpus at the exact
+  versions audited, are saved in
+  [`label-matching-ab-2026-08-21.json`](label-matching-ab-2026-08-21.json). The
+  pre-fix column is this file's parent revision
+  (`git show HEAD~1:portfolio/research/a11y-evidence-record/audit.py`), so the
+  comparison can be re-run without trusting the table.
+
+  **Exactly 64 resolved to a label in their own file** — the number
+  `a11y-theme-resolution` predicted from the other direction, on a corpus
+  assembled separately — and 2 more were promoted to findings. **No other
+  check moved at all**, in either direction, which is the property that makes
+  this safe to adopt. The 2 promotions are the real
+  `fassbender-shopify-theme` newsletter defects at
+  `theme/sections/newsletter.liquid:69` and `:83`, at the exact lines that pass
+  reported by hand.
+
+  Two limits worth stating. The third hand-verified fassbender defect
+  (`theme/templates/search.liquid:22`) is *not* recovered: that file contains no
+  `<label for>` at all, so from the file alone the label could genuinely live in
+  another partial, and it stays undecidable. Resolving it needs a package-wide
+  label index, which is a larger change than finding 3 prescribed. And the
+  numbers in the body of this document are still the 2026-08-20 measurement,
+  left as measured rather than retrospectively edited.
+  [`../../pipeline/probes/eaa-wcag-triage/`](../../pipeline/probes/eaa-wcag-triage/)
+  is a separate HTML-surface engine that never stripped expressions, so it does
+  not carry this defect and needs no corresponding change.
 - **~~No rendered-page comparison.~~** Closed 2026-08-20 by
   [`../a11y-render-recovery/`](../a11y-render-recovery/), which classifies each
   of these 491 undecidables by the data it is waiting on. Headline: rendering

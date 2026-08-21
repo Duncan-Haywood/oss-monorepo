@@ -187,6 +187,16 @@ specific customer without checking their stack.
   them — and is what exposes the five that are genuinely broken. The
   merchant-share lower-bound prediction below held: four elements moved theme →
   merchant, 11.0% → 11.8%.
+
+  **That fix landed in `audit.py` on 2026-08-21**, so `classify.py` re-run today
+  no longer receives those 64 as undecidables at all: a controlled A/B over
+  1,121 identical files puts `audit.py` at **425** undecidables where this
+  directory's run saw 491, with `control-no-label` falling 70 → 4 and no other
+  check moving (see
+  [`../a11y-evidence-record/`](../a11y-evidence-record/README.md)). The 491
+  figures throughout this document are left as measured on 2026-08-20 and remain
+  the correct record of that run — but a re-run will not reproduce them, and
+  that is the fix working rather than a regression.
 - **The 11.0% merchant share is a lower bound on per-store residual.** The
   taxonomy calls something merchant only when the root is unambiguously a
   merchant object; a bare `title` used as `product.title` in the controller is
