@@ -13266,3 +13266,76 @@ entries:
         (merging it fires deploys to live sites) -- only the verification
         record about it was this session's to decide.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - 'Scheduled "research and evaluate potential software business projects that
+        aren''t already here" session, designated branch claude/laughing-pasteur-n8rs30.
+        Ran `session_gate.py` first (PROCEED -- meta-work share 8% of last 25 entries,
+        below the 70% threshold). `git fetch origin main` first. Per `CLAUDE.md` this
+        brief is already answered, so no candidate was proposed, no score moved, and
+        nothing was added to `screened-out.md`; took the first listed alternative
+        instead -- advance a probe already specified in `portfolio/pipeline/`. Listed
+        the 3 open PRs (#372, #368, #144) before starting: all correctly owner-gated
+        by prior sessions, no consolidation backlog.'
+      - 'Acted on the un-actioned warning in `portfolio/research/README.md` -- that
+        `a11y-evidence-record/audit.py` and `pipeline/probes/eaa-wcag-triage/` are two
+        independent WCAG engines built for the same candidate, with overlapping check
+        IDs, that had never referenced each other. The warning named the risk and
+        stopped there: **nobody had ever run the two engines on the same input.** Run
+        on the same input, they disagreed.'
+      - 'Finding: each engine was silently blind to two checks the other had, and --
+        the actual defect -- neither listed the other''s checks in its own coverage
+        statement. That is the one failure mode the candidate''s liability position
+        exists to prevent, because an evidence record''s reader can only tell "checked
+        and passed" from "never looked at" by the two lists the record carries, so a
+        criterion in neither is invisible to the customer. Against the hand-labeled
+        fixture set (the only ground truth either engine has) `audit.py` scored recall
+        **0.857** -- 12 of 14, missing two blocking Level A failures -- to the probe''s
+        1.0. `audit.py` was missing captions (1.2.2) entirely and the
+        `aria-hidden`-on-a-focusable-control case of 4.1.2; the probe was missing 1.4.2
+        and 1.4.4. The 4.1.2 case is the instructive one: 4.1.2 was already in the
+        checked list via button names, so a criterion-level comparison shows no gap and
+        the missing case hides one level down.'
+      - 'Shipped as #482, verified and merged in-session as agent-decidable under
+        `CLAUDE.md` (internal surfaces only -- `portfolio/`, CI config, tests; no
+        `ventures/*` app code; publishes nothing, registers nothing, spends nothing).
+        All four coverage gaps closed in both engines. Added to each engine the
+        invariant that makes the next silent gap fail a test rather than ship in a
+        customer-facing record -- `CoverageBoundaryIsComplete` in `audit.py` (61 -> 75
+        tests) and the COVERAGE-completeness assertion in the probe (37 -> 48 tests).
+        Also removed a false-positive class in the probe, whose name rules reported
+        intentionally hidden non-focusable controls as unlabelled. New
+        `portfolio/research/a11y-engine-agreement/` carries the re-runnable comparison,
+        saved results, 12 tests and the write-up, plus a CI workflow in the same shape
+        as its three siblings (stdlib test runner, no schedule, no API spend).'
+      - 'Verification: all 6 PR checks green; locally 48 (probe) + 75 (audit) + 12
+        (agreement) + 22 (render-recovery) + 58 (theme-resolution) tests pass, the two
+        sibling directories being the regression check since they import `audit.py`
+        directly. The probe''s committed fixture validation is byte-identical --
+        precision/recall stay 1.0. Repo validators (`validate_doc_consistency.py`,
+        `validate_candidates.py`, `router/validate.py`) all pass. Smoke-tested the new
+        checks on the 12 real HTML files under `ventures/`: zero false positives.
+        Noted but not chased: `resolve.py --verify` reports 9/12 rather than its
+        README''s 12/12, verified pre-existing by running it on an unmodified tree (a
+        corpus re-fetch artifact, and not a CI gate).'
+      - 'Left open deliberately, and recorded rather than guessed: the residual
+        disagreement is attribution, not coverage -- two defects both engines catch but
+        cite under different criteria (unlabelled control 3.3.2 vs 1.3.1; skipped
+        heading 1.3.1 vs 2.4.6). Settling it is a normative WCAG reading, both mappings
+        have support in common practice, and the specification hosts are egress-denied
+        from here, so picking a winner would be exactly the confident-but-unsourced
+        normative claim the pipeline''s own status note warns against. Pinned by a test
+        so a real coverage gap cannot hide behind a known attribution one.'
+      - 'Known limit stated in both READMEs rather than left silent:
+        `a11y-evidence-record`''s headline numbers (286 findings, 63.2% undecidable
+        over twelve npm storefront themes) predate the two new checks, so the finding
+        count is a lower bound by an unknown margin. Re-deriving it needs
+        `measure_themes.py` to re-fetch the twelve tarballs -- `--recompute-from`
+        cannot do it, because the saved rows hold per-package results rather than the
+        markup. That is the named, bounded follow-up for a later session.'
+      - 'No revenue. No candidate added, no score changed, nothing published or
+        registered, no credential used. The portfolio''s standing blocker is unchanged:
+        every venture still has `links.production: null` and the publish/payout asks
+        remain on issue #139 for the account owner.'
