@@ -14504,3 +14504,95 @@ entries:
         carries no such PR, only routine bookkeeping, so it stays
         self-mergeable).
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business
+        projects that aren't already here" session, designated branch
+        claude/laughing-pasteur-6g5omj. Per `CLAUDE.md` that brief is
+        already answered, so no candidate was proposed and no screening
+        pass was run. Ran `session_gate.py` first (PROCEED -- meta-work
+        share 60% of the last 25 entries, below the 70% threshold) and
+        `verification_status.py` (#372 and #368 both still recorded,
+        nothing new). `git fetch origin main` first; tip `8292550` at
+        start. Listed the 4 open PRs: #372 and #368 correctly
+        owner-gated with nothing to add, #511 correctly awaiting human
+        review, and #523 (opened 30 minutes earlier) carrying 4,542
+        lines of verified probe engine blocked only by 62 lines of
+        venture colour tokens.
+      - >-
+        Reached the same judgment as a concurrent session -- that #523's
+        internal half is agent-decidable and should be split out -- and
+        was mid-verification when that session's #524 merged first.
+        Dropped the duplicated split rather than contest it. What
+        remained was a defect only this session was positioned to see,
+        because it had rebuilt the corpus to verify: #524 carried #523's
+        `results-2026-08-21.json` across unchanged, and that file
+        measures #523's tree, where the two ventures are already fixed
+        and read 0. On `main` they are not fixed. So `main` asserted
+        both things at once -- prose saying 965 open failures with the
+        fixes pending the owner, and the artifact beside it totalling
+        611 with two ventures clean -- while `research/README.md` and
+        `probes/README.md` still said the fixes had landed at all, and
+        `test_measure.py` still asserted those two ventures were clean.
+      - >-
+        `a11y-contrast-decidability-ci.yml` cannot catch this and says
+        so in its own header comment: "a colour change in venture source
+        makes the committed results stale -- CI cannot detect that, only
+        a re-run with builds can." So it was re-run with builds. All
+        four ventures rebuilt from `main`'s source with `npm ci && npm
+        run build`, rescanned, results file replaced: per venture
+        21 / 333 / 0 / 611, total 965. The two index entries were
+        corrected and `test_measure.py`'s guard inverted to pin the four
+        open counts, so #523 or the `print-atelier` work landing now
+        fails that suite until the corpus is rebuilt -- the same
+        coupling the original guard enforced, pointed at the tree that
+        exists.
+      - >-
+        The regeneration doubles as the first independent check this
+        measurement has had. From a separate checkout against a
+        separately-built corpus it re-derived #523's pre-fix column
+        exactly: 85 pages, 10,657 elements, 98.76% decidable, 965
+        failures against 581 light-only, 384 dark-only, and the same
+        106 / 24 / 2 split across `conditional-background` /
+        `opacity-in-chain` / `conditional-color`. Two sessions, two
+        checkouts, same arithmetic -- #523's headline finding is
+        reproducible, which nothing until now had tested. Also corrected
+        an inherited off-by-one: the probe suite is 112 tests, not the
+        111 quoted in four docs.
+      - >-
+        Opened #528 and self-merged it, agent-decidable per `CLAUDE.md`:
+        `portfolio/` and its tests only, no `ventures/*` source,
+        publishes nothing, registers nothing, spends nothing. Verified
+        by running the checks -- 112 probe tests as
+        `eaa-wcag-triage-ci.yml` invokes them, fixture validation record
+        byte-identical, 11 measurement tests, `measure.py
+        --recompute-from`, `a11y-engine-agreement` regenerating with no
+        drift, all six sibling a11y suites, the ledger suite, both
+        pipeline validators, all 6 PR checks green, and `merge-tree`
+        clean against the live tip immediately before merging.
+        Commented on #523 with the one trap its rebase now carries:
+        restoring the post-fix results file would reintroduce exactly
+        this inconsistency, and the inverted test is the signal to
+        rebuild and regenerate in the same commit.
+      - >-
+        The narrower lesson worth recording, since this repo's ledger
+        keeps finding the duplicate-work pattern: two sessions splitting
+        the same PR within the hour was the usual waste, but the second
+        one was not wasted, because verifying a claim by rebuilding the
+        thing it measures surfaced a defect that reading the diff could
+        not. #524's split was correct and its prose edits were correct;
+        the artifact it carried was not, and no test or workflow in the
+        repository would have said so.
+      - >-
+        No revenue and no candidate score moved. The 965 AA contrast
+        failures are real and still open on `main` -- 354 have written,
+        rebuild-verified fixes waiting on the account owner in #523 (62
+        lines of Tailwind class names across 11 files, lowest resulting
+        ratio 4.63:1 against a required 4.5:1), and `print-atelier`'s
+        611 are 73 unwritten component-level decisions. The standing $0
+        revenue ceiling and the publish/payout blocker on issue #139 are
+        unchanged.
+    mrr_end: null
