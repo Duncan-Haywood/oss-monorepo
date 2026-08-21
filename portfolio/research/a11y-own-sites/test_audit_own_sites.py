@@ -176,7 +176,7 @@ class SavedResults(unittest.TestCase):
     def test_agreement_rate(self):
         agree = own.agreement(self.data)
         self.assertEqual(agree["pages"], 118)
-        self.assertEqual(agree["agreeing"], 89)
+        self.assertEqual(agree["agreeing"], 91)
 
     def test_every_disagreement_is_a_relabelling_not_a_missed_defect(self):
         agree = own.agreement(self.data)

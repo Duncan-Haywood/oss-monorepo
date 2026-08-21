@@ -1,6 +1,13 @@
 # Run the audit on ourselves: what the engines find on this portfolio's own pages
 
-Built and measured 2026-08-21. Re-runnable, offline, no credentials:
+Built and measured 2026-08-21, revised the same day (see Finding 4): both engine
+adapters here were fixed to pass each app's build-emitted CSS, which they had
+never been given, so 1.4.3 (contrast) now fires for the first time. The
+committed results file is the post-fix state; the counts under Findings 1-3
+below describe the pass that produced them and remain accurate as history, but
+are no longer what a fresh `--out` run reproduces on their own — the current
+file also reflects contrast findings Finding 1-3's prose does not mention.
+Re-runnable, offline, no credentials:
 
 ```bash
 cd portfolio/research/a11y-own-sites
@@ -101,13 +108,18 @@ revealed.
 | Corpus | Pages | Identical criterion multiset |
 |---|---:|---:|
 | Fixtures (`a11y-engine-agreement`, 2026-08-21) | 3 | 2 (66.7%) |
-| **This portfolio's built pages** | **118** | **89 (75.4%)** |
+| This portfolio's built pages, as first measured | 118 | 89 (75.4%) |
+| **Same corpus, current file** (below the fixes and the stylesheet fix in Finding 4) | **118** | **91 (77.1%)** |
 
-29 pages disagree. Every one of them is a **pure relabelling** — both engines
-find the same defect and cite a different success criterion. Not one page in
-118 has a defect that only one engine detects. (That holds for this corpus and
-does not generalise: [`a11y-generated-sites/`](../a11y-generated-sites/) found a
-genuine detection gap in each engine on 14 pages of a corpus these 118 could not
+27 pages disagree in the current file (29 in the first pass, before the 30
+blocking fixes in Finding 3 landed on `main`). Every one of them is still a
+**pure relabelling** — both engines find the same defect and cite a different
+success criterion, and that holds even with 1.4.3 now firing 743 times:
+both engines cite the identical criterion on every one of those findings, so
+contrast contributed zero new disagreements. Not one page in 118 has a defect
+that only one engine detects. (That holds for this corpus and does not
+generalise: [`a11y-generated-sites/`](../a11y-generated-sites/) found a genuine
+detection gap in each engine on 14 pages of a corpus these 118 could not
 include. It also names the defect behind each relabelling below — a skipped
 heading level, and a control with no accessible name.) That split is the useful part,
 and the script tests for it explicitly, because the two failures have opposite
@@ -117,15 +129,18 @@ criterion numbers for one defect.
 
 | audit.py cites | probe cites | pages |
 |---|---|---:|
-| 1.3.1 Info and Relationships | 2.4.6 Headings and Labels | 24 |
-| 3.3.2 Labels or Instructions | 1.3.1 Info and Relationships | 4 |
-| 3.3.2 Labels or Instructions | 2.4.6 Headings and Labels | 1 |
+| 1.3.1 Info and Relationships | 2.4.6 Headings and Labels | 25 |
+| 3.3.2 Labels or Instructions | 1.3.1 Info and Relationships | 2 |
+
+(First pass: 24 / 4 / 1 across three rows, the third a single `print-atelier`
+page whose now-fixed `display:none` false positive happened to also carry a
+relabelling — fixing the false positive removed the row, not the attribution.)
 
 `a11y-engine-agreement/` found both of these divergences and left them open as
 the *residual* after four coverage gaps were closed, on the grounds that
 settling them is a normative reading. **That characterisation was right about
 the cause and wrong about the size.** On a corpus of three it looked like one
-page of edge case. On real pages it decides the criterion cited on **24.6% of
+page of edge case. On real pages it decides the criterion cited on **22.9% of
 them** — and it is the same two attribution pairs doing all of it, so the fix
 is bounded: two normative rulings, not a general reconciliation. The reason to
 settle it is not tidiness. The deliverable being sold is a criterion-referenced
@@ -135,8 +150,12 @@ a record.
 
 ## Finding 3 — the defects on our own pages, and what was done about each
 
-Findings by app, as measured **before** any fix in this pass (the saved results
-file is this state, so the numbers below are re-derivable offline):
+Findings by app, as measured **before** any fix in the pass that first ran
+these engines out of sample, and **before** the stylesheet fix in Finding 4
+below (which fires 1.4.3 for the first time and is not in this table). The
+committed results file no longer reproduces exactly this state on its own —
+see the note at the top of this page — so the numbers below are quoted rather
+than re-derivable from `results-2026-08-21.json` as it stands today:
 
 | App | Blocking | Degrading |
 |---|---|---|
@@ -188,6 +207,45 @@ two.
   not in a measurement pass. Recorded here so it is not rediscovered.
 - The 8 false positives and 4 contested findings above.
 
+## Finding 4 — the audit never actually checked contrast, on any of these pages
+
+Both adapters here called each engine with raw HTML and no linked stylesheet.
+Both engines are explicit that without one, 1.4.3 (contrast) "finds nothing to
+decide" — so across every one of the 118 pages above, contrast was never
+evaluated, and Finding 1's precision table and Finding 3's per-app table are
+both silent about a whole success criterion rather than reporting it clean.
+This is not a new bug: it is the same one
+[`a11y-axe-recall/`](../a11y-axe-recall/) found and fixed for its own copy of
+this corpus, while measuring out-of-sample recall — its README calls it out
+explicitly as "a standing bug in a *merged* directory." This pass ports the
+identical fix here: each app's build-emitted CSS (`.next`/`out`/`dist`),
+parsed and merged once per app, passed through to both engines.
+
+Contrast now fires 743 times across 5 of the 7 apps, using the exact
+resolver [`a11y-contrast-decidability/`](../a11y-contrast-decidability/)
+already validated at 98.76% decidable over 10,657 elements — a computed
+colour ratio against a named threshold, not a judgement call, so these are
+not put through the by-hand false-positive review Finding 1 gave the original
+67 findings. Both engines cite the identical criterion on every one of these
+findings (Finding 2), which is itself evidence the two contrast
+implementations agree out of sample, not only on the fixtures that reconciled
+them.
+
+| App | 1.4.3 blocking | 1.4.3 degrading | Status |
+|---|---:|---:|---|
+| `ventures/ai-first-markets` | 1 | 332 | Same 333 total as `a11y-contrast-decidability`'s independent scan of this venture. Diagnosed, fixed, and rebuild-verified; awaiting the account owner's sign-off in [#523](https://github.com/Duncan-Haywood/monorepo-projects/pull/523)/[#531](https://github.com/Duncan-Haywood/monorepo-projects/pull/531) (colour-token edits to deployable `ventures/*` code) |
+| `ventures/local-site-studio` | 17 | 4 | Same 21 total as `a11y-contrast-decidability`. Same status as above |
+| `ventures/real-estate-agent-photo-app/docs-site` | 19 | 347 | **New** — outside `a11y-contrast-decidability`'s four-venture scope. Reported here, not fixed; deployable `ventures/*` code, so any fix is the account owner's call per `CLAUDE.md` |
+| `ventures/real-estate-agent-photo-app/research` | 9 | 11 | **New**, same status |
+| `ventures/photo-editing/docs-site` | 3 | 0 | **New**, same status |
+| `ventures/print-atelier`, `ventures/quick-pick-survey` | 0 | 0 | No stylesheet failures on this corpus (matches `a11y-contrast-decidability`'s own scan of both) |
+
+389 of the 743 (the three "New" rows) are the first measurement of contrast on
+these three apps anywhere in this repository — `a11y-contrast-decidability`'s
+own venture list never included them. Recorded here so they are not
+rediscovered; not diagnosed or fixed in this pass, which is a measurement pass
+over a corpus these engines already had, not a new venture-code change.
+
 ## What could not be measured here
 
 - **No render, no interaction, no assistive technology.** Every criterion the
@@ -237,10 +295,21 @@ which sells the same audit through a different channel:
    shown to anyone. Without one, 12% of what a stranger reads first is
    un-actionable and the most frequent single finding is always un-actionable.
 2. The two-engine attribution divergence is not a residual. It sets the
-   criterion cited on a quarter of real pages, and the record is the product.
+   criterion cited on 22.9% of real pages, and the record is the product.
+3. **Contrast had never actually been checked on this corpus at all** (Finding
+   4) — not because either engine's coverage statement is wrong (both legitimately
+   claim 1.4.3), but because this directory's own adapters never gave either
+   engine the stylesheet the claim depends on, so the corpus silently carried a
+   whole success criterion neither engine could evaluate. Fixed here. Firing it
+   found 389 contrast failures on three apps `a11y-contrast-decidability` had
+   never scanned, on top of the 354 (`local-site-studio` + `ai-first-markets`)
+   already diagnosed and awaiting sign-off in #523/#531 — this portfolio
+   shipping the defect it plans to bill for finding, again, on pages nobody had
+   pointed either engine at until this pass.
 
 The candidate's own liability position — *state coverage limits in the product,
-not in the terms* — is the reason both belong here rather than in a backlog. A
-record that lists a framework's internal error document as a customer's
-blocking defect states its coverage inaccurately in the direction that flatters
-the seller.
+not in the terms* — is the reason all three belong here rather than in a
+backlog. A record that lists a framework's internal error document as a
+customer's blocking defect, or that stays silent about a criterion it never
+checked, states its coverage inaccurately in the direction that flatters the
+seller.
