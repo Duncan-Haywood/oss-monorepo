@@ -109,6 +109,10 @@ hypotheses:
     status: supported
     checked: 2026-08-21
     evidence: in-repo
+  - claim: When the watchdog is asked to stop (the operator's Ctrl-C/SIGTERM, or a STOP file) while the worker is stuck in an uninterruptible I/O wait and survives SIGKILL, the watchdog does not report "stopped" with worker_running false until the worker is actually confirmed dead; it does not exit believing the worker is gone while an orphaned importer process keeps driving Photos.app, unsupervised, with a status file that says otherwise.
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
   - claim: A packaged, priced version of these tools (e.g. a paid macOS utility, or a Setapp/App-Store-style listing) would attract paying customers among Mac-based photographers and videographers who shoot on removable media and import into Apple Photos or a DAM, beyond this repo's own single-user use -- i.e. the reliability work already done here is worth someone else paying for, not just worth having for its own import runs.
     status: untested
     checked: null
