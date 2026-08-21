@@ -1,10 +1,13 @@
 # Run the audit on ourselves: what the engines find on this portfolio's own pages
 
-Built and measured 2026-08-21. Re-runnable, offline, no credentials:
+Built and measured 2026-08-21. Corpus rebuilt and re-measured 2026-08-21, same
+day, after [Finding 4](#finding-4-2026-08-21-the-adapters-never-fed-either-engine-a-stylesheet)
+found and fixed a gap that had made 1.4.3 silently absent from every number
+below it. Re-runnable, offline, no credentials:
 
 ```bash
 cd portfolio/research/a11y-own-sites
-python3 -m unittest discover                                   # 16 tests
+python3 -m unittest discover                                   # 21 tests
 python3 audit_own_sites.py --recompute-from results-2026-08-21.json   # offline
 # to regenerate the corpus: npm ci && npm run build in each venture, then
 python3 audit_own_sites.py --out results.json
@@ -101,31 +104,35 @@ revealed.
 | Corpus | Pages | Identical criterion multiset |
 |---|---:|---:|
 | Fixtures (`a11y-engine-agreement`, 2026-08-21) | 3 | 2 (66.7%) |
-| **This portfolio's built pages** | **118** | **89 (75.4%)** |
+| **This portfolio's built pages** | **118** | **91 (77.1%)** |
 
-29 pages disagree. Every one of them is a **pure relabelling** — both engines
-find the same defect and cite a different success criterion. Not one page in
-118 has a defect that only one engine detects. (That holds for this corpus and
-does not generalise: [`a11y-generated-sites/`](../a11y-generated-sites/) found a
-genuine detection gap in each engine on 14 pages of a corpus these 118 could not
-include. It also names the defect behind each relabelling below — a skipped
-heading level, and a control with no accessible name.) That split is the useful part,
-and the script tests for it explicitly, because the two failures have opposite
-consequences: a detection gap means a customer's barrier goes unreported, while
-a relabelling means two runs of "the same" audit hand procurement two different
-criterion numbers for one defect.
+27 pages disagree (originally measured as 29/89 before
+[Finding 4](#finding-4-2026-08-21-the-adapters-never-fed-either-engine-a-stylesheet)'s
+stylesheet fix and rebuild — the two extra pages that now agree gained an
+identical 1.4.3 answer from both engines once each was handed the same CSS,
+which is a side effect of that fix and not a new reconciliation). Every one of
+the 27 is still a **pure relabelling** — both engines find the same defect and
+cite a different success criterion. Not one page in 118 has a defect that only
+one engine detects. (That holds for this corpus and does not generalise:
+[`a11y-generated-sites/`](../a11y-generated-sites/) found a genuine detection
+gap in each engine on 14 pages of a corpus these 118 could not include. It also
+names the defect behind each relabelling below — a skipped heading level, and a
+control with no accessible name.) That split is the useful part, and the script
+tests for it explicitly, because the two failures have opposite consequences: a
+detection gap means a customer's barrier goes unreported, while a relabelling
+means two runs of "the same" audit hand procurement two different criterion
+numbers for one defect.
 
 | audit.py cites | probe cites | pages |
 |---|---|---:|
-| 1.3.1 Info and Relationships | 2.4.6 Headings and Labels | 24 |
-| 3.3.2 Labels or Instructions | 1.3.1 Info and Relationships | 4 |
-| 3.3.2 Labels or Instructions | 2.4.6 Headings and Labels | 1 |
+| 1.3.1 Info and Relationships | 2.4.6 Headings and Labels | 25 |
+| 3.3.2 Labels or Instructions | 1.3.1 Info and Relationships | 2 |
 
 `a11y-engine-agreement/` found both of these divergences and left them open as
 the *residual* after four coverage gaps were closed, on the grounds that
 settling them is a normative reading. **That characterisation was right about
 the cause and wrong about the size.** On a corpus of three it looked like one
-page of edge case. On real pages it decides the criterion cited on **24.6% of
+page of edge case. On real pages it decides the criterion cited on **22.9% of
 them** — and it is the same two attribution pairs doing all of it, so the fix
 is bounded: two normative rulings, not a general reconciliation. The reason to
 settle it is not tidiness. The deliverable being sold is a criterion-referenced
@@ -135,8 +142,13 @@ a record.
 
 ## Finding 3 — the defects on our own pages, and what was done about each
 
-Findings by app, as measured **before** any fix in this pass (the saved results
-file is this state, so the numbers below are re-derivable offline):
+Findings by app, as measured **before** any fix in this pass (this is the state
+the results file originally committed 2026-08-21 recorded; it does not match
+the results file now committed at that same path, which is the rebuilt,
+post-fix state after both this section's fixes and
+[Finding 4](#finding-4-2026-08-21-the-adapters-never-fed-either-engine-a-stylesheet)'s —
+the table below is preserved as the historical starting point the rest of this
+section explains):
 
 | App | Blocking | Degrading |
 |---|---|---|
@@ -152,7 +164,9 @@ Subtract the framework shell and the `display:none` input and **four of the
 seven apps have no actionable finding at all**. The real defects concentrate in
 two.
 
-**Fixed in this pass, verified by rebuilding and re-auditing:**
+**Fixed in this pass, verified by rebuilding and re-auditing.** (Re-confirmed a
+second time by [Finding 4](#finding-4-2026-08-21-the-adapters-never-fed-either-engine-a-stylesheet)'s
+rebuild: the counts below still match exactly, so nothing here has regressed.)
 
 - **`print-atelier` — 8 icon-only buttons with no accessible name (4.1.2).**
   The mobile navigation open/close pair on the site's own front page, four
@@ -187,6 +201,90 @@ two.
   change with no test to hold it. It belongs in a pass that owns those pages,
   not in a measurement pass. Recorded here so it is not rediscovered.
 - The 8 false positives and 4 contested findings above.
+
+## Finding 4 (2026-08-21): the adapters never fed either engine a stylesheet
+
+Both engines' contrast rule (1.4.3) takes an optional *parsed, linked*
+stylesheet and, with none, "the colour rules simply find nothing to decide" —
+`wcag_triage.engine.audit_html`'s own docstring, and `audit.audit_source` says
+the same. `audit_own_sites.py`'s two adapters (`probe_findings`,
+`audit_py_criteria`) called both engines with no stylesheet argument at all,
+on a corpus that is 100% Next.js output with effectively no inline `<style>`.
+So across every page measured in Finding 1 through Finding 3 above, **1.4.3
+was never actually evaluated against real CSS by either engine** — not zero
+findings because the pages pass, zero findings because the criterion was
+silently skipped. [`a11y-axe-recall/`](../a11y-axe-recall/) found and fixed
+this same gap for its own, separate corpus-loading code on the same day and
+named the fix as owed here too, rather than fixed here, because doing it
+properly means regenerating this directory's own committed numbers — the step
+this section is.
+
+**The fix**, mirroring `a11y-axe-recall/measure.py`'s `css_for_app`: read
+every `*.css` file under `.next`, `out`, and `dist`, merge them with
+`audit.merge_stylesheets`, and pass the result to both engines. The first
+attempt reused `audit_own_sites.py`'s own `BUILD_DIRS` constant
+(`.next/server/app`, `.next/server/pages`, `out`, `dist`) — the directories
+`discover()` already walks for HTML — and found nothing: a Next.js build
+writes its CSS under `.next/static/css/`, a *sibling* of `server/`, not
+inside it. That silent zero was caught before it was trusted, by cross-checking
+against [`a11y-contrast-decidability/`](../a11y-contrast-decidability/), which
+scans `.next` in full and had already measured four of these seven apps.
+
+**Corroboration.** `a11y-contrast-decidability` and this directory now agree
+exactly, on the same build output, using the same CSS resolver, on all four
+apps they both cover:
+
+| App | `a11y-contrast-decidability` fail count | This directory's 1.4.3 findings |
+|---|---:|---:|
+| `ai-first-markets` | 333 | 333 (1 blocking + 332 degrading) |
+| `local-site-studio` | 21 | 21 (17 blocking + 4 degrading) |
+| `print-atelier` | 0 | 0 |
+| `quick-pick-survey` | 0 | 0 |
+
+`print-atelier`'s and `quick-pick-survey`'s zeros are not this fix's doing —
+both were already fixed in venture source (#542 fixed `print-atelier`'s 611
+contrast failures the same day this directory's original baseline was
+captured; a separate commit removed `quick-pick-survey`'s forced 1× zoom).
+Isolated by running both adapters against the same freshly built HTML with and
+without the stylesheet argument: identical result either way on those two
+apps (zero 1.4.3 findings whether or not a stylesheet is passed), confirming
+their current zeros are a real absence of contrast defects on the rebuilt
+pages, not an artifact of this fix.
+
+**New territory.** Three apps in this corpus fall outside
+`a11y-contrast-decidability`'s scope (it covers only the four Next.js ventures
+listed above) and their 1.4.3 counts are new information from this fix:
+`photo-editing/docs-site` — 3 (all blocking); `real-estate-agent-photo-app`'s
+`docs-site` — 366 (19 blocking, 347 degrading); its `research` app — 20 (9
+blocking, 11 degrading). Spot-checked rather than hand-classified
+instance-by-instance the way Finding 1's 67 findings were: `docs-site`'s
+`process.html` alone carries 340 of the 366, all the same shape (`p` elements
+at `#475569` on `#060b1d`, computed ratio 2.582:1 against the 4.5:1 this size
+requires) — a long page repeating one under-contrasted text style many times,
+not 340 independent judgement calls. The arithmetic and the CSS-to-color
+resolution are the same code path already validated at 98.76% decidable over
+10,657 elements in `a11y-contrast-decidability`, so these are trusted at that
+level of confidence, not at Finding 1's per-instance-reviewed level.
+
+**Corpus and agreement.** Page discovery is unaffected (still 118 unique pages
+from 138 built, 7 apps) — this fix only changes what each engine decides once
+it sees a page, not which pages are in scope. Engine agreement moved from
+89/118 (75.4%) to 91/118 (77.1%), covered in Finding 2 above.
+
+**Effect on the pipeline.** No score moves. The `ai-first-markets` and
+`local-site-studio` numbers this fix surfaces are the same 333 and 21 already
+counted in `a11y-contrast-decidability` and already sitting in the
+account-owner-gated remainder of [#523](https://github.com/Duncan-Haywood/monorepo-projects/pull/523)
+(via [#531](https://github.com/Duncan-Haywood/monorepo-projects/pull/531)) —
+this closes a measurement gap in a directory the pipeline's liability score
+cites, it does not add a new liability finding. What it does change: Finding
+1's precision numbers (0.821–0.881) were computed on a denominator that never
+included 1.4.3 at all, on any of the 67 findings they classified — accurate
+for what they measured, and now known to have been measured with contrast
+excluded from consideration entirely, on every page, rather than checked and
+found clean. That distinction was the same one
+`a11y-external-coverage-reference/` made for the `eaa-wcag-triage` engine's own
+coverage statement, applied here to this directory's measurement of it.
 
 ## What could not be measured here
 
@@ -237,7 +335,7 @@ which sells the same audit through a different channel:
    shown to anyone. Without one, 12% of what a stranger reads first is
    un-actionable and the most frequent single finding is always un-actionable.
 2. The two-engine attribution divergence is not a residual. It sets the
-   criterion cited on a quarter of real pages, and the record is the product.
+   criterion cited on 22.9% of real pages, and the record is the product.
 
 The candidate's own liability position — *state coverage limits in the product,
 not in the terms* — is the reason both belong here rather than in a backlog. A

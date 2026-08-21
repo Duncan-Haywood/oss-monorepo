@@ -160,7 +160,14 @@ one data point.
   `stylesheet_for_app`'s equivalent into `probe_findings`/`audit_py_criteria`,
   then rebuild the corpus, re-run, and re-verify every number that pass's
   README quotes (precision, the two-engine agreement table, the by-app defect
-  breakdown) — all of which may shift once 1.4.3 can actually fire.
+  breakdown) — all of which may shift once 1.4.3 can actually fire. **Done,
+  same day, in that directory's own
+  [Finding 4](../a11y-own-sites/README.md#finding-4-2026-08-21-the-adapters-never-fed-either-engine-a-stylesheet):**
+  the fix (and a second bug it caught first — the naive port of this
+  module's own `css_for_app` searched the wrong build subdirectory and found
+  nothing) is verified against this directory's own corroborating fail counts
+  for the two ventures both cover (333 and 21). Agreement moved 89→91/118;
+  precision (Finding 1) was not re-derived, since it was never about 1.4.3.
 - **No new axe rule, no engine change.** Same discipline as every prior pass
   in this family: a pass that closed detection gaps by writing rules would be
   measuring its own work instead of the engines as they exist.
