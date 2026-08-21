@@ -11604,3 +11604,57 @@ entries:
         only, no `ventures/` code, nothing published, no credential, no
         spend beyond agent time.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process, increase profit, be strategic" session, designated branch
+        claude/wizardly-albattani-8bn5w2. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 40%, below the 70% threshold). Checked
+        the 4 open PRs (#372/#368/#144/#19) and issue #139 (70 prior
+        comments, all from scheduled sessions, no owner reply yet) against
+        current `main` before starting -- all four remain correctly
+        owner-gated and unchanged, so did not re-derive that finding again.
+      - >-
+        Rather than open a fifth re-confirmation of those PRs or another
+        `photos-import-tools` micro-hypothesis (19 already landed, the
+        router's only currently-dispatchable venture), read
+        `portfolio/pipeline/channel-inventory.md` end to end looking for a
+        gap between what it already knows and what it still asserts. Found
+        one: its candidate-mapping table scored `shopify-a11y-evidence` as
+        "Partly" reachable -- the Shopify App Store itself is
+        Partner-account-gated, but the same document proposed substituting a
+        WordPress.org listing to measure category demand "at zero cost and
+        with no credential."
+      - >-
+        Both halves of that verdict were already dead on `main` and nobody
+        had connected them. `portfolio/research/egress-reachability/` (92
+        hosts, measured 2026-08-20) had already probed `apps.shopify.com`
+        directly -- `EGRESS_DENIED`. And `channel-inventory.md`'s own later
+        amendment section already lists WordPress.org among the channels
+        refuted by direct measurement, for the same reason. Corrected the
+        mapping table's verdict from "Partly" to "No", added a Shopify row
+        to the "what was refuted" table, and added an amendment to
+        `candidates/shopify-a11y-evidence.md` recording that step 1 of its
+        First Experiment (pulling Shopify App Store install/review/pricing
+        data) cannot run from this environment on any currently-known route
+        -- and, unlike most open items in this pipeline, is not gated on an
+        account-owner decision at all: no payout rail or publish approval
+        unblocks a read that fails at the network layer. No score changed.
+      - >-
+        Verified before opening the PR: `validate_candidates.py`,
+        `validate_doc_consistency.py`, `router/validate.py`,
+        `verification_status.py --check`, and `break_even.py --check` all
+        green. Re-fetched `origin/main` immediately before opening PR #418
+        (picked up #415/#416, both merged cleanly, neither touching either
+        file here). Opened #418, subscribed to its CI, waited for
+        `portfolio-validate` to report `success`, confirmed
+        `mergeable_state: clean` against the then-current `main` tip via
+        `git merge-tree`, and self-merged as agent-decidable: docs-only
+        under `portfolio/pipeline/`, no `ventures/` code, no CI/workflow
+        change, no new dependency, no account, no credential, no unattended
+        automation, nothing published externally, nothing spent beyond
+        agent time.
+    mrr_end: null
