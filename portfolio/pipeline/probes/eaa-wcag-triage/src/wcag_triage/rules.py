@@ -17,6 +17,7 @@ That list is the product's coverage statement, surfaced rather than buried.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import Callable, Optional
 
@@ -83,6 +84,14 @@ COVERAGE: tuple = (
     Criterion("3.1.1", "Language of Page", "A", "automated"),
     Criterion("4.1.2", "Name, Role, Value", "A", "partial",
               "Missing accessible names and interactive elements hidden from AT are detectable; correct roles under scripting are not."),
+    # Added 2026-08-21. Both were checked by the sibling engine
+    # (portfolio/research/a11y-evidence-record/audit.py) and by this one
+    # neither checked nor declared manual, so the coverage statement was
+    # silent about them -- see portfolio/research/a11y-engine-agreement/.
+    Criterion("1.4.2", "Audio Control", "A", "partial",
+              "Autoplaying media with sound is detectable from the attributes; whether a page-level stop control exists is not."),
+    Criterion("1.4.4", "Resize Text", "AA", "partial",
+              "A viewport meta that blocks zoom is detectable; whether the layout survives 200% is not."),
     # The gap the candidate sells against: these fail constantly and no static
     # pass can see them.
     Criterion("1.4.3", "Contrast (Minimum)", "AA", "manual",
@@ -126,6 +135,18 @@ def _has_wrapping_label(node: Node) -> bool:
         if ancestor.tag == "label" and ancestor.accessible_text():
             return True
     return False
+
+
+def _is_aria_hidden(node: Node) -> bool:
+    """Removed from the accessibility tree.
+
+    The name rules skip these: an element AT never reaches cannot be a naming
+    barrier. If it is *also* still focusable, ``rule_interactive_aria_hidden``
+    reports that instead, which is the accurate diagnosis -- the fix is to
+    stop hiding it, not to add a name. Matches ``audit.py``, which has always
+    skipped its name checks on hidden nodes.
+    """
+    return (node.attr("aria-hidden") or "").strip().lower() == "true"
 
 
 def _has_aria_name(node: Node) -> bool:
@@ -193,6 +214,8 @@ def rule_page_title(root: Node, label_targets: set):
 
 def rule_control_names(root: Node, label_targets: set):
     for node in root.iter():
+        if _is_aria_hidden(node):
+            continue
         if node.tag in {"select", "textarea"}:
             if not control_has_name(node, label_targets):
                 yield _unnamed_control(node)
@@ -217,6 +240,8 @@ def rule_link_text(root: Node, label_targets: set):
     for node in root.iter():
         if node.tag != "a" or not node.has_attr("href"):
             continue
+        if _is_aria_hidden(node):
+            continue
         if node.accessible_text() or _has_aria_name(node) or _text(node.attr("title")):
             continue
         # An image child with alt supplies the name.
@@ -234,6 +259,8 @@ def rule_button_names(root: Node, label_targets: set):
     for node in root.iter():
         if node.tag != "button":
             continue
+        if _is_aria_hidden(node):
+            continue
         if node.accessible_text() or _has_aria_name(node) or _text(node.attr("title")):
             continue
         yield Finding(
@@ -244,9 +271,30 @@ def rule_button_names(root: Node, label_targets: set):
         )
 
 
+def _is_focusable(node: Node) -> bool:
+    """Whether `node` still takes keyboard focus.
+
+    `aria-hidden` is only a barrier when the element stays in the tab order.
+    `hidden`, `tabindex="-1"`, an anchor with no `href`, and `type="hidden"`
+    all take it out, which makes `aria-hidden` legitimate there. Aligned with
+    `audit.py`'s `FOCUSABLE` predicate so the two engines agree.
+    """
+    if node.has_attr("hidden"):
+        return False
+    if _text(node.attr("tabindex")) == "-1":
+        return False
+    if node.tag == "a" and not node.has_attr("href"):
+        return False
+    if node.tag == "input" and _text(node.attr("type")).lower() == "hidden":
+        return False
+    return True
+
+
 def rule_interactive_aria_hidden(root: Node, label_targets: set):
     for node in root.iter():
         if node.tag not in _INTERACTIVE:
+            continue
+        if not _is_focusable(node):
             continue
         if (node.attr("aria-hidden") or "").strip().lower() == "true":
             yield Finding(
@@ -270,6 +318,44 @@ def rule_video_captions(root: Node, label_targets: set):
                 "1.2.2", "Captions (Prerecorded)", "A", BLOCKING, "video", node.line,
                 "Video has no <track kind=captions>, so deaf and hard-of-hearing users get no captions.",
                 "Add a captions track, or confirm captions are burned in and note it.",
+                seq=node.order,
+            )
+
+
+def rule_autoplay_unmuted(root: Node, label_targets: set):
+    for node in root.iter():
+        if node.tag not in {"video", "audio"} or not node.has_attr("autoplay"):
+            continue
+        if node.has_attr("muted"):
+            continue
+        yield Finding(
+            "1.4.2", "Audio Control", "A", BLOCKING, node.tag, node.line,
+            f"<{node.tag} autoplay> without muted starts sound the user did not ask for and cannot easily stop.",
+            "Add muted, or give the user a control to pause or stop the audio.",
+            seq=node.order,
+        )
+
+
+_SCALE_CAP = re.compile(r"maximum-scale\s*=\s*([\d.]+)")
+
+
+def rule_viewport_scaling(root: Node, label_targets: set):
+    for node in root.iter():
+        if node.tag != "meta" or _text(node.attr("name")).lower() != "viewport":
+            continue
+        content = _text(node.attr("content")).lower()
+        blocked = "user-scalable=no" in content.replace(" ", "")
+        cap = _SCALE_CAP.search(content)
+        if cap:
+            try:
+                blocked = blocked or float(cap.group(1)) < 2.0
+            except ValueError:
+                pass
+        if blocked:
+            yield Finding(
+                "1.4.4", "Resize Text", "AA", BLOCKING, "meta", node.line,
+                f"Viewport meta prevents zooming to 200% ({content!r}), so low-vision users cannot enlarge the page.",
+                "Remove user-scalable=no and any maximum-scale below 2.0.",
                 seq=node.order,
             )
 
@@ -320,6 +406,8 @@ ALL_RULES: tuple = (
     rule_button_names,
     rule_interactive_aria_hidden,
     rule_video_captions,
+    rule_autoplay_unmuted,
+    rule_viewport_scaling,
     rule_heading_order,
     rule_data_table_headers,
 )

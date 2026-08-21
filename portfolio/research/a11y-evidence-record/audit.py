@@ -313,6 +313,12 @@ CHECKS = {
     "autoplay-unmuted":      ("1.4.2 Audio Control", "blocking"),
     "data-table-no-header":  ("1.3.1 Info and Relationships", "degrading"),
     "heading-level-skipped": ("1.3.1 Info and Relationships", "degrading"),
+    # Added 2026-08-21. Both were checked by the sibling engine
+    # (`portfolio/pipeline/probes/eaa-wcag-triage/`) and by this one neither
+    # checked nor listed in NOT_TESTED, so a record emitted here was silent
+    # about them -- see `portfolio/research/a11y-engine-agreement/`.
+    "media-no-captions":     ("1.2.2 Captions (Prerecorded)", "blocking"),
+    "interactive-aria-hidden": ("4.1.2 Name, Role, Value", "blocking"),
 }
 
 FILENAME_ALT = re.compile(
@@ -321,6 +327,16 @@ FILENAME_ALT = re.compile(
 
 LABELLABLE = {"input", "select", "textarea"}
 NO_LABEL_TYPES = {"hidden", "submit", "reset", "button", "image"}
+
+# Elements that take keyboard focus by default, and so stay reachable by Tab
+# even when `aria-hidden="true"` has removed them from the accessibility tree.
+# `<input type=hidden>` is excluded because it is not focusable to begin with.
+FOCUSABLE = {"a", "button", "input", "select", "textarea"}
+
+# `kind` values on a <track> that satisfy 1.2.2. `subtitles` is accepted
+# because the distinction from `captions` is editorial (translation vs. sound
+# description) and firing on it would be a false positive more often than not.
+CAPTION_KINDS = {"captions", "subtitles"}
 
 
 def _accessible_name(node: Node) -> tuple[str, bool]:
@@ -527,6 +543,46 @@ def audit_source(source: str, path: str = "<string>") -> dict:
                     "autoplay-unmuted", node,
                     f"<{node.tag} autoplay> without muted starts sound the user "
                     "did not ask for and cannot easily stop", path))
+
+        # --- 1.2.2 captions -------------------------------------------------
+        # Only <video>: 1.2.2 is about synchronized media, and audio-only
+        # content falls under 1.2.1, which needs a transcript this pass cannot
+        # see. A <track> whose kind is a template expression withdraws the
+        # claim rather than making it -- the render might supply captions.
+        if node.tag == "video":
+            tracks = [d for d in node.descendants() if d.tag == "track"]
+            kinds = [t.attr("kind") for t in tracks]
+            if any(is_expr(k) and not expr_free(k) for k in kinds):
+                undecided.append(_undecidable(
+                    "media-no-captions", node,
+                    "a <track kind> is a template expression; whether the "
+                    "rendered page offers captions is unknown without the data",
+                    path))
+            elif not any(expr_free(k).lower() in CAPTION_KINDS for k in kinds):
+                findings.append(_finding(
+                    "media-no-captions", node,
+                    "<video> has no <track kind=captions>; deaf and "
+                    "hard-of-hearing users get no captions", path))
+
+        # --- 4.1.2 aria-hidden on a focusable control -----------------------
+        # `aria-hidden` removes the element from the accessibility tree but
+        # not from the tab order, so a screen-reader user tabs onto a control
+        # that announces nothing. `hidden` and `tabindex="-1"` both remove it
+        # from the tab order too, which makes aria-hidden legitimate there.
+        if node.tag in FOCUSABLE and expr_free(node.attr("aria-hidden")).lower() == "true":
+            focusable = not node.has_attr("hidden")
+            if node.tag == "a" and not node.has_attr("href"):
+                focusable = False
+            if node.tag == "input" and expr_free(node.attr("type")).lower() == "hidden":
+                focusable = False
+            if expr_free(node.attr("tabindex")).strip() == "-1":
+                focusable = False
+            if focusable:
+                findings.append(_finding(
+                    "interactive-aria-hidden", node,
+                    f'<{node.tag}> is aria-hidden="true" but still keyboard '
+                    "focusable, so it is announced as nothing when tabbed to",
+                    path))
 
         # --- 1.3.1 data tables ---------------------------------------------
         if node.tag == "table" and node.attr("role") not in ("presentation", "none"):

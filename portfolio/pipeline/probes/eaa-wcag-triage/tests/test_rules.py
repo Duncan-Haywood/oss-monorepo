@@ -125,3 +125,106 @@ def test_fully_accessible_page_has_no_findings():
         "<h1>Shop</h1><h2>Featured</h2></html>"
     )
     assert audit_html(html).findings == []
+
+
+# ---------------------------------------------------------------------------
+# 1.4.2 and 1.4.4, added 2026-08-21. Both were checked by the sibling engine
+# (portfolio/research/a11y-evidence-record/audit.py) and by this one neither
+# checked nor declared manual, so the coverage statement was silent about
+# them. See portfolio/research/a11y-engine-agreement/.
+# ---------------------------------------------------------------------------
+
+_OK = '<html lang="en"><title>t</title>'
+
+
+def test_autoplay_without_muted_flagged():
+    assert "1.4.2" in _criteria(_OK + '<video autoplay src="x.mp4">'
+                                      '<track kind="captions" src="c.vtt"></video></html>')
+
+
+def test_muted_autoplay_not_flagged():
+    assert "1.4.2" not in _criteria(_OK + '<video autoplay muted src="x.mp4">'
+                                          '<track kind="captions" src="c.vtt"></video></html>')
+
+
+def test_autoplay_audio_flagged():
+    assert "1.4.2" in _criteria(_OK + '<audio autoplay src="x.mp3"></audio></html>')
+
+
+def test_viewport_user_scalable_no_flagged():
+    assert "1.4.4" in _criteria(
+        _OK + '<meta name="viewport" content="width=device-width, user-scalable=no"></html>')
+
+
+def test_viewport_maximum_scale_below_two_flagged():
+    assert "1.4.4" in _criteria(
+        _OK + '<meta name="viewport" content="width=device-width, maximum-scale=1.0"></html>')
+
+
+def test_ordinary_viewport_not_flagged():
+    assert "1.4.4" not in _criteria(
+        _OK + '<meta name="viewport" content="width=device-width, initial-scale=1"></html>')
+
+
+def test_maximum_scale_of_five_not_flagged():
+    assert "1.4.4" not in _criteria(
+        _OK + '<meta name="viewport" content="width=device-width, maximum-scale=5"></html>')
+
+
+# --- focusability refinement to the 4.1.2 aria-hidden rule -----------------
+
+def test_aria_hidden_control_out_of_the_tab_order_not_flagged():
+    # tabindex="-1", `hidden`, and an anchor with no href all remove the
+    # element from the tab order, which makes aria-hidden legitimate.
+    for markup in (
+        '<button aria-hidden="true" tabindex="-1">Go</button>',
+        '<button aria-hidden="true" hidden>Go</button>',
+        '<a aria-hidden="true">x</a>',
+        '<input type="hidden" aria-hidden="true">',
+    ):
+        assert "4.1.2" not in _criteria(_OK + markup + "</html>"), markup
+
+
+def test_aria_hidden_focusable_control_still_flagged():
+    assert "4.1.2" in _criteria(
+        _OK + '<input type="text" aria-label="q" aria-hidden="true"></html>')
+
+
+# --- the invariant that would have caught the gap --------------------------
+
+def test_coverage_catalog_accounts_for_every_statically_reachable_criterion():
+    """A criterion in neither the checked nor the manual list is silent.
+
+    A reader of the record can only tell "checked and passed" from "never
+    looked at" via the coverage catalog, so every criterion this pass can
+    reach from static markup must appear in it.
+    """
+    from wcag_triage.rules import COVERAGE
+
+    listed = {c.criterion for c in COVERAGE}
+    statically_reachable = {
+        "1.1.1", "1.2.2", "1.3.1", "1.4.2", "1.4.4",
+        "2.4.2", "2.4.4", "2.4.6", "3.1.1", "4.1.2",
+    }
+    assert statically_reachable - listed == set()
+
+
+def test_every_criterion_a_rule_can_emit_is_declared_non_manual():
+    """A rule that fires on a criterion the catalog calls "manual" would make
+    the coverage statement a lie in the other direction."""
+    from wcag_triage.rules import COVERAGE
+
+    manual = {c.criterion for c in COVERAGE if c.coverage == "manual"}
+    emitted = set(_criteria(
+        _OK
+        + '<img src="x">'
+        + '<video src="v.mp4"></video>'
+        + '<video autoplay src="w.mp4"><track kind="captions" src="c.vtt"></video>'
+        + '<meta name="viewport" content="user-scalable=no">'
+        + '<a href="/x"></a><button></button>'
+        + '<input type="text" aria-hidden="true" aria-label="q">'
+        + "<h1>A</h1><h3>B</h3>"
+        + "<table><tr><td>a</td></tr><tr><td>b</td></tr></table>"
+        + "</html>"
+    ))
+    assert emitted & manual == set()
