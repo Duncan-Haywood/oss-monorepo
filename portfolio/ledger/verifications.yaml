@@ -50,3 +50,24 @@ records:
     `source-silence-detector-ci`) -- none in #372's scope or attached to its
     checks, so not meaningful here. Still owner-gated: merging fires deploys
     to live sites, not because anything is unverified.
+- pr: 368
+  head_sha: 81eb514b994b96e676f2b653ecd6cc50fce95cdc
+  verified_against_main: 28a90aaa732315cd5276dc0352b98390ca33a951
+  verified_at: "2026-08-21T10:45:00Z"
+  result: pass
+  note: >-
+    First verification record for this PR. `git merge-tree --write-tree
+    origin/main origin/claude/keen-knuth-kfxr5v` against the live tip --
+    clean, no conflicts. `.github/dependabot.yml` parses cleanly via
+    `yaml.safe_load` (15 update entries). Cross-checked all 15 tracked
+    directories against the current `ventures/` tree: every directory the
+    file names still exists and still carries the manifest its ecosystem
+    expects (npm -> `package.json`, pip -> `requirements.txt`), and a
+    repo-wide scan for `package.json`/`requirements.txt`/`pyproject.toml`
+    under `ventures/` (3 levels deep) turned up no untracked directory
+    except `ventures/ubuntu-agent-server/tests` (a nested, test-only
+    manifest under an already-tracked venture -- not a gap worth a config
+    change). Root `pyproject.toml` is pytest config only (no dependencies),
+    so its absence from the file is correct, not a miss. Still owner-gated:
+    this enables unattended, spend-adjacent automation (opens PRs on its
+    own schedule once merged) per `CLAUDE.md`.
