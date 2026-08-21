@@ -41,6 +41,34 @@ class DirectionVocabulary(unittest.TestCase):
         text = "Precision is 0.9. Precision is 0.9."
         self.assertEqual(len(measure.direction_matches(text)), 1)
 
+    def test_a_decimal_point_does_not_end_a_sentence(self):
+        """The bug that surfaced the moment an artifact printed a rate.
+
+        D2 quotes every match "so the classification can be checked rather than
+        trusted". Splitting "precision 0.821-0.881" into ``["**Precision 0.",
+        "881, recall 0."]`` keeps the boolean right and makes the evidence
+        uncheckable, which is the half that matters.
+        """
+        self.assertEqual(
+            measure.sentences("Precision is 0.821-0.881 here. Next one!"),
+            ["Precision is 0.821-0.881 here.", "Next one!"],
+        )
+
+    def test_a_newline_still_ends_a_sentence(self):
+        self.assertEqual(measure.sentences("a.\nb."), ["a.", "b."])
+        self.assertEqual(measure.sentences("a\nb."), ["b."])
+
+    def test_direction_evidence_is_whole_sentences(self):
+        """No quoted match may be a fragment ending mid-number."""
+        for spec in measure.PROBE_SPECS:
+            text, _, _ = spec["render"]()
+            for hit in measure.direction_matches(text):
+                with self.subTest(probe=spec["probe"], hit=hit[:40]):
+                    self.assertFalse(
+                        hit.rstrip().endswith(tuple(f"{d}." for d in "0123456789")),
+                        f"fragment ends on a decimal point: {hit!r}",
+                    )
+
     def test_every_term_is_about_being_wrong_not_about_scope(self):
         for term in measure.DIRECTION_TERMS:
             with self.subTest(term=term):
@@ -90,6 +118,28 @@ class Rubric(unittest.TestCase):
         self.assertEqual(out["ethical_robustness_now"], 9)
         self.assertEqual(out["deductions_applied"], [])
 
+    def test_full_disclosure_costs_nothing_even_when_alignment_is_adverse(self):
+        """The case the original suite never exercised.
+
+        This class's ``_row`` defaults to ``agent-permission-harness``, the one
+        candidate whose alignment is *not* adverse, so the test above passed
+        while ``score`` was charging deduction 3 unconditionally — meaning an
+        adverse-aligned probe could not cross the gate by disclosing, which is
+        the opposite of what the published rubric asks. The rubric's own wording
+        is "the *undisclosed* direction". Pinned here on a candidate where the
+        distinction bites.
+        """
+        for candidate in ("eaa-remediation-pipeline", "cra-evidence-desk", "public-record-watch"):
+            with self.subTest(candidate=candidate):
+                self.assertTrue(measure.ALIGNMENT[candidate][0], "expected adverse")
+                out = measure.score(self._row(candidate=candidate), 9)
+                self.assertEqual(out["deductions_applied"], [])
+                self.assertEqual(out["ethical_robustness_now"], 9)
+                # The reading of the business model is unchanged and still
+                # recorded; what changed is whether it is charged.
+                self.assertTrue(out["alignment_adverse"])
+                self.assertFalse(out["alignment_charged"])
+
     def test_each_gap_costs_one_point(self):
         out = measure.score(self._row(rate_in_artifact=False), 9)
         self.assertEqual(out["ethical_robustness_now"], 8)
@@ -97,6 +147,17 @@ class Rubric(unittest.TestCase):
             self._row(rate_in_artifact=False, direction_disclosed=False), 9
         )
         self.assertEqual(out["ethical_robustness_now"], 7)
+
+    def test_hiding_an_adverse_direction_still_costs_two(self):
+        """Deduction 3 is conditional, not removed: concealment is still charged."""
+        out = measure.score(
+            self._row(candidate="eaa-remediation-pipeline", direction_disclosed=False), 9
+        )
+        self.assertEqual(
+            out["deductions_applied"], ["direction_undisclosed", "adverse_alignment"]
+        )
+        self.assertEqual(out["ethical_robustness_now"], 7)
+        self.assertTrue(out["alignment_charged"])
 
     def test_alignment_is_recorded_for_every_scored_candidate(self):
         for spec in measure.PROBE_SPECS:
@@ -107,24 +168,51 @@ class Rubric(unittest.TestCase):
 
 
 class CommittedResult(unittest.TestCase):
-    """Pin the four classifications, so closing a gap forces a re-run."""
+    """Pin the four classifications, so a gap opening *or* closing forces a re-run.
+
+    These pinned the all-gaps-open state this directory first measured. One gap
+    has since been closed — ``eaa-wcag-triage`` now prints both of its committed
+    figures — so they pin the post-fix state instead. The historical result is
+    not lost: it is the "was" column in every ``measured:`` block this pass
+    wrote, and the narrative is in the README's own amendment.
+    """
 
     @classmethod
     def setUpClass(cls):
         cls.payload = json.loads(RESULTS.read_text())
         cls.by_probe = {r["probe"]: r for r in cls.payload["disclosure"]}
 
-    def test_no_artifact_carries_an_error_rate(self):
-        self.assertEqual(self.payload["summary"]["rate_in_artifact"], 0)
+    def test_exactly_one_artifact_now_carries_its_error_rate(self):
+        self.assertEqual(self.payload["summary"]["rate_in_artifact"], 1)
+        self.assertTrue(self.by_probe["eaa-wcag-triage"]["rate_in_artifact"])
+
+    def test_the_remaining_three_still_do_not(self):
+        """Two never measured a rate; one measured one and does not print it."""
+        for probe in (
+            "npm-reachability-triage",
+            "source-silence-detector",
+            "agent-permission-harness",
+        ):
+            with self.subTest(probe=probe):
+                self.assertFalse(self.by_probe[probe]["rate_in_artifact"])
+        # source-silence-detector is the one that has the number and withholds
+        # it — a different failure from never having measured, and the reason
+        # its candidate is still the lowest scored of the four.
+        self.assertIsNotNone(self.by_probe["source-silence-detector"]["rate_committed"])
+        for probe in ("npm-reachability-triage", "agent-permission-harness"):
+            self.assertIsNone(self.by_probe[probe]["rate_committed"])
 
     def test_scope_and_direction_split_as_recorded(self):
         self.assertEqual(self.payload["summary"]["scope_disclosed"], 2)
-        self.assertEqual(self.payload["summary"]["direction_disclosed"], 1)
+        self.assertEqual(self.payload["summary"]["direction_disclosed"], 2)
 
-    def test_the_one_direction_disclosure_is_the_npm_probe(self):
-        self.assertTrue(self.by_probe["npm-reachability-triage"]["direction_disclosed"])
-        for other in ("eaa-wcag-triage", "source-silence-detector", "agent-permission-harness"):
-            self.assertFalse(self.by_probe[other]["direction_disclosed"])
+    def test_direction_is_disclosed_by_the_two_probes_with_a_record_module(self):
+        for probe in ("npm-reachability-triage", "eaa-wcag-triage"):
+            with self.subTest(probe=probe):
+                self.assertTrue(self.by_probe[probe]["direction_disclosed"])
+        for other in ("source-silence-detector", "agent-permission-harness"):
+            with self.subTest(probe=other):
+                self.assertFalse(self.by_probe[other]["direction_disclosed"])
 
     def test_two_probes_have_no_record_module_at_all(self):
         missing = [r["probe"] for r in self.payload["disclosure"] if r["record_module"] is None]
@@ -135,24 +223,38 @@ class CommittedResult(unittest.TestCase):
         self.assertEqual(
             got,
             {
-                "eaa-remediation-pipeline": 6,
-                "cra-evidence-desk": 6,
+                "eaa-remediation-pipeline": 9,
+                "cra-evidence-desk": 7,
                 "public-record-watch": 6,
                 "agent-permission-harness": 7,
             },
         )
 
-    def test_a_second_committed_number_for_the_same_probe_is_also_absent(self):
-        """`a11y-axe-recall/` landed on main the same day, with recall 0.975.
+    def test_both_committed_numbers_for_the_eaa_probe_now_reach_the_artifact(self):
+        """`a11y-own-sites/` and `a11y-axe-recall/` measured the two directions.
 
-        Two committed accuracy numbers for one probe now, and the artifact
-        carries neither. Pinned separately from the precision citation because
-        it is a different measurement in a different directory.
+        Both are now printed. Pinned against the source READMEs as well as the
+        artifact, so a figure revised upstream cannot leave a stale number in a
+        customer-facing record — the probe's own
+        ``tests/test_accuracy_citations.py`` enforces the same thing from the
+        other side.
         """
-        reference = Path(__file__).resolve().parents[1] / "a11y-axe-recall" / "README.md"
-        self.assertIn("recall is 0.975", reference.read_text())
+        research = Path(__file__).resolve().parents[1]
+        self.assertIn(
+            "recall is 0.975", (research / "a11y-axe-recall" / "README.md").read_text()
+        )
+        self.assertIn(
+            "out-of-sample precision is **0.821–0.881**",
+            (research / "a11y-own-sites" / "README.md").read_text(),
+        )
         text, _, _ = measure.render_eaa()
-        self.assertNotIn("0.975", text)
+        self.assertIn("0.975", text)
+        self.assertIn("0.821", text)
+
+    def test_the_probe_that_closed_its_gap_names_the_direction_that_pays_it(self):
+        """Deduction 3's mitigation, checked in the artifact rather than assumed."""
+        text, _, _ = measure.render_eaa()
+        self.assertIn("over-reporting is the error that would pay us", text)
 
     def test_no_candidate_crossed_the_gate(self):
         for entry in self.payload["scoring"]:

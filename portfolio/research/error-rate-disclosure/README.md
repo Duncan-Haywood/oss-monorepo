@@ -4,17 +4,28 @@
 has been measured for accuracy, and every one of them renders something a
 customer would read. Does the second contain the first?
 
-**Answer. No — not once, in four of four.** Two of the four have a committed
-accuracy number and neither prints it. One names the direction it errs in and
-has never measured the rate for that direction. Two have no customer-facing
-record module at all. And in three of the four, the direction nobody discloses
-is the direction the operator gets paid for.
+**Answer, as first measured. No — not once, in four of four.** Two of the four
+had a committed accuracy number and neither printed it. One named the direction
+it errs in and has never measured the rate for that direction. Two have no
+customer-facing record module at all. And in three of the four, the direction
+nobody disclosed is the direction the operator gets paid for.
 
 This is the pipeline's **second gate measurement**, taken the same day as the
 first: `ethical_robustness` on the four candidates that have a probe —
 `eaa-remediation-pipeline` 9 → 6, `public-record-watch` 9 → 6,
 `cra-evidence-desk` 8 → 6, `agent-permission-harness` 9 → 7. No candidate
 crossed the gate.
+
+> **Amended the same day: one of the four gaps is closed and the scores moved.**
+> `eaa-wcag-triage` now prints both of its committed figures, names both
+> directions, and states which one pays the operator — `eaa-remediation-pipeline`
+> **6 → 9**. A rubric bug that charged the alignment deduction to an artifact
+> that discloses its adverse direction was fixed — `cra-evidence-desk` **6 → 7**.
+> Current scores: 9, 6, 7, 7. The two probes with no record module are
+> unchanged. Full account in [What changed after this was
+> measured](#what-changed-after-this-was-measured); the tables and findings below
+> are left as measured, because the whole point of the directory is what the
+> artifacts said at the moment they were looked at.
 
 ```
 python3 measure.py 2026-08-21          # offline, no network, no clock read
@@ -186,3 +197,111 @@ such. Deductions 1 and 2 are computed.
   print the number each probe already knows into the artifact it already emits.
   Three of the four deductions here are recoverable that way, and doing it would
   make this directory's own tests fail — which is how it is meant to work.
+
+## What changed after this was measured
+
+Everything above is the state as measured. This section is what happened next,
+the same day, and it is kept separate rather than folded in: a measurement
+directory that quietly rewrites its finding to match a later fix loses the only
+thing it was for.
+
+### 1. `eaa-wcag-triage` closed its gap — `eaa-remediation-pipeline` 6 → 9
+
+The prediction in "What this does not claim" was that printing a measured
+precision is one line of rendering. It was four, in
+`probes/eaa-wcag-triage/src/wcag_triage/evidence.py`, and the tests here failed
+exactly as designed.
+
+The record now carries an `ACCURACY` block rendered in two places — a headline
+in the summary, and a full section immediately above the findings table it
+qualifies — with both committed figures, each stating its corpus, date,
+derivation path and the reason it is not the last word:
+
+| | value | direction | limit disclosed in the record |
+|---|---|---|---|
+| precision | 0.821–0.881 | over-reporting | denominator excluded 1.4.3 entirely |
+| recall | 0.975 | under-reporting | one comparison; corpus exercises 2 of 13 criteria |
+
+It also does the thing deduction 3 asks for, which a rate alone does not:
+*"this audit is the qualification step for a paid remediation job, so
+over-reporting is the error that would pay us. That is why the precision figure
+is printed here, beside the findings it applies to, rather than supplied on
+request."*
+
+All three deductions lapse, so the score returns to its 2026-08-18 screening
+estimate. **Read it as the estimate no longer being reduced, not as a positive
+finding** — this rubric measures disclosure and nothing else, and none of the
+three residual risks in the table above is resolved by disclosing it.
+
+`probes/eaa-wcag-triage/tests/test_accuracy_citations.py` applies this
+directory's own `Citation.verify()` discipline one layer out: each figure
+printed at a customer is checked against the derivation it names, so a rate
+revised upstream fails the build rather than becoming a false statement about
+the product.
+
+### 2. The rubric was charging a deduction it does not state — `cra-evidence-desk` 6 → 7
+
+Deduction 3 is published as *"the **undisclosed** error direction is the one
+that increases the operator's revenue."* `score()` applied it whenever
+`ALIGNMENT[candidate]` was adverse, with no reference to disclosure. So an
+artifact could disclose everything and still be charged, which makes the
+deduction unrecoverable by the mitigation the rubric asks for — the opposite of
+what "Three of the four deductions here are recoverable that way" claims.
+
+`npm-reachability-triage` is the one artifact of the four that already named its
+adverse direction, in the body of the record, so it was the one paying for this.
+The bug survived because `test_full_disclosure_costs_nothing` — whose name
+states the intended semantics — only ever ran against
+`agent-permission-harness`, the single candidate whose alignment is not adverse.
+The case where the distinction bites was untested.
+
+`score()` now matches the published rubric, and both directions are pinned:
+full disclosure costs nothing even when alignment is adverse, and hiding an
+adverse direction still costs two. A new `alignment_charged` field records
+whether the deduction fired, separately from `alignment_adverse`, which still
+records the reading of the business model.
+
+This is a harness correction, not a re-probe. `cra-evidence-desk`'s remaining
+deduction is the real one and has not moved: the false-suppression rate has
+never been measured, so there is no figure to print.
+
+### 3. D2's sentence splitter could not survive a decimal point
+
+Found by fixing (1), and worth recording because it is the same shape as the
+finding this directory exists to report. `sentences()` was
+`re.findall(r"[^.!?\n]*[.!?]", text)`, which is correct on prose and wrong the
+moment an artifact contains a number — and an accuracy disclosure is nothing
+but numbers. Against the new record it returned `["**Precision 0.", "881,
+recall 0."]`.
+
+The boolean was unaffected: whole sentences matched too, so
+`direction_disclosed` was right either way. What broke is the checkability.
+D2 is lexical, and the reason that is acceptable is stated in the method table
+— *"Every match is quoted in the results so the classification can be checked
+rather than trusted."* A quoted fragment cannot be checked, so the method's own
+justification had quietly stopped holding. A period between two digits is now a
+decimal point; a newline still ends a sentence; three tests pin it, including
+one that renders all four artifacts and asserts no quoted match ends
+mid-number.
+
+### 4. What is still open, and which kind of work it is
+
+The two untouched probes are untouched because neither is a rendering job:
+
+- **`source-silence-detector` is the sharp one.** It holds a committed held-out
+  recall of **0.35** and has no customer-facing record module to print it on.
+  Its operator table prints `MISSED` beside a source whose dormancy it failed to
+  catch and nothing carries that to a subscriber — who sees the same silence
+  whether the register is quiet or the watch failed. Building that module is the
+  single highest-value item this directory leaves behind.
+- **`npm-reachability-triage` and `agent-permission-harness` need a
+  measurement, not a module.** Neither has ever measured an error rate, so
+  neither has a figure to withhold. For the first, the direction whose rate is
+  missing is the one its own record calls "the failure this tool is built to
+  avoid".
+
+Consequences recorded elsewhere: four `measured:` blocks and two composites in
+[`candidates.yaml`](../../pipeline/candidates.yaml), the two write-ups, the
+pipeline table, and `score_sensitivity.py`, whose section 3 asserted "Every
+revision is downward" as fixed prose and is now derived — the record runs 11
+down and 2 up.

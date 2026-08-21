@@ -272,11 +272,26 @@ def report(candidates: list[Candidate], revisions: list[Revision]) -> list[str]:
     say("")
     if bias == 0:
         say("   No single consistent bias in the record; nothing to apply.")
-        if len(sizes) > 1:
+        # Why there is no bias to apply is itself derived. This used to be fixed
+        # prose reading "Every revision is downward, but the magnitudes are
+        # [...]", which was true of every revision it was written about and
+        # stopped being true the moment one went the other way — the same way
+        # the "revised down by one" sentence above it had already failed. Two
+        # different reasons can land here and they license different readings,
+        # so the script names which one it is rather than assuming.
+        if len(down) != len(revisions):
+            up = len(revisions) - len(down)
+            say(f"   The revisions run in both directions ({len(down)} down, {up} up),")
+            say("   so there is no consistent sign to carry, let alone a magnitude.")
+            say("   An upward revision here is not a re-estimate: it is what")
+            say("   happens when the artifact a measurement reads is changed and")
+            say("   the same measurement is re-run.")
+        elif len(sizes) > 1:
             say(f"   Every revision is downward, but the magnitudes are {sorted(sizes)},")
             say("   so there is no single number to carry to the cells nobody has")
-            say("   looked at. The extrapolation is withheld rather than set to zero:")
-            say("   an unlooked-at cell is not thereby confirmed.")
+            say("   looked at.")
+        say("   The extrapolation is withheld rather than set to zero:")
+        say("   an unlooked-at cell is not thereby confirmed.")
         say("")
         # Sections 4 and the verdict do not depend on the extrapolation for the
         # part that matters — where the *measured* gate scores actually sit —
