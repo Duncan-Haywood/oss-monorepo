@@ -28,6 +28,7 @@ candidate's weakest claim testable, not because a listing follows.
 |---|---|---|
 | [`npm-reachability-triage`](npm-reachability-triage/) | [`cra-evidence-desk`](../candidates/cra-evidence-desk.md) | Built, tested, validated against the manual review. Not published — and not publishable on approval alone: its mapped channel (GitHub Marketplace) measures `SCOPE_DENIED`, so it is blocked on Ask 1 (app scope), not on publish approval. |
 | [`eaa-wcag-triage`](eaa-wcag-triage/) | [`eaa-remediation-pipeline`](../candidates/eaa-remediation-pipeline.md) | Built, tested (37 tests), validated against a hand-labeled fixture set (precision/recall 1.0). Implements the candidate's blocking-vs-degrading triage and its own coverage statement. Not published; not a graduation — the candidate's real experiment needs live shop themes and a contractor. |
+| [`source-silence-detector`](source-silence-detector/) | [`public-record-watch`](../candidates/public-record-watch.md) | Built, tested (26 tests), backtested offline against [`register-change-rate`](../../research/register-change-rate/README.md)'s saved records. **Refutes the build requirement it was written to implement**: a per-source cadence threshold catches 0 of the 2 registers that actually went quiet, at all 12 parameter settings, because those are exactly the sources with too little history to calibrate. A documented fallback fixes it (2 of 2, 11d latency, 10 nuisance alarm-days). No score moved. |
 
 ## The rules a probe here follows
 

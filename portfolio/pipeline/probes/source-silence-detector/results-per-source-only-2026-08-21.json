@@ -1,0 +1,362 @@
+{
+  "config": {
+    "fallback": "none",
+    "fallback_days": 30,
+    "floor_days": 7,
+    "min_gaps": 5,
+    "multiplier": 1.5,
+    "warmup_days": 30
+  },
+  "source_measurement": "2026-08-20T00:00:00+00:00",
+  "sources": {
+    "FDA/openfda": {
+      "alarms": [],
+      "calibrated_day_share": 0.0,
+      "change_days": 2,
+      "cold_start_alarm_days": 0,
+      "detected_terminal_silence": false,
+      "detection_latency_days": null,
+      "final_threshold": null,
+      "first_calibrated": null,
+      "last_change": "2026-06-08",
+      "max_gap": 3,
+      "median_gap": 3,
+      "mid_window_alarm_days": 0,
+      "quiet_at_window_end": true,
+      "resolved_alarm_days": 0,
+      "terminal_alarm_days": 0,
+      "trailing_silence_days": 73
+    },
+    "cisagov/kev-data": {
+      "alarms": [],
+      "calibrated_day_share": 0.934,
+      "change_days": 85,
+      "cold_start_alarm_days": 0,
+      "detected_terminal_silence": false,
+      "detection_latency_days": null,
+      "final_threshold": 9,
+      "first_calibrated": "2026-03-05",
+      "last_change": "2026-08-19",
+      "max_gap": 6,
+      "median_gap": 1.0,
+      "mid_window_alarm_days": 0,
+      "quiet_at_window_end": false,
+      "resolved_alarm_days": 0,
+      "terminal_alarm_days": 0,
+      "trailing_silence_days": 1
+    },
+    "datasets/covid-19": {
+      "alarms": [],
+      "calibrated_day_share": 0.0,
+      "change_days": 2,
+      "cold_start_alarm_days": 0,
+      "detected_terminal_silence": false,
+      "detection_latency_days": null,
+      "final_threshold": null,
+      "first_calibrated": null,
+      "last_change": "2026-03-24",
+      "max_gap": 17,
+      "median_gap": 17,
+      "mid_window_alarm_days": 0,
+      "quiet_at_window_end": true,
+      "resolved_alarm_days": 0,
+      "terminal_alarm_days": 0,
+      "trailing_silence_days": 149
+    },
+    "github/advisory-database": {
+      "alarms": [],
+      "calibrated_day_share": 0.972,
+      "change_days": 168,
+      "cold_start_alarm_days": 0,
+      "detected_terminal_silence": false,
+      "detection_latency_days": null,
+      "final_threshold": 8,
+      "first_calibrated": "2026-02-26",
+      "last_change": "2026-08-19",
+      "max_gap": 5,
+      "median_gap": 1,
+      "mid_window_alarm_days": 0,
+      "quiet_at_window_end": false,
+      "resolved_alarm_days": 0,
+      "terminal_alarm_days": 0,
+      "trailing_silence_days": 1
+    },
+    "opensanctions/opensanctions": {
+      "alarms": [],
+      "calibrated_day_share": 0.967,
+      "change_days": 148,
+      "cold_start_alarm_days": 0,
+      "detected_terminal_silence": false,
+      "detection_latency_days": null,
+      "final_threshold": 7,
+      "first_calibrated": "2026-02-27",
+      "last_change": "2026-08-19",
+      "max_gap": 3,
+      "median_gap": 1,
+      "mid_window_alarm_days": 0,
+      "quiet_at_window_end": false,
+      "resolved_alarm_days": 0,
+      "terminal_alarm_days": 0,
+      "trailing_silence_days": 1
+    },
+    "openstates/people": {
+      "alarms": [],
+      "calibrated_day_share": 0.829,
+      "change_days": 45,
+      "cold_start_alarm_days": 0,
+      "detected_terminal_silence": false,
+      "detection_latency_days": null,
+      "final_threshold": 21,
+      "first_calibrated": "2026-03-24",
+      "last_change": "2026-08-18",
+      "max_gap": 14,
+      "median_gap": 2.0,
+      "mid_window_alarm_days": 0,
+      "quiet_at_window_end": false,
+      "resolved_alarm_days": 0,
+      "terminal_alarm_days": 0,
+      "trailing_silence_days": 2
+    },
+    "ossf/malicious-packages": {
+      "alarms": [],
+      "calibrated_day_share": 0.972,
+      "change_days": 180,
+      "cold_start_alarm_days": 0,
+      "detected_terminal_silence": false,
+      "detection_latency_days": null,
+      "final_threshold": 7,
+      "first_calibrated": "2026-02-26",
+      "last_change": "2026-08-19",
+      "max_gap": 1,
+      "median_gap": 1,
+      "mid_window_alarm_days": 0,
+      "quiet_at_window_end": false,
+      "resolved_alarm_days": 0,
+      "terminal_alarm_days": 0,
+      "trailing_silence_days": 1
+    },
+    "rubysec/ruby-advisory-db": {
+      "alarms": [
+        {
+          "day": "2026-05-06",
+          "gap": 18,
+          "terminal": false,
+          "threshold": 17,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-05-07",
+          "gap": 19,
+          "terminal": false,
+          "threshold": 17,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-05-08",
+          "gap": 20,
+          "terminal": false,
+          "threshold": 17,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-05-09",
+          "gap": 21,
+          "terminal": false,
+          "threshold": 17,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-05-10",
+          "gap": 22,
+          "terminal": false,
+          "threshold": 17,
+          "threshold_source": "per-source"
+        }
+      ],
+      "calibrated_day_share": 0.851,
+      "change_days": 103,
+      "cold_start_alarm_days": 0,
+      "detected_terminal_silence": false,
+      "detection_latency_days": null,
+      "final_threshold": 35,
+      "first_calibrated": "2026-03-20",
+      "last_change": "2026-08-19",
+      "max_gap": 23,
+      "median_gap": 1.0,
+      "mid_window_alarm_days": 5,
+      "quiet_at_window_end": false,
+      "resolved_alarm_days": 5,
+      "terminal_alarm_days": 0,
+      "trailing_silence_days": 1
+    },
+    "unitedstates/congress-legislators": {
+      "alarms": [
+        {
+          "day": "2026-05-23",
+          "gap": 31,
+          "terminal": false,
+          "threshold": 30,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-05-24",
+          "gap": 32,
+          "terminal": false,
+          "threshold": 30,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-05-25",
+          "gap": 33,
+          "terminal": false,
+          "threshold": 30,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-05-26",
+          "gap": 34,
+          "terminal": false,
+          "threshold": 30,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-05-27",
+          "gap": 35,
+          "terminal": false,
+          "threshold": 30,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-05-28",
+          "gap": 36,
+          "terminal": false,
+          "threshold": 30,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-05-29",
+          "gap": 37,
+          "terminal": false,
+          "threshold": 30,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-05-30",
+          "gap": 38,
+          "terminal": false,
+          "threshold": 30,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-05-31",
+          "gap": 39,
+          "terminal": false,
+          "threshold": 30,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-06-01",
+          "gap": 40,
+          "terminal": false,
+          "threshold": 30,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-06-02",
+          "gap": 41,
+          "terminal": false,
+          "threshold": 30,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-06-03",
+          "gap": 42,
+          "terminal": false,
+          "threshold": 30,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-06-04",
+          "gap": 43,
+          "terminal": false,
+          "threshold": 30,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-06-05",
+          "gap": 44,
+          "terminal": false,
+          "threshold": 30,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-06-06",
+          "gap": 45,
+          "terminal": false,
+          "threshold": 30,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-06-07",
+          "gap": 46,
+          "terminal": false,
+          "threshold": 30,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-06-08",
+          "gap": 47,
+          "terminal": false,
+          "threshold": 30,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-06-09",
+          "gap": 48,
+          "terminal": false,
+          "threshold": 30,
+          "threshold_source": "per-source"
+        }
+      ],
+      "calibrated_day_share": 0.674,
+      "change_days": 15,
+      "cold_start_alarm_days": 0,
+      "detected_terminal_silence": false,
+      "detection_latency_days": null,
+      "final_threshold": 74,
+      "first_calibrated": "2026-04-21",
+      "last_change": "2026-08-19",
+      "max_gap": 49,
+      "median_gap": 1.5,
+      "mid_window_alarm_days": 18,
+      "quiet_at_window_end": false,
+      "resolved_alarm_days": 18,
+      "terminal_alarm_days": 0,
+      "trailing_silence_days": 1
+    }
+  },
+  "totals": {
+    "cold_start_alarm_days_total": 0,
+    "detected_terminal_silence": 0,
+    "mid_window_alarm_days_total": 23,
+    "missed_quiet_sources": [
+      "FDA/openfda",
+      "datasets/covid-19"
+    ],
+    "never_calibrated": [
+      "FDA/openfda",
+      "datasets/covid-19"
+    ],
+    "quiet_at_window_end": 2,
+    "quiet_sources": [
+      "FDA/openfda",
+      "datasets/covid-19"
+    ],
+    "resolved_alarm_days_total": 23,
+    "sources": 9
+  },
+  "window": {
+    "since": "2026-02-21",
+    "until": "2026-08-20"
+  }
+}

@@ -251,6 +251,63 @@ class ResumablePhotosImportTests(unittest.TestCase):
             self.assertEqual(state.get_status(good), "imported")
             self.assertEqual(state.get_status(flaky), "failed")
 
+    def test_stale_scratch_file_removal_failure_is_retried_not_fatal_to_the_run(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            good = root / "good.JPG"
+            flaky = root / "flaky.JPG"
+            good.write_bytes(b"jpeg")
+            flaky.write_bytes(b"jpeg")
+            state = ImportState(root / "state.sqlite3")
+            state.upsert(good, "pending")
+            state.upsert(flaky, "pending")
+            scratch_dir = root / "scratch"
+            scratch_dir.mkdir()
+            # Simulates a leftover partial file from a prior attempt that was
+            # killed mid-copy (SIGKILL from a stuck watchdog restart, power
+            # loss): resolve_import_path must clear it before staging a
+            # fresh copy.
+            stale = scratch_dir / "flaky.JPG"
+            stale.write_bytes(b"partial")
+
+            importer = FakePhotosImporter(
+                state=state,
+                state_dir=root,
+                event_log=root / "events.jsonl",
+                error_log=root / "errors.jsonl",
+                status_path=root / "status.json",
+                stop_file=root / "STOP",
+                per_file_timeout_seconds=1,
+                attempts=1,
+                batch_size=1,
+                photos_db=root / "missing.sqlite",
+                existing_filenames=set(),
+                scratch_dir=scratch_dir,
+            )
+
+            # Simulates the stale scratch file being un-removable right when
+            # resolve_import_path tries to clear it (a network/iCloud-backed
+            # scratch mount hiccup, a permission change). Before this fix,
+            # this unlink() call sat outside the try/except OSError that
+            # guards shutil.copy2, so the bare OSError wasn't caught by
+            # import_single_item's `except PhotosImportError` and
+            # propagated out of the whole run() loop instead of being
+            # retried like any other per-item import failure.
+            real_unlink = Path.unlink
+
+            def flaky_unlink(self, *args, **kwargs):
+                if self == stale:
+                    raise OSError("Input/output error")
+                return real_unlink(self, *args, **kwargs)
+
+            with mock.patch.object(Path, "unlink", flaky_unlink), \
+                    mock.patch("resumable_photos_import.time.sleep", return_value=None):
+                exit_code = importer.run()
+
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(state.get_status(good), "imported")
+            self.assertEqual(state.get_status(flaky), "failed")
+
     def test_check_disk_space_survives_transient_stat_failure(self):
         # state_dir is typically an iCloud-synced path; a transient stat
         # failure there (sync hiccup, momentarily unreachable network mount)

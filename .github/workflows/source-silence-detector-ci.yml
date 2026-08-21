@@ -1,0 +1,64 @@
+name: source-silence-detector CI
+
+# Test coverage for the source-silence detector probe under
+# portfolio/pipeline/probes/source-silence-detector/. It is standard-library-only
+# and makes no network calls at all — it derives everything from the committed
+# records of portfolio/research/register-change-rate/ — so this workflow does no
+# more than a contributor runs locally: run the tests. It publishes nothing,
+# registers nothing, and spends no API budget; it is a test runner, not the
+# unattended-automation kind of workflow CLAUDE.md gates.
+#
+# Matching the runners the sibling probes already have (eaa-wcag-triage,
+# npm-reachability-triage, register-change-rate).
+#
+# What must not reach main unseen is this probe's headline finding, because it is
+# a *negative* one and negative findings rot quietly: a per-source cadence
+# threshold catches 0 of the 2 registers that went silent, at every parameter
+# setting, and a fallback catches 2 of 2. Those numbers are asserted directly
+# against the saved measurement in TestHeadlineNumbersAgainstRealData, so an edit
+# that changes the finding fails here rather than in a document nobody re-runs.
+#
+# It also depends on a file in a different directory
+# (register-change-rate/results-2026-08-20.json), so that path is a trigger too —
+# otherwise a change there could invalidate this probe's tables with nothing red.
+
+on:
+  pull_request:
+    paths:
+      - "portfolio/pipeline/probes/source-silence-detector/**"
+      - "portfolio/research/register-change-rate/results-2026-08-20.json"
+      - ".github/workflows/source-silence-detector-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "portfolio/pipeline/probes/source-silence-detector/**"
+      - "portfolio/research/register-change-rate/results-2026-08-20.json"
+      - ".github/workflows/source-silence-detector-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A second push to the same branch makes the first run irrelevant.
+concurrency:
+  group: source-silence-detector-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: portfolio/pipeline/probes/source-silence-detector
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # Standard-library unittest only: no pip install step, by design.
+      - run: python3 -m unittest discover -p 'test_*.py'
+      # Both documented invocations must keep running: the first reproduces the
+      # negative result the README leads with, the second the working config.
+      - run: python3 detect_silence.py
+      - run: python3 detect_silence.py --fallback pooled --multiplier 2.0 --min-gaps 2 --sweep
