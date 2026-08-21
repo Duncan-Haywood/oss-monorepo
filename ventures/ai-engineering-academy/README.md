@@ -21,7 +21,10 @@ strategy, competitive analysis, and a 10-year roadmap.
 ## Status
 
 Early-stage / pre-product. Vision and constitution drafted; curriculum and
-platform design not yet started. No code yet.
+platform design not yet started. The only code so far is `site/` — a static
+build (`npm run build`) that renders this constitution's markdown into a
+browsable HTML site; it is not deployed (`links.production` is still `null`
+in `VENTURE.yaml`) and is not the learning platform itself.
 
 ## Next steps
 
