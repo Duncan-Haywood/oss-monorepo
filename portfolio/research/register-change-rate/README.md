@@ -212,3 +212,16 @@ The finding that no licensing, permitting, or safety register mirrors to git is
 the weakest claim here and is stated as "none found by hand" throughout. A real
 answer needs repository search, which is scope-denied from this session — if
 that is ever granted, this probe takes a longer target list unchanged.
+
+**Amended 2026-08-21: partly answered, and no grant was needed.** Repository
+search is scope-denied *on GitHub*; it is not denied on GitLab.com, whose
+`/api/v4/projects?search=` answers anonymously with no token
+([`forge-surface-reachability/`](../forge-surface-reachability/)). Run over 22
+terms across all three verticals above, with control terms on the
+software-security vertical to prove the query works: **the controls found live
+register data and the three candidate verticals found none.** The newest
+sanctions hit was last touched 2022-03-14, the only topically-correct licensing
+hit in 2021, and neither is an official register. So the claim is strengthened
+rather than overturned — its honest form is now "none found by hand on GitHub,
+and none found by search on GitLab.com," which is still one corpus short of
+"none exist."
