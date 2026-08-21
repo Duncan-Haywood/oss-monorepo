@@ -8,7 +8,7 @@ matching, and a pre-drafted 24-hour incident report they can send in minutes.
 below). Sell the reporting-readiness slice only. Do not sell conformity
 assessment, do not sign anything, do not file on anyone's behalf.
 
-Scored 2026-08-18. Composite 6.5 · floor 3 (defensibility). Rescored down from
+Scored 2026-08-18. Composite 6.625 · floor 3 (defensibility). Rescored down from
 7.0/floor 4 on 2026-08-20 (PRs #250, #253 — see the amendment below).
 
 | Dimension | Score | Why |
@@ -20,7 +20,7 @@ Scored 2026-08-18. Composite 6.5 · floor 3 (defensibility). Rescored down from
 | Defensibility | ~~4~~ 3 | SBOM generation is commodity and partly open source; the archive is public advisory data and the EUVD mapping is egress-denied — neither named durable part holds, see the amendment below |
 | Distribution | 6 | Reachable through open-source maintainer channels and CRA-deadline content, but no warm list today |
 | Liability containment | 6 | Compliance-adjacent; contained by refusing the advice and filing positions |
-| Ethical robustness | 6 | Measured 2026-08-21, 8 → 6. Pushes small vendors toward genuinely knowing what is in their software, and its record is the only one of four that names the direction it can be wrong in. But the rate for that direction — a suppression that should not have happened — has never been measured, and suppression is what the subscription is sold on. See [`portfolio/research/error-rate-disclosure/`](../../research/error-rate-disclosure/) |
+| Ethical robustness | ~~6~~ 7 | Measured 2026-08-21, 8 → 6, then corrected to 7 the same day — the artifact did not change, the harness did; see the amendment below. Pushes small vendors toward genuinely knowing what is in their software, and its record is the only one of four that names the direction it can be wrong in. But the rate for that direction — a suppression that should not have happened — has never been measured, and suppression is what the subscription is sold on. See [`portfolio/research/error-rate-disclosure/`](../../research/error-rate-disclosure/) |
 
 ## Why now
 
@@ -138,6 +138,37 @@ for the measurement and the tooling.
 - **Defensibility (scored 4) is if anything weaker than scored**: both named
   durable parts — the archive and the EUVD mapping — are respectively public
   data and unreachable. The triage is the part worth re-scoring on.
+
+## Amendment, 2026-08-21: one point returned, by a harness fix rather than a probe
+
+**`ethical_robustness` 6 → 7. Composite 6.5 → 6.625.** This candidate was not
+re-probed and `npm-reachability-triage`'s record is byte-identical. What changed
+is the measurement.
+
+[`error-rate-disclosure/`](../../research/error-rate-disclosure/) publishes a
+three-deduction rubric, stated before it was applied, whose third rule reads:
+*"the **undisclosed** error direction is the one that increases the operator's
+revenue."* Its `score()` was charging that deduction whenever the alignment was
+adverse, regardless of whether the direction was disclosed. This is the one
+artifact of the four that **already named its adverse direction** — *"a
+suppressed finding that should not have been is the failure this tool is built
+to avoid"* — so it was charged for concealing something it discloses in the body
+of the record.
+
+The disagreement survived because the rubric suite's
+`test_full_disclosure_costs_nothing` only ever ran against
+`agent-permission-harness`, the single candidate whose alignment is *not*
+adverse. The case where the distinction bites was untested. The code now matches
+the published rubric and both cases are pinned.
+
+**The remaining deduction is the real one and it has not moved.** The
+false-suppression rate has never been measured —
+`validation-2026-08-21-build-surface.json` records how *much* was suppressed,
+which says nothing about how much of that was wrong — so there is no figure to
+print. Measuring it against a labelled sample is still the mitigation, and it is
+still worth the last point. Naming the direction is not the same as knowing the
+rate, and this candidate is now the clearest case in the pipeline of one without
+the other.
 
 ## Sources
 

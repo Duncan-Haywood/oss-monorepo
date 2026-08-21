@@ -8,7 +8,7 @@ changed, with the source document attached.
 (no human in the loop, no customer data, no advice), and the distribution is the
 worst. Two weeks against one vertical decides it.
 
-Scored 2026-08-18. Composite 6.625 · floor 4 (distribution).
+Scored 2026-08-18. Composite 7.0 · floor 4 (distribution).
 
 | Dimension | Score | Why |
 |---|---|---|
@@ -19,7 +19,7 @@ Scored 2026-08-18. Composite 6.625 · floor 4 (distribution).
 | Defensibility | 5 | The pipeline is copyable; the history archive is not, and it compounds |
 | Distribution | 4 | No warm channel. Needs a newsletter, a niche community, or a partner |
 | Liability containment | 8 | Public data, attributed, with the source document linked |
-| Ethical robustness | 6 | Measured 2026-08-21, 9 → 6. Redistributing public information to people entitled to it, with provenance — but held-out recall is 0.35, the subscriber sees the same silence whether a source is quiet or the watch missed it, and nuisance alarms cost the operator churn while a miss costs nothing. See [`portfolio/research/error-rate-disclosure/`](../../research/error-rate-disclosure/) |
+| Ethical robustness | 9 | Measured 2026-08-21, 9 → 6 → 9. The subscriber record now prints the held-out detection rate, names the direction, discloses that our incentive runs toward missing you, and never renders "no alert" as health — see the amendment below. Read the 9 as a disclosure score, not a verdict on the product: the detector still misses two thirds of what it is sold to find. Redistributing public information to people entitled to it, with provenance — but held-out recall is 0.35, the subscriber sees the same silence whether a source is quiet or the watch missed it, and nuisance alarms cost the operator churn while a miss costs nothing. See [`portfolio/research/error-rate-disclosure/`](../../research/error-rate-disclosure/) |
 
 ## The shape
 
@@ -160,3 +160,47 @@ Three consequences for anyone picking this candidate up:
   cycle.
 - **This changes nothing about the floor.** Distribution is still 4 and still
   what decides. Knowing the monitor works is not knowing anyone will buy it.
+
+## Amendment, 2026-08-21: the subscriber record is built, and the disclosure gap closes
+
+**`ethical_robustness` 6 → 9. Composite 6.625 → 7.0.**
+
+[`error-rate-disclosure/`](../../research/error-rate-disclosure/) scored this
+candidate 9 → 6 earlier the same day, on a finding that was not about the
+detector's accuracy but about there being **nowhere for the accuracy to go**:
+the probe rendered an operator table and no customer artifact at all. Its
+`MISSED` column told whoever was tuning the detector that a register's dormancy
+had been missed, and nothing carried that — or the committed held-out recall of
+0.35 — to the person paying to be told.
+
+`probes/source-silence-detector/subscriber_record.py` is that missing surface.
+What it does that the operator table could not:
+
+- **Prints the measured rates at the top of every record.** Detection rate
+  **6 of 17 (0.35)**, median latency **110 days**, each with its corpus, its
+  derivation, and its limits — including that 9 of the 17 episodes come from a
+  single register.
+- **Refuses to render an absence of alerts as health.** A test enumerates every
+  state string and fails on "active", "healthy", "OK", "clear", "fine". The
+  record says `no alert`, and says what that is worth.
+- **Carries the caveat that follows from a 0.35 recall**, in the record rather
+  than in a footnote: *"NO ALERT FROM US IS NOT EVIDENCE THAT A REGISTER IS
+  ACTIVE... treat an alert from us as a prompt to look, and the absence of one
+  as no information at all."* This is the only mitigation available for an error
+  the customer structurally cannot observe.
+- **Discloses the conflict.** *"A false alarm costs us a subscriber, and a miss
+  costs us nothing and is invisible to you — so our commercial incentive runs
+  toward tuning this watch to stay quiet."*
+- **Names the per-source detectability the earlier mitigation asked for.**
+  `FDA/openfda` calibrates to a 2060-day threshold — the p99 anchor *is* the
+  maximum below 100 gaps — so it is listed under "sources this watch does not
+  usefully cover" rather than sitting in the table reading `no alert` beside a
+  last change months old.
+
+**What this does not change.** The rubric measures disclosure and nothing else.
+Held out, this detector still finds 6 of 17 dormancy episodes at a median 110
+days, and pushing recall to 14 of 17 still costs ~43 nuisance alarm-days per
+source-year. The 9 says a subscriber is now told that, not that the product is
+good. The verdict stays **probe**, the floor stays `distribution` at 4, and the
+reason this candidate is hard — fifty reachable buyers in one vertical — is
+untouched.

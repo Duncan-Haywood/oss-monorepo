@@ -29,22 +29,30 @@
     },
     {
       "id": "adverse_alignment",
-      "rule": "The undisclosed error direction is the one that increases the operator's revenue, judged against the revenue model the candidate write-up states."
+      "rule": "The undisclosed error direction is the one that increases the operator's revenue, judged against the revenue model the candidate write-up states. Conditional on the direction being undisclosed: an operator who names the way its own errors pay it has disclosed the conflict, which is the whole mitigation this deduction exists to ask for."
     }
   ],
   "disclosure": [
     {
       "probe": "eaa-wcag-triage",
       "candidate": "eaa-remediation-pipeline",
-      "artifact_chars": 13157,
+      "artifact_chars": 17298,
       "record_module": "src/wcag_triage/evidence.py",
       "declared_coverage_constants": [
         "COVERAGE_STATEMENT",
         "COVERAGE"
       ],
       "scope_disclosed": true,
-      "direction_disclosed": false,
-      "direction_evidence": [],
+      "direction_disclosed": true,
+      "direction_evidence": [
+        "**Accuracy (precision 0.821\u20130.881, recall 0.975):** this list both over- and under-reports.",
+        "That is why the precision figure is printed here, beside the findings it applies to, rather than supplied on request.",
+        "**Precision 0.821\u20130.881** (over-reporting \u2014 this engine lists defects that are not defects), measured 2026-08-21 on 118 built pages across 7 applications, 67 findings reviewed one by one.",
+        "- Why it is not the last word: That denominator excluded colour contrast (1.4.3) entirely \u2014 the review predates this engine's contrast rule, so the figure describes the non-contrast findings and no contrast finding has been precision-checked.",
+        "**Recall 0.975** (under-reporting \u2014 this engine misses defects that are real), measured 2026-08-21 on the same 118 pages, compared against axe-core 4.13.0 over the 13 success criteria either engine declares automated or partial.",
+        "\"accuracy_statement\": \"Both numbers below were measured on this portfolio's own built pages, not on your site, and they describe this engine rather than the audit you are buying.",
+        "\"caveat\": \"That denominator excluded colour contrast (1.4.3) entirely \\u2014 the review predates this engine's contrast rule, so the figure describes the non-contrast findings and no contrast finding has been precision-checked."
+      ],
       "rate_committed": {
         "path": "portfolio/research/a11y-own-sites/README.md",
         "quote": "out-of-sample precision is **0.821\u20130.881**",
@@ -59,8 +67,11 @@
         "reads": "12\u201318% of the findings in the list a customer is handed are not defects"
       },
       "rate_absent_because": null,
-      "rate_in_artifact": false,
-      "rate_matches": [],
+      "rate_in_artifact": true,
+      "rate_matches": [
+        "0.821",
+        "0.881"
+      ],
       "revenue_model": "\u20ac900\u2013\u20ac1,800 fixed-price job per shop, \u20ac49\u2013\u20ac99/month retainer after (candidates/eaa-remediation-pipeline.md)",
       "measured_error_direction": "over-reporting"
     },
@@ -88,12 +99,18 @@
     {
       "probe": "source-silence-detector",
       "candidate": "public-record-watch",
-      "artifact_chars": 1604,
-      "record_module": null,
-      "declared_coverage_constants": [],
-      "scope_disclosed": false,
-      "direction_disclosed": false,
-      "direction_evidence": [],
+      "artifact_chars": 11104,
+      "record_module": "subscriber_record.py",
+      "declared_coverage_constants": [
+        "COVERAGE_STATEMENT",
+        "SILENCE_CAVEAT"
+      ],
+      "scope_disclosed": true,
+      "direction_disclosed": true,
+      "direction_evidence": [
+        "**Accuracy (detection rate 6 of 17 (0.35), detection latency 110 days (median)):** this watch misses most dormancy and reports late.",
+        "\"accuracy_statement\": \"These figures come from replaying this watch over the recorded history of the mirrors it follows, holding each source out in turn."
+      ],
       "rate_committed": {
         "path": "portfolio/pipeline/probes/source-silence-detector/README.md",
         "quote": "episodes (0.35) at a median latency of 110 days",
@@ -106,8 +123,11 @@
         "reads": "roughly two thirds of the dormancy episodes the customer is paying to be told about are not detected"
       },
       "rate_absent_because": null,
-      "rate_in_artifact": false,
-      "rate_matches": [],
+      "rate_in_artifact": true,
+      "rate_matches": [
+        "0.35",
+        "6 of 17"
+      ],
       "revenue_model": "\u20ac30\u2013\u20ac150/month subscription (candidates/public-record-watch.md)",
       "measured_error_direction": "under-reporting (missed silence)"
     },
@@ -132,36 +152,30 @@
     {
       "candidate": "eaa-remediation-pipeline",
       "ethical_robustness_was": 9,
-      "ethical_robustness_now": 6,
-      "deductions_applied": [
-        "rate_undisclosed",
-        "direction_undisclosed",
-        "adverse_alignment"
-      ],
+      "ethical_robustness_now": 9,
+      "deductions_applied": [],
       "alignment_adverse": true,
+      "alignment_charged": false,
       "alignment_reasoning": "The audit is the qualification step that sells the fixed-price job, so a finding list inflated by 12\u201318% converts better. a11y-own-sites reached the same point from the other side: \"a free qualification audit therefore needs a build-artifact filter before a stranger reads it.\""
     },
     {
       "candidate": "cra-evidence-desk",
       "ethical_robustness_was": 8,
-      "ethical_robustness_now": 6,
+      "ethical_robustness_now": 7,
       "deductions_applied": [
-        "rate_undisclosed",
-        "adverse_alignment"
+        "rate_undisclosed"
       ],
       "alignment_adverse": true,
+      "alignment_charged": false,
       "alignment_reasoning": "The product's whole value proposition is cutting the customer's alert count. A suppression that should not have happened both improves the headline the subscription is sold on and is invisible to the subscriber."
     },
     {
       "candidate": "public-record-watch",
       "ethical_robustness_was": 9,
-      "ethical_robustness_now": 6,
-      "deductions_applied": [
-        "rate_undisclosed",
-        "direction_undisclosed",
-        "adverse_alignment"
-      ],
+      "ethical_robustness_now": 9,
+      "deductions_applied": [],
       "alignment_adverse": true,
+      "alignment_charged": false,
       "alignment_reasoning": "Nuisance alarms cost the operator churn \u2014 the probe measures 43 alarm-days per source-year at the high-recall setting \u2014 while a missed dormancy episode costs nothing and cannot be observed by the customer, who sees silence either way. The cheapest tuning is the one that fails them."
     },
     {
@@ -173,14 +187,15 @@
         "direction_undisclosed"
       ],
       "alignment_adverse": false,
+      "alignment_charged": false,
       "alignment_reasoning": "The write-up states no revenue model, so there is nothing to align against. Not scored either way rather than assumed benign."
     }
   ],
   "summary": {
     "probes": 4,
-    "scope_disclosed": 2,
-    "direction_disclosed": 1,
+    "scope_disclosed": 3,
+    "direction_disclosed": 3,
     "rate_committed": 2,
-    "rate_in_artifact": 0
+    "rate_in_artifact": 2
   }
 }

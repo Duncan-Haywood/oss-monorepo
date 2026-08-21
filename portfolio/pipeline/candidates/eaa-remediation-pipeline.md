@@ -8,7 +8,7 @@ assistive-technology testing, and a dated evidence record.
 as a new venture.** Same buyer, same delivery surface, and the venture already
 has Stripe, a lead pipeline, and a dashboard. If it sells, split it out then.
 
-Scored 2026-08-18. Composite 6.75 · floor 5 (liability containment).
+Scored 2026-08-18. Composite 7.125 · floor 5 (liability containment).
 
 | Dimension | Score | Why |
 |---|---|---|
@@ -19,7 +19,7 @@ Scored 2026-08-18. Composite 6.75 · floor 5 (liability containment).
 | Defensibility | 5 | The method is copyable. What accrues is a re-test archive per customer and a fix library per platform |
 | Distribution | 8 | High-intent moment, and `local-site-studio` already talks to this buyer |
 | Liability containment | 5 | Real exposure if we overclaim; contained by selling evidence, never a compliance guarantee. **Measured 2026-08-21, 6 → 5** — see the amendment below |
-| Ethical robustness | 6 | Measured 2026-08-21, 9 → 6. The output is a site disabled users can actually use, and the interests do line up on the *remediation*. They come apart on the *record*: it discloses its scope in full and says nothing about its own accuracy, while an out-of-sample precision of 0.821–0.881 is committed elsewhere in this repository and printed nowhere a customer reads. See [`portfolio/research/error-rate-disclosure/`](../../research/error-rate-disclosure/) |
+| Ethical robustness | 9 | Measured 2026-08-21, 9 → 6 → 9. The record now prints both committed error rates, names both directions it errs in, and states which direction pays us. The three disclosure deductions lapse; read the 9 as the screening estimate no longer being reduced, not as a positive finding. See the second amendment below and [`portfolio/research/error-rate-disclosure/`](../../research/error-rate-disclosure/) |
 
 ## Amendment (2026-08-21): the first gate measurement, and it costs this candidate its margin
 
@@ -180,6 +180,55 @@ point in the direction Finding 0 of `a11y-own-sites/README.md` already names
 as "worse, not better." Recorded so the next session that touches this
 score, or that owns `real-estate-agent-photo-app` or `photo-editing`, does
 not have to re-derive which findings already have an owner and which do not.
+
+## Amendment (2026-08-21): the disclosure gap is closed, and the score returns to its estimate
+
+**`ethical_robustness` 6 → 9. Composite 6.75 → 7.125.** The first upward
+revision anywhere in `candidates.yaml`.
+
+[`error-rate-disclosure/`](../../research/error-rate-disclosure/) scored this
+candidate 9 → 6 earlier the same day on three deductions — no rate in the
+artifact, no direction in the artifact, and the undisclosed direction being the
+one that pays us — and closed by saying the mitigation was "one line of
+rendering." It was four. `evidence.py` now carries an `ACCURACY` block that the
+record renders in two places: a headline in the summary block, so a reader who
+reads nothing else learns the list can be wrong, and a full section immediately
+above the findings table it qualifies.
+
+What the record now says, that it did not:
+
+- **Precision 0.821–0.881**, over-reporting, with its corpus (118 built pages,
+  67 findings reviewed one by one), its date, its derivation path, and the
+  reason it is not the last word — that denominator excluded 1.4.3 entirely, so
+  no contrast finding has ever been precision-checked.
+- **Recall 0.975**, under-reporting, against axe-core 4.13.0 over the 13
+  criteria either engine claims — with the caveat that this corpus's real
+  defects exercise only 2 of those 13.
+- **That both were measured on this portfolio's own pages, not on the
+  customer's site.**
+- **Which direction pays us.** Verbatim: *"this audit is the qualification step
+  for a paid remediation job, so over-reporting is the error that would pay us.
+  That is why the precision figure is printed here, beside the findings it
+  applies to, rather than supplied on request."* Deduction 3 asks whether the
+  operator's conflict is visible to the person holding the record. It now is.
+
+**Read the restored 9 for exactly what it is.** It is the 2026-08-18 screening
+estimate, no longer reduced by a disclosure deduction — not a finding that this
+business is ethically strong. That rubric measures disclosure and nothing else,
+and three things it does not score are unchanged: the precision denominator
+excluded contrast, the recall figure is a single comparison, and neither was
+measured on a customer's shop. Those are now disclosed rather than resolved,
+which is the whole of what changed.
+
+Two mitigations named in the earlier amendment are still open: the
+build-artifact filter `a11y-own-sites` asked for is unbuilt, and
+`liability_containment` remains at 5, on the gate. **This candidate's floor did
+not move, and one more measured point in liability still rejects it.**
+
+Guarded against going stale: `tests/test_accuracy_citations.py` in the probe
+checks each printed figure against the derivation it cites, so a rate revised
+upstream fails the build rather than leaving a false number in a
+customer-facing record.
 
 ## Buyer-segment correction (2026-08-19, per ledger PR #96)
 

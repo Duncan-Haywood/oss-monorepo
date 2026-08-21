@@ -218,20 +218,49 @@ class AgainstTheLiveFile(unittest.TestCase):
         self.candidates, self.revisions = ss.load(LIVE)
         self.text = "\n".join(ss.report(self.candidates, self.revisions))
 
-    def test_every_revision_is_downward(self):
+    def test_revisions_now_run_in_both_directions(self):
         """Direction, which is the claim the README actually makes.
 
         This asserted ``{-1}`` until 2026-08-21, when the first
         ethical_robustness measurement revised by 2 and by 3
-        (portfolio/research/error-rate-disclosure/). Direction is what the
-        pipeline's prose rests on; magnitude is pinned separately below so a
-        change there is still visible rather than silently absorbed.
+        (portfolio/research/error-rate-disclosure/), and then asserted "every
+        revision is downward" until later the same day, when the first upward
+        revision landed: ``eaa-remediation-pipeline`` printed its committed
+        error rates into its customer record and the same harness re-scored it
+        6 -> 9.
+
+        The direction claim is now that there is no direction claim. Pinned
+        positively — at least one revision each way — rather than as the
+        absence of the old pattern, so this fails if the record silently
+        reverts to one-directional and the README's derived prose goes stale
+        again.
         """
         self.assertTrue(self.revisions, "candidates.yaml records no revisions at all")
+        deltas = [r.delta for r in self.revisions]
+        self.assertTrue(any(d < 0 for d in deltas), "no downward revision on record")
         self.assertTrue(
-            all(r.delta < 0 for r in self.revisions),
-            "the one-directional pattern the README states no longer holds; "
+            any(d > 0 for d in deltas),
+            "the mixed-direction record the README describes no longer holds; "
             "update the README rather than this test",
+        )
+
+    def test_the_upward_revisions_are_interventions_not_re_estimates(self):
+        """An upward revision must be a changed artifact, not a changed opinion.
+
+        This is the distinction that keeps the record honest: a score may rise
+        because someone fixed the thing being measured, never because a later
+        pass liked the candidate more. Both current upward revisions are on
+        ``ethical_robustness`` and both trace to
+        ``portfolio/research/error-rate-disclosure/``.
+        """
+        up = [r for r in self.revisions if r.delta > 0]
+        self.assertEqual(
+            sorted((r.slug, r.dimension) for r in up),
+            [
+                ("cra-evidence-desk", "ethical_robustness"),
+                ("eaa-remediation-pipeline", "ethical_robustness"),
+                ("public-record-watch", "ethical_robustness"),
+            ],
         )
 
     def test_observed_magnitudes_are_pinned(self):
@@ -242,7 +271,7 @@ class AgainstTheLiveFile(unittest.TestCase):
             "and pipeline/README.md both quote this range",
         )
 
-    def test_a_varying_magnitude_withholds_the_extrapolation(self):
+    def test_a_mixed_direction_record_withholds_the_extrapolation(self):
         """Withheld, not set to zero, and not fatal to the rest of the report.
 
         The bias analysis used to `return` here, so a second measured dimension
@@ -250,8 +279,18 @@ class AgainstTheLiveFile(unittest.TestCase):
         """
         self.assertIn("No single consistent bias", self.text)
         self.assertIn("withheld rather than set to zero", self.text)
+        self.assertIn("run in both directions", self.text)
         self.assertIn("4. GATE SENSITIVITY", self.text)
         self.assertIn("VERDICT", self.text)
+
+    def test_the_reason_the_bias_is_withheld_is_derived_not_asserted(self):
+        """Section 3 must not claim every revision is downward while one is not.
+
+        That sentence was fixed prose and went stale the moment the record
+        gained an upward revision — the same failure mode as the "revised down
+        by one" sentence it sat beneath.
+        """
+        self.assertNotIn("Every revision is downward", self.text)
 
     # These three replace tripwires that asserted no gate dimension had ever
     # been measured. The tripwires fired on 2026-08-21, when

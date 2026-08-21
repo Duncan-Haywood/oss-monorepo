@@ -69,11 +69,41 @@ DIRECTION_TERMS: tuple[str, ...] = (
     "may be wrong",
 )
 
-_SENTENCE = re.compile(r"[^.!?\n]*[.!?]")
+_TERMINATOR = re.compile(r"[.!?]")
 
 
 def sentences(text: str) -> list[str]:
-    return [s.strip() for s in _SENTENCE.findall(text) if s.strip()]
+    """Split into sentences, treating a period inside a number as a decimal point.
+
+    This was ``re.findall(r"[^.!?\\n]*[.!?]", text)`` until 2026-08-21, which is
+    correct until an artifact contains a decimal — and the artifacts this
+    measures are about to contain nothing but. Against a record printing
+    "precision 0.821-0.881" it produced ``["**Precision 0.", "881, recall 0."]``:
+    the boolean came out right, and the quoted evidence was shrapnel.
+
+    That matters more here than a tidier output. D2's whole design is that
+    every match is quoted "so the classification can be checked rather than
+    trusted", and a fragment cannot be checked. A newline still ends a
+    sentence, as before.
+    """
+    out: list[str] = []
+    for line in text.split("\n"):
+        start = 0
+        for match in _TERMINATOR.finditer(line):
+            i = match.start()
+            if (
+                line[i] == "."
+                and i > 0
+                and i + 1 < len(line)
+                and line[i - 1].isdigit()
+                and line[i + 1].isdigit()
+            ):
+                continue  # decimal point, not a full stop
+            chunk = line[start : i + 1].strip()
+            if chunk:
+                out.append(chunk)
+            start = i + 1
+    return out
 
 
 def direction_matches(text: str) -> list[str]:
@@ -193,8 +223,18 @@ def render_npm() -> tuple[str, str | None, list[str]]:
 
 
 def render_silence() -> tuple[str, str | None, list[str]]:
+    """The subscriber record, not the operator table.
+
+    Until 2026-08-21 this rendered ``detect_silence.render`` and reported "no
+    record module" — correctly, because there was none: the only rendered
+    artifact was a diagnostic table whose ``MISSED`` column told the operator
+    something no subscriber ever saw. ``subscriber_record.py`` is that missing
+    surface, so this now measures it. The operator table still exists and is
+    still not a customer artifact.
+    """
     _add_path("source-silence-detector")
     import detect_silence  # noqa: PLC0415
+    import subscriber_record  # noqa: PLC0415
 
     payload = json.loads(
         (REPO / "portfolio/research/register-change-rate/results-2026-08-20.json").read_text()
@@ -203,7 +243,9 @@ def render_silence() -> tuple[str, str | None, list[str]]:
     prior = json.loads(prior_path.read_text()) if prior_path.exists() else None
     cfg = detect_silence.Config(anchor="quantile", quantile=0.99)
     result = detect_silence.evaluate_all(payload, cfg, prior)
-    return detect_silence.render(result), None, []
+    record = subscriber_record.build_record(result, "2026-08-21T00:00:00Z")
+    text = subscriber_record.to_markdown(record) + "\n" + subscriber_record.to_json(record)
+    return text, "subscriber_record.py", ["COVERAGE_STATEMENT", "SILENCE_CAVEAT"]
 
 
 def render_harness() -> tuple[str, str | None, list[str]]:
@@ -334,7 +376,10 @@ DEDUCTIONS = (
     (
         "adverse_alignment",
         "The undisclosed error direction is the one that increases the operator's "
-        "revenue, judged against the revenue model the candidate write-up states.",
+        "revenue, judged against the revenue model the candidate write-up states. "
+        "Conditional on the direction being undisclosed: an operator who names the "
+        "way its own errors pay it has disclosed the conflict, which is the whole "
+        "mitigation this deduction exists to ask for.",
     ),
 )
 
@@ -377,7 +422,20 @@ def score(row: dict, prior: int) -> dict:
     if not row["direction_disclosed"]:
         applied.append(DEDUCTIONS[1][0])
     adverse, why = ALIGNMENT[row["candidate"]]
-    if adverse:
+    # Deduction 3 is conditional on deduction 2, and was not always written that
+    # way. Until 2026-08-21 this fired whenever ``adverse`` was true, so a probe
+    # that disclosed everything still lost a point and could not cross the gate
+    # by disclosing — which is the opposite of what the rubric asks for. The
+    # published rule says "the *undisclosed* direction", stated before it was
+    # applied, and ``test_full_disclosure_costs_nothing`` says so in its name;
+    # that test only ever ran against the one candidate whose alignment is not
+    # adverse, so the disagreement was never exercised. The rubric is the
+    # authority and the code now matches it. Effect: eaa-wcag-triage, the probe
+    # that closed its gap, recovers all three of its points rather than two, and
+    # cra-evidence-desk — whose artifact already named its adverse direction and
+    # which this pass did not otherwise touch — recovers one it should never
+    # have been charged.
+    if adverse and not row["direction_disclosed"]:
         applied.append(DEDUCTIONS[2][0])
     return {
         "candidate": row["candidate"],
@@ -385,6 +443,7 @@ def score(row: dict, prior: int) -> dict:
         "ethical_robustness_now": prior - len(applied),
         "deductions_applied": applied,
         "alignment_adverse": adverse,
+        "alignment_charged": adverse and not row["direction_disclosed"],
         "alignment_reasoning": why,
     }
 

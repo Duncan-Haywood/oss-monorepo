@@ -7,11 +7,21 @@ forms. The single most important thing it contains is not the list of failures
 this pass is static-only and that a named set of criteria were **not** checked
 and require human assistive-technology review. Selling the failure list without
 that statement is the overclaim the candidate's liability section forbids.
+
+Coverage is not accuracy, and until 2026-08-21 this module printed only the
+first. ``portfolio/research/error-rate-disclosure/`` rendered this record and
+found that it never says a finding in the list can be *wrong* — while two
+out-of-sample accuracy measurements for this very engine sat committed
+elsewhere in the repository. Coverage answers "what did you look at"; accuracy
+answers "is what came back right". :data:`ACCURACY` is the second, carried into
+the artifact the reader actually receives rather than left in a research
+directory, and :data:`ACCURACY_STATEMENT` names the direction the error runs in
+*and* the commercial incentive that runs the same way.
 """
 
 from __future__ import annotations
 
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 
 from .engine import Audit
 from .rules import COVERAGE
@@ -31,6 +41,92 @@ COVERAGE_STATEMENT = (
     "claim of compliance — it means the static checks below found no failures. "
     "The criteria marked 'manual' require a human with a screen reader and "
     "keyboard, which is the deliberate contractor step in this pipeline."
+)
+
+
+@dataclass(frozen=True)
+class AccuracyFigure:
+    """One measured error rate for this engine, with the direction it runs in.
+
+    Every field is required because each one is a way the number could mislead
+    if it travelled alone. ``value`` without ``corpus`` reads as a property of
+    the tool rather than of one measurement; without ``caveat`` it reads as
+    settled; without ``direction`` the reader cannot tell whether to discount
+    the list in front of them or to worry about what is missing from it.
+
+    ``source`` is a repository path rather than prose, so the derivation is
+    reachable and so ``tests/test_accuracy_citations.py`` can check that the
+    figure printed here is still the figure that file derives. A rate that is
+    revised upstream must not be able to go on being quoted here.
+    """
+
+    metric: str  # "precision" or "recall"
+    value: str  # as published by the source measurement
+    direction: str  # which way this engine is wrong when this figure is low
+    reads: str  # what the figure means for someone holding this record
+    corpus: str  # what it was measured on — never a claim about other sites
+    measured: str  # ISO date
+    source: str  # repo-relative path to the derivation
+    caveat: str  # the reason this figure is not the last word
+
+
+#: The two out-of-sample measurements this repository has committed for this
+#: engine. Both are quoted at the value their derivation publishes; neither is
+#: rounded, averaged, or combined into a single "accuracy" number, because the
+#: two directions have different consequences for the reader and collapsing
+#: them is how a disclosure becomes a reassurance.
+ACCURACY: tuple = (
+    AccuracyFigure(
+        metric="precision",
+        value="0.821–0.881",
+        direction="over-reporting — this engine lists defects that are not defects",
+        reads=(
+            "Expect roughly 12–18% of the findings below not to be real defects. "
+            "Confirm a finding before paying anyone to fix it."
+        ),
+        corpus=(
+            "118 built pages across 7 applications, 67 findings reviewed one by one"
+        ),
+        measured="2026-08-21",
+        source="portfolio/research/a11y-own-sites/",
+        caveat=(
+            "That denominator excluded colour contrast (1.4.3) entirely — the review "
+            "predates this engine's contrast rule, so the figure describes the "
+            "non-contrast findings and no contrast finding has been precision-checked."
+        ),
+    ),
+    AccuracyFigure(
+        metric="recall",
+        value="0.975",
+        direction="under-reporting — this engine misses defects that are real",
+        reads=(
+            "Of 40 defects an independent detector found within the criteria this "
+            "engine claims to check, it found 39. A clean result here still is not "
+            "a conformance statement."
+        ),
+        corpus=(
+            "the same 118 pages, compared against axe-core 4.13.0 over the 13 "
+            "success criteria either engine declares automated or partial"
+        ),
+        measured="2026-08-21",
+        source="portfolio/research/a11y-axe-recall/",
+        caveat=(
+            "One comparison, against one other tool, on a corpus whose real defects "
+            "exercise only 2 of those 13 criteria. It is a single high data point, "
+            "not a settled false-negative rate."
+        ),
+    ),
+)
+
+ACCURACY_STATEMENT = (
+    "Both numbers below were measured on this portfolio's own built pages, not "
+    "on your site, and they describe this engine rather than the audit you are "
+    "buying. Read them as the best available estimate of how wrong this list "
+    "can be, in both directions, and not as a guarantee about it. "
+    "One disclosure matters more than either figure: this audit is the "
+    "qualification step for a paid remediation job, so over-reporting is the "
+    "error that would pay us. That is why the precision figure is printed here, "
+    "beside the findings it applies to, rather than supplied on request."
 )
 
 
@@ -68,6 +164,8 @@ def build_record(audits: dict, checked_at: str) -> dict:
         "coverage_statement": COVERAGE_STATEMENT,
         "coverage": [asdict(c) for c in COVERAGE],
         "coverage_summary": _coverage_summary(),
+        "accuracy_statement": ACCURACY_STATEMENT,
+        "accuracy": [asdict(a) for a in ACCURACY],
         "totals": totals,
         "contrast": contrast_totals,
         "pages": pages,
@@ -124,6 +222,49 @@ def _contrast_section(tally: dict) -> list:
     return lines
 
 
+def _accuracy_headline(record: dict) -> str:
+    """One line, in the header block, so the error rate is not scroll-dependent.
+
+    The full section lives further down; this exists so a reader who reads only
+    the summary still learns that the list can be wrong and which way.
+    """
+    figures = record.get("accuracy") or []
+    if not figures:
+        return "**Accuracy:** not measured for this engine."
+    pairs = ", ".join(f"{f['metric']} {f['value']}" for f in figures)
+    return (
+        f"**Accuracy ({pairs}):** this list both over- and under-reports. See "
+        '"How accurate this pass is" below before acting on any finding.'
+    )
+
+
+def _accuracy_section(record: dict) -> list:
+    """The measured error rates, rendered beside the findings they qualify.
+
+    Placed immediately before the findings table on purpose. The coverage
+    catalog above it is long, and a disclosure a reader reaches only by
+    scrolling past it is a disclosure in the same sense a footnote is one.
+    """
+    figures = record.get("accuracy") or []
+    lines = ["", "## How accurate this pass is", ""]
+    if not figures:
+        lines.append("No accuracy measurement is recorded for this engine.")
+        return lines
+    lines += [record["accuracy_statement"], ""]
+    for fig in figures:
+        lines += [
+            f"**{fig['metric'].capitalize()} {fig['value']}** "
+            f"({fig['direction']}), measured {fig['measured']} on "
+            f"{fig['corpus']}.",
+            "",
+            f"- What it means here: {fig['reads']}",
+            f"- Why it is not the last word: {fig['caveat']}",
+            f"- Derivation: `{fig['source']}`",
+            "",
+        ]
+    return lines
+
+
 def to_markdown(record: dict) -> str:
     cs = record["coverage_summary"]
     checked = record["totals"]["blocking"] + record["totals"]["degrading"]
@@ -135,6 +276,8 @@ def to_markdown(record: dict) -> str:
         f"**Pages:** {len(record['pages'])}  ",
         f"**Findings:** {record['totals']['blocking']} blocking, "
         f"{record['totals']['degrading']} degrading",
+        "",
+        _accuracy_headline(record),
         "",
         "> " + record["coverage_statement"].replace("\n", " "),
         "",
@@ -156,6 +299,7 @@ def to_markdown(record: dict) -> str:
             f"| {c['criterion']} | {c['name']} | {c['level']} | {c['coverage']} |"
         )
     lines += _contrast_section(record.get("contrast") or {})
+    lines += _accuracy_section(record)
     lines += ["", "## Findings", ""]
     if checked == 0:
         lines.append(

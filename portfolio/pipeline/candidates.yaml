@@ -43,8 +43,8 @@ candidates:
       defensibility: 5
       distribution: 8
       liability_containment: 5
-      ethical_robustness: 6
-    composite: 6.75
+      ethical_robustness: 9
+    composite: 7.125
     floor: 5
     floor_dimension: liability_containment
     measured:
@@ -66,7 +66,10 @@ candidates:
         gate rather than below it: nothing is filed, signed or certified.
         See portfolio/research/a11y-external-coverage-reference/.
       ethical_robustness: >-
-        9 -> 6, the pipeline's first ethical-robustness measurement. The
+        6 -> 9, 2026-08-21, and the first upward revision in this file. It is
+        not a re-estimate: the artifact changed, and the same harness re-ran.
+        HISTORY. Earlier the same day this went 9 -> 6, the pipeline's first
+        ethical-robustness measurement. The
         dimension asks whether the business gets better for customers as it
         scales; the way an evidence business gets worse is specific — the
         customer acts on a record whose errors are invisible to them, in a
@@ -84,6 +87,22 @@ candidates:
         (-1). Mitigation: print the measured precision, and the build-artifact
         filter a11y-own-sites asked for, in the record itself — each is a line
         of rendering and each is worth a point back.
+        AMENDED 6 -> 9, same day, same harness: the mitigation was taken. The
+        record now carries both committed figures (precision 0.821-0.881 and
+        recall 0.975, each with its corpus, its date, its derivation path and
+        the reason it is not the last word), names both directions it errs in,
+        and states outright that "over-reporting is the error that would pay
+        us" — the conflict deduction 3 exists to ask about. All three
+        deductions lapse, so the score returns to its prior. Read that prior
+        for what it is: the 2026-08-18 screening estimate, restored because no
+        disclosure deduction now applies, NOT a finding that this business is
+        ethically strong. This rubric measures disclosure and nothing else. The
+        residual risks it does not score are unchanged — the precision figure's
+        denominator excluded 1.4.3 entirely, the recall figure is one
+        comparison on a corpus exercising 2 of 13 criteria, and both were
+        measured on this portfolio's own pages rather than on a customer's.
+        Those are disclosed in the record rather than resolved.
+        The build-artifact filter a11y-own-sites asked for is still unbuilt.
     floor_note: >-
       Two dimensions tie at the floor. `floor_dimension` names
       liability_containment because it is a gate: at 5 it rejects on the next
@@ -161,13 +180,17 @@ candidates:
       defensibility: 3
       distribution: 6
       liability_containment: 6
-      ethical_robustness: 6
-    composite: 6.5
+      ethical_robustness: 7
+    composite: 6.625
     floor: 3
     floor_dimension: defensibility
     measured:
       ethical_robustness: >-
-        8 -> 6, 2026-08-21, portfolio/research/error-rate-disclosure/. Of the
+        6 -> 7, 2026-08-21. A harness correction, not a re-probe of this
+        candidate; see the AMENDED note at the end of this block for what
+        changed and why the point was returned.
+        HISTORY. Earlier the same day this went 8 -> 6,
+        portfolio/research/error-rate-disclosure/. Of the
         four probes with a rendered artifact, this one alone names the
         direction it can be wrong in — "False positives are expected; a
         suppressed finding that should not have been is the failure this tool
@@ -181,6 +204,17 @@ candidates:
         invisible to the subscriber (-1). Mitigation: measure the
         false-suppression rate against a labelled sample before selling the
         suppression, and print it in the record.
+        AMENDED 6 -> 7, same day. This candidate was not re-probed and its
+        artifact did not change; the harness did. score() had been charging
+        deduction 3 whenever alignment was adverse, while the rubric it
+        publishes — stated before it was applied — conditions that deduction on
+        the direction being *undisclosed*. This is the one artifact of the four
+        that already named its adverse direction, so it was charged for
+        concealing something it discloses. The code now matches the published
+        rubric and the point is returned. The remaining -1 is unchanged and is
+        the real gap: the false-suppression rate has still never been measured,
+        so there is no figure to print. Measuring it against a labelled sample
+        is still the mitigation, and it is worth the last point.
       ai_leverage: >-
         8 -> 7, PR #250 step 1. The false-positive rate is 64.6-66.0% across
         3,573 components in 9 real products, and it is bimodal rather than
@@ -264,13 +298,33 @@ candidates:
       defensibility: 5
       distribution: 4
       liability_containment: 8
-      ethical_robustness: 6
-    composite: 6.625
+      ethical_robustness: 9
+    composite: 7.0
     floor: 4
     floor_dimension: distribution
     measured:
       ethical_robustness: >-
-        9 -> 6, 2026-08-21, portfolio/research/error-rate-disclosure/. This
+        6 -> 9, 2026-08-21. The mitigation below was built: subscriber_record.py
+        is the customer-facing surface this probe did not have, and the same
+        harness re-scored it. It prints the held-out detection rate (6 of 17,
+        0.35) and median latency (110d) at the top of every record with their
+        corpus, derivation and limits; it names the direction (under-reporting);
+        it discloses the conflict verbatim — "a false alarm costs us a
+        subscriber, and a miss costs us nothing and is invisible to you, so our
+        commercial incentive runs toward tuning this watch to stay quiet"; and
+        it refuses to render an absence of alerts as health, carrying instead
+        the standing caveat that no alert from us is not evidence a register is
+        active. It also names the per-source detectability the mitigation asked
+        for: FDA/openfda calibrates to a 2060-day threshold, so the record lists
+        it as effectively unwatched rather than leaving "no alert" to be read as
+        reassurance. All three deductions lapse. Read the 9 as the screening
+        estimate no longer being reduced, NOT as a finding that the product is
+        good: this rubric measures disclosure only, and the detector still
+        misses roughly two thirds of the dormancy it is sold to find. That is a
+        product problem, priced in ai_leverage and distribution, and it is now
+        disclosed rather than hidden.
+        HISTORY. Earlier the same day this went 9 -> 6,
+        portfolio/research/error-rate-disclosure/. This
         probe has no customer-facing record module at all. The closest artifact
         it renders is an operator table which prints MISSED beside a source
         whose dormancy the detector failed to catch, and nothing carries either
