@@ -24,32 +24,25 @@
 records:
 - pr: 372
   head_sha: 14960d9ee0cf100c581ab835eccab745d318b419
-  verified_against_main: 112e976705937c9b62600c5c4ec9f5e44a08c64a
-  verified_at: "2026-08-21T10:27:38Z"
+  verified_against_main: 8e8a320fd71ea51361117bdfa8b4d5cb70e45f84
+  verified_at: "2026-08-21T15:26:17Z"
   result: pass
   note: >-
     Re-verification triggered by `verification_status.py` reporting BUILD
-    STALE for ai-first-markets, print-atelier, retail-pilot-intel: routine
-    fixes landed on `main` after the prior record (`52416c5`) that touch
-    those three -- #493 (retail-pilot-intel receipt_id/store_id collision),
-    #480 (print-atelier Stripe ledger dedup by event id), print-atelier icon
-    button labelling, and #479 (ai-first-markets average-revenue figure).
+    STALE for print-atelier only (the other four ventures in #372's diff
+    flagged unaffected): #542 fixed print-atelier's 611 WCAG 1.4.3
+    colour-contrast failures on `main` after the prior record (`112e976`).
     `git merge origin/main --no-edit` into #372's branch (head `14960d9`) in
-    a scratch worktree produced 0 conflicts. Rebuilt the three flagged
-    ventures on that merged tree per `re-verification.md`'s BUILD-STALE
-    scope (photo-editing and real-estate-agent-photo-app untouched by this
-    drift, not re-run): retail-pilot-intel -- `pnpm install --frozen-lockfile`,
-    lint, typecheck (6/6 packages), build, test (28/28: 12 pos + 16
-    analytics), `audit --audit-level=high` all clean. print-atelier -- `npm
-    ci`, lint (0 errors, pre-existing warnings only), test (130/130), build
-    (Next.js, all routes generated), `audit --audit-level=high` all clean.
-    ai-first-markets -- `npm ci`, lint, typecheck, test (60/60), build
-    (Next.js), `audit --audit-level=high` all clean. CHECKS STALE flagged 4
-    changed workflow files (`a11y-engine-agreement-ci`,
-    `a11y-generated-sites-ci`, `a11y-own-sites-ci`,
-    `source-silence-detector-ci`) -- none in #372's scope or attached to its
-    checks, so not meaningful here. Still owner-gated: merging fires deploys
-    to live sites, not because anything is unverified.
+    a scratch worktree produced 0 conflicts -- #372's `next` 16.3.1 bump
+    doesn't touch the same files as #542's colour-token fix. Rebuilt
+    print-atelier on that merged tree per `re-verification.md`'s BUILD-STALE
+    scope (the other four ventures untouched by this drift, not re-run):
+    `npm ci` clean, `npm run lint` 0 errors (6 pre-existing warnings,
+    unrelated to this diff), `npm test` 130/130 pass, `npm run build`
+    succeeds (all routes generated, `next` confirmed at 16.3.1), `npm audit
+    --audit-level=high` 0 vulnerabilities. CHECKS STALE (2 changed workflow
+    files) not meaningful here, same as the prior record. Still owner-gated:
+    merging fires deploys to live sites, not because anything is unverified.
 - pr: 368
   head_sha: 81eb514b994b96e676f2b653ecd6cc50fce95cdc
   verified_against_main: 28a90aaa732315cd5276dc0352b98390ca33a951
