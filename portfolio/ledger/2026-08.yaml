@@ -16094,3 +16094,73 @@ entries:
         since #572's amendment scopes those numbers (contrast was never
         in their denominator) rather than revising them.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process" session, designated branch `claude/pensive-feynman-1wrx8a`.
+        Ran `session_gate.py` first (PROCEED, on the low-cadence branch).
+        `git fetch origin main` first; tip `a78bd38` (#567/#568, the
+        axe-core recall measurement). Re-checked the 3 open PRs
+        (#531/#523, #372, #368) with `git merge-tree` -- all three still
+        merge cleanly and remain correctly human-gated, matching every
+        prior entry; nothing new for #139.
+      - >-
+        Took the next step the prior entry named: `a11y-own-sites/`'s
+        missing-stylesheet bug (both engine adapters called their WCAG
+        engine with no stylesheet, so 1.4.3 was silently absent from
+        every one of the 118 pages that directory measures). Fixed by
+        feeding each app's build CSS to both engines, mirroring
+        `a11y-axe-recall/measure.py`'s `css_for_app`. Caught a second
+        bug before trusting it: the first attempt searched
+        `.next/server/{app,pages}` (the HTML build dirs) rather than
+        all of `.next`, and found nothing -- a Next.js build writes CSS
+        under `.next/static/css/`, a sibling of `server/`. Caught by
+        cross-checking against `a11y-contrast-decidability/`, which
+        already scans `.next` in full.
+      - >-
+        Rebuilt all 7 apps (`npm ci && npm run build`) and regenerated
+        `results-2026-08-21.json`. After the fix, this directory's 1.4.3
+        counts match `a11y-contrast-decidability`'s independently-derived
+        fail counts exactly on all 4 overlapping ventures (333, 21, 0, 0).
+        The `print-atelier`/`quick-pick-survey` zeros are not this fix's
+        doing -- both were already fixed in venture source (#542, and a
+        separate quick-pick-survey viewport commit) since the original
+        baseline was captured; isolated by running both adapters against
+        identical fresh HTML with and without the stylesheet argument
+        (same result either way). Two apps outside
+        `a11y-contrast-decidability`'s scope (`photo-editing/docs-site`,
+        `real-estate-agent-photo-app`'s `docs-site` and `research`) now
+        carry new 1.4.3 findings (3, 366, 20) -- spot-checked as
+        plausible rather than hand-classified instance-by-instance the
+        way Finding 1's original 67 findings were.
+      - >-
+        Verified before merging: 5 new tests (21 total, up from 16)
+        pinning the fix with a synthetic low-contrast page so a future
+        edit that drops the stylesheet argument fails a test rather than
+        reintroducing the gap; CI's exact steps reproduced locally
+        (`unittest discover` and `--recompute-from` both clean); sibling
+        suites unaffected (`a11y-contrast-decidability` 11/11,
+        `a11y-axe-recall` 10/10, `a11y-external-coverage-reference`
+        21/21, all offline). Updated `a11y-axe-recall/README.md`, which
+        had flagged this bug as "not fixed here," to point at the fix
+        instead of leaving a stale claim. Merged as #572 with both
+        checks green: agent-decidable per `CLAUDE.md`
+        (`portfolio/research/` only, no `ventures/*` app code,
+        publishes/registers/spends nothing), re-checked merge-clean
+        against the live `main` tip immediately before merging.
+      - >-
+        No score moved and no revenue; the $0 ceiling is unchanged. The
+        newly-surfaced `ai-first-markets`/`local-site-studio` contrast
+        findings are the same ones `a11y-contrast-decidability` already
+        found and #531 already carries to the account owner -- this
+        closed a measurement gap in a directory the pipeline's liability
+        score cites, not a new liability finding. Backlog unchanged:
+        same three PRs, already reflected on #139. Named but not done,
+        for the next pass: `a11y-own-sites/`'s own Finding 1 precision
+        numbers (0.821-0.881) were computed with 1.4.3 entirely excluded
+        from the denominator; whether re-deriving precision with contrast
+        included changes the headline number has not been checked.
+    mrr_end: null
