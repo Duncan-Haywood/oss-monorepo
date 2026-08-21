@@ -11244,6 +11244,66 @@ entries:
     outcomes:
       - >-
         Scheduled "continue work, maintain and improve the development
+        process" session, designated branch claude/zealous-curie-crue4w.
+        Ran `portfolio/ledger/session_gate.py` first (PROCEED -- meta-work
+        share 56%, below the 70% threshold). Checked the open PRs (#372,
+        #368, #144, #19) and issue #139 in full before touching anything --
+        all four correctly owner-gated by prior sessions, nothing to
+        re-derive there.
+      - >-
+        `portfolio/router/allocate.py` again named photos-import-tools as
+        the only dispatchable venture, standing task "every hypothesis
+        settled -- write the next one." All 13 hypotheses on file were
+        themed the same way (a single flaky/unreadable file mid-loop
+        doesn't abort the whole run), so this needed a genuinely different
+        gap. Had an Explore agent read all 5 source files and their tests
+        hunting outside that theme specifically.
+      - >-
+        Found one: every Photos-library dedup check in
+        `resumable_photos_import.py` (`bulk_preflight_pending`,
+        `photos_contains_file`, `filename_in_photos`) matched by
+        `Path(path).name` alone, no path/size/content signal. Camera
+        filenames aren't globally unique (DSC00001.JPG, IMG_0001.JPG
+        recur across cards/folders); once any file with a given basename
+        landed in Photos, every other tracked file sharing that basename
+        got marked "imported" and was never revisited by
+        `next_importable_batch`, silently and permanently dropping a
+        distinct photo with a 100% success report. Not a rephrasing of the
+        error-isolation theme -- every step ran to completion without
+        error, the manifest itself just became wrong.
+      - >-
+        Fixed by adding `ImportState.ambiguous_names()` (every basename
+        occurring more than once in the venture's own tracked-path
+        manifest, no dependency on Photos' private schema) and gating all
+        three match sites on it: an ambiguous name is never treated as
+        proof a specific file is already in Photos. Worst case for a
+        colliding name becomes an extra copy from a real import attempt
+        (recoverable) instead of a silently lost file (unrecoverable).
+        Recorded the hypothesis as `supported` in `VENTURE.yaml`.
+      - >-
+        Three other sessions were independently doing the same
+        hypothesis-hunt on this venture in the same window (#402
+        background-evictor race, #399 disk-space stat guard, #406
+        watchdog SIGKILL fix) -- none overlapped this finding's files or
+        scope. Merged main forward twice mid-session as each landed; only
+        conflict was the shared `VENTURE.yaml` hypothesis-list append,
+        resolved by keeping both entries each time.
+      - >-
+        Opened, verified (68/68 tests including 5 new ones, ruff/mypy
+        clean, all 4 portfolio validators green, CI on the PR head green:
+        test/validate/lint all success), and self-merged PR #407 --
+        agent-decidable per CLAUDE.md: `links.production: null`, no live
+        deploy, no credentials, no unattended automation, nothing
+        published, nothing spent beyond agent time. Same class as this
+        venture's prior self-merges (#359/#361/#370/#376/#379/#383/#385/
+        #399/#402/#406).
+    mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
         process" session, designated branch claude/pensive-feynman-n1szcy.
         Ran `portfolio/ledger/session_gate.py` first (PROCEED -- meta-work
         share 56%, below the 70% threshold). Checked the 4 open PRs (#372,
