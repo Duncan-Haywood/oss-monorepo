@@ -3,6 +3,14 @@
 Usage::
 
     python3 -m wcag_triage.cli page1.html page2.html --output-dir ./evidence
+    python3 -m wcag_triage.cli page.html --stylesheet site.css
+
+Colour contrast is only decidable against the stylesheet the page ships, and
+that stylesheet has to be handed over explicitly: this module resolves no
+``<link href>`` against a filesystem or a site, because guessing which file a
+relative href meant is how a checker silently audits the wrong CSS. With no
+``--stylesheet`` the record reports every element as undecidable for 1.4.3
+rather than as passing.
 
 Like the sibling reachability probe, ``--fail-on`` is opt-in and defaults to
 never failing the build: a checker that breaks CI by default gets removed, and
@@ -17,6 +25,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+from .css import Stylesheet, parse_stylesheet
 from .engine import audit_html
 from .evidence import build_record, to_markdown
 
@@ -33,6 +42,18 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("pages", nargs="+", help="HTML files to audit")
     parser.add_argument(
         "--output-dir", default=None, help="write record.json and record.md here"
+    )
+    parser.add_argument(
+        "--stylesheet",
+        action="append",
+        default=[],
+        metavar="CSS",
+        help=(
+            "CSS file the pages link, so colour contrast (1.4.3) can be "
+            "decided; repeatable, applied in the order given. Without one, "
+            "every element is reported as undecidable for contrast rather than "
+            "as passing."
+        ),
     )
     parser.add_argument(
         "--fail-on",
@@ -52,6 +73,17 @@ def run(argv=None) -> int:
     args = _build_parser().parse_args(argv)
     checked_at = args.checked_at or datetime.now(timezone.utc).isoformat()
 
+    stylesheet = None
+    if args.stylesheet:
+        stylesheet = Stylesheet()
+        for sheet_path in args.stylesheet:
+            try:
+                css = Path(sheet_path).read_text(encoding="utf-8", errors="replace")
+            except OSError as exc:
+                print(f"error: cannot read {sheet_path}: {exc}", file=sys.stderr)
+                return 2
+            parse_stylesheet(css, stylesheet)
+
     audits = {}
     for page in args.pages:
         path = Path(page)
@@ -60,7 +92,7 @@ def run(argv=None) -> int:
         except OSError as exc:
             print(f"error: cannot read {page}: {exc}", file=sys.stderr)
             return 2
-        audits[path.name] = audit_html(html)
+        audits[path.name] = audit_html(html, stylesheet)
 
     record = build_record(audits, checked_at)
 

@@ -21,6 +21,57 @@ Scored 2026-08-18. Composite 7.25 · floor 5 (defensibility).
 | Liability containment | 6 | Real exposure if we overclaim; contained by selling evidence, never a compliance guarantee |
 | Ethical robustness | 9 | The output is a site disabled users can actually use — the interests line up |
 
+## Amendment (2026-08-21): the manual step is smaller than this write-up assumes, and its size is now measurable
+
+**No score moves.** What moves is the shape of the deliverable, and it moves in
+the direction that makes the "quarter to a third" wedge above *more* precise
+rather than less.
+
+This candidate's margin story rests on a deliberate human step — contractor
+assistive-technology testing — and every accessibility pass in this repository
+has priced colour contrast (SC 1.4.3) into that step, on the grounds that it
+"needs computed colour, which needs CSS and rendering." Contrast is the single
+most common WCAG failure on the web, so this is not a detail of the coverage
+table; it is a material share of what the contractor is being paid to look at.
+
+It was never tested. Measured in
+[`portfolio/research/a11y-contrast-decidability/`](../../research/a11y-contrast-decidability/):
+**98.76% of 10,657 text elements across 85 built pages decide from the delivered
+artifact alone**, because a delivered page ships the stylesheet that names its
+colours and the arithmetic to a contrast ratio is exact. The claim was true of
+every *corpus* this portfolio had measured — all of them HTML-only, none ever
+handed a stylesheet — and that property of the sampling read for five passes as
+a property of the standard.
+
+Three consequences for what is sold:
+
+1. **The evidence record gets a per-element contrast tally with named reasons**,
+   not a blanket "1.4.3 requires manual review". "412 elements checked, 3 we
+   could not decide and why" is a coverage limit a buyer can price. The blanket
+   version quotes the contractor for the whole page.
+2. **The audit must include the stylesheet, and say so when it does not.** A
+   scan handed markup alone decides nothing about contrast, and the record now
+   reports that as `0 of N decidable` rather than as no findings — which is the
+   difference between a limit and a false clean bill.
+3. **Both colour schemes, always.** `prefers-color-scheme` has two states and the
+   stylesheet spells out both, so the page owes 1.4.3 in each. On this
+   portfolio's own pages a light-only scan finds 581 failures and a two-scheme
+   scan finds 965; the 384-element difference is muted text with no `dark:`
+   counterpart inside a container that has one. Any competitor scanning one
+   scheme is reporting those clean, which is a concrete, demonstrable gap in the
+   free tools this candidate is positioned against.
+
+It also found this portfolio shipping 965 real AA contrast failures on its own
+built pages — including on `local-site-studio`, the venture this candidate is
+supposed to ship inside. 354 are fixed and re-verified by rebuild on the branch that measured them,
+proposed for merge in
+[#523](https://github.com/Duncan-Haywood/monorepo-projects/pull/523) and
+awaiting the account owner's sign-off (colour-token edits to deployable
+`ventures/*` code); `print-atelier`'s 611 are recorded shape by shape and left
+as component-level decisions. A portfolio selling accessibility evidence
+should not be shipping the defect it plans to bill for finding, and until
+this pass nobody could see that it was.
+
 ## Amendment (2026-08-21): the engine's failure mode is a silent miss, not only a false positive
 
 No score moved. Two measurements now bracket the audit engine from opposite
