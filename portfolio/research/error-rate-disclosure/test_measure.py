@@ -142,6 +142,18 @@ class CommittedResult(unittest.TestCase):
             },
         )
 
+    def test_a_second_committed_number_for_the_same_probe_is_also_absent(self):
+        """`a11y-axe-recall/` landed on main the same day, with recall 0.975.
+
+        Two committed accuracy numbers for one probe now, and the artifact
+        carries neither. Pinned separately from the precision citation because
+        it is a different measurement in a different directory.
+        """
+        reference = Path(__file__).resolve().parents[1] / "a11y-axe-recall" / "README.md"
+        self.assertIn("recall is 0.975", reference.read_text())
+        text, _, _ = measure.render_eaa()
+        self.assertNotIn("0.975", text)
+
     def test_no_candidate_crossed_the_gate(self):
         for entry in self.payload["scoring"]:
             self.assertGreaterEqual(entry["ethical_robustness_now"], 5)

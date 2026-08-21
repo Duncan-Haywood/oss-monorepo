@@ -18,7 +18,7 @@ crossed the gate.
 
 ```
 python3 measure.py 2026-08-21          # offline, no network, no clock read
-python3 -m unittest discover -s . -t . # 16 tests
+python3 -m unittest discover -s . -t . # 17 tests
 ```
 
 ## Why this is the gate and not an essay
@@ -76,6 +76,14 @@ them are not defects —
 traced every false positive to markup the build tool emitted rather than the
 site owner. A reader of the record cannot discount it, because the record does
 not tell them there is anything to discount.
+
+**A second number for the same probe landed on `main` while this was being
+written**, and changes nothing except the size of the gap.
+[`a11y-axe-recall/`](../a11y-axe-recall/) measured out-of-sample *recall* at
+0.975 against axe-core. So `eaa-wcag-triage` now has both halves of its
+accuracy measured and committed, and its record prints neither. A test here
+pins that, so if either number reaches the artifact this directory has to be
+re-run.
 
 This is worth stating plainly because the natural defence — *"but the coverage
 statement is extremely thorough"* — is true and does not help. Coverage answers
