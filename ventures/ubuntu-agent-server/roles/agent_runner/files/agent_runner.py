@@ -264,6 +264,32 @@ def create_self_directed_issue(repo: str, trigger_label: str, log: RunLog) -> di
     }
 
 
+def maybe_self_direct(cfg: dict, repo: str, trigger_label: str, log: RunLog) -> list[dict]:
+    """Called when a repo has self_directed: true and no labeled issues are
+    waiting. Returns [] or a single-element list containing the freshly
+    filed issue.
+
+    The cooldown timestamp is only written on a *successful* issue creation.
+    It must not be written when `create_self_directed_issue()` fails (e.g. a
+    transient `gh issue create` error) — otherwise one flaky API call
+    silently disables self-direction for the full cooldown window (24h by
+    default) with nothing to show for it: no issue was filed, so there's
+    nothing on GitHub to indicate anything happened at all, just a line in
+    a server log nobody's watching. The cooldown is meant to track "since
+    the last one [issue actually filed]", per the README, not "since the
+    last attempt".
+    """
+    cooldown = cfg.get("self_directed_cooldown_hours", 24)
+    if not self_directed_ready(repo, cooldown):
+        log.write(f"[{repo}] self_directed cooldown not elapsed, skipping")
+        return []
+    new_issue = create_self_directed_issue(repo, trigger_label, log)
+    if not new_issue:
+        return []
+    mark_self_directed_run(repo)
+    return [new_issue]
+
+
 # --- model tier ----------------------------------------------------------
 
 def choose_model_tier(cfg: dict, issue: dict) -> str:
@@ -576,14 +602,7 @@ def main() -> int:
             issues = list_candidate_issues(repo, trigger_label, top_log)
 
             if not issues and cfg.get("self_directed"):
-                cooldown = cfg.get("self_directed_cooldown_hours", 24)
-                if self_directed_ready(repo, cooldown):
-                    new_issue = create_self_directed_issue(repo, trigger_label, top_log)
-                    mark_self_directed_run(repo)
-                    if new_issue:
-                        issues = [new_issue]
-                else:
-                    top_log.write(f"[{repo}] self_directed cooldown not elapsed, skipping")
+                issues = maybe_self_direct(cfg, repo, trigger_label, top_log)
 
             top_log.write(f"[{repo}] {len(issues)} candidate issue(s) labeled '{trigger_label}'")
             for issue in issues:
