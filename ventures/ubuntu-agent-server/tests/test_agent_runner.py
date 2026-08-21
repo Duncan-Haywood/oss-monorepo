@@ -79,6 +79,69 @@ def test_self_directed_issue_flows_to_high_tier(agent_runner, monkeypatch, fake_
     assert agent_runner.choose_model_tier({}, issue) == "high"
 
 
+# --- maybe_self_direct --------------------------------------------------
+#
+# Regression tests for a bug in the cooldown bookkeeping: the cooldown
+# timestamp used to be written unconditionally after attempting to create a
+# self-directed issue, even when creation failed (e.g. a transient `gh
+# issue create` error). That silently disabled self-direction for the full
+# cooldown window (24h by default) on a single flaky API call, with nothing
+# on GitHub to show for it. The cooldown must only advance on a *successful*
+# creation.
+
+def test_self_direct_failure_does_not_mark_cooldown(agent_runner, tmp_path, monkeypatch, fake_log):
+    monkeypatch.setattr(agent_runner, "STATE_DIR", tmp_path)
+
+    class FailedResult:
+        returncode = 1
+        stdout = ""
+        stderr = "API rate limited"
+
+    monkeypatch.setattr(agent_runner, "gh", lambda *a, **k: FailedResult())
+
+    cfg = {"self_directed_cooldown_hours": 24}
+    result = agent_runner.maybe_self_direct(cfg, "owner/repo", "agent", fake_log)
+
+    assert result == []
+    # The failed attempt must not have started the cooldown clock — a retry
+    # on the very next poll should still be allowed.
+    assert agent_runner.self_directed_ready("owner/repo", 24) is True
+
+
+def test_self_direct_success_marks_cooldown_and_returns_issue(agent_runner, tmp_path, monkeypatch, fake_log):
+    monkeypatch.setattr(agent_runner, "STATE_DIR", tmp_path)
+
+    class OkResult:
+        returncode = 0
+        stdout = "https://github.com/owner/repo/issues/99\n"
+        stderr = ""
+
+    monkeypatch.setattr(agent_runner, "gh", lambda *a, **k: OkResult())
+
+    cfg = {"self_directed_cooldown_hours": 24}
+    result = agent_runner.maybe_self_direct(cfg, "owner/repo", "agent", fake_log)
+
+    assert [i["number"] for i in result] == [99]
+    assert agent_runner.self_directed_ready("owner/repo", 24) is False
+
+
+def test_self_direct_skips_when_cooldown_not_elapsed(agent_runner, tmp_path, monkeypatch, fake_log):
+    monkeypatch.setattr(agent_runner, "STATE_DIR", tmp_path)
+    agent_runner.mark_self_directed_run("owner/repo")
+
+    called = []
+    monkeypatch.setattr(
+        agent_runner, "gh",
+        lambda *a, **k: called.append(a) or (_ for _ in ()).throw(AssertionError("gh should not be called")),
+    )
+
+    cfg = {"self_directed_cooldown_hours": 24}
+    result = agent_runner.maybe_self_direct(cfg, "owner/repo", "agent", fake_log)
+
+    assert result == []
+    assert called == []
+
+
 # --- model_env_for -----------------------------------------------------
 
 def test_model_env_for_claude_low(agent_runner):
