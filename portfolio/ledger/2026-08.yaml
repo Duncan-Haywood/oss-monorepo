@@ -11238,3 +11238,120 @@ entries:
         `portfolio/research/` only, publishes nothing, registers nothing,
         uses no credential, enables no unattended spend.
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process" session, designated branch claude/zealous-curie-crue4w.
+        Ran `portfolio/ledger/session_gate.py` first (PROCEED -- meta-work
+        share 56%, below the 70% threshold). Checked the open PRs (#372,
+        #368, #144, #19) and issue #139 in full before touching anything --
+        all four correctly owner-gated by prior sessions, nothing to
+        re-derive there.
+      - >-
+        `portfolio/router/allocate.py` again named photos-import-tools as
+        the only dispatchable venture, standing task "every hypothesis
+        settled -- write the next one." All 13 hypotheses on file were
+        themed the same way (a single flaky/unreadable file mid-loop
+        doesn't abort the whole run), so this needed a genuinely different
+        gap. Had an Explore agent read all 5 source files and their tests
+        hunting outside that theme specifically.
+      - >-
+        Found one: every Photos-library dedup check in
+        `resumable_photos_import.py` (`bulk_preflight_pending`,
+        `photos_contains_file`, `filename_in_photos`) matched by
+        `Path(path).name` alone, no path/size/content signal. Camera
+        filenames aren't globally unique (DSC00001.JPG, IMG_0001.JPG
+        recur across cards/folders); once any file with a given basename
+        landed in Photos, every other tracked file sharing that basename
+        got marked "imported" and was never revisited by
+        `next_importable_batch`, silently and permanently dropping a
+        distinct photo with a 100% success report. Not a rephrasing of the
+        error-isolation theme -- every step ran to completion without
+        error, the manifest itself just became wrong.
+      - >-
+        Fixed by adding `ImportState.ambiguous_names()` (every basename
+        occurring more than once in the venture's own tracked-path
+        manifest, no dependency on Photos' private schema) and gating all
+        three match sites on it: an ambiguous name is never treated as
+        proof a specific file is already in Photos. Worst case for a
+        colliding name becomes an extra copy from a real import attempt
+        (recoverable) instead of a silently lost file (unrecoverable).
+        Recorded the hypothesis as `supported` in `VENTURE.yaml`.
+      - >-
+        Three other sessions were independently doing the same
+        hypothesis-hunt on this venture in the same window (#402
+        background-evictor race, #399 disk-space stat guard, #406
+        watchdog SIGKILL fix) -- none overlapped this finding's files or
+        scope. Merged main forward twice mid-session as each landed; only
+        conflict was the shared `VENTURE.yaml` hypothesis-list append,
+        resolved by keeping both entries each time.
+      - >-
+        Opened, verified (68/68 tests including 5 new ones, ruff/mypy
+        clean, all 4 portfolio validators green, CI on the PR head green:
+        test/validate/lint all success), and self-merged PR #407 --
+        agent-decidable per CLAUDE.md: `links.production: null`, no live
+        deploy, no credentials, no unattended automation, nothing
+        published, nothing spent beyond agent time. Same class as this
+        venture's prior self-merges (#359/#361/#370/#376/#379/#383/#385/
+        #399/#402/#406).
+    mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process" session, designated branch claude/pensive-feynman-n1szcy.
+        Ran `portfolio/ledger/session_gate.py` first (PROCEED -- meta-work
+        share 56%, below the 70% threshold). Checked the 4 open PRs (#372,
+        #368, #144, #19) and issue #139 first: all four already correctly
+        owner-gated by prior sessions, and #372/#368 both still merged
+        cleanly against the then-current main tip. Nothing to add there.
+      - >-
+        `portfolio/router/allocate.py` again named photos-import-tools the
+        only dispatchable venture, task "every hypothesis is settled --
+        write the next one." Its hypotheses were heavily themed around
+        import/offload-side resilience to a single bad file mid-loop. Read
+        all five source files hunting for a gap outside that theme rather
+        than a rephrase, and found one in the watchdog's own resilience,
+        untested by any existing test: `terminate_process_group()` let a
+        second `subprocess.TimeoutExpired` propagate uncaught if SIGKILL
+        didn't reap a stuck worker within 10s (a process blocked in an
+        uninterruptible kernel wait -- rsync/osascript stuck on a wedged
+        network share or a stalled iCloud volume -- doesn't die from
+        SIGKILL until the I/O resolves), crashing the watchdog itself.
+      - >-
+        Worse than the crash: both call sites unconditionally set
+        `process = None` after calling terminate_process_group, so even a
+        caught failure fell through to the "process is None" spawn check
+        next iteration and started a second worker alongside the
+        still-alive first one -- two importer processes racing Photos.app
+        against the same manifest db, the exact duplicate-import risk
+        kill_criteria #2 rules out. Fixed by having
+        terminate_process_group report success/failure instead of raising,
+        and having both call sites retry the kill next poll cycle instead
+        of respawning while the worker is still alive.
+      - >-
+        Added unit tests for all four terminate_process_group outcomes and
+        an integration test driving run_watchdog against a
+        permanently-stuck fake process, asserting Popen is called exactly
+        once across several stall-detection cycles. Confirmed the tests
+        reproduce the pre-fix crash via `git stash`. Two concurrent
+        sessions landed unrelated photos-import-tools fixes on main mid-session
+        (#399 disk-space guard, #402 background-evictor race guard);
+        merged main into the branch, resolved one straightforward
+        VENTURE.yaml conflict (both sessions appended a hypothesis at the
+        same list position -- kept both), re-verified full suite (63/63)
+        and all four portfolio validators green post-merge.
+      - >-
+        Opened PR #406, waited for CI (test/lint/validate all green),
+        re-confirmed clean merge against main's latest tip, and self-merged
+        as agent-decidable: prototype-stage local macOS tool
+        (`links.production: null`, no live site), no new dependency, no
+        account, no credential, no unattended automation, no spend beyond
+        agent time -- consistent with this venture's own recent self-merge
+        precedent (#387, #397, #399, #402).
+    mrr_end: null

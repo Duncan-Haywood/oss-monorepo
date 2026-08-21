@@ -1,9 +1,10 @@
 import json
 import sqlite3
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest import mock
 
 from photos_import_watchdog import (
     active_phase,
@@ -11,8 +12,36 @@ from photos_import_watchdog import (
     has_remaining_work,
     never_initialized_phases,
     run_watchdog,
+    terminate_process_group,
     write_status,
 )
+
+
+class FakeProcess:
+    """Stands in for subprocess.Popen: poll()/wait() driven by canned scripts."""
+
+    def __init__(self, poll_results, wait_results):
+        self.pid = 424242
+        self.returncode = None
+        self._poll_results = list(poll_results)
+        self._wait_results = list(wait_results)
+        self.wait_call_count = 0
+
+    def poll(self):
+        return self._poll_results.pop(0) if self._poll_results else None
+
+    def wait(self, timeout=None):
+        self.wait_call_count += 1
+        result = self._wait_results.pop(0) if self._wait_results else subprocess.TimeoutExpired(
+            cmd="worker", timeout=timeout or 10
+        )
+        if isinstance(result, Exception):
+            raise result
+        return result
+
+
+class _HaltLoop(Exception):
+    """Raised from a patched time.sleep to break run_watchdog's infinite loop."""
 
 
 class PhotosImportWatchdogTests(unittest.TestCase):
@@ -161,6 +190,111 @@ class PhotosImportWatchdogTests(unittest.TestCase):
 
             self.assertEqual(never_initialized_phases(phases), [])
 
+    def test_terminate_process_group_already_dead_is_a_noop(self):
+        process = FakeProcess(poll_results=[0], wait_results=[])
+
+        with mock.patch("photos_import_watchdog.os.killpg") as killpg:
+            self.assertTrue(terminate_process_group(process))
+
+        killpg.assert_not_called()
+
+    def test_terminate_process_group_sigterm_succeeds(self):
+        process = FakeProcess(poll_results=[None], wait_results=[0])
+
+        with mock.patch("photos_import_watchdog.os.killpg") as killpg:
+            self.assertTrue(terminate_process_group(process))
+
+        killpg.assert_called_once()
+
+    def test_terminate_process_group_escalates_to_sigkill_and_succeeds(self):
+        process = FakeProcess(
+            poll_results=[None],
+            wait_results=[subprocess.TimeoutExpired(cmd="worker", timeout=10), 0],
+        )
+
+        with mock.patch("photos_import_watchdog.os.killpg") as killpg:
+            self.assertTrue(terminate_process_group(process))
+
+        self.assertEqual(killpg.call_count, 2)
+        self.assertEqual(process.wait_call_count, 2)
+
+    def test_terminate_process_group_returns_false_when_sigkill_does_not_land(self):
+        # A process wedged in an uninterruptible kernel wait (blocked on a
+        # stalled iCloud volume or an unresponsive network share) does not
+        # die from SIGKILL until the I/O it's blocked on resolves. Before
+        # this fix, the second wait()'s TimeoutExpired propagated uncaught
+        # out of terminate_process_group and crashed the watchdog itself --
+        # the one process meant to keep running unattended overnight.
+        process = FakeProcess(
+            poll_results=[None],
+            wait_results=[
+                subprocess.TimeoutExpired(cmd="worker", timeout=10),
+                subprocess.TimeoutExpired(cmd="worker", timeout=10),
+            ],
+        )
+
+        with mock.patch("photos_import_watchdog.os.killpg") as killpg:
+            result = terminate_process_group(process)
+
+        self.assertFalse(result)
+        self.assertEqual(killpg.call_count, 2)
+
+    def test_run_watchdog_does_not_spawn_a_second_worker_while_first_is_stuck(self):
+        # A worker stuck in an uninterruptible I/O wait survives both SIGTERM
+        # and SIGKILL. Before this fix, run_watchdog's stall-restart branch
+        # unconditionally set process=None after calling
+        # terminate_process_group, so the next loop iteration's "process is
+        # None" check spawned a second worker on top of the first still-alive
+        # one -- two importer processes racing Photos.app on the same
+        # manifest, exactly the duplicate-import risk kill_criteria #2 rules
+        # out. This asserts Popen is called exactly once no matter how many
+        # stall-detection cycles run against a stuck worker.
+        with tempfile.TemporaryDirectory() as temp_dir:
+            state_dir = Path(temp_dir)
+            db_path = state_dir / "photos_import.sqlite3"
+            with sqlite3.connect(db_path) as connection:
+                connection.execute(
+                    "CREATE TABLE imports (path TEXT PRIMARY KEY, status TEXT NOT NULL, "
+                    "attempts INTEGER NOT NULL DEFAULT 0, last_error TEXT, "
+                    "first_seen_at TEXT NOT NULL, updated_at TEXT NOT NULL)"
+                )
+                connection.execute(
+                    "INSERT INTO imports VALUES ('/tmp/pending.jpg', 'pending', 0, NULL, 'now', 'now')"
+                )
+                connection.commit()
+
+            stuck_process = FakeProcess(
+                poll_results=[],
+                wait_results=[subprocess.TimeoutExpired(cmd="worker", timeout=10)] * 20,
+            )
+            sleep_calls = {"count": 0}
+
+            def fake_sleep(_seconds):
+                sleep_calls["count"] += 1
+                if sleep_calls["count"] >= 4:
+                    raise _HaltLoop
+                return None
+
+            with mock.patch("photos_import_watchdog.subprocess.Popen", return_value=stuck_process) as popen, \
+                    mock.patch("photos_import_watchdog.os.killpg"), \
+                    mock.patch("photos_import_watchdog.time.sleep", side_effect=fake_sleep), \
+                    self.assertRaises(_HaltLoop):
+                run_watchdog(
+                    root=state_dir,
+                    state_dir=state_dir,
+                    tool_dir=state_dir,
+                    poll_seconds=0,
+                    stall_seconds=0,
+                    timeout_seconds=180,
+                    attempts=3,
+                    batch_size=10,
+                    include_raws=False,
+                    raw_batch_size=3,
+                    raw_timeout_seconds=600,
+                )
+
+            popen.assert_called_once()
+
     def test_run_watchdog_closes_worker_log_handle_after_spawning(self):
         # Regression: stdout=log_path.open("ab") used to hand subprocess.Popen
         # a file object that nothing ever closed. Popen dup()s the fd into the
@@ -175,7 +309,9 @@ class PhotosImportWatchdogTests(unittest.TestCase):
             db_path = state_dir / "photos_import.sqlite3"
             with sqlite3.connect(db_path) as connection:
                 connection.execute(
-                    "CREATE TABLE imports (path TEXT PRIMARY KEY, status TEXT NOT NULL, attempts INTEGER NOT NULL DEFAULT 0, last_error TEXT, first_seen_at TEXT NOT NULL, updated_at TEXT NOT NULL)"
+                    "CREATE TABLE imports (path TEXT PRIMARY KEY, status TEXT NOT NULL, "
+                    "attempts INTEGER NOT NULL DEFAULT 0, last_error TEXT, "
+                    "first_seen_at TEXT NOT NULL, updated_at TEXT NOT NULL)"
                 )
                 connection.execute(
                     "INSERT INTO imports VALUES ('/tmp/pending.jpg', 'pending', 0, NULL, 'now', 'now')"
@@ -196,7 +332,7 @@ class PhotosImportWatchdogTests(unittest.TestCase):
                 def poll(self):
                     return self.returncode
 
-            with patch("photos_import_watchdog.subprocess.Popen", FakePopen), patch(
+            with mock.patch("photos_import_watchdog.subprocess.Popen", FakePopen), mock.patch(
                 "photos_import_watchdog.terminate_process_group"
             ):
                 exit_code = run_watchdog(
