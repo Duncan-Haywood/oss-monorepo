@@ -81,6 +81,14 @@ hypotheses:
     status: supported
     checked: 2026-08-21
     evidence: in-repo
+  - claim: SD offload's background iCloud-eviction thread is always signaled to stop when its rsync copy finishes, including when rsync itself fails to launch (e.g. the binary is temporarily missing or unreachable) rather than merely returning a nonzero exit code; a long unattended multi-card run therefore cannot accumulate leaked daemon threads that poll and evict from an abandoned destination tree for the rest of the process's life.
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
+  - claim: Clearing a stale leftover scratch-dir file from a killed prior attempt does not crash the whole run if the removal itself fails (e.g. a network/iCloud-backed scratch mount hiccup); the failure is treated like any other per-item staging failure and the item is retried, not left stuck in "importing" with the exception escaping the run() loop uncaught.
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
   - claim: The unattended watchdog installs its own SIGINT/SIGTERM handlers, so an operator's Ctrl-C or a supervisor's kill/launchd stop (start_import.sh execs the watchdog directly, making it the signal's direct target) terminates the current worker's process group before the watchdog exits instead of leaving the worker running as an unsupervised orphan that a later watchdog run has no way to see and would start a second worker alongside, racing two importer processes against Photos.app on the same manifest.
     status: supported
     checked: 2026-08-21
