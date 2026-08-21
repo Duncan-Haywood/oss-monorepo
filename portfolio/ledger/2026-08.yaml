@@ -13525,3 +13525,62 @@ entries:
         spent beyond agent time -- same class as this portfolio's many
         prior self-merges.
     mrr_end: null
+  - venture: local-site-studio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/zealous-curie-4o02q3. Ran `session_gate.py` first
+        (PROCEED). Checked the 3 open PRs (#372, #368, #144 -- #144 closed
+        mid-session) before starting; all correctly owner-gated by prior
+        sessions, nothing to consolidate. `local-site-studio`'s Convex
+        backend (checkout/orders/leads) had never been bug-hunted by a
+        prior session, unlike `photos-import-tools`, `retail-pilot-intel`,
+        `real-estate-agent-photo-app`, `world-clock-widget`, and
+        `print-atelier`, so this session dispatched a background agent to
+        adversarially bug-hunt it, focused on the money-adjacent files
+        (`checkoutSessions.ts`, `orders.ts`, `commerceOrders.ts`,
+        `commerceCatalogs.ts`, `leads.ts`, `deployHandoffs.ts`).
+      - >-
+        Found that `convex/leads.ts`'s `markLeadPaid` patched a lead's
+        `stage` to `"paid"` unconditionally on any new (non-duplicate)
+        `stripeSessionId`, with no check of the lead's current stage. The
+        app's Starter -> Growth/Complete upsell flow
+        (`leadEligibleForStarterUpsell` in
+        `src/lib/billing/starter-upsell.ts`) is deliberately offered to
+        leads at stage `"paid"` *or* `"live"`, so the sequence customer
+        buys Starter -> webhook sets `"paid"` -> operator confirms DNS,
+        `markHandoffLive` sets `"live"` -> operator sends the upsell email
+        -> customer buys Growth (a *new* `stripeSessionId`) -> webhook
+        calls `markLeadPaid` again slips past the idempotency guard (new
+        session id) and silently regresses the lead's stage from `"live"`
+        back to `"paid"` -- reappearing as false stuck-fulfillment debt in
+        `pipeline-health.paidNotLiveCount` and the daily digest's "Paid,
+        not yet live" section for a site that is actually already live.
+        Same class of state-machine regression the codebase already
+        guards against on the deploy-handoff record
+        (`preserveDeployHandoffOperatorFields`'s "must not downgrade live
+        -> provisioned" rule); the guard was just missing on the lead's
+        own `stage` field.
+      - >-
+        Fixed by only patching `stage` to `"paid"` when the lead isn't
+        already `"live"`. Added `convex/leads.test.ts` (no convex tests
+        existed before -- extended `vitest.config.ts`'s `include` to add
+        `convex/**/*.test.ts`): a pre-payment lead still advances to
+        `"paid"`, an already-`"live"` lead stays `"live"` on a second
+        (upsell) payment (fails on pre-fix code: `expected 'paid' to be
+        'live'`), and a redelivered webhook for an already-recorded
+        session still no-ops. Verified with the venture's own checks:
+        `npx vitest run` (125/125 test files, 1210/1210 tests), `npx
+        eslint .` clean, `npx tsc --noEmit` clean, `npx next build`
+        succeeds.
+      - >-
+        Opened PR #483, watched its CI (`verify`) go green, and it was
+        merged as agent-decidable: internal correctness fix to an
+        unpublished venture (`links.production: null`), no new
+        dependency, no credential, no unattended automation, nothing
+        published, nothing spent beyond agent time -- same class of
+        self-merge as #466, #471, #474, and #487.
+    mrr_end: null
