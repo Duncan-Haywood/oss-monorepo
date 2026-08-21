@@ -1,0 +1,1957 @@
+{
+  "axe_core_version": "4.13.0",
+  "checked_criteria": [
+    "1.1.1",
+    "1.2.2",
+    "1.3.1",
+    "1.4.2",
+    "1.4.3",
+    "1.4.4",
+    "2.4.2",
+    "2.4.3",
+    "2.4.4",
+    "2.4.6",
+    "3.1.1",
+    "3.3.2",
+    "4.1.2"
+  ],
+  "corpus": {
+    "apps": [
+      "ventures/ai-first-markets",
+      "ventures/local-site-studio",
+      "ventures/photo-editing/docs-site",
+      "ventures/print-atelier",
+      "ventures/quick-pick-survey",
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ],
+    "duplicates_dropped": 20,
+    "pages_built": 138,
+    "pages_unique": 118
+  },
+  "per_page": [
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "_not-found.html",
+      "path": "ventures/ai-first-markets/.next/server/app/_not-found.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": [
+        "1.3.1",
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "ideas.html",
+      "path": "ventures/ai-first-markets/.next/server/app/ideas.html",
+      "probe_criteria": [
+        "1.4.3",
+        "2.4.6"
+      ]
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "ai-pr-review-bot.html",
+      "path": "ventures/ai-first-markets/.next/server/app/ideas/ai-pr-review-bot.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "ai-qa-for-ecommerce.html",
+      "path": "ventures/ai-first-markets/.next/server/app/ideas/ai-qa-for-ecommerce.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "api-uptime-intelligence.html",
+      "path": "ventures/ai-first-markets/.next/server/app/ideas/api-uptime-intelligence.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "compliance-doc-generator.html",
+      "path": "ventures/ai-first-markets/.next/server/app/ideas/compliance-doc-generator.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "contract-review-api.html",
+      "path": "ventures/ai-first-markets/.next/server/app/ideas/contract-review-api.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "linkedin-content-engine.html",
+      "path": "ventures/ai-first-markets/.next/server/app/ideas/linkedin-content-engine.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "rag-as-a-service.html",
+      "path": "ventures/ai-first-markets/.next/server/app/ideas/rag-as-a-service.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "vertical-ai-receptionist.html",
+      "path": "ventures/ai-first-markets/.next/server/app/ideas/vertical-ai-receptionist.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "index.html",
+      "path": "ventures/ai-first-markets/.next/server/app/index.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "market-map.html",
+      "path": "ventures/ai-first-markets/.next/server/app/market-map.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": [
+        "1.3.1",
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "reports.html",
+      "path": "ventures/ai-first-markets/.next/server/app/reports.html",
+      "probe_criteria": [
+        "1.4.3",
+        "2.4.6"
+      ]
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "ai-automation-playbook.html",
+      "path": "ventures/ai-first-markets/.next/server/app/reports/ai-automation-playbook.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "category-analysis.html",
+      "path": "ventures/ai-first-markets/.next/server/app/reports/category-analysis.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "executive-summary.html",
+      "path": "ventures/ai-first-markets/.next/server/app/reports/executive-summary.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "path-to-100k.html",
+      "path": "ventures/ai-first-markets/.next/server/app/reports/path-to-100k.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "path-to-1m.html",
+      "path": "ventures/ai-first-markets/.next/server/app/reports/path-to-1m.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "scoring-methodology.html",
+      "path": "ventures/ai-first-markets/.next/server/app/reports/scoring-methodology.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "unauthorized.html",
+      "path": "ventures/ai-first-markets/.next/server/app/unauthorized.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": [
+        "3.1.1"
+      ],
+      "axe_all_criteria": [
+        "3.1.1"
+      ],
+      "axe_checked_criteria": [
+        "3.1.1"
+      ],
+      "matched": [
+        "3.1.1"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "500.html",
+      "path": "ventures/ai-first-markets/.next/server/pages/500.html",
+      "probe_criteria": [
+        "3.1.1"
+      ]
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": [
+        "3.1.1"
+      ],
+      "axe_all_criteria": [
+        "3.1.1"
+      ],
+      "axe_checked_criteria": [
+        "3.1.1"
+      ],
+      "matched": [
+        "3.1.1"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "_global-error.html",
+      "path": "ventures/local-site-studio/.next/server/app/_global-error.html",
+      "probe_criteria": [
+        "3.1.1"
+      ]
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "_not-found.html",
+      "path": "ventures/local-site-studio/.next/server/app/_not-found.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "docs.html",
+      "path": "ventures/local-site-studio/.next/server/app/docs.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "architecture.html",
+      "path": "ventures/local-site-studio/.next/server/app/docs/architecture.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "business-model.html",
+      "path": "ventures/local-site-studio/.next/server/app/docs/business-model.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "cli-agents.html",
+      "path": "ventures/local-site-studio/.next/server/app/docs/cli-agents.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "compliance.html",
+      "path": "ventures/local-site-studio/.next/server/app/docs/compliance.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "launch-checklist.html",
+      "path": "ventures/local-site-studio/.next/server/app/docs/launch-checklist.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "legal.html",
+      "path": "ventures/local-site-studio/.next/server/app/docs/legal.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "marketing-automation.html",
+      "path": "ventures/local-site-studio/.next/server/app/docs/marketing-automation.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "process.html",
+      "path": "ventures/local-site-studio/.next/server/app/docs/process.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "product-bundles.html",
+      "path": "ventures/local-site-studio/.next/server/app/docs/product-bundles.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "production-deploy.html",
+      "path": "ventures/local-site-studio/.next/server/app/docs/production-deploy.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "roadmap.html",
+      "path": "ventures/local-site-studio/.next/server/app/docs/roadmap.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "voice-agent-flow.html",
+      "path": "ventures/local-site-studio/.next/server/app/docs/voice-agent-flow.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "index.html",
+      "path": "ventures/local-site-studio/.next/server/app/index.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "privacy.html",
+      "path": "ventures/local-site-studio/.next/server/app/privacy.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "terms.html",
+      "path": "ventures/local-site-studio/.next/server/app/terms.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "_not-found.html",
+      "path": "ventures/photo-editing/docs-site/.next/server/app/_not-found.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "architecture.html",
+      "path": "ventures/photo-editing/docs-site/.next/server/app/docs/architecture.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "business-plan.html",
+      "path": "ventures/photo-editing/docs-site/.next/server/app/docs/business-plan.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "cli-reference.html",
+      "path": "ventures/photo-editing/docs-site/.next/server/app/docs/cli-reference.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "continuation-notes.html",
+      "path": "ventures/photo-editing/docs-site/.next/server/app/docs/continuation-notes.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "design-decisions.html",
+      "path": "ventures/photo-editing/docs-site/.next/server/app/docs/design-decisions.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "product-strategy.html",
+      "path": "ventures/photo-editing/docs-site/.next/server/app/docs/product-strategy.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "commercial-viability-assessment.html",
+      "path": "ventures/photo-editing/docs-site/.next/server/app/docs/reports/commercial-viability-assessment.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "commercial-viability-deep-dive-8600.html",
+      "path": "ventures/photo-editing/docs-site/.next/server/app/docs/reports/commercial-viability-deep-dive-8600.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "commercial-viability-deep-dive-report.html",
+      "path": "ventures/photo-editing/docs-site/.next/server/app/docs/reports/commercial-viability-deep-dive-report.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "commercial-viability-deep-dive.html",
+      "path": "ventures/photo-editing/docs-site/.next/server/app/docs/reports/commercial-viability-deep-dive.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "commercial-viability-report.html",
+      "path": "ventures/photo-editing/docs-site/.next/server/app/docs/reports/commercial-viability-report.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "security.html",
+      "path": "ventures/photo-editing/docs-site/.next/server/app/docs/security.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "terms-and-conditions.html",
+      "path": "ventures/photo-editing/docs-site/.next/server/app/docs/terms-and-conditions.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "workflow-authority.html",
+      "path": "ventures/photo-editing/docs-site/.next/server/app/docs/workflow-authority.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [
+        "1.4.1"
+      ],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "index.html",
+      "path": "ventures/photo-editing/docs-site/.next/server/app/index.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "login.html",
+      "path": "ventures/photo-editing/docs-site/.next/server/app/login.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": [
+        "3.1.1"
+      ],
+      "axe_all_criteria": [
+        "3.1.1"
+      ],
+      "axe_checked_criteria": [
+        "3.1.1"
+      ],
+      "matched": [
+        "3.1.1"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "500.html",
+      "path": "ventures/photo-editing/docs-site/.next/server/pages/500.html",
+      "probe_criteria": [
+        "3.1.1"
+      ]
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "_not-found.html",
+      "path": "ventures/print-atelier/.next/server/app/_not-found.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [
+        "1.3.1"
+      ],
+      "axe_all_criteria": [
+        "2.1.1",
+        "2.1.3"
+      ],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "ad-catalog.html",
+      "path": "ventures/print-atelier/.next/server/app/ad-catalog.html",
+      "probe_criteria": [
+        "2.4.6"
+      ]
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "ad-sync-health.html",
+      "path": "ventures/print-atelier/.next/server/app/ad-sync-health.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [
+        "1.3.1"
+      ],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "admin-portal.html",
+      "path": "ventures/print-atelier/.next/server/app/admin-portal.html",
+      "probe_criteria": [
+        "2.4.6"
+      ]
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [
+        "1.3.1"
+      ],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "artist-portal.html",
+      "path": "ventures/print-atelier/.next/server/app/artist-portal.html",
+      "probe_criteria": [
+        "2.4.6"
+      ]
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "b2b-portal.html",
+      "path": "ventures/print-atelier/.next/server/app/b2b-portal.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "battlecards.html",
+      "path": "ventures/print-atelier/.next/server/app/battlecards.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [
+        "1.3.1"
+      ],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "buyer-portal.html",
+      "path": "ventures/print-atelier/.next/server/app/buyer-portal.html",
+      "probe_criteria": [
+        "2.4.6"
+      ]
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "capture-demo.html",
+      "path": "ventures/print-atelier/.next/server/app/capture-demo.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [
+        "3.3.2"
+      ],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "capture.html",
+      "path": "ventures/print-atelier/.next/server/app/capture.html",
+      "probe_criteria": [
+        "1.3.1"
+      ]
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "catalog-intelligence.html",
+      "path": "ventures/print-atelier/.next/server/app/catalog-intelligence.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "checkout.html",
+      "path": "ventures/print-atelier/.next/server/app/checkout.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [
+        "1.3.1"
+      ],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "designer-portal.html",
+      "path": "ventures/print-atelier/.next/server/app/designer-portal.html",
+      "probe_criteria": [
+        "2.4.6"
+      ]
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "docs.html",
+      "path": "ventures/print-atelier/.next/server/app/docs.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "index.html",
+      "path": "ventures/print-atelier/.next/server/app/index.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "investor.html",
+      "path": "ventures/print-atelier/.next/server/app/investor.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [
+        "1.3.1"
+      ],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "marketing-portal.html",
+      "path": "ventures/print-atelier/.next/server/app/marketing-portal.html",
+      "probe_criteria": [
+        "2.4.6"
+      ]
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "ops.html",
+      "path": "ventures/print-atelier/.next/server/app/ops.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "partner-setup.html",
+      "path": "ventures/print-atelier/.next/server/app/partner-setup.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "payout-simulator.html",
+      "path": "ventures/print-atelier/.next/server/app/payout-simulator.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [
+        "1.3.1"
+      ],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "abstract-no-4-artist-payout-proof.html",
+      "path": "ventures/print-atelier/.next/server/app/prints/abstract-no-4-artist-payout-proof.html",
+      "probe_criteria": [
+        "2.4.6"
+      ]
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [
+        "1.3.1"
+      ],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "city-at-dusk-city-dusk.html",
+      "path": "ventures/print-atelier/.next/server/app/prints/city-at-dusk-city-dusk.html",
+      "probe_criteria": [
+        "2.4.6"
+      ]
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [
+        "1.3.1"
+      ],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "city-at-dusk-marcus-chen-prints.html",
+      "path": "ventures/print-atelier/.next/server/app/prints/city-at-dusk-marcus-chen-prints.html",
+      "probe_criteria": [
+        "2.4.6"
+      ]
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [
+        "1.3.1"
+      ],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "city-at-dusk-minimal-wall-art.html",
+      "path": "ventures/print-atelier/.next/server/app/prints/city-at-dusk-minimal-wall-art.html",
+      "probe_criteria": [
+        "2.4.6"
+      ]
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [
+        "1.3.1"
+      ],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "desert-sun-desert-warm.html",
+      "path": "ventures/print-atelier/.next/server/app/prints/desert-sun-desert-warm.html",
+      "probe_criteria": [
+        "2.4.6"
+      ]
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [
+        "1.3.1"
+      ],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "desert-sun-elena-rostova-prints.html",
+      "path": "ventures/print-atelier/.next/server/app/prints/desert-sun-elena-rostova-prints.html",
+      "probe_criteria": [
+        "2.4.6"
+      ]
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [
+        "1.3.1"
+      ],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "desert-sun-landscape-wall-art.html",
+      "path": "ventures/print-atelier/.next/server/app/prints/desert-sun-landscape-wall-art.html",
+      "probe_criteria": [
+        "2.4.6"
+      ]
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [
+        "1.3.1"
+      ],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "midnight-coast-coastal-night.html",
+      "path": "ventures/print-atelier/.next/server/app/prints/midnight-coast-coastal-night.html",
+      "probe_criteria": [
+        "2.4.6"
+      ]
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [
+        "1.3.1"
+      ],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "midnight-coast-elena-rostova-prints.html",
+      "path": "ventures/print-atelier/.next/server/app/prints/midnight-coast-elena-rostova-prints.html",
+      "probe_criteria": [
+        "2.4.6"
+      ]
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [
+        "1.3.1"
+      ],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "midnight-coast-landscape-wall-art.html",
+      "path": "ventures/print-atelier/.next/server/app/prints/midnight-coast-landscape-wall-art.html",
+      "probe_criteria": [
+        "2.4.6"
+      ]
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [
+        "1.3.1"
+      ],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "spring-bloom-botanical-green.html",
+      "path": "ventures/print-atelier/.next/server/app/prints/spring-bloom-botanical-green.html",
+      "probe_criteria": [
+        "2.4.6"
+      ]
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [
+        "1.3.1"
+      ],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "spring-bloom-portrait-wall-art.html",
+      "path": "ventures/print-atelier/.next/server/app/prints/spring-bloom-portrait-wall-art.html",
+      "probe_criteria": [
+        "2.4.6"
+      ]
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [
+        "1.3.1"
+      ],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "spring-bloom-sarah-jenkins-prints.html",
+      "path": "ventures/print-atelier/.next/server/app/prints/spring-bloom-sarah-jenkins-prints.html",
+      "probe_criteria": [
+        "2.4.6"
+      ]
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [
+        "1.3.1"
+      ],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "urban-geometry-abstract-wall-art.html",
+      "path": "ventures/print-atelier/.next/server/app/prints/urban-geometry-abstract-wall-art.html",
+      "probe_criteria": [
+        "2.4.6"
+      ]
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [
+        "1.3.1"
+      ],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "urban-geometry-marcus-chen-prints.html",
+      "path": "ventures/print-atelier/.next/server/app/prints/urban-geometry-marcus-chen-prints.html",
+      "probe_criteria": [
+        "2.4.6"
+      ]
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [
+        "1.3.1"
+      ],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "urban-geometry-urban-geometry.html",
+      "path": "ventures/print-atelier/.next/server/app/prints/urban-geometry-urban-geometry.html",
+      "probe_criteria": [
+        "2.4.6"
+      ]
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "sales-portal.html",
+      "path": "ventures/print-atelier/.next/server/app/sales-portal.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "seo-lab.html",
+      "path": "ventures/print-atelier/.next/server/app/seo-lab.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": [
+        "3.1.1"
+      ],
+      "axe_all_criteria": [
+        "3.1.1"
+      ],
+      "axe_checked_criteria": [
+        "3.1.1"
+      ],
+      "matched": [
+        "3.1.1"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "500.html",
+      "path": "ventures/print-atelier/.next/server/pages/500.html",
+      "probe_criteria": [
+        "3.1.1"
+      ]
+    },
+    {
+      "app": "ventures/quick-pick-survey",
+      "audit_py_criteria": [
+        "3.1.1"
+      ],
+      "axe_all_criteria": [
+        "3.1.1"
+      ],
+      "axe_checked_criteria": [
+        "3.1.1"
+      ],
+      "matched": [
+        "3.1.1"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "_global-error.html",
+      "path": "ventures/quick-pick-survey/.next/server/app/_global-error.html",
+      "probe_criteria": [
+        "3.1.1"
+      ]
+    },
+    {
+      "app": "ventures/quick-pick-survey",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "_not-found.html",
+      "path": "ventures/quick-pick-survey/.next/server/app/_not-found.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/quick-pick-survey",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "admin.html",
+      "path": "ventures/quick-pick-survey/.next/server/app/admin.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/quick-pick-survey",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "app.html",
+      "path": "ventures/quick-pick-survey/.next/server/app/app.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/quick-pick-survey",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "couple.html",
+      "path": "ventures/quick-pick-survey/.next/server/app/couple.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/quick-pick-survey",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "index.html",
+      "path": "ventures/quick-pick-survey/.next/server/app/index.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/quick-pick-survey",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "insights.html",
+      "path": "ventures/quick-pick-survey/.next/server/app/insights.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/quick-pick-survey",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "login.html",
+      "path": "ventures/quick-pick-survey/.next/server/app/login.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/quick-pick-survey",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "privacy.html",
+      "path": "ventures/quick-pick-survey/.next/server/app/privacy.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/quick-pick-survey",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "profile.html",
+      "path": "ventures/quick-pick-survey/.next/server/app/profile.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/quick-pick-survey",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "terms.html",
+      "path": "ventures/quick-pick-survey/.next/server/app/terms.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/real-estate-agent-photo-app/docs-site",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "_not-found.html",
+      "path": "ventures/real-estate-agent-photo-app/docs-site/.next/server/app/_not-found.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/real-estate-agent-photo-app/docs-site",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "deployment.html",
+      "path": "ventures/real-estate-agent-photo-app/docs-site/.next/server/app/docs/deployment.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/real-estate-agent-photo-app/docs-site",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "replication.html",
+      "path": "ventures/real-estate-agent-photo-app/docs-site/.next/server/app/docs/replication.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/real-estate-agent-photo-app/docs-site",
+      "audit_py_criteria": [
+        "1.4.3",
+        "3.3.2"
+      ],
+      "axe_all_criteria": [
+        "1.4.3",
+        "4.1.2"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3",
+        "4.1.2"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [
+        "4.1.2"
+      ],
+      "missed_examples": {
+        "4.1.2": {
+          "html": "<input type=\"checkbox\" disabled=\"\" checked=\"\">",
+          "rule": "label",
+          "target": [
+            ".task-list-item:nth-child(1) > input"
+          ]
+        }
+      },
+      "page": "strategy.html",
+      "path": "ventures/real-estate-agent-photo-app/docs-site/.next/server/app/docs/strategy.html",
+      "probe_criteria": [
+        "1.3.1",
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/real-estate-agent-photo-app/docs-site",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "index.html",
+      "path": "ventures/real-estate-agent-photo-app/docs-site/.next/server/app/index.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/real-estate-agent-photo-app/docs-site",
+      "audit_py_criteria": [
+        "1.3.1",
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "pricing.html",
+      "path": "ventures/real-estate-agent-photo-app/docs-site/.next/server/app/pricing.html",
+      "probe_criteria": [
+        "1.4.3",
+        "2.4.6"
+      ]
+    },
+    {
+      "app": "ventures/real-estate-agent-photo-app/docs-site",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "process.html",
+      "path": "ventures/real-estate-agent-photo-app/docs-site/.next/server/app/process.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/real-estate-agent-photo-app/docs-site",
+      "audit_py_criteria": [
+        "3.1.1"
+      ],
+      "axe_all_criteria": [
+        "3.1.1"
+      ],
+      "axe_checked_criteria": [
+        "3.1.1"
+      ],
+      "matched": [
+        "3.1.1"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "500.html",
+      "path": "ventures/real-estate-agent-photo-app/docs-site/.next/server/pages/500.html",
+      "probe_criteria": [
+        "3.1.1"
+      ]
+    },
+    {
+      "app": "ventures/real-estate-agent-photo-app/research",
+      "audit_py_criteria": [],
+      "axe_all_criteria": [],
+      "axe_checked_criteria": [],
+      "matched": [],
+      "missed": [],
+      "missed_examples": {},
+      "page": "_not-found.html",
+      "path": "ventures/real-estate-agent-photo-app/research/.next/server/app/_not-found.html",
+      "probe_criteria": []
+    },
+    {
+      "app": "ventures/real-estate-agent-photo-app/research",
+      "audit_py_criteria": [
+        "1.4.3"
+      ],
+      "axe_all_criteria": [
+        "1.4.3"
+      ],
+      "axe_checked_criteria": [
+        "1.4.3"
+      ],
+      "matched": [
+        "1.4.3"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "index.html",
+      "path": "ventures/real-estate-agent-photo-app/research/.next/server/app/index.html",
+      "probe_criteria": [
+        "1.4.3"
+      ]
+    },
+    {
+      "app": "ventures/real-estate-agent-photo-app/research",
+      "audit_py_criteria": [
+        "3.1.1"
+      ],
+      "axe_all_criteria": [
+        "3.1.1"
+      ],
+      "axe_checked_criteria": [
+        "3.1.1"
+      ],
+      "matched": [
+        "3.1.1"
+      ],
+      "missed": [],
+      "missed_examples": {},
+      "page": "500.html",
+      "path": "ventures/real-estate-agent-photo-app/research/.next/server/pages/500.html",
+      "probe_criteria": [
+        "3.1.1"
+      ]
+    }
+  ]
+}
