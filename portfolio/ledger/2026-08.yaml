@@ -11712,3 +11712,68 @@ entries:
         unattended spend -- consistent with this venture's own self-merge
         precedent (#397/#399/#402/#406/#407/#408/#413).
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/zealous-curie-eqj411. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 40%, below the 70% threshold). Listed
+        open PRs before starting: #372/#368/#144/#19, all long-standing
+        and already correctly owner-gated by prior sessions, none
+        superseded. `portfolio/router/allocate.py` again named
+        photos-import-tools the only dispatchable venture (9 of 10
+        blocked on customer response, unpublished) with the standing task
+        "every recorded hypothesis is settled -- write the next one in
+        VENTURE.yaml, then test it."
+      - >-
+        Dispatched a research agent to read every source file in
+        `ventures/photos-import-tools/` against the (then-19) recorded
+        hypotheses looking for an uncovered gap. Found one:
+        `photos_import_watchdog.py`'s `run_watchdog()` installed no
+        signal handlers at all. `start_import.sh` execs the watchdog
+        directly, making it the direct target of an operator's Ctrl-C or
+        a supervisor's `kill`/launchd stop, and Python's default
+        SIGTERM/SIGINT disposition never reaches
+        `terminate_process_group`. Because the worker subprocess runs
+        with `start_new_session=True` (so a stalled *worker* can't take
+        the watchdog down with it), the same detachment meant a watchdog
+        killed by SIGTERM/SIGINT left the worker running as an
+        unsupervised orphan -- still driving Photos.app with no stall
+        detection or restart logic -- and a later watchdog run has no way
+        to see that orphan, so it would spawn a second worker alongside
+        it, racing two importer processes against Photos.app on the same
+        manifest (the mirror image of the already-covered "worker
+        survives SIGKILL" hypothesis).
+      - >-
+        Fixed by adding `install_signal_handlers()`, called at the top of
+        `run_watchdog`, routing SIGINT/SIGTERM into the existing STOP-file
+        graceful-stop path (minimal change, reuses already-tested cleanup
+        logic). Added
+        `test_run_watchdog_terminates_worker_on_sigterm_instead_of_orphaning_it`,
+        which sends a real SIGTERM to the test process while a worker runs
+        inside `run_watchdog`; confirmed it reproduced the bug pre-fix
+        (killed the pytest process itself, exit 143, no assertions ever
+        ran) and passed post-fix (`terminate_process_group` called,
+        `run_watchdog` returns 130). Recorded as the 20th hypothesis in
+        `VENTURE.yaml` (`status: supported`, `checked: 2026-08-21`).
+      - >-
+        While this ran, two other concurrent sessions' hypotheses (#416's
+        rsync launch-failure thread leak, already on `main`, plus a stale
+        scratch-file removal failure) landed on `main` and produced a real
+        merge conflict on the same `VENTURE.yaml` list location. Resolved
+        by merging `origin/main` and keeping all three new entries, then
+        re-ran the full verification suite after the merge before pushing
+        again: 74/74 tests, `ruff check .` (0.15.8) and `mypy .` (1.19.1)
+        clean, all four portfolio validators green.
+      - >-
+        Opened PR #419, waited for CI (lint/test/validate all green),
+        confirmed `mergeable_state: clean` against the then-current main
+        tip, and self-merged as agent-decidable: additive/defensive-only,
+        scoped entirely to `ventures/photos-import-tools/`, no
+        publishing/credentials/unattended spend -- consistent with this
+        venture's own self-merge precedent
+        (#397/#399/#402/#406/#407/#408/#413/#416).
+    mrr_end: null
