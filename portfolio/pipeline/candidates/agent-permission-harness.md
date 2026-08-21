@@ -8,11 +8,12 @@ and fail the build when a tool fires that should not have.
 the worst timing. The buyers who need it most are the ones currently building
 it in-house, and the ones who will buy it are not yet feeling the pain.
 
-Scored 2026-08-18. Composite 7.0 · floor 4 (time to revenue, distribution).
+Scored 2026-08-18. Rescored 2026-08-21 after the internal build.
+Composite 6.875 · floor 4 (time to revenue, distribution).
 
 | Dimension | Score | Why |
 |---|---|---|
-| AI leverage | 9 | Attack generation, mutation, and verdicting are model work end to end |
+| AI leverage | 8 | Was 9, "attack generation, mutation, and verdicting are model work end to end". Lowered 2026-08-21: the internal harness this candidate prescribes was built and contains no model call at all — see the amendment below |
 | Autonomous ops | 8 | Runs as CI; the corpus is maintained by agents |
 | Time to revenue | 4 | Sold to engineering teams with a security review in front of the purchase |
 | Gross margin | 9 | Inference and compute |
@@ -74,6 +75,63 @@ The only genuine trap: never certify. "Passed our suite" must not read as
 failed to catch. Contracts should require the customer to warrant they own or
 are authorised to test the target system, since the product actively attacks a
 running service.
+
+## Amendment, 2026-08-21: the internal build was done, and it moved the product's shape
+
+The last line of "What would unpark it" said the harness was worth building
+internally for the portfolio's own agents. That was taken literally rather than
+as a gesture, and the build is
+[`probes/agent-permission-harness/`](../probes/agent-permission-harness/) — 960
+lines, seven rules, 61 tests, run over all 31 workflow files in this repository.
+
+Three things came out of it, in descending order of how much they change the
+argument above.
+
+**1. The product's framing is aimed at the smaller half of the surface.** This
+candidate sells attack replay: point the harness at the running agent and see
+what fires. But an agent's instruction set is not its `prompt:` input — it is
+the transitive closure of what that prompt *directs it to read*. This
+portfolio's agent prompt is 52 fixed lines whose main content is reading orders:
+read `CLAUDE.md`, read every `ventures/*/VENTURE.yaml`, read each venture's
+`AGENTS.md` and "heed them". Resolved, that is **21 repository files**, every one
+of them `REPO_WRITE` — one merged pull request from saying something else — and
+the agent reads all of them holding `contents: write`, `pull-requests: write`
+and two secrets. Replay tests 1 of those 21, and it is the one an attacker has
+least reason to write to. The closure is enumerable from the prompt text in
+about 60 lines of regex and glob, and it is invisible to replay by construction:
+replay measures a response to inputs you already thought to send.
+
+**2. Nothing found on this surface needed anything to run.** 13 findings across
+3 of 31 workflow files, all decided from the artifact. The canonical GitHub
+Actions script-injection class found **zero** — the fleet workflow passes its one
+dispatch input through `env:` and regex-validates it, which is correct. So the
+finding that mattered could not be the famous one.
+
+**3. `ai_leverage` falls 9 → 8, and nothing else moves.** The 9 was "model work
+end to end"; the build that shipped has no model in it. That is not a refutation
+of the 9 for the dynamic half — whether a reachable input actually causes a
+wrong tool call is genuinely undecidable statically, and it is what a buyer's
+security review gates on. It is a measurement that the deterministic half came
+first, cost little, and exhausted this surface. The verdict stays **park**:
+nothing here touches time-to-revenue or distribution, which is what park rests
+on.
+
+Two things are argued and deliberately *not* scored, because this pipeline has
+been burned by treating an argument as a measurement:
+
+- **Defensibility (5, unchanged).** Published open-source Actions scanners
+  already cover three of the seven rules, and the whole probe is standard
+  library plus PyYAML. R7 appears not to be in them — but confirming that is a
+  substitute-supply measurement and the egress is denied here.
+- **The named mitigation (unchanged, but flagged).** It says the internal build
+  makes an *attack corpus* compound. One iteration produced a **rule set**, and
+  rule sets are the commoditized half. One iteration cannot refute a mitigation;
+  it can put a question on the 2027-Q1 revisit, which it now does.
+
+The liability note below survives the build intact and gains a first
+application: this probe reports reachability, not safety, and "nothing found" is
+not "secure" — the dynamic half is untested by construction. The rule "never
+certify" binds the internal tool before it binds any product.
 
 ## Sources
 
