@@ -12784,3 +12784,61 @@ entries:
         filter excludes README-only changes) so the manual build/validator
         run above is the verification record.
     mrr_end: null
+  - venture: ai-engineering-academy
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/zealous-curie-sxy5ql. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 16% of last 25 entries, below the 70%
+        threshold). `git fetch origin main` first; tip `61bbe90`. Checked
+        the 3 open PRs (#372, #368, #144) against issue #139's 04:26 UTC
+        comment from earlier the same day -- all three already correctly
+        owner-gated, nothing new to add. `portfolio/router/allocate.py`
+        showed 0 of 10 ventures dispatchable, same standing finding
+        (every venture blocked on an unpublished `links.production`).
+      - >-
+        With no fresh PR or router work available, applied the bug-hunt/
+        doc-audit pattern recent entries used on other zero-ledger
+        ventures to `ai-engineering-academy` again. Found a real gap
+        distinct from #461's same-cycle README fix: `build.mjs` renders
+        `docs/*.md` and `PROJECT_BRIEF.md` (paths outside `site/`) into
+        the static constitution site, but
+        `.github/workflows/ai-engineering-academy-ci.yml`'s trigger paths
+        only watched `ventures/ai-engineering-academy/site/**` -- an edit
+        to the constitution content itself, the build's actual input,
+        could break the build with no CI check ever firing. Same class of
+        gap #175 fixed for workflow-file validation generally. Widened
+        both `pull_request` and `push` trigger paths to also cover
+        `ventures/ai-engineering-academy/docs/**` and
+        `ventures/ai-engineering-academy/PROJECT_BRIEF.md`.
+      - >-
+        Opened PR #464 also carrying a README fix, not yet aware #461 had
+        landed moments earlier in a concurrent session -- exactly the
+        duplication pattern `CLAUDE.md` warns about, caught before merge
+        rather than after: `mergeable_state` came back `dirty` on
+        recheck. Fetched `main`, merged it in, and resolved the conflict
+        by taking `main`'s already-merged README wording and dropping the
+        redundant hunk, keeping only the still-novel CI trigger-path
+        change (net diff against `main` reduced to 4 lines in one
+        workflow file).
+      - >-
+        Verified after the merge, not just before: `npm install && npm
+        run build` in `site/` succeeds; `yaml.safe_load` on the changed
+        workflow file; `platform/ci/validate_workflows.py` 27/27;
+        `portfolio/router/validate.py` 10/10; `portfolio/scoring/
+        score_ventures.py --check` 11/11; `portfolio/pipeline/
+        validate_doc_consistency.py` 8/8. CI ran for real this time
+        (path filter includes the workflow file itself) -- both `validate`
+        and `build` checks completed green on the merged head. Re-checked
+        `git merge-tree` and the API's `mergeable_state` immediately
+        before merging: clean.
+      - >-
+        Self-merged PR #464 as agent-decidable: internal CI config only
+        for an unpublished venture (`links.production: null`, stage
+        `idea`), no `ventures/*` app code that deploys, no new dependency,
+        no credential, no unattended automation, nothing published,
+        nothing spent beyond agent time.
+    mrr_end: null
