@@ -180,15 +180,23 @@ module CityData {
         return daysInMonth - ((dowLast - 1) % 7);
     }
 
-    // US & Canada: 2nd Sunday of March 02:00 -> 1st Sunday of November 02:00,
-    // both in local standard time.
+    // US & Canada: transitions are legally defined at 2:00 a.m. on the
+    // *prevailing* clock -- standard time in March (pre-transition, so
+    // 02:00 standard = 02:00 wall), but daylight time in November
+    // (pre-transition, so 02:00 wall = 02:00 daylight = 01:00 standard).
+    // Both keys below are expressed on stdLocal's standard-time clock, so
+    // the November end must use 01:00, not the literal "02:00" the legal
+    // text names -- using 02:00 here would keep DST active for a spurious
+    // extra hour every fall-back morning. Start: 2nd Sunday of March 02:00
+    // standard. End: 1st Sunday of November 01:00 standard (= 02:00
+    // daylight).
     function isDstUs(stdLocal) {
         var y = stdLocal.year;
         var startDay = nthSundayOfMonth(y, 3, 2);
         var endDay = nthSundayOfMonth(y, 11, 1);
         var nowKey = keyOf(stdLocal.month, stdLocal.day, stdLocal.hour, stdLocal.min);
         var startKey = keyOf(3, startDay, 2, 0);
-        var endKey = keyOf(11, endDay, 2, 0);
+        var endKey = keyOf(11, endDay, 1, 0);
         return nowKey >= startKey && nowKey < endKey;
     }
 
