@@ -105,16 +105,17 @@ stopped being true is the useful part.** This file said it across four
 candidates and eleven revisions, and before that it said every revision was
 exactly one point until an `ethical_robustness` measurement revised by two and
 by three. Both sentences were fixed prose describing a sample that kept moving.
-Of the eleven revisions recorded, **eight are downward and three are upward**,
+Of the eleven revisions recorded, **seven are downward and four are upward**,
 and no upward one is a later pass liking a candidate more. In each case the
 artifact being measured was changed and the same harness was re-run:
 `eaa-remediation-pipeline` printed its committed error rates into its customer
 record (6 → 9), `public-record-watch` gained the subscriber record it did not
-have (6 → 9), and `cra-evidence-desk` got back a point a rubric bug had charged
-it (6 → 7). That distinction is the thing to preserve — **a score may rise
-because someone fixed the thing being measured, never because someone
-re-estimated it** — and `test_score_sensitivity.py` now pins it rather than
-trusting it.
+have (6 → 9), `agent-permission-harness` gained a measured accuracy figure it
+never had (7 → 9), and `cra-evidence-desk` first got back a point a rubric bug
+had charged it and then had its own remaining gap actually measured (6 → 8).
+That distinction is the thing to preserve — **a score may rise because someone
+fixed the thing being measured, never because someone re-estimated it** — and
+`test_score_sensitivity.py` now pins it rather than trusting it.
 
 (A `measured:` block holds one revision per dimension and its opener states the
 current one, so the intermediate 9 → 6 steps are prose inside those blocks
@@ -141,11 +142,11 @@ sentence above. Three findings, all of them checkable from
    both gates: the three rank dimensions (`ai_leverage`, `defensibility`,
    `distribution`) plus `liability_containment` and `ethical_robustness`, both
    measured on 2026-08-21. "No measured dimension has ever risen" held across
-   eleven revisions and then stopped: it is now 8 down and 3 up across eleven.
+   eleven revisions and then stopped: it is now 7 down and 4 up across eleven.
    It never meant that measurement always lowers a score — a pass
    that measures a dimension and leaves it alone records no revision at all, so
    confirmations are nearly invisible here, and two are recorded explicitly
-   (`flagged_unmeasured` blocks). What the two upward revisions add is the case
+   (`flagged_unmeasured` blocks). What the four upward revisions add is the case
    the sample could not previously contain: a *fixed* artifact, re-measured by
    the harness that faulted it.
 2. **The magnitude claim did not survive the gate measurements, and the
