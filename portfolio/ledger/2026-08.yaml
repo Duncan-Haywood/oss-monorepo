@@ -12689,3 +12689,54 @@ entries:
         no credential, no unattended automation, nothing published,
         nothing spent beyond agent time.
     mrr_end: null
+  - venture: quick-pick-survey
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/keen-knuth-mgi09r. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 20% of last 25 entries, below the 70%
+        threshold). `git fetch origin main` first; tip `b5d62f9`. Listed
+        the 3 open PRs (#372, #368, #144) and re-read issue #139: all
+        three already correctly owner-gated by prior sessions (next.js
+        live-site upgrade, Dependabot automation, autonomous-agent
+        workflow automation) -- nothing new to add.
+        `portfolio/router/allocate.py` showed 0 of 10 ventures
+        dispatchable, consistent with the standing finding that every
+        venture is blocked on an unpublished `links.production`.
+      - >-
+        With no fresh PR or router work available, applied the bug-hunt/
+        doc-audit pattern recent entries used on `garmin-world-traveler-
+        watchface` and `photos-import-tools` to `quick-pick-survey`, whose
+        `IMPROVEMENT-PLAN.md` carries the largest backlog doc in the repo.
+        Found one stale item with no resolution write-up, unlike every
+        other entry in the file: "`SurveyRunner` drops the email field
+        that `UnifiedRunner` collects." Confirmed via
+        `grep -ri SurveyRunner` across the whole venture tree (found only
+        inside the doc itself) and `git log -p --all -S SurveyRunner`
+        (the string entered this monorepo's history exactly once, in the
+        single squash merge that folded the pre-monorepo standalone repo
+        in) that no such component was ever committed here -- only
+        `UnifiedRunner` exists, and its one "email" hit is copy stating
+        the app collects none, not a field being dropped. Moved the item
+        from "Open" to "Closed" with a short explanation, matching the
+        file's existing style. No source code touched.
+      - >-
+        While in the venture, ran its actual verification suite for a
+        health check: `npm ci` clean (0 vulnerabilities), `npm run verify`
+        (typecheck -> lint -> test -> build per the venture's own
+        `AGENTS.md`) all four stages green -- 264/264 tests pass across 28
+        files, build compiles successfully. Integration tests
+        intentionally skipped (excluded from the default `verify` path by
+        the venture's own `vitest.config.ts`, needs Postgres, out of scope
+        for a drive-by check).
+      - >-
+        Opened PR #459, re-confirmed clean mergeability against the live
+        `main` tip (`git merge-tree --write-tree`, no conflicts), and
+        self-merged as agent-decidable: doc-only change to a venture's
+        internal backlog file, not deployable app code -- no new
+        dependency, no credential, no unattended automation, nothing
+        published, nothing spent beyond agent time.
+    mrr_end: null
