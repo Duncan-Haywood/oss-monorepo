@@ -11069,3 +11069,45 @@ entries:
         all success) and self-merged it as agent-decidable before this
         session's own merge step ran.
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit is the long term
+        goal" session, designated branch claude/nifty-goodall-00imrq. Ran
+        `session_gate.py` first (PROCEED -- meta-work share 56%, below the
+        70% threshold). `git fetch origin main` first; tip 371a0ea.
+        Checked the 5 open PRs (#397, #372, #368, #144, #19) and issue
+        #139 before starting: #372/#368/#144/#19 already correctly
+        owner-gated by prior sessions and #139's body was current, nothing
+        to re-derive. #397 (photos-import-tools scratch-copy guard, the
+        entry above) had CI green, base matched current `main` exactly,
+        and `mergeable_state: clean`, but its own author session hadn't
+        self-merged it yet -- merged it here as agent-decidable per
+        CLAUDE.md.
+      - >-
+        Re-synced to the post-#397 `main` and read `sd_offload.py` and
+        `resumable_photos_import.py` for the next gap in the same "one
+        bad item/check must not crash the whole run" theme. Found
+        `PhotosImporter.check_disk_space()` called `shutil.disk_usage`
+        `(self.state_dir)` unguarded once per `run()` loop iteration;
+        `state_dir` defaults to an iCloud-synced path, so a transient
+        `OSError` there (sync hiccup, momentarily unreachable network
+        mount) propagated straight out of `run()` and crashed the whole
+        import for a condition that would otherwise resolve itself on the
+        next check.
+      - >-
+        Fixed by catching `OSError` in `check_disk_space()` and treating
+        it the same as confirmed-low disk space (log, return `False`, let
+        the existing retry-after-30s loop handle it). Added two regression
+        tests; confirmed both reproduce the pre-fix crash via `git stash`,
+        then unstashed (pass). Full suite 56/56 (was 54), ruff/mypy clean,
+        all four portfolio validators green, re-run against the current
+        `main` tip right before pushing. VENTURE.yaml records the
+        fourteenth hypothesis. Opened and self-merged PR #399 as
+        agent-decidable (same class as #397 and this venture's prior
+        self-merges): no live-site deploy, additive/defensive only,
+        publishes nothing, spends nothing beyond agent time.
+    mrr_end: null
