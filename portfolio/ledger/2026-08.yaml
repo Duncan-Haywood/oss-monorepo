@@ -15797,3 +15797,117 @@ entries:
         same three PRs (#531/#523, #372, #368) remain correctly
         human-gated.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business
+        projects" session, designated branch
+        `claude/laughing-pasteur-d2hzlz`. Ran `session_gate.py` first
+        (PROCEED). Per `CLAUDE.md`'s intake gate this brief is answered
+        and a candidate list has negative value, so took the first of
+        the three moves it names instead -- advance something already
+        specified in `portfolio/pipeline/`. `git fetch origin main`
+        first; checked the 4 open PRs (#560, #531/#523, #372, #368)
+        before starting. #560 is a concurrent session screening a
+        candidate into `screened-out.md`; no overlap.
+      - >-
+        Took the pipeline's **first gate measurement**, the standing
+        open question #549 left on `pipeline/README.md`: the two
+        dimensions that decide admission had never been measured on any
+        candidate, and no pass had attempted one. The recorded reason
+        was that it needs the WCAG normative index as a denominator and
+        `www.w3.org` is egress-denied. Every clause true, conclusion
+        false -- `axe-core` publishes its success-criterion tags in its
+        npm package and `registry.npmjs.org` has been measured
+        reachable twice. The denominator had a distribution channel
+        nobody probed, which is exactly the error
+        `research/data-reachability/` exists to stop, applied to feeds
+        for weeks and never to a standard.
+      - >-
+        Both WCAG engines had only ever been checked against each other
+        and against fixtures written here; a shared blind spot is
+        invisible to that. Against axe-core 4.13.0's 22 automatable
+        A/AA criteria: **8 were in neither engine's checked list nor
+        its not-tested list** -- invisible by this pipeline's own
+        definition -- 6 of them Level A, including 2.4.1 Bypass Blocks.
+        Confirmed by running defect markup through both engines rather
+        than by diffing tables. The deeper finding is structural:
+        criterion-level disclosure hides the rest, with 4.1.2 disclosed
+        as `partial` standing for 3 rules against the reference's 29,
+        and 1.1.1 disclosed as `automated` for one family against 7.
+        Also found 4 criteria declined as needing a human that axe
+        automates (costs margin, not accuracy; recorded, not acted on).
+      - >-
+        **`eaa-remediation-pipeline` liability_containment 6 -> 5,
+        composite 7.25 -> 7.125** -- the seventh recorded revision and
+        the first in a dimension that decides admission rather than
+        rank. The score rests on the coverage statement being accurate,
+        not on the engine finding everything, and that artifact had
+        never been compared to anything outside this repository. Still
+        at the gate rather than below it (nothing is filed, signed or
+        certified), but the pipeline's only build-now candidate now
+        sits *on* the gate, tied at the floor with defensibility, and
+        one more measured point rejects it. `shopify-a11y-evidence`
+        ships the same record from the same engines and was recorded as
+        flagged-and-unmeasured rather than moved, since carrying one
+        candidate's measured revision onto another's estimate is the
+        extrapolation `score_sensitivity.py` exists to keep labelled.
+      - >-
+        Fixed the disclosure in both engines rather than only reporting
+        it, under a new `unimplemented` coverage value rather than
+        `manual`: `manual` means structurally undecidable and for all 8
+        that is false, so filing them there would have replaced an
+        omission with a false statement and repeated the error 1.4.3
+        sat inside for five passes. `manual` is work the paid
+        contractor step covers; `unimplemented` is work nobody does,
+        and the evidence record now says so. **No rule was
+        implemented** -- disclosure is not detection, and a pass that
+        closed the gap by writing 8 rules would have been measuring its
+        own work; tests pin both halves. `score_sensitivity.py` now
+        derives its verdict from the `measured:` blocks instead of
+        asserting no gate has ever been measured, so it stops asking
+        for work that has been done and names ethical_robustness as the
+        one still open; its three tripwire tests fired as designed and
+        were replaced with tests that check the report describes
+        whatever state the file is in.
+      - >-
+        Verified before merging: 21 new tests (incl. the behavioural
+        check that every reported gap is undetected by both engines);
+        20 score-sensitivity tests; `validate_candidates.py`,
+        `validate_doc_consistency.py`, `break_even.py --check`;
+        eaa-wcag-triage 112 tests with fixture validation byte-
+        identical; audit.py 89; a11y-engine-agreement 15 with its
+        results file regenerated rather than hand-edited (only the
+        `catalogs` key changed -- silent-gap pair, attribution table
+        and corpus agreement identical); a11y-own-sites,
+        a11y-generated-sites, a11y-contrast-decidability,
+        a11y-theme-resolution, a11y-render-recovery,
+        npm-reachability-triage (197) and agent-permission-harness (61)
+        all green. Both committed result sets re-derive offline, and
+        the as-found set is addressed by git revision rather than
+        trusted as a file, because this measurement changes the thing
+        it measures. Merged as #565 with all 11 checks green: agent-
+        decidable per `CLAUDE.md` (portfolio/ and CI config only, no
+        `ventures/*` app code, publishes/registers/spends nothing),
+        re-checked merge-clean against the live `main` tip immediately
+        before merging.
+      - >-
+        One sibling test was narrowed rather than widened: `audit.py`'s
+        record must never contain "pass ", and WCAG's own criterion
+        name Bypass Blocks contains it.
+      - >-
+        No revenue; the $0 ceiling is unchanged. Backlog unchanged: the
+        same three PRs (#531/#523, #372, #368) remain correctly
+        human-gated and are already reflected on #139, nothing new to
+        add there this session. Named but not done, for the next pass:
+        out-of-sample **recall** is measured nowhere in this repository
+        (out-of-sample precision is 0.821-0.881; the only recall number
+        anywhere is 1.0 against the three-page fixture set written
+        beside the engine). That asymmetry is itself the liability
+        shape -- the error direction that costs a refund is measured
+        and the one that costs a lawsuit is not. Cheapest honest next
+        step is running axe-core itself over the existing 118-page
+        corpus, which needs a headless browser.
+    mrr_end: null
