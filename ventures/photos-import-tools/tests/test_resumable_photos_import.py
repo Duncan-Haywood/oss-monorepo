@@ -1,6 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from resumable_photos_import import (
     ImportState,
@@ -186,6 +187,168 @@ class ResumablePhotosImportTests(unittest.TestCase):
                 raise FileNotFoundError("vanished between exists() and stat()")
 
         self.assertFalse(file_is_ready(VanishingPath()))
+
+    def test_scratch_copy_failure_is_retried_not_fatal_to_the_run(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            good = root / "good.JPG"
+            flaky = root / "flaky.JPG"
+            good.write_bytes(b"jpeg")
+            flaky.write_bytes(b"jpeg")
+            state = ImportState(root / "state.sqlite3")
+            state.upsert(good, "pending")
+            state.upsert(flaky, "pending")
+            importer = FakePhotosImporter(
+                state=state,
+                state_dir=root,
+                event_log=root / "events.jsonl",
+                error_log=root / "errors.jsonl",
+                status_path=root / "status.json",
+                stop_file=root / "STOP",
+                per_file_timeout_seconds=1,
+                attempts=1,
+                # scratch_dir staging only happens on the single-item path
+                # (import_batch_with_split's multi-item branch imports raw
+                # source paths directly), so batch_size=1 is what exercises
+                # resolve_import_path here.
+                batch_size=1,
+                photos_db=root / "missing.sqlite",
+                existing_filenames=set(),
+                scratch_dir=root / "scratch",
+            )
+
+            # Simulates a flaky read on the source (stalled iCloud download)
+            # or a full/unwritable scratch volume. Before this fix, the bare
+            # OSError from shutil.copy2 wasn't caught by import_single_item's
+            # `except PhotosImportError`, so it propagated out of the whole
+            # run() loop instead of being retried like any other per-item
+            # import failure.
+            real_copy2 = __import__("shutil").copy2
+
+            def flaky_copy2(src, dst, *args, **kwargs):
+                if Path(src) == flaky:
+                    raise OSError("Input/output error")
+                return real_copy2(src, dst, *args, **kwargs)
+
+            with mock.patch("resumable_photos_import.shutil.copy2", side_effect=flaky_copy2), \
+                    mock.patch("resumable_photos_import.time.sleep", return_value=None):
+                exit_code = importer.run()
+
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(state.get_status(good), "imported")
+            self.assertEqual(state.get_status(flaky), "failed")
+
+    def test_check_disk_space_survives_transient_stat_failure(self):
+        # state_dir is typically an iCloud-synced path; a transient stat
+        # failure there (sync hiccup, momentarily unreachable network mount)
+        # ran unguarded before this fix, raising straight out of
+        # check_disk_space() -- uncaught anywhere in run()'s while loop --
+        # and crashing the whole import instead of being treated like any
+        # other retryable condition.
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            state = ImportState(root / "state.sqlite3")
+            importer = FakePhotosImporter(
+                state=state,
+                state_dir=root,
+                event_log=root / "events.jsonl",
+                error_log=root / "errors.jsonl",
+                status_path=root / "status.json",
+                stop_file=root / "STOP",
+                per_file_timeout_seconds=1,
+                attempts=1,
+                batch_size=1,
+                photos_db=root / "missing.sqlite",
+                existing_filenames=set(),
+            )
+
+            with mock.patch(
+                "resumable_photos_import.shutil.disk_usage",
+                side_effect=OSError("Input/output error"),
+            ):
+                self.assertFalse(importer.check_disk_space())
+
+    def test_run_survives_transient_disk_space_check_failure(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            photo = root / "photo.JPG"
+            photo.write_bytes(b"jpeg")
+            state = ImportState(root / "state.sqlite3")
+            state.upsert(photo, "pending")
+            importer = FakePhotosImporter(
+                state=state,
+                state_dir=root,
+                event_log=root / "events.jsonl",
+                error_log=root / "errors.jsonl",
+                status_path=root / "status.json",
+                stop_file=root / "STOP",
+                per_file_timeout_seconds=1,
+                attempts=1,
+                batch_size=1,
+                photos_db=root / "missing.sqlite",
+                existing_filenames=set(),
+            )
+
+            real_disk_usage = __import__("shutil").disk_usage
+            calls = {"count": 0}
+
+            def flaky_disk_usage(path):
+                calls["count"] += 1
+                if calls["count"] == 1:
+                    raise OSError("Input/output error")
+                return real_disk_usage(path)
+
+            with mock.patch(
+                "resumable_photos_import.shutil.disk_usage", side_effect=flaky_disk_usage
+            ), mock.patch("resumable_photos_import.time.sleep", return_value=None):
+                exit_code = importer.run()
+
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(state.get_status(photo), "imported")
+
+    def test_cleanup_scratch_failure_does_not_lose_the_imported_marking(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            photo = root / "photo.JPG"
+            photo.write_bytes(b"jpeg")
+            state = ImportState(root / "state.sqlite3")
+            state.upsert(photo, "pending")
+            importer = FakePhotosImporter(
+                state=state,
+                state_dir=root,
+                event_log=root / "events.jsonl",
+                error_log=root / "errors.jsonl",
+                status_path=root / "status.json",
+                stop_file=root / "STOP",
+                per_file_timeout_seconds=1,
+                attempts=1,
+                batch_size=1,
+                photos_db=root / "missing.sqlite",
+                existing_filenames=set(),
+                scratch_dir=root / "scratch",
+            )
+
+            # Photos already has the file at this point (import_paths_osascript
+            # succeeded); a failure while deleting the scratch copy must not
+            # undo that. Before this fix, cleanup_scratch ran before
+            # mark_imported, so this OSError -- uncaught by
+            # `except PhotosImportError` -- left the item stuck in
+            # "importing" (never picked up again by next_importable_batch in
+            # this process) and set up a duplicate re-import of an
+            # already-imported file on the next run.
+            real_unlink = Path.unlink
+
+            def flaky_unlink(self, *args, **kwargs):
+                if self.parent == importer.scratch_dir:
+                    raise OSError("Permission denied")
+                return real_unlink(self, *args, **kwargs)
+
+            with mock.patch.object(Path, "unlink", flaky_unlink):
+                exit_code = importer.run()
+
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(state.get_status(photo), "imported")
+            self.assertEqual(len(importer.imported_paths), 1)
 
 
 class FakePhotosImporter(PhotosImporter):

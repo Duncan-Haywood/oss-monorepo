@@ -529,10 +529,16 @@ class PhotosImporter:
         try:
             import_path = self.resolve_import_path(item.path)
             self.import_paths_osascript([import_path], duplicate_check=item.status != "pending")
-            self.cleanup_scratch(import_path, item.path)
+            # Mark imported before cleanup: Photos already has the file at
+            # this point, so a cleanup_scratch failure below must not undo
+            # the bookkeeping -- that would leave the item "importing"
+            # forever in this process (next_importable_batch never selects
+            # that status) and hand it back to Photos again on the next
+            # run, duplicate-importing a file it already has.
             self.state.mark_imported(item.path)
             self.log_event("imported", {"path": str(item.path), "mode": "single"})
             print(self.progress_line("imported", item.path), flush=True)
+            self.cleanup_scratch(import_path, item.path)
         except PhotosImportError as error:
             self.handle_item_error(item, error)
 
@@ -634,12 +640,34 @@ class PhotosImporter:
         scratch_path = self.scratch_dir / path.name
         if scratch_path.exists():
             scratch_path.unlink()
-        shutil.copy2(path, scratch_path)
+        try:
+            shutil.copy2(path, scratch_path)
+        except OSError as error:
+            # A flaky read on the source (e.g. a stalled iCloud download) or
+            # a full/unwritable scratch volume must not crash straight out
+            # of import_single_item -- only PhotosImportError is caught
+            # there, so a bare OSError ran uncaught before this fix and took
+            # down the whole batch (import_batch_with_split's sequential
+            # left/right calls never reach the sibling once one side
+            # raises), not just this one item, the way any other per-item
+            # import failure is isolated and retried.
+            raise PhotosImportError(
+                f"Failed to stage {path.name} into scratch dir: {error}",
+                classified=classify_error(str(error)),
+            ) from error
         return scratch_path
 
     def cleanup_scratch(self, import_path: Path, original_path: Path) -> None:
-        if self.scratch_dir and import_path != original_path and import_path.exists():
-            import_path.unlink(missing_ok=True)
+        if not (self.scratch_dir and import_path != original_path):
+            return
+        try:
+            if import_path.exists():
+                import_path.unlink(missing_ok=True)
+        except OSError:
+            # Best-effort: a leftover scratch file is a minor disk-space
+            # nuisance, not a correctness issue. It must not raise here --
+            # the caller already marked the item imported by this point.
+            pass
 
     def import_paths_osascript(self, paths: list[Path], *, duplicate_check: bool) -> None:
         if not paths:
@@ -708,7 +736,19 @@ class PhotosImporter:
         return self._photos_names_cache
 
     def check_disk_space(self) -> bool:
-        usage = shutil.disk_usage(self.state_dir)
+        try:
+            usage = shutil.disk_usage(self.state_dir)
+        except OSError as error:
+            # state_dir is typically an iCloud-synced path (see the default
+            # in parse_args); a transient stat failure there -- a sync
+            # hiccup, a momentarily unreachable network mount -- ran
+            # unguarded here before this fix, raising straight out of
+            # run()'s while loop and aborting the whole import for a
+            # condition that resolves itself. Treat it the same as
+            # confirmed-low disk space: skip this iteration and let the
+            # loop retry rather than crash.
+            self.log_event("disk_space_check_failed", {"error": str(error)})
+            return False
         free_gb = usage.free / (1024 ** 3)
         if free_gb < 2:
             self.log_event("low_disk_space", {"free_gb": round(free_gb, 2)})

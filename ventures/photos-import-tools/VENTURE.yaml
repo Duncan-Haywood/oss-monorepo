@@ -53,6 +53,14 @@ hypotheses:
     status: supported
     checked: 2026-08-20
     evidence: in-repo
+  - claim: A failure while staging a file into scratch_dir (a flaky source read or a full/unwritable scratch volume) is retried like any other per-item import failure instead of crashing the run, and a failure while cleaning up the scratch copy afterward never undoes an already-successful import's "imported" marking -- which would otherwise leave the item stuck unrecorded and set up a duplicate re-import on the next run.
+    status: supported
+    checked: 2026-08-20
+    evidence: in-repo
+  - claim: A transient stat failure while checking free disk space on state_dir (an iCloud-synced path where a sync hiccup or momentarily unreachable network mount can make the check itself fail) does not crash the whole run; it is treated the same as confirmed-low disk space and the loop retries instead of aborting.
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
 
 economics:
   currency: USD
