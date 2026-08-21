@@ -11890,3 +11890,67 @@ entries:
         precedent
         (#379/#387/#397/#399/#402/#406/#407/#408/#413/#416/#419/#420).
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve the
+        development process... increase in profit" session, designated
+        branch claude/pensive-feynman-xw0b3o. Ran session_gate.py first
+        (PROCEED -- meta-work share 40% of last 25 entries, below the 70%
+        threshold). Listed the 4 open PRs (#372/#368/#144/#19) before
+        starting: all long-standing and already correctly owner-gated by
+        prior sessions, nothing new to add. `portfolio/router/allocate.py`
+        again named photos-import-tools the only dispatchable venture with
+        the standing task "every recorded hypothesis is settled -- write the
+        next one in VENTURE.yaml, then test it."
+      - >-
+        Dispatched an Explore agent to read resumable_photos_import.py end
+        to end against the recorded claims. It found a gap in
+        PhotosImporter.import_single_item: when --scratch-dir is
+        configured, resolve_import_path stages a fresh copy of the source
+        file into scratch_dir before every import attempt, but
+        cleanup_scratch only ran on the success path, after mark_imported.
+        A file Photos permanently rejects (matches a PERMANENT error
+        pattern, e.g. "damaged") or one that exhausts
+        MAX_TRANSIENT_ATTEMPTS is marked skipped_permanent and never
+        handed to import_single_item again, so its staged scratch copy was
+        orphaned forever -- a silent, unbounded scratch_dir disk-space leak,
+        one file per permanent failure, on a tool that otherwise treats
+        running out of disk as a first-class failure mode.
+      - >-
+        Fixed by computing the scratch path up front from item.path.name
+        and running cleanup_scratch in a finally block so it runs on every
+        exit from import_single_item, success or failure. Added a
+        regression test confirmed failing against pre-fix code and passing
+        after. Verified: pytest 72/72, ruff/mypy clean, all four portfolio
+        validators green. Opened PR #417 and pushed to origin.
+      - >-
+        Before CI finished, PR #417 went mergeable_state dirty against a
+        moved main (a concurrent session's #416 had landed); fetched,
+        merged main into the branch, resolved the expected position-only
+        VENTURE.yaml append conflict by keeping both entries (no logic
+        overlap -- #416 touched sd_offload.py, this fix touched
+        resumable_photos_import.py), re-verified (73/73, validators green),
+        and pushed. Before further action could complete, a different
+        concurrent session found #417 in the same dirty state (main had
+        moved again via #419/#420/#424) and consolidated it together with
+        another same-cycle PR, #423, into PR #427 -- confirmed via
+        `pull_request_read`: #427's body lists this fix's diff verbatim as
+        included, and #427 is merged
+        (`63f037d`, "Merge pull request #427: consolidate
+        photos-import-tools #423 + #417"). Confirmed the merged code on
+        main matches this session's fix exactly (same finally-block
+        pattern, same scratch_path computation). #417 closed by that
+        session with a pointer to #427, per CLAUDE.md's rule against
+        duplicate-PR pileup -- no content lost, nothing further required
+        from this session on that PR.
+      - >-
+        This is the recurring photos-import-tools contention pattern
+        CLAUDE.md already documents (rapid concurrent sessions racing the
+        same VENTURE.yaml append point); noted here only as confirmation
+        that the consolidation mechanism worked as intended and this
+        session's verified fix reached main without being lost or
+        duplicated.
+    mrr_end: null
