@@ -18,6 +18,7 @@ customer-facing deliverable depends on:
    asserted to emit `NOT_TESTED` even when nothing was found at all.
 """
 
+import re
 import unittest
 
 import audit
@@ -305,8 +306,13 @@ class EvidenceRecord(unittest.TestCase):
         record = audit.evidence_record([], "Test subject", date="2026-08-20")
         text = audit.render_record(record).lower()
         self.assertIn("does not state that the subject conforms", text)
-        for forbidden in ("is compliant", "certified", "conformant with", "pass "):
+        for forbidden in ("is compliant", "certified", "conformant with"):
             self.assertNotIn(forbidden, text)
+        # Same substring guard as before, minus one false positive: WCAG's own
+        # criterion name "Bypass Blocks" contains "pass ". Narrowed rather than
+        # widened -- "neither passes nor failures", which this record says
+        # about its undecidables, is a disclaimer and must stay sayable.
+        self.assertIsNone(re.search(r"(?<!by)pass ", text))
 
     def test_record_separates_blocking_from_degrading(self):
         source = "<img src='a.png'><h1>a</h1><h3>b</h3>"

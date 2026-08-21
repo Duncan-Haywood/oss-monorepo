@@ -42,11 +42,33 @@ candidates:
       gross_margin: 7
       defensibility: 5
       distribution: 8
-      liability_containment: 6
+      liability_containment: 5
       ethical_robustness: 9
-    composite: 7.25
+    composite: 7.125
     floor: 5
-    floor_dimension: defensibility
+    floor_dimension: liability_containment
+    measured:
+      liability_containment: >-
+        6 -> 5, the pipeline's first gate measurement. This candidate's
+        liability position rests on the evidence record's coverage statement
+        being accurate, not on the engine finding everything, and that
+        statement had never been checked against anything outside this
+        repository. Checked against axe-core 4.13.0 (fetched from
+        registry.npmjs.org, which is reachable — the normative index on
+        www.w3.org is not, and that was mistaken for the denominator being
+        unobtainable): 8 of the 22 automatable A/AA criteria were in neither
+        the checked list nor the not-tested list, 6 of them Level A, including
+        2.4.1 Bypass Blocks; and criterion-level disclosure hides the rest —
+        4.1.2, disclosed as "partial", stands for 3 rules against the
+        reference's 29. Verified by running defect markup through both
+        engines, not by comparing tables. The 8 are now disclosed; the
+        granularity is structural and is what moves the score. Still at the
+        gate rather than below it: nothing is filed, signed or certified.
+        See portfolio/research/a11y-external-coverage-reference/.
+    floor_note: >-
+      Two dimensions tie at the floor. `floor_dimension` names
+      liability_containment because it is a gate: at 5 it rejects on the next
+      measured point, where defensibility at 5 only lowers the composite.
     mitigation: Re-test archive and per-platform fix library accrue with each job; sold as fixed-price work, not as a defensible platform.
     first_experiment_days: 14
     first_experiment_budget_usd: 300
@@ -169,6 +191,22 @@ candidates:
     composite: 7.25
     floor: 4
     floor_dimension: defensibility
+    flagged_unmeasured:
+      liability_containment: >-
+        Examined 2026-08-21 and deliberately not revised. This candidate ships
+        the same evidence record from the same two engines as
+        eaa-remediation-pipeline, whose liability_containment was measured
+        6 -> 5 that day when the engines' coverage statement was compared to an
+        external reference (axe-core 4.13.0) for the first time: 8 of 22
+        automatable A/AA criteria were in neither the checked nor the
+        not-tested list, 6 of them Level A. That evidence bears on this
+        deliverable directly, but the 7 here rests partly on a surface the
+        measurement did not touch — the app writes nothing to a live storefront
+        and requests no customer or order data — and carrying one candidate's
+        measured revision onto another's estimate is the extrapolation this
+        file's tooling exists to keep labelled. Settling it needs an
+        out-of-sample recall measurement, which nothing in this repository has
+        ever taken. See portfolio/research/a11y-external-coverage-reference/.
     mitigation: Scan detection is treated as commodity and is not the sale; per-store re-test history and the Liquid fix library are what accrue. The probe measures the channel before the product is built.
     note: >-
       Selected channel-first rather than market-first — see

@@ -8,7 +8,7 @@ assistive-technology testing, and a dated evidence record.
 as a new venture.** Same buyer, same delivery surface, and the venture already
 has Stripe, a lead pipeline, and a dashboard. If it sells, split it out then.
 
-Scored 2026-08-18. Composite 7.25 · floor 5 (defensibility).
+Scored 2026-08-18. Composite 7.125 · floor 5 (liability containment).
 
 | Dimension | Score | Why |
 |---|---|---|
@@ -18,8 +18,58 @@ Scored 2026-08-18. Composite 7.25 · floor 5 (defensibility).
 | Gross margin | 7 | Contractor testing is a real per-job cost, roughly a fifth of a typical job |
 | Defensibility | 5 | The method is copyable. What accrues is a re-test archive per customer and a fix library per platform |
 | Distribution | 8 | High-intent moment, and `local-site-studio` already talks to this buyer |
-| Liability containment | 6 | Real exposure if we overclaim; contained by selling evidence, never a compliance guarantee |
+| Liability containment | 5 | Real exposure if we overclaim; contained by selling evidence, never a compliance guarantee. **Measured 2026-08-21, 6 → 5** — see the amendment below |
 | Ethical robustness | 9 | The output is a site disabled users can actually use — the interests line up |
+
+## Amendment (2026-08-21): the first gate measurement, and it costs this candidate its margin
+
+**`liability_containment` 6 → 5. Composite 7.25 → 7.125.** The floor is now a
+tie between `defensibility` and `liability_containment`; the gate dimension is
+named as the floor because at 5 it *rejects* on the next measured point, where
+defensibility at 5 only lowers a mean.
+
+`score_sensitivity.py` (#549) flagged this exact cell: the two gate dimensions
+had never been measured on any candidate, and this one — the pipeline's only
+`build-now` — sat one unmeasured point above the gate that would reject it. It
+also recorded why no pass had attempted a gate measurement: the denominator
+needs the WCAG normative index, and `www.w3.org` is egress-denied.
+
+That was true of the host and false of the denominator. `axe-core` ships its
+success-criterion tags in its published package, and `registry.npmjs.org` is
+reachable from here. Measured in
+[`portfolio/research/a11y-external-coverage-reference/`](../../research/a11y-external-coverage-reference/).
+
+The score does not turn on whether the engine finds everything. Per the row
+above and the directory's standing constraints, it turns on **the coverage
+statement being accurate** — "coverage limits stated in the product, not buried
+in terms." That artifact had never been compared to anything outside this
+repository. Compared, it was wrong in both directions:
+
+- **8 of 22** automatable A/AA criteria were in neither the checked list nor
+  the not-tested list — invisible by this pipeline's own definition. Six are
+  Level A, and they include **2.4.1 Bypass Blocks**, a criterion the free
+  qualification audit would plausibly lead with. Confirmed by running defect
+  markup through both engines, not by comparing tables.
+- **Criterion-level disclosure hides the remainder.** 4.1.2, disclosed as
+  `partial`, stands for three rules against the reference's 29; 1.1.1,
+  disclosed as `automated` — the strongest word in the vocabulary — stands for
+  one rule family against 7.
+
+The eight are now disclosed in both engines, under a new `unimplemented`
+label rather than `manual`, because they are decidable and the contractor step
+does not cover them. That fix does not restore the point: the *granularity*
+defect is structural, and a mitigation that had never been tested and failed on
+first contact is not worth a point above the gate.
+
+**Still at the gate, not below it.** Nothing here is filed, signed or
+certified, and the customer remains the decision-maker. What is gone is the
+margin — one more measured point in liability rejects the pipeline's only
+build-now candidate.
+
+What would settle it is the false-negative rate, which decides liability and
+which nothing in this repository has measured out of sample: out-of-sample
+*precision* is 0.821–0.881, and the only recall number anywhere is 1.0 against
+the three-page fixture set written beside the engine.
 
 ## Amendment (2026-08-21): the manual step is smaller than this write-up assumes, and its size is now measurable
 

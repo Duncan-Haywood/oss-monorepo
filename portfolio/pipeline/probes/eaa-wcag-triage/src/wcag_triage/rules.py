@@ -60,6 +60,13 @@ class Criterion:
     # "partial": this pass catches some failures but not all.
     # "manual": structurally undetectable from static HTML — needs rendering,
     #           interaction, or assistive-technology confirmation.
+    # "unimplemented": decidable from the artifact, but this pass has no rule
+    #           for it. Added 2026-08-21. Kept distinct from "manual" because
+    #           collapsing the two is the exact error 1.4.3 sat inside for five
+    #           passes — a criterion nobody had built was recorded as one
+    #           nobody could build, and only "manual" was ever read back. The
+    #           customer-facing difference is real: "manual" is work the
+    #           contractor step covers, "unimplemented" is work nobody does.
     coverage: str
     note: str = ""
 
@@ -120,6 +127,42 @@ COVERAGE: tuple = (
     Criterion("3.3.7", "Redundant Entry", "A", "manual", "Needs multi-step flow state."),
     Criterion("1.3.3", "Sensory Characteristics", "A", "manual",
               "Needs meaning: does copy rely on shape/position/colour alone."),
+    # Added 2026-08-21. Each of these is decidable from static markup — an
+    # independent engine (axe-core 4.13.0) has at least one rule for every one
+    # — and this catalog listed none of them, in either direction: neither
+    # checked nor declared. By this catalog's own standard that made them
+    # invisible, because a reader distinguishes "checked and passed" from
+    # "never looked at" only by these rows. Found by measuring against an
+    # external reference for the first time; see
+    # portfolio/research/a11y-external-coverage-reference/. Disclosed here
+    # before any of them is implemented, because the disclosure is what the
+    # record's honesty rests on and it does not have to wait for the rule.
+    Criterion("1.2.1", "Audio-only and Video-only (Prerecorded)", "A", "unimplemented",
+              "A media element with no transcript or alternative is detectable "
+              "from the markup; no rule here looks."),
+    Criterion("1.4.1", "Use of Color", "A", "unimplemented",
+              "A link distinguished from surrounding body text by colour alone "
+              "is decidable where the stylesheet names the colours; no rule "
+              "here looks."),
+    Criterion("2.2.1", "Timing Adjustable", "A", "unimplemented",
+              "A <meta http-equiv=refresh> timeout is detectable from the head; "
+              "no rule here looks."),
+    Criterion("2.2.2", "Pause, Stop, Hide", "A", "unimplemented",
+              "<blink> and <marquee> are detectable from the markup; no rule "
+              "here looks."),
+    Criterion("2.4.1", "Bypass Blocks", "A", "unimplemented",
+              "The absence of a skip link or of landmark structure is "
+              "detectable from the markup; no rule here looks. This is a "
+              "commonly-failed Level A criterion on shop pages."),
+    Criterion("2.5.3", "Label in Name", "A", "unimplemented",
+              "An accessible name that does not contain the control's visible "
+              "text is decidable from the markup; no rule here looks."),
+    Criterion("3.1.2", "Language of Parts", "AA", "unimplemented",
+              "A lang attribute holding an invalid tag is decidable; no rule "
+              "here looks."),
+    Criterion("1.3.4", "Orientation", "AA", "unimplemented",
+              "A stylesheet locking orientation is decidable from the CSS; no "
+              "rule here looks."),
 )
 
 

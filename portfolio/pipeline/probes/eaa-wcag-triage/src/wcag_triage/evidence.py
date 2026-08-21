@@ -83,7 +83,7 @@ def _finding_dict(finding) -> dict:
 
 
 def _coverage_summary() -> dict:
-    summary = {"automated": 0, "partial": 0, "manual": 0}
+    summary = {"automated": 0, "partial": 0, "manual": 0, "unimplemented": 0}
     for c in COVERAGE:
         summary[c.coverage] = summary.get(c.coverage, 0) + 1
     return summary
@@ -142,7 +142,11 @@ def to_markdown(record: dict) -> str:
         "",
         f"{cs['automated']} success criteria fully, {cs['partial']} partially. "
         f"{cs['manual']} commonly-failed criteria below could not be checked "
-        "from source and are left for manual assistive-technology review.",
+        "from source and are left for manual assistive-technology review. A "
+        f"further {cs['unimplemented']} are decidable from the artifact but "
+        "have no rule in this pass — they are neither checked here nor covered "
+        "by the manual step, and are listed so that gap is visible rather "
+        "than inferred.",
         "",
         "| Criterion | Name | Level | Coverage |",
         "|---|---|---|---|",

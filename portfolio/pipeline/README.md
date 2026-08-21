@@ -88,8 +88,8 @@ Rescored 2026-08-20 for the two candidates that have actually been probed — se
 
 | # | Candidate | Composite | Floor | Verdict |
 |---|---|---|---|---|
-| 1 | [EAA remediation pipeline](candidates/eaa-remediation-pipeline.md) | 7.25 | 5 | Build now, as a `local-site-studio` product line |
-| 2 | [Shopify accessibility evidence app](candidates/shopify-a11y-evidence.md) | 7.25 | 4 | Probe the channel — scored 2026-08-19 |
+| 1 | [Shopify accessibility evidence app](candidates/shopify-a11y-evidence.md) | 7.25 | 4 | Probe the channel — scored 2026-08-19 |
+| 2 | [EAA remediation pipeline](candidates/eaa-remediation-pipeline.md) | 7.125 | 5 | Build now, as a `local-site-studio` product line. Gate-measured 2026-08-21 — `liability_containment` 6→5, now **on** the gate |
 | 3 | [Public-record watch](candidates/public-record-watch.md) | 7.0 | 4 | Cheap probe — one vertical, two weeks |
 | 4 | [Agent permission harness](candidates/agent-permission-harness.md) | 6.875 | 4 | Park; revisit 2027-Q1. Probed 2026-08-21 — internal build done, `ai_leverage` 9→8 |
 | 5 | [MCP supply-chain watch](candidates/mcp-supply-chain-watch.md) | 6.75 | 3 | Probe: steps 1–2 run; mitigation refuted, cannot graduate as scored |
@@ -129,25 +129,52 @@ sentence above. Three findings, all of them checkable from
    unchanged. `rescore-2026-08-20.md` argued that further rank-scoring has no
    decision value; this is the arithmetic behind it. A pass tempted to re-rank
    should run the script and stop.
-3. **The two dimensions that decide admission have never been measured on any
-   candidate.** Liability containment and ethical robustness are gates, not
-   weights — below 5 rejects regardless of composite — and all sixteen of those
-   scores are still 2026-08-18 screening estimates. Extrapolating the same one
-   point to them (an extrapolation, and labelled as one in the output) puts
-   `einvoice-preflight` below the liability gate, which would collapse its
-   "conditional narrow version" into a plain reject, and leaves
-   `eaa-remediation-pipeline` — the pipeline's only `build-now` — sitting one
-   unmeasured point above the gate that would reject it.
+3. **The dimensions that decide admission were the ones nobody had measured.**
+   Liability containment and ethical robustness are gates, not weights — below
+   5 rejects regardless of composite. When this section was written all sixteen
+   of those scores were 2026-08-18 screening estimates, and extrapolating the
+   same one point to them put `einvoice-preflight` below the liability gate and
+   left `eaa-remediation-pipeline` — the pipeline's only `build-now` — sitting
+   one unmeasured point above the gate that would reject it.
 
-So the next scoring measurement worth paying for is a **gate** measurement, and
-no pass has attempted one. That is a different kind of work from the probes in
-[probes/](probes/), which all test whether a candidate *works*; a gate
-measurement tests whether being wrong costs a refund or a lawsuit. It is
-recorded here as the open question rather than answered, because answering it
-for the accessibility candidates needs the WCAG normative index as a
-denominator — `www.w3.org` is egress-denied and no copy is in this repository —
-and the coverage catalog in `probes/eaa-wcag-triage` is curated to shop pages by
-design, so it cannot supply one.
+So the next scoring measurement worth paying for was a **gate** measurement,
+and no pass had attempted one. That is a different kind of work from the probes
+in [probes/](probes/), which all test whether a candidate *works*; a gate
+measurement tests whether being wrong costs a refund or a lawsuit.
+
+### The first gate measurement has now been taken (2026-08-21)
+
+`liability_containment` on `eaa-remediation-pipeline`: **6 → 5**, composite
+7.25 → 7.125. Derivation in
+[`portfolio/research/a11y-external-coverage-reference/`](../research/a11y-external-coverage-reference/);
+the prediction above was right about which cell mattered.
+
+**The reason this had been recorded as blocked was wrong, and the way it was
+wrong is the reusable part.** This file said a gate measurement needs the WCAG
+normative index as a denominator, that `www.w3.org` is egress-denied, and that
+no copy is in the repository. All three clauses are true. The conclusion does
+not follow: `axe-core` publishes its success-criterion tags in its npm package,
+and `registry.npmjs.org` has been measured reachable twice. The denominator had
+a distribution channel nobody probed, which is exactly the error
+[`../research/data-reachability/`](../research/data-reachability/) exists to
+stop — a rule that had been applied to feeds and never to a standard.
+
+What it measured is not whether the engine finds everything. The candidate's
+liability position rests on **the coverage statement being accurate**, and that
+artifact had never been compared to anything outside this repository. Compared:
+8 of 22 automatable A/AA criteria were in neither the checked list nor the
+not-tested list (6 Level A, including 2.4.1 Bypass Blocks), and criterion-level
+disclosure hides the rest — 4.1.2, disclosed as `partial`, stands for 3 rules
+against the reference's 29. The 8 are now disclosed in both engines; the
+granularity is structural and is what moved the score.
+
+Two consequences for what to do next:
+
+- **The pipeline's only `build-now` now sits *on* the gate**, tied at the floor
+  with `defensibility`. One more measured point in liability rejects it.
+- **`ethical_robustness` is now the remaining unmeasured gate**, on all eight
+  candidates. `score_sensitivity.py` derives this rather than asserting it, so
+  it will stop asking once someone measures it.
 
 Step 1 of `public-record-watch`'s first experiment has since been run — see the
 amendment in [its write-up](candidates/public-record-watch.md) and the

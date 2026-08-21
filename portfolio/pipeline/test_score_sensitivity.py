@@ -222,20 +222,53 @@ class AgainstTheLiveFile(unittest.TestCase):
             "update the README rather than this test",
         )
 
-    def test_revisions_are_confined_to_the_rank_dimensions(self):
-        measured = {r.dimension for r in self.revisions}
-        self.assertTrue(
-            measured.isdisjoint(ss.GATE_DIMENSIONS),
-            "a gate dimension has now been measured — section 4 of the report is "
-            "no longer an extrapolation and should be rewritten",
-        )
+    # These three replace tripwires that asserted no gate dimension had ever
+    # been measured. The tripwires fired on 2026-08-21, when
+    # `liability_containment` was measured on `eaa-remediation-pipeline`
+    # (portfolio/research/a11y-external-coverage-reference/), and section 4 was
+    # rewritten as they asked. What replaces them checks the report describes
+    # whatever state the file is actually in, rather than pinning either state.
 
-    def test_no_gate_score_has_ever_been_settled(self):
-        settled = {d for c in self.candidates for d in c.settled}
-        self.assertTrue(settled.isdisjoint(ss.GATE_DIMENSIONS))
+    def test_section_four_labels_each_gate_by_whether_it_was_measured(self):
+        measured_gates = {d for c in self.candidates for d in c.measured
+                          if d in ss.GATE_DIMENSIONS}
+        untouched = [d for d in ss.GATE_DIMENSIONS
+                     if not any(d in c.settled for c in self.candidates)]
+        for dimension in measured_gates:
+            self.assertIn(f"Observed bias for {dimension}", self.text)
+        for dimension in untouched:
+            self.assertIn(f"Extrapolation for {dimension}", self.text)
+        # A gate cannot be in both halves.
+        self.assertTrue(measured_gates.isdisjoint(untouched))
 
-    def test_the_bias_does_not_change_the_top_of_the_table(self):
-        self.assertIn("Top of the table unchanged", self.text)
+    def test_verdict_stops_asking_for_a_measurement_already_taken(self):
+        measured_gates = {d for c in self.candidates for d in c.measured
+                          if d in ss.GATE_DIMENSIONS}
+        if measured_gates:
+            self.assertNotIn("No pass has attempted one", self.text)
+            for dimension in measured_gates:
+                self.assertIn(f"{dimension} has now been measured", self.text)
+        else:
+            self.assertIn("No pass has attempted one", self.text)
+
+    def test_top_of_table_claim_matches_the_arithmetic(self):
+        measured_dims = [d for d in ss.DIMENSIONS
+                         if any(d in c.measured for c in self.candidates)]
+        before = ss.ranking([(c.slug, ss.composite(c.scores))
+                             for c in self.candidates])
+        after = ss.ranking([(c.slug, ss.composite(ss.adjust(c, measured_dims, -1)))
+                            for c in self.candidates])
+        top = lambda r: sorted(s for s, v in r.items() if v == 1)  # noqa: E731
+        expected = "unchanged" if top(before) == top(after) else "CHANGES"
+        self.assertIn(f"Top of the table {expected}", self.text)
+
+    def test_a_measured_cell_is_never_adjusted(self):
+        # The scope restriction section 3 exists to enforce: a dimension
+        # somebody actually measured keeps its measured value.
+        for candidate in self.candidates:
+            adjusted = ss.adjust(candidate, ss.DIMENSIONS, -1)
+            for dimension in candidate.settled:
+                self.assertEqual(adjusted[dimension], candidate.scores[dimension])
 
     def test_report_is_reproducible(self):
         again = "\n".join(ss.report(*ss.load(LIVE)))

@@ -21,7 +21,7 @@ Scored 2026-08-19. Composite 7.25 · floor 4 (defensibility).
 | Gross margin | 9 | Scan compute, inference, hosting. Shopify's published developer terms waive revenue share below $1M lifetime app revenue (secondary sources; unverified — see below) |
 | Defensibility | 4 | The scan is commodity and the category is crowded. What accrues is per-store re-test history and a Liquid-theme fix library, neither of which is the sale on day one |
 | Distribution | 8 | Merchants search the App Store for "accessibility" with budget already attached — the incumbents' install counts prove the search intent exists and converts to paid |
-| Liability containment | 7 | Higher than the services version: nothing is applied to a live storefront without the merchant acting, the deliverable is a record rather than a warranty, and the app requests no customer or order data |
+| Liability containment | 7 | Higher than the services version: nothing is applied to a live storefront without the merchant acting, the deliverable is a record rather than a warranty, and the app requests no customer or order data. **Flagged unmeasured 2026-08-21** — see below |
 | Ethical robustness | 9 | This is the honest version of a product category whose dominant vendor was ordered by the FTC to stop claiming its tool makes sites compliant |
 
 ## Why this and not just the services version
@@ -72,6 +72,29 @@ product's honest-evidence positioning below is unaffected either way, since
 nothing on the page claims compliance or urgency-by-mandate. Worth checking
 before writing App Store copy that leans on the deadline: lead with "know what's
 broken and prove you tested it," not with the exemption-sensitive legal clock.
+
+## Liability containment: flagged unmeasured (2026-08-21)
+
+**No score moves here, deliberately.** This candidate ships the same evidence
+record from the same two engines as `eaa-remediation-pipeline`, whose
+`liability_containment` was measured down 6 → 5 on 2026-08-21 — the pipeline's
+first gate measurement — after the engines' coverage statement was compared to
+an external reference for the first time and found to omit 8 of 22 automatable
+A/AA criteria, 6 of them Level A. See
+[`portfolio/research/a11y-external-coverage-reference/`](../../research/a11y-external-coverage-reference/).
+
+That evidence bears on this candidate's deliverable directly. It is **not**
+applied to the 7 here, because the 7 rests partly on a surface that measurement
+did not touch — the app never writes to a live storefront and requests no
+customer or order data — and carrying one candidate's measured revision onto
+another's estimate is the extrapolation `score_sensitivity.py` exists to keep
+labelled. Recorded as examined-and-not-revised, on the precedent
+`agent-permission-harness` set for defensibility.
+
+What would settle it is the same thing named there: an out-of-sample recall
+measurement. This repository has measured out-of-sample precision (0.821–0.881)
+and has never measured recall outside the fixtures the engine was written
+beside.
 
 ## Liability and ethics
 
