@@ -112,6 +112,7 @@ export default function GelatoVariantMapper() {
                 <td className="px-4 py-3">
                   <input
                     type="text"
+                    aria-label={`Gelato product UID for ${row.artwork.title}`}
                     className="w-full rounded-lg border border-stone-200 px-2 py-1 font-mono text-xs"
                     placeholder={row.mapping?.gelatoProductUid ?? "e.g. gel_poster_18x24"}
                     value={drafts[row.artwork.slug] ?? row.mapping?.gelatoProductUid ?? ""}

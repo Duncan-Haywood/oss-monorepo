@@ -25,10 +25,10 @@ export default function BuyerPortal() {
             </nav>
           </div>
           <div className="flex items-center gap-4 text-stone-600 dark:text-gray-300">
-            <button className="p-2 hover:bg-stone-100 dark:hover:bg-gray-700 rounded-full transition"><Search className="w-5 h-5" /></button>
-            <button className="p-2 hover:bg-stone-100 dark:hover:bg-gray-700 rounded-full transition"><User className="w-5 h-5" /></button>
-            <button className="p-2 hover:bg-stone-100 dark:hover:bg-gray-700 rounded-full transition"><Heart className="w-5 h-5" /></button>
-            <button className="p-2 hover:bg-stone-100 dark:hover:bg-gray-700 rounded-full transition relative">
+            <button aria-label="Search prints" className="p-2 hover:bg-stone-100 dark:hover:bg-gray-700 rounded-full transition"><Search className="w-5 h-5" /></button>
+            <button aria-label="Your account" className="p-2 hover:bg-stone-100 dark:hover:bg-gray-700 rounded-full transition"><User className="w-5 h-5" /></button>
+            <button aria-label="Saved prints" className="p-2 hover:bg-stone-100 dark:hover:bg-gray-700 rounded-full transition"><Heart className="w-5 h-5" /></button>
+            <button aria-label="Shopping cart" className="p-2 hover:bg-stone-100 dark:hover:bg-gray-700 rounded-full transition relative">
               <ShoppingCart className="w-5 h-5" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-blue-600 rounded-full"></span>
             </button>
@@ -74,7 +74,7 @@ export default function BuyerPortal() {
         <div className="flex-1">
           <div className="flex justify-between items-center mb-6">
             <p className="text-sm text-stone-500 dark:text-gray-400">Showing 6 of 1,492 AI-enhanced prints</p>
-            <select className="text-sm bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 rounded-lg px-3 py-2 text-stone-700 dark:text-gray-300">
+            <select aria-label="Sort prints" className="text-sm bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 rounded-lg px-3 py-2 text-stone-700 dark:text-gray-300">
               <option>Recommended</option>
               <option>Newest Arrivals</option>
               <option>Price: Low to High</option>

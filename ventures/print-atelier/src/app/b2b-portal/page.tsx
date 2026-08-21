@@ -48,7 +48,7 @@ export default function B2BPortal() {
               <h2 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                 <FolderOpen className="w-4 h-4" /> Projects
               </h2>
-              <button className="p-1 hover:bg-slate-100 dark:hover:bg-gray-700 rounded"><Plus className="w-4 h-4 text-indigo-600" /></button>
+              <button aria-label="New project" className="p-1 hover:bg-slate-100 dark:hover:bg-gray-700 rounded"><Plus className="w-4 h-4 text-indigo-600" /></button>
             </div>
             <div className="space-y-2">
               {projects.map((p) => (
@@ -78,6 +78,7 @@ export default function B2BPortal() {
                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
+                  aria-label="Search the trade catalog"
                   placeholder="Search by style, color, artist..."
                   className="pl-9 pr-4 py-2 text-sm border border-slate-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-slate-900 dark:text-white"
                 />

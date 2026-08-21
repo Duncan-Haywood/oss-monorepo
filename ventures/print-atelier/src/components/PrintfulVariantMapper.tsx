@@ -112,6 +112,7 @@ export default function PrintfulVariantMapper() {
                 <td className="px-4 py-3">
                   <input
                     type="text"
+                    aria-label={`Printful variant ID for ${row.artwork.title}`}
                     className="w-full rounded-lg border border-stone-200 px-2 py-1 font-mono text-xs"
                     placeholder={row.mapping?.printfulVariantId ?? "e.g. 4011"}
                     value={drafts[row.artwork.slug] ?? row.mapping?.printfulVariantId ?? ""}
