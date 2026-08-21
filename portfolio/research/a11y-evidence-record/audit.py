@@ -484,11 +484,27 @@ def audit_source(source: str, path: str = "<string>") -> dict:
                     or node.has_attr("title")
                 )
                 raw_id = node.attr("id") or ""
+                # A wrapping <label> only names the control if the label
+                # itself has a name. Until 2026-08-21 any `<label>` ancestor
+                # counted, so `<label><input></label>` -- a control inside an
+                # empty wrapper -- read as labelled and this engine reported
+                # nothing, while the sibling engine
+                # (portfolio/pipeline/probes/eaa-wcag-triage) flagged it 1.3.1.
+                # That was a detection gap, not the relabelling divergence the
+                # two engines were already known to have; it survived because
+                # no corpus either engine had run on wrapped its controls
+                # instead of using `for=`. See
+                # portfolio/research/a11y-generated-sites/.
+                #
+                # An expression-bearing label stays `wrapped`: a template that
+                # renders its text at build time is undecidable here, and this
+                # engine's standing rule is that undecidable is not a finding.
                 wrapped = False
                 ancestor = node.parent
                 while ancestor is not None:
                     if ancestor.tag == "label":
-                        wrapped = True
+                        name, undecidable = _accessible_name(ancestor)
+                        wrapped = bool(name) or undecidable
                         break
                     ancestor = ancestor.parent
                 if not labelled and not wrapped:

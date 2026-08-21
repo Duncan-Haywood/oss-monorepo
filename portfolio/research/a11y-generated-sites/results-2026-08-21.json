@@ -1,0 +1,354 @@
+{
+  "control": [
+    {
+      "audit_py_cites": {
+        "3.1.1": 14
+      },
+      "audit_py_fired": 14,
+      "both_detected": 14,
+      "criterion": "3.1.1",
+      "exercised": true,
+      "kind": "removal",
+      "mutation": "drop lang from the <html> element",
+      "pages_changed": 14,
+      "probe_cites": {
+        "3.1.1": 14
+      },
+      "probe_fired": 14
+    },
+    {
+      "audit_py_cites": {
+        "2.4.2": 14
+      },
+      "audit_py_fired": 14,
+      "both_detected": 14,
+      "criterion": "2.4.2",
+      "exercised": true,
+      "kind": "removal",
+      "mutation": "drop the <title> element",
+      "pages_changed": 14,
+      "probe_cites": {
+        "2.4.2": 14
+      },
+      "probe_fired": 14
+    },
+    {
+      "audit_py_cites": {},
+      "audit_py_fired": 0,
+      "both_detected": 0,
+      "criterion": "4.1.2",
+      "exercised": false,
+      "kind": "removal",
+      "mutation": "strip aria-label from every <button>",
+      "pages_changed": 0,
+      "probe_cites": {},
+      "probe_fired": 0
+    },
+    {
+      "audit_py_cites": {},
+      "audit_py_fired": 0,
+      "both_detected": 0,
+      "criterion": "1.3.1",
+      "exercised": false,
+      "kind": "removal",
+      "mutation": "strip aria-label from every <input>/<select>/<textarea>",
+      "pages_changed": 0,
+      "probe_cites": {},
+      "probe_fired": 0
+    },
+    {
+      "audit_py_cites": {},
+      "audit_py_fired": 0,
+      "both_detected": 0,
+      "criterion": "1.3.1",
+      "exercised": false,
+      "kind": "removal",
+      "mutation": "unhook every <label for=...> from its control",
+      "pages_changed": 0,
+      "probe_cites": {},
+      "probe_fired": 0
+    },
+    {
+      "audit_py_cites": {
+        "3.3.2": 14
+      },
+      "audit_py_fired": 0,
+      "both_detected": 14,
+      "criterion": "1.3.1",
+      "exercised": true,
+      "kind": "removal",
+      "mutation": "empty the text of every wrapping <label>",
+      "pages_changed": 14,
+      "probe_cites": {
+        "1.3.1": 14
+      },
+      "probe_fired": 14
+    },
+    {
+      "audit_py_cites": {
+        "4.1.2": 14
+      },
+      "audit_py_fired": 14,
+      "both_detected": 14,
+      "criterion": "4.1.2",
+      "exercised": true,
+      "kind": "removal",
+      "mutation": "empty the text of the first <button>",
+      "pages_changed": 14,
+      "probe_cites": {
+        "4.1.2": 14
+      },
+      "probe_fired": 14
+    },
+    {
+      "audit_py_cites": {
+        "4.1.2": 14
+      },
+      "audit_py_fired": 14,
+      "both_detected": 14,
+      "criterion": "4.1.2",
+      "exercised": true,
+      "kind": "removal",
+      "mutation": "drop title from every <iframe>",
+      "pages_changed": 14,
+      "probe_cites": {
+        "4.1.2": 14
+      },
+      "probe_fired": 14
+    },
+    {
+      "audit_py_cites": {
+        "1.3.1": 14
+      },
+      "audit_py_fired": 0,
+      "both_detected": 14,
+      "criterion": "2.4.6",
+      "exercised": true,
+      "kind": "removal",
+      "mutation": "demote the first <h2> to <h4>, skipping a level",
+      "pages_changed": 14,
+      "probe_cites": {
+        "2.4.6": 14
+      },
+      "probe_fired": 14
+    },
+    {
+      "audit_py_cites": {
+        "2.4.4": 14
+      },
+      "audit_py_fired": 14,
+      "both_detected": 14,
+      "criterion": "2.4.4",
+      "exercised": true,
+      "kind": "removal",
+      "mutation": "empty the text of the first <a href>",
+      "pages_changed": 14,
+      "probe_cites": {
+        "2.4.4": 14
+      },
+      "probe_fired": 14
+    },
+    {
+      "audit_py_cites": {},
+      "audit_py_fired": 0,
+      "both_detected": 0,
+      "criterion": "1.1.1",
+      "exercised": false,
+      "kind": "removal",
+      "mutation": "drop alt from every <img>",
+      "pages_changed": 0,
+      "probe_cites": {},
+      "probe_fired": 0
+    },
+    {
+      "audit_py_cites": {
+        "1.4.4": 14
+      },
+      "audit_py_fired": 14,
+      "both_detected": 14,
+      "criterion": "1.4.4",
+      "exercised": true,
+      "kind": "injection",
+      "mutation": "add a viewport meta that blocks zoom",
+      "pages_changed": 14,
+      "probe_cites": {
+        "1.4.4": 14
+      },
+      "probe_fired": 14
+    },
+    {
+      "audit_py_cites": {
+        "1.4.2": 14
+      },
+      "audit_py_fired": 14,
+      "both_detected": 14,
+      "criterion": "1.4.2",
+      "exercised": true,
+      "kind": "injection",
+      "mutation": "add an autoplaying <audio> with no controls",
+      "pages_changed": 14,
+      "probe_cites": {
+        "1.4.2": 14
+      },
+      "probe_fired": 14
+    },
+    {
+      "audit_py_cites": {
+        "1.2.2": 14
+      },
+      "audit_py_fired": 14,
+      "both_detected": 14,
+      "criterion": "1.2.2",
+      "exercised": true,
+      "kind": "injection",
+      "mutation": "add a <video> with no captions track",
+      "pages_changed": 14,
+      "probe_cites": {
+        "1.2.2": 14
+      },
+      "probe_fired": 14
+    }
+  ],
+  "corpus": {
+    "duplicates_dropped": [
+      {
+        "page": "live-restaurant",
+        "same_as": "live-restaurant-tier-growth"
+      },
+      {
+        "page": "live-salon",
+        "same_as": "live-salon-no-email"
+      }
+    ],
+    "pages_rendered": 16,
+    "pages_unique": 14
+  },
+  "per_page": [
+    {
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "demo-generic",
+      "probe_criteria": {}
+    },
+    {
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "demo-restaurant",
+      "probe_criteria": {}
+    },
+    {
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "demo-salon",
+      "probe_criteria": {}
+    },
+    {
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "demo-trades",
+      "probe_criteria": {}
+    },
+    {
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "live-generic-commerce",
+      "probe_criteria": {}
+    },
+    {
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "live-generic-long-name",
+      "probe_criteria": {}
+    },
+    {
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "live-generic",
+      "probe_criteria": {}
+    },
+    {
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "live-restaurant-commerce",
+      "probe_criteria": {}
+    },
+    {
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "live-restaurant-tier-complete",
+      "probe_criteria": {}
+    },
+    {
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "live-restaurant-tier-growth",
+      "probe_criteria": {}
+    },
+    {
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "live-restaurant-tier-starter",
+      "probe_criteria": {}
+    },
+    {
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "live-salon-no-email",
+      "probe_criteria": {}
+    },
+    {
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "live-trades-no-address",
+      "probe_criteria": {}
+    },
+    {
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "live-trades",
+      "probe_criteria": {}
+    }
+  ]
+}

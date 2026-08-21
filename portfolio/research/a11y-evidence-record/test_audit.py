@@ -111,6 +111,47 @@ class FormControls(unittest.TestCase):
     def test_wrapping_label_is_enough(self):
         self.assertEqual(checks("<label>Email <input type='email'></label>"), [])
 
+    # A wrapping label only names the control if the label has a name. Before
+    # 2026-08-21 any `<label>` ancestor counted, and a control inside an empty
+    # wrapper read as labelled — a detection gap the sibling engine did not
+    # have. See portfolio/research/a11y-generated-sites/.
+
+    def test_wrapping_label_with_no_text_is_not_enough(self):
+        self.assertEqual(
+            checks(DOC.format("<label><input type='email' name='e'></label>"), "page.html"),
+            ["control-no-label"],
+        )
+
+    def test_wrapping_label_naming_through_a_nested_element_is_enough(self):
+        self.assertEqual(
+            checks(DOC.format("<label><span>Email</span><input type='email'></label>"),
+                   "page.html"),
+            [],
+        )
+
+    def test_wrapping_label_with_an_empty_nested_element_is_not_enough(self):
+        self.assertEqual(
+            checks(DOC.format("<label><span></span><input type='email' name='e'></label>"),
+                   "page.html"),
+            ["control-no-label"],
+        )
+
+    def test_wrapping_label_named_by_its_own_aria_label_is_enough(self):
+        self.assertEqual(
+            checks(DOC.format("<label aria-label='Email'><input type='email'></label>"),
+                   "page.html"),
+            [],
+        )
+
+    def test_wrapping_label_whose_text_is_an_expression_is_not_a_finding(self):
+        """Undecidable is never reported. A template renders the label text at
+        build time, so this engine cannot tell whether it is empty."""
+        self.assertEqual(
+            checks(DOC.format("<label>{{ t('email') }}<input type='email'></label>"),
+                   "page.html"),
+            [],
+        )
+
     def test_label_for_resolves_across_the_document(self):
         source = DOC.format("<label for='q'>Search</label><input id='q'>")
         self.assertEqual(checks(source, "page.html"), [])

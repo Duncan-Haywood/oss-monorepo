@@ -83,7 +83,7 @@ COVERAGE: tuple = (
               "Skipped heading levels are detectable; whether a heading is descriptive is not."),
     Criterion("3.1.1", "Language of Page", "A", "automated"),
     Criterion("4.1.2", "Name, Role, Value", "A", "partial",
-              "Missing accessible names and interactive elements hidden from AT are detectable; correct roles under scripting are not."),
+              "Missing accessible names on controls and on embedded frames, and interactive elements hidden from AT, are detectable; correct roles under scripting are not."),
     # Added 2026-08-21. Both were checked by the sibling engine
     # (portfolio/research/a11y-evidence-record/audit.py) and by this one
     # neither checked nor declared manual, so the coverage statement was
@@ -271,6 +271,39 @@ def rule_button_names(root: Node, label_targets: set):
         )
 
 
+def rule_iframe_names(root: Node, label_targets: set):
+    """An embedded frame with no name is announced only as "frame".
+
+    Added 2026-08-21, closing a detection gap this engine carried and the
+    sibling engine (`portfolio/research/a11y-evidence-record/audit.py`, rule
+    `iframe-no-title`) did not. Neither the hand-written fixtures nor the
+    storefront theme tarballs nor the 118 built pages of
+    `portfolio/research/a11y-own-sites/` contained an `<iframe>`, so the gap
+    was invisible until `portfolio/research/a11y-generated-sites/` rendered
+    `local-site-studio`'s delivered customer site — which embeds a map on
+    every page. See that directory for the measurement.
+
+    A frame carries no text of its own, so unlike a button there is nothing to
+    fall back on: the name has to be `title`, `aria-label`, or
+    `aria-labelledby`.
+    """
+    for node in root.iter():
+        if node.tag != "iframe":
+            continue
+        if _is_aria_hidden(node):
+            continue
+        if _text(node.attr("title")) or _has_aria_name(node):
+            continue
+        yield Finding(
+            "4.1.2", "Name, Role, Value", "A", BLOCKING, "iframe", node.line,
+            "Frame has no accessible name, so it is announced only as an "
+            "unnamed frame and a screen-reader user cannot tell what it holds "
+            "before entering it.",
+            "Add a title attribute describing the embedded content.",
+            seq=node.order,
+        )
+
+
 def _is_focusable(node: Node) -> bool:
     """Whether `node` still takes keyboard focus.
 
@@ -404,6 +437,7 @@ ALL_RULES: tuple = (
     rule_control_names,
     rule_link_text,
     rule_button_names,
+    rule_iframe_names,
     rule_interactive_aria_hidden,
     rule_video_captions,
     rule_autoplay_unmuted,

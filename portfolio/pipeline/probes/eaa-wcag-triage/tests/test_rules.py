@@ -190,6 +190,60 @@ def test_aria_hidden_focusable_control_still_flagged():
         _OK + '<input type="text" aria-label="q" aria-hidden="true"></html>')
 
 
+# ---------------------------------------------------------------------------
+# Frames, added 2026-08-21. `audit.py` has flagged an untitled <iframe> since
+# it was written; this engine had no iframe rule at all, and no corpus it had
+# ever been run on contained a frame — not the fixtures, not the storefront
+# tarballs, not the 118 built pages of portfolio/research/a11y-own-sites/.
+# The gap surfaced on the first corpus that did: the map embedded on every
+# page local-site-studio delivers. See portfolio/research/a11y-generated-sites/.
+# ---------------------------------------------------------------------------
+
+def test_untitled_iframe_flagged():
+    assert "4.1.2" in _criteria(_OK + '<iframe src="m.html"></iframe></html>')
+
+
+def test_untitled_iframe_is_blocking():
+    findings = audit_html(_OK + '<iframe src="m.html"></iframe></html>').findings
+    frames = [f for f in findings if f.element == "iframe"]
+    assert frames and frames[0].impact == "blocking"
+
+
+def test_titled_iframe_not_flagged():
+    assert "4.1.2" not in _criteria(
+        _OK + '<iframe src="m.html" title="Map of the shop"></iframe></html>')
+
+
+def test_iframe_named_by_aria_label_not_flagged():
+    assert "4.1.2" not in _criteria(
+        _OK + '<iframe src="m.html" aria-label="Map of the shop"></iframe></html>')
+
+
+def test_iframe_with_whitespace_only_title_flagged():
+    """A title of spaces is not a name, and is easy to emit from a template."""
+    assert "4.1.2" in _criteria(_OK + '<iframe src="m.html" title="  "></iframe></html>')
+
+
+def test_aria_hidden_iframe_not_flagged():
+    """A frame removed from the accessibility tree owes no name.
+
+    Matches how every other name rule here treats aria-hidden, and matches
+    `audit.py`'s own `hidden` guard on the same rule.
+    """
+    assert "4.1.2" not in _criteria(
+        _OK + '<iframe src="m.html" aria-hidden="true"></iframe></html>')
+
+
+def test_iframe_text_content_is_not_a_name():
+    """Fallback content inside a frame is not its accessible name.
+
+    A button falls back to its text; a frame does not, because the text is
+    what shows when the frame cannot load, not what names it when it can.
+    """
+    assert "4.1.2" in _criteria(
+        _OK + '<iframe src="m.html">Map of the shop</iframe></html>')
+
+
 # --- the invariant that would have caught the gap --------------------------
 
 def test_coverage_catalog_accounts_for_every_statically_reachable_criterion():

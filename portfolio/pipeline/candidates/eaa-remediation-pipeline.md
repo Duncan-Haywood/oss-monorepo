@@ -21,6 +21,38 @@ Scored 2026-08-18. Composite 7.25 · floor 5 (defensibility).
 | Liability containment | 6 | Real exposure if we overclaim; contained by selling evidence, never a compliance guarantee |
 | Ethical robustness | 9 | The output is a site disabled users can actually use — the interests line up |
 
+## Amendment (2026-08-21): the engine's failure mode is a silent miss, not only a false positive
+
+No score moved. Two measurements now bracket the audit engine from opposite
+sides, and only one of them was on the record.
+
+[`a11y-own-sites`](../../research/a11y-own-sites/) measured **precision**: out of
+sample, 11.9% of findings were un-actionable, and the free qualification audit
+therefore needs a build-artifact filter before a stranger reads it. That is the
+visible failure — a customer can see a finding that is wrong.
+
+[`a11y-generated-sites`](../../research/a11y-generated-sites/) measured the other
+direction, on the delivery surface this verdict names: the customer sites
+`local-site-studio` renders per slug, which appear in no build and which no
+audit had ever seen. They are **clean** — 0 findings on 14 pages, both engines
+agreeing — and the pass found **a detection gap in each engine**: the probe had
+no `<iframe>` rule at all (the repository's only frame is the map on every
+delivered page), and `audit.py` accepted a control inside a text-less
+`<label>`. Both fixed.
+
+Two consequences for what is sold:
+
+- **A record that omits a defect misstates its coverage in the direction that
+  flatters the seller**, and unlike a false positive the customer cannot tell.
+  This is squarely the `liability containment: 6` exposure — the mitigation is
+  the coverage statement, and a silent miss is exactly a coverage statement that
+  is wrong.
+- **A qualification audit needs a positive control per engagement**, not per
+  engine: mutate the customer's own page, confirm the rule fires. It is cheap,
+  and it is the only thing separating "your site is clean" from "our scanner
+  could not read your site." Both gaps above would have produced a clean report
+  on a page that was not clean.
+
 ## Buyer-segment correction (2026-08-19, per ledger PR #96)
 
 **The "ten German or Swedish shops" in the first experiment below is largely the
