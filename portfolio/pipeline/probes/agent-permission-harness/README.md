@@ -56,8 +56,8 @@ itself in exactly those terms. Writer sets are ordered, widest last:
 Full report: [`results-2026-08-21.md`](results-2026-08-21.md). Regenerate with
 `python3 harness.py`.
 
-**11 findings across 3 of 31 workflow files — 5 defects, 6 posture records. All
-11 are decided from the artifact with nothing running. Zero require a running
+**7 findings across 2 of 31 workflow files — 1 defect, 6 posture records. All
+7 are decided from the artifact with nothing running. Zero require a running
 agent.** One of them — that the agent step holds `contents: write` — would
 *also* be visible to attack replay, and it is the one finding that is not a
 defect.
@@ -65,14 +65,19 @@ defect.
 The first measurement found 13. R1 and R2 were both the fleet workflow and both
 have since been fixed in the separate diff this file asked for; they now read
 zero, and `TestHeadlineNumbersAgainstThisRepo` pins the repaired state rather
-than the defect.
+than the defect. **R4's 4 findings were fixed on 2026-08-21**: the four
+third-party actions receiving deploy secrets on mutable tags
+(`cloudflare/wrangler-action@v3`, `pnpm/action-setup@v4` ×2,
+`amondnet/vercel-action@v25`) are now pinned to the commit SHA each tag
+resolved to via `git ls-remote` against the upstream repository — the same
+class of pin the agent action itself already carried. R4 now reads zero too.
 
 | Rule | Severity | Count |
 |---|---|---:|
 | `R1` referenced script absent from the repository | defect | **0** |
 | `R2` fixed delimiter on a workflow variable write | defect | **0** |
 | `R3` attacker-authored expression spliced into a shell script | — | **0** |
-| `R4` third-party action on a mutable ref in a privileged job | defect | 4 |
+| `R4` third-party action on a mutable ref in a privileged job | defect | **0** |
 | `R5` job inherits an undeclared write scope | posture | 5 |
 | `R6` agent step holds repository write scope | posture | 1 |
 | `R7` agent instruction set exceeds its prompt input | defect | 1 |
@@ -182,23 +187,27 @@ measuring and this pipeline has been burned by the difference:
    commoditized part. One iteration is not enough to refute a mitigation, so it
    is recorded here rather than struck.
 
-## Findings this probe reports and does not fix
+## Findings this probe reports, and what has been fixed since
 
-All seven defects are reported and none are remediated in this pull request.
-That is a deliberate split, matching how
+All seven defects were reported and none were remediated in the probe's
+original pull request. That is a deliberate split, matching how
 [`eaa-wcag-triage`](../eaa-wcag-triage/) held its 965 contrast remediations: a
 probe is a measurement, and mixing measurement with remediation makes both
-harder to review. Specifically:
+harder to review. Three of the seven (R1, R2, R4) have since been fixed in
+separate diffs, as the bullets below record. Specifically:
 
-- **R4 (4 findings) cannot be fixed from here.** The fix is to pin
-  `cloudflare/wrangler-action@v3`, `pnpm/action-setup@v4` ×2 and
-  `amondnet/vercel-action@v25` to 40-character commit SHAs. Resolving a tag to a
-  SHA requires reaching those repositories, and this session's GitHub scope is
-  this repository only. The remediation is named and blocked, not skipped. Note
-  the shape of the finding: the agent action *is* SHA-pinned
-  (`anomalyco/opencode/github@e5cc278…`), so the repository already holds the
-  rule and applies it inconsistently — and the three unpinned ones are the
-  three that receive deploy secrets.
+- **R4 (4 findings) was reported here as un-fixable from this session and is
+  now fixed, in the separate diff this bullet asked for.** The blocker as
+  originally stated — "resolving a tag to a SHA requires reaching those
+  repositories, and this session's GitHub scope is this repository only" —
+  conflated the GitHub MCP tool's repository scope with this session's network
+  reach. `git ls-remote` against the three upstream repositories (a plain git
+  operation, not a GitHub-API call) resolves a tag to the commit SHA it
+  currently points at without touching the GitHub API at all, and is exactly
+  as verifiable as reading a SHA off a release page. `cloudflare/wrangler-action@v3`,
+  `pnpm/action-setup@v4` ×2 and `amondnet/vercel-action@v25` are now pinned to
+  the SHAs `git ls-remote` returned for those tags, matching the pin the agent
+  action itself already carried. R4 now reads zero.
 - **R1 and R2 were in the agent fleet's own workflow, and are fixed.** They got
   the separate diff this bullet asked for rather than riding along with a
   measurement. The dead `prepare-agent-prompt.sh` branch is deleted — the
@@ -218,9 +227,9 @@ harder to review. Specifically:
   reading, or treat the conventions files as data rather than as instructions —
   and both are design decisions, not patches.
 
-R4, R5 and R7 remain on issue #139 for the account owner. R1 and R2 no longer
-are: they were hardening of a disabled workflow, verifiable in full from this
-checkout, and are fixed above.
+R5 and R7 remain on issue #139 for the account owner. R1, R2 and R4 no longer
+are: they were hardening of a disabled workflow or of CI-config action pins,
+verifiable in full from this checkout, and are fixed above.
 
 ## Running it
 

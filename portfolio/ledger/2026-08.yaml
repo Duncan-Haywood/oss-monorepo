@@ -15285,6 +15285,101 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Scheduled "research and evaluate potential software business
+        projects that aren't already here" run -- the thirteenth firing of
+        that brief -- designated branch
+        `claude/laughing-pasteur-sifkys`. Ran `session_gate.py` first
+        (PROCEED -- cadence 0.00 sessions/hour) and
+        `verification_status.py` (both records still valid; no
+        re-verification performed). `git fetch origin main` first; tip
+        `6060153` (#548). Per the intake gate in `CLAUDE.md` and
+        `portfolio/pipeline/README.md`, this pass produced **no candidate
+        and no candidate list**. Checked the 4 open PRs (#531, #523, #372,
+        #368) before starting -- all four match the state prior entries
+        record and are correctly owner-gated; nothing new to add.
+      - >-
+        Took the gate's alternative and worked on the *evaluation* half
+        rather than the intake half. Merged as #549:
+        `portfolio/pipeline/score_sensitivity.py` (19 tests, stdlib plus
+        PyYAML, no network, no model call), which does the arithmetic on
+        the pattern `rescore-2026-08-20.md` recorded in prose and
+        `README.md` restates -- "every rescored candidate has fallen, one
+        point per measured dimension, and no measured dimension has ever
+        risen".
+      - >-
+        Finding 1 -- the pattern's scope is narrower than the README
+        stated. All six recorded revisions land in three of the eight
+        dimensions (`ai_leverage`, `defensibility`, `distribution`). The
+        claim the data supports is "when a score in those three dimensions
+        is revised, it is revised down by one", not "measurement lowers
+        scores": the sample is revisions, not measurements, so a pass that
+        measures a dimension and leaves it alone is invisible in the file
+        (exactly one such case is recorded, `agent-permission-harness`'s
+        `flagged_unmeasured` defensibility). The sign test the six
+        revisions support (p = 0.0156 one-sided) also assumes an
+        independence they do not have, and the script says so in its own
+        output rather than in a footnote.
+      - >-
+        Finding 2 -- applying the observed -1 to every unmeasured cell of
+        those three dimensions changes nothing that matters. Largest rank
+        displacement is 2 positions, and the top and bottom of the table
+        are unchanged (`eaa-remediation-pipeline` and
+        `shopify-a11y-evidence` stay tied at the top).
+        `rescore-2026-08-20.md` argued further rank-scoring has no decision
+        value; this is the arithmetic behind that argument, and it is now
+        runnable in two seconds by any pass tempted to re-rank.
+      - >-
+        Finding 3, the decision-relevant one -- the two dimensions that
+        decide *admission* have never been measured on any candidate.
+        Liability containment and ethical robustness are gates (below 5
+        rejects regardless of composite) and all 16 of those scores are
+        still 2026-08-18 screening estimates. Extrapolating the same one
+        point to them -- labelled in the output as an extrapolation, since
+        it crosses from one family of dimensions to another -- puts
+        `einvoice-preflight` below the liability gate, collapsing its
+        "conditional narrow version" into a plain reject, and leaves
+        `eaa-remediation-pipeline`, the pipeline's only `build-now`, one
+        unmeasured point above the gate that would reject it. Ethics is
+        robust to the same shift (its minimum is 8). No score was edited on
+        an extrapolation; the finding is that the next scoring measurement
+        worth paying for is a gate measurement, and no pass has attempted
+        one.
+      - >-
+        Named and not answered, deliberately: the obvious gate measurement
+        for the two accessibility candidates -- what share of WCAG 2.2 A/AA
+        an automated record can decide at all, against the 25-33% figure
+        their liability arguments cite from trade blogs -- needs the WCAG
+        normative index as a denominator. `www.w3.org` is egress-denied
+        (per `rescore-2026-08-20.md`'s own re-verified table) and no copy is
+        in this repository; the coverage catalog in
+        `probes/eaa-wcag-triage` is curated to shop pages by design and
+        cannot supply one. Recorded as the open question rather than
+        answered with the wrong denominator.
+      - >-
+        #549 merged directly, agent-decidable per `CLAUDE.md`:
+        `portfolio/` plus CI config, docs and tests only, no `ventures/*`
+        app code, publishes nothing, registers nothing, spends nothing.
+        Verified before merging against the live `main` tip: full
+        `portfolio-validate.yml` suite run by hand (router validate, doc
+        consistency, candidates rubric, venture scoring + 37 tests, router
+        51 tests, workflow validator + 11 tests, verification records + 27
+        tests) plus the new script's 19 tests, all green, and the report
+        pinned as reproducible across runs. Wired into
+        `portfolio-validate.yml` so a `measured:` block that stops opening
+        with `<was> -> <now>` fails CI rather than being silently dropped
+        from the sample the script reports on.
+      - >-
+        No revenue; the $0 ceiling is unchanged and nothing here touches
+        it. Backlog unchanged and correctly gated: #531/#523 (colour-token
+        fixes to deployable `local-site-studio`/`ai-first-markets`), #372
+        (framework upgrade to live sites), #368 (Dependabot, unattended
+        automation).
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Scheduled "continue work / maintain and improve the development
         process / legal ethical reliable increase in profit" session,
         designated branch `claude/nice-mendel-qm45s8`. Ran
