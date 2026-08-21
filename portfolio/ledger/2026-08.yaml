@@ -16918,3 +16918,83 @@ entries:
         merge, to be fixed on its own branch. No revenue; the $0 ceiling is
         unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research new business projects" session, designated branch
+        `claude/laughing-pasteur-mnxy3o`. Per `CLAUDE.md` that brief is already
+        answered, so no candidate list was produced; ran `session_gate.py`
+        (PROCEED), checked the 4 open PRs (#583, #531, #372, #368 -- all still
+        correctly owner-gated, nothing to re-derive) and took the prescribed
+        move instead: advance a probe already specified in
+        `portfolio/pipeline/`. The #1 candidate's own channel probe is
+        egress-denied with an explicit "do not re-attempt", but it names an
+        unmeasured gate twice, and following that led to real work.
+      - >-
+        Found and fixed a defect in the shared CSS reader both WCAG engines
+        use. `a11y-generated-sites/` -- the only pass that audits what
+        `local-site-studio` actually sells -- reported 0 findings from both
+        engines and concluded "the product is clean under everything both
+        engines can statically see", while calling both engines with no
+        stylesheet on a corpus that links none, so 1.4.3 could not fire on any
+        element. Its 14 mutations all edit markup and contrast needs CSS, so
+        the control built to tell "clean" from "blind" could not reach it. The
+        engines had not been silent: their contrast tally read 1018 of 1018
+        elements undecidable, in a field the harness never read -- in the
+        findings list, "checked and passed" and "never looked" are both the
+        empty list.
+      - >-
+        Measured it properly in a new `portfolio/research/a11y-delivered-contrast/`:
+        given the stylesheet the pages are really served with, the delivered
+        product carries 0 contrast failures over 1018 text elements, so the
+        published conclusion stands and now rests on a check that ran.
+        axe-core 4.13.0 corroborates at 0 violations across 39 rules -- and
+        declines 73.8% of the same contrast checks (772 "background could not
+        be determined due to a background gradient"), which only its
+        `incomplete` bucket reveals, so the obvious violations-only run would
+        have recorded mostly abstention as independent corroboration. The
+        engines' 100% decidability turned out not to be the documented
+        gradient bracketing: `_split_selectors` was `prelude.split(",")`,
+        which shredded Tailwind arbitrary-value selectors whose class names
+        contain escaped commas and dropped those rules entirely, so elements
+        were scored against a background the page does not have and reported
+        as decided. Commas live in `rgba()` and every gradient, so the loss
+        was concentrated on backgrounds. Fixed by reusing the escape-, depth-
+        and quote-aware scan already sitting below the naive splitter;
+        decidability falls 100% -> 98.43% as the engine gets honestly less
+        confident.
+      - >-
+        Merged as #601, agent-decidable per `CLAUDE.md` (portfolio/ and CI
+        config only; no `ventures/*` app code, publishes nothing, registers
+        nothing, spends nothing). Verified by running the checks rather than
+        trusting the diff: all 11 CI runs green on the final head, plus
+        locally eaa-wcag-triage 129 tests (the new selector test fails on the
+        pre-fix reader, so it pins the bug), a11y-evidence-record 89,
+        a11y-generated-sites 18, a11y-delivered-contrast 11,
+        a11y-contrast-decidability 11, a11y-axe-recall 10, a11y-own-sites 21,
+        agent-permission-harness 69, fixture validation unchanged at
+        precision/recall 1.0, and `a11y-contrast-decidability` re-run against
+        fresh `npm ci && npm run build` of the two ventures built this session
+        identical to its committed pre-fix numbers -- so the engine fix moves
+        no committed portfolio measurement. No score moved in either
+        direction, matching `a11y-axe-recall`'s precedent: one corpus, and
+        this pass both found an engine defect and fixed it.
+      - >-
+        Also cleared a red base branch nobody owned. `agent-permission-harness
+        CI` had failed on every `main` push since #585 merged at 22:05, and on
+        every PR opened since, because #585 added the "How this can be wrong"
+        section to `render_markdown()` without regenerating the artifact it
+        renders into. Two prior sessions correctly diagnosed it and deferred
+        it -- #598's merge commit says "for a session that can open its own
+        branch to fix it" -- and the entry above this one records a third
+        session routing around it. Regenerated with the command the file's own
+        header prescribes; the diff is exactly that section and nothing else,
+        and the check is green again. Also corrected a note on
+        `shopify-a11y-evidence` that was already false on `main`: it said
+        settling its liability gate needs an out-of-sample recall measurement
+        "which nothing in this repository has ever taken", written 35 minutes
+        before `a11y-axe-recall` landed exactly that (0.975). No revenue; the
+        $0 ceiling is unchanged.
+    mrr_end: null
