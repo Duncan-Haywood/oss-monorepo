@@ -13525,3 +13525,62 @@ entries:
         spent beyond agent time -- same class as this portfolio's many
         prior self-merges.
     mrr_end: null
+  - venture: local-site-studio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work... maintain and improve the development
+        process... increase in profit" session, designated branch
+        claude/keen-knuth-ec7ql8. Ran `session_gate.py` first (PROCEED --
+        meta-work share 20% of last 25 entries, well below the 70%
+        threshold). Found the designated branch already fully merged into
+        `main` from a prior run (no open PR under that head), so restarted
+        it fresh from current `main` per `CLAUDE.md`. Listed the 4 open PRs
+        (#483, #481, #372, #368) before starting.
+      - >-
+        #483 (local-site-studio: fix upsell payment regressing a live lead
+        back to "paid") was fresh, fully verified in its own PR body
+        (125/125 vitest, eslint/tsc/build all clean), CI (`verify`) green,
+        and re-confirmed clean via `git merge-tree` against the live `main`
+        tip. Self-merged as agent-decidable: internal correctness fix
+        (Convex backend) to an unpublished venture (`links.production:
+        null`), no new dependency/credential, nothing published or spent
+        beyond agent time.
+    mrr_end: null
+  - venture: print-atelier
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        #481 (print-atelier: dedup Stripe webhook retries to stop double
+        fulfillment orders) had gone stale in the same session: #480 had
+        merged an equivalent Stripe-ledger dedup fix to `main` in the
+        interim, and `git merge-tree` showed a real content conflict in
+        `stripe-ledger.ts`/`stripe-ledger.test.ts` (not just drift). The
+        PR's other fix -- guarding against a retried Stripe webhook
+        double-submitting a physical fulfillment order to Printful/Gelato,
+        a distinct bug #480 didn't touch -- was still live on `main` and
+        still needed.
+      - >-
+        Merged `main` into the PR's branch, took `main`'s already-shipped
+        ledger-dedup code/test as-is, kept only the still-needed
+        route.ts/orders.ts fulfillment-retry guard, and pushed the resolved
+        head (documented on the PR itself). Re-verified on the merged
+        branch: `npm test` 130/130, `npx tsc --noEmit` (only the
+        pre-existing `TS5097` test-file noise already present on `main`),
+        `npm run lint` (one pre-existing, unrelated warning), `npm run
+        build` succeeds (49 routes). CI (`build`) green on the updated
+        head; self-merged as agent-decidable, same class as #480/#483.
+      - >-
+        #372 and #368 re-checked against the post-merge `main` tip
+        (`git merge-tree`): both still clean, both still correctly
+        owner-gated (breaking `next` upgrade; unattended Dependabot
+        automation) -- nothing new to add, no action taken.
+      - >-
+        No revenue. Two live-adjacent bugs closed (a false stage-regression
+        in a payment/upsell flow, and a real double-fulfillment risk on
+        Stripe webhook retries) in two ventures still at
+        `links.production: null` -- the standing publish/payout blocker on
+        issue #139 is unchanged.
+    mrr_end: null
