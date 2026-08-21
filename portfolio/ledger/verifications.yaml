@@ -24,8 +24,8 @@
 records:
 - pr: 372
   head_sha: 14960d9ee0cf100c581ab835eccab745d318b419
-  verified_against_main: 75650d7aaf767bc8da4f90acdd3259627fef8d0d
-  verified_at: "2026-08-20T21:29:55Z"
+  verified_against_main: e4589d8d4da2ab279d60991d3f41d13b9761ca81
+  verified_at: "2026-08-21T02:24:29Z"
   result: pass
   note: >-
     Supersedes #222 (closed, same head-of-chain content) after resolving a
@@ -37,5 +37,10 @@ records:
     The other four ventures (ai-first-markets, print-atelier,
     real-estate-agent-photo-app research + docs-site) are byte-identical to
     #222's own verified branch content, so not re-run. Written up in the PR
-    #372 body. Stays owner-gated because merging it fires deploys to live
-    sites, not because anything about it is unverified.
+    #372 body. Re-checked 2026-08-21: still `mergeable_state: clean` against
+    current main tip, and all 9 CI checks on the same head commit
+    (`14960d9`) are green (research/pipeline/docs-site build, lint, verify,
+    test) -- the 4 workflow files that had changed since the prior
+    verification did not turn anything red. Stays owner-gated because
+    merging it fires deploys to live sites, not because anything about it is
+    unverified.
