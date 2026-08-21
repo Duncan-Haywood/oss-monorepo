@@ -12220,3 +12220,57 @@ entries:
         correctness bug found and fixed regardless of monetization
         status), not a new hypothesis mined to keep the queue busy.
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve the
+        development process... increase in profit" session, designated
+        branch claude/pensive-feynman-3ydsfw. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 36% of last 25 entries, below the 70%
+        threshold). Listed the 4 open PRs (#372/#368/#144/#19) before
+        starting: all already correctly owner-gated by prior sessions
+        (breaking ventures/* change, unattended-automation proposal, and
+        two automation PRs with documented blocking bugs from prior
+        reviews) -- nothing new to add there. `portfolio/router/allocate.py`
+        again named photos-import-tools the only dispatchable venture, with
+        the standing task "every recorded hypothesis is settled -- write the
+        next one in VENTURE.yaml, then test it."
+      - >-
+        Dispatched an agent to read photos_import_errors.py end to end
+        against the 24 already-recorded hypotheses. It found that
+        `_TRANSIENT_PATTERNS` listed the generic `timed out|timeout` regex
+        before the specific `duplicate preflight timed out` regex.
+        `classify_error` returns on the first regex match, and
+        "duplicate preflight timed out" itself contains the substring
+        "timed out", so the specific pattern -- and its distinct
+        RUN_PREFLIGHT recovery action -- was completely unreachable; any
+        such message was silently downgraded to a generic
+        photos_timeout/RETRY_BACKOFF classification instead. No existing
+        test exercised this path.
+      - >-
+        Fixed by reordering the pattern list so the specific pattern is
+        checked first. Added a regression test for the exact case plus a
+        general guard that strips regex metacharacters from each pattern's
+        own literal text and asserts no earlier pattern in the list matches
+        it, so the whole class of list-order shadowing bugs is caught if
+        reintroduced, not just this one instance. Verified: pytest 80/80
+        (then 84/84 after merging in two more concurrent hypotheses),
+        pyflakes clean, `portfolio/router/validate.py` all 10 VENTURE.yaml
+        files valid.
+      - >-
+        Opened PR #435. Main moved twice while it was open -- two other
+        sessions each landed their own new VENTURE.yaml hypothesis
+        (disk-space-filesystem fix and watchdog-stop-confirmation fix)
+        during the ~4 minutes this PR was open -- both resolved as
+        expected append-only conflicts (kept all entries, no logic
+        overlap), re-verifying tests/validators after each merge and
+        re-checking `git merge-tree` against the live main tip before
+        pushing. Waited for all 3 CI checks green on the final head,
+        confirmed clean mergeability one more time, and self-merged as
+        agent-decidable: local macOS tooling only (`links.production:
+        null`), no deployable/live-site code, no new dependency, no
+        account or credential, no unattended automation, nothing
+        published, nothing spent beyond agent time.
+    mrr_end: null
