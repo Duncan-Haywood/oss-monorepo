@@ -13,6 +13,30 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: recordStripeWebhookToLedger and buildStripePayoutLedgerSummary give the investor dashboard an accurate running total of revenue and artist transfers, not inflated by webhook redelivery.
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
+    note: >-
+      recordStripeWebhookToLedger (src/lib/stripe-ledger.ts) appended a new
+      ledger entry on every call with no check against eventId, unlike
+      recordOrderFromPaymentWebhook (src/lib/orders.ts) which already dedupes
+      on stripeEventId. Stripe webhooks are delivered at-least-once and are
+      retried on timeout or any non-2xx response, so the same event id can
+      reach the webhook route more than once in normal operation. Each
+      redelivery of a transfer.created/payout.paid/payment_intent.succeeded
+      event was appended as a second ledger row, and
+      buildStripePayoutLedgerSummary sums amountCents across all rows, so
+      totalTransferCents/totalPaymentCents (and the /investor dashboard that
+      reads them via src/lib/investor.ts) would inflate by the duplicate
+      amount. Reproduced with a standalone test: two
+      recordStripeWebhookToLedger calls carrying the same eventId produced
+      transferCount=2, totalTransferCents=5000 instead of 1/2500. Fixed by
+      returning the existing entry when eventId is already present in the
+      ledger, mirroring the orders.ts pattern; added a regression test
+      (recordStripeWebhookToLedger ignores a redelivered event id instead of
+      double-counting) to tests/stripe-ledger.test.ts. Full suite (129
+      tests, was 128) passes after the fix.
 
 economics:
   currency: USD

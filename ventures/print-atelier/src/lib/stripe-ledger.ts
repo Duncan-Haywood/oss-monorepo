@@ -39,6 +39,17 @@ export function recordStripeWebhookToLedger(
     return null;
   }
 
+  // Stripe delivers webhooks at-least-once and retries on timeout or a
+  // non-2xx response, so the same event id can arrive more than once.
+  // Without this guard, a redelivered `transfer.created`/`payout.paid`/
+  // `payment_intent.succeeded` event is appended again and inflates
+  // totalTransferCents/totalPaymentCents (and the investor dashboard that
+  // reads them) by the duplicate amount.
+  const existing = ledgerStore.find((entry) => entry.eventId === eventId);
+  if (existing) {
+    return existing;
+  }
+
   const entry: StripeLedgerEntry = {
     ledgerId: generateLedgerId(),
     eventId,
