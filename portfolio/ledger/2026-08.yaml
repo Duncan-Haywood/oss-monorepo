@@ -11777,3 +11777,67 @@ entries:
         venture's own self-merge precedent
         (#397/#399/#402/#406/#407/#408/#413/#416).
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve the
+        development process... increase in profit" session, designated branch
+        claude/nifty-goodall-vnup85. Ran `session_gate.py` first (PROCEED --
+        meta-work share 40% of the last 25 entries, below the 70% threshold).
+        Listed open PRs before starting: #372/#368/#144/#19, all long-standing
+        and already correctly owner-gated by prior sessions, none superseded.
+        `portfolio/router/allocate.py` again named photos-import-tools the only
+        dispatchable venture with the standing task "every recorded hypothesis
+        is settled -- write the next one in VENTURE.yaml, then test it." All CI
+        on main's recent pushes was green and all four portfolio validators
+        passed.
+      - >-
+        Dispatched a research-only Explore agent to read all five
+        photos-import-tools modules end to end against the (then) 20
+        already-recorded hypotheses, looking for a genuinely uncovered gap
+        rather than a restatement. It found one in `PhotosImporter.run()`'s
+        main loop: each iteration marks a batch's items `status='importing'`
+        before calling `import_batch_with_split(batch)`, but the surrounding
+        `except Exception` only logged the error -- it never reset those items.
+        `import_batch_with_split`'s recursion only catches `PhotosImportError`,
+        and `import_paths_osascript`'s `subprocess.run(["osascript"], ...)`
+        only catches `TimeoutExpired`, so a bare `FileNotFoundError` (osascript
+        transiently missing from PATH) escaped uncaught all the way to run()'s
+        outer handler. Since `next_importable_batch()` never selects
+        "importing" rows and `recover_importing()` only runs once at process
+        start, the batch's items were stranded in "importing" for the rest of
+        the process's life while the run went on to report "Complete" -- files
+        silently never imported and never retried.
+      - >-
+        Verified by reading the code, then confirmed reproduction: stashed just
+        the fix (keeping the new regression test) and ran it against pre-fix
+        code -- failed with `'importing' != 'imported'`, exactly the
+        reported-Complete-but-stuck bug. Unstashed: passed. Fixed by having
+        run()'s except block reset every batch item the same way
+        handle_item_error's existing per-item fallback does
+        (mark_skipped_permanent past the retry limit or for a
+        permanent-classified error, otherwise mark_failed so
+        next_importable_batch() picks it up again). Recorded as the 21st
+        hypothesis in VENTURE.yaml.
+      - >-
+        Two concurrent sessions landed unrelated photos-import-tools fixes
+        while this session was running (#416 rsync launch-failure thread leak,
+        #420 stale scratch-file removal guard, and later #419 watchdog
+        SIGINT/SIGTERM handling); merged main into the branch twice as it
+        moved, resolving a purely position-based VENTURE.yaml hypothesis-list
+        conflict each time (concurrent appends, no logic overlap) by keeping
+        every entry. Re-verified after each merge: full suite 74/74 then 75/75,
+        ruff/mypy clean, all four portfolio validators green.
+      - >-
+        Opened PR #424, waited for CI (photos-import-tools CI and Portfolio
+        validate both green on the final head), confirmed mergeable_state clean
+        against the live main tip (only an unrelated ledger-only append had
+        landed since), and self-merged as agent-decidable: links.production
+        null, no ventures/* deploy, no new dependency, no account, no
+        credential, no unattended automation, nothing published, nothing spent
+        beyond agent time -- consistent with this venture's own self-merge
+        precedent
+        (#379/#387/#397/#399/#402/#406/#407/#408/#413/#416/#419/#420).
+    mrr_end: null
