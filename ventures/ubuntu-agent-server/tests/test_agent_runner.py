@@ -9,6 +9,76 @@ Run with: pytest tests/  (needs pytest + PyYAML — tests/requirements.txt)
 """
 
 import json
+import subprocess
+
+
+# --- fold_changes_into_staged -----------------------------------------
+#
+# Real git, deliberately, unlike the rest of this file (see module
+# docstring): the bug this guards against is entirely about git plumbing
+# semantics — `git status --porcelain` looking identical for "no changes"
+# and "the tool committed its own work" — which a mock can't faithfully
+# reproduce.
+#
+# Regression: agent CLIs running in a permissive mode (e.g. Claude Code's
+# `auto` permission mode — see claude.sh) are explicitly allowed to commit
+# their own work, not just leave it as uncommitted edits. The old check
+# (`git status --porcelain` right after the tool run, with no soft-reset)
+# saw a clean working tree in that case and treated real, committed work
+# as "the tool made no changes" — discarding it (the workspace is deleted
+# unconditionally) and reporting a false "no changes" back to the issue.
+
+def _init_repo(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+
+    def run(*args):
+        subprocess.run(["git", *args], cwd=repo, check=True, capture_output=True, text=True)
+
+    run("init", "-q", "-b", "main")
+    run("config", "user.email", "a@example.com")
+    run("config", "user.name", "a")
+    (repo / "file.txt").write_text("hello\n")
+    run("add", "-A")
+    run("commit", "-q", "-m", "init")
+    run("checkout", "-q", "-b", "agent/claude/issue-1")
+    return repo
+
+
+def test_fold_detects_changes_the_tool_committed_itself(agent_runner, tmp_path):
+    repo = _init_repo(tmp_path)
+    # Simulate the tool committing its own work mid-run, as `auto`
+    # permission mode allows — no uncommitted edits left behind.
+    (repo / "file.txt").write_text("hello\nagent change\n")
+    subprocess.run(["git", "add", "-A"], cwd=repo, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "commit", "-q", "-m", "agent made this change itself"],
+        cwd=repo, check=True, capture_output=True,
+    )
+
+    # This is exactly what the old, buggy check did — it's empty even
+    # though the branch is genuinely one commit ahead of main.
+    naive_status = subprocess.run(
+        ["git", "status", "--porcelain"], cwd=repo, check=True, capture_output=True, text=True,
+    ).stdout.strip()
+    assert naive_status == "", "test setup: tool's commit should leave a clean working tree"
+
+    diff = agent_runner.fold_changes_into_staged(repo, "main")
+    assert diff != "", "fold_changes_into_staged must see commits the tool made on its own"
+
+
+def test_fold_detects_uncommitted_edits(agent_runner, tmp_path):
+    repo = _init_repo(tmp_path)
+    (repo / "file.txt").write_text("hello\nuncommitted edit\n")
+
+    diff = agent_runner.fold_changes_into_staged(repo, "main")
+    assert diff != ""
+
+
+def test_fold_reports_no_changes_when_none_made(agent_runner, tmp_path):
+    repo = _init_repo(tmp_path)
+    diff = agent_runner.fold_changes_into_staged(repo, "main")
+    assert diff == ""
 
 
 # --- choose_model_tier -----------------------------------------------------
