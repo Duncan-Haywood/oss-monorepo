@@ -206,6 +206,33 @@ requirement is real but its price is a design decision, not a detail. The probe'
 README carries the numbers and the two further build requirements the backtest
 produced.
 
+**Amended again, same day: the paragraph above is right about the rule failing
+and wrong about why, and its recommended fix does not survive contact with full
+history.** One of the build requirements it produced was *"calibrate on full
+history, not on the observation window"* — untestable here, because these saved
+records come from a `--shallow-since` clone. The probe has since fetched that
+history (nine mirrors, back to each repository's first commit, ~4 minutes of
+anonymous clones) and re-run against it:
+
+- **The starvation explanation is an artifact of this measurement's clone depth,
+  not a property of the sources.** `FDA/openfda` has 37 historical gaps and
+  `datasets/covid-19` has 744. All nine calibrate on 100% of window days.
+- **More history makes the rule catch strictly less.** The threshold is anchored
+  on the worst gap, which can only rise as history grows, so the sources likeliest
+  to go dormant are the ones whose threshold has already been stretched. On full
+  history the recommended fallback configuration above catches **0 of 2**, with a
+  2,060-day threshold on `FDA/openfda`. It worked only because it did not know
+  the sources' past.
+- **The fix is a p99 quantile anchor rather than a maximum**: 1 of 2 caught at 8
+  days' latency and 1 nuisance alarm-day, and the miss is shown to be
+  undetectable rather than mistuned (14 of `FDA/openfda`'s 37 historical gaps are
+  at least as long as the 73-day silence it is asked to flag).
+
+The in-window days derived from those full clones were checked against this
+file's saved records day-for-day and agree exactly on all nine mirrors, so the
+two derivations are measuring the same thing. Numbers, tables and the 57 tests
+that pin them are in the probe's README.
+
 ### 4. Step 1 of the first experiment now costs nothing
 
 The candidate budgets two weeks and €150 to learn a register's change rate.

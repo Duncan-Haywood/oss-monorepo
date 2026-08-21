@@ -1,22 +1,35 @@
 name: source-silence-detector CI
 
 # Test coverage for the source-silence detector probe under
-# portfolio/pipeline/probes/source-silence-detector/. It is standard-library-only
-# and makes no network calls at all — it derives everything from the committed
-# records of portfolio/research/register-change-rate/ — so this workflow does no
-# more than a contributor runs locally: run the tests. It publishes nothing,
-# registers nothing, and spends no API budget; it is a test runner, not the
-# unattended-automation kind of workflow CLAUDE.md gates.
+# portfolio/pipeline/probes/source-silence-detector/. The test suite is
+# standard-library-only and makes no network calls at all — it derives everything
+# from committed JSON (register-change-rate's saved records plus this probe's own
+# prior-history fetch) — so this workflow does no more than a contributor runs
+# locally: run the tests. It publishes nothing, registers nothing, and spends no
+# API budget; it is a test runner, not the unattended-automation kind of workflow
+# CLAUDE.md gates. In particular it does NOT run fetch_prior_history.py, which is
+# the one script here that clones from the network; its output is committed and
+# the tests read that.
 #
 # Matching the runners the sibling probes already have (eaa-wcag-triage,
 # npm-reachability-triage, register-change-rate).
 #
 # What must not reach main unseen is this probe's headline finding, because it is
-# a *negative* one and negative findings rot quietly: a per-source cadence
-# threshold catches 0 of the 2 registers that went silent, at every parameter
-# setting, and a fallback catches 2 of 2. Those numbers are asserted directly
-# against the saved measurement in TestHeadlineNumbersAgainstRealData, so an edit
-# that changes the finding fails here rather than in a document nobody re-runs.
+# a *negative* one and negative findings rot quietly. As of the 2026-08-21
+# amendment there are two, and the second reverses the first's prescription:
+#
+#   1. On the 180-day window, a per-source cadence threshold catches 0 of the 2
+#      registers that went silent at every parameter setting, and a fallback
+#      catches 2 of 2.
+#   2. On full history, that same fallback configuration catches 0 of 2 — because
+#      a worst-gap anchor only ever loosens — and a p99 quantile anchor catches
+#      1 of 2 at 8 days with 1 nuisance alarm-day. The miss is measured to be
+#      undetectable rather than mistuned.
+#
+# Both are asserted directly against the saved measurements, in
+# TestHeadlineNumbersAgainstRealData and TestFullHistoryFindingsAgainstRealData,
+# so an edit that changes either finding fails here rather than in a document
+# nobody re-runs.
 #
 # It also depends on a file in a different directory
 # (register-change-rate/results-2026-08-20.json), so that path is a trigger too —
@@ -58,7 +71,16 @@ jobs:
           python-version: "3.12"
       # Standard-library unittest only: no pip install step, by design.
       - run: python3 -m unittest discover -p 'test_*.py'
-      # Both documented invocations must keep running: the first reproduces the
-      # negative result the README leads with, the second the working config.
+      # Every invocation the README documents must keep running: the first
+      # reproduces the negative result it leads with, the second the config the
+      # first pass recommended (now superseded, still documented), the third the
+      # operating point it recommends today.
       - run: python3 detect_silence.py
       - run: python3 detect_silence.py --fallback pooled --multiplier 2.0 --min-gaps 2 --sweep
+      - run: |
+          python3 detect_silence.py --prior-history prior-history-2026-08-21.json \
+            --anchor quantile --quantile 0.99 --sweep
+      # The fetcher's network path is deliberately not exercised; --help is enough
+      # to catch an import or argument-parsing break in a file CI otherwise never
+      # loads outside its unit tests.
+      - run: python3 fetch_prior_history.py --help
