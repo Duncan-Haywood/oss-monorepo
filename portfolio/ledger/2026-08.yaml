@@ -13774,3 +13774,60 @@ entries:
         generates customer sites per slug from customer data, so they never
         appear in a build and were not covered here.
     mrr_end: null
+  - venture: retail-pilot-intel
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work... maintain and improve the development
+        process... increase in profit" session. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 16% of last 25 entries, well below the
+        70% threshold). Listed the 2 open PRs (#372, #368): both had just
+        been re-checked against the live `main` tip and correctly
+        owner-gated by the prior session's ledger entry minutes before this
+        one started -- nothing new to add, no action taken on either.
+      - >-
+        Given a dozen-plus venture bug fixes had already merged from
+        concurrent sessions in the preceding hour, ran a read-only scan
+        deliberately scoped to ventures none of that recent activity had
+        touched, to avoid colliding with a session already mid-fix on the
+        same files. Found a real one in `retail-pilot-intel`:
+        `importSaleEventsFromCsv` (packages/pos/src/importer.ts) grouped CSV
+        rows into a `SaleEvent` keyed only by `receipt_id`, even though
+        `store_id` is a documented optional per-row column for aggregated
+        multi-store exports. Receipt/transaction numbers are commonly
+        per-store sequential counters, so the same `receipt_id` recurring
+        across two stores in one export is realistic, not contrived -- when
+        it happened, both stores' line items silently merged into one
+        `SaleEvent` under whichever store was seen first: the other store's
+        sale vanished from the import (its revenue never landed anywhere)
+        and the first store's total was inflated by a transaction that
+        wasn't actually theirs. A financial-reporting bug, not a style nit;
+        the existing test suite only covered the same receipt_id across
+        separate CLI runs (different `defaultStoreId` per run), never the
+        in-file mixed-store_id-same-receipt_id case.
+      - >-
+        Fixed by grouping on `(store_id, receipt_id)` instead of
+        `receipt_id` alone, resolving `store_id` per-row before grouping.
+        Added a regression test with two stores sharing a `receipt_id` in
+        one CSV. Verified: `pnpm test` 12/12 `packages/pos` tests pass
+        (full workspace suite green, exit 0), `pnpm run typecheck` clean
+        across all 6 workspace packages, `pnpm run lint` clean, `pnpm run
+        build` succeeds. `git merge-tree --write-tree` against the live
+        `main` tip was clean before opening PR #493. CI (`build`) went
+        green on the PR head; merged by a concurrent session in this fleet
+        shortly after (agent-decidable class: internal correctness fix to
+        an unpublished venture, `links.production: null`, no new
+        dependency/credential, nothing published or spent beyond agent
+        time -- same class as this session intended to self-merge under).
+      - >-
+        No revenue. One silent revenue-misattribution bug closed in a
+        venture still at `links.production: null` -- the standing
+        publish/payout blocker on issue #139 is unchanged. #494
+        (ubuntu-agent-server self-direct cooldown fix) and #495
+        (local-site-studio SQLite-fallback lead-regression fix) merged
+        alongside from other concurrent sessions in this same window; not
+        re-described here since each carries its own verification in its
+        own PR and, presumably, its own ledger entry from the session that
+        authored it.
+    mrr_end: null
