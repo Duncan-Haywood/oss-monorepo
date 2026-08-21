@@ -14236,3 +14236,82 @@ entries:
         tip it started from. The standing $0 revenue ceiling and the
         publish/payout blocker on issue #139 are unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business
+        projects" session, designated branch
+        claude/laughing-pasteur-7gxau3. Per `CLAUDE.md` that brief is
+        already answered, so this produced no candidate list and no new
+        screening pass. Ran `session_gate.py` first (PROCEED -- meta-work
+        share 44% of last 25 entries, below the 70% threshold).
+        `git fetch origin main` first; tip `112e976` at start. Open-PR
+        backlog was 2 (#372, #368), so consolidation was not the lever;
+        both are correctly owner-gated and already recorded on #139, and
+        `verification_status.py` showed #372's staleness already handled
+        by #512/#513. Took instead the first of the useful moves that
+        file names -- advance a probe already specified in
+        `portfolio/pipeline/`.
+      - >-
+        Built the `build-surface` rule for `npm-reachability-triage`,
+        the step that probe's own README specified ("the `postcss` and
+        Server Components groups are the specified next step") and had
+        left unbuilt through four passes. The four PostCSS advisories
+        survived every text rule because nothing in their text is wrong;
+        the reason they do not describe deployed code is in the lockfile.
+        `dependency-path` needs every install location to be dev-only,
+        and these carry two -- the project's own dev copy for Tailwind,
+        and a copy vendored inside `next` that `next build` invokes and
+        `next start` never does. So the new rule reasons over the
+        lockfile's production dependency edges instead of advisory text,
+        reimplementing Node's nearest-ancestor resolution so an edge
+        names the copy actually loaded, and suppresses only on named
+        `(dependent, package)` claims a reviewer can reject one at a
+        time -- not a package allowlist, which would also fire when a
+        runtime CSS-in-JS library pulls PostCSS onto the request path.
+      - >-
+        The pass refuted a claim in the README it was implementing. That
+        file recorded the two `nanoid` advisories as un-suppressible
+        "without call-graph analysis". `next@14.2.35` does not depend on
+        `nanoid` at all; its only production dependent in these
+        lockfiles is the vendored PostCSS, which is itself build-only,
+        so transitivity settles it and no call-graph analysis is needed.
+        The earlier note reasoned about what the advisory demands of the
+        caller; the answer was in what the lockfile says about who the
+        caller is. Also added a `server-functions` surface rule and
+        deliberately not a `server-components` one -- a static export
+        does execute Server Components at build time, and all three RSC
+        advisories name the App Router Server Function *endpoint* they
+        are reached through, which is the part a static export lacks.
+        Pinned by a test so a later pass has to argue before widening it.
+      - >-
+        Measured on the same checkout and the same OSV feed file as the
+        prior run, so the tables are an A/B rather than two dates.
+        Static-export residual falls 11 -> 2 per product (the known true
+        positive plus one advisory left reported on purpose rather than
+        override the `xss` veto); server-rendered products get their
+        first suppressions at all, 0% -> 22-80%; total shipped 60 -> 30
+        of 132, suppression 54.5% -> 77.3%. Recorded two honest limits
+        rather than only the headline: the server rows are a new claim
+        the manual review never tested (it classified by deployment mode
+        and never asked whether a production-path package runs after the
+        build), and 24 of the 30 new suppressions rest on the single
+        `next -> postcss` edge, so a wrong edge is wrong everywhere at
+        once. Both are in the probe README, along with the build-machine
+        and vendored-copy gaps now in `COVERAGE_LIMITS`.
+      - >-
+        Opened #517 and self-merged it, agent-decidable per `CLAUDE.md`:
+        `portfolio/pipeline/probes/` only, no `ventures/*` app code
+        (venture lockfiles are read, never written), publishes nothing,
+        spends nothing. Verified by running the checks -- 197 tests (was
+        133) exactly as `npm-reachability-triage-ci.yml` invokes them,
+        both pipeline validators, the CLI end to end, the portfolio
+        sample regenerated, both PR checks green, and `merge-tree` clean
+        against the live tip immediately before merging. No revenue and
+        no candidate score moved -- a probe is not a graduation, and
+        `cra-evidence-desk` stays blocked on Ask 1 (GitHub App scope),
+        not on publish approval. The standing $0 revenue ceiling and the
+        publish/payout blocker on issue #139 are unchanged.
+    mrr_end: null
