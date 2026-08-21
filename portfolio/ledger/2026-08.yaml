@@ -15199,3 +15199,84 @@ entries:
         them already internally consistent (no stale doc to fix). No
         revenue moved; the $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process / legal ethical reliable increase in profit" session,
+        designated branch `claude/ecstatic-volta-cl7sm1`. Ran
+        `session_gate.py` first (PROCEED -- cadence 0.00/hour, at the
+        maintenance rate the $0-ceiling branch implies). `git fetch origin
+        main` first; tip `2171fb7` (#542). Checked the 6 open PRs and issue
+        #139 before starting, per the "check open PRs" and "check the
+        decision queue first" rules. All 30 most recent completed CI runs
+        on `main` were green -- no red-CI trigger.
+      - >-
+        Merged #543 (ledger-only, 66-line pure append, `mergeable_state`
+        clean) as agent-decidable. Independently re-verified rather than
+        trusting the title: `git merge-tree` clean against the live tip,
+        `2026-08.yaml` parses at 250 entries with 0 deletions, and
+        `test_session_gate` + `test_verification_status` pass 27/27 on the
+        merged state. It had been sitting unmerged with nothing gating it.
+      - >-
+        Fixed the two defects `portfolio/pipeline/probes/agent-permission-harness`
+        had reported against `.github/workflows` and left unfixed, in the
+        separate diff its own README asked for. Merged as #547 (both CI
+        checks green). R2 was the substantive one: the fleet's prompt was
+        piped into `$GITHUB_OUTPUT` behind the literal delimiter
+        `PROMPT_EOF` with `REPO_WRITE` content
+        (`.github/prompts/portfolio-work.md`), so a `PROMPT_EOF` line
+        written into that file would close the value early and have every
+        later line parsed as a fresh step output -- a write into the job's
+        own variable space, in a job holding `contents: write`,
+        `pull-requests: write` and two secrets. Replayed both ways against
+        a hostile prompt file: under the fixed delimiter the payload's
+        `body=pwned`/`EXTRA=injected` lines escape the value, under a
+        per-run `openssl rand -hex 16` delimiter they stay inside it. R1
+        was a `-f`-guarded call to
+        `.github/scripts/prepare-agent-prompt.sh`, a script never present
+        on `main`, so the fallback always ran and the file did not read as
+        what it executed; the dead branch is deleted and behaviour is
+        unchanged by construction.
+      - >-
+        Merge class judged agent-decidable and worth recording, since the
+        file is the agent fleet's own workflow: `CLAUDE.md` gates *adding
+        or re-enabling* unattended spend-capable automation, and this does
+        neither -- the schedule stays disabled, the trigger is still
+        `workflow_dispatch` alone, and no agent count, model, permission,
+        secret or step was added or widened. Checked #139 for a PR-specific
+        flag before merging (the process gap the previous entry recorded
+        after #511); R1/R2 were listed there, so the probe README's
+        `#139` pointer was narrowed to R4/R5/R7 in the same diff.
+      - >-
+        Verified by running the checks, not reading the diff: probe
+        findings 13 -> 11 with R1 and R2 both at zero, probe suite 61/61,
+        `results-2026-08-21.md` regenerated with CI's exact command and
+        byte-identical across two runs, and portfolio-validate's seven
+        validators plus its four suites (37/37, 51/51, 11/11, 27/27) all
+        pass. The two headline pins asserted these defects were *still
+        present* -- their stated job -- so they were inverted to pin the
+        repaired state rather than deleted, and now fire if either defect
+        class returns anywhere in `.github/workflows`. Stale counts
+        corrected in four places that state them (probe README and rule
+        table, probes index, the candidate, the probe CI header comment,
+        which had explicitly warned this would go stale).
+      - >-
+        Not attempted, and why: R4 (4 findings -- `cloudflare/wrangler-action@v3`,
+        `amondnet/vercel-action@v25` and two others on mutable tags while
+        the agent action itself is SHA-pinned) needs tag-to-SHA resolution
+        against repositories outside this session's GitHub scope, so it
+        stays named and blocked rather than guessed at. R5/R6/R7 are
+        posture and design decisions with no one-line fix and remain on
+        #139.
+      - >-
+        No revenue; the $0 ceiling is unchanged. Backlog otherwise
+        correctly gated and left alone: #531/#523 (colour-token fixes to
+        deployable `local-site-studio`/`ai-first-markets`), #372
+        (framework upgrade), #368 (Dependabot, unattended automation) --
+        all already on #139 with current detail and nothing new to add.
+        #511 was merged by a concurrent session mid-run; no overlap with
+        this session's work.
+    mrr_end: null
