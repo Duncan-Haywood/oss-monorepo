@@ -57,20 +57,20 @@ export default function AdCatalogFeedLab() {
 
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase">Feed health</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">Feed health</p>
           <p className="text-3xl font-bold">{feed.feedHealthScore}</p>
-          <p className="text-xs text-gray-500 mt-1">0–100 sync readiness</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">0–100 sync readiness</p>
         </div>
         <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase">Eligible rows</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">Eligible rows</p>
           <p className="text-3xl font-bold text-emerald-700 dark:text-emerald-300">{feed.eligibleCount}</p>
         </div>
         <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase">Blocked rows</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">Blocked rows</p>
           <p className="text-3xl font-bold text-amber-700 dark:text-amber-300">{feed.blockedCount}</p>
         </div>
         <div className="bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-900 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase">Platforms sync-ready</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">Platforms sync-ready</p>
           <p className="text-3xl font-bold text-violet-700 dark:text-violet-300">
             {Object.values(feed.platformSummary).filter((summary) => summary.syncReady).length}/3
           </p>
@@ -97,10 +97,10 @@ export default function AdCatalogFeedLab() {
                   {summary.syncReady ? "Sync ready" : "Hold sync"}
                 </span>
               </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-gray-700 dark:text-gray-400">
                 {summary.eligible} eligible · need {summary.minCreativesRequired} creatives
               </p>
-              <p className="text-xs mt-2 text-gray-500">
+              <p className="text-xs mt-2 text-gray-500 dark:text-gray-400">
                 {summary.minCreativesMet ? "Minimum met" : "Below creative minimum"}
               </p>
             </div>
@@ -111,7 +111,7 @@ export default function AdCatalogFeedLab() {
       <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 space-y-4">
         <div className="flex flex-wrap gap-4 items-end">
           <label className="text-sm">
-            <span className="block text-gray-500 mb-1">Platform</span>
+            <span className="block text-gray-500 dark:text-gray-400 mb-1">Platform</span>
             <select
               value={platformFilter}
               onChange={(event) => setPlatformFilter(event.target.value as AdCatalogPlatform | "all")}
@@ -125,7 +125,7 @@ export default function AdCatalogFeedLab() {
             </select>
           </label>
           <label className="text-sm">
-            <span className="block text-gray-500 mb-1">Baseline CAC (${baselineCAC})</span>
+            <span className="block text-gray-500 dark:text-gray-400 mb-1">Baseline CAC (${baselineCAC})</span>
             <input
               type="range"
               min={40}
@@ -144,7 +144,7 @@ export default function AdCatalogFeedLab() {
             Show blocked rows
           </label>
           <label className="text-sm">
-            <span className="block text-gray-500 mb-1">Export</span>
+            <span className="block text-gray-500 dark:text-gray-400 mb-1">Export</span>
             <select
               value={exportFormat}
               onChange={(event) => setExportFormat(event.target.value as "json" | "csv")}
@@ -159,7 +159,7 @@ export default function AdCatalogFeedLab() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-gray-500 border-b border-gray-200 dark:border-gray-700">
+              <tr className="text-left text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
                 <th className="py-2 pr-4">Platform</th>
                 <th className="py-2 pr-4">Title</th>
                 <th className="py-2 pr-4">Creative</th>
@@ -184,7 +184,7 @@ export default function AdCatalogFeedLab() {
                       {item.eligible ? "Eligible" : "Blocked"}
                     </span>
                   </td>
-                  <td className="py-2 text-xs text-gray-500">
+                  <td className="py-2 text-xs text-gray-500 dark:text-gray-400">
                     {item.blockers.length > 0 ? item.blockers.join(" · ") : "—"}
                   </td>
                 </tr>
@@ -194,7 +194,7 @@ export default function AdCatalogFeedLab() {
         </div>
 
         <div>
-          <p className="text-xs text-gray-500 mb-2">Export preview ({exportFormat.toUpperCase()})</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Export preview ({exportFormat.toUpperCase()})</p>
           <pre className="text-xs bg-gray-950 text-gray-100 rounded-lg p-4 overflow-x-auto max-h-64">
             {exportPayload.slice(0, 2000)}
             {exportPayload.length > 2000 ? "\n…" : ""}

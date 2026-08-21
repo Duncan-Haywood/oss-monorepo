@@ -80,7 +80,7 @@ export default function ProductDetailPreviewCTA({
                   }`}
                 >
                   <p className="font-semibold">{item.title}</p>
-                  <p className={selectedSlug === item.slug ? "text-stone-300" : "text-stone-500"}>
+                  <p className={selectedSlug === item.slug ? "text-stone-300" : "text-stone-600"}>
                     {item.hasRoomMockups ? "Room mockups ready" : "Mockups pending"}
                   </p>
                 </button>
@@ -153,13 +153,13 @@ export default function ProductDetailPreviewCTA({
 
               <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
                 <div>
-                  <p className="text-stone-500">Est. conversion</p>
+                  <p className="text-stone-600">Est. conversion</p>
                   <p className="font-mono font-semibold text-stone-900">
                     {mode.estimatedConversionRate.toFixed(2)}%
                   </p>
                 </div>
                 <div>
-                  <p className="text-stone-500">Est. add-to-cart</p>
+                  <p className="text-stone-600">Est. add-to-cart</p>
                   <p className="font-mono font-semibold text-stone-900">
                     {mode.estimatedAddToCartRate.toFixed(2)}%
                   </p>
@@ -172,7 +172,7 @@ export default function ProductDetailPreviewCTA({
                 className={`mt-4 w-full rounded-lg px-4 py-2.5 text-sm font-medium transition ${
                   mode.ctaEnabled
                     ? "bg-stone-900 text-white hover:bg-stone-700"
-                    : "cursor-not-allowed bg-stone-200 text-stone-500"
+                    : "cursor-not-allowed bg-stone-200 text-stone-600"
                 }`}
               >
                 {mode.ctaLabel}

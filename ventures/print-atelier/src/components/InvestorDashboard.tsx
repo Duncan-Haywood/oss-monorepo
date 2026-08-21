@@ -20,7 +20,7 @@ function StatusBadge({ status }: { status: "healthy" | "watch" | "blocked" }) {
 }
 
 function ScoreRing({ score, label }: { score: number; label: string }) {
-  const color = score >= 80 ? "text-emerald-500" : score >= 60 ? "text-amber-500" : "text-rose-500";
+  const color = score >= 80 ? "text-emerald-600" : score >= 60 ? "text-amber-500" : "text-rose-500";
   return (
     <div className="flex flex-col items-center">
       <div className={`text-4xl font-bold tabular-nums ${color}`}>{score}</div>
@@ -43,7 +43,7 @@ export default function InvestorDashboard() {
           Condensed view of supply, demand, unit economics, partner integrations, and launch readiness —
           wired to the same shared catalog, outreach, finance, and ops math as every portal.
         </p>
-        <p className="text-xs text-gray-400 mt-2">Generated {new Date(snapshot.generatedAt).toLocaleString()}</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Generated {new Date(snapshot.generatedAt).toLocaleString()}</p>
       </header>
 
       <ProductPipelineDiagram />
@@ -52,7 +52,7 @@ export default function InvestorDashboard() {
         <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
           <div>
             <h2 className="text-lg font-semibold">Market launch command center</h2>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-gray-700 dark:text-gray-400 mt-1">
               Supply velocity + demand sync + checkout — single gate before scaling ads or outreach
             </p>
           </div>
@@ -60,7 +60,7 @@ export default function InvestorDashboard() {
             <p className="text-3xl font-bold tabular-nums text-indigo-600 dark:text-indigo-400">
               {snapshot.launchCommandCenter.overallLaunchScore}
             </p>
-            <p className="text-xs text-gray-500 capitalize">{snapshot.launchCommandCenter.overallStatus}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{snapshot.launchCommandCenter.overallStatus}</p>
           </div>
         </div>
         <div className="flex flex-wrap gap-2 mb-4 text-xs">
@@ -87,11 +87,11 @@ export default function InvestorDashboard() {
               className="border border-gray-100 dark:border-gray-700 rounded-lg px-4 py-3"
             >
               <div className="flex items-center justify-between gap-2">
-                <p className="text-xs text-gray-500">{gate.label}</p>
+                <p className="text-xs text-gray-800 dark:text-gray-400">{gate.label}</p>
                 <StatusBadge status={gate.status === "ready" ? "healthy" : gate.status === "watch" ? "watch" : "blocked"} />
               </div>
               <p className="text-xl font-bold tabular-nums mt-1">{gate.score}</p>
-              <p className="text-xs text-gray-500 mt-1">{gate.summary}</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{gate.summary}</p>
             </div>
           ))}
         </div>
@@ -118,10 +118,10 @@ export default function InvestorDashboard() {
 
       <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Revenue (modeled)</h2>
+          <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Revenue (modeled)</h2>
           <p className="text-2xl font-bold mt-2 tabular-nums">
             ${snapshot.monthlyGrossRevenue.toLocaleString()}
-            <span className="text-sm font-normal text-gray-500"> / mo gross</span>
+            <span className="text-sm font-normal text-gray-500 dark:text-gray-400"> / mo gross</span>
           </p>
           <ul className="mt-3 space-y-1 text-sm text-gray-600 dark:text-gray-300">
             <li>Platform share (70% net): ${snapshot.monthlyPlatformShare.toLocaleString()}/mo</li>
@@ -133,10 +133,10 @@ export default function InvestorDashboard() {
           </ul>
         </div>
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Catalog health</h2>
+          <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Catalog health</h2>
           <p className="text-2xl font-bold mt-2">
             {snapshot.catalog.liveArtworks}
-            <span className="text-sm font-normal text-gray-500"> live SKUs</span>
+            <span className="text-sm font-normal text-gray-500 dark:text-gray-400"> live SKUs</span>
           </p>
           <ul className="mt-3 space-y-1 text-sm text-gray-600 dark:text-gray-300">
             <li>Avg launch readiness: {snapshot.catalog.averageReadinessScore}/100</li>
@@ -146,10 +146,10 @@ export default function InvestorDashboard() {
           </ul>
         </div>
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Supply pipeline</h2>
+          <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Supply pipeline</h2>
           <p className="text-2xl font-bold mt-2">
             {snapshot.outreachCohortAttribution.funnelCounts["live-listing"]}
-            <span className="text-sm font-normal text-gray-500"> live from outreach</span>
+            <span className="text-sm font-normal text-gray-500 dark:text-gray-400"> live from outreach</span>
           </p>
           <ul className="mt-3 space-y-1 text-sm text-gray-600 dark:text-gray-300">
             <li>
@@ -170,7 +170,7 @@ export default function InvestorDashboard() {
         <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
           <div>
             <h2 className="text-lg font-semibold">Buyer checkout funnel</h2>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-gray-700 dark:text-gray-400 mt-1">
               Cart → Stripe session → paid — readiness before scaling ad traffic
             </p>
           </div>
@@ -178,7 +178,7 @@ export default function InvestorDashboard() {
             <p className="text-3xl font-bold tabular-nums text-indigo-600 dark:text-indigo-400">
               {snapshot.checkoutFunnel.overallReadiness}%
             </p>
-            <p className="text-xs text-gray-500">checkout readiness</p>
+            <p className="text-xs text-gray-800 dark:text-gray-400">checkout readiness</p>
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
@@ -188,12 +188,12 @@ export default function InvestorDashboard() {
               className="border border-gray-100 dark:border-gray-700 rounded-lg px-4 py-3"
             >
               <div className="flex items-center justify-between gap-2">
-                <p className="text-xs text-gray-500">{stage.stage}</p>
+                <p className="text-xs text-gray-800 dark:text-gray-400">{stage.stage}</p>
                 <StatusBadge status={stage.status} />
               </div>
               <p className="text-xl font-bold tabular-nums mt-1">{stage.count}</p>
               {stage.conversionFromPrevious !== null && (
-                <p className="text-xs text-gray-500 mt-1">{stage.conversionFromPrevious}% from prior</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{stage.conversionFromPrevious}% from prior</p>
               )}
             </div>
           ))}
@@ -220,7 +220,7 @@ export default function InvestorDashboard() {
               className="flex items-center justify-between bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3"
             >
               <div>
-                <p className="text-xs text-gray-500">{stage.stage}</p>
+                <p className="text-xs text-gray-800 dark:text-gray-400">{stage.stage}</p>
                 <p className="text-xl font-bold tabular-nums">{stage.count}</p>
               </div>
               <StatusBadge status={stage.status} />
@@ -232,7 +232,7 @@ export default function InvestorDashboard() {
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
           <h2 className="text-lg font-semibold mb-1">Fulfillment partners</h2>
-          <p className="text-sm text-gray-500 mb-4">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
             {snapshot.fulfillment.label} — score {snapshot.fulfillment.score}/100
           </p>
           <div className="space-y-3">
@@ -240,7 +240,7 @@ export default function InvestorDashboard() {
               <div key={partner.id} className="flex items-start justify-between gap-3 text-sm">
                 <div>
                   <p className="font-medium">{partner.name}</p>
-                  <p className="text-gray-500 text-xs">{partner.regions.join(" · ")}</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-xs">{partner.regions.join(" · ")}</p>
                   <p className="text-gray-600 dark:text-gray-300 text-xs mt-1">{partner.nextAction}</p>
                 </div>
                 <span
@@ -261,7 +261,7 @@ export default function InvestorDashboard() {
 
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
           <h2 className="text-lg font-semibold mb-1">Advertising & programmatic</h2>
-          <p className="text-sm text-gray-500 mb-4">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
             {snapshot.advertising.label} — {snapshot.advertising.creativesReady} creatives ready ·{" "}
             {snapshot.advertising.mockupCoveragePercent}% mockup coverage
           </p>
@@ -270,7 +270,7 @@ export default function InvestorDashboard() {
               <div key={platform.id}>
                 <div className="flex items-center justify-between text-sm">
                   <span className="font-medium">{platform.name}</span>
-                  <span className="tabular-nums text-gray-500">{platform.readinessPercent}%</span>
+                  <span className="tabular-nums text-gray-500 dark:text-gray-400">{platform.readinessPercent}%</span>
                 </div>
                 <div className="mt-1 h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                   <div
@@ -280,7 +280,7 @@ export default function InvestorDashboard() {
                     style={{ width: `${platform.readinessPercent}%` }}
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">{platform.nextAction}</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{platform.nextAction}</p>
               </div>
             ))}
           </div>
@@ -297,7 +297,7 @@ export default function InvestorDashboard() {
             >
               <div>
                 <p className="font-medium">{allocation.label}</p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-800 dark:text-gray-400">
                   {allocation.eligible
                     ? `LTV:CAC ${allocation.ltvToCacRatio.toFixed(1)}x`
                     : allocation.blockers.join(" · ")}
@@ -305,14 +305,14 @@ export default function InvestorDashboard() {
               </div>
               <div className="text-right">
                 <p className="font-bold tabular-nums">${allocation.recommendedWeeklyBudget}</p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-800 dark:text-gray-400">
                   {!allocation.eligible ? "blocked" : `$${allocation.profitAfterCAC.toFixed(0)} contrib`}
                 </p>
               </div>
             </div>
           ))}
         </div>
-        <p className="text-xs text-gray-500 mt-3">
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
           Total allocated: ${snapshot.channelBudget.allocatedBudget} / ${defaultWeeklyBudget} weekly cap ·{" "}
           {snapshot.channelBudget.allocations.filter((a) => !a.eligible).length} channels held by guardrails
         </p>
@@ -331,24 +331,24 @@ export default function InvestorDashboard() {
 
       <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
         <h2 className="text-lg font-semibold mb-1">Order records (webhook scaffold)</h2>
-        <p className="text-sm text-gray-500 mb-4">
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
           In-memory orders from payment_intent.succeeded — persists to Convex in Phase 3
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
           <div>
-            <p className="text-xs text-gray-500">Total orders</p>
+            <p className="text-xs text-gray-800 dark:text-gray-400">Total orders</p>
             <p className="text-xl font-bold tabular-nums">{snapshot.orderSummary.totalOrders}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Paid</p>
+            <p className="text-xs text-gray-800 dark:text-gray-400">Paid</p>
             <p className="text-xl font-bold tabular-nums">{snapshot.orderSummary.paidOrders}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Fulfillment queued</p>
+            <p className="text-xs text-gray-800 dark:text-gray-400">Fulfillment queued</p>
             <p className="text-xl font-bold tabular-nums">{snapshot.orderSummary.fulfillmentQueued}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Revenue (cents)</p>
+            <p className="text-xs text-gray-800 dark:text-gray-400">Revenue (cents)</p>
             <p className="text-xl font-bold tabular-nums">{snapshot.orderSummary.totalRevenueCents}</p>
           </div>
         </div>
@@ -362,24 +362,24 @@ export default function InvestorDashboard() {
 
       <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
         <h2 className="text-lg font-semibold mb-1">Stripe payout ledger (webhook scaffold)</h2>
-        <p className="text-sm text-gray-500 mb-4">
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
           In-memory ledger from verified webhooks — persists to Convex in Phase 3
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
           <div>
-            <p className="text-xs text-gray-500">Entries</p>
+            <p className="text-xs text-gray-800 dark:text-gray-400">Entries</p>
             <p className="text-xl font-bold tabular-nums">{snapshot.payoutLedger.totalEntries}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Transfers</p>
+            <p className="text-xs text-gray-800 dark:text-gray-400">Transfers</p>
             <p className="text-xl font-bold tabular-nums">{snapshot.payoutLedger.transferCount}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Payments</p>
+            <p className="text-xs text-gray-800 dark:text-gray-400">Payments</p>
             <p className="text-xl font-bold tabular-nums">{snapshot.payoutLedger.paymentCount}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Artist accounts</p>
+            <p className="text-xs text-gray-800 dark:text-gray-400">Artist accounts</p>
             <p className="text-xl font-bold tabular-nums">{snapshot.payoutLedger.artistAccounts.length}</p>
           </div>
         </div>
@@ -394,7 +394,7 @@ export default function InvestorDashboard() {
       <section className="flex flex-wrap gap-3 pt-2">
         <Link
           href="/artist-onboard"
-          className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors"
+          className="px-4 py-2 bg-emerald-700 text-white rounded-lg text-sm font-medium hover:bg-emerald-800 transition-colors"
         >
           Artist onboarding
         </Link>

@@ -23,7 +23,7 @@ export default function StorefrontPage({ searchParams }: StorefrontPageProps) {
   const listingLabel = visibleArtworks.length === 1 ? "listing" : "listings";
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-stone-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       <DemoNav current="/storefront" />
 
       <div className="bg-white border-b border-stone-200">

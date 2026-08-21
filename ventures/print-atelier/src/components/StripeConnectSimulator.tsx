@@ -35,7 +35,7 @@ export default function StripeConnectSimulator() {
   return (
     <div className="space-y-8">
       <header className="border-b border-gray-200 dark:border-gray-700 pb-6">
-        <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+        <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
           Finance · Phase 3 prep
         </p>
         <h1 className="text-3xl font-bold mt-1">Stripe Connect Payout Simulator</h1>
@@ -47,7 +47,7 @@ export default function StripeConnectSimulator() {
 
       <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <label className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-          <span className="text-xs text-gray-500 uppercase">Retail price</span>
+          <span className="text-xs text-gray-600 dark:text-gray-400 uppercase">Retail price</span>
           <input
             type="range"
             min={35}
@@ -59,7 +59,7 @@ export default function StripeConnectSimulator() {
           <p className="text-2xl font-bold mt-1">{formatStripeCurrency(retailPrice)}</p>
         </label>
         <label className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-          <span className="text-xs text-gray-500 uppercase">POD fulfillment</span>
+          <span className="text-xs text-gray-600 dark:text-gray-400 uppercase">POD fulfillment</span>
           <input
             type="range"
             min={12}
@@ -71,7 +71,7 @@ export default function StripeConnectSimulator() {
           <p className="text-2xl font-bold mt-1">{formatStripeCurrency(fulfillmentCost)}</p>
         </label>
         <label className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-          <span className="text-xs text-gray-500 uppercase">Monthly orders</span>
+          <span className="text-xs text-gray-600 dark:text-gray-400 uppercase">Monthly orders</span>
           <input
             type="range"
             min={0}
@@ -108,13 +108,13 @@ export default function StripeConnectSimulator() {
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 rounded-xl p-4">
-              <p className="text-xs text-gray-500 uppercase">Monthly artist transfers</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">Monthly artist transfers</p>
               <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
                 {formatStripeCurrency(simulation.monthly.artistTransfers)}
               </p>
             </div>
             <div className="bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900 rounded-xl p-4">
-              <p className="text-xs text-gray-500 uppercase">Platform retained</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">Platform retained</p>
               <p className="text-2xl font-bold text-indigo-700 dark:text-indigo-300">
                 {formatStripeCurrency(simulation.monthly.platformRetained)}
               </p>
@@ -124,7 +124,7 @@ export default function StripeConnectSimulator() {
           <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 space-y-3 text-sm">
             <p className="font-medium">Connect payout timing</p>
             <label className="block">
-              <span className="text-xs text-gray-500">Transfer delay (days)</span>
+              <span className="text-xs text-gray-800 dark:text-gray-400">Transfer delay (days)</span>
               <input
                 type="range"
                 min={2}
@@ -140,8 +140,8 @@ export default function StripeConnectSimulator() {
                 {formatStripeCurrency(simulation.connect.pendingArtistBalance)}
               </span>
             </p>
-            <p className="text-gray-500">{simulation.connect.nextPayoutDateLabel}</p>
-            <p className="text-gray-500">
+            <p className="text-gray-600 dark:text-gray-400">{simulation.connect.nextPayoutDateLabel}</p>
+            <p className="text-gray-600 dark:text-gray-400">
               Effective platform take rate: {simulation.monthly.effectiveTakeRatePercent}%
             </p>
           </div>
@@ -187,7 +187,7 @@ export default function StripeConnectSimulator() {
                 <li>Connect client ID: {webhookEnv.connectClientIdConfigured ? "configured" : "missing"}</li>
               </ul>
             ) : (
-              <p className="mt-2 text-xs text-gray-500">Load .env.local from .env.example to enable test-mode webhooks.</p>
+              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">Load .env.local from .env.example to enable test-mode webhooks.</p>
             )}
           </div>
         </div>

@@ -114,11 +114,11 @@ export default function CheckoutLab() {
   return (
     <div className="space-y-8">
       <header className="border-b border-stone-200 pb-6">
-        <p className="text-sm font-medium text-indigo-600 uppercase tracking-wider">
+        <p className="text-sm font-medium text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
           Buyer · Phase 2 prep
         </p>
-        <h1 className="text-3xl font-bold mt-1 text-stone-900">Checkout Lab</h1>
-        <p className="text-stone-600 mt-2 max-w-3xl">
+        <h1 className="text-3xl font-bold mt-1 text-stone-900 dark:text-stone-500">Checkout Lab</h1>
+        <p className="text-stone-600 dark:text-stone-400 mt-2 max-w-3xl">
           Consent-gated cart → Stripe Checkout session → POD fulfillment routing → Connect artist
           transfer. Cart persists in localStorage until Convex order records ship.
         </p>
@@ -127,19 +127,19 @@ export default function CheckoutLab() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <section className="lg:col-span-2 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-stone-900">Cart ({cart.length})</h2>
+            <h2 className="text-lg font-semibold text-stone-900 dark:text-stone-400">Cart ({cart.length})</h2>
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={addEligiblePrint}
-                className="text-sm px-3 py-1.5 rounded-lg border border-stone-200 hover:bg-stone-50"
+                className="text-sm px-3 py-1.5 rounded-lg border border-stone-200 dark:border-gray-700 text-stone-900 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-gray-800"
               >
                 Add eligible print
               </button>
               <button
                 type="button"
                 onClick={resetCart}
-                className="text-sm px-3 py-1.5 rounded-lg border border-stone-200 hover:bg-stone-50"
+                className="text-sm px-3 py-1.5 rounded-lg border border-stone-200 dark:border-gray-700 text-stone-900 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-gray-800"
               >
                 Reset sample
               </button>
@@ -147,7 +147,7 @@ export default function CheckoutLab() {
           </div>
 
           {cart.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-stone-300 p-8 text-center text-stone-500">
+            <div className="rounded-xl border border-dashed border-stone-300 p-8 text-center text-stone-500 dark:text-stone-400">
               Cart empty — add a consent-cleared listing from the storefront.
             </div>
           ) : (
@@ -202,17 +202,17 @@ export default function CheckoutLab() {
             <h3 className="font-semibold text-stone-900 flex items-center gap-2">
               <CreditCard className="w-4 h-4" /> Order summary
             </h3>
-            <dl className="mt-4 space-y-2 text-sm">
+            <dl className="mt-4 space-y-2 text-sm text-stone-900">
               <div className="flex justify-between">
-                <dt className="text-stone-500">Subtotal</dt>
+                <dt className="text-stone-600">Subtotal</dt>
                 <dd>{formatCheckoutCurrency(totals.subtotal)}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-stone-500">Shipping est.</dt>
+                <dt className="text-stone-600">Shipping est.</dt>
                 <dd>{formatCheckoutCurrency(totals.shippingEstimate)}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-stone-500">Tax est.</dt>
+                <dt className="text-stone-600">Tax est.</dt>
                 <dd>{formatCheckoutCurrency(totals.taxEstimate)}</dd>
               </div>
               <div className="flex justify-between border-t border-stone-100 pt-2 font-semibold">
@@ -249,7 +249,7 @@ export default function CheckoutLab() {
 
           <Link
             href="/storefront"
-            className="block text-center text-sm text-stone-500 hover:text-stone-800"
+            className="block text-center text-sm text-stone-500 dark:text-stone-400 hover:text-stone-800"
           >
             ← Back to storefront
           </Link>

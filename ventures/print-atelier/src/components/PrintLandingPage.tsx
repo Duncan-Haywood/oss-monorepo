@@ -54,7 +54,7 @@ export default function PrintLandingPage({ page, publishState }: PrintLandingPag
             <Link href="/storefront" className="text-indigo-600 dark:text-indigo-400 hover:underline">
               Storefront
             </Link>
-            <Link href="/seo-lab" className="text-gray-500 hover:underline">
+            <Link href="/seo-lab" className="text-gray-500 dark:text-gray-400 hover:underline">
               SEO Lab
             </Link>
           </div>
@@ -78,7 +78,7 @@ export default function PrintLandingPage({ page, publishState }: PrintLandingPag
 
             <div className="bg-white dark:bg-gray-900 border border-stone-200 dark:border-gray-800 rounded-xl p-5 space-y-3">
               <p className="text-sm font-medium">{page.artworkTitle}</p>
-              <p className="text-sm text-gray-500">by {page.artistName}</p>
+              <p className="text-sm text-gray-700 dark:text-gray-400">by {page.artistName}</p>
               <p className="text-sm text-emerald-700 dark:text-emerald-300 font-mono">{page.payoutProofLine}</p>
               <div className="flex flex-wrap gap-2">
                 {page.tags.map((tag) => (
@@ -99,7 +99,7 @@ export default function PrintLandingPage({ page, publishState }: PrintLandingPag
                 className={`px-5 py-3 rounded-lg font-medium transition ${
                   state.publishable
                     ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                    : "bg-gray-200 dark:bg-gray-800 text-gray-500 cursor-not-allowed"
+                    : "bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400 cursor-not-allowed"
                 }`}
               >
                 {page.primaryCta}
@@ -112,7 +112,7 @@ export default function PrintLandingPage({ page, publishState }: PrintLandingPag
               </Link>
             </div>
 
-            <div className="text-xs text-gray-500 space-y-1 border-t border-stone-200 dark:border-gray-800 pt-4">
+            <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1 border-t border-stone-200 dark:border-gray-800 pt-4">
               <p>Consent: {consentStatusLabel(consentItem)}</p>
               <p>Readiness score: {page.readinessScore}/100</p>
               <p>Est. search volume: {page.estimatedMonthlySearchVolume}/mo</p>

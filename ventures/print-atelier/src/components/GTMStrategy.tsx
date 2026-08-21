@@ -26,7 +26,7 @@ export default function GTMStrategy() {
             <div><span className="font-mono font-bold">40%</span> DM response rate</div>
             <div><span className="font-mono font-bold">$0</span> paid ad spend</div>
           </div>
-          <p className="text-xs text-gray-500 mt-2">Budget: $2k/mo (tools, compute, 1 founder). Team: 1–2 people.</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Budget: $2k/mo (tools, compute, 1 founder). Team: 1–2 people.</p>
         </div>
       </section>
 
@@ -46,7 +46,7 @@ export default function GTMStrategy() {
             <div><span className="font-mono font-bold">$0</span> artist-driven CAC</div>
             <div><span className="font-mono font-bold">5k</span> buyer emails</div>
           </div>
-          <p className="text-xs text-gray-500 mt-2">Budget: $4k/mo. Team: 2–3 (add part-time designer for mockup QA).</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Budget: $4k/mo. Team: 2–3 (add part-time designer for mockup QA).</p>
         </div>
       </section>
 
@@ -66,7 +66,7 @@ export default function GTMStrategy() {
             <div><span className="font-mono font-bold">&lt;$12</span> paid CAC</div>
             <div><span className="font-mono font-bold">3.5x</span> ROAS target</div>
           </div>
-          <p className="text-xs text-gray-500 mt-2">Budget: $15k/mo ($8k marketing, $5k infra, $2k team). Team: 4–5.</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Budget: $15k/mo ($8k marketing, $5k infra, $2k team). Team: 4–5.</p>
         </div>
       </section>
 

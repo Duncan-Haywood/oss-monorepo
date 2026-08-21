@@ -165,7 +165,7 @@ export default function CapturePage() {
               <p className="text-sm text-gray-400 mt-1">
                 {formatFileSize(session.fileSizeBytes)} · {session.mimeType}
               </p>
-              <p className="text-xs text-gray-500 mt-3">Session {session.sessionId}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">Session {session.sessionId}</p>
             </div>
           </div>
         )}
@@ -216,10 +216,10 @@ export default function CapturePage() {
               <div className="p-4">
                 <h3 className="font-bold">{session.titleSuggestion ?? "Untitled artwork"}</h3>
                 <p className="text-sm text-gray-400">16×20 Archival Print • From $85</p>
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                   Metadata persisted: {session.sessionId} · {formatFileSize(session.fileSizeBytes)}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                   SEO title auto-generated: &quot;Warm Autumn Forest Canvas Print — Museum Quality&quot;
                 </p>
               </div>

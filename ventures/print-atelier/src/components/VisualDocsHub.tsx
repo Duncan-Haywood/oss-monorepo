@@ -197,19 +197,19 @@ export default function VisualDocsHub() {
           <p className="text-sm opacity-90 mt-1">{stats.launchLabel}</p>
         </div>
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600">Digital stock</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-500">Digital stock</p>
           <p className="text-3xl font-bold mt-2">{stats.liveSkus}</p>
-          <p className="text-sm text-gray-500">live SKUs · {stats.consentCleared} consent-cleared</p>
+          <p className="text-sm text-gray-700 dark:text-gray-400">live SKUs · {stats.consentCleared} consent-cleared</p>
         </div>
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-blue-600">SEO index</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">SEO index</p>
           <p className="text-3xl font-bold mt-2">{stats.seoPublishable}</p>
-          <p className="text-sm text-gray-500">publishable print landing pages</p>
+          <p className="text-sm text-gray-700 dark:text-gray-400">publishable print landing pages</p>
         </div>
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-amber-600">Metadata AI</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-600">Metadata AI</p>
           <p className="text-3xl font-bold mt-2">{stats.metadataScore}%</p>
-          <p className="text-sm text-gray-500">avg confidence · {stats.metadataGaps} listings need work</p>
+          <p className="text-sm text-gray-700 dark:text-gray-400">avg confidence · {stats.metadataGaps} listings need work</p>
         </div>
       </section>
 
@@ -236,7 +236,7 @@ export default function VisualDocsHub() {
               <p className="text-xs font-medium text-indigo-600 dark:text-indigo-400 mt-3">
                 {metricFor(card.metricKey)}
               </p>
-              <span className="inline-flex items-center gap-1 text-sm text-gray-400 mt-3 group-hover:text-indigo-500">
+              <span className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 mt-3 group-hover:text-indigo-500">
                 Open tool <ArrowRight className="w-3.5 h-3.5" />
               </span>
             </Link>

@@ -271,7 +271,7 @@ export default function ArtistOnboardingIntakeForm({
                 </li>
               ))}
               {readiness.completedSteps.length === 0 && (
-                <li className="text-stone-500">No steps completed yet</li>
+                <li className="text-stone-600">No steps completed yet</li>
               )}
             </ul>
           </div>

@@ -93,25 +93,26 @@ class CommittedResults(unittest.TestCase):
 
     def test_the_headline_share_is_what_the_readme_quotes(self):
         self.assertEqual(self.results["totals"]["decidable_share"], 0.9876)
-        self.assertEqual(self.results["totals"]["dark_only_failures"], 384)
+        self.assertEqual(self.results["totals"]["dark_only_failures"], 0)
 
     def test_the_open_venture_failures_are_the_ones_the_readme_names(self):
-        """The three ventures with open AA failures, at the counts on `main`.
+        """The two ventures with open AA failures, at the counts on `main`.
 
-        These are remediations, not measurement defects, and each is held
-        separately: the `local-site-studio` and `ai-first-markets` colour-token
-        fixes are venture source that only the account owner may merge, and
-        `print-atelier`'s 611 are 73 component-level colour decisions. When any
-        of them lands, this test fails and the results file has to be
-        regenerated against the rebuilt corpus — which is the point. The
-        committed artifact is only worth keeping while it still describes the
-        tree it was measured from.
+        `print-atelier`'s 611 (384 of them the missing-`dark:`-variant
+        pattern) were fixed and verified by rebuild; see the PR that
+        regenerated this file. `local-site-studio` and `ai-first-markets`
+        remain open — their colour-token fixes are venture source that only
+        the account owner may merge (per #523/#531). When either of those
+        lands, this test fails and the results file has to be regenerated
+        against the rebuilt corpus — which is the point. The committed
+        artifact is only worth keeping while it still describes the tree it
+        was measured from.
         """
         by_name = {row["venture"]: row for row in self.results["ventures"]}
         expected = {
             "local-site-studio": 21,
             "ai-first-markets": 333,
-            "print-atelier": 611,
+            "print-atelier": 0,
             "quick-pick-survey": 0,
         }
         for name, count in expected.items():

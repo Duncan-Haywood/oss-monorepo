@@ -47,22 +47,22 @@ export default function AdSyncHealthMonitor() {
 
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase">Overall health</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">Overall health</p>
           <p className="text-3xl font-bold">{health.overallScore}</p>
           <span className={`inline-block mt-2 text-xs font-semibold px-2 py-0.5 rounded-full ${statusStyles[health.overallStatus]}`}>
             {health.overallStatus}
           </span>
         </div>
         <div className="bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-900 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase">Feed health</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">Feed health</p>
           <p className="text-3xl font-bold text-violet-700 dark:text-violet-300">{health.feedHealthScore}</p>
         </div>
         <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase">Eligible rows</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">Eligible rows</p>
           <p className="text-3xl font-bold text-emerald-700 dark:text-emerald-300">{health.eligibleFeedRows}</p>
         </div>
         <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase">Platforms sync-ready</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400 uppercase">Platforms sync-ready</p>
           <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">
             {Object.values(health.platformReadiness).filter((entry) => entry.syncReady).length}/3
           </p>
@@ -81,7 +81,7 @@ export default function AdSyncHealthMonitor() {
                 <h2 className="font-semibold capitalize">{platform}</h2>
                 <span className="font-mono text-lg">{readiness.score}</span>
               </div>
-              <p className="text-xs mt-2 text-gray-500">
+              <p className="text-xs mt-2 text-gray-500 dark:text-gray-400">
                 {readiness.syncReady ? "Ready for catalog API sync" : "Blocked — fix checks below"}
               </p>
               {readiness.blockers.length > 0 && (
@@ -100,7 +100,7 @@ export default function AdSyncHealthMonitor() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <div>
             <h2 className="text-lg font-semibold">Sync checks</h2>
-            <p className="text-sm text-gray-500">{health.summaryLabel}</p>
+            <p className="text-sm text-gray-700 dark:text-gray-400">{health.summaryLabel}</p>
           </div>
           <label className="text-sm text-gray-600 dark:text-gray-300">
             Baseline CAC ${baselineCAC}
@@ -118,17 +118,17 @@ export default function AdSyncHealthMonitor() {
           <table className="min-w-full text-sm">
             <thead className="bg-gray-50 dark:bg-gray-900/60">
               <tr>
-                <th className="px-4 py-2 text-left text-xs uppercase text-gray-500">Check</th>
-                <th className="px-4 py-2 text-left text-xs uppercase text-gray-500">Category</th>
-                <th className="px-4 py-2 text-left text-xs uppercase text-gray-500">Status</th>
-                <th className="px-4 py-2 text-left text-xs uppercase text-gray-500">Detail</th>
+                <th className="px-4 py-2 text-left text-xs uppercase text-gray-500 dark:text-gray-400">Check</th>
+                <th className="px-4 py-2 text-left text-xs uppercase text-gray-500 dark:text-gray-400">Category</th>
+                <th className="px-4 py-2 text-left text-xs uppercase text-gray-500 dark:text-gray-400">Status</th>
+                <th className="px-4 py-2 text-left text-xs uppercase text-gray-500 dark:text-gray-400">Detail</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {health.checks.map((check) => (
                 <tr key={check.id}>
                   <td className="px-4 py-3 font-medium">{check.label}</td>
-                  <td className="px-4 py-3 text-gray-500">{check.category}</td>
+                  <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{check.category}</td>
                   <td className="px-4 py-3">
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${statusStyles[check.status]}`}>
                       {check.status}
@@ -170,7 +170,7 @@ export default function AdSyncHealthMonitor() {
                 >
                   <p className="font-semibold capitalize">{platform.platform}</p>
                   <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">{platform.message}</p>
-                  <p className="mt-2 text-xs text-gray-500">{platform.apiEndpoint}</p>
+                  <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">{platform.apiEndpoint}</p>
                 </div>
               ))}
             </div>

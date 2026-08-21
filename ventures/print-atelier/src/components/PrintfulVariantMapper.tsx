@@ -64,7 +64,7 @@ export default function PrintfulVariantMapper() {
         <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
           <div className="rounded-xl border border-stone-200 bg-white p-3">
             <p className="text-xs text-stone-500">Live SKUs</p>
-            <p className="text-2xl font-bold">{dashboard.liveCatalogCount}</p>
+            <p className="text-2xl font-bold text-stone-900">{dashboard.liveCatalogCount}</p>
           </div>
           <div className="rounded-xl border border-stone-200 bg-white p-3">
             <p className="text-xs text-stone-500">Mapped</p>
@@ -72,7 +72,7 @@ export default function PrintfulVariantMapper() {
           </div>
           <div className="rounded-xl border border-stone-200 bg-white p-3">
             <p className="text-xs text-stone-500">Coverage</p>
-            <p className="text-2xl font-bold">{dashboard.mappingCoveragePercent}%</p>
+            <p className="text-2xl font-bold text-stone-900">{dashboard.mappingCoveragePercent}%</p>
           </div>
           <div className="rounded-xl border border-stone-200 bg-white p-3">
             <p className="text-xs text-stone-500">Fulfillment gate</p>
@@ -104,7 +104,7 @@ export default function PrintfulVariantMapper() {
               <th className="px-4 py-3">Action</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="text-stone-900">
             {dashboard.rows.map((row) => (
               <tr key={row.artwork.slug} className="border-t border-stone-100">
                 <td className="px-4 py-3 font-mono text-xs">{row.artwork.slug}</td>
@@ -154,7 +154,7 @@ export default function PrintfulVariantMapper() {
       <button
         type="button"
         onClick={handleReset}
-        className="text-xs text-stone-500 underline hover:text-stone-700"
+        className="text-xs text-stone-500 dark:text-stone-400 underline hover:text-stone-700"
       >
         Reset to default seed mappings
       </button>

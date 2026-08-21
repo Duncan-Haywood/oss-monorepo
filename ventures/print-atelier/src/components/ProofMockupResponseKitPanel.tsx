@@ -18,7 +18,7 @@ function KitCard({ kit }: { kit: ProofMockupResponseKit }) {
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{kit.artistName}</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{kit.prospectHandle}</p>
+          <p className="text-sm text-gray-700 dark:text-gray-400">{kit.prospectHandle}</p>
           {kit.artworkTitle && (
             <p className="mt-1 text-sm font-medium text-violet-700 dark:text-violet-300">
               Catalog: {kit.artworkTitle}
@@ -50,12 +50,12 @@ function KitCard({ kit }: { kit: ProofMockupResponseKit }) {
             key={scene.id}
             className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/40"
           >
-            <div className="flex items-center gap-2 text-xs font-medium uppercase text-gray-500">
+            <div className="flex items-center gap-2 text-xs font-medium uppercase text-gray-500 dark:text-gray-400">
               <ImageIcon className="h-3.5 w-3.5" />
               {scene.roomLabel}
             </div>
             <p className="mt-2 text-sm text-gray-800 dark:text-gray-200">{scene.previewLabel}</p>
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
               {scene.hasApprovedAsset ? "Approved asset" : "Pending generation"}
             </p>
           </div>
@@ -72,7 +72,7 @@ function KitCard({ kit }: { kit: ProofMockupResponseKit }) {
       <div className="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
           <div className="mb-2 flex items-center justify-between">
-            <span className="flex items-center gap-2 text-xs font-semibold uppercase text-gray-500">
+            <span className="flex items-center gap-2 text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">
               <MessageSquare className="h-3.5 w-3.5" />
               DM copy
             </span>
@@ -89,7 +89,7 @@ function KitCard({ kit }: { kit: ProofMockupResponseKit }) {
         </div>
         <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
           <div className="mb-2 flex items-center justify-between">
-            <span className="flex items-center gap-2 text-xs font-semibold uppercase text-gray-500">
+            <span className="flex items-center gap-2 text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">
               <Mail className="h-3.5 w-3.5" />
               Email copy
             </span>

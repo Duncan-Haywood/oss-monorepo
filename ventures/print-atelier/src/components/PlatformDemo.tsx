@@ -137,7 +137,7 @@ function StorefrontDemo() {
               <div className="flex justify-between items-start">
                 <div>
                   <h4 className="font-bold text-gray-900">{art.title}</h4>
-                  <p className="text-sm text-gray-500">{art.artist}</p>
+                  <p className="text-sm text-gray-700 dark:text-gray-400">{art.artist}</p>
                 </div>
                 <span className="font-medium text-gray-900">${art.price}</span>
               </div>
@@ -201,7 +201,7 @@ function ArtistPortalDemo() {
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto p-8 bg-gray-50">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold text-gray-900">Welcome back, Elena</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-500">Welcome back, Elena</h2>
           <button className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700">
             Schedule Capture Session
           </button>
@@ -273,7 +273,7 @@ function ArtistPortalDemo() {
                     <div className="w-10 h-10 bg-blue-900 rounded mr-3"></div>
                     <div>
                       <div className="text-sm font-medium text-gray-900">Midnight Coast</div>
-                      <div className="text-xs text-gray-500">Added Jan 2026</div>
+                      <div className="text-xs text-gray-800 dark:text-gray-400">Added Jan 2026</div>
                     </div>
                   </div>
                 </td>
@@ -291,7 +291,7 @@ function ArtistPortalDemo() {
                     <div className="w-10 h-10 bg-orange-800 rounded mr-3"></div>
                     <div>
                       <div className="text-sm font-medium text-gray-900">Desert Sun</div>
-                      <div className="text-xs text-gray-500">Added Mar 2026</div>
+                      <div className="text-xs text-gray-800 dark:text-gray-400">Added Mar 2026</div>
                     </div>
                   </div>
                 </td>

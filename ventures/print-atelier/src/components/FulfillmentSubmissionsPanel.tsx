@@ -31,7 +31,7 @@ export default function FulfillmentSubmissionsPanel() {
       <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
         <div className="rounded-xl border border-stone-200 bg-white p-3">
           <p className="text-xs text-stone-500">Total</p>
-          <p className="text-2xl font-bold">{summary?.totalSubmissions ?? 0}</p>
+          <p className="text-2xl font-bold text-stone-900">{summary?.totalSubmissions ?? 0}</p>
         </div>
         <div className="rounded-xl border border-stone-200 bg-white p-3">
           <p className="text-xs text-stone-500">Submitted</p>
@@ -39,7 +39,7 @@ export default function FulfillmentSubmissionsPanel() {
         </div>
         <div className="rounded-xl border border-stone-200 bg-white p-3">
           <p className="text-xs text-stone-500">Queued</p>
-          <p className="text-2xl font-bold">{summary?.queuedCount ?? 0}</p>
+          <p className="text-2xl font-bold text-stone-900">{summary?.queuedCount ?? 0}</p>
         </div>
         <div className="rounded-xl border border-stone-200 bg-white p-3">
           <p className="text-xs text-stone-500">Blocked</p>
@@ -47,7 +47,7 @@ export default function FulfillmentSubmissionsPanel() {
         </div>
         <div className="rounded-xl border border-stone-200 bg-white p-3">
           <p className="text-xs text-stone-500">Printful / Gelato</p>
-          <p className="text-2xl font-bold">
+          <p className="text-2xl font-bold text-stone-900">
             {summary?.printfulCount ?? 0}/{summary?.gelatoCount ?? 0}
           </p>
         </div>

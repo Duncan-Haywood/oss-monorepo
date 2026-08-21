@@ -8,7 +8,7 @@ export default function MarketResearch() {
         <p>
           The global online art market is undergoing rapid digital transformation, accelerated by e-commerce adoption and social-media-driven discovery. Physical painters remain disconnected from digital scale due to technical friction in digitization, listing, and fulfillment.
         </p>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <p className="text-sm text-gray-700 dark:text-gray-400">
           Key trends: print-on-demand maturation, AI-assisted content creation, creator-economy monetization, and demand for authentic, story-driven home décor over mass-market reproductions.
         </p>
       </section>
@@ -18,15 +18,15 @@ export default function MarketResearch() {
         <ul className="space-y-3">
           <li>
             <strong>Total Addressable Market (TAM):</strong> $13.3B global online art market (2024).
-            <p className="text-sm text-gray-600 dark:text-gray-400">All art sold digitally worldwide — prints, originals, and digital-native art. CAGR ~6.5% through 2028.</p>
+            <p className="text-sm text-gray-700 dark:text-gray-400">All art sold digitally worldwide — prints, originals, and digital-native art. CAGR ~6.5% through 2028.</p>
           </li>
           <li>
             <strong>Serviceable Addressable Market (SAM):</strong> $3.5B+ wall décor & fine art prints online.
-            <p className="text-sm text-gray-600 dark:text-gray-400">Physical prints purchased via e-commerce for home/office decoration. Excludes originals-only galleries.</p>
+            <p className="text-sm text-gray-700 dark:text-gray-400">Physical prints purchased via e-commerce for home/office decoration. Excludes originals-only galleries.</p>
           </li>
           <li>
             <strong>Serviceable Obtainable Market (SOM):</strong> $50M–$100M within 3–5 years.
-            <p className="text-sm text-gray-600 dark:text-gray-400">Mid-tier fine art print segment unlocked by digitizing previously inaccessible independent artist supply.</p>
+            <p className="text-sm text-gray-700 dark:text-gray-400">Mid-tier fine art print segment unlocked by digitizing previously inaccessible independent artist supply.</p>
           </li>
         </ul>
         <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border not-prose text-sm mt-4">

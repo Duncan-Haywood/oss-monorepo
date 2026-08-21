@@ -138,7 +138,7 @@ export default function FinancialProjections() {
                     : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
                 }`}
               >
-                <p className="text-xs text-gray-500 dark:text-gray-400">{stat.label}</p>
+                <p className="text-xs text-gray-800 dark:text-gray-400">{stat.label}</p>
                 <p className={`text-xl font-bold ${stat.highlight ? "text-indigo-700 dark:text-indigo-300" : "text-gray-900 dark:text-white"}`}>
                   {stat.value}
                 </p>
