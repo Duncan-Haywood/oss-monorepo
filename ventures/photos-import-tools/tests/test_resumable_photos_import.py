@@ -549,6 +549,87 @@ class ResumablePhotosImportTests(unittest.TestCase):
             self.assertEqual(len(importer.imported_paths), 1)
             self.assertEqual(calls["count"], 2)
 
+    def test_escaped_exception_after_partial_split_success_does_not_relabel_already_imported_siblings(self):
+        # import_batch_with_split splits a batch that fails as a whole into
+        # a left and right half, each imported with its own osascript call.
+        # If the left half's call succeeds -- mark_imported already
+        # committed those items to the manifest -- and the right half's call
+        # then raises something that escapes import_batch_with_split
+        # entirely (not a PhotosImportError, e.g. osascript vanishing from
+        # PATH mid-run, the same fault #424's fix already handles), run()'s
+        # outer `except Exception` handler still iterates the *original*
+        # full batch list it was called with. Before this fix it relabeled
+        # every item in that list as failed/skipped purely because they
+        # shared a claimed batch, with no check of each item's actual
+        # current status -- silently overwriting the left half's genuine
+        # "imported" back to "failed", even though those files are already
+        # sitting in Photos. That both misreports a real success as a
+        # failure and, once retried, hands an already-imported file back to
+        # osascript for a needless duplicate-detection-dependent re-import.
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            photos = []
+            for i in range(4):
+                photo = root / f"photo{i}.JPG"
+                photo.write_bytes(b"jpeg")
+                photos.append(photo)
+            state = ImportState(root / "state.sqlite3")
+            for photo in photos:
+                state.upsert(photo, "pending")
+            importer = FakePhotosImporter(
+                state=state,
+                state_dir=root,
+                event_log=root / "events.jsonl",
+                error_log=root / "errors.jsonl",
+                status_path=root / "status.json",
+                stop_file=root / "STOP",
+                per_file_timeout_seconds=1,
+                attempts=1,
+                batch_size=4,
+                photos_db=root / "missing.sqlite",
+                existing_filenames=set(),
+            )
+
+            calls = {"count": 0}
+
+            def flaky_import(paths, *, duplicate_check):
+                calls["count"] += 1
+                if calls["count"] == 1:
+                    # The whole batch of 4 fails first, forcing a
+                    # left/right split.
+                    raise PhotosImportError("batch import failed")
+                if calls["count"] == 3:
+                    # Right half (photo2, photo3): osascript itself
+                    # vanishes from PATH -- a bare FileNotFoundError, not a
+                    # PhotosImportError, so nothing in
+                    # import_batch_with_split catches it and it escapes all
+                    # the way up to run()'s outer handler. Drop a STOP file
+                    # first so run() exits at the top of its next loop
+                    # iteration instead of reclaiming and re-importing
+                    # everything on a later pass -- that later pass would
+                    # self-correct the mislabel this test exists to catch,
+                    # masking it from a top-level exit-code/summary check.
+                    (root / "STOP").touch()
+                    raise FileNotFoundError("osascript")
+                # Left half (call #2: photo0, photo1) succeeds outright.
+                return
+
+            with mock.patch.object(importer, "import_paths_osascript", side_effect=flaky_import):
+                exit_code = importer.run()
+
+            self.assertEqual(exit_code, 130)
+            # photo0 and photo1 (the left half) were genuinely imported by
+            # call #2, before call #3's escaped exception even happened.
+            # The outer handler must not relabel them as failed/skipped
+            # just because they shared a claimed batch with photo2/photo3,
+            # whose import had not happened yet.
+            self.assertEqual(state.get_status(photos[0]), "imported")
+            self.assertEqual(state.get_status(photos[1]), "imported")
+            # photo2/photo3 genuinely were never imported by call #3, so
+            # they are correctly reset for retry rather than stranded.
+            self.assertEqual(state.get_status(photos[2]), "failed")
+            self.assertEqual(state.get_status(photos[3]), "failed")
+
     def test_permanently_failed_item_does_not_leak_its_scratch_copy(self):
         # A file Photos permanently rejects (corrupt, damaged) or that
         # exhausts its retry budget is never handed to import_single_item

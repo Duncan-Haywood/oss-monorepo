@@ -538,6 +538,15 @@ class PhotosImporter:
                 self.stats.last_error_category = classified.category.value
                 for item in batch:
                     current = self.state.get_item(item.path)
+                    # import_batch_with_split recurses left/right on a failing
+                    # batch, so a left half already committed "imported" by a
+                    # nested call is still present in this `batch` when the
+                    # right half's exception escapes. Only items still
+                    # "importing" were left unresolved; relabeling the rest
+                    # would overwrite a genuine success and trigger a
+                    # needless re-import.
+                    if current is not None and current.status != "importing":
+                        continue
                     attempts = current.attempts if current is not None else item.attempts
                     if classified.category == ErrorCategory.PERMANENT:
                         self.state.mark_skipped_permanent(item.path, str(error))
