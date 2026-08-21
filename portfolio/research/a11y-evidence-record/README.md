@@ -4,9 +4,11 @@ Built and measured 2026-08-20. Re-runnable:
 
 ```bash
 cd portfolio/research/a11y-evidence-record
-python3 -m unittest discover                          # 75 tests, no dependencies
-python3 measure_themes.py --recompute-from results-2026-08-20.json   # offline
+python3 -m unittest discover                          # 89 tests, no dependencies
+python3 measure_themes.py --recompute-from results-2026-08-20.json   # offline, pre-contrast
+python3 measure_themes.py --recompute-from results-2026-08-21-contrast.json  # offline, with 1.4.3
 python3 audit.py <path> --record --scope "<subject>"  # produce a record
+python3 audit.py <path> --stylesheet theme.css --record --scope "<subject>"  # + contrast (1.4.3)
 ```
 
 ## Why this was built
@@ -32,10 +34,14 @@ and why"* — as a function rather than a promise.
 
 | File | What it is |
 |---|---|
-| [`audit.py`](audit.py) | 19 static WCAG 2.2 AA checks over HTML, Liquid, Twig, Blade/PHP, EJS, Vue and Svelte templates, plus `evidence_record()` |
-| [`test_audit.py`](test_audit.py) | 75 tests, standard-library `unittest`, no install step |
+| [`audit.py`](audit.py) | 20 static WCAG 2.2 AA checks over HTML, Liquid, Twig, Blade/PHP, EJS, Vue and Svelte templates, plus `evidence_record()` |
+| [`contrast_pass.py`](contrast_pass.py) | SC 1.4.3, ported from the sibling engine's resolver rather than reimplemented — see finding 5 |
+| [`test_audit.py`](test_audit.py) | 89 tests, standard-library `unittest`, no install step |
 | [`measure_themes.py`](measure_themes.py) | Runs the pass over published storefront themes on npm and reports the distribution |
-| [`results-2026-08-20.json`](results-2026-08-20.json) | Every per-package row behind the numbers below |
+| [`results-2026-08-20.json`](results-2026-08-20.json) | Every per-package row behind findings 1-4 (pre-contrast) |
+| [`results-2026-08-21-contrast.json`](results-2026-08-21-contrast.json) | Every per-package row behind finding 5 (contrast), same 22 pinned packages as above |
+| [`measure_stylesheet_reachability.py`](measure_stylesheet_reachability.py) | The reachability-only scan behind the superseded amendment below finding 5 |
+| [`results-stylesheet-reachability-2026-08-21.json`](results-stylesheet-reachability-2026-08-21.json) | Raw rows behind that scan |
 | [`example-record-2026-08-20.md`](example-record-2026-08-20.md) | A record generated against this portfolio's own HTML |
 
 Standard library only, in both scripts. Read-only: `audit.py` has no write path
@@ -182,6 +188,214 @@ this file — rather than an argument against fixed pricing. It is also the firs
 concrete input to the `gross margin: 7` score, which was reasoned rather than
 measured.
 
+## Finding 5 — the port was built, not just scoped; on templates it is mostly undecidable, and the reachability study said why before the port existed to measure it
+
+[`../a11y-engine-agreement/README.md`](../a11y-engine-agreement/README.md)
+named porting #523's colour-contrast resolver here — against unrendered
+*templates* rather than the *rendered* pages it measured at 98.76% decidable
+— "an open question rather than a port." A **concurrent session answered half
+of that question first, without building the port**: the amendment below this
+one (now superseded, kept for the record) measured *reachability* —
+[`measure_stylesheet_reachability.py`](measure_stylesheet_reachability.py)
+scanned the same 22-package, pinned-version corpus as `results-2026-08-20.json`
+for stylesheet files and expression-built classes, found 9 of 22 packages ship
+any literal `.css` at all (the rest is Sass/Less source, or nothing), and
+concluded a resolver "is not proposed here." [`contrast_pass.py`](contrast_pass.py)
+is that resolver anyway, built independently in a session that had not yet
+seen that conclusion when it started, and then re-run — after the collision
+surfaced — against the same pinned corpus for a like-for-like comparison
+rather than reconciling by narrative alone.
+
+**The reachability study's central number holds under an independent build:
+9 of 22 packages, exactly.** That is strong cross-validation of two different
+scanning methods (a bespoke reachability scan and this module's own
+`css_from_tarball`) landing on the same figure. Where the two accounts differ
+is the conclusion, not the count. The reachability study treated "most
+packages have no reachable stylesheet" as a reason not to build a resolver for
+the ones that do; measuring what the resolver actually does with those 9 says
+that reasoning proves too much — the sibling engine does not decide 100% of
+rendered-page contrast either (98.76%, not 100%), and this codebase's standing
+principle is to resolve what is decidable and name what is not, not to decline
+a whole criterion because it cannot cover everything. `contrast_pass.py`'s
+guard against expression-built classes — the reachability study's other named
+concern, measured there at 1.6% of class attributes corpus-wide — is real
+defensive value in the resolver regardless of how it is scored, since a
+falsely-resolved class is the failure mode this whole tool exists to avoid.
+
+| | decidable | of |
+|---|---:|---:|
+| **All 22 packages** | **5.7%** | 1,392 |
+| Restricted to the 9 packages with a literal `.css` file | **10.5%** | 760 |
+
+`no-declared-color` — the honest "nothing here says what colour this is"
+answer, identical to what a page with no stylesheet supplied gets — is 1,099
+of 1,312 undecidables (84%) across the whole corpus, which is the
+reachability study's finding wearing a different name: most of the corpus has
+no stylesheet to resolve against, so most elements are undecidable for
+exactly the reason that study measured. (A few of the 13 packages with no
+`.css` file still resolve, or fail for a different reason, via their own
+inline `<style>` blocks — `stylesheet_for()` reads those regardless of
+whether an external sheet was found.)
+
+Restricted to the 9 packages that do ship literal CSS, the picture is where
+the resolver's own behaviour, not corpus coverage, decides the outcome — and
+it is a wide, right-skewed spread, the same shape finding 4 measured for
+blocking findings generally:
+
+| package | CSS files | decidable |
+|---|---:|---:|
+| `@ecomplus/storefront-twbs` | 32 | **100.0%** (10/10) |
+| `@pradip1995/create-storefront-app` | 1 | **69.4%** (25/36) |
+| `fassbender-shopify-theme` | 3 | 23.3% (34/146) |
+| `gatsby-shopify-theme` | 1 | 19.2% (10/52) |
+| `@fleetbase/storefront-engine` | 1 | 0.7% (1/150) |
+| `@zalify/theme-templates` | 119 | 0.0% (0/47) |
+| `@ecomplus/storefront-template`, `@mcptoolshop/site-theme`, `create-brainerce-store` | 2, 2, 2 | 0.0% |
+
+CSS *volume* does not predict decidability: `@zalify/theme-templates` ships
+119 `.css` files — the most literal CSS in the corpus — and resolves none of
+its 47 contrast-bearing elements, because its markup is the one this pass
+guards against (`class-is-template-expression` and
+`style-is-template-expression` account for 22 of `@zalify`'s 47 undecidables;
+see the per-package rows in
+[`results-2026-08-21-contrast.json`](results-2026-08-21-contrast.json) for
+the rest). The undecidable reasons among these 9 packages are no longer one
+reason wearing every case — `no-declared-color` still leads (507 of 680), but
+`no-opaque-background` (46), `class-is-template-expression` (44, corpus-wide —
+the guard, firing on real dynamically-classed wrappers, not hypothetically)
+and `unresolvable-color` (39) all contribute a real share.
+`unresolvable-font-size` is 22, entirely from one package
+(`gatsby-shopify-theme`), consistent with a CSS-in-JS build this reader — by
+design, plain-CSS only — cannot see.
+
+**What this changes and does not change.** It does not roll back the sibling
+engine's finding: a *rendered* page's contrast is 98.76% decidable, and that
+number is untouched. It does not roll back the reachability study's
+measurement either — 9 of 22, confirmed independently. What it changes is the
+conclusion drawn from that measurement: 1.4.3 moves from `NOT_TESTED` to
+`CHECKS` in this engine too (matching the sibling engine's `manual` →
+`partial` move in #523), because a criterion this pass can decide *some* of,
+honestly, is not the same as a criterion it cannot test at all — the same
+distinction the coverage-boundary amendment above draws for every other check
+in this file. For a remediation vendor running this candidate's audit-and-fix
+pass against a theme's source, 1.4.3 is real but modest automatable coverage
+(5.7–10.5% depending on whether the package ships CSS at all), not the
+sibling engine's 98.76%. The honest path to that number is upstream of this
+module: render the theme and hand the *rendered* page to the sibling engine —
+named as its own follow-up in "What could not be measured here" below, since
+it is a real piece of work and was not attempted here.
+
+## Amendment, 2026-08-21 (superseded by finding 5 above) — the 1.4.3 contrast port is not generally buildable, measured
+
+Landed on `main` by a concurrent session while this directory's finding 5 was
+being built, and kept here rather than deleted, on the same principle
+[`../a11y-engine-agreement/README.md`](../a11y-engine-agreement/README.md)
+states for its own superseded amendments: a declared, dated divergence is not
+the failure mode this repository's re-derivation problem is about, and
+rewriting history to hide that two sessions reached different conclusions
+from the same premise would be worse than showing the correction in place.
+
+The measurement in this amendment is not wrong and is not superseded: finding
+5 independently re-derives its central number (9 of 22 packages ship a
+literal `.css` file) by a different method and gets the same answer. What is
+superseded is the conclusion — "not proposed here" — which finding 5 revisits
+by actually building the resolver this amendment declined to, on the same
+premise that most of this codebase already uses everywhere else: decide what
+is decidable, name what is not, rather than declining a whole criterion
+because it cannot cover everything. See finding 5 for the numbers and the
+reasoning against this amendment's original conclusion; the original text
+below is left unedited.
+
+#523 ported colour-contrast decidability into `eaa-wcag-triage/` (the sibling
+engine over *built* HTML output) and named porting the same resolver into this
+engine's `audit.py` as a follow-up — flagged there as "non-trivial … an open
+question rather than a port," because this engine reads *source* theme
+*packages*, not a rendered page with one linked, compiled stylesheet. That
+question is now measured rather than assumed, with
+[`measure_stylesheet_reachability.py`](measure_stylesheet_reachability.py)
+run against the exact 22-package corpus `measure_themes.py` audited (pinned to
+the same names and versions, so both measurements describe the same
+population). Raw rows in
+[`results-stylesheet-reachability-2026-08-21.json`](results-stylesheet-reachability-2026-08-21.json).
+
+The answer splits into two separate blockers, of unequal size:
+
+| | packages |
+|---|---:|
+| Total | 22 |
+| Ship **no** stylesheet file at all in the package | 7 (32%) |
+| Ship a stylesheet, but only as Sass/Less **source** (no literal `.css`) | 6 (27%) |
+| Ship at least one literal `.css` file | 9 (41%) |
+
+**Blocker 1 — for 7 of 22 packages, the stylesheet is not in the package at
+all.** `@nuskin/ns-shop-elements` (469 class attributes across 50 markup
+files), `@vue-storefront/nuxt-theme` (399 classes, 45 files) and
+`pinelab-storefront` (183 classes, 19 files) are representative: these are
+component kits meant to be styled by a downstream consumer project, so there
+is no CSS to resolve against — not undecidable, *absent*. No resolver design
+closes this; the stylesheet genuinely is not there to read.
+
+**Blocker 2 — of the 15 packages that do ship stylesheets, 469 files are
+`.scss` against 161 `.css`, and only 9 packages ship any literal, unprocessed
+`.css` at all.** `fassbender-shopify-theme` (the package #523's own template
+port worked from) is representative of the majority case: 74 `.scss` files
+against 3 `.css` files, and its `_variables.scss` opens with
+`@import '../../node_modules/bootstrap/scss/variables'` and a `map-merge` —
+real Sass control flow, not a file `css.py`'s selector-and-value parser could
+read a colour out of without first running a Sass compiler. That is a
+different kind of change than the port asked for: `eaa-wcag-triage/css.py` is
+deliberately standard-library-only, no install step, per this portfolio's
+research-tooling norm; adding Sass compilation means either a third-party
+dependency or a per-package `npm install` + build step, which the corpus's own
+`node_modules`-relative imports show would need the package's *own*
+`node_modules` to resolve correctly — fragile in a way the current
+zero-dependency, read-only design is not. (This part of the finding stands:
+`contrast_pass.py` also does not compile Sass, and packages whose only
+stylesheet is `.scss` source are indistinguishable, in finding 5's numbers,
+from packages with no stylesheet at all — both report `no-declared-color`.)
+
+**What is not blocked.** The class-attribute side of #523's concern —
+"class names are often built from expressions" — measures as the *small*
+problem: 138 of 8,591 class attributes (1.6%) carry a template expression
+across the whole corpus. `audit.py`'s existing `is_expr`/`refs_can_match`
+machinery already handles exactly this case for other attributes, so if a
+resolvable stylesheet is ever available (say, a future stage that runs after
+[`../a11y-render-recovery/`](../a11y-render-recovery/)'s theme-rendering step,
+where the render already implies a Sass build happened), matching a class
+attribute to a selector is the easy half. The stylesheet not being literal CSS
+in the source package is the actual blocker, and it is concentrated rather
+than evenly spread: of the 158 literal `.css` files in the whole corpus, 147
+(93%) sit in just two packages — `@zalify/theme-templates` (117, and the only
+package with zero `.scss` at all) and `@ecomplus/storefront-twbs` (30, a
+compiled-Bootstrap bundle shipped alongside its own 204 `.scss` source files).
+The other seven packages with any literal CSS have one to three files each —
+plausibly a vendored reset or a single component stylesheet rather than the
+theme's own styling, not checked further here. A resolver built against this
+corpus would have real, non-trivial coverage on two packages out of
+twenty-two and near nothing on the rest. (Finding 5's per-package table above
+tests this prediction directly: `@zalify/theme-templates` in fact resolves
+**0%** despite its 119 CSS files, for the reason -- heavily expression-built
+classes -- named two paragraphs up in this same amendment; `@ecomplus/storefront-twbs`
+resolves 100%, matching the prediction. The "near nothing on the rest" half of
+the prediction undershoots what the built resolver found: `@pradip1995/create-storefront-app`,
+with a single CSS file, resolves 69.4%.)
+
+**Consequence.** ~~1.4.3 and 1.4.11 stay in `NOT_TESTED` for this engine, and
+should — the reason given there ("needs rendered colours; stylesheets, theme
+settings and images all participate") already covers this finding without
+needing to be rewritten.~~ **Superseded by finding 5: 1.4.3 moved to `CHECKS`
+on 2026-08-21, in the same commit that built `contrast_pass.py`.** 1.4.11
+stays in `NOT_TESTED`, for the reason finding 5's own change to that list
+gives (it needs rendered geometry, not just a declared colour, so a
+stylesheet would not have resolved it regardless). The distinction from
+`eaa-wcag-triage/` is not a gap in this engine; it is the two engines auditing
+different artifacts (source template packages vs. one project's built output)
+where only one of those artifacts ships a stylesheet a standard-library parser
+can read, and read completely — see finding 5 for what a resolver actually
+recovers from the fraction it can reach. Closing the *rest* of the gap for
+template packages generally would need a Sass/Less build stage, which remains
+a different, larger decision than a port and is still not proposed here.
+
 ## What could not be measured here
 
 - **No AT verification, so the candidate's actual kill criterion is untested.**
@@ -267,6 +481,16 @@ measured.
 - **n = 22 packages** (from 99 that matched the storefront-theme filter; the
   rest ship fewer than five template files, being SDKs and build tooling). Small,
   and the per-package percentile table should be read as indicative.
+- **No render step for contrast.** Finding 5's 5.7%/10.5% is what `audit.py`
+  can decide reading a template package as npm ships it — its own CSS files,
+  merged, plus each file's inline `<style>` blocks. It does not render the
+  theme and hand the *result* to the sibling engine, which is what would
+  actually recover most of the gap to that engine's 98.76%
+  ([`../a11y-render-recovery/`](../a11y-render-recovery/) measured exactly
+  this recovery for the *other* undecidable classes: 50.5% from rendering
+  alone, no store data needed). Building that pipeline stage — render, then
+  hand off to `eaa-wcag-triage` — is a real piece of work of its own and is
+  named here as the follow-up, not attempted in this pass.
 
 ## What this does and does not do to the pipeline
 
@@ -280,19 +504,28 @@ because several open pull requests are currently editing that file and a score
 change from here would collide with them.
 
 **Does.** It removes the "build now, nothing built" state from the pipeline's
-top-ranked candidate, and it puts three numbers under scores that were reasoned:
+top-ranked candidate, and it puts four numbers under scores that were reasoned:
 the template-stage automation ceiling (finding 2), where the automatable work
-actually is (finding 3), and the per-job workload variance behind a fixed price
-(finding 4).
+actually is (finding 3), the per-job workload variance behind a fixed price
+(finding 4), and, now that 1.4.3 is checked rather than declared manual, that
+a template-stage audit cannot deliver the sibling engine's 98.76% contrast
+figure without a render step first (finding 5) — which argues for that render
+step being in scope for the pipeline rather than an optional extra.
 
 ## Status of these claims
 
 Primary measurements against public data with the raw rows committed, on the
 same standard as [`mcp-tool-drift`](../mcp-tool-drift/) and
-[`free-listing-demand`](../free-listing-demand/). Every number above re-derives
-offline from the per-package rows in `results-2026-08-20.json` via
-`--recompute-from`; re-deriving the individual findings underneath those rows
-needs a re-fetch, since the tarballs are not committed.
+[`free-listing-demand`](../free-listing-demand/). Findings 1-4 re-derive
+offline from `results-2026-08-20.json`; finding 5 from
+`results-2026-08-21-contrast.json`, which re-audits the *same* 22 pinned
+packages at the *same* pinned versions as `results-2026-08-20.json` (not a
+fresh npm search, which drifts day to day — an earlier draft of this finding
+used a fresh search and got 17 packages; re-run against the pinned list
+before publishing, for a population identical to findings 1-4's and to the
+superseded amendment's reachability study). Both files re-derive via
+`--recompute-from`; re-deriving the individual findings underneath either
+file's rows needs a re-fetch, since the tarballs are not committed.
 
 What is uncertain is generalisation, not the data: whether npm-published
 storefront themes resemble the themes real EU shops run, and what a rendered
