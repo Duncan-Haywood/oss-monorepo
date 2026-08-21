@@ -16164,3 +16164,56 @@ entries:
         from the denominator; whether re-deriving precision with contrast
         included changes the headline number has not been checked.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process" session, designated branch `claude/charming-hawking-ipz881`.
+        Ran `session_gate.py` first (PROCEED -- at the maintenance rate the
+        $0-ceiling branch implies). Checked the 3 open PRs (#531/#523, #372,
+        #368) before starting -- all still clean and correctly human-gated,
+        matching the prior entry exactly. The prior entry named a concrete
+        next step: `a11y-own-sites/`'s missing-stylesheet bug (diagnosed but
+        deliberately not fixed by the `a11y-axe-recall` pass). Dispatched a
+        background agent to fix it.
+      - >-
+        While that agent was rebuilding all 7 ventures and re-verifying, a
+        concurrent session found and fixed the identical bug and merged it
+        straight to `main` (#572/#574) before this branch could open a PR --
+        confirmed by both sessions landing on identical numbers from
+        independent measurements (780 total findings, 743 of them 1.4.3,
+        91/118 agreement, exact per-app match). Reset this branch onto
+        current `main` rather than duplicate the merged fix, per `CLAUDE.md`'s
+        instruction to consolidate rather than join a duplicate.
+      - >-
+        Reviewing what the merged fix left incomplete found two things worth
+        a small follow-up rather than a full re-derivation: three README
+        citations (`portfolio/research/README.md`,
+        `portfolio/pipeline/probes/README.md`,
+        `a11y-generated-sites/README.md`) still quoted the pre-fix
+        0.821-0.881/89-118/24.6% numbers after the merge landed, and
+        #572/#574's own "no score moves" pipeline-effect writeup was accurate
+        for 354 of the 743 new findings (already known, already pending
+        sign-off in #523) and 611 (already fixed in #542) but silent on
+        whether the remaining **389** -- on `real-estate-agent-photo-app` and
+        `photo-editing/docs-site`, outside every prior contrast-measuring
+        corpus -- carry a fix anywhere. They do not.
+      - >-
+        Verified before merging: `python3 -m unittest discover` in
+        `a11y-own-sites/` (21 tests) and `a11y-generated-sites/` (16 tests),
+        both green and unaffected by doc-only changes; `git status` confirmed
+        only 4 markdown files touched, no `ventures/*`, no code, no results
+        file; `git merge-tree` against the live `main` tip immediately before
+        opening. Merged as #577: agent-decidable per `CLAUDE.md`
+        (`portfolio/research/` and `portfolio/pipeline/` docs only, publishes
+        nothing, spends nothing beyond agent time).
+      - >-
+        No score moved and no revenue; the $0 ceiling is unchanged. Added an
+        amendment to `eaa-remediation-pipeline.md` naming the 389 unowned
+        findings explicitly, so the next session that touches
+        `liability_containment` or owns those two apps does not have to
+        re-derive which of the 743 findings already have an owner. Backlog
+        unchanged: same three PRs, already reflected on #139.
+    mrr_end: null
