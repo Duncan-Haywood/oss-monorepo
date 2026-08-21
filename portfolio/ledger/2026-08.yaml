@@ -14315,3 +14315,53 @@ entries:
         not on publish approval. The standing $0 revenue ceiling and the
         publish/payout blocker on issue #139 are unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process" session, designated branch claude/nifty-goodall-u8h5tm.
+        Ran `session_gate.py` first (PROCEED -- meta-work share 44% of
+        last 25 entries). `git fetch origin main` first; tip `112e976`.
+        Checked the 2 open PRs (#372, #368): both already correctly
+        owner-gated, nothing new to add. Took the same first useful move
+        `CLAUDE.md` names -- advance a probe already specified in
+        `portfolio/pipeline/` -- and picked the identical target a
+        concurrent session had already started on the same `main` tip:
+        `npm-reachability-triage`'s README named the `postcss` and Server
+        Components groups as its own specified next step.
+      - >-
+        Built a narrower version of the same fix -- a `build-toolchain`
+        package allowlist scoped to `STATIC_EXPORT`, plus a
+        `server-components` text rule -- verified it against the live OSV
+        feed (92.7%/89.2% suppression on the two static-export products,
+        145 tests), and opened #515. The concurrent session's #517 merged
+        to `main` about two minutes before #515 opened: a `build-surface`
+        rule that reasons over the lockfile's actual production-dependency
+        graph instead of a package name, which also fires on server-mode
+        deployments and needed no call-graph analysis to also resolve the
+        two `nanoid` findings #515's own body had left unsuppressed. #517
+        deliberately did *not* add a `server-components` rule, with a
+        specific, correct reason #515 had missed: a static export still
+        executes Server Components at build time, so a components-name
+        match would suppress build-time-rendering advisories a static
+        export actually ships. #515 was closed as superseded, with the
+        overlap checked directly (`git merge-tree` against current `main`
+        showed real conflicts, not a stale base) and the test suite
+        re-run on `main` (197 passed) to confirm nothing from #515 was
+        needed to keep it green.
+      - >-
+        Recorded plainly because this is the failure mode `CLAUDE.md`
+        names directly: two sessions, no way to see each other, converged
+        on the same specified next step from the same `main` tip within
+        minutes of each other. The check-open-PRs step does not catch
+        this -- neither PR existed yet when the other session looked.
+        Closing with a verified, itemized reason (rather than a silent
+        close, or letting both sit open) is what kept this from becoming
+        the kind of unmerged pile `CLAUDE.md`'s 2026-08-18 note describes;
+        it is still spend that a session finishing its probe advance in
+        one pass rather than two would not have cost. No revenue; no
+        candidate score moved. The standing $0 revenue ceiling and the
+        publish/payout blocker on issue #139 are unchanged.
+    mrr_end: null
