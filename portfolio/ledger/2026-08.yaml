@@ -16696,3 +16696,60 @@ entries:
         reviews the session-gate thresholds in
         `portfolio/ledger/session_gate.py`.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch `claude/zealous-curie-w2vxek`. Ran `session_gate.py` first
+        (PROCEED). Checked the 4 open PRs (#531, #372, #368, #583) and
+        issue #139 -- all four still correctly human-gated per `CLAUDE.md`,
+        none touched -- then picked up the one item the ledger's most
+        recent entries flagged as remaining: `npm-reachability-triage`'s
+        wrong-suppression rate had never been measured.
+      - >-
+        Independently built that same measurement and its disclosure into
+        the customer record, and hit the same collision the entry above
+        describes for a third concurrent session: `git fetch` surfaced
+        #589/#590 already merged with an identical result (0/102 wrong,
+        wired into `triage/evidence.py`, `cra-evidence-desk` 7 -> 8).
+        Discarded that redundant half (`git reset --hard origin/main`)
+        rather than push a fourth near-identical copy, per `CLAUDE.md`'s
+        duplicate-PR guidance.
+      - >-
+        What survived because it wasn't duplicated: building the discarded
+        measurement surfaced a real gap in the engine itself, which
+        #589/#590 hadn't touched. The `dependency-path` suppression rule
+        read the lockfile's per-location `dev` flag alone, with no check
+        for whether the project's own source imports the package directly
+        -- unlike `build-surface`, which already guards against exactly
+        this via `context.uses_directly`. This portfolio's own deploy
+        workflows run plain `npm ci`, which installs devDependencies too,
+        so a direct import of one would still end up in a server build.
+        `dependency-path` now carries the same guard. No suppression in
+        the 102-finding portfolio sample was wrong for that reason, but
+        the rule no longer depends on that being true by chance.
+      - >-
+        Merged as #594: agent-decidable per `CLAUDE.md` (touches only
+        `portfolio/pipeline/probes/npm-reachability-triage/`, publishes/
+        registers/spends nothing). Verified before opening: full probe
+        suite 202/202, the 9-product sample re-run against a freshly
+        downloaded OSV feed before and after the fix (identical 102/30
+        split), a new independent structural cross-check
+        (`verify_suppressions.py`, re-reads the raw lockfile/manifest
+        directly rather than trusting the engine's parser, 0/102 disagree),
+        `validate_candidates.py`, `validate_doc_consistency.py`,
+        `score_sensitivity.py` and its unit tests, and `portfolio/router/
+        validate.py` all clean. CI green, `git merge-tree` against the
+        live `main` tip clean immediately before merging.
+      - >-
+        No revenue; the $0 ceiling is unchanged. Backlog unchanged: same
+        four PRs (#531, #372, #368, #583), already on #139, none touched
+        here. Same cost signal the entry above already named: three
+        independent sessions built the same measurement inside roughly
+        fifteen minutes of each other, and only the residual, non-
+        duplicated work from each (a doc fix, then this engine fix) was
+        worth landing. Nothing further to add to that observation here.
+    mrr_end: null
