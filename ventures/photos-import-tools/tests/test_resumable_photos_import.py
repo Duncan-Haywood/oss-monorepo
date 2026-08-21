@@ -14,6 +14,7 @@ from resumable_photos_import import (
     discover_importable_photos,
     file_is_ready,
     recover_interrupted,
+    summarize_recent_errors,
 )
 
 
@@ -324,6 +325,25 @@ class ResumablePhotosImportTests(unittest.TestCase):
                 raise FileNotFoundError("vanished between exists() and stat()")
 
         self.assertFalse(file_is_ready(VanishingPath()))
+
+    def test_summarize_recent_errors_skips_a_torn_trailing_line(self):
+        # error_log is appended one write() at a time (log_structured_error),
+        # not through write_json_atomic, and state_dir is typically an
+        # iCloud-synced path -- a crash or sync hiccup mid-write can leave a
+        # torn last line. count_recent_errors already tolerates this for the
+        # same file at the same `status`/write_status call site;
+        # summarize_recent_errors did not, so `status` crashed with an
+        # unhandled JSONDecodeError right after the kind of interrupted run
+        # an operator runs `status` to diagnose.
+        with tempfile.TemporaryDirectory() as temp_dir:
+            error_log = Path(temp_dir) / "errors.jsonl"
+            error_log.write_text(
+                '{"time": "2026-08-21T00:00:00+00:00", "code": "photos_timeout"}\n'
+                '{"time": "2026-08-21T00:01:00+00:00", "code": "file_bu'
+            )
+            rows = summarize_recent_errors(error_log)
+            self.assertEqual(len(rows), 1)
+            self.assertEqual(rows[0]["code"], "photos_timeout")
 
     def test_scratch_copy_failure_is_retried_not_fatal_to_the_run(self):
         with tempfile.TemporaryDirectory() as temp_dir:
