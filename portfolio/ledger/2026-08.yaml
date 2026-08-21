@@ -13057,3 +13057,57 @@ entries:
         published, nothing spent beyond agent time -- same class as this
         venture's many prior self-merges.
     mrr_end: null
+  - venture: retail-pilot-intel
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/nifty-goodall-kx3i8b. Ran `session_gate.py` first
+        (PROCEED). Listed the 3 open PRs (#372, #368, #144): all already
+        correctly owner-gated by prior sessions (live-site `next` upgrade,
+        Dependabot automation, autonomous-agent workflow automation) --
+        nothing new to add. `portfolio/router/allocate.py` showed 0 of 10
+        ventures dispatchable, consistent with the standing finding that
+        every venture is blocked on an unpublished `links.production`.
+      - >-
+        With no fresh PR or router work available, dispatched a background
+        agent to adversarially bug-hunt `retail-pilot-intel`'s analytics/
+        POS-sync pipeline (real timezone/idempotency-prone logic, an
+        under-attended venture). It found that `importSaleEventsFromCsv`
+        assigned a fresh `randomUUID()` `event_id` per receipt on every
+        call, not derived from the receipt's own identifying fields --
+        while `insertSale`'s `INSERT OR REPLACE` upserts on that same
+        `event_id`, and `syncInbox` re-ingests every `.json` file present
+        in the inbox directory each run (archiving processed inbox files
+        is an explicit not-yet-built "Ready" backlog item). Net effect: an
+        operator re-running `pos --file export.csv` against the same
+        unchanged POS export mints a new random id each time, so the
+        upsert never collides and the same real sale gets double-counted
+        in `dailySummary`, inflating the conversion rate. This session's
+        own investigation happened concurrently with, and independently
+        of, the archive-inbox fix in #465 above -- #465's own text
+        reasoned the missing archive was "never a correctness bug" because
+        it assumed `event_id` was already stable; this entry's finding is
+        that the assumption itself was wrong until this fix landed, and
+        #465 merged before this fix so the two are complementary rather
+        than overlapping.
+      - >-
+        Fixed by deriving `event_id` as `sha256(store_id + receipt_id +
+        closed_at)` so the same receipt re-imported yields the same id and
+        the existing upsert dedups it correctly. Added
+        `packages/pos/src/__tests__/importer.test.ts` (didn't exist
+        before) covering the stable-id, different-receipt, and
+        different-store cases. Verified with the venture's own `pnpm run
+        ci`: typecheck (6/6 packages), lint (0 errors), test (24/24 pass
+        including the 3 new tests), build, and bootstrap all green.
+      - >-
+        Opened PR #466, watched its `build` check to green, re-confirmed
+        clean mergeability against the live `main` tip (`git merge-tree`)
+        immediately before merging, and self-merged as agent-decidable:
+        internal correctness fix to an unpublished venture
+        (`links.production: null`), no new dependency, no credential, no
+        unattended automation, nothing published, nothing spent beyond
+        agent time.
+    mrr_end: null
