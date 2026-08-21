@@ -84,6 +84,15 @@ export function formatArr(amount: number): string {
   return formatCurrency(amount);
 }
 
+// For a monthly dollar figure (e.g. a plan's average revenue per customer),
+// never formatArr: its k/M abbreviation and "ARR" suffix are calibrated for
+// annual targets, so a monthly value over $999 (contract-review-api's 1m plan
+// averages $1,042/mo) silently renders as "$1k ARR" — a >99.9% rounding loss
+// on top of a wrong unit label.
+export function formatMonthlyRevenue(amount: number, currency = "USD"): string {
+  return formatCurrency(amount, currency);
+}
+
 export function monthsLabel(months: number): string {
   if (months < 12) return `${months} months`;
   const years = months / 12;

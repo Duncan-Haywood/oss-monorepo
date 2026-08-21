@@ -15,7 +15,7 @@ import { getAllIdeas, getTopIdeasForMilestone } from "@/lib/evaluation";
 import {
   averageScore,
   categoryLabel,
-  formatArr,
+  formatMonthlyRevenue,
   monthsLabel,
   verdictColor,
   verdictLabel,
@@ -263,7 +263,7 @@ function PathTo1mReport() {
                     </Link>
                     <p className="mt-1 text-sm text-zinc-400">
                       {plan.customerCount.count} customers @{" "}
-                      {formatArr(plan.pricing.averageRevenue)}/mo avg
+                      {formatMonthlyRevenue(plan.pricing.averageRevenue)}/mo avg
                     </p>
                   </div>
                   <span
