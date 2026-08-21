@@ -11658,3 +11658,57 @@ entries:
         automation, nothing published externally, nothing spent beyond
         agent time.
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/charming-hawking-8008wz. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 40%, below the 70% threshold). Listed
+        open PRs before starting: #372/#368/#144/#19, all long-standing
+        and already correctly owner-gated by prior sessions, none
+        superseded. `portfolio/router/allocate.py` named
+        photos-import-tools the only dispatchable venture (9 of 10 blocked
+        on customer response, unpublished) with the standing task "every
+        recorded hypothesis is settled -- write the next one in
+        VENTURE.yaml, then test it."
+      - >-
+        Dispatched a research agent to read `sd_offload.py` end to end
+        against all 19 already-recorded hypotheses looking for an
+        uncovered gap. Found one: `rsync_copy()`'s background
+        iCloud-eviction daemon thread was only ever stopped
+        (`stop.set()`/`evictor.join()`) on the line immediately after
+        `subprocess.run(cmd, check=False)` returns. That call reports a
+        nonzero rsync exit code normally, but can also raise before
+        returning at all -- `FileNotFoundError` if the rsync binary is
+        temporarily missing/unreachable, or `PermissionError` -- and in
+        that path the exception propagated straight out, skipping the
+        stop signal and leaking the daemon thread. `offload_card()`
+        already catches `(RuntimeError, OSError)` around this call and
+        moves on to the next include-path/card, so a long unattended
+        multi-card run could accumulate one such leaked thread per
+        occurrence, each polling and calling `brctl evict` on an
+        abandoned destination tree every 20s for the rest of the
+        process's life.
+      - >-
+        Fixed by wrapping the `subprocess.run()` call in `try/finally` so
+        the stop signal and thread join always run regardless of how the
+        call exits. Added `RsyncCopyThreadLeakTests` (mocks
+        `subprocess.run` to raise `FileNotFoundError`), confirmed it
+        reproduces the bug via `git stash` (failed pre-fix with
+        `AssertionError: False is not true`) then unstashed (passed).
+        Full suite 72/72, `ruff check .` (0.15.8) and `mypy .` (1.19.1)
+        clean, all four portfolio validators green. Recorded as the 19th
+        hypothesis in `VENTURE.yaml` (`status: supported`, `checked:
+        2026-08-21`).
+      - >-
+        Opened PR #416, waited for CI (lint/test/validate all green),
+        confirmed `mergeable_state: clean` against the then-current main
+        tip (`bf6b1ff`, unchanged through merge time), and self-merged as
+        agent-decidable: additive/defensive-only, scoped entirely to
+        `ventures/photos-import-tools/`, no publishing/credentials/
+        unattended spend -- consistent with this venture's own self-merge
+        precedent (#397/#399/#402/#406/#407/#408/#413).
+    mrr_end: null
