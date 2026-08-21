@@ -1,0 +1,2201 @@
+{
+  "config": {
+    "fallback": "pooled",
+    "fallback_days": 30,
+    "floor_days": 7,
+    "min_gaps": 2,
+    "multiplier": 2.0,
+    "warmup_days": 30
+  },
+  "source_measurement": "2026-08-20T00:00:00+00:00",
+  "sources": {
+    "FDA/openfda": {
+      "alarms": [
+        {
+          "day": "2026-03-23",
+          "gap": 30,
+          "terminal": false,
+          "threshold": 8,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-03-24",
+          "gap": 31,
+          "terminal": false,
+          "threshold": 8,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-03-25",
+          "gap": 32,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-03-26",
+          "gap": 33,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-03-27",
+          "gap": 34,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-03-28",
+          "gap": 35,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-03-29",
+          "gap": 36,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-03-30",
+          "gap": 37,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-03-31",
+          "gap": 38,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-01",
+          "gap": 39,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-02",
+          "gap": 40,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-03",
+          "gap": 41,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-04",
+          "gap": 42,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-05",
+          "gap": 43,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-06",
+          "gap": 44,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-07",
+          "gap": 45,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-08",
+          "gap": 46,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-09",
+          "gap": 47,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-10",
+          "gap": 48,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-11",
+          "gap": 49,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-12",
+          "gap": 50,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-13",
+          "gap": 51,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-14",
+          "gap": 52,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-15",
+          "gap": 53,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-16",
+          "gap": 54,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-17",
+          "gap": 55,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-18",
+          "gap": 56,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-19",
+          "gap": 57,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-20",
+          "gap": 58,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-21",
+          "gap": 59,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-22",
+          "gap": 60,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-23",
+          "gap": 61,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-24",
+          "gap": 62,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-25",
+          "gap": 63,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-26",
+          "gap": 64,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-27",
+          "gap": 65,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-28",
+          "gap": 66,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-29",
+          "gap": 67,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-30",
+          "gap": 68,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-01",
+          "gap": 69,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-02",
+          "gap": 70,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-03",
+          "gap": 71,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-04",
+          "gap": 72,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-05",
+          "gap": 73,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-06",
+          "gap": 74,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-07",
+          "gap": 75,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-08",
+          "gap": 76,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-09",
+          "gap": 77,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-10",
+          "gap": 78,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-11",
+          "gap": 79,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-12",
+          "gap": 80,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-13",
+          "gap": 81,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-14",
+          "gap": 82,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-15",
+          "gap": 83,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-16",
+          "gap": 84,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-17",
+          "gap": 85,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-18",
+          "gap": 86,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-19",
+          "gap": 87,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-20",
+          "gap": 88,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-21",
+          "gap": 89,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-22",
+          "gap": 90,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-23",
+          "gap": 91,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-24",
+          "gap": 92,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-25",
+          "gap": 93,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-26",
+          "gap": 94,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-27",
+          "gap": 95,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-28",
+          "gap": 96,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-29",
+          "gap": 97,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-30",
+          "gap": 98,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-31",
+          "gap": 99,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-01",
+          "gap": 100,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-02",
+          "gap": 101,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-03",
+          "gap": 102,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-04",
+          "gap": 103,
+          "terminal": false,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-19",
+          "gap": 11,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-20",
+          "gap": 12,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-21",
+          "gap": 13,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-22",
+          "gap": 14,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-23",
+          "gap": 15,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-24",
+          "gap": 16,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-25",
+          "gap": 17,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-26",
+          "gap": 18,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-27",
+          "gap": 19,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-28",
+          "gap": 20,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-29",
+          "gap": 21,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-30",
+          "gap": 22,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-01",
+          "gap": 23,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-02",
+          "gap": 24,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-03",
+          "gap": 25,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-04",
+          "gap": 26,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-05",
+          "gap": 27,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-06",
+          "gap": 28,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-07",
+          "gap": 29,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-08",
+          "gap": 30,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-09",
+          "gap": 31,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-10",
+          "gap": 32,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-11",
+          "gap": 33,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-12",
+          "gap": 34,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-13",
+          "gap": 35,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-14",
+          "gap": 36,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-15",
+          "gap": 37,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-16",
+          "gap": 38,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-17",
+          "gap": 39,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-18",
+          "gap": 40,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-19",
+          "gap": 41,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-20",
+          "gap": 42,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-21",
+          "gap": 43,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-22",
+          "gap": 44,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-23",
+          "gap": 45,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-24",
+          "gap": 46,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-25",
+          "gap": 47,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-26",
+          "gap": 48,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-27",
+          "gap": 49,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-28",
+          "gap": 50,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-29",
+          "gap": 51,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-30",
+          "gap": 52,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-31",
+          "gap": 53,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-01",
+          "gap": 54,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-02",
+          "gap": 55,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-03",
+          "gap": 56,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-04",
+          "gap": 57,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-05",
+          "gap": 58,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-06",
+          "gap": 59,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-07",
+          "gap": 60,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-08",
+          "gap": 61,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-09",
+          "gap": 62,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-10",
+          "gap": 63,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-11",
+          "gap": 64,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-12",
+          "gap": 65,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-13",
+          "gap": 66,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-14",
+          "gap": 67,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-15",
+          "gap": 68,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-16",
+          "gap": 69,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-17",
+          "gap": 70,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-18",
+          "gap": 71,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-19",
+          "gap": 72,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-20",
+          "gap": 73,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        }
+      ],
+      "calibrated_day_share": 0.0,
+      "change_days": 2,
+      "cold_start_alarm_days": 74,
+      "detected_terminal_silence": true,
+      "detection_latency_days": 11,
+      "final_threshold": null,
+      "first_calibrated": null,
+      "last_change": "2026-06-08",
+      "max_gap": 3,
+      "median_gap": 3,
+      "mid_window_alarm_days": 0,
+      "quiet_at_window_end": true,
+      "resolved_alarm_days": 74,
+      "terminal_alarm_days": 63,
+      "trailing_silence_days": 73
+    },
+    "cisagov/kev-data": {
+      "alarms": [],
+      "calibrated_day_share": 0.972,
+      "change_days": 85,
+      "cold_start_alarm_days": 0,
+      "detected_terminal_silence": false,
+      "detection_latency_days": null,
+      "final_threshold": 12,
+      "first_calibrated": "2026-02-26",
+      "last_change": "2026-08-19",
+      "max_gap": 6,
+      "median_gap": 1.0,
+      "mid_window_alarm_days": 0,
+      "quiet_at_window_end": false,
+      "resolved_alarm_days": 0,
+      "terminal_alarm_days": 0,
+      "trailing_silence_days": 1
+    },
+    "datasets/covid-19": {
+      "alarms": [
+        {
+          "day": "2026-03-23",
+          "gap": 16,
+          "terminal": false,
+          "threshold": 8,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-04",
+          "gap": 11,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-05",
+          "gap": 12,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-06",
+          "gap": 13,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-07",
+          "gap": 14,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-08",
+          "gap": 15,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-09",
+          "gap": 16,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-10",
+          "gap": 17,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-11",
+          "gap": 18,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-12",
+          "gap": 19,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-13",
+          "gap": 20,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-14",
+          "gap": 21,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-15",
+          "gap": 22,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-16",
+          "gap": 23,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-17",
+          "gap": 24,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-18",
+          "gap": 25,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-19",
+          "gap": 26,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-20",
+          "gap": 27,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-21",
+          "gap": 28,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-22",
+          "gap": 29,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-23",
+          "gap": 30,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-24",
+          "gap": 31,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-25",
+          "gap": 32,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-26",
+          "gap": 33,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-27",
+          "gap": 34,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-28",
+          "gap": 35,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-29",
+          "gap": 36,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-04-30",
+          "gap": 37,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-01",
+          "gap": 38,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-02",
+          "gap": 39,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-03",
+          "gap": 40,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-04",
+          "gap": 41,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-05",
+          "gap": 42,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-06",
+          "gap": 43,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-07",
+          "gap": 44,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-08",
+          "gap": 45,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-09",
+          "gap": 46,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-10",
+          "gap": 47,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-11",
+          "gap": 48,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-12",
+          "gap": 49,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-13",
+          "gap": 50,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-14",
+          "gap": 51,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-15",
+          "gap": 52,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-16",
+          "gap": 53,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-17",
+          "gap": 54,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-18",
+          "gap": 55,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-19",
+          "gap": 56,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-20",
+          "gap": 57,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-21",
+          "gap": 58,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-22",
+          "gap": 59,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-23",
+          "gap": 60,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-24",
+          "gap": 61,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-25",
+          "gap": 62,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-26",
+          "gap": 63,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-27",
+          "gap": 64,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-28",
+          "gap": 65,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-29",
+          "gap": 66,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-30",
+          "gap": 67,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-05-31",
+          "gap": 68,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-01",
+          "gap": 69,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-02",
+          "gap": 70,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-03",
+          "gap": 71,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-04",
+          "gap": 72,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-05",
+          "gap": 73,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-06",
+          "gap": 74,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-07",
+          "gap": 75,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-08",
+          "gap": 76,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-09",
+          "gap": 77,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-10",
+          "gap": 78,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-11",
+          "gap": 79,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-12",
+          "gap": 80,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-13",
+          "gap": 81,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-14",
+          "gap": 82,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-15",
+          "gap": 83,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-16",
+          "gap": 84,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-17",
+          "gap": 85,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-18",
+          "gap": 86,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-19",
+          "gap": 87,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-20",
+          "gap": 88,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-21",
+          "gap": 89,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-22",
+          "gap": 90,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-23",
+          "gap": 91,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-24",
+          "gap": 92,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-25",
+          "gap": 93,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-26",
+          "gap": 94,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-27",
+          "gap": 95,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-28",
+          "gap": 96,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-29",
+          "gap": 97,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-30",
+          "gap": 98,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-01",
+          "gap": 99,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-02",
+          "gap": 100,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-03",
+          "gap": 101,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-04",
+          "gap": 102,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-05",
+          "gap": 103,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-06",
+          "gap": 104,
+          "terminal": true,
+          "threshold": 10,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-07",
+          "gap": 105,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-08",
+          "gap": 106,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-09",
+          "gap": 107,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-10",
+          "gap": 108,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-11",
+          "gap": 109,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-12",
+          "gap": 110,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-13",
+          "gap": 111,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-14",
+          "gap": 112,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-15",
+          "gap": 113,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-16",
+          "gap": 114,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-17",
+          "gap": 115,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-18",
+          "gap": 116,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-19",
+          "gap": 117,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-20",
+          "gap": 118,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-21",
+          "gap": 119,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-22",
+          "gap": 120,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-23",
+          "gap": 121,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-24",
+          "gap": 122,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-25",
+          "gap": 123,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-26",
+          "gap": 124,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-27",
+          "gap": 125,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-28",
+          "gap": 126,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-29",
+          "gap": 127,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-30",
+          "gap": 128,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-07-31",
+          "gap": 129,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-01",
+          "gap": 130,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-02",
+          "gap": 131,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-03",
+          "gap": 132,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-04",
+          "gap": 133,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-05",
+          "gap": 134,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-06",
+          "gap": 135,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-07",
+          "gap": 136,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-08",
+          "gap": 137,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-09",
+          "gap": 138,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-10",
+          "gap": 139,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-11",
+          "gap": 140,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-12",
+          "gap": 141,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-13",
+          "gap": 142,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-14",
+          "gap": 143,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-15",
+          "gap": 144,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-16",
+          "gap": 145,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-17",
+          "gap": 146,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-18",
+          "gap": 147,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-19",
+          "gap": 148,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-08-20",
+          "gap": 149,
+          "terminal": true,
+          "threshold": 12,
+          "threshold_source": "pooled"
+        }
+      ],
+      "calibrated_day_share": 0.0,
+      "change_days": 2,
+      "cold_start_alarm_days": 0,
+      "detected_terminal_silence": true,
+      "detection_latency_days": 11,
+      "final_threshold": null,
+      "first_calibrated": null,
+      "last_change": "2026-03-24",
+      "max_gap": 17,
+      "median_gap": 17,
+      "mid_window_alarm_days": 1,
+      "quiet_at_window_end": true,
+      "resolved_alarm_days": 1,
+      "terminal_alarm_days": 139,
+      "trailing_silence_days": 149
+    },
+    "github/advisory-database": {
+      "alarms": [],
+      "calibrated_day_share": 0.989,
+      "change_days": 168,
+      "cold_start_alarm_days": 0,
+      "detected_terminal_silence": false,
+      "detection_latency_days": null,
+      "final_threshold": 10,
+      "first_calibrated": "2026-02-23",
+      "last_change": "2026-08-19",
+      "max_gap": 5,
+      "median_gap": 1,
+      "mid_window_alarm_days": 0,
+      "quiet_at_window_end": false,
+      "resolved_alarm_days": 0,
+      "terminal_alarm_days": 0,
+      "trailing_silence_days": 1
+    },
+    "opensanctions/opensanctions": {
+      "alarms": [],
+      "calibrated_day_share": 0.983,
+      "change_days": 148,
+      "cold_start_alarm_days": 0,
+      "detected_terminal_silence": false,
+      "detection_latency_days": null,
+      "final_threshold": 7,
+      "first_calibrated": "2026-02-24",
+      "last_change": "2026-08-19",
+      "max_gap": 3,
+      "median_gap": 1,
+      "mid_window_alarm_days": 0,
+      "quiet_at_window_end": false,
+      "resolved_alarm_days": 0,
+      "terminal_alarm_days": 0,
+      "trailing_silence_days": 1
+    },
+    "openstates/people": {
+      "alarms": [],
+      "calibrated_day_share": 0.856,
+      "change_days": 45,
+      "cold_start_alarm_days": 0,
+      "detected_terminal_silence": false,
+      "detection_latency_days": null,
+      "final_threshold": 28,
+      "first_calibrated": "2026-03-19",
+      "last_change": "2026-08-18",
+      "max_gap": 14,
+      "median_gap": 2.0,
+      "mid_window_alarm_days": 0,
+      "quiet_at_window_end": false,
+      "resolved_alarm_days": 0,
+      "terminal_alarm_days": 0,
+      "trailing_silence_days": 2
+    },
+    "ossf/malicious-packages": {
+      "alarms": [],
+      "calibrated_day_share": 0.989,
+      "change_days": 180,
+      "cold_start_alarm_days": 0,
+      "detected_terminal_silence": false,
+      "detection_latency_days": null,
+      "final_threshold": 7,
+      "first_calibrated": "2026-02-23",
+      "last_change": "2026-08-19",
+      "max_gap": 1,
+      "median_gap": 1,
+      "mid_window_alarm_days": 0,
+      "quiet_at_window_end": false,
+      "resolved_alarm_days": 0,
+      "terminal_alarm_days": 0,
+      "trailing_silence_days": 1
+    },
+    "rubysec/ruby-advisory-db": {
+      "alarms": [],
+      "calibrated_day_share": 0.956,
+      "change_days": 103,
+      "cold_start_alarm_days": 0,
+      "detected_terminal_silence": false,
+      "detection_latency_days": null,
+      "final_threshold": 46,
+      "first_calibrated": "2026-03-01",
+      "last_change": "2026-08-19",
+      "max_gap": 23,
+      "median_gap": 1.0,
+      "mid_window_alarm_days": 0,
+      "quiet_at_window_end": false,
+      "resolved_alarm_days": 0,
+      "terminal_alarm_days": 0,
+      "trailing_silence_days": 1
+    },
+    "unitedstates/congress-legislators": {
+      "alarms": [
+        {
+          "day": "2026-03-23",
+          "gap": 10,
+          "terminal": false,
+          "threshold": 8,
+          "threshold_source": "pooled"
+        },
+        {
+          "day": "2026-06-02",
+          "gap": 41,
+          "terminal": false,
+          "threshold": 40,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-06-03",
+          "gap": 42,
+          "terminal": false,
+          "threshold": 40,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-06-04",
+          "gap": 43,
+          "terminal": false,
+          "threshold": 40,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-06-05",
+          "gap": 44,
+          "terminal": false,
+          "threshold": 40,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-06-06",
+          "gap": 45,
+          "terminal": false,
+          "threshold": 40,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-06-07",
+          "gap": 46,
+          "terminal": false,
+          "threshold": 40,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-06-08",
+          "gap": 47,
+          "terminal": false,
+          "threshold": 40,
+          "threshold_source": "per-source"
+        },
+        {
+          "day": "2026-06-09",
+          "gap": 48,
+          "terminal": false,
+          "threshold": 40,
+          "threshold_source": "per-source"
+        }
+      ],
+      "calibrated_day_share": 0.823,
+      "change_days": 15,
+      "cold_start_alarm_days": 0,
+      "detected_terminal_silence": false,
+      "detection_latency_days": null,
+      "final_threshold": 98,
+      "first_calibrated": "2026-03-25",
+      "last_change": "2026-08-19",
+      "max_gap": 49,
+      "median_gap": 1.5,
+      "mid_window_alarm_days": 9,
+      "quiet_at_window_end": false,
+      "resolved_alarm_days": 9,
+      "terminal_alarm_days": 0,
+      "trailing_silence_days": 1
+    }
+  },
+  "totals": {
+    "cold_start_alarm_days_total": 74,
+    "detected_terminal_silence": 2,
+    "mid_window_alarm_days_total": 10,
+    "missed_quiet_sources": [],
+    "never_calibrated": [
+      "FDA/openfda",
+      "datasets/covid-19"
+    ],
+    "quiet_at_window_end": 2,
+    "quiet_sources": [
+      "FDA/openfda",
+      "datasets/covid-19"
+    ],
+    "resolved_alarm_days_total": 84,
+    "sources": 9
+  },
+  "window": {
+    "since": "2026-02-21",
+    "until": "2026-08-20"
+  }
+}

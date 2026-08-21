@@ -81,6 +81,10 @@ hypotheses:
     status: supported
     checked: 2026-08-21
     evidence: in-repo
+  - claim: SD offload's background iCloud-eviction thread is always signaled to stop when its rsync copy finishes, including when rsync itself fails to launch (e.g. the binary is temporarily missing or unreachable) rather than merely returning a nonzero exit code; a long unattended multi-card run therefore cannot accumulate leaked daemon threads that poll and evict from an abandoned destination tree for the rest of the process's life.
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
   - claim: The importer's scratch_dir staging copy is cleaned up after every import attempt, not only a successful one, so a file Photos permanently rejects (or one that exhausts its retry budget) does not leave its staged copy orphaned in scratch_dir forever; scratch_dir cannot silently accumulate an unbounded, unrecovered disk-space leak from every file that ever fails permanently.
     status: supported
     checked: 2026-08-21

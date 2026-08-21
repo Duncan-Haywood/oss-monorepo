@@ -129,3 +129,34 @@ mirrors, 180 days, no credential and no spend.
 
 Distribution — the floor at 4 — is untouched by all of this and remains the
 thing that decides. This pass measured the product premise, not the buyer.
+
+## Amendment, 2026-08-21: the silence detector is built, and it refutes its own spec
+
+**No score changed.** Probe, tests and full numbers:
+[`portfolio/pipeline/probes/source-silence-detector/`](../probes/source-silence-detector/README.md).
+
+The bullet above ends by asking for "a per-source expected-cadence threshold
+derived from its own history". That is now built and backtested offline against
+the same 180-day window, and **the rule as specified catches none of it**: 0 of
+the 2 mirrors that actually went silent, at every one of twelve parameter
+settings. The reason is structural rather than a tuning miss — the threshold is
+not inaccurate for those two sources, it is undefined, because each shows a
+single gap in the window and an estimator fitted to observed gaps has nothing to
+fit. Stated generally: *the registers that most need a silence alarm are the ones
+that publish too rarely to calibrate one.*
+
+Three consequences for anyone picking this candidate up:
+
+- **"Alert on pipeline silence" is not a checkbox on the build.** It needs a
+  stated fallback for sources that cannot be calibrated, and the fallback is what
+  does the actual detecting. A pooled threshold recovers both sources at 11 days'
+  latency for 10 nuisance alarm-days per 180 days across 9 sources; a fixed
+  30-day rule also recovers both but cannot beat 30 days' latency by
+  construction.
+- **Calibrate on full history, not on the observation window.** A monitor that
+  starts learning on the day it is switched on is least reliable when it is
+  newest, and a worst-gap-anchored threshold under-estimates until the source's
+  worst gap has actually happened — so a new slow source is noisy for its first
+  cycle.
+- **This changes nothing about the floor.** Distribution is still 4 and still
+  what decides. Knowing the monitor works is not knowing anyone will buy it.
