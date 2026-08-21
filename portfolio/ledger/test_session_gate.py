@@ -120,3 +120,68 @@ def test_break_even_figure_comes_from_the_pinned_snapshot():
 
     expected = json.loads(sg.SNAPSHOT.read_text())["break_even_per_session_usd"]
     assert sg.break_even_per_session() == expected
+
+
+# --- burst detection: a 24h average hides same-window collisions -------------
+
+
+def test_max_concurrent_sessions_counts_distinct_sessions_in_the_window():
+    """Three sessions inside 15 minutes is the shape the 2026-08-21 collisions had."""
+    commits = [(0, "session_a"), (300, "session_b"), (600, "session_c")]
+    assert sg.max_concurrent_sessions(commits, window_minutes=15) == 3
+
+
+def test_max_concurrent_sessions_ignores_repeat_commits_from_one_session():
+    """A session that commits twice is still one session, not two."""
+    commits = [(0, "session_a"), (60, "session_a"), (120, "session_a")]
+    assert sg.max_concurrent_sessions(commits, window_minutes=15) == 1
+
+
+def test_max_concurrent_sessions_takes_the_earliest_commit_per_session():
+    """A session's window position is set by when it started, not its last push."""
+    commits = [(0, "session_a"), (2000, "session_a"), (100, "session_b")]
+    # session_a's earliest commit is t=0; session_b at t=100 is within 15min of
+    # that, so both count together even though session_a's later commit (2000s
+    # ~= 33min) would not be.
+    assert sg.max_concurrent_sessions(commits, window_minutes=15) == 2
+
+
+def test_max_concurrent_sessions_does_not_bridge_across_a_wide_gap():
+    commits = [(0, "session_a"), (3600, "session_b")]  # one hour apart
+    assert sg.max_concurrent_sessions(commits, window_minutes=15) == 1
+
+
+def test_max_concurrent_sessions_empty_is_zero():
+    assert sg.max_concurrent_sessions([]) == 0
+
+
+def test_report_adds_a_burst_reason_only_at_or_above_threshold():
+    entries = [entry()] * sg.WINDOW
+    below = sg.report(entries, cadence=0.1, burst=sg.BURST_THRESHOLD_SESSIONS - 1)
+    at = sg.report(entries, cadence=0.1, burst=sg.BURST_THRESHOLD_SESSIONS)
+    assert not any("within a" in reason for reason in below["reasons"])
+    assert any("within a" in reason for reason in at["reasons"])
+
+
+def test_report_burst_reason_does_not_flip_the_verdict():
+    """Burst is a caution added to the reasons, not a new gate condition."""
+    entries = [entry()] * sg.WINDOW
+    r = sg.report(entries, cadence=0.1, burst=10)
+    assert r["verdict"] == "PROCEED"
+
+
+def test_commits_with_sessions_parses_multiline_bodies():
+    """Regression guard: %B bodies contain newlines, so the record delimiter
+    must not be one — this is why %x01/%x02 are used instead of whitespace."""
+    import subprocess
+    from unittest.mock import patch
+
+    fake_stdout = (
+        "1700000000\x01Ledger: record #1\n\nsession_abc123 did the work\x02"
+        "1700000100\x01Unrelated commit with no session trailer\x02"
+    )
+    with patch.object(
+        subprocess, "run", return_value=subprocess.CompletedProcess([], 0, stdout=fake_stdout)
+    ):
+        pairs = sg.commits_with_sessions(hours=6)
+    assert pairs == [(1700000000, "session_abc123")]

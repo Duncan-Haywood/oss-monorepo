@@ -36,6 +36,9 @@ on:
       - "portfolio/ledger/verification_status.py"
       - "portfolio/ledger/test_verification_status.py"
       - "portfolio/ledger/verifications.yaml"
+      - "portfolio/ledger/session_gate.py"
+      - "portfolio/ledger/test_session_gate.py"
+      - "portfolio/ledger/2026-08.yaml"
       - "platform/ci/**"
       - ".github/workflows/**"
   pull_request:
@@ -52,6 +55,9 @@ on:
       - "portfolio/ledger/verification_status.py"
       - "portfolio/ledger/test_verification_status.py"
       - "portfolio/ledger/verifications.yaml"
+      - "portfolio/ledger/session_gate.py"
+      - "portfolio/ledger/test_session_gate.py"
+      - "portfolio/ledger/2026-08.yaml"
       - "platform/ci/**"
       - ".github/workflows/**"
   workflow_dispatch:
@@ -119,3 +125,7 @@ jobs:
       - name: Re-verification staleness tests
         working-directory: portfolio/ledger
         run: python3 -m unittest test_verification_status
+
+      - name: Session-gate tests
+        working-directory: portfolio/ledger
+        run: python3 -m pytest test_session_gate.py -q
