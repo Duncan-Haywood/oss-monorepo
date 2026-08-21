@@ -129,6 +129,10 @@ hypotheses:
     status: supported
     checked: 2026-08-21
     evidence: in-repo
+  - claim: The permanent "file_missing" pattern in classify_error matches the literal message wait_for_file() generates when it gives up on an iCloud placeholder that never finishes downloading, so that skip is logged and reported as a legitimate permanent file_missing skip rather than an unclassified error. (Found refuted, then fixed -- the pattern required the word "retries" ("file missing after.*retries"), but wait_for_file's actual message says "file missing after N iCloud wait attempts"; the wording never matched, so the message fell through to ErrorCategory.UNKNOWN/RETRY_BACKOFF and was misreported in the error log and in `status`'s "Recent errors" listing, even though mark_skipped_permanent still ran correctly at that call site regardless of classification. Fixed by widening the pattern to accept both "retries" and "attempts".)
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
 
 economics:
   currency: USD

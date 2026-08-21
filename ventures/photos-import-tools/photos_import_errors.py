@@ -50,7 +50,7 @@ _TRANSIENT_PATTERNS: list[tuple[str, str, ErrorAction]] = [
 _PERMANENT_PATTERNS: list[tuple[str, str, ErrorAction]] = [
     (r"permission denied|operation not permitted|not authorized", "permission_denied", ErrorAction.SKIP_PERMANENT),
     (r"damaged|corrupt|invalid image|not a valid", "file_corrupt", ErrorAction.SKIP_PERMANENT),
-    (r"file missing after.*retries|permanently unavailable", "file_missing", ErrorAction.SKIP_PERMANENT),
+    (r"file missing after.*(retries|attempts)|permanently unavailable", "file_missing", ErrorAction.SKIP_PERMANENT),
 ]
 
 
