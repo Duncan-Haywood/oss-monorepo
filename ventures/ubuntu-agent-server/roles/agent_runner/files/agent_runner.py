@@ -423,8 +423,8 @@ def process_issue(cfg: dict, issue: dict, log: RunLog) -> None:
             repo, number,
             f"Agent run hit an unexpected error and stopped: `{exc!r}`. "
             f"See server log `{log_path}` for details. The in-progress label "
-            f"was already cleared; fix the underlying issue and re-add the "
-            f"trigger label to retry.",
+            f"was already cleared; fix the underlying issue and remove the "
+            f"`{LABEL_FAILED}` label to retry.",
         )
     finally:
         run_log.close()
@@ -496,7 +496,7 @@ def _process_issue_inner(
             repo, number,
             f"Agent run (`{tool}`) failed (exit {result.returncode}) and made "
             f"no changes it's willing to submit. See server log for the "
-            f"transcript. Re-add the trigger label to retry.",
+            f"transcript. Remove the `{LABEL_FAILED}` label to retry.",
         )
         return
 
