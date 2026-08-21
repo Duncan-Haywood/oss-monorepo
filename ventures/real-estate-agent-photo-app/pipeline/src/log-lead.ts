@@ -74,6 +74,23 @@ function escapeString(s: string): string {
   return s.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }
 
+/**
+ * Local calendar date (YYYY-MM-DD) as of `d`, using the machine's local
+ * timezone rather than UTC. `--date` used to default to
+ * `new Date().toISOString().slice(0, 10)`, which reads UTC's calendar date —
+ * for every US timezone (all west of UTC) that rolls over to "tomorrow"
+ * hours before local midnight (from ~4pm PT / 7pm ET onward, more in DST),
+ * silently recording the wrong dateLogged on any lead logged in the evening
+ * without an explicit --date. Real-estate outreach/showings skew evening,
+ * so this was a routine, not edge-case, way to log a lead a day off.
+ */
+export function localDateString(d: Date = new Date()): string {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 export function formatLeadEntry(id: string, input: LeadInput): string {
   const lines = [
     `  {`,
@@ -125,7 +142,7 @@ function parseArgs(argv: string[]): Partial<LeadInput> & { dryRun: boolean } {
     channel: get("--channel") as LeadInput["channel"] | undefined,
     templateId: get("--template"),
     stage: (get("--stage") ?? "contacted") as LeadStage,
-    dateLogged: get("--date") ?? new Date().toISOString().slice(0, 10),
+    dateLogged: get("--date") ?? localDateString(),
     notes: get("--notes"),
     paymentMethod: get("--payment-method") as LeadInput["paymentMethod"] | undefined,
     paymentReference: get("--payment-reference"),

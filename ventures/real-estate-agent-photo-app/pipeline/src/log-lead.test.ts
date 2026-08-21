@@ -5,7 +5,7 @@
  * leads-log.ts's shape — never touches the real process/leads-log.ts file.
  */
 
-import { appendLeadToSource, formatLeadEntry, nextLeadId, validateLeadInput } from "./log-lead";
+import { appendLeadToSource, formatLeadEntry, localDateString, nextLeadId, validateLeadInput } from "./log-lead";
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(`Assertion failed: ${message}`);
@@ -91,6 +91,29 @@ function run() {
   const paidEntry = formatLeadEntry("lead-paid", paidInput);
   assert(paidEntry.includes('paymentMethod: "zelle"'), "formatted entry should include paymentMethod");
   assert(paidEntry.includes('paymentReference: "conf-1234"'), "formatted entry should include paymentReference");
+
+  // Regression: the CLI's default --date used to be
+  // `new Date().toISOString().slice(0, 10)`, which reads UTC's calendar
+  // date. In any timezone west of UTC (all US timezones), local evening
+  // hours are already "tomorrow" in UTC, so a lead logged at, say, 11:30pm
+  // Pacific on Jan 1 got silently dated Jan 2. localDateString() must use
+  // the local calendar date instead.
+  const originalTz = process.env.TZ;
+  process.env.TZ = "America/Los_Angeles";
+  try {
+    const lateEveningLocal = new Date(2026, 0, 1, 23, 30); // Jan 1, 11:30pm in whatever TZ is active
+    assert(
+      localDateString(lateEveningLocal) === "2026-01-01",
+      `localDateString should use the local calendar date, not UTC's (got ${localDateString(lateEveningLocal)})`,
+    );
+    assert(
+      lateEveningLocal.toISOString().slice(0, 10) !== localDateString(lateEveningLocal),
+      "sanity check: this instant should actually cross a UTC day boundary in America/Los_Angeles, or the regression test proves nothing",
+    );
+  } finally {
+    if (originalTz === undefined) delete process.env.TZ;
+    else process.env.TZ = originalTz;
+  }
 
   assert(nextLeadId(EMPTY_SOURCE) === "lead-001", `expected lead-001, got ${nextLeadId(EMPTY_SOURCE)}`);
 
