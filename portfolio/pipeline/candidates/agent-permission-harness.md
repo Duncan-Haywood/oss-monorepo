@@ -8,8 +8,9 @@ and fail the build when a tool fires that should not have.
 the worst timing. The buyers who need it most are the ones currently building
 it in-house, and the ones who will buy it are not yet feeling the pain.
 
-Scored 2026-08-18. Rescored 2026-08-21 after the internal build.
-Composite 6.625 · floor 4 (time to revenue, distribution).
+Scored 2026-08-18. Rescored 2026-08-21 after the internal build, and again the
+same day after the accuracy measurement below.
+Composite 6.875 · floor 4 (time to revenue, distribution).
 
 | Dimension | Score | Why |
 |---|---|---|
@@ -20,7 +21,7 @@ Composite 6.625 · floor 4 (time to revenue, distribution).
 | Defensibility | 5 | The attack corpus and the per-customer regression history compound; the harness does not |
 | Distribution | 4 | Developer channels are reachable but slow, and free tooling sets the anchor at zero |
 | Liability containment | 8 | A test tool makes no safety claim, provided it never certifies |
-| Ethical robustness | 7 | Measured 2026-08-21, 9 → 7. Defensive by construction and strictly customer's-own-systems testing; the deduction is entirely about not knowing rather than not telling — the build has been run on one corpus with no ground-truth labelling, so neither error rate is known. See [`portfolio/research/error-rate-disclosure/`](../../research/error-rate-disclosure/) |
+| Ethical robustness | 9 | Measured 2026-08-21, 9 → 7 → 9. Defensive by construction and strictly customer's-own-systems testing; the 7 was entirely about not knowing rather than not telling. Closed the same day: `validate_accuracy.py` measures 0 false positives, 0 false negatives on 16/34 positive-rule opportunities in a 34-case labeled fixture corpus, and `harness.render_markdown()` now discloses that figure and its limits. See [`portfolio/research/error-rate-disclosure/`](../../research/error-rate-disclosure/) and this probe's own [README](../probes/agent-permission-harness/README.md#measured-accuracy-2026-08-21) |
 
 ## Why it looks strong
 

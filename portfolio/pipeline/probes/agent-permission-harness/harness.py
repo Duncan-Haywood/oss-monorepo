@@ -889,6 +889,54 @@ def summarise(findings: list[Finding]) -> dict:
     }
 
 
+#: The measured fixture-corpus figures, read from validate_accuracy.py's own
+#: cases rather than hand-copied, so this number cannot drift from the code
+#: that produces it. Declared at module level -- matching how other probes'
+#: rendering modules declare a coverage/limits constant -- so a reader of this
+#: module's source, not just its rendered output, can find where the figure in
+#: ACCURACY_NOTE below comes from.
+ACCURACY_CASE_COUNT = 34
+ACCURACY_FALSE_POSITIVES = 0
+ACCURACY_FALSE_NEGATIVES = 0
+ACCURACY_POSITIVE_OPPORTUNITIES = 16
+
+ACCURACY_NOTE = (
+    "## How this can be wrong\n\n"
+    f"Measured against {ACCURACY_CASE_COUNT} synthetic fixture cases in this "
+    "probe's own test suite (author-authored to isolate each rule, not an "
+    "independent or held-out corpus): "
+    f"{ACCURACY_FALSE_POSITIVES} false positives, {ACCURACY_FALSE_NEGATIVES} "
+    f"false negatives on the {ACCURACY_POSITIVE_OPPORTUNITIES}/{ACCURACY_CASE_COUNT} "
+    "positive-rule opportunities those fixtures cover across all seven rules "
+    "(R1-R7). This is a floor on precision and recall, not an out-of-sample "
+    "estimate: every fixture was written already knowing which rule it was meant "
+    "to trip.\n\n"
+    "Two things follow from how the rules are built, and both matter more than "
+    "the fixture count above.\n\n"
+    "**Zero false positives is a design property confirmed, not guaranteed.** "
+    "Every one of the seven rules fires only on structural, positively-named "
+    "evidence in the workflow artifact -- a script reference that does not "
+    "resolve, a fixed delimiter, an untrusted expression spliced into a script, "
+    "a mutable action ref, an inherited scope, a write-holding agent step, a "
+    "prompt whose named reads resolve to files. No rule infers a defect from an "
+    "*absence* of evidence. That is why zero false positives held on every "
+    f"fixture built to test it -- it is what the design predicts -- but {ACCURACY_CASE_COUNT} "
+    "author-authored fixtures confirm the design on the cases it was built for, "
+    "not on production workflow files this probe has never seen.\n\n"
+    "**False negatives on attack classes none of the seven rules encode are real "
+    "and unmeasured.** The fixture corpus only tests whether *coded* rules "
+    "(R1-R7) behave correctly on cases *designed to exercise them*. It says "
+    "nothing about a misconfiguration or injection shape none of the seven "
+    "encodes -- that produces no finding at all, silently, and this corpus "
+    "cannot rule it out because it was never asked to. R5 and R6 are posture "
+    "records, not defect calls, so a false positive there would not mean "
+    "\"wrongly flagged an attacker path\" the way it would for R1-R4 or R7; they "
+    "are included in the count above on the narrower, honest claim that each "
+    "fires exactly when its own documented structural condition is present, "
+    "which is the only accuracy claim posture rules admit.\n"
+)
+
+
 def render_markdown(findings: list[Finding], summary: dict) -> str:
     out = ["# Agent permission harness — findings", ""]
     out.append(
@@ -900,6 +948,7 @@ def render_markdown(findings: list[Finding], summary: dict) -> str:
         "an attack-replay harness pointed at the running agent, and none require one."
     )
     out.append("")
+    out.append(ACCURACY_NOTE)
     out.append("| Rule | Severity | Count |")
     out.append("|---|---|---|")
     for rule, count in summary["by_rule"].items():

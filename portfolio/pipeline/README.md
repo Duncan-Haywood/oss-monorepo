@@ -94,8 +94,8 @@ four candidates carrying a probe have moved and the table is re-ordered.
 | 1 | [Shopify accessibility evidence app](candidates/shopify-a11y-evidence.md) | 7.25 | 4 | Probe the channel — scored 2026-08-19. Top of the table only because nobody has probed it |
 | 2 | [EAA remediation pipeline](candidates/eaa-remediation-pipeline.md) | 7.125 | 5 | Build now, as a `local-site-studio` product line. Both gates measured 2026-08-21 — `liability_containment` 6→5 (**on** the gate, unmoved), `ethical_robustness` 9→6→9 after the record began printing its error rates |
 | 3 | [Public-record watch](candidates/public-record-watch.md) | 7.0 | 4 | Cheap probe — one vertical, two weeks. `ethical_robustness` 9→6→9 on 2026-08-21, after the subscriber record was built; the detector still misses two thirds of the dormancy it looks for |
-| 4 | [MCP supply-chain watch](candidates/mcp-supply-chain-watch.md) | 6.75 | 3 | Probe: steps 1–2 run; mitigation refuted, cannot graduate as scored |
-| 5 | [Agent permission harness](candidates/agent-permission-harness.md) | 6.625 | 4 | Park; revisit 2027-Q1. Probed 2026-08-21 — internal build done, `ai_leverage` 9→8, `ethical_robustness` 9→7. **The last probe with no customer record at all** |
+| 4 | [Agent permission harness](candidates/agent-permission-harness.md) | 6.875 | 4 | Park; revisit 2027-Q1. Probed 2026-08-21 — internal build done, `ai_leverage` 9→8; `ethical_robustness` 9→7→9 after `validate_accuracy.py` measured 0 false positives / 0 false negatives on a 34-case fixture corpus and the findings report started disclosing it |
+| 5 | [MCP supply-chain watch](candidates/mcp-supply-chain-watch.md) | 6.75 | 3 | Probe: steps 1–2 run; mitigation refuted, cannot graduate as scored |
 | 6 | [Tender radar](candidates/tender-radar.md) | 6.625 | 4 | Park; needs a channel partner |
 | 7 | [CRA evidence desk](candidates/cra-evidence-desk.md) | 6.625 | 3 | Probe (was build-now); wedge is egress-blocked. `ethical_robustness` 8→6→7 on 2026-08-21 (harness correction, not a re-probe) |
 | 8 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
@@ -311,12 +311,27 @@ disagreement was never exercised. Both cases are pinned now. Its remaining
 deduction is the real one: the false-suppression rate has never been measured,
 so there is no figure to print.
 
-**Two of the four gaps are untouched**, and they are the two that need building
-rather than rendering: `source-silence-detector` and `agent-permission-harness`
-have no customer-facing record module at all. The first is the sharper one — it
-*has* a committed held-out recall of 0.35 and no product surface to print it on,
-and a subscriber sees the same silence whether the register is quiet or the
-watch failed.
+**Two of the four gaps needed building rather than rendering**, because
+`source-silence-detector` and `agent-permission-harness` had no
+customer-facing record module at all. `source-silence-detector`'s was the
+sharper one — it *had* a committed held-out recall of 0.35 and no product
+surface to print it on, and a subscriber sees the same silence whether the
+register is quiet or the watch failed; see the amendments in
+[`portfolio/research/error-rate-disclosure/`](../research/error-rate-disclosure/)
+for that fix.
+
+**`agent-permission-harness` closed its gap the same day, in
+`probes/agent-permission-harness/`.** It had no rate to print at all — one
+unlabelled corpus, no ground-truth. `validate_accuracy.py` is a new, explicit,
+labeled fixture corpus (34 cases: the existing fire/silent regression fixtures
+from `test_harness.py`, plus new cases per rule, run for real through
+`harness.analyse()`) and measures 0 false positives, 0 false negatives on the
+16/34 positive-rule opportunities those fixtures cover. `harness.render_markdown()`
+now states that figure in a "How this can be wrong" section, together with the
+honest limit: the corpus is author-authored, not held-out, so this is a floor
+on precision/recall against cases built to trip the seven coded rules, and it
+says nothing about attack or misconfiguration classes none of the seven
+encodes. `ethical_robustness` **9 → 7 → 9**, composite 6.625 → 6.875.
 
 Step 1 of `public-record-watch`'s first experiment has since been run — see the
 amendment in [its write-up](candidates/public-record-watch.md) and the

@@ -134,18 +134,40 @@
     {
       "probe": "agent-permission-harness",
       "candidate": "agent-permission-harness",
-      "artifact_chars": 6349,
-      "record_module": null,
-      "declared_coverage_constants": [],
-      "scope_disclosed": false,
-      "direction_disclosed": false,
-      "direction_evidence": [],
-      "rate_committed": null,
-      "rate_absent_because": "No accuracy measurement exists. The probe has been run on one corpus (this repository's 31 workflow files) with no ground-truth labelling, so neither a false-positive nor a false-negative rate is known.",
-      "rate_in_artifact": false,
-      "rate_matches": [],
+      "artifact_chars": 8389,
+      "record_module": "harness.py",
+      "declared_coverage_constants": [
+        "ACCURACY_NOTE"
+      ],
+      "scope_disclosed": true,
+      "direction_disclosed": true,
+      "direction_evidence": [
+        "Measured against 34 synthetic fixture cases in this probe's own test suite (author-authored to isolate each rule, not an independent or held-out corpus): 0 false positives, 0 false negatives on the 16/34 positive-rule opportunities those fixtures cover across all seven rules (R1-R7).",
+        "This is a floor on precision and recall, not an out-of-sample estimate: every fixture was written already knowing which rule it was meant to trip.",
+        "**Zero false positives is a design property confirmed, not guaranteed.",
+        "That is why zero false positives held on every fixture built to test it -- it is what the design predicts -- but 34 author-authored fixtures confirm the design on the cases it was built for, not on production workflow files this probe has never seen.",
+        "**False negatives on attack classes none of the seven rules encode are real and unmeasured.",
+        "R5 and R6 are posture records, not defect calls, so a false positive there would not mean \"wrongly flagged an attacker path\" the way it would for R1-R4 or R7; they are included in the count above on the narrower, honest claim that each fires exactly when its own documented structural condition is present, which is the only accuracy claim posture rules admit."
+      ],
+      "rate_committed": {
+        "path": "portfolio/pipeline/probes/agent-permission-harness/README.md",
+        "quote": "0 false positives, 0 false negatives on the 16/34 positive-rule opportunities",
+        "renderings": [
+          "0 false positives",
+          "0 false negatives",
+          "16/34"
+        ],
+        "reads": "0 false positives and 0 false negatives on 34 author-authored synthetic fixture cases (16 positive-rule opportunities) across all seven rules \u2014 a floor on precision/recall on cases designed to exercise the rules that exist, not an out-of-sample estimate and not a measurement of attack classes none of the seven rules encodes."
+      },
+      "rate_absent_because": null,
+      "rate_in_artifact": true,
+      "rate_matches": [
+        "0 false positives",
+        "0 false negatives",
+        "16/34"
+      ],
       "revenue_model": "none stated in the write-up",
-      "measured_error_direction": "unknown \u2014 unmeasured in both directions"
+      "measured_error_direction": "false negatives on attack/misconfiguration classes outside R1-R7 (unmeasured, and structurally unmeasurable by this fixture corpus); zero false positives measured on the 34-case fixture corpus, not independently or out-of-sample validated"
     }
   ],
   "scoring": [
@@ -181,11 +203,8 @@
     {
       "candidate": "agent-permission-harness",
       "ethical_robustness_was": 9,
-      "ethical_robustness_now": 7,
-      "deductions_applied": [
-        "rate_undisclosed",
-        "direction_undisclosed"
-      ],
+      "ethical_robustness_now": 9,
+      "deductions_applied": [],
       "alignment_adverse": false,
       "alignment_charged": false,
       "alignment_reasoning": "The write-up states no revenue model, so there is nothing to align against. Not scored either way rather than assumed benign."
@@ -193,9 +212,9 @@
   ],
   "summary": {
     "probes": 4,
-    "scope_disclosed": 3,
-    "direction_disclosed": 3,
-    "rate_committed": 2,
-    "rate_in_artifact": 2
+    "scope_disclosed": 4,
+    "direction_disclosed": 4,
+    "rate_committed": 3,
+    "rate_in_artifact": 3
   }
 }

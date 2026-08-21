@@ -182,37 +182,62 @@ class CommittedResult(unittest.TestCase):
         cls.payload = json.loads(RESULTS.read_text())
         cls.by_probe = {r["probe"]: r for r in cls.payload["disclosure"]}
 
-    def test_both_probes_with_a_committed_rate_now_print_it(self):
-        self.assertEqual(self.payload["summary"]["rate_in_artifact"], 2)
-        for probe in ("eaa-wcag-triage", "source-silence-detector"):
+    def test_three_probes_with_a_committed_rate_now_print_it(self):
+        """``agent-permission-harness`` joined the other two on 2026-08-21.
+
+        Until then only ``eaa-wcag-triage`` and ``source-silence-detector`` had
+        both a committed rate and printed it — ``agent-permission-harness`` had
+        no rate to commit at all. ``validate_accuracy.py`` closed that: it now
+        has a committed figure (its own README) and prints it.
+        """
+        self.assertEqual(self.payload["summary"]["rate_in_artifact"], 3)
+        for probe in ("eaa-wcag-triage", "source-silence-detector", "agent-permission-harness"):
             with self.subTest(probe=probe):
                 self.assertTrue(self.by_probe[probe]["rate_in_artifact"])
 
-    def test_the_remaining_two_have_no_rate_to_print(self):
+    def test_the_remaining_one_has_no_rate_to_print(self):
         """The distinction that decides what work each one needs.
 
         Withholding a measured rate is a rendering gap. Never having measured
         one is a measurement gap, and no amount of rendering closes it.
+        ``npm-reachability-triage`` is now the only probe in the second class:
+        its own record already names its adverse direction, but the rate for
+        that direction has never been measured, so there is still no figure to
+        print.
         """
-        for probe in ("npm-reachability-triage", "agent-permission-harness"):
-            with self.subTest(probe=probe):
-                self.assertFalse(self.by_probe[probe]["rate_in_artifact"])
-                self.assertIsNone(self.by_probe[probe]["rate_committed"])
-                self.assertTrue(self.by_probe[probe]["rate_absent_because"].strip())
+        probe = "npm-reachability-triage"
+        self.assertFalse(self.by_probe[probe]["rate_in_artifact"])
+        self.assertIsNone(self.by_probe[probe]["rate_committed"])
+        self.assertTrue(self.by_probe[probe]["rate_absent_because"].strip())
 
     def test_scope_and_direction_split_as_recorded(self):
-        self.assertEqual(self.payload["summary"]["scope_disclosed"], 3)
-        self.assertEqual(self.payload["summary"]["direction_disclosed"], 3)
+        # agent-permission-harness now declares ACCURACY_NOTE at module level
+        # in harness.py and both discloses direction and prints its rate, so
+        # both counts moved from 3 to 4 on 2026-08-21.
+        self.assertEqual(self.payload["summary"]["scope_disclosed"], 4)
+        self.assertEqual(self.payload["summary"]["direction_disclosed"], 4)
 
     def test_direction_is_disclosed_by_every_probe_with_a_record_module(self):
-        for probe in ("npm-reachability-triage", "eaa-wcag-triage", "source-silence-detector"):
+        for probe in (
+            "npm-reachability-triage",
+            "eaa-wcag-triage",
+            "source-silence-detector",
+            "agent-permission-harness",
+        ):
             with self.subTest(probe=probe):
                 self.assertTrue(self.by_probe[probe]["direction_disclosed"])
-        self.assertFalse(self.by_probe["agent-permission-harness"]["direction_disclosed"])
 
-    def test_one_probe_still_has_no_record_module_at_all(self):
+    def test_no_probe_lacks_a_record_module_any_more(self):
+        """``agent-permission-harness`` was the last one without a record module.
+
+        ``harness.render_markdown()`` is that probe's only customer-facing
+        artifact — there is no separate module the way ``evidence.py`` or
+        ``subscriber_record.py`` are for the other three — so this pass points
+        ``render_harness()`` at ``harness.py`` itself, which now declares
+        ``ACCURACY_NOTE``.
+        """
         missing = [r["probe"] for r in self.payload["disclosure"] if r["record_module"] is None]
-        self.assertEqual(missing, ["agent-permission-harness"])
+        self.assertEqual(missing, [])
 
     def test_the_silence_detector_never_renders_no_alert_as_health(self):
         """The mitigation for an error the customer structurally cannot see.
@@ -234,7 +259,7 @@ class CommittedResult(unittest.TestCase):
                 "eaa-remediation-pipeline": 9,
                 "cra-evidence-desk": 7,
                 "public-record-watch": 9,
-                "agent-permission-harness": 7,
+                "agent-permission-harness": 9,
             },
         )
 
@@ -263,6 +288,23 @@ class CommittedResult(unittest.TestCase):
         """Deduction 3's mitigation, checked in the artifact rather than assumed."""
         text, _, _ = measure.render_eaa()
         self.assertIn("over-reporting is the error that would pay us", text)
+
+    def test_the_harness_states_its_measured_figure_and_its_own_limits(self):
+        """agent-permission-harness closed its gap on 2026-08-21 too.
+
+        Checked directly against the rendered artifact rather than only via the
+        boolean, so a future edit that keeps ``direction_disclosed`` true for
+        the wrong reason (e.g. an unrelated sentence matching the vocabulary)
+        is still caught.
+        """
+        text, _, _ = measure.render_harness()
+        self.assertIn("0 false positives, 0 false negatives", text)
+        self.assertIn("16/34", text)
+        # The honest limit has to survive alongside the number: this corpus is
+        # author-authored, not held-out, and says nothing about attack classes
+        # outside R1-R7.
+        self.assertIn("not an out-of-sample estimate", text)
+        self.assertIn("unmeasured", text)
 
     def test_no_candidate_crossed_the_gate(self):
         for entry in self.payload["scoring"]:

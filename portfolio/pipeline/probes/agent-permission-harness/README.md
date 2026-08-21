@@ -89,6 +89,35 @@ an `env:` binding and then regex-validates it, which is the correct pattern. So
 the interesting finding here could not be the famous one, and turned out to be
 R7.
 
+### Measured accuracy (2026-08-21)
+
+`validate_accuracy.py` — a new, standalone, labeled fixture corpus, not a count
+of test methods — runs 34 synthetic cases through `harness.analyse()` for real,
+one to two per rule in each direction, and classifies each against its target
+rule as a true/false positive/negative. Result:
+**0 false positives, 0 false negatives on the 16/34 positive-rule opportunities those fixtures cover across all seven rules (R1-R7)**.
+`test_validate_accuracy.py` pins these counts so a rule change that breaks a
+fixture is caught rather than left to drift.
+
+Read this narrowly, the same way it is read in
+[`validate_accuracy.py`](validate_accuracy.py)'s own docstring and in
+[`render_markdown()`](harness.py)'s disclosure section. The corpus is
+author-authored — most of it is the same fire/silent fixtures already pinned
+in `test_harness.py`, reused rather than restated, plus a handful of genuinely
+new cases per rule — so it is a floor on precision and recall against cases
+*designed to exercise the rules that exist*, not an out-of-sample estimate and
+not a measurement against production workflow files this probe has never seen.
+Zero false positives is a predictable consequence of the design (every rule
+fires only on structural, positively-named evidence; none infers a defect from
+an absence of evidence) confirmed on this fixture corpus, not a guarantee.
+Zero false negatives is bounded the same way: it says the seven rules do not
+miss the cases built to trip them, and says nothing about an attack or
+misconfiguration shape none of the seven encodes — that produces no finding at
+all, and this corpus cannot measure what it was never asked to detect. R5 and
+R6 are posture records rather than defect calls, so their share of the count is
+the narrower claim that each fires exactly when its own documented structural
+condition holds, not a vulnerability-accuracy claim.
+
 ## The headline: R7, and why attack replay cannot reach it
 
 **An agent's instruction set is not its `prompt:` input.** It is the transitive
