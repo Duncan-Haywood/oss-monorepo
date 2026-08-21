@@ -32,12 +32,19 @@ class ClassifiedError:
 
 
 _TRANSIENT_PATTERNS: list[tuple[str, str, ErrorAction]] = [
+    # This pattern must stay ahead of the generic "timed out|timeout" entry
+    # below: "duplicate preflight timed out" itself contains "timed out", so
+    # placed after it, it would be permanently unreachable -- every message
+    # this pattern is meant to catch matches the generic one first and is
+    # misclassified as a plain photos_timeout/RETRY_BACKOFF instead of
+    # triggering RUN_PREFLIGHT. re.search checks patterns in list order and
+    # returns on the first match, so specificity has to be encoded as order.
+    (r"duplicate preflight timed out", "preflight_timeout", ErrorAction.RUN_PREFLIGHT),
     (r"timed out|timeout", "photos_timeout", ErrorAction.RETRY_BACKOFF),
     (r"photos.*not responding|application.*not running|connection is invalid", "photos_unresponsive", ErrorAction.RELAUNCH_PHOTOS),
     (r"osascript.*error|-1712|-1728", "osascript_busy", ErrorAction.RETRY_BACKOFF),
     (r"file.*(busy|locked)|resource busy", "file_busy", ErrorAction.RETRY_BACKOFF),
     (r"no such file|does not exist|can't get", "icloud_unavailable", ErrorAction.RETRY_BACKOFF),
-    (r"duplicate preflight timed out", "preflight_timeout", ErrorAction.RUN_PREFLIGHT),
 ]
 
 _PERMANENT_PATTERNS: list[tuple[str, str, ErrorAction]] = [

@@ -113,6 +113,14 @@ hypotheses:
     status: supported
     checked: 2026-08-21
     evidence: in-repo
+  - claim: classify_error's pattern-based taxonomy in photos_import_errors.py does not silently misclassify a specific failure as a more generic one just because a later, more specific pattern happens to share a substring with an earlier, broader pattern -- every transient pattern is reachable and gets to fire for the message it was written to catch instead of being permanently shadowed by list order. (Found refuted, then fixed -- _TRANSIENT_PATTERNS listed the generic "timed out|timeout" pattern before the specific "duplicate preflight timed out" pattern; since classify_error returns on the first regex match and that message contains the substring "timed out", the specific pattern, and its RUN_PREFLIGHT recovery action, was completely unreachable. Fixed by moving the specific pattern ahead of the generic one.)
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
+  - claim: When the watchdog's STOP/SIGTERM shutdown lands during the raw phase of an --include-raws run, it still writes the terminal status to phases[0].status_path ("status.json", the file external tooling watches as the whole run's status) using the combined summary across every phase, the same convention the "complete" and "blocked" terminal writes already follow -- it does not write only the currently-active phase's own summary to that phase's own status file (status_raw.json), which left status.json unwritten/stale at the exact moment the watchdog actually stopped. (Found refuted, then fixed -- the STOP-handling branch in run_watchdog was the one terminal exit path combined_summary's earlier fix was not applied to.)
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
   - claim: A packaged, priced version of these tools (e.g. a paid macOS utility, or a Setapp/App-Store-style listing) would attract paying customers among Mac-based photographers and videographers who shoot on removable media and import into Apple Photos or a DAM, beyond this repo's own single-user use -- i.e. the reliability work already done here is worth someone else paying for, not just worth having for its own import runs.
     status: untested
     checked: null

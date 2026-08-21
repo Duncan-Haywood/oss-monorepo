@@ -588,6 +588,93 @@ class PhotosImportWatchdogTests(unittest.TestCase):
             self.assertEqual(status["summary"]["imported"], 5)
             self.assertEqual(status["summary"]["total"], 5)
 
+    def test_stop_shutdown_writes_combined_summary_to_the_overall_status_file(self):
+        # The "complete" and "blocked" terminal writes source their payload
+        # from combined_summary(phases) and write it to phases[0].status_path
+        # ("status.json"), the file external tooling watches as the whole
+        # run's status regardless of which phase is currently active (see
+        # combined_summary's docstring and the "blocked" regression above).
+        # This STOP/SIGTERM shutdown is the third terminal exit (code 130)
+        # but wrote only the *currently active* phase's own read_summary() to
+        # that phase's own status_path. With --include-raws and jpeg already
+        # complete, the active phase at STOP time is raw: status.json was
+        # never touched by this write at all (it stayed at whatever jpeg last
+        # wrote, or never existed), while status_raw.json got only the raw
+        # manifest's own counts -- silently hiding the completed jpeg phase's
+        # results from the one file meant to reflect the whole run's status
+        # at the moment the watchdog actually stopped.
+        with tempfile.TemporaryDirectory() as temp_dir:
+            state_dir = Path(temp_dir)
+            phases = build_phases(
+                state_dir=state_dir,
+                batch_size=10,
+                timeout_seconds=180,
+                include_raws=True,
+                raw_batch_size=3,
+                raw_timeout_seconds=600,
+            )
+            with sqlite3.connect(phases[0].db_path) as connection:
+                connection.execute(
+                    "CREATE TABLE imports (path TEXT PRIMARY KEY, status TEXT NOT NULL, attempts INTEGER NOT NULL DEFAULT 0, last_error TEXT, first_seen_at TEXT NOT NULL, updated_at TEXT NOT NULL)"
+                )
+                for index in range(5):
+                    connection.execute(
+                        "INSERT INTO imports VALUES (?, 'imported', 1, NULL, 'now', 'now')",
+                        (f"/tmp/f{index}.jpg",),
+                    )
+                connection.commit()
+            with sqlite3.connect(phases[1].db_path) as connection:
+                connection.execute(
+                    "CREATE TABLE imports (path TEXT PRIMARY KEY, status TEXT NOT NULL, attempts INTEGER NOT NULL DEFAULT 0, last_error TEXT, first_seen_at TEXT NOT NULL, updated_at TEXT NOT NULL)"
+                )
+                connection.execute(
+                    "INSERT INTO imports VALUES ('/tmp/pending.raw', 'pending', 0, NULL, 'now', 'now')"
+                )
+                connection.commit()
+
+            worker = FakeProcess(poll_results=[None] * 20, wait_results=[])
+
+            def fake_terminate(proc):
+                return True
+
+            sleep_calls = {"count": 0}
+
+            def fake_sleep(_seconds):
+                sleep_calls["count"] += 1
+                if sleep_calls["count"] == 1:
+                    (state_dir / "STOP").touch()
+                if sleep_calls["count"] >= 5:
+                    raise _HaltLoop
+                return None
+
+            with mock.patch("photos_import_watchdog.subprocess.Popen", return_value=worker), \
+                    mock.patch(
+                        "photos_import_watchdog.terminate_process_group", side_effect=fake_terminate
+                    ), \
+                    mock.patch("photos_import_watchdog.time.sleep", side_effect=fake_sleep):
+                exit_code = run_watchdog(
+                    root=Path(temp_dir) / "root",
+                    state_dir=state_dir,
+                    tool_dir=Path(temp_dir) / "tool",
+                    poll_seconds=0,
+                    stall_seconds=99999,
+                    timeout_seconds=180,
+                    attempts=3,
+                    batch_size=10,
+                    include_raws=True,
+                    raw_batch_size=3,
+                    raw_timeout_seconds=600,
+                )
+
+            self.assertEqual(exit_code, 130)
+            status = json.loads(phases[0].status_path.read_text())
+            self.assertFalse(status["worker_running"])
+            self.assertEqual(status["message"], "stopped by STOP file")
+            # Combined across both phases: 5 already-imported jpeg files plus
+            # the 1 still-pending raw file.
+            self.assertEqual(status["summary"]["imported"], 5)
+            self.assertEqual(status["summary"]["total"], 6)
+
 
 if __name__ == "__main__":
     unittest.main()
