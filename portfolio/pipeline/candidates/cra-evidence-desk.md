@@ -8,8 +8,8 @@ matching, and a pre-drafted 24-hour incident report they can send in minutes.
 below). Sell the reporting-readiness slice only. Do not sell conformity
 assessment, do not sign anything, do not file on anyone's behalf.
 
-Scored 2026-08-18. Composite 6.625 · floor 3 (defensibility). Rescored down from
-7.0/floor 4 on 2026-08-20 (PRs #250, #253 — see the amendment below).
+Scored 2026-08-18. Composite 6.75 · floor 3 (defensibility). Rescored down from
+7.0/floor 4 on 2026-08-20 (PRs #250, #253 — see the amendments below).
 
 | Dimension | Score | Why |
 |---|---|---|
@@ -20,7 +20,7 @@ Scored 2026-08-18. Composite 6.625 · floor 3 (defensibility). Rescored down fro
 | Defensibility | ~~4~~ 3 | SBOM generation is commodity and partly open source; the archive is public advisory data and the EUVD mapping is egress-denied — neither named durable part holds, see the amendment below |
 | Distribution | 6 | Reachable through open-source maintainer channels and CRA-deadline content, but no warm list today |
 | Liability containment | 6 | Compliance-adjacent; contained by refusing the advice and filing positions |
-| Ethical robustness | ~~6~~ 7 | Measured 2026-08-21, 8 → 6, then corrected to 7 the same day — the artifact did not change, the harness did; see the amendment below. Pushes small vendors toward genuinely knowing what is in their software, and its record is the only one of four that names the direction it can be wrong in. But the rate for that direction — a suppression that should not have happened — has never been measured, and suppression is what the subscription is sold on. See [`portfolio/research/error-rate-disclosure/`](../../research/error-rate-disclosure/) |
+| Ethical robustness | ~~6~~ 8 | Measured 2026-08-21, 8 → 6, corrected to 7 the same day (harness fix, not a re-probe), then to 8 later the same day once the triage's own record began carrying its hand-verified wrong-suppression rate — see the amendments below. Pushes small vendors toward genuinely knowing what is in their software, and its record is the only one of four that names the direction it can be wrong in. The rate for that direction — a suppression that should not have happened — is now measured too: 0 of 53 hand-verified claims wrong. See [`portfolio/research/error-rate-disclosure/`](../../research/error-rate-disclosure/) |
 
 ## Why now
 
@@ -169,6 +169,44 @@ print. Measuring it against a labelled sample is still the mitigation, and it is
 still worth the last point. Naming the direction is not the same as knowing the
 rate, and this candidate is now the clearest case in the pipeline of one without
 the other.
+
+## Amendment, 2026-08-21 (later the same day): the last point, by measuring the rate
+
+**`ethical_robustness` 7 → 8. Composite 6.625 → 6.75.** The gap the amendment
+above left open — the false-suppression rate had never been measured — is
+closed. Every one of the 102 suppressed findings the live `npm-reachability-triage`
+run produces across this portfolio's seven npm products was hand-checked
+against its real advisory text and the actual lockfile/source evidence the
+suppression rule cites. They reduce to 53 distinct `(advisory, rule, package)`
+claims (the same advisory suppressed the same way on more than one product
+counts once). **0 of 53 (0 of 102 raw findings) were wrong** — none suppressed
+a vulnerability actually present in the deployed artifact.
+
+The figure is not just written down; it is wired into the artifact a customer
+would actually receive. `triage/evidence.py` gained an `ACCURACY_NOTE`
+constant, rendered into both the markdown and JSON records under a "How this
+can be wrong" section, mirroring the pattern `agent-permission-harness` used
+for its own accuracy disclosure. `error-rate-disclosure/measure.py`'s
+`Citation.verify()` checks the cited figure against this candidate's own
+README on every run, so a number that is later revised cannot go stale here
+without the test suite catching it.
+
+**This is a sample, not a general proof.** Four of the nine products the
+underlying suppression-rate validation covers are documentation sites, and 24
+of the 102 suppressions checked in this pass trace to a single structural
+claim, `next → postcss`. One real but non-blocking finding came out of the
+review: one advisory is labeled with a rule name (`server-surface:middleware`)
+that does not match its actual subject (SSRF in Server Actions), because the
+classifier matches the first pattern that hits anywhere in the advisory text
+rather than ranking the summary first — the suppression verdict is still
+correct, only the audit label is imprecise, and it is left as a named
+follow-up rather than fixed in this pass. Full per-claim detail is in
+[`npm-reachability-triage/wrong-suppression-verification-2026-08-21.json`](../probes/npm-reachability-triage/wrong-suppression-verification-2026-08-21.json)
+and the probe's own README.
+
+The composite moves to 6.75. The floor (defensibility, 3) is unchanged and is
+still what actually decides this candidate's verdict — this amendment does not
+touch the wedge problem the verdict change above already recorded.
 
 ## Sources
 

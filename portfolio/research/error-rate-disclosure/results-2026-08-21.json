@@ -78,21 +78,35 @@
     {
       "probe": "npm-reachability-triage",
       "candidate": "cra-evidence-desk",
-      "artifact_chars": 5246,
+      "artifact_chars": 7515,
       "record_module": "src/triage/evidence.py",
       "declared_coverage_constants": [
         "COVERAGE_LIMITS",
-        "NOT_AN_ATTESTATION"
+        "NOT_AN_ATTESTATION",
+        "ACCURACY_NOTE"
       ],
       "scope_disclosed": true,
       "direction_disclosed": true,
       "direction_evidence": [
         "False positives are expected; a suppressed finding that should not have been is the failure this tool is built to avoid, and both are possible."
       ],
-      "rate_committed": null,
-      "rate_absent_because": "The direction this tool's own record calls \"the failure this tool is built to avoid\" \u2014 a suppression that should not have happened \u2014 has never been measured. validation-2026-08-21-build-surface.json records suppression *rates*, which say how much was suppressed and nothing about how much of that was wrong.",
-      "rate_in_artifact": false,
-      "rate_matches": [],
+      "rate_committed": {
+        "path": "portfolio/pipeline/probes/npm-reachability-triage/README.md",
+        "quote": "0 of 53 distinct claims",
+        "renderings": [
+          "0 of 53",
+          "0 of 102",
+          "0/53",
+          "0/102"
+        ],
+        "reads": "0 of 53 hand-verified suppression claims (0 of 102 raw suppressed findings) were wrong, checked on 2026-08-21 against real advisory text and lockfile evidence across all seven npm products in the portfolio \u2014 a sample, not a general proof the rules cannot misfire on a different project's lockfile shape."
+      },
+      "rate_absent_because": null,
+      "rate_in_artifact": true,
+      "rate_matches": [
+        "0 of 53",
+        "0 of 102"
+      ],
       "revenue_model": "\u20ac99\u2013\u20ac399/month subscription by dependency count (candidates/cra-evidence-desk.md)",
       "measured_error_direction": "under-reporting (suppression)"
     },
@@ -183,10 +197,8 @@
     {
       "candidate": "cra-evidence-desk",
       "ethical_robustness_was": 8,
-      "ethical_robustness_now": 7,
-      "deductions_applied": [
-        "rate_undisclosed"
-      ],
+      "ethical_robustness_now": 8,
+      "deductions_applied": [],
       "alignment_adverse": true,
       "alignment_charged": false,
       "alignment_reasoning": "The product's whole value proposition is cutting the customer's alert count. A suppression that should not have happened both improves the headline the subscription is sold on and is invisible to the subscriber."
@@ -214,7 +226,7 @@
     "probes": 4,
     "scope_disclosed": 4,
     "direction_disclosed": 4,
-    "rate_committed": 3,
-    "rate_in_artifact": 3
+    "rate_committed": 4,
+    "rate_in_artifact": 4
   }
 }

@@ -182,33 +182,29 @@ class CommittedResult(unittest.TestCase):
         cls.payload = json.loads(RESULTS.read_text())
         cls.by_probe = {r["probe"]: r for r in cls.payload["disclosure"]}
 
-    def test_three_probes_with_a_committed_rate_now_print_it(self):
-        """``agent-permission-harness`` joined the other two on 2026-08-21.
+    def test_all_four_probes_now_print_a_committed_rate(self):
+        """``npm-reachability-triage`` closed the last gap on 2026-08-21.
 
-        Until then only ``eaa-wcag-triage`` and ``source-silence-detector`` had
-        both a committed rate and printed it — ``agent-permission-harness`` had
-        no rate to commit at all. ``validate_accuracy.py`` closed that: it now
-        has a committed figure (its own README) and prints it.
+        The other three already had both a committed rate and printed it.
+        ``npm-reachability-triage`` was the one probe in the second class —
+        its own record named its adverse direction, but the *rate* for that
+        direction had never been measured, so there was no figure to print.
+        A hand verification of every suppressed finding this run produces
+        (53 distinct claims, 0 wrong) closed the measurement gap, and
+        ``triage/evidence.py`` gained an ``ACCURACY_NOTE`` constant — the
+        same shape ``agent-permission-harness`` used for its own rate — to
+        close the rendering gap alongside it.
         """
-        self.assertEqual(self.payload["summary"]["rate_in_artifact"], 3)
-        for probe in ("eaa-wcag-triage", "source-silence-detector", "agent-permission-harness"):
+        self.assertEqual(self.payload["summary"]["rate_in_artifact"], 4)
+        for probe in (
+            "eaa-wcag-triage",
+            "source-silence-detector",
+            "agent-permission-harness",
+            "npm-reachability-triage",
+        ):
             with self.subTest(probe=probe):
                 self.assertTrue(self.by_probe[probe]["rate_in_artifact"])
-
-    def test_the_remaining_one_has_no_rate_to_print(self):
-        """The distinction that decides what work each one needs.
-
-        Withholding a measured rate is a rendering gap. Never having measured
-        one is a measurement gap, and no amount of rendering closes it.
-        ``npm-reachability-triage`` is now the only probe in the second class:
-        its own record already names its adverse direction, but the rate for
-        that direction has never been measured, so there is still no figure to
-        print.
-        """
-        probe = "npm-reachability-triage"
-        self.assertFalse(self.by_probe[probe]["rate_in_artifact"])
-        self.assertIsNone(self.by_probe[probe]["rate_committed"])
-        self.assertTrue(self.by_probe[probe]["rate_absent_because"].strip())
+                self.assertIsNotNone(self.by_probe[probe]["rate_committed"])
 
     def test_scope_and_direction_split_as_recorded(self):
         # agent-permission-harness now declares ACCURACY_NOTE at module level
@@ -257,7 +253,7 @@ class CommittedResult(unittest.TestCase):
             got,
             {
                 "eaa-remediation-pipeline": 9,
-                "cra-evidence-desk": 7,
+                "cra-evidence-desk": 8,
                 "public-record-watch": 9,
                 "agent-permission-harness": 9,
             },
