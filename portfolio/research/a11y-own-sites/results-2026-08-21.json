@@ -1,0 +1,1959 @@
+{
+  "corpus": {
+    "apps": [
+      "ventures/ai-first-markets",
+      "ventures/local-site-studio",
+      "ventures/photo-editing/docs-site",
+      "ventures/print-atelier",
+      "ventures/quick-pick-survey",
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ],
+    "duplicates_dropped": 20,
+    "pages_built": 138,
+    "pages_unique": 118
+  },
+  "per_page": [
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "_not-found.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": {
+        "1.3.1": 1
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "2.4.6",
+          "element": "h3",
+          "impact": "degrading",
+          "message": "Heading level jumps from h1 to h3, breaking the outline a screen-reader user navigates by."
+        }
+      ],
+      "only_audit_py": {
+        "1.3.1": 1
+      },
+      "only_probe": {
+        "2.4.6": 1
+      },
+      "page": "ideas.html",
+      "probe_criteria": {
+        "2.4.6": 1
+      }
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "ai-pr-review-bot.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "ai-qa-for-ecommerce.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "api-uptime-intelligence.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "compliance-doc-generator.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "contract-review-api.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "linkedin-content-engine.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "rag-as-a-service.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "vertical-ai-receptionist.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "index.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "market-map.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": {
+        "1.3.1": 1
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "2.4.6",
+          "element": "h3",
+          "impact": "degrading",
+          "message": "Heading level jumps from h1 to h3, breaking the outline a screen-reader user navigates by."
+        }
+      ],
+      "only_audit_py": {
+        "1.3.1": 1
+      },
+      "only_probe": {
+        "2.4.6": 1
+      },
+      "page": "reports.html",
+      "probe_criteria": {
+        "2.4.6": 1
+      }
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "ai-automation-playbook.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "category-analysis.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "executive-summary.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "path-to-100k.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "path-to-1m.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "scoring-methodology.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "unauthorized.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/ai-first-markets",
+      "audit_py_criteria": {
+        "3.1.1": 1
+      },
+      "engines_agree": true,
+      "findings": [
+        {
+          "criterion": "3.1.1",
+          "element": "html",
+          "impact": "blocking",
+          "message": "The <html> element has no lang attribute, so a screen reader may read the page in the wrong voice."
+        }
+      ],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "500.html",
+      "probe_criteria": {
+        "3.1.1": 1
+      }
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": {
+        "3.1.1": 1
+      },
+      "engines_agree": true,
+      "findings": [
+        {
+          "criterion": "3.1.1",
+          "element": "html",
+          "impact": "blocking",
+          "message": "The <html> element has no lang attribute, so a screen reader may read the page in the wrong voice."
+        }
+      ],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "_global-error.html",
+      "probe_criteria": {
+        "3.1.1": 1
+      }
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "_not-found.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "docs.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "architecture.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "business-model.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "cli-agents.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "compliance.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "launch-checklist.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "legal.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "marketing-automation.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "process.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "product-bundles.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "production-deploy.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "roadmap.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "voice-agent-flow.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "index.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "privacy.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/local-site-studio",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "terms.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "_not-found.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "architecture.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "business-plan.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "cli-reference.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "continuation-notes.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "design-decisions.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "product-strategy.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "commercial-viability-assessment.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "commercial-viability-deep-dive-8600.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "commercial-viability-deep-dive-report.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "commercial-viability-deep-dive.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "commercial-viability-report.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "security.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "terms-and-conditions.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "workflow-authority.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "index.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "login.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/photo-editing/docs-site",
+      "audit_py_criteria": {
+        "3.1.1": 1
+      },
+      "engines_agree": true,
+      "findings": [
+        {
+          "criterion": "3.1.1",
+          "element": "html",
+          "impact": "blocking",
+          "message": "The <html> element has no lang attribute, so a screen reader may read the page in the wrong voice."
+        }
+      ],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "500.html",
+      "probe_criteria": {
+        "3.1.1": 1
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "_not-found.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "1.3.1": 1
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "2.4.6",
+          "element": "h3",
+          "impact": "degrading",
+          "message": "Heading level jumps from h1 to h3, breaking the outline a screen-reader user navigates by."
+        }
+      ],
+      "only_audit_py": {
+        "1.3.1": 1
+      },
+      "only_probe": {
+        "2.4.6": 1
+      },
+      "page": "ad-catalog.html",
+      "probe_criteria": {
+        "2.4.6": 1
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "ad-sync-health.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "1.3.1": 1
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "2.4.6",
+          "element": "h3",
+          "impact": "degrading",
+          "message": "Heading level jumps from h1 to h3, breaking the outline a screen-reader user navigates by."
+        }
+      ],
+      "only_audit_py": {
+        "1.3.1": 1
+      },
+      "only_probe": {
+        "2.4.6": 1
+      },
+      "page": "admin-portal.html",
+      "probe_criteria": {
+        "2.4.6": 1
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "1.3.1": 1,
+        "4.1.2": 1
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "4.1.2",
+          "element": "button",
+          "impact": "blocking",
+          "message": "Button has no accessible name, so it is announced as an unlabelled button."
+        },
+        {
+          "criterion": "2.4.6",
+          "element": "h3",
+          "impact": "degrading",
+          "message": "Heading level jumps from h1 to h3, breaking the outline a screen-reader user navigates by."
+        }
+      ],
+      "only_audit_py": {
+        "1.3.1": 1
+      },
+      "only_probe": {
+        "2.4.6": 1
+      },
+      "page": "artist-portal.html",
+      "probe_criteria": {
+        "2.4.6": 1,
+        "4.1.2": 1
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "3.3.2": 1,
+        "4.1.2": 1
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "1.3.1",
+          "element": "input",
+          "impact": "blocking",
+          "message": "<input> form control has no associated label, so a screen-reader user cannot tell what to enter."
+        },
+        {
+          "criterion": "4.1.2",
+          "element": "button",
+          "impact": "blocking",
+          "message": "Button has no accessible name, so it is announced as an unlabelled button."
+        }
+      ],
+      "only_audit_py": {
+        "3.3.2": 1
+      },
+      "only_probe": {
+        "1.3.1": 1
+      },
+      "page": "b2b-portal.html",
+      "probe_criteria": {
+        "1.3.1": 1,
+        "4.1.2": 1
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "battlecards.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "1.3.1": 1,
+        "3.3.2": 1,
+        "4.1.2": 4
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "1.3.1",
+          "element": "select",
+          "impact": "blocking",
+          "message": "<select> form control has no associated label, so a screen-reader user cannot tell what to enter."
+        },
+        {
+          "criterion": "4.1.2",
+          "element": "button",
+          "impact": "blocking",
+          "message": "Button has no accessible name, so it is announced as an unlabelled button."
+        },
+        {
+          "criterion": "4.1.2",
+          "element": "button",
+          "impact": "blocking",
+          "message": "Button has no accessible name, so it is announced as an unlabelled button."
+        },
+        {
+          "criterion": "4.1.2",
+          "element": "button",
+          "impact": "blocking",
+          "message": "Button has no accessible name, so it is announced as an unlabelled button."
+        },
+        {
+          "criterion": "4.1.2",
+          "element": "button",
+          "impact": "blocking",
+          "message": "Button has no accessible name, so it is announced as an unlabelled button."
+        },
+        {
+          "criterion": "2.4.6",
+          "element": "h3",
+          "impact": "degrading",
+          "message": "Heading level jumps from h1 to h3, breaking the outline a screen-reader user navigates by."
+        }
+      ],
+      "only_audit_py": {
+        "3.3.2": 1
+      },
+      "only_probe": {
+        "2.4.6": 1
+      },
+      "page": "buyer-portal.html",
+      "probe_criteria": {
+        "1.3.1": 1,
+        "2.4.6": 1,
+        "4.1.2": 4
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "capture-demo.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "3.3.2": 1
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "1.3.1",
+          "element": "input",
+          "impact": "blocking",
+          "message": "<input> form control has no associated label, so a screen-reader user cannot tell what to enter."
+        }
+      ],
+      "only_audit_py": {
+        "3.3.2": 1
+      },
+      "only_probe": {
+        "1.3.1": 1
+      },
+      "page": "capture.html",
+      "probe_criteria": {
+        "1.3.1": 1
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "catalog-intelligence.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "checkout.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "1.3.1": 1
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "2.4.6",
+          "element": "h3",
+          "impact": "degrading",
+          "message": "Heading level jumps from h1 to h3, breaking the outline a screen-reader user navigates by."
+        }
+      ],
+      "only_audit_py": {
+        "1.3.1": 1
+      },
+      "only_probe": {
+        "2.4.6": 1
+      },
+      "page": "designer-portal.html",
+      "probe_criteria": {
+        "2.4.6": 1
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "docs.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "4.1.2": 2
+      },
+      "engines_agree": true,
+      "findings": [
+        {
+          "criterion": "4.1.2",
+          "element": "button",
+          "impact": "blocking",
+          "message": "Button has no accessible name, so it is announced as an unlabelled button."
+        },
+        {
+          "criterion": "4.1.2",
+          "element": "button",
+          "impact": "blocking",
+          "message": "Button has no accessible name, so it is announced as an unlabelled button."
+        }
+      ],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "index.html",
+      "probe_criteria": {
+        "4.1.2": 2
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "investor.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "1.3.1": 1
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "2.4.6",
+          "element": "h3",
+          "impact": "degrading",
+          "message": "Heading level jumps from h1 to h3, breaking the outline a screen-reader user navigates by."
+        }
+      ],
+      "only_audit_py": {
+        "1.3.1": 1
+      },
+      "only_probe": {
+        "2.4.6": 1
+      },
+      "page": "marketing-portal.html",
+      "probe_criteria": {
+        "2.4.6": 1
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "ops.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "3.3.2": 10
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "1.3.1",
+          "element": "input",
+          "impact": "blocking",
+          "message": "<input> form control has no associated label, so a screen-reader user cannot tell what to enter."
+        },
+        {
+          "criterion": "1.3.1",
+          "element": "input",
+          "impact": "blocking",
+          "message": "<input> form control has no associated label, so a screen-reader user cannot tell what to enter."
+        },
+        {
+          "criterion": "1.3.1",
+          "element": "input",
+          "impact": "blocking",
+          "message": "<input> form control has no associated label, so a screen-reader user cannot tell what to enter."
+        },
+        {
+          "criterion": "1.3.1",
+          "element": "input",
+          "impact": "blocking",
+          "message": "<input> form control has no associated label, so a screen-reader user cannot tell what to enter."
+        },
+        {
+          "criterion": "1.3.1",
+          "element": "input",
+          "impact": "blocking",
+          "message": "<input> form control has no associated label, so a screen-reader user cannot tell what to enter."
+        },
+        {
+          "criterion": "1.3.1",
+          "element": "input",
+          "impact": "blocking",
+          "message": "<input> form control has no associated label, so a screen-reader user cannot tell what to enter."
+        },
+        {
+          "criterion": "1.3.1",
+          "element": "input",
+          "impact": "blocking",
+          "message": "<input> form control has no associated label, so a screen-reader user cannot tell what to enter."
+        },
+        {
+          "criterion": "1.3.1",
+          "element": "input",
+          "impact": "blocking",
+          "message": "<input> form control has no associated label, so a screen-reader user cannot tell what to enter."
+        },
+        {
+          "criterion": "1.3.1",
+          "element": "input",
+          "impact": "blocking",
+          "message": "<input> form control has no associated label, so a screen-reader user cannot tell what to enter."
+        },
+        {
+          "criterion": "1.3.1",
+          "element": "input",
+          "impact": "blocking",
+          "message": "<input> form control has no associated label, so a screen-reader user cannot tell what to enter."
+        }
+      ],
+      "only_audit_py": {
+        "3.3.2": 10
+      },
+      "only_probe": {
+        "1.3.1": 10
+      },
+      "page": "partner-setup.html",
+      "probe_criteria": {
+        "1.3.1": 10
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "payout-simulator.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "1.3.1": 1
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "2.4.6",
+          "element": "h3",
+          "impact": "degrading",
+          "message": "Heading level jumps from h1 to h3, breaking the outline a screen-reader user navigates by."
+        }
+      ],
+      "only_audit_py": {
+        "1.3.1": 1
+      },
+      "only_probe": {
+        "2.4.6": 1
+      },
+      "page": "abstract-no-4-artist-payout-proof.html",
+      "probe_criteria": {
+        "2.4.6": 1
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "1.3.1": 1
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "2.4.6",
+          "element": "h3",
+          "impact": "degrading",
+          "message": "Heading level jumps from h1 to h3, breaking the outline a screen-reader user navigates by."
+        }
+      ],
+      "only_audit_py": {
+        "1.3.1": 1
+      },
+      "only_probe": {
+        "2.4.6": 1
+      },
+      "page": "city-at-dusk-city-dusk.html",
+      "probe_criteria": {
+        "2.4.6": 1
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "1.3.1": 1
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "2.4.6",
+          "element": "h3",
+          "impact": "degrading",
+          "message": "Heading level jumps from h1 to h3, breaking the outline a screen-reader user navigates by."
+        }
+      ],
+      "only_audit_py": {
+        "1.3.1": 1
+      },
+      "only_probe": {
+        "2.4.6": 1
+      },
+      "page": "city-at-dusk-marcus-chen-prints.html",
+      "probe_criteria": {
+        "2.4.6": 1
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "1.3.1": 1
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "2.4.6",
+          "element": "h3",
+          "impact": "degrading",
+          "message": "Heading level jumps from h1 to h3, breaking the outline a screen-reader user navigates by."
+        }
+      ],
+      "only_audit_py": {
+        "1.3.1": 1
+      },
+      "only_probe": {
+        "2.4.6": 1
+      },
+      "page": "city-at-dusk-minimal-wall-art.html",
+      "probe_criteria": {
+        "2.4.6": 1
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "1.3.1": 1
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "2.4.6",
+          "element": "h3",
+          "impact": "degrading",
+          "message": "Heading level jumps from h1 to h3, breaking the outline a screen-reader user navigates by."
+        }
+      ],
+      "only_audit_py": {
+        "1.3.1": 1
+      },
+      "only_probe": {
+        "2.4.6": 1
+      },
+      "page": "desert-sun-desert-warm.html",
+      "probe_criteria": {
+        "2.4.6": 1
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "1.3.1": 1
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "2.4.6",
+          "element": "h3",
+          "impact": "degrading",
+          "message": "Heading level jumps from h1 to h3, breaking the outline a screen-reader user navigates by."
+        }
+      ],
+      "only_audit_py": {
+        "1.3.1": 1
+      },
+      "only_probe": {
+        "2.4.6": 1
+      },
+      "page": "desert-sun-elena-rostova-prints.html",
+      "probe_criteria": {
+        "2.4.6": 1
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "1.3.1": 1
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "2.4.6",
+          "element": "h3",
+          "impact": "degrading",
+          "message": "Heading level jumps from h1 to h3, breaking the outline a screen-reader user navigates by."
+        }
+      ],
+      "only_audit_py": {
+        "1.3.1": 1
+      },
+      "only_probe": {
+        "2.4.6": 1
+      },
+      "page": "desert-sun-landscape-wall-art.html",
+      "probe_criteria": {
+        "2.4.6": 1
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "1.3.1": 1
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "2.4.6",
+          "element": "h3",
+          "impact": "degrading",
+          "message": "Heading level jumps from h1 to h3, breaking the outline a screen-reader user navigates by."
+        }
+      ],
+      "only_audit_py": {
+        "1.3.1": 1
+      },
+      "only_probe": {
+        "2.4.6": 1
+      },
+      "page": "midnight-coast-coastal-night.html",
+      "probe_criteria": {
+        "2.4.6": 1
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "1.3.1": 1
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "2.4.6",
+          "element": "h3",
+          "impact": "degrading",
+          "message": "Heading level jumps from h1 to h3, breaking the outline a screen-reader user navigates by."
+        }
+      ],
+      "only_audit_py": {
+        "1.3.1": 1
+      },
+      "only_probe": {
+        "2.4.6": 1
+      },
+      "page": "midnight-coast-elena-rostova-prints.html",
+      "probe_criteria": {
+        "2.4.6": 1
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "1.3.1": 1
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "2.4.6",
+          "element": "h3",
+          "impact": "degrading",
+          "message": "Heading level jumps from h1 to h3, breaking the outline a screen-reader user navigates by."
+        }
+      ],
+      "only_audit_py": {
+        "1.3.1": 1
+      },
+      "only_probe": {
+        "2.4.6": 1
+      },
+      "page": "midnight-coast-landscape-wall-art.html",
+      "probe_criteria": {
+        "2.4.6": 1
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "1.3.1": 1
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "2.4.6",
+          "element": "h3",
+          "impact": "degrading",
+          "message": "Heading level jumps from h1 to h3, breaking the outline a screen-reader user navigates by."
+        }
+      ],
+      "only_audit_py": {
+        "1.3.1": 1
+      },
+      "only_probe": {
+        "2.4.6": 1
+      },
+      "page": "spring-bloom-botanical-green.html",
+      "probe_criteria": {
+        "2.4.6": 1
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "1.3.1": 1
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "2.4.6",
+          "element": "h3",
+          "impact": "degrading",
+          "message": "Heading level jumps from h1 to h3, breaking the outline a screen-reader user navigates by."
+        }
+      ],
+      "only_audit_py": {
+        "1.3.1": 1
+      },
+      "only_probe": {
+        "2.4.6": 1
+      },
+      "page": "spring-bloom-portrait-wall-art.html",
+      "probe_criteria": {
+        "2.4.6": 1
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "1.3.1": 1
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "2.4.6",
+          "element": "h3",
+          "impact": "degrading",
+          "message": "Heading level jumps from h1 to h3, breaking the outline a screen-reader user navigates by."
+        }
+      ],
+      "only_audit_py": {
+        "1.3.1": 1
+      },
+      "only_probe": {
+        "2.4.6": 1
+      },
+      "page": "spring-bloom-sarah-jenkins-prints.html",
+      "probe_criteria": {
+        "2.4.6": 1
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "1.3.1": 1
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "2.4.6",
+          "element": "h3",
+          "impact": "degrading",
+          "message": "Heading level jumps from h1 to h3, breaking the outline a screen-reader user navigates by."
+        }
+      ],
+      "only_audit_py": {
+        "1.3.1": 1
+      },
+      "only_probe": {
+        "2.4.6": 1
+      },
+      "page": "urban-geometry-abstract-wall-art.html",
+      "probe_criteria": {
+        "2.4.6": 1
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "1.3.1": 1
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "2.4.6",
+          "element": "h3",
+          "impact": "degrading",
+          "message": "Heading level jumps from h1 to h3, breaking the outline a screen-reader user navigates by."
+        }
+      ],
+      "only_audit_py": {
+        "1.3.1": 1
+      },
+      "only_probe": {
+        "2.4.6": 1
+      },
+      "page": "urban-geometry-marcus-chen-prints.html",
+      "probe_criteria": {
+        "2.4.6": 1
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "1.3.1": 1
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "2.4.6",
+          "element": "h3",
+          "impact": "degrading",
+          "message": "Heading level jumps from h1 to h3, breaking the outline a screen-reader user navigates by."
+        }
+      ],
+      "only_audit_py": {
+        "1.3.1": 1
+      },
+      "only_probe": {
+        "2.4.6": 1
+      },
+      "page": "urban-geometry-urban-geometry.html",
+      "probe_criteria": {
+        "2.4.6": 1
+      }
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "sales-portal.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "seo-lab.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/print-atelier",
+      "audit_py_criteria": {
+        "3.1.1": 1
+      },
+      "engines_agree": true,
+      "findings": [
+        {
+          "criterion": "3.1.1",
+          "element": "html",
+          "impact": "blocking",
+          "message": "The <html> element has no lang attribute, so a screen reader may read the page in the wrong voice."
+        }
+      ],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "500.html",
+      "probe_criteria": {
+        "3.1.1": 1
+      }
+    },
+    {
+      "app": "ventures/quick-pick-survey",
+      "audit_py_criteria": {
+        "3.1.1": 1
+      },
+      "engines_agree": true,
+      "findings": [
+        {
+          "criterion": "3.1.1",
+          "element": "html",
+          "impact": "blocking",
+          "message": "The <html> element has no lang attribute, so a screen reader may read the page in the wrong voice."
+        }
+      ],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "_global-error.html",
+      "probe_criteria": {
+        "3.1.1": 1
+      }
+    },
+    {
+      "app": "ventures/quick-pick-survey",
+      "audit_py_criteria": {
+        "1.4.4": 1
+      },
+      "engines_agree": true,
+      "findings": [
+        {
+          "criterion": "1.4.4",
+          "element": "meta",
+          "impact": "blocking",
+          "message": "Viewport meta prevents zooming to 200% ('width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'), so low-vision users cannot enlarge the page."
+        }
+      ],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "_not-found.html",
+      "probe_criteria": {
+        "1.4.4": 1
+      }
+    },
+    {
+      "app": "ventures/quick-pick-survey",
+      "audit_py_criteria": {
+        "1.4.4": 1
+      },
+      "engines_agree": true,
+      "findings": [
+        {
+          "criterion": "1.4.4",
+          "element": "meta",
+          "impact": "blocking",
+          "message": "Viewport meta prevents zooming to 200% ('width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'), so low-vision users cannot enlarge the page."
+        }
+      ],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "admin.html",
+      "probe_criteria": {
+        "1.4.4": 1
+      }
+    },
+    {
+      "app": "ventures/quick-pick-survey",
+      "audit_py_criteria": {
+        "1.4.4": 1
+      },
+      "engines_agree": true,
+      "findings": [
+        {
+          "criterion": "1.4.4",
+          "element": "meta",
+          "impact": "blocking",
+          "message": "Viewport meta prevents zooming to 200% ('width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'), so low-vision users cannot enlarge the page."
+        }
+      ],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "app.html",
+      "probe_criteria": {
+        "1.4.4": 1
+      }
+    },
+    {
+      "app": "ventures/quick-pick-survey",
+      "audit_py_criteria": {
+        "1.4.4": 1
+      },
+      "engines_agree": true,
+      "findings": [
+        {
+          "criterion": "1.4.4",
+          "element": "meta",
+          "impact": "blocking",
+          "message": "Viewport meta prevents zooming to 200% ('width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'), so low-vision users cannot enlarge the page."
+        }
+      ],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "couple.html",
+      "probe_criteria": {
+        "1.4.4": 1
+      }
+    },
+    {
+      "app": "ventures/quick-pick-survey",
+      "audit_py_criteria": {
+        "1.4.4": 1
+      },
+      "engines_agree": true,
+      "findings": [
+        {
+          "criterion": "1.4.4",
+          "element": "meta",
+          "impact": "blocking",
+          "message": "Viewport meta prevents zooming to 200% ('width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'), so low-vision users cannot enlarge the page."
+        }
+      ],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "index.html",
+      "probe_criteria": {
+        "1.4.4": 1
+      }
+    },
+    {
+      "app": "ventures/quick-pick-survey",
+      "audit_py_criteria": {
+        "1.4.4": 1
+      },
+      "engines_agree": true,
+      "findings": [
+        {
+          "criterion": "1.4.4",
+          "element": "meta",
+          "impact": "blocking",
+          "message": "Viewport meta prevents zooming to 200% ('width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'), so low-vision users cannot enlarge the page."
+        }
+      ],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "insights.html",
+      "probe_criteria": {
+        "1.4.4": 1
+      }
+    },
+    {
+      "app": "ventures/quick-pick-survey",
+      "audit_py_criteria": {
+        "1.4.4": 1
+      },
+      "engines_agree": true,
+      "findings": [
+        {
+          "criterion": "1.4.4",
+          "element": "meta",
+          "impact": "blocking",
+          "message": "Viewport meta prevents zooming to 200% ('width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'), so low-vision users cannot enlarge the page."
+        }
+      ],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "login.html",
+      "probe_criteria": {
+        "1.4.4": 1
+      }
+    },
+    {
+      "app": "ventures/quick-pick-survey",
+      "audit_py_criteria": {
+        "1.4.4": 1
+      },
+      "engines_agree": true,
+      "findings": [
+        {
+          "criterion": "1.4.4",
+          "element": "meta",
+          "impact": "blocking",
+          "message": "Viewport meta prevents zooming to 200% ('width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'), so low-vision users cannot enlarge the page."
+        }
+      ],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "privacy.html",
+      "probe_criteria": {
+        "1.4.4": 1
+      }
+    },
+    {
+      "app": "ventures/quick-pick-survey",
+      "audit_py_criteria": {
+        "1.4.4": 1
+      },
+      "engines_agree": true,
+      "findings": [
+        {
+          "criterion": "1.4.4",
+          "element": "meta",
+          "impact": "blocking",
+          "message": "Viewport meta prevents zooming to 200% ('width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'), so low-vision users cannot enlarge the page."
+        }
+      ],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "profile.html",
+      "probe_criteria": {
+        "1.4.4": 1
+      }
+    },
+    {
+      "app": "ventures/quick-pick-survey",
+      "audit_py_criteria": {
+        "1.4.4": 1
+      },
+      "engines_agree": true,
+      "findings": [
+        {
+          "criterion": "1.4.4",
+          "element": "meta",
+          "impact": "blocking",
+          "message": "Viewport meta prevents zooming to 200% ('width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'), so low-vision users cannot enlarge the page."
+        }
+      ],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "terms.html",
+      "probe_criteria": {
+        "1.4.4": 1
+      }
+    },
+    {
+      "app": "ventures/real-estate-agent-photo-app/docs-site",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "_not-found.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/real-estate-agent-photo-app/docs-site",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "deployment.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/real-estate-agent-photo-app/docs-site",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "replication.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/real-estate-agent-photo-app/docs-site",
+      "audit_py_criteria": {
+        "3.3.2": 4
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "1.3.1",
+          "element": "input",
+          "impact": "blocking",
+          "message": "<input> form control has no associated label, so a screen-reader user cannot tell what to enter."
+        },
+        {
+          "criterion": "1.3.1",
+          "element": "input",
+          "impact": "blocking",
+          "message": "<input> form control has no associated label, so a screen-reader user cannot tell what to enter."
+        },
+        {
+          "criterion": "1.3.1",
+          "element": "input",
+          "impact": "blocking",
+          "message": "<input> form control has no associated label, so a screen-reader user cannot tell what to enter."
+        },
+        {
+          "criterion": "1.3.1",
+          "element": "input",
+          "impact": "blocking",
+          "message": "<input> form control has no associated label, so a screen-reader user cannot tell what to enter."
+        }
+      ],
+      "only_audit_py": {
+        "3.3.2": 4
+      },
+      "only_probe": {
+        "1.3.1": 4
+      },
+      "page": "strategy.html",
+      "probe_criteria": {
+        "1.3.1": 4
+      }
+    },
+    {
+      "app": "ventures/real-estate-agent-photo-app/docs-site",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "index.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/real-estate-agent-photo-app/docs-site",
+      "audit_py_criteria": {
+        "1.3.1": 1
+      },
+      "engines_agree": false,
+      "findings": [
+        {
+          "criterion": "2.4.6",
+          "element": "h3",
+          "impact": "degrading",
+          "message": "Heading level jumps from h1 to h3, breaking the outline a screen-reader user navigates by."
+        }
+      ],
+      "only_audit_py": {
+        "1.3.1": 1
+      },
+      "only_probe": {
+        "2.4.6": 1
+      },
+      "page": "pricing.html",
+      "probe_criteria": {
+        "2.4.6": 1
+      }
+    },
+    {
+      "app": "ventures/real-estate-agent-photo-app/docs-site",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "process.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/real-estate-agent-photo-app/docs-site",
+      "audit_py_criteria": {
+        "3.1.1": 1
+      },
+      "engines_agree": true,
+      "findings": [
+        {
+          "criterion": "3.1.1",
+          "element": "html",
+          "impact": "blocking",
+          "message": "The <html> element has no lang attribute, so a screen reader may read the page in the wrong voice."
+        }
+      ],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "500.html",
+      "probe_criteria": {
+        "3.1.1": 1
+      }
+    },
+    {
+      "app": "ventures/real-estate-agent-photo-app/research",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "_not-found.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/real-estate-agent-photo-app/research",
+      "audit_py_criteria": {},
+      "engines_agree": true,
+      "findings": [],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "index.html",
+      "probe_criteria": {}
+    },
+    {
+      "app": "ventures/real-estate-agent-photo-app/research",
+      "audit_py_criteria": {
+        "3.1.1": 1
+      },
+      "engines_agree": true,
+      "findings": [
+        {
+          "criterion": "3.1.1",
+          "element": "html",
+          "impact": "blocking",
+          "message": "The <html> element has no lang attribute, so a screen reader may read the page in the wrong voice."
+        }
+      ],
+      "only_audit_py": {},
+      "only_probe": {},
+      "page": "500.html",
+      "probe_criteria": {
+        "3.1.1": 1
+      }
+    }
+  ]
+}

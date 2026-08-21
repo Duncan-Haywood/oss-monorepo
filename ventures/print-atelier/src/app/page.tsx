@@ -62,7 +62,7 @@ export default function Home() {
       >
         <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700">
           <h1 className="text-lg font-bold text-gray-900 dark:text-white">Print Atelier</h1>
-          <button className="md:hidden" onClick={() => setIsSidebarOpen(false)}>
+          <button className="md:hidden" aria-label="Close navigation" onClick={() => setIsSidebarOpen(false)}>
             <X className="w-6 h-6 text-gray-500" />
           </button>
         </div>
@@ -110,7 +110,7 @@ export default function Home() {
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <header className="flex items-center h-16 px-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 md:hidden">
-          <button onClick={() => setIsSidebarOpen(true)} className="mr-4">
+          <button onClick={() => setIsSidebarOpen(true)} className="mr-4" aria-label="Open navigation">
             <Menu className="w-6 h-6 text-gray-500" />
           </button>
           <h1 className="text-lg font-bold text-gray-900 dark:text-white">Business Plan</h1>

@@ -77,7 +77,7 @@ export default function ArtistPortal() {
               >
                 Return to Docs
               </Link>
-              <button className="p-2 text-stone-400 hover:text-stone-600 dark:hover:text-gray-300 rounded-full hover:bg-stone-50 dark:hover:bg-gray-700">
+              <button aria-label="Notifications" className="p-2 text-stone-400 hover:text-stone-600 dark:hover:text-gray-300 rounded-full hover:bg-stone-50 dark:hover:bg-gray-700">
                 <Bell className="w-5 h-5" />
               </button>
             </div>
