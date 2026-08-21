@@ -18,7 +18,7 @@ export default function PricingPage() {
   return (
     <DocsShell pages={pages} activeSlug="pricing">
       <div className="space-y-6">
-        <Link href="/" className="text-sm text-slate-500 transition-colors hover:text-slate-300">
+        <Link href="/" className="text-sm text-slate-400 transition-colors hover:text-slate-300">
           ← Back to docs home
         </Link>
         <div>
@@ -49,7 +49,7 @@ export default function PricingPage() {
               <div key={t.id} className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <h3 className="font-medium text-white">{t.subject ?? t.id}</h3>
-                  <span className="text-xs uppercase tracking-wide text-slate-500">
+                  <span className="text-xs uppercase tracking-wide text-slate-400">
                     {t.channel} · {t.audience}
                   </span>
                 </div>
@@ -77,7 +77,7 @@ export default function PricingPage() {
             {bookingIntakeFields.map((f) => (
               <li key={f.field} className="rounded-lg border border-slate-800/80 bg-slate-950/40 p-3">
                 <p className="text-sm text-slate-200">{f.field}</p>
-                <p className="mt-1 text-xs text-slate-500">{f.purpose}</p>
+                <p className="mt-1 text-xs text-slate-400">{f.purpose}</p>
               </li>
             ))}
           </ul>

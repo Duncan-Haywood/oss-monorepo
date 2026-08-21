@@ -91,7 +91,7 @@ export function ConceptDiagram() {
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-500/15 text-brand-200 ring-1 ring-brand-300/30">
                   <Icon className="h-6 w-6" aria-hidden="true" />
                 </div>
-                <span className="font-display text-3xl text-white/20">
+                <span className="font-display text-3xl text-white/50">
                   0{index + 1}
                 </span>
               </div>

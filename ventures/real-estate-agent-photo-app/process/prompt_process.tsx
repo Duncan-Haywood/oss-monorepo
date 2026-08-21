@@ -255,13 +255,13 @@ export function ProcessDashboard() {
             <div key={b.id} className="rounded-xl border border-rose-500/30 bg-rose-500/5 p-5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h3 className="font-medium text-white">{b.title}</h3>
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-slate-400">
                   confirmed {b.confirmedByCount}x · last {b.lastConfirmed} · since {b.firstFlagged}
                 </span>
               </div>
               <p className="mt-2 text-sm text-slate-300">{b.whatsNeeded}</p>
               {b.unblocks.length > 0 && (
-                <p className="mt-2 text-xs text-slate-500">Unblocks: {b.unblocks.join(", ")}</p>
+                <p className="mt-2 text-xs text-slate-400">Unblocks: {b.unblocks.join(", ")}</p>
               )}
             </div>
           ))}
@@ -276,7 +276,7 @@ export function ProcessDashboard() {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h3 className="font-medium text-white">{phase.title}</h3>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-500">{phase.window}</span>
+                  <span className="text-xs text-slate-400">{phase.window}</span>
                   <StatusPill status={phase.status} />
                 </div>
               </div>
@@ -291,9 +291,9 @@ export function ProcessDashboard() {
                       <div>
                         <p className="text-sm text-slate-200">
                           {task.title}{" "}
-                          <span className="text-xs text-slate-500">({task.owner})</span>
+                          <span className="text-xs text-slate-400">({task.owner})</span>
                         </p>
-                        <p className="mt-1 text-xs text-slate-500">{task.doneWhen}</p>
+                        <p className="mt-1 text-xs text-slate-400">{task.doneWhen}</p>
                         {task.blockedReason && (
                           <p className="mt-1 text-xs text-rose-300/80">Blocked: {task.blockedReason}</p>
                         )}
@@ -327,7 +327,7 @@ export function ProcessDashboard() {
             {preShootPrep.map((item) => (
               <li key={item.id} className="rounded-lg border border-slate-800/80 bg-slate-950/40 p-3">
                 <p className="text-sm text-slate-200">{item.label}</p>
-                <p className="mt-1 text-xs text-slate-500">{item.why}</p>
+                <p className="mt-1 text-xs text-slate-400">{item.why}</p>
               </li>
             ))}
           </ul>
@@ -338,7 +338,7 @@ export function ProcessDashboard() {
             <div key={room.id} className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h3 className="font-medium text-white">{room.room}</h3>
-                <span className="text-xs text-slate-500">~{room.targetMinutes} min</span>
+                <span className="text-xs text-slate-400">~{room.targetMinutes} min</span>
               </div>
               <ul className="mt-4 space-y-2">
                 {room.shots.map((shot) => (
@@ -348,10 +348,10 @@ export function ProcessDashboard() {
                   >
                     <p className="text-sm text-slate-200">
                       {shot.label}{" "}
-                      <span className="text-xs text-slate-500">({BRACKET_GUIDANCE[shot.bracket].label})</span>
+                      <span className="text-xs text-slate-400">({BRACKET_GUIDANCE[shot.bracket].label})</span>
                     </p>
-                    <p className="mt-1 text-xs text-slate-500">{shot.instructions}</p>
-                    <p className="mt-1 text-xs text-slate-600">{BRACKET_GUIDANCE[shot.bracket].howTo}</p>
+                    <p className="mt-1 text-xs text-slate-400">{shot.instructions}</p>
+                    <p className="mt-1 text-xs text-slate-400">{BRACKET_GUIDANCE[shot.bracket].howTo}</p>
                   </li>
                 ))}
               </ul>
@@ -371,7 +371,7 @@ export function ProcessDashboard() {
             <div key={rule.id} className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
               <h3 className="font-medium text-white">{rule.topic}</h3>
               <p className="mt-2 text-sm text-slate-300">{rule.rule}</p>
-              <p className="mt-2 text-xs text-slate-500">{rule.implication}</p>
+              <p className="mt-2 text-xs text-slate-400">{rule.implication}</p>
             </div>
           ))}
         </div>
@@ -406,18 +406,18 @@ export function ProcessDashboard() {
         <div className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-5">
           <h3 className="font-medium text-white">Decision: {virtualStagingTechDecision.choice.replace("_", " ")}</h3>
           <p className="mt-2 text-sm text-slate-300">{virtualStagingTechDecision.summary}</p>
-          <p className="mt-2 text-xs text-slate-500">Revisit when: {virtualStagingTechDecision.revisitWhen}</p>
+          <p className="mt-2 text-xs text-slate-400">Revisit when: {virtualStagingTechDecision.revisitWhen}</p>
         </div>
         <div className="mt-4 space-y-4">
           {virtualStagingTechOptions.map((option) => (
             <div key={option.id} className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h3 className="font-medium text-white">{option.name}</h3>
-                <span className="text-xs text-slate-500">{option.approach.replace("_", " ")}</span>
+                <span className="text-xs text-slate-400">{option.approach.replace("_", " ")}</span>
               </div>
               <p className="mt-2 text-sm text-slate-300">{option.costModel}</p>
-              <p className="mt-2 text-xs text-slate-500">{option.latency}</p>
-              <p className="mt-2 text-xs text-slate-500">{option.tradeoffs}</p>
+              <p className="mt-2 text-xs text-slate-400">{option.latency}</p>
+              <p className="mt-2 text-xs text-slate-400">{option.tradeoffs}</p>
             </div>
           ))}
         </div>
@@ -433,18 +433,18 @@ export function ProcessDashboard() {
         <div className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-5">
           <h3 className="font-medium text-white">Decision: {gtmMotionDecision.choice.replace(/_/g, " ")}</h3>
           <p className="mt-2 text-sm text-slate-300">{gtmMotionDecision.summary}</p>
-          <p className="mt-2 text-xs text-slate-500">Revisit when: {gtmMotionDecision.revisitWhen}</p>
+          <p className="mt-2 text-xs text-slate-400">Revisit when: {gtmMotionDecision.revisitWhen}</p>
         </div>
         <div className="mt-4 space-y-4">
           {gtmMotionOptions.map((option) => (
             <div key={option.id} className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h3 className="font-medium text-white">{option.name}</h3>
-                <span className="text-xs text-slate-500">{option.approach.replace(/_/g, " ")}</span>
+                <span className="text-xs text-slate-400">{option.approach.replace(/_/g, " ")}</span>
               </div>
               <p className="mt-2 text-sm text-slate-300">{option.cycleLength}</p>
-              <p className="mt-2 text-xs text-slate-500">{option.contractValue}</p>
-              <p className="mt-2 text-xs text-slate-500">{option.tradeoffs}</p>
+              <p className="mt-2 text-xs text-slate-400">{option.contractValue}</p>
+              <p className="mt-2 text-xs text-slate-400">{option.tradeoffs}</p>
             </div>
           ))}
         </div>
@@ -463,7 +463,7 @@ export function ProcessDashboard() {
             Decision: {paymentDecision.primary} primary, {paymentDecision.fallback} fallback
           </h3>
           <p className="mt-2 text-sm text-slate-300">{paymentDecision.summary}</p>
-          <p className="mt-2 text-xs text-slate-500">Revisit when: {paymentDecision.revisitWhen}</p>
+          <p className="mt-2 text-xs text-slate-400">Revisit when: {paymentDecision.revisitWhen}</p>
         </div>
         <div className="mt-4 space-y-4">
           {paymentMethodOptions.map((option) => (
@@ -472,8 +472,8 @@ export function ProcessDashboard() {
               <p className="mt-2 text-sm text-slate-300">
                 {option.setupCost} {option.feePerTransaction}
               </p>
-              <p className="mt-2 text-xs text-slate-500">{option.howToPay}</p>
-              <p className="mt-2 text-xs text-slate-500">{option.tradeoffs}</p>
+              <p className="mt-2 text-xs text-slate-400">{option.howToPay}</p>
+              <p className="mt-2 text-xs text-slate-400">{option.tradeoffs}</p>
             </div>
           ))}
         </div>
@@ -489,8 +489,8 @@ export function ProcessDashboard() {
         <div className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-5">
           <h3 className="font-medium text-white">Incentive: discount, not cash</h3>
           <p className="mt-2 text-sm text-slate-300">{REFERRAL_INCENTIVE.summary}</p>
-          <p className="mt-2 text-xs text-slate-500">Referrer: {REFERRAL_INCENTIVE.referrerReward}</p>
-          <p className="mt-1 text-xs text-slate-500">Referee: {REFERRAL_INCENTIVE.refereeReward}</p>
+          <p className="mt-2 text-xs text-slate-400">Referrer: {REFERRAL_INCENTIVE.referrerReward}</p>
+          <p className="mt-1 text-xs text-slate-400">Referee: {REFERRAL_INCENTIVE.refereeReward}</p>
         </div>
       </section>
 
@@ -507,7 +507,7 @@ export function ProcessDashboard() {
               key={stage}
               className="rounded-lg border border-slate-800/80 bg-slate-950/40 px-3 py-2 text-xs text-slate-300"
             >
-              <span className="text-slate-500">{stage.replace("_", " ")}:</span>{" "}
+              <span className="text-slate-400">{stage.replace("_", " ")}:</span>{" "}
               <span className="font-medium text-white">{funnelCounts()[stage]}</span>
             </div>
           ))}
@@ -521,12 +521,12 @@ export function ProcessDashboard() {
             <div key={`${d.date}-${d.title}`} className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h3 className="font-medium text-white">{d.title}</h3>
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-slate-400">
                   {d.date} · {d.madeBy}
                 </span>
               </div>
               <p className="mt-2 text-sm text-slate-300">{d.decision}</p>
-              <p className="mt-2 text-xs text-slate-500">{d.rationale}</p>
+              <p className="mt-2 text-xs text-slate-400">{d.rationale}</p>
             </div>
           ))}
         </div>
@@ -539,7 +539,7 @@ export function ProcessDashboard() {
             <div key={`${entry.date}-${entry.agent}`} className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h3 className="font-medium text-white">{entry.summary}</h3>
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-slate-400">
                   {entry.date} · {entry.agent}
                 </span>
               </div>
@@ -550,7 +550,7 @@ export function ProcessDashboard() {
               </ul>
               {entry.nextUp.length > 0 && (
                 <div className="mt-3 rounded-lg border border-slate-800/80 bg-slate-950/40 p-3">
-                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Next up</p>
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Next up</p>
                   <ul className="mt-1 list-disc space-y-1 pl-5 text-xs text-slate-400">
                     {entry.nextUp.map((n, i) => (
                       <li key={i}>{n}</li>
