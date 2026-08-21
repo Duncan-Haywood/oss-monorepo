@@ -12442,3 +12442,77 @@ entries:
         PR was opened. #440 also merged in the same window (a separate
         session's work, not re-verified or re-recorded here).
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd:
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business projects
+        that aren't already here" session, designated branch
+        claude/laughing-pasteur-lha511. Ran `session_gate.py` first (PROCEED --
+        meta-work 28% of last 25 entries, below the 70% threshold). Per
+        `CLAUDE.md` that brief is already answered and a candidate list is
+        explicitly out of scope, so this session took the first sanctioned
+        alternative instead -- advance a probe already specified in
+        `portfolio/pipeline/`. Checked the 5 open PRs (#442, #440, #372, #368,
+        #144) first: #442/#440 are photos-import-tools fixes driven by their own
+        sessions, #372/#368/#144 correctly owner-gated. None touch
+        accessibility, so nothing here duplicated in-flight work. No new
+        candidate was written and no score moved.
+      - >-
+        Found a measured-but-unimplemented fix sitting on `main`:
+        `portfolio/research/a11y-theme-resolution/` finding 3 (merged
+        2026-08-20) identified a defect in `a11y-evidence-record/audit.py` and
+        named the fix, and both sibling READMEs carried it as an open
+        limitation saying "the fix belongs in `audit.py`". Nobody had done it.
+        `audit.py` replaced every template expression with one fixed sentinel,
+        discarding which expression it was, so `id="{{ id_prefix }}FirstName"`
+        was recorded as `FirstName` and any `<label for>` whose target held an
+        expression was skipped entirely -- a control and its own label could sit
+        six lines apart in one file and still be reported undecidable.
+      - >-
+        Fixed in PR #446 (merged, agent-decidable: `portfolio/research/` only,
+        nothing published, no credential, nothing spent beyond agent time).
+        Expressions now carry a sentinel encoding a digest of the expression's
+        own normalised source, so values built from the same expression compare
+        equal and values built from different expressions do not. Label
+        resolution compares raw values through a new `refs_can_match()` that
+        deliberately returns "cannot be ruled out" rather than "matches", so
+        every doubtful case stays undecidable -- this tool's positioning forbids
+        claiming a defect it cannot prove.
+      - >-
+        Verified by controlled A/B over 1,121 identical markup files (18 pinned
+        npm storefront-theme packages, audited once with each engine):
+        `control-no-label` undecidables 70 -> 4, `label-for-id-mismatch`
+        findings 0 -> 2, undecidable across all checks 491 -> 425, undecidable
+        share 64.3% -> 60.7%. Exactly 64 resolved to a label in their own file
+        -- the number `a11y-theme-resolution` predicted from the other
+        direction on a separately assembled corpus -- and no other check moved
+        in either direction. The 2 promotions are the real
+        fassbender-shopify-theme newsletter defects at
+        `theme/sections/newsletter.liquid:69` and `:83`, the exact lines that
+        pass reported by hand. Raw counts committed as
+        `label-matching-ab-2026-08-21.json`.
+      - >-
+        Stated limits rather than papering over them: the third hand-verified
+        fassbender defect (`templates/search.liquid:22`) is NOT recovered --
+        that file carries no `<label for>` at all, so from the file alone the
+        label could genuinely live in another partial and it correctly stays
+        undecidable; recovering it needs a package-wide label index, a larger
+        change than finding 3 prescribed. `pipeline/probes/eaa-wcag-triage` was
+        checked functionally rather than assumed: it reads rendered HTML, never
+        stripped expressions, and already flags this defect as blocking under
+        1.3.1, so it needed no change. Dated measurements in both READMEs left
+        as measured, with a note that a re-run will legitimately no longer
+        reproduce them.
+      - >-
+        Verification actually run: `test_audit` 61/61 with 7 new tests, 5 of
+        which were confirmed to fail against the parent revision;
+        a11y-render-recovery `test_classify` 22/22; a11y-theme-resolution
+        58/58; `portfolio/router/validate.py` 10/10 VENTURE.yaml;
+        `validate_candidates.py` and `validate_doc_consistency.py` clean; all
+        three a11y CI workflows green on the PR. Revenue impact this session:
+        $0, unchanged -- this improves the measurement engine behind the
+        pipeline's only build-now candidate, and every candidate there is still
+        at zero customer contacts.
+    mrr_end:
