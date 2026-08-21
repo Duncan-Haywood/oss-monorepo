@@ -4,7 +4,7 @@ Built and measured 2026-08-20. Re-runnable:
 
 ```bash
 cd portfolio/research/a11y-evidence-record
-python3 -m unittest discover                          # 52 tests, no dependencies
+python3 -m unittest discover                          # 75 tests, no dependencies
 python3 measure_themes.py --recompute-from results-2026-08-20.json   # offline
 python3 audit.py <path> --record --scope "<subject>"  # produce a record
 ```
@@ -32,8 +32,8 @@ and why"* — as a function rather than a promise.
 
 | File | What it is |
 |---|---|
-| [`audit.py`](audit.py) | 16 static WCAG 2.2 AA checks over HTML, Liquid, Twig, Blade/PHP, EJS, Vue and Svelte templates, plus `evidence_record()` |
-| [`test_audit.py`](test_audit.py) | 52 tests, standard-library `unittest`, no install step |
+| [`audit.py`](audit.py) | 19 static WCAG 2.2 AA checks over HTML, Liquid, Twig, Blade/PHP, EJS, Vue and Svelte templates, plus `evidence_record()` |
+| [`test_audit.py`](test_audit.py) | 75 tests, standard-library `unittest`, no install step |
 | [`measure_themes.py`](measure_themes.py) | Runs the pass over published storefront themes on npm and reports the distribution |
 | [`results-2026-08-20.json`](results-2026-08-20.json) | Every per-package row behind the numbers below |
 | [`example-record-2026-08-20.md`](example-record-2026-08-20.md) | A record generated against this portfolio's own HTML |
@@ -41,6 +41,34 @@ and why"* — as a function rather than a promise.
 Standard library only, in both scripts. Read-only: `audit.py` has no write path
 into anything it audits, and `measure_themes.py` reads the public npm registry
 and sends nothing.
+
+## Amendment, 2026-08-21 — the coverage boundary had a hole, and it is closed
+
+Finding 1 below is the right design and it was **not fully implemented**. The
+boundary it assembles is only honest if every criterion the engine reasons
+about lands in one of the record's two lists. Two did not.
+
+Run for the first time against this portfolio's *other* WCAG engine
+([`pipeline/probes/eaa-wcag-triage/`](../../pipeline/probes/eaa-wcag-triage/)),
+`audit.py` was found to check neither **1.2.2 Captions** nor the
+`aria-hidden`-on-a-focusable-control case of **4.1.2**, and to list neither in
+`NOT_TESTED` — so a record said nothing at all about them, which a reader can
+only read as "checked and passed." On the hand-labeled fixture set that gave
+`audit.py` recall **0.857** against the sibling engine's 1.0.
+
+Both checks are now implemented, and `CoverageBoundaryIsComplete` in
+[`test_audit.py`](test_audit.py) asserts the invariant that would have caught
+it: no criterion is both checked and declared untested, and every statically
+reachable criterion appears in one list or the other. Suite is 61 → 75 tests.
+
+**Consequence for the numbers below:** the headline counts (286 findings,
+63.2% undecidable across twelve npm storefront themes) were produced before
+these two checks existed, so the finding count is a **lower bound by an unknown
+margin**. Re-deriving it needs `measure_themes.py` to re-fetch the twelve
+tarballs; `--recompute-from` cannot do it, because the saved rows hold
+per-package results rather than the markup. The measurement and the full
+reasoning are in
+[`../a11y-engine-agreement/`](../a11y-engine-agreement/).
 
 ## Finding 1 — the record cannot be published without its own coverage boundary
 

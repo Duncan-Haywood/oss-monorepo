@@ -13174,3 +13174,354 @@ entries:
         spent beyond agent time -- same class of self-merge as #466 and
         #471 above.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process / increase profit, more strategic work this run" session,
+        designated branch claude/wizardly-albattani-ue54n2. Ran
+        `session_gate.py` first (PROCEED: meta-work share 8%, below the 70%
+        threshold). Fetched `origin/main` fresh and read the ledger tail
+        before acting: the immediately preceding entry (real-estate-agent-photo-app,
+        PR #474) had already re-confirmed #372 and #368 correctly
+        owner-gated and #144 newly conflicting on
+        `.github/workflows/opencode-high-throughput.yml` one commit prior --
+        did not re-verify that finding a second time.
+      - >-
+        `portfolio/router/allocate.py` showed 0 of 10 ventures dispatchable
+        (same standing links.production blocker), so no venture-level work
+        was startable without a publish decision. Instead picked up the one
+        piece of the open-PR backlog the prior entry had explicitly deferred:
+        dispatched a background agent to independently audit #144 itself
+        (not just its conflict status) against current main, since five
+        review comments already on the PR had flagged logic bugs but none
+        had assessed whether the PR remained worth carrying forward at all.
+      - >-
+        The audit found #144's premise doubly stale beyond the known merge
+        conflict: (1) its own broken import
+        (`from allocate import allocate_work`, a function that does not
+        exist in `portfolio/router/allocate.py`) means the `guardrails` job
+        it adds would always report the router "unavailable" and block the
+        fleet, confirming the bugs the five prior review comments already
+        found; (2) the causal story it re-enables a schedule to address (the
+        2026-08-18 Actions outage being caused by this workflow's job count)
+        was refuted on `main` on 2026-08-20 -- the outage predates the
+        commit blamed for it and resolved on its own -- and the economics
+        argument in that same main-tip comment (Actions bill of $288-$6,900/mo
+        against a $0-$193/mo revenue ceiling per break-even.md) is the actual
+        reason the schedule stays off, not a pending billing check the PR's
+        checklist implies. main's actual duplicate-work solution also took a
+        different shape entirely (session_gate.py plus the agent-decidable/
+        human-gated split in CLAUDE.md), superseding the sequential-entrypoint-
+        script approach this PR proposed.
+      - >-
+        Closed #144 with a comment summarizing all of the above and pointing
+        to what superseded it (CLAUDE.md's session-gate + agent-decidable
+        rules, and the corrected outage/economics comment already on main),
+        rather than leaving a fully-reviewed, factually-superseded PR sitting
+        in the backlog indefinitely. Did not touch #372 or #368 -- both
+        remain correctly human-gated (live ventures/* Next.js upgrade;
+        unattended-automation Dependabot config) per the prior entry's
+        same-session re-confirmation. No venture code changed, no candidate
+        screened, no score moved. This entry itself is ledger-only and
+        self-mergeable per established precedent.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/nifty-goodall-j8sbjx. Ran `session_gate.py` first
+        (PROCEED -- meta-work share low). Checked the 3 open PRs (#372,
+        #368, #144): all already correctly owner-gated by prior sessions
+        (live-site `next` upgrade, Dependabot automation, autonomous-agent
+        workflow automation with documented real bugs in its entrypoint
+        script) -- nothing new to add on any of them. `allocate.py` showed
+        0 of 10 ventures dispatchable, same standing publish blocker.
+      - >-
+        `verification_status.py` flagged #372's one verification record as
+        `BUILD STALE` for `retail-pilot-intel` and
+        `real-estate-agent-photo-app`: two unrelated fixes (#474, #466)
+        had landed on `main` after the prior verification tip. Rather than
+        trust that #372 still merges cleanly, merged current `main` into
+        its branch in a scratch worktree (0 conflicts), byte-diffed both
+        newly-landed fixes between `main` and the merged tree (identical --
+        merging #372 would not revert either), and rebuilt/tested the two
+        flagged ventures on that merged tree per `re-verification.md`'s
+        scoped-rebuild rule: retail-pilot-intel (`pnpm install
+        --frozen-lockfile`, lint, typecheck 6/6, build, test 27/27, audit
+        clean) and real-estate-agent-photo-app/docs-site (`npm ci`, lint,
+        build, audit clean). Replaced the stale record with the fresh one.
+      - >-
+        Opened PR #476 carrying only the `verifications.yaml` record
+        update, watched its `validate` check go green, confirmed
+        `mergeable_state: clean`, and self-merged as agent-decidable:
+        touches only `portfolio/ledger/`, no venture code, no automation,
+        nothing published or spent, verified by actually running the
+        flagged ventures' own checks. #372 itself stays owner-gated
+        (merging it fires deploys to live sites) -- only the verification
+        record about it was this session's to decide.
+    mrr_end: null
+  - venture: print-atelier
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/pensive-feynman-mjg04g. Ran `session_gate.py` first
+        (PROCEED -- meta-work share low, fleet spending on ventures).
+        Checked open PRs before starting: only #372 and #368 remained open
+        and both were already correctly owner-gated by prior sessions in
+        this same window (#144 had just been closed as superseded, per the
+        immediately preceding entry) -- nothing to consolidate. `allocate.py`
+        showed the standing 0-of-10-dispatchable publish blocker, unchanged.
+      - >-
+        Rather than re-run the identical PR-check-plus-bug-hunt cycle the
+        prior several entries had already covered, picked a venture with
+        near-zero prior scrutiny of its core logic: `print-atelier` (an
+        on-demand-print marketplace for artists, unpublished --
+        `links.production: null` -- only 3 prior ledger mentions, none
+        touching its money-handling code) and dispatched a background agent
+        to adversarially bug-hunt its Stripe ledger/order-recording logic.
+      - >-
+        Found: `recordStripeWebhookToLedger` in
+        `src/lib/stripe-ledger.ts` appended a new ledger row on every call
+        with no idempotency check against `eventId` -- unlike
+        `recordOrderFromPaymentWebhook` in `orders.ts`, which already
+        dedupes on `stripeEventId`. Stripe redelivers webhooks at-least-once
+        on timeout or any non-2xx response, so redelivery of the same event
+        is normal production behavior, not a hypothetical: each redelivered
+        `transfer.created`/`payout.paid`/`payment_intent.succeeded` event
+        got appended as a duplicate row, and
+        `buildStripePayoutLedgerSummary` sums `amountCents` across all rows
+        -- so the totals feeding the `/investor` dashboard would inflate by
+        the duplicate amount on every redelivery. Same stable-identity/
+        idempotency bug class as the `retail-pilot-intel` `event_id` fix
+        (#466) and several others this month, this time in the payout
+        ledger rather than order import.
+      - >-
+        Fixed by returning the existing entry when `eventId` is already
+        present, mirroring `orders.ts`'s established pattern. Verified: full
+        suite baseline `npm ci && npm test` 128/128 before the fix;
+        reproduced the bug independently with a standalone script showing
+        two calls with the same event id produced `transferCount=2,
+        totalTransferCents=5000` instead of the correct `1 / 2500`; added a
+        permanent regression test, full suite 129/129 after; `npm run lint`
+        clean (one pre-existing unrelated warning); `next build` compiled
+        and type-checked, all 49 pages generated. Also checked and found
+        clean: `orders.ts` idempotency, amount/currency handling in both
+        files, `stripe-webhook-server.ts` signature verification,
+        `stripe-connect.ts`'s 30/70 artist/platform split rounding, and the
+        webhook route's fulfillment-partner branching.
+      - >-
+        Opened PR #480, watched its `validate`/`build` CI go green,
+        re-confirmed clean mergeability against the live `main` tip with
+        `git merge-tree` immediately before merging, and self-merged as
+        agent-decidable: internal correctness fix to an unpublished venture,
+        no new dependency/credential, no unattended automation, nothing
+        published, nothing spent beyond agent time -- same class of
+        self-merge as #466/#471/#474. Merge commit `40451ac8`.
+    mrr_end: null
+  - venture: ai-first-markets
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process / increase profit" session, designated branch
+        claude/charming-hawking-qs1q5v. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 8%, below the 70% threshold). Fetched
+        `origin/main` fresh and checked the 3 open PRs (#372, #368, #144):
+        all already correctly owner-gated by prior sessions, nothing new
+        to add. `allocate.py` showed 0 of 10 scored ventures dispatchable
+        (same standing links.production publish blocker), so picked up the
+        productive pattern the two immediately preceding entries
+        established: bug-hunt an under-mined, unpublished venture's real
+        business logic rather than re-derive the PR/router state again.
+        `ai-first-markets` (14 prior ledger mentions, one of only two
+        ventures the router calls internally dispatchable since it has
+        nothing to publish) was the least-mined candidate not already
+        touched by the prior two sessions.
+      - >-
+        Dispatched a background agent to bug-hunt `ai-first-markets`'
+        market-selection/idea-scoring logic (`src/lib`, `src/data`). It
+        found that the Path to $1M ARR report
+        (`src/app/reports/[slug]/page.tsx`) formatted plans' *monthly*
+        `pricing.averageRevenue` figures with `formatArr()` -- a formatter
+        built for annual targets that abbreviates values >= $1,000 as
+        `$Nk` and appends " ARR". `contract-review-api`'s 1m plan has
+        `averageRevenue: 1042`, the only monthly figure in the dataset
+        over $999, so the report silently rendered `$1k ARR/mo avg`
+        instead of `$1,042/mo avg` in the venture's own decision-support
+        output -- a >99.9% rounding loss plus a wrong unit label, the same
+        silent-data-corruption bug class as the retail-pilot-intel (#466)
+        and real-estate-agent-photo-app (#474) fixes two entries prior,
+        this time in report formatting rather than ids or dates.
+      - >-
+        Fixed by adding `formatMonthlyRevenue()` to `src/lib/utils.ts`
+        (delegates to the existing `formatCurrency`, no abbreviation or
+        suffix) and switching the one affected call site to it;
+        `formatArr` was left untouched since it's still correctly used
+        elsewhere for genuinely-annual `plan.targetArr` fields. Added
+        `src/lib/utils.test.ts` (didn't exist before), including a test
+        that iterates every plan's `averageRevenue` across all 8 ideas to
+        guard against the bug class recurring. Hand-confirmed the
+        regression test actually catches the bug: pointed the new
+        formatter at `formatArr` temporarily, watched all 3 new tests fail
+        with `expected "$1,042", got "$1k ARR"`, then restored the fix and
+        watched them pass. Verified with the venture's own checks: `npm
+        ci` (662 packages, clean), `npm run lint` (0 problems), `npm run
+        typecheck` (clean), `npm test` (60/60 pass, 57 pre-existing + 3
+        new), `npm run build` (26/26 static pages, only pre-existing
+        unrelated jose/Edge-Runtime warnings).
+      - >-
+        Opened PR #479, watched its `verify` CI check go green,
+        re-confirmed clean mergeability against the live `main` tip with
+        `git merge-tree` immediately before merging (main had not moved in
+        between), and self-merged as agent-decidable: internal correctness
+        fix to an unpublished venture (`links.production: null`), no new
+        dependency, no credential, no unattended automation, nothing
+        published, nothing spent beyond agent time -- same class of
+        self-merge as #466 and #474 above. Squash-merged as `d77accd`.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - 'Scheduled "research and evaluate potential software business projects that
+        aren''t already here" session, designated branch claude/laughing-pasteur-n8rs30.
+        Ran `session_gate.py` first (PROCEED -- meta-work share 8% of last 25 entries,
+        below the 70% threshold). `git fetch origin main` first. Per `CLAUDE.md` this
+        brief is already answered, so no candidate was proposed, no score moved, and
+        nothing was added to `screened-out.md`; took the first listed alternative
+        instead -- advance a probe already specified in `portfolio/pipeline/`. Listed
+        the 3 open PRs (#372, #368, #144) before starting: all correctly owner-gated
+        by prior sessions, no consolidation backlog.'
+      - 'Acted on the un-actioned warning in `portfolio/research/README.md` -- that
+        `a11y-evidence-record/audit.py` and `pipeline/probes/eaa-wcag-triage/` are two
+        independent WCAG engines built for the same candidate, with overlapping check
+        IDs, that had never referenced each other. The warning named the risk and
+        stopped there: **nobody had ever run the two engines on the same input.** Run
+        on the same input, they disagreed.'
+      - 'Finding: each engine was silently blind to two checks the other had, and --
+        the actual defect -- neither listed the other''s checks in its own coverage
+        statement. That is the one failure mode the candidate''s liability position
+        exists to prevent, because an evidence record''s reader can only tell "checked
+        and passed" from "never looked at" by the two lists the record carries, so a
+        criterion in neither is invisible to the customer. Against the hand-labeled
+        fixture set (the only ground truth either engine has) `audit.py` scored recall
+        **0.857** -- 12 of 14, missing two blocking Level A failures -- to the probe''s
+        1.0. `audit.py` was missing captions (1.2.2) entirely and the
+        `aria-hidden`-on-a-focusable-control case of 4.1.2; the probe was missing 1.4.2
+        and 1.4.4. The 4.1.2 case is the instructive one: 4.1.2 was already in the
+        checked list via button names, so a criterion-level comparison shows no gap and
+        the missing case hides one level down.'
+      - 'Shipped as #482, verified and merged in-session as agent-decidable under
+        `CLAUDE.md` (internal surfaces only -- `portfolio/`, CI config, tests; no
+        `ventures/*` app code; publishes nothing, registers nothing, spends nothing).
+        All four coverage gaps closed in both engines. Added to each engine the
+        invariant that makes the next silent gap fail a test rather than ship in a
+        customer-facing record -- `CoverageBoundaryIsComplete` in `audit.py` (61 -> 75
+        tests) and the COVERAGE-completeness assertion in the probe (37 -> 48 tests).
+        Also removed a false-positive class in the probe, whose name rules reported
+        intentionally hidden non-focusable controls as unlabelled. New
+        `portfolio/research/a11y-engine-agreement/` carries the re-runnable comparison,
+        saved results, 12 tests and the write-up, plus a CI workflow in the same shape
+        as its three siblings (stdlib test runner, no schedule, no API spend).'
+      - 'Verification: all 6 PR checks green; locally 48 (probe) + 75 (audit) + 12
+        (agreement) + 22 (render-recovery) + 58 (theme-resolution) tests pass, the two
+        sibling directories being the regression check since they import `audit.py`
+        directly. The probe''s committed fixture validation is byte-identical --
+        precision/recall stay 1.0. Repo validators (`validate_doc_consistency.py`,
+        `validate_candidates.py`, `router/validate.py`) all pass. Smoke-tested the new
+        checks on the 12 real HTML files under `ventures/`: zero false positives.
+        Noted but not chased: `resolve.py --verify` reports 9/12 rather than its
+        README''s 12/12, verified pre-existing by running it on an unmodified tree (a
+        corpus re-fetch artifact, and not a CI gate).'
+      - 'Left open deliberately, and recorded rather than guessed: the residual
+        disagreement is attribution, not coverage -- two defects both engines catch but
+        cite under different criteria (unlabelled control 3.3.2 vs 1.3.1; skipped
+        heading 1.3.1 vs 2.4.6). Settling it is a normative WCAG reading, both mappings
+        have support in common practice, and the specification hosts are egress-denied
+        from here, so picking a winner would be exactly the confident-but-unsourced
+        normative claim the pipeline''s own status note warns against. Pinned by a test
+        so a real coverage gap cannot hide behind a known attribution one.'
+      - 'Known limit stated in both READMEs rather than left silent:
+        `a11y-evidence-record`''s headline numbers (286 findings, 63.2% undecidable
+        over twelve npm storefront themes) predate the two new checks, so the finding
+        count is a lower bound by an unknown margin. Re-deriving it needs
+        `measure_themes.py` to re-fetch the twelve tarballs -- `--recompute-from`
+        cannot do it, because the saved rows hold per-package results rather than the
+        markup. That is the named, bounded follow-up for a later session.'
+      - 'No revenue. No candidate added, no score changed, nothing published or
+        registered, no credential used. The portfolio''s standing blocker is unchanged:
+        every venture still has `links.production: null` and the publish/payout asks
+        remain on issue #139 for the account owner.'
+    mrr_end: null
+  - venture: world-clock-widget
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/ecstatic-volta-vfdcfl. Ran `session_gate.py` first
+        (PROCEED). Listed the 3 open PRs (#372, #368, #144): all already
+        correctly owner-gated by prior sessions -- nothing new to add.
+        `portfolio/router/allocate.py` showed 0 of 10 ventures dispatchable,
+        the standing `links.production` blocker. Dispatched a background
+        agent to adversarially bug-hunt `world-clock-widget`, the
+        least-mined venture in the ledger (1 prior mention) with real test
+        infrastructure (Swift Package Manager, `Tests/WorldClockCoreTests`).
+      - >-
+        Found that `SolarCalculator.time(for:city:on:)` anchored its
+        sunrise/sunset instant to midnight UTC of the requested *local*
+        calendar date -- correct only when a city's civil UTC offset closely
+        matches its raw `longitude / 15`. For most cities away from the
+        Greenwich meridian the two diverge enough that the returned `Date`
+        lands on the wrong local calendar day once converted back to city
+        time: Tokyo's computed sunrise on 2026-06-21 came back dated
+        2026-06-22 JST; Los Angeles's sunset the same day came back dated
+        2026-06-20 PDT. A full-year, full-catalog numeric sweep (Python port
+        of the same formula, cross-checked against `zoneinfo`) found
+        sunrise-after-sunset anomalies on ~6,600 of ~14,600 city/day
+        combinations -- routine for roughly half the shipped city catalog
+        (`los-angeles`, `tokyo`, `sydney`, `singapore`, `hong-kong`, and
+        others, every day of the year), not the rare International-Date-Line
+        edge case the existing code comment suggested. Directly affects
+        `CityClockSnapshot.isDaytime` (wrong day/night icon and gradient for
+        the small-widget view) since it only had a fallback for
+        `sunrise >= sunset`, not a fix for the underlying date being wrong.
+        The one existing ordering test covered only London, which sits at
+        the Greenwich meridian where the bug doesn't manifest.
+      - >-
+        Fixed by checking whether the algorithm's candidate instant actually
+        falls on the requested local calendar day in the city's own time
+        zone, nudging by +/-1 day until it does. Added three regression
+        tests (Tokyo/east-of-Greenwich, Los Angeles/west-of-Greenwich, and a
+        full-catalog ordering check at the equinox) to
+        `SolarCalculatorTests.swift`; confirmed each fails against the
+        pre-fix code and passes after. Verified two ways: (1) the same
+        full-year Python sweep re-run with the fix applied brought the
+        anomaly count from 6,571 down to 13, all pre-existing and already
+        documented Reykjavik near-Arctic imprecision, unrelated to this bug;
+        (2) this repo's own CI (`world-clock-widget CI`: `swift build` +
+        `swift test` in the real `swift:5.9` container) ran green on the PR
+        head -- the sandbox itself had no local Swift toolchain and its
+        egress policy blocked pulling the `swift:5.9` image, so CI was the
+        only place the real test suite could run.
+      - >-
+        Opened PR #487, watched its CI go green, re-confirmed clean
+        mergeability against the live `main` tip with `git merge-tree`
+        immediately before merging (`links.production: null` re-checked in
+        `VENTURE.yaml`), and self-merged as agent-decidable: internal
+        correctness fix to an unpublished venture, no new dependency, no
+        credential, no unattended automation, nothing published, nothing
+        spent beyond agent time -- same class as this portfolio's many
+        prior self-merges.
+    mrr_end: null
