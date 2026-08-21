@@ -16430,3 +16430,61 @@ entries:
         which is why this pass could close 9 of the 10 deductions and not
         the tenth.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work / maintain and improve the development
+        process" session. `session_gate.py` -> PROCEED (cadence 0.00
+        sessions/hour). Checked the 4 open PRs (#531, #372, #368, #583) and
+        issue #139 first -- the checkout was shallow, which made
+        `git merge-tree` report "refusing to merge unrelated histories" on
+        several of them; `git fetch --unshallow` fixed it, and all four then
+        merge-tree clean against current `main`, unchanged from #139's most
+        recent comment (posted minutes before this session started). Not
+        re-verified further.
+      - >-
+        Closed the last-but-one gap `error-rate-disclosure` left open:
+        `agent-permission-harness` had no record module and no accuracy
+        measurement at all (the harder of the two remaining gaps --
+        `npm-reachability-triage`'s direction is at least named, this one's
+        wasn't). Built `validate_accuracy.py`, a new labeled 34-case
+        synthetic fixture corpus (test_harness.py's existing fire/silent
+        fixtures per rule, plus new cases), run for real through
+        `harness.analyse()`: 0 false positives, 0 false negatives on the
+        16/34 positive-rule opportunities those fixtures cover across all
+        seven rules. `harness.render_markdown()` now states that figure,
+        real direction vocabulary, and the honest limits (author-authored,
+        not held-out; says nothing about attack classes none of the seven
+        rules encode) in a new section. `error-rate-disclosure/measure.py`
+        cites the committed figure for real instead of `citation=None`.
+      - >-
+        `ethical_robustness`: `agent-permission-harness` 7 -> 9 (composite
+        6.625 -> 6.875), verified as the mean of all 8 dimensions. Same
+        disclosure-only distinction the prior three upward revisions
+        established: no probe got more accurate, this only measures whether
+        the artifact a reader sees carries the accuracy figure and states
+        its honest limits. `verdict`/`revisit`/`mitigation` untouched --
+        still parked.
+      - >-
+        Merged as #585 with a clean `git merge-tree` against the live `main`
+        tip immediately before opening; agent-decidable per `CLAUDE.md`
+        (`portfolio/` only, publishes/registers/spends nothing). Delegated
+        the build to a subagent, then independently re-ran
+        `validate_accuracy.py` myself and got the same 34/16/0/0 counts
+        before merging. Full suites re-run on this session's own checkout:
+        `probes/agent-permission-harness` 69/69,
+        `research/error-rate-disclosure` 26/26, `pipeline` 24/24,
+        `validate_doc_consistency.py` and `validate_candidates.py` both
+        clean.
+      - >-
+        No revenue; the $0 ceiling is unchanged. Backlog unchanged: same
+        four PRs (#531/#523, #372, #368, #583), already on #139, none
+        touched here. Still open: `npm-reachability-triage`'s
+        wrong-suppression rate has never been measured -- unlike this gap,
+        that one needs hand-verifying real CVE suppressions against their
+        advisory text and lockfile evidence, not a synthetic fixture corpus,
+        so it was deliberately left rather than attempted at lower
+        confidence than this pass.
+    mrr_end: null
