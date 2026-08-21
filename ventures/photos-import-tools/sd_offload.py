@@ -105,11 +105,17 @@ def iter_media_files(root: Path) -> list[Path]:
 
 
 def evict_tree(root: Path) -> int:
+    # Must use the same filter as iter_media_files, not a bare rglob: this
+    # runs from background_evictor on a timer *while rsync_copy's rsync
+    # subprocess is still writing later files in the same tree*. rsync's
+    # in-flight temp file for a file it hasn't finished copying yet keeps
+    # the destination name with a dot prefix and a random suffix (e.g.
+    # ".IMG_0001.JPG.a1B2c3"), so Path.suffix on it is ".a1B2c3", not a
+    # media extension -- restricting to MEDIA_EXTENSIONS is what keeps this
+    # from calling evict() on a file rsync still has open for write.
     count = 0
-    if not root.exists():
-        return count
-    for path in root.rglob("*"):
-        if path.is_file() and evict(path):
+    for path in iter_media_files(root):
+        if evict(path):
             count += 1
     return count
 
