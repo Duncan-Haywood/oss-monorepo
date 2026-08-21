@@ -864,7 +864,13 @@ export async function recordLeadPayment(
       stub.recommendedTier,
       stub.dataSource,
     );
-  } else {
+  } else if (lead.stage !== "live") {
+    // A Starter -> Growth/Complete upsell checkout (leadEligibleForStarterUpsell
+    // in src/lib/billing/starter-upsell.ts fires at stage "paid" OR "live")
+    // carries a new stripeSessionId, so the existingOrder check above doesn't
+    // catch it. Don't let a second payment regress an already-live lead back
+    // to "paid" -- pipeline-health and the daily digest key off that stage.
+    // Mirrors the Convex markLeadPaid fix (convex/leads.ts).
     const stmt = db.prepare("UPDATE leads SET status = 'paid', updatedAt = datetime('now') WHERE slug = ?");
     stmt.run(params.slug);
   }
