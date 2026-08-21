@@ -91,17 +91,20 @@ Rescored 2026-08-20 for the two candidates that have actually been probed — se
 | 1 | [EAA remediation pipeline](candidates/eaa-remediation-pipeline.md) | 7.25 | 5 | Build now, as a `local-site-studio` product line |
 | 2 | [Shopify accessibility evidence app](candidates/shopify-a11y-evidence.md) | 7.25 | 4 | Probe the channel — scored 2026-08-19 |
 | 3 | [Public-record watch](candidates/public-record-watch.md) | 7.0 | 4 | Cheap probe — one vertical, two weeks |
-| 4 | [Agent permission harness](candidates/agent-permission-harness.md) | 7.0 | 4 | Park; revisit 2027-Q1 |
+| 4 | [Agent permission harness](candidates/agent-permission-harness.md) | 6.875 | 4 | Park; revisit 2027-Q1. Probed 2026-08-21 — internal build done, `ai_leverage` 9→8 |
 | 5 | [MCP supply-chain watch](candidates/mcp-supply-chain-watch.md) | 6.75 | 3 | Probe: steps 1–2 run; mitigation refuted, cannot graduate as scored |
 | 6 | [CRA evidence desk](candidates/cra-evidence-desk.md) | 6.75 | 3 | Probe (was build-now); wedge is egress-blocked |
 | 7 | [Tender radar](candidates/tender-radar.md) | 6.625 | 4 | Park; needs a channel partner |
 | 8 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
 
-Both rescored candidates fell, one point per measured dimension, and no measured
-dimension has ever risen. Read the six unmeasured rows as upper bounds rather
-than as better candidates —
-[rescore-2026-08-20.md](rescore-2026-08-20.md) has the pattern and what follows
-from it.
+Every rescored candidate has fallen, one point per measured dimension, and no
+measured dimension has ever risen. That now holds across three candidates and
+six measured dimensions: `agent-permission-harness` joined the pattern on
+2026-08-21 (`ai_leverage` 9→8) from a probe written to test something else
+entirely, which is the third independent confirmation and the first from a pass
+that was not looking for a score. Read the five unmeasured rows as upper bounds
+rather than as better candidates — [rescore-2026-08-20.md](rescore-2026-08-20.md)
+has the pattern and what follows from it.
 
 Step 1 of `public-record-watch`'s first experiment has since been run — see the
 amendment in [its write-up](candidates/public-record-watch.md) and the
@@ -111,8 +114,10 @@ No score moved; the change-rate premise holds and the reasons the candidate is
 hard did not change.
 
 Executable probes already built for these candidates: [probes/](probes/) —
-`npm-reachability-triage` (for `cra-evidence-desk`) and `eaa-wcag-triage` (for
-`eaa-remediation-pipeline`). `CLAUDE.md`'s intake gate sends every generic
+`npm-reachability-triage` (for `cra-evidence-desk`), `eaa-wcag-triage` (for
+`eaa-remediation-pipeline`), `source-silence-detector` (for
+`public-record-watch`) and `agent-permission-harness` (for the candidate of the
+same name). `CLAUDE.md`'s intake gate sends every generic
 session to "advance a probe that is already specified in `portfolio/pipeline/`",
 and until this line existed no file that routes a session named the directory
 those probes live in. Read `probes/README.md` before writing a new one.

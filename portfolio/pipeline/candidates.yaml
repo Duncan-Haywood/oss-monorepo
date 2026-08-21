@@ -207,8 +207,9 @@ candidates:
     revisit: 2027-01
     graduate_as: venture
     host_venture: null
+    probe: probes/agent-permission-harness/
     scores:
-      ai_leverage: 9
+      ai_leverage: 8
       autonomous_ops: 8
       time_to_revenue: 4
       gross_margin: 9
@@ -216,14 +217,41 @@ candidates:
       distribution: 4
       liability_containment: 8
       ethical_robustness: 9
-    composite: 7.0
+    composite: 6.875
     floor: 4
     floor_dimension: time_to_revenue
-    mitigation: Build internally for this portfolio's own agents so the attack corpus compounds at near-zero cost while the market matures.
+    measured:
+      ai_leverage: >-
+        9 -> 8, 2026-08-21, probes/agent-permission-harness/. The 9 was
+        justified as "attack generation, mutation, and verdicting are model work
+        end to end". Building the internal harness this candidate's own
+        mitigation prescribes produced 13 findings across 31 workflow files, of
+        which zero involved generation, mutation or verdicting - every one is a
+        deterministic property of the artifact, and the probe contains no model
+        call anywhere. This does not refute the 9 for the product's dynamic
+        half, which is untested here and is genuinely undecidable statically.
+        It measures that the part which shipped first, and which found
+        everything there was to find on this surface, has no AI in it.
     unpark_conditions:
       - An existing venture's customer asks for it.
       - A compliance regime starts requiring agent-level testing evidence specifically.
       - The portfolio's internal corpus becomes worth selling access to.
+    mitigation: Build internally for this portfolio's own agents so the attack corpus compounds at near-zero cost while the market matures.
+    mitigation_note: >-
+      Not refuted, but one iteration in it is not doing what it says. The
+      internal build produced a rule set (7 rules), not an attack corpus, and a
+      rule set is the commoditized half - published Actions scanners already
+      cover three of the seven. Re-read this before the 2027-Q1 revisit: if the
+      second iteration also produces rules rather than attacks, the mitigation
+      is naming an asset this portfolio is not actually accruing.
+    flagged_unmeasured:
+      defensibility: >-
+        Argued down, deliberately not scored. Everything the static half does,
+        published open-source Actions scanners already do for R3/R4/R5, and the
+        whole probe is 960 lines of stdlib plus PyYAML. R7 (the agent's
+        instruction closure) appears not to be in those tools, but confirming
+        that is a substitute-supply measurement and the egress it needs is
+        denied here. Left at 5 rather than moved on an unmeasured argument.
 
   - slug: tender-radar
     name: Tender radar
