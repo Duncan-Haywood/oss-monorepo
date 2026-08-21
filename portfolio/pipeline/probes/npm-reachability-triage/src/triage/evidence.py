@@ -42,6 +42,14 @@ COVERAGE_LIMITS: tuple[str, ...] = (
     "A finding this tool could not match reliably is reported as shipped. False "
     "positives are expected; a suppressed finding that should not have been is "
     "the failure this tool is built to avoid, and both are possible.",
+    "A build-surface suppression means the deployed artifact never loads the "
+    "package. It does not mean the advisory is harmless: the machine that runs "
+    "the build still executes that code, so a build-time compromise is out of "
+    "scope for this record rather than ruled out by it.",
+    "Only packages with their own package-lock.json entry are analysed. A "
+    "dependency that vendors a copy of another library into its own published "
+    "files is one lockfile component, so this record says nothing either way "
+    "about the vendored copy.",
 )
 
 NOT_AN_ATTESTATION = (

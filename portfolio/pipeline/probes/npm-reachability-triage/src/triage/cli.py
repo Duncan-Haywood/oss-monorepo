@@ -20,7 +20,9 @@ from pathlib import Path
 
 from . import advisories as advisories_mod
 from . import deployment as deployment_mod
-from .engine import SHIPPED, triage
+from . import graph as graph_mod
+from . import sources as sources_mod
+from .engine import SHIPPED, ProjectContext, triage
 from .evidence import Report, to_json, to_markdown
 from .lockfile import UnsupportedLockfile, parse_lockfile
 
@@ -65,6 +67,16 @@ def _build_parser() -> argparse.ArgumentParser:
         choices=[deployment_mod.STATIC_EXPORT, deployment_mod.SERVER, deployment_mod.UNKNOWN],
         default=None,
         help="override deployment detection when your build is not a plain Next.js config",
+    )
+    parser.add_argument(
+        "--no-source-scan",
+        action="store_true",
+        help=(
+            "skip reading the project's own source for imports. This makes the "
+            "tool LESS conservative: the scan exists to block build-surface "
+            "suppressions for packages the project uses itself, so skipping it "
+            "can suppress a finding that should have been reported."
+        ),
     )
     return parser
 
@@ -120,7 +132,15 @@ def run(argv: list[str] | None = None) -> int:
         feed = advisories_mod.OSV_NPM_BULK_URL
         advisory_list = advisories_mod.fetch_osv_bulk(names)
 
-    findings = triage(installed, advisory_list, profile)
+    context = ProjectContext(
+        dependency_graph=graph_mod.build_from_lockfile(lockfile_path),
+        declared_dependencies=sources_mod.declared_production_dependencies(project),
+        source_imports=frozenset()
+        if args.no_source_scan
+        else sources_mod.scan_project_imports(project),
+    )
+
+    findings = triage(installed, advisory_list, profile, context)
 
     report = Report(
         generated_at=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),

@@ -106,3 +106,52 @@ class TestDevServerScope:
     @pytest.mark.parametrize("text", ["", "   ", "Middleware authorization bypass"])
     def test_unrelated_text_is_not_dev_server_scoped(self, text):
         assert is_dev_server_only(text) is False
+
+
+class TestServerFunctionSurface:
+    """The React Server Components advisories, and why the rule is not named that.
+
+    All three RSC advisories in the 2026-08 feed describe "a specially crafted
+    HTTP request sent to any App Router Server Function endpoint". The endpoint
+    is the part a static export does not have; Server Components themselves run
+    at build time to produce the pre-rendered HTML. Matching the endpoint is
+    therefore both sufficient for these advisories and correct for the ones a
+    "Server Components" pattern would have wrongly caught.
+    """
+
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "A specially crafted HTTP request can be sent to any App Router "
+            "Server Function endpoint that, when deserialized, may trigger "
+            "excessive CPU usage.",
+            "Next.js: Unauthenticated disclosure of internal Server Function endpoints",
+        ],
+    )
+    def test_server_function_endpoints_are_server_only(self, text):
+        verdict = classify(text)
+        assert verdict.server_only is True
+        assert verdict.matched_rule == "server-functions"
+
+    def test_build_time_server_component_rendering_is_not_suppressed(self):
+        """The case a `server components` pattern would have got wrong."""
+        text = (
+            "A flaw in React Server Components rendering can corrupt output "
+            "produced during static generation."
+        )
+        assert classify(text).server_only is False
+
+    def test_there_is_no_server_components_rule(self):
+        """Pins the decision so a later pass cannot quietly widen it.
+
+        Adding `\\bserver components?\\b` to SERVER_ONLY_RULES would suppress
+        advisories about build-time rendering, which a static export does
+        perform. If a future change needs that pattern it has to delete this
+        test and say why.
+        """
+        from triage.surfaces import SERVER_ONLY_RULES
+
+        assert not any(
+            rule.pattern.search("uses React Server Components at build time")
+            for rule in SERVER_ONLY_RULES
+        )

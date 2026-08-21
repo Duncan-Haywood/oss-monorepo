@@ -46,7 +46,7 @@ that build.
 
 ## What it does
 
-Three suppression rules. Each requires positive, named evidence; there is no
+Four suppression rules. Each requires positive, named evidence; there is no
 path through the engine that suppresses a finding because something could not
 be determined.
 
@@ -54,10 +54,18 @@ be determined.
 |---|---|---|
 | `dependency-path` | every install location in the advisory's range is dev-only | npm's own per-location `dev` flag in `package-lock.json` |
 | `dev-server-surface` | the advisory is scoped to the development server | advisory text names `next dev` / "development server" and never "production" |
+| `build-surface` | every production install location is reached only through the build toolchain | the lockfile's own production dependency edges, plus a named `(dependent, package)` claim |
 | `server-surface:*` | the project ships no server and the advisory describes a server-only surface | `output: "export"` in `next.config.*`, plus a named surface rule |
 
 Everything else is reported as **shipped**, including every finding whose
 version match could not be made reliably.
+
+`build-surface` is the only rule that reads **no advisory text at all**. Its
+evidence is structural, which is why it is also the only rule that fires on
+server-rendered projects: a package the deployed artifact never loads is absent
+whether that artifact is a CDN directory or a running Node server. It is
+described in full under [the build surface](#the-build-surface-2026-08-21)
+below.
 
 ## Validated against the manual review
 
@@ -77,6 +85,38 @@ kept at [`validation-2026-08-20.json`](validation-2026-08-20.json).
 | `real-estate-agent-photo-app/docs-site` | static-export | 55 | 11 | 44 | **80.0%** | ~98% |
 | `real-estate-agent-photo-app/research` | static-export | 37 | 11 | 26 | **70.3%** | ~97% |
 | **Total** | | **132** | **60** | **72** | **54.5%** | 64.6–66.0% |
+
+**Superseded by the build-surface run below**, on the same checkout and the
+same feed file, so the two tables are a clean A/B rather than two dates:
+[`validation-2026-08-21-build-surface.json`](validation-2026-08-21-build-surface.json).
+
+| Product | Mode | Findings | Deployed | Suppressed | Rate | Manual review |
+|---|---|---|---|---|---|---|
+| `ai-first-markets` | server | 7 | 3 | 4 | 57.1% | 0% |
+| `local-site-studio` | server | 1 | 1 | 0 | 0.0% | 0% |
+| `photo-editing/docs-site` | server | 5 | 1 | 4 | 80.0% | 0% |
+| `print-atelier` | server | 27 | 21 | 6 | 22.2% | 4% |
+| `quick-pick-survey` | server | 0 | 0 | 0 | — | — |
+| `real-estate-agent-photo-app/docs-site` | static-export | 55 | 2 | 53 | **96.4%** | ~98% |
+| `real-estate-agent-photo-app/research` | static-export | 37 | 2 | 35 | **94.6%** | ~97% |
+| **Total** | | **132** | **30** | **102** | **77.3%** | 64.6–66.0% |
+
+Two things about that table need saying before it is read as an improvement.
+
+- **The static-export rows are now at the manual review's number**, and the
+  residual is no longer unexplained noise — it is two named findings, one of
+  which is the true positive the decomposition below already identified. That
+  is the result the previous run projected and it landed where it projected.
+- **The server rows moved for the first time, and they moved past the manual
+  review.** The manual review put the server-rendered products at 0–4%
+  suppressible; this run says 22–80%. That is not the automated pass beating
+  the human one. It is the two of them answering different questions: the
+  manual review classified by *deployment mode*, which is the only axis
+  `cra-advisory-reachability` measured, and it never asked whether a
+  production-path package runs after the build at all. Every server-row
+  suppression here is the same four PostCSS advisories, reached through the
+  same single named edge. Treat the server numbers as a new claim carrying one
+  point of failure, not as corroborated by the review.
 
 Two independent things moved this table since 2026-08-20, and they are worth
 separating because only one of them is a change to this tool:
@@ -207,6 +247,128 @@ probe. Both need positive evidence in the same style as the existing rules — a
 named build-toolchain classification for the first, new surface patterns for the
 second — and neither should fire when the project's own source imports the
 package directly.
+
+## The build surface (2026-08-21)
+
+That specified next step, built. It closes three of the four residual groups and
+**refutes the fourth row of the table above** — the one that called the `nanoid`
+findings un-suppressible without call-graph analysis. They are suppressible
+without it. The residual falls from 11 to 2 on both static-export products.
+
+| Group | Was | Now | By what |
+|---|---|---|---|
+| `postcss` sourceMappingURL / stringify | 4 | 0 | `build-surface`, edge `next → postcss` |
+| `next` Server Components / RSC | 3 | 0 | `server-surface:server-functions` |
+| `nanoid` infinite loop | 2 | 0 | `build-surface`, edge `postcss → nanoid`, transitively |
+| `next` CSP nonce XSS | 1 | 1 | deliberately not suppressed — see below |
+| `next` `beforeInteractive` XSS | 1 | 1 | **the true positive** |
+
+### Why the graph, and not the advisory text
+
+The four PostCSS advisories survived every text rule because nothing in their
+text is wrong. `postcss.process()` really does dereference an attacker-controlled
+`sourceMappingURL`. The reason they do not describe deployed code is not in the
+advisory at all — it is in the lockfile, and it is invisible unless you look at
+which install location keeps the finding alive:
+
+```
+node_modules/postcss                    8.5.15  dev: true    ← the project's own, for Tailwind
+node_modules/next/node_modules/postcss  8.4.31  dev: false   ← this one keeps it shipped
+```
+
+`dependency-path` needs *every* location to be dev-only, so the nested copy —
+vendored inside `next`, invoked by `next build`, never by `next start` — held
+four advisories open on all seven Next.js products here.
+
+So `build-surface` reasons over the lockfile's production dependency edges,
+reimplementing Node's nearest-ancestor resolution so an edge points at the
+location actually loaded rather than at every same-named install. A production
+location is build-only when every production dependent of it is build-only,
+bottoming out at a **named `(dependent, package)` edge** in
+`graph.BUILD_ONLY_EDGES`.
+
+Edges are pairs rather than a package allowlist on purpose. `("next",
+"postcss")` asserts one specific, falsifiable thing — *Next.js invokes PostCSS
+during the build and never afterwards* — and a reviewer can reject that one
+claim. A bare `postcss` allowlist would also fire when a runtime CSS-in-JS
+library pulls PostCSS onto the request path, which is exactly the case that must
+not be suppressed. `tests/test_graph.py::test_a_runtime_dependent_defeats_the_transitive_claim`
+pins it.
+
+### The `nanoid` correction
+
+The residual table above recorded the two `nanoid` advisories as needing
+call-graph analysis. Checking the graph rather than reasoning about the package
+shows why that was wrong:
+
+```
+node_modules/nanoid  production dependents: ['postcss']
+next@14.2.35 dependencies: @next/env, @swc/helpers, busboy, caniuse-lite,
+                           graceful-fs, postcss, styled-jsx    ← no nanoid
+```
+
+`next` does not depend on `nanoid`. Its only production dependent in these
+lockfiles is the vendored PostCSS above, which is itself build-only — so
+`nanoid` is reachable in production *solely* through a build-time toolchain, and
+transitivity settles it. The earlier note reasoned about what the advisory
+requires of the caller; the answer was in what the lockfile says about who the
+caller is.
+
+### What is deliberately still reported
+
+**`GHSA-ffhc-5mcf-pf4q` — XSS in App Router applications using CSP nonces.** A
+Next.js CSP nonce is derived per request from an inbound header, and a static
+export derives nothing from request headers, so this advisory almost certainly
+does not describe these two products. It is still reported, because suppressing
+it would mean letting a `server-surface` match override the `xss` veto in
+`CLIENT_OR_BUILD_RULES`, and that veto is a load-bearing safety property: it is
+what stops a server-sounding phrase in a mixed-surface advisory from suppressing
+a real client-side finding. Buying one correct suppression by adding a
+precedence mechanism to the one rule that protects against the tool's worst
+failure mode is a bad trade. The finding stays in front of the user with this
+paragraph as its explanation.
+
+**There is no `server-components` rule, and that is not an oversight.** The
+obvious pattern for the RSC advisories is `\bserver components?\b`. It is wrong:
+a statically exported build *does* execute Server Components, at build time, to
+produce the pre-rendered HTML. What it lacks is the request-handling half — and
+all three advisories say so themselves, describing "a specially crafted HTTP
+request sent to any App Router **Server Function endpoint**". The rule therefore
+matches the endpoint, as `server-actions` already does for the other name of the
+same thing. An RSC advisory about build-time rendering is not suppressed, which
+is correct. `tests/test_surfaces.py::test_there_is_no_server_components_rule`
+pins the decision so a later pass has to argue with it before widening it.
+
+### What this rule can get wrong
+
+The honest failure modes, stated because a suppression nobody can audit is the
+thing this probe exists not to be:
+
+- **A wrong edge suppresses everywhere at once.** Of the 30 findings this change
+  newly suppresses across five products, 24 rest on the single claim
+  `next → postcss`: 20 of them directly, and the 4 `nanoid` ones transitively,
+  since the only thing making `nanoid` build-only is that its one production
+  dependent is that same PostCSS. If Next.js ever invokes PostCSS at request
+  time, this rule is wrong on every Next.js product at once. That is the
+  concentration risk of a structural rule, and it is why the edges are named and
+  individually reviewable rather than folded into a package allowlist.
+- **Vendored copies are invisible.** The rule reasons over lockfile components.
+  A dependency that bundles a copy of another library into its own published
+  files is one lockfile entry, so this record says nothing either way about the
+  bundled copy. Now stated in `COVERAGE_LIMITS`.
+- **The build machine is still exposed.** "Not in the deployed artifact" is not
+  "harmless" — the machine running `next build` executes this code on whatever
+  CSS the repository contains. The suppression reason says so in every record,
+  and so does a coverage limit.
+- **Dynamic `require(someVariable)` defeats the source scan.** The scan covers
+  static import shapes; a project that loads packages by computed name gets no
+  protection from it and relies on the declaration guard alone.
+
+Both guards are independent and either one blocks the rule: a package the
+project declares in its own `dependencies`, or imports anywhere in its own
+source, is never build-only however the graph resolves. The root project is a
+dependent like any other and is never itself build-only, which is the structural
+half of the same protection.
 
 ## Usage
 

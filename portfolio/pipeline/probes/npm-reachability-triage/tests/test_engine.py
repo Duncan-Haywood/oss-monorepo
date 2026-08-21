@@ -7,7 +7,8 @@ evidence and that every uncertain path falls through to ``shipped``.
 
 from triage.advisories import AffectedRange, Advisory
 from triage.deployment import DeploymentProfile, SERVER, STATIC_EXPORT, UNKNOWN
-from triage.engine import DEV_ONLY, NOT_DEPLOYED, SHIPPED, triage
+from triage.engine import DEV_ONLY, NOT_DEPLOYED, SHIPPED, ProjectContext, triage
+from triage.graph import build_from_lockfile_data
 from triage.lockfile import InstalledPackage
 
 STATIC = DeploymentProfile(STATIC_EXPORT, "high", ('`output: "export"`',))
@@ -203,3 +204,117 @@ class TestOrdering:
             [pkg("a", "1.0.0", dev=True)], [advisory("a", range_text="*")], SERVER_PROFILE
         )
         assert findings[0].suppressed is True
+
+
+class TestBuildSurfaceRule:
+    """The rule that suppresses packages only the build toolchain ever loads.
+
+    Every test here is about the *conditions*, not the outcome. The rule reads
+    no advisory text at all, so the only thing standing between it and a wrong
+    suppression is the set of guards below.
+    """
+
+    @staticmethod
+    def _context(**overrides):
+        data = {
+            "": {"dependencies": {"next": "14.2.35"}},
+            "node_modules/next": {
+                "version": "14.2.35",
+                "dependencies": {"postcss": "8.4.31"},
+            },
+            "node_modules/next/node_modules/postcss": {"version": "8.4.31"},
+        }
+        data.update(overrides.pop("packages", {}))
+        return ProjectContext(
+            dependency_graph=build_from_lockfile_data(
+                {"lockfileVersion": 3, "packages": data}
+            ),
+            **overrides,
+        )
+
+    @staticmethod
+    def _postcss_location():
+        return InstalledPackage(
+            "postcss", "8.4.31", "node_modules/next/node_modules/postcss", False, False
+        )
+
+    def _run(self, context, profile=None):
+        return triage(
+            [self._postcss_location()],
+            [advisory("postcss", range_text="*", summary="Arbitrary file read")],
+            profile or SERVER_PROFILE,
+            context,
+        )
+
+    def test_suppresses_a_build_only_package(self):
+        findings = self._run(self._context())
+        assert findings[0].verdict == NOT_DEPLOYED
+        assert findings[0].rule == "build-surface"
+        assert "`next` → `postcss`" in findings[0].reason
+
+    def test_holds_for_a_server_deployment_too(self):
+        """Not gated on deployment mode: `next start` does not run PostCSS either.
+
+        This is what makes the rule worth more than the static-export case it
+        was proposed for — it is the only suppression that reaches the
+        server-rendered products in this portfolio.
+        """
+        assert self._run(self._context(), SERVER_PROFILE)[0].verdict == NOT_DEPLOYED
+        assert self._run(self._context(), STATIC)[0].verdict == NOT_DEPLOYED
+        assert self._run(self._context(), UNDETERMINED)[0].verdict == NOT_DEPLOYED
+
+    def test_no_context_suppresses_nothing(self):
+        """A caller that passes no context gets the pre-rule behaviour exactly."""
+        findings = triage(
+            [self._postcss_location()],
+            [advisory("postcss", range_text="*")],
+            SERVER_PROFILE,
+        )
+        assert findings[0].verdict == SHIPPED
+
+    def test_a_declared_production_dependency_blocks_it(self):
+        context = self._context(declared_dependencies=frozenset({"postcss"}))
+        assert self._run(context)[0].verdict == SHIPPED
+
+    def test_an_import_in_project_source_blocks_it(self):
+        context = self._context(source_imports=frozenset({"postcss"}))
+        assert self._run(context)[0].verdict == SHIPPED
+
+    def test_one_unproven_production_location_blocks_it(self):
+        """The artifact only has to load the package once for the advisory to apply."""
+        context = self._context(
+            packages={"node_modules/postcss": {"version": "8.5.15"}}
+        )
+        findings = triage(
+            [
+                self._postcss_location(),
+                InstalledPackage("postcss", "8.5.15", "node_modules/postcss", False, False),
+            ],
+            [advisory("postcss", range_text="*")],
+            SERVER_PROFILE,
+            context,
+        )
+        assert findings[0].verdict == SHIPPED
+
+    def test_an_unreliable_version_match_is_never_suppressed(self):
+        """The caveat guard runs before every rule, this one included."""
+        findings = triage(
+            [InstalledPackage("postcss", "not-a-version",
+                              "node_modules/next/node_modules/postcss", False, False)],
+            [advisory("postcss", events=[{"introduced": "1.0.0"}])],
+            SERVER_PROFILE,
+            self._context(),
+        )
+        assert findings[0].verdict == SHIPPED
+        assert findings[0].caveats
+
+    def test_dev_only_locations_still_get_the_dependency_path_rule(self):
+        """Rule 1 runs first, so its more specific reason is the one recorded."""
+        findings = triage(
+            [InstalledPackage("postcss", "8.5.15", "node_modules/postcss", True, False)],
+            [advisory("postcss", range_text="*")],
+            SERVER_PROFILE,
+            self._context(),
+        )
+        assert findings[0].verdict == DEV_ONLY
+        assert findings[0].rule == "dependency-path"
