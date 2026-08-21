@@ -1,0 +1,1611 @@
+[
+  {
+    "advisory_id": "GHSA-28wg-ghj8-5hjv",
+    "rule": "build-surface",
+    "package": "nanoid",
+    "aliases": [
+      "CVE-2026-67214"
+    ],
+    "summary": "nanoid: non-secure generators can loop indefinitely with negative size",
+    "details_snippet": "nanoid (Nano ID) before 5.1.16 contains an infinite loop in the customAlphabet and nanoid functions of its non-secure module (nanoid/non-secure). When these functions are given a negative size, the loop counter is decremented from a negative value and never reaches its termination condition, spinning indefinitely and hanging the calling thread. An application that passes an unvalidated, attacker-controlled negative size to these functions is exposed to a denial-of-service condition.",
+    "severity": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "verdict": "not-deployed",
+    "reason": "Every production install location is reached only through the build toolchain, so the deployed artifact never loads this package (`postcss` \u2192 `nanoid`: PostCSS uses nanoid to name source-map entries while transforming CSS, so it runs only when PostCSS itself runs). The advisory may still describe a real risk to the machine that runs the build.",
+    "versions": [
+      "3.3.12"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/nanoid",
+        "version": "3.3.12",
+        "dev": false,
+        "is_production": true
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-2v37-7h3g-55p8",
+    "rule": "build-surface",
+    "package": "nanoid",
+    "aliases": [
+      "CVE-2026-67213"
+    ],
+    "summary": "nanoid: custom generators can loop indefinitely when size is zero",
+    "details_snippet": "nanoid (Nano ID) before 5.1.6 contains an infinite loop in the customAlphabet and customRandom functions. When these functions are configured with a size of 0, the internal generation loop never satisfies its exit condition and spins indefinitely, hanging the calling thread. An application that passes an unvalidated, attacker-controlled size of 0 to these functions is exposed to a denial-of-service condition.",
+    "severity": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "verdict": "not-deployed",
+    "reason": "Every production install location is reached only through the build toolchain, so the deployed artifact never loads this package (`postcss` \u2192 `nanoid`: PostCSS uses nanoid to name source-map entries while transforming CSS, so it runs only when PostCSS itself runs). The advisory may still describe a real risk to the machine that runs the build.",
+    "versions": [
+      "3.3.12"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/nanoid",
+        "version": "3.3.12",
+        "dev": false,
+        "is_production": true
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-6g55-p6wh-862q",
+    "rule": "build-surface",
+    "package": "postcss",
+    "aliases": [
+      "CVE-2026-45623"
+    ],
+    "summary": "PostCSS: Arbitrary file read and information disclosure via attacker-controlled sourceMappingURL in CSS comments",
+    "details_snippet": "## Summary\n\nPostCSS's `PreviousMap` parses the `/*# sourceMappingURL=PATH */` comment from any CSS string passed to `process()` and dereferences `PATH` against the local filesystem with no scheme, allowlist, or traversal check. An attacker who controls the CSS input can cause the host process to read any file readable by Node and leak the first ~10 bytes of its content through the resulting `JSON.parse` `SyntaxError` message. The bug also yields a precise file-existence oracle and a controllable-read primitive that may be combined with large-file targets for DoS. The behaviour is triggered with PostCSS's default options \u2014 no `from`, no `map`, no plugins required \u2014 and is therefore reachable from any pipeline that runs untrusted CSS through PostCSS (CMS themes, user-uploaded styles, browser",
+    "severity": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+    "verdict": "not-deployed",
+    "reason": "Every production install location is reached only through the build toolchain, so the deployed artifact never loads this package (`next` \u2192 `postcss`: Next.js invokes PostCSS while compiling CSS during `next build`. Neither `next start` nor a statically exported build calls into it). The advisory may still describe a real risk to the machine that runs the build.",
+    "versions": [
+      "8.4.31"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/next/node_modules/postcss",
+        "version": "8.4.31",
+        "dev": false,
+        "is_production": true
+      }
+    ],
+    "projects": [
+      "ventures/ai-first-markets",
+      "ventures/photo-editing/docs-site",
+      "ventures/print-atelier",
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-fxqj-rqcc-2cmp",
+    "rule": "build-surface",
+    "package": "postcss",
+    "aliases": [
+      "CVE-2026-69153"
+    ],
+    "summary": "PostCSS: incomplete fix of GHSA-6g55-p6wh-862q \u2014 attacker-controlled sourceMappingURL reads arbitrary .map files when `from` is unset",
+    "details_snippet": "## Summary\n\nThe fix for GHSA-6g55-p6wh-862q added a guard in `lib/previous-map.js` `PreviousMap.loadFile()` that restricts an attacker-controlled `sourceMappingURL` (from a CSS comment) to a `.map` extension and, for untrusted maps, rejects `..` traversal and absolute paths. The traversal/absolute rejection is nested inside `if (cssFile) { ... }`. When PostCSS is invoked without the `from` option, `cssFile` is falsy and that branch is skipped, leaving only the `.map` extension check.\n\n`PreviousMap` is constructed by `lib/input.js` whenever `pathAvailable && sourceMapAvailable` (under Node with source-map available), independent of `opts.from`/`opts.map` (the constructor returns early only for `opts.map === false`). So `postcss([]).process(css)` on attacker CSS reaches `loadFile` with `cssF",
+    "severity": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+    "verdict": "not-deployed",
+    "reason": "Every production install location is reached only through the build toolchain, so the deployed artifact never loads this package (`next` \u2192 `postcss`: Next.js invokes PostCSS while compiling CSS during `next build`. Neither `next start` nor a statically exported build calls into it). The advisory may still describe a real risk to the machine that runs the build.",
+    "versions": [
+      "8.4.31"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/next/node_modules/postcss",
+        "version": "8.4.31",
+        "dev": false,
+        "is_production": true
+      }
+    ],
+    "projects": [
+      "ventures/ai-first-markets",
+      "ventures/photo-editing/docs-site",
+      "ventures/print-atelier",
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-qx2v-qp2m-jg93",
+    "rule": "build-surface",
+    "package": "postcss",
+    "aliases": [
+      "CVE-2026-41305"
+    ],
+    "summary": "PostCSS has XSS via Unescaped </style> in its CSS Stringify Output",
+    "details_snippet": "# PostCSS: XSS via Unescaped `</style>` in CSS Stringify Output\n\n## Summary\n\nPostCSS v8.5.5 (latest) does not escape `</style>` sequences when stringifying CSS ASTs. When user-submitted CSS is parsed and re-stringified for embedding in HTML `<style>` tags, `</style>` in CSS values breaks out of the style context, enabling XSS.\n\n## Proof of Concept\n\n```javascript\nconst postcss = require('postcss');\n\n// Parse user CSS and re-stringify for page embedding\nconst userCSS = 'body { content: \"</style><script>alert(1)</script><style>\"; }';\nconst ast = postcss.parse(userCSS);\nconst output = ast.toResult().css;\nconst html = `<style>${output}</style>`;\n\nconsole.log(html);\n// <style>body { content: \"</style><script>alert(1)</script><style>\"; }</style>\n//\n// Browser: </style> closes the style tag, <scri",
+    "severity": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
+    "verdict": "not-deployed",
+    "reason": "Every production install location is reached only through the build toolchain, so the deployed artifact never loads this package (`next` \u2192 `postcss`: Next.js invokes PostCSS while compiling CSS during `next build`. Neither `next start` nor a statically exported build calls into it). The advisory may still describe a real risk to the machine that runs the build.",
+    "versions": [
+      "8.4.31"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/next/node_modules/postcss",
+        "version": "8.4.31",
+        "dev": false,
+        "is_production": true
+      }
+    ],
+    "projects": [
+      "ventures/ai-first-markets",
+      "ventures/photo-editing/docs-site",
+      "ventures/print-atelier",
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-r28c-9q8g-f849",
+    "rule": "build-surface",
+    "package": "postcss",
+    "aliases": [
+      "CVE-2026-73646"
+    ],
+    "summary": "PostCSS: Path Traversal in Previous Source Map Auto-Loading (sourceMappingURL) leads to Arbitrary .map File Disclosure",
+    "details_snippet": "## Vulnerability Details\n\n**File**: `lib/previous-map.js`\n**Line**: 87-98 (`loadFile`), 129-144 (`loadMap`)\n\n\n### Root Cause\nPostCSS auto-detects a `/*# sourceMappingURL=... */` comment inside the CSS text it is asked to parse and, unless the caller explicitly passes `map: false`, attempts to load that path from disk as a \"previous source map.\" This happens on every `postcss.parse()` / `postcss().process()` call by default (opt-out, not opt-in).\n\n`loadMap()` builds the candidate path via `join(dirname(opts.from), annotation)`, where `annotation` is the raw, attacker-controlled string from the CSS comment. `path.join()` normalizes but does not sandbox `..` segments, so a `../../../` prefix walks the resolved path outside the intended directory. If `opts.from` is not set at all, the annotati",
+    "severity": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+    "verdict": "not-deployed",
+    "reason": "Every production install location is reached only through the build toolchain, so the deployed artifact never loads this package (`next` \u2192 `postcss`: Next.js invokes PostCSS while compiling CSS during `next build`. Neither `next start` nor a statically exported build calls into it). The advisory may still describe a real risk to the machine that runs the build.",
+    "versions": [
+      "8.4.31"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/next/node_modules/postcss",
+        "version": "8.4.31",
+        "dev": false,
+        "is_production": true
+      }
+    ],
+    "projects": [
+      "ventures/ai-first-markets",
+      "ventures/photo-editing/docs-site",
+      "ventures/print-atelier",
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-3jxr-9vmj-r5cp",
+    "rule": "dependency-path",
+    "package": "brace-expansion",
+    "aliases": [
+      "CVE-2026-13149"
+    ],
+    "summary": "brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups",
+    "details_snippet": "### Summary\nbrace-expansion's expand() exhibits exponential-time - O(2\u207f) - behavior in the number of consecutive non-expanding {} groups. A short, all-ASCII input (~90 bytes/30 groups) blocks the calling thread for minutes; a slightly longer input hangs it effectively indefinitely. Because the dominant consumers run on Node's single-threaded event loop, one small input can fully stall a worker/process.\n\nIn `expand_`, `post` is computed unconditionally at the top of the function, before the early-return branches that don't use it:\n```js\nconst post = m.post.length ? expand_(m.post, max, false) : [''];   // always recurses\n  ...\nif (!isSequence && !isOptions) {\n  if (m.post.match(/,(?!,).*\\}/)) {\n    str = m.pre + '{' + m.body + escClose + m.post;\n    return expand_(str, max, true); // restar",
+    "severity": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/brace-expansion, node_modules/@typescript-eslint/typescript-estree/node_modules/brace-expansion, node_modules/glob/node_modules/brace-expansion), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "1.1.15",
+      "2.1.1"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/brace-expansion",
+        "version": "1.1.15",
+        "dev": true,
+        "is_production": false
+      },
+      {
+        "path": "node_modules/@typescript-eslint/typescript-estree/node_modules/brace-expansion",
+        "version": "2.1.1",
+        "dev": true,
+        "is_production": false
+      },
+      {
+        "path": "node_modules/glob/node_modules/brace-expansion",
+        "version": "2.1.1",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-mh99-v99m-4gvg",
+    "rule": "dependency-path",
+    "package": "brace-expansion",
+    "aliases": [
+      "CVE-2026-14257"
+    ],
+    "summary": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
+    "details_snippet": "### Summary\n\n`expand()` bounds the *number* of results it produces (the `max` option,\n`100_000` by default) but not their *length*. By chaining many brace groups,\nan attacker keeps the result count under `max` while making every result grow\nwith the number of groups. Building `max` long results \u2014 plus the intermediate\narrays combined at each brace group \u2014 exhausts memory and crashes the Node\nprocess with an **uncatchable** out-of-memory error. `try/catch` around\n`expand()` does not help: the fatal error terminates the process.\n\nA ~7.5 KB input (`'{a,b}'.repeat(1500)`) is enough to crash a default Node\nprocess.\n\n### Details\n\nFor `N` chained brace groups such as `'{a,b}'.repeat(N)`:\n\n- the result count is `2^N`, immediately capped at `max` (`100_000`), so the\n  `max` protection appears to ho",
+    "severity": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/@typescript-eslint/typescript-estree/node_modules/brace-expansion, node_modules/glob/node_modules/brace-expansion, node_modules/brace-expansion), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "1.1.15",
+      "2.1.1"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/@typescript-eslint/typescript-estree/node_modules/brace-expansion",
+        "version": "2.1.1",
+        "dev": true,
+        "is_production": false
+      },
+      {
+        "path": "node_modules/glob/node_modules/brace-expansion",
+        "version": "2.1.1",
+        "dev": true,
+        "is_production": false
+      },
+      {
+        "path": "node_modules/brace-expansion",
+        "version": "1.1.15",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-rgw5-rvv9-x895",
+    "rule": "dependency-path",
+    "package": "brace-expansion",
+    "aliases": [
+      "CVE-2026-69152"
+    ],
+    "summary": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+    "details_snippet": "### Summary\n\nThe `maxLength` mitigation added in `5.0.8` for GHSA-mh99-v99m-4gvg / CVE-2026-14257 is incomplete. It bounds the accumulator where results are *combined*, but not the intermediate arrays that feed it. A ~25 KB input still crashes the Node process with an **uncatchable** out-of-memory error, so `try/catch` around `expand()` does not help.\n\nA second, related path in the same function lets a ~400 KB input block the event loop for over two minutes without ever exceeding the memory bound.\n\n### Details\n\n`maxLength` was enforced in `combine()`, the single place output grows. Two arrays are built *before* `combine()` runs, and neither was bounded.\n\n**1. Comma alternatives accumulate without a running total (memory exhaustion)**\n\nEach alternative in `{a,b,c,...}` is expanded by its ow",
+    "severity": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/brace-expansion, node_modules/@typescript-eslint/typescript-estree/node_modules/brace-expansion, node_modules/glob/node_modules/brace-expansion), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "1.1.15",
+      "2.1.1"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/brace-expansion",
+        "version": "1.1.15",
+        "dev": true,
+        "is_production": false
+      },
+      {
+        "path": "node_modules/@typescript-eslint/typescript-estree/node_modules/brace-expansion",
+        "version": "2.1.1",
+        "dev": true,
+        "is_production": false
+      },
+      {
+        "path": "node_modules/glob/node_modules/brace-expansion",
+        "version": "2.1.1",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-67mh-4wv8-2f99",
+    "rule": "dependency-path",
+    "package": "esbuild",
+    "aliases": [],
+    "summary": "esbuild enables any website to send any requests to the development server and read the response",
+    "details_snippet": "### Summary\n\nesbuild allows any websites to send any request to the development server and read the response due to default CORS settings.\n\n### Details\n\nesbuild sets `Access-Control-Allow-Origin: *` header to all requests, including the SSE connection, which allows any websites to send any request to the development server and read the response.\n\nhttps://github.com/evanw/esbuild/blob/df815ac27b84f8b34374c9182a93c94718f8a630/pkg/api/serve_other.go#L121\nhttps://github.com/evanw/esbuild/blob/df815ac27b84f8b34374c9182a93c94718f8a630/pkg/api/serve_other.go#L363\n\n**Attack scenario**:\n\n1. The attacker serves a malicious web page (`http://malicious.example.com`).\n1. The user accesses the malicious web page.\n1. The attacker sends a `fetch('http://127.0.0.1:8000/main.js')` request by JS in that mali",
+    "severity": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:H/I:N/A:N",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/esbuild), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "0.17.19"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/esbuild",
+        "version": "0.17.19",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-gv7w-rqvm-qjhr",
+    "rule": "dependency-path",
+    "package": "esbuild",
+    "aliases": [],
+    "summary": "Withdrawn Advisory: esbuild: Missing binary integrity verification in Deno module enables remote code execution via NPM_CONFIG_REGISTRY",
+    "details_snippet": "## Withdrawn Advisory\n\nThis advisory has been withdrawn because the affected package was incorrectly identified and the [actual affected package](https://github.com/esbuild/deno-esbuild) is not in a supported ecosystem. This link is maintained to preserve external references.\n\n## Original Description\n\n### Summary\n\nThe esbuild Deno module (`lib/deno/mod.ts`) downloads native binary executables from an npm registry and writes them to disk with executable permissions (`0o755`) **without performing any integrity verification** (e.g., SHA-256 hash check). The Node.js equivalent (`lib/npm/node-install.ts`) includes a robust `binaryIntegrityCheck()` function that verifies SHA-256 hashes against hardcoded expected values from `package.json`, but this protection was never implemented for the Deno d",
+    "severity": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/esbuild), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "0.17.19"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/esbuild",
+        "version": "0.17.19",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-p5wg-g6qr-c7cg",
+    "rule": "dependency-path",
+    "package": "eslint",
+    "aliases": [
+      "CVE-2025-50537"
+    ],
+    "summary": "Withdrawn Advisory: eslint has a Stack Overflow when serializing objects with circular references",
+    "details_snippet": "## Withdrawn Advisory\nThis advisory has been withdrawn because RuleTester is used for testing rules during development and results in a error rather than crashing the application.\n\n## Original Description\n\nThere is a Stack Overflow vulnerability in eslint before 9.26.0 when serializing objects with circular references in `eslint/lib/shared/serialization.js`. The exploit is triggered via the `RuleTester.run()` method, which validates test cases and checks for duplicates. During validation, the internal function `checkDuplicateTestCase()` is called, which in turn uses the `isSerializable()` function for serialization checks. When a circular reference object is passed in, `isSerializable()` enters infinite recursion, ultimately causing a Stack Overflow.",
+    "severity": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/eslint), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "8.57.1"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/eslint",
+        "version": "8.57.1",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/print-atelier",
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-5j98-mcp5-4vw2",
+    "rule": "dependency-path",
+    "package": "glob",
+    "aliases": [
+      "CVE-2025-64756"
+    ],
+    "summary": "glob CLI: Command injection via -c/--cmd executes matches with shell:true",
+    "details_snippet": "### Summary\n\nThe glob CLI contains a command injection vulnerability in its `-c/--cmd` option that allows arbitrary command execution when processing files with malicious names. When `glob -c <command> <patterns>` is used, matched filenames are passed to a shell with `shell: true`, enabling shell metacharacters in filenames to trigger command injection and achieve arbitrary code execution under the user or CI account privileges.\n\n### Details\n\n**Root Cause:**\nThe vulnerability exists in `src/bin.mts:277` where the CLI collects glob matches and executes the supplied command using `foregroundChild()` with `shell: true`:\n\n```javascript\nstream.on('end', () => foregroundChild(cmd, matches, { shell: true }))\n```\n\n**Technical Flow:**\n1. User runs `glob -c <command> <pattern>` \n2. CLI finds files m",
+    "severity": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/glob), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "10.3.10"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/glob",
+        "version": "10.3.10",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/print-atelier",
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-52cp-r559-cp3m",
+    "rule": "dependency-path",
+    "package": "js-yaml",
+    "aliases": [
+      "CVE-2026-59869"
+    ],
+    "summary": "js-yaml: YAML merge-key chains can force quadratic CPU consumption",
+    "details_snippet": "### Impact\n\njs-yaml can spend quadratic CPU time parsing a document whose size grows only linearly. The issue is triggered by a chain of mappings where each mapping merges the previous one:\n\n```yaml\na0: &a0 { k0: 0 }\na1: &a1 { <<: *a0, k1: 1 }\na2: &a2 { <<: *a1, k2: 2 }\na3: &a3 { <<: *a2, k3: 3 }\n...\nb: *aN\n```\n\nFor each new mapping, the loader has to enumerate the keys inherited from the previous mapping. With N chained mappings, this results in roughly 1 + 2 + ... + N merged-key visits, i.e., O(N^2) work for O(N) input size.\n\n### PoC\n\nFrom N = 4000 delay become > 1s (doc size < 100K)\n\n```js\nimport { performance } from 'node:perf_hooks'\nimport { Buffer } from 'node:buffer'\nimport { load, YAML11_SCHEMA } from 'js-yaml'\n\nconst n = Number(process.argv[2] || 4000)\n\nfunction makeMergeChain (co",
+    "severity": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/js-yaml), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "4.2.0"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/js-yaml",
+        "version": "4.2.0",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-5p4m-2wfm-xmqj",
+    "rule": "dependency-path",
+    "package": "js-yaml",
+    "aliases": [],
+    "summary": "JS-YAML: Quadratic CPU consumption in !!omap resolution (3.x and 4.x) \u2014 CVE-2026-59870 fix not backported",
+    "details_snippet": "# Quadratic CPU consumption in `!!omap` resolution (js-yaml 3.x and 4.x)\n\n## Summary\n\n`resolveYamlOmap()` enforces key uniqueness for `!!omap` sequences with a linear\nscan (`objectKeys.indexOf(...)`) inside the per-element loop, making resolution\n**O(n\u00b2)** in the number of entries. A modestly sized YAML document therefore\nconsumes disproportionate CPU inside `yaml.load()`, giving a denial of service\nagainst any consumer that parses untrusted YAML.\n\n`!!omap` is registered in the **default schema**\n(`lib/schema/default.js` \u2192 `require('../type/omap')`), so a plain\n`yaml.load(untrustedInput)` with no options is affected \u2014 no custom schema or\nnon-default configuration is required.\n\n**This is the same weakness as CVE-2026-59870 / GHSA-724g-mxrg-4qvm**, which was\nfixed in the 5.x line in 5.2.1. T",
+    "severity": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/js-yaml), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "4.2.0"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/js-yaml",
+        "version": "4.2.0",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-23c5-xmqv-rm74",
+    "rule": "dependency-path",
+    "package": "minimatch",
+    "aliases": [
+      "CVE-2026-27904"
+    ],
+    "summary": "minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions",
+    "details_snippet": "### Summary\n\nNested `*()` extglobs produce regexps with nested unbounded quantifiers (e.g. `(?:(?:a|b)*)*`), which exhibit catastrophic backtracking in V8. With a 12-byte pattern `*(*(*(a|b)))` and an 18-byte non-matching input, `minimatch()` stalls for over 7 seconds. Adding a single nesting level or a few input characters pushes this to minutes. This is the most severe finding: it is triggered by the default `minimatch()` API with no special options, and the minimum viable pattern is only 12 bytes. The same issue affects `+()` extglobs equally.\n\n---\n\n### Details\n\nThe root cause is in `AST.toRegExpSource()` at [`src/ast.ts#L598`](https://github.com/isaacs/minimatch/blob/v10.2.2/src/ast.ts#L598). For the `*` extglob type, the close token emitted is `)*` or `)?`, wrapping the recursive body",
+    "severity": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/@typescript-eslint/typescript-estree/node_modules/minimatch), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "9.0.3"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/@typescript-eslint/typescript-estree/node_modules/minimatch",
+        "version": "9.0.3",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-3ppc-4f35-3m26",
+    "rule": "dependency-path",
+    "package": "minimatch",
+    "aliases": [
+      "CVE-2026-26996"
+    ],
+    "summary": "minimatch has a ReDoS via repeated wildcards with non-matching literal in pattern",
+    "details_snippet": "### Summary\n`minimatch` is vulnerable to Regular Expression Denial of Service (ReDoS) when a glob pattern contains many consecutive `*` wildcards followed by a literal character that doesn't appear in the test string. Each `*` compiles to a separate `[^/]*?` regex group, and when the match fails, V8's regex engine backtracks exponentially across all possible splits.\n\nThe time complexity is O(4^N) where N is the number of `*` characters. With N=15, a single `minimatch()` call takes ~2 seconds. With N=34, it hangs effectively forever.\n\n\n### Details\n_Give all details on the vulnerability. Pointing to the incriminated source code is very helpful for the maintainer._\n\n### PoC\nWhen minimatch compiles a glob pattern, each `*` becomes `[^/]*?` in the generated regex. For a pattern like `**********",
+    "severity": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/@typescript-eslint/typescript-estree/node_modules/minimatch), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "9.0.3"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/@typescript-eslint/typescript-estree/node_modules/minimatch",
+        "version": "9.0.3",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-7r86-cg39-jmmj",
+    "rule": "dependency-path",
+    "package": "minimatch",
+    "aliases": [
+      "CVE-2026-27903"
+    ],
+    "summary": "minimatch has ReDoS: matchOne() combinatorial backtracking via multiple non-adjacent GLOBSTAR segments",
+    "details_snippet": "### Summary\n\n`matchOne()` performs unbounded recursive backtracking when a glob pattern contains multiple non-adjacent `**` (GLOBSTAR) segments and the input path does not match. The time complexity is O(C(n, k)) -- binomial -- where `n` is the number of path segments and `k` is the number of globstars. With k=11 and n=30, a call to the default `minimatch()` API stalls for roughly 5 seconds. With k=13, it exceeds 15 seconds. No memoization or call budget exists to bound this behavior.\n\n---\n\n### Details\n\nThe vulnerable loop is in `matchOne()` at [`src/index.ts#L960`](https://github.com/isaacs/minimatch/blob/v10.2.2/src/index.ts#L960):\n\n```typescript\nwhile (fr < fl) {\n  ..\n  if (this.matchOne(file.slice(fr), pattern.slice(pr), partial)) {\n    ..\n    return true\n  }\n  ..\n  fr++\n}\n```\n\nWhen a ",
+    "severity": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/@typescript-eslint/typescript-estree/node_modules/minimatch), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "9.0.3"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/@typescript-eslint/typescript-estree/node_modules/minimatch",
+        "version": "9.0.3",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-f88m-g3jw-g9cj",
+    "rule": "dependency-path",
+    "package": "sharp",
+    "aliases": [],
+    "summary": "sharp inherited vulnerabilities in libvips: CVE-2026-33327, CVE-2026-33328, CVE-2026-35590, CVE-2026-35591",
+    "details_snippet": "### Impact\n\nA number of vulnerabilities, two rated as \"High\" severity using CVSSv4, have been discovered and fixed in the upstream libvips dependency.\n\nThose processing untrusted input with versions of sharp prior to 0.35.0 are affected.\n\n### Patches\n\n#### Using prebuilt binaries provided by sharp?\n\nMost people rely on the prebuilt binaries provided by sharp.\n\nPlease upgrade sharp to the latest version, currently 0.35.3, which provides libvips 8.18.3.\n\n#### Using a globally-installed libvips?\n\nPlease ensure you are using the latest libvips 8.18.3.\n\n### Workarounds\nAdd the following to your code to prevent sharp from decoding GIF, TIFF and VIPS images.\n```js\nsharp.block({ operation: [\"VipsForeignLoadNsgif\", \"VipsForeignLoadTiff\", \"VipsForeignLoadVips\"] });\n```",
+    "severity": "CVSS:4.0/AV:L/AC:L/AT:N/PR:L/UI:N/VC:L/VI:H/VA:H/SC:N/SI:N/SA:N",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/sharp), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "0.33.5"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/sharp",
+        "version": "0.33.5",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-2mjp-6q6p-2qxm",
+    "rule": "dependency-path",
+    "package": "undici",
+    "aliases": [
+      "CVE-2026-1525"
+    ],
+    "summary": "Undici has an HTTP Request/Response Smuggling issue",
+    "details_snippet": "### Impact\n\nUndici allows duplicate HTTP `Content-Length` headers when they are provided in an array with case-variant names (e.g., `Content-Length` and `content-length`). This produces malformed HTTP/1.1 requests with multiple conflicting `Content-Length` values on the wire.\n\n**Who is impacted:**\n  - Applications using `undici.request()`, `undici.Client`, or similar low-level APIs with headers passed as flat arrays\n  - Applications that accept user-controlled header names without case-normalization\n\n**Potential consequences:**\n  - **Denial of Service**: Strict HTTP parsers (proxies, servers) will reject requests with duplicate `Content-Length` headers (400 Bad Request)\n  - **HTTP Request Smuggling**: In deployments where an intermediary and backend interpret duplicate headers inconsistent",
+    "severity": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:L",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/undici), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "5.29.0"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/undici",
+        "version": "5.29.0",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-35p6-xmwp-9g52",
+    "rule": "dependency-path",
+    "package": "undici",
+    "aliases": [
+      "CVE-2026-6733"
+    ],
+    "summary": "undici vulnerable to HTTP response queue poisoning via keep-alive socket reuse",
+    "details_snippet": "## Impact\n\nUndici's HTTP/1.1 client is vulnerable to response queue poisoning on reused keep-alive sockets. An attacker-controlled upstream server can inject an unsolicited HTTP/1.1 response onto an idle socket after a request completes. When the client dispatches the next request on that socket, it associates the injected response with the new request, causing responses to be delivered to the wrong requests.\n\nThis requires an attacker-controlled or compromised upstream HTTP/1.1 server and keep-alive connection reuse.\n\n## Patches\n\nUpgrade to undici v6.27.0, v7.28.0 or v8.5.0.\n\n## Workarounds\n\nDisable keep-alive connection reuse by setting `keepAliveTimeout: 0` on the Client or Pool.",
+    "severity": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:L/A:N",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/undici), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "5.29.0"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/undici",
+        "version": "5.29.0",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-4992-7rv2-5pvq",
+    "rule": "dependency-path",
+    "package": "undici",
+    "aliases": [
+      "CVE-2026-1527"
+    ],
+    "summary": "Undici has CRLF Injection in undici via `upgrade` option",
+    "details_snippet": "### Impact\n\nWhen an application passes user-controlled input to the `upgrade` option of `client.request()`, an attacker can inject CRLF sequences (`\\r\\n`) to:\n\n1. Inject arbitrary HTTP headers\n2. Terminate the HTTP request prematurely and smuggle raw data to non-HTTP services (Redis, Memcached, Elasticsearch)\n\nThe vulnerability exists because undici writes the `upgrade` value directly to the socket without validating for invalid header characters:\n\n```javascript\n// lib/dispatcher/client-h1.js:1121\nif (upgrade) {\n  header += `connection: upgrade\\r\\nupgrade: ${upgrade}\\r\\n`\n}\n```\n\n### Patches\n\n Patched in the undici version v7.24.0 and v6.24.0. Users should upgrade to this version or later.\n\n### Workarounds\n\nSanitize the `upgrade` option string before passing to undici:\n\n```javascript\nfuncti",
+    "severity": "CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:U/C:L/I:L/A:N",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/undici), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "5.29.0"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/undici",
+        "version": "5.29.0",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-8xcm-r25x-g524",
+    "rule": "dependency-path",
+    "package": "undici",
+    "aliases": [
+      "CVE-2026-16728"
+    ],
+    "summary": "undici vulnerable to downstream response desynchronization via retry interceptor",
+    "details_snippet": "### Impact\n\nUndici's `interceptors.retry()` can deliver a response whose body length does not match the `Content-Length` header exposed to the application after a retry or resume of a partial response. Applications that use `interceptors.retry()` and forward upstream response headers and bodies downstream, for example proxy or gateway applications, may emit an invalid HTTP response with a stale `Content-Length` header. This can lead to downstream response desynchronization, connection hangs, or response corruption in clients or intermediaries that rely on the forwarded framing metadata.\n\nA malicious or faulty upstream can respond to a range request with a `206 Partial Content` response such as:\n\n```http\nContent-Range: bytes 0-99/300\nContent-Length: 300\n```\n\nand then send only 99 bytes befo",
+    "severity": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:N",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/undici), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "5.29.0"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/undici",
+        "version": "5.29.0",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-g8m3-5g58-fq7m",
+    "rule": "dependency-path",
+    "package": "undici",
+    "aliases": [
+      "CVE-2026-11525"
+    ],
+    "summary": "undici vulnerable to Set-Cookie SameSite attribute downgrade via permissive substring matching",
+    "details_snippet": "## Impact\n\nWhen undici parses a `Set-Cookie` header, it accepts any `SameSite` attribute value that contains `Strict`, `Lax`, or `None` as a substring, rather than the case-insensitive exact match specified by RFC 6265. Non-spec values are silently mapped to one of the three standard tokens:\n\n- `SameSite=NoneOfYourBusiness` is parsed as `None`, the most permissive setting.\n- `SameSite=StrictLax` is parsed as `Lax`, a downgrade from `Strict`.\n\nAffected applications are those that consume `Set-Cookie` headers from server responses (for example via undici's `fetch` or proxy code paths) and then forward or rely on the parsed `sameSite` attribute. A malicious or non-compliant server can coerce the consumer's view of a cookie's SameSite policy to a weaker value, silently degrading the SameSite e",
+    "severity": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:L/A:N",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/undici), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "5.29.0"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/undici",
+        "version": "5.29.0",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-g9mf-h72j-4rw9",
+    "rule": "dependency-path",
+    "package": "undici",
+    "aliases": [
+      "CVE-2026-22036"
+    ],
+    "summary": "Undici has an unbounded decompression chain in HTTP responses on Node.js Fetch API via Content-Encoding leads to resource exhaustion",
+    "details_snippet": "### Impact\n\nThe `fetch()` API supports chained HTTP encoding algorithms for response content according to RFC 9110 (e.g., Content-Encoding: gzip, br). This is also supported by the undici decompress interceptor.\n\nHowever, the number of links in the decompression chain is unbounded and the default maxHeaderSize allows a malicious server to insert thousands compression steps leading to high CPU usage and excessive memory allocation.\n\n### Patches\n\nUpgrade to 7.18.2 or 6.23.0.\n\n### Workarounds\n\nIt is possible to apply an undici interceptor and filter long `Content-Encoding` sequences manually.\n\n### References\n\n* https://hackerone.com/reports/3456148\n* https://github.com/advisories/GHSA-gm62-xv2j-4w53\n* https://curl.se/docs/CVE-2022-32206.html",
+    "severity": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/undici), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "5.29.0"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/undici",
+        "version": "5.29.0",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-m8rv-5g2x-5cg5",
+    "rule": "dependency-path",
+    "package": "undici",
+    "aliases": [
+      "CVE-2026-15157"
+    ],
+    "summary": "undici vulnerable to CRLF Injection via blob-like body 'type' property",
+    "details_snippet": "### Impact\n\nWhen an application passes a duck-typed blob-like body to undici's HTTP/1.1 dispatcher (via `request()`, `stream()`, `pipeline()`, or `dispatch()`) with a `.type` derived from untrusted input, an attacker can inject CRLF sequences (`\\r\\n`) to append arbitrary HTTP headers and potentially smuggle a second request past the upstream.\n\nThe vulnerable branch in `lib/dispatcher/client-h1.js` pushes `body.type` directly into the outgoing headers with no validation, while every other header path in undici goes through `isValidHeaderValue()`:\n\n```javascript\n} else if (util.isBlobLike(body) && request.contentType == null && body.type) {\n  headers.push('content-type', body.type)  // bypasses isValidHeaderValue()\n}\n```\n\nThe bug requires a hand-rolled duck-typed blob object or a Blob subcla",
+    "severity": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:L/I:L/A:N",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/undici), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "5.29.0"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/undici",
+        "version": "5.29.0",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-p88m-4jfj-68fv",
+    "rule": "dependency-path",
+    "package": "undici",
+    "aliases": [
+      "CVE-2026-9679"
+    ],
+    "summary": "undici vulnerable to HTTP header injection via Set-Cookie percent-decoding",
+    "details_snippet": "## Impact\n\nundici's cookie parser in `parseSetCookie` percent-decodes cookie values via `qsUnescape`, turning encoded sequences like `%0D%0A`, `%00`, `%3B`, and `%3D` into their literal byte equivalents. RFC 6265 \u00a75.4 does not specify any decoding and browsers do not decode either.\n\nApplications that parse a `Set-Cookie` header and then forward the parsed value into a response header (proxies, middleware, SSR frameworks) become vulnerable to HTTP response header injection: an attacker-controlled upstream can inject arbitrary `Set-Cookie`, `Location`, or `Cache-Control` headers into the application's downstream response, enabling session fixation, open redirect, or cache poisoning.\n\nAffected applications are those that use undici's cookie parsing (`parseSetCookie`, `parseCookie`, `getSetCoo",
+    "severity": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:H/A:N",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/undici), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "5.29.0"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/undici",
+        "version": "5.29.0",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-v3r7-h72x-cjcm",
+    "rule": "dependency-path",
+    "package": "undici",
+    "aliases": [
+      "CVE-2026-16729"
+    ],
+    "summary": "undici vulnerable to cookie attribute injection via unsanitized domain and unparsed setCookie fields",
+    "details_snippet": "## Impact\n\nThe `setCookie` function has two attribute injection paths. `validateCookieDomain` does not reject semicolons (`validateCookiePath` already does at 0x3B), so a `domain` value like `example.com; SameSite=None` lands verbatim as `Domain=example.com; SameSite=None`. The `unparsed` array's loop only checks each entry contains `=` and does not sanitize values, so an entry like `X-Custom=val; HttpOnly` lands unchanged, injecting `HttpOnly` without the caller setting `cookie.httpOnly = true`.\n\nApplications that pass user-controlled input to these fields, typically multi-tenant or reverse-proxy servers that scope session cookies to a tenant-supplied domain, can have SameSite CSRF protections bypassed, `Secure` or `HttpOnly` forced or stripped, or the intended SameSite tier overridden.\n\n",
+    "severity": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:N",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/undici), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "5.29.0"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/undici",
+        "version": "5.29.0",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-v9p9-hfj2-hcw8",
+    "rule": "dependency-path",
+    "package": "undici",
+    "aliases": [
+      "CVE-2026-2229"
+    ],
+    "summary": "Undici has Unhandled Exception in WebSocket Client Due to Invalid server_max_window_bits Validation",
+    "details_snippet": "### Impact\n\nThe undici WebSocket client is vulnerable to a denial-of-service attack due to improper validation of the `server_max_window_bits` parameter in the permessage-deflate extension. When a WebSocket client connects to a server, it automatically advertises support for permessage-deflate compression. A malicious server can respond with an out-of-range `server_max_window_bits` value (outside zlib's valid range of 8-15). When the server subsequently sends a compressed frame, the client attempts to create a zlib InflateRaw instance with the invalid windowBits value, causing a synchronous RangeError exception that is not caught, resulting in immediate process termination.\n\nThe vulnerability exists because:\n\n1. The `isValidClientWindowBits()` function only validates that the value contain",
+    "severity": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/undici), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "5.29.0"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/undici",
+        "version": "5.29.0",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-vrm6-8vpv-qv8q",
+    "rule": "dependency-path",
+    "package": "undici",
+    "aliases": [
+      "CVE-2026-1526"
+    ],
+    "summary": "Undici has Unbounded Memory Consumption in WebSocket permessage-deflate Decompression",
+    "details_snippet": "## Description\n\nThe undici WebSocket client is vulnerable to a denial-of-service attack via unbounded memory consumption during permessage-deflate decompression. When a WebSocket connection negotiates the permessage-deflate extension, the client decompresses incoming compressed frames without enforcing any limit on the decompressed data size. A malicious WebSocket server can send a small compressed frame (a \"decompression bomb\") that expands to an extremely large size in memory, causing the Node.js process to exhaust available memory and crash or become unresponsive.\n\nThe vulnerability exists in the `PerMessageDeflate.decompress()` method, which accumulates all decompressed chunks in memory and concatenates them into a single Buffer without checking whether the total size exceeds a safe th",
+    "severity": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/undici), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "5.29.0"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/undici",
+        "version": "5.29.0",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-vxpw-j846-p89q",
+    "rule": "dependency-path",
+    "package": "undici",
+    "aliases": [
+      "CVE-2026-12151"
+    ],
+    "summary": "undici WebSocket client vulnerable to denial of service via fragment count bypass",
+    "details_snippet": "## Impact\n\nThe undici WebSocket client enforces `maxPayloadSize` on the cumulative byte count of fragments in a message but does not enforce a limit on the number of fragments. A malicious WebSocket server can stream many small or empty continuation frames that each pass per-frame and cumulative-size validation, collectively causing unbounded memory growth in the client process. The result is memory exhaustion and a denial of service.\n\nAffected applications are those using the undici WebSocket client (`new WebSocket(...)`) or the `WebSocketStream` API that can be induced to connect to an attacker-controlled or compromised WebSocket endpoint.\n\nAll releases starting at undici 6.17.0 are affected.\n\n## Patches\n\nUpgrade to undici v6.27.0, v7.28.0 or v8.5.0.\n\n## Workarounds\n\nNo workaround is ava",
+    "severity": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/undici), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "5.29.0"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/undici",
+        "version": "5.29.0",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-8h3q-9fpp-c883",
+    "rule": "dependency-path",
+    "package": "wrangler",
+    "aliases": [],
+    "summary": "Duplicate Advisory: Wrangler affected by OS Command Injection in `wrangler pages deploy`",
+    "details_snippet": "## Duplicate Advisory\nThis advisory has been withdrawn because it is a duplicate of GHSA-36p8-mvp6-cv38. This link is maintained to preserve external references.\n\n## Original Description\n\nSummaryA command injection vulnerability (CWE-78) has been found to exist in the `wrangler pages deploy` command. The issue occurs because the `--commit-hash` parameter is passed directly to a shell command without proper validation or sanitization, allowing an attacker with control of `--commit-hash` to execute arbitrary commands on the system running Wrangler.\n\n\n\n\nRoot causeThe commitHash variable, derived from user input via the --commit-hash CLI argument, is interpolated directly into a shell command using template literals (e.g., \u00a0execSync(`git show -s --format=%B ${commitHash}`)). Shell metacharacte",
+    "severity": "CVSS:4.0/AV:N/AC:L/AT:P/PR:L/UI:N/VC:H/VI:H/VA:H/SC:L/SI:L/SA:N",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/wrangler), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "3.114.17"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/wrangler",
+        "version": "3.114.17",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-58qx-3vcg-4xpx",
+    "rule": "dependency-path",
+    "package": "ws",
+    "aliases": [
+      "CVE-2026-45736"
+    ],
+    "summary": "ws: Uninitialized memory disclosure",
+    "details_snippet": "### Impact\n\nThe `websocket.close()` implementation is vulnerable to uninitialized memory disclosure when a `TypedArray` is passed as the reason argument.\n\n### Proof of concept\n\n```js\nimport { deepStrictEqual } from 'node:assert';\nimport { WebSocket, WebSocketServer } from 'ws';\n\nconst wss = new WebSocketServer(\n  { port: 0, skipUTF8Validation: true },\n  function () {\n    const { port } = wss.address();\n    const ws = new WebSocket(`ws://localhost:${port}`, {\n      skipUTF8Validation: true\n    });\n\n    ws.on('close', function (code, reason) {\n      deepStrictEqual(reason, Buffer.alloc(80));\n    });\n  }\n);\n\nwss.on('connection', function (ws) {\n  ws.close(1000, new Float32Array(20));\n});\n```\n\n### Patches\n\nThe vulnerability was fixed in ws@8.20.1 (https://github.com/websockets/ws/commit/c0327e",
+    "severity": "CVSS:3.1/AV:N/AC:H/PR:H/UI:N/S:U/C:H/I:N/A:N",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/ws), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "8.18.0"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/ws",
+        "version": "8.18.0",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-96hv-2xvq-fx4p",
+    "rule": "dependency-path",
+    "package": "ws",
+    "aliases": [
+      "CVE-2026-48779"
+    ],
+    "summary": "ws: Memory exhaustion DoS from tiny fragments and data chunks",
+    "details_snippet": "### Impact\n\nA high volume of exceptionally small fragments and data chunks can be sent by a peer, with modest network traffic, to force the remote peer into allocating and holding structural wrappers that consume far more memory than the default documented message-size limit, leading to process termination due to OOM.\n\n### Proof of concept\n\n```js\nimport { WebSocket, WebSocketServer } from 'ws';\n\nconst wss = new WebSocketServer({ port: 0 }, function () {\n  const data = Buffer.alloc(1);\n  const options = { fin: false };\n  const { port } = wss.address();\n  const ws = new WebSocket(`ws://localhost:${port}`);\n\n  ws.on('open', function () {\n    (function send() {\n      ws.send(data, options, function (err) {\n        if (err) return;\n        send();\n      });\n    })();\n  });\n\n  ws.on('error', con",
+    "severity": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (node_modules/ws), so the vulnerable code is not in the published artifact.",
+    "versions": [
+      "8.18.0"
+    ],
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "locations": [
+      {
+        "path": "node_modules/ws",
+        "version": "8.18.0",
+        "dev": true,
+        "is_production": false
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-4633-3j49-mh5q",
+    "rule": "server-surface:cache-poisoning",
+    "package": "next",
+    "aliases": [
+      "CVE-2026-64647"
+    ],
+    "summary": "Next.js: Cache confusion of response bodies for requests with bodies containing invalid UTF-8 byte sequences",
+    "details_snippet": "## Impact\n\nA server-side `fetch` with a request body may return a cached **response** body from a different request to the same URL but different body. Confidential data in the `POST`'s **response** body would then leak to unauthorized requests. Though the request itself will not be deduped.\n\nThis is only an issue when receiving request bodies with a content type charset other than UTF-8. For example, the UTF-16 byte sequences for `\uc083\uc083` and `\uc104\uc104` in the request body would share the same cache.\n\n## Workarounds\n\nIf you cannot upgrade, consider only making fetch requests with UTF-8 bodies (default in Next.js). Applications using Pages Router are not vulnerable.",
+    "severity": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N",
+    "verdict": "not-deployed",
+    "reason": "Response-cache poisoning or confusion requires a server-side response cache, and this project builds a static export (`output: \"export\"` \u2014 build emits pre-rendered static files; `unoptimized: true` \u2014 the Image Optimizer is not deployed).",
+    "versions": [
+      "14.2.35"
+    ],
+    "source_imports_package_directly": true,
+    "declared_production_dependency": true,
+    "locations": [
+      {
+        "path": "node_modules/next",
+        "version": "14.2.35",
+        "dev": false,
+        "is_production": true
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-68g3-v927-f742",
+    "rule": "server-surface:cache-poisoning",
+    "package": "next",
+    "aliases": [
+      "CVE-2026-64648"
+    ],
+    "summary": "Next.js: Cache confusion of response bodies for requests with bodies",
+    "details_snippet": "## Impact\n\nA server-side `fetch` with a request body may return a cached **response** body from a different request to the same URL but different body. Confidential data in the `POST`'s **response** body would then leak to unauthorized requests. Though the request itself will not be deduped.\n\nThis only applies to `fetch` calls with a request that has a different init than the one passed to `fetch`.\nSafe: `fetch(new Request(init), init)`\nUnsafe: `fetch(new Request(init), aDifferentInit)`\n\n## Workarounds\n\nNo workaround exists besides upgrading. Applications using Pages Router are not vulnerable.",
+    "severity": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:P/VC:H/VI:L/VA:N/SC:N/SI:N/SA:N",
+    "verdict": "not-deployed",
+    "reason": "Response-cache poisoning or confusion requires a server-side response cache, and this project builds a static export (`output: \"export\"` \u2014 build emits pre-rendered static files; `unoptimized: true` \u2014 the Image Optimizer is not deployed).",
+    "versions": [
+      "14.2.35"
+    ],
+    "source_imports_package_directly": true,
+    "declared_production_dependency": true,
+    "locations": [
+      {
+        "path": "node_modules/next",
+        "version": "14.2.35",
+        "dev": false,
+        "is_production": true
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-vfv6-92ff-j949",
+    "rule": "server-surface:cache-poisoning",
+    "package": "next",
+    "aliases": [
+      "CVE-2026-44582"
+    ],
+    "summary": "Next.js vulnerable to cache poisoning via collisions in React Server Component cache-busting",
+    "details_snippet": "### Impact\n\nReact Server Component responses can be vulnerable to cache poisoning in deployments that rely on shared caches with insufficient response partitioning. In affected conditions, collisions in the `_rsc` cache-busting value can allow an attacker to poison cache entries so users receive the wrong response variant for a given URL.\n\n### Fix\n\nWe strengthened the `_rsc` cache-busting mechanism to make practical collisions significantly harder and to better separate response variants that should not share cache entries.\n\n### Workarounds\n\nIf you cannot upgrade immediately, ensure intermediary caches correctly honor `Vary` for RSC-related request headers, or disable shared caching for affected RSC responses until you can deploy a patched release.",
+    "severity": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:L/A:N",
+    "verdict": "not-deployed",
+    "reason": "Response-cache poisoning or confusion requires a server-side response cache, and this project builds a static export (`output: \"export\"` \u2014 build emits pre-rendered static files; `unoptimized: true` \u2014 the Image Optimizer is not deployed).",
+    "versions": [
+      "14.2.35"
+    ],
+    "source_imports_package_directly": true,
+    "declared_production_dependency": true,
+    "locations": [
+      {
+        "path": "node_modules/next",
+        "version": "14.2.35",
+        "dev": false,
+        "is_production": true
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-wfc6-r584-vfw7",
+    "rule": "server-surface:cache-poisoning",
+    "package": "next",
+    "aliases": [
+      "CVE-2026-44576"
+    ],
+    "summary": "Next.js vulnerable to cache poisoning in React Server Component responses",
+    "details_snippet": "### Impact\n\nApplications using React Server Components can be vulnerable to cache poisoning when shared caches do not correctly partition response variants. Under affected conditions, an attacker can cause an RSC response to be served from the original URL and poison shared cache entries so later visitors receive component payloads instead of the expected HTML.\n\n### Fix\n\nWe now validate and interpret `RSC` request headers consistently across request classification and rendering, and we enforce the intended cache-busting behavior so RSC payloads are not unexpectedly served from the original URL.\n\n### Workarounds\n\nIf you cannot upgrade immediately, ensure your CDN or reverse proxy keys on the relevant RSC request headers and honors `Vary`, or disable shared caching for affected App Router an",
+    "severity": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:C/C:N/I:L/A:L",
+    "verdict": "not-deployed",
+    "reason": "Response-cache poisoning or confusion requires a server-side response cache, and this project builds a static export (`output: \"export\"` \u2014 build emits pre-rendered static files; `unoptimized: true` \u2014 the Image Optimizer is not deployed).",
+    "versions": [
+      "14.2.35"
+    ],
+    "source_imports_package_directly": true,
+    "declared_production_dependency": true,
+    "locations": [
+      {
+        "path": "node_modules/next",
+        "version": "14.2.35",
+        "dev": false,
+        "is_production": true
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-3x4c-7xq6-9pq8",
+    "rule": "server-surface:image-optimizer",
+    "package": "next",
+    "aliases": [
+      "CVE-2026-27980"
+    ],
+    "summary": "Next.js: Unbounded next/image disk cache growth can exhaust storage",
+    "details_snippet": "## Summary\nThe default Next.js image optimization disk cache (`/_next/image`) did not have a configurable upper bound, allowing unbounded cache growth.\n\n## Impact\nAn attacker could generate many unique image-optimization variants and exhaust disk space, causing denial of service. Note that this does not impact platforms that have their own image optimization capabilities, such as Vercel.\n\n## Patches\nFixed by adding an LRU-backed disk cache with `images.maximumDiskCacheSize`, including eviction of least-recently-used entries when the limit is exceeded. Setting `maximumDiskCacheSize: 0` disables disk caching. \n\n## Workarounds\nIf upgrade is not immediately possible:\n- Periodically clean `.next/cache/images`.\n- Reduce variant cardinality (e.g., tighten values for `images.localPatterns`, `image",
+    "severity": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N",
+    "verdict": "not-deployed",
+    "reason": "The Image Optimizer is a server route; static export requires it disabled, and this project builds a static export (`output: \"export\"` \u2014 build emits pre-rendered static files; `unoptimized: true` \u2014 the Image Optimizer is not deployed).",
+    "versions": [
+      "14.2.35"
+    ],
+    "source_imports_package_directly": true,
+    "declared_production_dependency": true,
+    "locations": [
+      {
+        "path": "node_modules/next",
+        "version": "14.2.35",
+        "dev": false,
+        "is_production": true
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-9g9p-9gw9-jx7f",
+    "rule": "server-surface:image-optimizer",
+    "package": "next",
+    "aliases": [
+      "CVE-2025-59471"
+    ],
+    "summary": "Next.js self-hosted applications vulnerable to DoS via Image Optimizer remotePatterns configuration",
+    "details_snippet": "A DoS vulnerability exists in self-hosted Next.js applications that have `remotePatterns` configured for the Image Optimizer. The image optimization endpoint (`/_next/image`) loads external images entirely into memory without enforcing a maximum size limit, allowing an attacker to cause out-of-memory conditions by requesting optimization of arbitrarily large images. This vulnerability requires that `remotePatterns` is configured to allow image optimization from external domains and that the attacker can serve or control a large image on an allowed domain.\n\nStrongly consider upgrading to 15.5.10 and 16.1.5 to reduce risk and prevent availability issues in Next applications.",
+    "severity": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "verdict": "not-deployed",
+    "reason": "The Image Optimizer is a server route; static export requires it disabled, and this project builds a static export (`output: \"export\"` \u2014 build emits pre-rendered static files; `unoptimized: true` \u2014 the Image Optimizer is not deployed).",
+    "versions": [
+      "14.2.35"
+    ],
+    "source_imports_package_directly": true,
+    "declared_production_dependency": true,
+    "locations": [
+      {
+        "path": "node_modules/next",
+        "version": "14.2.35",
+        "dev": false,
+        "is_production": true
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-h64f-5h5j-jqjh",
+    "rule": "server-surface:image-optimizer",
+    "package": "next",
+    "aliases": [
+      "CVE-2026-44577"
+    ],
+    "summary": "Next.js has a Denial of Service in the Image Optimization API",
+    "details_snippet": "### Impact\n\nWhen self-hosting Next.js with the default image loader, the Image Optimization API fetches local images entirely into memory without enforcing a maximum size limit. An attacker could cause out-of-memory conditions by requesting large local assets from the `/_next/image` endpoint that match the `images.localPatterns` configuration (by default, all patterns are allowed).\n\n- If you are using `images.localPatterns`, only the patterns in that array are impacted.\n- If you are using `images.unoptimized: true`, you are NOT impacted.\n- If you are using `images.loader: 'custom'`, you are NOT impacted.\n- If you are using Vercel, you are NOT impacted.\n\n### Fix\n\nWe now apply response size limits consistently to internal image fetches, not just external ones, and fail oversized responses be",
+    "severity": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "verdict": "not-deployed",
+    "reason": "The Image Optimizer is a server route; static export requires it disabled, and this project builds a static export (`output: \"export\"` \u2014 build emits pre-rendered static files; `unoptimized: true` \u2014 the Image Optimizer is not deployed).",
+    "versions": [
+      "14.2.35"
+    ],
+    "source_imports_package_directly": true,
+    "declared_production_dependency": true,
+    "locations": [
+      {
+        "path": "node_modules/next",
+        "version": "14.2.35",
+        "dev": false,
+        "is_production": true
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-36qx-fr4f-26g5",
+    "rule": "server-surface:middleware",
+    "package": "next",
+    "aliases": [
+      "CVE-2026-44573"
+    ],
+    "summary": "Next.js has a Middleware / Proxy bypass in Pages Router applications using i18n",
+    "details_snippet": "### Impact\n\nApplications using the Pages Router with `i18n` configured and middleware/proxy-based authorization can allow unauthorized access to protected page data through locale-less `/_next/data/<buildId>/<page>.json` requests. In affected configurations, middleware does not run for the unprefixed data route, allowing an attacker to retrieve SSR JSON for protected pages without passing the intended authorization checks.\n\n### Fix\nThe matcher logic was updated to perform the same match as it would on a non-i18n data route.\n\n### Workarounds\n\nIf you cannot upgrade immediately, enforce authorization in the page's server-side data path instead of relying solely on middleware.",
+    "severity": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+    "verdict": "not-deployed",
+    "reason": "Middleware runs per request in the server runtime, and this project builds a static export (`output: \"export\"` \u2014 build emits pre-rendered static files; `unoptimized: true` \u2014 the Image Optimizer is not deployed).",
+    "versions": [
+      "14.2.35"
+    ],
+    "source_imports_package_directly": true,
+    "declared_production_dependency": true,
+    "locations": [
+      {
+        "path": "node_modules/next",
+        "version": "14.2.35",
+        "dev": false,
+        "is_production": true
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-3g8h-86w9-wvmq",
+    "rule": "server-surface:middleware",
+    "package": "next",
+    "aliases": [
+      "CVE-2026-44572"
+    ],
+    "summary": "Next.js's Middleware / Proxy redirects can be cache-poisoned",
+    "details_snippet": "### Impact\n\nNext.js uses the `x-nextjs-data` request header for internal data requests. On affected versions, an external client could send this header on a normal request to a path handled by middleware that returns a redirect.\n\nWhen that happened, the middleware/proxy could treat the request as a data request and replace the standard `Location` redirect header with the internal `x-nextjs-redirect` header. Browsers do not follow `x-nextjs-redirect`, so the response became an unusable redirect for normal clients.\n\nIf the application was deployed behind a CDN or reverse proxy that caches 3xx responses without varying on this header, a single attacker request could poison the cached redirect response for the affected path. Subsequent visitors could then receive a cached redirect response wit",
+    "severity": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L",
+    "verdict": "not-deployed",
+    "reason": "Middleware runs per request in the server runtime, and this project builds a static export (`output: \"export\"` \u2014 build emits pre-rendered static files; `unoptimized: true` \u2014 the Image Optimizer is not deployed).",
+    "versions": [
+      "14.2.35"
+    ],
+    "source_imports_package_directly": true,
+    "declared_production_dependency": true,
+    "locations": [
+      {
+        "path": "node_modules/next",
+        "version": "14.2.35",
+        "dev": false,
+        "is_production": true
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-89xv-2m56-2m9x",
+    "rule": "server-surface:middleware",
+    "package": "next",
+    "aliases": [
+      "CVE-2026-64649"
+    ],
+    "summary": "Next.js: Server-Side Request Forgery in Server Actions on custom servers",
+    "details_snippet": "## Impact\n\nWhen a Server Action forwards or redirects a request, an attacker can cause the server to send that outbound request to a malicious host (Server-Side Request Forgery). This requires the attacker's request to control Host-associated headers. In some configurations, it's also possible to obtain internal values that weaken middleware/proxy authorization.\n\nApplications that use Server Actions are affected when the incoming host header is not fixed to a trusted value. This typically occurs on custom servers, or on deployments not behind a proxy that pins the host. Managed hosting pins the host upstream and is not affected; `next start` and standalone output do the same from version 14.2 onward.\n\n## Workarounds\n\nIf you cannot upgrade, ensure clients do not control the host header your",
+    "severity": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:L/VA:N/SC:N/SI:N/SA:N",
+    "verdict": "not-deployed",
+    "reason": "Middleware runs per request in the server runtime, and this project builds a static export (`output: \"export\"` \u2014 build emits pre-rendered static files; `unoptimized: true` \u2014 the Image Optimizer is not deployed).",
+    "versions": [
+      "14.2.35"
+    ],
+    "source_imports_package_directly": true,
+    "declared_production_dependency": true,
+    "locations": [
+      {
+        "path": "node_modules/next",
+        "version": "14.2.35",
+        "dev": false,
+        "is_production": true
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-ggv3-7p47-pfv8",
+    "rule": "server-surface:request-smuggling",
+    "package": "next",
+    "aliases": [
+      "CVE-2026-29057"
+    ],
+    "summary": "Next.js: HTTP request smuggling in rewrites",
+    "details_snippet": "## Summary\nWhen Next.js rewrites proxy traffic to an external backend, a crafted `DELETE`/`OPTIONS` request using `Transfer-Encoding: chunked` could trigger request boundary disagreement between the proxy and backend. This could allow request smuggling through rewritten routes.\n\n## Impact\nAn attacker could smuggle a second request to unintended backend routes (for example, internal/admin endpoints), bypassing assumptions that only the configured rewrite destination/path is reachable. This does not impact applications hosted on providers that handle rewrites at the CDN level, such as Vercel. \n\n## Patches\nThe vulnerability originated in an upstream library vendored by Next.js. It is fixed by updating that dependency\u2019s behavior so `content-length: 0` is added only when both `content-length` a",
+    "severity": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N",
+    "verdict": "not-deployed",
+    "reason": "Request smuggling requires a server parsing inbound HTTP, and this project builds a static export (`output: \"export\"` \u2014 build emits pre-rendered static files; `unoptimized: true` \u2014 the Image Optimizer is not deployed).",
+    "versions": [
+      "14.2.35"
+    ],
+    "source_imports_package_directly": true,
+    "declared_production_dependency": true,
+    "locations": [
+      {
+        "path": "node_modules/next",
+        "version": "14.2.35",
+        "dev": false,
+        "is_production": true
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-4c39-4ccg-62r3",
+    "rule": "server-surface:server-actions",
+    "package": "next",
+    "aliases": [
+      "CVE-2026-64646"
+    ],
+    "summary": "Next.js: Unbounded Server Action payload in Edge runtime",
+    "details_snippet": "## Impact\n\nRequests targeting Next.js applications using App Router with at least one Server Action can lead to excessive memory consumption if that Server Actions uses the Edge runtime\n\n## Workarounds\n\nIf you cannot upgrade, ensure your hosting provider limits the request's body size. 5 MiB should be allowed at max by your hosting provider.",
+    "severity": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N",
+    "verdict": "not-deployed",
+    "reason": "Server Actions are RPC endpoints handled by the server runtime, and this project builds a static export (`output: \"export\"` \u2014 build emits pre-rendered static files; `unoptimized: true` \u2014 the Image Optimizer is not deployed).",
+    "versions": [
+      "14.2.35"
+    ],
+    "source_imports_package_directly": true,
+    "declared_production_dependency": true,
+    "locations": [
+      {
+        "path": "node_modules/next",
+        "version": "14.2.35",
+        "dev": false,
+        "is_production": true
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-955p-x3mx-jcvp",
+    "rule": "server-surface:server-actions",
+    "package": "next",
+    "aliases": [
+      "CVE-2026-64643"
+    ],
+    "summary": "Next.js: Unauthenticated disclosure of internal Server Function endpoints",
+    "details_snippet": "## Impact\n\nIn Next.js applications using App Router, Server Actions (`use server`) or `use cache` endpoints can be disclosed bypassing any authentication on the pages where these endpoints are usually used.\n\nServer Action IDs can be disclosed to unauthenticated users via publicly served client artifacts (for example, static chunks containing action references).\n\nAffected users are applications using App Router + Server Actions.  \n\nBy itself, this disclosure is typically a recon/enumeration primitive; however, it can increase risk when combined with other weaknesses.\n \n## Workarounds\n\nNever assume any authentication claims at the `use cache` or `use server` boundary. Always authenticate within the boundary.",
+    "severity": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+    "verdict": "not-deployed",
+    "reason": "Server Actions are RPC endpoints handled by the server runtime, and this project builds a static export (`output: \"export\"` \u2014 build emits pre-rendered static files; `unoptimized: true` \u2014 the Image Optimizer is not deployed).",
+    "versions": [
+      "14.2.35"
+    ],
+    "source_imports_package_directly": true,
+    "declared_production_dependency": true,
+    "locations": [
+      {
+        "path": "node_modules/next",
+        "version": "14.2.35",
+        "dev": false,
+        "is_production": true
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-m99w-x7hq-7vfj",
+    "rule": "server-surface:server-actions",
+    "package": "next",
+    "aliases": [
+      "CVE-2026-64641"
+    ],
+    "summary": "Next.js: Denial of Service in App Router using Server Actions",
+    "details_snippet": "## Impact\n\nCrafted requests targeting Next.js applications using App Router with at least one Server Action can lead to excessive CPU usage blocking processing of further requests in the same process.\n\n## Workarounds\n\nNo workaround exists besides upgrading. Applications using Pages Router or not using Server Actions are not vulnerable.",
+    "severity": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+    "verdict": "not-deployed",
+    "reason": "Server Actions are RPC endpoints handled by the server runtime, and this project builds a static export (`output: \"export\"` \u2014 build emits pre-rendered static files; `unoptimized: true` \u2014 the Image Optimizer is not deployed).",
+    "versions": [
+      "14.2.35"
+    ],
+    "source_imports_package_directly": true,
+    "declared_production_dependency": true,
+    "locations": [
+      {
+        "path": "node_modules/next",
+        "version": "14.2.35",
+        "dev": false,
+        "is_production": true
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-8h8q-6873-q5fj",
+    "rule": "server-surface:server-functions",
+    "package": "next",
+    "aliases": [],
+    "summary": "Next.js Vulnerable to Denial of Service with Server Components",
+    "details_snippet": "A vulnerability affects certain React Server Components packages for versions 19.x and frameworks that use the affected packages, including Next.js 13.x, 14.x, 15.x, and 16.x using the App Router. The issue is tracked upstream as [CVE-2026-23870](https://github.com/facebook/react/security/advisories/GHSA-rv78-f8rc-xrxh). \n\nA specially crafted HTTP request can be sent to any App Router Server Function endpoint that, when deserialized, may trigger excessive CPU usage. This can result in denial of service in unpatched environments.",
+    "severity": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "verdict": "not-deployed",
+    "reason": "Server Functions are RPC endpoints reached by an inbound HTTP request; a static export emits none, and this project builds a static export (`output: \"export\"` \u2014 build emits pre-rendered static files; `unoptimized: true` \u2014 the Image Optimizer is not deployed).",
+    "versions": [
+      "14.2.35"
+    ],
+    "source_imports_package_directly": true,
+    "declared_production_dependency": true,
+    "locations": [
+      {
+        "path": "node_modules/next",
+        "version": "14.2.35",
+        "dev": false,
+        "is_production": true
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-h25m-26qc-wcjf",
+    "rule": "server-surface:server-functions",
+    "package": "next",
+    "aliases": [],
+    "summary": "Next.js HTTP request deserialization can lead to DoS when using insecure React Server Components",
+    "details_snippet": "A vulnerability affects certain React Server Components packages for versions 19.0.x, 19.1.x, and 19.2.x and frameworks that use the affected packages, including Next.js 13.x, 14.x, 15.x, and 16.x using the App Router. The issue is tracked upstream as [CVE-2026-23864](https://github.com/facebook/react/security/advisories/GHSA-83fc-fqcc-2hmg).\n\nA specially crafted HTTP request can be sent to any App Router Server Function endpoint that, when deserialized, may trigger excessive CPU usage, out-of-memory exceptions, or server crashes. This can result in denial of service in unpatched environments.",
+    "severity": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "verdict": "not-deployed",
+    "reason": "Server Functions are RPC endpoints reached by an inbound HTTP request; a static export emits none, and this project builds a static export (`output: \"export\"` \u2014 build emits pre-rendered static files; `unoptimized: true` \u2014 the Image Optimizer is not deployed).",
+    "versions": [
+      "14.2.35"
+    ],
+    "source_imports_package_directly": true,
+    "declared_production_dependency": true,
+    "locations": [
+      {
+        "path": "node_modules/next",
+        "version": "14.2.35",
+        "dev": false,
+        "is_production": true
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-q4gf-8mx6-v5v3",
+    "rule": "server-surface:server-functions",
+    "package": "next",
+    "aliases": [],
+    "summary": "Next.js has a Denial of Service with Server Components",
+    "details_snippet": "A vulnerability affects certain React Server Components packages for versions 19.x and frameworks that use the affected packages, including Next.js 13.x, 14.x, 15.x, and 16.x using the App Router. The issue is tracked upstream as [CVE-2026-23869](https://github.com/facebook/react/security/advisories/GHSA-479c-33wc-g2pg). You can read more about this advisory our [this changelog](https://vercel.com/changelog/summary-of-cve-2026-23869).\n\nA specially crafted HTTP request can be sent to any App Router Server Function endpoint that, when deserialized, may trigger excessive CPU usage. This can result in denial of service in unpatched environments.",
+    "severity": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "verdict": "not-deployed",
+    "reason": "Server Functions are RPC endpoints reached by an inbound HTTP request; a static export emits none, and this project builds a static export (`output: \"export\"` \u2014 build emits pre-rendered static files; `unoptimized: true` \u2014 the Image Optimizer is not deployed).",
+    "versions": [
+      "14.2.35"
+    ],
+    "source_imports_package_directly": true,
+    "declared_production_dependency": true,
+    "locations": [
+      {
+        "path": "node_modules/next",
+        "version": "14.2.35",
+        "dev": false,
+        "is_production": true
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-c4j6-fc7j-m34r",
+    "rule": "server-surface:ssrf",
+    "package": "next",
+    "aliases": [
+      "CVE-2026-44578"
+    ],
+    "summary": "Next.js vulnerable to server-side request forgery in applications using WebSocket upgrades",
+    "details_snippet": "### Impact\n\nSelf-hosted applications using the built-in Node.js server can be vulnerable to server-side request forgery through crafted WebSocket upgrade requests. An attacker can cause the server to proxy requests to arbitrary internal or external destinations, which may expose internal services or cloud metadata endpoints. Vercel-hosted deployments are not affected.\n\n### Fix\n\nWe now apply the same safety checks to WebSocket upgrade handling that already existed for normal HTTP requests, so upgrade requests are only proxied when routing has explicitly marked them as safe external rewrites.\n\n### Workarounds\n\nIf you cannot upgrade immediately, do not expose the origin server directly to untrusted networks. If WebSocket upgrades are not required, block them at your reverse proxy or load bala",
+    "severity": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:N/A:N",
+    "verdict": "not-deployed",
+    "reason": "SSRF requires the server to originate the request, and this project builds a static export (`output: \"export\"` \u2014 build emits pre-rendered static files; `unoptimized: true` \u2014 the Image Optimizer is not deployed).",
+    "versions": [
+      "14.2.35"
+    ],
+    "source_imports_package_directly": true,
+    "declared_production_dependency": true,
+    "locations": [
+      {
+        "path": "node_modules/next",
+        "version": "14.2.35",
+        "dev": false,
+        "is_production": true
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  },
+  {
+    "advisory_id": "GHSA-p9j2-gv94-2wf4",
+    "rule": "server-surface:ssrf",
+    "package": "next",
+    "aliases": [
+      "CVE-2026-64645"
+    ],
+    "summary": "Next.js: Server-Side Request Forgery in rewrites via attacker-controlled destination hostname",
+    "details_snippet": "## Impact\n\nA `rewrites()` or `redirects()` rule that builds its external destination hostname from request-controlled input can be pointed at an arbitrary hostname, regardless of the rule's\u00a0hostname suffix. For a rewrite, Next.js proxies the request to that arbitrary host and serves the response from the application's origin, leading to Server-Side Request forgery. A `redirects()` rule configured this way is vulnerable to an Open Redirect.\n\nThis affects any destination that puts a dynamic segment in the hostname, whether from the path:\n\n```javascript\n// next.config.js\nmodule.exports = {\n  async rewrites() {\n    return [\n      {\n        source: '/:tenant',\n        destination: 'https://:tenant.api.example.com',\n      },\n    ]\n  },\n}\n```\n\nor from a `has` capture:\n\n```javascript\n// next.confi",
+    "severity": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:L/VA:N/SC:L/SI:L/SA:N",
+    "verdict": "not-deployed",
+    "reason": "SSRF requires the server to originate the request, and this project builds a static export (`output: \"export\"` \u2014 build emits pre-rendered static files; `unoptimized: true` \u2014 the Image Optimizer is not deployed).",
+    "versions": [
+      "14.2.35"
+    ],
+    "source_imports_package_directly": true,
+    "declared_production_dependency": true,
+    "locations": [
+      {
+        "path": "node_modules/next",
+        "version": "14.2.35",
+        "dev": false,
+        "is_production": true
+      }
+    ],
+    "projects": [
+      "ventures/real-estate-agent-photo-app/docs-site",
+      "ventures/real-estate-agent-photo-app/research"
+    ]
+  }
+]

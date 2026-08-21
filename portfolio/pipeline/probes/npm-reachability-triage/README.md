@@ -370,6 +370,83 @@ source, is never build-only however the graph resolves. The root project is a
 dependent like any other and is never itself build-only, which is the structural
 half of the same protection.
 
+## Wrong-suppression rate, hand-verified (2026-08-21)
+
+The validated-against-manual-review table above measures agreement with a
+human classification of *deployment mode*. It never answered a narrower,
+harder question: of the individual suppressions this run actually produces,
+how many are wrong — a real, deployed vulnerability the tool hid? That needs
+the actual advisory text and the actual lockfile evidence for each
+suppression, not a synthetic fixture corpus, which is why it was left open
+through the build-surface pass above.
+
+Method: re-ran the engine against a freshly downloaded OSV npm feed (same
+2026-08-21 fetch used above) across all seven npm products in this portfolio,
+and inspected every one of the **102 suppressed findings** the run produced by
+hand. They reduce to **53 distinct `(advisory, rule, package)` claims** — the
+same advisory suppressed the same way on more than one product counts once,
+since the reasoning is identical. Full detail for all 53 is in
+[`wrong-suppression-verification-2026-08-21.json`](wrong-suppression-verification-2026-08-21.json).
+
+| Rule | Distinct claims | Raw findings | Evidence checked |
+|---|---|---|---|
+| `dependency-path` | 28 | 40 | Every install location's `dev` flag in the lockfile is `true`, every location is non-production, and the project's own source never imports the package directly (cross-checked against `scan_project_imports`, which the rule itself does not consult) |
+| `build-surface` | 6 | 24 | The full OSV advisory text (4 PostCSS CVEs, 2 nanoid CVEs) against the specific vendored install location the rule names, not the package in the abstract |
+| `server-surface:*` | 19 | 38 | The full OSV advisory text against the confirmed deployment config (`output: "export"` in both static-export products' `next.config.js`) and the absence of `middleware.*` or `'use server'` in either project's source |
+
+**Result: 0 of 53 distinct claims, and therefore 0 of the 102 raw suppressed
+findings, suppress a vulnerability that is actually present in what gets
+deployed.**
+
+What the verification actually checked, per rule:
+
+- `dependency-path` is the strongest class: npm's per-location `dev` flag is a
+  structural fact this tool reads rather than infers, and all 28 claims
+  cross-checked clean on both signals a wrong suppression would need —
+  production reachability and direct source use.
+- `build-surface`'s 6 claims all rest on two named edges, `next → postcss` and,
+  transitively, `postcss → nanoid`. Reading the actual advisory text mattered
+  here: one of the four PostCSS advisories (`GHSA-qx2v-qp2m-jg93`, XSS via
+  unescaped `</style>` in stringified output) describes a *runtime* attack
+  scenario — parsing and re-stringifying user-submitted CSS — that sounds like
+  it could apply to a live site. It does not apply to *this* install location:
+  the vendored copy at `node_modules/next/node_modules/postcss` is invoked
+  only by `next build`'s CSS pipeline, which compiles the project's own
+  stylesheets, never attacker-submitted CSS at request time. The rule's
+  reasoning holds because it is about the specific location, not the
+  advisory's hypothetical.
+- `server-surface:*`'s 19 claims were checked against real deployment evidence
+  rather than assumed: both static-export products' `next.config.js` do say
+  `output: "export"`, and neither project's source has a `middleware.*` file
+  or a `'use server'` directive — so the surfaces these advisories describe
+  (Middleware, Server Actions, the Image Optimizer, request-time caching, SSRF
+  via server-originated requests) are confirmed absent, not just assumed
+  absent from the mode label.
+
+**One labeling imprecision found, not a wrong suppression.**
+`GHSA-89xv-2m56-2m9x` ("SSRF in Server Actions on custom servers") is tagged
+`server-surface:middleware`, not `server-surface:server-actions` or
+`server-surface:ssrf`. `surfaces.classify()` matches the first rule in
+`SERVER_ONLY_RULES` whose pattern hits anywhere in `summary + details`, and
+this advisory's details mention "middleware/proxy authorization" alongside its
+actual subject. The verdict is still correct — both the matched surface and
+the advisory's real one require a live server — but the label a reviewer sees
+does not name the mechanism they would expect. Fixing it safely means ranking
+matches by which appear in the advisory's `summary` before falling back to
+`details`, which changes `classify()`'s signature and needs its own pass
+against `tests/test_surfaces.py`; left as a follow-up rather than done inside
+this verification pass.
+
+**What this measurement does not cover.** It is one portfolio's sample — the
+same limit stated above (four of nine products are documentation sites). It
+checked that the suppression *reasoning* is sound for the specific advisories
+this feed currently carries; it is not a general proof that `dependency-path`,
+`build-surface`, or `server-surface:*` can never misfire on a different
+project's lockfile shape. The concentration risk the build-surface section
+already names — 24 of 102 suppressions here trace to one edge claim,
+`next → postcss` — still holds: this pass confirmed that edge is correct
+today, not that it always will be.
+
 ## Usage
 
 ```bash
