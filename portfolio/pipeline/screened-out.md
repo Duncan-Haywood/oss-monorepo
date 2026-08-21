@@ -25,6 +25,7 @@ outweighed.
 
 | Candidate | Reason |
 |---|---|
+| Moober (cattle transport matching) | Fails low-capital (transport coordination requires insurance, infrastructure, regional licensing) and no-employees constraints (needs logistics coordinators and dispatch). High liability and animal-welfare exposure. Low AI leverage — primarily a marketplace/logistics problem with matching and routing that does not require model work. Physical logistics marketplaces in regulated transportation are capital-intensive without a defensible edge |
 | GEO / AI-visibility monitoring | At least eight funded platforms by mid-2026 with mid-market pricing already compressed toward €89/month. Entering at the bottom of a compressing market with no channel |
 | Agent observability platform | Same category logic as [agent-permission-harness](candidates/agent-permission-harness.md) but worse — competing directly with funded incumbents on their core product rather than at an edge |
 | Generic "AI chatbot for X" agency | No moat, churn tracks the customer's enthusiasm rather than any delivered value, and it is a services business wearing a product costume |
