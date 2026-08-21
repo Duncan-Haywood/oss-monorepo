@@ -1,3 +1,4 @@
+import sqlite3
 import tempfile
 import unittest
 from pathlib import Path
@@ -7,10 +8,22 @@ from resumable_photos_import import (
     ImportState,
     PhotosImporter,
     build_manifest,
+    bulk_preflight_pending,
     discover_importable_photos,
     file_is_ready,
     recover_interrupted,
 )
+
+
+def _make_fake_photos_db(path: Path, filenames: set[str]) -> None:
+    with sqlite3.connect(path) as connection:
+        connection.execute("CREATE TABLE ZASSET (ZFILENAME TEXT)")
+        connection.execute("CREATE TABLE ZADDITIONALASSETATTRIBUTES (ZORIGINALFILENAME TEXT)")
+        connection.executemany(
+            "INSERT INTO ZASSET (ZFILENAME) VALUES (?)",
+            [(name,) for name in filenames],
+        )
+        connection.commit()
 
 
 class ResumablePhotosImportTests(unittest.TestCase):
@@ -349,6 +362,130 @@ class ResumablePhotosImportTests(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             self.assertEqual(state.get_status(photo), "imported")
             self.assertEqual(len(importer.imported_paths), 1)
+
+    def test_ambiguous_names_flags_shared_basename_across_directories(self):
+        # Camera-generated basenames (DSC00001.JPG) aren't globally unique --
+        # two distinct source files from different cards/folders can share
+        # one. Every basename-only Photos-library match in this module needs
+        # to know when a name is ambiguous like this.
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            first = root / "card-a" / "DSC00001.JPG"
+            second = root / "card-b" / "DSC00001.JPG"
+            unique = root / "card-a" / "DSC00002.JPG"
+            for path in (first, second, unique):
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(b"jpeg")
+            state = ImportState(root / "state.sqlite3")
+            state.upsert(first, "pending")
+            state.upsert(second, "pending")
+            state.upsert(unique, "pending")
+
+            self.assertEqual(state.ambiguous_names(), {"DSC00001.JPG"})
+
+    def test_bulk_preflight_pending_does_not_mark_ambiguous_basename_imported(self):
+        # Before this fix, bulk_preflight_pending matched on Path(path).name
+        # alone: once ANY file named DSC00001.JPG was in Photos, every
+        # tracked path sharing that basename -- even a completely different
+        # photo from a different card -- was marked "imported" and never
+        # revisited by next_importable_batch, silently losing it.
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            first = root / "card-a" / "DSC00001.JPG"
+            second = root / "card-b" / "DSC00001.JPG"
+            first.parent.mkdir(parents=True, exist_ok=True)
+            second.parent.mkdir(parents=True, exist_ok=True)
+            first.write_bytes(b"jpeg-a")
+            second.write_bytes(b"jpeg-b")
+            state = ImportState(root / "state.sqlite3")
+            state.upsert(first, "pending")
+            state.upsert(second, "pending")
+            photos_db = root / "photos.sqlite"
+            _make_fake_photos_db(photos_db, {"DSC00001.JPG"})
+
+            marked = bulk_preflight_pending(state, photos_db)
+
+            self.assertEqual(marked, 0)
+            self.assertEqual(state.get_status(first), "pending")
+            self.assertEqual(state.get_status(second), "pending")
+
+    def test_bulk_preflight_pending_still_marks_unique_basename_imported(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            photo = root / "already-there.JPG"
+            photo.write_bytes(b"jpeg")
+            state = ImportState(root / "state.sqlite3")
+            state.upsert(photo, "pending")
+            photos_db = root / "photos.sqlite"
+            _make_fake_photos_db(photos_db, {"already-there.JPG"})
+
+            marked = bulk_preflight_pending(state, photos_db)
+
+            self.assertEqual(marked, 1)
+            self.assertEqual(state.get_status(photo), "imported")
+
+    def test_photos_contains_file_does_not_shortcut_ambiguous_basename(self):
+        # Same collision, exercised through the real (non-Fake)
+        # PhotosImporter.photos_contains_file/filename_in_photos -- these
+        # gate prepare_batch's pre-import skip and handle_item_error's
+        # "recovered_already_imported" path, so a false "yes, Photos already
+        # has this" for the wrong file is exactly how a distinct photo gets
+        # dropped without ever being copied.
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            first = root / "card-a" / "DSC00001.JPG"
+            second = root / "card-b" / "DSC00001.JPG"
+            first.parent.mkdir(parents=True, exist_ok=True)
+            second.parent.mkdir(parents=True, exist_ok=True)
+            first.write_bytes(b"jpeg-a")
+            second.write_bytes(b"jpeg-b")
+            state = ImportState(root / "state.sqlite3")
+            state.upsert(first, "pending")
+            state.upsert(second, "pending")
+            photos_db = root / "photos.sqlite"
+            _make_fake_photos_db(photos_db, {"DSC00001.JPG"})
+            importer = PhotosImporter(
+                state=state,
+                state_dir=root,
+                event_log=root / "events.jsonl",
+                error_log=root / "errors.jsonl",
+                status_path=root / "status.json",
+                stop_file=root / "STOP",
+                per_file_timeout_seconds=1,
+                attempts=1,
+                batch_size=1,
+                photos_db=photos_db,
+                use_photos_preflight=True,
+            )
+
+            self.assertFalse(importer.photos_contains_file(first))
+            self.assertFalse(importer.photos_contains_file(second))
+            self.assertFalse(importer.filename_in_photos("DSC00001.JPG"))
+
+    def test_photos_contains_file_still_shortcuts_unique_basename(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            photo = root / "already-there.JPG"
+            photo.write_bytes(b"jpeg")
+            state = ImportState(root / "state.sqlite3")
+            state.upsert(photo, "pending")
+            photos_db = root / "photos.sqlite"
+            _make_fake_photos_db(photos_db, {"already-there.JPG"})
+            importer = PhotosImporter(
+                state=state,
+                state_dir=root,
+                event_log=root / "events.jsonl",
+                error_log=root / "errors.jsonl",
+                status_path=root / "status.json",
+                stop_file=root / "STOP",
+                per_file_timeout_seconds=1,
+                attempts=1,
+                batch_size=1,
+                photos_db=photos_db,
+                use_photos_preflight=True,
+            )
+
+            self.assertTrue(importer.photos_contains_file(photo))
 
 
 class FakePhotosImporter(PhotosImporter):

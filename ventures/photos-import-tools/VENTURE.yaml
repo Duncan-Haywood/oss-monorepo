@@ -61,6 +61,10 @@ hypotheses:
     status: supported
     checked: 2026-08-20
     evidence: in-repo
+  - claim: Matching a source file against the Photos library by filename alone does not silently mark a distinct file "imported" (and drop it forever) just because some other tracked file shares its basename -- camera-generated names like DSC00001.JPG or IMG_0001.JPG are not unique across cards/folders, so an ambiguous basename is never treated as authoritative proof that a particular file is already in Photos.
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
   - claim: A transient stat failure while checking free disk space on state_dir (an iCloud-synced path where a sync hiccup or momentarily unreachable network mount can make the check itself fail) does not crash the whole run; it is treated the same as confirmed-low disk space and the loop retries instead of aborting.
     status: supported
     checked: 2026-08-21
