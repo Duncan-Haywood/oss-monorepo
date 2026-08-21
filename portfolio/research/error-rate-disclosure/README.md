@@ -327,16 +327,20 @@ of that improved. What changed is that a subscriber is now told it.
 
 ### 5. What is still open
 
-- **`agent-permission-harness` is the last probe with no customer record at
-  all** — and, unlike the silence detector, no measured rate to put in one. It
-  has been run on a single unlabelled corpus, so neither a false-positive nor a
-  false-negative rate exists. Its candidate is `park`, so this is the least
-  urgent of the four.
+- **`agent-permission-harness` closed its gap — `ethical_robustness` 7 → 9.**
+  `validate_accuracy.py` (a labeled 34-case synthetic fixture corpus, run for
+  real through `harness.analyse()`) measured 0 false positives / 0 false
+  negatives on the 16/34 positive-rule opportunities those fixtures cover, and
+  `render_markdown()` now states that figure, its direction, and its honest
+  limits (author-authored fixtures, not held-out; silent on attack classes none
+  of the seven rules encode) in a "How this can be wrong" section. `measure.py`
+  cites the committed figure for real instead of `citation=None`. See
+  [`portfolio/pipeline/probes/agent-permission-harness/`](../../pipeline/probes/agent-permission-harness/).
 - **`npm-reachability-triage` needs a measurement, not a module.** Its record
   already names its adverse direction, in the body rather than a footnote. The
   rate for that direction — a suppression that should not have happened — has
-  never been measured, so there is no figure to print. That is its one remaining
-  deduction and the only one of the ten this pass could not close.
+  never been measured, so there is no figure to print. That is the last
+  remaining deduction this pass could not close.
 
 Consequences recorded elsewhere: four `measured:` blocks and two composites in
 [`candidates.yaml`](../../pipeline/candidates.yaml), the two write-ups, the
