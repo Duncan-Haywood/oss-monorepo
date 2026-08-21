@@ -130,8 +130,9 @@ minutes by default — `agent_runner_schedule` in `group_vars/all.yml`) runs
 1. Lists open issues in that repo labeled `agent` (configurable per repo).
 2. Skips any issue already labeled `agent:in-progress`, `agent:pr-opened`,
    or `agent:failed` — so nothing gets worked twice, and a failed run
-   doesn't get silently retried forever (you re-add the trigger label
-   yourself once you've looked at why it failed).
+   doesn't get silently retried forever (you remove the `agent:failed`
+   label yourself once you've looked at why it failed; the trigger label
+   is never removed, so re-adding it does nothing).
 3. **If a repo has `self_directed: true` and no labeled issues are
    waiting**, and enough time has passed since the last one
    (`self_directed_cooldown_hours`, default 24h), the runner files a new
