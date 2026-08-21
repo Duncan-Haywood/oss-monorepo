@@ -57,6 +57,8 @@ turned off.
 | Button name | 4.1.2 | blocking | `<button>` has no accessible name |
 | Interactive aria-hidden | 4.1.2 | blocking | a focusable control is `aria-hidden="true"` |
 | Video captions | 1.2.2 | blocking | `<video>` has no `<track kind=captions>` |
+| Autoplay with sound | 1.4.2 | blocking | `<video>`/`<audio autoplay>` without `muted` |
+| Zoom blocked | 1.4.4 | blocking | viewport meta sets `user-scalable=no` or `maximum-scale` < 2 |
 | Page title | 2.4.2 | degrading | no non-empty `<title>` |
 | Heading order | 2.4.6 | degrading | a heading level is skipped (h1 → h3) |
 | Data-table headers | 1.3.1 | degrading | a multi-row data table has no `<th>` |
@@ -132,10 +134,16 @@ Run in CI by [`eaa-wcag-triage-ci.yml`](../../../../.github/workflows/eaa-wcag-t
 which also re-runs `run_fixture_validation.py` and fails if the committed
 record no longer matches what the engine emits.
 
-37 tests: parser behaviour, each rule and its negative control, the
+48 tests: parser behaviour, each rule and its negative control, the
 blocking-before-degrading ordering, dedup of one element matched by two rules,
-the evidence record's JSON/markdown shape and its compliance disclaimer, and the
-fixture validation.
+the evidence record's JSON/markdown shape and its compliance disclaimer, the
+fixture validation, and — added 2026-08-21 — the two rules this engine was
+missing relative to its sibling (1.4.2, 1.4.4), the focusability predicate on
+the `aria-hidden` rule, and the invariant that every statically reachable
+criterion appears in `COVERAGE`. See
+[`portfolio/research/a11y-engine-agreement/`](../../../research/a11y-engine-agreement/)
+for why an engine that passes its own suite can still be quietly narrower than
+its own coverage statement.
 
 ## Scope and honesty, in one place
 
