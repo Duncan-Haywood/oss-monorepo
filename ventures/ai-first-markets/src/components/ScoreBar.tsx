@@ -23,7 +23,7 @@ export function ScoreBar({ label, score, maxScore, rationale }: ScoreBarProps) {
         />
       </div>
       {rationale && (
-        <p className="mt-1.5 text-xs text-zinc-500">{rationale}</p>
+        <p className="mt-1.5 text-xs text-zinc-400">{rationale}</p>
       )}
     </div>
   );
