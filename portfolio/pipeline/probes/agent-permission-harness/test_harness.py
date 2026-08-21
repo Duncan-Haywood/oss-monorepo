@@ -762,16 +762,20 @@ class TestHeadlineNumbersAgainstThisRepo(unittest.TestCase):
         }
         self.assertEqual(agent_workflows, {".github/workflows/opencode-high-throughput.yml"})
 
-    def test_the_agent_prompt_script_is_still_absent(self):
+    def test_no_workflow_references_a_script_that_is_absent(self):
+        # Was pinned the other way: R1's one hit was the fleet's guarded call to
+        # .github/scripts/prepare-agent-prompt.sh, a script never on main, so the
+        # fallback always ran and the file read as executing something it did not.
+        # The dead branch is gone; this now pins the repaired state.
         hits = [f for f in self.findings if f.rule == "R1-missing-referenced-script"]
-        self.assertEqual(len(hits), 1)
-        self.assertIn("prepare-agent-prompt.sh", hits[0].summary)
-        self.assertIn("silent", hits[0].detail)
+        self.assertEqual(hits, [])
 
-    def test_the_prompt_output_delimiter_is_still_fixed(self):
+    def test_no_workflow_variable_write_uses_a_fixed_delimiter(self):
+        # Was pinned the other way: R2's one hit was the fleet piping
+        # portfolio-work.md (REPO_WRITE) into $GITHUB_OUTPUT behind the literal
+        # PROMPT_EOF. The delimiter is now generated per run.
         hits = [f for f in self.findings if f.rule == "R2-static-output-delimiter"]
-        self.assertEqual(len(hits), 1)
-        self.assertIn("PROMPT_EOF", hits[0].summary)
+        self.assertEqual(hits, [])
 
     def test_the_instruction_closure_is_larger_than_the_prompt(self):
         hits = [f for f in self.findings if f.rule == "R7-agent-instruction-closure"]
