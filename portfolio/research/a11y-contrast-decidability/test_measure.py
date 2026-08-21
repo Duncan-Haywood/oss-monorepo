@@ -2,7 +2,7 @@
 
 Standard-library ``unittest``, no install step, no network, matching the other
 research directories. These check the *measurement*, not the engine — the
-engine's own 111 tests live beside it in
+engine's own 112 tests live beside it in
 ``portfolio/pipeline/probes/eaa-wcag-triage/tests/``.
 
 The committed results file is checked here too. It is a published number, and a
@@ -95,10 +95,27 @@ class CommittedResults(unittest.TestCase):
         self.assertEqual(self.results["totals"]["decidable_share"], 0.9876)
         self.assertEqual(self.results["totals"]["dark_only_failures"], 384)
 
-    def test_the_two_ventures_fixed_in_this_pass_are_clean(self):
+    def test_the_open_venture_failures_are_the_ones_the_readme_names(self):
+        """The three ventures with open AA failures, at the counts on `main`.
+
+        These are remediations, not measurement defects, and each is held
+        separately: the `local-site-studio` and `ai-first-markets` colour-token
+        fixes are venture source that only the account owner may merge, and
+        `print-atelier`'s 611 are 73 component-level colour decisions. When any
+        of them lands, this test fails and the results file has to be
+        regenerated against the rebuilt corpus — which is the point. The
+        committed artifact is only worth keeping while it still describes the
+        tree it was measured from.
+        """
         by_name = {row["venture"]: row for row in self.results["ventures"]}
-        for name in ("local-site-studio", "ai-first-markets"):
-            self.assertEqual(by_name[name]["both_schemes"].get("fail", 0), 0, name)
+        expected = {
+            "local-site-studio": 21,
+            "ai-first-markets": 333,
+            "print-atelier": 611,
+            "quick-pick-survey": 0,
+        }
+        for name, count in expected.items():
+            self.assertEqual(by_name[name]["both_schemes"].get("fail", 0), count, name)
 
 
 if __name__ == "__main__":
