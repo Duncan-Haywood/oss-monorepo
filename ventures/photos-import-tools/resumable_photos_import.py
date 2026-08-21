@@ -546,6 +546,18 @@ class PhotosImporter:
             self.import_batch_with_split(right)
 
     def import_single_item(self, item: ImportItem) -> None:
+        # scratch_path is computed up front (not read back from
+        # resolve_import_path's return value) so cleanup below runs for
+        # every exit from this method, including a raised PhotosImportError
+        # -- staging failures, a Photos-side rejection, a timeout. Before
+        # this fix, cleanup_scratch only ran after a successful import, so a
+        # permanently-failed item (Photos-rejected as damaged, or one that
+        # exhausted MAX_TRANSIENT_ATTEMPTS) is never retried and never gets
+        # a second chance at cleanup: the copy resolve_import_path staged
+        # just before the failed attempt was orphaned in scratch_dir
+        # forever, an unbounded disk-space leak for every file that ever
+        # fails permanently.
+        scratch_path = self.scratch_dir / item.path.name if self.scratch_dir else None
         try:
             import_path = self.resolve_import_path(item.path)
             self.import_paths_osascript([import_path], duplicate_check=item.status != "pending")
@@ -558,9 +570,11 @@ class PhotosImporter:
             self.state.mark_imported(item.path)
             self.log_event("imported", {"path": str(item.path), "mode": "single"})
             print(self.progress_line("imported", item.path), flush=True)
-            self.cleanup_scratch(import_path, item.path)
         except PhotosImportError as error:
             self.handle_item_error(item, error)
+        finally:
+            if scratch_path is not None:
+                self.cleanup_scratch(scratch_path, item.path)
 
     def handle_item_error(self, item: ImportItem, error: PhotosImportError) -> None:
         classified = error.classified
@@ -677,16 +691,24 @@ class PhotosImporter:
             ) from error
         return scratch_path
 
-    def cleanup_scratch(self, import_path: Path, original_path: Path) -> None:
-        if not (self.scratch_dir and import_path != original_path):
+    def cleanup_scratch(self, scratch_path: Path, original_path: Path) -> None:
+        # Called from import_single_item's `finally`, so this runs on both
+        # the success path (Photos already has the file) and the failure
+        # path (the item is being retried, skipped, or marked permanent).
+        # resolve_import_path always re-stages a fresh copy on the next
+        # attempt regardless of what's already there, so nothing is lost by
+        # clearing the scratch copy unconditionally after every attempt.
+        if not (self.scratch_dir and scratch_path != original_path):
             return
         try:
-            if import_path.exists():
-                import_path.unlink(missing_ok=True)
+            if scratch_path.exists():
+                scratch_path.unlink(missing_ok=True)
         except OSError:
             # Best-effort: a leftover scratch file is a minor disk-space
             # nuisance, not a correctness issue. It must not raise here --
-            # the caller already marked the item imported by this point.
+            # the caller may have already marked the item imported by this
+            # point, and a failed item must still get its normal retry/skip
+            # handling rather than being disrupted by a cleanup error.
             pass
 
     def import_paths_osascript(self, paths: list[Path], *, duplicate_check: bool) -> None:

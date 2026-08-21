@@ -6,6 +6,7 @@ from unittest import mock
 
 from resumable_photos_import import (
     ImportState,
+    PhotosImportError,
     PhotosImporter,
     build_manifest,
     bulk_preflight_pending,
@@ -363,6 +364,41 @@ class ResumablePhotosImportTests(unittest.TestCase):
             self.assertEqual(state.get_status(photo), "imported")
             self.assertEqual(len(importer.imported_paths), 1)
 
+    def test_permanently_failed_item_does_not_leak_its_scratch_copy(self):
+        # A file Photos permanently rejects (corrupt, damaged) or that
+        # exhausts its retry budget is never handed to import_single_item
+        # again, so cleanup only running on the success path (after
+        # mark_imported) leaves the copy resolve_import_path staged into
+        # scratch_dir just before the failed attempt orphaned there forever
+        # -- a silent, unbounded disk-space leak in scratch_dir for every
+        # file that ever fails permanently, on a tool that otherwise treats
+        # running out of disk as a first-class failure mode.
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            photo = root / "corrupt.JPG"
+            photo.write_bytes(b"jpeg")
+            state = ImportState(root / "state.sqlite3")
+            state.upsert(photo, "pending")
+            importer = PermanentlyFailingPhotosImporter(
+                state=state,
+                state_dir=root,
+                event_log=root / "events.jsonl",
+                error_log=root / "errors.jsonl",
+                status_path=root / "status.json",
+                stop_file=root / "STOP",
+                per_file_timeout_seconds=1,
+                attempts=1,
+                batch_size=1,
+                photos_db=root / "missing.sqlite",
+                scratch_dir=root / "scratch",
+            )
+
+            exit_code = importer.run()
+
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(state.get_status(photo), "skipped_permanent")
+            self.assertEqual(list((root / "scratch").glob("*")), [])
+
     def test_ambiguous_names_flags_shared_basename_across_directories(self):
         # Camera-generated basenames (DSC00001.JPG) aren't globally unique --
         # two distinct source files from different cards/folders can share
@@ -505,6 +541,14 @@ class FakePhotosImporter(PhotosImporter):
         for path in paths:
             self.imported_paths.append(path)
             self.import_calls.append((path, duplicate_check))
+
+
+class PermanentlyFailingPhotosImporter(PhotosImporter):
+    def ensure_photos_ready(self) -> None:
+        return
+
+    def import_paths_osascript(self, paths: list[Path], *, duplicate_check: bool) -> None:
+        raise PhotosImportError("file is damaged and cannot be imported")
 
 
 if __name__ == "__main__":
