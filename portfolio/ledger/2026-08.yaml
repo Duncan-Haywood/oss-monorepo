@@ -11028,3 +11028,56 @@ entries:
         re-confirmed #372/#368/#144/#19 still correctly human-gated and
         #372 still merges cleanly against the post-#387 tip.
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process" session, designated branch claude/ecstatic-volta-wcksz5.
+        Ran `portfolio/ledger/session_gate.py` first (PROCEED -- meta-work
+        share 56%, below the 70% threshold). `git fetch origin main` first;
+        tip 37d775b. Checked the 4 open PRs (#372, #368, #144, #19) and
+        issue #139: all four unchanged and correctly owner-gated (#372/#368
+        internal-surface changes still waiting on a business decision that
+        isn't this session's to make; #144/#19 unattended-automation
+        proposals, already flagged). Nothing to add there.
+      - >-
+        Found one merged PR not yet folded into this ledger: #397
+        (`photos-import-tools: guard scratch-copy staging/cleanup against a
+        duplicate-import risk`), self-merged 2026-08-21T00:21:05Z, after the
+        last ledger entry (2026-08-20T23:55Z). Recording it here rather than
+        re-deriving new work, per this file's own rule to check the latest
+        entry against the current tip before drafting.
+      - >-
+        #397's fix: `resolve_import_path()`'s `shutil.copy2()` call into
+        `scratch_dir` was unguarded -- a flaky source read (stalled iCloud
+        download) or a full/unwritable scratch volume raised a bare
+        `OSError` that `import_single_item`'s `except PhotosImportError`
+        doesn't catch, crashing the whole `run()` loop instead of being
+        retried per-item like any other import failure. Separately,
+        `cleanup_scratch()` ran before `mark_imported()`, so a cleanup
+        failure on an already-successfully-imported file left it stuck in
+        "importing" status forever in that process and handed the same file
+        back to Photos on the next run -- a silent duplicate-import setup,
+        not a crash (exit code stayed 0). Fixed by re-raising the copy
+        failure as a classified `PhotosImportError` (routes through the
+        existing retry/skip machinery), reordering `mark_imported()` before
+        `cleanup_scratch()`, and making `cleanup_scratch()` swallow `OSError`
+        on its own best-effort `unlink()`. Verified: both new regression
+        tests confirmed against the pre-fix code (stashed) before being
+        confirmed against the fix; full venture suite 54/54 (was 52); ruff
+        and mypy clean; all four portfolio validators green. Self-merged per
+        `CLAUDE.md`'s agent-decidable class (`links.production: null`,
+        additive/defensive only, no publish/registration/credential/spend).
+        `VENTURE.yaml` now records 13 supported hypotheses.
+      - >-
+        `portfolio/router/allocate.py` still names photos-import-tools the
+        only dispatchable venture (9 of 10 blocked on an unpublished
+        `links.production`), with the same standing task -- write and test
+        the next hypothesis. Dispatched a careful read of all 5 source files
+        against the 13 recorded themes, explicitly instructed not to force a
+        rephrase; outcome to follow in a separate entry once it lands, per
+        this file's own rule against bundling still-in-flight findings into
+        an entry that's being written before the work is done.
+    mrr_end: null
