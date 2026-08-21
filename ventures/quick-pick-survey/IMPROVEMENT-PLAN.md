@@ -676,8 +676,6 @@ carries meaning that the text alone does not. None of those can be settled by
 reading class strings. All of them are listed, unclaimed, in
 [`docs/ACCESSIBILITY.md`](docs/ACCESSIBILITY.md).
 
-### P3 — `SurveyRunner` drops the email field that `UnifiedRunner` collects
-
 ---
 
 ## Auth roadmap
@@ -802,3 +800,10 @@ Kept so the plan can be trusted as a record rather than re-litigated.
   celebration animations.
 - **Geist loaded and then overridden by a hard-coded Arial.** The body font now
   uses the variable the layout sets.
+- **`SurveyRunner` drops the email field that `UnifiedRunner` collects.** No
+  `SurveyRunner` component exists anywhere in this monorepo, in the tree or in
+  git history — only `UnifiedRunner` was ever committed here. `UnifiedRunner`
+  collects no email; the string "no name, no email" is copy describing what it
+  does *not* ask for. The item names a component from the pre-migration
+  standalone repo's old intro form (see "The unreachable name-entry form",
+  above), and nothing in the current codebase corresponds to it.
