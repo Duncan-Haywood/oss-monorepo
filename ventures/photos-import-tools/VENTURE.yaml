@@ -97,6 +97,14 @@ hypotheses:
     status: supported
     checked: 2026-08-21
     evidence: in-repo
+  - claim: Two independent importer processes sharing one manifest (a manual run started while the watchdog's worker is still alive, or a duplicate launch) cannot both claim the same pending file and import it twice; nothing in this codebase locked the manifest against a second writer, so a select-then-mark-importing race let two processes each see a file as "pending" and both import it with duplicate detection disabled.
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
+  - claim: The importer's scratch_dir staging copy is cleaned up after every import attempt, not only a successful one, so a file Photos permanently rejects (or one that exhausts its retry budget) does not leave its staged copy orphaned in scratch_dir forever; scratch_dir cannot silently accumulate an unbounded, unrecovered disk-space leak from every file that ever fails permanently.
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
 
 economics:
   currency: USD

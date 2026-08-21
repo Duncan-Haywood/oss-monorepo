@@ -130,18 +130,6 @@ class ImportState:
         )
         self.connection.commit()
 
-    def mark_importing(self, path: Path) -> None:
-        now = iso_now()
-        self.connection.execute(
-            """
-            UPDATE imports
-            SET status='importing', attempts=attempts + 1, last_error=NULL, updated_at=?
-            WHERE path=?
-            """,
-            (now, str(path)),
-        )
-        self.connection.commit()
-
     def mark_imported(self, path: Path) -> None:
         self._mark(path, "imported", None)
 
@@ -193,6 +181,49 @@ class ImportState:
             (max_attempts, limit),
         ).fetchall()
         return [row_to_item(row) for row in rows]
+
+    def claim_next_batch(self, limit: int, max_attempts: int) -> list[ImportItem]:
+        # Selecting via next_importable_batch() and marking 'importing' via a
+        # later, separate UPDATE left a window between the two statements.
+        # Nothing in this codebase locks the manifest against a
+        # second process (a manual run started while the watchdog's worker is
+        # still alive, a duplicate launch), so two processes could both SELECT
+        # the same pending rows before either UPDATE landed, then both import
+        # them with duplicate detection off (every row still looked
+        # "pending" to each process) -- silently double-importing into
+        # Photos. BEGIN IMMEDIATE takes SQLite's write lock before the SELECT
+        # below runs, so a concurrent claimant blocks on its own BEGIN
+        # IMMEDIATE until this transaction commits, then sees these rows
+        # already 'importing' and excluded.
+        now = iso_now()
+        self.connection.execute("BEGIN IMMEDIATE")
+        try:
+            rows = self.connection.execute(
+                """
+                SELECT path, status, attempts, last_error
+                FROM imports
+                WHERE status IN ('pending', 'uncertain')
+                   OR (status='failed' AND attempts < ?)
+                ORDER BY path
+                LIMIT ?
+                """,
+                (max_attempts, limit),
+            ).fetchall()
+            items = [row_to_item(row) for row in rows]
+            for item in items:
+                self.connection.execute(
+                    """
+                    UPDATE imports
+                    SET status='importing', attempts=attempts + 1, last_error=NULL, updated_at=?
+                    WHERE path=?
+                    """,
+                    (now, str(item.path)),
+                )
+        except BaseException:
+            self.connection.rollback()
+            raise
+        self.connection.commit()
+        return items
 
     def summary(self) -> dict[str, int]:
         counts = {
@@ -469,11 +500,15 @@ class PhotosImporter:
                 return 0
 
             if not self.check_disk_space():
+                # prepare_batch() already claimed this batch (status
+                # 'importing') via the atomic claim; undo that claim so
+                # these items are picked up again once space frees up
+                # instead of sitting stuck as 'importing' until the next
+                # process restart's recover_interrupted() sweep.
+                for item in batch:
+                    self.state.mark_pending(item.path)
                 time.sleep(30)
                 continue
-
-            for item in batch:
-                self.state.mark_importing(item.path)
 
             try:
                 self.import_batch_with_split(batch)
@@ -526,7 +561,7 @@ class PhotosImporter:
         return 130
 
     def prepare_batch(self) -> list[ImportItem]:
-        items = self.state.next_importable_batch(self.stats.current_batch_size, MAX_TRANSIENT_ATTEMPTS)
+        items = self.state.claim_next_batch(self.stats.current_batch_size, MAX_TRANSIENT_ATTEMPTS)
         ready: list[ImportItem] = []
         for item in items:
             if self.use_photos_preflight and self.photos_contains_file(item.path):
@@ -570,6 +605,18 @@ class PhotosImporter:
             self.import_batch_with_split(right)
 
     def import_single_item(self, item: ImportItem) -> None:
+        # scratch_path is computed up front (not read back from
+        # resolve_import_path's return value) so cleanup below runs for
+        # every exit from this method, including a raised PhotosImportError
+        # -- staging failures, a Photos-side rejection, a timeout. Before
+        # this fix, cleanup_scratch only ran after a successful import, so a
+        # permanently-failed item (Photos-rejected as damaged, or one that
+        # exhausted MAX_TRANSIENT_ATTEMPTS) is never retried and never gets
+        # a second chance at cleanup: the copy resolve_import_path staged
+        # just before the failed attempt was orphaned in scratch_dir
+        # forever, an unbounded disk-space leak for every file that ever
+        # fails permanently.
+        scratch_path = self.scratch_dir / item.path.name if self.scratch_dir else None
         try:
             import_path = self.resolve_import_path(item.path)
             self.import_paths_osascript([import_path], duplicate_check=item.status != "pending")
@@ -582,9 +629,11 @@ class PhotosImporter:
             self.state.mark_imported(item.path)
             self.log_event("imported", {"path": str(item.path), "mode": "single"})
             print(self.progress_line("imported", item.path), flush=True)
-            self.cleanup_scratch(import_path, item.path)
         except PhotosImportError as error:
             self.handle_item_error(item, error)
+        finally:
+            if scratch_path is not None:
+                self.cleanup_scratch(scratch_path, item.path)
 
     def handle_item_error(self, item: ImportItem, error: PhotosImportError) -> None:
         classified = error.classified
@@ -703,16 +752,24 @@ class PhotosImporter:
             ) from error
         return scratch_path
 
-    def cleanup_scratch(self, import_path: Path, original_path: Path) -> None:
-        if not (self.scratch_dir and import_path != original_path):
+    def cleanup_scratch(self, scratch_path: Path, original_path: Path) -> None:
+        # Called from import_single_item's `finally`, so this runs on both
+        # the success path (Photos already has the file) and the failure
+        # path (the item is being retried, skipped, or marked permanent).
+        # resolve_import_path always re-stages a fresh copy on the next
+        # attempt regardless of what's already there, so nothing is lost by
+        # clearing the scratch copy unconditionally after every attempt.
+        if not (self.scratch_dir and scratch_path != original_path):
             return
         try:
-            if import_path.exists():
-                import_path.unlink(missing_ok=True)
+            if scratch_path.exists():
+                scratch_path.unlink(missing_ok=True)
         except OSError:
             # Best-effort: a leftover scratch file is a minor disk-space
             # nuisance, not a correctness issue. It must not raise here --
-            # the caller already marked the item imported by this point.
+            # the caller may have already marked the item imported by this
+            # point, and a failed item must still get its normal retry/skip
+            # handling rather than being disrupted by a cleanup error.
             pass
 
     def import_paths_osascript(self, paths: list[Path], *, duplicate_check: bool) -> None:
