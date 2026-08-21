@@ -32,7 +32,33 @@ public enum SolarCalculator {
             return nil
         }
 
-        return calculate(event: event, year: year, month: month, day: day, latitude: city.latitude, longitude: city.longitude)
+        guard let candidate = calculate(event: event, year: year, month: month, day: day, latitude: city.latitude, longitude: city.longitude) else {
+            return nil
+        }
+
+        // `calculate` anchors its result to the UTC calendar day matching (year, month, day),
+        // but that's the city's *local* calendar day, not a UTC one. For any city whose civil
+        // UTC offset diverges from its raw longitude/15 — true for most cities away from the
+        // Greenwich meridian, e.g. Tokyo (offset +9, longitude/15 ≈ +9.31) or Los Angeles
+        // (offset -7/-8, longitude/15 ≈ -7.88) — the instant `calculate` returns can land a
+        // full calendar day off once converted back into the city's own time zone: real-world
+        // Tokyo sunrise on June 21 came back dated June 22 JST until this was added. Nudge by
+        // a day in whichever direction lands the event back on the date that was asked for.
+        func fallsOnRequestedLocalDay(_ date: Date) -> Bool {
+            let local = calendar.dateComponents([.year, .month, .day], from: date)
+            return local.year == year && local.month == month && local.day == day
+        }
+
+        if fallsOnRequestedLocalDay(candidate) {
+            return candidate
+        }
+        for dayOffset in [1.0, -1.0] {
+            let shifted = candidate.addingTimeInterval(dayOffset * 86400)
+            if fallsOnRequestedLocalDay(shifted) {
+                return shifted
+            }
+        }
+        return candidate
     }
 
     private static func calculate(event: SolarEvent, year: Int, month: Int, day: Int, latitude: Double, longitude: Double) -> Date? {
