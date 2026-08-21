@@ -29,10 +29,14 @@ export const viewport: Viewport = {
     { media: "(prefers-color-scheme: light)", color: "#fafafa" },
     { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
   ],
-  // The card deck is a fixed-height surface; letting it zoom on a
-  // double-tap makes swiping feel broken.
-  maximumScale: 1,
-  userScalable: false,
+  // No `maximumScale` / `userScalable` here on purpose. Pinning the page at
+  // 1x fails WCAG 2.2 AA 1.4.4 (Resize Text) on every screen in the app, and
+  // it was only ever asked for by the card deck — a fixed-height surface that
+  // feels broken if a double-tap zooms it. That surface already carries
+  // `touch-pan-x` (see `CardViews.tsx`), and any `touch-action` other than
+  // `auto`/`manipulation` suppresses double-tap zoom on that element by
+  // itself. So the deck keeps the behaviour it wanted and someone with low
+  // vision can still zoom the settings, insights and profile screens.
 };
 
 export default function RootLayout({
