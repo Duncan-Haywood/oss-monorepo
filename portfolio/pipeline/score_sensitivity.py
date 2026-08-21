@@ -304,11 +304,22 @@ def report(candidates: list[Candidate], revisions: list[Revision]) -> list[str]:
     # --------------------------------------------------------- gate sensitivity
     say("4. GATE SENSITIVITY (extrapolation, not measurement)")
     say("")
-    say(f"   The same {bias:+d}, applied to {', '.join(GATE_DIMENSIONS)} — dimensions")
-    say("   where no measurement has ever been taken. This is an extrapolation from")
-    say("   one family of dimensions to another and is labelled as one. It is run")
+    say(f"   The same {bias:+d}, applied to {', '.join(GATE_DIMENSIONS)}. It is run")
     say("   because the gates reject regardless of composite, so an error there")
     say("   changes an admission decision rather than an ordering.")
+    say("")
+    # Which half of this is extrapolation is no longer fixed. Once a gate
+    # dimension has been measured, applying the observed bias to its unlooked
+    # cells is the same operation section 3 performs, and only the gates
+    # nobody has touched are still an extrapolation across families.
+    if untouched_gates:
+        say(f"   Extrapolation for {', '.join(untouched_gates)}: no measurement has")
+        say("   ever been taken there, so this carries the bias across dimension")
+        say("   families and is labelled as such.")
+    for dimension in (d for d in GATE_DIMENSIONS if d not in untouched_gates):
+        say(f"   Observed bias for {dimension}: measured on")
+        say(f"   {len([c for c in candidates if dimension in c.measured])} candidate(s), "
+            "so this is section 3's operation, not an extrapolation.")
     say("")
     crossings: list[str] = []
     margins: list[str] = []
@@ -318,10 +329,12 @@ def report(candidates: list[Candidate], revisions: list[Revision]) -> list[str]:
             was, now = candidate.scores[dimension], adjusted[dimension]
             if was >= GATE_MINIMUM > now:
                 crossings.append(f"{candidate.slug}: {dimension} {was} -> {now}")
-            elif was == GATE_MINIMUM:
-                margins.append(f"{candidate.slug}: {dimension} at the gate ({was})")
-            elif was == GATE_MINIMUM + 1:
-                margins.append(f"{candidate.slug}: {dimension} one above the gate ({was})")
+            elif was in (GATE_MINIMUM, GATE_MINIMUM + 1):
+                where = ("at the gate" if was == GATE_MINIMUM
+                         else "one above the gate")
+                how = ("measured" if dimension in candidate.settled else "unmeasured")
+                margins.append(
+                    f"{candidate.slug}: {dimension} {where} ({was}, {how})")
 
     if crossings:
         say(f"   {len(crossings)} candidate-dimension(s) would cross below the gate:")
@@ -331,7 +344,7 @@ def report(candidates: list[Candidate], revisions: list[Revision]) -> list[str]:
         say("   No candidate crosses the gate under the extrapolation.")
     say("")
     if margins:
-        say("   Sitting within one point of the gate, unmeasured:")
+        say("   Sitting within one point of the gate:")
         for line in margins:
             say(f"     - {line}")
         say("")
@@ -352,12 +365,37 @@ def report(candidates: list[Candidate], revisions: list[Revision]) -> list[str]:
     say("VERDICT")
     say("")
     say("   The measurement record is real, one-directional, and confined to the")
-    say("   three dimensions that decide rank — where, as section 3 shows, it")
-    say("   changes nothing. It says nothing about the two dimensions that decide")
-    say("   admission, which have never been measured on any candidate.")
+    say("   dimensions that decide rank — where, as section 3 shows, it changes")
+    say("   nothing.")
     say("")
-    say("   The next scoring measurement worth paying for is therefore a gate")
-    say("   measurement, not another rank measurement. No pass has attempted one.")
+    # This verdict used to be fixed prose ending "No pass has attempted one."
+    # A pass then attempted one, and fixed prose cannot notice that. It is
+    # derived from the same `measured:` blocks as every other section now, so
+    # the script stops asking for work that has been done.
+    settled_gates = [d for d in GATE_DIMENSIONS if d not in untouched_gates]
+    if not settled_gates:
+        say("   It says nothing about the dimensions that decide admission, which")
+        say("   have never been measured on any candidate.")
+        say("")
+        say("   The next scoring measurement worth paying for is therefore a gate")
+        say("   measurement, not another rank measurement. No pass has attempted one.")
+    else:
+        for dimension in settled_gates:
+            revised = sorted(c.slug for c in candidates if dimension in c.measured)
+            say(f"   {dimension} has now been measured, on {len(revised)}")
+            say(f"   candidate(s): {', '.join(revised)}.")
+        if untouched_gates:
+            say("")
+            say(f"   {', '.join(untouched_gates)} remains unmeasured on every")
+            say("   candidate, and is the remaining gate measurement worth paying for.")
+        at_gate = sorted(
+            c.slug for c in candidates
+            if any(c.scores[d] == GATE_MINIMUM for d in GATE_DIMENSIONS)
+        )
+        if at_gate:
+            say("")
+            say(f"   Sitting *on* a gate, where one more measured point rejects:")
+            say(f"     {', '.join(at_gate)}")
 
     return out
 

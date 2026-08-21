@@ -838,6 +838,22 @@ NOT_TESTED = [
     ("3.3.1 Error Identification", "needs a submitted form"),
     ("3.3.7 Redundant Entry", "needs a multi-step flow"),
     ("4.1.3 Status Messages", "needs runtime behaviour"),
+    # Added 2026-08-21. Every one of these is decidable from static markup --
+    # axe-core 4.13.0 has at least one rule for each -- and this list named
+    # none of them, so a record emitted here was silent about them in exactly
+    # the sense `portfolio/research/a11y-engine-agreement/` defines: neither
+    # in CHECKS nor here, and so indistinguishable from "checked and passed".
+    # The reason strings say "no rule here looks" rather than "needs a human",
+    # because these are not the contractor step -- nobody covers them today.
+    # See `portfolio/research/a11y-external-coverage-reference/`.
+    ("1.2.1 Audio-only and Video-only (Prerecorded)", "a media element with no transcript or alternative is detectable from the markup; no rule here looks"),
+    ("1.3.4 Orientation", "a stylesheet locking orientation is decidable from the CSS; no rule here looks"),
+    ("1.4.1 Use of Color", "a link distinguished from body text by colour alone is decidable where the stylesheet names the colours; no rule here looks"),
+    ("2.2.1 Timing Adjustable", "a <meta http-equiv=refresh> timeout is detectable from the head; no rule here looks"),
+    ("2.2.2 Pause, Stop, Hide", "<blink> and <marquee> are detectable from the markup; no rule here looks"),
+    ("2.4.1 Bypass Blocks", "the absence of a skip link or of landmark structure is detectable from the markup; no rule here looks -- a commonly-failed Level A criterion on shop pages"),
+    ("2.5.3 Label in Name", "an accessible name that does not contain the control's visible text is decidable from the markup; no rule here looks"),
+    ("3.1.2 Language of Parts", "a lang attribute holding an invalid tag is decidable; no rule here looks"),
     ("Alt text quality", "an alt attribute that is present and non-empty may still describe the wrong thing; only a human can say"),
     ("Assistive-technology outcome", "no static tool establishes whether a real screen reader user can complete checkout"),
 ]

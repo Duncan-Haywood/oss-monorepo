@@ -111,8 +111,13 @@ def audit_catalog() -> dict:
 def probe_catalog() -> dict:
     from wcag_triage.rules import COVERAGE
 
-    checked = {c.criterion for c in COVERAGE if c.coverage != "manual"}
-    declared = {c.criterion for c in COVERAGE if c.coverage == "manual"}
+    # "unimplemented" (added 2026-08-21) is a declaration, not a check: the
+    # criterion is decidable from the artifact and this pass has no rule for
+    # it. Reading it as checked — which `!= "manual"` did — would have this
+    # module report eight criteria as silent gaps in the *sibling* engine
+    # while the probe that supposedly covered them checks nothing.
+    checked = {c.criterion for c in COVERAGE if c.coverage in ("automated", "partial")}
+    declared = {c.criterion for c in COVERAGE if c.coverage in ("manual", "unimplemented")}
     return {"checked": checked, "declared_untested": declared}
 
 
