@@ -12550,3 +12550,80 @@ entries:
         dependency, no credential, no unattended automation, nothing
         published, nothing spent beyond agent time.
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... legal ethical reliable increase in
+        profit" session, designated branch claude/ecstatic-volta-jd5qso.
+        Ran `session_gate.py` first (PROCEED -- meta-work share 28% of
+        last 25 entries, below the 70% threshold). Listed the 4 open PRs
+        (#443, #372, #368, #144) before starting: #443 was ledger-only,
+        clean, and agent-decidable (record of a prior session's self-merge
+        of #440/#442) -- merged it first. #372/#368/#144 were already
+        correctly owner-gated by prior sessions and re-confirmed
+        unchanged against issue #139's most recent comments; nothing new
+        to add there.
+      - >-
+        `portfolio/router/allocate.py` showed all 10 ventures blocked
+        (unpublished, need a customer response this environment can't
+        produce). photos-import-tools is the one venture with a live
+        internal-reliability loop (local macOS CLI tooling,
+        `links.production: null`). Dispatched an agent to read its five
+        modules (atomic_io.py, photos_import_errors.py,
+        photos_import_watchdog.py, resumable_photos_import.py,
+        sd_offload.py -- ~4,400 lines total) end to end against edge
+        cases (atomicity, signal/shutdown handling, error classification,
+        partial-failure/interrupt state), cross-checked against the 86
+        existing tests, without duplicating any of the 31 already-recorded
+        hypotheses (28 supported).
+      - >-
+        Found three real, reproducible bugs. (1) `run()` reported
+        "Complete" and exited whenever `prepare_batch()`'s *ready* list
+        came back empty, but `prepare_batch()` can resolve every claimed
+        item to a terminal status itself (a Photos preflight match, or a
+        `wait_for_file()` iCloud-wait timeout) without adding any to
+        `ready` -- an unlucky claim (e.g. a batch of iCloud placeholders
+        that never finish downloading) could report the whole manifest
+        done and exit while hundreds of other items were still pending.
+        (2) Fixing that exposed a second, pre-existing bug:
+        `handle_item_error()`'s retry-limit check read the stale
+        pre-increment attempts count `claim_next_batch()` had handed it
+        with the claimed item, one claim behind that same query's own
+        post-increment `attempts < MAX_TRANSIENT_ATTEMPTS` reclaim filter
+        -- an item that failed every attempt got permanently excluded from
+        future claims one claim before this check would have reclassified
+        it to skipped_permanent, leaving it stuck at status "failed"
+        forever: unclaimable, yet still counted in
+        `summary()["remaining"]`, which is exactly what fix (1) relies on
+        to decide the run is done. Two existing tests had silently locked
+        in this stuck state as "expected" and needed their assertions
+        corrected to skipped_permanent. (3) In sd_offload.py, a card
+        unmounted/ejected partway through `offload_card()` (after being
+        confirmed mounted at the start) was reported as a clean exit 0:
+        every remaining include_paths iteration no-opped via the per-path
+        `source.exists()` guard, and `verify_and_manifest()`'s
+        `iter_media_files()` returned an empty list for the vanished root
+        instead of raising, so `stats.errors` stayed empty --
+        `offload_exit_code()`'s own docstring names this exact false
+        "safe to eject" signal as the dangerous case it exists to prevent.
+      - >-
+        Fixed all three, added 3 regression tests, updated the 2 tests
+        whose assertions locked in bug (2)'s stuck-failed behavior, and
+        recorded all three as new `supported` hypotheses in VENTURE.yaml.
+        Verified: `pytest tests/` 89/89 pass (86 pre-existing + 3 new),
+        `pyflakes` clean on all four changed files,
+        `portfolio/router/validate.py` all 10 VENTURE.yaml files valid,
+        the updated VENTURE.yaml parses cleanly. Opened PR #453; main
+        moved once while it was open (PR #450, an unrelated
+        photos_import_errors.py wording fix, plus its own ledger entry)
+        -- merged main in directly, resolved one append-only VENTURE.yaml
+        conflict keeping both sides' new hypotheses, and re-ran the full
+        suite + validators on the merged tree (89/89, all green). Watched
+        CI to green (lint/test/validate all passed) and self-merged as
+        agent-decidable: local macOS tooling only, no deployable/live-site
+        code, no new dependency, no account or credential, no unattended
+        automation, nothing published, nothing spent beyond agent time.
+    mrr_end: null
