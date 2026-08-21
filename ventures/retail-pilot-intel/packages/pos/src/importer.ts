@@ -1,6 +1,17 @@
-import { randomUUID } from "node:crypto";
+import { createHash } from "node:crypto";
 import type { PaymentClass, SaleEvent, SaleLineItem } from "@retail-pilot/schemas";
 import { parseCsvRecords } from "./csv.js";
+
+/**
+ * Derives a stable event id from the fields that identify one real-world
+ * receipt, so re-importing the same CSV export (e.g. a watcher re-scanning
+ * a POS export folder it doesn't rotate) produces the same `event_id` and
+ * `insertSale`'s `INSERT OR REPLACE` dedups it instead of double-counting
+ * the sale. A random id here would defeat that dedup on every re-import.
+ */
+function deriveSaleEventId(storeId: string, receiptId: string, closedAt: string): string {
+  return createHash("sha256").update(`${storeId} ${receiptId} ${closedAt}`).digest("hex").slice(0, 32);
+}
 
 const PAYMENT_CLASS_BY_KEYWORD: Array<[RegExp, PaymentClass]> = [
   [/cash/i, "cash"],
@@ -115,11 +126,12 @@ export function importSaleEventsFromCsv(csvText: string, defaultStoreId: string)
       continue;
     }
     const totalCents = lineItems.reduce((sum, item) => sum + item.quantity * item.unit_price_cents, 0);
+    const closedAtIso = new Date(meta.closedAt).toISOString();
     events.push({
-      event_id: randomUUID(),
+      event_id: deriveSaleEventId(meta.storeId, receiptId, closedAtIso),
       store_id: meta.storeId,
       basket_id: receiptId,
-      closed_at: new Date(meta.closedAt).toISOString(),
+      closed_at: closedAtIso,
       currency: meta.currency,
       line_items: lineItems,
       total_cents: totalCents,
