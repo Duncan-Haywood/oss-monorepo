@@ -12550,3 +12550,57 @@ entries:
         dependency, no credential, no unattended automation, nothing
         published, nothing spent beyond agent time.
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/nice-mendel-haan38. Ran `session_gate.py` first
+        (PROCEED -- meta-work share 28% of last 25 entries, below the 70%
+        threshold). Listed the open PRs before starting: #372/#368/#144
+        already correctly owner-gated by prior sessions, nothing new to
+        add. #444 (a ledger-only PR recording the #442 fix in more
+        technical detail than the general "self-merge of #440/#442" entry
+        already on main) had gone stale -- `mergeable_state: dirty` from a
+        routine append-only conflict with other ledger entries landed
+        after it opened. Resolved the conflict (kept both entries as two
+        consecutive ledger records, since the raw diff conflicted on
+        identical opening boilerplate text), re-validated the YAML, pushed,
+        and merged #444.
+      - >-
+        `portfolio/router/allocate.py` again showed 0/10 ventures
+        dispatchable (everything else blocked on the account owner
+        publishing), so dispatched an agent to read
+        `resumable_photos_import.py` end to end against the 29 already-
+        recorded hypotheses. It found that `PhotosImporter.run()` treated
+        an empty `ready` batch from `prepare_batch()` as equivalent to
+        "nothing left in the manifest" and reported "Complete" -- but
+        `claim_next_batch()` only pulls up to `batch_size` rows per call,
+        so a chunk that resolved entirely out-of-band (Photos-preflight
+        matches, exhausted iCloud wait_for_file retries) without any row
+        reaching import_batch_with_split could report false success while
+        later, never-yet-claimed pending rows sat unimported -- a wrapper
+        trusting that exit code (eject the card, delete originals) would
+        act on it. Fixed by having `prepare_batch()` return how many rows
+        were actually claimed, so `run()` can distinguish "this chunk had
+        nothing ready" from "the manifest is exhausted." Added a
+        regression test, confirmed it failed pre-fix and passed post-fix;
+        full suite 88/88, ruff clean, mypy clean, validator clean. Opened
+        PR #452.
+      - >-
+        A concurrent session found the same root cause independently in
+        the same window, plus two more bugs in the same modules (a stale
+        pre-increment `attempts` count in `handle_item_error()` leaving
+        items permanently stuck at "failed", and a silent-exit-0 bug in
+        `sd_offload.py` on a card unmounted mid-offload), and merged its
+        combined fix as #453 first. That session closed #452 as redundant
+        with a clear pointer to #453, verified independently before
+        merging. This is the duplicate-discovery pattern CLAUDE.md
+        documents -- caught and resolved correctly this time (one session
+        superseded cleanly, no unmerged near-duplicate left sitting), not
+        a new instance of the backlog problem. Restarted this session's
+        designated branch from the post-#453 main tip; no unique work of
+        this session's own survives to carry forward.
+    mrr_end: null
