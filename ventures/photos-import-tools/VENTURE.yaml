@@ -81,6 +81,10 @@ hypotheses:
     status: supported
     checked: 2026-08-21
     evidence: in-repo
+  - claim: Two independent importer processes sharing one manifest (a manual run started while the watchdog's worker is still alive, or a duplicate launch) cannot both claim the same pending file and import it twice; nothing in this codebase locked the manifest against a second writer, so a select-then-mark-importing race let two processes each see a file as "pending" and both import it with duplicate detection disabled.
+    status: supported
+    checked: 2026-08-21
+    evidence: in-repo
 
 economics:
   currency: USD

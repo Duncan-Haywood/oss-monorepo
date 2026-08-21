@@ -130,18 +130,6 @@ class ImportState:
         )
         self.connection.commit()
 
-    def mark_importing(self, path: Path) -> None:
-        now = iso_now()
-        self.connection.execute(
-            """
-            UPDATE imports
-            SET status='importing', attempts=attempts + 1, last_error=NULL, updated_at=?
-            WHERE path=?
-            """,
-            (now, str(path)),
-        )
-        self.connection.commit()
-
     def mark_imported(self, path: Path) -> None:
         self._mark(path, "imported", None)
 
@@ -193,6 +181,49 @@ class ImportState:
             (max_attempts, limit),
         ).fetchall()
         return [row_to_item(row) for row in rows]
+
+    def claim_next_batch(self, limit: int, max_attempts: int) -> list[ImportItem]:
+        # Selecting via next_importable_batch() and marking 'importing' via a
+        # later, separate UPDATE left a window between the two statements.
+        # Nothing in this codebase locks the manifest against a
+        # second process (a manual run started while the watchdog's worker is
+        # still alive, a duplicate launch), so two processes could both SELECT
+        # the same pending rows before either UPDATE landed, then both import
+        # them with duplicate detection off (every row still looked
+        # "pending" to each process) -- silently double-importing into
+        # Photos. BEGIN IMMEDIATE takes SQLite's write lock before the SELECT
+        # below runs, so a concurrent claimant blocks on its own BEGIN
+        # IMMEDIATE until this transaction commits, then sees these rows
+        # already 'importing' and excluded.
+        now = iso_now()
+        self.connection.execute("BEGIN IMMEDIATE")
+        try:
+            rows = self.connection.execute(
+                """
+                SELECT path, status, attempts, last_error
+                FROM imports
+                WHERE status IN ('pending', 'uncertain')
+                   OR (status='failed' AND attempts < ?)
+                ORDER BY path
+                LIMIT ?
+                """,
+                (max_attempts, limit),
+            ).fetchall()
+            items = [row_to_item(row) for row in rows]
+            for item in items:
+                self.connection.execute(
+                    """
+                    UPDATE imports
+                    SET status='importing', attempts=attempts + 1, last_error=NULL, updated_at=?
+                    WHERE path=?
+                    """,
+                    (now, str(item.path)),
+                )
+        except BaseException:
+            self.connection.rollback()
+            raise
+        self.connection.commit()
+        return items
 
     def summary(self) -> dict[str, int]:
         counts = {
@@ -469,11 +500,15 @@ class PhotosImporter:
                 return 0
 
             if not self.check_disk_space():
+                # prepare_batch() already claimed this batch (status
+                # 'importing') via the atomic claim; undo that claim so
+                # these items are picked up again once space frees up
+                # instead of sitting stuck as 'importing' until the next
+                # process restart's recover_interrupted() sweep.
+                for item in batch:
+                    self.state.mark_pending(item.path)
                 time.sleep(30)
                 continue
-
-            for item in batch:
-                self.state.mark_importing(item.path)
 
             try:
                 self.import_batch_with_split(batch)
@@ -502,7 +537,7 @@ class PhotosImporter:
         return 130
 
     def prepare_batch(self) -> list[ImportItem]:
-        items = self.state.next_importable_batch(self.stats.current_batch_size, MAX_TRANSIENT_ATTEMPTS)
+        items = self.state.claim_next_batch(self.stats.current_batch_size, MAX_TRANSIENT_ATTEMPTS)
         ready: list[ImportItem] = []
         for item in items:
             if self.use_photos_preflight and self.photos_contains_file(item.path):
