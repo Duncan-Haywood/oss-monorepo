@@ -2,6 +2,26 @@
 
 This document defines the quality standards and completeness requirements for all ventures and the platform. It serves as the baseline for product maturity and readiness.
 
+## Scope note: secondary to distribution, not a replacement for it
+
+This framework is useful reference material, not a mandate to spend scheduled
+sessions raising tier scores. [`portfolio/pipeline/distribution-first.md`](portfolio/pipeline/distribution-first.md)
+established, across ten independent screening runs, that this portfolio's
+binding constraint is distribution and customer contact, not product
+completeness — every candidate it tracks is still at zero customer contacts
+while fully buildable. [`portfolio/ledger/break-even.md`](portfolio/ledger/break-even.md)
+separately derives a `$0` revenue ceiling for the current regime and finds
+roughly half of recent ledger entries re-derive conclusions already on `main`.
+Neither finding is overridden by this document. Raising a venture's tier is
+worth doing when a session is already touching that venture's code for another
+reason, not as a standalone goal, and does not change which PRs are
+agent-decidable: tests, linting, and tooling additions to `ventures/*` app
+code are still routed through the human-gated review path in `CLAUDE.md`
+("Breaking changes to deployable `ventures/*` code"), the same as any other
+change there, regardless of how safe or well-tested. A generic scheduled
+brief should run `portfolio/ledger/session_gate.py` first, as `CLAUDE.md`
+directs, before treating this framework's roadmap as the default next task.
+
 ## Quality Tiers
 
 ### Tier 1: Foundation (Minimum)
