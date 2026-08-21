@@ -102,11 +102,12 @@ about 60 lines of regex and glob, and it is invisible to replay by construction:
 replay measures a response to inputs you already thought to send.
 
 **2. Nothing found on this surface needed anything to run.** 13 findings across
-3 of 31 workflow files, all decided from the artifact — 11 since two of them
-(R1, R2, both the fleet workflow) were fixed on 2026-08-21. The canonical GitHub
-Actions script-injection class found **zero** — the fleet workflow passes its one
-dispatch input through `env:` and regex-validates it, which is correct. So the
-finding that mattered could not be the famous one.
+3 of 31 workflow files, all decided from the artifact — 7 since three of them
+(R1, R2 the fleet workflow; R4 three third-party action pins) were fixed on
+2026-08-21. The canonical GitHub Actions script-injection class found **zero**
+— the fleet workflow passes its one dispatch input through `env:` and
+regex-validates it, which is correct. So the finding that mattered could not
+be the famous one.
 
 **3. `ai_leverage` falls 9 → 8, and nothing else moves.** The 9 was "model work
 end to end"; the build that shipped has no model in it. That is not a refutation

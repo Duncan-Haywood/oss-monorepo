@@ -787,15 +787,14 @@ class TestHeadlineNumbersAgainstThisRepo(unittest.TestCase):
         self.assertGreaterEqual(count, 10)
         self.assertIn("CLAUDE.md", hits[0].detail)
 
-    def test_third_party_actions_receiving_secrets_are_unpinned(self):
+    def test_third_party_actions_receiving_secrets_are_pinned(self):
+        # Was pinned the other way: R4's 4 hits were cloudflare/wrangler-action@v3,
+        # pnpm/action-setup@v4 (x2) and amondnet/vercel-action@v25 resolving through
+        # mutable tags in jobs holding deploy secrets. All four are now pinned to
+        # the commit SHA each tag resolved to (git ls-remote against the upstream
+        # repository), matching the agent action's own SHA pin.
         hits = [f for f in self.findings if f.rule == "R4-unpinned-third-party-action"]
-        self.assertGreaterEqual(len(hits), 1)
-        # The agent action itself is SHA-pinned, so the repository already holds
-        # the rule; the finding is that it is applied inconsistently.
-        self.assertFalse(
-            any("opencode" in f.summary for f in hits),
-            "the agent action is pinned; if this fires, the inconsistency claim is stale",
-        )
+        self.assertEqual(hits, [])
 
     def test_the_report_is_byte_identical_across_runs(self):
         # Regression: the closure attributed each resolved file to whichever
