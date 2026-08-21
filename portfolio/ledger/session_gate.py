@@ -63,6 +63,17 @@ META_SHARE_THRESHOLD = 0.70
 # event-driven maintenance rate the $0-ceiling branch implies.
 CADENCE_THRESHOLD_PER_HOUR = 1.0
 
+# A 24-hour average can sit well below CADENCE_THRESHOLD_PER_HOUR while several
+# scheduled sessions still land within minutes of each other — that gap is
+# exactly what let the npm-reachability-triage probe get independently
+# re-built four times in roughly an hour on 2026-08-21 (see #596's ledger
+# entry). The 24h average is the wrong instrument for that failure mode; a
+# short sliding window over recent commits is the right one. Two distinct
+# sessions inside 15 minutes is already the pattern those collisions showed.
+BURST_WINDOW_MINUTES = 15
+BURST_LOOKBACK_HOURS = 6
+BURST_THRESHOLD_SESSIONS = 2
+
 REVERIFICATION_PATTERN = re.compile(r"re-?verif|duplicate|already (?:covered|done)", re.I)
 
 
@@ -106,6 +117,51 @@ def sessions_per_hour(hours: int = 24) -> float:
     return len(sessions) / hours
 
 
+def commits_with_sessions(hours: float = BURST_LOOKBACK_HOURS) -> list[tuple[int, str]]:
+    """(commit unix timestamp, session id) pairs for commits on main that carry one.
+
+    Separate from `sessions_per_hour`: that one needs only the distinct-session
+    count over a fixed window; burst detection needs each commit's time too, so
+    it uses its own delimiters (`%x01`/`%x02`) to survive multi-line bodies.
+    """
+    out = subprocess.run(
+        ["git", "log", "origin/main", f"--since={hours} hours ago", "--pretty=format:%ct%x01%B%x02"],
+        cwd=REPO,
+        capture_output=True,
+        text=True,
+    )
+    pairs: list[tuple[int, str]] = []
+    for record in out.stdout.split("\x02"):
+        ts_str, _, body = record.partition("\x01")
+        ts_str = ts_str.strip()
+        if not body or not ts_str.lstrip("-").isdigit():
+            continue
+        match = re.search(r"session_[A-Za-z0-9]+", body)
+        if match:
+            pairs.append((int(ts_str), match.group(0)))
+    return pairs
+
+
+def max_concurrent_sessions(
+    commits: list[tuple[int, str]], window_minutes: float = BURST_WINDOW_MINUTES
+) -> int:
+    """Peak count of distinct sessions whose first commit falls within any
+    `window_minutes` span — the reading a 24h average smooths away. Pure
+    function of the commit list so it is testable without `git`."""
+    first_seen: dict[str, int] = {}
+    for ts, session_id in commits:
+        if session_id not in first_seen or ts < first_seen[session_id]:
+            first_seen[session_id] = ts
+    times = sorted(first_seen.values())
+    if not times:
+        return 0
+    window_s = window_minutes * 60
+    return max(
+        sum(1 for t2 in times if t1 <= t2 <= t1 + window_s)
+        for t1 in times
+    )
+
+
 def break_even_per_session() -> float | None:
     if not SNAPSHOT.exists():
         return None
@@ -141,11 +197,19 @@ def verdict(
     ]
 
 
-def report(entries: list[dict], cadence: float) -> dict:
+def report(entries: list[dict], cadence: float, burst: int = 0) -> dict:
     revenue = revenue_recorded(entries)
     meta = meta_share(entries)
     reverif = reverification_share(entries)
     call, reasons = verdict(revenue=revenue, meta=meta, cadence=cadence)
+    if burst >= BURST_THRESHOLD_SESSIONS:
+        reasons = reasons + [
+            f"{burst} distinct sessions committed to main within a "
+            f"{BURST_WINDOW_MINUTES}-minute window in the last {BURST_LOOKBACK_HOURS}h — "
+            "a 24h average won't show this. Before starting new work, check open PRs, "
+            "branches, and issue #139 for what those sessions are already doing, and "
+            "re-check `main` immediately before pushing or opening a PR."
+        ]
     return {
         "verdict": call,
         "reasons": reasons,
@@ -155,6 +219,9 @@ def report(entries: list[dict], cadence: float) -> dict:
         "reverification_share_recent": round(reverif, 4),
         "sessions_per_hour": round(cadence, 4),
         "window": WINDOW,
+        "max_concurrent_sessions": burst,
+        "burst_window_minutes": BURST_WINDOW_MINUTES,
+        "burst_lookback_hours": BURST_LOOKBACK_HOURS,
         "break_even_usd_per_session": break_even_per_session(),
     }
 
@@ -174,6 +241,8 @@ def render(r: dict) -> str:
         f"{r['window']} entries",
         f"  distinct sessions / hour ....... {r['sessions_per_hour']:.2f} over the last 24h "
         f"(threshold {CADENCE_THRESHOLD_PER_HOUR:.2f}, lower bound)",
+        f"  peak concurrent sessions ....... {r['max_concurrent_sessions']} within any "
+        f"{r['burst_window_minutes']}-min window (last {r['burst_lookback_hours']}h)",
         f"  break-even ..................... "
         + (f"${be:.2f} per session" if be is not None else "unknown"),
         "",
@@ -200,7 +269,8 @@ def main() -> int:
     parser.add_argument("--json", action="store_true", help="emit the reading as JSON")
     args = parser.parse_args()
 
-    r = report(load_entries(), sessions_per_hour())
+    burst = max_concurrent_sessions(commits_with_sessions())
+    r = report(load_entries(), sessions_per_hour(), burst=burst)
     print(json.dumps(r, indent=2) if args.json else render(r))
     return 0
 
