@@ -25,11 +25,16 @@ name: source-silence-detector CI
 #      a worst-gap anchor only ever loosens — and a p99 quantile anchor catches
 #      1 of 2 at 8 days with 1 nuisance alarm-day. The miss is measured to be
 #      undetectable rather than mistuned.
+#   3. Held out (amendment 2), that p99 setting detects 6 of 17 historical
+#      dormancy episodes rather than the 8 of 17 it scores in sample, and the
+#      anchor is *arithmetically identical to max* on any source with fewer than
+#      100 closed gaps — which includes FDA/openfda, the source carrying 9 of the
+#      17 episodes.
 #
-# Both are asserted directly against the saved measurements, in
-# TestHeadlineNumbersAgainstRealData and TestFullHistoryFindingsAgainstRealData,
-# so an edit that changes either finding fails here rather than in a document
-# nobody re-runs.
+# All three are asserted directly against the saved measurements, in
+# TestHeadlineNumbersAgainstRealData, TestFullHistoryFindingsAgainstRealData and
+# TestAgainstTheCommittedHistory, so an edit that changes any of them fails here
+# rather than in a document nobody re-runs.
 #
 # It also depends on a file in a different directory
 # (register-change-rate/results-2026-08-20.json), so that path is a trigger too —
@@ -80,6 +85,9 @@ jobs:
       - run: |
           python3 detect_silence.py --prior-history prior-history-2026-08-21.json \
             --anchor quantile --quantile 0.99 --sweep
+      # Amendment 2's held-out validation. Reads the same committed history file;
+      # no network, no arguments needed for the documented invocation.
+      - run: python3 holdout_backtest.py
       # The fetcher's network path is deliberately not exercised; --help is enough
       # to catch an import or argument-parsing break in a file CI otherwise never
       # loads outside its unit tests.
