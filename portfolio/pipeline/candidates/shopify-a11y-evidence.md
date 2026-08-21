@@ -96,6 +96,34 @@ measurement. This repository has measured out-of-sample precision (0.821–0.881
 and has never measured recall outside the fixtures the engine was written
 beside.
 
+**Correction, 2026-08-21 (later the same day): that measurement now exists, and
+the score still does not move.** The paragraph above was written at 18:33; the
+measurement it names as the unblocker landed at 19:08 and nothing had gone back
+to close the loop. [`portfolio/research/a11y-axe-recall/`](../../research/a11y-axe-recall/)
+ran axe-core 4.13.0 over 118 built pages and measured out-of-sample recall at
+**0.975** (39 of 40 axe-flagged, checked-criterion instances corroborated), the
+one miss being the contested disabled-checkbox reading already on record rather
+than a fresh detection gap. That is evidence *for* this candidate's mitigation,
+and it is one data point: the corpus is small, and only 2 of the 13
+checked criteria are actually exercised by it, so the false-negative question is
+not closed — which is the reason that pass declined to move a score, and this
+one does too. The 7 stands, now against a measured recall figure instead of
+against nothing.
+
+A second pass, [`a11y-delivered-contrast/`](../../research/a11y-delivered-contrast/),
+bears on the same score in both directions and also does not move it. On the
+corpus that carries this product's actual liability — the delivered customer
+pages rather than marketing output — colour contrast had never been evaluated at
+all, because the audit passed the engines no stylesheet; supplied with one, the
+delivered pages carry **0 failures over 1018 text elements**. Against that, the
+same pass found the shared CSS reader silently dropping every Tailwind
+arbitrary-value rule, so the engines had been reporting **100% decidability on
+backgrounds they were not reading**. Fixed, and the honest figure is 98.43%.
+The reusable point for this candidate's liability position is the third one
+recorded there: *"decidable" is a claim that needs its own audit*, and the
+coverage statement this deliverable rests on reports how much was decided
+without reporting what it was decided from.
+
 ## Liability and ethics
 
 The same two hard rules as the services candidate, and they matter more here

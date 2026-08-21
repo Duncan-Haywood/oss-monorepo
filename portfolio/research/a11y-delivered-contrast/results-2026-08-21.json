@@ -1,0 +1,91 @@
+{
+  "axe_baseline": {
+    "color_contrast": {
+      "checks": 1124,
+      "declined_share": 0.7384341637010676,
+      "incomplete": 830,
+      "passes": 294,
+      "violations": 0
+    },
+    "errors": [],
+    "incomplete": {
+      "color-contrast": 830,
+      "frame-tested": 16
+    },
+    "incomplete_reasons": {
+      "color-contrast: Element content is too short to determine if it is actual text content": 58,
+      "color-contrast: Element's background color could not be determined due to a background gradient": 772,
+      "frame-tested: The iframe still has to be tested with axe-core": 16
+    },
+    "pages": 16,
+    "rules_run": 39,
+    "violations": {}
+  },
+  "axe_control": {
+    "color_contrast": {
+      "checks": 1124,
+      "declined_share": 0.7304270462633452,
+      "incomplete": 821,
+      "passes": 271,
+      "violations": 32
+    },
+    "errors": [],
+    "incomplete": {
+      "color-contrast": 821,
+      "frame-tested": 16
+    },
+    "incomplete_reasons": {
+      "color-contrast: Element content is too short to determine if it is actual text content": 58,
+      "color-contrast: Element's background color could not be determined due to a background gradient": 763,
+      "frame-tested: The iframe still has to be tested with axe-core": 16
+    },
+    "pages": 16,
+    "rules_run": 39,
+    "violations": {
+      "color-contrast": 32
+    }
+  },
+  "axe_control_class": "text-zinc-500",
+  "controls": [
+    {
+      "class": "text-zinc-500",
+      "elements_carrying_class": 80,
+      "failures": 80,
+      "matches": true,
+      "recoloured_to": "#fdfdfd"
+    },
+    {
+      "class": "text-amber-800",
+      "elements_carrying_class": 4,
+      "failures": 4,
+      "matches": true,
+      "recoloured_to": "#fdfdfd"
+    }
+  ],
+  "criteria": {
+    "audit_py": {},
+    "probe": {}
+  },
+  "pages": 16,
+  "stylesheet_bytes": 50289,
+  "with_stylesheet": {
+    "decidable_share": 0.9842829076620825,
+    "elements": 1018,
+    "fail": 0,
+    "pass": 1002,
+    "reasons": {
+      "gradient-straddles-threshold": 16
+    },
+    "undecidable": 16
+  },
+  "without_stylesheet": {
+    "decidable_share": 0.0,
+    "elements": 1018,
+    "fail": 0,
+    "pass": 0,
+    "reasons": {
+      "no-declared-color": 1018
+    },
+    "undecidable": 1018
+  }
+}

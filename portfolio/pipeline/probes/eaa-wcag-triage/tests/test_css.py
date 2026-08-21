@@ -46,6 +46,37 @@ def test_escaped_class_names_are_unescaped():
     assert sheet.property_for("bg-white/90", "background-color").value == "#ffffffe6"
 
 
+def test_an_escaped_comma_does_not_split_the_selector():
+    """A Tailwind arbitrary value escapes its own commas into the class name.
+
+    Splitting the selector list on every comma shredded such a rule into
+    fragments, none of which parsed as a single class, so the declaration was
+    dropped — and a dropped rule is indistinguishable from a property the page
+    never set, so the element was scored against a background it did not have.
+    The values that carry commas are `rgba()` and every gradient, so the loss
+    landed squarely on backgrounds. See
+    `portfolio/research/a11y-delivered-contrast/`.
+    """
+    sheet = parse_stylesheet(
+        r".bg-\[linear-gradient\(\#ffffff_0\%\,_\#000000_100\%\)\]"
+        r"{background-image:linear-gradient(#ffffff 0%, #000000 100%)}"
+    )
+    entry = sheet.property_for("bg-[linear-gradient(#ffffff_0%,_#000000_100%)]", "background-image")
+    assert entry is not None
+    assert entry.value == "linear-gradient(#ffffff 0%, #000000 100%)"
+
+
+def test_a_separating_comma_still_splits_the_selector():
+    sheet = parse_stylesheet(".a,.b{color:#123456}")
+    assert sheet.property_for("a", "color").value == "#123456"
+    assert sheet.property_for("b", "color").value == "#123456"
+
+
+def test_commas_inside_brackets_and_quotes_are_not_separators():
+    sheet = parse_stylesheet('[title="a,b"],.c{color:#123456}')
+    assert sheet.property_for("c", "color").value == "#123456"
+
+
 def test_layer_is_transparent_but_media_is_not():
     sheet = parse_stylesheet("@layer utilities{.a{color:red}}@media (min-width:40rem){.a{color:blue}}")
     entry = sheet.property_for("a", "color")

@@ -1,4 +1,14 @@
 {
+  "contrast": {
+    "elements": 894,
+    "fail": 0,
+    "pass": 880,
+    "reasons": {
+      "gradient-straddles-threshold": 14
+    },
+    "stylesheet_available": true,
+    "undecidable": 14
+  },
   "control": [
     {
       "audit_py_cites": {

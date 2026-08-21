@@ -40,6 +40,23 @@ add-on mounted and not, absent optional fields, and each upsell tier. 16 pages,
 
 ## Finding 1 — the delivered pages are clean, and that is a measurement, not an absence
 
+> **Amended 2026-08-21.** This finding is correct and its basis was incomplete
+> in one criterion. Both engines were called here with **no stylesheet**, on a
+> corpus that links none, so colour contrast (1.4.3) could not fire on any
+> element of any page — the engines' own contrast tally read *1018 of 1018
+> elements undecidable*, in a field this script did not read. The mutation
+> control below could not catch it either: all 14 mutations edit markup, and
+> contrast needs CSS, so there is no 1.4.3 row. Fixed in this directory (the
+> adapters now pass the built stylesheet and the report prints the contrast
+> tally beside the findings), and measured separately in
+> [`a11y-delivered-contrast/`](../a11y-delivered-contrast/): given the
+> stylesheet the delivered pages are actually served with, they carry **0
+> contrast failures** — so the sentence below stands, and now rests on a check
+> that ran. That pass also found and fixed the reason the engines had claimed
+> 100% decidability on backgrounds they were not reading: the shared CSS
+> reader split selector lists on escaped commas, silently dropping every
+> Tailwind arbitrary-value rule, which is where these pages' gradients live.
+
 **0 findings across 14 unique delivered pages, from both engines, which agree on
 all 14.**
 
@@ -142,10 +159,13 @@ on which engine ran.
   portfolio. Visible in the corpus: the contact form's submit button renders
   `disabled`, which is initial state, not delivered state.
 - **No render, no interaction, no assistive technology.** Every criterion the
-  engines mark `manual` — contrast, keyboard operability, focus order and
-  visibility, target size, error identification — is untouched. On the
-  candidate's own economics that is the contractor step, and nothing here
-  shrinks it.
+  engines mark `manual` — keyboard operability, focus order and visibility,
+  target size, error identification — is untouched. On the candidate's own
+  economics that is the contractor step, and nothing here shrinks it.
+  **Amended 2026-08-21:** contrast was in that list when this was written and
+  no longer belongs in it. It is decided from the artifact once the engine is
+  given the stylesheet, which this pass did not do — see the amendment to
+  Finding 1 and [`a11y-delivered-contrast/`](../a11y-delivered-contrast/).
 - **The embedded map is third-party.** The frame now has to carry a name, and
   it does. What Google serves *inside* it is not audited and cannot be.
 - **Fixture leads, not customer records.** The fixtures cover every rendering
@@ -164,6 +184,13 @@ on which engine ran.
 **No score moved and no verdict changed**, and no `local-site-studio` source
 change was needed: the product is clean under everything both engines can
 statically see.
+
+> **Amended 2026-08-21.** Still true, and it was overstated when written: at
+> the time the engines were reading no stylesheet, so "everything both engines
+> can statically see" excluded colour contrast without saying so. Checked
+> properly it is clean there too — 0 failures over 1018 text elements — so the
+> verdict is unchanged and is now earned. See
+> [`a11y-delivered-contrast/`](../a11y-delivered-contrast/).
 
 Against
 [`eaa-remediation-pipeline`](../../pipeline/candidates/eaa-remediation-pipeline.md)

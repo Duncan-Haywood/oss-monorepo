@@ -209,6 +209,32 @@ class SavedResults(unittest.TestCase):
         self.assertEqual(row["pages_changed"], 14)
         self.assertEqual(row["probe_fired"], 14)
 
+    def test_contrast_is_reported_separately_from_the_findings(self):
+        """0 findings is two different results and the record must say which.
+
+        This directory reported "0 findings ... clean" while calling both
+        engines with no stylesheet, which made 1.4.3 incapable of firing on
+        any element — the engines' own tally said 1018 of 1018 undecidable,
+        in a field nothing read. The mutation control could not catch it
+        either: every mutation edits markup, and contrast needs CSS.
+        """
+        contrast = self.data["contrast"]
+        self.assertTrue(contrast["stylesheet_available"])
+        self.assertEqual(contrast["fail"], 0)
+        self.assertGreater(contrast["pass"], 0)
+        self.assertEqual(contrast["undecidable"], sum(contrast["reasons"].values()))
+
+    def test_an_unstyled_run_is_reported_as_unchecked_not_as_clean(self):
+        import audit_generated_sites as ags
+
+        pages = [(name, html) for name, html in
+                 ags.load_corpus(ags.HERE / "corpus")[0]]
+        name, html = pages[0]
+        tally = ags.probe_contrast(html, None)
+        self.assertEqual(tally["pass"], 0)
+        self.assertEqual(tally["fail"], 0)
+        self.assertEqual(tally["undecidable"], tally["elements"])
+
 
 if __name__ == "__main__":
     unittest.main()
