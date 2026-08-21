@@ -81,6 +81,13 @@ jobs:
       - name: Check candidate scores obey the rubric rules
         run: python3 portfolio/pipeline/validate_candidates.py
 
+      - name: Check the measurement record in candidates.yaml is still readable
+        run: python3 portfolio/pipeline/score_sensitivity.py
+
+      - name: Score-sensitivity unit tests
+        working-directory: portfolio/pipeline
+        run: python3 -m unittest test_score_sensitivity
+
       - name: Check venture merit scores obey the rubric and cover every venture
         run: python3 portfolio/scoring/score_ventures.py --check
 

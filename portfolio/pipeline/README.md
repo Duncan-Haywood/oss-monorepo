@@ -106,6 +106,49 @@ that was not looking for a score. Read the five unmeasured rows as upper bounds
 rather than as better candidates — [rescore-2026-08-20.md](rescore-2026-08-20.md)
 has the pattern and what follows from it.
 
+### The pattern is narrower than it reads, and it points somewhere else
+
+`python3 portfolio/pipeline/score_sensitivity.py` does the arithmetic on the
+sentence above. Three findings, all of them checkable from
+[candidates.yaml](candidates.yaml) alone and none of them requiring a market:
+
+1. **The measurement record covers three of eight dimensions.** All six
+   revisions land in `ai_leverage`, `defensibility` and `distribution`. So "no
+   measured dimension has ever risen" is a statement about the dimensions that
+   decide *rank*, and generalising it to the other five is the estimate-as-
+   measurement error this directory keeps writing rules against. The claim the
+   data supports is the narrow one: **when a score in those three dimensions is
+   revised, it is revised down by one.** Not that measurement always lowers a
+   score — a pass that measures a dimension and leaves it alone records no
+   revision at all, so confirmations are nearly invisible here, and exactly one
+   is recorded explicitly (`agent-permission-harness`'s `flagged_unmeasured`
+   defensibility).
+2. **Applying that bias to every unmeasured cell of those three dimensions does
+   not change what to work on.** Composites all fall, the largest rank
+   displacement is two positions, and the top and bottom of the table are
+   unchanged. `rescore-2026-08-20.md` argued that further rank-scoring has no
+   decision value; this is the arithmetic behind it. A pass tempted to re-rank
+   should run the script and stop.
+3. **The two dimensions that decide admission have never been measured on any
+   candidate.** Liability containment and ethical robustness are gates, not
+   weights — below 5 rejects regardless of composite — and all sixteen of those
+   scores are still 2026-08-18 screening estimates. Extrapolating the same one
+   point to them (an extrapolation, and labelled as one in the output) puts
+   `einvoice-preflight` below the liability gate, which would collapse its
+   "conditional narrow version" into a plain reject, and leaves
+   `eaa-remediation-pipeline` — the pipeline's only `build-now` — sitting one
+   unmeasured point above the gate that would reject it.
+
+So the next scoring measurement worth paying for is a **gate** measurement, and
+no pass has attempted one. That is a different kind of work from the probes in
+[probes/](probes/), which all test whether a candidate *works*; a gate
+measurement tests whether being wrong costs a refund or a lawsuit. It is
+recorded here as the open question rather than answered, because answering it
+for the accessibility candidates needs the WCAG normative index as a
+denominator — `www.w3.org` is egress-denied and no copy is in this repository —
+and the coverage catalog in `probes/eaa-wcag-triage` is curated to shop pages by
+design, so it cannot supply one.
+
 Step 1 of `public-record-watch`'s first experiment has since been run — see the
 amendment in [its write-up](candidates/public-record-watch.md) and the
 measurement in
@@ -124,6 +167,12 @@ those probes live in. Read `probes/README.md` before writing a new one.
 
 Machine-readable scores: [candidates.yaml](candidates.yaml), checked by
 `validate_candidates.py` (`python3 portfolio/pipeline/validate_candidates.py`).
+What the measurement record does and does not license about the unmeasured
+scores: `score_sensitivity.py` (`python3
+portfolio/pipeline/score_sensitivity.py`), tested by
+`test_score_sensitivity.py`. It also fails loudly if a `measured:` block stops
+opening with `<was> -> <now>`, so a revision can never be silently dropped from
+the sample it reports on.
 Considered and rejected: [screened-out.md](screened-out.md).
 What six independent screening runs agreed on: [convergence.md](convergence.md).
 Why the next pass should screen channel-first:
