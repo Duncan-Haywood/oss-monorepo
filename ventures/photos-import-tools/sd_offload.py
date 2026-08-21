@@ -72,12 +72,25 @@ def evict(path: Path) -> bool:
         return False
 
 
-def wait_for_disk_space(min_gb: float = 5.0) -> None:
+def wait_for_disk_space(path: Path, min_gb: float = 5.0, log_path: Path | None = None) -> None:
+    # statvfs the destination's own filesystem, not the boot volume: --staging-root
+    # routinely points at an external drive with plenty of room even when the
+    # boot volume is nearly full, and checking "/" in that case blocks forever
+    # on a condition that was never true for the volume actually being written to.
+    check_path = path
+    while not check_path.exists():
+        check_path = check_path.parent
     while True:
-        stat = os.statvfs("/")
+        stat = os.statvfs(check_path)
         avail_gb = (stat.f_bavail * stat.f_frsize) / (1024**3)
         if avail_gb >= min_gb:
             return
+        if log_path is not None:
+            log(
+                f"Waiting for {min_gb:.1f} GiB free on {check_path} "
+                f"(have {avail_gb:.2f} GiB)...",
+                log_path,
+            )
         time.sleep(20)
 
 
@@ -311,7 +324,7 @@ def offload_card(
         f"{stats.source_bytes / (1024**3):.2f} GiB) -> {card.dest}",
         log_path,
     )
-    wait_for_disk_space(min_gb=8.0)
+    wait_for_disk_space(card.dest, min_gb=8.0, log_path=log_path)
     for include in card.include_paths:
         source = card.source / include
         if not source.exists():
@@ -319,7 +332,7 @@ def offload_card(
             continue
         dest = card.dest / include
         try:
-            wait_for_disk_space(min_gb=8.0)
+            wait_for_disk_space(dest, min_gb=8.0, log_path=log_path)
             rsync_copy(source, dest, log_path)
             for media in iter_media_files(dest):
                 evict(media)

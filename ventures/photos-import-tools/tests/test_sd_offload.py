@@ -1,4 +1,5 @@
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -17,6 +18,7 @@ from sd_offload import (
     rsync_copy,
     sha256_file,
     verify_and_manifest,
+    wait_for_disk_space,
 )
 
 
@@ -322,6 +324,58 @@ class OffloadAllTests(unittest.TestCase):
             summary = offload_all([unmounted], root, root / "_logs")
 
             self.assertEqual(summary, [])
+
+
+class WaitForDiskSpaceTests(unittest.TestCase):
+    def test_checks_destination_filesystem_not_boot_volume(self):
+        # --staging-root routinely points at an external drive with plenty of
+        # room even when the boot volume "/" is nearly full. Simulate exactly
+        # that split: "/" reports ~0 GB free, the destination reports huge
+        # free space. wait_for_disk_space must check the destination's own
+        # filesystem and return immediately -- if it (incorrectly) checked
+        # "/" instead, it would loop forever calling time.sleep, which the
+        # mock below turns into a test failure instead of a hang.
+        with tempfile.TemporaryDirectory() as temp_dir:
+            dest = Path(temp_dir) / "staging" / "card"
+            dest.mkdir(parents=True)
+
+            def fake_statvfs(path):
+                if os.fspath(path) == "/":
+                    return mock.Mock(f_bavail=1, f_frsize=4096)  # ~0 GB free
+                return mock.Mock(f_bavail=10**9, f_frsize=4096)  # huge
+
+            with mock.patch("os.statvfs", side_effect=fake_statvfs), \
+                    mock.patch("time.sleep", side_effect=AssertionError(
+                        "wait_for_disk_space slept -- it checked the wrong filesystem"
+                    )):
+                wait_for_disk_space(dest, min_gb=8.0)
+
+    def test_waits_and_logs_when_destination_itself_is_low(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            dest = Path(temp_dir) / "staging" / "card"
+            dest.mkdir(parents=True)
+            log_path = Path(temp_dir) / "offload.log"
+
+            calls = {"n": 0}
+
+            def fake_statvfs(path):
+                calls["n"] += 1
+                if calls["n"] == 1:
+                    return mock.Mock(f_bavail=1, f_frsize=4096)  # ~0 GB free
+                return mock.Mock(f_bavail=10**9, f_frsize=4096)  # frees up
+
+            with mock.patch("os.statvfs", side_effect=fake_statvfs), \
+                    mock.patch("time.sleep", return_value=None):
+                wait_for_disk_space(dest, min_gb=8.0, log_path=log_path)
+
+            self.assertIn("Waiting for", log_path.read_text())
+
+    def test_falls_back_to_nearest_existing_ancestor(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # dest itself doesn't exist yet (offload_card checks space before
+            # rsync_copy creates it) -- statvfs must not raise FileNotFoundError.
+            dest = Path(temp_dir) / "staging" / "not_yet_created"
+            wait_for_disk_space(dest, min_gb=0.0)
 
 
 class OffloadCardTests(unittest.TestCase):
