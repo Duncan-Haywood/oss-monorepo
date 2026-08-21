@@ -11535,3 +11535,72 @@ entries:
         and its warning to never phrase a PR-referencing sentence with a
         closing verb before the number.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business
+        projects that aren't already here" session, designated branch
+        claude/laughing-pasteur-8blxg9. Hit `CLAUDE.md`'s intake gate for
+        this exact brief: added no candidate, screened nothing, changed no
+        score. Ran `session_gate.py` first (PROCEED -- meta-work share 40%,
+        below the 70% threshold) and listed the 4 open PRs
+        (#372/#368/#144/#19, all long-standing and owner-gated, none
+        covering this work) before starting.
+      - >-
+        Took the gate's first-listed useful move -- "advance a probe that is
+        already specified in `portfolio/pipeline/`" -- and built the one
+        thing `portfolio/research/register-change-rate/` README section 3
+        left as an unbuilt build requirement: a per-source expected-cadence
+        threshold that alerts when a mirrored register goes quiet. This is
+        the operational half of `public-record-watch`'s own stated failure
+        mode, "a monitor that quietly stopped is worse than no monitor".
+        New probe at `portfolio/pipeline/probes/source-silence-detector/`:
+        walk-forward backtest, standard library only, no network calls at
+        all, derived entirely from the committed records of the earlier
+        probe.
+      - >-
+        The probe refutes the requirement it was written to implement. A
+        threshold derived from a source's own gap history catches 0 of the 2
+        mirrors that actually went silent (`FDA/openfda`, 73 days;
+        `datasets/covid-19`, 149 days), and does so at all 12 combinations
+        of multiplier and minimum-gap-count tried -- not a tuning miss but a
+        structural one: the threshold is undefined for both, because each
+        shows a single gap in the window. The set of sources with no
+        derivable threshold is the same set as the sources that went quiet.
+        Stated generally: the registers that most need a silence alarm are
+        the ones that publish too rarely to calibrate one.
+      - >-
+        Measured the fix rather than asserting it. A documented fallback for
+        the uncalibrated case recovers both sources; a pooled median of
+        calibrated peers detects in 9-11 days against 31 for a fixed 30-day
+        rule, which cannot beat 30 days by construction. At the operating
+        point the write-up recommends (pooled, multiplier 2.0, min-gaps 2):
+        2 of 2 caught at 11 days' latency for 10 nuisance alarm-days per 180
+        days across 9 sources, and zero on the three daily
+        software-security registers a customer would actually be paying for.
+        Two further build requirements fell out of the backtest: calibrate
+        on full history rather than the observation window, and expect a
+        worst-gap-anchored threshold to be noisy on a new slow source until
+        its worst gap has occurred.
+      - >-
+        No score and no verdict moved. `public-record-watch` stays composite
+        7.0 / floor 4, and the floor is still distribution -- this tested an
+        operational premise, not a buyer. Recorded the finding where the
+        next session will hit it: amendments in the candidate write-up and
+        in `register-change-rate`'s section 3 (correcting its "this
+        measurement produces it for free"), plus a row in
+        `probes/README.md`.
+      - >-
+        Verified before merging: 26 new offline tests pass, the neighbouring
+        `register-change-rate` suite still passes 27/27, and all three
+        validators are green (`validate_candidates.py`,
+        `validate_doc_consistency.py`, `router/validate.py`). Added a
+        path-filtered CI runner matching the six sibling probe workflows,
+        triggered on the shared results file too so a change there cannot
+        invalidate this probe's tables with nothing red. Agent-decidable
+        under `CLAUDE.md`: internal `portfolio/` surfaces plus CI config
+        only, no `ventures/` code, nothing published, no credential, no
+        spend beyond agent time.
+    mrr_end: null

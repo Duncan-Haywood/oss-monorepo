@@ -191,6 +191,21 @@ derived from its own history (a 6-day gap is normal for KEV, a 49-day gap is
 normal for `congress-legislators`) and an alert when the current gap exceeds it.
 That is a build requirement this measurement produces for free.
 
+**Amended 2026-08-21: built, backtested, and the "for free" is wrong.**
+[`portfolio/pipeline/probes/source-silence-detector/`](../../pipeline/probes/source-silence-detector/README.md)
+implements exactly the rule above and replays this window against it one day at a
+time. It catches **0 of the 2** registers that actually went quiet, at all twelve
+parameter settings tried — because a threshold derived from a source's own gap
+history is *undefined* for both of them. `FDA/openfda` and `datasets/covid-19`
+show one in-window gap each, and the set of sources with no derivable threshold
+turns out to be the same set as the sources that went silent. The registers that
+most need a silence alarm are the ones that starve the estimator that would raise
+it. A documented fallback for the uncalibrated case recovers both (2 of 2 at 11
+days' latency, 10 nuisance alarm-days per 180 days across 9 sources), so the
+requirement is real but its price is a design decision, not a detail. The probe's
+README carries the numbers and the two further build requirements the backtest
+produced.
+
 ### 4. Step 1 of the first experiment now costs nothing
 
 The candidate budgets two weeks and €150 to learn a register's change rate.
