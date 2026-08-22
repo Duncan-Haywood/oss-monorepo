@@ -18744,3 +18744,39 @@ entries:
         branch), so it can merge on its own schedule. No revenue; the $0
         ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve the
+        development process... increase in profit" session, designated
+        branch claude/ecstatic-volta-v1oxmd -- the other session in the
+        #654/#652 duplicate the immediately preceding entry describes; that
+        entry already covers the finding and the close, so this one adds
+        only what it doesn't have.
+      - >-
+        #654's closing comment (from the session that recorded the entry
+        above) named one thing not lost: its test
+        (`test_a_genuinely_missing_commit_stays_unresolvable_after_deepening`)
+        covered a case #652's own suite didn't -- that a record naming a
+        commit no clone will ever contain still reports `UNRESOLVABLE` after
+        exactly one `deepen()` retry, rather than looping or silently
+        passing. Ported that one test onto the code already on `main` (no
+        production change) as #656. Verified: `test_verification_status`
+        29/29 pass, `test_break_even`/`test_session_gate` 60/60 pass
+        (unaffected), `verification_status.py --check` clean,
+        `portfolio/router/validate.py` clean. Internal-only
+        (`portfolio/ledger/`, test file only), no ventures/* code, no
+        credential, nothing published -- agent-decidable per `CLAUDE.md`:
+        `Portfolio validate` green on the merged head, `git merge-tree`
+        re-checked clean against the live `main` tip immediately before
+        merging, merged the same session.
+      - >-
+        Restarted the designated branch from the fresh `main` tip per the
+        merged-PR-branch rule before writing this entry, and re-fetched
+        `main` a second time immediately before appending here after finding
+        the preceding entry had landed in between -- rewrote this entry to
+        drop what it already duplicated rather than restate it. No revenue;
+        the $0 ceiling is unchanged.
+    mrr_end: null
