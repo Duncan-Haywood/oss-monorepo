@@ -80,6 +80,27 @@ BURST_THRESHOLD_SESSIONS = 2
 
 REVERIFICATION_PATTERN = re.compile(r"re-?verif|duplicate|already (?:covered|done)", re.I)
 
+# `CLAUDE.md`'s ledger-discipline section already says "don't add an entry the
+# latest one already covers" -- in prose, read only by a session that scrolls
+# to it. Measured directly on 2026-08-22: the trailing run of entries doing
+# nothing but "checked the same open PRs, still all correctly gated" is not a
+# handful, it's dozens, because each session re-derives "was this covered
+# already?" by skimming the ledger tail rather than being told. This pattern
+# is the boilerplate every one of those entries converged on independently.
+STALE_PR_CHECK_PATTERN = re.compile(
+    r"checked the \d+ open prs?\s*\([^)]*\)[^.]{0,220}?"
+    r"(?:all|nothing)[^.]{0,150}?"
+    r"(?:correctly (?:human|owner)-gated|nothing (?:to consolidate|overlapping|new to add|touched)"
+    r"|already correctly)",
+    re.I,
+)
+
+# Measured on 2026-08-22: a single trailing run reached 11-21 consecutive
+# entries doing nothing but this recheck before the PR set itself changed.
+# Five is comfortably inside that range and well above what a genuine
+# coincidence (two sessions landing back to back) would produce.
+STALE_PR_STREAK_THRESHOLD = 5
+
 
 def load_entries(path: Path = LEDGER) -> list[dict]:
     return yaml.safe_load(path.read_text())["entries"]
@@ -107,6 +128,25 @@ def reverification_share(entries: list[dict], window: int = WINDOW) -> float:
         if REVERIFICATION_PATTERN.search(text):
             hits += 1
     return hits / len(recent)
+
+
+def stale_pr_check_streak(entries: list[dict]) -> int:
+    """Count trailing entries whose outcomes independently re-derive "the open
+    PRs are unchanged and still correctly gated" -- entries that recorded a
+    check finding nothing new, one after another. Stops at the first entry
+    (scanning from the newest) that doesn't match: a genuinely new finding, a
+    merge, a close, or any other entry shape breaks the streak, same as it
+    should -- this only measures a run of entries that are purely the same
+    recheck. Empty ledger, or a most-recent entry that already found
+    something, both correctly read as 0.
+    """
+    streak = 0
+    for e in reversed(entries):
+        text = " ".join(str(o) for o in (e.get("outcomes") or []))
+        if not STALE_PR_CHECK_PATTERN.search(text):
+            break
+        streak += 1
+    return streak
 
 
 def refresh_origin_main(timeout: float = 20.0) -> bool:
@@ -302,6 +342,7 @@ def report(
     revenue = revenue_recorded(entries)
     meta = meta_share(entries)
     reverif = reverification_share(entries)
+    stale_streak = stale_pr_check_streak(entries)
     call, reasons = verdict(
         revenue=revenue, meta=meta, cadence=cadence, cadence_reliable=cadence_reliable
     )
@@ -312,6 +353,15 @@ def report(
             "a 24h average won't show this. Before starting new work, check open PRs, "
             "branches, and issue #139 for what those sessions are already doing, and "
             "re-check `main` immediately before pushing or opening a PR."
+        ]
+    if stale_streak >= STALE_PR_STREAK_THRESHOLD:
+        reasons = reasons + [
+            f"The last {stale_streak} ledger entries in a row recorded nothing but "
+            "'checked the open PRs, still unchanged and correctly gated' — that check "
+            "has already been answered that many times over. If your own check agrees "
+            "nothing changed, do not write an entry to say so again; only add one if "
+            "you found something the latest entry doesn't have (a new PR, a changed "
+            "finding, or an action you actually took)."
         ]
     return {
         "verdict": call,
@@ -327,6 +377,7 @@ def report(
         "max_concurrent_sessions": burst,
         "burst_window_minutes": BURST_WINDOW_MINUTES,
         "burst_lookback_hours": BURST_LOOKBACK_HOURS,
+        "stale_pr_check_streak": stale_streak,
         "break_even_usd_per_session": break_even_per_session(),
     }
 
@@ -349,6 +400,8 @@ def render(r: dict) -> str:
         + ("" if r["cadence_reliable"] else " [undercounted -- see note]"),
         f"  peak concurrent sessions ....... {r['max_concurrent_sessions']} within any "
         f"{r['burst_window_minutes']}-min window (last {r['burst_lookback_hours']}h)",
+        f"  stale open-PR-check streak ..... {r['stale_pr_check_streak']} trailing entries "
+        f"with nothing new (flag at {STALE_PR_STREAK_THRESHOLD})",
         f"  break-even ..................... "
         + (f"${be:.2f} per session" if be is not None else "unknown"),
         "",

@@ -272,6 +272,104 @@ def test_sessions_per_hour_trusts_history_that_covers_the_window(monkeypatch):
     assert cadence == 1 / 24
 
 
+# --- stale open-PR-check streak: the same recheck recorded over and over ----
+#
+# Measured directly on the real ledger on 2026-08-22: a trailing run of 11-21
+# consecutive entries recorded nothing but "checked the open PRs, still all
+# correctly gated" before the PR set itself next changed. `CLAUDE.md` already
+# says in prose not to add a redundant entry; this makes the gate say it too,
+# with the count in hand, instead of relying on a session to notice by
+# scrolling the ledger tail itself.
+
+
+def test_stale_pr_check_streak_counts_matching_trailing_entries():
+    unchanged = entry(
+        outcomes=[
+            "Checked the 4 open PRs (#583, #531, #372, #368) first: all still "
+            "correctly human-gated, nothing to consolidate."
+        ]
+    )
+    entries = [unchanged, unchanged, unchanged]
+    assert sg.stale_pr_check_streak(entries) == 3
+
+
+def test_stale_pr_check_streak_stops_at_a_real_finding():
+    unchanged = entry(
+        outcomes=[
+            "Checked the 4 open PRs (#583, #531, #372, #368) first: all still "
+            "correctly human-gated, nothing to consolidate."
+        ]
+    )
+    found_something = entry(outcomes=["Closed a stranded near-duplicate PR, #616."])
+    entries = [found_something, unchanged, unchanged]
+    assert sg.stale_pr_check_streak(entries) == 2
+
+
+def test_stale_pr_check_streak_zero_when_latest_entry_found_something():
+    found_something = entry(outcomes=["Closed a stranded near-duplicate PR, #616."])
+    unchanged = entry(
+        outcomes=[
+            "Checked the 4 open PRs (#583, #531, #372, #368) first: all still "
+            "correctly human-gated, nothing to consolidate."
+        ]
+    )
+    entries = [unchanged, unchanged, found_something]
+    assert sg.stale_pr_check_streak(entries) == 0
+
+
+def test_stale_pr_check_streak_empty_ledger_is_zero():
+    assert sg.stale_pr_check_streak([]) == 0
+
+
+def test_stale_pr_check_streak_measured_on_the_real_ledger():
+    """The real ledger has this pattern *somewhere* in its history -- guard
+    against the detector regressing to always-zero on the artifact it exists
+    to catch. Checked against every suffix rather than just the current tail,
+    because the tail keeps changing entry to entry (this file is append-only
+    and several sessions land per hour) -- pinning to "the last entry" or
+    "the last N" would make this test flake as soon as the next session's
+    entry lands, which is exactly the kind of churn the gate has to tolerate
+    rather than assume away.
+    """
+    entries = yaml.safe_load(sg.LEDGER.read_text())["entries"]
+    longest = max(
+        (sg.stale_pr_check_streak(entries[: i + 1]) for i in range(len(entries))),
+        default=0,
+    )
+    assert longest >= sg.STALE_PR_STREAK_THRESHOLD
+
+
+def test_report_adds_a_stale_streak_reason_only_at_or_above_threshold():
+    unchanged = entry(
+        outcomes=[
+            "Checked the 4 open PRs (#583, #531, #372, #368) first: all still "
+            "correctly human-gated, nothing to consolidate."
+        ]
+    )
+    below = sg.report([unchanged] * (sg.STALE_PR_STREAK_THRESHOLD - 1), cadence=0.1)
+    at = sg.report([unchanged] * sg.STALE_PR_STREAK_THRESHOLD, cadence=0.1)
+    assert not any("in a row recorded nothing" in reason for reason in below["reasons"])
+    assert any("in a row recorded nothing" in reason for reason in at["reasons"])
+
+
+def test_report_stale_streak_reason_does_not_flip_the_verdict():
+    unchanged = entry(
+        outcomes=[
+            "Checked the 4 open PRs (#583, #531, #372, #368) first: all still "
+            "correctly human-gated, nothing to consolidate."
+        ]
+    )
+    r = sg.report([unchanged] * sg.STALE_PR_STREAK_THRESHOLD, cadence=0.1)
+    assert r["verdict"] == "PROCEED"
+
+
+def test_render_shows_the_stale_streak_count():
+    entries = [entry()] * sg.WINDOW
+    r = sg.report(entries, cadence=2.0)
+    rendered = sg.render(r)
+    assert "stale open-PR-check streak" in rendered
+
+
 # --- a stale (un-fetched) origin/main must not manufacture a false PROCEED ---
 #
 # Distinct failure mode from shallow truncation above: a fresh session's
