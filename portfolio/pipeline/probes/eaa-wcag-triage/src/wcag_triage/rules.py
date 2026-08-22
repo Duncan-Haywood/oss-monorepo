@@ -176,8 +176,16 @@ COVERAGE: tuple = (
     # disabled and returns "incomplete" even when forced on, and
     # `css-orientation-lock` (1.3.4) and `label-content-name-mismatch` (2.5.3)
     # are experimental and off by default. "An independent engine automates
-    # this" was therefore true of none of the three. They stay unimplemented,
-    # and the reason each row gives is now the measured one.
+    # this" was therefore true of none of the three, and the reason each row
+    # gives is now the measured one.
+    #
+    # Amended later the same day. That measurement was read for a while as
+    # though it settled which rows to build, and it does not: what the
+    # reference runs is evidence about the reference. Of the three, only 1.2.1
+    # is undecidable from the artifact -- 2.5.3's own note had said the
+    # opposite since the row was written -- so 2.5.3 is now a rule, and 1.3.4
+    # is decidable from the CSS and still unbuilt. Two remain, and only one of
+    # them is here because it cannot be done.
     Criterion("1.2.1", "Audio-only and Video-only (Prerecorded)", "A", "unimplemented",
               "Whether an audio-only file has an equivalent elsewhere on the "
               "page is not decidable from markup; the reference's rule for it "
@@ -196,11 +204,17 @@ COVERAGE: tuple = (
               "required field marked red, a status shown only by a swatch, an "
               "instruction that says 'the green button' -- needs someone to "
               "read the page."),
-    Criterion("2.5.3", "Label in Name", "A", "unimplemented",
-              "An accessible name that does not contain the control's visible "
-              "text is decidable from the markup; the reference's rule for it "
-              "is experimental and off by default, so the claim that an "
-              "independent engine automates it does not hold as measured."),
+    # Implemented 2026-08-22. Its note had said "decidable from the markup"
+    # since the row was written, and the only thing keeping it unbuilt was that
+    # the reference does not run its rule -- which is a fact about axe, not a
+    # reason the barrier is undetectable. See `rule_label_in_name`.
+    Criterion("2.5.3", "Label in Name", "A", "partial",
+              "A control that takes its name from its own content, carrying an "
+              "aria-label or aria-labelledby that does not contain the text on "
+              "the control, is detectable. A label rendered as an image, "
+              "injected by CSS content, or assembled at runtime is not, and a "
+              "mismatch between a separate visible label and a field's name "
+              "needs someone to look at the page."),
     Criterion("1.3.4", "Orientation", "AA", "unimplemented",
               "A stylesheet locking orientation is decidable from the CSS; the "
               "reference's rule for it is experimental and off by default, so "
@@ -788,6 +802,165 @@ def rule_bypass_blocks(root: Node, label_targets: set):
     )
 
 
+# SC 2.5.3 Label in Name.
+#
+# Roles whose accessible name is normally computed *from their own content*.
+# The criterion only bites where a control shows one string and announces
+# another, which in static markup means one of these carrying an explicit
+# `aria-label` or `aria-labelledby` that overrides the text a sighted user
+# reads. Roles that never take their name from content (textbox, combobox, a
+# labelled input) are out of scope: there the visible label is a separate
+# element and the mismatch is not decidable from the two strings alone.
+_NAME_FROM_CONTENT_ROLES = frozenset(
+    {
+        "button",
+        "link",
+        "checkbox",
+        "radio",
+        "menuitem",
+        "menuitemcheckbox",
+        "menuitemradio",
+        "option",
+        "switch",
+        "tab",
+        "treeitem",
+    }
+)
+
+# Everything that is not a word character or whitespace. Both strings are
+# reduced through this before comparison, which is the *conservative*
+# direction: it can only make two strings match that otherwise would not, so
+# it costs recall and never precision. "Buy now!" and "Buy now" are the same
+# label to a speech-input user, and firing on that difference is the kind of
+# noise that gets a checker switched off.
+_NAME_NOISE = re.compile(r"[^\w\s]", re.UNICODE)
+
+
+def _normalised_name(text: str) -> str:
+    return " ".join(_NAME_NOISE.sub(" ", text.casefold()).split())
+
+
+def _id_index(root: Node) -> dict:
+    index = {}
+    for node in root.iter():
+        node_id = _text(node.attr("id"))
+        if node_id and node_id not in index:
+            index[node_id] = node
+    return index
+
+
+def _overriding_name(node: Node, ids: dict) -> Optional[str]:
+    """The accessible name, but only where an override states it outright.
+
+    Returns ``None`` when the name is not decidable from the markup, which
+    covers three separate cases and deliberately does not distinguish them:
+    there is no override at all (the name comes from the content, so the
+    criterion holds trivially), or an ``aria-labelledby`` points at an id this
+    document does not define (a name resolved from nothing is not a name this
+    rule may reason about).
+    """
+    labelledby = _text(node.attr("aria-labelledby"))
+    if labelledby:
+        parts = []
+        for target_id in labelledby.split():
+            target = ids.get(target_id)
+            if target is None:
+                return None
+            parts.append(target.accessible_text())
+        return " ".join(part for part in parts if part).strip()
+    return _text(node.attr("aria-label")) or None
+
+
+def _visible_label(node: Node) -> Optional[str]:
+    """The text a sighted user reads on the control, where it is knowable.
+
+    ``None`` means "not decidable", never "empty". An unnamed control is
+    `rule_button_names`/`rule_link_text`'s finding, not this one, and a control
+    whose visible label is an image is a real 2.5.3 shape this rule gives up
+    on: WCAG counts images *of text* as part of the label, and an `alt` string
+    is a description of an image, not a transcription of it. Firing on the
+    difference between an `alt` and an `aria-label` would be firing on a guess.
+    """
+    if node.tag == "input":
+        return _text(node.attr("value")) or None
+    if any(child.tag == "img" and _text(child.attr("alt")) for child in node.iter()):
+        return None
+    return node.accessible_text() or None
+
+
+def _takes_name_from_content(node: Node) -> bool:
+    # An explicit role wins over the tag, including when it moves the element
+    # out of scope -- `<button role="presentation">` announces nothing and is
+    # not this rule's business.
+    explicit = _text(node.attr("role")).lower().split()
+    if explicit:
+        return explicit[0] in _NAME_FROM_CONTENT_ROLES
+    if node.tag == "button":
+        return True
+    if node.tag == "a":
+        return node.has_attr("href")
+    if node.tag == "input":
+        return _text(node.attr("type")).lower() in _INPUT_SELF_NAMED
+    return False
+
+
+def rule_label_in_name(root: Node, label_targets: set):
+    """SC 2.5.3, for the one shape a static artifact decides: an override that
+    does not contain the visible label.
+
+    A speech-input user activates a control by saying what it says. When the
+    button reads "Buy now" and its accessible name is "Submit order", the
+    spoken command matches nothing and the control cannot be operated by voice
+    at all -- so this is `blocking` rather than `degrading`, on the same
+    reading that makes `rule_interactive_aria_hidden` blocking: the barrier
+    stops one population completely rather than slowing everyone down.
+
+    Implemented 2026-08-22. This criterion sat in `unimplemented` because the
+    reference engine's rule for it (`label-content-name-mismatch`) ships
+    experimental and off by default, so no default `axe.run()` reports it --
+    which was measured, and is a fact about axe rather than about the markup.
+    The row's own note has said "decidable from the markup" since it was
+    written. It is the first criterion this engine decides that a default
+    reference run does not; see the probe README for what that does to the
+    coverage split.
+
+    Every refusal above is an under-report, and they are the reason the
+    coverage value is `partial` and not `automated`: a label rendered as an
+    image, injected by CSS `content`, or assembled at runtime is invisible
+    here, and this rule reports nothing about it either way.
+    """
+    ids = _id_index(root)
+    for node in root.iter():
+        if not _takes_name_from_content(node) or _is_aria_hidden(node):
+            continue
+        visible = _visible_label(node)
+        if visible is None:
+            continue
+        # A label with no letter or digit in it is a glyph, not text: "x" for
+        # close is a real label, "×" is not, and WCAG's requirement is
+        # about text that is *presented visually*. An aria-label is how a
+        # glyph-only control is supposed to be named, so firing there would
+        # flag the fix rather than the defect.
+        if not any(char.isalnum() for char in visible):
+            continue
+        accessible = _overriding_name(node, ids)
+        if not accessible:
+            continue
+        if _normalised_name(visible) in _normalised_name(accessible):
+            continue
+        yield Finding(
+            "2.5.3", "Label in Name", "A", BLOCKING, node.tag, node.line,
+            f'The control reads "{visible}" but is announced as '
+            f'"{accessible}", which does not contain the visible text. Speech '
+            "input has nothing to match, so saying what the control says does "
+            "not operate it.",
+            "Make the accessible name contain the visible label word for word "
+            "-- start the aria-label with the text on the control, or drop the "
+            "override and let the name come from the content.",
+            seq=node.order,
+        )
+
+
 # How much non-link text must surround a link for 1.4.1 to consider it "body
 # text" rather than a standalone link (a nav item, a card, a button). Set low
 # on purpose: the rule already requires an *explicit* text-decoration:none and
@@ -914,4 +1087,7 @@ ALL_RULES: tuple = (
     rule_valid_lang,
     rule_html_lang_valid,
     rule_bypass_blocks,
+    # Added 2026-08-22, and the first row to leave `unimplemented` for a reason
+    # other than "the reference reports it too" -- see `rule_label_in_name`.
+    rule_label_in_name,
 )

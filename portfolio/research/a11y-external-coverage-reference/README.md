@@ -365,9 +365,16 @@ below — the three left in `STILL_UNIMPLEMENTED` are the ones this section's
 "1.2.1, 1.3.4 or 2.5.3" already named as resting on rules axe does not run.
 
 **That residue is now closed** (later the same day; see the section below).
-Nothing is left in between: every criterion still unimplemented in either
-engine is one whose only axe rules ship disabled or experimental, so no default
-run of the reference reports it either.
+
+For a few hours after that, nothing was left in between, and this file said so:
+every criterion still unimplemented was one whose axe rules ship disabled or
+experimental. That sentence was true and was immediately read as more than it
+said. **2.5.3 was then implemented, and it is the row that separates the two
+claims** — decidable from the markup by the probe catalog's own note, and never
+reported by a default axe run. What the reference executes is evidence about
+the reference; it was never a reason not to build something. The containment
+that survives is one-directional, and it is the one worth keeping: everything
+axe reports by default, both engines' union now checks.
 
 ### The pattern, restated
 
@@ -391,12 +398,23 @@ capability*. Run the thing.
   — 2.2.1, 2.2.2, 2.4.1 and 3.1.2, exactly the four a default axe run reports
   as violations.
 - **1.4.1 Use of Color — named above as the one genuine remaining gap — was
-  implemented in a second pass the same day.** `IMPLEMENTED` now holds all
-  five criteria this reference measured as default-run violations;
-  `STILL_UNIMPLEMENTED` holds the three left (1.2.1, 1.3.4, 2.5.3), each still
-  resting on an axe rule that ships disabled or experimental. See that
+  implemented in a second pass the same day.** `IMPLEMENTED` then held all
+  five criteria this reference measured as default-run violations. See that
   probe's README for the rule, its scheme-by-scheme colour comparison, and
   what it deliberately still cannot decide.
+- **2.5.3 Label in Name was implemented in a third pass, and it is the first
+  row to leave `unimplemented` for a reason other than "the reference reports
+  it too."** `IMPLEMENTED_BEYOND_THE_REFERENCE` exists to hold exactly that
+  case. `STILL_UNIMPLEMENTED` is down to 1.2.1 and 1.3.4, and only 1.2.1 is
+  there because the artifact cannot answer it — 1.3.4 is decidable from the
+  CSS and simply has no rule yet. The test that pinned the old split is
+  replaced by two: one asserting the direction that still holds (everything
+  axe reports by default is implemented), and one asserting that the reverse
+  containment is now false, which is the finding rather than a regression.
+  Out of sample the new rule fired on nothing across 71 real pages — because
+  all nine `aria-label`s in that corpus sit on icon-only controls with no
+  visible text, so the corpus cannot exercise it. That is recorded in the
+  probe's README as a property of the corpus, not as a clean bill.
 - **`results-2026-08-21-after-disclosure.json` is now addressed by revision**
   (`7ce8473`) rather than by "worktree". It records the state disclosure left
   behind — eight rows declared, no rule for any of them — and that state is

@@ -37,13 +37,26 @@ AS_FOUND_GAPS = ["1.2.1", "1.3.4", "1.4.1", "2.2.1",
 # reports as violations, established by running axe rather than by reading its
 # rule list. See Finding 5 and `AXE_DEFAULT_RUN_VERDICTS` below.
 #
-# Later the same day 1.4.1 joined them, which is why the split below is now
+# Later the same day 1.4.1 joined them, and for a few hours the split was
 # exactly "axe reports it by default" against "axe never runs a rule for it",
-# with no criterion left in between. 1.4.1 had been the one row on the wrong
-# side of that line: a genuine gap, named as such rather than filed with the
-# three that only looked like gaps. See `wcag_triage.usecolor`.
-IMPLEMENTED = ["1.4.1", "2.2.1", "2.2.2", "2.4.1", "3.1.2"]
-STILL_UNIMPLEMENTED = ["1.2.1", "1.3.4", "2.5.3"]
+# with no criterion left in between.
+#
+# 2.5.3 then broke that coincidence, and breaking it is the point. The split
+# above was never a decision rule -- what a default `axe.run()` executes is
+# evidence about axe, not about whether a barrier is decidable from the
+# artifact. 2.5.3's own catalog note had said "decidable from the markup"
+# since the row was written, and it is: a control that takes its name from its
+# content, carrying an `aria-label` that does not contain the text on the
+# control, is two strings and a comparison. It is now a rule, and it is the
+# first criterion either engine here decides that a default reference run does
+# not report at all. The containment that survives is one-directional and is
+# the one worth pinning: everything axe reports by default is implemented.
+IMPLEMENTED = ["1.4.1", "2.2.1", "2.2.2", "2.4.1", "2.5.3", "3.1.2"]
+# Implemented despite the reference never running a rule for it. Kept separate
+# so the assertions below can still say which side of the axe line each row
+# sits on without implying the line decided anything.
+IMPLEMENTED_BEYOND_THE_REFERENCE = ["2.5.3"]
+STILL_UNIMPLEMENTED = ["1.2.1", "1.3.4"]
 
 # What axe-core 4.13.0 does with each fixture below, measured on 2026-08-22 by
 # running it in Chromium (see `a11y-axe-recall/` for the harness). Recorded as
@@ -204,19 +217,21 @@ class TestCompare(unittest.TestCase):
                 row["declared_unimplemented_by"], ["audit.py", "eaa-wcag-triage"])
 
     def test_a_criterion_one_engine_built_leaves_the_disclosure_list(self):
-        # 1.4.1 is checked by the probe and still unimplemented in `audit.py`,
-        # so it is neither undisclosed nor a row both engines decline. The
-        # union is what the customer's record is built from, and a criterion
-        # one engine checks is checked -- but the asymmetry is real and
-        # `a11y-own-sites/` measures it as the corpus's one non-relabelling
+        # 1.4.1 and 2.5.3 are checked by the probe and still unimplemented in
+        # `audit.py`, so neither is undisclosed nor a row both engines decline.
+        # The union is what the customer's record is built from, and a
+        # criterion one engine checks is checked -- but the asymmetry is real
+        # and `a11y-own-sites/` measures it as the corpus's one non-relabelling
         # disagreement.
-        self.assertIn("1.4.1", self.data["union_checked"])
-        self.assertNotIn(
-            "1.4.1", {r["criterion"] for r in self.data["disclosed_unimplemented"]})
+        disclosed = {r["criterion"] for r in self.data["disclosed_unimplemented"]}
         claimed = {r["criterion"]: r["claimed_by"] for r in self.data["depth"]}
-        self.assertEqual(claimed["1.4.1"], ["eaa-wcag-triage"])
+        for criterion in ("1.4.1", "2.5.3"):
+            with self.subTest(criterion=criterion):
+                self.assertIn(criterion, self.data["union_checked"])
+                self.assertNotIn(criterion, disclosed)
+                self.assertEqual(claimed[criterion], ["eaa-wcag-triage"])
 
-    def test_the_implemented_four_are_now_checked_not_disclosed(self):
+    def test_the_implemented_criteria_are_now_checked_not_disclosed(self):
         # They left the disclosure list by being built, which is the only way
         # a row is allowed to leave it.
         checked = set(self.data["union_checked"])
@@ -288,35 +303,55 @@ class TestGapsAreReal(unittest.TestCase):
                 found = self._criteria_found(WRAPPER.format(head=head, body=body))
                 self.assertNotIn(criterion, found)
 
-    def test_the_implemented_four_are_genuinely_detected(self):
+    def test_the_implemented_criteria_are_genuinely_detected(self):
         # The other direction, and the one that has to hold now: a criterion
         # whose coverage value moved off "unimplemented" must actually fire on
         # the same fixture that documented it as a gap. Without this, a row
         # could be relabelled without a rule behind it -- the exact failure
-        # the `unimplemented` vocabulary was introduced to prevent.
+        # the `unimplemented` vocabulary was introduced to prevent. It covers
+        # 2.5.3 on exactly the fixture that documented it, which is the whole
+        # reason that fixture was written before any rule existed.
         for criterion in IMPLEMENTED:
             with self.subTest(criterion=criterion):
                 head, body = DEFECTS[criterion]
                 found = self._criteria_found(WRAPPER.format(head=head, body=body))
                 self.assertIn(criterion, found)
 
-    def test_the_split_follows_what_a_default_axe_run_reports(self):
-        # Why these five and not the other three: every criterion implemented
-        # is one axe reports by default; every one left rests on an axe rule
-        # that ships disabled or experimental, so a default run never reaches
-        # it. 1.4.1 belongs on the "violation" side of this split like the
-        # other four -- it was simply the last of the five to get a rule.
-        for criterion in IMPLEMENTED:
-            self.assertEqual(AXE_DEFAULT_RUN_VERDICTS[criterion], "violation",
-                             criterion)
-        for criterion in STILL_UNIMPLEMENTED:
-            # Nothing is left in between any more. Every criterion still
-            # unimplemented is one a default axe run never executes, so no
-            # engine anywhere reports it -- which is a different statement
-            # from "we have not got to it yet", and the reason 1.4.1 was
-            # built and these three were not.
+    def test_everything_the_reference_reports_by_default_is_implemented(self):
+        # The direction that has to hold, and the only one that ever carried
+        # information: a criterion a default `axe.run()` reports as a violation
+        # is one a free scanner would hand the merchant, so an engine that
+        # sells an evidence record cannot be silent on it. This is the
+        # regression guard -- if a later pass removes one of these rules, or a
+        # newly-disclosed row turns out to be a default axe violation and is
+        # left unbuilt, it fails here.
+        for criterion in AS_FOUND_GAPS:
+            if AXE_DEFAULT_RUN_VERDICTS[criterion] == "violation":
+                self.assertIn(criterion, IMPLEMENTED, criterion)
+
+    def test_the_reverse_containment_is_false_and_that_is_the_finding(self):
+        # For a few hours on 2026-08-22 the split was exactly "axe reports it"
+        # against "axe does not", and the write-up read that coincidence as
+        # though it were the rule that decided what to build. It was not: what
+        # the reference executes is a fact about the reference. 2.5.3 is the
+        # row that separates the two claims -- decidable from the markup by its
+        # own catalog note, and never reported by a default axe run.
+        for criterion in IMPLEMENTED_BEYOND_THE_REFERENCE:
+            self.assertIn(criterion, IMPLEMENTED, criterion)
             self.assertEqual(AXE_DEFAULT_RUN_VERDICTS[criterion], "off",
                              criterion)
+
+    def test_what_is_left_unimplemented_is_not_explained_by_axe_alone(self):
+        # Both remaining rows are ones a default axe run never executes, so no
+        # engine anywhere reports them. That is still true and still worth
+        # stating -- but after 2.5.3 it is no longer the *reason* they are
+        # unbuilt, and only one of the two is genuinely undecidable.
+        for criterion in STILL_UNIMPLEMENTED:
+            self.assertEqual(AXE_DEFAULT_RUN_VERDICTS[criterion], "off",
+                             criterion)
+        # 1.3.4 is decidable from the CSS and simply has no rule yet; 1.2.1 is
+        # the only row here because the artifact cannot answer it.
+        self.assertEqual(STILL_UNIMPLEMENTED, ["1.2.1", "1.3.4"])
 
     def test_criteria_axe_does_not_run_by_default_are_marked_in_the_catalog(self):
         # The catalog half of the same fact, derived from the committed

@@ -606,3 +606,131 @@ def test_a_scheme_specific_failure_names_its_scheme():
     # scheme it names follows from the threshold, and the fixture's own
     # colours say light.
     assert "in light mode" in use_of_color[0].message
+
+
+# --------------------------------------------------------------------------
+# SC 2.5.3 Label in Name. Added 2026-08-22.
+# --------------------------------------------------------------------------
+
+LABEL_PAGE = '<html lang="en"><head><title>t</title></head><body>{body}</body></html>'
+
+
+def _label_findings(body):
+    findings = audit_html(LABEL_PAGE.format(body=body)).findings
+    return [f for f in findings if f.criterion == "2.5.3"]
+
+
+def test_aria_label_not_containing_visible_text_is_flagged():
+    found = _label_findings('<button aria-label="Submit order">Buy now</button>')
+    assert len(found) == 1
+    assert found[0].impact == "blocking"
+    assert found[0].level == "A"
+    # The record has to name both strings, or the merchant cannot act on it
+    # without opening the file.
+    assert "Buy now" in found[0].message and "Submit order" in found[0].message
+
+
+def test_accessible_name_containing_the_visible_text_passes():
+    # The common, correct pattern: the override extends the visible label
+    # rather than replacing it.
+    assert _label_findings('<button aria-label="Buy now, adds to cart">Buy now</button>') == []
+
+
+def test_match_ignores_case_and_punctuation():
+    assert _label_findings('<button aria-label="please BUY NOW!">Buy now.</button>') == []
+
+
+def test_link_with_mismatched_name_is_flagged():
+    assert len(_label_findings('<a href="/x" aria-label="Read more">Shipping</a>')) == 1
+
+
+def test_link_without_href_is_not_a_widget():
+    assert _label_findings('<a aria-label="Read more">Shipping</a>') == []
+
+
+def test_explicit_role_takes_the_element_out_of_scope():
+    assert _label_findings(
+        '<button role="presentation" aria-label="Submit order">Buy now</button>') == []
+
+
+def test_explicit_widget_role_brings_a_plain_element_into_scope():
+    assert len(_label_findings(
+        '<div role="button" aria-label="Submit order">Buy now</div>')) == 1
+
+
+def test_aria_labelledby_is_resolved_not_assumed():
+    body = ('<span id="n">Submit order</span>'
+            '<button aria-labelledby="n">Buy now</button>')
+    assert len(_label_findings(body)) == 1
+
+
+def test_aria_labelledby_wins_over_aria_label():
+    # ARIA's own precedence. If it were read the other way round this fixture
+    # would pass, because the aria-label matches.
+    body = ('<span id="n">Submit order</span>'
+            '<button aria-labelledby="n" aria-label="Buy now">Buy now</button>')
+    assert len(_label_findings(body)) == 1
+
+
+def test_unresolvable_aria_labelledby_is_left_alone():
+    # A name resolved from nothing is not a name this rule may reason about.
+    assert _label_findings('<button aria-labelledby="missing">Buy now</button>') == []
+
+
+def test_no_override_is_never_a_finding():
+    # With no aria-label the name comes from the content, so the criterion
+    # holds by construction.
+    assert _label_findings("<button>Buy now</button>") == []
+
+
+def test_unnamed_control_is_left_to_the_naming_rules():
+    assert _label_findings('<button aria-label="Close"></button>') == []
+
+
+def test_glyph_only_label_is_not_text_presented_visually():
+    # The aria-label is the fix here, not the defect.
+    assert _label_findings('<button aria-label="Close">×</button>') == []
+
+
+def test_image_label_is_refused_rather_than_guessed_from_alt():
+    # An alt is a description of an image, not a transcription of it.
+    assert _label_findings(
+        '<button aria-label="Submit order"><img src="b.png" alt="Buy now"></button>') == []
+
+
+def test_aria_hidden_control_is_skipped():
+    assert _label_findings(
+        '<button aria-hidden="true" aria-label="Submit order">Buy now</button>') == []
+
+
+def test_input_value_is_the_visible_label():
+    assert len(_label_findings(
+        '<input type="submit" value="Buy now" aria-label="Submit order">')) == 1
+
+
+def test_text_input_is_out_of_scope():
+    # A textbox does not take its name from content: the visible label is a
+    # separate element, and the two strings alone do not decide the criterion.
+    assert _label_findings(
+        '<input type="text" value="Buy now" aria-label="Search products">') == []
+
+
+def test_hidden_subtree_does_not_count_as_visible_text():
+    # The visible label is "Buy now"; the hidden span is not read by anyone.
+    body = ('<button aria-label="Buy now">'
+            '<span aria-hidden="true">Submit order</span>Buy now</button>')
+    assert _label_findings(body) == []
+
+
+def test_clean_page_reports_nothing():
+    assert _label_findings(
+        '<button aria-label="Buy now, adds to cart">Buy now</button>'
+        '<a href="/x">Shipping</a>'
+        "<button>Checkout</button>") == []
+
+
+def test_coverage_catalog_records_it_as_partial():
+    from wcag_triage.rules import COVERAGE
+
+    row = next(c for c in COVERAGE if c.criterion == "2.5.3")
+    assert row.coverage == "partial"
