@@ -18573,3 +18573,90 @@ entries:
         merged-PR-branch rule before writing this entry. No revenue; the $0
         ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business projects"
+        session, designated branch claude/laughing-pasteur-7za6a7. Ran
+        `session_gate.py` first (PROCEED; stale-open-PR-check streak already
+        at 7, 2 distinct sessions committing within a 15-minute window).
+        Treated the brief as answered per `CLAUDE.md` and did not produce a
+        candidate list. Checked the 4 open PRs (#583, #531, #372, #368) and
+        found them unchanged and correctly human-gated, and deliberately did
+        not re-verify them a further time given the streak. Picked the
+        least-recently-advanced probe instead: `eaa-wcag-triage`,
+        `mcp-drift-watch` and `source-silence-detector` had all been worked in
+        the preceding few hours, `npm-reachability-triage` not since
+        2026-08-21.
+      - >-
+        Found a coverage gap all five prior passes over that probe inherited
+        from how it was validated. Every figure in its README came from a
+        hand-written list of seven product directories in
+        `run_portfolio_sample.py`, assembled by someone who already knew where
+        the projects were, so none of them could answer the question a reader
+        of a record actually has -- was anything missed. Built `discovery.py`,
+        a repository walk that classifies every `package.json` as analysed or
+        refused-with-a-reason, plus a `--repository` CLI mode that leads the
+        record with that table. Run here: 18 npm manifests, 9 readable, 9
+        refused -- exactly half unreadable, and 7 of the 9 refusals are one
+        venture, `retail-pilot-intel`, invisible for a single reason: its
+        lockfile is pnpm. Two further projects are readable but resolve to
+        deployment mode `unknown`, so no surface suppression can fire in them;
+        they were in neither the validation table nor any refusal list, and
+        they are what reconciles that README's long-standing "nine products"
+        against its seven-row table.
+      - >-
+        The reusable finding is why a coverage rule that already existed did
+        not catch it. `COVERAGE_LIMITS` said "other ecosystems in the same
+        repository are not covered" -- true, written about pip and Go, and
+        exactly why the gap survived five passes: a reader with no Python
+        correctly concludes it does not apply to them and is left believing
+        their npm code was covered, because pnpm is npm. The limit named the
+        ecosystem when the boundary is the lockfile format. This is the same
+        failure `evidence.py` already guards one level down ("suppression a
+        user cannot audit is indistinguishable from a missed finding"), and a
+        project the tool was never pointed at is strictly worse: it produces
+        no findings, which is byte-identical to a project that has none.
+        Anywhere in this repository a coverage statement names a category
+        rather than the mechanism that actually stops the tool, it is doing
+        the same thing.
+      - >-
+        Nothing was re-measured and no score moved. Against the same OSV feed
+        the walk reproduces the build-surface run field for field (132
+        findings, 30 deployed, 102 suppressed), pinned by a test, so this is a
+        coverage correction rather than a new number -- and a coverage
+        statement found wrong does not earn a point back on the pass that has
+        to fix it. Also corrected an overstatement in the probe's own accuracy
+        note, which read "across all seven npm products in this portfolio"
+        when 7 is the sample and 18 is the portfolio, an error in the
+        direction that flatters the tool; the three counts are now pinned to
+        `coverage-2026-08-22.json` by a citation test in the shape
+        `probes/README.md` prescribes. Regenerating
+        `portfolio/research/error-rate-disclosure/results-2026-08-22.json` for
+        the reworded citation surfaced a second, unrelated staleness:
+        `eaa-wcag-triage`'s `artifact_chars` had moved 20938 -> 21129 when SC
+        1.3.4 landed in #648 without that file being regenerated. No score or
+        summary field changed.
+      - >-
+        Verified by running the checks, not trusting the diff: 237 offline
+        tests (32 new) pass against a 205 baseline confirmed by stashing the
+        change and re-running; the repository scan reproduces the committed
+        validation totals; single-project mode unchanged (`print-atelier`
+        still 21 deployed); error-rate-disclosure 25 tests + 51 subtests
+        green; `portfolio/router/validate.py` clean 10/10. Caught one real
+        design flaw in my own diff before pushing: an npm workspace member
+        would have been triaged against the whole workspace lockfile,
+        re-reporting every component once per member -- members are now
+        reported but not re-triaged, fixture-tested, and disclosed as having
+        no out-of-sample evidence since no npm workspace exists here.
+        Internal-only (`portfolio/pipeline/probes/` and
+        `portfolio/research/`), no ventures/* app code, no credential, nothing
+        published, no unattended automation -- agent-decidable per
+        `CLAUDE.md`: opened as #651, all 3 CI check runs green, `git
+        merge-tree` re-checked clean against the live `main` tip immediately
+        before merging, merged the same session. Restarted the designated
+        branch from the fresh `main` tip per the merged-PR-branch rule before
+        writing this entry. No revenue; the $0 ceiling is unchanged.
+    mrr_end: null
