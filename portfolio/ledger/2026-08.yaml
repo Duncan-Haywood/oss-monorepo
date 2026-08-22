@@ -17260,3 +17260,93 @@ entries:
         waiting on the account owner, not on agent work. No new probe gap,
         no new PR to review. No revenue; the $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business
+        projects" session, designated branch claude/laughing-pasteur-dpst47.
+        `session_gate.py` on a fresh `git fetch origin main` read PROCEED
+        (0.92 sessions/hour, just under the 1.00 threshold; 100% meta-work
+        share; 52% re-verification share). Per `CLAUDE.md`'s intake gate
+        that brief is answered, so this took the first of the three moves it
+        names -- advance a probe already specified in `portfolio/pipeline/`
+        -- rather than producing a candidate list. Checked the 4 open PRs
+        (#583, #531, #372, #368) first: all still correctly human-gated,
+        nothing overlapping.
+      - >-
+        Built four of the eight A/AA success criteria that #565 disclosed as
+        `unimplemented` and deliberately left unbuilt: 2.2.1 (meta refresh),
+        2.2.2 (`<blink>`/`<marquee>`), 2.4.1 Bypass Blocks -- the Level A
+        criterion that write-up singled out -- and 3.1.2 (language of
+        parts), plus a shared BCP 47 validator (`lang.py`). Merged as #612.
+      - >-
+        Deciding *which* four required running axe-core 4.13.0 in Chromium
+        rather than reading its rule list, and that run refuted two things
+        about the record being closed. First, the reference catalog was
+        extracted from `axe.getRules()`, which lists every rule axe *ships*,
+        and the extraction dropped `enabled` and `experimental` -- so a rule
+        a default `axe.run()` never executes counted as evidence that an
+        independent engine automates a criterion. Three of the eight (1.2.1,
+        1.3.4, 2.5.3) and one of the four separately recorded as over-
+        declined (2.5.8) rest on exactly such rules: the denominator is 18
+        A/AA criteria, not 22. Second, the 2.4.1 defect fixture was not a
+        2.4.1 failure -- it contained a `<main>`, one of the three
+        mechanisms axe's `bypass` rule accepts, so axe passes it, and the
+        subtest asserting both engines were silent on that markup could not
+        have failed. #565's Finding 1 stands (the eight rows were genuinely
+        absent from both catalogs); its severity was overstated. The honest
+        residue is one criterion axe reports by default that neither engine
+        looks for: 1.4.1 Use of Color, which fires once on this portfolio's
+        own corpus.
+      - >-
+        Two results ran against this session's own work and are recorded
+        because they are the load-bearing ones. The four rules' single out-
+        of-sample finding across 118 built pages was a **false positive**:
+        2.4.1 on `quick-pick-survey`'s `/app`, whose prerendered content
+        region is the string "Loading..." while the delivered page has both
+        a `<main>` and a heading -- true of the file, false of the page, and
+        axe passes the delivered page. `rule_bypass_blocks` gained a content
+        gate, after which the corpus reproduces its committed 780 findings
+        field for field. So the out-of-sample result for all four rules is
+        zero findings, meaning a build directory cannot exercise structural
+        criteria rather than that the pages are clean -- the mirror image of
+        the gap `a11y-generated-sites` found from the other side. And
+        closing the disclosed gap surfaced a **new overclaim**: 3.1.1 was
+        labelled `automated`, the catalog's strongest word, while its only
+        rule checked that `<html lang>` existed and never that it held a
+        language, so `lang="engl"` read as clean. Now `partial`, with a
+        rule.
+      - >-
+        `eaa-remediation-pipeline`'s `liability_containment` deliberately
+        did **not** move off 5. Half the disclosed gap is now closed with
+        tested rules and the reference that docked the point overstated it,
+        but this pass also found the third instance of the coverage
+        statement being wrong when checked against something new (1.4.3
+        declared manual for five passes; the eight rows; now 3.1.1). A
+        statement with that history does not earn a point back on the pass
+        that had to fix it, and a session raising a score on the strength of
+        its own work is measuring itself. What would earn it is out-of-
+        sample recall for the new rules on a rendered corpus, which is now
+        the named next step.
+      - >-
+        Verified: eaa-wcag-triage 189 tests (45 new) with fixture validation
+        byte-identical at precision/recall 1.0; corpus rebuilt from all 7
+        apps and re-audited to 780 findings unchanged; `a11y-axe-recall` re-
+        run live (universe 13 -> 17, recall unchanged at 0.975, raw axe
+        output reproducing the prior run field for field); `a11y-external-
+        coverage-reference` 26; engine-agreement regenerated with only the
+        `catalogs` key moving; the other a11y modules, both sibling probes,
+        the pipeline/router/workflow validators all green. All 11 CI checks
+        green on the merged head, and `git merge-tree` clean against the
+        live tip immediately before merging.
+      - >-
+        One self-inflicted CI failure, found and fixed on the PR rather than
+        after merge: renaming `a11y-axe-recall`'s results file missed the
+        hardcoded filename in its own workflow, because the reference sweep
+        covered `portfolio/` and not `.github/`. Fixed in a second commit
+        that also adds the matching offline re-derivation step for the new
+        `results-2026-08-22-after-rules.json`. No revenue; the $0 ceiling is
+        unchanged.
+    mrr_end: null
