@@ -229,6 +229,25 @@ class Report(unittest.TestCase):
         self.assertNotIn("UNRESOLVABLE", out)
         self.assertIn("VALID", out)
 
+    def test_a_genuinely_missing_commit_stays_unresolvable_after_deepening(self):
+        # deepen() must not turn a record that names a commit no clone will
+        # ever contain into a silent retry loop -- it gets exactly one retry,
+        # and still reports UNRESOLVABLE if that retry also fails.
+        deepen = mock.Mock()
+
+        def resolve(ref):
+            return "m" * 40 if ref == "origin/main" else None
+
+        out = self._run(
+            {
+                "resolve": mock.Mock(side_effect=resolve),
+                "fetch_pr_head": mock.Mock(return_value="a" * 40),
+                "deepen": deepen,
+            }
+        )
+        deepen.assert_called_once()
+        self.assertIn("UNRESOLVABLE", out)
+
     def test_no_fetch_skips_the_fetch(self):
         fetch = mock.Mock()
         with mock.patch.multiple(
