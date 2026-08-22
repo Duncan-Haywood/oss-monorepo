@@ -315,3 +315,54 @@ which sells the same audit through another channel, two things are recorded:
 
 The candidate's own liability rule — *state coverage limits in the product, not
 in the terms* — is why both belong here rather than in a backlog.
+
+## Finding 5 — the control harness was colour-blind, and the 1.4.1 rule is what showed it
+
+Added 2026-08-22, second pass.
+[`eaa-wcag-triage`](../../pipeline/probes/eaa-wcag-triage/) implemented **1.4.1
+Use of Color** — a link inside prose that nothing but colour marks as a link —
+and this directory's positive control gained a fifth mutation for it, in the
+same removal/injection style as Finding 4's four.
+
+The mutation is a **removal**, and a strong one, because this corpus's demo
+pages carry the exact shape the criterion is about:
+
+```html
+<p class="mt-2">See <a href="/docs/product-bundles"
+   class="underline underline-offset-2">project documentation</a>
+   for implementation plans.</p>
+```
+
+The link has no colour of its own, so it inherits the paragraph's. Take the
+`underline` class away and it is the same colour as the prose around it —
+ratio exactly 1.0 — with nothing else to see it by. **Caught on 4/4 pages that
+have such a link**; the other 10 delivered pages have no link inside prose at
+all, which the harness reports as the mutation not reaching them rather than
+as a pass.
+
+### The defect this found is in the harness, not the engine
+
+The first run of that mutation reported **caught on 0/14**, and the reason is
+worth more than the rule it was testing: `run_control` audited every mutated
+page **with no stylesheet**. A criterion whose verdict depends on a colour
+cannot fire against an engine that was handed no colours, so a working rule
+read as a total detection failure.
+
+That is the same defect [`a11y-axe-recall/`](../a11y-axe-recall/) Finding 0
+found in `a11y-own-sites`'s adapters — and it survived here, in a module built
+to be a positive control, because **every mutation until now targeted markup**.
+Colour was the first thing a control asked about, and the harness had never
+been able to answer it. `run_control` now takes the delivered stylesheet the
+rest of this module already parses.
+
+A second, smaller artefact came out of the same run and is worth recording
+because it is the failure mode a control is supposed to prevent. The first
+mutation stripped `underline` wherever it appeared in a class attribute, which
+also hit `hover:underline` on the 10 live pages' map link — changing pages
+where the criterion had nothing to say, and turning "caught on 4/4" into
+"caught on 4/14". A mutation that bites markup it was not aiming at reports as
+a coverage gap, and only reading the pages says which it is.
+
+**Neither of these is a finding about the probe.** They are findings about
+measurement, and both point the same way as Finding 4's: an audit that returns
+nothing is not evidence until something has proven it can return something.

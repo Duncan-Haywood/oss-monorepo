@@ -26,7 +26,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional
 
-from . import contrast
+from . import contrast, usecolor
 from .css import Stylesheet
 from .parser import parse
 from .provenance import Provenance, classify
@@ -36,8 +36,8 @@ from .rules import (
     DEGRADING,
     Finding,
     build_label_index,
+    rule_link_color_only,
     rule_text_contrast,
-    rule_use_of_color,
 )
 
 
@@ -46,6 +46,11 @@ class Audit:
     findings: list = field(default_factory=list)
     # verdict -> count, plus "reasons": {reason: count}. See `contrast_tally`.
     contrast: dict = field(default_factory=dict)
+    # The same shape for SC 1.4.1, per link that sits inside prose rather than
+    # per text element. Carried for the same reason: "how many links could not
+    # be decided, and why" is measured manual-review scope, and a record that
+    # omits it reads as though every link had been checked.
+    use_of_color: dict = field(default_factory=dict)
     # Set when the document turned out to be the build tool's own output rather
     # than the project's — see :mod:`wcag_triage.provenance`. The findings are
     # still computed and still carried here; what changes is that
@@ -106,20 +111,21 @@ def audit_html(html: str, stylesheet: Optional[Stylesheet] = None) -> Audit:
             seen.add(finding.key())
             findings.append(finding)
     contrast_results = contrast.evaluate_document(root, sheet)
-    for finding in rule_text_contrast(contrast_results):
-        if finding.key() in seen:
-            continue
-        seen.add(finding.key())
-        findings.append(finding)
-    for finding in rule_use_of_color(root, label_targets, sheet):
-        if finding.key() in seen:
-            continue
-        seen.add(finding.key())
-        findings.append(finding)
+    link_results = usecolor.evaluate_document(root, sheet)
+    for rule, results in (
+        (rule_text_contrast, contrast_results),
+        (rule_link_color_only, link_results),
+    ):
+        for finding in rule(results):
+            if finding.key() in seen:
+                continue
+            seen.add(finding.key())
+            findings.append(finding)
     # Blocking first, then by document order.
     findings.sort(key=lambda f: (0 if f.impact == BLOCKING else 1, f.line))
     return Audit(
         findings=findings,
         contrast=contrast_tally(contrast_results),
+        use_of_color=usecolor.tally(link_results),
         provenance=classify(root),
     )

@@ -104,7 +104,8 @@ not tell them there is anything to discount.
 **A second number for the same probe landed on `main` while this was being
 written**, and changes nothing except the size of the gap.
 [`a11y-axe-recall/`](../a11y-axe-recall/) measured out-of-sample *recall* at
-0.975 against axe-core. So `eaa-wcag-triage` now has both halves of its
+0.976 against axe-core (0.975 when this was written; the denominator grew
+with the engine's claims). So `eaa-wcag-triage` now has both halves of its
 accuracy measured and committed, and its record prints neither. A test here
 pins that, so if either number reaches the artifact this directory has to be
 re-run.
@@ -233,7 +234,7 @@ derivation path and the reason it is not the last word:
 | | value | direction | limit disclosed in the record |
 |---|---|---|---|
 | precision | 0.821–0.881 | over-reporting | denominator excluded 1.4.3 entirely |
-| recall | 0.975 | under-reporting | one comparison; corpus exercises 2 of 13 criteria |
+| recall | 0.976 | under-reporting | one comparison; corpus exercises 3 of 18 criteria |
 
 It also does the thing deduction 3 asks for, which a rate alone does not:
 *"this audit is the qualification step for a paid remediation job, so

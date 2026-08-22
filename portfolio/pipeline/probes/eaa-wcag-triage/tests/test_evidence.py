@@ -109,7 +109,7 @@ def test_markdown_prints_both_directions_of_error():
 def test_markdown_prints_the_committed_figures():
     md = to_markdown(_record())
     assert "0.821–0.881" in md
-    assert "0.975" in md
+    assert "0.976" in md
 
 
 def test_accuracy_appears_before_the_findings_it_qualifies():

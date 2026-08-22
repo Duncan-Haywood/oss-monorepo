@@ -96,23 +96,31 @@ about either fixed number alone: **the harder failure mode to catch here was
 not "the engine missed a defect" — it was "the harness never asked the
 question it thought it was asking."**
 
-## Finding 1 — out-of-sample recall is 0.975, on real CSS this time
+## Finding 1 — out-of-sample recall is 0.976, on real CSS this time
 
-| | n |
-|---|---:|
-| axe-flagged (page, checked-criterion) instances | 40 |
-| corroborated by at least one in-house engine | **39** |
-| missed by both | **1** |
-| **recall** | **0.975** |
+| | n (2026-08-22, current) | as first measured |
+|---|---:|---:|
+| axe-flagged (page, checked-criterion) instances | 41 | 40 |
+| corroborated by at least one in-house engine | **40** | 39 |
+| missed by both | **1** | 1 |
+| **recall** | **0.976** | 0.975 |
 
-Checked-criteria universe: the 13 success criteria either engine's coverage
-catalog declares `automated`/`partial` — `1.1.1, 1.2.2, 1.3.1, 1.4.2, 1.4.3,
-1.4.4, 2.4.2, 2.4.3, 2.4.4, 2.4.6, 3.1.1, 3.3.2, 4.1.2`. A further 3 instances
-(`1.4.1` on one page, `2.1.1`/`2.1.3` on another) are axe findings *outside*
-this universe — criteria neither engine claims to check at all. Those are not
-misses; they are the same already-disclosed coverage gap
-`a11y-external-coverage-reference/` measured, corroborated again here rather
-than counted against recall for a criterion nobody claimed to cover.
+Checked-criteria universe: the success criteria either engine's coverage
+catalog declares `automated`/`partial`. It was 13 when this was first measured
+and is **18** now — `1.1.1, 1.2.2, 1.3.1, 1.4.1, 1.4.2, 1.4.3, 1.4.4, 2.2.1,
+2.2.2, 2.4.1, 2.4.2, 2.4.3, 2.4.4, 2.4.6, 3.1.1, 3.1.2, 3.3.2, 4.1.2` — because
+the probe implemented five of the criteria this repository had disclosed as
+unimplemented. **The universe growing is what a recall measurement is for**: a
+criterion nobody claimed could not be missed, and moving it in puts the engine
+at risk of a miss it was previously exempt from.
+
+`1.4.1` is the one that moved and carried an axe finding with it. Until
+2026-08-22 it was among the instances *outside* the universe — a disclosed
+coverage gap, corroborated here rather than counted against recall. It is now
+inside, and it is **matched**: the probe reports the same node on the same page
+(`photo-editing/docs-site index.html`). 2 instances remain outside the universe
+(`2.1.1`/`2.1.3` on one page), and both are criteria whose coverage row says a
+human is needed.
 
 **The one surviving miss is not new.** `real-estate-agent-photo-app/docs-site
 strategy.html`, `4.1.2`, `<input type="checkbox" disabled checked>` — the
@@ -124,10 +132,11 @@ egress-denied). axe-core's `label` rule takes the position that it does. Two
 independent measurements now agree this is the one open question in the
 corpus, not a detection gap in either in-house engine.
 
-**Every one of the 39 matches is on 1.4.3 or 3.1.1** (the only criteria this
+**39 of the 40 matches are on 1.4.3 or 3.1.1** (the only criteria this
 particular corpus's real defects happen to exercise once contrast is properly
-checked) — this corpus does not exercise most of the 13-criterion universe at
-all, which the sibling `only axe` table above documents rather than hides.
+checked); the fortieth is the single 1.4.1 instance. This corpus does not
+exercise most of the 18-criterion universe at all, which the sibling `only axe`
+table above documents rather than hides.
 
 ## What this changes for the pipeline
 
@@ -137,7 +146,7 @@ all, which the sibling `only axe` table above documents rather than hides.
 explicit open question: *"What would settle it is the false-negative rate,
 [...] and the only recall number anywhere is 1.0 against the three-page
 fixture set."* That number now exists, is not 1.0, and is not from a fixture:
-**0.975 out-of-sample recall, against an independent detector, on real built
+**0.976 out-of-sample recall, against an independent detector, on real built
 pages** — with the one exception being the same contested normative case
 already on record rather than a fresh detection failure.
 
@@ -145,7 +154,7 @@ This is evidence *for* the mitigation holding, not against it — the opposite
 direction from every measurement `a11y-external-coverage-reference/` and
 `a11y-own-sites/` made. It does not by itself move the score: the corpus is
 small (118 pages, one venture concentrating almost all of the real defects),
-narrow (2 of 13 checked criteria actually exercised), and the false-negative
+narrow (3 of 18 checked criteria actually exercised), and the false-negative
 question was previously open in the *pessimistic* direction, so a first
 recall measurement landing this high is one data point, not a settled
 false-negative rate. Recorded here as evidence rather than as a score change;
@@ -195,11 +204,15 @@ Re-run live against a rebuilt corpus, same browser, same pinned axe-core:
   rebuild and this harness are both deterministic.
 - Still 3 axe-flagged instances outside the universe: **1.4.1**, 2.1.1, 2.1.3.
 
-That 1.4.1 instance (`photo-editing/docs-site/index.html`) is now the sharpest
-open item in this family. It is the **only** criterion that a default axe run
-reports, that fires on this portfolio's own corpus, and that neither in-house
-engine has any rule for — the three other criteria left unimplemented rest on
-axe rules that ship disabled or experimental and never fire at all.
+That 1.4.1 instance (`photo-editing/docs-site/index.html`) was then the
+sharpest open item in this family. It was the **only** criterion that a default
+axe run reports, that fires on this portfolio's own corpus, and that neither
+in-house engine had any rule for — the three other criteria left unimplemented
+rest on axe rules that ship disabled or experimental and never fire at all.
+
+**Closed later the same day**, which is what the section below re-measures: the
+probe implemented 1.4.1, the universe went 17 → 18, and that instance is now
+matched rather than set aside.
 
 The results file is renamed `results-2026-08-22.json` for the date of this run,
 matching how `a11y-own-sites/` keeps a single current file.
@@ -208,27 +221,46 @@ matching how `a11y-own-sites/` keeps a single current file.
 the probe, against the coverage catalog, and this module re-measured them; it
 did not author them.
 
-## 2026-08-22, later the same day — 1.4.1 became a rule too, unmeasured here
+## 2026-08-22 (second pass) — 1.4.1 became a rule, the claim widened, and the run answered it
 
-`eaa-wcag-triage` gained `rule_use_of_color` for SC 1.4.1 in a second pass —
-see that probe's README. `measure.checked_criteria()` now includes 1.4.1, and
-`CheckedCriteria`'s tests were updated to match: the assertion that 1.4.1 is
-*not* checked, quoted above as "the sharpest open item," is no longer true of
-the code and had to be removed rather than left to rot.
+Two independent scheduled sessions implemented SC 1.4.1 within an hour of each
+other ([#622](https://github.com/Duncan-Haywood/monorepo-projects/pull/622) and
+[#621](https://github.com/Duncan-Haywood/monorepo-projects/pull/621)), and this
+directory got both halves of a lesson it already knew.
 
-**What did not happen: a re-run.** `results-2026-08-22.json` is untouched, and
-its own `checked_criteria` is still the 17-item universe from before this
-rule existed — it does not include 1.4.1, and this file's `SavedResults` tests
-were deliberately left asserting exactly that frozen snapshot. Producing a
-real answer needs the same thing the first re-run above needed: the actual
-built corpus and a live axe-core pass, neither of which this offline session
-had. So the one fact this directory exists to establish — whether
-`rule_use_of_color` actually catches the real instance on
+**First, the claim widened without a measurement.** `measure.checked_criteria()`
+began including 1.4.1 — so the criterion entered the universe this module holds
+the engines to — while `results-2026-08-22.json` stayed frozen at the 17-item
+universe from a browser pass taken before any such rule existed. That session
+said so plainly, and named the consequence: *"the one fact this directory exists
+to establish — whether the rule actually catches the real instance on
 `photo-editing/docs-site/index.html` axe already found — is still unknown.
 Widening the claim without measuring it is exactly the gap Finding 0 named for
-the stylesheet bug: a claim is not evidence until it is run.
+the stylesheet bug: a claim is not evidence until it is run."*
 
-The next re-run should rebuild the corpus, re-run `measure.py`, and report
-whether the checked-criteria universe holds at 39/40 = 0.975 or moves either
-way — the same three questions the 2.2.1/2.2.2/2.4.1/3.1.2 pass above already
-answered for its four criteria, still open for this fifth one.
+**Then it was run.** The corpus was rebuilt from all 7 applications and
+axe-core 4.13.0 re-run in Chromium over all 118 pages:
+
+- **Checked-criteria universe 17 → 18.**
+- **Recall 39/40 = 0.975 → 40/41 = 0.976.** The instance that entered the
+  denominator is **matched**: the same node, on the same page.
+- **The same single miss** (4.1.2, the contested disabled checkbox).
+- Instances outside the universe: **3 → 2** (`2.1.1`, `2.1.3`), both criteria
+  whose coverage row says a human is needed.
+
+This is the first time in this module's history that widening a coverage claim
+moved a number here, and it is the direction that matters: an engine that
+claims more and is *still* corroborated is a stronger claim than one whose
+recall is high because its universe is small. The number to watch is not 0.976
+— it is that the denominator is 41 rather than 40.
+
+**The run also decided which of the two rules survives.** Measured against this
+same corpus, the merged implementation reported **30 findings on
+`photo-editing/docs-site` where axe reports 1** — the site's brand link, nine
+`display:block` card links, and five list rows. That is the consolidation
+recorded in the probe's README, and it is the second thing this module exists
+for: the reference is not here to raise a recall figure, it is here to say when
+an in-house rule is wrong.
+
+**Still no engine change from this directory.** Both rules were written in the
+probe against the coverage catalog; this module re-measured them.

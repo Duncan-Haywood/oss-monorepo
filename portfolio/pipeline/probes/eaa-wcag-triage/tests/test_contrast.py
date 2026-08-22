@@ -378,7 +378,7 @@ def test_hover_only_underline_is_invisible_not_assumed_present():
 def test_scheme_override_resolves_independently_per_scheme():
     """A `dark:underline`-shaped override does not make the whole property
     undecidable -- it means light and dark each get their own decided
-    answer, the same as colour. See rule_use_of_color, which checks both."""
+    answer, the same as colour. See `wcag_triage.usecolor`, which checks both."""
     css = ".l{text-decoration:none}@media (prefers-color-scheme: dark){.l{text-decoration:underline}}"
     root = parse('<html><body><a href="/x" class="l">go</a></body></html>')
     sheet = parse_stylesheet(css)
@@ -388,7 +388,7 @@ def test_scheme_override_resolves_independently_per_scheme():
 
 
 # ---------------------------------------------------------------------------
-# foreground_color() -- the public wrapper rule_use_of_color calls.
+# foreground_color() -- the public wrapper `wcag_triage.usecolor` calls.
 # ---------------------------------------------------------------------------
 
 

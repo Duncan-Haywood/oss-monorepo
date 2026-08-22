@@ -227,11 +227,35 @@ class SavedResults(unittest.TestCase):
     def test_agreement_rate(self):
         agree = own.agreement(self.data)
         self.assertEqual(agree["pages"], 118)
-        self.assertEqual(agree["agreeing"], 91)
+        # 91 until 2026-08-22, when the probe gained SC 1.4.1 and `audit.py`
+        # did not. One page's multisets now differ because one engine detects
+        # something the other has no rule for, which is a real gap and not a
+        # measurement artefact — see the test below, which names it.
+        self.assertEqual(agree["agreeing"], 90)
 
-    def test_every_disagreement_is_a_relabelling_not_a_missed_defect(self):
+    def test_the_one_disagreement_that_is_not_a_relabelling_is_named(self):
+        """Every disagreement but one is two engines naming the same defect.
+
+        That held exactly until this repository implemented a criterion in one
+        engine only. Keeping the assertion as "all of them are relabellings"
+        would have meant either not implementing 1.4.1 or quietly weakening the
+        claim, so it is narrowed instead: **one** page disagrees for a reason
+        other than labelling, and it is the page where the probe reports 1.4.1
+        and `audit.py` still declares that criterion unimplemented.
+        """
         agree = own.agreement(self.data)
-        self.assertEqual(agree["pure_relabellings"], agree["disagreeing"])
+        self.assertEqual(agree["disagreeing"] - agree["pure_relabellings"], 1)
+        genuine = [
+            page for page in self.data["per_page"]
+            if not page["engines_agree"]
+            and (set(page["only_probe"]) or set(page["only_audit_py"]))
+            and set(page["only_probe"]) != set(page["only_audit_py"])
+            and not (page["only_probe"] and page["only_audit_py"])
+        ]
+        self.assertEqual(
+            [(p["app"], p["page"], sorted(p["only_probe"])) for p in genuine],
+            [("ventures/photo-editing/docs-site", "index.html", ["1.4.1"])],
+        )
 
     def test_the_filter_removes_exactly_the_seven_framework_lang_findings(self):
         """Finding 5's headline, pinned to the saved run.

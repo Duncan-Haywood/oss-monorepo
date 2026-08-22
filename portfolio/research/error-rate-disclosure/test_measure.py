@@ -270,14 +270,14 @@ class CommittedResult(unittest.TestCase):
         """
         research = Path(__file__).resolve().parents[1]
         self.assertIn(
-            "recall is 0.975", (research / "a11y-axe-recall" / "README.md").read_text()
+            "recall is 0.976", (research / "a11y-axe-recall" / "README.md").read_text()
         )
         self.assertIn(
             "out-of-sample precision is **0.821–0.881**",
             (research / "a11y-own-sites" / "README.md").read_text(),
         )
         text, _, _ = measure.render_eaa()
-        self.assertIn("0.975", text)
+        self.assertIn("0.976", text)
         self.assertIn("0.821", text)
 
     def test_the_probe_that_closed_its_gap_names_the_direction_that_pays_it(self):

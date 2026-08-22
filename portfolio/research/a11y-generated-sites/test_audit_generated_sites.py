@@ -88,7 +88,17 @@ class Mutations(unittest.TestCase):
                 self.assertIn(criterion, fired, f"{kind}: {description}")
 
     def test_removal_mutations_all_bite_the_reference_page(self):
-        """Except the <img> one, which _PAGE deliberately has no element for."""
+        """Except the ones _PAGE deliberately has no element for.
+
+        The 1.4.1 mutation is the fifth, and it is a no-op here for a reason
+        worth naming rather than listing: it strips a *class*, and a class
+        means nothing without the stylesheet that defines it. On a page audited
+        with no CSS, a link with `class="underline"` and a link with no class
+        at all are the same link — undecorated by the page and therefore
+        underlined by the browser — so removing the class cannot change a
+        verdict. `test_the_colour_only_link_mutation_fires_with_a_stylesheet`
+        below exercises it the way the harness does, with one.
+        """
         no_op = [d for c, k, d, m in gen.MUTATIONS
                  if k == "removal" and m(_PAGE) == _PAGE]
         self.assertEqual(no_op, [
@@ -96,7 +106,38 @@ class Mutations(unittest.TestCase):
             'strip aria-label from every <input>/<select>/<textarea>',
             'unhook every <label for=...> from its control',
             'drop alt from every <img>',
+            'strip the bare `underline` class from links',
         ])
+
+    def test_the_colour_only_link_mutation_fires_with_a_stylesheet(self):
+        """The 1.4.1 control, exercised with CSS instead of without it.
+
+        Self-contained: the stylesheet is three declarations parsed here, not
+        the delivered build, so this holds in a checkout with nothing built.
+        It pins both halves — the mutation changes the page, and the changed
+        page fires 1.4.1 — which is what a positive control has to prove and
+        what a no-op silently does not.
+        """
+        from wcag_triage.css import parse_stylesheet
+
+        sheet = parse_stylesheet(
+            "a{text-decoration:inherit}"
+            ".underline{text-decoration-line:underline}"
+            ".body{color:#444444}"
+        )
+        page = (
+            '<html lang="en"><head><title>t</title></head><body><p class="body">'
+            "Every order ships within two working days from our workshop. See "
+            '<a class="underline" href="/terms">the terms</a> before ordering.'
+            "</p></body></html>"
+        )
+        mutate = next(m for c, k, d, m in gen.MUTATIONS if c == "1.4.1")
+        mutated = mutate(page)
+        self.assertNotEqual(mutated, page)
+        before = {gen._number(f["criterion"]) for f in gen.probe_findings(page, sheet)}
+        after = {gen._number(f["criterion"]) for f in gen.probe_findings(mutated, sheet)}
+        self.assertNotIn("1.4.1", before)
+        self.assertIn("1.4.1", after)
 
     def test_mutations_are_minimal(self):
         """A mutation must not rewrite the whole document out from under the
@@ -163,8 +204,8 @@ class SavedResults(unittest.TestCase):
         """Detection, not attribution.
 
         Both engines must find every injected defect on every page — except
-        the four criteria `audit.py` declares `unimplemented` outright (see
-        its COVERAGE table), where only the probe can find anything by
+        the criteria `audit.py` declares `unimplemented` outright (see its
+        COVERAGE table), where only the probe can find anything by
         construction. Which success criterion each engine cites is a separate
         question — the two are known to diverge on heading order, and
         asserting agreement here would be asserting that a normative
@@ -172,8 +213,10 @@ class SavedResults(unittest.TestCase):
         """
         removals = [r for r in self.data["control"]
                     if r["kind"] == "removal" and r["exercised"]]
-        self.assertEqual(len(removals), 8)
-        unimplemented_in_audit_py = {"2.4.1"}
+        self.assertEqual(len(removals), 9)
+        # 1.4.1 joined 2.4.1 here on 2026-08-22: `audit.py` declares both
+        # unimplemented, so on those rows only the probe can find anything.
+        unimplemented_in_audit_py = {"1.4.1", "2.4.1"}
         for row in removals:
             with self.subTest(mutation=row["mutation"]):
                 self.assertEqual(row["probe_fired"], row["pages_changed"])
@@ -231,22 +274,38 @@ class SavedResults(unittest.TestCase):
                 self.assertEqual(row["audit_py_cites"], {})
                 self.assertTrue(probe_cites)
 
-    def test_use_of_color_fires_on_the_real_corpus_via_injection(self):
-        """The fifth criterion `a11y-external-coverage-reference` disclosed as
-        `unimplemented`, closed after the four above in a second pass the same
-        day. Injection, not removal, and that is itself a finding: this
-        corpus's one real underlined body-text link
-        (`/docs/product-bundles`) carries no colour override at all, so
-        stripping its underline leaves it the same colour as its
-        surroundings -- there is no real colour-only link here for a removal
-        mutation to reach. `audit.py` has no rule for 1.4.1 either, so this
-        is the same disclosed asymmetry as the four above, not a fresh gap.
+    def test_use_of_color_has_both_a_removal_and_an_injection_control(self):
+        """The fifth criterion, and the only one here with two controls.
+
+        The pass that wrote the injection concluded a removal was impossible:
+        this corpus's one real body-text link (`/docs/product-bundles`)
+        carries no colour override, "so stripping its underline leaves it the
+        same colour as its surroundings -- there is nothing for a removal
+        mutation to reach." The observation is right; the conclusion is not. A
+        link the same colour as its prose with the underline taken away is the
+        *worst* case of this criterion, and stripping that class is now the
+        strongest control in this table: it puts the defect into markup the
+        customer's page actually renders, rather than adding markup no page
+        has.
+
+        Both are asserted, because they test different halves — an identical
+        colour with an inherited decoration, and a differing colour under 3:1
+        with a literal `none`. `audit.py` has no rule for 1.4.1 either way, so
+        both rows show the same disclosed asymmetry as the four above rather
+        than a fresh gap.
         """
-        row = next(r for r in self.data["control"] if r["criterion"] == "1.4.1")
-        self.assertEqual(row["kind"], "injection")
-        self.assertTrue(row["exercised"])
-        self.assertEqual(row["probe_fired"], row["pages_changed"])
-        self.assertEqual(row["audit_py_cites"], {})
+        rows = {r["kind"]: r for r in self.data["control"] if r["criterion"] == "1.4.1"}
+        self.assertEqual(sorted(rows), ["injection", "removal"])
+        for kind, row in rows.items():
+            with self.subTest(kind=kind):
+                self.assertTrue(row["exercised"])
+                self.assertEqual(row["probe_fired"], row["pages_changed"])
+                self.assertEqual(row["audit_py_cites"], {})
+        # The removal reaches only the pages that have a link inside prose;
+        # the injection reaches every page. A row that quietly stopped
+        # reaching anything would still satisfy the equality above.
+        self.assertEqual(rows["removal"]["pages_changed"], 4)
+        self.assertEqual(rows["injection"]["pages_changed"], 14)
 
     def test_the_frame_control_is_recorded(self):
         """The row that caught the detection gap. Before the rule added to

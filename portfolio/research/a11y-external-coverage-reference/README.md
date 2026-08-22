@@ -364,6 +364,11 @@ recorded under ["What changed on 2026-08-22"](#what-changed-on-2026-08-22)
 below — the three left in `STILL_UNIMPLEMENTED` are the ones this section's
 "1.2.1, 1.3.4 or 2.5.3" already named as resting on rules axe does not run.
 
+**That residue is now closed** (later the same day; see the section below).
+Nothing is left in between: every criterion still unimplemented in either
+engine is one whose only axe rules ship disabled or experimental, so no default
+run of the reference reports it either.
+
 ### The pattern, restated
 
 `rescore-2026-08-20.md`'s rule is that product assumptions cost points and
@@ -476,3 +481,48 @@ fixture. Recorded as evidence in
 `liability_containment` does not move, for the same one-corpus,
 one-venture reason `a11y-axe-recall`'s own recall figure did not move it
 either.
+
+## What changed later on 2026-08-22 — the residue was closed
+
+**1.4.1 Use of Color is implemented** in `eaa-wcag-triage`
+(`wcag_triage.usecolor`), for the one shape of it a static artifact decides: a
+link inside prose that carries no underline, border, weight or background of
+its own and sits under 3:1 against the text around it. That leaves this
+module's disclosure list at three criteria — 1.2.1, 1.3.4, 2.5.3 — each of
+which a default axe run never executes, so the split is now exactly "the
+reference reports it" against "the reference does not run it", with nothing
+in between.
+
+**Two sessions implemented it within the hour**, independently
+([#622](https://github.com/Duncan-Haywood/monorepo-projects/pull/622) merged
+first, [#621](https://github.com/Duncan-Haywood/monorepo-projects/pull/621)
+consolidated after). What settled which rule survives was this directory's own
+kind of evidence: run against the 118-page corpus, the merged rule reported
+**30 findings on `photo-editing/docs-site` where axe reports 1**. The
+consolidation is recorded in the probe's README; the merged pass's per-element
+`decoration_line`/`foreground_color` helpers and its per-scheme naming are kept.
+
+Two things about *this* module fell out of building it, both worth recording
+because they are about the reference rather than about the probe:
+
+- **The reference's own gate is not in its rule list either.** Whether
+  `link-in-text-block` fires at all is decided by `commons/dom/is-in-text-block`
+  — a link is in a text block when it is not laid out as a block box *and* the
+  surrounding prose is longer than the link text. Read from the rule catalog,
+  the criterion looks like a colour comparison; run against a real corpus, most
+  of its behaviour is that gate. A rule written from the catalog alone
+  over-reported 6:1 on the one page in this portfolio's corpus where axe
+  reports 1.4.1.
+- **This module's own fixture for 1.4.1 was thinner than the criterion.** It is
+  a `style=` attribute on a single `<p>`, which every engine resolves. The
+  shapes that decide real pages — a framework reset that overrides the UA
+  underline, a flex container that blockifies its children — appear in no
+  fixture here, and neither would have been caught by any test in this
+  directory. That is the same lesson the 2.4.1 fixture taught in the section
+  above, in a second place: **a fixture that passes proves the rule ran, not
+  that it is right.**
+
+`eaa-remediation-pipeline`'s `liability_containment` stays at **5** for the
+same reason the previous section gives: closing a gap is not a measurement of
+the coverage statement's accuracy, and this pass found two of its own defects
+before shipping rather than a defect in the record.

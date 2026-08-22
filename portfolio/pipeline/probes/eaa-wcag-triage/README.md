@@ -65,6 +65,7 @@ turned off.
 | Heading order | 2.4.6 | degrading | a heading level is skipped (h1 → h3) |
 | Data-table headers | 1.3.1 | degrading | a multi-row data table has no `<th>` |
 | Text contrast | 1.4.3 | degrading | text resolves between 3:1 and the 4.5:1 its size requires |
+| Colour-only link | 1.4.1 | blocking | a link inside prose, with no underline/border/weight/background of its own, under 3:1 against the text around it |
 
 ## What it deliberately cannot do — and says so in every record
 
@@ -161,81 +162,150 @@ zero.
 
 ## Use of Color: added 2026-08-22
 
-The fifth of the eight criteria `a11y-external-coverage-reference` disclosed,
-and the only one of the eight the reference itself named as a genuine gap
-rather than a rule that was never going to exist — see the note above. Closed
-by [`rule_use_of_color`](src/wcag_triage/rules.py), in the same pass that
-added the four other rules but written and tested separately because it needed
-new machinery: the contrast module can name one element's colour, but
-answering 1.4.1 means comparing *two* elements' colours, which no existing
-rule did.
+The last of the eight criteria `a11y-external-coverage-reference` disclosed,
+and the only one of the four left after that morning's pass that was a real
+gap — the other three rest on axe rules that ship disabled or experimental, so
+no default run reports them either.
 
-**What fires.** A link inside body text — one with at least a few characters
-of non-link text beside it, so a standalone nav item, card, or CTA is not in
-scope — whose own `text-decoration` (or `-line`) is explicitly `none`, and
-whose resolved text colour decidably differs from the surrounding text's, in
-at least one colour scheme the page ships.
+[`wcag_triage.usecolor`](src/wcag_triage/usecolor.py) decides the one shape of
+this criterion an artifact settles: **a link inside a block of prose that
+colour alone marks out as a link**. Everything else the criterion covers — a
+required field shown in red, a status carried by a swatch, an instruction that
+says "press the green button" — needs someone to read the page, and the
+coverage row says so.
 
-**Every gate is a refusal to guess, not a threshold to tune:**
+Three questions in order, and a finding only on *yes, no, yes*:
 
-- **No declaration at all is not "no underline."** The user-agent default for
-  a naked `<a>` is underlined, so only a literal `none` counts as removing it.
-  A page that never mentions `text-decoration` is *not* flagged — the finding
-  needs positive evidence the decoration was taken away, the same standard
-  every other rule in this module holds itself to.
-- **`inherit`, a hover-only rule, and an unresolved `var()` are all
-  undecidable, not resolved.** `text-decoration` is not an inherited
-  property, so `inherit` needs the same ancestor walk colour gets and this
-  function does not attempt it — a Tailwind reset writing
-  `a { text-decoration: inherit }` is common, and guessing "none" from it
-  would be exactly the false positive this probe exists to avoid. A
-  `:hover`-scoped rule is invisible to `css.py`'s single-class reader by
-  design (see its module docstring), so `hover:underline`-only markup reads as
-  "nothing declared," not as decorated.
-- **Colour is checked per scheme, independently of decoration.** A page can
-  read the same in light and dark mode and diverge only in one — the same
-  asymmetry 1.4.3 measured on this portfolio's own pages (260 dark-mode-only
-  failures a single-scheme pass would have missed) — so this rule evaluates
-  `contrast.SCHEMES` separately and names which scheme(s) it decided the
-  finding in, rather than picking one.
+1. **Is the link inside prose?** Not laid out as a box of its own — including
+   by being a flex or grid child, which CSS blockifies — and inside a block
+   whose non-link text is longer than its link text.
+2. **Is it marked some other way?** An underline — **including the browser's
+   own**, which applies while the page has declared nothing — a border, an
+   outline, a different weight, family, or background.
+3. **Are the two colours closer than 3:1?** The link's against the prose's, at
+   the ratio WCAG technique G183 names and the reference engine uses, under
+   both colour schemes; a failure in one scheme only says which.
 
-**What this deliberately does not attempt**, and why each is a false negative
-rather than a false positive: a link distinguished by bold weight,
-letter-spacing, or a border instead of an underline (only `text-decoration` is
-read); a decoration painted by an ancestor and shown through a descendant's
-text by the browser's own layout, which is a rendering mechanism distinct from
-CSS inheritance; and any decoration gated on `:hover` or `:focus`, since a
-static pass cannot observe interaction state. Every one under-reports, which
-is the direction this probe commits to everywhere else, including 1.4.1's
-`COVERAGE` row, downgraded from `unimplemented` to `partial` rather than
-`automated` for exactly these reasons.
+Anything unresolved yields `undecidable` with a named reason and no finding,
+the same refusal the rest of this probe commits to. The evidence record prints
+the per-link tally, including the denominator — links examined out of links on
+the page — because "3 links failed" without "of 41 examined" reads as a check
+of the whole criterion.
 
-**Measured out of sample against one rendered corpus, not yet against the
-118-page build corpus.** The four siblings this rule joined were run against
-`a11y-own-sites`'s 118 built pages the same day they were written, and it
-changed one of them (`rule_bypass_blocks` gained its content-gate from that
-run) — this rule was not, in that same pass: exercising it needed a rebuild of
-all 7 apps' `npm run build` output, which that pass did not do. A narrower
-version of that gap closed the same day, in
-[`a11y-generated-sites`](../../../research/a11y-generated-sites/), which
-renders `local-site-studio`'s delivered pages through the real component
-tree and already had a build of that one venture available. Its positive
-control gained a mutation for 1.4.1 and the rule fires 14/14 — but as an
-**injection**, not a removal: the corpus's one real underlined body-text link
-(`/docs/product-bundles`) carries no colour override of its own, so there was
-no real colour-only link to remove, which is itself a small honest finding
-about that page rather than a weaker test of the rule. See that directory's
-Finding 5 for the full account, including why a removal mutation was not
-possible here.
+**What this deliberately does not attempt**, each a false negative rather than
+a false positive: a decoration painted by an ancestor and shown through a
+descendant's text by the browser's own layout, which is a rendering mechanism
+distinct from CSS inheritance; any decoration gated on `:hover` or `:focus`,
+which a static pass cannot observe — and which is the right answer as well as
+a limit, since a distinction a reader has to hover to find is not one; and
+every use of colour that is not a link in prose. That is why the `COVERAGE`
+row moved from `unimplemented` to `partial` rather than to `automated`.
 
-That still leaves the wider question the four siblings answered for
-themselves: whether the rule holds up against the 118-page build corpus
-(different pages, different content, seven ventures rather than one), which
-still needs the same full 7-app rebuild this pass continued not to do. The
-fixture and unit-test coverage is real, and one genuine rendered page is now
-real evidence too, but both remain markup written or selected to exercise the
-rule rather than a broad, arbitrary sample — a rebuilt 118-page corpus run is
-still the next thing that would settle it more widely.
+### Two sessions, one criterion, and the measurement that decided between them
+
+Two independent scheduled sessions implemented 1.4.1 within an hour of each
+other on 2026-08-22 — the duplicate-work pattern `CLAUDE.md` documents, this
+time on the same criterion in the same file.
+[#622](https://github.com/Duncan-Haywood/monorepo-projects/pull/622) merged
+first; [#621](https://github.com/Duncan-Haywood/monorepo-projects/pull/621) had
+run the 118-page corpus and the browser cross-check, and consolidated after.
+
+What settled it was not the argument, it was the corpus. Run over the same 118
+built pages:
+
+| | findings on `photo-editing/docs-site` | axe-core 4.13.0 reports |
+|---|---:|---:|
+| merged rule (`rule_use_of_color`) | **30** | 1 |
+| consolidated rule (`usecolor`) | **1** | 1 |
+
+The 29 extra were the site's brand link, nine `display:block` card links in a
+card grid, and five file-list rows — none of them prose, all of them cleared
+by a gate the merged rule did not have. Three differences produced that, and
+each is now a named test:
+
+| The merged rule | Why it was wrong | Measured effect |
+|---|---|---|
+| A fixed floor of a few characters of surrounding text | A card grid and a file-list row both clear any short floor while the link is still the whole row | most of the 29 |
+| Fires when the two colours *differ at all*, and not when they are identical | The criterion's threshold is 3:1 (G183, and the reference's own rule); a link identical to its prose is the **worst** case, not an out-of-scope one | over-reports the distinguishable, misses the invisible |
+| Declines `text-decoration: inherit` as undecidable | The declaration *overrides* the UA underline, so the value comes from the paragraph, which is `none`. Every Tailwind preflight writes it | **152 in-prose links** in this corpus, none underlined, all of them unflagged |
+
+**What the merged pass built that is kept**: its per-element
+`contrast.decoration_line` and `contrast.foreground_color` helpers (the
+consolidated rule walks the inheritance chain *on top of* `decoration_line`
+rather than replacing it), its per-scheme evaluation and the naming of which
+scheme a finding was decided in, and its unit tests — three of which now assert
+the opposite of what they did, each with the measurement that inverted it in
+the docstring.
+
+The honest reading of the collision: neither session could see the other, both
+read the same three files naming 1.4.1 as the remaining gap, and both were
+right that it was. What one of them had was a rebuilt corpus and a browser.
+
+### It was wrong three times before it was right, and only a corpus showed it
+
+The consolidated rule is not the first draft either. None of these were
+visible from the fixtures; each is now a named test.
+
+| What the rule did | Why it was wrong | Measured effect |
+|---|---|---|
+| Required 25 characters of surrounding text | A file-list row (`<li><a>Long title</a> — <code>file.html</code></li>`) clears any short floor and is still a list | **6 findings against the reference's 1** on the one page that has a real one |
+| Treated `a { text-decoration: inherit }` as "nobody said anything, so the browser underlines it" | That declaration *overrides* the UA underline; the value then comes from the paragraph, which is `none` | **152 links** that are not underlined counted as underlined — every Tailwind page in the corpus |
+| Read `display` only on the link | A flex or grid container blockifies its children, so a header button is a box however inline its tag | **3 of the 5** remaining findings were flex-row buttons |
+
+The first fix is the reference engine's own rule (`isInTextBlock`:
+`parentText.length > widgetText.length`), adopted because it is the honest form
+of the question — a link is hidden in prose when the prose outweighs it — and
+because a scale-free comparison beats a character floor at both ends. That two
+independent implementations *both* began with a character floor, and both were
+wrong the same way, is the part worth carrying forward.
+
+### Out-of-sample: 1 finding, and the reference reports the same node
+
+Over the 118 built pages of [`a11y-own-sites/`](../../../research/a11y-own-sites/):
+
+| | count |
+|---|---:|
+| `<a href>` in the corpus | 1380 |
+| Examined (inside prose, not a box of their own) | **123** |
+| Decided | 122 (99.2%) |
+| Undecidable (`translucent-text`) | 1 |
+| Failures | **1** |
+
+The failure is `photo-editing/docs-site index.html`: a link in a callout
+paragraph, `#38bdf8` against prose in `#e8edf7`, **1.825:1**, underline
+removed. axe-core 4.13.0's `link-in-text-block` reports **exactly that node,
+on exactly that page, and nothing else in the corpus**.
+
+Corroboration was not left at the failure. For **all 123** examined links, the
+computed `text-decoration-line`, `display` and colours were read out of
+Chromium and compared with what this static reader concluded: **0
+disagreements**. Three `quick-pick-survey` pages sit outside that check —
+their delivered DOM carries more links than the prerender, the same
+client-rendering limit this corpus has hit before.
+
+A second, rendered corpus corroborates it from the other direction:
+[`a11y-generated-sites`](../../../research/a11y-generated-sites/) runs a
+positive control on `local-site-studio`'s real delivered pages, where stripping
+the `underline` class from the one in-prose link leaves it exactly the colour
+of its paragraph — caught on 4/4 pages that have such a link. That control
+found a defect in the harness rather than the rule; see its Finding 5.
+
+### What moved elsewhere, and what deliberately did not
+
+- **Recall 0.975 → 0.976** ([`a11y-axe-recall/`](../../../research/a11y-axe-recall/)),
+  and the point is the denominator rather than the rate: the checked-criteria
+  universe went 17 → 18, the axe instance that came with it is matched, and the
+  record printed to a customer now quotes the wider measurement. The probe's
+  `tests/test_accuracy_citations.py` is what forced that update rather than
+  letting the old figure stand.
+- **Engine agreement 91/118 → 90/118**, and the new disagreement is the first
+  in this corpus that is not a relabelling: the probe reports 1.4.1 and the
+  sibling engine has no rule for it. Named by test rather than smoothed over.
+- **`eaa-remediation-pipeline`'s scores do not move.** `liability_containment`
+  stays at 5. Implementing a criterion is not a measurement of whether the
+  coverage statement is accurate, and this pass found three of its own defects
+  and 29 of another implementation's on the way — none of them a defect in the
+  record.
 
 ## The build-artifact filter: added 2026-08-22
 
