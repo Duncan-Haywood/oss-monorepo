@@ -72,7 +72,7 @@ jobs:
       - run: python3 -m unittest discover -p 'test_*.py'
       # The summary in README.md must still re-derive from the committed
       # results with no network and no build. Catches a hand-edited number.
-      - run: python3 audit_generated_sites.py --recompute-from results-2026-08-21.json
+      - run: python3 audit_generated_sites.py --recompute-from results-2026-08-22.json
       # Running the engines over the committed corpus for real is asserted in
       # the suite above (DeliveredCorpus), not repeated here: `audit_generated_
       # sites.py` with no arguments prints its findings and exits 0 either way,
