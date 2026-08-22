@@ -156,6 +156,19 @@ candidates:
         mode is different, not absent. See
         portfolio/pipeline/probes/mcp-drift-watch/README.md's "Amendment,
         2026-08-22" section.
+
+        Held at 7, not moved further, same day: a third pass ran the identical
+        blind method on the 148-item corpus 3 and scored F1 0.93-0.96 against
+        the rules' 0.17-0.19 there -- a wider margin than corpus 2's, not a
+        narrower one, replicating the span-must-be-new failure mode (one clean
+        instance) alongside the win. That corroborates the qualitative claim
+        (beats the rules on both corpora now measured) but not a stronger
+        quantitative one: the model's own F1 swings ~0.61-0.71 to 0.93-0.96
+        between corpora, roughly the same order of disagreement the rules'
+        F1 showed across the same two corpora. Moving the score again on the
+        more flattering of two disagreeing measurements would repeat the
+        error the corpus-3 rules section names. See that README's "Third
+        pass, 2026-08-22" section.
         HISTORY. 7 -> 6, PR #207 step 2, 2026-08-19: 152 real
         tool-description changes classified; the work looked like
         deterministic diffing plus a small classifier, not model-heavy.

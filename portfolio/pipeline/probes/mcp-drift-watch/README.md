@@ -1,7 +1,8 @@
 # mcp-drift-watch
 
 **Probe for [`mcp-supply-chain-watch`](../../candidates/mcp-supply-chain-watch.md).**
-Built 2026-08-22. 68 tests. Not published, not a graduation, no score moved.
+Built 2026-08-22. 68 tests. Not published, not a graduation. `ai_leverage`
+moved once (6 → 7); still capped by `defensibility` at 3.
 
 Pin what a connected MCP server declared, diff it on re-poll, classify what
 moved, and hand the subscriber a record. That is the candidate's own
@@ -18,6 +19,12 @@ used to answer the question its research left open.
 > of this file; it is the one that moved `ai_leverage` 6 → 7. They do not
 > overlap, and each bears on the other: the model's figure is a single held-out
 > measurement of exactly the kind this pass shows can halve on a second corpus.
+>
+> **A third same-day pass closed that gap**: the model, asked the identical
+> question on corpus 3. See [the closing
+> section](#third-pass-2026-08-22-the-model-asked-the-same-question-on-corpus-3).
+> The short version: it still beats the rules, by a much wider margin than on
+> corpus 2 — which is itself the caution, not just the result.
 
 ## Second pass, 2026-08-22: a third corpus, and the fixes measured on it
 
@@ -270,6 +277,15 @@ scores and neither is a measurement:
   falling by half between two corpora drawn the same way, and the model has only
   been asked about one of them. There are now 284 changes with committed hand
   labels; the model has seen 136.
+
+  **Closed the same day, by a third pass**: the model, asked on corpus 3. F1
+  0.93–0.96 against the rules' 0.17–0.19 there — a wider gap than corpus 2's,
+  not a narrower one, so the qualitative finding replicates twice for two and
+  the magnitude does not replicate at all (2× on corpus 2, ~5× on corpus 3).
+  `ai_leverage` was **not** moved again: a score that tracked the more
+  flattering of two disagreeing measurements is the exact error the corpus-3
+  rules pass named a section for. See [the closing
+  section](#third-pass-2026-08-22-the-model-asked-the-same-question-on-corpus-3).
 - `ethical_robustness` is 8. This probe ships the disclosure surface the
   candidate never had, and it does so from its first version rather than after a
   deduction. There was no measured deficit to restore, so the score is recorded
@@ -296,6 +312,8 @@ here changes it.
 | `holdout-labels-2026-08-22.json` | Every label, every borderline call, and a note on each judgement. |
 | `results-holdout-c3-2026-08-22.json` | Corpus 3: 148 changes, 21 packages, disjoint from corpus 2 by construction. |
 | `holdout-labels-c3-2026-08-22.json` | The same for corpus 3, plus both rule sets' scores side by side. |
+| `model-pass-c3-2026-08-22.json` | The model's 148 blind labels on corpus 3, same method as the corpus-2 pass. |
+| `score_model_pass_c3.py` | Scores the corpus-3 model pass against its hand labels; `--disagree` lists every split. |
 | `sample-record-2026-08-22.md` | A real record, chosen to be unflattering — see below. |
 | `test_drift_watch.py`, `test_subscriber_record.py`, `test_rule_variants.py`, `test_build_labels_c3.py` | 68 tests. |
 
@@ -362,13 +380,15 @@ are a set difference between two pins, exact, with no rule in between.
 - **That the three edits are the right fix.** They are measured out of sample
   and they help, and they leave 86% of the qualifying changes unfound. The class
   that carries 35 of 44 misses has no rule at all yet.
-- **That a model would do better.** Measured now — see the model-pass amendment
-  below. It does, on precision and recall both, and it does worse on the one
-  thing this probe's whole methodology is built around: judging only the newly
-  added text. **That measurement is on corpus 2 only**, and the corpus-3 pass
-  above is a demonstration that a single held-out figure from this corpus family
-  does not have to hold: the rules' own F1 fell by half between the two. The
-  model's 0.61–0.71 has not been asked the same question.
+- **That a model would do better.** Measured now, on both held-out corpora — see
+  the [model-pass amendment](#amendment-2026-08-22-a-model-was-run-over-the-corpus)
+  and its [corpus-3 follow-up](#third-pass-2026-08-22-the-model-asked-the-same-question-on-corpus-3).
+  It does, on precision and recall both, on both corpora, and it does worse on
+  the one thing this probe's whole methodology is built around: judging only the
+  newly added text. **The two measurements themselves disagree**, the same way
+  the rules' two measurements disagree: F1 0.61–0.71 on corpus 2, F1 0.93–0.96 on
+  corpus 3. A single figure from either pass is no more "the" model accuracy than
+  7.4% was "the" alert rate.
 - **That severity is separable at all.** A benign deprecation notice and an
   injected routing instruction are the same shape in text. This probe labels
   *whether* text addresses the model, never whether it is hostile, and the
@@ -451,3 +471,75 @@ untouched and this still cannot graduate under README.md rule 2.
 |---|---|
 | `model-pass-2026-08-22.json` | The model's 136 blind labels plus its per-item reasoning, and the exact method in its own `method` field. |
 | `score_model_pass.py` | Scores the model pass against the hand labels; `--disagree` lists every split with both sides' reasoning. |
+
+## Third pass, 2026-08-22: the model, asked the same question on corpus 3
+
+The amendment above closed by naming the open question in one sentence: "the
+model's 0.61–0.71 has not been asked the same question" on corpus 3. It has
+now. Same method, same rubric, same discipline — four independent Claude
+Sonnet 5 passes, one per disjoint 37-item slice of the 148-item corpus, each
+given only a tool's old/new description text, a mechanical newly-added-text
+hint, and `build_labels.py`'s rubric — not the rules' bucket, not the hand
+labels, not `build_labels_c3.py` itself. Scored against the same committed
+labels the rules were scored against on this corpus, by
+`score_model_pass_c3.py`.
+
+|  | rules (corpus 3) | model, one blind pass (corpus 3) | model, one blind pass (corpus 2) |
+|---|---:|---:|---:|
+| precision | 0.625 | **0.90–0.96** | 0.48–0.60 |
+| recall | 0.10–0.11 | **0.96** | 0.86–0.88 |
+| F1 | 0.17–0.19 | **0.93–0.96** | 0.61–0.71 |
+
+**The model beats the rules by a wider margin here than on corpus 2, not a
+narrower one.** It caught 44–47 of the corpus's 49 hand-labelled
+instruction-bearing changes against the rules' 5. Only 4 of 148 labels
+disagree with the hand reading at all (2 false positives, 2 false negatives,
+counting the corpus's 3 borderline calls as positive — the same 3 the model
+also flagged, including the one written in Chinese, a language no rule pattern
+in this probe can match by construction):
+
+- `intodns-mcp` `scan_domain`: flagged "This is the default tool for
+  agent-visible scan evidence" as a priority claim (rubric c); the hand label
+  reads it as a superlative about itself, naming no other tool — the same
+  reading corpus 2 gave `meetlark_get_admin_view`.
+- `intodns-mcp` `discover_dkim`: flagged "use `check_email_security` for the
+  broader SPF/DKIM/DMARC overview" as new cross-tool routing (rubric a) — but
+  that sentence is in both the old and new description, unchanged. This is the
+  exact **span-must-be-new** failure the corpus-2 pass found in a quarter of
+  its own false positives, reproduced here in one of two.
+- `autonomad-travel` `create_booking_intent` and `@oobe-protocol-labs/
+  sap-mcp-server` `sap_sns_register_agent_domain` (both false negatives): the
+  model read "call this only when/after …" as self-describing usage guidance
+  naming no other tool; the hand labels read the same phrasing as an ordering
+  or gating imperative (rubric b), the reading corpus 2 gave `naumu_search`'s
+  "only use this when" clause. Genuine judgement calls, not the truncation or
+  stale-span failure modes — see `score_model_pass_c3.py --disagree` for both
+  readings side by side.
+
+**Two things this settles, and one it does not.** It settles that the
+corpus-2 result was not a fluke of that corpus: the model beats the rules on
+precision and recall on both held-out corpora now measured, which is what
+`ai_leverage`'s 2026-08-22 move argued from one. It also settles that the
+span-must-be-new failure mode is real and recurring rather than a one-corpus
+artifact — one clean instance here, in the same shape as before. **It does not
+settle what the model's own accuracy is**: 0.61–0.71 and 0.93–0.96 are both
+single blind passes, and this probe's own corpus-3 rules section exists to
+demonstrate that ranking a method by the corpus that most flatters it does not
+survive a second one. Two model passes agreeing on direction (model beats
+rules) while disagreeing by roughly 2× to 5× on magnitude is the model
+reproducing the same lesson the rules did, not escaping it.
+
+**Score not moved again.** `ai_leverage` stays at 7. The 2026-08-22 amendment
+already moved it on the strength of "not rule-separable," and this pass adds a
+second corpus of support for exactly that claim — it does not add support for
+a *stronger* claim, since the magnitude that would justify moving further is
+the one number this pass shows swings hardest between corpora. Moving the
+score again on the more flattering of two disagreeing measurements is the
+error the corpus-3 rules section above is named for. `defensibility` (the
+floor, at 3) is untouched, and this still cannot graduate under README.md rule
+2.
+
+| File | What it is |
+|---|---|
+| `model-pass-c3-2026-08-22.json` | The model's 148 blind labels on corpus 3 plus its per-item reasoning, and the exact method in its own `method` field. |
+| `score_model_pass_c3.py` | Scores the corpus-3 model pass against the hand labels; `--disagree` lists every split with both sides' reasoning. |
