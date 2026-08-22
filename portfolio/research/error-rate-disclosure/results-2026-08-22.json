@@ -36,7 +36,7 @@
     {
       "probe": "eaa-wcag-triage",
       "candidate": "eaa-remediation-pipeline",
-      "artifact_chars": 20938,
+      "artifact_chars": 21129,
       "record_module": "src/wcag_triage/evidence.py",
       "declared_coverage_constants": [
         "COVERAGE_STATEMENT",
@@ -80,7 +80,7 @@
     {
       "probe": "npm-reachability-triage",
       "candidate": "cra-evidence-desk",
-      "artifact_chars": 7515,
+      "artifact_chars": 9364,
       "record_module": "src/triage/evidence.py",
       "declared_coverage_constants": [
         "COVERAGE_LIMITS",
@@ -101,7 +101,7 @@
           "0/53",
           "0/102"
         ],
-        "reads": "0 of 53 hand-verified suppression claims (0 of 102 raw suppressed findings) were wrong, checked on 2026-08-21 against real advisory text and lockfile evidence across all seven npm products in the portfolio \u2014 a sample, not a general proof the rules cannot misfire on a different project's lockfile shape."
+        "reads": "0 of 53 hand-verified suppression claims (0 of 102 raw suppressed findings) were wrong, checked on 2026-08-21 against real advisory text and lockfile evidence across 7 npm products in the portfolio \u2014 a sample, not a general proof the rules cannot misfire on a different project's lockfile shape, and not the whole portfolio either: a repository walk on 2026-08-22 found 18 npm manifests, 9 of them readable by that tool at all."
       },
       "rate_absent_because": null,
       "rate_in_artifact": true,
