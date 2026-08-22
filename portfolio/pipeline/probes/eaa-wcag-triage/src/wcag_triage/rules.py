@@ -21,7 +21,7 @@ import re
 from dataclasses import dataclass
 from typing import Callable, Optional
 
-from . import contrast, lang
+from . import contrast, lang, usecolor
 from .parser import Node
 
 BLOCKING = "blocking"
@@ -183,13 +183,19 @@ COVERAGE: tuple = (
               "page is not decidable from markup; the reference's rule for it "
               "ships disabled and returns 'needs review' rather than a "
               "failure, so no engine decides this one."),
-    Criterion("1.4.1", "Use of Color", "A", "unimplemented",
-              "A link distinguished from surrounding body text by colour alone "
-              "is decidable where the stylesheet names the colours -- this one "
-              "is a genuine gap, and the only one of the four that is. It "
-              "needs the contrast machinery pointed at a link against its "
-              "surrounding text rather than its background; no rule here "
-              "looks yet."),
+    # Implemented 2026-08-22, and it was the only one of the four above that
+    # was a genuine gap: the other three rest on axe rules that ship disabled
+    # or experimental, so no default run reports them either. See
+    # `wcag_triage.usecolor` for what it decides and the three questions it
+    # has to answer in order.
+    Criterion("1.4.1", "Use of Color", "A", "partial",
+              "A link inside body text carrying no underline, border, weight "
+              "or background of its own, and under 3:1 against the prose "
+              "around it, is detectable where the stylesheet names both "
+              "colours; every other use of colour to carry meaning -- a "
+              "required field marked red, a status shown only by a swatch, an "
+              "instruction that says 'the green button' -- needs someone to "
+              "read the page."),
     Criterion("2.5.3", "Label in Name", "A", "unimplemented",
               "An accessible name that does not contain the control's visible "
               "text is decidable from the markup; the reference's rule for it "
@@ -813,6 +819,49 @@ def rule_text_contrast(results):
             f"at {size}, below the {result.threshold}:1 this size requires.",
             f"Darken the text or lighten its background until the ratio reaches "
             f"{result.threshold}:1.",
+            seq=node.order,
+        )
+
+
+def rule_link_color_only(results):
+    """SC 1.4.1, for links inside prose that colour is the only mark of.
+
+    Implemented 2026-08-22, the last of the eight rows
+    ``portfolio/research/a11y-external-coverage-reference/`` disclosed as
+    ``unimplemented`` and the only one of the remaining four that was a real
+    gap — the other three rest on reference rules that ship disabled or
+    experimental, so no engine reports them.
+
+    Takes the already-computed ``[(node, LinkResult), ...]`` for the same
+    reason :func:`rule_text_contrast` does: the caller needs the list twice,
+    once for these findings and once for the decidability tally the evidence
+    record carries. See :mod:`wcag_triage.usecolor` for the three questions
+    behind each verdict.
+
+    **Blocking.** The text is legible — this is not a contrast failure — but
+    the link is not perceivable *as a link* to a reader who cannot use the
+    colour difference, so a task that requires following it cannot be
+    completed. That is the same test every other rule here applies to decide
+    the split.
+    """
+    for node, result in results:
+        if result.verdict != usecolor.FAIL:
+            continue
+        if result.ratio is not None and result.link_color:
+            measured = (
+                f"is {result.ratio}:1 against the text around it "
+                f"({result.link_color} on prose in {result.text_color})"
+            )
+        else:
+            measured = "is exactly the colour of the text around it"
+        yield Finding(
+            "1.4.1", "Use of Color", "A", BLOCKING, "a", node.line,
+            f"The link {measured} and carries no underline, border, weight or "
+            "background of its own, so colour is the only thing marking it as "
+            "a link.",
+            "Underline links in body text, or mark them some other way that "
+            "does not depend on colour; a colour difference alone has to reach "
+            f"{usecolor.LINK_TEXT_RATIO}:1 against the surrounding text.",
             seq=node.order,
         )
 

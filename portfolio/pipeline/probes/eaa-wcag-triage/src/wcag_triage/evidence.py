@@ -106,23 +106,26 @@ ACCURACY: tuple = (
     ),
     AccuracyFigure(
         metric="recall",
-        value="0.975",
+        value="0.976",
         direction="under-reporting — this engine misses defects that are real",
         reads=(
-            "Of 40 defects an independent detector found within the criteria this "
-            "engine claims to check, it found 39. A clean result here still is not "
+            "Of 41 defects an independent detector found within the criteria this "
+            "engine claims to check, it found 40. A clean result here still is not "
             "a conformance statement."
         ),
         corpus=(
-            "the same 118 pages, compared against axe-core 4.13.0 over the 13 "
+            "the same 118 pages, compared against axe-core 4.13.0 over the 18 "
             "success criteria either engine declares automated or partial"
         ),
-        measured="2026-08-21",
+        measured="2026-08-22",
         source="portfolio/research/a11y-axe-recall/",
         caveat=(
             "One comparison, against one other tool, on a corpus whose real defects "
-            "exercise only 2 of those 13 criteria. It is a single high data point, "
-            "not a settled false-negative rate."
+            "exercise only 3 of those 18 criteria. It is a single high data point, "
+            "not a settled false-negative rate. The denominator grew with the "
+            "claim: 40 over 13 criteria when first measured, 41 over 18 once this "
+            "engine implemented five more, and the defect that came with the "
+            "widened claim was found rather than missed."
         ),
     ),
 )
@@ -167,6 +170,7 @@ def build_record(audits: dict, checked_at: str) -> dict:
     excluded = []
     totals = {"total": 0, "blocking": 0, "degrading": 0}
     contrast_totals = {"pass": 0, "fail": 0, "undecidable": 0, "elements": 0, "reasons": {}}
+    color_totals = {"pass": 0, "fail": 0, "undecidable": 0, "links": 0, "reasons": {}}
     for label, audit in audits.items():
         counts = audit.counts()
         if audit.provenance is not None:
@@ -189,17 +193,27 @@ def build_record(audits: dict, checked_at: str) -> dict:
             contrast_totals[key] += tally.get(key, 0)
         for reason, count in (tally.get("reasons") or {}).items():
             contrast_totals["reasons"][reason] = contrast_totals["reasons"].get(reason, 0) + count
+        color_tally = audit.use_of_color or {}
+        for key in ("pass", "fail", "undecidable", "links"):
+            color_totals[key] += color_tally.get(key, 0)
+        for reason, count in (color_tally.get("reasons") or {}).items():
+            color_totals["reasons"][reason] = color_totals["reasons"].get(reason, 0) + count
         pages.append(
             {
                 "page": label,
                 "counts": counts,
                 "contrast": tally,
+                "use_of_color": color_tally,
                 "findings": [_finding_dict(f) for f in audit.findings],
             }
         )
     decided = contrast_totals["pass"] + contrast_totals["fail"]
     contrast_totals["decidable_share"] = (
         round(decided / contrast_totals["elements"], 4) if contrast_totals["elements"] else None
+    )
+    color_decided = color_totals["pass"] + color_totals["fail"]
+    color_totals["decidable_share"] = (
+        round(color_decided / color_totals["links"], 4) if color_totals["links"] else None
     )
     return {
         "tool": {"name": TOOL_NAME, "version": TOOL_VERSION},
@@ -211,6 +225,7 @@ def build_record(audits: dict, checked_at: str) -> dict:
         "accuracy": [asdict(a) for a in ACCURACY],
         "totals": totals,
         "contrast": contrast_totals,
+        "use_of_color": color_totals,
         "pages": pages,
         "excluded": {
             "statement": EXCLUSION_STATEMENT,
@@ -266,6 +281,46 @@ def _contrast_section(tally: dict) -> list:
             " the ones that still need a human:",
             "",
             "| Reason | Elements |",
+            "|---|---:|",
+        ]
+        for reason, count in sorted(reasons.items(), key=lambda item: (-item[1], item[0])):
+            lines.append(f"| `{reason}` | {count} |")
+    return lines
+
+
+def _use_of_color_section(tally: dict) -> list:
+    """The 1.4.1 decidability table, for the same reason 1.4.3 has one.
+
+    The denominator matters more here than the count of failures does. This
+    pass examines links that sit inside prose, and nothing else — a colour-only
+    distinction anywhere else on the page (a required field marked red, a
+    status shown only by a swatch) is outside what any static rule sees. A
+    reader who is told "3 links failed" without being told "of 41 examined, out
+    of a page with 96 links" would take this for a check of the whole
+    criterion, which it is not.
+    """
+    links = tally.get("links") or 0
+    lines = ["", "## Use of colour (1.4.1)", ""]
+    if not links:
+        lines.append(
+            "No links inside body text were examined. This criterion covers "
+            "more than links, and the rest of it needs a human."
+        )
+        return lines
+    share = tally.get("decidable_share")
+    lines.append(
+        f"{tally.get('pass', 0)} passed, {tally.get('fail', 0)} failed, "
+        f"{tally.get('undecidable', 0)} could not be decided from the source "
+        f"supplied — {links} link(s) inside body text, "
+        f"{'%.1f%%' % (share * 100) if share is not None else 'n/a'} decidable. "
+        "Links outside prose (navigation, buttons, cards) are not examined, "
+        "and neither is any other use of colour to carry meaning."
+    )
+    reasons = tally.get("reasons") or {}
+    if reasons:
+        lines += [
+            "",
+            "| Reason | Links |",
             "|---|---:|",
         ]
         for reason, count in sorted(reasons.items(), key=lambda item: (-item[1], item[0])):
@@ -412,6 +467,7 @@ def to_markdown(record: dict) -> str:
             f"| {c['criterion']} | {c['name']} | {c['level']} | {c['coverage']} |"
         )
     lines += _contrast_section(record.get("contrast") or {})
+    lines += _use_of_color_section(record.get("use_of_color") or {})
     lines += _accuracy_section(record)
     lines += ["", "## Findings", ""]
     if checked == 0:

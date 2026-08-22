@@ -302,7 +302,7 @@ for it.
 
 | | pages | findings |
 |---|---:|---:|
-| Corpus | 118 | 780 |
+| Corpus (at this measurement; 781 once 1.4.1 landed later the same day) | 118 | 780 |
 | Excluded as build-tool output | **7** | **7** (all 3.1.1) |
 | — `next-error-shell` (Next 16) | 2 | 2 |
 | — `next-builtin-error-page` (Next 14/15) | 5 | 5 |
@@ -457,3 +457,65 @@ So the four new rules are exercised by **nothing** in this corpus, and the
 right reading of their zero findings is *out of scope of this measurement*, not
 *clean*. Settling them needs a rendered corpus; the Playwright harness in
 [`a11y-axe-recall/`](../a11y-axe-recall/) is where one would start.
+
+## 2026-08-22 (second pass) — SC 1.4.1, and the first defect one engine sees and the other does not
+
+`eaa-wcag-triage` gained a rule for **1.4.1 Use of Color** — the last of the
+eight criteria [`a11y-external-coverage-reference/`](../a11y-external-coverage-reference/)
+disclosed as `unimplemented`, and the only one of the four left after 2026-08-22
+that was a genuine gap. The corpus was rebuilt from all 7 apps and re-measured.
+
+**One finding, and it is corroborated by the reference engine node for node.**
+`ventures/photo-editing/docs-site`'s `index.html` carries a link inside a
+callout paragraph — *"See [Site security] for..."* — painted `#38bdf8` against
+prose in `#e8edf7`, **1.825:1**, with the underline removed and nothing else
+marking it. axe-core 4.13.0's `link-in-text-block` reports exactly that node on
+exactly that page and nothing else in the corpus, which is the strongest
+agreement any rule here has had on its first out-of-sample run.
+
+| | count |
+|---|---:|
+| `<a href>` in the corpus | 1380 |
+| Examined (inside prose, not a block of their own) | **123** |
+| Decided | 122 (99.2%) |
+| Undecidable (`translucent-text`) | 1 |
+| Failures | **1** |
+
+Corpus findings 780 → **781**; everything else re-derives field for field.
+
+**Engine agreement drops 91/118 → 90/118, and the new disagreement is the
+first one that is not a relabelling.** Every prior disagreement was the two
+engines giving the same defect different criterion numbers. This one is a
+detection gap: the probe reports 1.4.1 and `audit.py` has no rule for it and
+declares it `unimplemented`. That is the honest state — the sibling engine is
+not wrong about this page, it is silent about it — and
+`test_the_one_disagreement_that_is_not_a_relabelling_is_named` pins it by name
+rather than weakening the old claim to "some disagreements are fine".
+
+**What the rule got wrong before it got this right** is the part worth keeping,
+because none of it was visible from the fixtures:
+
+1. **A fixed "surrounding text" floor of 25 characters over-reported 6:1.** The
+   five extra findings were file-list rows — `<li><a>Long report title</a> —
+   <code>file.html</code></li>` — where the caption clears any short floor and
+   the link is still the row. Replaced by the reference engine's own scale-free
+   comparison: the prose has to be *longer than the links*.
+2. **Reading a Tailwind reset as "nobody said anything" passed 152 links that
+   are not underlined.** `a { text-decoration: inherit }` overrides the UA
+   underline; the value then comes from the paragraph, which is `none`. Before
+   the fix, every link on every Tailwind page in this corpus counted as
+   underlined and the rule could not have fired on any of them.
+3. **Three of the five remaining findings were flex-row header buttons.** A
+   flex or grid container blockifies its children, so those links are boxes
+   beside a heading, not phrases inside it — visible in a computed style, and
+   in the *parent's* declaration, but not in the link's own.
+
+Each was found by measuring against a browser rather than by reading the rule,
+and each is now a named test case.
+
+**Cross-checked against Chromium, every examined link, not just the failure.**
+For all 123 links the rule examined, the computed `text-decoration-line`,
+`display` and colours were read out of a real browser and compared against what
+the static reader concluded: **0 disagreements**. Three `quick-pick-survey`
+pages are excluded from that cross-check — their delivered DOM has more links
+than the prerender, the same client-rendering limit this corpus hit above.

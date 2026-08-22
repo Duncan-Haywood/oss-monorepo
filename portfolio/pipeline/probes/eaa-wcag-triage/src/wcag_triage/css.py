@@ -46,6 +46,29 @@ TRACKED_PROPERTIES = frozenset(
         "font-size",
         "font-weight",
         "opacity",
+        # Added 2026-08-22 for SC 1.4.1 (:mod:`wcag_triage.usecolor`). Colour
+        # is only *the only* visual means of conveying something if nothing
+        # else conveys it, so deciding that criterion needs the properties a
+        # page marks a link out with — an underline first of all, and then the
+        # border, outline and font differences that also survive a monochrome
+        # rendering. `display` says whether a link is running text at all or a
+        # box of its own, and `color-scheme` whether an undeclared colour is
+        # black.
+        "display",
+        "text-decoration",
+        "text-decoration-line",
+        "font-style",
+        "font-family",
+        "border",
+        "border-width",
+        "border-style",
+        "border-bottom",
+        "border-bottom-width",
+        "border-bottom-style",
+        "outline",
+        "outline-width",
+        "outline-style",
+        "color-scheme",
     }
 )
 

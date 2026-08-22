@@ -24,7 +24,7 @@ REPO = Path(__file__).resolve().parents[5]
 #: is caught as loudly as a revised number.
 CITATIONS = {
     "precision": "out-of-sample precision is **0.821–0.881**",
-    "recall": "out-of-sample recall is 0.975",
+    "recall": "out-of-sample recall is 0.976",
 }
 
 

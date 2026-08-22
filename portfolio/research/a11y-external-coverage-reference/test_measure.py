@@ -33,11 +33,17 @@ AS_FOUND_GAPS = ["1.2.1", "1.3.4", "1.4.1", "2.2.1",
                  "2.2.2", "2.4.1", "2.5.3", "3.1.2"]
 
 # 2026-08-22: four of the eight became rules in `eaa-wcag-triage`. The split is
-# not "the easy ones" -- it is the four a *default* `axe.run()` actually
+# not "the easy ones" -- it is the ones a *default* `axe.run()` actually
 # reports as violations, established by running axe rather than by reading its
 # rule list. See Finding 5 and `AXE_DEFAULT_RUN_VERDICTS` below.
-IMPLEMENTED = ["2.2.1", "2.2.2", "2.4.1", "3.1.2"]
-STILL_UNIMPLEMENTED = ["1.2.1", "1.3.4", "1.4.1", "2.5.3"]
+#
+# Later the same day 1.4.1 joined them, which is why the split below is now
+# exactly "axe reports it by default" against "axe never runs a rule for it",
+# with no criterion left in between. 1.4.1 had been the one row on the wrong
+# side of that line: a genuine gap, named as such rather than filed with the
+# three that only looked like gaps. See `wcag_triage.usecolor`.
+IMPLEMENTED = ["1.4.1", "2.2.1", "2.2.2", "2.4.1", "3.1.2"]
+STILL_UNIMPLEMENTED = ["1.2.1", "1.3.4", "2.5.3"]
 
 # What axe-core 4.13.0 does with each fixture below, measured on 2026-08-22 by
 # running it in Chromium (see `a11y-axe-recall/` for the harness). Recorded as
@@ -189,6 +195,19 @@ class TestCompare(unittest.TestCase):
             self.assertEqual(
                 row["declared_unimplemented_by"], ["audit.py", "eaa-wcag-triage"])
 
+    def test_a_criterion_one_engine_built_leaves_the_disclosure_list(self):
+        # 1.4.1 is checked by the probe and still unimplemented in `audit.py`,
+        # so it is neither undisclosed nor a row both engines decline. The
+        # union is what the customer's record is built from, and a criterion
+        # one engine checks is checked -- but the asymmetry is real and
+        # `a11y-own-sites/` measures it as the corpus's one non-relabelling
+        # disagreement.
+        self.assertIn("1.4.1", self.data["union_checked"])
+        self.assertNotIn(
+            "1.4.1", {r["criterion"] for r in self.data["disclosed_unimplemented"]})
+        claimed = {r["criterion"]: r["claimed_by"] for r in self.data["depth"]}
+        self.assertEqual(claimed["1.4.1"], ["eaa-wcag-triage"])
+
     def test_the_implemented_four_are_now_checked_not_disclosed(self):
         # They left the disclosure list by being built, which is the only way
         # a row is allowed to leave it.
@@ -280,14 +299,13 @@ class TestGapsAreReal(unittest.TestCase):
             self.assertEqual(AXE_DEFAULT_RUN_VERDICTS[criterion], "violation",
                              criterion)
         for criterion in STILL_UNIMPLEMENTED:
-            if criterion == "1.4.1":
-                # The one genuine remaining gap: axe does report it, and no
-                # rule here looks yet. Named rather than quietly grouped with
-                # the three that rest on rules axe does not run.
-                self.assertEqual(AXE_DEFAULT_RUN_VERDICTS[criterion], "violation")
-            else:
-                self.assertEqual(AXE_DEFAULT_RUN_VERDICTS[criterion], "off",
-                                 criterion)
+            # Nothing is left in between any more. Every criterion still
+            # unimplemented is one a default axe run never executes, so no
+            # engine anywhere reports it -- which is a different statement
+            # from "we have not got to it yet", and the reason 1.4.1 was
+            # built and these three were not.
+            self.assertEqual(AXE_DEFAULT_RUN_VERDICTS[criterion], "off",
+                             criterion)
 
     def test_criteria_axe_does_not_run_by_default_are_marked_in_the_catalog(self):
         # The catalog half of the same fact, derived from the committed

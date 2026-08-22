@@ -64,6 +64,7 @@ turned off.
 | Heading order | 2.4.6 | degrading | a heading level is skipped (h1 → h3) |
 | Data-table headers | 1.3.1 | degrading | a multi-row data table has no `<th>` |
 | Text contrast | 1.4.3 | degrading | text resolves between 3:1 and the 4.5:1 its size requires |
+| Colour-only link | 1.4.1 | blocking | a link inside prose, with no underline/border/weight/background of its own, under 3:1 against the text around it |
 
 ## What it deliberately cannot do — and says so in every record
 
@@ -104,10 +105,10 @@ that ship disabled or experimental, so the claim that an independent engine
 automates them was never true of a default run. Those three stay
 `unimplemented`, and their catalog rows now give the measured reason instead.
 
-The genuine remaining gap is **1.4.1 Use of Color** — axe reports it by
-default, it fires once on this portfolio's own pages, and no rule here looks
-for it yet. It is named as such in `COVERAGE` rather than grouped with the
-three that are not gaps.
+The genuine remaining gap was **1.4.1 Use of Color** — axe reports it by
+default, it fires once on this portfolio's own pages, and no rule here looked
+for it. It was named as such in `COVERAGE` rather than grouped with the three
+that are not gaps, **and it is now implemented** — see the section below.
 
 **3.1.1 was downgraded in the same pass, from `automated` to `partial`.** The
 only rule behind it checked that `<html lang>` *existed*; nothing checked that
@@ -338,3 +339,84 @@ plus the specificity case that shipped a wrong answer on a real page).
   names each one, its marker, and every finding on it, and invites the reader
   to reject the exclusion. A shorter list is the seller's interest as much as a
   longer one is; the only defence is that the reader can see what was removed.
+
+## 1.4.1 Use of Color: added 2026-08-22
+
+The last of the eight, and the only one of the four that survived 2026-08-22's
+pass that was a real gap. `wcag_triage.usecolor` decides the one shape of this
+criterion an artifact settles: **a link inside a block of prose that colour
+alone marks out as a link**. Everything else the criterion covers — a required
+field shown in red, a status carried by a swatch, an instruction that says
+"press the green button" — needs someone to read the page, and the coverage row
+says so.
+
+Three questions in order, and a finding only on *yes, no, yes*:
+
+1. **Is the link inside prose?** Not laid out as a box of its own, and inside a
+   block whose non-link text is longer than its link text.
+2. **Is it marked some other way?** An underline — **including the browser's
+   own**, which applies while the page has declared nothing — a border, an
+   outline, a different weight, family, or background.
+3. **Are the two colours closer than 3:1?** The link's against the prose's, at
+   the ratio WCAG technique G183 names, under both colour schemes.
+
+Anything unresolved yields `undecidable` with a named reason and no finding,
+the same refusal the rest of this probe commits to. The evidence record prints
+the per-link tally, including the denominator — links examined out of links on
+the page — because "3 links failed" without "of 41 examined" reads as a check
+of the whole criterion.
+
+### It was wrong three times before it was right, and only a corpus showed it
+
+None of these were visible from the fixtures. Each is now a named test.
+
+| What the rule did | Why it was wrong | Measured effect |
+|---|---|---|
+| Required 25 characters of surrounding text | A file-list row (`<li><a>Long title</a> — <code>file.html</code></li>`) clears any short floor and is still a list | **6 findings against the reference's 1** on the one page that has a real one |
+| Treated `a { text-decoration: inherit }` as "nobody said anything, so the browser underlines it" | That declaration *overrides* the UA underline; the value then comes from the paragraph, which is `none` | **152 links** that are not underlined counted as underlined — every Tailwind page in the corpus |
+| Read `display` only on the link | A flex or grid container blockifies its children, so a header button is a box however inline its tag | **3 of the 5** remaining findings were flex-row buttons |
+
+The first fix is the reference engine's own rule (`isInTextBlock`:
+`parentText.length > widgetText.length`), adopted because it is the honest form
+of the question — a link is hidden in prose when the prose outweighs it — and
+because a scale-free comparison beats a character floor at both ends.
+
+### Out-of-sample: 1 finding, and the reference reports the same node
+
+Over the 118 built pages of [`a11y-own-sites/`](../../../research/a11y-own-sites/):
+
+| | count |
+|---|---:|
+| `<a href>` in the corpus | 1380 |
+| Examined (inside prose, not a box of their own) | **123** |
+| Decided | 122 (99.2%) |
+| Undecidable (`translucent-text`) | 1 |
+| Failures | **1** |
+
+The failure is `photo-editing/docs-site index.html`: a link in a callout
+paragraph, `#38bdf8` against prose in `#e8edf7`, **1.825:1**, underline
+removed. axe-core 4.13.0's `link-in-text-block` reports **exactly that node,
+on exactly that page, and nothing else in the corpus**.
+
+Corroboration was not left at the failure. For **all 123** examined links, the
+computed `text-decoration-line`, `display` and colours were read out of
+Chromium and compared with what this static reader concluded: **0
+disagreements**. Three `quick-pick-survey` pages sit outside that check —
+their delivered DOM carries more links than the prerender, the same
+client-rendering limit this corpus has hit before.
+
+### What moved elsewhere, and what deliberately did not
+
+- **Recall 0.975 → 0.976** ([`a11y-axe-recall/`](../../../research/a11y-axe-recall/)),
+  and the point is the denominator rather than the rate: the checked-criteria
+  universe went 17 → 18, the axe instance that came with it is matched, and the
+  record printed to a customer now quotes the wider measurement. The probe's
+  `tests/test_accuracy_citations.py` is what forced that update rather than
+  letting the old figure stand.
+- **Engine agreement 91/118 → 90/118**, and the new disagreement is the first
+  in this corpus that is not a relabelling: the probe reports 1.4.1 and the
+  sibling engine has no rule for it. Named by test rather than smoothed over.
+- **`eaa-remediation-pipeline`'s scores do not move.** `liability_containment`
+  stays at 5. Implementing a criterion is not a measurement of whether the
+  coverage statement is accurate, and this pass found two of its own defects on
+  the way rather than a defect in the record.

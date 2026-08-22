@@ -45,19 +45,23 @@ class CheckedCriteria(unittest.TestCase):
         self.assertIn("1.4.3", checked)
         # A criterion either engine declines as manual/unimplemented is not
         # "checked", even if axe-core automates it (a11y-external-coverage-reference).
-        # 1.4.1 is the example because it is the sharp case: axe-core reports
-        # it by default, it fires once on this very corpus
-        # (photo-editing/docs-site), and no rule in either engine looks for
-        # it. 2.4.1 stood here until 2026-08-22, when it became a rule.
-        self.assertNotIn("1.4.1", checked)
+        # 2.5.3 is the example that survives: axe ships its only rule for it
+        # experimental and off, so neither this corpus nor a default axe run
+        # has anything to say about it. 2.4.1 stood here until 2026-08-22, and
+        # 1.4.1 until later the same day — the one criterion axe reported by
+        # default that neither engine looked for, and the reason it was the
+        # next rule built rather than the next row disclosed.
         self.assertNotIn("2.5.3", checked)
+        self.assertIn("1.4.1", checked)
 
-    def test_the_four_criteria_implemented_on_2026_08_22_are_now_in_scope(self):
+    def test_the_five_criteria_implemented_on_2026_08_22_are_now_in_scope(self):
         # They moved from "declared unimplemented" to "checked", so axe
         # findings on them now count for or against recall instead of being
-        # set aside as a known coverage gap.
+        # set aside as a known coverage gap. 1.4.1 is the one that changes an
+        # actual number here: it is the only one of the five that axe reports
+        # anywhere in this corpus.
         checked = measure.checked_criteria()
-        for criterion in ("2.2.1", "2.2.2", "2.4.1", "3.1.2"):
+        for criterion in ("1.4.1", "2.2.1", "2.2.2", "2.4.1", "3.1.2"):
             self.assertIn(criterion, checked, criterion)
 
 
@@ -103,9 +107,9 @@ class SavedResults(unittest.TestCase):
     def test_checked_criteria_universe(self):
         # 13 until 2026-08-22, when `eaa-wcag-triage` implemented 2.2.1,
         # 2.2.2, 2.4.1 and 3.1.2 and they became claims this measurement
-        # holds the engines to.
-        self.assertEqual(len(self.data["checked_criteria"]), 17)
-        for criterion in ("2.2.1", "2.2.2", "2.4.1", "3.1.2"):
+        # holds the engines to; 18 later the same day, when 1.4.1 joined them.
+        self.assertEqual(len(self.data["checked_criteria"]), 18)
+        for criterion in ("1.4.1", "2.2.1", "2.2.2", "2.4.1", "3.1.2"):
             self.assertIn(criterion, self.data["checked_criteria"])
 
     def test_widening_the_claim_did_not_cost_recall(self):
@@ -124,9 +128,27 @@ class SavedResults(unittest.TestCase):
         total = sum(len(r["axe_checked_criteria"]) for r in rows)
         matched = sum(len(r["matched"]) for r in rows)
         missed = sum(len(r["missed"]) for r in rows)
-        self.assertEqual(total, 40)
-        self.assertEqual(matched, 39)
+        # 40/39/1 until 1.4.1 entered the universe carrying one axe instance
+        # with it, which the probe matches: a wider claim, the same single
+        # miss. See `test_widening_the_claim_to_1_4_1_was_matched_not_missed`.
+        self.assertEqual(total, 41)
+        self.assertEqual(matched, 40)
         self.assertEqual(missed, 1)
+
+    def test_widening_the_claim_to_1_4_1_was_matched_not_missed(self):
+        """The one criterion whose implementation changed a number here.
+
+        Widening a coverage claim is only safe if the engine can actually
+        stand behind it, and this is the first time in this module's history
+        that a newly-claimed criterion brought an axe finding into the
+        denominator with it. It is corroborated on the same page and the same
+        node, not merely uncounted.
+        """
+        rows = [r for r in self.data["per_page"] if "1.4.1" in r["axe_checked_criteria"]]
+        self.assertEqual(
+            [(r["app"], r["page"], r["matched"]) for r in rows],
+            [("ventures/photo-editing/docs-site", "index.html", ["1.4.1"])],
+        )
 
     def test_the_one_surviving_miss_is_the_already_contested_checkbox(self):
         rows = self.data["per_page"]
@@ -140,9 +162,12 @@ class SavedResults(unittest.TestCase):
         outside = set()
         for r in self.data["per_page"]:
             outside |= set(r["axe_all_criteria"]) - checked
-        # 1.4.1 and 2.1.1/2.1.3 are named, already-disclosed gaps in
-        # a11y-external-coverage-reference — not a new class of finding.
-        self.assertEqual(outside, {"1.4.1", "2.1.1", "2.1.3"})
+        # 2.1.1/2.1.3 are named, already-disclosed gaps in
+        # a11y-external-coverage-reference — not a new class of finding, and
+        # both are criteria whose coverage row says a human is needed. 1.4.1
+        # was the third until it was implemented; it is now inside the
+        # universe and matched.
+        self.assertEqual(outside, {"2.1.1", "2.1.3"})
 
 
 if __name__ == "__main__":
