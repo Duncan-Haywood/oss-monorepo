@@ -32,12 +32,15 @@ WRAPPER = '<html lang="en"><head><title>t</title>{head}</head><body>{body}</body
 AS_FOUND_GAPS = ["1.2.1", "1.3.4", "1.4.1", "2.2.1",
                  "2.2.2", "2.4.1", "2.5.3", "3.1.2"]
 
-# 2026-08-22: four of the eight became rules in `eaa-wcag-triage`. The split is
-# not "the easy ones" -- it is the four a *default* `axe.run()` actually
-# reports as violations, established by running axe rather than by reading its
-# rule list. See Finding 5 and `AXE_DEFAULT_RUN_VERDICTS` below.
-IMPLEMENTED = ["2.2.1", "2.2.2", "2.4.1", "3.1.2"]
-STILL_UNIMPLEMENTED = ["1.2.1", "1.3.4", "1.4.1", "2.5.3"]
+# 2026-08-22: five of the eight became rules in `eaa-wcag-triage` -- four
+# disclosed together (2.2.1, 2.2.2, 2.4.1, 3.1.2), plus 1.4.1 later the same
+# day, the one the disclosure pass had already singled out as the genuine
+# remaining gap. The split between IMPLEMENTED and STILL_UNIMPLEMENTED is not
+# "the easy ones" -- it is exactly the criteria a *default* `axe.run()`
+# reports as violations, established by running axe rather than by reading
+# its rule list. See Finding 5 and `AXE_DEFAULT_RUN_VERDICTS` below.
+IMPLEMENTED = ["1.4.1", "2.2.1", "2.2.2", "2.4.1", "3.1.2"]
+STILL_UNIMPLEMENTED = ["1.2.1", "1.3.4", "2.5.3"]
 
 # What axe-core 4.13.0 does with each fixture below, measured on 2026-08-22 by
 # running it in Chromium (see `a11y-axe-recall/` for the harness). Recorded as
@@ -66,7 +69,16 @@ DEFECTS = {
     "1.2.1": ("", '<audio controls src="a.mp3"></audio>'),
     "1.3.4": ("<style>@media(orientation:portrait){html{transform:rotate(90deg)}}</style>",
               "<p>x</p>"),
-    "1.4.1": ("", '<p>See <a href="/x" style="color:blue;text-decoration:none">this</a>.</p>'),
+    # Corrected 2026-08-22, when 1.4.1 became a rule. The original fixture
+    # here left the surrounding <p>'s colour undeclared, which axe resolves
+    # from the browser's default (black) but `eaa-wcag-triage`'s own rule
+    # refuses to assume -- it only decides colour the stylesheet states, the
+    # same discipline `contrast.py` uses for 1.4.3. Declaring the parent's
+    # colour explicitly gives the in-house rule something to compare against
+    # without changing what axe sees (verified live: both fixtures still
+    # trigger axe's `link-in-text-block`).
+    "1.4.1": ('', '<p style="color:#000">See '
+                   '<a href="/x" style="color:blue;text-decoration:none">this</a>.</p>'),
     "2.2.1": ('<meta http-equiv="refresh" content="5">', "<p>x</p>"),
     "2.2.2": ("", "<marquee>Sale!</marquee><blink>now</blink>"),
     # Corrected 2026-08-22. The original fixture here was
@@ -189,7 +201,7 @@ class TestCompare(unittest.TestCase):
             self.assertEqual(
                 row["declared_unimplemented_by"], ["audit.py", "eaa-wcag-triage"])
 
-    def test_the_implemented_four_are_now_checked_not_disclosed(self):
+    def test_the_implemented_ones_are_now_checked_not_disclosed(self):
         # They left the disclosure list by being built, which is the only way
         # a row is allowed to leave it.
         checked = set(self.data["union_checked"])
@@ -261,7 +273,7 @@ class TestGapsAreReal(unittest.TestCase):
                 found = self._criteria_found(WRAPPER.format(head=head, body=body))
                 self.assertNotIn(criterion, found)
 
-    def test_the_implemented_four_are_genuinely_detected(self):
+    def test_the_implemented_ones_are_genuinely_detected(self):
         # The other direction, and the one that has to hold now: a criterion
         # whose coverage value moved off "unimplemented" must actually fire on
         # the same fixture that documented it as a gap. Without this, a row
@@ -274,20 +286,18 @@ class TestGapsAreReal(unittest.TestCase):
                 self.assertIn(criterion, found)
 
     def test_the_split_follows_what_a_default_axe_run_reports(self):
-        # Why these four and not the other four. Every criterion implemented
-        # is one axe reports by default; every one left is one it does not.
+        # Why these five and not the other three. Every criterion implemented
+        # is one axe reports by default; every one left is one it does not --
+        # 1.4.1 used to be the lone exception (implemented later than the
+        # other three "off" criteria, but itself a "violation" like the rest
+        # of IMPLEMENTED), which is why it now lives in that list instead of
+        # STILL_UNIMPLEMENTED rather than needing a special case here.
         for criterion in IMPLEMENTED:
             self.assertEqual(AXE_DEFAULT_RUN_VERDICTS[criterion], "violation",
                              criterion)
         for criterion in STILL_UNIMPLEMENTED:
-            if criterion == "1.4.1":
-                # The one genuine remaining gap: axe does report it, and no
-                # rule here looks yet. Named rather than quietly grouped with
-                # the three that rest on rules axe does not run.
-                self.assertEqual(AXE_DEFAULT_RUN_VERDICTS[criterion], "violation")
-            else:
-                self.assertEqual(AXE_DEFAULT_RUN_VERDICTS[criterion], "off",
-                                 criterion)
+            self.assertEqual(AXE_DEFAULT_RUN_VERDICTS[criterion], "off",
+                             criterion)
 
     def test_criteria_axe_does_not_run_by_default_are_marked_in_the_catalog(self):
         # The catalog half of the same fact, derived from the committed

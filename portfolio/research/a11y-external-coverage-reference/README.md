@@ -350,15 +350,18 @@ mechanism at all — axe's `bypass` returns **incomplete**, not a violation. On
 **Finding 1 stands.** Its claim is that eight criteria were in neither engine's
 checked list nor its not-tested list, and that is a fact about the catalogs,
 independent of what axe runs. All eight are decidable from the artifact, and
-four are now rules.
+five are now rules — the last of them, 1.4.1, later the same day this
+Finding was written.
 
 **Its severity was overstated**, in a way that matters for how the next reader
 uses it. "An independent engine automates this and we do not" was true of five
-of the eight and is not true of 1.2.1, 1.3.4 or 2.5.3. The honest residue is
-**one** criterion that axe reports by default and neither engine looks for:
-**1.4.1 Use of Color** — which fires once on this portfolio's own corpus
-(`photo-editing/docs-site`), and is named in the probe's catalog as the single
-genuine remaining gap rather than grouped with the three that are not.
+of the eight and is not true of 1.2.1, 1.3.4 or 2.5.3 — their reference rule
+ships experimental/disabled, so no engine automates them by default either.
+The one criterion that *was* a genuine gap when this Finding was first
+written — **1.4.1 Use of Color**, which axe reports by default and fired once
+on this portfolio's own corpus (`photo-editing/docs-site`) — is a gap no
+longer: `eaa-wcag-triage` built a rule for it the same day, closing the
+single row the probe's catalog had named as the honest residue.
 
 ### The pattern, restated
 
@@ -387,10 +390,22 @@ capability*. Run the thing.
   history. Leaving it pinned to the worktree would have meant overwriting the
   before-state this module exists to compare against, to keep its own test
   passing. `results-2026-08-22-after-rules.json` is the new worktree file.
-- **`TestGapsAreReal` gained the other direction.** It still asserts the four
-  remaining criteria are undetected; it now also asserts the four implemented
-  ones *are* detected, so a row cannot move off `unimplemented` without a rule
+- **`TestGapsAreReal` gained the other direction.** It still asserts the
+  remaining criteria are undetected; it now also asserts every implemented
+  one *is* detected, so a row cannot move off `unimplemented` without a rule
   behind it.
+- **1.4.1, later the same day.** `eaa-wcag-triage` built the rule for the one
+  criterion this Finding's "honest residue" paragraph had named as the
+  genuine remaining gap — a link identifiable from surrounding body text by
+  colour alone. It moves from `STILL_UNIMPLEMENTED` to `IMPLEMENTED` here,
+  `results-2026-08-22-after-rules.json` is regenerated, and the `1.4.1`
+  fixture above gained an explicit colour on its surrounding `<p>` (verified
+  live against axe-core: still a `link-in-text-block` violation either way,
+  but the in-house rule refuses to assume an undeclared colour the way axe's
+  browser-default resolution does). Three criteria remain genuinely
+  unimplemented — 1.2.1, 1.3.4, 2.5.3 — and none of the three rest on a gap
+  this reference can still call genuine; their axe rule ships
+  experimental/disabled.
 
 ## The score, and why it does not move
 
