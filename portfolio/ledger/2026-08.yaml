@@ -17528,3 +17528,69 @@ entries:
         window) undercounts same-task collisions that resolve within a
         single window. No revenue; the $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/charming-hawking-4pv90d. `session_gate.py` ->
+        PROCEED (cadence already at the maintenance rate). Checked the 4
+        open PRs (#583, #531, #372, #368) first: all already correctly
+        owner-gated by prior sessions (venture deploys, or unattended
+        Dependabot automation) -- nothing to consolidate, nothing new to
+        add.
+      - >-
+        Advanced eaa-wcag-triage's own named next step: implemented
+        `rule_use_of_color` for SC 1.4.1, the one criterion its COVERAGE
+        catalog called "the genuine remaining gap" -- the only one of the
+        eight `a11y-external-coverage-reference` disclosed that a default
+        axe-core run flags and no rule here checked. Flags a link inside
+        body text with an explicit `text-decoration:none` and a decidably
+        different colour from its surroundings, checked per colour scheme
+        since decoration itself can carry a `prefers-color-scheme`
+        override. Conservative by construction: no declaration at all
+        reads as the browser default (underlined), `inherit`/hover-only/
+        unresolved-`var()` decoration is undecidable, a link with no
+        surrounding text is out of scope. COVERAGE row moves from
+        `unimplemented` to `partial`. 17 new tests.
+      - >-
+        Three sibling research modules assert or measure this catalog and
+        would have gone stale silently: `a11y-external-coverage-reference`
+        (moved 1.4.1 from `STILL_UNIMPLEMENTED` to `IMPLEMENTED`, fixed its
+        defect fixture -- needed an explicit ancestor colour to be
+        decidable under this rule's conservative gates -- regenerated its
+        committed snapshot), `a11y-engine-agreement` (regenerated its
+        catalog comparison), `a11y-axe-recall` (updated its live
+        `checked_criteria()` assertions; its frozen ground-truth snapshot
+        was deliberately left untouched, since correcting it needs a real
+        browser against a rebuilt 118-page corpus this pass did not do --
+        named as the open next step in both READMEs).
+      - >-
+        Built `local-site-studio` locally (`npm ci && npm run build`,
+        gitignored, nothing committed) to get real evidence rather than
+        leave the rule fixture-only: extended `a11y-generated-sites`'s
+        mutation-based positive control with a 1.4.1 case. Fires 14/14 as
+        an injection, not a removal -- the corpus's one real underlined
+        body-text link (`/docs/product-bundles`) carries no colour
+        override of its own, so there was no real colour-only link for a
+        removal mutation to reach, recorded as its own small finding
+        rather than skipped.
+      - >-
+        Verified by actually running every affected suite, not by trusting
+        the diff: eaa-wcag-triage 206/206, a11y-external-coverage-reference
+        26/26, a11y-engine-agreement 15/15, a11y-axe-recall 13/13,
+        a11y-own-sites 26/26, a11y-evidence-record 89/89,
+        a11y-contrast-decidability 11/11, a11y-delivered-contrast 11/11,
+        a11y-generated-sites 20/20, error-rate-disclosure 25/25 -- plus
+        `run_fixture_validation.py 2026-08-20` (unchanged, 1.0/1.0) and
+        `validate_doc_consistency.py`/`validate_candidates.py` (both
+        pass). Opened as #622, merged directly: internal-only
+        (`portfolio/pipeline/probes/`, `portfolio/research/`, no
+        `ventures/*` app code changed), publishes nothing, spends nothing
+        beyond agent time, all 10 CI check runs green, `git merge-tree`
+        clean against the live `main` tip immediately before merging.
+        Agent-decidable per `CLAUDE.md`. No revenue; the $0 ceiling is
+        unchanged.
+    mrr_end: null
