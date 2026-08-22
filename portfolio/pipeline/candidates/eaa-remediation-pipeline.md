@@ -247,6 +247,34 @@ checks each printed figure against the derivation it cites, so a rate revised
 upstream fails the build rather than leaving a false number in a
 customer-facing record.
 
+**Amended 2026-08-22: the four new rules' out-of-sample recall is now measured
+on a corpus that can exercise them, and it holds.** Finding 6 above named the
+open question precisely — a build directory cannot exercise structural
+criteria (2.2.1, 2.2.2, 2.4.1, 3.1.2), so their out-of-sample result there was
+zero findings, meaningless either way — and named a rendered corpus as what
+would settle it.
+[`a11y-generated-sites`](../../research/a11y-generated-sites/README.md), the
+directory that renders `local-site-studio`'s actual per-request delivered
+pages rather than a build's output, is that corpus, and #614 extended it with
+a control mutation per new rule: injections for 2.2.1/2.2.2/3.1.2 (this
+corpus's real pages have no meta-refresh, `<marquee>`, or invalid
+part-language to remove), and — the load-bearing one — a removal for 2.4.1
+that strips every mechanism the rule accepts as sufficient (`<main>`, every
+heading, every in-page link) from the 14 real delivered pages, which
+otherwise all carry at least one. **All four fire, 14/14.** `audit.py` citing
+none of them is not a new gap: its own `COVERAGE` catalog already discloses
+all four as criteria no rule there checks.
+
+**No score moved, and #614 said so itself rather than leaving it implicit.**
+This is one corpus (14 pages), one venture, and a synthetic positive control
+rather than a naturally-occurring defect — the same limits `a11y-axe-recall`'s
+own recall measurement stated about itself, and the same reasoning that kept
+this candidate's score still on that finding. What it adds is the thing that
+was genuinely missing: proof the 2.4.1 rule's gates (landmark, heading,
+in-page link, minimum content) evaluate real per-request markup the way they
+are meant to, not just a fixture or a page that never finished rendering.
+`liability_containment` stays 5, on the gate.
+
 ## Buyer-segment correction (2026-08-19, per ledger PR #96)
 
 **The "ten German or Swedish shops" in the first experiment below is largely the

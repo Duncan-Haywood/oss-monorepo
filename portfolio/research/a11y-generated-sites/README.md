@@ -1,14 +1,16 @@
 # Audit the thing we actually sell: `local-site-studio`'s generated customer sites
 
-Built and measured 2026-08-21. Re-runnable, offline, no credentials:
+Built 2026-08-21, extended 2026-08-22. Re-runnable, offline, no credentials:
 
 ```bash
 cd portfolio/research/a11y-generated-sites
-python3 -m unittest discover                                          # 16 tests
+python3 -m unittest discover                                          # 19 tests
 python3 audit_generated_sites.py                                      # offline, uses the committed corpus
-python3 audit_generated_sites.py --recompute-from results-2026-08-21.json
+python3 audit_generated_sites.py --recompute-from results-2026-08-22.json
 # to regenerate the corpus itself:
 cd ../../../ventures/local-site-studio && npm ci && cd - && node render_corpus.mjs
+# `npm run build` first (in the venture) if you also want contrast checked —
+# without it every element is `undecidable`, not clean; see Finding 1.
 ```
 
 ## Why this was built
@@ -150,6 +152,55 @@ This does **not** settle them. Both remain normative readings, the spec hosts
 remain egress-denied (see [`a11y-engine-agreement/`](../a11y-engine-agreement/)),
 and the deliverable is still a criterion-referenced record whose numbers depend
 on which engine ran.
+
+## Finding 4 — the probe's four newest rules pass their first genuine out-of-sample test
+
+Added 2026-08-22.
+[`eaa-wcag-triage`](../../pipeline/probes/eaa-wcag-triage/) built four rules
+that day for criteria it had disclosed but never checked (2.2.1 Timing
+Adjustable, 2.2.2 Pause/Stop/Hide, 2.4.1 Bypass Blocks, 3.1.2 Language of
+Parts), then ran them over `a11y-own-sites`'s 118 build-directory pages and
+found the corpus **could not exercise them at all**: a page's structure — the
+`<nav>`/`<main>`/heading shape 2.4.1 needs — is not settled until the client
+finishes rendering, and a build directory is pre-hydration output. That
+README named the fix: *"a rendered corpus is what would settle it."* This one
+already existed, was built for a different question, and is exactly that —
+`render_corpus.mjs` renders the real component tree via Vite's SSR loader,
+past the point a prerender would stop.
+
+Four mutations were added to this directory's positive control, one per new
+rule, matching the removal/injection split Finding 1 established:
+
+| Criterion | Kind | Mutation | Result |
+|---|---|---|---|
+| 2.2.1 | injection | add `<meta http-equiv="refresh" content="5">` | caught 14/14 |
+| 2.2.2 | injection | add `<marquee>` | caught 14/14 |
+| 3.1.2 | injection | add `<span lang="engl">` (well-formed, not a language) | caught 14/14 |
+| 2.4.1 | **removal** | strip the `<main>` landmark, every heading, and the in-page `#contact` link | caught 14/14 |
+
+2.4.1 is the one that answers the actual question. This corpus's real
+delivered pages already carry a `<nav>`, a `<main>`, headings, and a
+`#contact` in-page link — the delivered pages pass the criterion honestly, not
+by having nothing to bypass. Stripping all three suppressing mechanisms at
+once (any one of them is sufficient on its own, per `rule_bypass_blocks`) puts
+back exactly the defect the criterion names, on markup a real customer's page
+actually renders to, and the rule fires on every page. That is a positive
+control a build-directory corpus cannot offer this rule at all — the earlier
+run's one finding was a false positive precisely because the artifact it
+scanned had not finished becoming a page.
+
+The other three fire only under injection here too, same as most of Finding
+1's original mutation table, because this corpus's pages carry none of those
+defects to remove. All four criteria's **delivered-page result is 0
+findings**, and now it rests on a working positive control rather than an
+unexercised one.
+
+`audit.py` finds none of the four defects — not a fresh detection gap, its own
+`COVERAGE` table already declares all four `unimplemented`, the same
+disclosed asymmetry the probe's README describes. Pinned in
+`test_the_four_new_rules_are_undetected_by_audit_py_on_purpose` so a rule
+later added to `audit.py` for one of these shows up as a numbers change here,
+not a surprise.
 
 ## What could not be measured here
 

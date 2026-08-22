@@ -447,7 +447,22 @@ not happened yet.
 So the out-of-sample result for the four new rules is **zero findings across
 118 pages**, and that number should be read as *this corpus cannot exercise
 them* rather than *these pages are clean*. A rendered corpus is what would
-settle it, and the tooling for one now exists in `a11y-axe-recall/`.
+settle it — not `a11y-axe-recall/`, which corroborated well, but still audits
+the same 118-page **build** output through a different engine; a corpus that
+renders the actual per-request component tree is
+[`a11y-generated-sites/`](../a11y-generated-sites/README.md), and it exists
+already.
+
+**Amended 2026-08-22.** Settled by #614: extended with a control mutation per
+new rule (see that directory's own dated finding), all four fire against
+`local-site-studio`'s 14 real delivered pages once genuinely exercised — most
+notably 2.4.1, whose gates (landmark, heading, in-page link, minimum content)
+that pass proved evaluate real per-request markup correctly, not just a
+fixture. Recorded as evidence in
+[`eaa-remediation-pipeline`](../../pipeline/candidates/eaa-remediation-pipeline.md);
+`liability_containment` does not move, for the same one-corpus,
+one-venture reason `a11y-axe-recall`'s own recall figure did not move it
+either.
 
 ## What changed later on 2026-08-22 — the residue was closed
 

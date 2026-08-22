@@ -217,6 +217,62 @@
         "1.2.2": 14
       },
       "probe_fired": 14
+    },
+    {
+      "audit_py_cites": {},
+      "audit_py_fired": 0,
+      "both_detected": 0,
+      "criterion": "2.2.1",
+      "exercised": true,
+      "kind": "injection",
+      "mutation": "add a <meta http-equiv=refresh content=5>",
+      "pages_changed": 14,
+      "probe_cites": {
+        "2.2.1": 14
+      },
+      "probe_fired": 14
+    },
+    {
+      "audit_py_cites": {},
+      "audit_py_fired": 0,
+      "both_detected": 0,
+      "criterion": "2.2.2",
+      "exercised": true,
+      "kind": "injection",
+      "mutation": "add a <marquee>",
+      "pages_changed": 14,
+      "probe_cites": {
+        "2.2.2": 14
+      },
+      "probe_fired": 14
+    },
+    {
+      "audit_py_cites": {},
+      "audit_py_fired": 0,
+      "both_detected": 0,
+      "criterion": "3.1.2",
+      "exercised": true,
+      "kind": "injection",
+      "mutation": "add a <span lang=\"engl\"> (well-formed, not a language)",
+      "pages_changed": 14,
+      "probe_cites": {
+        "3.1.2": 14
+      },
+      "probe_fired": 14
+    },
+    {
+      "audit_py_cites": {},
+      "audit_py_fired": 0,
+      "both_detected": 0,
+      "criterion": "2.4.1",
+      "exercised": true,
+      "kind": "removal",
+      "mutation": "strip <main>, all headings, and the in-page #contact link",
+      "pages_changed": 14,
+      "probe_cites": {
+        "2.4.1": 14
+      },
+      "probe_fired": 14
     }
   ],
   "corpus": {

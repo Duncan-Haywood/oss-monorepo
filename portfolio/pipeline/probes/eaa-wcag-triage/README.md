@@ -145,6 +145,18 @@ and both are named constants at the top of the rule rather than numbers buried
 in its body, so a reviewer can argue with them. Both under-report by
 construction.
 
+**Settled 2026-08-22.** A rendered corpus already existed —
+[`a11y-generated-sites`](../../../research/a11y-generated-sites/), built for a
+different question, renders `local-site-studio`'s delivered customer pages
+through the real component tree rather than a build directory. Its positive
+control gained one mutation per new rule; the 2.4.1 one strips the `<main>`
+landmark, every heading, and the in-page link the delivered pages actually
+carry, and the rule fires on all 14. All four new rules pass a genuine
+out-of-sample positive control there; see that directory's Finding 4 for the
+full table. The honest reading is unchanged — the delivered pages themselves
+still carry zero findings for all four — but it is no longer an unexercised
+zero.
+
 ## The build-artifact filter: added 2026-08-22
 
 A build directory is not a list of the customer's pages. It also holds documents
