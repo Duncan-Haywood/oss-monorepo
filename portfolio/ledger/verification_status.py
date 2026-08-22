@@ -264,8 +264,10 @@ def report(records, main_ref, fetch=True):
             continue
 
         if resolve(head) is None or resolve(verified) is None:
-            print("  UNRESOLVABLE - a recorded commit is not in this clone; treat as stale.\n")
-            continue
+            deepen()
+            if resolve(head) is None or resolve(verified) is None:
+                print("  UNRESOLVABLE - a recorded commit is not in this clone; treat as stale.\n")
+                continue
 
         base = merge_base(verified, head)
         if not base:
