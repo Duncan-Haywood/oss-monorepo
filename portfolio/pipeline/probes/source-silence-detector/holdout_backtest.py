@@ -882,7 +882,14 @@ def build_report(path: Path, base: Config, dormancy_days: int, budget: float) ->
     loso = leave_one_source_out(history, end, base, dormancy_days, budget, scored)
     pooled_shape = pooled_shape_holdout(history, end, base, dormancy_days)
     small_sample = small_sample_on_degenerate(history, end, base, dormancy_days, DEFAULT_QUANTILE)
-    widened_scored = score_all_anchors(history, end, base, dormancy_days, FULL_GRID)
+    # Reuse the incumbent scores rather than re-deriving them: the widened
+    # selection differs from `loso` only in having more candidates to choose
+    # from, and re-scoring `ANCHOR_GRID` a second time is the single most
+    # expensive thing this report could do for no new information.
+    widened_scored = dict(scored)
+    widened_scored.update(
+        score_all_anchors(history, end, base, dormancy_days, SMALL_SAMPLE_GRID)
+    )
     widened = leave_one_source_out(history, end, base, dormancy_days, budget, widened_scored)
 
     budget_sweep = []

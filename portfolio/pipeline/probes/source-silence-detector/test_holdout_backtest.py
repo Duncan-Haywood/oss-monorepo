@@ -442,7 +442,7 @@ class TestAgainstTheCommittedHistory(unittest.TestCase):
         self.assertGreater(deg["episodes_on_degenerate_sources"], deg["episodes_total"] / 3)
 
     def test_report_builds_and_carries_every_section(self) -> None:
-        report = hb.build_report(hb.DEFAULT_PRIOR, Config(), 120, 5.0)
+        report = cached_report()
         for key in ("in_sample", "leave_one_source_out", "budget_sweep",
                     "dormancy_sweep", "anchor_decay", "quantile_degeneracy"):
             self.assertIn(key, report)
@@ -454,6 +454,24 @@ class TestAgainstTheCommittedHistory(unittest.TestCase):
         a = hb.build_report(hb.DEFAULT_PRIOR, Config(), 120, 5.0)
         b = hb.build_report(hb.DEFAULT_PRIOR, Config(), 120, 5.0)
         self.assertEqual(json.dumps(a, sort_keys=True), json.dumps(b, sort_keys=True))
+
+
+_REPORT_CACHE: dict[tuple[int, float], dict] = {}
+
+
+def cached_report(dormancy_days: int = 120, budget: float = 5.0) -> dict:
+    """One `build_report` shared by every test that only reads it.
+
+    The report is a pure function of the committed history file and its
+    arguments — a test asserts exactly that — so rebuilding it per test class
+    buys nothing and costs the most expensive call in the suite each time. The
+    determinism test deliberately does not use this: two independent builds are
+    the thing it is checking.
+    """
+    key = (dormancy_days, budget)
+    if key not in _REPORT_CACHE:
+        _REPORT_CACHE[key] = hb.build_report(hb.DEFAULT_PRIOR, Config(), dormancy_days, budget)
+    return _REPORT_CACHE[key]
 
 
 class TestSmallSampleAnchorsOnTheRealCorpus(unittest.TestCase):
@@ -469,7 +487,7 @@ class TestSmallSampleAnchorsOnTheRealCorpus(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.history, cls.payload = hb.load_history(hb.DEFAULT_PRIOR)
         cls.end = hb.observation_end(cls.history, cls.payload)
-        cls.report = hb.build_report(hb.DEFAULT_PRIOR, Config(), 120, 5.0)
+        cls.report = cached_report()
 
     def test_the_customer_facing_figure_did_not_move(self) -> None:
         """The regression test this whole split exists for. `subscriber_record`
@@ -646,7 +664,7 @@ class TestAmendment3CitationsMatchTheResultsFile(unittest.TestCase):
     def test_the_saved_run_reproduces_from_the_committed_history(self) -> None:
         """The results file is the citation target, so it has to be the run the
         code still produces rather than a snapshot that drifted."""
-        fresh = hb.build_report(hb.DEFAULT_PRIOR, Config(), 120, 5.0)
+        fresh = cached_report()
         for section in ("small_sample_on_degenerate", "pooled_shape_holdout", "widened_grid_holdout"):
             with self.subTest(section=section):
                 self.assertEqual(
