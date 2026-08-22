@@ -6,7 +6,14 @@ one. That split lives on each :class:`~wcag_triage.rules.Finding` (its
 ``impact``), assigned where the rule has the context to assign it, and the
 engine just tallies it.
 
-It carries one thing besides findings: the **contrast decidability tally**. SC
+It carries two things besides findings. The first is the document's
+**provenance** (:mod:`wcag_triage.provenance`): whether the file it was handed
+is the project's page at all, or one of the framework's own internal documents
+that a build directory also contains. The engine only records the verdict —
+nothing is filtered here — because the audit and the record it feeds are
+different products, and only the second one is addressed to a customer.
+
+The second is the **contrast decidability tally**. SC
 1.4.3 is the only criterion this probe evaluates where "could not tell" is a
 per-element outcome rather than a property of the rule, so the count of elements
 it decided and the reasons it could not decide the rest are measured evidence
@@ -22,6 +29,7 @@ from typing import Optional
 from . import contrast
 from .css import Stylesheet
 from .parser import parse
+from .provenance import Provenance, classify
 from .rules import ALL_RULES, BLOCKING, DEGRADING, Finding, build_label_index, rule_text_contrast
 
 
@@ -30,6 +38,13 @@ class Audit:
     findings: list = field(default_factory=list)
     # verdict -> count, plus "reasons": {reason: count}. See `contrast_tally`.
     contrast: dict = field(default_factory=dict)
+    # Set when the document turned out to be the build tool's own output rather
+    # than the project's — see :mod:`wcag_triage.provenance`. The findings are
+    # still computed and still carried here; what changes is that
+    # :mod:`wcag_triage.evidence` reports them under an exclusions heading
+    # instead of counting them against the site. Nothing is discarded at this
+    # layer, so a caller that wants the raw engine output still has it.
+    provenance: Optional[Provenance] = None
 
     @property
     def blocking(self) -> list:
@@ -90,4 +105,8 @@ def audit_html(html: str, stylesheet: Optional[Stylesheet] = None) -> Audit:
         findings.append(finding)
     # Blocking first, then by document order.
     findings.sort(key=lambda f: (0 if f.impact == BLOCKING else 1, f.line))
-    return Audit(findings=findings, contrast=contrast_tally(contrast_results))
+    return Audit(
+        findings=findings,
+        contrast=contrast_tally(contrast_results),
+        provenance=classify(root),
+    )

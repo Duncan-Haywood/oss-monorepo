@@ -17,7 +17,7 @@ from pathlib import Path
 
 import measure
 
-RESULTS = Path(__file__).resolve().parent / "results-2026-08-21.json"
+RESULTS = Path(__file__).resolve().parent / "results-2026-08-22.json"
 
 
 class DirectionVocabulary(unittest.TestCase):

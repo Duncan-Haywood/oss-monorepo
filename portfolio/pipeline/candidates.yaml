@@ -102,7 +102,19 @@ candidates:
         comparison on a corpus exercising 2 of 13 criteria, and both were
         measured on this portfolio's own pages rather than on a customer's.
         Those are disclosed in the record rather than resolved.
-        The build-artifact filter a11y-own-sites asked for is still unbuilt.
+        AMENDED 2026-08-22: the build-artifact filter a11y-own-sites asked for
+        is built (provenance.py in the probe) and the score still does not
+        move. On 118 built pages it removes exactly the 7 framework findings
+        that directory identified by hand, and keeps the 7 project pages a
+        filename-shaped filter would have taken with them. The record's
+        precision on the hand-reviewed denominator rises to 0.917-0.983 and the
+        printed figure was deliberately left at the measured 0.821-0.881: the
+        revision would rest on this engine's own filter rather than on a second
+        review by hand, and overstating precision is the direction that costs
+        the buyer. What the record gained instead is a disclosure -- every
+        excluded document, its marker, its reason and every finding set aside,
+        with an invitation to reject the exclusion. See
+        portfolio/research/a11y-own-sites/ Finding 5.
     floor_note: >-
       Two dimensions tie at the floor. `floor_dimension` names
       liability_containment because it is a gate: at 5 it rejects on the next

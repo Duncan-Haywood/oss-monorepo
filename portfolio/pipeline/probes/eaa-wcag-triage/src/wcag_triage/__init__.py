@@ -3,11 +3,16 @@
 from .contrast import ContrastResult, evaluate_document
 from .css import Stylesheet, parse_stylesheet
 from .engine import Audit, audit_html
+from .provenance import EMITTERS, Emitter, Provenance, classify
 from .rules import BLOCKING, DEGRADING, COVERAGE, Finding
 
 __all__ = [
     "Audit",
     "audit_html",
+    "classify",
+    "Emitter",
+    "EMITTERS",
+    "Provenance",
     "BLOCKING",
     "DEGRADING",
     "COVERAGE",

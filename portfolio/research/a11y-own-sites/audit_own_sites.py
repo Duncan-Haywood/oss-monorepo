@@ -26,7 +26,7 @@ Reproducing the corpus (the builds are not committed; the results are)::
 Offline re-derivation of every number in the README, with no build and no
 network::
 
-    python3 audit_own_sites.py --recompute-from results-2026-08-21.json
+    python3 audit_own_sites.py --recompute-from results-2026-08-22.json
 
 Standard library only. Reads local files, writes only its ``--out`` path, takes
 no credentials, publishes nothing, spends nothing.
@@ -157,6 +157,22 @@ def probe_findings(html: str, stylesheet=None) -> list:
     ]
 
 
+def probe_provenance(html: str):
+    """Which build tool wrote this document, if the probe can tell — else ``None``.
+
+    Recorded per page rather than applied here, because this file measures the
+    *engine* and the filter belongs to the *record*. Finding 1 below is what
+    the engine emits; keeping the verdict beside it is what lets Finding 5
+    quantify the filter's effect without a second pass over the corpus, and
+    lets ``--recompute-from`` re-derive both offline.
+    """
+    from wcag_triage.provenance import classify
+    from wcag_triage.parser import parse
+
+    verdict = classify(parse(html))
+    return verdict.emitter if verdict else None
+
+
 def audit_py_criteria(html: str, stylesheet=None) -> list:
     import audit
 
@@ -183,6 +199,7 @@ def measure(repo_root: pathlib.Path) -> dict:
         per_page.append({
             "app": label,
             "page": path.name,
+            "provenance": probe_provenance(html),
             "findings": findings,
             "probe_criteria": dict(sorted(probe_counts.items())),
             "audit_py_criteria": dict(sorted(audit_counts.items())),
@@ -232,6 +249,50 @@ def agreement(data: dict) -> dict:
     }
 
 
+def exclusions(data: dict) -> dict:
+    """What the build-artifact filter removes from this corpus, and what it costs.
+
+    Finding 1 prescribed this filter and named its price: 11.9% of the findings
+    a stranger reads first are un-actionable. This measures whether the built
+    filter collects that, and — the number that matters more — whether it takes
+    anything else with it. ``pages_kept_by_name`` counts pages whose *filename*
+    is one a naive error-page filter would have matched and which this filter
+    keeps, because those are exactly the pages a cheaper implementation would
+    have silently deleted from a customer's audit.
+
+    Every page a build directory holds is a page some filter could remove, so
+    the honest denominator for a removal is the whole corpus, not the findings.
+    """
+    NAIVE_NAMES = ("404.html", "500.html", "_not-found.html", "_error.html",
+                   "_global-error.html", "error.html")
+    rows = data["per_page"]
+    excluded = [r for r in rows if r.get("provenance")]
+    excluded_findings = sum(len(r["findings"]) for r in excluded)
+    total_findings = sum(len(r["findings"]) for r in rows)
+    kept_by_name = [
+        f"{r['app']}/{r['page']}" for r in rows
+        if not r.get("provenance") and r["page"] in NAIVE_NAMES
+    ]
+    by_emitter = collections.Counter(r["provenance"] for r in excluded)
+    return {
+        # A results file written before the filter existed has no `provenance`
+        # key at all, which is indistinguishable from "nothing was excluded"
+        # unless it is said out loud. Reported rather than inferred, so an old
+        # file recomputed offline cannot read as a corpus the filter cleared.
+        "measured": all("provenance" in r for r in rows) if rows else False,
+        "pages": len(rows),
+        "pages_excluded": len(excluded),
+        "findings_total": total_findings,
+        "findings_excluded": excluded_findings,
+        "criteria_excluded": dict(sorted(collections.Counter(
+            f["criterion"] for r in excluded for f in r["findings"]
+        ).items())),
+        "by_emitter": dict(sorted(by_emitter.items())),
+        "excluded_pages": sorted(f"{r['app']}/{r['page']}" for r in excluded),
+        "pages_kept_by_name": sorted(kept_by_name),
+    }
+
+
 # ---------------------------------------------------------------------------
 
 def summarise(data: dict) -> str:
@@ -256,6 +317,23 @@ def summarise(data: dict) -> str:
     for swap in agree["swaps"]:
         out.append(f"  audit.py {swap['only_audit_py']} vs probe "
                    f"{swap['only_probe']}: {swap['pages']} page(s)")
+    out.append("")
+    ex = exclusions(data)
+    if not ex["measured"]:
+        out.append("Build-artifact filter: not recorded in this results file "
+                   "(written before the filter existed) — re-run against builds "
+                   "to measure it")
+        return "\n".join(out)
+    out.append(f"Build-artifact filter: {ex['pages_excluded']}/{ex['pages']} pages "
+               f"excluded, carrying {ex['findings_excluded']}/{ex['findings_total']} "
+               f"findings")
+    for emitter, n in ex["by_emitter"].items():
+        out.append(f"  {emitter}: {n} page(s)")
+    out.append(f"  criteria removed: {ex['criteria_excluded'] or 'none'}")
+    out.append(f"  pages an error-page-by-filename filter would also have taken, "
+               f"and this one keeps: {len(ex['pages_kept_by_name'])}")
+    for page in ex["pages_kept_by_name"]:
+        out.append(f"    kept: {page}")
     return "\n".join(out)
 
 

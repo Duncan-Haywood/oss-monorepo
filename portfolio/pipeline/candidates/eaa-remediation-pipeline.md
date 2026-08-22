@@ -134,7 +134,8 @@ sides, and only one of them was on the record.
 [`a11y-own-sites`](../../research/a11y-own-sites/) measured **precision**: out of
 sample, 11.9% of findings were un-actionable, and the free qualification audit
 therefore needs a build-artifact filter before a stranger reads it. That is the
-visible failure — a customer can see a finding that is wrong.
+visible failure — a customer can see a finding that is wrong. (Built
+2026-08-22; see the amendment at the end of this file.)
 
 [`a11y-generated-sites`](../../research/a11y-generated-sites/) measured the other
 direction, on the delivery surface this verdict names: the customer sites
@@ -224,6 +225,22 @@ Two mitigations named in the earlier amendment are still open: the
 build-artifact filter `a11y-own-sites` asked for is unbuilt, and
 `liability_containment` remains at 5, on the gate. **This candidate's floor did
 not move, and one more measured point in liability still rejects it.**
+
+**Amended 2026-08-22: the build-artifact filter is built.** It is
+[`provenance.py`](../probes/eaa-wcag-triage/src/wcag_triage/provenance.py), and
+on this portfolio's 118 built pages it removes exactly the 7 framework findings
+`a11y-own-sites` identified by hand and keeps the 7 project pages a
+filename-shaped filter would have taken with them. **No score moved, in either
+direction.** `liability_containment` is still 5 and still on the gate — that
+score rests on the *coverage* statement's accuracy against an external
+reference, which this does not touch. `ethical_robustness` stays 9: the record's
+precision on the hand-reviewed denominator rises to 0.917–0.983, and the figure
+printed to customers was deliberately **not** raised to it, because the revision
+would rest on this engine's own filter rather than on a second review by hand,
+and overstating precision is the direction that costs the buyer. See
+[Finding 5](../../research/a11y-own-sites/README.md#finding-5-2026-08-22-the-filter-finding-1-asked-for-built-and-measured),
+including the two designs it refutes — one framework needs two markers, and the
+obvious marker for the second appears in 106 of 138 built documents.
 
 Guarded against going stale: `tests/test_accuracy_citations.py` in the probe
 checks each printed figure against the derivation it cites, so a rate revised

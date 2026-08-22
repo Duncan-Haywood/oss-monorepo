@@ -21,14 +21,15 @@ import unittest
 
 import audit_own_sites as own
 
-RESULTS = pathlib.Path(__file__).resolve().parent / "results-2026-08-21.json"
+RESULTS = pathlib.Path(__file__).resolve().parent / "results-2026-08-22.json"
 
 
 def _page(app_counts_probe, app_counts_audit, app="ventures/x", page="p.html",
-          findings=()):
+          findings=(), provenance=None):
     return {
         "app": app,
         "page": page,
+        "provenance": provenance,
         "findings": list(findings),
         "probe_criteria": app_counts_probe,
         "audit_py_criteria": app_counts_audit,
@@ -151,6 +152,56 @@ class Summaries(unittest.TestCase):
         self.assertEqual(own.agreement(missed)["pure_relabellings"], 0)
 
 
+class Exclusions(unittest.TestCase):
+    """The build-artifact filter's effect, tallied on a hand-built result set.
+
+    Finding 1 asked for this filter and Finding 5 measures it. The tally has to
+    keep two things apart that a single "excluded" count would merge: what the
+    filter removed, and what a cheaper filter would have removed *as well* —
+    the second is the whole reason this one reads markers instead of filenames.
+    """
+
+    SHELL = {"criterion": "3.1.1", "impact": "blocking", "element": "html",
+             "message": "m"}
+
+    def test_excluded_pages_and_their_findings_are_counted(self):
+        data = {"per_page": [
+            _page({}, {}, page="500.html", provenance="next-error-shell",
+                  findings=[self.SHELL]),
+            _page({}, {}, page="index.html", findings=[
+                {"criterion": "1.1.1", "impact": "blocking", "element": "img",
+                 "message": "m"}]),
+        ]}
+        ex = own.exclusions(data)
+        self.assertTrue(ex["measured"])
+        self.assertEqual((ex["pages"], ex["pages_excluded"]), (2, 1))
+        self.assertEqual((ex["findings_total"], ex["findings_excluded"]), (2, 1))
+        self.assertEqual(ex["criteria_excluded"], {"3.1.1": 1})
+        self.assertEqual(ex["by_emitter"], {"next-error-shell": 1})
+
+    def test_a_kept_page_with_an_error_page_name_is_reported(self):
+        """The measurement Finding 5 turns on.
+
+        `404.html` is rendered through the project's own layout and is a page
+        real users reach. A filter keyed on the filename would delete it from
+        the customer's audit and report nothing unusual; this counts it.
+        """
+        data = {"per_page": [
+            _page({}, {}, page="500.html", provenance="next-error-shell"),
+            _page({}, {}, page="404.html"),
+        ]}
+        ex = own.exclusions(data)
+        self.assertEqual(ex["pages_kept_by_name"], ["ventures/x/404.html"])
+
+    def test_a_results_file_predating_the_filter_says_so(self):
+        """Absent field != nothing excluded. An old file must not read clean."""
+        row = _page({}, {})
+        row.pop("provenance")
+        ex = own.exclusions({"per_page": [row]})
+        self.assertFalse(ex["measured"])
+        self.assertEqual(ex["pages_excluded"], 0)
+
+
 class SavedResults(unittest.TestCase):
     """Pin the numbers the README quotes to the saved run."""
 
@@ -181,6 +232,40 @@ class SavedResults(unittest.TestCase):
     def test_every_disagreement_is_a_relabelling_not_a_missed_defect(self):
         agree = own.agreement(self.data)
         self.assertEqual(agree["pure_relabellings"], agree["disagreeing"])
+
+    def test_the_filter_removes_exactly_the_seven_framework_lang_findings(self):
+        """Finding 5's headline, pinned to the saved run.
+
+        The claim is narrow and worth keeping narrow: 7 documents, 7 findings,
+        all of them 3.1.1, which is exactly the false-positive class Finding 1
+        identified by hand. If this filter ever starts removing a second
+        criterion, that is a new claim about what a customer cannot fix and it
+        should fail here first.
+        """
+        ex = own.exclusions(self.data)
+        self.assertTrue(ex["measured"])
+        self.assertEqual(ex["pages_excluded"], 7)
+        self.assertEqual(ex["findings_excluded"], 7)
+        self.assertEqual(ex["criteria_excluded"], {"3.1.1": 7})
+        self.assertEqual(
+            ex["by_emitter"],
+            {"next-builtin-error-page": 5, "next-error-shell": 2},
+        )
+
+    def test_the_filter_keeps_the_seven_project_pages_a_naive_one_would_take(self):
+        """The other half of Finding 5, and the half that fails silently.
+
+        One `_not-found.html` per app: the project's own page, reached by real
+        users, sharing a filename with the framework's documents. A filter that
+        started matching filenames would delete all 7 from a customer's audit
+        and look exactly as correct as this one.
+        """
+        ex = own.exclusions(self.data)
+        self.assertEqual(len(ex["pages_kept_by_name"]), 7)
+        self.assertTrue(
+            all(p.endswith("/_not-found.html") for p in ex["pages_kept_by_name"]),
+            ex["pages_kept_by_name"],
+        )
 
     def test_contrast_is_evaluated_not_silently_absent(self):
         """2026-08-21: both adapters used to call their engine with no

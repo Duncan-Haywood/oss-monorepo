@@ -17003,6 +17003,77 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Scheduled "research new business projects" session, designated branch
+        `claude/laughing-pasteur-22apui`. Per `CLAUDE.md` that brief is already
+        answered, so no candidate list was produced; ran `session_gate.py`
+        (PROCEED), checked the 4 open PRs (#583, #531, #372, #368 -- all still
+        correctly owner-gated) and the latest ledger entry against the current
+        remote tip, then took the prescribed move: advance a probe already
+        specified in `portfolio/pipeline/`. The named unbuilt item was the
+        build-artifact filter `a11y-own-sites` prescribed on 2026-08-21, which
+        three files across `portfolio/` still recorded as outstanding.
+      - >-
+        Built it as `provenance.py` in `eaa-wcag-triage`, and rebuilt the
+        118-page corpus from all 7 apps to measure it rather than argue for it.
+        It removes exactly the 7 framework findings the hand review identified
+        (all 3.1.1) and nothing else, and keeps the 7 project `_not-found.html`
+        pages a filename-shaped filter would have deleted silently. Two obvious
+        designs died in the building, both found only by measuring. One
+        framework needs two markers: Next 16 emits `<html id="__next_error__">`
+        -- the marker the research had recorded -- while Next 14 and 15 emit a
+        Pages Router document with a bare `<html>`, so the filter written from
+        the research alone passed its tests and collected 2 of the 7 findings
+        it exists for. And the second shell's obvious marker is worthless as a
+        string: `next-error-h1` is in 106 of 138 built documents, because Next
+        inlines a stylesheet naming it into every ordinary page; as a parsed
+        element it is in 16, and 11 of those are the projects' own 404s
+        rendering that same built-in component inside the project's own layout.
+        What separates them is that the framework's document has no attributes
+        at all on `<html>`.
+      - >-
+        No score moved, in either direction, and the printed precision was
+        deliberately not raised. Record precision on the hand-reviewed
+        denominator rises 0.821-0.881 -> 0.917-0.983, but that revision would
+        rest on this engine's own filter rather than on a second review by
+        hand, and overstating precision is the direction that costs the buyer
+        rather than the seller -- so the record prints the measured figure and
+        says the filter makes it a floor. What the record gained instead is a
+        disclosure: every excluded document, its marker, its reason and every
+        finding set aside, with an invitation to reject the exclusion, plus a
+        header note so the page count cannot silently shrink. Three constraints
+        are pinned by tests -- a document is excluded and never a finding, the
+        evidence is a marker inside the document and never its filename, and
+        what is removed is printed.
+      - >-
+        Merged as #605, agent-decidable per `CLAUDE.md` (portfolio/ and one CI
+        path-filter line; no `ventures/*` app code, publishes nothing,
+        registers nothing, spends nothing). Verified by running the checks:
+        eaa-wcag-triage 144 tests (was 129), a11y-own-sites 26 (was 21),
+        fixture validation byte-identical at precision/recall 1.0 with the
+        committed `validation-2026-08-20.json` reproducing unchanged, plus
+        a11y-evidence-record 89, a11y-generated-sites 18,
+        a11y-delivered-contrast 11, a11y-contrast-decidability 11,
+        a11y-axe-recall 10, a11y-engine-agreement 15,
+        a11y-external-coverage-reference 21, a11y-theme-resolution 58,
+        a11y-render-recovery 22, error-rate-disclosure 25, the other three
+        probes (205, 113, 69) and both pipeline validators.
+        `error-rate-disclosure`'s results file was regenerated because it
+        quotes this record verbatim -- every verdict and score on all four
+        probes unchanged, only the artifact size and two quoted strings moved.
+      - >-
+        One thing fell out that nobody had checked: the rebuilt corpus
+        reproduces the committed 2026-08-21 run field for field except the new
+        `provenance` key -- same 118 pages, same 780 findings, same 91/118
+        engine agreement -- which independently confirms that #601's fix to the
+        shared CSS reader moved nothing here. That had been asserted for
+        `a11y-contrast-decidability` and never checked for this corpus. No
+        revenue; the $0 ceiling is unchanged.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Scheduled "continue work on the projects... maintain and improve
         the development process... increase in profit" session, designated
         branch claude/nice-mendel-bqa5kz. Ran `session_gate.py` first per
