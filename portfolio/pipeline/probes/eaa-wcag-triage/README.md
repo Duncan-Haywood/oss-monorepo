@@ -81,6 +81,63 @@ criteria remain unverified."
 This is the honest form of assertion #1: the tool measures its own blind spot
 and hands it to the contractor, instead of implying a scanner is the whole job.
 
+## The build-artifact filter: added 2026-08-22
+
+A build directory is not a list of the customer's pages. It also holds documents
+the framework wrote itself, identical in every project that uses it and
+un-editable from the project's source.
+[`a11y-own-sites`](../../../research/a11y-own-sites/) measured what leaving them
+in costs: out of sample **11.9% of this engine's findings were false positives,
+and 7 of the 8 were one such document per application** — Next.js's internal
+error shell — carrying *every* 3.1.1 finding in a 118-page corpus and never once
+landing on a page a venture wrote. It prescribed a filter and said why it
+belongs in the product rather than in a backlog: the candidate's wedge is a free
+qualification audit handed to a stranger, and a record naming a framework's
+internal error document as the customer's blocking defect states its coverage
+inaccurately in the direction that flatters the seller.
+
+[`provenance.py`](src/wcag_triage/provenance.py) is that filter. Three
+constraints shape it, and each is pinned by a test:
+
+- **It excludes a document, never a finding.** There is no path that drops one
+  finding from a page the customer wrote. The claim the module can defend is
+  *nobody can edit this file*; it has no way to argue that some particular
+  finding on a real page does not matter, so it never tries.
+- **The evidence is a marker inside the document, never its filename.** This is
+  the part a cheaper implementation gets wrong, and the same corpus shows what
+  that costs. One `next build` emits its own error document *and* emits
+  `404.html` / `_not-found.html` through the project's own root layout,
+  carrying the project's `lang` and its font classes. Those last are pages real
+  users reach. A filter keyed on "error page names" would have deleted them
+  from the customer's audit and reported nothing unusual. Measured on this
+  portfolio's 118 built pages: **7 documents correctly removed — exactly the 7
+  false positives, all 3.1.1 — and 7 project pages correctly kept.**
+- **One framework needs two markers, which only measuring showed.** Next 16
+  emits `<html id="__next_error__">`; Next 14 and 15 emit a Pages Router
+  document with a bare `<html>` and the framework's built-in error component in
+  the body. Written from the first marker alone — the one the research had
+  recorded — this filter passed its tests and collected 2 of the 7 findings it
+  exists for. The second marker cannot be the obvious one either: as a string,
+  `next-error-h1` is in 106 of 138 built documents, because Next inlines a
+  stylesheet naming that class into every ordinary page. As a parsed element it
+  is in 16 — and 11 of those are the projects' own 404s, which render the same
+  built-in component *inside the project's layout*. What separates them is that
+  the framework's document has no attributes at all on `<html>`, so nothing the
+  project wrote reached it. Both parts are required, and both are tested.
+- **What it removes is printed in the record.** The evidence record grows a
+  *Documents excluded as build-tool output* section listing each document, the
+  marker that identified it, why it is not actionable, and every finding set
+  aside — plus a note in the header block so the page count cannot silently
+  shrink. An exclusion is a limit on coverage, and this probe's rule is that
+  coverage limits go in the product. The section closes by inviting the reader
+  to say so if they *can* edit one of these files, because that would mean the
+  filter is wrong and the finding is real.
+
+Anything with no marker is kept, including document shapes the filter has never
+seen. The two errors are not symmetric: a framework artifact left in is visible
+to the reader and arguable, and a real page filtered out is a defect the record
+silently stops mentioning.
+
 ## Colour contrast: added 2026-08-21, and why it took this long
 
 1.4.3 sat in the `manual` column above from the day this probe was written, with
@@ -185,7 +242,7 @@ Run in CI by [`eaa-wcag-triage-ci.yml`](../../../../.github/workflows/eaa-wcag-t
 which also re-runs `run_fixture_validation.py` and fails if the committed
 record no longer matches what the engine emits.
 
-112 tests: parser behaviour, each rule and its negative control, the
+144 tests: parser behaviour, each rule and its negative control, the
 blocking-before-degrading ordering, dedup of one element matched by two rules,
 the evidence record's JSON/markdown shape and its compliance disclaimer, the
 fixture validation, and — added 2026-08-21 — the two rules this engine was
@@ -213,3 +270,8 @@ plus the specificity case that shipped a wrong answer on a real page).
 - **A contrast pass is only as wide as the CSS it was handed.** With no
   stylesheet the tool decides nothing, and says so per element. It never treats
   "no colour declared" as "colour is fine".
+- **An exclusion is set aside, not deleted.** The build-artifact filter drops
+  no finding from the record — it moves whole documents into a section that
+  names each one, its marker, and every finding on it, and invites the reader
+  to reject the exclusion. A shorter list is the seller's interest as much as a
+  longer one is; the only defence is that the reader can see what was removed.

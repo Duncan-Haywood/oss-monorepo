@@ -82,7 +82,9 @@ ACCURACY: tuple = (
         direction="over-reporting — this engine lists defects that are not defects",
         reads=(
             "Expect roughly 12–18% of the findings below not to be real defects. "
-            "Confirm a finding before paying anyone to fix it."
+            "Confirm a finding before paying anyone to fix it. This is the rate "
+            "before the build-artifact filter, so it is a floor for the list you "
+            "are holding rather than an estimate of it — see below."
         ),
         corpus=(
             "118 built pages across 7 applications, 67 findings reviewed one by one"
@@ -90,9 +92,16 @@ ACCURACY: tuple = (
         measured="2026-08-21",
         source="portfolio/research/a11y-own-sites/",
         caveat=(
-            "That denominator excluded colour contrast (1.4.3) entirely — the review "
+            "Two reasons this is not the last word, one in each direction. That "
+            "denominator excluded colour contrast (1.4.3) entirely — the review "
             "predates this engine's contrast rule, so the figure describes the "
-            "non-contrast findings and no contrast finding has been precision-checked."
+            "non-contrast findings and no contrast finding has been "
+            "precision-checked. And it counts 8 false positives of which the "
+            "build-artifact filter now removes 7 from this record, so the list "
+            "you are reading is more precise than the number says. The number is "
+            "not revised upward here, because the revision would rest on this "
+            "engine's own filter rather than on a second review by hand, and "
+            "overstating precision is the direction that costs you rather than us."
         ),
     ),
     AccuracyFigure(
@@ -118,6 +127,19 @@ ACCURACY: tuple = (
     ),
 )
 
+EXCLUSION_STATEMENT = (
+    "A build directory holds documents the build tool wrote itself, which are "
+    "identical in every project using that tool and cannot be changed from your "
+    "source. Findings on those are not counted against your site. They are "
+    "listed below in full anyway — the document, the marker that identified it, "
+    "and everything found on it — because an exclusion is a limit on what this "
+    "record covers, and a limit you cannot see is one you cannot disagree with. "
+    "Nothing is excluded on the strength of a filename: each document below was "
+    "identified by a marker inside it. If you can edit one of these documents "
+    "from your own source, tell us — it belongs in the audit and this filter is "
+    "wrong about it."
+)
+
 ACCURACY_STATEMENT = (
     "Both numbers below were measured on this portfolio's own built pages, not "
     "on your site, and they describe this engine rather than the audit you are "
@@ -133,12 +155,33 @@ ACCURACY_STATEMENT = (
 def build_record(audits: dict, checked_at: str) -> dict:
     """``audits`` maps a page label -> :class:`Audit`. ``checked_at`` is an
     ISO-8601 timestamp supplied by the caller (never read from the clock here,
-    so records are reproducible)."""
+    so records are reproducible).
+
+    Documents the engine identified as the build tool's own output (see
+    :mod:`wcag_triage.provenance`) are partitioned out of ``pages`` and
+    ``totals`` into ``excluded``, where they are still listed by name, marker
+    and finding count. They are set aside, not dropped: a reader who thinks the
+    exclusion is wrong can see the whole of what it removed and say so.
+    """
     pages = []
+    excluded = []
     totals = {"total": 0, "blocking": 0, "degrading": 0}
     contrast_totals = {"pass": 0, "fail": 0, "undecidable": 0, "elements": 0, "reasons": {}}
     for label, audit in audits.items():
         counts = audit.counts()
+        if audit.provenance is not None:
+            excluded.append(
+                {
+                    "page": label,
+                    "emitter": audit.provenance.emitter,
+                    "emitter_name": audit.provenance.name,
+                    "marker": audit.provenance.marker,
+                    "why": audit.provenance.why,
+                    "counts": counts,
+                    "findings": [_finding_dict(f) for f in audit.findings],
+                }
+            )
+            continue
         for key in totals:
             totals[key] += counts[key]
         tally = audit.contrast or {}
@@ -169,6 +212,14 @@ def build_record(audits: dict, checked_at: str) -> dict:
         "totals": totals,
         "contrast": contrast_totals,
         "pages": pages,
+        "excluded": {
+            "statement": EXCLUSION_STATEMENT,
+            "documents": excluded,
+            "totals": {
+                "documents": len(excluded),
+                "findings": sum(d["counts"]["total"] for d in excluded),
+            },
+        },
     }
 
 
@@ -265,15 +316,77 @@ def _accuracy_section(record: dict) -> list:
     return lines
 
 
+def _exclusion_section(record: dict) -> list:
+    """Everything the build-artifact filter set aside, printed in full.
+
+    Rendered *after* the findings table rather than before it. The findings are
+    what the reader is here for; the exclusions are the audit explaining
+    itself, and putting an explanation of what was not counted above the list
+    of what was is how a disclosure turns into a preamble nobody finishes.
+    Omitted entirely when nothing was excluded — a heading announcing zero
+    exclusions is noise, and the totals line above already says how many pages
+    were read.
+    """
+    block = record.get("excluded") or {}
+    documents = block.get("documents") or []
+    if not documents:
+        return []
+    totals = block.get("totals") or {}
+    lines = [
+        "",
+        "## Documents excluded as build-tool output",
+        "",
+        f"{totals.get('documents', 0)} document(s) carrying "
+        f"{totals.get('findings', 0)} finding(s), not counted in the totals above.",
+        "",
+        block.get("statement", ""),
+        "",
+    ]
+    for doc in documents:
+        lines += [
+            f"### {doc['page']} — {doc['emitter_name']}",
+            "",
+            f"- Identified by: {doc['marker']}",
+            f"- Why it is not counted: {doc['why']}",
+            f"- Findings set aside: {doc['counts']['blocking']} blocking, "
+            f"{doc['counts']['degrading']} degrading",
+            "",
+        ]
+        if doc["findings"]:
+            lines += [
+                "| Impact | Criterion | Line | Issue |",
+                "|---|---|---|---|",
+            ]
+            for f in doc["findings"]:
+                lines.append(
+                    f"| {f['impact']} | {f['criterion']} {f['name']} | {f['line']} | "
+                    f"{f['message']} |"
+                )
+            lines.append("")
+    return lines
+
+
 def to_markdown(record: dict) -> str:
     cs = record["coverage_summary"]
     checked = record["totals"]["blocking"] + record["totals"]["degrading"]
+    excluded_totals = (record.get("excluded") or {}).get("totals") or {}
+    excluded_docs = excluded_totals.get("documents", 0)
+    # In the header, not only in the section below: the number of pages is the
+    # denominator a reader judges the findings against, and one that silently
+    # shrank is worse than no number at all.
+    pages_line = f"**Pages:** {len(record['pages'])}"
+    if excluded_docs:
+        pages_line += (
+            f" (a further {excluded_docs} excluded as build-tool output, with "
+            f"{excluded_totals.get('findings', 0)} finding(s) — see the last "
+            "section)"
+        )
     lines = [
         "# Accessibility evidence record",
         "",
         f"**Tool:** `{record['tool']['name']}` v{record['tool']['version']}  ",
         f"**Checked at:** {record['checked_at']}  ",
-        f"**Pages:** {len(record['pages'])}  ",
+        pages_line + "  ",
         f"**Findings:** {record['totals']['blocking']} blocking, "
         f"{record['totals']['degrading']} degrading",
         "",
@@ -316,5 +429,6 @@ def to_markdown(record: dict) -> str:
             lines.append(
                 f"| {f['impact']} | {f['criterion']} {f['name']} | {f['line']} | {f['message']} |"
             )
+    lines += _exclusion_section(record)
     lines.append("")
     return "\n".join(lines)
