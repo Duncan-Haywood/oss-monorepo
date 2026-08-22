@@ -18374,3 +18374,64 @@ entries:
         nothing published) -- agent-decidable per `CLAUDE.md`, so merged by
         this session. No revenue; the $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve the
+        development process... increase in profit" session, designated
+        branch claude/nifty-goodall-oeyq39. `session_gate.py` -> PROCEED
+        (0.75 sessions/hour, at the maintenance rate the $0-ceiling branch
+        implies; 2 distinct sessions committed within a 15-minute window in
+        the last 6h, so it told me to check open PRs before starting and
+        re-check `main` immediately before pushing). Checked the 4 open PRs
+        (#583, #531, #372, #368): all still correctly human-gated, and
+        confirmed with `git merge-tree` (not just re-read) that all four
+        still merge cleanly against the live `main` tip -- nothing to
+        consolidate.
+      - >-
+        Read all five built probes in `portfolio/pipeline/probes/` end to
+        end rather than picking one at random: each is at a legitimate,
+        well-documented stopping point (buyer contact, egress- or
+        scope-denied publishing, or an account-owner decision), not on more
+        agent-decidable measurement. `mcp-drift-watch` in particular has
+        just exhausted its eligible npm population across three corpora plus
+        two model passes; nothing there would have been new work, only a
+        fourth session repeating what the immediately-prior session (see the
+        entry above) had already declined for the same reason.
+      - >-
+        Found a real gap instead, one level under what
+        `validate_doc_consistency.py` checks: that script compares the
+        headline "Composite X . floor Y" number across `candidates.yaml`,
+        each write-up, and `README.md`'s table, but nothing compares the
+        prose underneath. `candidates/mcp-supply-chain-watch.md` still
+        stopped at "asking the model on corpus 3 is the cheap next step" --
+        the state before #638/#639 ran that exact pass -- while
+        `candidates.yaml`'s own `measured:` block for the same candidate
+        already carried both results (corpus-3 rules: precision 0.40->0.625,
+        recall 0.24-0.29->0.10-0.11, the three proposed edits ranking in
+        reverse out of sample; corpus-3 model: F1 0.93-0.96 against the
+        rules' 0.17-0.19, `ai_leverage` held at 7 rather than moved again).
+        A session reading the write-up instead of the yaml -- exactly what
+        `CLAUDE.md`'s intake gate points a new session at -- got the
+        superseded picture on this candidate's central open question (why
+        it still cannot graduate).
+      - >-
+        Fixed with a prose-only update section summarizing both passes and
+        their conclusion; no score changed anywhere. Verified:
+        `validate_doc_consistency.py` and `validate_candidates.py` both
+        green (8/8 candidates consistent), `score_sensitivity.py` clean,
+        `test_score_sensitivity` 24/24, `portfolio/router/validate.py` (10/10
+        `VENTURE.yaml` valid), `test_allocate` 51/51. `main` moved mid-session
+        (#641/#642/#644, unrelated -- `eaa-wcag-triage` SC 2.5.3 and the
+        `distribution-first.md` correction from the entry above) so rebased
+        and re-ran every check against the rebased tree before pushing.
+        Internal-only (`portfolio/pipeline/candidates/`), no venture code,
+        no credential, no score change, nothing published -- agent-decidable
+        per `CLAUDE.md`: opened as #645, CI green, `mergeable_state: clean`
+        against the live `main` tip immediately before merging, merged the
+        same session. Restarted the designated branch from the fresh `main`
+        tip per the merged-PR-branch rule before writing this entry. No
+        revenue; the $0 ceiling is unchanged.
+    mrr_end: null
