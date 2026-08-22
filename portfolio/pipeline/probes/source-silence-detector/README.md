@@ -7,7 +7,11 @@ before acting on results 1 and 2 below. Extended again the same day with the
 held-out validation this file's own closing caveat asked for, which keeps the
 anchor *family* and refutes the anchor *setting* — read
 [the second amendment](#amendment-2-2026-08-21-the-held-out-validation-keeps-the-family-and-breaks-the-setting)
-before acting on the p99 operating point.**
+before acting on the p99 operating point. Extended on 2026-08-22 with the
+small-sample anchors that amendment asked for: two are inert on the source they
+were written for and one is worse than what it replaces — read
+[the third amendment](#amendment-3-2026-08-22-the-three-small-sample-anchors-built--two-are-inert-and-one-is-worse)
+before building a fourth.**
 
 Reproduce the negative result (the rule exactly as specified):
 
@@ -41,14 +45,23 @@ Reproduce the held-out validation of that operating point (amendment 2):
 python3 holdout_backtest.py
 ```
 
+Run a small-sample anchor directly (amendment 3) — `interpolated`, `lognormal`
+and `exponential` are all reachable from the CLI:
+
+```
+python3 detect_silence.py --prior-history prior-history-2026-08-21.json \
+    --anchor exponential --quantile 0.99
+```
+
 Parameter sensitivity: add `--sweep`. Saved runs:
 [`results-per-source-only-2026-08-21.json`](results-per-source-only-2026-08-21.json),
 [`results-pooled-2026-08-21.json`](results-pooled-2026-08-21.json),
 [`results-full-history-max-2026-08-21.json`](results-full-history-max-2026-08-21.json),
 [`results-full-history-p99-2026-08-21.json`](results-full-history-p99-2026-08-21.json),
-[`results-holdout-2026-08-21.json`](results-holdout-2026-08-21.json).
+[`results-holdout-2026-08-21.json`](results-holdout-2026-08-21.json),
+[`results-small-sample-2026-08-22.json`](results-small-sample-2026-08-22.json).
 Tests: `python3 -m unittest discover -s portfolio/pipeline/probes/source-silence-detector`
-(99 tests, all offline).
+(137 tests, all offline).
 
 ## The claim under test
 
@@ -524,6 +537,101 @@ detector meant to prevent that to fail while its metrics read as success:
 uncalibratable, calibrated to 5.6 years, and calibrated to 5.6 years again under
 a different name. Each time the dashboard looked clean.
 
+## Amendment 3 (2026-08-22): the three small-sample anchors, built — two are inert and one is worse
+
+Amendment 2 ended by naming what a shipping version needs and building none of
+it:
+
+> Anyone shipping this needs a small-sample anchor — a fixed high percentile of a
+> *pooled* gap distribution, or a parametric fit, or simply a stated refusal to
+> calibrate a source with under 100 gaps — rather than a quantile that quietly
+> degrades to the estimator it was chosen over.
+
+All three are now built and measured on the same 17 episodes, plus the obvious
+fourth nobody had written down (read the quantile off a linear interpolation
+rather than a rank, which removes the degeneracy by construction). The
+recommendation was worth making and is mostly wrong about which part of it works.
+
+### The finding: on the source the fix was written for, nothing changes
+
+`FDA/openfda` is the corpus's only degenerate source — 37 closed gaps, below the
+100 that nearest rank at `q = 0.99` needs — and it carries 9 of the 17 episodes.
+Each candidate's threshold on it, and what that threshold detects:
+
+| anchor | threshold | episodes detected |
+|---|---:|---:|
+| `quantile:0.99` (incumbent, = `max` here) | 2060d | 3/9 |
+| `interpolated:0.99` | 1634d | 3/9 |
+| `exponential:0.99` | 820d | 3/9 |
+| `lognormal:0.99` | 4811d | **1/9** |
+| `pooled-shape:0.99` | — | **5/9** |
+
+Cutting the threshold by 60% — 2060 days to 820 — buys **exactly zero**
+additional episodes. Interpolation, the fix that is obviously right on paper,
+buys zero. And the parametric family the amendment named explicitly is not
+merely inert: its fitted 99th percentile is **3.5× the longest gap this source
+has ever had**, because a fit is not bounded by its sample and this one's
+log-scale spread is wide. It is a looser threshold than the `max` anchor it was
+brought in to replace, and it detects two fewer.
+
+### Why, and this is the part worth carrying
+
+Interpolating, fitting a lognormal and fitting an exponential are three
+functions of the same 37 numbers. **Changing the estimator cannot add information
+the sample does not contain.** The degeneracy was diagnosed as an estimator
+defect — nearest rank collapsing onto `max` — and that diagnosis is arithmetically
+correct and led to three fixes that do nothing, because the collapse was a
+*symptom*. What is actually missing is 37 gaps' worth of evidence about a 99th
+percentile.
+
+The one candidate that moves it is the only one that reads a number fitted
+somewhere else: `pooled-shape` borrows the shape of a gap distribution from the
+other eight sources (as a ratio of gap to that source's own median, so a daily
+register and a quarterly one can be pooled at all) and scales it by the thin
+source's own typical gap. It takes `FDA/openfda` from 3/9 to 5/9. That the
+README listed it *first* and this pass nearly skipped it as the fiddliest of the
+three is the reusable lesson twice over.
+
+### What it does to the headline, and why the headline did not move
+
+Adding the small-sample families to the candidate set does raise cross-validated
+recall — 6/17 to 8/17, median latency 110d to 104d. **None of that gain is on a
+small sample.** It is one fold, `datasets/covid-19`, a source with 744 gaps where
+no anchor was ever degenerate, flipping from `max` to `interpolated:0.99` and
+going 1/3 to 3/3. Every degenerate source detects exactly what it detected
+before; a test pins that the improving folds and the degenerate sources do not
+intersect.
+
+The gain is not free either: realised held-out nuisance goes 3.91 to **6.72**
+alarm-days per source-year, over the 5/yr budget each fold selected its anchor
+under. The incumbent stays under it.
+
+So `ANCHOR_GRID` is unchanged and `SMALL_SAMPLE_GRID` is measured beside it. The
+6-of-17 and 110d that [`subscriber_record.py`](subscriber_record.py) prints at a
+customer are untouched, and a test asserts it. Widening a candidate list is a
+one-line edit that silently moves a quoted accuracy figure, which is the shape of
+the mistake this repository keeps finding after the fact rather than before.
+
+`pooled-shape` is deliberately **not adopted** either, and the reason is the one
+`mcp-drift-watch` established: its family and its quantile were both chosen by
+reading this table, so its 12/17 is in sample in the way that matters even though
+each fold's ratio is held out. Its ratio also borrows the training sources' full
+histories over the same calendar span it is scored on — leakage across time, not
+across sources, and it flatters this anchor against the others. It is recorded as
+the one direction that works, not as a setting.
+
+### What this changes
+
+**No score moves.** `public-record-watch` stays at composite 7.0. A fourth pass
+finding a third premise weaker than advertised does not earn a point, and the
+detector detects exactly what it detected yesterday.
+
+What changes is the inheritance, again. A session reading amendment 2's closing
+paragraph would have built one of those three anchors, watched pooled recall rise
+from 6/17 to 8/17, and shipped it as the small-sample fix — when the gain is on a
+source with 744 gaps and the sparse source is untouched. That path is now closed
+with the measurement that closes it.
+
 ## Rules this probe follows
 
 Per [`probes/README.md`](../README.md): no compliance claim, no payment, no
@@ -552,6 +660,13 @@ historical gap replayed rather than only the 180-day window, 17 dormancy
 episodes at the default 120-day label, scored by leave-one-source-out
 cross-validation. Saved as
 [`results-holdout-2026-08-21.json`](results-holdout-2026-08-21.json).
+
+Amendment 3 adds no new data. It re-scores the same nine repositories and the
+same 17 episodes under four further anchor families, saved as
+[`results-small-sample-2026-08-22.json`](results-small-sample-2026-08-22.json).
+Every caveat below therefore applies to it unchanged, and one specifically: the
+degeneracy finding rests on **one** sparse source, so "no per-source estimator
+reaches it" is measured on a single register.
 
 Sample-size caveats:
 

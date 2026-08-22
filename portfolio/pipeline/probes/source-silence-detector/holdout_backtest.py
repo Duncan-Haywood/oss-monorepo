@@ -61,6 +61,7 @@ from detect_silence import (
     DEFAULT_FLOOR_DAYS,
     DEFAULT_MIN_GAPS,
     DEFAULT_MULTIPLIER,
+    DEFAULT_QUANTILE,
     DEFAULT_WARMUP_DAYS,
     Config,
     cadence_threshold,
@@ -91,6 +92,30 @@ ANCHOR_GRID: list[tuple[str, float | None]] = [
     ("quantile", 0.99),
     ("quantile", 1.00),
 ]
+
+# The small-sample anchors, added 2026-08-22. `quantile:0.99` is the recommended
+# setting and is degenerate — identical to `max` — on every source with under 100
+# closed gaps, which in this corpus is the one source carrying 9 of the 17
+# episodes. These are the per-source ways out the README named and nobody had
+# built. Each is carried at 0.95 as well as 0.99, because if a family only helps
+# at one setting that is a fact about the setting rather than about the family.
+#
+# Deliberately a *separate* grid rather than more rows in `ANCHOR_GRID`. Widening
+# the candidate set changes which anchor each fold selects, and therefore the
+# held-out recall the subscriber record prints. That figure is committed in
+# `results-holdout-2026-08-21.json` and quoted at a customer, so it moves only on
+# a decision someone made, never as a side effect of adding a row to a list. The
+# widened selection is measured and reported beside the incumbent instead.
+SMALL_SAMPLE_GRID: list[tuple[str, float | None]] = [
+    ("interpolated", 0.95),
+    ("interpolated", 0.99),
+    ("lognormal", 0.95),
+    ("lognormal", 0.99),
+    ("exponential", 0.95),
+    ("exponential", 0.99),
+]
+
+FULL_GRID = ANCHOR_GRID + SMALL_SAMPLE_GRID
 
 DORMANCY_GRID = [60, 90, 120, 180, 365]
 
@@ -291,13 +316,17 @@ def aggregate(per_source: dict[str, dict]) -> dict:
 
 
 def sweep(
-    history: dict[str, list[date]], end: date, base: Config, dormancy_days: int
+    history: dict[str, list[date]],
+    end: date,
+    base: Config,
+    dormancy_days: int,
+    grid: list[tuple[str, float | None]] | None = None,
 ) -> list[dict]:
     """Every anchor scored on every source, in sample. This is the table the
     README's limit is about: it is where `p99` was chosen and also where it was
     scored."""
     rows = []
-    for anchor, quantile in ANCHOR_GRID:
+    for anchor, quantile in grid or FULL_GRID:
         cfg = config_for(anchor, quantile, base)
         per_source = {
             repo: score_source(replay_source(days, end, cfg), dormancy_days)
@@ -311,11 +340,15 @@ def sweep(
 
 
 def score_all_anchors(
-    history: dict[str, list[date]], end: date, base: Config, dormancy_days: int
+    history: dict[str, list[date]],
+    end: date,
+    base: Config,
+    dormancy_days: int,
+    grid: list[tuple[str, float | None]] | None = None,
 ) -> dict[str, dict[str, dict]]:
     """anchor label -> source -> score. Computed once and reused by every fold."""
     scored: dict[str, dict[str, dict]] = {}
-    for anchor, quantile in ANCHOR_GRID:
+    for anchor, quantile in grid or ANCHOR_GRID:
         label = anchor_label(anchor, quantile)
         cfg = config_for(anchor, quantile, base)
         scored[label] = {
@@ -323,6 +356,84 @@ def score_all_anchors(
             for repo, days in history.items()
         }
     return scored
+
+
+POOLED_SHAPE_QUANTILES = [0.90, 0.95, 0.99]
+
+
+def _pooled_ratio(history: dict[str, list[date]], exclude: str, quantile: float) -> float | None:
+    """The q-th ratio of gap-to-own-median, pooled over every source but `exclude`.
+
+    This is the README's first-named small-sample anchor: borrow the *shape* of a
+    gap distribution from sources that have enough history to show one, and scale
+    it by the thin source's own typical gap. Ratios rather than raw days, because
+    pooling days across a register that publishes daily and one that publishes
+    quarterly gives a number wrong for both — the defect `_pooled_threshold`
+    already records about pooling thresholds.
+
+    `exclude` is what keeps the fold honest: a source never contributes to the
+    ratio it is then scored under.
+    """
+    ratios: list[float] = []
+    for repo, days in history.items():
+        if repo == exclude:
+            continue
+        gaps = [(b - a).days for a, b in zip(days, days[1:])]
+        if len(gaps) < 2:
+            continue
+        median = statistics.median(gaps)
+        if median <= 0:
+            continue
+        ratios.extend(g / median for g in gaps)
+    if not ratios:
+        return None
+    ordered = sorted(ratios)
+    rank = min(len(ordered), max(1, math.ceil(quantile * len(ordered))))
+    return ordered[rank - 1]
+
+
+def pooled_shape_holdout(
+    history: dict[str, list[date]], end: date, base: Config, dormancy_days: int
+) -> list[dict]:
+    """Score the pooled-shape anchor with the pool refitted per fold.
+
+    The other anchors are functions of one source's own gaps, so a single
+    `score_all_anchors` pass is already leakage-free and every fold can reuse it.
+    This one is not: its ratio is fitted across sources, so it has to be refitted
+    with the held-out source removed, which is why it is measured here rather
+    than added to `ANCHOR_GRID`.
+
+    One residual limit, stated rather than hidden: the training sources
+    contribute their whole histories through `end`, so the ratio is fitted on
+    the same calendar span it is scored over. That is leakage across *time*, not
+    across sources, and it flatters this anchor relative to the others — which
+    matters only if it wins.
+    """
+    rows = []
+    for quantile in POOLED_SHAPE_QUANTILES:
+        per_source: dict[str, dict] = {}
+        ratios: dict[str, float] = {}
+        for repo, days in sorted(history.items()):
+            ratio = _pooled_ratio(history, repo, quantile)
+            if ratio is None:
+                continue
+            ratios[repo] = round(ratio, 3)
+            cfg = Config(
+                multiplier=base.multiplier,
+                floor_days=base.floor_days,
+                min_gaps=base.min_gaps,
+                warmup_days=base.warmup_days,
+                anchor="pooled-shape",
+                quantile=quantile,
+                pooled_ratio=ratio,
+            )
+            per_source[repo] = score_source(replay_source(days, end, cfg), dormancy_days)
+        row = {"anchor": f"pooled-shape:{quantile:g}"}
+        row.update(aggregate(per_source))
+        row["ratio_by_held_out_source"] = ratios
+        row["per_source"] = per_source
+        rows.append(row)
+    return rows
 
 
 def leave_one_source_out(
@@ -403,7 +514,7 @@ def anchor_decay(
     is not monotone, so it has no reason to decay.
     """
     rows = []
-    for anchor, quantile in ANCHOR_GRID:
+    for anchor, quantile in FULL_GRID:
         cfg = config_for(anchor, quantile, base)
         buckets = {name: [0, 0] for _, _, name in AGE_BUCKETS}
         for days in history.values():
@@ -500,6 +611,51 @@ def quantile_degeneracy(
         ),
         "episodes_total": sum(v["dormancy_episodes"] for v in rows.values()),
         "per_source": rows,
+    }
+
+
+SMALL_SAMPLE_ANCHORS = ["quantile", "interpolated", "lognormal", "exponential"]
+
+
+def small_sample_on_degenerate(
+    history: dict[str, list[date]], end: date, base: Config, dormancy_days: int, quantile: float
+) -> dict:
+    """Do the small-sample anchors actually reach the sources they were written for?
+
+    `quantile_degeneracy` establishes *that* a sparse source inherits `max`. This
+    asks the next question and it is the one that decides whether the fix is a
+    fix: on exactly those sources, what threshold does each candidate family
+    produce, and how many of that source's own dormancy episodes does it catch?
+
+    A held-out recall number cannot answer it. Pooled recall moves for two
+    reasons at once — a family may gain episodes on the dense sources while
+    doing nothing on the sparse ones — and the whole complaint is about the
+    sparse ones.
+    """
+    needed = _degeneracy_bound(quantile)
+    per_source = {}
+    for repo, days in sorted(history.items()):
+        gaps = sorted((b - a).days for a, b in zip(days, days[1:]))
+        n = len(gaps)
+        degenerate = bool(n) and min(n, max(1, math.ceil(quantile * n))) == n
+        row = {"closed_gaps": n, "degenerate": degenerate, "max_gap_days": gaps[-1] if n else None}
+        for anchor in SMALL_SAMPLE_ANCHORS:
+            cfg = config_for(anchor, quantile, base)
+            score = score_source(replay_source(days, end, cfg), dormancy_days)
+            row[anchor] = {
+                "final_threshold": cadence_threshold(gaps, cfg),
+                "episodes_evaluable": score["episodes_evaluable"],
+                "episodes_detected": score["episodes_detected"],
+                "nuisance_days_per_year": score["nuisance_days_per_year"],
+            }
+        per_source[repo] = row
+    degenerate_sources = [r for r, v in per_source.items() if v["degenerate"]]
+    return {
+        "quantile": quantile,
+        "gaps_needed_for_a_non_degenerate_anchor": needed,
+        "degenerate_sources": degenerate_sources,
+        "anchors": SMALL_SAMPLE_ANCHORS,
+        "per_source": per_source,
     }
 
 
@@ -649,6 +805,62 @@ def render(report: dict) -> str:
     )
     out.append("")
 
+    wide = report["widened_grid_holdout"]
+    wide_pooled = wide["held_out_pooled"]
+    incumbent = report["leave_one_source_out"]["held_out_pooled"]
+    out.append("Same folds, small-sample anchors added to the candidate set")
+    out.append(
+        f"  incumbent grid: {incumbent['episodes_detected']}/{incumbent['episodes_evaluable']} "
+        f"at {incumbent['nuisance_days_per_source_year']} nuisance alarm-days per source-year "
+        f"({', '.join(report['leave_one_source_out']['anchors_selected'])})"
+    )
+    out.append(
+        f"  widened grid:   {wide_pooled['episodes_detected']}/{wide_pooled['episodes_evaluable']} "
+        f"at {wide_pooled['nuisance_days_per_source_year']} nuisance alarm-days per source-year "
+        f"({', '.join(wide['anchors_selected'])})"
+    )
+    for fold in wide["folds"]:
+        out.append(
+            f"    {fold['held_out'][:34]:>34s} {fold['selected_anchor']:>20s} "
+            f"{fold['test']['episodes_detected']}/{fold['test']['episodes_evaluable']}"
+        )
+    out.append("")
+
+    deg = report["small_sample_on_degenerate"]
+    out.append(
+        f"Do the small-sample anchors reach the sparse sources? "
+        f"(q={deg['quantile']:g} degenerates below {deg['gaps_needed_for_a_non_degenerate_anchor']} gaps)"
+    )
+    out.append(
+        f"  {'source':>34s} {'gaps':>5s} {'deg':>4s} "
+        + " ".join(f"{a[:11]:>18s}" for a in deg["anchors"])
+    )
+    for repo, row in deg["per_source"].items():
+        cells = []
+        for anchor in deg["anchors"]:
+            cell = row[anchor]
+            thresh = cell["final_threshold"]
+            shown = f"{thresh}d" if thresh is not None else "—"
+            cells.append(
+                f"{shown:>8s} {cell['episodes_detected']}/{cell['episodes_evaluable']:<8d}"
+            )
+        out.append(
+            f"  {repo[:34]:>34s} {row['closed_gaps']:>5d} {'yes' if row['degenerate'] else '-':>4s} "
+            + " ".join(cells)
+        )
+    out.append("  cells are: final threshold, then episodes detected / episodes evaluable")
+    out.append("")
+
+    out.append("Pooled-shape anchor, refitted per fold (the ratio never sees its own source)")
+    out.append(f"  {'anchor':>18s} {'recall':>8s} {'med lat':>8s} {'nuis/src-yr':>12s}")
+    for row in report["pooled_shape_holdout"]:
+        out.append(
+            f"  {row['anchor']:>18s} "
+            f"{str(row['episodes_detected']) + '/' + str(row['episodes_evaluable']):>8s} "
+            f"{str(row['median_latency_days']):>8s} {str(row['nuisance_days_per_source_year']):>12s}"
+        )
+    out.append("")
+
     out.append("Sensitivity of the dormancy label")
     out.append(f"  {'label':>10s} {'episodes':>9s} {'held-out recall':>16s} {'anchors picked':>28s}")
     for row in report["dormancy_sweep"]:
@@ -668,6 +880,10 @@ def build_report(path: Path, base: Config, dormancy_days: int, budget: float) ->
     in_sample = sweep(history, end, base, dormancy_days)
     scored = score_all_anchors(history, end, base, dormancy_days)
     loso = leave_one_source_out(history, end, base, dormancy_days, budget, scored)
+    pooled_shape = pooled_shape_holdout(history, end, base, dormancy_days)
+    small_sample = small_sample_on_degenerate(history, end, base, dormancy_days, DEFAULT_QUANTILE)
+    widened_scored = score_all_anchors(history, end, base, dormancy_days, FULL_GRID)
+    widened = leave_one_source_out(history, end, base, dormancy_days, budget, widened_scored)
 
     budget_sweep = []
     for b in BUDGET_GRID:
@@ -720,6 +936,9 @@ def build_report(path: Path, base: Config, dormancy_days: int, budget: float) ->
         "dormancy_sweep": dormancy_sweep,
         "anchor_decay": anchor_decay(history, end, base, dormancy_days),
         "quantile_degeneracy": quantile_degeneracy(history, end, base, dormancy_days, 0.99),
+        "pooled_shape_holdout": pooled_shape,
+        "small_sample_on_degenerate": small_sample,
+        "widened_grid_holdout": widened,
     }
 
 

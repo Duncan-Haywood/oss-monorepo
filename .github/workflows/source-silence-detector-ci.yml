@@ -85,8 +85,17 @@ jobs:
       - run: |
           python3 detect_silence.py --prior-history prior-history-2026-08-21.json \
             --anchor quantile --quantile 0.99 --sweep
+      # Amendment 3's small-sample anchors. Each is reachable from the CLI, so
+      # each must keep parsing and rendering — a family that only ever runs
+      # inside the backtest can break in the product without CI noticing.
+      - run: |
+          for anchor in interpolated lognormal exponential; do
+            python3 detect_silence.py --prior-history prior-history-2026-08-21.json \
+              --anchor "$anchor" --quantile 0.99
+          done
       # Amendment 2's held-out validation. Reads the same committed history file;
       # no network, no arguments needed for the documented invocation.
+      # Amendment 3 added three sections to its report; the run covers them.
       - run: python3 holdout_backtest.py
       # The fetcher's network path is deliberately not exercised; --help is enough
       # to catch an import or argument-parsing break in a file CI otherwise never
