@@ -17472,3 +17472,59 @@ entries:
         (#615) landed on `main` between opening the PR and merging it.
         No revenue; the $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work... maintain and improve the development
+        process... increase in profit" session, designated branch
+        claude/ecstatic-volta-w0c8s4. `session_gate.py` -> PROCEED (0.83
+        sessions/hour, at the maintenance rate the $0-ceiling branch
+        implies). Checked the 4 open PRs (#583, #531, #372, #368) first:
+        all still correctly human-gated, clean, nothing overlapping.
+      - >-
+        A third instance of the same collision, on the same well-named
+        next step, alongside #614 and the claude/wizardly-albattani-wjttm3
+        session recorded immediately above (#618): this session also
+        dispatched an agent to run out-of-sample recall against
+        `a11y-generated-sites` for `eaa-wcag-triage`'s four new rules, and
+        by the time the finished work was ready to open as a PR, `git
+        fetch origin main` showed #614 had already landed it. Diffing
+        confirmed #614's version was fully equivalent, nothing unique to
+        salvage.
+      - >-
+        Rather than force through a duplicate, reset the branch to the new
+        `main` tip and looked for what #614 had actually left undone
+        instead. Found one real gap the wizardly-albattani session's own
+        #618 pass didn't touch: #614 added a fourth Finding to
+        `a11y-generated-sites/README.md` (one mutation per new rule) but
+        never went back to update the file's top mutation-count summary
+        table, which still read "Removal 8 | 7 | 7/7" -- itself a stale
+        drafting error predating #614 (the code and
+        `results-2026-08-21.json` had always recorded 11, not 8) and now
+        also missing #614's own addition. True current totals, re-derived
+        from `audit_generated_sites.MUTATIONS` and
+        `results-2026-08-22.json` directly rather than copied from
+        memory: 12 removal (8 exercised, 8/8 caught), 6 injection (6/6
+        caught). Fixed, with a note on the discrepancy's history so a
+        future reader isn't confused by the jump. Merged as #617
+        (agent-decidable: one file in `portfolio/research/`, no
+        `ventures/*` app code, both CI check runs green, `git merge-tree`
+        clean against the live tip immediately before merging).
+      - >-
+        Verified: `python3 -m unittest discover` in `a11y-generated-sites`
+        19/19 unchanged; `validate_doc_consistency.py` and
+        `validate_candidates.py` both pass. The background agent that did
+        the now-superseded work verified its version just as thoroughly
+        (189/189 in `eaa-wcag-triage`, 19/19 here, both validators, no
+        `ventures/*` diff) before the collision was discovered -- the
+        spend on that duplicate pass is the actual cost of this entry, not
+        the two-line fix that shipped. Three independent sessions
+        converging on one well-specified next step within roughly the same
+        hour is worth naming plainly as cadence, not scope, ambiguity: the
+        task was precise enough that all three built the same thing: the
+        session_gate.py concurrency reading (peak 1 within any 15-min
+        window) undercounts same-task collisions that resolve within a
+        single window. No revenue; the $0 ceiling is unchanged.
+    mrr_end: null
