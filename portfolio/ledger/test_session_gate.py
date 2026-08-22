@@ -322,12 +322,21 @@ def test_stale_pr_check_streak_empty_ledger_is_zero():
 
 
 def test_stale_pr_check_streak_measured_on_the_real_ledger():
-    """The real ledger has this exact pattern -- guard against the detector
-    regressing to always-zero on the artifact it exists to catch."""
+    """The real ledger has this pattern *somewhere* in its history -- guard
+    against the detector regressing to always-zero on the artifact it exists
+    to catch. Checked against every suffix rather than just the current tail,
+    because the tail keeps changing entry to entry (this file is append-only
+    and several sessions land per hour) -- pinning to "the last entry" or
+    "the last N" would make this test flake as soon as the next session's
+    entry lands, which is exactly the kind of churn the gate has to tolerate
+    rather than assume away.
+    """
     entries = yaml.safe_load(sg.LEDGER.read_text())["entries"]
-    assert sg.stale_pr_check_streak(entries) >= 0  # never negative
-    # A trailing run before the most recent (non-matching) entry measured 11+.
-    assert sg.stale_pr_check_streak(entries[:-1]) >= sg.STALE_PR_STREAK_THRESHOLD
+    longest = max(
+        (sg.stale_pr_check_streak(entries[: i + 1]) for i in range(len(entries))),
+        default=0,
+    )
+    assert longest >= sg.STALE_PR_STREAK_THRESHOLD
 
 
 def test_report_adds_a_stale_streak_reason_only_at_or_above_threshold():
