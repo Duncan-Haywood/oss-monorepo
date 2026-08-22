@@ -208,6 +208,52 @@ class Report(unittest.TestCase):
         self.assertNotIn("VOID", out)
         self.assertIn("VALID", out)
 
+    def test_a_shallow_clone_deepens_and_retries_before_giving_up(self):
+        # The realistic shallow-clone shape: the pull request's head resolves
+        # fine (it was just fetched), but the older `verified_against_main`
+        # commit does not, because the container's clone is shallow. The
+        # first resolve() of `verified` fails, deepen() runs, and the retry
+        # succeeds -- this is the routine case for a scheduled session
+        # verifying a record it did not make itself, not the "record names a
+        # bogus commit" case that should stay UNRESOLVABLE.
+        deepen = mock.Mock()
+        verified_calls = {"n": 0}
+
+        def resolve(ref):
+            if ref == "origin/main" or ref == self.RECORD["head_sha"]:
+                return "m" * 40
+            verified_calls["n"] += 1
+            return None if verified_calls["n"] == 1 else "m" * 40
+
+        out = self._run(
+            {
+                "resolve": mock.Mock(side_effect=resolve),
+                "fetch_pr_head": mock.Mock(return_value="a" * 40),
+                "deepen": deepen,
+                "merge_base": mock.Mock(return_value="base"),
+                "changed_files": mock.Mock(return_value=[]),
+            }
+        )
+        deepen.assert_called_once()
+        self.assertNotIn("UNRESOLVABLE", out)
+        self.assertIn("VALID", out)
+
+    def test_a_genuinely_missing_commit_stays_unresolvable_after_deepening(self):
+        deepen = mock.Mock()
+
+        def resolve(ref):
+            return "m" * 40 if ref == "origin/main" else None
+
+        out = self._run(
+            {
+                "resolve": mock.Mock(side_effect=resolve),
+                "fetch_pr_head": mock.Mock(return_value="a" * 40),
+                "deepen": deepen,
+            }
+        )
+        deepen.assert_called_once()
+        self.assertIn("UNRESOLVABLE", out)
+
     def test_no_fetch_skips_the_fetch(self):
         fetch = mock.Mock()
         with mock.patch.multiple(

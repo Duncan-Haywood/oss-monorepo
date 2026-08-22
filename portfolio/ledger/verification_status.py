@@ -37,7 +37,8 @@ clone does not have it: the container clones `main` and the session's own branch
 shallowly, so every record about a pull request the session did not open
 resolved to "treat as stale" -- the tool's own defeat condition. It therefore
 fetches `refs/pull/<n>/head` on demand (~2s) rather than assuming the commit is
-present, and deepens the clone when a truncated history hides a merge base.
+present, and deepens the clone when a truncated history hides either recorded
+commit or a merge base between them.
 Having fetched that ref it also knows the pull request's *live* head, so a
 record voided by a push since is now detected rather than merely warned about.
 `--no-fetch` keeps the tool offline for a clone that has the commits already.
@@ -264,8 +265,13 @@ def report(records, main_ref, fetch=True):
             continue
 
         if resolve(head) is None or resolve(verified) is None:
-            print("  UNRESOLVABLE - a recorded commit is not in this clone; treat as stale.\n")
-            continue
+            # A scheduled session's clone is shallow, so an older
+            # `verified_against_main` commit is routinely absent even though
+            # it is genuine history -- deepen once and retry before giving up.
+            deepen()
+            if resolve(head) is None or resolve(verified) is None:
+                print("  UNRESOLVABLE - a recorded commit is not in this clone; treat as stale.\n")
+                continue
 
         base = merge_base(verified, head)
         if not base:
