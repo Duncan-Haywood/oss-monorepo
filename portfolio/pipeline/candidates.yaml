@@ -131,7 +131,7 @@ candidates:
     graduate_as: venture
     host_venture: null
     scores:
-      ai_leverage: 6
+      ai_leverage: 7
       autonomous_ops: 9
       time_to_revenue: 7
       gross_margin: 9
@@ -139,14 +139,27 @@ candidates:
       distribution: 5
       liability_containment: 7
       ethical_robustness: 8
-    composite: 6.75
+    composite: 6.875
     floor: 3
     floor_dimension: defensibility
     measured:
       ai_leverage: >-
-        7 -> 6, PR #207 step 2. 152 real tool-description changes classified;
-        the work is deterministic diffing plus a small classifier, not
-        model-heavy. Alert volume median 0.00/server/month.
+        6 -> 7, mcp-drift-watch's 2026-08-22 amendment: one blind model pass
+        over the 136-item held-out corpus (four independent Claude Sonnet 5
+        reads, none shown the rules' bucket or the hand labels) scored F1
+        0.61-0.71 against the rules' 0.30-0.33 on the same corpus -- roughly
+        double, with recall the larger gap (0.86-0.88 vs 0.24-0.29). Direct
+        evidence the classification is not rule-separable after all. Not a
+        full reversal: a quarter of the model's false positives came from
+        judging text that was not actually new, the exact discipline the
+        rules classifier is built around, so the win is real but the failure
+        mode is different, not absent. See
+        portfolio/pipeline/probes/mcp-drift-watch/README.md's "Amendment,
+        2026-08-22" section.
+        HISTORY. 7 -> 6, PR #207 step 2, 2026-08-19: 152 real
+        tool-description changes classified; the work looked like
+        deterministic diffing plus a small classifier, not model-heavy.
+        Alert volume median 0.00/server/month.
       defensibility: >-
         4 -> 3, PR #245. The archive is public data on the half of the market
         this portfolio can reach: 98.3% of published npm-distributed
