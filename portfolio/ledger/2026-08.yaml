@@ -18086,10 +18086,20 @@ entries:
         declared: no signal pattern can match non-Latin text, and the corpus
         contains one instruction-bearing Chinese change.
       - >-
-        No score moved in `candidates.yaml`. `ai_leverage` 6 is recorded
-        examined-and-not-revised for the second time -- recall 0.10 is the
-        strongest case yet that rules are insufficient, and still nobody has
-        run a model, so it stays an argument. Verified before pushing: 68
+        No score moved by this pass. Mid-session `main` gained #634, a
+        concurrent session that took the *other* next step #630 named -- a
+        blind model pass over corpus 2 -- and moved `ai_leverage` 6 -> 7 on
+        it (F1 0.61-0.71 against the rules' 0.30-0.33). Two sessions, two
+        different next steps from the same write-up, no overlap: closer to
+        useful parallelism than to the duplicate pattern `CLAUDE.md`
+        documents, and worth noting as the first time that has happened on
+        this probe. Merged it in and reconciled the prose rather than
+        opening a rival narrative: corrected "nobody has run a model" in
+        three places, said which pass moved the score, and added the caution
+        this pass earns -- the model's F1 is a *single* held-out figure, and
+        the rules' own F1 halved between corpus 2 and corpus 3, so the
+        cheapest next step is asking the model the same question on corpus
+        3, whose 148 hand labels are committed for it. Verified before pushing: 68
         probe tests (36 new), every step of the probe's own CI workflow run
         by hand, and every step of `portfolio-validate.yml` -- both pipeline
         validators, score sensitivity, venture schema and scoring, router,

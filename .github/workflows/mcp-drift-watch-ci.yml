@@ -81,6 +81,9 @@ jobs:
       # The same for the third corpus, which also re-scores the rule variants.
       - run: python3 build_labels_c3.py
       - run: python3 rule_variants.py --corpus results-holdout-c3-2026-08-22.json
+      # The model pass's score is a claim in the README too, and it is derived
+      # from a committed transcript rather than by calling a model here.
+      - run: python3 score_model_pass.py
       # The two fetching scripts are never run here, but an import or
       # argument-parsing break in them would otherwise be invisible to CI.
       - run: python3 collect_holdout.py --help
