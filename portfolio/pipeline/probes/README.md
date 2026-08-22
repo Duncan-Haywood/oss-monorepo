@@ -76,7 +76,8 @@ and does not license", and from the positioning constraints in
   `ACCURACY_NOTE` shape `harness.py` uses — `ethical_robustness` 7 → 8,
   composite 6.625 → 6.75. See the probe's own README for the full
   methodology, including the one labeling imprecision the review found (not a
-  wrong suppression, and left as a named follow-up).
+  wrong suppression, and fixed the same day — `classify()` now ranks the
+  advisory summary before its details).
 
   A figure printed at a customer must not be able to go stale. `eaa-wcag-triage`'s
   `tests/test_accuracy_citations.py` checks each printed value against the
