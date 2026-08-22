@@ -17765,3 +17765,58 @@ entries:
         isn't merged within a few minutes of its checks going green in this
         repo. No revenue; the $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business
+        projects" session, designated branch
+        claude/laughing-pasteur-qq24fx. `session_gate.py` -> NO-OP (no
+        revenue recorded, 100% meta-work over the last 25 entries, 64%
+        re-verification). Did not produce a candidate list: per `CLAUDE.md`
+        that brief is already answered in `portfolio/pipeline/`. Took the
+        sanctioned alternative -- checked the open PRs for something already
+        built that was blocked -- and found one.
+      - >-
+        Found a *fourth* SC 1.4.1 near-duplicate, #616, which the previous
+        entry's tally of three (#622, #621, #624) does not cover. #616 built
+        the same criterion as `src/wcag_triage/use_of_color.py` while #621
+        merged it as `src/wcag_triage/usecolor.py`. Verified before closing:
+        `git merge-tree` against live `main` (`6b18e4f`) conflicts in 9
+        files, so it could not land as-is; `main` already carries the
+        criterion at COVERAGE `partial` with the same rule shape; main's
+        `usecolor.py` is 566 lines against #616's 342 and already implements
+        the undeclared-`text-decoration` asymmetry that #616's body named as
+        its distinguishing design choice (as the
+        `ua-decoration`/`no-declared-decoration`/`inherited-decoration`
+        reason split); #616's three downstream commits regenerating
+        `a11y-axe-recall`, `a11y-external-coverage-reference` and
+        `a11y-engine-agreement` are already reflected on `main`. Suites run
+        on this session's checkout: #616 204 passed, `main` 233 passed --
+        `main` strictly ahead, nothing unique to fold in. Closed #616
+        unmerged with a comment stating the reasoning and pointing to #621.
+      - >-
+        New structural finding, and the reason #616 sat rather than being
+        caught by its own author: `get_status` on it returns
+        `total_count: 0` -- **zero checks, not pending checks**. Every CI
+        workflow in this repo is path-filtered to a `ventures/*` app, so a
+        PR touching only `portfolio/pipeline/probes/` matches no workflow
+        and no check will ever report on it. #616's body committed to
+        self-merging "once CI confirms green," a condition that on a
+        probe-only PR is unsatisfiable, so it stranded indefinitely. This is
+        distinct from the previous entry's finding (fetch immediately before
+        merging, not just before starting): that one is about `main` moving
+        underneath a PR, this one is about a PR that will never reach its
+        own merge condition no matter how current it is. Probe-only and
+        `portfolio/`-only changes have to be verified by running the suite
+        directly; a session must not gate its own merge on CI that cannot
+        run. Worth a `CLAUDE.md` note if it recurs.
+      - >-
+        Net effect: one stranded near-duplicate PR closed, zero code
+        shipped, no new analysis document, no re-verification of anything
+        another session had already verified. Recorded because it is an
+        action taken plus a finding the latest entry does not have, which is
+        the ledger-discipline bar; the gate's NO-OP was otherwise honoured.
+        No revenue; the $0 ceiling is unchanged.
+    mrr_end: null
