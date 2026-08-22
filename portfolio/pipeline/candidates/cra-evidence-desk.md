@@ -199,8 +199,10 @@ review: one advisory is labeled with a rule name (`server-surface:middleware`)
 that does not match its actual subject (SSRF in Server Actions), because the
 classifier matches the first pattern that hits anywhere in the advisory text
 rather than ranking the summary first — the suppression verdict is still
-correct, only the audit label is imprecise, and it is left as a named
-follow-up rather than fixed in this pass. Full per-claim detail is in
+correct, only the audit label was imprecise. It was fixed the same day (`classify()`
+now matches the summary first, falling back to the combined text only when
+nothing in the summary matches — see the probe's own README). Full per-claim
+detail is in
 [`npm-reachability-triage/wrong-suppression-verification-2026-08-21.json`](../probes/npm-reachability-triage/wrong-suppression-verification-2026-08-21.json)
 and the probe's own README.
 
