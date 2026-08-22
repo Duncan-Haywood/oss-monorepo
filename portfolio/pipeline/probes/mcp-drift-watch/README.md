@@ -1,7 +1,7 @@
 # mcp-drift-watch
 
 **Probe for [`mcp-supply-chain-watch`](../../candidates/mcp-supply-chain-watch.md).**
-Built 2026-08-22. 32 tests. Not published, not a graduation, no score moved.
+Built 2026-08-22. 68 tests. Not published, not a graduation, no score moved.
 
 Pin what a connected MCP server declared, diff it on re-poll, classify what
 moved, and hand the subscriber a record. That is the candidate's own
@@ -10,7 +10,145 @@ used to answer the question its research left open.
 
 ---
 
-## The headline result
+> **Two further passes landed the same day, by sessions that could not see each
+> other, and they took the two different next steps the first pass named.** This
+> one collected the third corpus and measured the rule edits on it. The other
+> ran a model over corpus 2 and is the [model-pass
+> amendment](#amendment-2026-08-22-a-model-was-run-over-the-corpus) at the end
+> of this file; it is the one that moved `ai_leverage` 6 → 7. They do not
+> overlap, and each bears on the other: the model's figure is a single held-out
+> measurement of exactly the kind this pass shows can halve on a second corpus.
+
+## Second pass, 2026-08-22: a third corpus, and the fixes measured on it
+
+The first pass below closed by naming three rule edits, declining to make them,
+and saying why:
+
+> dropping `secret_or_credential` alone takes precision from 0.40 to 1.00 with
+> no true positive lost. That number would be in sample, and quoting it as
+> accuracy is precisely the error this pass exists to correct. Anyone taking
+> those fixes needs a **third** corpus.
+
+That corpus is now here: the **remaining 103** of the 164 eligible packages,
+collected with `--exclude-from` so it shares no package with corpus 2, yielding
+**148 description changes across 21 servers**, all hand-labelled against the
+same rubric ([`build_labels_c3.py`](build_labels_c3.py)). The edits are in
+[`rule_variants.py`](rule_variants.py) and encode only the three mechanisms the
+first pass had already named in prose. Three results, in order of how much they
+change what this probe can claim.
+
+### 1. Nothing about the shipped classifier replicated — including the rate
+
+| | corpus 1 (tuning) | corpus 2 (held out) | corpus 3 (held out) |
+|---|---:|---:|---:|
+| share of changes flagged | 7.2% | 7.4% | **5.4%** |
+| precision | — | 0.40 | **0.625** |
+| recall | — | 0.24–0.29 | **0.10–0.11** |
+
+Corpus 2's headline was that a stable *rate* had hidden an unstable set of
+labels. Corpus 3 removes even that consolation: the rate moved two points, and
+precision and recall moved in opposite directions again — precision up by half,
+recall down by more than half. Three corpora, three different answers, and the
+spread between them is far wider than the labelling uncertainty inside any one
+of them. The customer-facing record now prints the **span across both held-out
+corpora** (precision 0.40–0.62, recall 0.10–0.29) rather than either figure,
+because quoting one of two disagreeing measurements is choosing which one
+flatters the product.
+
+### 2. The three fixes are ranked in exactly the reverse order out of sample
+
+Each edit, applied alone, against both corpora:
+
+| edit | corpus 2 (the one that suggested it) | corpus 3 (never seen) |
+|---|---|---|
+| drop `secret_or_credential` | precision 0.40 → **1.00** | precision 0.625 → 0.714 |
+| widen routing to `prefer` *named tool* | recall 0.24 → **0.53** | **no change at all** |
+| relax `important:` punctuation | no change | recall 0.10 → **0.14**, precision → 0.70 |
+| all three | P **1.00**, R **0.53–0.64** | P 0.778, R 0.14–0.15 |
+
+The first pass argued hardest for the routing edit — it carried five of that
+corpus's ten clear misses — and it buys **nothing** here. Corpus 3 contains one
+instance of its exact mechanism (`ponlo_ai_chat`: *"For updating or deleting
+specific items, prefer the structured tools (`ponlo_calendar_delete_event`,
+`ponlo_tasks_update`, etc.)"*) and the widened pattern still misses it, because
+the preference points at a category noun with the tool names in a parenthesis
+after it. Meanwhile the edit that pass treated as a punctuation footnote is the
+only one that finds anything new.
+
+So the edits *are* an improvement out of sample — precision 0.625 → 0.778 and
+recall 0.102 → 0.143, with no true positive lost — and it is a fraction of what
+they were worth on the corpus that suggested them. **The reusable point is that
+ranking candidate fixes by how much they move the numbers on the corpus that
+suggested them does not survive contact with a second one.** This repository
+has done that ranking before.
+
+**The edits are still not adopted into the shipped rules**, and the reason is
+not the size of the gain. Adopting them changes
+[`classify_drift.py`](../../../research/mcp-tool-drift/classify_drift.py), whose
+committed corpus-1 labels and 7.2% figure are cited across `portfolio/`; the
+same relabelling measures corpus 1 at 6.6%. Paying that to ship a classifier
+that still misses 86% of what it defines as an alert is the wrong trade. What
+would be worth it is a rule for the class below, measured on a fourth corpus.
+
+### 3. Two of the five signal alternatives are dead patterns, not bad judgement
+
+`imperative_priority` and `secret_or_credential` are each written as
+`\b( … | important: | … | \.env\b | … )\b`. The trailing `\b` cannot hold after
+a colon followed by a space, or the leading one before a dot — so:
+
+- **`important:` has never fired on ordinary prose.** Corpus 2 recorded the
+  `@adeu/mcp-server` miss as an em-dash edge case (*"the text uses an em dash
+  where the pattern requires a colon"*). The colon form does not work either:
+  corpus 3 contains two `IMPORTANT: …` blocks, both genuine directives to the
+  model, both read as `cosmetic`/`schema-widening` by the shipped rules. That is
+  the entire out-of-sample recall gain in the table above.
+- **`\.env` has never fired at all**, in any corpus. It changes no number here —
+  edit 1 removes the whole signal — but it is the second alternative in this
+  classifier found dead on punctuation rather than on judgement, which says
+  something about how the patterns were reviewed. Both are pinned by tests in
+  [`test_rule_variants.py`](test_rule_variants.py).
+
+### What corpus 3 says the real gap is
+
+35 of the 44 missed positives are one mechanism the first pass never saw,
+because corpus 2 had no instance of it: **a server naming another of its own
+tools and saying when to reach for it, in a phrasing the verb list does not
+cover** — *"use `check_email_security` for the broader overview"*, *"hosted users
+should call `sap_escrow_build_close_transaction`"*, *"Call this before
+`wpconvert_convert_folder`"*, *"you can call `wpconvert_download_result`"*. The
+shipped pattern recognises `use x_y to|first|instead|before` and nothing else,
+so `for`, `or`, `should call` and `can call` all pass.
+
+Two other things worth carrying forward:
+
+- **The corpus is a handful of editorial decisions, again.** Two of 21 packages
+  (`intodns-mcp`, `@oobe-protocol-labs/sap-mcp-server`) rewrote every
+  description in a single release and carry 34 of the 49 positives. Corpus 2 had
+  the same shape with `@naumu/mcp`, so per-change denominators overstate how
+  much independent evidence either corpus holds.
+- **Both remaining false positives are one sentence template.** *"Hosted
+  accountless SAP MCP rejects this tool before x402 payment"*, copied across two
+  tools, matches `(?:this|use this) tool (?:first|before|instead)`. A rule keyed
+  on a phrase rather than on a relation between two named tools will keep doing
+  this.
+- **One instruction-bearing change is in Chinese** (`@clize/clize`, a *should* →
+  *must* strengthening of a human-confirmation gate). None of the five signal
+  patterns can match any non-Latin text, and no coverage statement anywhere in
+  this probe said so until now.
+
+Reproduce (all offline except the collector):
+
+```bash
+python3 -m pytest portfolio/pipeline/probes/mcp-drift-watch/ -q
+python3 build_labels_c3.py            # scores both rule sets on corpus 3
+python3 rule_variants.py --corpus results-holdout-c3-2026-08-22.json
+python3 collect_holdout.py --limit 200 \
+    --exclude-from results-holdout-2026-08-22.json --out results-new.json
+```
+
+---
+
+## The first pass, 2026-08-22: the headline result
 
 `portfolio/research/mcp-tool-drift/` measured this candidate's base rates on
 2026-08-19 and closed with a caveat nobody had re-opened:
@@ -105,6 +243,12 @@ the output records rather than silently truncating — so a third is a command
 away, and the labels for this one are committed as data so the comparison is
 against something fixed.
 
+> **Answered the same day**, by the second pass at the top of this file. The
+> remaining 103 packages were collected, hand-labelled and scored: out of sample
+> the three fixes are worth precision 0.625 → 0.778 and recall 0.102 → 0.143,
+> against 0.40 → 1.00 and 0.24 → 0.53 in sample. The rules are still not
+> changed, for a different reason than this paragraph gives.
+
 **No score moved in `candidates.yaml`.** Two arguments in this write-up point at
 scores and neither is a measurement:
 
@@ -114,6 +258,18 @@ scores and neither is a measurement:
   sufficient here, which argues the leverage is higher than 6 — but no model was
   run against this corpus, so that is an argument. Running one is the obvious
   next pass and it is now cheap: 136 changes with committed hand labels.
+
+  **Both later passes acted on this, in opposite ways, and the model pass is the
+  one that moved the score.** The corpus-3 pass strengthened the argument
+  without settling it — recall of 0.10 is the weakest showing yet for the rule
+  approach, and a second unmeasured argument is not evidence, so it recorded
+  examined-and-not-revised a second time. The model pass measured it: a blind
+  Claude Sonnet 5 read scores F1 0.61–0.71 against the rules' 0.30–0.33 on the
+  same corpus, and `ai_leverage` moved **6 → 7**. What is still open is whether
+  *that* figure replicates, since the corpus-3 pass showed the rules' own F1
+  falling by half between two corpora drawn the same way, and the model has only
+  been asked about one of them. There are now 284 changes with committed hand
+  labels; the model has seen 136.
 - `ethical_robustness` is 8. This probe ships the disclosure surface the
   candidate never had, and it does so from its first version rather than after a
   deduction. There was no measured deficit to restore, so the score is recorded
@@ -131,13 +287,17 @@ here changes it.
 |---|---|
 | `drift_watch.py` | Pin, diff, and the severity ordering. The product surface. |
 | `subscriber_record.py` | The document a subscriber holds, with coverage and both error rates in it. |
-| `collect_holdout.py` | Builds the held-out corpus. Records what it excluded and why. |
+| `collect_holdout.py` | Builds a held-out corpus. Records what it excluded and why; `--exclude-from` subtracts an earlier corpus. |
 | `build_labels.py` | The hand labels as data, the rubric that produced them, and the scoring. |
+| `build_labels_c3.py` | The same, for corpus 3, scoring both rule sets. Reuses the scorer rather than forking it. |
+| `rule_variants.py` | The three edits corpus 2 argued for, applied by swapping the signal table into the shipped `classify()`. |
 | `render_sample.py` | Renders one real record from live npm data. |
-| `results-holdout-2026-08-22.json` | The corpus: 136 changes, 23 packages, with full before/after text. |
+| `results-holdout-2026-08-22.json` | Corpus 2: 136 changes, 23 packages, with full before/after text. |
 | `holdout-labels-2026-08-22.json` | Every label, every borderline call, and a note on each judgement. |
+| `results-holdout-c3-2026-08-22.json` | Corpus 3: 148 changes, 21 packages, disjoint from corpus 2 by construction. |
+| `holdout-labels-c3-2026-08-22.json` | The same for corpus 3, plus both rule sets' scores side by side. |
 | `sample-record-2026-08-22.md` | A real record, chosen to be unflattering — see below. |
-| `test_drift_watch.py`, `test_subscriber_record.py` | 32 tests. |
+| `test_drift_watch.py`, `test_subscriber_record.py`, `test_rule_variants.py`, `test_build_labels_c3.py` | 68 tests. |
 
 ```bash
 python3 -m pytest portfolio/pipeline/probes/mcp-drift-watch/ -q   # offline
@@ -181,18 +341,34 @@ are a set difference between two pins, exact, with no rule in between.
   it still matches the research corpus. Up to 21 further packages were *fetched*
   by that pass and yielded no labelled pair, and today's registry ranking is not
   that day's, so `--min-rank` is best effort while `TUNED_ON` is exact.
-- **60 of 164 eligible packages were taken.** Recorded in the output, not
-  dropped silently.
+- **All 164 eligible packages have now been taken**: 60 in corpus 2 and the
+  remaining 103 in corpus 3, which excludes corpus 2 by name from its own
+  output rather than by re-ranking. One package (`mcp-socialapi`) is excluded as
+  tuned-on. The population is therefore exhausted at today's registry ranking; a
+  fourth corpus needs the registry to grow, or a different registry.
+- **No non-Latin text is matched by any signal.** Every pattern is English
+  keywords. Corpus 3 contains 8 Chinese and 2 Korean description changes, one of
+  which is instruction-bearing by hand and invisible to the rules by
+  construction.
 
 ## What this does not establish
 
-- **That 0.40 is the classifier's accuracy.** It is its accuracy on one corpus
-  of npm-published servers, hand-labelled by one reader against a rubric written
-  down before counting. The rubric is in `build_labels.py` and every borderline
-  call is marked; disagree with any of them and re-run the scorer.
-- **That a model would do better.** Measured now — see the amendment below. It
-  does, on precision and recall both, and it does worse on the one thing this
-  probe's whole methodology is built around: judging only the newly added text.
+- **That 0.40–0.62 is the classifier's accuracy.** It is its accuracy on two
+  corpora of npm-published servers, hand-labelled by one reader against a rubric
+  written down before counting. The rubric is in `build_labels.py` and every
+  borderline call is marked; disagree with any of them and re-run the scorer.
+  Two measurements that disagree this much are better read as a caution about
+  the third than as brackets around a true value.
+- **That the three edits are the right fix.** They are measured out of sample
+  and they help, and they leave 86% of the qualifying changes unfound. The class
+  that carries 35 of 44 misses has no rule at all yet.
+- **That a model would do better.** Measured now — see the model-pass amendment
+  below. It does, on precision and recall both, and it does worse on the one
+  thing this probe's whole methodology is built around: judging only the newly
+  added text. **That measurement is on corpus 2 only**, and the corpus-3 pass
+  above is a demonstration that a single held-out figure from this corpus family
+  does not have to hold: the rules' own F1 fell by half between the two. The
+  model's 0.61–0.71 has not been asked the same question.
 - **That severity is separable at all.** A benign deprecation notice and an
   injected routing instruction are the same shape in text. This probe labels
   *whether* text addresses the model, never whether it is hostile, and the

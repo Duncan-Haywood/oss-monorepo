@@ -16,18 +16,21 @@ name: mcp-drift-watch CI
 # What must not reach main unseen is this probe's headline finding, because it is
 # a negative one about a number that looks fine:
 #
-#   The shipped classifier flags 7.4% of description changes out of sample
-#   against 7.2% in sample — and its precision is 0.40 and its recall 0.24–0.29.
-#   The rate reproduced; the labels did not. The two errors run in opposite
-#   directions and nearly cancel in the count, which is why the count looked
-#   stable.
+#   Across three corpora the shipped classifier flags 7.2% / 7.4% / 5.4% of
+#   description changes, with precision 0.40 / 0.625 on the two that were
+#   scored and recall 0.24–0.29 / 0.10–0.11. Nothing replicated, and the rate
+#   is the figure that looked stable longest. The three rule edits the second
+#   corpus argued for are worth precision 0.40 → 1.00 in sample and
+#   0.625 → 0.778 out of it, ranked in the reverse order.
 #
 # Every figure printed in the subscriber record is re-derived here from
-# holdout-labels-2026-08-22.json rather than trusted, so a revised rate fails
-# this build instead of going stale in front of a buyer. The counterfactual the
-# README leans on — that retiring `secret_or_credential` would cost no true
-# positive — is asserted too, since it is the first thing a rules edit would
-# break.
+# holdout-labels-2026-08-22.json and holdout-labels-c3-2026-08-22.json rather
+# than trusted, so a revised rate fails this build instead of going stale in
+# front of a buyer. The counterfactual the README leans on — that retiring
+# `secret_or_credential` would cost no true positive — is asserted too, since it
+# is the first thing a rules edit would break. So is the claim that the two
+# held-out corpora share no package, which is what makes the second one a
+# second measurement rather than more of the first.
 #
 # The probe imports its classifier from portfolio/research/mcp-tool-drift/
 # rather than forking it, so a change there can invalidate every number here.
@@ -75,6 +78,12 @@ jobs:
       # network at all: this is the invocation the README documents, and it
       # exits non-zero if a hand label matches no change in the corpus.
       - run: python3 build_labels.py
+      # The same for the third corpus, which also re-scores the rule variants.
+      - run: python3 build_labels_c3.py
+      - run: python3 rule_variants.py --corpus results-holdout-c3-2026-08-22.json
+      # The model pass's score is a claim in the README too, and it is derived
+      # from a committed transcript rather than by calling a model here.
+      - run: python3 score_model_pass.py
       # The two fetching scripts are never run here, but an import or
       # argument-parsing break in them would otherwise be invisible to CI.
       - run: python3 collect_holdout.py --help

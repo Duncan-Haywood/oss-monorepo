@@ -23,6 +23,7 @@ from build_labels import ALERT, label_corpus, score  # noqa: E402
 from drift_watch import NPM_TARBALL, Pin, diff_pins  # noqa: E402
 from subscriber_record import (  # noqa: E402
     ACCURACY,
+    ACCURACY_C3,
     HELD_OUT_ALERTING_SHARE_PCT,
     IN_SAMPLE,
     accuracy_headline,
@@ -184,11 +185,28 @@ def test_record_separates_exact_observations_from_classified_ones():
 
 
 def test_headline_and_section_quote_the_same_numbers():
+    """The headline quotes the span across both held-out corpora, not one of them.
+
+    Quoting a single corpus in the headline and both in the table is how a
+    record ends up advertising its friendlier number, so the span is what has
+    to appear in each.
+    """
+    from subscriber_record import PRECISION_RANGE, RECALL_RANGE
+
     headline = accuracy_headline()
     section = accuracy_section()
-    for value in (f"{ACCURACY['precision']:.2f}", f"{ACCURACY['recall_range'][0]:.2f}"):
+    spans = (
+        f"{PRECISION_RANGE[0]:.2f}",
+        f"{PRECISION_RANGE[1]:.2f}",
+        f"{RECALL_RANGE[0]:.2f}",
+        f"{RECALL_RANGE[1]:.2f}",
+    )
+    for value in spans:
         assert value in headline
         assert value in section
+    # Each corpus's own figures still appear in the section's table.
+    for corpus in (ACCURACY, ACCURACY_C3):
+        assert f"{corpus['precision']:.2f}" in section
 
 
 def test_record_lists_alerts_before_quiet_changes():

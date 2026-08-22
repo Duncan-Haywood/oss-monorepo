@@ -1,0 +1,2642 @@
+{
+ "corpus": "results-holdout-c3-2026-08-22.json",
+ "changes_labelled": 148,
+ "rubric": "see build_labels.py -- fixed before counting, applied to added text only",
+ "rule_sets": {
+  "shipped": "portfolio/research/mcp-tool-drift/classify_drift.py, unmodified",
+  "variant": "rule_variants.py -- the three edits corpus 2 named, applied to the same engine"
+ },
+ "scores": {
+  "shipped": {
+   "borderline_counted_as_positive": {
+    "true_positives": 5,
+    "false_positives": 3,
+    "false_negatives": 44,
+    "true_negatives": 96,
+    "precision": 0.625,
+    "recall": 0.102,
+    "f1": 0.175
+   },
+   "borderline_counted_as_negative": {
+    "true_positives": 5,
+    "false_positives": 3,
+    "false_negatives": 41,
+    "true_negatives": 99,
+    "precision": 0.625,
+    "recall": 0.109,
+    "f1": 0.185
+   }
+  },
+  "variant": {
+   "borderline_counted_as_positive": {
+    "true_positives": 7,
+    "false_positives": 2,
+    "false_negatives": 42,
+    "true_negatives": 97,
+    "precision": 0.778,
+    "recall": 0.143,
+    "f1": 0.241
+   },
+   "borderline_counted_as_negative": {
+    "true_positives": 7,
+    "false_positives": 2,
+    "false_negatives": 39,
+    "true_negatives": 100,
+    "precision": 0.778,
+    "recall": 0.152,
+    "f1": 0.255
+   }
+  }
+ },
+ "precision_by_signal": {
+  "shipped": {
+   "imperative_priority": {
+    "flagged": 1,
+    "correct": 1,
+    "precision": 1.0
+   },
+   "tool_routing": {
+    "flagged": 7,
+    "correct": 5,
+    "precision": 0.714
+   },
+   "secret_or_credential": {
+    "flagged": 1,
+    "correct": 0,
+    "precision": 0.0
+   }
+  },
+  "variant": {
+   "imperative_priority": {
+    "flagged": 3,
+    "correct": 3,
+    "precision": 1.0
+   },
+   "tool_routing": {
+    "flagged": 7,
+    "correct": 5,
+    "precision": 0.714
+   }
+  }
+ },
+ "alerting_share_pct": {
+  "shipped": 5.4,
+  "variant": 6.1
+ },
+ "labels": [
+  {
+   "pkg": "autonomad-travel",
+   "tool": "register_agent",
+   "from": "1.0.0",
+   "to": "1.1.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(b) 'Only relevant for autonomous agents -- humans booking via Claude/ChatGPT do NOT need to call this.' A gate on whether the model should call the tool at all."
+  },
+  {
+   "pkg": "autonomad-travel",
+   "tool": "create_booking_intent",
+   "from": "1.1.0",
+   "to": "1.2.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(b) 'Call this AFTER showing search results to the user and they ...' -- an ordering directive. (The extractor truncates the description at its own 600-character cap; the directive is entirely inside the visible span.)"
+  },
+  {
+   "pkg": "autonomad-travel",
+   "tool": "search_dining",
+   "from": "1.2.0",
+   "to": "1.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "autonomad-travel",
+   "tool": "search_flights",
+   "from": "1.2.0",
+   "to": "1.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "autonomad-travel",
+   "tool": "search_hotels",
+   "from": "1.2.0",
+   "to": "1.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "autonomad-travel",
+   "tool": "search_transport",
+   "from": "1.2.0",
+   "to": "1.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "autonomad-travel",
+   "tool": "create_booking_intent",
+   "from": "1.3.2",
+   "to": "1.4.1",
+   "rules_bucket": "instruction-bearing",
+   "rules_signals": [
+    "imperative_priority",
+    "tool_routing"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(b) 'ALWAYS call this instead of trying to book directly through MCP' plus a new 'WHEN TO CALL -- two distinct triggers' block."
+  },
+  {
+   "pkg": "@clawfetch/mcp",
+   "tool": "check_domains",
+   "from": "0.2.2",
+   "to": "0.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@clawfetch/mcp",
+   "tool": "extract_data",
+   "from": "0.2.2",
+   "to": "0.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@clawfetch/mcp",
+   "tool": "render_page",
+   "from": "0.2.2",
+   "to": "0.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@clawfetch/mcp",
+   "tool": "research_topic",
+   "from": "0.2.2",
+   "to": "0.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@clawfetch/mcp",
+   "tool": "suggest_domains",
+   "from": "0.2.2",
+   "to": "0.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@clize/clize",
+   "tool": "clize_email_send",
+   "from": "0.1.0",
+   "to": "0.7.2",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": true,
+   "note": "(b) BORDERLINE. Chinese. Old: '\u7ed9\u771f\u5b9e\u5ba2\u6237\u56de\u590d\u524d\u5e94\u5148\u628a\u8349\u7a3f\u7ed9\u7528\u6237\u770b\u3001\u4eba\u786e\u8ba4' (*should* show the draft first). New: '\u52a1\u5fc5\u5148\u628a\u8349\u7a3f\u7ed9\u7528\u6237\u770b\u3001\u4eba\u786e\u8ba4\u540e\u518d confirm=true' (*must*). A directive that was already there got stronger, which is the reading corpus 2 gave `sonar_app_revenue`. Also the only instruction-bearing candidate in this corpus written in a language none of the five signal patterns can match."
+  },
+  {
+   "pkg": "@clize/clize",
+   "tool": "clize_domain_search",
+   "from": "0.7.2",
+   "to": "0.8.2",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@clize/clize",
+   "tool": "clize_claim",
+   "from": "0.8.2",
+   "to": "0.13.2",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@clize/clize",
+   "tool": "clize_deploy_site",
+   "from": "0.8.2",
+   "to": "0.13.2",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@clize/clize",
+   "tool": "clize_domain_buy",
+   "from": "0.8.2",
+   "to": "0.13.2",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@clize/clize",
+   "tool": "clize_status",
+   "from": "0.8.2",
+   "to": "0.13.2",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@clize/clize",
+   "tool": "clize_shop_orders",
+   "from": "0.17.0",
+   "to": "0.23.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@clize/clize",
+   "tool": "clize_shop_webhook",
+   "from": "0.17.0",
+   "to": "0.23.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@optimalai/optibot-mcp",
+   "tool": "check_auth",
+   "from": "1.1.0",
+   "to": "1.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@optimalai/optibot-mcp",
+   "tool": "login",
+   "from": "1.1.0",
+   "to": "1.3.1",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "run"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@i18n-agent/mcp-client",
+   "tool": "check_translation_status",
+   "from": "1.8.178",
+   "to": "1.8.279",
+   "rules_bucket": "instruction-bearing",
+   "rules_signals": [
+    "secret_or_credential"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false,
+   "note": "FALSE POSITIVE of the shipped rules. 'to reduce token usage when checking jobs with many languages' -- 'token' means units of text. The same word sense that produced corpus 2's `crawlio-browser` alert, on a different package in a different corpus."
+  },
+  {
+   "pkg": "@i18n-agent/mcp-client",
+   "tool": "check_translation_status",
+   "from": "1.8.385",
+   "to": "1.16.3",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(b) 'IMPORTANT: Always report the progress percentage to the user'. Caught by edit 3. The shipped rule misses it on the colon, not the em dash -- see the note in the write-up."
+  },
+  {
+   "pkg": "@i18n-agent/mcp-client",
+   "tool": "download_translations",
+   "from": "1.8.385",
+   "to": "1.16.3",
+   "rules_bucket": "schema-widening",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(b) 'IMPORTANT: After downloading, copy each {lang}.json file to the correct locale folder matching the source file structure'. Caught by edit 3."
+  },
+  {
+   "pkg": "@i18n-agent/mcp-client",
+   "tool": "get_credits",
+   "from": "1.8.385",
+   "to": "1.16.3",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@i18n-agent/mcp-client",
+   "tool": "translate_text",
+   "from": "1.8.385",
+   "to": "1.16.3",
+   "rules_bucket": "schema-widening",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": true,
+   "note": "(b) BORDERLINE. 'CRITICAL: If a previous translation job failed with ...' -- a new conditional instruction, but the old text already opened with 'CRITICAL:'. The marker is not new; the instruction under it is."
+  },
+  {
+   "pkg": "@ai-dossier/mcp-server",
+   "tool": "execute-dossier",
+   "from": "1.0.1",
+   "to": "1.0.4",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@ai-dossier/mcp-server",
+   "tool": "verify_dossier",
+   "from": "1.0.1",
+   "to": "1.0.4",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "check_dns_propagation",
+   "from": "1.0.0",
+   "to": "1.1.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "check_email_security",
+   "from": "1.0.0",
+   "to": "1.1.0",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "run"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "lookup_dns",
+   "from": "1.0.0",
+   "to": "1.1.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "scan_domain",
+   "from": "1.0.0",
+   "to": "1.1.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false,
+   "note": "'This is the default tool for agent-visible scan evidence' is a superlative about itself, naming no other tool -- corpus 2's reading of `meetlark_get_admin_view`."
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "validate_dnssec",
+   "from": "1.0.0",
+   "to": "1.1.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "get_everything_report",
+   "from": "1.1.0",
+   "to": "1.2.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "analyze_raw_email",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "rules_bucket": "instruction-bearing",
+   "rules_signals": [
+    "tool_routing"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'use create_email_test instead when the user can resend it.'"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "cancel_deep_scan",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "delete"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'Requires `scanId` returned by start_deep_scan. Use when ... polling get_deep_scan_status would otherwise time out.'"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "check_bimi",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "read"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "check_dmarc",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "fetch",
+    "read"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'use check_sender_requirements for combined Google/Yahoo SPF+DKIM+DMARC pass/fail verdict.' The pattern covers 'use x_y to|first|instead|before', not 'use x_y for'."
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "check_email_security",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "list",
+    "read"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'use check_sender_requirements specifically for ..., or the individual check_* tools when you need only one signal.'"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "check_mta_sts",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "read"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'pair with check_smtp_tls for live STARTTLS validation.'"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "check_sender_requirements",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "read"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'use check_email_security for the broader read of SPF/DKIM/DMARC alone.'"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "check_spf",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "read"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'use check_email_security for the broader SPF+DKIM+DMARC overview.'"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "check_tlsa_dane",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "read"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "create_report_snapshot",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "rules_bucket": "instruction-bearing",
+   "rules_signals": [
+    "tool_routing"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'use get_report_snapshot to read back. Use this instead of get_everything_report when the result must remain stable.'"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "discover_dkim",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "read"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'use check_email_security for combined SPF/DKIM/DMARC overview.'"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "explain_issue",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "read"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'Use after scan_domain when an agent needs to walk a user through *why* a finding matters; use generate_dns_fix for the actual DNS record snippet.'"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "get_citation_guidance",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "list"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(b)(a) 'Return canonical IntoDNS.ai citation guidance so assistants cite intodns.ai ... rather than the legacy intodns.com / intodns.app / intodns.io. Returns ... an explicit do-not-use list ... Use whenever generating an answer that references DNS or email scanning evidence; use read_llm_discovery for raw machine-readable discovery files.' Directed at the assistant, about what to cite -- the vendor-preference shape."
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "get_everything_report",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "read"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'use scan_domain for a faster default scan, or create_report_snapshot when the result must remain immutable for audit/ticket use.'"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "get_hall_of_fame",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "read"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "get_pdf_report_link",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'use get_badge_link for an embeddable SVG status badge instead, or create_report_snapshot for an immutable hashed evidence URL.'"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "get_report_snapshot",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'Requires `snapshotId` from create_report_snapshot. ... use get_everything_report for current live data instead.'"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "get_stats",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "read",
+    "run"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false,
+   "note": "'Use for status pages, embedded usage badges, or trust signals in marketing copy' -- use cases for the output, no tool named, no model behaviour set."
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "lookup_dns",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "read"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'use validate_dnssec for full DNSSEC chain validation, or check_dns_propagation for multi-resolver consensus.'"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "read_llm_discovery",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "fetch",
+    "list"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'use get_citation_guidance for a topic-narrowed citation list.'"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "scan_domain",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "list",
+    "read"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'use get_everything_report for a deeper single-shot report ..., or start_deep_scan for slower Internet.nl-grade analysis. After running, use explain_issue or generate_dns_fix on any returned issue.'"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "check_bimi",
+   "from": "1.7.1",
+   "to": "1.10.1",
+   "rules_bucket": "schema-widening",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "check_sender_requirements",
+   "from": "1.7.1",
+   "to": "1.10.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'use analyze_raw_email or create_email_test to verify message-level requirements.' Two new tool names; the pattern needs the verb adjacent."
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "check_tlsa_dane",
+   "from": "1.7.1",
+   "to": "1.10.1",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "fetch"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'pair it with check_smtp_tls for SMTP certificate evidence.'"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "discover_dkim",
+   "from": "1.7.1",
+   "to": "1.10.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false,
+   "note": "'use check_email_security for the broader SPF/DKIM/DMARC overview' is in both versions. Correctly not flagged -- the span-must-be-new rule working."
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "get_hall_of_fame",
+   "from": "1.7.1",
+   "to": "1.10.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'use scan_domain for current evidence because Hall of Fame data may be older.' `scan_domain` is new here; the old text named no tool."
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "get_stats",
+   "from": "1.7.1",
+   "to": "1.10.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'use get_hall_of_fame for top-scoring public domains.'"
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "aggregate",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "read"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "ask",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "read"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "bulk_assert",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "cleanup",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false,
+   "note": "'Side effects: DESTRUCTIVE -- permanently removes evicted and expired facts' is capability documentation. The one directive, 'Call periodically in long-running agent sessions', is in both versions. Representative of the 14 changes this package made in one release: every one adds a Side effects / Auth / Errors block."
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "context",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "delete_scope",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "forget",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "fork_scope",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "list_scopes",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "read"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "predicates",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "read"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "recall",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "read"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "retract_pattern",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "teach",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "tell",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false,
+   "note": "'Auth: requires X-Tenant-ID header; FACT_WRITE permission when auth is enabled' introduces credential *nouns* and directs nothing at a credential -- rubric (d) asks for the second. The shipped `secret_or_credential` rule does not fire here only because `auth(?:orization)? header` needs the word 'authorization' or 'auth' immediately before 'header', and this text writes 'X-Tenant-ID header'."
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "includeCode",
+   "from": "0.8.0",
+   "to": "0.9.11",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_create_escrow_v2",
+   "from": "0.8.0",
+   "to": "0.9.11",
+   "rules_bucket": "schema-widening",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_discover_agents",
+   "from": "0.8.0",
+   "to": "0.9.11",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "fetch",
+    "query",
+    "search"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false,
+   "note": "Nearest miss. 'Use this for targeted agent discovery before calling per-agent fetch tools' points at a category, not a named tool."
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_list_agents",
+   "from": "0.8.0",
+   "to": "0.9.11",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "query"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_list_all_agents",
+   "from": "0.8.0",
+   "to": "0.9.11",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "query",
+    "read"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_register_agent",
+   "from": "0.8.0",
+   "to": "0.9.11",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "run",
+    "write"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(b) 'Hosted accountless SAP MCP rejects this direct write before x402 payment; run it through a local SAP MCP profile or external signer.'"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_build_manage_record_transaction",
+   "from": "0.8.0",
+   "to": "0.9.11",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a)(b) 'In hosted mode, finalize the returned transaction locally with sap_payments_finalize_transaction.' That tool name is new; `sap_sign_transaction` in the same sentence was already there."
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_build_set_primary_domain_transaction",
+   "from": "0.8.0",
+   "to": "0.9.11",
+   "rules_bucket": "instruction-bearing",
+   "rules_signals": [
+    "tool_routing"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false,
+   "note": "FALSE POSITIVE of the shipped rules. 'Hosted accountless SAP MCP rejects this tool before x402 payment' matches `(?:this|use this) tool (?:first|before|instead)`. The sentence is availability documentation: the tool is unavailable, and nothing is routed anywhere."
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_register_agent_domain",
+   "from": "0.8.0",
+   "to": "0.9.11",
+   "rules_bucket": "instruction-bearing",
+   "rules_signals": [
+    "tool_routing"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false,
+   "note": "FALSE POSITIVE of the shipped rules, same span and same reason as the row above -- 'rejects this tool before x402 payment'. One sentence template, copied across two tools, produced two of the three false positives here."
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_x402_prepare_payment",
+   "from": "0.8.0",
+   "to": "0.9.11",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false,
+   "note": "The old text already said 'prefer Escrow V2 tools for new flows'; the new text says the same thing as 'New production escrow funding should use Escrow V2 fields'. Reworded, not new."
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_close_escrow_v2",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'Hosted users should call sap_escrow_build_close_transaction and finalize locally.'"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_create_escrow_v2",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'hosted users should call sap_escrow_build_create_transaction and finalize locally.'"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_deposit_escrow_v2",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'Hosted users should call sap_escrow_build_deposit_transaction and finalize locally.'"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_finalize_settlement_v2",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'Hosted users should call sap_escrow_build_finalize_transaction and finalize locally.'"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_get_agent",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "read"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false,
+   "note": "Nearest miss. 'Use this before paid discovery when the wallet is known' -- an ordering claim against an unnamed tool."
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_get_agent_profile",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "read"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false,
+   "note": "Nearest miss. 'Use this for a known agent before read-premium discovery or enrichment.'"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_get_agent_stats",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "read"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'Use after sap_get_agent or sap_get_agent_profile when stats are needed.'"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_get_global_state",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "read"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false,
+   "note": "Nearest miss. 'Use for initial orientation before paid network analytics.'"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_is_agent_active",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "read"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false,
+   "note": "Nearest miss. 'Use this before read-premium discovery when the wallet is known.'"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_list_agents",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "list",
+    "read"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_register_agent",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a)(b) 'Production registration must use sap_payments_register_agent so the local signer path confirms the account.'"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_settle_escrow_v2",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'Hosted users should call sap_escrow_build_settle_transaction and finalize locally.'"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_update_agent",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "write"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'hosted users should call sap_payments_update_agent from the local sap_payments bridge.'"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_withdraw_escrow_v2",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'Hosted users should call sap_escrow_build_withdraw_transaction and finalize locally.'"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_batch_check_domains",
+   "from": "0.9.61",
+   "to": "0.9.74",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "read"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_build_manage_record_transaction",
+   "from": "0.9.61",
+   "to": "0.9.74",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "publish",
+    "write"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_build_set_primary_domain_transaction",
+   "from": "0.9.61",
+   "to": "0.9.74",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "write"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_check_domain",
+   "from": "0.9.61",
+   "to": "0.9.74",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_check_ownership",
+   "from": "0.9.61",
+   "to": "0.9.74",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_get_domain_pda",
+   "from": "0.9.61",
+   "to": "0.9.74",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "read"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_get_domain_records",
+   "from": "0.9.61",
+   "to": "0.9.74",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_get_record",
+   "from": "0.9.61",
+   "to": "0.9.74",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_get_record_pda",
+   "from": "0.9.61",
+   "to": "0.9.74",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_register_agent_domain",
+   "from": "0.9.61",
+   "to": "0.9.74",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "publish",
+    "write"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(b) 'Use this tool only to receive the fail-fast status before any payment or signing attempt.' Same 'only use this when' shape corpus 2 scored positive on `naumu_search`."
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_resolve_domain",
+   "from": "0.9.61",
+   "to": "0.9.74",
+   "rules_bucket": "schema-widening",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(b) 'Agents should treat TXT/Pic/Url records as optional metadata and fall back to the wallet owner when no SOL record exists.' Addressed to the agent by name."
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_resolve_wallet",
+   "from": "0.9.61",
+   "to": "0.9.74",
+   "rules_bucket": "schema-widening",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "ponlo-ai",
+   "tool": "ponlo_tasks_list",
+   "from": "1.0.0",
+   "to": "1.3.0",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "search"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "ponlo-ai",
+   "tool": "ponlo_tasks_update",
+   "from": "1.3.0",
+   "to": "1.6.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "ponlo-ai",
+   "tool": "ponlo_ai_chat",
+   "from": "1.6.0",
+   "to": "1.10.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(c)(a) 'For updating or deleting specific items, prefer the structured tools (ponlo_calendar_delete_event, ponlo_tasks_update, etc.) as they are more reliable.' This is the mechanism edit 2 exists for, and edit 2 still misses it: the preference points at 'the structured tools' and the names follow in parentheses."
+  },
+  {
+   "pkg": "ponlo-ai",
+   "tool": "ponlo_calendar_update_event",
+   "from": "1.6.0",
+   "to": "1.10.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "ponlo-ai",
+   "tool": "ponlo_daily_briefing",
+   "from": "1.10.0",
+   "to": "1.13.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "ponlo-ai",
+   "tool": "ponlo_notes_update",
+   "from": "1.13.0",
+   "to": "1.15.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "ponlo-ai",
+   "tool": "ponlo_rewards_redeem",
+   "from": "1.13.0",
+   "to": "1.15.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@spideriq/mcp-publish",
+   "tool": "form_get_embed_snippet",
+   "from": "1.25.0",
+   "to": "1.35.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@variel/mcp-server",
+   "tool": "get_brand_tokens",
+   "from": "0.1.0",
+   "to": "0.2.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@variel/mcp-server",
+   "tool": "get_component",
+   "from": "0.1.0",
+   "to": "0.2.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@variel/mcp-server",
+   "tool": "list_components",
+   "from": "0.1.0",
+   "to": "0.2.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "verifox-mcp",
+   "tool": "find_email",
+   "from": "1.0.0",
+   "to": "1.1.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "verifox-mcp",
+   "tool": "verify_email",
+   "from": "1.0.0",
+   "to": "1.1.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "tool": "wpconvert_check_status",
+   "from": "0.1.0",
+   "to": "0.2.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'When done, you can call wpconvert_download_result and/or wpconvert_create_preview.'"
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "tool": "wpconvert_convert_folder",
+   "from": "0.1.0",
+   "to": "0.2.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(b)(a) 'retry with the exact idempotency_key returned by that prior call -- do not omit it and do not invent a new one. Do not reuse a key ... Once you have a jobId, poll wpconvert_check_status until ...' The `do not` signal covers use/mention/reveal/tell, not omit/invent/reuse."
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "tool": "wpconvert_download_result",
+   "from": "0.1.0",
+   "to": "0.2.0",
+   "rules_bucket": "instruction-bearing",
+   "rules_signals": [
+    "tool_routing"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'Optionally, use wpconvert_create_preview to view the theme in a live WordPress before/after downloading.'"
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "tool": "wpconvert_explain_failure",
+   "from": "0.1.0",
+   "to": "0.2.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false,
+   "note": "Names `wpconvert_convert_folder`, but describes what the failure explanation distinguishes rather than telling the model when to call it."
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "tool": "wpconvert_check_status",
+   "from": "0.2.0",
+   "to": "0.3.0",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "download"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": true,
+   "note": "(a) BORDERLINE. 'recommended_next (which tool to call next). When done and downloadable, recommended_next points to wpconvert_download_result; for preview-only jobs it points to wpconvert_create_preview instead.' Routing conveyed by describing a returned field rather than by instructing."
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "tool": "wpconvert_download_result",
+   "from": "0.2.0",
+   "to": "0.3.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a)(b) 'Only use when wpconvert_check_status shows download_available ... For preview-only jobs, use wpconvert_create_preview or upgrade and re-convert instead.'"
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "tool": "wpconvert_quota",
+   "from": "0.2.0",
+   "to": "0.3.0",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "download"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'Call this before wpconvert_convert_folder to understand what the next conversion will consume.'"
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "tool": "wpconvert_check_status",
+   "from": "0.3.0",
+   "to": "0.3.1",
+   "rules_bucket": "schema-widening",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "tool": "wpconvert_create_preview",
+   "from": "0.3.0",
+   "to": "0.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false,
+   "note": "'treat it as sensitive' is a directive, and it is in both versions -- only the expiry window changed (~30 minutes -> about ten minutes)."
+  },
+  {
+   "pkg": "devglow-mcp",
+   "tool": "check_port",
+   "from": "1.0.0",
+   "to": "1.1.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "devglow-mcp",
+   "tool": "create_project",
+   "from": "1.1.0",
+   "to": "1.1.4",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "devglow-mcp",
+   "tool": "run_process",
+   "from": "1.1.4",
+   "to": "1.3.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "devglow-mcp",
+   "tool": "start_project",
+   "from": "1.1.4",
+   "to": "1.3.0",
+   "rules_bucket": "instruction-bearing",
+   "rules_signals": [
+    "tool_routing"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(c)(a)(b) 'PREFER this over run_process: call list_projects first, and if a project for this path/command already exists, start it here instead of re-running it yourself.'"
+  },
+  {
+   "pkg": "todoglow-mcp",
+   "tool": "set_topic",
+   "from": "0.1.0",
+   "to": "0.9.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "todoglow-mcp",
+   "tool": "update_thread",
+   "from": "0.1.0",
+   "to": "0.9.0",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "update"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@faqai/mcp-server",
+   "tool": "upload_document",
+   "from": "0.3.0",
+   "to": "0.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@humanform/mcp",
+   "tool": "predict_measurement",
+   "from": "0.1.3",
+   "to": "0.1.4",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@odyssey365/mcp-server",
+   "tool": "complete_todo",
+   "from": "0.1.0",
+   "to": "0.1.4",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@odyssey365/mcp-server",
+   "tool": "update_todo",
+   "from": "0.1.0",
+   "to": "0.1.4",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@trustrails/mcp-server",
+   "tool": "get_product",
+   "from": "1.0.5",
+   "to": "1.0.9",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@trustrails/mcp-server",
+   "tool": "search_products",
+   "from": "1.0.5",
+   "to": "1.0.9",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@trustrails/mcp-server",
+   "tool": "search_products",
+   "from": "1.0.19",
+   "to": "1.0.23",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@drantoniou/uploadcheck-mcp",
+   "tool": "qc_estimate_cost",
+   "from": "0.1.0",
+   "to": "0.1.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  }
+ ],
+ "variant_buckets": [
+  {
+   "pkg": "autonomad-travel",
+   "tool": "register_agent",
+   "from": "1.0.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "autonomad-travel",
+   "tool": "create_booking_intent",
+   "from": "1.1.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "autonomad-travel",
+   "tool": "search_dining",
+   "from": "1.2.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "autonomad-travel",
+   "tool": "search_flights",
+   "from": "1.2.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "autonomad-travel",
+   "tool": "search_hotels",
+   "from": "1.2.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "autonomad-travel",
+   "tool": "search_transport",
+   "from": "1.2.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "autonomad-travel",
+   "tool": "create_booking_intent",
+   "from": "1.3.2",
+   "bucket": "instruction-bearing"
+  },
+  {
+   "pkg": "@clawfetch/mcp",
+   "tool": "check_domains",
+   "from": "0.2.2",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@clawfetch/mcp",
+   "tool": "extract_data",
+   "from": "0.2.2",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@clawfetch/mcp",
+   "tool": "render_page",
+   "from": "0.2.2",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@clawfetch/mcp",
+   "tool": "research_topic",
+   "from": "0.2.2",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@clawfetch/mcp",
+   "tool": "suggest_domains",
+   "from": "0.2.2",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@clize/clize",
+   "tool": "clize_email_send",
+   "from": "0.1.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@clize/clize",
+   "tool": "clize_domain_search",
+   "from": "0.7.2",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@clize/clize",
+   "tool": "clize_claim",
+   "from": "0.8.2",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@clize/clize",
+   "tool": "clize_deploy_site",
+   "from": "0.8.2",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@clize/clize",
+   "tool": "clize_domain_buy",
+   "from": "0.8.2",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@clize/clize",
+   "tool": "clize_status",
+   "from": "0.8.2",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@clize/clize",
+   "tool": "clize_shop_orders",
+   "from": "0.17.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@clize/clize",
+   "tool": "clize_shop_webhook",
+   "from": "0.17.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@optimalai/optibot-mcp",
+   "tool": "check_auth",
+   "from": "1.1.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@optimalai/optibot-mcp",
+   "tool": "login",
+   "from": "1.1.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "@i18n-agent/mcp-client",
+   "tool": "check_translation_status",
+   "from": "1.8.178",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "@i18n-agent/mcp-client",
+   "tool": "check_translation_status",
+   "from": "1.8.385",
+   "bucket": "instruction-bearing"
+  },
+  {
+   "pkg": "@i18n-agent/mcp-client",
+   "tool": "download_translations",
+   "from": "1.8.385",
+   "bucket": "instruction-bearing"
+  },
+  {
+   "pkg": "@i18n-agent/mcp-client",
+   "tool": "get_credits",
+   "from": "1.8.385",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@i18n-agent/mcp-client",
+   "tool": "translate_text",
+   "from": "1.8.385",
+   "bucket": "schema-widening"
+  },
+  {
+   "pkg": "@ai-dossier/mcp-server",
+   "tool": "execute-dossier",
+   "from": "1.0.1",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@ai-dossier/mcp-server",
+   "tool": "verify_dossier",
+   "from": "1.0.1",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "check_dns_propagation",
+   "from": "1.0.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "check_email_security",
+   "from": "1.0.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "lookup_dns",
+   "from": "1.0.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "scan_domain",
+   "from": "1.0.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "validate_dnssec",
+   "from": "1.0.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "get_everything_report",
+   "from": "1.1.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "analyze_raw_email",
+   "from": "1.2.0",
+   "bucket": "instruction-bearing"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "cancel_deep_scan",
+   "from": "1.2.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "check_bimi",
+   "from": "1.2.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "check_dmarc",
+   "from": "1.2.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "check_email_security",
+   "from": "1.2.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "check_mta_sts",
+   "from": "1.2.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "check_sender_requirements",
+   "from": "1.2.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "check_spf",
+   "from": "1.2.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "check_tlsa_dane",
+   "from": "1.2.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "create_report_snapshot",
+   "from": "1.2.0",
+   "bucket": "instruction-bearing"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "discover_dkim",
+   "from": "1.2.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "explain_issue",
+   "from": "1.2.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "get_citation_guidance",
+   "from": "1.2.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "get_everything_report",
+   "from": "1.2.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "get_hall_of_fame",
+   "from": "1.2.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "get_pdf_report_link",
+   "from": "1.2.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "get_report_snapshot",
+   "from": "1.2.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "get_stats",
+   "from": "1.2.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "lookup_dns",
+   "from": "1.2.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "read_llm_discovery",
+   "from": "1.2.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "scan_domain",
+   "from": "1.2.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "check_bimi",
+   "from": "1.7.1",
+   "bucket": "schema-widening"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "check_sender_requirements",
+   "from": "1.7.1",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "check_tlsa_dane",
+   "from": "1.7.1",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "discover_dkim",
+   "from": "1.7.1",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "get_hall_of_fame",
+   "from": "1.7.1",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "intodns-mcp",
+   "tool": "get_stats",
+   "from": "1.7.1",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "aggregate",
+   "from": "0.3.12",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "ask",
+   "from": "0.3.12",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "bulk_assert",
+   "from": "0.3.12",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "cleanup",
+   "from": "0.3.12",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "context",
+   "from": "0.3.12",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "delete_scope",
+   "from": "0.3.12",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "forget",
+   "from": "0.3.12",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "fork_scope",
+   "from": "0.3.12",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "list_scopes",
+   "from": "0.3.12",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "predicates",
+   "from": "0.3.12",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "recall",
+   "from": "0.3.12",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "retract_pattern",
+   "from": "0.3.12",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "teach",
+   "from": "0.3.12",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "tool": "tell",
+   "from": "0.3.12",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "includeCode",
+   "from": "0.8.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_create_escrow_v2",
+   "from": "0.8.0",
+   "bucket": "schema-widening"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_discover_agents",
+   "from": "0.8.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_list_agents",
+   "from": "0.8.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_list_all_agents",
+   "from": "0.8.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_register_agent",
+   "from": "0.8.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_build_manage_record_transaction",
+   "from": "0.8.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_build_set_primary_domain_transaction",
+   "from": "0.8.0",
+   "bucket": "instruction-bearing"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_register_agent_domain",
+   "from": "0.8.0",
+   "bucket": "instruction-bearing"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_x402_prepare_payment",
+   "from": "0.8.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_close_escrow_v2",
+   "from": "0.9.11",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_create_escrow_v2",
+   "from": "0.9.11",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_deposit_escrow_v2",
+   "from": "0.9.11",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_finalize_settlement_v2",
+   "from": "0.9.11",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_get_agent",
+   "from": "0.9.11",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_get_agent_profile",
+   "from": "0.9.11",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_get_agent_stats",
+   "from": "0.9.11",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_get_global_state",
+   "from": "0.9.11",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_is_agent_active",
+   "from": "0.9.11",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_list_agents",
+   "from": "0.9.11",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_register_agent",
+   "from": "0.9.11",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_settle_escrow_v2",
+   "from": "0.9.11",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_update_agent",
+   "from": "0.9.11",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_withdraw_escrow_v2",
+   "from": "0.9.11",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_batch_check_domains",
+   "from": "0.9.61",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_build_manage_record_transaction",
+   "from": "0.9.61",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_build_set_primary_domain_transaction",
+   "from": "0.9.61",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_check_domain",
+   "from": "0.9.61",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_check_ownership",
+   "from": "0.9.61",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_get_domain_pda",
+   "from": "0.9.61",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_get_domain_records",
+   "from": "0.9.61",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_get_record",
+   "from": "0.9.61",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_get_record_pda",
+   "from": "0.9.61",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_register_agent_domain",
+   "from": "0.9.61",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_resolve_domain",
+   "from": "0.9.61",
+   "bucket": "schema-widening"
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "tool": "sap_sns_resolve_wallet",
+   "from": "0.9.61",
+   "bucket": "schema-widening"
+  },
+  {
+   "pkg": "ponlo-ai",
+   "tool": "ponlo_tasks_list",
+   "from": "1.0.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "ponlo-ai",
+   "tool": "ponlo_tasks_update",
+   "from": "1.3.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "ponlo-ai",
+   "tool": "ponlo_ai_chat",
+   "from": "1.6.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "ponlo-ai",
+   "tool": "ponlo_calendar_update_event",
+   "from": "1.6.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "ponlo-ai",
+   "tool": "ponlo_daily_briefing",
+   "from": "1.10.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "ponlo-ai",
+   "tool": "ponlo_notes_update",
+   "from": "1.13.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "ponlo-ai",
+   "tool": "ponlo_rewards_redeem",
+   "from": "1.13.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@spideriq/mcp-publish",
+   "tool": "form_get_embed_snippet",
+   "from": "1.25.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@variel/mcp-server",
+   "tool": "get_brand_tokens",
+   "from": "0.1.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@variel/mcp-server",
+   "tool": "get_component",
+   "from": "0.1.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@variel/mcp-server",
+   "tool": "list_components",
+   "from": "0.1.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "verifox-mcp",
+   "tool": "find_email",
+   "from": "1.0.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "verifox-mcp",
+   "tool": "verify_email",
+   "from": "1.0.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "tool": "wpconvert_check_status",
+   "from": "0.1.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "tool": "wpconvert_convert_folder",
+   "from": "0.1.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "tool": "wpconvert_download_result",
+   "from": "0.1.0",
+   "bucket": "instruction-bearing"
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "tool": "wpconvert_explain_failure",
+   "from": "0.1.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "tool": "wpconvert_check_status",
+   "from": "0.2.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "tool": "wpconvert_download_result",
+   "from": "0.2.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "tool": "wpconvert_quota",
+   "from": "0.2.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "tool": "wpconvert_check_status",
+   "from": "0.3.0",
+   "bucket": "schema-widening"
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "tool": "wpconvert_create_preview",
+   "from": "0.3.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "devglow-mcp",
+   "tool": "check_port",
+   "from": "1.0.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "devglow-mcp",
+   "tool": "create_project",
+   "from": "1.1.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "devglow-mcp",
+   "tool": "run_process",
+   "from": "1.1.4",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "devglow-mcp",
+   "tool": "start_project",
+   "from": "1.1.4",
+   "bucket": "instruction-bearing"
+  },
+  {
+   "pkg": "todoglow-mcp",
+   "tool": "set_topic",
+   "from": "0.1.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "todoglow-mcp",
+   "tool": "update_thread",
+   "from": "0.1.0",
+   "bucket": "capability-change"
+  },
+  {
+   "pkg": "@faqai/mcp-server",
+   "tool": "upload_document",
+   "from": "0.3.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@humanform/mcp",
+   "tool": "predict_measurement",
+   "from": "0.1.3",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@odyssey365/mcp-server",
+   "tool": "complete_todo",
+   "from": "0.1.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@odyssey365/mcp-server",
+   "tool": "update_todo",
+   "from": "0.1.0",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@trustrails/mcp-server",
+   "tool": "get_product",
+   "from": "1.0.5",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@trustrails/mcp-server",
+   "tool": "search_products",
+   "from": "1.0.5",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@trustrails/mcp-server",
+   "tool": "search_products",
+   "from": "1.0.19",
+   "bucket": "cosmetic"
+  },
+  {
+   "pkg": "@drantoniou/uploadcheck-mcp",
+   "tool": "qc_estimate_cost",
+   "from": "0.1.0",
+   "bucket": "cosmetic"
+  }
+ ]
+}

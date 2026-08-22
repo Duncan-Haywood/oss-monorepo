@@ -1,0 +1,3343 @@
+{
+ "collected": "held-out corpus for the mcp-drift-watch classifier",
+ "selection": {
+  "excluded_by_rank": 40,
+  "excluded_by_name": [
+   "mcp-socialapi"
+  ],
+  "excluded_by_prior_corpus": [
+   "3dstreet-mcp",
+   "@adeu/mcp-server",
+   "@agenttrust/mcp-server",
+   "@autonomad1/computeback-mcp",
+   "@bluesprincemedia/thiri-mcp",
+   "@bolthub/mcp-registry",
+   "@buywhere/mcp-server",
+   "@callmcp/server",
+   "@circulara/plugin",
+   "@dinglebear/rgotify",
+   "@elfa-ai/mcp",
+   "@flydocs/cli",
+   "@gency-ai/gency-mcp",
+   "@hermitsh/texts-mcp",
+   "@htmldrop.app/mcp",
+   "@keenable/mcp",
+   "@mafdet/mcp",
+   "@meetlark/mcp-server",
+   "@monnet/mcp",
+   "@naumu/mcp",
+   "@picsha-ai/mcp-server",
+   "@primate-intelligence/mcp",
+   "@shiplightai/mcp",
+   "@sonarapp/mcp",
+   "@starreel/mcp",
+   "@synchronex/mcp-proxy",
+   "@takehub/mcp",
+   "@thrain/blackout-mcp",
+   "@thrain/spotlight-mcp",
+   "@traderouter/trade-router-mcp",
+   "@tuteliq/mcp",
+   "@unpaper/cli",
+   "@usestring/mcp",
+   "@vayacore/mcp",
+   "@vruum/mcp",
+   "@wavespeed/mcp",
+   "@withone/mcp",
+   "affiliate-networks-mcp",
+   "apick-mcp",
+   "bizmuse-mcp",
+   "buywhere-mcp",
+   "clelp-mcp-server",
+   "contextstudios-mcp",
+   "crawlio-browser",
+   "elicitly",
+   "facesign-mcp",
+   "justdrop-mcp",
+   "lawai-mcp-server",
+   "mcp-merchant",
+   "miromiro-mcp",
+   "positif-ai",
+   "pretrip-mcp",
+   "provably-fair-mcp",
+   "proxyllm-mcp",
+   "snowsure-mcp-server",
+   "spritecook-mcp",
+   "ssid-mcp",
+   "telbase",
+   "tokonomix-council-mcp",
+   "vertical-marketplace-mcp"
+  ],
+  "eligible": 103,
+  "taken": 103,
+  "dropped_by_limit": 0,
+  "excluded_from": [
+   "results-holdout-2026-08-22.json"
+  ]
+ },
+ "tuned_on": [
+  "@aetherwealth/mcp",
+  "@ankimcp/anki-mcp-server",
+  "@bolthub/mcp",
+  "@certscore/mcp",
+  "@fouradata/mcp",
+  "@kawacode/mcp",
+  "@perplexity-ai/mcp-server",
+  "@posteverywhere/mcp",
+  "@rolli/mcp",
+  "@scope-bid/scope-mcp",
+  "@shipeasy/mcp",
+  "@signal8ai/mcp",
+  "@trusty-squire/mcp",
+  "@voxell/forge-mcp",
+  "fodda-mcp",
+  "mcp-server-scf",
+  "mcp-socialapi",
+  "raven-mcp",
+  "tenjin-cli"
+ ],
+ "packages": [
+  {
+   "pkg": "@agentutility/mcp-agentops",
+   "server": "ai.agentutility/mcp-agentops",
+   "versions_seen": 4,
+   "pairs": 3,
+   "changes": 0
+  },
+  {
+   "pkg": "@agentutility/mcp-bestiary",
+   "server": "ai.agentutility/mcp-bestiary",
+   "versions_seen": 5,
+   "pairs": 4,
+   "changes": 0
+  },
+  {
+   "pkg": "@agentutility/mcp-browser-workflow",
+   "server": "ai.agentutility/mcp-browser-workflow",
+   "versions_seen": 3,
+   "pairs": 2,
+   "changes": 0
+  },
+  {
+   "pkg": "@agentutility/mcp-compose",
+   "server": "ai.agentutility/mcp-compose",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "@agentutility/mcp-edge-finance",
+   "server": "ai.agentutility/mcp-edge-finance",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "@agentutility/mcp-edge-market",
+   "server": "ai.agentutility/mcp-edge-market",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "@agentutility/mcp-locale",
+   "server": "ai.agentutility/mcp-locale",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "@agentutility/mcp-matchpoint",
+   "server": "ai.agentutility/mcp-matchpoint",
+   "versions_seen": 4,
+   "pairs": 3,
+   "changes": 0
+  },
+  {
+   "pkg": "@agentutility/mcp-mediakit",
+   "server": "ai.agentutility/mcp-mediakit",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "@agentutility/mcp-model-router",
+   "server": "ai.agentutility/mcp-model-router",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "@agentutility/mcp-prooflayer",
+   "server": "ai.agentutility/mcp-prooflayer",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "@agentutility/mcp-retail",
+   "server": "ai.agentutility/mcp-retail",
+   "versions_seen": 5,
+   "pairs": 4,
+   "changes": 0
+  },
+  {
+   "pkg": "@agentutility/mcp-rollforge",
+   "server": "ai.agentutility/mcp-rollforge",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "@agentutility/mcp-statline",
+   "server": "ai.agentutility/mcp-statline",
+   "versions_seen": 5,
+   "pairs": 4,
+   "changes": 0
+  },
+  {
+   "pkg": "@agentutility/mcp-synthforge",
+   "server": "ai.agentutility/mcp-synthforge",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "@agentutility/mcp-web-probe",
+   "server": "ai.agentutility/mcp-web-probe",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "@agentutility/mcp-wordmint",
+   "server": "ai.agentutility/mcp-wordmint",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "@contextlayer/mcp",
+   "server": "ai.autoblocks/contextlayer-mcp",
+   "versions_seen": 3,
+   "pairs": 2,
+   "changes": 0
+  },
+  {
+   "pkg": "ctxl",
+   "server": "ai.autoblocks/ctxl",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 0
+  },
+  {
+   "pkg": "ctxl-mcp",
+   "server": "ai.autoblocks/ctxl-mcp",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 0
+  },
+  {
+   "pkg": "autonomad-travel",
+   "server": "ai.autonomad/travel",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 7
+  },
+  {
+   "pkg": "@clawfetch/mcp",
+   "server": "ai.clawfetch/mcp",
+   "versions_seen": 4,
+   "pairs": 3,
+   "changes": 5
+  },
+  {
+   "pkg": "@clize/clize",
+   "server": "ai.clize/clize",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 8
+  },
+  {
+   "pkg": "@cueapi/mcp",
+   "server": "ai.cueapi/mcp",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "@demomagic/mcp",
+   "server": "ai.demomagic/interactive-video-guide",
+   "versions_seen": 1,
+   "pairs": 0,
+   "changes": 0
+  },
+  {
+   "pkg": "apprise-rmcp",
+   "server": "ai.dinglebear/apprise-rmcp",
+   "versions_seen": 0,
+   "pairs": 0,
+   "changes": 0
+  },
+  {
+   "pkg": "arcane-rmcp",
+   "server": "ai.dinglebear/arcane-rmcp",
+   "versions_seen": 0,
+   "pairs": 0,
+   "changes": 0
+  },
+  {
+   "pkg": "cortex-rmcp",
+   "server": "ai.dinglebear/cortex-rmcp",
+   "versions_seen": 0,
+   "pairs": 0,
+   "changes": 0
+  },
+  {
+   "pkg": "gotify-rmcp",
+   "server": "ai.dinglebear/gotify-rmcp",
+   "versions_seen": 0,
+   "pairs": 0,
+   "changes": 0
+  },
+  {
+   "pkg": "@dinglebear/rapprise",
+   "server": "ai.dinglebear/rapprise",
+   "versions_seen": 4,
+   "pairs": 3,
+   "changes": 0
+  },
+  {
+   "pkg": "@dinglebear/rarcane",
+   "server": "ai.dinglebear/rarcane",
+   "versions_seen": 1,
+   "pairs": 0,
+   "changes": 0
+  },
+  {
+   "pkg": "@dinglebear/rtailscale",
+   "server": "ai.dinglebear/rtailscale",
+   "versions_seen": 1,
+   "pairs": 0,
+   "changes": 0
+  },
+  {
+   "pkg": "@dinglebear/runifi",
+   "server": "ai.dinglebear/runifi",
+   "versions_seen": 1,
+   "pairs": 0,
+   "changes": 0
+  },
+  {
+   "pkg": "@dinglebear/rytdl",
+   "server": "ai.dinglebear/rytdl",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 0
+  },
+  {
+   "pkg": "@dinglebear/synapse",
+   "server": "ai.dinglebear/synapse",
+   "versions_seen": 1,
+   "pairs": 0,
+   "changes": 0
+  },
+  {
+   "pkg": "synapse-rmcp",
+   "server": "ai.dinglebear/synapse-rmcp",
+   "versions_seen": 0,
+   "pairs": 0,
+   "changes": 0
+  },
+  {
+   "pkg": "tailscale-rmcp",
+   "server": "ai.dinglebear/tailscale-rmcp",
+   "versions_seen": 0,
+   "pairs": 0,
+   "changes": 0
+  },
+  {
+   "pkg": "unifi-rmcp",
+   "server": "ai.dinglebear/unifi-rmcp",
+   "versions_seen": 0,
+   "pairs": 0,
+   "changes": 0
+  },
+  {
+   "pkg": "@dinglebear/unraid",
+   "server": "ai.dinglebear/unraid",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 0
+  },
+  {
+   "pkg": "unraid-rmcp",
+   "server": "ai.dinglebear/unraid-rmcp",
+   "versions_seen": 0,
+   "pairs": 0,
+   "changes": 0
+  },
+  {
+   "pkg": "@dinglebear/yarr",
+   "server": "ai.dinglebear/yarr",
+   "versions_seen": 1,
+   "pairs": 0,
+   "changes": 0
+  },
+  {
+   "pkg": "yarr-mcp",
+   "server": "ai.dinglebear/yarr-mcp",
+   "versions_seen": 0,
+   "pairs": 0,
+   "changes": 0
+  },
+  {
+   "pkg": "ytdl-rmcp",
+   "server": "ai.dinglebear/ytdl-rmcp",
+   "versions_seen": 0,
+   "pairs": 0,
+   "changes": 0
+  },
+  {
+   "pkg": "eonik-mcp",
+   "server": "ai.eonik/mcp",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 0
+  },
+  {
+   "pkg": "@optimalai/optibot-mcp",
+   "server": "ai.getoptimal/optibot",
+   "versions_seen": 5,
+   "pairs": 4,
+   "changes": 2
+  },
+  {
+   "pkg": "@getvetai/mcp",
+   "server": "ai.getvet/vet",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "@i18n-agent/mcp-client",
+   "server": "ai.i18nagent/i18n-agent",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 5
+  },
+  {
+   "pkg": "@ai-dossier/mcp-server",
+   "server": "ai.imboard/dossier",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 2
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 33
+  },
+  {
+   "pkg": "kavel-mcp",
+   "server": "ai.kavel/kavel-mcp",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 0
+  },
+  {
+   "pkg": "lithtrix-mcp",
+   "server": "ai.lithtrix/lithtrix-mcp",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "@llmintel/mcp",
+   "server": "ai.llmintel/llmintel",
+   "versions_seen": 3,
+   "pairs": 2,
+   "changes": 0
+  },
+  {
+   "pkg": "@marchward/mcp-server",
+   "server": "ai.marchward/mcp-server",
+   "versions_seen": 3,
+   "pairs": 2,
+   "changes": 0
+  },
+  {
+   "pkg": "marketintell",
+   "server": "ai.marketintell/marketintell",
+   "versions_seen": 0,
+   "pairs": 0,
+   "changes": 0
+  },
+  {
+   "pkg": "@matihlabs/mcp",
+   "server": "ai.matih/mcp",
+   "versions_seen": 5,
+   "pairs": 4,
+   "changes": 0
+  },
+  {
+   "pkg": "mentu-navigator",
+   "server": "ai.mentu/navigator",
+   "versions_seen": 5,
+   "pairs": 4,
+   "changes": 0
+  },
+  {
+   "pkg": "midplane",
+   "server": "ai.midplane/midplane",
+   "versions_seen": 1,
+   "pairs": 0,
+   "changes": 0
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "server": "ai.nocturnus/logic-server",
+   "versions_seen": 3,
+   "pairs": 2,
+   "changes": 14
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 36
+  },
+  {
+   "pkg": "@ordercore/mcp",
+   "server": "ai.ordercore/ordercore-mcp",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 0
+  },
+  {
+   "pkg": "@payments-ai/mcp",
+   "server": "ai.payments.managed/payments-ai-mcp",
+   "versions_seen": 5,
+   "pairs": 4,
+   "changes": 0
+  },
+  {
+   "pkg": "ponlo-ai",
+   "server": "ai.ponlo/server",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 7
+  },
+  {
+   "pkg": "popdot-mcp",
+   "server": "ai.popdot/popdot-mcp",
+   "versions_seen": 3,
+   "pairs": 2,
+   "changes": 0
+  },
+  {
+   "pkg": "@proofslip/mcp-server",
+   "server": "ai.proofslip/mcp-server",
+   "versions_seen": 5,
+   "pairs": 4,
+   "changes": 0
+  },
+  {
+   "pkg": "@rapay/mcp-server",
+   "server": "ai.rapay/mcp-server",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "sentfromai-mcp",
+   "server": "ai.sentfrom/mcp",
+   "versions_seen": 1,
+   "pairs": 0,
+   "changes": 0
+  },
+  {
+   "pkg": "sentvia-mcp",
+   "server": "ai.sentvia/mcp",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 0
+  },
+  {
+   "pkg": "@shippp/mcp",
+   "server": "ai.shippp/mcp",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 0
+  },
+  {
+   "pkg": "@corralimited/snapdiff-mcp",
+   "server": "ai.snapdiff/mcp",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "spiderbrain",
+   "server": "ai.spiderbrain/spiderbrain",
+   "versions_seen": 4,
+   "pairs": 3,
+   "changes": 0
+  },
+  {
+   "pkg": "@spideriq/mcp-gate",
+   "server": "ai.spideriq/gate",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 0
+  },
+  {
+   "pkg": "@spideriq/mcp-leads",
+   "server": "ai.spideriq/leads",
+   "versions_seen": 1,
+   "pairs": 0,
+   "changes": 0
+  },
+  {
+   "pkg": "@spideriq/mcp-mail",
+   "server": "ai.spideriq/mail",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 0
+  },
+  {
+   "pkg": "@spideriq/mcp-media",
+   "server": "ai.spideriq/media",
+   "versions_seen": 1,
+   "pairs": 0,
+   "changes": 0
+  },
+  {
+   "pkg": "@spideriq/mcp-publish",
+   "server": "ai.spideriq/publish",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 1
+  },
+  {
+   "pkg": "@toolprint/hypertool-mcp",
+   "server": "ai.toolprint/hypertool-mcp",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "@tradesearcher/mcp-server",
+   "server": "ai.tradesearcher/mcp-server",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 0
+  },
+  {
+   "pkg": "@vantic/sdk",
+   "server": "ai.vanticlabs/vantic",
+   "versions_seen": 3,
+   "pairs": 2,
+   "changes": 0
+  },
+  {
+   "pkg": "@variel/mcp-server",
+   "server": "ai.variel/mcp-server",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 3
+  },
+  {
+   "pkg": "verifox-mcp",
+   "server": "ai.verifox/email-verifier",
+   "versions_seen": 5,
+   "pairs": 4,
+   "changes": 2
+  },
+  {
+   "pkg": "@voris-ai/mcp",
+   "server": "ai.voris.mcp/server",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 0
+  },
+  {
+   "pkg": "voxplo-mcp",
+   "server": "ai.voxplo/voxplo",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 0
+  },
+  {
+   "pkg": "@webuplink/mcp",
+   "server": "ai.webuplink/mcp",
+   "versions_seen": 3,
+   "pairs": 2,
+   "changes": 0
+  },
+  {
+   "pkg": "@wildcard-ai/deepcontext",
+   "server": "ai.wild-card/deepcontext",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "server": "ai.wpconvert/mcp",
+   "versions_seen": 4,
+   "pairs": 3,
+   "changes": 9
+  },
+  {
+   "pkg": "@businys/mcp-server",
+   "server": "app.businys/mcp-server",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 0
+  },
+  {
+   "pkg": "cellarion-mcp",
+   "server": "app.cellarion/cellarion",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 0
+  },
+  {
+   "pkg": "cloudmindmaps-mcp",
+   "server": "app.cloudmindmaps/mindmaps",
+   "versions_seen": 1,
+   "pairs": 0,
+   "changes": 0
+  },
+  {
+   "pkg": "devglow-mcp",
+   "server": "app.devglow/devglow",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 4
+  },
+  {
+   "pkg": "noglow-mcp",
+   "server": "app.devglow/noglow",
+   "versions_seen": 3,
+   "pairs": 2,
+   "changes": 0
+  },
+  {
+   "pkg": "todoglow-mcp",
+   "server": "app.devglow/todoglow",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 2
+  },
+  {
+   "pkg": "@faqai/mcp-server",
+   "server": "app.faqai/mcp-server",
+   "versions_seen": 5,
+   "pairs": 4,
+   "changes": 1
+  },
+  {
+   "pkg": "@formatika/mcp",
+   "server": "app.formatika/mcp",
+   "versions_seen": 3,
+   "pairs": 2,
+   "changes": 0
+  },
+  {
+   "pkg": "@humanform/mcp",
+   "server": "app.humanform/mcp",
+   "versions_seen": 5,
+   "pairs": 4,
+   "changes": 1
+  },
+  {
+   "pkg": "icemoon-mcp",
+   "server": "app.icemoon/automation-studio",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 0
+  },
+  {
+   "pkg": "@odyssey365/mcp-server",
+   "server": "app.odyssey365/mcp-server",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 2
+  },
+  {
+   "pkg": "@percher/mcp",
+   "server": "app.percher/percher",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "@borough/mcp",
+   "server": "app.qwady/borough",
+   "versions_seen": 4,
+   "pairs": 3,
+   "changes": 0
+  },
+  {
+   "pkg": "@scanbim-labs/scanbim-mcp",
+   "server": "app.scanbim/scanbim-mcp",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 0
+  },
+  {
+   "pkg": "@calx/selis-mcp",
+   "server": "app.selis.mcp/pmo",
+   "versions_seen": 4,
+   "pairs": 3,
+   "changes": 0
+  },
+  {
+   "pkg": "@trustrails/mcp-server",
+   "server": "app.trustrails/server",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 3
+  },
+  {
+   "pkg": "@undisk-mcp/stdio-proxy",
+   "server": "app.undisk.mcp/stdio-proxy",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "@drantoniou/uploadcheck-mcp",
+   "server": "app.uploadcheck/uploadcheck",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 1
+  }
+ ],
+ "totals": {
+  "packages_attempted": 103,
+  "packages_with_changes": 21,
+  "version_pairs": 268,
+  "description_changes": 148
+ },
+ "changes": [
+  {
+   "pkg": "autonomad-travel",
+   "server": "ai.autonomad/travel",
+   "tool": "register_agent",
+   "from": "1.0.0",
+   "to": "1.1.0",
+   "t": "2026-05-07",
+   "old": "Register as an Autonomad agent to get a DID (decentralized ID), wallet, and start earning $NOMD Computeback Rewards. Must be called before booking.",
+   "new": "Register as an Autonomad agent to get a DID (decentralized ID), wallet, and start earning $NOMD Computeback Rewards. Only relevant for autonomous agents \u2014 humans booking via Claude/ChatGPT do NOT need to call this.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Only relevant for autonomous agents \u2014 humans booking via Claude/ChatGPT do NOT need to call this."
+   }
+  },
+  {
+   "pkg": "autonomad-travel",
+   "server": "ai.autonomad/travel",
+   "tool": "create_booking_intent",
+   "from": "1.1.0",
+   "to": "1.2.0",
+   "t": "2026-05-08",
+   "old": "Create a booking intent \u2014 returns a deep-link the user clicks to complete the booking on autonomad.ai. Use this when the user has chosen a specific search result (hotel/flight/activity/etc.) and wants to book. The first booking they complete unlocks a 1-month free Autonomad Premium trial automatically. ALWAYS call this instead of trying to book directly through MCP \u2014 bookings require payment + identity verification that must happen on the web.",
+   "new": "Create a booking intent \u2014 returns a deep-link the user clicks to complete the booking on autonomad.ai. Call this AFTER showing search results to the user and they",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Call this AFTER showing search results to the user and they"
+   }
+  },
+  {
+   "pkg": "autonomad-travel",
+   "server": "ai.autonomad/travel",
+   "tool": "search_dining",
+   "from": "1.2.0",
+   "to": "1.3.1",
+   "t": "2026-05-08",
+   "old": "Search restaurant availability by city, date, time, cuisine, and party size. Returns options only \u2014 actual reservation happens via create_booking_intent. Dining partnerships are in progress; surfaces restaurant availability today, full reservation flow in the next release.",
+   "new": "Search restaurants, dining options, and reservation availability by city, date, time, cuisine, party size, neighborhood, and price range. Use this when the user wants to find a restaurant, book dinner, plan a meal, get reservations, or pick a place to eat on a trip. Dining partnerships are in progress; surfaces availability today, full reservation flow in the next release.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Search restaurants, dining options, and reservation availability by city, date, time, cuisine, party size, neighborhood, and price range. Use this when the user wants to find a restaurant, book dinner, plan a meal, get reservations, or pick a place to eat on a trip. surfaces availability today, full reservation flow in the next release."
+   }
+  },
+  {
+   "pkg": "autonomad-travel",
+   "server": "ai.autonomad/travel",
+   "tool": "search_flights",
+   "from": "1.2.0",
+   "to": "1.3.1",
+   "t": "2026-05-08",
+   "old": "Search for flights between airports by date, cabin class, and passengers. Returns available flights with pricing from multiple airlines. Uses IATA airport codes (e.g., MIA, JFK, LAX).",
+   "new": "Search airline flights / airfares between two cities by date, cabin class (economy / premium economy / business / first), and number of passengers. Returns available flights from 800+ airlines (Duffel) with real-time pricing, schedules, and stops. Uses IATA airport codes (e.g., MIA, JFK, LAX, LHR). Use this when the user wants to book a flight, fly somewhere, find airfare, or compare airlines.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Search airline flights / airfares between two cities by date, cabin class (economy / premium economy / business / first), and number of passengers. Returns available flights from 800+ airlines (Duffel) with real-time pricing, schedules, and stops. Uses IATA airport codes (e.g., MIA, JFK, LAX, LHR). Use this when the user wants to book a flight, fly somewhere, find airfare, or compare airlines."
+   }
+  },
+  {
+   "pkg": "autonomad-travel",
+   "server": "ai.autonomad/travel",
+   "tool": "search_hotels",
+   "from": "1.2.0",
+   "to": "1.3.1",
+   "t": "2026-05-08",
+   "old": "Search for available hotels by city, country, dates, room type, price range, and amenities. Returns matching properties with availability and rates.",
+   "new": "Search hotels, lodging, accommodations, resorts, and places to stay for a trip. Filter by city, country, check-in/check-out dates, room type, nightly price, star rating, and amenities (pool, gym, wifi, etc.). Returns matching properties with rates, photos, and availability across 2M+ properties (LiteAPI). Use this when the user wants to book a hotel, find a place to stay, compare lodging options, or pick a resort.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Search hotels, lodging, accommodations, resorts, and places to stay for a trip. Filter by city, country, check-in/check-out dates, room type, nightly price, star rating, and amenities (pool, gym, wifi, etc.). Returns matching properties with rates, photos, and availability across 2M+ properties (LiteAPI). Use this when the user wants to book a hotel, find a place to stay, compare lodging options, "
+   }
+  },
+  {
+   "pkg": "autonomad-travel",
+   "server": "ai.autonomad/travel",
+   "tool": "search_transport",
+   "from": "1.2.0",
+   "to": "1.3.1",
+   "t": "2026-05-08",
+   "old": "Search ground transportation options: rideshare quotes and car rental availability. Returns options only \u2014 actual booking happens via create_booking_intent. Rideshare partnerships are in progress; car rental is live across 15+ US metro areas. Timed to your flight arrival for seamless door-to-door travel.",
+   "new": "Search ground transportation, car rentals, and rideshare options (Uber, Lyft, rental cars from Hertz / Enterprise / Sixt / Avis). Returns options timed to a flight arrival for door-to-door travel. Car rental is live across 15+ US metro areas; rideshare partnerships are in progress. Use this when the user wants a rental car, an airport transfer, or rideshare to/from their hotel.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Search ground transportation, car rentals, and rideshare options (Uber, Lyft, rental cars from Hertz / Enterprise / Sixt / Avis). Returns options timed to a flight arrival for door-to-door travel. Use this when the user wants a rental car, an airport transfer, or rideshare to/from their hotel."
+   }
+  },
+  {
+   "pkg": "autonomad-travel",
+   "server": "ai.autonomad/travel",
+   "tool": "create_booking_intent",
+   "from": "1.3.2",
+   "to": "1.4.1",
+   "t": "2026-06-05",
+   "old": "Create a booking intent \u2014 returns a deep-link the user clicks to complete the booking on autonomad.ai. Call this AFTER showing search results to the user and they",
+   "new": "Create a booking intent \u2014 returns a deep-link the user clicks to complete the booking on autonomad.ai. The first booking they complete unlocks a 1-month free Autonomad Premium trial automatically. ALWAYS call this instead of trying to book directly through MCP \u2014 bookings require payment + identity verification that must happen on the web. \\n\\nWHEN TO CALL \u2014 two distinct triggers:\\n  (a) PICK intents (flight / hotel / activity / event / transport / trip): call AFTER the user has chosen a specific offer.\\n  (b) BROWSE intent (",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "imperative_priority",
+     "tool_routing"
+    ],
+    "evidence": [
+     "ALWAYS call",
+     "instead of trying"
+    ],
+    "added": "The first booking they complete unlocks a 1-month free Autonomad Premium trial automatically. ALWAYS call this instead of trying to book directly through MCP \u2014 bookings require payment + identity verification that must happen on the web. \\n\\nWHEN TO CALL \u2014 two distinct triggers:\\n  (a) PICK intents (flight / hotel / activity / event / transport / trip): call AFTER the user has chosen a specific of"
+   }
+  },
+  {
+   "pkg": "@clawfetch/mcp",
+   "server": "ai.clawfetch/mcp",
+   "tool": "check_domains",
+   "from": "0.2.2",
+   "to": "0.3.1",
+   "t": "2026-08-06",
+   "old": "Check if one or more domain names are available for registration. Cost: $0.002 per request.",
+   "new": "Check if one or more domain names are available for registration. Cost: $0.008 per request.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Cost: $0.008 per request."
+   }
+  },
+  {
+   "pkg": "@clawfetch/mcp",
+   "server": "ai.clawfetch/mcp",
+   "tool": "extract_data",
+   "from": "0.2.2",
+   "to": "0.3.1",
+   "t": "2026-08-06",
+   "old": "Extract structured data from a URL using a specialized extractor. Supports 17+ site types including GitHub repos/profiles, npm packages, Twitter/X profiles, LinkedIn, YouTube, Product Hunt, Hacker News, Reddit, and more. Cost: $0.003 per request.",
+   "new": "Extract structured data from a URL using a specialized extractor. Supports 17+ site types including GitHub repos/profiles, npm packages, Twitter/X profiles, LinkedIn, YouTube, Product Hunt, Hacker News, Reddit, and more. Cost: $0.008 per request.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Cost: $0.008 per request."
+   }
+  },
+  {
+   "pkg": "@clawfetch/mcp",
+   "server": "ai.clawfetch/mcp",
+   "tool": "render_page",
+   "from": "0.2.2",
+   "to": "0.3.1",
+   "t": "2026-08-06",
+   "old": "Render a JavaScript-heavy page using a stealth browser and return clean markdown. Use for SPAs, React/Vue/Angular apps, pages behind JS rendering. Cost: $0.002 per request.",
+   "new": "Render a JavaScript-heavy page using a stealth browser and return clean markdown. Use for SPAs, React/Vue/Angular apps, pages behind JS rendering. Cost: $0.005 per request.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Cost: $0.005 per request."
+   }
+  },
+  {
+   "pkg": "@clawfetch/mcp",
+   "server": "ai.clawfetch/mcp",
+   "tool": "research_topic",
+   "from": "0.2.2",
+   "to": "0.3.1",
+   "t": "2026-08-06",
+   "old": "Research a topic using multiple sources. Returns a summary with cited sources. Great for market research, competitive analysis, fact-checking, and current events. Cost: $0.01 per request.",
+   "new": "Research a topic using multiple sources. Returns a summary with cited sources. Great for market research, competitive analysis, fact-checking, and current events. Cost: $0.02 per request.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Cost: $0.02 per request."
+   }
+  },
+  {
+   "pkg": "@clawfetch/mcp",
+   "server": "ai.clawfetch/mcp",
+   "tool": "suggest_domains",
+   "from": "0.2.2",
+   "to": "0.3.1",
+   "t": "2026-08-06",
+   "old": "Generate available domain name suggestions based on a keyword or concept. Cost: $0.002 per request.",
+   "new": "Generate available domain name suggestions based on a keyword or concept. Cost: $0.008 per request.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Cost: $0.008 per request."
+   }
+  },
+  {
+   "pkg": "@clize/clize",
+   "server": "ai.clize/clize",
+   "tool": "clize_email_send",
+   "from": "0.1.0",
+   "to": "0.7.2",
+   "t": "2026-06-06",
+   "old": "\u53d1\u4fe1(\ud83d\udce8 \u8eab\u4efd\u5bf9\u5916:\u7ed9\u771f\u5b9e\u5ba2\u6237\u56de\u590d\u524d\u5e94\u5148\u628a\u8349\u7a3f\u7ed9\u7528\u6237\u770b\u3001\u4eba\u786e\u8ba4)",
+   "new": "\u53d1\u4fe1(\ud83d\udce8 \u786c\u95f8:confirm \u7f3a\u7701\u53ea\u8fd4\u56de\u8349\u7a3f;\u52a1\u5fc5\u5148\u628a\u8349\u7a3f\u7ed9\u7528\u6237\u770b\u3001\u4eba\u786e\u8ba4\u540e\u518d confirm=true)",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "\u53d1\u4fe1(\ud83d\udce8 \u786c\u95f8:confirm \u7f3a\u7701\u53ea\u8fd4\u56de\u8349\u7a3f;\u52a1\u5fc5\u5148\u628a\u8349\u7a3f\u7ed9\u7528\u6237\u770b\u3001\u4eba\u786e\u8ba4\u540e\u518d confirm=true)"
+   }
+  },
+  {
+   "pkg": "@clize/clize",
+   "server": "ai.clize/clize",
+   "tool": "clize_domain_search",
+   "from": "0.7.2",
+   "to": "0.8.2",
+   "t": "2026-06-07",
+   "old": "\u67e5\u57df\u540d\u53ef\u6ce8\u518c\u6027 + \u4ef7(query \u542b\u70b9\u89c6\u4e3a\u5b8c\u6574\u57df\u540d,\u5426\u5219\u914d tld)",
+   "new": "\u67e5\u57df\u540d\u53ef\u6ce8\u518c\u6027 + \u4ef7(query \u53ef\u591a\u4e2a;\u542b\u70b9\u89c6\u4e3a\u5b8c\u6574\u57df\u540d,\u5426\u5219\u914d tld)",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "\u67e5\u57df\u540d\u53ef\u6ce8\u518c\u6027 + \u4ef7(query \u53ef\u591a\u4e2a;\u542b\u70b9\u89c6\u4e3a\u5b8c\u6574\u57df\u540d,\u5426\u5219\u914d tld)"
+   }
+  },
+  {
+   "pkg": "@clize/clize",
+   "server": "ai.clize/clize",
+   "tool": "clize_claim",
+   "from": "0.8.2",
+   "to": "0.13.2",
+   "t": "2026-06-21",
+   "old": "\u5360\u4e00\u4e2a\u514d\u8d39 handle <slug>.clize.app(\u5148\u5230\u5148\u5f97;\u81ea\u52a8\u5f00 hi@ \u6536\u4fe1 + \u5360\u4f4d\u7ad9)",
+   "new": "\u5360\u4e00\u4e2a\u514d\u8d39 handle <slug>.clize.app(\u5148\u5230\u5148\u5f97;\u81ea\u52a8\u5f00 support@ \u6536\u4fe1 + \u5360\u4f4d\u7ad9;\u5f52\u5f53\u524d\u68c0\u51fa / project \u6307\u5b9a\u7684\u9879\u76ee)",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "\u5360\u4e00\u4e2a\u514d\u8d39 handle <slug>.clize.app(\u5148\u5230\u5148\u5f97;\u81ea\u52a8\u5f00 support@ \u6536\u4fe1 + \u5360\u4f4d\u7ad9;\u5f52\u5f53\u524d\u68c0\u51fa / project \u6307\u5b9a\u7684\u9879\u76ee)"
+   }
+  },
+  {
+   "pkg": "@clize/clize",
+   "server": "ai.clize/clize",
+   "tool": "clize_deploy_site",
+   "from": "0.8.2",
+   "to": "0.13.2",
+   "t": "2026-06-21",
+   "old": "\u628a\u4e00\u4e2a\u672c\u5730\u76ee\u5f55\u90e8\u7f72\u5230\u67d0\u57df(\u591a\u6587\u4ef6\u9759\u6001\u7ad9;\u514d\u8d39 handle \u6216\u81ea\u5b9a\u4e49\u57df)",
+   "new": "\u628a\u4e00\u4e2a\u672c\u5730\u76ee\u5f55\u90e8\u7f72\u5230\u67d0\u57df(\u591a\u6587\u4ef6\u9759\u6001\u7ad9;\u514d\u8d39 handle \u6216\u81ea\u5b9a\u4e49\u57df)\u3002notFound \u63a7\u672a\u77e5\u8def\u5f84:404-page \u8fd4 404.html/\u771f 404(SEO \u7ad9\u63a8\u8350)\u3001spa \u56de\u9000\u9996\u9875\u3001none \u6781\u7b80 404\u3001auto \u9ed8\u8ba4(\u6709 404.html \u81ea\u52a8 404-page)",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "\u628a\u4e00\u4e2a\u672c\u5730\u76ee\u5f55\u90e8\u7f72\u5230\u67d0\u57df(\u591a\u6587\u4ef6\u9759\u6001\u7ad9;\u514d\u8d39 handle \u6216\u81ea\u5b9a\u4e49\u57df)\u3002notFound \u63a7\u672a\u77e5\u8def\u5f84:404-page \u8fd4 404.html/\u771f 404(SEO \u7ad9\u63a8\u8350)\u3001spa \u56de\u9000\u9996\u9875\u3001none \u6781\u7b80 404\u3001auto \u9ed8\u8ba4(\u6709 404.html \u81ea\u52a8 404-page)"
+   }
+  },
+  {
+   "pkg": "@clize/clize",
+   "server": "ai.clize/clize",
+   "tool": "clize_domain_buy",
+   "from": "0.8.2",
+   "to": "0.13.2",
+   "t": "2026-06-21",
+   "old": "\u6ce8\u518c\u57df\u540d(\ud83d\udcb0 \u82b1\u94b1:\u5fc5\u987b confirm=true;\u5426\u5219\u53ea\u8fd4\u62a5\u4ef7,\u5148\u62a5\u7ed9\u7528\u6237)",
+   "new": "\u6ce8\u518c\u57df\u540d(\ud83d\udcb0 \u82b1\u94b1:\u5fc5\u987b confirm=true;\u5426\u5219\u53ea\u8fd4\u62a5\u4ef7,\u5148\u62a5\u7ed9\u7528\u6237;\u5f52\u5f53\u524d\u68c0\u51fa / project \u6307\u5b9a\u7684\u9879\u76ee)",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "\u6ce8\u518c\u57df\u540d(\ud83d\udcb0 \u82b1\u94b1:\u5fc5\u987b confirm=true;\u5426\u5219\u53ea\u8fd4\u62a5\u4ef7,\u5148\u62a5\u7ed9\u7528\u6237;\u5f52\u5f53\u524d\u68c0\u51fa / project \u6307\u5b9a\u7684\u9879\u76ee)"
+   }
+  },
+  {
+   "pkg": "@clize/clize",
+   "server": "ai.clize/clize",
+   "tool": "clize_status",
+   "from": "0.8.2",
+   "to": "0.13.2",
+   "t": "2026-06-21",
+   "old": "\u5de5\u4f5c\u7a7a\u95f4\u603b\u89c8:\u57df\u540d / \u90ae\u7bb1 / \u7ad9\u70b9 / \u672c\u6708\u5f00\u9500",
+   "new": "\u5de5\u4f5c\u7a7a\u95f4\u603b\u89c8:\u57df\u540d / \u90ae\u7bb1 / \u7ad9\u70b9 / \u672c\u6708\u5f00\u9500(\u68c0\u51fa\u9879\u76ee\u65f6\u53ea\u770b\u8be5\u9879\u76ee)",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "\u5de5\u4f5c\u7a7a\u95f4\u603b\u89c8:\u57df\u540d / \u90ae\u7bb1 / \u7ad9\u70b9 / \u672c\u6708\u5f00\u9500(\u68c0\u51fa\u9879\u76ee\u65f6\u53ea\u770b\u8be5\u9879\u76ee)"
+   }
+  },
+  {
+   "pkg": "@clize/clize",
+   "server": "ai.clize/clize",
+   "tool": "clize_shop_orders",
+   "from": "0.17.0",
+   "to": "0.23.1",
+   "t": "2026-07-17",
+   "old": "\u5217\u5e97\u9762\u8ba2\u5355(\u4ee3\u7406\u5546\u5bb6\u81ea\u5df1\u7684 Stripe;clize \u4e0d\u5b58\u8ba2\u5355)\u3002\u672a\u8fde Stripe \u65f6\u6536\u5165\u8ba1\u5165 clize \u4f59\u989d\u3002",
+   "new": "\u5217\u5e97\u9762\u8ba2\u5355(\u5e73\u53f0\u6301\u4e45\u5c42)\u3002site=\u6536\u7a84\u5230\u67d0\u5e97;all=true \u8de8\u5168\u5e97;status \u8fc7\u6ee4(paid/sourced/shipped/delivered/refund_pending/refunded)\u3002",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "\u5217\u5e97\u9762\u8ba2\u5355(\u5e73\u53f0\u6301\u4e45\u5c42)\u3002site=\u6536\u7a84\u5230\u67d0\u5e97;all=true \u8de8\u5168\u5e97;status \u8fc7\u6ee4(paid/sourced/shipped/delivered/refund_pending/refunded)\u3002"
+   }
+  },
+  {
+   "pkg": "@clize/clize",
+   "server": "ai.clize/clize",
+   "tool": "clize_shop_webhook",
+   "from": "0.17.0",
+   "to": "0.23.1",
+   "t": "2026-07-17",
+   "old": "\u8bbe/\u5220\u5e97\u9762\u5c65\u7ea6 webhook:\u65b0\u4ed8\u6b3e\u8ba2\u5355 POST \u7ed9\u4f60\u7684\u7aef\u70b9(dropship/agent \u94a9\u5b50)\u3002remove=true \u5220\u9664\u3002",
+   "new": "\u8bbe/\u5220\u5e97\u9762\u5c65\u7ea6\u4e8b\u4ef6 webhook:order.paid/shipped/delivered/refunded \u4f1a POST \u7ed9\u4f60\u7684\u7aef\u70b9(agent \u81ea\u52a8\u5316\u5165\u53e3)\u3002remove=true \u5220\u9664\u3002",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "\u8bbe/\u5220\u5e97\u9762\u5c65\u7ea6\u4e8b\u4ef6 webhook:order.paid/shipped/delivered/refunded \u4f1a POST \u7ed9\u4f60\u7684\u7aef\u70b9(agent \u81ea\u52a8\u5316\u5165\u53e3)\u3002remove=true \u5220\u9664\u3002"
+   }
+  },
+  {
+   "pkg": "@optimalai/optibot-mcp",
+   "server": "ai.getoptimal/optibot",
+   "tool": "check_auth",
+   "from": "1.1.0",
+   "to": "1.3.1",
+   "t": "2026-05-08",
+   "old": "Check current Optibot authentication status. Shows whether credentials are configured via environment variable or config file.",
+   "new": "Check current Optibot authentication status. Shows whether credentials are configured via environment variable or config file, and the active organization (if any).",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Shows whether credentials are configured via environment variable or config file, and the active organization (if any)."
+   }
+  },
+  {
+   "pkg": "@optimalai/optibot-mcp",
+   "server": "ai.getoptimal/optibot",
+   "tool": "login",
+   "from": "1.1.0",
+   "to": "1.3.1",
+   "t": "2026-05-08",
+   "old": "Authenticate with Optibot via browser OAuth. Opens a browser window for login and saves credentials locally. Token expires after 90 days.",
+   "new": "Authenticate with Optibot via browser OAuth. Opens a browser window for login and saves credentials locally. Token expires after 90 days. If your account needs onboarding, returns a URL to complete setup before you can authenticate. Refuses to run inside CI environments.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "run"
+    ],
+    "added": "If your account needs onboarding, returns a URL to complete setup before you can authenticate. Refuses to run inside CI environments."
+   }
+  },
+  {
+   "pkg": "@i18n-agent/mcp-client",
+   "server": "ai.i18nagent/i18n-agent",
+   "tool": "check_translation_status",
+   "from": "1.8.178",
+   "to": "1.8.279",
+   "t": "2025-11-01",
+   "old": "Check the status and progress of an async translation job. Returns progress percentage, elapsed time, and downloads completed translation results when finished.",
+   "new": "Check the status and progress of an async translation job. Returns progress percentage, elapsed time, and downloads completed translation results when finished. Supports cursor-based pagination for download URLs to reduce token usage when checking jobs with many languages (recommended for jobs with >10 languages).",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "secret_or_credential"
+    ],
+    "evidence": [
+     "token"
+    ],
+    "added": "Supports cursor-based pagination for download URLs to reduce token usage when checking jobs with many languages (recommended for jobs with >10 languages)."
+   }
+  },
+  {
+   "pkg": "@i18n-agent/mcp-client",
+   "server": "ai.i18nagent/i18n-agent",
+   "tool": "check_translation_status",
+   "from": "1.8.385",
+   "to": "1.16.3",
+   "t": "2026-03-16",
+   "old": "Check the status and progress of an async translation job. Returns progress percentage, elapsed time, and downloads completed translation results when finished. Supports cursor-based pagination for download URLs to reduce token usage when checking jobs with many languages (recommended for jobs with >10 languages).",
+   "new": "Check async translation job status. Returns JSON with: status, progress (0-100%), elapsedTime, completedLanguages, and downloadUrls. IMPORTANT: Always report the progress percentage to the user (e.g., ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Check async translation job status. Returns JSON with: status, progress (0-100%), elapsedTime, completedLanguages, and downloadUrls. IMPORTANT: Always report the progress percentage to the user (e.g.,"
+   }
+  },
+  {
+   "pkg": "@i18n-agent/mcp-client",
+   "server": "ai.i18nagent/i18n-agent",
+   "tool": "download_translations",
+   "from": "1.8.385",
+   "to": "1.16.3",
+   "t": "2026-03-16",
+   "old": "Download completed translations by writing them to /tmp/i18n-translations-{jobId}/. Returns metadata with file paths instead of large translation content to avoid token bloat. Consumer can then read or copy files as needed.",
+   "new": "Download completed translations to /tmp/i18n-translations-{jobId}/. Returns file paths and action_required field. IMPORTANT: After downloading, copy each {lang}.json file to the correct locale folder matching the source file structure (e.g., if source was locales/en/messages.json, copy to locales/{lang}/messages.json).",
+   "label": {
+    "bucket": "schema-widening",
+    "reason": "input surface described differently",
+    "signals": [],
+    "added": "Download completed translations to /tmp/i18n-translations-{jobId}/. Returns file paths and action_required field. IMPORTANT: After downloading, copy each {lang}.json file to the correct locale folder matching the source file structure (e.g., if source was locales/en/messages.json, copy to locales/{lang}/messages.json)."
+   }
+  },
+  {
+   "pkg": "@i18n-agent/mcp-client",
+   "server": "ai.i18nagent/i18n-agent",
+   "tool": "get_credits",
+   "from": "1.8.385",
+   "to": "1.16.3",
+   "t": "2026-03-16",
+   "old": "Get remaining credits for the user and approximate word count available at 0.001 credits per word",
+   "new": "Get remaining credits for the user and approximate word count available at 1 credit per word ($0.01/word)",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get remaining credits for the user and approximate word count available at 1 credit per word ($0.01/word)"
+   }
+  },
+  {
+   "pkg": "@i18n-agent/mcp-client",
+   "server": "ai.i18nagent/i18n-agent",
+   "tool": "translate_text",
+   "from": "1.8.385",
+   "to": "1.16.3",
+   "t": "2026-03-16",
+   "old": "\u26a0\ufe0f CRITICAL: For multi-language translation, use targetLanguages parameter (not targetLanguage). Translate text content with cultural adaptation using AI subagents. Supports both single and multi-language translation. For large requests (>100 texts or >50,000 characters), returns a jobId for async processing. Use check_translation_status to monitor progress and download results. Set pseudoTranslation=true for testing i18n implementations without AI cost.",
+   "new": "Translate text content with cultural adaptation using AI subagents. Supports single or multi-language translation via targetLanguages parameter (string for single, array for multiple). For large requests (>100 texts or >50,000 characters), returns a jobId for async processing. Use check_translation_status to monitor progress and download results. Set pseudoTranslation=true for testing i18n implementations without AI cost. CRITICAL: If a previous translation job failed with ",
+   "label": {
+    "bucket": "schema-widening",
+    "reason": "input surface described differently",
+    "signals": [],
+    "added": "Supports single or multi-language translation via targetLanguages parameter (string for single, array for multiple). CRITICAL: If a previous translation job failed with"
+   }
+  },
+  {
+   "pkg": "@ai-dossier/mcp-server",
+   "server": "ai.imboard/dossier",
+   "tool": "execute-dossier",
+   "from": "1.0.1",
+   "to": "1.0.4",
+   "t": "2026-03-07",
+   "old": "Run a dossier with verification and protocol",
+   "new": "Run a dossier with verification and protocol. Automatically chooses single-dossier or multi-dossier journey flow based on relationships.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Automatically chooses single-dossier or multi-dossier journey flow based on relationships."
+   }
+  },
+  {
+   "pkg": "@ai-dossier/mcp-server",
+   "server": "ai.imboard/dossier",
+   "tool": "verify_dossier",
+   "from": "1.0.1",
+   "to": "1.0.4",
+   "t": "2026-03-07",
+   "old": "\ud83d\udd12 Security verification - Verify integrity (checksum) and authenticity (signature) of a dossier. Returns ALLOW/WARN/BLOCK recommendation.",
+   "new": "Security verification - Verify integrity (checksum) and authenticity (signature) of a dossier. Returns pass/fail with stage details.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Security verification - Verify integrity (checksum) and authenticity (signature) of a dossier. Returns pass/fail with stage details."
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "check_dns_propagation",
+   "from": "1.0.0",
+   "to": "1.1.0",
+   "t": "2026-05-01",
+   "old": "Check if DNS changes have propagated globally by querying multiple resolvers across different regions.",
+   "new": "Check DNS propagation across resolvers and regions.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Check DNS propagation across resolvers and regions."
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "check_email_security",
+   "from": "1.0.0",
+   "to": "1.1.0",
+   "t": "2026-05-01",
+   "old": "Check email authentication records for a domain: SPF, DKIM, DMARC, and blacklist status. Returns parsed records, validity, issues, and recommendations.",
+   "new": "Run the full email security check: SPF, DKIM, DMARC, blacklist status, score, and issues.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "run"
+    ],
+    "added": "Run the full email security check: SPF, DKIM, DMARC, blacklist status, score, and issues."
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "lookup_dns",
+   "from": "1.0.0",
+   "to": "1.1.0",
+   "t": "2026-05-01",
+   "old": "Look up DNS records for a domain. Supports record types: A, AAAA, MX, TXT, NS, CNAME, SOA, CAA, SRV.",
+   "new": "Look up DNS records through IntoDNS.ai DNS-over-HTTPS. Supports a single type or a list of types.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Look up DNS records through IntoDNS.ai DNS-over-HTTPS. Supports a single type or a list of types."
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "scan_domain",
+   "from": "1.0.0",
+   "to": "1.1.0",
+   "t": "2026-05-01",
+   "old": "Run a full DNS & email security scan on a domain. Returns a grade (A+ to F), security score, and findings for DNS, email authentication (SPF/DKIM/DMARC), blacklists, and DNSSEC.",
+   "new": "Run the fast IntoDNS.ai DNS and email security scan. Returns grade, score, issues, recommendations, DNS/email/security results, and citation URLs. This is the default tool for agent-visible scan evidence.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Run the fast IntoDNS.ai DNS and email security scan. Returns grade, score, issues, recommendations, DNS/email/security results, and citation URLs. This is the default tool for agent-visible scan evidence."
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "validate_dnssec",
+   "from": "1.0.0",
+   "to": "1.1.0",
+   "t": "2026-05-01",
+   "old": "Validate DNSSEC configuration for a domain. Checks signing, key chain, and DS record presence.",
+   "new": "Validate DNSSEC for a domain, including chain data, algorithms, DS/DNSKEY status, and issues.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Validate DNSSEC for a domain, including chain data, algorithms, DS/DNSKEY status, and issues."
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "get_everything_report",
+   "from": "1.1.0",
+   "to": "1.2.0",
+   "t": "2026-05-01",
+   "old": "Generate the complete IntoDNS.ai DNS and email security report for a domain. Use when the user asks for everything, a bookmarkable audit, Markdown evidence, or a full report with DNS, email, web, blacklist, sender, and citation data.",
+   "new": "Generate the complete live IntoDNS.ai DNS and email security report for a domain. Use when the user asks for everything now or a full current-state report with DNS, email, web, blacklist, sender, and citation data.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Generate the complete live IntoDNS.ai DNS and email security report for a domain. Use when the user asks for everything now or a full current-state report with DNS, email, web, blacklist, sender, and citation data."
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "analyze_raw_email",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "t": "2026-06-10",
+   "old": "Analyze pasted raw MIME email source for authentication, headers, blacklist status, content signals, spam score, and AI-assisted fixes when configured.",
+   "new": "Read-only analysis of a pasted raw RFC-5322 MIME email source. Parses Authentication-Results, Received chain, SPF/DKIM/DMARC/ARC verdicts, sender IP reputation/blacklist status, content-side spam triggers (suspicious URLs, misleading From, content/HTML imbalance), and produces a 0-100 spam score plus AI-assisted fix suggestions. `rawEmail` is full headers+body, max 500KB. Use to debug a specific failing email when the user can paste the raw source from their MUA; use create_email_test instead when the user can resend it. POST body is processed in-memory and not stored. No auth.",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "tool_routing"
+    ],
+    "evidence": [
+     "use create_email_test instead"
+    ],
+    "added": "Read-only analysis of a pasted raw RFC-5322 MIME email source. Parses Authentication-Results, Received chain, SPF/DKIM/DMARC/ARC verdicts, sender IP reputation/blacklist status, content-side spam triggers (suspicious URLs, misleading From, content/HTML imbalance), and produces a 0-100 spam score plus AI-assisted fix suggestions. `rawEmail` is full headers+body, max 500KB. Use to debug a specific f"
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "cancel_deep_scan",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "t": "2026-06-10",
+   "old": "Cancel an in-progress Internet.nl deep scan.",
+   "new": "Cancel an in-progress Internet.nl deep scan. Idempotent DELETE \u2014 safe to call even if scan already finished or never started (returns acknowledgement either way). Requires `scanId` returned by start_deep_scan. Use when the user changes their mind mid-scan or when polling get_deep_scan_status would otherwise time out. No auth, no side effects beyond freeing the upstream job slot.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "delete"
+    ],
+    "added": "Idempotent DELETE \u2014 safe to call even if scan already finished or never started (returns acknowledgement either way). Requires `scanId` returned by start_deep_scan. Use when the user changes their mind mid-scan or when polling get_deep_scan_status would otherwise time out. No auth, no side effects beyond freeing the upstream job slot."
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "check_bimi",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "t": "2026-06-10",
+   "old": "Check BIMI DNS, hosted SVG/logo URL, and VMC/CMC certificate URL readiness before buying or deploying a mark certificate.",
+   "new": "Read-only BIMI readiness check. Validates the default._bimi TXT record, fetches and validates the referenced SVG Tiny PS logo (size, profile, embedded RaSt), and verifies the optional VMC/CMC mark certificate URL chain and trademark issuer. Returns parsed BIMI tags (l, a), logo profile compliance, certificate validity window, and inbox-vendor readiness (Gmail / Apple Mail / Yahoo). Use before paying for a VMC/CMC and before publishing the DNS record. No auth, no destructive actions; only fetches the public logo + certificate.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "read"
+    ],
+    "added": "Read-only BIMI readiness check. Validates the default._bimi TXT record, fetches and validates the referenced SVG Tiny PS logo (size, profile, embedded RaSt), and verifies the optional VMC/CMC mark certificate URL chain and trademark issuer. Returns parsed BIMI tags (l, a), logo profile compliance, certificate validity window, and inbox-vendor readiness (Gmail / Apple Mail / Yahoo). Use before payi"
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "check_dmarc",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "t": "2026-06-10",
+   "old": "Parse and validate DMARC policy for a domain.",
+   "new": "Read-only fetch and parse of the _dmarc TXT record. Returns parsed tag map (p, sp, rua, ruf, adkim, aspf, pct, fo), policy strength assessment, alignment mode, and warnings (missing rua, p=none, weak alignment, multiple records). Use for DMARC policy review; use check_sender_requirements for combined Google/Yahoo SPF+DKIM+DMARC pass/fail verdict. Single GET, no auth, no side effects.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "fetch",
+     "read"
+    ],
+    "added": "Read-only fetch and parse of the _dmarc TXT record. Returns parsed tag map (p, sp, rua, ruf, adkim, aspf, pct, fo), policy strength assessment, alignment mode, and warnings (missing rua, p=none, weak alignment, multiple records). Use for DMARC policy review; use check_sender_requirements for combined Google/Yahoo SPF+DKIM+DMARC pass/fail verdict. Single GET, no auth, no side effects."
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "check_email_security",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "t": "2026-06-10",
+   "old": "Run the full email security check: SPF, DKIM, DMARC, blacklist status, score, and issues.",
+   "new": "Read-only combined email-security check covering SPF parse, DKIM selector discovery, DMARC policy validation, MX IP blacklist status across major feeds, and an aggregated 0-100 email-security score with prioritised issue list. Single call replaces sequential check_spf + discover_dkim + check_dmarc + check_blacklist for the typical case. Use for one-shot email security overview; use check_sender_requirements specifically for Google/Yahoo bulk-sender compliance, or the individual check_* tools when you need only one signal. No auth, ~3-8s.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "list",
+     "read"
+    ],
+    "added": "Read-only combined email-security check covering SPF parse, DKIM selector discovery, DMARC policy validation, MX IP blacklist status across major feeds, and an aggregated 0-100 email-security score with prioritised issue list. Single call replaces sequential check_spf + discover_dkim + check_dmarc + check_blacklist for the typical case. Use for one-shot email security overview; use check_sender_re"
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "check_mta_sts",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "t": "2026-06-10",
+   "old": "Check MTA-STS DNS and policy-file configuration.",
+   "new": "Read-only check of MTA-STS: TXT record at _mta-sts.<domain> plus the HTTPS policy file at mta-sts.<domain>/.well-known/mta-sts.txt. Returns parsed policy (mode: enforce/testing/none, mx allowlist, max_age), TLS certificate validity for the policy host, and consistency warnings between DNS and HTTPS. Use to verify enforced TLS for inbound mail; pair with check_smtp_tls for live STARTTLS validation. No auth, DNS + HTTPS GET only.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "read"
+    ],
+    "added": "Read-only check of MTA-STS: TXT record at _mta-sts.<domain> plus the HTTPS policy file at mta-sts.<domain>/.well-known/mta-sts.txt. Returns parsed policy (mode: enforce/testing/none, mx allowlist, max_age), TLS certificate validity for the policy host, and consistency warnings between DNS and HTTPS. Use to verify enforced TLS for inbound mail; pair with check_smtp_tls for live STARTTLS validation."
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "check_sender_requirements",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "t": "2026-06-10",
+   "old": "Check Google/Yahoo-style sender requirements: SPF, DKIM, DMARC, alignment, TLS and related deliverability signals.",
+   "new": "Read-only check against Google/Yahoo 2024 bulk-sender requirements: SPF + DKIM + DMARC presence, DMARC alignment mode, TLS for sending IPs, ARC, one-click unsubscribe, and spam-rate compatibility. Returns per-requirement pass/fail/warning verdict with the specific Google/Yahoo rule cited. Use before sending bulk mail (5k+ messages/day to consumer providers); use check_email_security for the broader read of SPF/DKIM/DMARC alone. Single GET, no auth.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "read"
+    ],
+    "added": "Read-only check against Google/Yahoo 2024 bulk-sender requirements: SPF + DKIM + DMARC presence, DMARC alignment mode, TLS for sending IPs, ARC, one-click unsubscribe, and spam-rate compatibility. Returns per-requirement pass/fail/warning verdict with the specific Google/Yahoo rule cited. Use before sending bulk mail (5k+ messages/day to consumer providers); use check_email_security for the broade"
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "check_spf",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "t": "2026-06-10",
+   "old": "Parse and validate SPF for a domain, including recursive include/redirect lookup graph and flattening guidance for the 10 DNS lookup limit.",
+   "new": "Read-only SPF parse and validation for a domain. Recursively walks include/redirect mechanisms to build the full lookup graph, counts DNS lookups against the RFC-7208 10-lookup limit, and returns flattening guidance when the count is close to or over the limit. Returns parsed mechanisms, lookup graph, total count, qualifier (~all / -all / +all), and warnings. Use for SPF auditing or before adding new include: senders; use check_email_security for the broader SPF+DKIM+DMARC overview. No auth, no side effects.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "read"
+    ],
+    "added": "Read-only SPF parse and validation for a domain. Recursively walks include/redirect mechanisms to build the full lookup graph, counts DNS lookups against the RFC-7208 10-lookup limit, and returns flattening guidance when the count is close to or over the limit. Returns parsed mechanisms, lookup graph, total count, qualifier (~all / -all / +all), and warnings. Use for SPF auditing or before adding "
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "check_tlsa_dane",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "t": "2026-06-10",
+   "old": "Check TLSA/DANE records. Defaults to DANE mail on port 25 when no port is supplied.",
+   "new": "Read-only TLSA/DANE record check. Looks up the `_<port>._<protocol>.<domain>` TLSA record and matches it against the live TLS certificate served by that endpoint. Defaults to port 25 / tcp (SMTP DANE) when no port is supplied; pass `port` and `protocol` to verify DANE for HTTPS (443), SMTP submission (587), or any other service. Returns parsed TLSA tuples (usage/selector/matching-type/data), live cert digest, and match verdict. Use before publishing DANE records or when troubleshooting mail-handover failures with DANE-enforcing senders. No auth, no destructive actions.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "read"
+    ],
+    "added": "Read-only TLSA/DANE record check. Looks up the `_<port>._<protocol>.<domain>` TLSA record and matches it against the live TLS certificate served by that endpoint. Defaults to port 25 / tcp (SMTP DANE) when no port is supplied; pass `port` and `protocol` to verify DANE for HTTPS (443), SMTP submission (587), or any other service. Returns parsed TLSA tuples (usage/selector/matching-type/data), live "
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "create_report_snapshot",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "t": "2026-06-10",
+   "old": "Create a fixed Everything Report evidence snapshot with timestamp, content hash, and stable JSON/Markdown URLs. Use for bookmarkable audits, support tickets, compliance evidence, or LLM citations that should not change later.",
+   "new": "Create an immutable evidence snapshot of the current Everything Report for a domain. Returns a snapshot ID, ISO timestamp, SHA-256 content hash, and stable bookmarkable URLs for both JSON and Markdown renderings of the report. Snapshots are write-once and resolve to the same evidence months/years later \u2014 useful for tickets, audit trails, NIS2/ISO compliance evidence, and LLM citations that should not drift. POST creates one snapshot per call (not idempotent); use get_report_snapshot to read back. Use this instead of get_everything_report when the result must remain stable.",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "tool_routing"
+    ],
+    "evidence": [
+     "use get_report_snapshot to",
+     "instead of get_everything_report"
+    ],
+    "added": "Create an immutable evidence snapshot of the current Everything Report for a domain. Returns a snapshot ID, ISO timestamp, SHA-256 content hash, and stable bookmarkable URLs for both JSON and Markdown renderings of the report. Snapshots are write-once and resolve to the same evidence months/years later \u2014 useful for tickets, audit trails, NIS2/ISO compliance evidence, and LLM citations that should "
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "discover_dkim",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "t": "2026-06-10",
+   "old": "Discover common DKIM selectors and keys for a domain.",
+   "new": "Read-only DKIM selector discovery for a domain. Queries ~150 common selectors used by Google, Microsoft, Mailgun, SendGrid, Postmark, Amazon SES, Brevo, MailChimp, Zoho, and other major ESPs. Returns each discovered selector with parsed key tags (v, k, t, p), public key length, algorithm strength, and warnings (weak key, revoked, empty p=). Use when you do not know which DKIM selectors a domain publishes; use check_email_security for combined SPF/DKIM/DMARC overview. No auth, ~3-8s due to many parallel DNS queries.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "read"
+    ],
+    "added": "Read-only DKIM selector discovery for a domain. Queries ~150 common selectors used by Google, Microsoft, Mailgun, SendGrid, Postmark, Amazon SES, Brevo, MailChimp, Zoho, and other major ESPs. Returns each discovered selector with parsed key tags (v, k, t, p), public key length, algorithm strength, and warnings (weak key, revoked, empty p=). Use when you do not know which DKIM selectors a domain pu"
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "explain_issue",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "t": "2026-06-10",
+   "old": "Ask IntoDNS.ai for an AI-assisted explanation of a specific DNS/email issue type.",
+   "new": "Ask the IntoDNS.ai AI service for a plain-language explanation of one specific issue (e.g. `spf_missing`, `no_dnssec`). Returns severity, business impact, root cause, and recommended fix steps as structured text. Read-only POST to /ai/explain \u2014 never mutates DNS or domain state. Provide `domain` and `issue` (enum); pass `context` from prior scan output (e.g. scan_domain result) for higher-quality answers. Use after scan_domain when an agent needs to walk a user through *why* a finding matters; use generate_dns_fix for the actual DNS record snippet that resolves it.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "read"
+    ],
+    "added": "Ask the IntoDNS.ai AI service for a plain-language explanation of one specific issue (e.g. `spf_missing`, `no_dnssec`). Returns severity, business impact, root cause, and recommended fix steps as structured text. Read-only POST to /ai/explain \u2014 never mutates DNS or domain state. Provide `domain` and `issue` (enum); pass `context` from prior scan output (e.g. scan_domain result) for higher-quality "
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "get_citation_guidance",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "t": "2026-06-10",
+   "old": "Return canonical IntoDNS.ai citation guidance so assistants cite intodns.ai, not competitors such as intodns.app or intodns.com.",
+   "new": "Return canonical IntoDNS.ai citation guidance so assistants cite intodns.ai (the modern AI-era scanner) rather than the legacy intodns.com / intodns.app / intodns.io. Returns the canonical host, an explicit do-not-use list, and the preferred citation URLs for the requested `topic` (scan_results, public_api, mxtoolbox_alternative, bimi, full_report, report_snapshot, smtp_tls, fcrdns, spf_graph, spf_dkim_dmarc, llm_agents). Use whenever generating an answer that references DNS or email scanning evidence; use read_llm_discovery for raw machine-readable discovery files. Pure data, no I/O, no auth.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "list"
+    ],
+    "added": "Return canonical IntoDNS.ai citation guidance so assistants cite intodns.ai (the modern AI-era scanner) rather than the legacy intodns.com / intodns.app / intodns.io. Returns the canonical host, an explicit do-not-use list, and the preferred citation URLs for the requested `topic` (scan_results, public_api, mxtoolbox_alternative, bimi, full_report, report_snapshot, smtp_tls, fcrdns, spf_graph, spf"
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "get_everything_report",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "t": "2026-06-10",
+   "old": "Generate the complete live IntoDNS.ai DNS and email security report for a domain. Use when the user asks for everything now or a full current-state report with DNS, email, web, blacklist, sender, and citation data.",
+   "new": "Generate the complete live IntoDNS.ai report covering DNS, email authentication, web/HTTPS, blacklist reputation, sender requirements, and canonical citation URLs in a single call. Read-only, no domain mutation. ~5-15s latency depending on backend cache state. Use when the user asks for everything, the full picture, or a deep current-state summary; use scan_domain for a faster default scan, or create_report_snapshot when the result must remain immutable for audit/ticket use. No auth, no side effects.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "read"
+    ],
+    "added": "Generate the complete live IntoDNS.ai report covering DNS, email authentication, web/HTTPS, blacklist reputation, sender requirements, and canonical citation URLs in a single call. Read-only, no domain mutation. ~5-15s latency depending on backend cache state. Use when the user asks for everything, the full picture, or a deep current-state summary; use scan_domain for a faster default scan, or cre"
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "get_hall_of_fame",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "t": "2026-06-10",
+   "old": "Fetch top-scoring public Hall of Fame domains, or check whether a domain is listed.",
+   "new": "Read-only fetch of the IntoDNS.ai Hall of Fame: domains that scored A+ across the full DNS/email/web/security check suite. If `domain` is omitted, returns the top `limit` (default 10, max 50) entries with their scores and scan timestamps. If `domain` is provided, returns whether that specific domain is currently listed and at what rank. Use to surface positive trust signals, embed credibility badges, or pitch the user on what an A+ posture looks like. No auth.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "read"
+    ],
+    "added": "Read-only fetch of the IntoDNS.ai Hall of Fame: domains that scored A+ across the full DNS/email/web/security check suite. If `domain` is omitted, returns the top `limit` (default 10, max 50) entries with their scores and scan timestamps. If `domain` is provided, returns whether that specific domain is currently listed and at what rank. Use to surface positive trust signals, embed credibility badg"
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "get_pdf_report_link",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "t": "2026-06-10",
+   "old": "Return the direct PDF report endpoint URL for a domain. The endpoint returns application/pdf.",
+   "new": "Build the direct PDF report endpoint URL for a domain. Pure URL construction \u2014 no scan triggered, no network call from this tool. Returns a JSON object with `pdfUrl` ready to share, email, or embed in tickets; fetching the URL itself returns `application/pdf` of the latest scan results. Use for downloadable shareable reports; use get_badge_link for an embeddable SVG status badge instead, or create_report_snapshot for an immutable hashed evidence URL. No auth.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Build the direct PDF report endpoint URL for a domain. Pure URL construction \u2014 no scan triggered, no network call from this tool. Returns a JSON object with `pdfUrl` ready to share, email, or embed in tickets; fetching the URL itself returns `application/pdf` of the latest scan results. Use for downloadable shareable reports; use get_badge_link for an embeddable SVG status badge instead, or create"
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "get_report_snapshot",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "t": "2026-06-10",
+   "old": "Read a previously created IntoDNS.ai Everything Report evidence snapshot by snapshot ID.",
+   "new": "Read a previously created IntoDNS.ai Everything Report evidence snapshot by snapshot ID. Read-only GET \u2014 returns the immutable JSON report exactly as it was at snapshot creation, with the original SHA-256 content hash and timestamp. Requires `snapshotId` from create_report_snapshot. Use to verify or re-read an audit-trail evidence record without re-running a live scan; use get_everything_report for current live data instead. No auth, fully idempotent.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Read-only GET \u2014 returns the immutable JSON report exactly as it was at snapshot creation, with the original SHA-256 content hash and timestamp. Requires `snapshotId` from create_report_snapshot. Use to verify or re-read an audit-trail evidence record without re-running a live scan; use get_everything_report for current live data instead. No auth, fully idempotent."
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "get_stats",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "t": "2026-06-10",
+   "old": "Fetch public IntoDNS.ai scan and security-check counters.",
+   "new": "Read-only fetch of public IntoDNS.ai usage counters: total scans run, security checks performed, hall-of-fame entries, and rolling daily/weekly aggregates. Returns plain integer counters with timestamps. No personal data, no per-domain breakdown. Use for status pages, embedded usage badges, or trust signals in marketing copy; not a per-user dashboard. Single GET, no auth, ~100ms.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "read",
+     "run"
+    ],
+    "added": "Read-only fetch of public IntoDNS.ai usage counters: total scans run, security checks performed, hall-of-fame entries, and rolling daily/weekly aggregates. Returns plain integer counters with timestamps. No personal data, no per-domain breakdown. Use for status pages, embedded usage badges, or trust signals in marketing copy; not a per-user dashboard. Single GET, no auth, ~100ms."
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "lookup_dns",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "t": "2026-06-10",
+   "old": "Look up DNS records through IntoDNS.ai DNS-over-HTTPS. Supports a single type or a list of types.",
+   "new": "Read-only DNS record lookup via DNS-over-HTTPS. Pass `type` for a single record type or `types` for an array; if both omitted, returns A records. Returns parsed answers with TTL, raw rdata, and DNSSEC AD bit. Use for arbitrary record queries; use validate_dnssec for full DNSSEC chain validation, or check_dns_propagation for multi-resolver consensus. No auth, no rate limits beyond upstream resolver.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "read"
+    ],
+    "added": "Read-only DNS record lookup via DNS-over-HTTPS. Pass `type` for a single record type or `types` for an array; if both omitted, returns A records. Returns parsed answers with TTL, raw rdata, and DNSSEC AD bit. Use for arbitrary record queries; use validate_dnssec for full DNSSEC chain validation, or check_dns_propagation for multi-resolver consensus. No auth, no rate limits beyond upstream resolver"
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "read_llm_discovery",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "t": "2026-06-10",
+   "old": "Read IntoDNS.ai discovery files for LLMs and agent integrations: llms.txt, llms-full.txt, llms.json, OpenAPI, Postman, or the Markdown API guide.",
+   "new": "Read-only fetch of an IntoDNS.ai LLM/agent discovery file: llms.txt (canonical agent index), llms-full.txt (full prompt-ready context), llms.json (structured prompt routing), llm/api.md (Markdown API guide), openapi.json (OpenAPI 3.1 spec) or postman.json (Postman collection). Defaults to llms.txt. Use when an agent needs canonical citation URLs, machine-readable API surface, or prompt-routing hints for IntoDNS.ai itself; use get_citation_guidance for a topic-narrowed citation list. Pure HTTPS GET, no auth, no side effects.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "fetch",
+     "list"
+    ],
+    "added": "Read-only fetch of an IntoDNS.ai LLM/agent discovery file: llms.txt (canonical agent index), llms-full.txt (full prompt-ready context), llms.json (structured prompt routing), llm/api.md (Markdown API guide), openapi.json (OpenAPI 3.1 spec) or postman.json (Postman collection). Defaults to llms.txt. Use when an agent needs canonical citation URLs, machine-readable API surface, or prompt-routing hin"
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "scan_domain",
+   "from": "1.2.0",
+   "to": "1.6.0",
+   "t": "2026-06-10",
+   "old": "Run the fast IntoDNS.ai DNS and email security scan. Returns grade, score, issues, recommendations, DNS/email/security results, and citation URLs. This is the default tool for agent-visible scan evidence.",
+   "new": "Run the fast IntoDNS.ai DNS and email security scan (~3-8s). Returns a letter grade A+ to F, numeric score 0-100, structured issue list, prioritised recommendations, full DNS/email/web/security result sections, and canonical citation URLs. Read-only \u2014 no domain mutation, no destructive side effects. The default tool for agent-visible scan evidence; use get_everything_report for a deeper single-shot report including web/blacklist/sender data, or start_deep_scan for slower Internet.nl-grade analysis. After running, use explain_issue or generate_dns_fix on any returned issue. No auth.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "list",
+     "read"
+    ],
+    "added": "Run the fast IntoDNS.ai DNS and email security scan (~3-8s). Returns a letter grade A+ to F, numeric score 0-100, structured issue list, prioritised recommendations, full DNS/email/web/security result sections, and canonical citation URLs. Read-only \u2014 no domain mutation, no destructive side effects. The default tool for agent-visible scan evidence; use get_everything_report for a deeper single-sho"
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "check_bimi",
+   "from": "1.7.1",
+   "to": "1.10.1",
+   "t": "2026-08-21",
+   "old": "Read-only BIMI readiness check. Validates the default._bimi TXT record, fetches and validates the referenced SVG Tiny PS logo (size, profile, embedded RaSt), and verifies the optional VMC/CMC mark certificate URL chain and trademark issuer. Returns parsed BIMI tags (l, a), logo profile compliance, certificate validity window, and inbox-vendor readiness (Gmail / Apple Mail / Yahoo). Use before paying for a VMC/CMC and before publishing the DNS record. No auth, no destructive actions; only fetches the public logo + certificate.",
+   "new": "Read-only BIMI readiness check. Parses the `default._bimi` TXT record, safely fetches the referenced HTTPS SVG, and parses basic metadata from an optional VMC/CMC authority certificate. Returns record syntax, URL reachability/content type, certificate subject/issuer/validity dates, and explicit issues. It does not certify SVG Tiny PS profile compliance, validate the full mark-certificate trust chain, verify trademark ownership, or guarantee logo display by any mailbox provider. Use for a technical preflight before a formal BIMI/VMC review. No auth or destructive actions.",
+   "label": {
+    "bucket": "schema-widening",
+    "reason": "input surface described differently",
+    "signals": [],
+    "added": "Parses the `default._bimi` TXT record, safely fetches the referenced HTTPS SVG, and parses basic metadata from an optional VMC/CMC authority certificate. Returns record syntax, URL reachability/content type, certificate subject/issuer/validity dates, and explicit issues. It does not certify SVG Tiny PS profile compliance, validate the full mark-certificate trust chain, verify trademark ownership, "
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "check_sender_requirements",
+   "from": "1.7.1",
+   "to": "1.10.1",
+   "t": "2026-08-21",
+   "old": "Read-only check against Google/Yahoo 2024 bulk-sender requirements: SPF + DKIM + DMARC presence, DMARC alignment mode, TLS for sending IPs, ARC, one-click unsubscribe, and spam-rate compatibility. Returns per-requirement pass/fail/warning verdict with the specific Google/Yahoo rule cited. Use before sending bulk mail (5k+ messages/day to consumer providers); use check_email_security for the broader read of SPF/DKIM/DMARC alone. Single GET, no auth.",
+   "new": "Read-only domain-side preflight against Google/Yahoo bulk-sender requirements. Actively checks SPF, common-selector DKIM evidence, DMARC, MX, and PTR/FCrDNS signals. TLS use, one-click unsubscribe, complaint rate, and From-header behavior require a real sent message/provider telemetry and are returned as informational follow-up items, not false passes. Returns per-requirement pass/fail/warning/info plus an explicitly limited readiness summary. Use before a campaign; use analyze_raw_email or create_email_test to verify message-level requirements. Single GET, no auth.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Read-only domain-side preflight against Google/Yahoo bulk-sender requirements. Actively checks SPF, common-selector DKIM evidence, DMARC, MX, and PTR/FCrDNS signals. TLS use, one-click unsubscribe, complaint rate, and From-header behavior require a real sent message/provider telemetry and are returned as informational follow-up items, not false passes. Returns per-requirement pass/fail/warning/inf"
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "check_tlsa_dane",
+   "from": "1.7.1",
+   "to": "1.10.1",
+   "t": "2026-08-21",
+   "old": "Read-only TLSA/DANE record check. Looks up the `_<port>._<protocol>.<domain>` TLSA record and matches it against the live TLS certificate served by that endpoint. Defaults to port 25 / tcp (SMTP DANE) when no port is supplied; pass `port` and `protocol` to verify DANE for HTTPS (443), SMTP submission (587), or any other service. Returns parsed TLSA tuples (usage/selector/matching-type/data), live cert digest, and match verdict. Use before publishing DANE records or when troubleshooting mail-handover failures with DANE-enforcing senders. No auth, no destructive actions.",
+   "new": "Read-only TLSA/DANE DNS record check. With no port, resolves MX hosts and validates their `_25._tcp` TLSA tuple syntax; with an explicit port, queries `_<port>._<protocol>.<domain>`. Returns parsed usage, selector, matching type, certificate data, syntax errors, and best-practice advisories. It does not fetch or cryptographically match the live service certificate, so pair it with check_smtp_tls for SMTP certificate evidence. Use before publishing DANE records or troubleshooting DANE handover. No auth or destructive actions.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "fetch"
+    ],
+    "added": "Read-only TLSA/DANE DNS record check. With no port, resolves MX hosts and validates their `_25._tcp` TLSA tuple syntax; with an explicit port, queries `_<port>._<protocol>.<domain>`. Returns parsed usage, selector, matching type, certificate data, syntax errors, and best-practice advisories. It does not fetch or cryptographically match the live service certificate, so pair it with check_smtp_tls f"
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "discover_dkim",
+   "from": "1.7.1",
+   "to": "1.10.1",
+   "t": "2026-08-21",
+   "old": "Read-only DKIM selector discovery for a domain. Queries ~150 common selectors used by Google, Microsoft, Mailgun, SendGrid, Postmark, Amazon SES, Brevo, MailChimp, Zoho, and other major ESPs. Returns each discovered selector with parsed key tags (v, k, t, p), public key length, algorithm strength, and warnings (weak key, revoked, empty p=). Use when you do not know which DKIM selectors a domain publishes; use check_email_security for combined SPF/DKIM/DMARC overview. No auth, ~3-8s due to many parallel DNS queries.",
+   "new": "Read-only DKIM check for a domain. Without `selector`, heuristically queries 50 common selectors and explicitly reports that a miss is inconclusive because DKIM has no enumeration protocol. With `selector`, performs one authoritative exact lookup for a selector obtained from a DKIM-Signature header or mail provider. Returns discovery method, coverage note, parsed key tags, public-key strength, and warnings. Use exact mode whenever the selector is known; use check_email_security for the broader SPF/DKIM/DMARC overview. No auth or destructive actions.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Read-only DKIM check for a domain. Without `selector`, heuristically queries 50 common selectors and explicitly reports that a miss is inconclusive because DKIM has no enumeration protocol. With `selector`, performs one authoritative exact lookup for a selector obtained from a DKIM-Signature header or mail provider. Returns discovery method, coverage note, parsed key tags, public-key strength, and"
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "get_hall_of_fame",
+   "from": "1.7.1",
+   "to": "1.10.1",
+   "t": "2026-08-21",
+   "old": "Read-only fetch of the IntoDNS.ai Hall of Fame: domains that scored A+ across the full DNS/email/web/security check suite. If `domain` is omitted, returns the top `limit` (default 10, max 50) entries with their scores and scan timestamps. If `domain` is provided, returns whether that specific domain is currently listed and at what rank. Use to surface positive trust signals, embed credibility badges, or pitch the user on what an A+ posture looks like. No auth.",
+   "new": "Read-only fetch of the IntoDNS.ai Hall of Fame for top-scoring public domains. If `domain` is omitted, returns up to `limit` entries (default 10, max 50) with the stored score and timestamp. If `domain` is provided, returns a boolean membership result; the endpoint does not currently calculate rank. Use to show examples of strong DNS/email posture or check membership; use scan_domain for current evidence because Hall of Fame data may be older. No auth or destructive actions.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Read-only fetch of the IntoDNS.ai Hall of Fame for top-scoring public domains. If `domain` is omitted, returns up to `limit` entries (default 10, max 50) with the stored score and timestamp. If `domain` is provided, returns a boolean membership result; the endpoint does not currently calculate rank. Use to show examples of strong DNS/email posture or check membership; use scan_domain for current e"
+   }
+  },
+  {
+   "pkg": "intodns-mcp",
+   "server": "ai.intodns/scanner",
+   "tool": "get_stats",
+   "from": "1.7.1",
+   "to": "1.10.1",
+   "t": "2026-08-21",
+   "old": "Read-only fetch of public IntoDNS.ai usage counters: total scans run, security checks performed, hall-of-fame entries, and rolling daily/weekly aggregates. Returns plain integer counters with timestamps. No personal data, no per-domain breakdown. Use for status pages, embedded usage badges, or trust signals in marketing copy; not a per-user dashboard. Single GET, no auth, ~100ms.",
+   "new": "Read-only fetch of the public IntoDNS.ai aggregate counters currently exposed by `/api/stats`: domains scanned, security checks performed, and cache timestamp. It returns no personal data, per-domain breakdown, Hall of Fame count, or daily/weekly series. Use for a lightweight public usage snapshot or status display; use get_hall_of_fame for top-scoring public domains. Single unauthenticated GET with no destructive actions.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Read-only fetch of the public IntoDNS.ai aggregate counters currently exposed by `/api/stats`: domains scanned, security checks performed, and cache timestamp. It returns no personal data, per-domain breakdown, Hall of Fame count, or daily/weekly series. Use for a lightweight public usage snapshot or status display; use get_hall_of_fame for top-scoring public domains. Single unauthenticated GET wi"
+   }
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "server": "ai.nocturnus/logic-server",
+   "tool": "aggregate",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "t": "2026-04-17",
+   "old": "Compute aggregations over matching facts. Supports COUNT (number of matches), SUM, MIN, MAX, and AVG over a numeric argument at a specified position. Example: COUNT all score(player, ?) facts, or AVG scores at argIndex=1.",
+   "new": "Compute aggregations over matching facts. Supports COUNT, SUM, MIN, MAX, and AVG over a numeric argument at a specified position. Example: COUNT all score(player, ?) facts, or AVG scores at argIndex=1. Side effects: none (read-only). Auth: requires X-Tenant-ID header; FACT_READ permission when auth is enabled. Rate-limited per principal. Errors: VALIDATION_ERROR on unknown operation or missing argIndex for numeric ops.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "read"
+    ],
+    "added": "Supports COUNT, SUM, MIN, MAX, and AVG over a numeric argument at a specified position. Side effects: none (read-only). Auth: requires X-Tenant-ID header; FACT_READ permission when auth is enabled. Rate-limited per principal. Errors: VALIDATION_ERROR on unknown operation or missing argIndex for numeric ops."
+   }
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "server": "ai.nocturnus/logic-server",
+   "tool": "ask",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "t": "2026-04-17",
+   "old": "Query the knowledge base using multi-step logical reasoning (backward chaining with unification). Finds all provable answers by applying rules and matching facts. Use ?-prefixed variables for unknowns you want to discover. Optionally returns full proof chains showing the reasoning steps.",
+   "new": "Query the knowledge base using multi-step logical reasoning (backward chaining with unification). Finds all provable answers by applying rules and matching facts. Use ?-prefixed variables for unknowns; optionally returns full proof chains. Side effects: none (read-only). Auth: requires X-Tenant-ID header; FACT_READ permission when auth is enabled. Rate-limited per principal. Errors: VALIDATION_ERROR on bad args; result set bounded by INFERENCE_MAX_RESULTS (default 10,000) to prevent OOM.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "read"
+    ],
+    "added": "Use ?-prefixed variables for unknowns; optionally returns full proof chains. Side effects: none (read-only). Auth: requires X-Tenant-ID header; FACT_READ permission when auth is enabled. Rate-limited per principal. Errors: VALIDATION_ERROR on bad args; result set bounded by INFERENCE_MAX_RESULTS (default 10,000) to prevent OOM."
+   }
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "server": "ai.nocturnus/logic-server",
+   "tool": "bulk_assert",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "t": "2026-04-17",
+   "old": "Assert multiple facts in a single call for efficiency. Non-transactional: each fact is attempted independently \u2014 contradictions are reported as errors without aborting the batch. Returns counts of successful and failed assertions.",
+   "new": "Assert multiple facts in a single call for efficiency. Non-transactional: each fact is attempted independently \u2014 contradictions are reported without aborting the batch. Returns counts of successful and failed assertions. Side effects: mutates state (additive) \u2014 partial successes persist even if other facts in the batch fail. Auth: requires X-Tenant-ID header; FACT_WRITE permission when auth is enabled. Rate-limited per principal. Errors: VALIDATION_ERROR on malformed input; per-fact failures returned in the response",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Non-transactional: each fact is attempted independently \u2014 contradictions are reported without aborting the batch. Side effects: mutates state (additive) \u2014 partial successes persist even if other facts in the batch fail. Auth: requires X-Tenant-ID header; FACT_WRITE permission when auth is enabled. Rate-limited per principal. Errors: VALIDATION_ERROR on malformed input; per-fact failures returned i"
+   }
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "server": "ai.nocturnus/logic-server",
+   "tool": "cleanup",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "t": "2026-04-17",
+   "old": "Run memory decay and eviction. Expires facts past their TTL and evicts low-salience facts when memory exceeds capacity. Call periodically in long-running agent sessions to prevent unbounded memory growth.",
+   "new": "Run memory decay and eviction. Expires facts past their TTL and evicts low-salience facts when memory exceeds capacity. Call periodically in long-running agent sessions to prevent unbounded growth. Side effects: DESTRUCTIVE \u2014 permanently removes evicted and expired facts (irreversible). Auth: requires X-Tenant-ID header; FACT_WRITE permission when auth is enabled. Rate-limited per principal. Errors: VALIDATION_ERROR on bad threshold.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Call periodically in long-running agent sessions to prevent unbounded growth. Side effects: DESTRUCTIVE \u2014 permanently removes evicted and expired facts (irreversible). Auth: requires X-Tenant-ID header; FACT_WRITE permission when auth is enabled. Rate-limited per principal. Errors: VALIDATION_ERROR on bad threshold."
+   }
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "server": "ai.nocturnus/logic-server",
+   "tool": "context",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "t": "2026-04-17",
+   "old": "Get the most relevant knowledge for your current reasoning step, ranked by composite salience (recency \u00d7 frequency \u00d7 priority). Returns a token-optimized context window. Supports three output formats: ",
+   "new": "Get the most relevant knowledge for the current reasoning step, ranked by composite salience (recency \u00d7 frequency \u00d7 priority). Returns a token-optimized context window in ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get the most relevant knowledge for the current reasoning step, ranked by composite salience (recency \u00d7 frequency \u00d7 priority). Returns a token-optimized context window in"
+   }
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "server": "ai.nocturnus/logic-server",
+   "tool": "delete_scope",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "t": "2026-04-17",
+   "old": "Delete a knowledge base scope and all facts within it. Use this to clean up completed or abandoned hypothetical reasoning branches. This is irreversible.",
+   "new": "Delete a named scope and all facts within it. Use to clean up completed or abandoned hypothetical reasoning branches. Side effects: DESTRUCTIVE and IRREVERSIBLE \u2014 permanently removes all facts in the scope; cascades TMS retraction for any derived facts. Auth: requires X-Tenant-ID header; FACT_WRITE permission when auth is enabled. Rate-limited per principal. Errors: VALIDATION_ERROR if scope name is blank.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Delete a named scope and all facts within it. Use to clean up completed or abandoned hypothetical reasoning branches. Side effects: DESTRUCTIVE and IRREVERSIBLE \u2014 permanently removes all facts in the scope; cascades TMS retraction for any derived facts. Auth: requires X-Tenant-ID header; FACT_WRITE permission when auth is enabled. Rate-limited per principal. Errors: VALIDATION_ERROR if scope name "
+   }
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "server": "ai.nocturnus/logic-server",
+   "tool": "forget",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "t": "2026-04-17",
+   "old": "Retract a fact from the knowledge base. Any knowledge that was derived from this fact is also automatically forgotten via the Truth Maintenance System (cascading retraction). This is the inverse of ",
+   "new": "Retract a fact from the knowledge base. Inverse of ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Inverse of"
+   }
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "server": "ai.nocturnus/logic-server",
+   "tool": "fork_scope",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "t": "2026-04-17",
+   "old": "Fork a knowledge base scope \u2014 creates an independent copy of all facts in the source scope under a new target scope name. Use this for hypothetical reasoning (",
+   "new": "Fork a knowledge base scope \u2014 creates an independent copy of all facts in the source scope under a new target scope name. Use for hypothetical reasoning (",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Use for hypothetical reasoning ("
+   }
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "server": "ai.nocturnus/logic-server",
+   "tool": "list_scopes",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "t": "2026-04-17",
+   "old": "List all named scopes in the knowledge base. Shows what hypothetical contexts or reasoning branches currently exist. The global (unscoped) partition is always present but not listed.",
+   "new": "List all named scopes in the knowledge base. Shows what hypothetical contexts or reasoning branches exist. The global (unscoped) partition is always present but not listed. Side effects: none (read-only). Auth: requires X-Tenant-ID header; FACT_READ permission when auth is enabled. Rate-limited per principal. Errors: none under normal operation.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "read"
+    ],
+    "added": "Shows what hypothetical contexts or reasoning branches exist. Side effects: none (read-only). Auth: requires X-Tenant-ID header; FACT_READ permission when auth is enabled. Rate-limited per principal. Errors: none under normal operation."
+   }
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "server": "ai.nocturnus/logic-server",
+   "tool": "predicates",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "t": "2026-04-17",
+   "old": "Discover the knowledge base schema. Lists all predicates (relationship types) currently stored, with their arity (argument count), fact count, and whether they have associated rules. Use this to understand what knowledge is available before querying.",
+   "new": "Discover the knowledge base schema. Lists all predicates currently stored with arity (argument count), fact count, and whether they have associated rules. Use this before querying to understand what knowledge is available. Side effects: none (read-only). Auth: requires X-Tenant-ID header; FACT_READ permission when auth is enabled. Rate-limited per principal. Errors: none under normal operation.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "read"
+    ],
+    "added": "Lists all predicates currently stored with arity (argument count), fact count, and whether they have associated rules. Use this before querying to understand what knowledge is available. Side effects: none (read-only). Auth: requires X-Tenant-ID header; FACT_READ permission when auth is enabled. Rate-limited per principal. Errors: none under normal operation."
+   }
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "server": "ai.nocturnus/logic-server",
+   "tool": "recall",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "t": "2026-04-17",
+   "old": "Time-travel query: recall what was known at a specific point in time. Returns facts that were valid at the given timestamp, respecting temporal bounds (validFrom, validUntil, ttl). Useful for debugging agent behavior or reconstructing past state.",
+   "new": "Time-travel query: recall what was known at a specific point in time. Returns facts valid at the given timestamp, respecting temporal bounds (validFrom, validUntil, ttl). Useful for debugging agent behavior or reconstructing past state. Side effects: none (read-only). Auth: requires X-Tenant-ID header; FACT_READ permission when auth is enabled. Rate-limited per principal. Errors: VALIDATION_ERROR on bad args or missing timestamp.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "read"
+    ],
+    "added": "Returns facts valid at the given timestamp, respecting temporal bounds (validFrom, validUntil, ttl). Side effects: none (read-only). Auth: requires X-Tenant-ID header; FACT_READ permission when auth is enabled. Rate-limited per principal. Errors: VALIDATION_ERROR on bad args or missing timestamp."
+   }
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "server": "ai.nocturnus/logic-server",
+   "tool": "retract_pattern",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "t": "2026-04-17",
+   "old": "Retract all facts matching a pattern in a single call. Use ?-prefixed variables as wildcards to retract multiple facts at once. Returns the count and list of retracted facts. Cascading retraction applies to each removed fact.",
+   "new": "Retract all facts matching a pattern in a single call. Use ?-prefixed variables as wildcards to retract multiple facts at once. Returns the count and list of retracted facts. Side effects: DESTRUCTIVE \u2014 removes multiple facts and cascades TMS retraction for each removed fact (irreversible). Auth: requires X-Tenant-ID header; FACT_WRITE permission when auth is enabled. Rate-limited per principal. Errors: VALIDATION_ERROR on bad args.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Side effects: DESTRUCTIVE \u2014 removes multiple facts and cascades TMS retraction for each removed fact (irreversible). Auth: requires X-Tenant-ID header; FACT_WRITE permission when auth is enabled. Rate-limited per principal. Errors: VALIDATION_ERROR on bad args."
+   }
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "server": "ai.nocturnus/logic-server",
+   "tool": "teach",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "t": "2026-04-17",
+   "old": "Define a logical rule for automatic reasoning. When all conditions (body) are true, the conclusion (head) is automatically derivable via backward chaining. Use ?-prefixed variables (e.g., ?x, ?who). Supports Negation-as-Failure in body atoms. Example: ",
+   "new": "Define a logical rule for automatic reasoning. When body conditions hold, head becomes derivable via backward chaining. Use ?-prefixed variables; supports Negation-as-Failure. Example: ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "When body conditions hold, head becomes derivable via backward chaining. Use ?-prefixed variables; supports Negation-as-Failure."
+   }
+  },
+  {
+   "pkg": "nocturnusai-mcp",
+   "server": "ai.nocturnus/logic-server",
+   "tool": "tell",
+   "from": "0.3.12",
+   "to": "0.3.13",
+   "t": "2026-04-17",
+   "old": "Assert a fact into the knowledge base. Stores knowledge that can be queried and used in logical reasoning. Supports auto-expiration via ttl (milliseconds) or validUntil (epoch ms), confidence scoring, and configurable conflict resolution.",
+   "new": "Assert a fact into the knowledge base. Stores knowledge queryable via logical reasoning. Supports TTL expiration, confidence scoring, and configurable conflict resolution. Side effects: mutates state (additive) \u2014 stored facts persist until retracted or expired. Auth: requires X-Tenant-ID header for tenant isolation; FACT_WRITE permission when auth is enabled. Rate-limited per principal. Errors: VALIDATION_ERROR on bad args, CONFLICT_ERROR on contradictions when conflictStrategy=REJECT.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Stores knowledge queryable via logical reasoning. Supports TTL expiration, confidence scoring, and configurable conflict resolution. Side effects: mutates state (additive) \u2014 stored facts persist until retracted or expired. Auth: requires X-Tenant-ID header for tenant isolation; FACT_WRITE permission when auth is enabled. Rate-limited per principal. Errors: VALIDATION_ERROR on bad args, CONFLICT_ER"
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "includeCode",
+   "from": "0.8.0",
+   "to": "0.9.11",
+   "t": "2026-07-19",
+   "old": "Include code examples: ",
+   "new": "Include current SAP MCP JSON tool-call examples: ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Include current SAP MCP JSON tool-call examples:"
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_create_escrow_v2",
+   "from": "0.8.0",
+   "to": "0.9.11",
+   "t": "2026-07-19",
+   "old": "Create a V2 escrow using SDK EscrowV2Module.create.",
+   "new": "Create a V2 escrow using SDK EscrowV2Module.create. Defaults to DisputeWindow settlementSecurity=2; SelfReport/0 is rejected.",
+   "label": {
+    "bucket": "schema-widening",
+    "reason": "input surface described differently",
+    "signals": [],
+    "added": "Defaults to DisputeWindow settlementSecurity=2; SelfReport/0 is rejected."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_discover_agents",
+   "from": "0.8.0",
+   "to": "0.9.11",
+   "t": "2026-07-19",
+   "old": "Discover agents by protocol, capability, or capability list. Unfiltered global listing is not exposed by SDK v0.20.",
+   "new": "Paid hosted discovery for SAP agents. Search and filter the current on-chain AgentAccount directory by query, wallet, protocol, capability, x402 endpoint presence, and cursor pagination. Use this for targeted agent discovery before calling per-agent fetch tools.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "fetch",
+     "query",
+     "search"
+    ],
+    "added": "Paid hosted discovery for SAP agents. Search and filter the current on-chain AgentAccount directory by query, wallet, protocol, capability, x402 endpoint presence, and cursor pagination. Use this for targeted agent discovery before calling per-agent fetch tools."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_list_agents",
+   "from": "0.8.0",
+   "to": "0.9.11",
+   "t": "2026-07-19",
+   "old": "Compatibility alias for filtered SAP agent discovery. Requires protocol or capability. Use sap_list_all_agents for a global on-chain directory snapshot.",
+   "new": "Compatibility alias for sap_discover_agents. Supports query, wallet, protocol, capability, x402 endpoint filtering, and cursor pagination.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "query"
+    ],
+    "added": "Compatibility alias for sap_discover_agents. Supports query, wallet, protocol, capability, x402 endpoint filtering, and cursor pagination."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_list_all_agents",
+   "from": "0.8.0",
+   "to": "0.9.11",
+   "t": "2026-07-19",
+   "old": "Enumerate SAP AgentAccount PDAs directly from the on-chain program account set. Use this for current global directory requests such as ",
+   "new": "Paid hosted global SAP agent directory read. Enumerates current on-chain AgentAccount PDAs and supports query, wallet, protocol, capability, x402 endpoint filtering, compact/full views, and cursor pagination.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "query",
+     "read"
+    ],
+    "added": "Paid hosted global SAP agent directory read. Enumerates current on-chain AgentAccount PDAs and supports query, wallet, protocol, capability, x402 endpoint filtering, compact/full views, and cursor pagination."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_register_agent",
+   "from": "0.8.0",
+   "to": "0.9.11",
+   "t": "2026-07-19",
+   "old": "Register the connected wallet as a SAP agent using SDK AgentModule.register.",
+   "new": "Local-signer-only: register the connected wallet as a SAP agent using SDK AgentModule.register. Hosted accountless SAP MCP rejects this direct write before x402 payment; run it through a local SAP MCP profile or external signer.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "run",
+     "write"
+    ],
+    "added": "Local-signer-only: register the connected wallet as a SAP agent using SDK AgentModule.register. Hosted accountless SAP MCP rejects this direct write before x402 payment; run it through a local SAP MCP profile or external signer."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_sns_build_manage_record_transaction",
+   "from": "0.8.0",
+   "to": "0.9.11",
+   "t": "2026-07-19",
+   "old": "Build an unsigned SNS record create/update/delete transaction using the Bonfida SDK. The returned transaction must be signed with sap_sign_transaction before submission. Use null value to delete a record. Note: SOL record is not supported \u2014 it requires a separate Ed25519 signature flow.",
+   "new": "Build an unsigned SNS record create/update/delete transaction using the Bonfida SDK. In hosted mode, finalize the returned transaction locally with sap_payments_finalize_transaction. In local mode, preview and sign with sap_sign_transaction before submission. Use null value to delete a record. Note: SOL record is not supported \u2014 it requires a separate Ed25519 signature flow.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "In hosted mode, finalize the returned transaction locally with sap_payments_finalize_transaction. In local mode, preview and sign with sap_sign_transaction before submission."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_sns_build_set_primary_domain_transaction",
+   "from": "0.8.0",
+   "to": "0.9.11",
+   "t": "2026-07-19",
+   "old": "Build an unsigned transaction to set a .sol domain as primary for the owner using the Bonfida SDK. The returned transaction must be signed with sap_sign_transaction before submission.",
+   "new": "Unavailable builder: setting primary domain requires the Bonfida SNS CLI or direct program interaction. Hosted accountless SAP MCP rejects this tool before x402 payment until a production unsigned builder is available.",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "tool_routing"
+    ],
+    "evidence": [
+     "this tool before"
+    ],
+    "added": "Unavailable builder: setting primary domain requires the Bonfida SNS CLI or direct program interaction. Hosted accountless SAP MCP rejects this tool before x402 payment until a production unsigned builder is available."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_sns_register_agent_domain",
+   "from": "0.8.0",
+   "to": "0.9.11",
+   "t": "2026-07-19",
+   "old": "Register a .sol domain for the configured local SAP agent wallet using the SAP SDK SnsModule. Builds, signs, and submits the full registration transaction with USDC payment in one call. Domain registration fees are paid in USDC plus SOL for rent and transaction fees. The SOL record is NOT set during registration (it requires a separate Ed25519 signature) \u2014 set it after using sap_sns_build_manage_record_transaction.",
+   "new": "Local-signer-only tool: register a .sol domain for the configured SAP agent wallet using the SAP SDK SnsModule. This tool builds, signs, and submits the full registration transaction with the local profile signer or external signer. Hosted accountless SAP MCP rejects this tool before x402 payment because OOBE never custodies user keys. Domain registration fees are paid in USDC plus SOL for rent and transaction fees. The SOL record is NOT set during registration (it requires a separate Ed25519 signature) \u2014 set it after using sap_sns_build_manage_record_transaction.",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "tool_routing"
+    ],
+    "evidence": [
+     "this tool before"
+    ],
+    "added": "Local-signer-only tool: register a .sol domain for the configured SAP agent wallet using the SAP SDK SnsModule. This tool builds, signs, and submits the full registration transaction with the local profile signer or external signer. Hosted accountless SAP MCP rejects this tool before x402 payment because OOBE never custodies user keys."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_x402_prepare_payment",
+   "from": "0.8.0",
+   "to": "0.9.11",
+   "t": "2026-07-19",
+   "old": "Prepare a V1 x402 payment context using SDK X402Registry.preparePayment. Deprecated by the SDK for production escrow creation; prefer Escrow V2 tools for new flows.",
+   "new": "Prepare an x402 payment context using SDK X402Registry.preparePayment. New production escrow funding should use Escrow V2 fields and nonce-aware flows.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Prepare an x402 payment context using SDK X402Registry.preparePayment. New production escrow funding should use Escrow V2 fields and nonce-aware flows."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_close_escrow_v2",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "t": "2026-07-27",
+   "old": "Close a V2 escrow.",
+   "new": "Local-signer-only direct close for an empty V2 escrow. Hosted users should call sap_escrow_build_close_transaction and finalize locally.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Local-signer-only direct close for an empty V2 escrow. Hosted users should call sap_escrow_build_close_transaction and finalize locally."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_create_escrow_v2",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "t": "2026-07-27",
+   "old": "Create a V2 escrow using SDK EscrowV2Module.create. Defaults to DisputeWindow settlementSecurity=2; SelfReport/0 is rejected.",
+   "new": "Local-signer-only direct V2 escrow creation using SDK EscrowV2Module.create. Defaults to DisputeWindow settlementSecurity=2; SelfReport/0 is rejected. Hosted accountless SAP MCP rejects this before x402 payment; hosted users should call sap_escrow_build_create_transaction and finalize locally.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Local-signer-only direct V2 escrow creation using SDK EscrowV2Module.create. Hosted accountless SAP MCP rejects this before x402 payment; hosted users should call sap_escrow_build_create_transaction and finalize locally."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_deposit_escrow_v2",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "t": "2026-07-27",
+   "old": "Deposit funds into a V2 escrow.",
+   "new": "Local-signer-only direct deposit into a V2 escrow. Hosted users should call sap_escrow_build_deposit_transaction and finalize locally.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Local-signer-only direct deposit into a V2 escrow. Hosted users should call sap_escrow_build_deposit_transaction and finalize locally."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_finalize_settlement_v2",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "t": "2026-07-27",
+   "old": "Finalize a V2 pending settlement.",
+   "new": "Local-signer-only direct finalization of a V2 pending settlement. Hosted users should call sap_escrow_build_finalize_transaction and finalize locally.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Local-signer-only direct finalization of a V2 pending settlement. Hosted users should call sap_escrow_build_finalize_transaction and finalize locally."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_get_agent",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "t": "2026-07-27",
+   "old": "Fetch agent identity by owner wallet. If omitted, fetches the connected wallet agent.",
+   "new": "Free exact SAP agent identity read by owner wallet. If omitted, fetches the connected wallet agent. Use this before paid discovery when the wallet is known.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "read"
+    ],
+    "added": "Free exact SAP agent identity read by owner wallet. Use this before paid discovery when the wallet is known."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_get_agent_profile",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "t": "2026-07-27",
+   "old": "Fetch a hydrated SAP agent profile by owner wallet.",
+   "new": "Micro-read exact SAP agent profile lookup by owner wallet. Use this for a known agent before read-premium discovery or enrichment.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "read"
+    ],
+    "added": "Micro-read exact SAP agent profile lookup by owner wallet. Use this for a known agent before read-premium discovery or enrichment."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_get_agent_stats",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "t": "2026-07-27",
+   "old": "Fetch agent stats by agent PDA.",
+   "new": "Free exact SAP agent stats read by agent PDA. Use after sap_get_agent or sap_get_agent_profile when stats are needed.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "read"
+    ],
+    "added": "Free exact SAP agent stats read by agent PDA. Use after sap_get_agent or sap_get_agent_profile when stats are needed."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_get_global_state",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "t": "2026-07-27",
+   "old": "Fetch the on-chain global registry through SDK AgentModule.fetchGlobalRegistry.",
+   "new": "Free compact global SAP registry state read. Use for initial orientation before paid network analytics.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "read"
+    ],
+    "added": "Free compact global SAP registry state read. Use for initial orientation before paid network analytics."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_is_agent_active",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "t": "2026-07-27",
+   "old": "Check if a wallet owns an active SAP agent.",
+   "new": "Micro-read exact activity check for an owner wallet. Use this before read-premium discovery when the wallet is known.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "read"
+    ],
+    "added": "Micro-read exact activity check for an owner wallet. Use this before read-premium discovery when the wallet is known."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_list_agents",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "t": "2026-07-27",
+   "old": "Compatibility alias for sap_discover_agents. Supports query, wallet, protocol, capability, x402 endpoint filtering, and cursor pagination.",
+   "new": "Compact SAP agent orientation list. Micro-read when limit <= 20, view is compact, hydrate is false, and includeProtocolIndexes is false; larger or enriched pages are read-premium.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "list",
+     "read"
+    ],
+    "added": "Compact SAP agent orientation list. Micro-read when limit <= 20, view is compact, hydrate is false, and includeProtocolIndexes is false; larger or enriched pages are read-premium."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_register_agent",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "t": "2026-07-27",
+   "old": "Local-signer-only: register the connected wallet as a SAP agent using SDK AgentModule.register. Hosted accountless SAP MCP rejects this direct write before x402 payment; run it through a local SAP MCP profile or external signer.",
+   "new": "Deprecated raw SDK wrapper. Production registration must use sap_payments_register_agent so the local signer path confirms the account, verifies the 0.1 SOL protocol treasury fee invariant, and returns protocolComplete. Hosted accountless SAP MCP rejects this direct write before x402 payment.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Deprecated raw SDK wrapper. Production registration must use sap_payments_register_agent so the local signer path confirms the account, verifies the 0.1 SOL protocol treasury fee invariant, and returns protocolComplete."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_settle_escrow_v2",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "t": "2026-07-27",
+   "old": "Settle calls against a V2 escrow.",
+   "new": "Local-signer-only direct settlement against a V2 escrow. Hosted users should call sap_escrow_build_settle_transaction and finalize locally.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Local-signer-only direct settlement against a V2 escrow. Hosted users should call sap_escrow_build_settle_transaction and finalize locally."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_update_agent",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "t": "2026-07-27",
+   "old": "Update the connected wallet SAP agent using SDK AgentModule.update.",
+   "new": "Local-signer-only: update the connected wallet SAP agent using SDK AgentModule.update. Hosted accountless SAP MCP rejects this direct write before x402 payment; hosted users should call sap_payments_update_agent from the local sap_payments bridge.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "write"
+    ],
+    "added": "Local-signer-only: update the connected wallet SAP agent using SDK AgentModule.update. Hosted accountless SAP MCP rejects this direct write before x402 payment; hosted users should call sap_payments_update_agent from the local sap_payments bridge."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_withdraw_escrow_v2",
+   "from": "0.9.11",
+   "to": "0.9.38",
+   "t": "2026-07-27",
+   "old": "Withdraw funds from a V2 escrow.",
+   "new": "Local-signer-only direct withdrawal from a V2 escrow. Hosted users should call sap_escrow_build_withdraw_transaction and finalize locally.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Local-signer-only direct withdrawal from a V2 escrow. Hosted users should call sap_escrow_build_withdraw_transaction and finalize locally."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_sns_batch_check_domains",
+   "from": "0.9.61",
+   "to": "0.9.74",
+   "t": "2026-08-08",
+   "old": "Check availability for multiple .sol domains (up to 25) using the SAP SDK SnsModule.",
+   "new": "Check availability for multiple .sol domains (up to 25) by deriving each SNS PDA and checking account existence on-chain. This is read-only and safe for hosted mode.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "read"
+    ],
+    "added": "Check availability for multiple .sol domains (up to 25) by deriving each SNS PDA and checking account existence on-chain. This is read-only and safe for hosted mode."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_sns_build_manage_record_transaction",
+   "from": "0.9.61",
+   "to": "0.9.74",
+   "t": "2026-08-08",
+   "old": "Build an unsigned SNS record create/update/delete transaction using the Bonfida SDK. In hosted mode, finalize the returned transaction locally with sap_payments_finalize_transaction. In local mode, preview and sign with sap_sign_transaction before submission. Use null value to delete a record. Note: SOL record is not supported \u2014 it requires a separate Ed25519 signature flow.",
+   "new": "Temporarily unavailable. SAP MCP does not currently publish an SNS record write builder because the historical Bonfida SNS npm package is not installable from npmjs. The tool fails fast before payment or signing.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "publish",
+     "write"
+    ],
+    "added": "Temporarily unavailable. SAP MCP does not currently publish an SNS record write builder because the historical Bonfida SNS npm package is not installable from npmjs. The tool fails fast before payment or signing."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_sns_build_set_primary_domain_transaction",
+   "from": "0.9.61",
+   "to": "0.9.74",
+   "t": "2026-08-08",
+   "old": "Unavailable builder: setting primary domain requires the Bonfida SNS CLI or direct program interaction. Hosted accountless SAP MCP rejects this tool before x402 payment until a production unsigned builder is available.",
+   "new": "Temporarily unavailable. Setting primary SNS domains is disabled in SAP MCP until the SNS write path is migrated to a current installable SDK and covered by end-to-end tests.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "write"
+    ],
+    "added": "Temporarily unavailable. Setting primary SNS domains is disabled in SAP MCP until the SNS write path is migrated to a current installable SDK and covered by end-to-end tests."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_sns_check_domain",
+   "from": "0.9.61",
+   "to": "0.9.74",
+   "t": "2026-08-08",
+   "old": "Check whether a .sol domain is available for registration using the SAP SDK SnsModule.",
+   "new": "Check whether a .sol domain is available by deriving its Solana Name Service PDA and checking whether the account exists on-chain. This is a read-only helper and does not require the historical Bonfida npm package.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Check whether a .sol domain is available by deriving its Solana Name Service PDA and checking whether the account exists on-chain. This is a read-only helper and does not require the historical Bonfida npm package."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_sns_check_ownership",
+   "from": "0.9.61",
+   "to": "0.9.74",
+   "t": "2026-08-08",
+   "old": "Check whether a wallet owns a .sol domain using the Bonfida SDK.",
+   "new": "Check whether a wallet matches the resolved SNS wallet for a .sol domain. This uses the SOL record when present and the domain owner as fallback.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Check whether a wallet matches the resolved SNS wallet for a .sol domain. This uses the SOL record when present and the domain owner as fallback."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_sns_get_domain_pda",
+   "from": "0.9.61",
+   "to": "0.9.74",
+   "t": "2026-08-08",
+   "old": "Derive the SNS domain PDA for a .sol domain using the SAP SDK SnsModule.",
+   "new": "Derive the Solana Name Service domain PDA for a .sol domain. This helper is deterministic, read-only, and does not require any external SNS SDK.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "read"
+    ],
+    "added": "Derive the Solana Name Service domain PDA for a .sol domain. This helper is deterministic, read-only, and does not require any external SNS SDK."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_sns_get_domain_records",
+   "from": "0.9.61",
+   "to": "0.9.74",
+   "t": "2026-08-08",
+   "old": "Fetch all configured SNS records for a .sol domain using the Bonfida SDK. Returns a key-value map of all records.",
+   "new": "Fetch known SNS records for a .sol domain using direct Solana Name Service account reads. Returns a key-value map for records that exist and can be decoded.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Fetch known SNS records for a .sol domain using direct Solana Name Service account reads. Returns a key-value map for records that exist and can be decoded."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_sns_get_record",
+   "from": "0.9.61",
+   "to": "0.9.74",
+   "t": "2026-08-08",
+   "old": "Fetch a single SNS record value for a .sol domain using the Bonfida SDK.",
+   "new": "Fetch a single SNS record value for a .sol domain using direct Solana Name Service account reads. Returns null if the record account is absent or empty.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Fetch a single SNS record value for a .sol domain using direct Solana Name Service account reads. Returns null if the record account is absent or empty."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_sns_get_record_pda",
+   "from": "0.9.61",
+   "to": "0.9.74",
+   "t": "2026-08-08",
+   "old": "Derive the SNS record PDA for a domain and record type using the SAP SDK SnsModule.",
+   "new": "Derive the Solana Name Service record PDA for a root .sol domain and record type such as SOL, TXT, Pic, Url, or IPFS.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Derive the Solana Name Service record PDA for a root .sol domain and record type such as SOL, TXT, Pic, Url, or IPFS."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_sns_register_agent_domain",
+   "from": "0.9.61",
+   "to": "0.9.74",
+   "t": "2026-08-08",
+   "old": "Local-signer-only tool: register a .sol domain for the configured SAP agent wallet using the SAP SDK SnsModule. This tool builds, signs, and submits the full registration transaction with the local profile signer or external signer. Hosted accountless SAP MCP rejects this tool before x402 payment because OOBE never custodies user keys. Domain registration fees are paid in USDC plus SOL for rent and transaction fees. The SOL record is NOT set during registration (it requires a separate Ed25519 signature) \u2014 set it after using sap_sns_build_manage_record_transaction.",
+   "new": "Temporarily unavailable. SAP MCP does not currently publish an SNS registration write path because the historical Bonfida SNS npm package is not installable from npmjs. Use this tool only to receive the fail-fast status before any payment or signing attempt.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "publish",
+     "write"
+    ],
+    "added": "Temporarily unavailable. SAP MCP does not currently publish an SNS registration write path because the historical Bonfida SNS npm package is not installable from npmjs. Use this tool only to receive the fail-fast status before any payment or signing attempt."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_sns_resolve_domain",
+   "from": "0.9.61",
+   "to": "0.9.74",
+   "t": "2026-08-08",
+   "old": "Resolve a .sol domain to SAP agent identity, wallet, metadata, and SNS records using the SAP SDK SnsModule.",
+   "new": "Resolve a .sol domain to its wallet/owner and configured SNS records using direct Solana Name Service account reads. Agents should treat TXT/Pic/Url records as optional metadata and fall back to the wallet owner when no SOL record exists.",
+   "label": {
+    "bucket": "schema-widening",
+    "reason": "input surface described differently",
+    "signals": [],
+    "added": "Resolve a .sol domain to its wallet/owner and configured SNS records using direct Solana Name Service account reads. Agents should treat TXT/Pic/Url records as optional metadata and fall back to the wallet owner when no SOL record exists."
+   }
+  },
+  {
+   "pkg": "@oobe-protocol-labs/sap-mcp-server",
+   "server": "ai.oobeprotocol.sap.mcp/sap-mcp",
+   "tool": "sap_sns_resolve_wallet",
+   "from": "0.9.61",
+   "to": "0.9.74",
+   "t": "2026-08-08",
+   "old": "Resolve a .sol domain to its owner wallet public key using the Bonfida SDK.",
+   "new": "Resolve a .sol domain to a wallet public key. The tool prefers the SOL record when available and falls back to the domain owner field from the SNS account header.",
+   "label": {
+    "bucket": "schema-widening",
+    "reason": "input surface described differently",
+    "signals": [],
+    "added": "Resolve a .sol domain to a wallet public key. The tool prefers the SOL record when available and falls back to the domain owner field from the SNS account header."
+   }
+  },
+  {
+   "pkg": "ponlo-ai",
+   "server": "ai.ponlo/server",
+   "tool": "ponlo_tasks_list",
+   "from": "1.0.0",
+   "to": "1.3.0",
+   "t": "2026-02-24",
+   "old": "List all tasks in your Ponlo.ai workspace. Shows pending and completed tasks with their details.",
+   "new": "List tasks in your Ponlo.ai workspace. Shows pending and completed tasks with their details. Optionally filter by status, assignee, or search keyword.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "search"
+    ],
+    "added": "List tasks in your Ponlo.ai workspace. Optionally filter by status, assignee, or search keyword."
+   }
+  },
+  {
+   "pkg": "ponlo-ai",
+   "server": "ai.ponlo/server",
+   "tool": "ponlo_tasks_update",
+   "from": "1.3.0",
+   "to": "1.6.0",
+   "t": "2026-02-24",
+   "old": "Update an existing task\\",
+   "new": "Update an existing task",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Update an existing task"
+   }
+  },
+  {
+   "pkg": "ponlo-ai",
+   "server": "ai.ponlo/server",
+   "tool": "ponlo_ai_chat",
+   "from": "1.6.0",
+   "to": "1.10.0",
+   "t": "2026-03-03",
+   "old": "Send a message to the Ponlo.ai assistant. It can answer questions about your schedule, create events/tasks/notes via natural language, and take actions on your behalf.",
+   "new": "Send a message to the Ponlo.ai assistant. It can answer questions about your schedule and create events/tasks/notes via natural language. For updating or deleting specific items, prefer the structured tools (ponlo_calendar_delete_event, ponlo_tasks_update, etc.) as they are more reliable.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "It can answer questions about your schedule and create events/tasks/notes via natural language. For updating or deleting specific items, prefer the structured tools (ponlo_calendar_delete_event, ponlo_tasks_update, etc.) as they are more reliable."
+   }
+  },
+  {
+   "pkg": "ponlo-ai",
+   "server": "ai.ponlo/server",
+   "tool": "ponlo_calendar_update_event",
+   "from": "1.6.0",
+   "to": "1.10.0",
+   "t": "2026-03-03",
+   "old": "Update an existing calendar event\\",
+   "new": "Update an existing calendar event",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Update an existing calendar event"
+   }
+  },
+  {
+   "pkg": "ponlo-ai",
+   "server": "ai.ponlo/server",
+   "tool": "ponlo_daily_briefing",
+   "from": "1.10.0",
+   "to": "1.13.0",
+   "t": "2026-03-03",
+   "old": "Get a complete daily overview in one call: today\\",
+   "new": "Get a complete daily overview in one call: today",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get a complete daily overview in one call: today"
+   }
+  },
+  {
+   "pkg": "ponlo-ai",
+   "server": "ai.ponlo/server",
+   "tool": "ponlo_notes_update",
+   "from": "1.13.0",
+   "to": "1.15.0",
+   "t": "2026-03-10",
+   "old": "Update an existing sticky note\\",
+   "new": "Update an existing sticky note",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Update an existing sticky note"
+   }
+  },
+  {
+   "pkg": "ponlo-ai",
+   "server": "ai.ponlo/server",
+   "tool": "ponlo_rewards_redeem",
+   "from": "1.13.0",
+   "to": "1.15.0",
+   "t": "2026-03-10",
+   "old": "Redeem a reward by spending stars. Deducts stars from the family member\\",
+   "new": "Redeem a reward by spending stars. Deducts stars from the family member",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Deducts stars from the family member"
+   }
+  },
+  {
+   "pkg": "@spideriq/mcp-publish",
+   "server": "ai.spideriq/publish",
+   "tool": "form_get_embed_snippet",
+   "from": "1.25.0",
+   "to": "1.35.0",
+   "t": "2026-07-26",
+   "old": "Return a copy-pasteable HTML embed snippet for a form. Two modes:\n  - inline: renders the form in-page as an iframe\n  - popup:  renders a button that opens the form in a modal\nThe loader bundle is served from ${V}. Loader deployment lands in P1.9; this tool returns the static URL regardless so authors can prepare their pages.",
+   "new": "Return a copy-pasteable HTML embed snippet for a form. Two modes:\n  - inline: renders the form in-page as an iframe\n  - popup:  renders a button that opens the form in a modal\nThe loader bundle is served from ${se}. Loader deployment lands in P1.9; this tool returns the static URL regardless so authors can prepare their pages.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "The loader bundle is served from ${se}."
+   }
+  },
+  {
+   "pkg": "@variel/mcp-server",
+   "server": "ai.variel/mcp-server",
+   "tool": "get_brand_tokens",
+   "from": "0.1.0",
+   "to": "0.2.0",
+   "t": "2026-07-08",
+   "old": "Returns the full design token set and generated CSS custom properties for the project brand.",
+   "new": "Returns the full design token set and generated CSS custom properties for the project brand. On a keyless or bootstrap connection, this returns Variel",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "On a keyless or bootstrap connection, this returns Variel"
+   }
+  },
+  {
+   "pkg": "@variel/mcp-server",
+   "server": "ai.variel/mcp-server",
+   "tool": "get_component",
+   "from": "0.1.0",
+   "to": "0.2.0",
+   "t": "2026-07-08",
+   "old": "Returns the full definition and code snippet for a named brand component in the requested framework.",
+   "new": "Returns the full definition and code snippet for a named brand component in the requested framework. On a keyless or bootstrap connection, components come from Variel",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "On a keyless or bootstrap connection, components come from Variel"
+   }
+  },
+  {
+   "pkg": "@variel/mcp-server",
+   "server": "ai.variel/mcp-server",
+   "tool": "list_components",
+   "from": "0.1.0",
+   "to": "0.2.0",
+   "t": "2026-07-08",
+   "old": "Lists all available brand components with their variant names.",
+   "new": "Lists all available brand components with their variant names. On a keyless or bootstrap connection, these components belong to Variel",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "On a keyless or bootstrap connection, these components belong to Variel"
+   }
+  },
+  {
+   "pkg": "verifox-mcp",
+   "server": "ai.verifox/email-verifier",
+   "tool": "find_email",
+   "from": "1.0.0",
+   "to": "1.1.0",
+   "t": "2026-07-22",
+   "old": "Find someone",
+   "new": "Find ONE person",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Find ONE person"
+   }
+  },
+  {
+   "pkg": "verifox-mcp",
+   "server": "ai.verifox/email-verifier",
+   "tool": "verify_email",
+   "from": "1.0.0",
+   "to": "1.1.0",
+   "t": "2026-07-22",
+   "old": "Verify if an email address is deliverable. Checks SMTP, MX records, catch-all, disposable, free provider, role account detection. Charges 1 Fox Credit per uncached email.",
+   "new": "Verify whether ONE email address is deliverable. Checks syntax, MX, SMTP, catch-all, disposable, free-provider and role detection, and returns a 0-100 quality score. Charges 1 Fox Credit per uncached email.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Verify whether ONE email address is deliverable. Checks syntax, MX, SMTP, catch-all, disposable, free-provider and role detection, and returns a 0-100 quality score."
+   }
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "server": "ai.wpconvert/mcp",
+   "tool": "wpconvert_check_status",
+   "from": "0.1.0",
+   "to": "0.2.0",
+   "t": "2026-07-31",
+   "old": "Check the status of a conversion job. Returns status (queued/processing/done/failed) and progress.",
+   "new": "Check the status of a conversion job. Returns status (queued/processing/done/failed), progress, and whether a live preview is available. When done, you can call wpconvert_download_result and/or wpconvert_create_preview.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Returns status (queued/processing/done/failed), progress, and whether a live preview is available. When done, you can call wpconvert_download_result and/or wpconvert_create_preview."
+   }
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "server": "ai.wpconvert/mcp",
+   "tool": "wpconvert_convert_folder",
+   "from": "0.1.0",
+   "to": "0.2.0",
+   "t": "2026-07-31",
+   "old": "Zip a local folder (excluding node_modules, build output, and secrets by default) and start a WordPress theme conversion. Returns a jobId; poll wpconvert_check_status until ",
+   "new": "Zip a local folder (excluding node_modules, build output, and secrets by default) and start a WordPress theme conversion. Returns a jobId and an idempotency_key. Leave idempotency_key blank for a new intentional conversion. If a prior call may have timed out or returned an ambiguous network error, retry with the exact idempotency_key returned by that prior call \u2014 do not omit it and do not invent a new one. Do not reuse a key for changed files, options, or a deliberate new conversion. Once you have a jobId, poll wpconvert_check_status until ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Returns a jobId and an idempotency_key. Leave idempotency_key blank for a new intentional conversion. If a prior call may have timed out or returned an ambiguous network error, retry with the exact idempotency_key returned by that prior call \u2014 do not omit it and do not invent a new one. Do not reuse a key for changed files, options, or a deliberate new conversion. Once you have a jobId, poll wpcon"
+   }
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "server": "ai.wpconvert/mcp",
+   "tool": "wpconvert_download_result",
+   "from": "0.1.0",
+   "to": "0.2.0",
+   "t": "2026-07-31",
+   "old": "Download a completed conversion to disk. Returns the saved file path.",
+   "new": "Download a completed conversion to disk. Returns the saved file path. Optionally, use wpconvert_create_preview to view the theme in a live WordPress before/after downloading.",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "tool_routing"
+    ],
+    "evidence": [
+     "use wpconvert_create_preview to"
+    ],
+    "added": "Optionally, use wpconvert_create_preview to view the theme in a live WordPress before/after downloading."
+   }
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "server": "ai.wpconvert/mcp",
+   "tool": "wpconvert_explain_failure",
+   "from": "0.1.0",
+   "to": "0.2.0",
+   "t": "2026-07-31",
+   "old": "Return the failure reason for a failed conversion job.",
+   "new": "Return the failure reason for a failed conversion job. Distinguishes status retries, recovering a submission with the same idempotency_key via wpconvert_convert_folder, and starting a deliberate new conversion without that key.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Distinguishes status retries, recovering a submission with the same idempotency_key via wpconvert_convert_folder, and starting a deliberate new conversion without that key."
+   }
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "server": "ai.wpconvert/mcp",
+   "tool": "wpconvert_check_status",
+   "from": "0.2.0",
+   "to": "0.3.0",
+   "t": "2026-08-11",
+   "old": "Check the status of a conversion job. Returns status (queued/processing/done/failed), progress, and whether a live preview is available. When done, you can call wpconvert_download_result and/or wpconvert_create_preview.",
+   "new": "Check the status of a conversion job. Returns status (queued/processing/done/failed), progress, download/preview availability, and recommended_next (which tool to call next). When done and downloadable, recommended_next points to wpconvert_download_result; for preview-only jobs it points to wpconvert_create_preview instead.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "download"
+    ],
+    "added": "Returns status (queued/processing/done/failed), progress, download/preview availability, and recommended_next (which tool to call next). When done and downloadable, recommended_next points to wpconvert_download_result; for preview-only jobs it points to wpconvert_create_preview instead."
+   }
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "server": "ai.wpconvert/mcp",
+   "tool": "wpconvert_download_result",
+   "from": "0.2.0",
+   "to": "0.3.0",
+   "t": "2026-08-11",
+   "old": "Download a completed conversion to disk. Returns the saved file path. Optionally, use wpconvert_create_preview to view the theme in a live WordPress before/after downloading.",
+   "new": "Download a completed conversion to disk. Only use when wpconvert_check_status shows download_available and recommended_next is wpconvert_download_result. Returns the saved file path. For preview-only jobs, use wpconvert_create_preview or upgrade and re-convert instead.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Only use when wpconvert_check_status shows download_available and recommended_next is wpconvert_download_result. For preview-only jobs, use wpconvert_create_preview or upgrade and re-convert instead."
+   }
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "server": "ai.wpconvert/mcp",
+   "tool": "wpconvert_quota",
+   "from": "0.2.0",
+   "to": "0.3.0",
+   "t": "2026-08-11",
+   "old": "Show the account\\",
+   "new": "Show account quota, capabilities (conversion mode, can_start, download availability), and recommended_next. Call this before wpconvert_convert_folder to understand what the next conversion will consume.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "download"
+    ],
+    "added": "Show account quota, capabilities (conversion mode, can_start, download availability), and recommended_next. Call this before wpconvert_convert_folder to understand what the next conversion will consume."
+   }
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "server": "ai.wpconvert/mcp",
+   "tool": "wpconvert_check_status",
+   "from": "0.3.0",
+   "to": "0.3.1",
+   "t": "2026-08-19",
+   "old": "Check the status of a conversion job. Returns status (queued/processing/done/failed), progress, download/preview availability, and recommended_next (which tool to call next). When done and downloadable, recommended_next points to wpconvert_download_result; for preview-only jobs it points to wpconvert_create_preview instead.",
+   "new": "Check the status of a conversion job. Returns persisted status per the OpenAPI ConversionStatus enum (queued, analyzing, building, rendering, labeling, generating, validating, uploading, done, failed). The tool-layer bucket `processing` means still in progress \u2014 it is not a persisted API value. Also returns progress, download/preview availability, and recommended_next (which tool to call next). When done and downloadable, recommended_next points to wpconvert_download_result; for preview-only jobs it points to wpconvert_create_preview instead.",
+   "label": {
+    "bucket": "schema-widening",
+    "reason": "input surface described differently",
+    "signals": [],
+    "added": "Returns persisted status per the OpenAPI ConversionStatus enum (queued, analyzing, building, rendering, labeling, generating, validating, uploading, done, failed). The tool-layer bucket `processing` means still in progress \u2014 it is not a persisted API value. Also returns progress, download/preview availability, and recommended_next (which tool to call next)."
+   }
+  },
+  {
+   "pkg": "@wpconvert/mcp",
+   "server": "ai.wpconvert/mcp",
+   "tool": "wpconvert_create_preview",
+   "from": "0.3.0",
+   "to": "0.3.1",
+   "t": "2026-08-19",
+   "old": "Create a WordPress Playground preview link for a completed conversion so the user can view the theme running in a live, in-browser WordPress (no local install). Returns a URL the user must open in a browser \u2014 you cannot embed or render it yourself. The link expires after ~30 minutes and grants temporary access to the theme, so treat it as sensitive.",
+   "new": "Create a WordPress Playground preview link for a completed conversion so the user can view the theme running in a live, in-browser WordPress (no local install). Returns a URL the user must open in a browser \u2014 you cannot embed or render it yourself. The link expires after about ten minutes and grants temporary access to the theme, so treat it as sensitive.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "The link expires after about ten minutes and grants temporary access to the theme, so treat it as sensitive."
+   }
+  },
+  {
+   "pkg": "devglow-mcp",
+   "server": "app.devglow/devglow",
+   "tool": "check_port",
+   "from": "1.0.0",
+   "to": "1.1.0",
+   "t": "2026-05-10",
+   "old": "Check if a TCP port is in use on localhost.",
+   "new": "Check if a TCP port is in use on localhost. When occupied, also reports who holds it \u2014 and if it",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "When occupied, also reports who holds it \u2014 and if it"
+   }
+  },
+  {
+   "pkg": "devglow-mcp",
+   "server": "app.devglow/devglow",
+   "tool": "create_project",
+   "from": "1.1.0",
+   "to": "1.1.4",
+   "t": "2026-06-03",
+   "old": "Register a permanent DevGlow project WITHOUT running it. Use this for bulk registration when you want to record metadata only (no port binding, no browser tab, no dependency install). To start the project later, call start_project. Use run_process instead when you need to actually launch a server for verification or one-off work.",
+   "new": "Register a permanent DevGlow project WITHOUT running it. This is how you ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "This is how you"
+   }
+  },
+  {
+   "pkg": "devglow-mcp",
+   "server": "app.devglow/devglow",
+   "tool": "run_process",
+   "from": "1.1.4",
+   "to": "1.3.0",
+   "t": "2026-08-10",
+   "old": "Create and start a new temporary process. Shows in DevGlow",
+   "new": "Create and start ONE new temporary process. Shows in DevGlow",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Create and start ONE new temporary process."
+   }
+  },
+  {
+   "pkg": "devglow-mcp",
+   "server": "app.devglow/devglow",
+   "tool": "start_project",
+   "from": "1.1.4",
+   "to": "1.3.0",
+   "t": "2026-08-10",
+   "old": "Start a user-registered project using its configured command. Cannot modify the command.",
+   "new": "Start a user-registered project using its configured command (cannot modify the command). PREFER this over run_process: call list_projects first, and if a project for this path/command already exists, start it here instead of re-running it yourself. This reuses the command the user registered.",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "tool_routing"
+    ],
+    "evidence": [
+     "PREFER this over",
+     "instead of re"
+    ],
+    "added": "Start a user-registered project using its configured command (cannot modify the command). PREFER this over run_process: call list_projects first, and if a project for this path/command already exists, start it here instead of re-running it yourself. This reuses the command the user registered."
+   }
+  },
+  {
+   "pkg": "todoglow-mcp",
+   "server": "app.devglow/todoglow",
+   "tool": "set_topic",
+   "from": "0.1.0",
+   "to": "0.9.0",
+   "t": "2026-02-11",
+   "old": "Set the current work topic in todoglow. This is the overarching goal of your session (e.g. ",
+   "new": "Add a todo to the user",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Add a todo to the user"
+   }
+  },
+  {
+   "pkg": "todoglow-mcp",
+   "server": "app.devglow/todoglow",
+   "tool": "update_thread",
+   "from": "0.1.0",
+   "to": "0.9.0",
+   "t": "2026-02-11",
+   "old": "Report your work status as an agent thread in todoglow. Creates a new thread or updates an existing one by name.",
+   "new": "Register and update your work status in todoglow",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "update"
+    ],
+    "added": "Register and update your work status in todoglow"
+   }
+  },
+  {
+   "pkg": "@faqai/mcp-server",
+   "server": "app.faqai/mcp-server",
+   "tool": "upload_document",
+   "from": "0.3.0",
+   "to": "0.3.1",
+   "t": "2026-07-23",
+   "old": "Upload a local document (PDF, DOCX, or TXT) to FAQai and optionally start ",
+   "new": "Upload a local document (PDF, DOCX, TXT, or MD) to FAQai and optionally start ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Upload a local document (PDF, DOCX, TXT, or MD) to FAQai and optionally start"
+   }
+  },
+  {
+   "pkg": "@humanform/mcp",
+   "server": "app.humanform/mcp",
+   "tool": "predict_measurement",
+   "from": "0.1.3",
+   "to": "0.1.4",
+   "t": "2026-07-07",
+   "old": "Predict a single anthropometric measurement via POST /v1/predict. Charges one credit on success (or uses free tier when credits are zero).",
+   "new": "Predict a single anthropometric measurement via POST /v1/predict. Returns value, unit, and source (modeled or derived). Charges one credit on success (or uses free tier when credits are zero).",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Returns value, unit, and source (modeled or derived)."
+   }
+  },
+  {
+   "pkg": "@odyssey365/mcp-server",
+   "server": "app.odyssey365/mcp-server",
+   "tool": "complete_todo",
+   "from": "0.1.0",
+   "to": "0.1.4",
+   "t": "2026-04-15",
+   "old": "\ud560\uc77c \uc644\ub8cc \ucc98\ub9ac. \ud0c0\uc784\ub77c\uc778 \uc774\ubca4\ud2b8 \uc790\ub3d9 \uc0dd\uc131.",
+   "new": "\ud560\uc77c \uc644\ub8cc \ucc98\ub9ac. \ud0c0\uc784\ub77c\uc778 \uc774\ubca4\ud2b8 \uc790\ub3d9 \uc0dd\uc131. doneTime\uc744 ISO 8601\ub85c \uba85\uc2dc\ud558\uba74 \uacfc\uac70 \uc2dc\uac01\uc73c\ub85c \uc644\ub8cc \uac00\ub2a5 (\uc0ac\ud6c4 \uae30\ub85d).",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "doneTime\uc744 ISO 8601\ub85c \uba85\uc2dc\ud558\uba74 \uacfc\uac70 \uc2dc\uac01\uc73c\ub85c \uc644\ub8cc \uac00\ub2a5 (\uc0ac\ud6c4 \uae30\ub85d)."
+   }
+  },
+  {
+   "pkg": "@odyssey365/mcp-server",
+   "server": "app.odyssey365/mcp-server",
+   "tool": "update_todo",
+   "from": "0.1.0",
+   "to": "0.1.4",
+   "t": "2026-04-15",
+   "old": "\ud560\uc77c \uc218\uc815. \ubcc0\uacbd\ud560 \ud544\ub4dc\ub9cc \uc804\ub2ec. \uc0c1\ud0dc\ub97c done\uc73c\ub85c \ubcc0\uacbd\ud558\uba74 \uc644\ub8cc \ucc98\ub9ac.",
+   "new": "\ud560\uc77c \uc218\uc815. \ubcc0\uacbd\ud560 \ud544\ub4dc\ub9cc \uc804\ub2ec. \uc0c1\ud0dc\ub97c done\uc73c\ub85c \ubcc0\uacbd\ud558\uba74 \uc644\ub8cc \ucc98\ub9ac. doneTime\uc744 ISO 8601\ub85c \uba85\uc2dc \uac00\ub2a5 (\uc0ac\ud6c4 \uae30\ub85d).",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "doneTime\uc744 ISO 8601\ub85c \uba85\uc2dc \uac00\ub2a5 (\uc0ac\ud6c4 \uae30\ub85d)."
+   }
+  },
+  {
+   "pkg": "@trustrails/mcp-server",
+   "server": "app.trustrails/server",
+   "tool": "get_product",
+   "from": "1.0.5",
+   "to": "1.0.9",
+   "t": "2026-02-25",
+   "old": "Get detailed information about a specific product by ID. ",
+   "new": "Get full details for a single product by ID. ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get full details for a single product by ID."
+   }
+  },
+  {
+   "pkg": "@trustrails/mcp-server",
+   "server": "app.trustrails/server",
+   "tool": "search_products",
+   "from": "1.0.5",
+   "to": "1.0.9",
+   "t": "2026-02-25",
+   "old": "Search for UK electronics products across multiple retailers (AO, Boxed, etc). ",
+   "new": "Search 26,000+ UK electronics products across multiple retailers. ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Search 26,000+ UK electronics products across multiple retailers."
+   }
+  },
+  {
+   "pkg": "@trustrails/mcp-server",
+   "server": "app.trustrails/server",
+   "tool": "search_products",
+   "from": "1.0.19",
+   "to": "1.0.23",
+   "t": "2026-04-09",
+   "old": "Search 26,000+ UK electronics products across multiple retailers. ",
+   "new": "Search 26,000+ deduplicated UK electronics products across multiple retailers with price comparison. ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Search 26,000+ deduplicated UK electronics products across multiple retailers with price comparison."
+   }
+  },
+  {
+   "pkg": "@drantoniou/uploadcheck-mcp",
+   "server": "app.uploadcheck/uploadcheck",
+   "tool": "qc_estimate_cost",
+   "from": "0.1.0",
+   "to": "0.1.1",
+   "t": "2026-06-10",
+   "old": "Preflight UploadCheck cost and margin guardrail behavior before uploading or running media.",
+   "new": "Estimate checked minutes and effective QC gates before uploading or running media.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Estimate checked minutes and effective QC gates before uploading or running media."
+   }
+  }
+ ]
+}
