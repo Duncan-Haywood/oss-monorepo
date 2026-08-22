@@ -275,11 +275,11 @@ def test_sessions_per_hour_trusts_history_that_covers_the_window(monkeypatch):
 # --- stale open-PR-check streak: the same recheck recorded over and over ----
 #
 # Measured directly on the real ledger on 2026-08-22: a trailing run of 11-21
-# consecutive entries recorded nothing but "checked the open PRs, still all
-# correctly gated" before the PR set itself next changed. `CLAUDE.md` already
-# says in prose not to add a redundant entry; this makes the gate say it too,
-# with the count in hand, instead of relying on a session to notice by
-# scrolling the ledger tail itself.
+# consecutive entries included "checked the open PRs, still all correctly
+# gated" before the PR set itself next changed. `CLAUDE.md` already says in
+# prose not to add a redundant entry; this makes the gate say it too, with
+# the count in hand, instead of relying on a session to notice by scrolling
+# the ledger tail itself.
 
 
 def test_stale_pr_check_streak_counts_matching_trailing_entries():
@@ -348,8 +348,8 @@ def test_report_adds_a_stale_streak_reason_only_at_or_above_threshold():
     )
     below = sg.report([unchanged] * (sg.STALE_PR_STREAK_THRESHOLD - 1), cadence=0.1)
     at = sg.report([unchanged] * sg.STALE_PR_STREAK_THRESHOLD, cadence=0.1)
-    assert not any("in a row recorded nothing" in reason for reason in below["reasons"])
-    assert any("in a row recorded nothing" in reason for reason in at["reasons"])
+    assert not any("in a row included" in reason for reason in below["reasons"])
+    assert any("in a row included" in reason for reason in at["reasons"])
 
 
 def test_report_stale_streak_reason_does_not_flip_the_verdict():
