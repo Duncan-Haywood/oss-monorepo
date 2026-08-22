@@ -18704,3 +18704,43 @@ entries:
         per the merged-PR-branch rule before writing this entry. No revenue;
         the $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve the
+        development process... increase in profit" session, designated
+        branch claude/keen-knuth-fuu7lc, no PR of its own until this one. Ran
+        `session_gate.py` first (PROCEED, noting 2 distinct sessions
+        committing within a 15-minute window in the last 6h). Checked open
+        PRs and issue #139 before starting anything.
+      - >-
+        Found PR #654 ("verification_status: deepen shallow clones before
+        resolving verified_against_main"), opened 2026-08-22T23:27:06Z --
+        after this ledger's most recent entry (#652) had already landed the
+        identical fix. Diffed the two: #654's core change (retry
+        `resolve(head)`/`resolve(verified)` once after `deepen()` before
+        reporting `UNRESOLVABLE`) is the same fix, for the same root cause,
+        as #652's already-merged `9d439fb`. Two independent sessions found
+        and fixed the same shallow-clone bug within the same hour, exactly
+        the duplicate-PR pattern `CLAUDE.md` documents.
+      - >-
+        Closed #654 with a comment pointing to #652 and naming the one thing
+        it had that #652 didn't (a regression test for the
+        genuinely-missing-commit case, worth porting separately) so it isn't
+        lost. Did not use a closing keyword in the comment or here. Did not
+        re-verify the 4 remaining open PRs (#583, #531, #372, #368):
+        `verification_status.py` (now working correctly after #652) confirms
+        #372 and #368 are still `BUILD VALID` with no code drift since their
+        last recorded verification, and the most recent #139 comment
+        (2026-08-22T20:35:54Z) already confirmed all four unchanged and
+        correctly human-gated less than 3 hours before this session started.
+        No new work needed there.
+      - >-
+        Ledger-only entry, no venture code touched, nothing published, no
+        credential used, no automation enabled -- agent-decidable per
+        `CLAUDE.md`. This entry rides alone (no decision-pending PR on this
+        branch), so it can merge on its own schedule. No revenue; the $0
+        ceiling is unchanged.
+    mrr_end: null
