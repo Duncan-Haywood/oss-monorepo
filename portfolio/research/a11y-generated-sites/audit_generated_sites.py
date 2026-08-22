@@ -210,6 +210,22 @@ MUTATIONS: tuple = (
      _sub(r"<body([^>]*)>", r"<body\1><marquee>scrolling</marquee>")),
     ("3.1.2", "injection", 'add a <span lang="engl"> (well-formed, not a language)',
      _sub(r"<body([^>]*)>", r'<body\1><span lang="engl">x</span>')),
+    # Added 2026-08-22 with the probe's 1.4.1 rule. Removal, and a strong one:
+    # the delivered prose link carries `class="underline underline-offset-2"`
+    # and no colour of its own, so taking the underline away leaves a link that
+    # inherits exactly the colour of the paragraph around it — ratio 1.0, the
+    # case the rule decides without assuming any colour at all. It exercises
+    # the whole chain (is this prose, is it marked some other way, what colour
+    # is each side) on real per-request markup rather than on a fixture, and it
+    # is a no-op on the 10 pages that have no link inside prose, which the
+    # "exercised by this corpus" line reports rather than hides.
+    ("1.4.1", "removal", "strip the bare `underline` class from links",
+     # A *bare* utility only: the lookbehind excludes `hover:underline`, which
+     # the 10 live pages carry on a map link that no reader sees underlined
+     # until they hover. Stripping that changed those pages without changing
+     # anything the criterion is about, and the row then read "caught on 4/14"
+     # — a coverage gap on its face and a mutation artefact in fact.
+     _sub_all(r'(<a\b[^>]*class="[^"]*?)(?<![\w:.-])underline(?![\w-])', r"\1")),
     # Removal, not injection: this corpus already has the three mechanisms the
     # rule accepts as sufficient (a <main> landmark, headings, and one
     # in-page `#contact` link) — see `rule_bypass_blocks`'s own docstring on
@@ -226,8 +242,20 @@ MUTATIONS: tuple = (
 )
 
 
-def run_control(pages: list) -> list:
-    """Apply every mutation to every page; record where each criterion fires."""
+def run_control(pages: list, stylesheet=None) -> list:
+    """Apply every mutation to every page; record where each criterion fires.
+
+    ``stylesheet`` is the delivered CSS, and passing it is not optional in
+    practice. This harness ran without it until 2026-08-22, which was harmless
+    only for as long as every mutation targeted markup: a criterion whose
+    verdict depends on a colour cannot fire against an engine that was handed
+    no colours, so the first colour-dependent control added (1.4.1) reported
+    **caught on 0/14** while the same mutation, audited with the stylesheet the
+    rest of this module already passes, fires on every page it changes. That is
+    the same defect `a11y-axe-recall/` Finding 0 found in `a11y-own-sites/`'s
+    adapters, in a second place, and with the same signature: a positive
+    control that reads as a detection gap.
+    """
     rows = []
     for criterion, kind, description, mutate in MUTATIONS:
         changed, fired, fired_here, detected = 0, 0, 0, 0
@@ -238,9 +266,10 @@ def run_control(pages: list) -> list:
                 continue
             changed += 1
 
-            probe_new = ({_number(f["criterion"]) for f in probe_findings(mutated)}
-                         - {_number(f["criterion"]) for f in probe_findings(html)})
-            audit_new = set(audit_py_criteria(mutated)) - set(audit_py_criteria(html))
+            probe_new = ({_number(f["criterion"]) for f in probe_findings(mutated, stylesheet)}
+                         - {_number(f["criterion"]) for f in probe_findings(html, stylesheet)})
+            audit_new = (set(audit_py_criteria(mutated, stylesheet))
+                         - set(audit_py_criteria(html, stylesheet)))
             probe_cites.update(probe_new)
             audit_cites.update(audit_new)
 
@@ -321,7 +350,7 @@ def measure(corpus_dir: pathlib.Path) -> dict:
             "duplicates_dropped": duplicates,
         },
         "per_page": per_page,
-        "control": run_control(pages),
+        "control": run_control(pages, sheet),
         # Reported whether or not a stylesheet was found, because "no
         # stylesheet" is a result about this run and not a property of the
         # product. Without one every element lands in `undecidable`, and a
