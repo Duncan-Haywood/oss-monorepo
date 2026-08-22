@@ -132,6 +132,18 @@
    "level": "A"
   },
   {
+   "axe_default_run_rule_count": 0,
+   "axe_rule_count": 1,
+   "axe_rules": [
+    "css-orientation-lock"
+   ],
+   "claimed_by": [
+    "eaa-wcag-triage"
+   ],
+   "criterion": "1.3.4",
+   "level": "AA"
+  },
+  {
    "axe_default_run_rule_count": 1,
    "axe_rule_count": 1,
    "axe_rules": [
@@ -273,23 +285,6 @@
    ],
    "in_default_run": false,
    "level": "A"
-  },
-  {
-   "axe_default_run_rules": [],
-   "axe_rules": [
-    "css-orientation-lock"
-   ],
-   "criterion": "1.3.4",
-   "declared_unimplemented_by": [
-    "audit.py",
-    "eaa-wcag-triage"
-   ],
-   "disclosed_by": [
-    "audit.py",
-    "eaa-wcag-triage"
-   ],
-   "in_default_run": false,
-   "level": "AA"
   }
  ],
  "engines": {
@@ -348,6 +343,7 @@
     "1.1.1",
     "1.2.2",
     "1.3.1",
+    "1.3.4",
     "1.4.1",
     "1.4.2",
     "1.4.3",
@@ -364,13 +360,11 @@
     "4.1.2"
    ],
    "declared_unimplemented": [
-    "1.2.1",
-    "1.3.4"
+    "1.2.1"
    ],
    "declared_untested": [
     "1.2.1",
     "1.3.3",
-    "1.3.4",
     "1.4.11",
     "2.1.1",
     "2.1.2",
@@ -455,6 +449,7 @@
   "1.1.1",
   "1.2.2",
   "1.3.1",
+  "1.3.4",
   "1.4.1",
   "1.4.2",
   "1.4.3",
