@@ -1,0 +1,1466 @@
+{
+ "corpus": "results-holdout-2026-08-22.json",
+ "changes_labelled": 136,
+ "rubric": "see build_labels.py -- fixed before counting, applied to added text only",
+ "scores": {
+  "borderline_counted_as_positive": {
+   "true_positives": 4,
+   "false_positives": 6,
+   "false_negatives": 13,
+   "true_negatives": 113,
+   "precision": 0.4,
+   "recall": 0.235,
+   "f1": 0.296
+  },
+  "borderline_counted_as_negative": {
+   "true_positives": 4,
+   "false_positives": 6,
+   "false_negatives": 10,
+   "true_negatives": 116,
+   "precision": 0.4,
+   "recall": 0.286,
+   "f1": 0.333
+  }
+ },
+ "precision_by_signal": {
+  "secret_or_credential": {
+   "flagged": 6,
+   "correct": 0,
+   "precision": 0.0
+  },
+  "imperative_priority": {
+   "flagged": 1,
+   "correct": 1,
+   "precision": 1.0
+  },
+  "tool_routing": {
+   "flagged": 3,
+   "correct": 3,
+   "precision": 1.0
+  }
+ },
+ "labels": [
+  {
+   "pkg": "@traderouter/trade-router-mcp",
+   "tool": "check_order",
+   "from": "1.0.10",
+   "to": "1.0.12",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@traderouter/trade-router-mcp",
+   "tool": "connection_status",
+   "from": "1.0.10",
+   "to": "1.0.12",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@traderouter/trade-router-mcp",
+   "tool": "place_limit_trailing_order",
+   "from": "1.0.10",
+   "to": "1.0.12",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "execute"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@traderouter/trade-router-mcp",
+   "tool": "place_trailing_twap_order",
+   "from": "1.0.10",
+   "to": "1.0.12",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@htmldrop.app/mcp",
+   "tool": "htmldrop_delete",
+   "from": "0.1.0",
+   "to": "0.2.2",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@htmldrop.app/mcp",
+   "tool": "htmldrop_delete",
+   "from": "0.2.2",
+   "to": "0.2.4",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@sonarapp/mcp",
+   "tool": "sonar_app_aso_score",
+   "from": "0.5.0",
+   "to": "0.7.0",
+   "rules_bucket": "instruction-bearing",
+   "rules_signals": [
+    "secret_or_credential"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@sonarapp/mcp",
+   "tool": "sonar_app_lookup",
+   "from": "0.5.0",
+   "to": "0.7.0",
+   "rules_bucket": "instruction-bearing",
+   "rules_signals": [
+    "secret_or_credential"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@sonarapp/mcp",
+   "tool": "sonar_app_revenue",
+   "from": "0.5.0",
+   "to": "0.7.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": true,
+   "note": "(b) 'always communicate the confidence alongside the number'. BORDERLINE: the old text already addressed the agent ('so the agent can communicate uncertainty'); what is new is that a permission became an imperative."
+  },
+  {
+   "pkg": "@sonarapp/mcp",
+   "tool": "sonar_app_search",
+   "from": "0.5.0",
+   "to": "0.7.0",
+   "rules_bucket": "instruction-bearing",
+   "rules_signals": [
+    "secret_or_credential"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@sonarapp/mcp",
+   "tool": "sonar_keyword_metrics",
+   "from": "0.5.0",
+   "to": "0.7.0",
+   "rules_bucket": "instruction-bearing",
+   "rules_signals": [
+    "secret_or_credential"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@sonarapp/mcp",
+   "tool": "sonar_keyword_suggestions",
+   "from": "0.5.0",
+   "to": "0.7.0",
+   "rules_bucket": "instruction-bearing",
+   "rules_signals": [
+    "secret_or_credential"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@sonarapp/mcp",
+   "tool": "sonar_app_changes",
+   "from": "0.7.0",
+   "to": "0.8.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@sonarapp/mcp",
+   "tool": "sonar_list_products",
+   "from": "0.7.0",
+   "to": "0.8.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@sonarapp/mcp",
+   "tool": "sonar_scan_competitor",
+   "from": "0.7.0",
+   "to": "0.8.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@sonarapp/mcp",
+   "tool": "sonar_track_app",
+   "from": "0.7.0",
+   "to": "0.8.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@flydocs/cli",
+   "tool": "connect",
+   "from": "0.5.0-beta.0",
+   "to": "0.6.0-alpha.27",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@flydocs/cli",
+   "tool": "init",
+   "from": "0.6.0-alpha.27",
+   "to": "0.6.0-alpha.69",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@flydocs/cli",
+   "tool": "sync",
+   "from": "0.6.0-alpha.27",
+   "to": "0.6.0-alpha.69",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "update"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@flydocs/cli",
+   "tool": "update",
+   "from": "0.6.0-alpha.27",
+   "to": "0.6.0-alpha.69",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@flydocs/cli",
+   "tool": "install",
+   "from": "0.6.0-alpha.111",
+   "to": "1.0.4",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@flydocs/cli",
+   "tool": "sync",
+   "from": "0.6.0-alpha.111",
+   "to": "1.0.4",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@flydocs/cli",
+   "tool": "connect",
+   "from": "1.0.4",
+   "to": "1.3.11",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@flydocs/cli",
+   "tool": "doctor",
+   "from": "1.0.4",
+   "to": "1.3.11",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "read"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@flydocs/cli",
+   "tool": "update",
+   "from": "1.0.4",
+   "to": "1.3.11",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@monnet/mcp",
+   "tool": "comment",
+   "from": "0.1.7",
+   "to": "0.1.10",
+   "rules_bucket": "schema-widening",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@monnet/mcp",
+   "tool": "create_motion",
+   "from": "0.1.7",
+   "to": "0.1.10",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@bluesprincemedia/thiri-mcp",
+   "tool": "search_csound_corpus",
+   "from": "0.3.0",
+   "to": "0.5.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "tool": "create_webhook",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "tool": "delete_account_data",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "tool": "export_account_data",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "tool": "get_audit_logs",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "tool": "get_breach",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "tool": "get_consent_status",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "tool": "get_pricing_details",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "tool": "get_usage_history",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "tool": "get_usage_monthly",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "tool": "list_breaches",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "tool": "log_breach",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "tool": "record_consent",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "tool": "rectify_data",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "tool": "regenerate_webhook_secret",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "tool": "withdraw_consent",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "tool": "delete_account_data",
+   "from": "3.10.0",
+   "to": "3.15.6",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "tool": "get_consent_status",
+   "from": "3.10.0",
+   "to": "3.15.6",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "tool": "get_pricing_details",
+   "from": "3.10.0",
+   "to": "3.15.6",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "tool": "get_usage_monthly",
+   "from": "3.10.0",
+   "to": "3.15.6",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "tool": "list_breaches",
+   "from": "3.10.0",
+   "to": "3.15.6",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "tool": "log_breach",
+   "from": "3.10.0",
+   "to": "3.15.6",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "tool": "rectify_data",
+   "from": "3.10.0",
+   "to": "3.15.6",
+   "rules_bucket": "schema-widening",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "tool": "regenerate_webhook_secret",
+   "from": "3.10.0",
+   "to": "3.15.6",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "tool": "batch_analyze",
+   "from": "3.21.2",
+   "to": "3.25.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "tool": "detect_emotional_distress",
+   "from": "3.21.2",
+   "to": "3.25.0",
+   "rules_bucket": "instruction-bearing",
+   "rules_signals": [
+    "imperative_priority"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(b)(a) 'DEPRECATED ALIAS - DO NOT USE FOR NEW WORK. Call `detect_distress_signals` instead' -- an imperative to the model plus a cross-tool redirect. Benign in intent; exactly the shape the alert is for."
+  },
+  {
+   "pkg": "@adeu/mcp-server",
+   "tool": "accept_all_changes",
+   "from": "1.7.5",
+   "to": "1.15.0",
+   "rules_bucket": "schema-widening",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@adeu/mcp-server",
+   "tool": "finalize_document",
+   "from": "1.7.5",
+   "to": "1.15.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@adeu/mcp-server",
+   "tool": "login_to_adeu_cloud",
+   "from": "1.7.5",
+   "to": "1.15.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(b) a new 'IMPORTANT - login is user-level, not account-level:' block. The rules have an `important:` signal and miss this one on the punctuation: the text uses an em dash where the pattern requires a colon."
+  },
+  {
+   "pkg": "@adeu/mcp-server",
+   "tool": "logout_of_adeu_cloud",
+   "from": "1.7.5",
+   "to": "1.15.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@adeu/mcp-server",
+   "tool": "finalize_document",
+   "from": "1.15.0",
+   "to": "1.18.4",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@adeu/mcp-server",
+   "tool": "accept_all_changes",
+   "from": "1.27.0",
+   "to": "2.4.1",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "delete"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "bizmuse-mcp",
+   "tool": "generate_music_video",
+   "from": "0.1.5",
+   "to": "0.1.6",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "bizmuse-mcp",
+   "tool": "get_credit_balance",
+   "from": "0.1.5",
+   "to": "0.1.6",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "bizmuse-mcp",
+   "tool": "get_task_result",
+   "from": "0.1.5",
+   "to": "0.1.6",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "bizmuse-mcp",
+   "tool": "get_task_status",
+   "from": "0.1.5",
+   "to": "0.1.6",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": true,
+   "note": "(b) 'without inventing a completed asset' -- new text about how the model should behave rather than what the tool does. BORDERLINE: it is one clause inside an otherwise ordinary rewrite."
+  },
+  {
+   "pkg": "bizmuse-mcp",
+   "tool": "list_models",
+   "from": "0.1.5",
+   "to": "0.1.6",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "bizmuse-mcp",
+   "tool": "upload_audio",
+   "from": "0.1.5",
+   "to": "0.1.6",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "bizmuse-mcp",
+   "tool": "upload_image",
+   "from": "0.1.5",
+   "to": "0.1.6",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "buywhere-mcp",
+   "tool": "compare_prices",
+   "from": "0.1.0",
+   "to": "0.1.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@buywhere/mcp-server",
+   "tool": "get_deals",
+   "from": "0.1.0",
+   "to": "0.1.4",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@buywhere/mcp-server",
+   "tool": "get_product",
+   "from": "0.1.0",
+   "to": "0.1.4",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@buywhere/mcp-server",
+   "tool": "search_products",
+   "from": "0.1.0",
+   "to": "0.1.4",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@buywhere/mcp-server",
+   "tool": "get_product",
+   "from": "0.3.3",
+   "to": "0.3.7",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "fetch"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@buywhere/mcp-server",
+   "tool": "search_products",
+   "from": "0.3.3",
+   "to": "0.3.7",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@elfa-ai/mcp",
+   "tool": "elfa_narratives",
+   "from": "1.0.1",
+   "to": "1.0.2",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@elfa-ai/mcp",
+   "tool": "auto_query_write",
+   "from": "2.0.0",
+   "to": "3.0.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@elfa-ai/mcp",
+   "tool": "auto_validate",
+   "from": "2.0.0",
+   "to": "3.0.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@gency-ai/gency-mcp",
+   "tool": "download_product_image",
+   "from": "0.1.4",
+   "to": "0.3.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@gency-ai/gency-mcp",
+   "tool": "get_product",
+   "from": "0.1.4",
+   "to": "0.3.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@gency-ai/gency-mcp",
+   "tool": "get_upload_url",
+   "from": "0.1.4",
+   "to": "0.3.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(c)(a) 'Tip: for the common 6+ images case, prefer `prepare_product_images` (single call).' A tool name not previously mentioned, with a preference attached."
+  },
+  {
+   "pkg": "@gency-ai/gency-mcp",
+   "tool": "list_products",
+   "from": "0.1.4",
+   "to": "0.3.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@gency-ai/gency-mcp",
+   "tool": "login",
+   "from": "0.1.4",
+   "to": "0.3.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@gency-ai/gency-mcp",
+   "tool": "logout",
+   "from": "0.1.4",
+   "to": "0.3.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@gency-ai/gency-mcp",
+   "tool": "search_docs",
+   "from": "0.1.4",
+   "to": "0.3.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@gency-ai/gency-mcp",
+   "tool": "update_product_status",
+   "from": "0.1.4",
+   "to": "0.3.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false,
+   "note": "'Confirm with the user.' is a directive, but the old text already said 'IMPORTANT: This modifies product state - confirm with the user before executing.' Nothing directive is new; the text got shorter."
+  },
+  {
+   "pkg": "@gency-ai/gency-mcp",
+   "tool": "upload_image",
+   "from": "0.1.4",
+   "to": "0.3.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@gency-ai/gency-mcp",
+   "tool": "get_upload_url",
+   "from": "0.4.1",
+   "to": "0.6.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@gency-ai/gency-mcp",
+   "tool": "upload_image",
+   "from": "0.4.1",
+   "to": "0.6.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@meetlark/mcp-server",
+   "tool": "meetlark_get_admin_view",
+   "from": "1.0.2",
+   "to": "1.0.3",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false,
+   "note": "'This is the only way to see who voted and how they voted' is a superlative about itself, naming no other tool and directing nothing."
+  },
+  {
+   "pkg": "@meetlark/mcp-server",
+   "tool": "meetlark_get_results",
+   "from": "1.0.2",
+   "to": "1.0.3",
+   "rules_bucket": "instruction-bearing",
+   "rules_signals": [
+    "tool_routing"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'To see who voted and how, use meetlark_get_admin_view instead.' The same change also narrows the tool's own output from votes to no votes."
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_add_edge",
+   "from": "0.1.0",
+   "to": "0.1.5",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(c)(a) '**Prefer `naumu_ask`** for adding new knowledge'. Old text was a plain one-line description; the whole routing clause is new."
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_add_node",
+   "from": "0.1.0",
+   "to": "0.1.5",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(c)(a) '**Prefer `naumu_ask`** for adding new knowledge, as it automatically discovers and creates relevant connections.'"
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_ask",
+   "from": "0.1.0",
+   "to": "0.1.5",
+   "rules_bucket": "instruction-bearing",
+   "rules_signals": [
+    "tool_routing"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(c)(a) '**Recommended for adding or modifying knowledge.** ... Use this instead of direct CRUD tools (add_node, update_node, etc.)'"
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_get_schema",
+   "from": "0.1.0",
+   "to": "0.1.5",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": true,
+   "note": "(b) 'Use this before updating node attributes to check valid values.' BORDERLINE: a directive about call order, but the tool it orders against is named only as an activity, not as a tool."
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_remove_edge",
+   "from": "0.1.0",
+   "to": "0.1.5",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(c)(a) '**Prefer `naumu_ask`** for structural changes'"
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_remove_node",
+   "from": "0.1.0",
+   "to": "0.1.5",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(c)(a) '**Prefer `naumu_ask`** for removing knowledge' on a tool the same text calls 'a destructive operation'."
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_semantic_search",
+   "from": "0.1.0",
+   "to": "0.1.5",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) the routing target moved: the old text sent the model to `naumu_search`, the new text to `naumu_text_search` and `naumu_filter`. Two tool names that were not there before."
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_update_node",
+   "from": "0.1.0",
+   "to": "0.1.5",
+   "rules_bucket": "instruction-bearing",
+   "rules_signals": [
+    "tool_routing"
+   ],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a) 'consider `naumu_ask` instead' and 'Use naumu_get_schema to check valid attribute names and values before updating.'"
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_add_edge",
+   "from": "0.1.5",
+   "to": "0.4.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(a)(b) 'Typical workflow after a bulk import: create nodes with `naumu_add_node`, then wire them up with batched `naumu_add_edge` calls.' plus '**Direction matters and must match the schema.**'"
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_add_node",
+   "from": "0.1.5",
+   "to": "0.4.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false,
+   "note": "The '**Prefer `naumu_ask`**' clause is *removed* here. A removal of model-directed text is a change worth recording, and it is not an alert."
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_ask",
+   "from": "0.1.5",
+   "to": "0.4.1",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "send"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_get_ai_thread",
+   "from": "0.1.5",
+   "to": "0.4.1",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "read"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_remove_edge",
+   "from": "0.1.5",
+   "to": "0.4.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false,
+   "note": "'**Prefer `naumu_ask`**' is in both versions. Correctly not flagged -- this is the span-must-be-new rule working."
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_search",
+   "from": "0.1.5",
+   "to": "0.4.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(b) 'Only use this when you know the exact name or keyword' -- the same 'use this only when' imperative that appears in the clear misses above, here without an accompanying tool name."
+  },
+  {
+   "pkg": "@picsha-ai/mcp-server",
+   "tool": "delete_asset",
+   "from": "1.1.0",
+   "to": "2.2.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "instruction-bearing",
+   "borderline": false,
+   "note": "(b) 'Pass force: true ONLY when the user explicitly asks for immediate permanent deletion.' A new directive gating a destructive action. The described action also changed (permanent delete -> recoverable trash), so the 'cosmetic' bucket is wrong twice over."
+  },
+  {
+   "pkg": "@shiplightai/mcp",
+   "tool": "close_session",
+   "from": "0.1.66",
+   "to": "0.2.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false,
+   "note": "'Omit session_id entirely to close ALL open sessions' documents a parameter's semantics. Destructive, but a description of the tool."
+  },
+  {
+   "pkg": "@starreel/mcp",
+   "tool": "upload_shot_frame",
+   "from": "0.1.8",
+   "to": "0.1.16",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@starreel/mcp",
+   "tool": "generate_tts",
+   "from": "0.1.16",
+   "to": "0.1.23",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@usestring/mcp",
+   "tool": "web_access_fetch",
+   "from": "1.1.0",
+   "to": "1.2.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@usestring/mcp",
+   "tool": "web_access_fetch",
+   "from": "1.2.0",
+   "to": "1.2.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "crawlio-browser",
+   "tool": "create_tab",
+   "from": "1.3.0",
+   "to": "1.4.6",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "crawlio-browser",
+   "tool": "connect_tab",
+   "from": "1.4.6",
+   "to": "1.5.4",
+   "rules_bucket": "schema-widening",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "crawlio-browser",
+   "tool": "browser_snapshot",
+   "from": "1.5.4",
+   "to": "1.6.1",
+   "rules_bucket": "instruction-bearing",
+   "rules_signals": [
+    "secret_or_credential"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "crawlio-browser",
+   "tool": "get_dom_snapshot",
+   "from": "1.5.4",
+   "to": "1.6.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "crawlio-browser",
+   "tool": "set_stealth_mode",
+   "from": "1.5.4",
+   "to": "1.6.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "crawlio-browser",
+   "tool": "connect_tab",
+   "from": "1.6.1",
+   "to": "1.9.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "crawlio-browser",
+   "tool": "detect_tables",
+   "from": "1.6.1",
+   "to": "1.9.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "crawlio-browser",
+   "tool": "extract_table",
+   "from": "1.6.1",
+   "to": "1.9.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "crawlio-browser",
+   "tool": "agent_session_claim_tab",
+   "from": "1.9.0",
+   "to": "1.11.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "crawlio-browser",
+   "tool": "agent_session_create_tab",
+   "from": "1.9.0",
+   "to": "1.11.0",
+   "rules_bucket": "schema-widening",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "crawlio-browser",
+   "tool": "agent_session_finalize",
+   "from": "1.9.0",
+   "to": "1.11.0",
+   "rules_bucket": "schema-widening",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "crawlio-browser",
+   "tool": "agent_session_name",
+   "from": "1.9.0",
+   "to": "1.11.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "crawlio-browser",
+   "tool": "connect_tab",
+   "from": "1.9.0",
+   "to": "1.11.0",
+   "rules_bucket": "schema-widening",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "crawlio-browser",
+   "tool": "get_capabilities",
+   "from": "1.9.0",
+   "to": "1.11.0",
+   "rules_bucket": "schema-widening",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "crawlio-browser",
+   "tool": "get_crawl_status",
+   "from": "1.9.0",
+   "to": "1.11.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "crawlio-browser",
+   "tool": "recording_capture_bundle",
+   "from": "1.9.0",
+   "to": "1.11.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "crawlio-browser",
+   "tool": "recording_start",
+   "from": "1.9.0",
+   "to": "1.11.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "crawlio-browser",
+   "tool": "robot_training_start",
+   "from": "1.9.0",
+   "to": "1.11.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "crawlio-browser",
+   "tool": "robot_training_status",
+   "from": "1.9.0",
+   "to": "1.11.0",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "query"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "crawlio-browser",
+   "tool": "robot_training_stop",
+   "from": "1.9.0",
+   "to": "1.11.0",
+   "rules_bucket": "capability-change",
+   "rules_signals": [
+    "fetch"
+   ],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "crawlio-browser",
+   "tool": "take_screenshot",
+   "from": "1.9.0",
+   "to": "1.11.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@takehub/mcp",
+   "tool": "create_topic",
+   "from": "1.1.1",
+   "to": "1.1.2",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@takehub/mcp",
+   "tool": "create_topic_and_invite",
+   "from": "1.1.1",
+   "to": "1.1.2",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@takehub/mcp",
+   "tool": "list_topics",
+   "from": "1.1.1",
+   "to": "1.1.2",
+   "rules_bucket": "schema-widening",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "affiliate-networks-mcp",
+   "tool": "affiliate_list_networks",
+   "from": "0.9.0",
+   "to": "0.14.1",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "affiliate-networks-mcp",
+   "tool": "affiliate_get_brand_rows",
+   "from": "0.14.1",
+   "to": "0.20.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false
+  },
+  {
+   "pkg": "@agenttrust/mcp-server",
+   "tool": "agenttrust_inbox",
+   "from": "1.1.1",
+   "to": "1.2.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false,
+   "note": "'choose what to open with agenttrust_context' names another tool, but the old text already said 'Use agenttrust_context to read the full thread before replying.' The routing is not new."
+  },
+  {
+   "pkg": "@agenttrust/mcp-server",
+   "tool": "agenttrust_reply",
+   "from": "1.1.1",
+   "to": "1.2.0",
+   "rules_bucket": "cosmetic",
+   "rules_signals": [],
+   "hand_label": "not-instruction-bearing",
+   "borderline": false,
+   "note": "'Use this to continue negotiation' is self-describing usage."
+  }
+ ]
+}

@@ -1,0 +1,81 @@
+name: mcp-drift-watch CI
+
+# Test coverage for the MCP drift-watch probe under
+# portfolio/pipeline/probes/mcp-drift-watch/. The suite is standard-library-only
+# and makes no network calls: it derives everything from committed JSON (this
+# probe's held-out corpus and its hand labels). This workflow does no more than a
+# contributor runs locally. It publishes nothing, registers nothing, and spends
+# no API budget — a test runner, not the unattended-automation kind of workflow
+# CLAUDE.md gates. It deliberately does NOT run collect_holdout.py or
+# render_sample.py, the two scripts that fetch from npm; their output is
+# committed and the tests read that.
+#
+# Matching the runners the sibling probes already have (eaa-wcag-triage,
+# npm-reachability-triage, source-silence-detector, agent-permission-harness).
+#
+# What must not reach main unseen is this probe's headline finding, because it is
+# a negative one about a number that looks fine:
+#
+#   The shipped classifier flags 7.4% of description changes out of sample
+#   against 7.2% in sample — and its precision is 0.40 and its recall 0.24–0.29.
+#   The rate reproduced; the labels did not. The two errors run in opposite
+#   directions and nearly cancel in the count, which is why the count looked
+#   stable.
+#
+# Every figure printed in the subscriber record is re-derived here from
+# holdout-labels-2026-08-22.json rather than trusted, so a revised rate fails
+# this build instead of going stale in front of a buyer. The counterfactual the
+# README leans on — that retiring `secret_or_credential` would cost no true
+# positive — is asserted too, since it is the first thing a rules edit would
+# break.
+#
+# The probe imports its classifier from portfolio/research/mcp-tool-drift/
+# rather than forking it, so a change there can invalidate every number here.
+# That path is a trigger for exactly that reason.
+
+on:
+  pull_request:
+    paths:
+      - "portfolio/pipeline/probes/mcp-drift-watch/**"
+      - "portfolio/research/mcp-tool-drift/classify_drift.py"
+      - "portfolio/research/mcp-tool-drift/results-2026-08-19-classified.json"
+      - ".github/workflows/mcp-drift-watch-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "portfolio/pipeline/probes/mcp-drift-watch/**"
+      - "portfolio/research/mcp-tool-drift/classify_drift.py"
+      - "portfolio/research/mcp-tool-drift/results-2026-08-19-classified.json"
+      - ".github/workflows/mcp-drift-watch-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A second push to the same branch makes the first run irrelevant.
+concurrency:
+  group: mcp-drift-watch-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: portfolio/pipeline/probes/mcp-drift-watch
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pytest
+      - run: python3 -m pytest -q
+      # The scoring must be reproducible from the committed corpus with no
+      # network at all: this is the invocation the README documents, and it
+      # exits non-zero if a hand label matches no change in the corpus.
+      - run: python3 build_labels.py
+      # The two fetching scripts are never run here, but an import or
+      # argument-parsing break in them would otherwise be invisible to CI.
+      - run: python3 collect_holdout.py --help
+      - run: python3 render_sample.py --help

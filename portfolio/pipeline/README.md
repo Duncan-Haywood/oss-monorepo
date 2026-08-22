@@ -344,8 +344,12 @@ hard did not change.
 Executable probes already built for these candidates: [probes/](probes/) —
 `npm-reachability-triage` (for `cra-evidence-desk`), `eaa-wcag-triage` (for
 `eaa-remediation-pipeline`), `source-silence-detector` (for
-`public-record-watch`) and `agent-permission-harness` (for the candidate of the
-same name). `CLAUDE.md`'s intake gate sends every generic
+`public-record-watch`), `agent-permission-harness` (for the candidate of the
+same name) and, from 2026-08-22, `mcp-drift-watch` (for
+`mcp-supply-chain-watch`, which had research but no artifact until then; its
+held-out run measured the shipped classifier at precision 0.40 / recall
+0.24–0.29 while the alert *rate* reproduced to within 0.2 points, and changed
+no rule and no score). `CLAUDE.md`'s intake gate sends every generic
 session to "advance a probe that is already specified in `portfolio/pipeline/`",
 and until this line existed no file that routes a session named the directory
 those probes live in. Read `probes/README.md` before writing a new one.

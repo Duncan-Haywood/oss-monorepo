@@ -1,0 +1,2704 @@
+{
+ "collected": "held-out corpus for the mcp-drift-watch classifier",
+ "selection": {
+  "excluded_by_rank": 40,
+  "excluded_by_name": [
+   "mcp-socialapi"
+  ],
+  "eligible": 164,
+  "taken": 60,
+  "dropped_by_limit": 104
+ },
+ "tuned_on": [
+  "@aetherwealth/mcp",
+  "@ankimcp/anki-mcp-server",
+  "@bolthub/mcp",
+  "@certscore/mcp",
+  "@fouradata/mcp",
+  "@kawacode/mcp",
+  "@perplexity-ai/mcp-server",
+  "@posteverywhere/mcp",
+  "@rolli/mcp",
+  "@scope-bid/scope-mcp",
+  "@shipeasy/mcp",
+  "@signal8ai/mcp",
+  "@trusty-squire/mcp",
+  "@voxell/forge-mcp",
+  "fodda-mcp",
+  "mcp-server-scf",
+  "mcp-socialapi",
+  "raven-mcp",
+  "tenjin-cli"
+ ],
+ "packages": [
+  {
+   "pkg": "snowsure-mcp-server",
+   "server": "ai.snowsure/snow",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 0
+  },
+  {
+   "pkg": "spritecook-mcp",
+   "server": "ai.spritecook/generate",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "@synchronex/mcp-proxy",
+   "server": "ai.synchronex/mcp-proxy",
+   "versions_seen": 5,
+   "pairs": 4,
+   "changes": 0
+  },
+  {
+   "pkg": "@thrain/blackout-mcp",
+   "server": "ai.thrain/blackout",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "@traderouter/trade-router-mcp",
+   "server": "ai.traderouter/trade-router-mcp",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 4
+  },
+  {
+   "pkg": "@wavespeed/mcp",
+   "server": "ai.wavespeed/mcp",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "@withone/mcp",
+   "server": "ai.withone/mcp",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "@htmldrop.app/mcp",
+   "server": "app.htmldrop/mcp",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 2
+  },
+  {
+   "pkg": "@sonarapp/mcp",
+   "server": "app.trysonar/sonar",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 10
+  },
+  {
+   "pkg": "@flydocs/cli",
+   "server": "ai.flydocs/flydocs",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 9
+  },
+  {
+   "pkg": "@hermitsh/texts-mcp",
+   "server": "ai.hermitsh/texts",
+   "versions_seen": 1,
+   "pairs": 0,
+   "changes": 0
+  },
+  {
+   "pkg": "@keenable/mcp",
+   "server": "ai.keenable/web-search",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 0
+  },
+  {
+   "pkg": "lawai-mcp-server",
+   "server": "ai.law/lawyer-search",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 0
+  },
+  {
+   "pkg": "@monnet/mcp",
+   "server": "ai.monnet/mcp",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 2
+  },
+  {
+   "pkg": "@primate-intelligence/mcp",
+   "server": "ai.primateintelligence/mcp",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "mcp-merchant",
+   "server": "ai.shawndurrani/mcp-merchant",
+   "versions_seen": 3,
+   "pairs": 2,
+   "changes": 0
+  },
+  {
+   "pkg": "@bluesprincemedia/thiri-mcp",
+   "server": "ai.thiri/chord-intelligence",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 1
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "server": "ai.tuteliq/mcp",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 25
+  },
+  {
+   "pkg": "@vruum/mcp",
+   "server": "ai.vruum/mcp",
+   "versions_seen": 3,
+   "pairs": 2,
+   "changes": 0
+  },
+  {
+   "pkg": "apick-mcp",
+   "server": "app.apick/all",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 0
+  },
+  {
+   "pkg": "miromiro-mcp",
+   "server": "app.miromiro/miromiro",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "provably-fair-mcp",
+   "server": "app.promptcoin/giveaway-raffle-winner-picker",
+   "versions_seen": 5,
+   "pairs": 4,
+   "changes": 0
+  },
+  {
+   "pkg": "@adeu/mcp-server",
+   "server": "ai.adeu/adeu",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 6
+  },
+  {
+   "pkg": "@autonomad1/computeback-mcp",
+   "server": "ai.autonomad/computeback",
+   "versions_seen": 4,
+   "pairs": 3,
+   "changes": 0
+  },
+  {
+   "pkg": "bizmuse-mcp",
+   "server": "ai.bizmuse/bizmuse",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 7
+  },
+  {
+   "pkg": "@bolthub/mcp-registry",
+   "server": "ai.bolthub/registry",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "buywhere-mcp",
+   "server": "ai.buywhere/buywhere-mcp",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 1
+  },
+  {
+   "pkg": "@buywhere/mcp-server",
+   "server": "ai.buywhere/buywhere-mcp",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 5
+  },
+  {
+   "pkg": "@callmcp/server",
+   "server": "ai.callmcp/server",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "@circulara/plugin",
+   "server": "ai.circulara/plugin",
+   "versions_seen": 3,
+   "pairs": 2,
+   "changes": 0
+  },
+  {
+   "pkg": "clelp-mcp-server",
+   "server": "ai.clelp/clelp",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "contextstudios-mcp",
+   "server": "ai.contextstudios/mcp",
+   "versions_seen": 1,
+   "pairs": 0,
+   "changes": 0
+  },
+  {
+   "pkg": "@dinglebear/rgotify",
+   "server": "ai.dinglebear/rgotify",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 0
+  },
+  {
+   "pkg": "@elfa-ai/mcp",
+   "server": "ai.elfa/mcp",
+   "versions_seen": 5,
+   "pairs": 4,
+   "changes": 3
+  },
+  {
+   "pkg": "elicitly",
+   "server": "ai.elicitly/elicitly",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "facesign-mcp",
+   "server": "ai.facesign/facesign-mcp",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 0
+  },
+  {
+   "pkg": "@gency-ai/gency-mcp",
+   "server": "ai.gency/gency-mcp",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 11
+  },
+  {
+   "pkg": "justdrop-mcp",
+   "server": "ai.justdrop/mcp",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "@mafdet/mcp",
+   "server": "ai.mafdet/mcp",
+   "versions_seen": 5,
+   "pairs": 4,
+   "changes": 0
+  },
+  {
+   "pkg": "@meetlark/mcp-server",
+   "server": "ai.meetlark/mcp-server",
+   "versions_seen": 4,
+   "pairs": 3,
+   "changes": 2
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "server": "ai.naumu/mcp",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 14
+  },
+  {
+   "pkg": "@picsha-ai/mcp-server",
+   "server": "ai.picsha/picsha",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 1
+  },
+  {
+   "pkg": "positif-ai",
+   "server": "ai.positif/positif",
+   "versions_seen": 4,
+   "pairs": 3,
+   "changes": 0
+  },
+  {
+   "pkg": "proxyllm-mcp",
+   "server": "ai.proxyllm/proxyllm-mcp",
+   "versions_seen": 3,
+   "pairs": 2,
+   "changes": 0
+  },
+  {
+   "pkg": "@shiplightai/mcp",
+   "server": "ai.shiplight/shiplight",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 1
+  },
+  {
+   "pkg": "ssid-mcp",
+   "server": "ai.ssid/ssid-mcp",
+   "versions_seen": 5,
+   "pairs": 4,
+   "changes": 0
+  },
+  {
+   "pkg": "@starreel/mcp",
+   "server": "ai.starreel/starreel",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 2
+  },
+  {
+   "pkg": "telbase",
+   "server": "ai.telbase/deploy",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "@thrain/spotlight-mcp",
+   "server": "ai.thrain/spotlight",
+   "versions_seen": 3,
+   "pairs": 2,
+   "changes": 0
+  },
+  {
+   "pkg": "tokonomix-council-mcp",
+   "server": "ai.tokonomix/council",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 0
+  },
+  {
+   "pkg": "@unpaper/cli",
+   "server": "ai.unpaper/cli",
+   "versions_seen": 4,
+   "pairs": 3,
+   "changes": 0
+  },
+  {
+   "pkg": "@usestring/mcp",
+   "server": "ai.usestring/web-access",
+   "versions_seen": 4,
+   "pairs": 3,
+   "changes": 2
+  },
+  {
+   "pkg": "vertical-marketplace-mcp",
+   "server": "ai.verticalmarketplace/vertical-marketplace",
+   "versions_seen": 1,
+   "pairs": 0,
+   "changes": 0
+  },
+  {
+   "pkg": "3dstreet-mcp",
+   "server": "app.3dstreet/3dstreet",
+   "versions_seen": 4,
+   "pairs": 3,
+   "changes": 0
+  },
+  {
+   "pkg": "crawlio-browser",
+   "server": "app.crawlio/crawlio-browser",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 21
+  },
+  {
+   "pkg": "@takehub/mcp",
+   "server": "app.takehub/mcp",
+   "versions_seen": 3,
+   "pairs": 2,
+   "changes": 3
+  },
+  {
+   "pkg": "@vayacore/mcp",
+   "server": "app.vayapin/mcp",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 0
+  },
+  {
+   "pkg": "pretrip-mcp",
+   "server": "agency.kesey/pretrip",
+   "versions_seen": 2,
+   "pairs": 1,
+   "changes": 0
+  },
+  {
+   "pkg": "affiliate-networks-mcp",
+   "server": "ai.agenticaffiliate/affiliate-networks-mcp",
+   "versions_seen": 6,
+   "pairs": 5,
+   "changes": 2
+  },
+  {
+   "pkg": "@agenttrust/mcp-server",
+   "server": "ai.agenttrust/mcp-server",
+   "versions_seen": 5,
+   "pairs": 4,
+   "changes": 2
+  }
+ ],
+ "totals": {
+  "packages_attempted": 60,
+  "packages_with_changes": 23,
+  "version_pairs": 217,
+  "description_changes": 136
+ },
+ "changes": [
+  {
+   "pkg": "@traderouter/trade-router-mcp",
+   "server": "ai.traderouter/trade-router-mcp",
+   "tool": "check_order",
+   "from": "1.0.10",
+   "to": "1.0.12",
+   "t": "2026-04-25",
+   "old": "Check the status of a specific order by order_id.",
+   "new": "Returns the current status of a specific order by order_id. More targeted than list_orders.\n\nWHEN TO USE: To check whether a known order has triggered, expired, or been cancelled. Useful when polling for a specific order's outcome rather than scanning the full list.\n\nWHAT IT DOES: Sends { action: \"check_order\", order_id } over the WebSocket. Server returns { type: \"order_status\", order_id, status, ... }.\n\nRETURNS: { wallet, order_id, status: \"active\"|\"triggered\"|\"filled\"|\"cancelled\"|\"expired\", ... }. If the order doesn't exist (already expired or cancelled), the server returns an error.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Returns the current status of a specific order by order_id. More targeted than list_orders. WHEN TO USE: To check whether a known order has triggered, expired, or been cancelled. Useful when polling for a specific order's outcome rather than scanning the full list. WHAT IT DOES: Sends { action: \"check_order\", order_id } over the WebSocket. Server returns { type: \"order_status\", order_id, status, ."
+   }
+  },
+  {
+   "pkg": "@traderouter/trade-router-mcp",
+   "server": "ai.traderouter/trade-router-mcp",
+   "tool": "connection_status",
+   "from": "1.0.10",
+   "to": "1.0.12",
+   "t": "2026-04-25",
+   "old": "Return live WS connection state for a wallet.",
+   "new": "Returns the current state of the persistent WebSocket connection for a wallet (connected, registered, last heartbeat time, queued message count).\n\nWHEN TO USE: For debugging. If place_*_order calls are failing or hanging, check this first to see whether the WebSocket is actually authenticated.\n\nWHAT IT DOES: Inspects the in-memory ConnectionManager for the given wallet \u2014 no network call.\n\nRETURNS: { wallet, connected: bool, registered: bool, lastHeartbeat: <ISO timestamp>, ... }.\n\nSIDE EFFECTS: None.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Returns the current state of the persistent WebSocket connection for a wallet (connected, registered, last heartbeat time, queued message count). WHEN TO USE: For debugging. If place_*_order calls are failing or hanging, check this first to see whether the WebSocket is actually authenticated. WHAT IT DOES: Inspects the in-memory ConnectionManager for the given wallet \u2014 no network call. RETURNS: { "
+   }
+  },
+  {
+   "pkg": "@traderouter/trade-router-mcp",
+   "server": "ai.traderouter/trade-router-mcp",
+   "tool": "place_limit_trailing_order",
+   "from": "1.0.10",
+   "to": "1.0.12",
+   "t": "2026-04-25",
+   "old": "Place a limit-then-trailing order. Wait for limit, then trailing phase; when trail triggers, single swap. action: limit_trailing_sell|limit_trailing_buy.",
+   "new": "COMBO ORDER: Wait for a limit target, then activate a trailing stop. When the trail triggers, execute as a SINGLE swap (not TWAP).\n\nWHEN TO USE: To enter at a specific mcap, then ride the trend with a trailing stop. Example: \"Buy BONK if mcap drops to $500M, then sell with a 15% trailing stop after entry.\"\n\nWHAT IT DOES: Server waits for limit target. When crossed, sends limit_trailing_activated and starts trailing-stop tracking. When trail retraces enough, sends order_filled with a single unsigned tx.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "execute"
+    ],
+    "added": "COMBO ORDER: Wait for a limit target, then activate a trailing stop. When the trail triggers, execute as a SINGLE swap (not TWAP). WHEN TO USE: To enter at a specific mcap, then ride the trend with a trailing stop. Example: \"Buy BONK if mcap drops to $500M, then sell with a 15% trailing stop after entry.\" WHAT IT DOES: Server waits for limit target. When crossed, sends limit_trailing_activated and"
+   }
+  },
+  {
+   "pkg": "@traderouter/trade-router-mcp",
+   "server": "ai.traderouter/trade-router-mcp",
+   "tool": "place_trailing_twap_order",
+   "from": "1.0.10",
+   "to": "1.0.12",
+   "t": "2026-04-25",
+   "old": "Place a trailing-then-TWAP order. When trail triggers, execute via TWAP. action: trailing_twap_sell|trailing_twap_buy.",
+   "new": "COMBO ORDER: Wait for a trailing-stop trigger, then execute the exit as a TWAP rather than a single swap.\n\nWHEN TO USE: To ride a trend with a trailing stop, but exit gradually via TWAP when the trail fires (minimizing market impact on a low-liquidity exit). Example: \"Sell BONK if mcap drops 15% from peak, but spread the exit over 30 min.\"\n\nWHAT IT DOES: Server tracks high-water (sell) or low-water (buy) mark. When reversal exceeds trail BPS, sends trailing_twap_triggered, then twap_order_created, then twap_execution per slice.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "COMBO ORDER: Wait for a trailing-stop trigger, then execute the exit as a TWAP rather than a single swap. WHEN TO USE: To ride a trend with a trailing stop, but exit gradually via TWAP when the trail fires (minimizing market impact on a low-liquidity exit). Example: \"Sell BONK if mcap drops 15% from peak, but spread the exit over 30 min.\" WHAT IT DOES: Server tracks high-water (sell) or low-water "
+   }
+  },
+  {
+   "pkg": "@htmldrop.app/mcp",
+   "server": "app.htmldrop/mcp",
+   "tool": "htmldrop_delete",
+   "from": "0.1.0",
+   "to": "0.2.2",
+   "t": "2026-05-16",
+   "old": "Delete a site by its id. The id is the opaque string returned from htmldrop_list (NOT the slug). Once deleted the public URL returns 404 immediately.",
+   "new": "Delete a site by its id. The id is the opaque string returned from htmldrop_list (NOT the slug).",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": ""
+   }
+  },
+  {
+   "pkg": "@htmldrop.app/mcp",
+   "server": "app.htmldrop/mcp",
+   "tool": "htmldrop_delete",
+   "from": "0.2.2",
+   "to": "0.2.4",
+   "t": "2026-05-16",
+   "old": "Delete a site by its id. The id is the opaque string returned from htmldrop_list (NOT the slug).",
+   "new": "Delete a site by its id. The id is the opaque string returned from htmldrop_list (NOT the slug). Once deleted the public URL returns 404 immediately.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Once deleted the public URL returns 404 immediately."
+   }
+  },
+  {
+   "pkg": "@sonarapp/mcp",
+   "server": "app.trysonar/sonar",
+   "tool": "sonar_app_aso_score",
+   "from": "0.5.0",
+   "to": "0.7.0",
+   "t": "2026-07-18",
+   "old": "Calculate an ASO (App Store Optimization) audit score (0-100) for an app. Returns the overall score plus an itemized breakdown of checks (title length, keyword usage, screenshots, ratings, etc.) so you can identify what to improve.",
+   "new": "Calculate an ASO (App Store Optimization) audit score (0-100) for an app. Returns the overall score plus an itemized breakdown of checks (title length, keyword usage, screenshots, ratings, etc.) so you can identify what to improve. Works without an API key (free tier, limited daily use per IP).",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "secret_or_credential"
+    ],
+    "evidence": [
+     "API key"
+    ],
+    "added": "Works without an API key (free tier, limited daily use per IP)."
+   }
+  },
+  {
+   "pkg": "@sonarapp/mcp",
+   "server": "app.trysonar/sonar",
+   "tool": "sonar_app_lookup",
+   "from": "0.5.0",
+   "to": "0.7.0",
+   "t": "2026-07-18",
+   "old": "Look up a single app by its store ID. Returns app metadata including name, developer, category, rating, reviews, installs (Android), and price.",
+   "new": "Look up a single app by its store ID. Returns app metadata including name, developer, category, rating, reviews, installs (Android), and price. Works without an API key (free tier, limited daily use per IP).",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "secret_or_credential"
+    ],
+    "evidence": [
+     "API key"
+    ],
+    "added": "Works without an API key (free tier, limited daily use per IP)."
+   }
+  },
+  {
+   "pkg": "@sonarapp/mcp",
+   "server": "app.trysonar/sonar",
+   "tool": "sonar_app_revenue",
+   "from": "0.5.0",
+   "to": "0.7.0",
+   "t": "2026-07-18",
+   "old": "Estimate monthly revenue for an app, based on install counts, ratings, and category benchmarks. Returns the dollar estimate plus the methodology used so the agent can communicate uncertainty.",
+   "new": "Estimate monthly revenue for an app, based on install counts, ratings, and category benchmarks. Returns the dollar estimate, a confidence grade (high/medium/low) with the factors behind it, and the methodology used \\u2014 always communicate the confidence alongside the number.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Returns the dollar estimate, a confidence grade (high/medium/low) with the factors behind it, and the methodology used \\u2014 always communicate the confidence alongside the number."
+   }
+  },
+  {
+   "pkg": "@sonarapp/mcp",
+   "server": "app.trysonar/sonar",
+   "tool": "sonar_app_search",
+   "from": "0.5.0",
+   "to": "0.7.0",
+   "t": "2026-07-18",
+   "old": "Search apps in the App Store or Google Play by keyword. Returns ranked list of apps with metadata (results are returned in store ranking order).",
+   "new": "Search apps in the App Store or Google Play by keyword. Returns ranked list of apps with metadata (results are returned in store ranking order). Works without an API key (free tier, limited daily use per IP).",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "secret_or_credential"
+    ],
+    "evidence": [
+     "API key"
+    ],
+    "added": "Works without an API key (free tier, limited daily use per IP)."
+   }
+  },
+  {
+   "pkg": "@sonarapp/mcp",
+   "server": "app.trysonar/sonar",
+   "tool": "sonar_keyword_metrics",
+   "from": "0.5.0",
+   "to": "0.7.0",
+   "t": "2026-07-18",
+   "old": "Difficulty + popularity for a specific keyword (or up to 25 in bulk). Use this when you already know which keywords you care about \\u2014 costs 1 credit per keyword. Use sonar_keyword_search instead when you want related keyword ideas alongside metrics.",
+   "new": "Difficulty + popularity for a specific keyword (or up to 25 in bulk). Use this when you already know which keywords you care about \\u2014 costs 1 credit per keyword. Works without an API key for up to 5 keywords/day (free tier, per IP); an API key removes that cap. Use sonar_keyword_search instead when you want related keyword ideas alongside metrics.",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "secret_or_credential"
+    ],
+    "evidence": [
+     "API key",
+     "API key"
+    ],
+    "added": "Works without an API key for up to 5 keywords/day (free tier, per IP); an API key removes that cap."
+   }
+  },
+  {
+   "pkg": "@sonarapp/mcp",
+   "server": "app.trysonar/sonar",
+   "tool": "sonar_keyword_suggestions",
+   "from": "0.5.0",
+   "to": "0.7.0",
+   "t": "2026-07-18",
+   "old": "Get autocomplete suggestions for a seed keyword from the App Store or Google Play. Returns terms with a priority score (higher = more searched). Lighter and faster than sonar_keyword_search \\u2014 use when you only need term ideas without difficulty/popularity scoring.",
+   "new": "Get autocomplete suggestions for a seed keyword from the App Store or Google Play. Returns terms with a priority score (higher = more searched). Lighter and faster than sonar_keyword_search \\u2014 use when you only need term ideas without difficulty/popularity scoring. Works without an API key (free tier, limited daily use per IP).",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "secret_or_credential"
+    ],
+    "evidence": [
+     "API key"
+    ],
+    "added": "Works without an API key (free tier, limited daily use per IP)."
+   }
+  },
+  {
+   "pkg": "@sonarapp/mcp",
+   "server": "app.trysonar/sonar",
+   "tool": "sonar_app_changes",
+   "from": "0.7.0",
+   "to": "0.8.0",
+   "t": "2026-08-19",
+   "old": "Change history for a tracked app \\u2014 detected releases, metadata edits, screenshot swaps, price changes, and category moves, newest first. Useful for correlating rank movements with what the app (or a competitor) changed. Requires a Full plan (trial counts).",
+   "new": "Change history for a tracked app \\u2014 detected releases, metadata edits, screenshot swaps, price changes, and category moves, newest first. Useful for correlating rank movements with what the app (or a competitor) changed. Requires an Indie plan (trial counts).",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Requires an Indie plan (trial counts)."
+   }
+  },
+  {
+   "pkg": "@sonarapp/mcp",
+   "server": "app.trysonar/sonar",
+   "tool": "sonar_list_products",
+   "from": "0.7.0",
+   "to": "0.8.0",
+   "t": "2026-08-19",
+   "old": "List your products with their linked store versions and competitor counts. Use it to discover product/app UUIDs. Requires a Full plan (trial counts).",
+   "new": "List your products with their linked store versions and competitor counts. Use it to discover product/app UUIDs. Requires an Indie plan (trial counts).",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Requires an Indie plan (trial counts)."
+   }
+  },
+  {
+   "pkg": "@sonarapp/mcp",
+   "server": "app.trysonar/sonar",
+   "tool": "sonar_scan_competitor",
+   "from": "0.7.0",
+   "to": "0.8.0",
+   "t": "2026-08-19",
+   "old": "WRITE tool \\u2014 runs a keyword discovery scan on a tracked competitor: finds keywords the competitor ranks for and records both apps",
+   "new": "WRITE tool \\u2014 runs an AI keyword discovery scan on a tracked competitor: generates the search terms the competitor",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "WRITE tool \\u2014 runs an AI keyword discovery scan on a tracked competitor: generates the search terms the competitor"
+   }
+  },
+  {
+   "pkg": "@sonarapp/mcp",
+   "server": "app.trysonar/sonar",
+   "tool": "sonar_track_app",
+   "from": "0.7.0",
+   "to": "0.8.0",
+   "t": "2026-08-19",
+   "old": "WRITE tool \\u2014 links the second-store version of an existing Sonar product (e.g. the product already tracks the iOS app and you want to add the Android version, or vice versa). Each product holds at most one iOS + one Android app; to start tracking a brand-new app, use sonar_create_product instead. Requires a Full plan (trial counts) and an API key with the write scope.",
+   "new": "WRITE tool \\u2014 links the second-store version of an existing Sonar product (e.g. the product already tracks the iOS app and you want to add the Android version, or vice versa). Each product holds at most one iOS + one Android app; to start tracking a brand-new app, use sonar_create_product instead. Requires an Indie plan (trial counts) and an API key with the write scope.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Requires an Indie plan (trial counts) and an API key with the write scope."
+   }
+  },
+  {
+   "pkg": "@flydocs/cli",
+   "server": "ai.flydocs/flydocs",
+   "tool": "connect",
+   "from": "0.5.0-beta.0",
+   "to": "0.6.0-alpha.27",
+   "t": "2026-04-01",
+   "old": "Connect FlyDocs to a cloud provider (Linear)",
+   "new": "Connect FlyDocs to a cloud provider",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Connect FlyDocs to a cloud provider"
+   }
+  },
+  {
+   "pkg": "@flydocs/cli",
+   "server": "ai.flydocs/flydocs",
+   "tool": "init",
+   "from": "0.6.0-alpha.27",
+   "to": "0.6.0-alpha.69",
+   "t": "2026-04-10",
+   "old": "Initialize FlyDocs in this project (unified setup)",
+   "new": "Initialize FlyDocs in this project",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Initialize FlyDocs in this project"
+   }
+  },
+  {
+   "pkg": "@flydocs/cli",
+   "server": "ai.flydocs/flydocs",
+   "tool": "sync",
+   "from": "0.6.0-alpha.27",
+   "to": "0.6.0-alpha.69",
+   "t": "2026-04-10",
+   "old": "Pull latest config and templates from server",
+   "new": "Sync files from server (alias for update)",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "update"
+    ],
+    "added": "Sync files from server (alias for update)"
+   }
+  },
+  {
+   "pkg": "@flydocs/cli",
+   "server": "ai.flydocs/flydocs",
+   "tool": "update",
+   "from": "0.6.0-alpha.27",
+   "to": "0.6.0-alpha.69",
+   "t": "2026-04-10",
+   "old": "Update an existing FlyDocs installation",
+   "new": "Update CLI and sync all managed files from server",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Update CLI and sync all managed files from server"
+   }
+  },
+  {
+   "pkg": "@flydocs/cli",
+   "server": "ai.flydocs/flydocs",
+   "tool": "install",
+   "from": "0.6.0-alpha.111",
+   "to": "1.0.4",
+   "t": "2026-06-09",
+   "old": "Install FlyDocs in a project directory",
+   "new": "Install FlyDocs in a project directory (deprecated \\u2014 use ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Install FlyDocs in a project directory (deprecated \\u2014 use"
+   }
+  },
+  {
+   "pkg": "@flydocs/cli",
+   "server": "ai.flydocs/flydocs",
+   "tool": "sync",
+   "from": "0.6.0-alpha.111",
+   "to": "1.0.4",
+   "t": "2026-06-09",
+   "old": "Sync files from server (alias for update)",
+   "new": "Sync config and context from server (deprecated \\u2014 use ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Sync config and context from server (deprecated \\u2014 use"
+   }
+  },
+  {
+   "pkg": "@flydocs/cli",
+   "server": "ai.flydocs/flydocs",
+   "tool": "connect",
+   "from": "1.0.4",
+   "to": "1.3.11",
+   "t": "2026-08-21",
+   "old": "Connect FlyDocs to a cloud provider",
+   "new": "Connect FlyDocs to a cloud provider, or `connect codex`",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Connect FlyDocs to a cloud provider, or `connect codex`"
+   }
+  },
+  {
+   "pkg": "@flydocs/cli",
+   "server": "ai.flydocs/flydocs",
+   "tool": "doctor",
+   "from": "1.0.4",
+   "to": "1.3.11",
+   "t": "2026-08-21",
+   "old": "Check that the local environment satisfies FlyDocs requirements",
+   "new": "Print the usage-capture decision chain (config, consent, logs, sweeps) \\u2014 read-only",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "read"
+    ],
+    "added": "Print the usage-capture decision chain (config, consent, logs, sweeps) \\u2014 read-only"
+   }
+  },
+  {
+   "pkg": "@flydocs/cli",
+   "server": "ai.flydocs/flydocs",
+   "tool": "update",
+   "from": "1.0.4",
+   "to": "1.3.11",
+   "t": "2026-08-21",
+   "old": "Update CLI and sync all managed files from server",
+   "new": "Update the CLI and sync all managed files, config, and context from the server",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Update the CLI and sync all managed files, config, and context from the server"
+   }
+  },
+  {
+   "pkg": "@monnet/mcp",
+   "server": "ai.monnet/mcp",
+   "tool": "comment",
+   "from": "0.1.7",
+   "to": "0.1.10",
+   "t": "2026-06-10",
+   "old": "Post a public comment on a motion. Monnet may respond \u2014 if it does, ",
+   "new": "Post a public comment on a motion, either top-level or as a reply within ",
+   "label": {
+    "bucket": "schema-widening",
+    "reason": "input surface described differently",
+    "signals": [],
+    "added": "Post a public comment on a motion, either top-level or as a reply within"
+   }
+  },
+  {
+   "pkg": "@monnet/mcp",
+   "server": "ai.monnet/mcp",
+   "tool": "create_motion",
+   "from": "0.1.7",
+   "to": "0.1.10",
+   "t": "2026-06-10",
+   "old": "Create a new draft motion in a Monnet workspace. Describe what you want to accomplish ",
+   "new": "Create a new draft motion in a Monnet workspace from a free-form prompt. Returns the new motion",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Create a new draft motion in a Monnet workspace from a free-form prompt. Returns the new motion"
+   }
+  },
+  {
+   "pkg": "@bluesprincemedia/thiri-mcp",
+   "server": "ai.thiri/chord-intelligence",
+   "tool": "search_csound_corpus",
+   "from": "0.3.0",
+   "to": "0.5.1",
+   "t": "2026-07-29",
+   "old": "Search the indexed Csound FLOSS corpus (5316 instruments). Read-only; returns matching instrument summaries.",
+   "new": "Search the indexed Csound FLOSS corpus (public instrument index). Read-only; returns matching instrument summaries.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Search the indexed Csound FLOSS corpus (public instrument index)."
+   }
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "server": "ai.tuteliq/mcp",
+   "tool": "create_webhook",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "t": "2026-03-10",
+   "old": "Create a new webhook endpoint. The returned secret is only shown once \u2014 store it securely for signature verification.",
+   "new": "Create a new webhook endpoint.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": ""
+   }
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "server": "ai.tuteliq/mcp",
+   "tool": "delete_account_data",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "t": "2026-03-10",
+   "old": "Delete all account data (GDPR Article 17 \u2014 Right to Erasure). Permanently removes all stored user data.",
+   "new": "Delete all account data (GDPR Right to Erasure).",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Delete all account data (GDPR Right to Erasure)."
+   }
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "server": "ai.tuteliq/mcp",
+   "tool": "export_account_data",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "t": "2026-03-10",
+   "old": "Export all account data as JSON (GDPR Article 20 \u2014 Right to Data Portability).",
+   "new": "Export all account data as JSON (GDPR Data Portability).",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Export all account data as JSON (GDPR Data Portability)."
+   }
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "server": "ai.tuteliq/mcp",
+   "tool": "get_audit_logs",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "t": "2026-03-10",
+   "old": "Get audit trail of all data operations (GDPR Article 15 \u2014 Right of Access).",
+   "new": "Get audit trail of data operations.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get audit trail of data operations."
+   }
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "server": "ai.tuteliq/mcp",
+   "tool": "get_breach",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "t": "2026-03-10",
+   "old": "Get details of a specific data breach by ID.",
+   "new": "Get details of a specific data breach.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get details of a specific data breach."
+   }
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "server": "ai.tuteliq/mcp",
+   "tool": "get_consent_status",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "t": "2026-03-10",
+   "old": "Get current consent status for all or a specific consent type (GDPR Article 7).",
+   "new": "Get current consent status.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get current consent status."
+   }
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "server": "ai.tuteliq/mcp",
+   "tool": "get_pricing_details",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "t": "2026-03-10",
+   "old": "Get detailed pricing plans with monthly/yearly prices, API call limits, and feature lists.",
+   "new": "Get detailed pricing plans.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get detailed pricing plans."
+   }
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "server": "ai.tuteliq/mcp",
+   "tool": "get_usage_history",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "t": "2026-03-10",
+   "old": "Get daily usage history for the past N days, showing request counts per day.",
+   "new": "Get daily usage history for the past N days.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get daily usage history for the past N days."
+   }
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "server": "ai.tuteliq/mcp",
+   "tool": "get_usage_monthly",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "t": "2026-03-10",
+   "old": "Get monthly usage summary including billing period, limits, rate limits, and upgrade recommendations.",
+   "new": "Get monthly usage summary.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get monthly usage summary."
+   }
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "server": "ai.tuteliq/mcp",
+   "tool": "list_breaches",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "t": "2026-03-10",
+   "old": "List all data breaches, optionally filtered by status.",
+   "new": "List all data breaches.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "List all data breaches."
+   }
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "server": "ai.tuteliq/mcp",
+   "tool": "log_breach",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "t": "2026-03-10",
+   "old": "Log a new data breach (GDPR Article 33/34). Records breach details and starts the 72-hour notification clock.",
+   "new": "Log a new data breach (GDPR Article 33/34).",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": ""
+   }
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "server": "ai.tuteliq/mcp",
+   "tool": "record_consent",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "t": "2026-03-10",
+   "old": "Record user consent for a specific data processing purpose (GDPR Article 7).",
+   "new": "Record user consent for data processing (GDPR Article 7).",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Record user consent for data processing (GDPR Article 7)."
+   }
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "server": "ai.tuteliq/mcp",
+   "tool": "rectify_data",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "t": "2026-03-10",
+   "old": "Rectify (correct) user data in a specific collection (GDPR Article 16 \u2014 Right to Rectification).",
+   "new": "Rectify (correct) user data (GDPR Right to Rectification).",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Rectify (correct) user data (GDPR Right to Rectification)."
+   }
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "server": "ai.tuteliq/mcp",
+   "tool": "regenerate_webhook_secret",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "t": "2026-03-10",
+   "old": "Regenerate a webhook signing secret. The old secret is immediately invalidated.",
+   "new": "Regenerate a webhook signing secret.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": ""
+   }
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "server": "ai.tuteliq/mcp",
+   "tool": "withdraw_consent",
+   "from": "2.2.0",
+   "to": "3.3.1",
+   "t": "2026-03-10",
+   "old": "Withdraw a previously granted consent (GDPR Article 7.3).",
+   "new": "Withdraw a previously granted consent.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Withdraw a previously granted consent."
+   }
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "server": "ai.tuteliq/mcp",
+   "tool": "delete_account_data",
+   "from": "3.10.0",
+   "to": "3.15.6",
+   "t": "2026-05-28",
+   "old": "Delete all account data (GDPR Right to Erasure).",
+   "new": "Delete all account data (GDPR Right to Erasure). This is irreversible.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "This is irreversible."
+   }
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "server": "ai.tuteliq/mcp",
+   "tool": "get_consent_status",
+   "from": "3.10.0",
+   "to": "3.15.6",
+   "t": "2026-05-28",
+   "old": "Get current consent status.",
+   "new": "Get current consent status, optionally filtered by consent type.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get current consent status, optionally filtered by consent type."
+   }
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "server": "ai.tuteliq/mcp",
+   "tool": "get_pricing_details",
+   "from": "3.10.0",
+   "to": "3.15.6",
+   "t": "2026-05-28",
+   "old": "Get detailed pricing plans.",
+   "new": "Get detailed pricing plans with features, limits, and rate caps.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get detailed pricing plans with features, limits, and rate caps."
+   }
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "server": "ai.tuteliq/mcp",
+   "tool": "get_usage_monthly",
+   "from": "3.10.0",
+   "to": "3.15.6",
+   "t": "2026-05-28",
+   "old": "Get monthly usage summary.",
+   "new": "Get monthly usage summary with billing-period totals and remaining quota.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get monthly usage summary with billing-period totals and remaining quota."
+   }
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "server": "ai.tuteliq/mcp",
+   "tool": "list_breaches",
+   "from": "3.10.0",
+   "to": "3.15.6",
+   "t": "2026-05-28",
+   "old": "List all data breaches.",
+   "new": "List all data breaches, optionally filtered by status.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "List all data breaches, optionally filtered by status."
+   }
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "server": "ai.tuteliq/mcp",
+   "tool": "log_breach",
+   "from": "3.10.0",
+   "to": "3.15.6",
+   "t": "2026-05-28",
+   "old": "Log a new data breach (GDPR Article 33/34).",
+   "new": "Log a new data breach (GDPR Article 33/34). Starts the 72-hour notification clock.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Starts the 72-hour notification clock."
+   }
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "server": "ai.tuteliq/mcp",
+   "tool": "rectify_data",
+   "from": "3.10.0",
+   "to": "3.15.6",
+   "t": "2026-05-28",
+   "old": "Rectify (correct) user data (GDPR Right to Rectification).",
+   "new": "Rectify (correct) user data (GDPR Right to Rectification). Overwrites existing field values.",
+   "label": {
+    "bucket": "schema-widening",
+    "reason": "input surface described differently",
+    "signals": [],
+    "added": "Overwrites existing field values."
+   }
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "server": "ai.tuteliq/mcp",
+   "tool": "regenerate_webhook_secret",
+   "from": "3.10.0",
+   "to": "3.15.6",
+   "t": "2026-05-28",
+   "old": "Regenerate a webhook signing secret.",
+   "new": "Regenerate a webhook signing secret. Invalidates the previous secret immediately.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Invalidates the previous secret immediately."
+   }
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "server": "ai.tuteliq/mcp",
+   "tool": "batch_analyze",
+   "from": "3.21.2",
+   "to": "3.25.0",
+   "t": "2026-08-20",
+   "old": "Analyze up to 50 items in a single request \u2014 ideal for bulk triage. Each item runs one detection type: bullying, unsafe, or emotions (pass `content`), or grooming (pass `messages`). Per-item success/error is returned so a partial failure does not lose the successful results.",
+   "new": "Analyze up to 50 items in a single request \u2014 ideal for bulk triage. Each item runs one detection type. ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Each item runs one detection type."
+   }
+  },
+  {
+   "pkg": "@tuteliq/mcp",
+   "server": "ai.tuteliq/mcp",
+   "tool": "detect_emotional_distress",
+   "from": "3.21.2",
+   "to": "3.25.0",
+   "t": "2026-08-20",
+   "old": "DEPRECATED. Alias for detect_distress_signals; same behaviour and same backing endpoint (/safety/distress-signals). Will be removed in a future major version \u2014 update integrations to detect_distress_signals.",
+   "new": "DEPRECATED ALIAS \u2014 DO NOT USE FOR NEW WORK. Call `detect_distress_signals` instead: identical behaviour, identical backing endpoint (/safety/distress-signals), and it also supports multi-turn `continuation_token`, which this alias does not. Retained only so existing integrations keep working; it will be removed in the next major version.",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "imperative_priority"
+    ],
+    "evidence": [
+     "DO NOT USE"
+    ],
+    "added": "DEPRECATED ALIAS \u2014 DO NOT USE FOR NEW WORK. Call `detect_distress_signals` instead: identical behaviour, identical backing endpoint (/safety/distress-signals), and it also supports multi-turn `continuation_token`, which this alias does not. Retained only so existing integrations keep working; it will be removed in the next major version."
+   }
+  },
+  {
+   "pkg": "@adeu/mcp-server",
+   "server": "ai.adeu/adeu",
+   "tool": "accept_all_changes",
+   "from": "1.7.5",
+   "to": "1.15.0",
+   "t": "2026-06-25",
+   "old": "Accepts all tracked changes and removes all comments in a single operation, producing a finalized clean document. Use this when a document review is entirely complete and you want to clear all redlines.",
+   "new": "Accepts all tracked changes and removes all comments in a single operation.",
+   "label": {
+    "bucket": "schema-widening",
+    "reason": "input surface described differently",
+    "signals": [],
+    "added": "Accepts all tracked changes and removes all comments in a single operation."
+   }
+  },
+  {
+   "pkg": "@adeu/mcp-server",
+   "server": "ai.adeu/adeu",
+   "tool": "finalize_document",
+   "from": "1.7.5",
+   "to": "1.15.0",
+   "t": "2026-06-25",
+   "old": "Prepares a document for external distribution or e-signature. This tool combines metadata sanitization, document locking (protection), and markup resolution into a single step. NOTE: PDF export and AES encryption are disabled in this environment.",
+   "new": "Prepares a document for external distribution or e-signature.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": ""
+   }
+  },
+  {
+   "pkg": "@adeu/mcp-server",
+   "server": "ai.adeu/adeu",
+   "tool": "login_to_adeu_cloud",
+   "from": "1.7.5",
+   "to": "1.15.0",
+   "t": "2026-06-25",
+   "old": "Logs the user into the Adeu Cloud backend. Securely opens a browser window for authentication.",
+   "new": "Logs the user into Adeu Cloud. Opens a browser window for SSO authentication.\\n\\nIMPORTANT \\u2014 login is user-level, not account-level:\\n- An Adeu user can have multiple linked provider accounts (Microsoft, Google) and multiple mailboxes (personal + shared/delegated). One linked account is marked primary.\\n- Signing in through ANY of the user",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Logs the user into Adeu Cloud. Opens a browser window for SSO authentication.\\n\\nIMPORTANT \\u2014 login is user-level, not account-level:\\n- An Adeu user can have multiple linked provider accounts (Microsoft, Google) and multiple mailboxes (personal + shared/delegated). One linked account is marked primary.\\n- Signing in through ANY of the user"
+   }
+  },
+  {
+   "pkg": "@adeu/mcp-server",
+   "server": "ai.adeu/adeu",
+   "tool": "logout_of_adeu_cloud",
+   "from": "1.7.5",
+   "to": "1.15.0",
+   "t": "2026-06-25",
+   "old": "Logs out of the Adeu Cloud backend by clearing the local API key.",
+   "new": "Logs out of the Adeu Cloud backend.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Logs out of the Adeu Cloud backend."
+   }
+  },
+  {
+   "pkg": "@adeu/mcp-server",
+   "server": "ai.adeu/adeu",
+   "tool": "finalize_document",
+   "from": "1.15.0",
+   "to": "1.18.4",
+   "t": "2026-07-05",
+   "old": "Prepares a document for external distribution or e-signature.",
+   "new": "Prepares a document for external distribution or e-signature. Note: in this zero-dependency environment, protection_mode=",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Note: in this zero-dependency environment, protection_mode="
+   }
+  },
+  {
+   "pkg": "@adeu/mcp-server",
+   "server": "ai.adeu/adeu",
+   "tool": "accept_all_changes",
+   "from": "1.27.0",
+   "to": "2.4.1",
+   "t": "2026-08-18",
+   "old": "Accepts all tracked changes and removes all comments in a single operation.",
+   "new": "Accepts every tracked change in the document, producing a finalized clean document.\\n\\nremove_comments (boolean, DEFAULT TRUE): also delete every comment. The default is TRUE because this tool",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "delete"
+    ],
+    "added": "Accepts every tracked change in the document, producing a finalized clean document.\\n\\nremove_comments (boolean, DEFAULT TRUE): also delete every comment. The default is TRUE because this tool"
+   }
+  },
+  {
+   "pkg": "bizmuse-mcp",
+   "server": "ai.bizmuse/bizmuse",
+   "tool": "generate_music_video",
+   "from": "0.1.5",
+   "to": "0.1.6",
+   "t": "2026-07-20",
+   "old": "Generate a music video from audio with AI",
+   "new": "Submit an asynchronous BizMuse music video task from prepared audio, 1-7 reference images, creative direction, aspect ratio, resolution, and content mode.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Submit an asynchronous BizMuse music video task from prepared audio, 1-7 reference images, creative direction, aspect ratio, resolution, and content mode."
+   }
+  },
+  {
+   "pkg": "bizmuse-mcp",
+   "server": "ai.bizmuse/bizmuse",
+   "tool": "get_credit_balance",
+   "from": "0.1.5",
+   "to": "0.1.6",
+   "t": "2026-07-20",
+   "old": "Get the current user credit balance",
+   "new": "Check the authenticated BizMuse account credit balance before submitting a paid generation task.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Check the authenticated BizMuse account credit balance before submitting a paid generation task."
+   }
+  },
+  {
+   "pkg": "bizmuse-mcp",
+   "server": "ai.bizmuse/bizmuse",
+   "tool": "get_task_result",
+   "from": "0.1.5",
+   "to": "0.1.6",
+   "t": "2026-07-20",
+   "old": "Get the result of a completed music video generation task",
+   "new": "Retrieve the completed BizMuse video URL, cover URL, and duration after a generation task succeeds.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Retrieve the completed BizMuse video URL, cover URL, and duration after a generation task succeeds."
+   }
+  },
+  {
+   "pkg": "bizmuse-mcp",
+   "server": "ai.bizmuse/bizmuse",
+   "tool": "get_task_status",
+   "from": "0.1.5",
+   "to": "0.1.6",
+   "t": "2026-07-20",
+   "old": "Check the status of a music video generation task",
+   "new": "Check progress and result availability for a BizMuse music video generation task without inventing a completed asset.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Check progress and result availability for a BizMuse music video generation task without inventing a completed asset."
+   }
+  },
+  {
+   "pkg": "bizmuse-mcp",
+   "server": "ai.bizmuse/bizmuse",
+   "tool": "list_models",
+   "from": "0.1.5",
+   "to": "0.1.6",
+   "t": "2026-07-20",
+   "old": "List available AI models for music video generation",
+   "new": "List only the BizMuse models currently supported by the complete music video generation workflow.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "List only the BizMuse models currently supported by the complete music video generation workflow."
+   }
+  },
+  {
+   "pkg": "bizmuse-mcp",
+   "server": "ai.bizmuse/bizmuse",
+   "tool": "upload_audio",
+   "from": "0.1.5",
+   "to": "0.1.6",
+   "t": "2026-07-20",
+   "old": "Upload audio from URL or local file for music video generation",
+   "new": "Prepare a direct public audio URL or upload a local MP3, WAV, M4A, or AAC file for BizMuse music video generation.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Prepare a direct public audio URL or upload a local MP3, WAV, M4A, or AAC file for BizMuse music video generation."
+   }
+  },
+  {
+   "pkg": "bizmuse-mcp",
+   "server": "ai.bizmuse/bizmuse",
+   "tool": "upload_image",
+   "from": "0.1.5",
+   "to": "0.1.6",
+   "t": "2026-07-20",
+   "old": "Upload reference images for character/style consistency",
+   "new": "Upload 1-7 local JPG, PNG, or WebP reference images that guide subject identity, setting, wardrobe, and visual style.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Upload 1-7 local JPG, PNG, or WebP reference images that guide subject identity, setting, wardrobe, and visual style."
+   }
+  },
+  {
+   "pkg": "buywhere-mcp",
+   "server": "ai.buywhere/buywhere-mcp",
+   "tool": "compare_prices",
+   "from": "0.1.0",
+   "to": "0.1.1",
+   "t": "2026-04-29",
+   "old": "Compare prices for a product across all platforms or compare 2\u20135 products side-by-side. ",
+   "new": "Compare 2\u20135 products side-by-side. Returns structured differentiators, price range, ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Compare 2\u20135 products side-by-side. Returns structured differentiators, price range,"
+   }
+  },
+  {
+   "pkg": "@buywhere/mcp-server",
+   "server": "ai.buywhere/buywhere-mcp",
+   "tool": "get_deals",
+   "from": "0.1.0",
+   "to": "0.1.4",
+   "t": "2026-05-02",
+   "old": "Find products with significant price drops compared to their original price.",
+   "new": "Get discounted products sorted by discount percentage.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get discounted products sorted by discount percentage."
+   }
+  },
+  {
+   "pkg": "@buywhere/mcp-server",
+   "server": "ai.buywhere/buywhere-mcp",
+   "tool": "get_product",
+   "from": "0.1.0",
+   "to": "0.1.4",
+   "t": "2026-05-02",
+   "old": "Retrieve full details for a specific product by its BuyWhere ID.",
+   "new": "Get a specific product by its ID, including full details and current price.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get a specific product by its ID, including full details and current price."
+   }
+  },
+  {
+   "pkg": "@buywhere/mcp-server",
+   "server": "ai.buywhere/buywhere-mcp",
+   "tool": "search_products",
+   "from": "0.1.0",
+   "to": "0.1.4",
+   "t": "2026-05-02",
+   "old": "Search the BuyWhere product catalog by keyword. Returns ranked results from Singapore e-commerce platforms.",
+   "new": "Search the BuyWhere product catalog by keyword. Returns products from e-commerce platforms across multiple regions (Singapore, US, etc.).",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Returns products from e-commerce platforms across multiple regions (Singapore, US, etc.)."
+   }
+  },
+  {
+   "pkg": "@buywhere/mcp-server",
+   "server": "ai.buywhere/buywhere-mcp",
+   "tool": "get_product",
+   "from": "0.3.3",
+   "to": "0.3.7",
+   "t": "2026-05-06",
+   "old": "Get a specific product by its ID, including full details and current price.",
+   "new": "Fetch full details for a single product by its BuyWhere product ID.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "fetch"
+    ],
+    "added": "Fetch full details for a single product by its BuyWhere product ID."
+   }
+  },
+  {
+   "pkg": "@buywhere/mcp-server",
+   "server": "ai.buywhere/buywhere-mcp",
+   "tool": "search_products",
+   "from": "0.3.3",
+   "to": "0.3.7",
+   "t": "2026-05-06",
+   "old": "Search the BuyWhere product catalog by keyword. Returns products from e-commerce platforms across multiple regions (Singapore, US, etc.).",
+   "new": "Search the BuyWhere product catalog using keywords or natural language. ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Search the BuyWhere product catalog using keywords or natural language."
+   }
+  },
+  {
+   "pkg": "@elfa-ai/mcp",
+   "server": "ai.elfa/mcp",
+   "tool": "elfa_narratives",
+   "from": "1.0.1",
+   "to": "1.0.2",
+   "t": "2026-08-05",
+   "old": "Written narrative analysis with source links, for when counts are not enough. 5 credits per call, so prefer elfa_trending or elfa_mentions when metrics will do. scope=market extracts the narratives moving the market. scope=keywords summarises events for keywords you supply.",
+   "new": "Written narrative analysis with source links, for when counts are not enough. 5 credits per call, so prefer elfa_trending or elfa_mentions when metrics will do. scope=market extracts the narratives moving the market. scope=keywords summarises events for keywords you supply, and can take over a minute to return.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "scope=keywords summarises events for keywords you supply, and can take over a minute to return."
+   }
+  },
+  {
+   "pkg": "@elfa-ai/mcp",
+   "server": "ai.elfa/mcp",
+   "tool": "auto_query_write",
+   "from": "2.0.0",
+   "to": "3.0.0",
+   "t": "2026-08-13",
+   "old": "Activate, cancel or delete an Auto query. Creating costs 5 credits plus LLM usage, cancel and delete are free. An activated query runs unattended and fires its action without asking again, so validate it with auto_validate and confirm the cost and the action with the user before calling this. Queries whose action places an order also need request signing.",
+   "new": "Activate, cancel or delete an Auto query. Creating costs 5 credits plus LLM usage, cancel and delete are free. An activated query runs unattended and fires its action without asking again, so validate it with auto_validate and confirm the cost and the action with the user before calling this. Queries whose action is not a plain notification also need request signing.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Queries whose action is not a plain notification also need request signing."
+   }
+  },
+  {
+   "pkg": "@elfa-ai/mcp",
+   "server": "ai.elfa/mcp",
+   "tool": "auto_validate",
+   "from": "2.0.0",
+   "to": "3.0.0",
+   "t": "2026-08-13",
+   "old": "Check EQL syntax and get a cost estimate before anything is activated. Free. Always run this before auto_query_write, and show the estimated cost to the user. Pass either an inline query or a draftId.",
+   "new": "Check EQL syntax and get a cost estimate before anything is activated. Free. Always run this before auto_query_write, and show the estimated cost to the user. Pass either an inline query or a draftId. method=symbol instead checks that a symbol has market data on a venue, before you build price or ta conditions around it.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "method=symbol instead checks that a symbol has market data on a venue, before you build price or ta conditions around it."
+   }
+  },
+  {
+   "pkg": "@gency-ai/gency-mcp",
+   "server": "ai.gency/gency-mcp",
+   "tool": "download_product_image",
+   "from": "0.1.4",
+   "to": "0.3.0",
+   "t": "2026-07-26",
+   "old": "Render a product detail page and get a download URL for the generated image. Requires the product to be generated and reviewable. Optionally scoped to a specific template.",
+   "new": "Render a product detail page and get a download URL. Requires the product to be generated.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Render a product detail page and get a download URL. Requires the product to be generated."
+   }
+  },
+  {
+   "pkg": "@gency-ai/gency-mcp",
+   "server": "ai.gency/gency-mcp",
+   "tool": "get_product",
+   "from": "0.1.4",
+   "to": "0.3.0",
+   "t": "2026-07-26",
+   "old": "Get detailed information about a specific product",
+   "new": "Get detailed information about a specific product.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "identical after normalisation",
+    "signals": []
+   }
+  },
+  {
+   "pkg": "@gency-ai/gency-mcp",
+   "server": "ai.gency/gency-mcp",
+   "tool": "get_upload_url",
+   "from": "0.1.4",
+   "to": "0.3.0",
+   "t": "2026-07-26",
+   "old": "Get a presigned S3 URL to upload a product image. After getting the URL, use upload_image to upload the file, then use the imageId in create_product. The returned uploadUrl is valid for 1 hour and is single-use. Uploaded images are retained for 24 hours \u2014 they must be referenced in a create_product call within that window or they are deleted.",
+   "new": "Get a presigned S3 URL to upload one product image. uploadUrl is single-use, valid 1h; uploaded images retained 24h. See `gency://api-reference/images`. Tip: for the common 6+ images case, prefer `prepare_product_images` (single call).",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get a presigned S3 URL to upload one product image. uploadUrl is single-use, valid 1h; uploaded images retained 24h. See `gency://api-reference/images`. Tip: for the common 6+ images case, prefer `prepare_product_images` (single call)."
+   }
+  },
+  {
+   "pkg": "@gency-ai/gency-mcp",
+   "server": "ai.gency/gency-mcp",
+   "tool": "list_products",
+   "from": "0.1.4",
+   "to": "0.3.0",
+   "t": "2026-07-26",
+   "old": "List products in a workspace",
+   "new": "List products in a workspace.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "identical after normalisation",
+    "signals": []
+   }
+  },
+  {
+   "pkg": "@gency-ai/gency-mcp",
+   "server": "ai.gency/gency-mcp",
+   "tool": "login",
+   "from": "0.1.4",
+   "to": "0.3.0",
+   "t": "2026-07-26",
+   "old": "Start OAuth login (opens a browser). Captures the callback in-process and stores tokens at ~/.gency/tokens.json. Use this to authenticate gency-mcp from your AI assistant without a terminal.",
+   "new": "Start OAuth login (opens a browser). Captures the callback in-process and stores tokens at ~/.gency/tokens.json. gency-mcp uses OAuth only \u2014 this is the single sign-in flow.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "gency-mcp uses OAuth only \u2014 this is the single sign-in flow."
+   }
+  },
+  {
+   "pkg": "@gency-ai/gency-mcp",
+   "server": "ai.gency/gency-mcp",
+   "tool": "logout",
+   "from": "0.1.4",
+   "to": "0.3.0",
+   "t": "2026-07-26",
+   "old": "Remove stored OAuth tokens and the file-based API key (~/.gency/tokens.json, ~/.gency/api-key). Does not affect GENCY_API_KEY env.",
+   "new": "Remove stored OAuth tokens (~/.gency/tokens.json). gency-mcp is OAuth-only \u2014 there is no API key state to clear.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Remove stored OAuth tokens (~/.gency/tokens.json). gency-mcp is OAuth-only \u2014 there is no API key state to clear."
+   }
+  },
+  {
+   "pkg": "@gency-ai/gency-mcp",
+   "server": "ai.gency/gency-mcp",
+   "tool": "search_docs",
+   "from": "0.1.4",
+   "to": "0.3.0",
+   "t": "2026-07-26",
+   "old": "Search Gency API documentation by keyword. Fetches latest docs from developers.gency.ai. Use this to find endpoint details, parameters, authentication info, or usage examples.",
+   "new": "Search Gency API docs by keyword. Returns top 3 ranked snippets with line numbers from developers.gency.ai (cached 1h).",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Search Gency API docs by keyword. Returns top 3 ranked snippets with line numbers from developers.gency.ai (cached 1h)."
+   }
+  },
+  {
+   "pkg": "@gency-ai/gency-mcp",
+   "server": "ai.gency/gency-mcp",
+   "tool": "update_product_status",
+   "from": "0.1.4",
+   "to": "0.3.0",
+   "t": "2026-07-26",
+   "old": "Change product review status. IMPORTANT: This modifies product state \u2014 confirm with the user before executing. Valid transitions: BEFORE_REVIEW \u2192 IN_REVIEW \u2192 REVIEW_COMPLETE.",
+   "new": "Change product review status. Confirm with the user. Transitions: BEFORE_REVIEW \u2192 IN_REVIEW \u2192 REVIEW_COMPLETE.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Confirm with the user. Transitions: BEFORE_REVIEW \u2192 IN_REVIEW \u2192 REVIEW_COMPLETE."
+   }
+  },
+  {
+   "pkg": "@gency-ai/gency-mcp",
+   "server": "ai.gency/gency-mcp",
+   "tool": "upload_image",
+   "from": "0.1.4",
+   "to": "0.3.0",
+   "t": "2026-07-26",
+   "old": "Upload a local image file to a presigned S3 URL. Use after get_upload_url. The file is read from the local filesystem and uploaded via PUT.",
+   "new": "PUT a local image file to a presigned S3 URL from get_upload_url.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "PUT a local image file to a presigned S3 URL from get_upload_url."
+   }
+  },
+  {
+   "pkg": "@gency-ai/gency-mcp",
+   "server": "ai.gency/gency-mcp",
+   "tool": "get_upload_url",
+   "from": "0.4.1",
+   "to": "0.6.0",
+   "t": "2026-07-30",
+   "old": "Get a presigned S3 URL to upload one product image. uploadUrl is single-use, valid 1h; uploaded images retained 24h. See `gency://api-reference/images`. Tip: for the common 6+ images case, prefer `prepare_product_images` (single call).",
+   "new": "Get a presigned S3 URL to upload one product image, plus the uploadHandle that `upload_image` requires. Single-use, valid 1h; uploaded images retained 24h. See `gency://api-reference/images`. Tip: for the common 6+ images case, prefer `prepare_product_images` (single call).",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get a presigned S3 URL to upload one product image, plus the uploadHandle that `upload_image` requires. Single-use, valid 1h;"
+   }
+  },
+  {
+   "pkg": "@gency-ai/gency-mcp",
+   "server": "ai.gency/gency-mcp",
+   "tool": "upload_image",
+   "from": "0.4.1",
+   "to": "0.6.0",
+   "t": "2026-07-30",
+   "old": "PUT a local image file to a presigned S3 URL from get_upload_url.",
+   "new": "PUT a local image file to the presigned S3 URL that get_upload_url issued. Pass the `uploadHandle` from that call \u2014 it carries the destination URL, so no URL is accepted here.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "PUT a local image file to the presigned S3 URL that get_upload_url issued. Pass the `uploadHandle` from that call \u2014 it carries the destination URL, so no URL is accepted here."
+   }
+  },
+  {
+   "pkg": "@meetlark/mcp-server",
+   "server": "ai.meetlark/mcp-server",
+   "tool": "meetlark_get_admin_view",
+   "from": "1.0.2",
+   "to": "1.0.3",
+   "t": "2026-02-08",
+   "old": "Get full poll details and results using the admin token. Includes all participant data, vote counts, and poll management info. Use the admin token from poll creation.",
+   "new": "Get full poll details including all votes and participants. This is the only way to see who voted and how they voted. Returns poll info, time slots, every participant",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get full poll details including all votes and participants. This is the only way to see who voted and how they voted. Returns poll info, time slots, every participant"
+   }
+  },
+  {
+   "pkg": "@meetlark/mcp-server",
+   "server": "ai.meetlark/mcp-server",
+   "tool": "meetlark_get_results",
+   "from": "1.0.2",
+   "to": "1.0.3",
+   "t": "2026-02-08",
+   "old": "View current poll results including all votes cast so far. Shows the poll details and time slots. Use the participation token from the poll",
+   "new": "Get poll details and available time slots using a participation token. Returns the poll title, description, status, and time slots -- but NOT votes or participant data. This is the view a participant sees before voting. To see who voted and how, use meetlark_get_admin_view instead.",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "tool_routing"
+    ],
+    "evidence": [
+     "use meetlark_get_admin_view instead"
+    ],
+    "added": "Get poll details and available time slots using a participation token. Returns the poll title, description, status, and time slots -- but NOT votes or participant data. This is the view a participant sees before voting. To see who voted and how, use meetlark_get_admin_view instead."
+   }
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "server": "ai.naumu/mcp",
+   "tool": "naumu_add_edge",
+   "from": "0.1.0",
+   "to": "0.1.5",
+   "t": "2026-03-31",
+   "old": "Create a relationship (edge) between two nodes in the graph.",
+   "new": "Low-level tool: create a single relationship (edge) between two nodes. **Prefer `naumu_ask`** for adding new knowledge \u2014 it automatically discovers and creates all relevant connections. Use this only when you need precise control over a specific relationship.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Low-level tool: create a single relationship (edge) between two nodes. **Prefer `naumu_ask`** for adding new knowledge \u2014 it automatically discovers and creates all relevant connections. Use this only when you need precise control over a specific relationship."
+   }
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "server": "ai.naumu/mcp",
+   "tool": "naumu_add_node",
+   "from": "0.1.0",
+   "to": "0.1.5",
+   "t": "2026-03-31",
+   "old": "Create a new node in the knowledge graph. Requires a label (display name) and type (schema type). Optionally provide content and custom attributes.",
+   "new": "Low-level tool: create a single node in the knowledge graph. Warning: this creates an isolated node with no connections \u2014 the whole point of a knowledge graph is interconnectedness. **Prefer `naumu_ask`** for adding new knowledge, as it automatically discovers and creates relevant connections. Use this only when you need precise, surgical control over node creation.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Low-level tool: create a single node in the knowledge graph. Warning: this creates an isolated node with no connections \u2014 the whole point of a knowledge graph is interconnectedness. **Prefer `naumu_ask`** for adding new knowledge, as it automatically discovers and creates relevant connections. Use this only when you need precise, surgical control over node creation."
+   }
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "server": "ai.naumu/mcp",
+   "tool": "naumu_ask",
+   "from": "0.1.0",
+   "to": "0.1.5",
+   "t": "2026-03-31",
+   "old": "Ask the Naumu AI agent a question about the knowledge graph. The agent can search the graph, analyze data, and suggest changes. Returns the complete AI response after streaming finishes.",
+   "new": "**Recommended for adding or modifying knowledge.** Ask the Naumu AI agent to make changes to the knowledge graph. The agent understands the full graph context \u2014 it automatically discovers connections, places new nodes in the right context, and propagates updates to related nodes. Use this instead of direct CRUD tools (add_node, update_node, etc.) when adding new knowledge or making structural changes. Also useful for asking questions, analyzing data, and exploring the graph. Returns the complete AI response. Use threadId for follow-up questions in the same conversation.",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "tool_routing"
+    ],
+    "evidence": [
+     "instead of direct"
+    ],
+    "added": "**Recommended for adding or modifying knowledge.** Ask the Naumu AI agent to make changes to the knowledge graph. The agent understands the full graph context \u2014 it automatically discovers connections, places new nodes in the right context, and propagates updates to related nodes. Use this instead of direct CRUD tools (add_node, update_node, etc.) when adding new knowledge or making structural chan"
+   }
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "server": "ai.naumu/mcp",
+   "tool": "naumu_get_schema",
+   "from": "0.1.0",
+   "to": "0.1.5",
+   "t": "2026-03-31",
+   "old": "Get the schema definition for a knowledge graph. Returns node types, their attributes, and allowed relationships.",
+   "new": "Get the schema definition for a knowledge graph. Returns node types, their allowed attributes (with valid values), and allowed relationships. Use this before updating node attributes to check valid values.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Returns node types, their allowed attributes (with valid values), and allowed relationships. Use this before updating node attributes to check valid values."
+   }
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "server": "ai.naumu/mcp",
+   "tool": "naumu_remove_edge",
+   "from": "0.1.0",
+   "to": "0.1.5",
+   "t": "2026-03-31",
+   "old": "Delete a relationship (edge) between two nodes.",
+   "new": "Low-level tool: delete a specific relationship (edge) between two nodes. **Prefer `naumu_ask`** for structural changes \u2014 it understands the broader graph context. Use this only when you need precise control over a specific relationship removal.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Low-level tool: delete a specific relationship (edge) between two nodes. **Prefer `naumu_ask`** for structural changes \u2014 it understands the broader graph context. Use this only when you need precise control over a specific relationship removal."
+   }
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "server": "ai.naumu/mcp",
+   "tool": "naumu_remove_node",
+   "from": "0.1.0",
+   "to": "0.1.5",
+   "t": "2026-03-31",
+   "old": "Delete a node and all its connections from the knowledge graph.",
+   "new": "Low-level tool: delete a node and all its connections from the knowledge graph. This is a destructive operation. **Prefer `naumu_ask`** for removing knowledge \u2014 it understands the impact on the broader graph and can handle cascading changes. Use this only when you need precise, surgical deletion.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Low-level tool: delete a node and all its connections from the knowledge graph. This is a destructive operation. **Prefer `naumu_ask`** for removing knowledge \u2014 it understands the impact on the broader graph and can handle cascading changes. Use this only when you need precise, surgical deletion."
+   }
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "server": "ai.naumu/mcp",
+   "tool": "naumu_semantic_search",
+   "from": "0.1.0",
+   "to": "0.1.5",
+   "t": "2026-03-31",
+   "old": "Semantic search over a knowledge graph using AI embeddings. **This is the recommended search tool** \u2014 it understands meaning and context, not just exact text matches. Use `naumu_search` only when you need literal/exact string matching. Returns nodes ranked by semantic similarity with their 1-hop and 2-hop neighbors for rich context. Tip: expand your query with synonyms and related terms for best results.",
+   "new": "Semantic search over a knowledge graph using AI embeddings. Understands meaning and context, not just exact text matches. Use `naumu_text_search` for literal/exact string matching. Use `naumu_filter` for structured queries by type and attributes (e.g. ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Understands meaning and context, not just exact text matches. Use `naumu_text_search` for literal/exact string matching. Use `naumu_filter` for structured queries by type and attributes (e.g."
+   }
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "server": "ai.naumu/mcp",
+   "tool": "naumu_update_node",
+   "from": "0.1.0",
+   "to": "0.1.5",
+   "t": "2026-03-31",
+   "old": "Update properties of an existing node. Only the provided fields will be changed. Attribute keys must match the schema for the node type (e.g., status, size).",
+   "new": "Update properties of an existing node. Only the provided fields will be changed. Good for simple attribute changes like setting a status or priority. For content or structural changes, consider `naumu_ask` instead \u2014 it understands the full graph context and can propagate updates to related nodes. Attribute keys AND values must match the schema for the node type. Use naumu_get_schema to check valid attribute names and values before updating.",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "tool_routing"
+    ],
+    "evidence": [
+     "Use naumu_get_schema to"
+    ],
+    "added": "Good for simple attribute changes like setting a status or priority. For content or structural changes, consider `naumu_ask` instead \u2014 it understands the full graph context and can propagate updates to related nodes. Attribute keys AND values must match the schema for the node type. Use naumu_get_schema to check valid attribute names and values before updating."
+   }
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "server": "ai.naumu/mcp",
+   "tool": "naumu_add_edge",
+   "from": "0.1.5",
+   "to": "0.4.1",
+   "t": "2026-05-12",
+   "old": "Low-level tool: create a single relationship (edge) between two nodes. **Prefer `naumu_ask`** for adding new knowledge \u2014 it automatically discovers and creates all relevant connections. Use this only when you need precise control over a specific relationship.",
+   "new": "Create 1\u201325 relationships (edges) between existing nodes in a single call. Keep batches small and atomic (5\u201325 edges) so failures stay contained. Typical workflow after a bulk import: create nodes with `naumu_add_node`, then wire them up with batched `naumu_add_edge` calls. **Direction matters and must match the schema.** Each edge\\",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Create 1\u201325 relationships (edges) between existing nodes in a single call. Keep batches small and atomic (5\u201325 edges) so failures stay contained. Typical workflow after a bulk import: create nodes with `naumu_add_node`, then wire them up with batched `naumu_add_edge` calls. **Direction matters and must match the schema.** Each edge\\"
+   }
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "server": "ai.naumu/mcp",
+   "tool": "naumu_add_node",
+   "from": "0.1.5",
+   "to": "0.4.1",
+   "t": "2026-05-12",
+   "old": "Low-level tool: create a single node in the knowledge graph. Warning: this creates an isolated node with no connections \u2014 the whole point of a knowledge graph is interconnectedness. **Prefer `naumu_ask`** for adding new knowledge, as it automatically discovers and creates relevant connections. Use this only when you need precise, surgical control over node creation.",
+   "new": "Create 1\u201325 nodes in the knowledge graph in a single call. Keep batches small and atomic (5\u201325 nodes) so failures stay contained. Each node MUST include a non-empty `content` describing what it is. Returns one entry per input node with `{id, label, type, status: ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Create 1\u201325 nodes in the knowledge graph in a single call. Keep batches small and atomic (5\u201325 nodes) so failures stay contained. Each node MUST include a non-empty `content` describing what it is. Returns one entry per input node with `{id, label, type, status:"
+   }
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "server": "ai.naumu/mcp",
+   "tool": "naumu_ask",
+   "from": "0.1.5",
+   "to": "0.4.1",
+   "t": "2026-05-12",
+   "old": "**Recommended for adding or modifying knowledge.** Ask the Naumu AI agent to make changes to the knowledge graph. The agent understands the full graph context \u2014 it automatically discovers connections, places new nodes in the right context, and propagates updates to related nodes. Use this instead of direct CRUD tools (add_node, update_node, etc.) when adding new knowledge or making structural changes. Also useful for asking questions, analyzing data, and exploring the graph. Returns the complete AI response. Use threadId for follow-up questions in the same conversation.",
+   "new": "Send a message to the Naumu AI agent. Use for adding knowledge, making changes, asking questions, or reporting status updates. Always returns immediately with a threadId \u2014 the AI processes the request in the background. Depending on complexity, the agent may take anywhere from a few seconds to a few minutes to finish.\\n\\n",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "send"
+    ],
+    "added": "Send a message to the Naumu AI agent. Use for adding knowledge, making changes, asking questions, or reporting status updates. Always returns immediately with a threadId \u2014 the AI processes the request in the background. Depending on complexity, the agent may take anywhere from a few seconds to a few minutes to finish.\\n\\n"
+   }
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "server": "ai.naumu/mcp",
+   "tool": "naumu_get_ai_thread",
+   "from": "0.1.5",
+   "to": "0.4.1",
+   "t": "2026-05-12",
+   "old": "Retrieve messages from a previous AI conversation thread. Useful for reviewing past AI interactions.",
+   "new": "Retrieve messages from an AI conversation thread. Use to read the AI response after a `naumu_ask` call.\\n\\n",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "read"
+    ],
+    "added": "Retrieve messages from an AI conversation thread. Use to read the AI response after a `naumu_ask` call.\\n\\n"
+   }
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "server": "ai.naumu/mcp",
+   "tool": "naumu_remove_edge",
+   "from": "0.1.5",
+   "to": "0.4.1",
+   "t": "2026-05-12",
+   "old": "Low-level tool: delete a specific relationship (edge) between two nodes. **Prefer `naumu_ask`** for structural changes \u2014 it understands the broader graph context. Use this only when you need precise control over a specific relationship removal.",
+   "new": "Delete 1\u201325 relationships (edges) in a single call. Keep batches small and atomic (5\u201325 edges). **Prefer `naumu_ask`** for structural changes that need broader graph reasoning.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Delete 1\u201325 relationships (edges) in a single call. Keep batches small and atomic (5\u201325 edges). **Prefer `naumu_ask`** for structural changes that need broader graph reasoning."
+   }
+  },
+  {
+   "pkg": "@naumu/mcp",
+   "server": "ai.naumu/mcp",
+   "tool": "naumu_search",
+   "from": "0.1.5",
+   "to": "0.4.1",
+   "t": "2026-05-12",
+   "old": "Simple text pattern search over node labels, content, and types. For smarter, context-aware results use `naumu_semantic_search` instead.",
+   "new": "Exact text pattern search over node labels, content, and types. Only use this when you know the exact name or keyword you\\",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Exact text pattern search over node labels, content, and types. Only use this when you know the exact name or keyword you\\"
+   }
+  },
+  {
+   "pkg": "@picsha-ai/mcp-server",
+   "server": "ai.picsha/picsha",
+   "tool": "delete_asset",
+   "from": "1.1.0",
+   "to": "2.2.0",
+   "t": "2026-07-09",
+   "old": "Permanently delete an asset from the database, search indexes, and physical storage.",
+   "new": "Move an asset to the trash, where it is recoverable for 30 days before automatic permanent deletion. Pass force: true ONLY when the user explicitly asks for immediate permanent deletion.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Move an asset to the trash, where it is recoverable for 30 days before automatic permanent deletion. Pass force: true ONLY when the user explicitly asks for immediate permanent deletion."
+   }
+  },
+  {
+   "pkg": "@shiplightai/mcp",
+   "server": "ai.shiplight/shiplight",
+   "tool": "close_session",
+   "from": "0.1.66",
+   "to": "0.2.1",
+   "t": "2026-08-05",
+   "old": "Close a browser session",
+   "new": "Close a browser session. Omit session_id entirely to close ALL open sessions.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Omit session_id entirely to close ALL open sessions."
+   }
+  },
+  {
+   "pkg": "@starreel/mcp",
+   "server": "ai.starreel/starreel",
+   "tool": "upload_shot_frame",
+   "from": "0.1.8",
+   "to": "0.1.16",
+   "t": "2026-08-18",
+   "old": "\u7528\u5ba2\u6237\u81ea\u6709\u56fe\u7247\u4f5c\u4e3a\u67d0\u955c\u7684\u9996\u5e27\u6216\u5c3e\u5e27(\u4f1a\u628a\u8be5\u955c\u5df2\u6709\u89c6\u9891\u6807\u4e3a\u8fc7\u671f\u5f85\u91cd\u751f)\u3002\u81ea\u52a8\u4e0a\u4f20+\u767b\u8bb0\u3002\u514d\u8d39\u3002",
+   "new": "\u7528\u5ba2\u6237\u81ea\u6709\u56fe\u7247\u4f5c\u4e3a\u67d0\u955c\u7684\u9996\u5e27(first_frame)\u6216\u5c3e\u5e27(last_frame)\u3002\u5c3e\u5e27\u53ef\u9009\u3001\u7cfb\u7edf\u4e0d\u81ea\u52a8\u751f\u6210\u2014\u2014\u4ec5\u5728\u60f3\u56fa\u5b9a\u67d0\u955c\u7ed3\u5c3e\u753b\u9762(\u5927\u8fd0\u955c/\u63ed\u793a\u955c)\u65f6\u4f20;\u5e38\u89c4\u53ea\u9700\u9996\u5e27\u3002\u4f1a\u628a\u8be5\u955c\u5df2\u6709\u89c6\u9891\u6807\u4e3a\u8fc7\u671f\u5f85\u91cd\u751f\u3002\u81ea\u52a8\u4e0a\u4f20+\u767b\u8bb0\u3002\u514d\u8d39\u3002",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "\u7528\u5ba2\u6237\u81ea\u6709\u56fe\u7247\u4f5c\u4e3a\u67d0\u955c\u7684\u9996\u5e27(first_frame)\u6216\u5c3e\u5e27(last_frame)\u3002\u5c3e\u5e27\u53ef\u9009\u3001\u7cfb\u7edf\u4e0d\u81ea\u52a8\u751f\u6210\u2014\u2014\u4ec5\u5728\u60f3\u56fa\u5b9a\u67d0\u955c\u7ed3\u5c3e\u753b\u9762(\u5927\u8fd0\u955c/\u63ed\u793a\u955c)\u65f6\u4f20;\u5e38\u89c4\u53ea\u9700\u9996\u5e27\u3002\u4f1a\u628a\u8be5\u955c\u5df2\u6709\u89c6\u9891\u6807\u4e3a\u8fc7\u671f\u5f85\u91cd\u751f\u3002\u81ea\u52a8\u4e0a\u4f20+\u767b\u8bb0\u3002\u514d\u8d39\u3002"
+   }
+  },
+  {
+   "pkg": "@starreel/mcp",
+   "server": "ai.starreel/starreel",
+   "tool": "generate_tts",
+   "from": "0.1.16",
+   "to": "0.1.23",
+   "t": "2026-08-18",
+   "old": "\u7ed9\u6574\u96c6\u6240\u6709\u5bf9\u767d\u6279\u91cf\u914d\u97f3(TTS)\u3002\u6210\u7247\u524d\u7684\u97f3\u9891\u6b65\u2014\u2014\u4e0d\u914d\u97f3\u6210\u7247\u4f1a\u7f3a\u5bf9\u767d\u3002\u540e\u53f0\u5f02\u6b65,\u6309\u7528\u91cf\u540e\u4ed8\u4e0d\u6b20\u8d39\u3002",
+   "new": "\u7ed9\u6574\u96c6\u6240\u6709\u5bf9\u767d\u6279\u91cf\u914d\u97f3(TTS)\u3002\u6210\u7247\u524d\u7684\u97f3\u9891\u6b65\u2014\u2014\u4e0d\u914d\u97f3\u6210\u7247\u4f1a\u7f3a\u5bf9\u767d\u3002\u524d\u7f6e:\u5148 assign_voices \u7ed9\u89d2\u8272\u5206\u914d\u97f3\u8272\u3002\u540e\u53f0\u5f02\u6b65,\u6309\u7528\u91cf\u540e\u4ed8\u4e0d\u6b20\u8d39\u3002",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "\u7ed9\u6574\u96c6\u6240\u6709\u5bf9\u767d\u6279\u91cf\u914d\u97f3(TTS)\u3002\u6210\u7247\u524d\u7684\u97f3\u9891\u6b65\u2014\u2014\u4e0d\u914d\u97f3\u6210\u7247\u4f1a\u7f3a\u5bf9\u767d\u3002\u524d\u7f6e:\u5148 assign_voices \u7ed9\u89d2\u8272\u5206\u914d\u97f3\u8272\u3002\u540e\u53f0\u5f02\u6b65,\u6309\u7528\u91cf\u540e\u4ed8\u4e0d\u6b20\u8d39\u3002"
+   }
+  },
+  {
+   "pkg": "@usestring/mcp",
+   "server": "ai.usestring/web-access",
+   "tool": "web_access_fetch",
+   "from": "1.1.0",
+   "to": "1.2.0",
+   "t": "2026-07-13",
+   "old": "\nFetch any webpage and get clean, LLM-ready Markdown back. String AI's Web Access API handles proxy rotation, anti-bot protection, CAPTCHAs, and JavaScript-rendered content automatically. If available, default to this tool for any web fetching or scraping.\n\n**Primary use (the common case):** pass only a \\",
+   "new": "\r\nFetch any webpage and get clean, LLM-ready Markdown back. String AI's Web Access API handles proxy rotation, anti-bot protection, CAPTCHAs, and JavaScript-rendered content automatically. If available, default to this tool for any web fetching or scraping.\r\n\r\n**Primary use (the common case):** pass only a \\",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "identical after normalisation",
+    "signals": []
+   }
+  },
+  {
+   "pkg": "@usestring/mcp",
+   "server": "ai.usestring/web-access",
+   "tool": "web_access_fetch",
+   "from": "1.2.0",
+   "to": "1.2.1",
+   "t": "2026-07-16",
+   "old": "\r\nFetch any webpage and get clean, LLM-ready Markdown back. String AI's Web Access API handles proxy rotation, anti-bot protection, CAPTCHAs, and JavaScript-rendered content automatically. If available, default to this tool for any web fetching or scraping.\r\n\r\n**Primary use (the common case):** pass only a \\",
+   "new": "\nFetch any webpage and get clean, LLM-ready Markdown back. String AI's Web Access API handles proxy rotation, anti-bot protection, CAPTCHAs, and JavaScript-rendered content automatically. If available, default to this tool for any web fetching or scraping.\n\n**Primary use (the common case):** pass only a \\",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "identical after normalisation",
+    "signals": []
+   }
+  },
+  {
+   "pkg": "crawlio-browser",
+   "server": "app.crawlio/crawlio-browser",
+   "tool": "create_tab",
+   "from": "1.3.0",
+   "to": "1.4.6",
+   "t": "2026-03-06",
+   "old": "Create a new browser tab with the given URL. Returns the new tab",
+   "new": "Create a new browser tab with the given URL. Pass connect:true to auto-attach CDP and start capturing \\u2014 the tab is immediately ready for interaction (screenshot, evaluate, navigate, etc).",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Pass connect:true to auto-attach CDP and start capturing \\u2014 the tab is immediately ready for interaction (screenshot, evaluate, navigate, etc)."
+   }
+  },
+  {
+   "pkg": "crawlio-browser",
+   "server": "app.crawlio/crawlio-browser",
+   "tool": "connect_tab",
+   "from": "1.4.6",
+   "to": "1.5.4",
+   "t": "2026-03-07",
+   "old": "Connect to a browser tab for capture and interaction. Three modes: (1) provide a URL to find or create a tab, (2) provide a tabId to connect to a specific tab, (3) no args to connect to the active tab. Starts CDP capture automatically.",
+   "new": "Pin a specific browser tab for all subsequent commands. Optional \\u2014 without this, tools auto-connect to the active tab. Three modes: (1) provide a URL to find or create a tab, (2) provide a tabId to connect to a specific tab, (3) no args to pin the active tab. Starts CDP capture automatically.",
+   "label": {
+    "bucket": "schema-widening",
+    "reason": "input surface described differently",
+    "signals": [],
+    "added": "Pin a specific browser tab for all subsequent commands. Optional \\u2014 without this, tools auto-connect to the active tab. Three modes: (1) provide a URL to find or create a tab, (2) provide a tabId to connect to a specific tab, (3) no args to pin the active tab."
+   }
+  },
+  {
+   "pkg": "crawlio-browser",
+   "server": "app.crawlio/crawlio-browser",
+   "tool": "browser_snapshot",
+   "from": "1.5.4",
+   "to": "1.6.1",
+   "t": "2026-03-14",
+   "old": "Capture accessibility snapshot of the current page. Returns a compact ARIA tree with ref strings (e.g., [ref=e1]) for interactive elements. Use refs with browser_click, browser_type, browser_hover to target elements without constructing CSS selectors. Refs are valid until the page navigates or significant DOM changes occur \\u2014 call browser_snapshot again after navigation.",
+   "new": "Capture accessibility snapshot of the current page. Returns a compact ARIA tree with ref strings (e.g., [ref=e1]) for interactive elements. Use refs with browser_click, browser_type, browser_hover to target elements without constructing CSS selectors. Refs are valid until the page navigates or significant DOM changes occur \\u2014 call browser_snapshot again after navigation. Options: interactive=true for 60-80% token reduction (interactive elements only), compact=true to remove empty structural branches, maxDepth to limit tree depth, selector to scope to a CSS subtree.",
+   "label": {
+    "bucket": "instruction-bearing",
+    "reason": "new text addresses the model",
+    "signals": [
+     "secret_or_credential"
+    ],
+    "evidence": [
+     "token"
+    ],
+    "added": "Options: interactive=true for 60-80% token reduction (interactive elements only), compact=true to remove empty structural branches, maxDepth to limit tree depth, selector to scope to a CSS subtree."
+   }
+  },
+  {
+   "pkg": "crawlio-browser",
+   "server": "app.crawlio/crawlio-browser",
+   "tool": "get_dom_snapshot",
+   "from": "1.5.4",
+   "to": "1.6.1",
+   "t": "2026-03-14",
+   "old": "Get a simplified DOM snapshot of the active tab (strips script/style/svg, captures tag/attrs/text/children).",
+   "new": "Get a simplified DOM snapshot of the active tab (strips script/style/svg, captures tag/attrs/text/children). Returns stats summary by default; set summarize=false for full tree.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Returns stats summary by default; set summarize=false for full tree."
+   }
+  },
+  {
+   "pkg": "crawlio-browser",
+   "server": "app.crawlio/crawlio-browser",
+   "tool": "set_stealth_mode",
+   "from": "1.5.4",
+   "to": "1.6.1",
+   "t": "2026-03-14",
+   "old": "Enable or disable anti-detection stealth mode. When enabled, patches navigator.webdriver, plugins, WebGL renderer, and other automation signals to avoid bot detection. Enabled by default on connect.",
+   "new": "Enable or disable anti-detection stealth mode. When enabled, patches navigator.webdriver, plugins, WebGL renderer, and other automation signals to avoid bot detection. Disabled by default. Call with enabled: true to activate.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Disabled by default. Call with enabled: true to activate."
+   }
+  },
+  {
+   "pkg": "crawlio-browser",
+   "server": "app.crawlio/crawlio-browser",
+   "tool": "connect_tab",
+   "from": "1.6.1",
+   "to": "1.9.0",
+   "t": "2026-08-05",
+   "old": "Pin a specific browser tab for all subsequent commands. Optional \\u2014 without this, tools auto-connect to the active tab. Three modes: (1) provide a URL to find or create a tab, (2) provide a tabId to connect to a specific tab, (3) no args to pin the active tab. Starts CDP capture automatically.",
+   "new": "Pin a specific browser tab for all subsequent commands. Optional \\u2014 without this, tools auto-connect to the active tab. Three modes: (1) provide a URL to find or create a tab, (2) provide a tabId to connect to a specific tab, (3) no args to pin the active tab. Starts CDP capture automatically. Pass background:true to connect + drive the tab WITHOUT stealing the user",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Pass background:true to connect + drive the tab WITHOUT stealing the user"
+   }
+  },
+  {
+   "pkg": "crawlio-browser",
+   "server": "app.crawlio/crawlio-browser",
+   "tool": "detect_tables",
+   "from": "1.6.1",
+   "to": "1.9.0",
+   "t": "2026-08-05",
+   "old": "Detect repeating data patterns (tables, lists, grids, card layouts) on the page using class-frequency scoring. Returns ranked candidates with selectors, row counts, and sample text. Use extract_table to extract data from a candidate.",
+   "new": "Detect repeating data patterns (tables, lists, grids, card layouts) on the page. Native <table> elements are found first (strategy ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Detect repeating data patterns (tables, lists, grids, card layouts) on the page. Native <table> elements are found first (strategy"
+   }
+  },
+  {
+   "pkg": "crawlio-browser",
+   "server": "app.crawlio/crawlio-browser",
+   "tool": "extract_table",
+   "from": "1.6.1",
+   "to": "1.9.0",
+   "t": "2026-08-05",
+   "old": "Extract structured data from a container element using IDS-inspired recursive path-keyed extraction. Pass a selector from detect_tables. Returns columns (with fill rates) and rows as key-value objects.",
+   "new": "Extract structured data from a container element. Pass a selector from detect_tables. Native <table> containers get header-promoted column names (thead th) plus <name>_url companion columns for link-bearing cells; other containers use recursive path-keyed extraction with semantic column naming (link-first ordering, content hints like price/source_domain). Returns columns (name + original path + fill rate) and rows as key-value objects.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Extract structured data from a container element. Native <table> containers get header-promoted column names (thead th) plus <name>_url companion columns for link-bearing cells; other containers use recursive path-keyed extraction with semantic column naming (link-first ordering, content hints like price/source_domain). Returns columns (name + original path + fill rate) and rows as key-value objec"
+   }
+  },
+  {
+   "pkg": "crawlio-browser",
+   "server": "app.crawlio/crawlio-browser",
+   "tool": "agent_session_claim_tab",
+   "from": "1.9.0",
+   "to": "1.11.0",
+   "t": "2026-08-10",
+   "old": "Adopt an existing user tab into an agent session",
+   "new": "Adopt an existing user tab into a logical agent session fleet so the agent can drive it. Rejects non-HTTP tabs and tabs already owned by another session. Requires tabs because it reads user-tab metadata.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Adopt an existing user tab into a logical agent session fleet so the agent can drive it. Rejects non-HTTP tabs and tabs already owned by another session. Requires tabs because it reads user-tab metadata."
+   }
+  },
+  {
+   "pkg": "crawlio-browser",
+   "server": "app.crawlio/crawlio-browser",
+   "tool": "agent_session_create_tab",
+   "from": "1.9.0",
+   "to": "1.11.0",
+   "t": "2026-08-10",
+   "old": "Open a new tab inside an agent session",
+   "new": "Open a new agent-owned tab inside a logical session fleet. The tab is created in the background and CDP-attached without disturbing the foreground connected tab. No optional permission is required.",
+   "label": {
+    "bucket": "schema-widening",
+    "reason": "input surface described differently",
+    "signals": [],
+    "added": "Open a new agent-owned tab inside a logical session fleet. The tab is created in the background and CDP-attached without disturbing the foreground connected tab. No optional permission is required."
+   }
+  },
+  {
+   "pkg": "crawlio-browser",
+   "server": "app.crawlio/crawlio-browser",
+   "tool": "agent_session_finalize",
+   "from": "1.9.0",
+   "to": "1.11.0",
+   "t": "2026-08-10",
+   "old": "End an agent session by disposing of its tabs. keep[].status ",
+   "new": "End an agent session by disposing of its tabs. keep[].status labels retained tabs as handoff or deliverable in the result. Agent-created tabs not kept are closed; adopted user tabs are released and never closed. No optional permission is required for already-owned tab IDs.",
+   "label": {
+    "bucket": "schema-widening",
+    "reason": "input surface described differently",
+    "signals": [],
+    "added": "keep[].status labels retained tabs as handoff or deliverable in the result. Agent-created tabs not kept are closed; adopted user tabs are released and never closed. No optional permission is required for already-owned tab IDs."
+   }
+  },
+  {
+   "pkg": "crawlio-browser",
+   "server": "app.crawlio/crawlio-browser",
+   "tool": "agent_session_name",
+   "from": "1.9.0",
+   "to": "1.11.0",
+   "t": "2026-08-10",
+   "old": "Set the title of an agent session",
+   "new": "Set the title of an agent",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Set the title of an agent"
+   }
+  },
+  {
+   "pkg": "crawlio-browser",
+   "server": "app.crawlio/crawlio-browser",
+   "tool": "connect_tab",
+   "from": "1.9.0",
+   "to": "1.11.0",
+   "t": "2026-08-10",
+   "old": "Pin a specific browser tab for all subsequent commands. Optional \\u2014 without this, tools auto-connect to the active tab. Three modes: (1) provide a URL to find or create a tab, (2) provide a tabId to connect to a specific tab, (3) no args to pin the active tab. Starts CDP capture automatically. Pass background:true to connect + drive the tab WITHOUT stealing the user",
+   "new": "Pin a browser tab for subsequent commands and start CDP capture. Three modes: (1) provide a URL: with the optional tabs grant Crawlio reuses a match, otherwise it creates a fresh owned tab; (2) provide a tabId to adopt a specific existing tab (tabs grant required); (3) no args to discover and pin the active tab (tabs grant required). Pass background:true to avoid stealing the user",
+   "label": {
+    "bucket": "schema-widening",
+    "reason": "input surface described differently",
+    "signals": [],
+    "added": "Pin a browser tab for subsequent commands and start CDP capture. Three modes: (1) provide a URL: with the optional tabs grant Crawlio reuses a match, otherwise it creates a fresh owned tab; (2) provide a tabId to adopt a specific existing tab (tabs grant required); (3) no args to discover and pin the active tab (tabs grant required). Pass background:true to avoid stealing the user"
+   }
+  },
+  {
+   "pkg": "crawlio-browser",
+   "server": "app.crawlio/crawlio-browser",
+   "tool": "get_capabilities",
+   "from": "1.9.0",
+   "to": "1.11.0",
+   "t": "2026-08-10",
+   "old": "List all tools and their current status based on CDP connection state. Shows which tools are available, which use fallbacks, and which are unavailable. Use to understand what you can do before calling tools.",
+   "new": "Report browser-bridge command availability for the current tab, CDP domains, and optional permissions. Shows which commands are available, use a fallback, or are unavailable.",
+   "label": {
+    "bucket": "schema-widening",
+    "reason": "input surface described differently",
+    "signals": [],
+    "added": "Report browser-bridge command availability for the current tab, CDP domains, and optional permissions. Shows which commands are available, use a fallback, or are unavailable."
+   }
+  },
+  {
+   "pkg": "crawlio-browser",
+   "server": "app.crawlio/crawlio-browser",
+   "tool": "get_crawl_status",
+   "from": "1.9.0",
+   "to": "1.11.0",
+   "t": "2026-08-10",
+   "old": "GET /status \\u2014 engine state, progress counters, sequence number. Params: ?since=N (optional)",
+   "new": "Get the current Crawlio crawl status \\u2014 engine state, progress counters, sequence number.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Get the current Crawlio crawl status \\u2014 engine state, progress counters, sequence number."
+   }
+  },
+  {
+   "pkg": "crawlio-browser",
+   "server": "app.crawlio/crawlio-browser",
+   "tool": "recording_capture_bundle",
+   "from": "1.9.0",
+   "to": "1.11.0",
+   "t": "2026-08-10",
+   "old": "One-shot canonical capture for automated flows: starts a bundle, optionally waits for network idle, then stops and writes RecordingBundle v1 artifacts. For human demos prefer recording_start then recording_stop.",
+   "new": "One-shot background canonical capture for automated flows: opens an owned tab without taking focus, starts a bundle, optionally waits for network idle, then stops and writes RecordingBundle v1 artifacts. For human demos prefer recording_start then recording_stop.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "One-shot background canonical capture for automated flows: opens an owned tab without taking focus, starts a bundle, optionally waits for network idle, then stops and writes RecordingBundle v1 artifacts."
+   }
+  },
+  {
+   "pkg": "crawlio-browser",
+   "server": "app.crawlio/crawlio-browser",
+   "tool": "recording_start",
+   "from": "1.9.0",
+   "to": "1.11.0",
+   "t": "2026-08-10",
+   "old": "Start a canonical RecordingBundle v1 capture. Opens a fresh connected Chrome tab, starts CDP network capture, starts session recording, injects the event-driven state monitor, and writes manifest.json.",
+   "new": "Start an extension-resident canonical RecordingBundle v1 capture. Collection and bounded retention continue without an MCP process; this compatibility tool writes manifest.json and later materializes the resident export.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Start an extension-resident canonical RecordingBundle v1 capture. Collection and bounded retention continue without an MCP process; this compatibility tool writes manifest.json and later materializes the resident export."
+   }
+  },
+  {
+   "pkg": "crawlio-browser",
+   "server": "app.crawlio/crawlio-browser",
+   "tool": "robot_training_start",
+   "from": "1.9.0",
+   "to": "1.11.0",
+   "t": "2026-08-10",
+   "old": "Start a native robot-training capture run. Opens a fresh connected Chrome tab, starts CDP network capture and session recording, injects the event-driven state monitor, and writes a manifest into a run directory. Use this before a human-guided demonstration that will later be replayed by agents or synthesized into an API contract.",
+   "new": "Start an extension-resident robot-training run. Chrome owns the event monitor, recording state, and bounded IndexedDB retention, so collection continues while MCP is disconnected or restarted. The server writes an initial manifest and later materializes the resident capture as a canonical bundle.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Start an extension-resident robot-training run. Chrome owns the event monitor, recording state, and bounded IndexedDB retention, so collection continues while MCP is disconnected or restarted. The server writes an initial manifest and later materializes the resident capture as a canonical bundle."
+   }
+  },
+  {
+   "pkg": "crawlio-browser",
+   "server": "app.crawlio/crawlio-browser",
+   "tool": "robot_training_status",
+   "from": "1.9.0",
+   "to": "1.11.0",
+   "t": "2026-08-10",
+   "old": "Report active robot-training runs and the underlying browser recording status. Use while the human is demonstrating a flow or before stopping a run.",
+   "new": "Query extension-owned robot-training runs and recording state. Status survives MCP server restarts and reports whether a retained bundle is available.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "query"
+    ],
+    "added": "Query extension-owned robot-training runs and recording state. Status survives MCP server restarts and reports whether a retained bundle is available."
+   }
+  },
+  {
+   "pkg": "crawlio-browser",
+   "server": "app.crawlio/crawlio-browser",
+   "tool": "robot_training_stop",
+   "from": "1.9.0",
+   "to": "1.11.0",
+   "t": "2026-08-10",
+   "old": "Stop a robot-training run and persist the full capture bundle: raw-dump.json, recording.json, network.json, bodies.json, state-log.json, state.json, flows.jsonl, and manifest.json. Response bodies are fetched before network capture is stopped so the run can be synthesized into OpenAPI or replay code.",
+   "new": "Stop an extension-resident robot-training run, fetch its bounded/redacted export, and materialize the complete 13-file RecordingBundle: manifest/raw dump, recording, network, bodies, state log/state, flows, causal graph/markdown, recipe, registry, and a captured-endpoint OpenAPI draft that requires validation. The extension fetches response bodies before its Network domain is stopped.",
+   "label": {
+    "bucket": "capability-change",
+    "reason": "the described action changed",
+    "signals": [
+     "fetch"
+    ],
+    "added": "Stop an extension-resident robot-training run, fetch its bounded/redacted export, and materialize the complete 13-file RecordingBundle: manifest/raw dump, recording, network, bodies, state log/state, flows, causal graph/markdown, recipe, registry, and a captured-endpoint OpenAPI draft that requires validation. The extension fetches response bodies before its Network domain is stopped."
+   }
+  },
+  {
+   "pkg": "crawlio-browser",
+   "server": "app.crawlio/crawlio-browser",
+   "tool": "take_screenshot",
+   "from": "1.9.0",
+   "to": "1.11.0",
+   "t": "2026-08-10",
+   "old": "Take a screenshot of the active tab. Returns base64-encoded PNG.",
+   "new": "Capture the viewport, full page, or one CSS-selected element. JPEG is the bounded default; request PNG when lossless output matters. If a PNG exceeds the response budget, capture falls back to JPEG and reports its actual MIME type.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Capture the viewport, full page, or one CSS-selected element. JPEG is the bounded default; request PNG when lossless output matters. If a PNG exceeds the response budget, capture falls back to JPEG and reports its actual MIME type."
+   }
+  },
+  {
+   "pkg": "@takehub/mcp",
+   "server": "app.takehub/mcp",
+   "tool": "create_topic",
+   "from": "1.1.1",
+   "to": "1.1.2",
+   "t": "2026-06-04",
+   "old": "Create a new debate topic. Supports binary, multi-option, and open-ended ",
+   "new": "Create a new discussion topic. Supports binary, multi-option, and open-ended ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Create a new discussion topic."
+   }
+  },
+  {
+   "pkg": "@takehub/mcp",
+   "server": "app.takehub/mcp",
+   "tool": "create_topic_and_invite",
+   "from": "1.1.1",
+   "to": "1.1.2",
+   "t": "2026-06-04",
+   "old": "Create a new debate topic and invite participants in one step. ",
+   "new": "Create a new discussion topic and invite participants in one step. ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Create a new discussion topic and invite participants in one step."
+   }
+  },
+  {
+   "pkg": "@takehub/mcp",
+   "server": "app.takehub/mcp",
+   "tool": "list_topics",
+   "from": "1.1.1",
+   "to": "1.1.2",
+   "t": "2026-06-04",
+   "old": "List debate topics with optional filtering, sorting, and pagination.",
+   "new": "List discussion topics with optional filtering, sorting, and pagination.",
+   "label": {
+    "bucket": "schema-widening",
+    "reason": "input surface described differently",
+    "signals": [],
+    "added": "List discussion topics with optional filtering, sorting, and pagination."
+   }
+  },
+  {
+   "pkg": "affiliate-networks-mcp",
+   "server": "ai.agenticaffiliate/affiliate-networks-mcp",
+   "tool": "affiliate_list_networks",
+   "from": "0.9.0",
+   "to": "0.14.1",
+   "t": "2026-07-01",
+   "old": "List the affiliate networks this server has adapters registered for, along with their adapter version and claim_status. ",
+   "new": "List the affiliate networks this server has adapters registered for, along with their adapter version, claim_status, and whether the user has configured credentials for each. ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "List the affiliate networks this server has adapters registered for, along with their adapter version, claim_status, and whether the user has configured credentials for each."
+   }
+  },
+  {
+   "pkg": "affiliate-networks-mcp",
+   "server": "ai.agenticaffiliate/affiliate-networks-mcp",
+   "tool": "affiliate_get_brand_rows",
+   "from": "0.14.1",
+   "to": "0.20.0",
+   "t": "2026-07-29",
+   "old": "Return the persisted 30-day, transaction-grain rows for a brand, either as structured rows or as CSV for export. ",
+   "new": "Return the persisted 30-day, transaction-grain rows for a brand: as structured rows, as inline CSV, or (format ",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Return the persisted 30-day, transaction-grain rows for a brand: as structured rows, as inline CSV, or (format"
+   }
+  },
+  {
+   "pkg": "@agenttrust/mcp-server",
+   "server": "ai.agenttrust/mcp-server",
+   "tool": "agenttrust_inbox",
+   "from": "1.1.1",
+   "to": "1.2.0",
+   "t": "2026-04-09",
+   "old": "View your A2A task board \u2014 all tasks you are involved in, both sent and received. Returns tasks sorted by most recent. To see only tasks waiting on YOU to act, set turn to your own slug. Use agenttrust_context to read the full thread before replying.",
+   "new": "Check your A2A inbox for incoming tasks from other agents. Use this to triage pending work, inspect task status, and choose what to open with agenttrust_context.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Check your A2A inbox for incoming tasks from other agents. Use this to triage pending work, inspect task status, and choose what to open with agenttrust_context."
+   }
+  },
+  {
+   "pkg": "@agenttrust/mcp-server",
+   "server": "ai.agenttrust/mcp-server",
+   "tool": "agenttrust_reply",
+   "from": "1.1.1",
+   "to": "1.2.0",
+   "t": "2026-04-09",
+   "old": "Reply to an existing A2A task and optionally update its status. AgentTrust extends the A2A protocol with a negotiation lifecycle. Status values and when to use them:\\n\\n- ",
+   "new": "Reply to an existing A2A task and optionally update its status. Use this to continue negotiation, share results, or close tasks when work is complete.",
+   "label": {
+    "bucket": "cosmetic",
+    "reason": "wording moved, meaning did not",
+    "signals": [],
+    "added": "Use this to continue negotiation, share results, or close tasks when work is complete."
+   }
+  }
+ ]
+}
