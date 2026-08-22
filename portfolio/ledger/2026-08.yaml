@@ -17938,3 +17938,77 @@ entries:
         needs buyer contact an unattended agent cannot make. No revenue; the $0
         ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve the
+        development process... increase in profit... this run should be more
+        strategic work" session, designated branch
+        claude/wizardly-albattani-fu71li. `session_gate.py` -> PROCEED (0.79
+        sessions/hour, at the maintenance rate the $0-ceiling branch implies).
+        Checked the 4 open PRs (#583, #531, #372, #368) and issue #139's
+        decision queue first: all four still correctly human-gated, verified,
+        clean, CI green -- nothing to consolidate or merge.
+      - >-
+        Since nothing there needed action, looked at why so many scheduled
+        sessions produce exactly that finding and nothing else. Found the
+        answer directly in this file: 27 near-identical entries whose entire
+        content is "checked the same open PRs, still all correctly gated,
+        nothing to consolidate" -- an unbroken trailing run of 11-21 of them
+        before the PR set itself next changed. `CLAUDE.md`'s ledger-discipline
+        section already says, in prose, not to add an entry the latest one
+        already covers. That has not stopped it, because applying the rule
+        means reading and pattern-matching tens of thousands of lines of
+        ledger tail by hand every time -- exactly the kind of check
+        `session_gate.py` already automates for the broader "is this generic
+        brief already answered" question, but this specific recurring
+        sub-pattern was never one it measured.
+      - >-
+        Fixed in #631 (merged): `session_gate.py` gained
+        `stale_pr_check_streak()`, which counts trailing ledger entries whose
+        outcomes include the repo's own boilerplate clause for this exact
+        recheck. `report()`/`render()` now surface the count and add an
+        explicit warning once it crosses a threshold of 5 -- advisory, not a
+        new gate condition, so PROCEED/NO-OP is unaffected. Verified by
+        running the full local CI-equivalent suite (every step in
+        `.github/workflows/portfolio-validate.yml`) plus 8 new unit tests (43
+        total, all passing) before opening the PR, and re-checking CI on the
+        PR itself before merging. Internal-only change (`portfolio/ledger/`),
+        no venture code, no credential, no publication -- agent-decidable per
+        `CLAUDE.md`, merged directly once CI confirmed green.
+      - >-
+        Caught and fixed before writing this entry: the merged version's own
+        docstrings and warning text overclaimed what the check does, saying
+        it "stops at the first entry that isn't purely that recheck" and
+        that flagged entries "recorded nothing but" the boilerplate. Neither
+        is true -- the regex matches a clause anywhere in an entry's outcome
+        text, not the entry's entirety, so an entry that mentions the recheck
+        and then does real work (this entry's own first bullet, and the
+        `mcp-drift-watch` entry immediately before it) still counts toward
+        the streak. Reworded the docstrings, the rendered warning, and the
+        test assertions to say what is actually measured -- a lower bound on
+        "entries carrying this clause", not a count of contentless ones --
+        rather than let an accuracy gap stand in the tool built to catch
+        exactly that kind of gap elsewhere in this repository. Verified
+        again after the correction: full suite green, 43/43 tests passing.
+      - >-
+        One test-writing lesson worth keeping: the first version of the new
+        real-ledger regression test pinned the streak count to
+        `entries[:-1]`, and it broke mid-session when a concurrent session's
+        ledger entry (#629) landed and changed the tail. Rewrote it to scan
+        every historical prefix for the longest matching run instead of
+        assuming the pattern still sits at today's tail -- this file is
+        appended to by several sessions an hour, so any test asserting a
+        specific value at "the end" of it is a live flake waiting to happen,
+        not a stable fixture.
+      - >-
+        Net effect: one real process-waste pattern measured, fixed, tested,
+        and merged; zero re-verification of anything already verified; zero
+        duplicate PRs. This entry itself should not need repeating -- if a
+        later session's `session_gate.py` run reads a nonzero
+        `stale_pr_check_streak` again, that is the signal to stop adding
+        individual PR-recheck entries, not a prompt to write another one. No
+        revenue; the $0 ceiling is unchanged.
+    mrr_end: null
