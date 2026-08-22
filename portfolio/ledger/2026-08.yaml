@@ -18017,6 +18017,69 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Scheduled "continue work... maintain and improve the development
+        process... increase in profit... this run should be more strategic
+        work" session, designated branch claude/wizardly-albattani-2y3fte.
+        `session_gate.py` -> PROCEED, with the same warning this session
+        went on to reproduce: 2 distinct sessions had committed to `main`
+        within a 15-minute window in the last 6h, so re-check `main`
+        immediately before pushing. Checked the 4 open PRs (#583, #531,
+        #372, #368) and issue #139 first: all four still correctly
+        human-gated, unchanged, nothing to consolidate.
+      - >-
+        Took `mcp-drift-watch`'s own named next pass -- "run a model over
+        the 136-change held-out corpus, nobody has tried" -- as the
+        strategic move: a probe already specified in `portfolio/pipeline/`,
+        internal-only, agent-decidable. Built it independently: extracted
+        the corpus, dispatched four blind subagent classifiers (no access
+        to the hand labels), scored the result against the committed labels
+        (precision 0.40 -> 0.609, recall 0.235-0.286 -> 0.824), wrote
+        `ai_leverage` 6 -> 7 into `candidates.yaml` with full derivation,
+        updated the write-up and `README.md`'s table, added a scoring
+        script and 7 pinning tests, and ran every locally-runnable
+        CI-equivalent check green (the probe's own 39-test suite,
+        `validate_doc_consistency.py`, `validate_candidates.py`,
+        `score_sensitivity.py` + its unit tests, `portfolio/router/validate.py`,
+        `platform/ci/validate_workflows.py`) before committing.
+      - >-
+        Re-fetched `main` immediately before pushing, per the gate's own
+        warning -- and it had already changed: a concurrent session had
+        landed the identical pass as PR #634 four minutes earlier, merged
+        while this session was still writing tests. Same finding
+        (`ai_leverage` 6 -> 7, composite 6.75 -> 6.875), same method (four
+        blind model reads scored against the same hand labels on the same
+        input), materially the same numbers reached independently (this
+        session's F1 0.70/0.649 vs #634's 0.61-0.71, both roughly double the
+        rules' 0.30-0.33) -- an unplanned independent replication that
+        agrees, not a race that split the difference.
+      - >-
+        Discarded the local commit and `git reset --hard origin/main`
+        rather than push a duplicate PR or force a conflict resolution onto
+        already-settled content: `main` already carries this finding, so
+        opening a second PR would only cost review attention for zero
+        marginal evidence. One thing #634 did not add that this session's
+        discarded version did -- a dedicated pinning test file for the
+        model-vs-rules score, `test_score_sensitivity.py`'s regression guard
+        being the only coverage #634 shipped -- was judged not worth a
+        follow-up PR on its own: real but marginal, and opening any PR right
+        after finding a same-session duplicate on the identical files is
+        exactly the moment to not open another one.
+      - >-
+        Net effect: one real finding (the model beats the rules on this
+        corpus) landed on `main` via #634, independently corroborated by a
+        second, unpublished measurement; zero duplicate PRs opened; one
+        session's worth of classification work discarded rather than
+        pushed. The gate's own advice -- re-check `main` right before
+        pushing -- is what caught this before it became another entry in
+        the pattern `CLAUDE.md` describes; the near-miss is recorded because
+        the margin was minutes, not because the gate failed. No revenue;
+        the $0 ceiling is unchanged.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Scheduled "research and evaluate potential software business
         projects" session, designated branch
         claude/laughing-pasteur-ur5atd. `session_gate.py` -> PROCEED (0.67
