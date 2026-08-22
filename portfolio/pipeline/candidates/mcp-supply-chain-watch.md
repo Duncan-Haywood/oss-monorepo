@@ -226,3 +226,39 @@ run to earn. Nothing else moved: `defensibility` is still the floor at 3, the
 mitigation is still refuted, and this still cannot graduate under
 `README.md` rule 2 without either the remote-endpoint egress grant or a
 durable asset other than the archive.
+
+**Update 2026-08-22 (later the same day) — the third corpus this file asked
+for, run against both the rules and the model.** This file's own note above
+named the cheap next step: the model's 0.61–0.71 F1 had only been asked about
+one held-out corpus, and the rules classifier's own accuracy had already
+swung between corpora once. Both were answered, by two more same-day passes
+recorded in
+[`probes/mcp-drift-watch/README.md`](../probes/mcp-drift-watch/README.md).
+
+The rules, re-run unmodified on the remaining 103 of the 164 eligible npm
+packages (148 further changes, disjoint from corpus 2, exhausting the eligible
+population at today's registry ranking): **nothing replicated, including the
+rate** — 7.2% → 7.4% → 5.4% flagged, precision 0.40 → 0.625, recall
+0.24–0.29 → 0.10–0.11. The three rule edits corpus 2 argued for rank in
+reverse out of sample — the routing-preference edit corpus 2 leaned on
+hardest is worth nothing here — and the edits that do survive move precision
+0.625 → 0.778 and recall 0.102 → 0.143 with no true positive lost, a fraction
+of their in-sample size. Still not adopted into the shipped classifier: doing
+so ships something that still misses 86% of what it defines as an alert, and
+the class carrying most of the misses (a server naming another of its own
+tools in a phrasing the verb list does not cover) has no rule yet and would
+need a fourth corpus the registry cannot currently supply.
+
+The model, asked the identical blind question on the same 148-item corpus:
+**F1 0.93–0.96 against the rules' 0.17–0.19** — a wider margin than corpus 2's,
+not a narrower one, catching 44–47 of 49 hand-labelled positives against the
+rules' 5. This settles that the corpus-2 result was not a fluke of that
+corpus and that the span-must-be-new failure mode (judging unchanged text as
+newly added) is real and recurring rather than a one-corpus artifact. It does
+not settle what the model's own accuracy is: 0.61–0.71 and 0.93–0.96 are two
+single blind passes that disagree on magnitude by roughly the same margin the
+rules' own F1 disagreed across the same two corpora, so `ai_leverage` **stays
+at 7** rather than moving again on the more flattering of two disagreeing
+measurements — moving it further would repeat the exact error this pass's own
+rules section names. `defensibility` remains the untouched floor at 3; this
+still cannot graduate under `README.md` rule 2.
