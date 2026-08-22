@@ -13,12 +13,14 @@ that a build directory also contains. The engine only records the verdict —
 nothing is filtered here — because the audit and the record it feeds are
 different products, and only the second one is addressed to a customer.
 
-The second is the **contrast decidability tally**. SC
-1.4.3 is the only criterion this probe evaluates where "could not tell" is a
-per-element outcome rather than a property of the rule, so the count of elements
-it decided and the reasons it could not decide the rest are measured evidence
-about how much manual review a page actually needs — and they go in the evidence
-record for that reason.
+The second is the **contrast decidability tally**. SC 1.4.3 is the criterion
+this probe reports that tally for: the count of elements it decided and the
+reasons it could not decide the rest are measured evidence about how much
+manual review a page actually needs, and they go in the evidence record for
+that reason. SC 1.4.1 (:mod:`wcag_triage.use_of_color`) is decided the same
+per-element way, with the same named refusals, but does not yet feed a tally
+of its own into the record — only its failures are counted, in
+:data:`~wcag_triage.rules.ALL_RULES`' usual findings list.
 """
 
 from __future__ import annotations
@@ -26,11 +28,19 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional
 
-from . import contrast
+from . import contrast, use_of_color
 from .css import Stylesheet
 from .parser import parse
 from .provenance import Provenance, classify
-from .rules import ALL_RULES, BLOCKING, DEGRADING, Finding, build_label_index, rule_text_contrast
+from .rules import (
+    ALL_RULES,
+    BLOCKING,
+    DEGRADING,
+    Finding,
+    build_label_index,
+    rule_text_contrast,
+    rule_use_of_color,
+)
 
 
 @dataclass
@@ -99,6 +109,12 @@ def audit_html(html: str, stylesheet: Optional[Stylesheet] = None) -> Audit:
             findings.append(finding)
     contrast_results = contrast.evaluate_document(root, sheet)
     for finding in rule_text_contrast(contrast_results):
+        if finding.key() in seen:
+            continue
+        seen.add(finding.key())
+        findings.append(finding)
+    color_results = use_of_color.evaluate_document(root, sheet)
+    for finding in rule_use_of_color(color_results):
         if finding.key() in seen:
             continue
         seen.add(finding.key())

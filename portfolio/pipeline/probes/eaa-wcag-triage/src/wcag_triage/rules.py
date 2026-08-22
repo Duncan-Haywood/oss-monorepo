@@ -21,7 +21,7 @@ import re
 from dataclasses import dataclass
 from typing import Callable, Optional
 
-from . import contrast, lang
+from . import contrast, lang, use_of_color
 from .parser import Node
 
 BLOCKING = "blocking"
@@ -183,13 +183,26 @@ COVERAGE: tuple = (
               "page is not decidable from markup; the reference's rule for it "
               "ships disabled and returns 'needs review' rather than a "
               "failure, so no engine decides this one."),
-    Criterion("1.4.1", "Use of Color", "A", "unimplemented",
-              "A link distinguished from surrounding body text by colour alone "
-              "is decidable where the stylesheet names the colours -- this one "
-              "is a genuine gap, and the only one of the four that is. It "
-              "needs the contrast machinery pointed at a link against its "
-              "surrounding text rather than its background; no rule here "
-              "looks yet."),
+    # Moved from "unimplemented" to "partial" on 2026-08-22. Built by pointing
+    # `wcag_triage.contrast`'s declaration resolver at a link against its
+    # surrounding text instead of its background -- see
+    # `wcag_triage.use_of_color`. Catches the one shape that is decidable
+    # without rendering: an inline link inside a run of body text where the
+    # stylesheet states the link's colour differs from the text around it and
+    # states no other visual cue (underline, weight, style, border,
+    # background) that would identify it as a link without colour. Refuses
+    # rather than guesses whenever a factor is not stated -- including an
+    # `<a>` whose text-decoration is never mentioned at all, because a
+    # browser's default underline on links is a user-agent rule this artifact
+    # never states, not a CSS initial value.
+    Criterion("1.4.1", "Use of Color", "A", "partial",
+              "A link distinguished from surrounding body text by colour "
+              "alone is detectable where the stylesheet states the link's "
+              "colour, its surrounding text colour, and every other visual "
+              "cue (decoration, weight, style, border, background); the "
+              "criterion covers colour-coded meaning far beyond links -- a "
+              "chart legend, form-error styling, instructions that say 'the "
+              "green button' -- and none of that is checked."),
     Criterion("2.5.3", "Label in Name", "A", "unimplemented",
               "An accessible name that does not contain the control's visible "
               "text is decidable from the markup; the reference's rule for it "
@@ -813,6 +826,36 @@ def rule_text_contrast(results):
             f"at {size}, below the {result.threshold}:1 this size requires.",
             f"Darken the text or lighten its background until the ratio reaches "
             f"{result.threshold}:1.",
+            seq=node.order,
+        )
+
+
+def rule_use_of_color(results):
+    """SC 1.4.1 -- a link identifiable from its surrounding body text by
+    colour and nothing else.
+
+    Takes the already-computed ``[(node, LinkColorResult), ...]``, the same
+    shape :func:`rule_text_contrast` takes, for the same reason: the engine
+    needs the per-link decisions once for the findings below and (in a fuller
+    build) once for a decidability tally, so the walk is shared rather than
+    repeated.
+
+    Degrading rather than blocking: the link is still visible and still
+    operable by mouse, touch, or keyboard tabbing -- what breaks is a reader's
+    ability to notice, among plain text, that it *is* a link, which makes a
+    task harder rather than impossible.
+    """
+    for node, result in results:
+        if result.verdict != use_of_color.FAIL:
+            continue
+        yield Finding(
+            "1.4.1", "Use of Color", "A", DEGRADING, node.tag, node.line,
+            f"Link text is {result.link_color} against surrounding text "
+            f"{result.surrounding_color}, with no underline, bold, italic, "
+            "border, or background to mark it as a link -- colour is the "
+            "only cue that distinguishes it.",
+            "Add a non-colour cue -- an underline is the conventional one -- "
+            "so the link is identifiable without perceiving colour.",
             seq=node.order,
         )
 

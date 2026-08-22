@@ -64,6 +64,7 @@ turned off.
 | Heading order | 2.4.6 | degrading | a heading level is skipped (h1 → h3) |
 | Data-table headers | 1.3.1 | degrading | a multi-row data table has no `<th>` |
 | Text contrast | 1.4.3 | degrading | text resolves between 3:1 and the 4.5:1 its size requires |
+| Use of colour (links) | 1.4.1 | degrading | a link in a run of body text differs from its surroundings by colour and states no other visual cue (decoration, weight, style, border, background) |
 
 ## What it deliberately cannot do — and says so in every record
 
@@ -104,10 +105,11 @@ that ship disabled or experimental, so the claim that an independent engine
 automates them was never true of a default run. Those three stay
 `unimplemented`, and their catalog rows now give the measured reason instead.
 
-The genuine remaining gap is **1.4.1 Use of Color** — axe reports it by
-default, it fires once on this portfolio's own pages, and no rule here looks
-for it yet. It is named as such in `COVERAGE` rather than grouped with the
-three that are not gaps.
+The genuine remaining gap was **1.4.1 Use of Color** — axe reports it by
+default, it fires once on this portfolio's own pages, and no rule here looked
+for it. It was named as such in `COVERAGE` rather than grouped with the three
+that are not gaps, and it was closed the same day it was disclosed — see
+[Colour alone (1.4.1)](#colour-alone-141-added-2026-08-22) below.
 
 **3.1.1 was downgraded in the same pass, from `automated` to `partial`.** The
 only rule behind it checked that `<html lang>` *existed*; nothing checked that
@@ -247,6 +249,48 @@ here on purpose, because
 [`a11y-engine-agreement`](../../../research/a11y-engine-agreement/) established
 that the danger is asymmetry nobody wrote down.
 
+## Colour alone (1.4.1): added 2026-08-22
+
+The gap the previous section named: a link inside a run of body text,
+distinguished from the words around it by colour and nothing else. Built by
+pointing the same declaration resolver `contrast.py` uses for 1.4.3 at a link
+against its *surrounding text*, instead of an element against its background —
+[`use_of_color.py`](src/wcag_triage/use_of_color.py) is the module.
+
+Same three-valued discipline as 1.4.3: `pass`, `fail`, or `undecidable` with a
+named reason, and only `fail` becomes a finding (impact: degrading — the link
+stays visible and operable by mouse, touch, or keyboard; what breaks is a
+reader noticing, among plain text, that it *is* a link). It is scoped
+tightly to the one shape that is decidable from source alone:
+
+- The candidate has to be a text link sitting inside a parent that carries its
+  own plain text directly. A nav link, or a link that is its container's
+  entire content, has no surrounding body text to compare against and is
+  skipped outright rather than scored against text that is not there.
+- The link's colour and the surrounding text's colour both have to resolve —
+  refused for the same named reasons 1.4.3 refuses (`no-declared-color`,
+  `unresolvable-color`, `conditional-color`) when they do not.
+- If the colours do not even differ, the verdict is `pass` immediately:
+  colour cannot be the *sole* cue to a link's identity if it is not a cue at
+  all — that is a different problem, out of scope here.
+- Otherwise every other visual cue — text-decoration, font-weight,
+  font-style, border, background — has to resolve before a verdict is
+  reached. One deliberate asymmetry in how "not declared" is read: an
+  **undeclared** `text-decoration` on the link itself refuses
+  (`no-declared-text-decoration`) rather than assuming the browser's default
+  underline, because that default is a user-agent rule this artifact never
+  sees — not the CSS initial value, which is what lets the same absence on
+  the ordinary surrounding text resolve safely to "no decoration" instead.
+
+This is why the criterion stays `partial` rather than `automated`: 1.4.1
+covers colour-coded meaning far beyond links — a chart legend, a form field
+marked invalid only by a red border, copy that says "click the green
+button" — and none of that is checked. What is checked is the one shape a
+static pass can actually decide, and it refuses everything else rather than
+guessing at it. None of the three fixture pages in `fixtures/` happen to
+contain this shape, so it adds no findings there and the fixture precision
+and recall below are unaffected.
+
 ## Validated against a hand-labeled fixture set
 
 Three fixture shop pages ([`fixtures/`](fixtures/)) — one riddled with barriers,
@@ -272,12 +316,15 @@ issues the generated fixes actually close under AT verification"* — is the rea
 measurement, and it needs three live shop themes and a contractor, neither of
 which an agent session has. This probe closes the smaller, prior question:
 whether the blocking/degrading triage the candidate sells can be produced
-mechanically at all. It can, and the coverage split it produces (11 criteria
-reasoned about, 9 named criteria explicitly deferred to a human) is itself the
-first concrete instance of the "quarter to a third" gap the candidate asserts.
-That split moved on 2026-08-21, when 1.4.3 crossed from deferred to partial —
-the only criterion that has ever crossed, and it crossed because the corpus
-changed, not because the rules got cleverer.
+mechanically at all. It can, and the coverage split it produces (16 criteria
+checked automatically or partially, 9 named criteria explicitly deferred to a
+human, 3 more disclosed as decidable-but-unbuilt) is itself the first concrete
+instance of the "quarter to a third" gap the candidate asserts. That split has
+moved twice: on 2026-08-21, when 1.4.3 crossed from `manual` to `partial`
+because the corpus finally included a page's own CSS, not because the rules
+got cleverer; and on 2026-08-22, when four criteria crossed from
+`unimplemented` to `partial` by getting an actual rule (see above) and 1.4.1
+crossed the same way (see [Colour alone](#colour-alone-141-added-2026-08-22)).
 
 ## Run it
 
@@ -305,7 +352,7 @@ Run in CI by [`eaa-wcag-triage-ci.yml`](../../../../.github/workflows/eaa-wcag-t
 which also re-runs `run_fixture_validation.py` and fails if the committed
 record no longer matches what the engine emits.
 
-189 tests: parser behaviour, each rule and its negative control, the
+204 tests: parser behaviour, each rule and its negative control, the
 blocking-before-degrading ordering, dedup of one element matched by two rules,
 the evidence record's JSON/markdown shape and its compliance disclaimer, the
 fixture validation, and — added 2026-08-21 — the two rules this engine was
@@ -318,7 +365,11 @@ its own coverage statement. Added 2026-08-21: `colors.py` (colour syntax
 against published WCAG ratios, the `lab()` conversion against a real build's own
 hex fallbacks, gradient bounds), `css.py` (every selector shape it refuses, the
 colour-scheme split), and `contrast.py` (one test per named undecidable reason,
-plus the specificity case that shipped a wrong answer on a real page).
+plus the specificity case that shipped a wrong answer on a real page). Added
+2026-08-22: `test_use_of_color.py` (one test per named undecidable reason for
+1.4.1, the colour-alone fail, a pass for each non-colour cue, the candidate
+filter that skips a link with no surrounding text, and a dark-mode-only
+failure a light-only scan would miss).
 
 ## Scope and honesty, in one place
 

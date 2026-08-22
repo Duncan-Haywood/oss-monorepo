@@ -46,6 +46,13 @@ TRACKED_PROPERTIES = frozenset(
         "font-size",
         "font-weight",
         "opacity",
+        # Added for SC 1.4.1 (wcag_triage.use_of_color): the non-colour cues
+        # that can make a link identifiable without relying on colour alone.
+        "text-decoration",
+        "text-decoration-line",
+        "font-style",
+        "border",
+        "border-bottom",
     }
 )
 
