@@ -17412,3 +17412,63 @@ entries:
         question. Left the scoring judgment call for review rather than
         deciding it here. No revenue; the $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit... more strategic
+        work" session, designated branch claude/wizardly-albattani-wjttm3.
+        `session_gate.py` -> PROCEED (0.79-0.83 sessions/hour, at the
+        maintenance rate; peak concurrency 1 within any 15-min window over
+        the prior 6h, though that reading undercounted what was about to
+        happen). Checked the 4 open PRs (#583, #531, #372, #368) and issue
+        #139's decision queue first: all four still correctly human-gated,
+        unchanged, CI green -- nothing to consolidate or add.
+      - >-
+        The most recent ledger entry above and `rule_bypass_blocks`'s own
+        docstring both named the same next step: out-of-sample recall for
+        `eaa-wcag-triage`'s four new rules on a rendered corpus, since a
+        build directory can't exercise them. Built it independently against
+        `a11y-generated-sites` -- same four mutations (injections for
+        2.2.1/2.2.2/3.1.2, a compound removal stripping every 2.4.1 bypass
+        mechanism from the 14 real delivered pages) -- and while finishing
+        verification, fetched `origin/main` and found **#614 had landed
+        the identical build minutes earlier**, merged and already folded
+        into a ledger entry (#615) by the time this session got there.
+        Independent convergence on a well-specified next step, same pattern
+        this repo has hit before, this time on a single well-named task
+        rather than a vaguely-scoped one.
+      - >-
+        Discarded the duplicate code (`git checkout origin/main --
+        portfolio/research/a11y-generated-sites/`) rather than open a
+        competing PR. Two things survived because #614's own commit message
+        explicitly left them for review: `eaa-remediation-pipeline.md`'s
+        `liability_containment` amendment and
+        `a11y-external-coverage-reference/README.md`'s closing "what would
+        earn it" pointer, both of which the settled finding now answers.
+        Wrote dated amendments to both recording that all four rules fire
+        14/14 on real delivered pages, that `audit.py`'s silence is the
+        already-disclosed asymmetry rather than a new gap, and that
+        `liability_containment` stays at 5 for the same one-corpus,
+        one-venture reason `a11y-axe-recall`'s recall figure didn't move it
+        -- explicitly not deciding the scoring judgment #614 deferred.
+        Also corrected a small inaccuracy in the external-coverage-reference
+        closing line, which had credited `a11y-axe-recall/` as "the
+        tooling" for a rendered corpus; that directory still audits the
+        same 118-page build output through a different engine, not a
+        per-request render.
+      - >-
+        Merged as #618 (agent-decidable: two `portfolio/` docs only, no
+        `ventures/*` app code, publishes/registers/spends nothing).
+        Verified: `validate_doc_consistency.py` (all 8 candidates score
+        identically across `candidates.yaml`, write-ups, and README's
+        table), `validate_candidates.py` (all 8 internally consistent),
+        `score_sensitivity.py` (runs clean, no score or composite moved by
+        this diff), `portfolio/router/validate.py` (10/10 `VENTURE.yaml`
+        valid). `git merge-tree` clean against the live tip immediately
+        before merging, re-checked again after an unrelated ledger commit
+        (#615) landed on `main` between opening the PR and merging it.
+        No revenue; the $0 ceiling is unchanged.
+    mrr_end: null
