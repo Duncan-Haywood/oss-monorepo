@@ -47,7 +47,7 @@ Usage::
 
     python3 audit_generated_sites.py                          # audit + control
     python3 audit_generated_sites.py --out results.json
-    python3 audit_generated_sites.py --recompute-from results-2026-08-21.json
+    python3 audit_generated_sites.py --recompute-from results-2026-08-22.json
 
 Standard library only. Reads local files, writes only its ``--out`` path, takes
 no credentials, publishes nothing, spends nothing.
@@ -198,6 +198,31 @@ MUTATIONS: tuple = (
      _sub(r"<body([^>]*)>", r'<body\1><audio autoplay src="a.mp3"></audio>')),
     ("1.2.2", "injection", "add a <video> with no captions track",
      _sub(r"<body([^>]*)>", r'<body\1><video src="v.mp4"></video>')),
+    # Added 2026-08-22, alongside the probe's four new rules for criteria that
+    # were previously declared `unimplemented`. `audit.py` still declares all
+    # four unimplemented (see its COVERAGE table), so these are expected to
+    # show as an *asymmetry this portfolio already knows about*, not a fresh
+    # detection gap — the two are not the same claim, and only the write-up
+    # can say which one a result is.
+    ("2.2.1", "injection", "add a <meta http-equiv=refresh content=5>",
+     _inject_head('<meta http-equiv="refresh" content="5"/>')),
+    ("2.2.2", "injection", "add a <marquee>",
+     _sub(r"<body([^>]*)>", r"<body\1><marquee>scrolling</marquee>")),
+    ("3.1.2", "injection", 'add a <span lang="engl"> (well-formed, not a language)',
+     _sub(r"<body([^>]*)>", r'<body\1><span lang="engl">x</span>')),
+    # Removal, not injection: this corpus already has the three mechanisms the
+    # rule accepts as sufficient (a <main> landmark, headings, and one
+    # in-page `#contact` link) — see `rule_bypass_blocks`'s own docstring on
+    # why a rendered corpus, and not a prerender, is what settles this
+    # criterion. Stripping all three at once is the only way to test it
+    # without also destroying the >=200-char content gate the rule needs to
+    # tell "no mechanism" from "not a page yet".
+    ("2.4.1", "removal", "strip <main>, all headings, and the in-page #contact link",
+     lambda html: re.sub(r'href="#([^"]+)"', r'href="/\1"',
+                          re.sub(r"</h[1-6]>", "</div>",
+                                 re.sub(r"<h([1-6])\b", r"<div data-was-h\1",
+                                        re.sub(r"</main>", "</div>",
+                                               re.sub(r"<main\b", "<div", html)))))),
 )
 
 

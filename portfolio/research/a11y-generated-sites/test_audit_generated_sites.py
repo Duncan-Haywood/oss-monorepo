@@ -23,12 +23,14 @@ import unittest
 import audit_generated_sites as gen
 
 HERE = pathlib.Path(__file__).resolve().parent
-RESULTS = HERE / "results-2026-08-21.json"
+RESULTS = HERE / "results-2026-08-22.json"
 CORPUS = HERE / "corpus"
 
 _PAGE = (
     '<!DOCTYPE html><html lang="en"><head><title>t</title></head><body>'
+    '<nav><a href="/a">A</a><a href="/b">B</a></nav>'
     '<h1>A</h1><h2>B</h2>'
+    '<p>' + ("Lorem ipsum dolor sit amet. " * 8) + "</p>"
     '<label class="l"><span>Name</span><input type="text" name="n"/></label>'
     '<button type="submit">Send</button>'
     '<a href="/x">Go</a>'
@@ -160,18 +162,25 @@ class SavedResults(unittest.TestCase):
     def test_every_exercised_removal_is_detected_by_both_engines(self):
         """Detection, not attribution.
 
-        Both engines must find every injected defect on every page. Which
-        success criterion each cites is a separate question — the two are known
-        to diverge on heading order, and asserting agreement here would be
-        asserting that a normative disagreement has been settled.
+        Both engines must find every injected defect on every page — except
+        the four criteria `audit.py` declares `unimplemented` outright (see
+        its COVERAGE table), where only the probe can find anything by
+        construction. Which success criterion each engine cites is a separate
+        question — the two are known to diverge on heading order, and
+        asserting agreement here would be asserting that a normative
+        disagreement has been settled.
         """
         removals = [r for r in self.data["control"]
                     if r["kind"] == "removal" and r["exercised"]]
-        self.assertEqual(len(removals), 7)
+        self.assertEqual(len(removals), 8)
+        unimplemented_in_audit_py = {"2.4.1"}
         for row in removals:
             with self.subTest(mutation=row["mutation"]):
                 self.assertEqual(row["probe_fired"], row["pages_changed"])
-                self.assertEqual(row["both_detected"], row["pages_changed"])
+                if row["criterion"] in unimplemented_in_audit_py:
+                    self.assertEqual(row["both_detected"], 0)
+                else:
+                    self.assertEqual(row["both_detected"], row["pages_changed"])
 
     def test_the_engines_relabel_exactly_the_two_known_pairs(self):
         """Pins both relabellings this corpus reproduces under control.
@@ -185,12 +194,15 @@ class SavedResults(unittest.TestCase):
 
         If a third pair appears here, a new normative divergence has opened and
         the criterion numbers in the record now depend on which engine ran —
-        which is the thing being sold.
+        which is the thing being sold. A row where `audit.py` cites nothing at
+        all is not this: it is one of the four criteria `audit.py` declares
+        `unimplemented` outright, asserted separately below.
         """
         relabelled = {
             r["mutation"]: (sorted(r["probe_cites"]), sorted(r["audit_py_cites"]))
             for r in self.data["control"]
             if r["exercised"]
+            and r["audit_py_cites"]
             and sorted(r["probe_cites"]) != sorted(r["audit_py_cites"])
         }
         self.assertEqual(relabelled, {
@@ -199,6 +211,25 @@ class SavedResults(unittest.TestCase):
             "empty the text of every wrapping <label>":
                 (["1.3.1"], ["3.3.2"]),
         })
+
+    def test_the_four_new_rules_are_undetected_by_audit_py_on_purpose(self):
+        """`audit.py` declares 2.2.1, 2.2.2, 2.4.1 and 3.1.2 `unimplemented` in
+        its own COVERAGE table (see `a11y-evidence-record/audit.py`) — this is
+        the known, disclosed asymmetry `eaa-wcag-triage`'s README describes,
+        not a silent miss like the iframe or wrapping-label gaps above were
+        before they were fixed. Pinned so a future rule added to `audit.py`
+        for one of these is a numbers change here, not a surprise."""
+        exercised_new = {
+            r["mutation"]: sorted(r["probe_cites"])
+            for r in self.data["control"]
+            if r["exercised"] and r["criterion"] in {"2.2.1", "2.2.2", "2.4.1", "3.1.2"}
+        }
+        self.assertEqual(len(exercised_new), 4)
+        for mutation, probe_cites in exercised_new.items():
+            with self.subTest(mutation=mutation):
+                row = next(r for r in self.data["control"] if r["mutation"] == mutation)
+                self.assertEqual(row["audit_py_cites"], {})
+                self.assertTrue(probe_cites)
 
     def test_the_frame_control_is_recorded(self):
         """The row that caught the detection gap. Before the rule added to
