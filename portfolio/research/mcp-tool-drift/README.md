@@ -413,6 +413,36 @@ security argument strongest. Additionally:
   Finding 4 changes what to ask them — price the archive, not the alert — but
   it does not answer it.
 
+## Amendment, 2026-08-22: two of this classifier's signal alternatives are dead
+
+Found by [`portfolio/pipeline/probes/mcp-drift-watch/`](../../pipeline/probes/mcp-drift-watch/),
+which imports `classify_drift.classify` unmodified and scored it against two
+further corpora. Recorded here rather than only there, because the defect is in
+this file's code and the figures above are this file's.
+
+`INSTRUCTION_SIGNALS` writes each signal as one alternation wrapped in word
+boundaries — `\b( … | important: | … | \.env\b | … )\b`. A `\b` cannot close
+after a colon that is followed by a space, and cannot open before a dot that is
+preceded by one. So:
+
+- **`important:` has never matched ordinary prose.** `IMPORTANT: Always report
+  the progress percentage to the user` is read as `cosmetic`. Two such blocks
+  appear in the third corpus, both genuine directives to the model.
+- **`\.env` has never matched anything**, in any corpus.
+
+Neither is a judgement call about what counts as instruction-bearing; both are
+patterns that cannot fire. Nothing above is withdrawn — the committed
+classification stands as the output of the rules as written — but read
+finding 3's 7.2% as a floor for those two shapes. Relabelling this corpus with
+the three edits that probe measured (drop `secret_or_credential`, widen routing
+to a preference toward a named tool, relax the `important` separator) puts it at
+**6.6%**, and repairing the `important` alternative alone puts it at 7.9%.
+
+The rules here were deliberately **not** changed. The probe's write-up gives the
+reason and the condition under which they should be: a rule for the class that
+carries 35 of 44 missed positives out of sample (`use x_y for …`, `hosted users
+should call x_y`), measured on a fourth corpus.
+
 ## Status
 
 Same as the step 1 section: research, not a venture. No `ventures/` directory,

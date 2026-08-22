@@ -42,6 +42,13 @@ Usage
 -----
     python3 collect_holdout.py --limit 60 --out results-holdout-2026-08-22.json
 
+A later corpus has to subtract the packages an earlier one already took, or
+`--limit` hands it the same rows again:
+
+    python3 collect_holdout.py --limit 104 \
+        --exclude-from results-holdout-2026-08-22.json \
+        --out results-holdout-c3-2026-08-22.json
+
 No third-party dependencies; standard library only.
 """
 
@@ -107,9 +114,30 @@ TUNED_ON = frozenset(
 TUNING_SLICE = 40
 
 
-def select_holdout(targets, min_rank: int, limit: int):
-    """Rows outside the tuning slice, minus the packages that carried labels."""
-    kept, excluded_named, excluded_rank = [], [], 0
+def previously_attempted(paths) -> set:
+    """Every package a prior corpus fetched, read from that corpus's own output.
+
+    `--limit` takes the first N eligible rows, so a second run with the same
+    ranking re-collects the same packages. A later corpus therefore has to
+    subtract the earlier one, and the honest unit to subtract is the package
+    *attempted*, not the package that happened to yield a labelled pair: a
+    package that yielded nothing was still read, and re-reading it would make
+    the two corpora overlap in a way the totals would not show.
+    """
+    seen = set()
+    for path in paths or ():
+        with open(path) as fh:
+            prior = json.load(fh)
+        for row in prior.get("packages", ()):
+            pkg = row.get("pkg")
+            if pkg:
+                seen.add(pkg)
+    return seen
+
+
+def select_holdout(targets, min_rank: int, limit: int, exclude=frozenset()):
+    """Rows outside the tuning slice, minus labelled and already-collected packages."""
+    kept, excluded_named, excluded_prior, excluded_rank = [], [], [], 0
     for rank, (server, pkg, count) in enumerate(targets, start=1):
         if rank <= min_rank:
             excluded_rank += 1
@@ -117,10 +145,14 @@ def select_holdout(targets, min_rank: int, limit: int):
         if pkg in TUNED_ON:
             excluded_named.append(pkg)
             continue
+        if pkg in exclude:
+            excluded_prior.append(pkg)
+            continue
         kept.append((server, pkg, count))
     return kept[:limit], {
         "excluded_by_rank": excluded_rank,
         "excluded_by_name": sorted(excluded_named),
+        "excluded_by_prior_corpus": sorted(excluded_prior),
         "eligible": len(kept),
         "taken": min(limit, len(kept)),
         "dropped_by_limit": max(0, len(kept) - limit),
@@ -198,19 +230,30 @@ def main() -> int:
     ap.add_argument("--pages", type=int, default=40, help="registry pages to read")
     ap.add_argument("--pause", type=float, default=0.1, help="seconds between requests")
     ap.add_argument("--min-rank", type=int, default=TUNING_SLICE, help="skip this many top rows")
+    ap.add_argument(
+        "--exclude-from",
+        action="append",
+        default=None,
+        metavar="CORPUS.json",
+        help="skip every package a prior corpus attempted; repeatable",
+    )
     ap.add_argument("--out", default=None, help="write corpus + provenance as JSON")
     args = ap.parse_args()
+
+    exclude = previously_attempted(args.exclude_from)
 
     print("Reading the official MCP registry...", flush=True)
     records = registry_servers(max_pages=args.pages, pause=args.pause)
     targets = npm_packaged_servers(records)
     print(f"  {len(records)} version records, {len(targets)} distinct npm-packaged servers")
 
-    holdout, selection = select_holdout(targets, args.min_rank, args.limit)
+    holdout, selection = select_holdout(targets, args.min_rank, args.limit, exclude)
+    selection["excluded_from"] = sorted(os.path.basename(p) for p in (args.exclude_from or ()))
     print(
         f"  held out: {selection['eligible']} eligible, taking {selection['taken']}"
         f" (dropped by --limit: {selection['dropped_by_limit']};"
-        f" excluded by name: {len(selection['excluded_by_name'])})\n",
+        f" excluded by name: {len(selection['excluded_by_name'])};"
+        f" excluded as already collected: {len(selection['excluded_by_prior_corpus'])})\n",
         flush=True,
     )
 

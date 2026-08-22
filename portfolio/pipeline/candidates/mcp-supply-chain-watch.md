@@ -145,6 +145,39 @@ this corpus, so that is an argument and not a measurement. Running one is the
 obvious next pass and is now cheap, since the hand labels exist. Recorded as
 examined-and-not-revised, on the precedent `shopify-a11y-evidence` set.
 
+**Amendment 2026-08-22 (second pass, same day) — the third corpus was collected
+and it refutes the pass above as well as the one before it. Still no score
+moved.** The remaining **103** of the 164 eligible packages (the population is
+now exhausted at today's registry ranking) give 148 changes across 21 servers,
+sharing no package with the first held-out corpus by construction. Three things
+change:
+
+- **Nothing replicated, the rate least of all.** Flagged share reads 7.2% /
+  7.4% / **5.4%** across the three corpora, precision 0.40 / **0.625**, recall
+  0.24–0.29 / **0.10–0.11**. The paragraph above says "the rate held and the
+  labels did not"; on a third corpus the rate did not hold either. The
+  subscriber record now prints the span across both held-out corpora rather
+  than either figure.
+- **The three fixes are ranked in reverse out of sample.** Dropping
+  `secret_or_credential` is worth precision 0.40 → 1.00 in sample and
+  0.625 → 0.714 here. Widening routing to "prefer `other_tool`" — the miss this
+  amendment calls dominant — is worth **nothing**: the single instance of that
+  mechanism in the third corpus writes the tool names in a parenthesis after a
+  category noun and is still missed. All three together: precision 0.778,
+  recall 0.143. Real, and a fraction of the in-sample figure.
+- **Two signal alternatives were dead patterns.** `important:` and `\.env` sit
+  inside a `\b(...)\b` group that cannot close after a colon-space or open
+  before a dot, so neither has ever fired. The one repair carries the entire
+  out-of-sample recall gain.
+
+`ai_leverage` is recorded examined-and-not-revised for the **second** time:
+recall of 0.10 is the strongest case yet that rules are insufficient, and no
+model has still been run, so it is still an argument. Naming the condition
+rather than repeating the note: the next pass on this candidate should run a
+model against the 284 committed hand labels, or write a rule for the class that
+carries 35 of 44 misses (`use x_y for …`, `hosted users should call x_y`) and
+measure it on a fourth corpus — which now requires the registry to grow.
+
 **Update 2026-08-19 — steps 1 and 2 done, step 3 outstanding.** Step 1 ran
 retrospectively (diffing the versions npm already holds rather than waiting two
 weeks): 69% of adjacent releases change the tool surface, 29% remove a tool, and

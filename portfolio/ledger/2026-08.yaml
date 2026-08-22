@@ -18012,3 +18012,90 @@ entries:
         individual PR-recheck entries, not a prompt to write another one. No
         revenue; the $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business
+        projects" session, designated branch
+        claude/laughing-pasteur-ur5atd. `session_gate.py` -> PROCEED (0.67
+        sessions/hour; 2 distinct sessions inside one 15-minute window in
+        the last 6h, so it told me to check open PRs and branches before
+        starting). Per `CLAUDE.md`'s intake gate that brief is answered, so
+        no candidate list was produced; took the first move it names --
+        advance a probe already specified in `portfolio/pipeline/`. Checked
+        the 4 open PRs (#583, #531, #372, #368) first: all still correctly
+        owner-gated, nothing overlapping.
+      - >-
+        Picked the one next step a probe had written down and nobody had
+        taken: `mcp-drift-watch`, merged hours earlier as #630, closed on
+        "anyone taking those fixes needs a third corpus... 164 eligible
+        packages and this run took 60". Collected the remaining 103 --
+        `collect_holdout.py` gained `--exclude-from`, which subtracts every
+        package a prior corpus *attempted* rather than only the ones that
+        yielded labels -- and hand-labelled all 148 resulting description
+        changes against the same rubric. The eligible population is now
+        exhausted at today's registry ranking.
+      - >-
+        Result 1: nothing about the shipped classifier replicated, and the
+        rate least of all. Flagged share reads 7.2% / 7.4% / 5.4% across the
+        three corpora, precision 0.40 / 0.625, recall 0.24-0.29 / 0.10-0.11.
+        #630's headline was that a stable rate had hidden unstable labels;
+        on a third corpus the rate did not hold either. Three corpora, three
+        answers, spread far wider than the labelling uncertainty inside any
+        one. The subscriber record now prints the span across both held-out
+        corpora (precision 0.40-0.62, recall 0.10-0.29) instead of either
+        figure, because quoting one of two disagreeing measurements is
+        choosing the flattering one.
+      - >-
+        Result 2, and the reusable one: the three rule edits #630 argued for
+        are ranked in exactly the reverse order out of sample. Dropping
+        `secret_or_credential` was worth precision 0.40 -> 1.00 in sample
+        and 0.625 -> 0.714 here. Widening routing to "prefer `other_tool`",
+        the edit that pass argued hardest for (five of its ten clear
+        misses), is worth nothing at all on fresh data -- the one instance
+        of its own mechanism in the third corpus writes the tool names in a
+        parenthesis after a category noun and is still missed. The
+        punctuation footnote nobody rated carries the whole out-of-sample
+        recall gain. Net: precision 0.625 -> 0.778, recall 0.102 -> 0.143,
+        no true positive lost. Ranking candidate fixes by how much they move
+        the corpus that suggested them does not survive a second corpus, and
+        this repository has done that ranking before.
+      - >-
+        Result 3: two of the five signal alternatives are dead patterns
+        rather than judgement calls. `INSTRUCTION_SIGNALS` wraps each
+        alternation in `\b(...)\b`, and a word boundary cannot close after a
+        colon followed by a space or open before a leading dot -- so
+        `important:` has never fired on ordinary prose (#630 read the one
+        miss it caused as an em-dash edge case; the colon form is broken
+        too) and `\.env` has never fired at all. Repairing the first is the
+        entire out-of-sample recall gain. Recorded as an amendment in
+        `portfolio/research/mcp-tool-drift/` as well, since the code is
+        there and its 7.2% is a floor for those two shapes -- the same
+        relabelling puts that corpus at 6.6%.
+      - >-
+        The rules were still not adopted, for a stated reason rather than
+        the earlier one: adopting them edits `classify_drift.py`, whose
+        committed labels and 7.2% figure are cited across `portfolio/`, to
+        ship a classifier that still misses 86% of what it defines as an
+        alert. The class carrying 35 of the 44 misses -- a server naming
+        another of its own tools in a phrasing the verb list does not cover
+        ("use x_y for", "hosted users should call x_y") -- has no rule at
+        all, and that is what a fourth corpus should be spent on. Also newly
+        declared: no signal pattern can match non-Latin text, and the corpus
+        contains one instruction-bearing Chinese change.
+      - >-
+        No score moved in `candidates.yaml`. `ai_leverage` 6 is recorded
+        examined-and-not-revised for the second time -- recall 0.10 is the
+        strongest case yet that rules are insufficient, and still nobody has
+        run a model, so it stays an argument. Verified before pushing: 68
+        probe tests (36 new), every step of the probe's own CI workflow run
+        by hand, and every step of `portfolio-validate.yml` -- both pipeline
+        validators, score sensitivity, venture schema and scoring, router,
+        workflow validator, break-even, verifications, session gate. All
+        green. Internal-only (`portfolio/` plus one existing test-runner
+        workflow), no venture code, no credential, nothing published --
+        agent-decidable per `CLAUDE.md`. No revenue; the $0 ceiling is
+        unchanged.
+    mrr_end: null

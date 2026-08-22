@@ -63,6 +63,33 @@ ACCURACY = {
     "derivation": "portfolio/pipeline/probes/mcp-drift-watch/ (collect_holdout.py, build_labels.py)",
 }
 
+# A second held-out corpus, collected the same day from the remaining 103 of the
+# 164 eligible packages, sharing no package with the first. It exists because a
+# single held-out measurement cannot say whether its own figure is stable, and
+# the answer here is that it is not: precision and recall both moved by more
+# than the gap either edit was expected to close. The record therefore prints
+# the **span across both**, not the friendlier one.
+ACCURACY_C3 = {
+    "measured_on": "2026-08-22",
+    "corpus": "148 tool-description changes across 21 npm-published MCP servers",
+    "held_out": True,
+    "precision": 0.625,
+    "recall_range": (0.102, 0.109),
+    "derivation": "portfolio/pipeline/probes/mcp-drift-watch/ "
+    "(collect_holdout.py --exclude-from, build_labels_c3.py)",
+}
+
+HELD_OUT = (ACCURACY, ACCURACY_C3)
+
+PRECISION_RANGE = (
+    min(a["precision"] for a in HELD_OUT),
+    max(a["precision"] for a in HELD_OUT),
+)
+RECALL_RANGE = (
+    min(a["recall_range"][0] for a in HELD_OUT),
+    max(a["recall_range"][1] for a in HELD_OUT),
+)
+
 # The prior figure, for contrast. Recorded because the interesting result is the
 # gap between them, not either one alone.
 IN_SAMPLE = {
@@ -74,50 +101,75 @@ IN_SAMPLE = {
 }
 
 HELD_OUT_ALERTING_SHARE_PCT = 7.4
+HELD_OUT_C3_ALERTING_SHARE_PCT = 5.4
 
 
 def accuracy_headline() -> str:
-    low, high = ACCURACY["recall_range"]
+    p_low, p_high = PRECISION_RANGE
+    r_low, r_high = RECALL_RANGE
     return (
-        f"**Accuracy, measured out of sample on {ACCURACY['measured_on']}: "
-        f"precision {ACCURACY['precision']:.2f}, recall {low:.2f}-{high:.2f}.** "
-        f"About six in ten of the alerts below are not what this watch says they "
-        f"are, and it finds roughly one in four of the changes that meet its own "
-        f"definition. Read the accuracy section before acting on any row."
+        f"**Accuracy, measured out of sample on two independent corpora: "
+        f"precision {p_low:.2f}-{p_high:.2f}, recall {r_low:.2f}-{r_high:.2f}.** "
+        f"Between four and six of every ten alerts below are not what this watch "
+        f"says they are, and it finds between one in ten and one in four of the "
+        f"changes that meet its own definition. The two corpora disagree by more "
+        f"than either figure's own uncertainty, so read the whole span as the "
+        f"claim. Read the accuracy section before acting on any row."
     )
 
 
 def accuracy_section() -> str:
-    low, high = ACCURACY["recall_range"]
+    p_low, p_high = PRECISION_RANGE
+    r_low, r_high = RECALL_RANGE
+    c2, c3 = HELD_OUT
     return f"""## How this watch can be wrong
 
-Measured **{ACCURACY['measured_on']}**, on **{ACCURACY['corpus']}** chosen
-because none of them was read while the classification rules were being written.
-Derivation: `{ACCURACY['derivation']}`.
+Measured twice, on two corpora that share no package, neither of them read while
+the classification rules were being written. Derivation:
+`{c2['derivation']}`.
 
-| | measured |
-|---|---:|
-| Precision (of what we alert on, how much is real) | **{ACCURACY['precision']:.2f}** |
-| Recall (of what is real, how much we alert on) | **{low:.2f}-{high:.2f}** |
+| | first corpus | second corpus |
+|---|---:|---:|
+| Changes / servers | {c2['corpus'].split(' tool')[0]} / {c2['corpus'].split('across ')[1]} | {c3['corpus'].split(' tool')[0]} / {c3['corpus'].split('across ')[1]} |
+| Precision (of what we alert on, how much is real) | **{c2['precision']:.2f}** | **{c3['precision']:.2f}** |
+| Recall (of what is real, how much we alert on) | **{c2['recall_range'][0]:.2f}-{c2['recall_range'][1]:.2f}** | **{c3['recall_range'][0]:.2f}-{c3['recall_range'][1]:.2f}** |
 
-The range on recall is the labelling: three of the changes are calls a careful
-reader could reverse, and both readings are published rather than one being
-chosen.
+The honest claim is the span: precision **{p_low:.2f}-{p_high:.2f}**, recall
+**{r_low:.2f}-{r_high:.2f}**. The range inside each column is the labelling --
+some changes are calls a careful reader could reverse, and both readings are
+published rather than one being chosen. The range *between* the columns is
+larger, and it is not labelling: it is what happens when the same rules meet a
+different set of servers.
+
+**Do not read a reproduced alert rate as a reproduced accuracy.** The share of
+changes this watch flags was {HELD_OUT_ALERTING_SHARE_PCT}% on the first corpus
+against {IN_SAMPLE['alerting_share_pct']}% on the tuning set -- close enough to
+look settled -- while precision on that corpus was {c2['precision']:.2f}. On the
+second corpus the share is {HELD_OUT_C3_ALERTING_SHARE_PCT}% and precision is
+{c3['precision']:.2f}. Neither the rate nor the accuracy is stable, and the rate
+is the one that looks stable.
 
 **Both directions are bad, and they are bad for different reasons.**
 
-*We over-report.* Six of ten alerts in the held-out run were ordinary
-documentation. All six came from one signal -- a credential word appearing in a
-description -- and every one of them was a server documenting its pricing
-("works without an API key") or using "token" to mean units of text rather than
-a secret. If a row in the table above cites a credential word as its only
-evidence, treat it as unread until you have read it yourself.
+*We over-report.* Six of ten alerts on the first corpus and one of eight on the
+second were ordinary documentation. **Every credential-word alert across both
+corpora -- seven of them -- was wrong**: servers documenting their pricing
+("works without an API key"), or using "token" to mean units of text rather than
+a secret. That signal has never produced a correct alert on any corpus it has
+been scored against. If a row in the table above cites a credential word as its
+only evidence, treat it as unread until you have read it yourself. The second
+corpus added a different over-reporting shape: one sentence template
+("rejects this tool before payment") copied across two tools, read as routing
+because it contains the words "this tool before".
 
-*We under-report.* This watch found about a quarter of the changes that meet
-its own definition of an alert. The largest single class it missed is a server
-telling the model to prefer a different tool -- the phrase "prefer `other_tool`"
-appears repeatedly in the held-out corpus and matches none of our rules. One
-package accounted for six misses in a single version bump.
+*We under-report.* This watch found about a quarter of the qualifying changes on
+the first corpus and about **one in ten** on the second. The largest single
+class it misses is a server naming another of its own tools and saying when to
+reach for it -- "use `other_tool` for X", "hosted users should call
+`other_tool`" -- which is 35 of the 44 misses on the second corpus. Misses also
+arrive in clumps: two servers rewrote every description in one release and
+carry 34 of that corpus's 49 qualifying changes between them, so a month can be
+quiet for reasons that have nothing to do with your servers being quiet.
 
 **The direction that pays us is the first one.** This subscription is priced per
 connected server, and a month with no alert looks, from outside, exactly like a
@@ -244,8 +296,13 @@ def load_measured_labels() -> dict:
 
 __all__ = [
     "ACCURACY",
+    "ACCURACY_C3",
+    "HELD_OUT",
     "HELD_OUT_ALERTING_SHARE_PCT",
+    "HELD_OUT_C3_ALERTING_SHARE_PCT",
     "IN_SAMPLE",
+    "PRECISION_RANGE",
+    "RECALL_RANGE",
     "accuracy_headline",
     "accuracy_section",
     "coverage_section",

@@ -174,11 +174,21 @@ def key(change: dict) -> tuple:
     return (change["pkg"], change["tool"], change["from"])
 
 
-def label_corpus(corpus: dict) -> list:
+def label_corpus(corpus: dict, positives: dict | None = None, borderline=None, negatives=None) -> list:
+    """Attach hand labels to a corpus.
+
+    The label sets default to this corpus's own, and are parameters so a later
+    corpus can reuse the scorer instead of forking it -- the same rule
+    `rule_variants.py` follows for the classifier. `build_labels_c3.py` passes
+    its own three sets.
+    """
+    positives = TRUE_INSTRUCTION_BEARING if positives is None else positives
+    borderline = BORDERLINE if borderline is None else borderline
+    negatives = EXAMINED_AND_NEGATIVE if negatives is None else negatives
     rows = []
     for change in corpus["changes"]:
         k = key(change)
-        truth = ALERT if k in TRUE_INSTRUCTION_BEARING else "not-" + ALERT
+        truth = ALERT if k in positives else "not-" + ALERT
         row = {
             "pkg": change["pkg"],
             "tool": change["tool"],
@@ -187,9 +197,9 @@ def label_corpus(corpus: dict) -> list:
             "rules_bucket": change["label"]["bucket"],
             "rules_signals": change["label"].get("signals", []),
             "hand_label": truth,
-            "borderline": k in BORDERLINE,
+            "borderline": k in borderline,
         }
-        note = TRUE_INSTRUCTION_BEARING.get(k) or EXAMINED_AND_NEGATIVE.get(k)
+        note = positives.get(k) or negatives.get(k)
         if note:
             row["note"] = note
         rows.append(row)
