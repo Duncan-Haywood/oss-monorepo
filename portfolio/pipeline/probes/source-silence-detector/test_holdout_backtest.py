@@ -442,7 +442,7 @@ class TestAgainstTheCommittedHistory(unittest.TestCase):
         self.assertGreater(deg["episodes_on_degenerate_sources"], deg["episodes_total"] / 3)
 
     def test_report_builds_and_carries_every_section(self) -> None:
-        report = hb.build_report(hb.DEFAULT_PRIOR, Config(), 120, 5.0)
+        report = cached_report()
         for key in ("in_sample", "leave_one_source_out", "budget_sweep",
                     "dormancy_sweep", "anchor_decay", "quantile_degeneracy"):
             self.assertIn(key, report)
@@ -454,6 +454,223 @@ class TestAgainstTheCommittedHistory(unittest.TestCase):
         a = hb.build_report(hb.DEFAULT_PRIOR, Config(), 120, 5.0)
         b = hb.build_report(hb.DEFAULT_PRIOR, Config(), 120, 5.0)
         self.assertEqual(json.dumps(a, sort_keys=True), json.dumps(b, sort_keys=True))
+
+
+_REPORT_CACHE: dict[tuple[int, float], dict] = {}
+
+
+def cached_report(dormancy_days: int = 120, budget: float = 5.0) -> dict:
+    """One `build_report` shared by every test that only reads it.
+
+    The report is a pure function of the committed history file and its
+    arguments — a test asserts exactly that — so rebuilding it per test class
+    buys nothing and costs the most expensive call in the suite each time. The
+    determinism test deliberately does not use this: two independent builds are
+    the thing it is checking.
+    """
+    key = (dormancy_days, budget)
+    if key not in _REPORT_CACHE:
+        _REPORT_CACHE[key] = hb.build_report(hb.DEFAULT_PRIOR, Config(), dormancy_days, budget)
+    return _REPORT_CACHE[key]
+
+
+class TestSmallSampleAnchorsOnTheRealCorpus(unittest.TestCase):
+    """What the small-sample anchors actually bought, pinned on the real data.
+
+    The README's 2026-08-21 amendment closed by naming three ways out of the
+    degeneracy and building none of them. These tests pin the answer the built
+    versions gave, which is mostly "nothing" — so that a later pass that reads
+    the recommendation and re-derives a fix finds out here that it was tried.
+    """
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.history, cls.payload = hb.load_history(hb.DEFAULT_PRIOR)
+        cls.end = hb.observation_end(cls.history, cls.payload)
+        cls.report = cached_report()
+
+    def test_the_customer_facing_figure_did_not_move(self) -> None:
+        """The regression test this whole split exists for. `subscriber_record`
+        prints 6 of 17 with 110d median latency, and that figure is quoted at a
+        buyer. Adding candidate anchors must not move it as a side effect —
+        `ANCHOR_GRID` is the committed selection procedure and `SMALL_SAMPLE_GRID`
+        is measured beside it."""
+        pooled = self.report["leave_one_source_out"]["held_out_pooled"]
+        self.assertEqual(pooled["episodes_detected"], 6)
+        self.assertEqual(pooled["episodes_evaluable"], 17)
+        self.assertEqual(pooled["median_latency_days"], 110.0)
+        self.assertEqual(
+            self.report["leave_one_source_out"]["anchors_selected"], ["max", "quantile:0.99"]
+        )
+
+    def test_no_small_sample_anchor_reaches_the_source_they_were_written_for(self) -> None:
+        """The finding. `FDA/openfda` is the only degenerate source and carries 9
+        of the 17 episodes. Interpolating and fitting an exponential both cut its
+        threshold hard — 2060d to 1634d and 820d — and neither detects one more
+        episode than the incumbent it replaces."""
+        row = self.report["small_sample_on_degenerate"]["per_source"]["FDA/openfda"]
+        self.assertTrue(row["degenerate"])
+        incumbent = row["quantile"]["episodes_detected"]
+        for anchor in ("interpolated", "exponential"):
+            with self.subTest(anchor=anchor):
+                self.assertLess(row[anchor]["final_threshold"], row["quantile"]["final_threshold"])
+                self.assertEqual(row[anchor]["episodes_detected"], incumbent)
+
+    def test_the_lognormal_fit_is_worse_than_the_anchor_it_replaces(self) -> None:
+        """And the parametric family does not merely fail to help. Its fitted
+        99th percentile on this source exceeds the longest gap ever observed
+        there, so it is a looser threshold than `max` — and it detects fewer."""
+        row = self.report["small_sample_on_degenerate"]["per_source"]["FDA/openfda"]
+        self.assertGreater(row["lognormal"]["final_threshold"], row["max_gap_days"])
+        self.assertGreater(row["lognormal"]["final_threshold"], row["quantile"]["final_threshold"])
+        self.assertLess(
+            row["lognormal"]["episodes_detected"], row["quantile"]["episodes_detected"]
+        )
+
+    def test_the_widened_grids_recall_gain_is_entirely_off_the_sparse_sources(self) -> None:
+        """Widening the candidate set does raise held-out recall, and none of the
+        gain is on a small sample. Every fold whose detection count improves is a
+        source with enough gaps that no anchor there was ever degenerate — which
+        is why the headline number moving would have been a misleading way to
+        report this."""
+        incumbent = {f["held_out"]: f for f in self.report["leave_one_source_out"]["folds"]}
+        widened = {f["held_out"]: f for f in self.report["widened_grid_holdout"]["folds"]}
+        deg = set(self.report["small_sample_on_degenerate"]["degenerate_sources"])
+        self.assertTrue(deg)
+
+        improved = [
+            repo
+            for repo, fold in widened.items()
+            if fold["test"]["episodes_detected"] > incumbent[repo]["test"]["episodes_detected"]
+        ]
+        self.assertTrue(improved, "expected the widened grid to gain somewhere")
+        self.assertFalse(set(improved) & deg, f"{improved} overlaps the degenerate sources {deg}")
+        for repo in deg:
+            with self.subTest(repo=repo):
+                self.assertEqual(
+                    widened[repo]["test"]["episodes_detected"],
+                    incumbent[repo]["test"]["episodes_detected"],
+                )
+
+    def test_the_widened_grid_overruns_the_budget_it_was_selected_under(self) -> None:
+        """The gain is not free either. The anchor is chosen on each fold's
+        training sources subject to 5 nuisance alarm-days per source-year; the
+        widened set's realised held-out nuisance is over that line while the
+        incumbent's is under it. A recall figure quoted without this is a
+        different product than the one measured."""
+        budget = self.report["budget_days_per_source_year"]
+        incumbent = self.report["leave_one_source_out"]["held_out_pooled"]
+        widened = self.report["widened_grid_holdout"]["held_out_pooled"]
+        self.assertGreater(widened["episodes_detected"], incumbent["episodes_detected"])
+        self.assertLessEqual(incumbent["nuisance_days_per_source_year"], budget)
+        self.assertGreater(widened["nuisance_days_per_source_year"], budget)
+
+    def test_only_the_pooled_anchor_moves_the_degenerate_source(self) -> None:
+        """The one family that does reach it is the one that reads a number
+        fitted somewhere else — which is the whole mechanism. The other three are
+        functions of the same 37 gaps, and no estimator recovers information a
+        sample does not contain."""
+        rows = {r["anchor"]: r for r in self.report["pooled_shape_holdout"]}
+        per_source_best = max(
+            self.report["small_sample_on_degenerate"]["per_source"]["FDA/openfda"][a][
+                "episodes_detected"
+            ]
+            for a in self.report["small_sample_on_degenerate"]["anchors"]
+        )
+        pooled = rows["pooled-shape:0.99"]["per_source"]["FDA/openfda"]
+        self.assertGreater(pooled["episodes_detected"], per_source_best)
+
+    def test_a_pooled_ratio_never_sees_the_source_it_is_scored_on(self) -> None:
+        """The leakage guard. Recomputing a fold's ratio with the held-out source
+        put back changes it, which is how we know it was actually excluded."""
+        ratio_without = hb._pooled_ratio(self.history, "FDA/openfda", 0.99)
+        ratio_with = hb._pooled_ratio(self.history, "", 0.99)
+        self.assertIsNotNone(ratio_without)
+        self.assertNotEqual(ratio_without, ratio_with)
+
+    def test_the_report_carries_the_new_sections(self) -> None:
+        for key in ("small_sample_on_degenerate", "pooled_shape_holdout", "widened_grid_holdout"):
+            self.assertIn(key, self.report)
+        self.assertEqual(
+            len(self.report["pooled_shape_holdout"]), len(hb.POOLED_SHAPE_QUANTILES)
+        )
+        self.assertTrue(hb.render(self.report))
+
+
+class TestAmendment3CitationsMatchTheResultsFile(unittest.TestCase):
+    """Every figure amendment 3 prints must be re-derivable from its saved run.
+
+    The convention comes from `eaa-wcag-triage`'s `test_accuracy_citations.py`
+    and `probes/README.md` asks for it by name: a number quoted in prose goes
+    stale silently, and the reader has no way to tell. Here the prose fails the
+    build instead.
+    """
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.readme = (HERE / "README.md").read_text()
+        cls.results = json.loads((HERE / "results-small-sample-2026-08-22.json").read_text())
+
+    def _assert_quoted(self, text: str) -> None:
+        self.assertIn(text, self.readme, f"README no longer states {text!r}")
+
+    def test_the_degenerate_source_table_matches(self) -> None:
+        deg = self.results["small_sample_on_degenerate"]
+        self.assertEqual(deg["degenerate_sources"], ["FDA/openfda"])
+        row = deg["per_source"]["FDA/openfda"]
+        self._assert_quoted(f"{row['closed_gaps']} closed gaps")
+        for anchor in ("quantile", "interpolated", "lognormal", "exponential"):
+            with self.subTest(anchor=anchor):
+                self._assert_quoted(f"{row[anchor]['final_threshold']}d")
+                self._assert_quoted(f"{row[anchor]['episodes_detected']}/9")
+
+    def test_the_headline_comparison_matches(self) -> None:
+        incumbent = self.results["leave_one_source_out"]["held_out_pooled"]
+        widened = self.results["widened_grid_holdout"]["held_out_pooled"]
+        self._assert_quoted(
+            f"{incumbent['episodes_detected']}/{incumbent['episodes_evaluable']} to "
+            f"{widened['episodes_detected']}/{widened['episodes_evaluable']}"
+        )
+        self._assert_quoted(f"{incumbent['median_latency_days']:g}d to {widened['median_latency_days']:g}d")
+        self._assert_quoted(f"{incumbent['nuisance_days_per_source_year']} to **{widened['nuisance_days_per_source_year']}**")
+
+    def test_the_pooled_shape_figure_matches(self) -> None:
+        rows = {r["anchor"]: r for r in self.results["pooled_shape_holdout"]}
+        fda = rows["pooled-shape:0.99"]["per_source"]["FDA/openfda"]
+        incumbent = self.results["small_sample_on_degenerate"]["per_source"]["FDA/openfda"]
+        self._assert_quoted(
+            f"{incumbent['quantile']['episodes_detected']}/9 to "
+            f"{fda['episodes_detected']}/9"
+        )
+        self._assert_quoted(f"{rows['pooled-shape:0.99']['episodes_detected']}/17")
+
+    def test_the_source_that_carries_the_gain_is_named_with_its_gap_count(self) -> None:
+        """The claim that the recall gain is off the sparse sources rests on one
+        fold. If a later run makes it a different source, the prose is wrong."""
+        incumbent = {f["held_out"]: f for f in self.results["leave_one_source_out"]["folds"]}
+        widened = {f["held_out"]: f for f in self.results["widened_grid_holdout"]["folds"]}
+        changed = [
+            repo
+            for repo, fold in widened.items()
+            if fold["test"]["episodes_detected"] != incumbent[repo]["test"]["episodes_detected"]
+        ]
+        self.assertEqual(changed, ["datasets/covid-19"])
+        gaps = self.results["small_sample_on_degenerate"]["per_source"]["datasets/covid-19"][
+            "closed_gaps"
+        ]
+        self._assert_quoted(f"{gaps} gaps")
+        self._assert_quoted("`datasets/covid-19`")
+
+    def test_the_saved_run_reproduces_from_the_committed_history(self) -> None:
+        """The results file is the citation target, so it has to be the run the
+        code still produces rather than a snapshot that drifted."""
+        fresh = cached_report()
+        for section in ("small_sample_on_degenerate", "pooled_shape_holdout", "widened_grid_holdout"):
+            with self.subTest(section=section):
+                self.assertEqual(
+                    json.dumps(fresh[section], sort_keys=True),
+                    json.dumps(self.results[section], sort_keys=True),
+                )
 
 
 class TestHouseRules(unittest.TestCase):

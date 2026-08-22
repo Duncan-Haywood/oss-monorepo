@@ -97,6 +97,7 @@ class Config:
         fallback_days: int = DEFAULT_FALLBACK_DAYS,
         anchor: str = DEFAULT_ANCHOR,
         quantile: float = DEFAULT_QUANTILE,
+        pooled_ratio: float = 1.0,
     ) -> None:
         self.multiplier = multiplier
         self.floor_days = floor_days
@@ -106,6 +107,7 @@ class Config:
         self.fallback_days = fallback_days
         self.anchor = anchor
         self.quantile = quantile
+        self.pooled_ratio = pooled_ratio
 
     def as_dict(self) -> dict:
         return {
@@ -117,6 +119,7 @@ class Config:
             "fallback_days": self.fallback_days,
             "anchor": self.anchor,
             "quantile": self.quantile,
+            "pooled_ratio": self.pooled_ratio,
         }
 
 
@@ -145,7 +148,7 @@ def gaps_between(days: list[date]) -> list[int]:
     return [(b - a).days for a, b in zip(days, days[1:])]
 
 
-def anchor_gap(gaps: list[int], cfg: Config) -> int:
+def anchor_gap(gaps: list[int], cfg: Config) -> float:
     """The historical gap the threshold is built from.
 
     `max` is the rule as specified: "is this longer than this source's normal
@@ -158,6 +161,31 @@ def anchor_gap(gaps: list[int], cfg: Config) -> int:
     `quantile` (nearest-rank) is not monotone: it converges on what the source
     normally does and treats one historical dormancy as the outlier it is.
     Quantile 1.0 is `max`, so the two are one dial rather than two rules.
+
+    The three anchors below are the **small-sample** alternatives, added
+    2026-08-22. They exist because nearest rank takes index
+    `ceil(q * n) - 1`, which *is* the last element whenever `ceil(q * n) == n` —
+    every source with fewer than `1 / (1 - q)` closed gaps, so 100 gaps at
+    `q = 0.99`. A sparse source therefore inherits `max` silently, and sparsity
+    is not incidental: a register that publishes a few times a year never
+    reaches 100 gaps and is also the kind most likely to go dark. The README
+    named three ways out and none had been built:
+
+    - `interpolated` — the same quantile read off a linear interpolation
+      between order statistics rather than a rank. Never degenerate for `q < 1`
+      and `n > 1`, since the position `q * (n - 1)` is strictly below `n - 1`.
+    - `lognormal` — a two-parameter fit to `log(gap)`, read at `q`. A fitted
+      quantile is defined for any `n >= 2` and is not bounded by the sample, so
+      it can exceed `max` where the log-scale spread is wide.
+    - `exponential` — a one-parameter fit, `-mean * ln(1 - q)`. Kept beside the
+      lognormal specifically because the two disagree about tail weight, so a
+      result that survives both is about the data rather than about the family.
+
+    All three are functions of one source's own gaps, which is what keeps the
+    leave-one-source-out validation honest — nothing here is fitted on a source
+    it is later scored against. The pooled alternative the README also named
+    cannot be written this way and is measured separately, per fold, in
+    `holdout_backtest.pooled_shape_holdout`.
     """
     if cfg.anchor == "quantile":
         ordered = sorted(gaps)
@@ -165,7 +193,41 @@ def anchor_gap(gaps: list[int], cfg: Config) -> int:
         # nearest sensible anchor rather than raising from inside the day loop.
         rank = min(len(ordered), max(1, math.ceil(cfg.quantile * len(ordered))))
         return ordered[rank - 1]
+    if cfg.anchor == "interpolated":
+        ordered = sorted(gaps)
+        n = len(ordered)
+        if n == 1:
+            return ordered[0]
+        pos = min(max(cfg.quantile, 0.0), 1.0) * (n - 1)
+        low = math.floor(pos)
+        high = min(low + 1, n - 1)
+        return ordered[low] + (ordered[high] - ordered[low]) * (pos - low)
+    if cfg.anchor == "lognormal":
+        logs = [math.log(g) for g in gaps if g > 0]
+        if not logs:
+            return max(gaps)
+        mu = statistics.fmean(logs)
+        # Population sigma, not sample: the gaps are the whole history, and at
+        # the small `n` this anchor exists for the Bessel correction would widen
+        # the very tail whose width is the thing in question.
+        sigma = statistics.pstdev(logs) if len(logs) > 1 else 0.0
+        return math.exp(mu + _z_score(cfg.quantile) * sigma)
+    if cfg.anchor == "exponential":
+        mean = statistics.fmean(gaps)
+        q = min(max(cfg.quantile, 0.0), 1.0 - 1e-12)
+        return -mean * math.log(1.0 - q)
+    if cfg.anchor == "pooled-shape":
+        # Threshold = this source's own typical gap, scaled by a ratio measured
+        # across *other* sources. `pooled_ratio` is supplied by the caller so
+        # that the fold deciding it can be audited; unset, it is the identity.
+        return statistics.median(gaps) * cfg.pooled_ratio
     return max(gaps)
+
+
+def _z_score(quantile: float) -> float:
+    """Standard-normal quantile, clamped away from the infinities at 0 and 1."""
+    q = min(max(quantile, 1e-12), 1.0 - 1e-12)
+    return statistics.NormalDist().inv_cdf(q)
 
 
 def cadence_threshold(gaps: list[int], cfg: Config) -> int | None:
@@ -435,6 +497,18 @@ def _totals(rows: dict[str, dict]) -> dict:
 # ---------------------------------------------------------------------------
 
 
+def _anchor_phrase(anchor: str, quantile: float) -> str:
+    """How the rule line names the anchor, in the subscriber's terms not ours."""
+    pct = f"p{quantile * 100:g}"
+    return {
+        "quantile": f"{pct} historical gap",
+        "interpolated": f"{pct} historical gap (interpolated)",
+        "lognormal": f"{pct} of a lognormal fit to the historical gaps",
+        "exponential": f"{pct} of an exponential fit to the historical gaps",
+        "pooled-shape": "typical historical gap x a ratio measured on other sources",
+    }.get(anchor, "worst historical gap")
+
+
 def render(result: dict) -> str:
     cfg = result["config"]
     out = [
@@ -442,9 +516,7 @@ def render(result: dict) -> str:
         f"(from measurement {result['source_measurement']})",
         f"Rule: alarm when current gap > max("
         + (
-            f"p{cfg['quantile'] * 100:g} historical gap"
-            if cfg["anchor"] == "quantile"
-            else "worst historical gap"
+            _anchor_phrase(cfg["anchor"], cfg["quantile"])
         )
         + f" x {cfg['multiplier']}, "
         f"{cfg['floor_days']}d), needs >= {cfg['min_gaps']} gaps to calibrate, "
@@ -545,7 +617,7 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--fallback-days", type=int, default=DEFAULT_FALLBACK_DAYS)
     ap.add_argument(
         "--anchor",
-        choices=("max", "quantile"),
+        choices=("max", "quantile", "interpolated", "lognormal", "exponential"),
         default=DEFAULT_ANCHOR,
         help="which historical gap the threshold is built from (default: max, the rule as specified)",
     )
@@ -553,7 +625,11 @@ def main(argv: list[str]) -> int:
         "--quantile",
         type=float,
         default=DEFAULT_QUANTILE,
-        help="nearest-rank quantile for --anchor quantile; 1.0 reproduces --anchor max",
+        help=(
+            "the quantile for every anchor but max; read by nearest rank "
+            "(--anchor quantile, where 1.0 reproduces --anchor max), by linear "
+            "interpolation, or off a fitted distribution"
+        ),
     )
     ap.add_argument("--sweep", action="store_true", help="print the parameter sensitivity table")
     ap.add_argument(

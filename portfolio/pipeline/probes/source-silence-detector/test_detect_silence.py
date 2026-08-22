@@ -12,6 +12,7 @@ changes the finding fails here rather than in a document nobody re-runs.
 from __future__ import annotations
 
 import json
+import statistics
 import unittest
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -454,6 +455,99 @@ class TestFullHistoryFindingsAgainstRealData(unittest.TestCase):
         self.assertEqual(len(gaps), 37)
         self.assertEqual(len(over), 14)
         self.assertGreater(len(over) / len(gaps), 0.35)
+
+
+class TestSmallSampleAnchors(unittest.TestCase):
+    """The three per-source anchors added 2026-08-22, and what each is for.
+
+    The defect they answer is that nearest rank at `q = 0.99` returns the sample
+    maximum for every source with fewer than 100 closed gaps. These tests pin the
+    property each family was chosen for, not its output on any particular data —
+    whether the properties buy anything is a question for the backtest.
+    """
+
+    # 37 gaps: the size of the one degenerate source in the real corpus, and
+    # small enough that nearest rank at 0.99 is pinned to the maximum.
+    SPARSE = [1, 1, 2, 2, 3, 3, 4, 5, 5, 6, 7, 8, 9, 10, 12, 14, 15, 18, 20,
+              22, 25, 28, 30, 35, 40, 48, 55, 60, 75, 90, 120, 160, 220, 300,
+              450, 700, 1373]
+
+    def test_nearest_rank_is_the_maximum_on_a_sparse_source(self):
+        """The premise. Without this the other three anchors have no purpose."""
+        cfg = ds.Config(anchor="quantile", quantile=0.99)
+        self.assertEqual(len(self.SPARSE), 37)
+        self.assertEqual(ds.anchor_gap(self.SPARSE, cfg), max(self.SPARSE))
+
+    def test_interpolation_is_strictly_below_the_maximum(self):
+        """Reading the quantile off a line between order statistics puts the
+        position at `q * (n - 1)`, which is below the last index for any q < 1.
+        The degeneracy is gone by construction rather than by luck."""
+        cfg = ds.Config(anchor="interpolated", quantile=0.99)
+        self.assertLess(ds.anchor_gap(self.SPARSE, cfg), max(self.SPARSE))
+
+    def test_interpolation_reproduces_the_maximum_at_quantile_one(self):
+        """The control. If the two ever disagree at q=1.0 the anchor is wrong."""
+        cfg = ds.Config(anchor="interpolated", quantile=1.0)
+        self.assertEqual(ds.anchor_gap(self.SPARSE, cfg), max(self.SPARSE))
+
+    def test_a_fitted_quantile_can_exceed_every_gap_ever_observed(self):
+        """The property that makes the parametric families dangerous, stated as
+        a test rather than as a caveat. A fit is not bounded by its sample, so
+        where the observed gaps are clustered the 99th percentile of the fit sits
+        past the longest silence the source has ever had — a *looser* threshold
+        than the `max` anchor it was brought in to replace. The real corpus does
+        this too and by a wider margin; that instance is pinned in
+        `test_holdout_backtest.py` against `FDA/openfda`."""
+        clustered = [2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 9, 10, 11, 12, 14, 16,
+                     18, 20, 24, 28, 33, 40, 48, 60]
+        cfg = ds.Config(anchor="lognormal", quantile=0.99)
+        self.assertGreater(ds.anchor_gap(clustered, cfg), max(clustered))
+
+    def test_the_exponential_anchor_depends_only_on_the_mean(self):
+        """One parameter, so two samples with the same mean are indistinguishable
+        to it however differently their gaps are arranged. Kept beside the
+        lognormal precisely because the two disagree about tail weight."""
+        cfg = ds.Config(anchor="exponential", quantile=0.99)
+        flat = [10] * 20
+        spread = [1] * 19 + [10 * 20 - 19]
+        self.assertAlmostEqual(statistics.fmean(flat), statistics.fmean(spread))
+        self.assertAlmostEqual(ds.anchor_gap(flat, cfg), ds.anchor_gap(spread, cfg))
+
+    def test_every_anchor_is_defined_where_nearest_rank_has_already_degenerated(self):
+        """n = 2 is the worst case: nearest rank has been pinned to the maximum
+        since the source's second gap. Nothing may raise there."""
+        for anchor in ("quantile", "interpolated", "lognormal", "exponential"):
+            with self.subTest(anchor=anchor):
+                value = ds.anchor_gap([3, 9], ds.Config(anchor=anchor, quantile=0.99))
+                self.assertGreater(value, 0)
+
+    def test_the_pooled_shape_anchor_scales_the_sources_own_typical_gap(self):
+        """The one anchor that reads a number fitted somewhere else. Its ratio is
+        supplied by the caller so the fold that chose it can be audited."""
+        cfg = ds.Config(anchor="pooled-shape", quantile=0.99, pooled_ratio=12.0)
+        self.assertEqual(ds.anchor_gap([2, 4, 6], cfg), 48.0)
+
+    def test_an_unset_pooled_ratio_is_the_identity(self):
+        cfg = ds.Config(anchor="pooled-shape")
+        self.assertEqual(ds.anchor_gap([2, 4, 6], cfg), 4.0)
+
+    def test_an_unknown_anchor_falls_back_to_max_rather_than_raising(self):
+        """Config is reachable from the CLI and from the backtest. A typo must
+        not take the detector down mid-replay."""
+        self.assertEqual(ds.anchor_gap([1, 5, 2], ds.Config(anchor="nonsense")), 5)
+
+    def test_the_z_score_is_clamped_away_from_the_infinities(self):
+        self.assertLess(ds._z_score(1.0), float("inf"))
+        self.assertGreater(ds._z_score(0.0), float("-inf"))
+
+    def test_the_rule_line_names_every_anchor_it_can_be_run_with(self):
+        """A subscriber reads this sentence to know what the number means. An
+        anchor missing from it renders as 'worst historical gap', which would be
+        a false statement about how the threshold was built."""
+        for anchor in ("quantile", "interpolated", "lognormal", "exponential", "pooled-shape"):
+            with self.subTest(anchor=anchor):
+                self.assertNotIn("worst historical gap", ds._anchor_phrase(anchor, 0.99))
+        self.assertIn("worst historical gap", ds._anchor_phrase("max", 0.99))
 
 
 if __name__ == "__main__":
