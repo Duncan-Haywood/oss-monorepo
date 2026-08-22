@@ -17699,3 +17699,69 @@ entries:
         is not a measurement of whether the coverage statement is accurate.
         No revenue; the $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve the
+        development process... increase in profit" session, designated
+        branch claude/pensive-feynman-4m1etc. `session_gate.py` -> PROCEED.
+        Checked the 4 open PRs (#583, #531, #372, #368) first: all still
+        correctly owner-gated, nothing to consolidate. Began implementing SC
+        1.4.1 Use of Color for eaa-wcag-triage (the criterion
+        `a11y-external-coverage-reference` had named "the genuine remaining
+        gap") before checking for concurrent duplicate work mid-task -- a
+        `git fetch origin main` surfaced that a separate scheduled session
+        had merged the identical feature as #622 (`rule_use_of_color`)
+        minutes earlier. Discarded the redundant implementation (`git reset
+        --hard origin/main`) rather than opening a competing PR, per
+        `CLAUDE.md`'s duplicate-work guidance.
+      - >-
+        #622's own body left one question explicitly open: whether
+        `rule_use_of_color` actually catches the real axe-flagged instance
+        on `photo-editing/docs-site/index.html`, since that session had no
+        built corpus to check against. Closed that gap instead of the rule
+        itself: rebuilt every venture buildable in this session (10 apps;
+        `npm ci && npm run build` per Next.js app, `pnpm -r run build` for
+        `retail-pilot-intel`'s workspace) and re-ran `a11y-axe-
+        recall/measure.py` live. Confirmed the rule matched the real
+        instance with zero new false positives (checked-criteria universe 17
+        -> 18, matched 39 -> 40, recall 0.975 -> 0.976), and separately
+        recorded an unrelated finding surfaced along the way: the live
+        corpus is 128 pages/10 apps, not the 118/7 the committed results
+        file pins (two new apps built since the last measurement).
+      - >-
+        Opened as #624 (doc-only: `a11y-axe-recall`, `eaa-wcag-triage`,
+        `a11y-external-coverage-reference`, `probes/README.md`; all
+        downstream suites verified green, `git merge-tree` clean against
+        `main`). Before merging, a second `git fetch` surfaced that main had
+        moved again: #621 ("consolidate the two SC 1.4.1 implementations")
+        had merged while #624's CI was running. #621 turned out to be a
+        *third* independent session's implementation, and it did the same
+        live axe-core corpus re-run #624 was contributing -- more
+        rigorously: it found the merged `rule_use_of_color` this session had
+        verified for *recall* actually over-fired on *precision* (30
+        findings vs axe's 1 on one real page), traced it to three specific
+        bugs, fixed them, and replaced the rule with `wcag_triage.usecolor`.
+        That measurement supersedes #624's. Closed #624 unmerged with a
+        comment pointing to #621 and explaining why, rather than force
+        through a PR whose diff referenced a rule that no longer existed on
+        `main`.
+      - >-
+        Net effect: two independent near-duplications avoided in one session
+        (one caught before opening a PR, one caught after opening one but
+        before merging), zero code shipped, zero PRs left open. Recorded
+        because this is exactly the pattern `CLAUDE.md`'s duplicate-PR
+        section warns about, playing out twice in under two hours on a
+        single criterion (SC 1.4.1): three sessions converged on the same
+        well-specified next step (`eaa-wcag-triage`'s own COVERAGE catalog
+        had named it "the genuine remaining gap" in plain text, readable by
+        any session that opened the file) inside roughly a one-hour window,
+        with #622 and #621 arguably unavoidable (concurrent starts, no way
+        to see each other), but #624 was avoidable in principle -- a `git
+        fetch` immediately before merging, not just before starting, is what
+        caught it, and is worth being the default habit for any PR that
+        isn't merged within a few minutes of its checks going green in this
+        repo. No revenue; the $0 ceiling is unchanged.
+    mrr_end: null
