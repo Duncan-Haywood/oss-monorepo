@@ -33,9 +33,17 @@ crossed the gate.
 > artifacts said at the moment they were looked at.
 
 ```
-python3 measure.py 2026-08-21          # offline, no network, no clock read
+python3 measure.py 2026-08-22          # offline, no network, no clock read
 python3 -m unittest discover -s . -t . # 25 tests
 ```
+
+> **Results file regenerated 2026-08-22** (`results-2026-08-22.json`, replacing
+> the 2026-08-21 run). `eaa-wcag-triage`'s record grew the build-artifact
+> filter's exclusion disclosure and a revised accuracy caveat, so two fields
+> this directory quotes verbatim from that artifact — its size and its
+> direction evidence — moved. **Every verdict, every rubric dimension and every
+> score is unchanged**, on all four probes. The rerun is a re-quote, not a
+> re-measurement.
 
 ## Why this is the gate and not an essay
 

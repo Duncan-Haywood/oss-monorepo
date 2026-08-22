@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-21",
+  "generated": "2026-08-22",
   "question": "Does the artifact a customer receives carry the probe's own measured error rate, and does the direction it is wrong in pay the operator?",
   "method": {
     "scope": "structural \u2014 a declared coverage constant rendered into the artifact",
@@ -36,7 +36,7 @@
     {
       "probe": "eaa-wcag-triage",
       "candidate": "eaa-remediation-pipeline",
-      "artifact_chars": 17298,
+      "artifact_chars": 19285,
       "record_module": "src/wcag_triage/evidence.py",
       "declared_coverage_constants": [
         "COVERAGE_STATEMENT",
@@ -48,10 +48,12 @@
         "**Accuracy (precision 0.821\u20130.881, recall 0.975):** this list both over- and under-reports.",
         "That is why the precision figure is printed here, beside the findings it applies to, rather than supplied on request.",
         "**Precision 0.821\u20130.881** (over-reporting \u2014 this engine lists defects that are not defects), measured 2026-08-21 on 118 built pages across 7 applications, 67 findings reviewed one by one.",
-        "- Why it is not the last word: That denominator excluded colour contrast (1.4.3) entirely \u2014 the review predates this engine's contrast rule, so the figure describes the non-contrast findings and no contrast finding has been precision-checked.",
+        "That denominator excluded colour contrast (1.4.3) entirely \u2014 the review predates this engine's contrast rule, so the figure describes the non-contrast findings and no contrast finding has been precision-checked.",
+        "And it counts 8 false positives of which the build-artifact filter now removes 7 from this record, so the list you are reading is more precise than the number says.",
+        "The number is not revised upward here, because the revision would rest on this engine's own filter rather than on a second review by hand, and overstating precision is the direction that costs you rather than us.",
         "**Recall 0.975** (under-reporting \u2014 this engine misses defects that are real), measured 2026-08-21 on the same 118 pages, compared against axe-core 4.13.0 over the 13 success criteria either engine declares automated or partial.",
         "\"accuracy_statement\": \"Both numbers below were measured on this portfolio's own built pages, not on your site, and they describe this engine rather than the audit you are buying.",
-        "\"caveat\": \"That denominator excluded colour contrast (1.4.3) entirely \\u2014 the review predates this engine's contrast rule, so the figure describes the non-contrast findings and no contrast finding has been precision-checked."
+        "That denominator excluded colour contrast (1.4.3) entirely \\u2014 the review predates this engine's contrast rule, so the figure describes the non-contrast findings and no contrast finding has been precision-checked."
       ],
       "rate_committed": {
         "path": "portfolio/research/a11y-own-sites/README.md",

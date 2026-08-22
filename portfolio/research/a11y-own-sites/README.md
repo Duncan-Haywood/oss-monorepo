@@ -3,12 +3,15 @@
 Built and measured 2026-08-21. Corpus rebuilt and re-measured 2026-08-21, same
 day, after [Finding 4](#finding-4-2026-08-21-the-adapters-never-fed-either-engine-a-stylesheet)
 found and fixed a gap that had made 1.4.3 silently absent from every number
-below it. Re-runnable, offline, no credentials:
+below it. Rebuilt from all 7 apps and re-measured again on 2026-08-22 for
+[Finding 5](#finding-5-2026-08-22-the-filter-finding-1-asked-for-built-and-measured),
+which reproduced every number here and added the build-artifact filter Finding
+1 asked for. Re-runnable, offline, no credentials:
 
 ```bash
 cd portfolio/research/a11y-own-sites
-python3 -m unittest discover                                   # 21 tests
-python3 audit_own_sites.py --recompute-from results-2026-08-21.json   # offline
+python3 -m unittest discover                                   # 26 tests
+python3 audit_own_sites.py --recompute-from results-2026-08-22.json   # offline
 # to regenerate the corpus: npm ci && npm run build in each venture, then
 python3 audit_own_sites.py --out results.json
 ```
@@ -286,6 +289,79 @@ found clean. That distinction was the same one
 `a11y-external-coverage-reference/` made for the `eaa-wcag-triage` engine's own
 coverage statement, applied here to this directory's measurement of it.
 
+## Finding 5 (2026-08-22): the filter Finding 1 asked for, built and measured
+
+Finding 1 prescribed a build-artifact filter and left it unbuilt; three files
+across `portfolio/` still recorded it as the outstanding item on this
+candidate's customer-facing record. It is now
+[`provenance.py`](../../pipeline/probes/eaa-wcag-triage/src/wcag_triage/provenance.py),
+and the corpus was rebuilt from all 7 apps to measure it rather than to argue
+for it.
+
+**It removes exactly the 7 findings Finding 1 identified and nothing else.**
+
+| | pages | findings |
+|---|---:|---:|
+| Corpus | 118 | 780 |
+| Excluded as build-tool output | **7** | **7** (all 3.1.1) |
+| — `next-error-shell` (Next 16) | 2 | 2 |
+| — `next-builtin-error-page` (Next 14/15) | 5 | 5 |
+| Pages an error-page-*by-filename* filter would also have taken | **7** | — |
+
+The last row is the measurement that matters, because it is the one a cheaper
+implementation fails silently. Every `_not-found.html` in the corpus — one per
+app, 7 of them — is the project's own page, and a filter keyed on error-page
+filenames deletes all 7 from the customer's audit and reports nothing unusual.
+
+**Two findings fell out of building it, and each refutes a plausible design.**
+
+1. **One framework emits two entirely different shells, and the first draft of
+   this filter caught 2 of 7.** Finding 1 recorded the marker as
+   `<html id="__next_error__">`, which is correct — for Next 16. This portfolio
+   runs three majors, and Next 14.2.35 and 15.5.23 instead emit a Pages Router
+   document with a bare `<html>` and Next's built-in error component in the
+   body. Implemented from Finding 1's description alone, the filter excluded
+   `local-site-studio` and `quick-pick-survey` and left the other five apps'
+   `500.html` in the record — a filter that looked finished, passed its tests,
+   and collected 2 of the 7 false positives it was written for. Only rebuilding
+   the corpus showed it. (Note what this means for [#372](https://github.com/Duncan-Haywood/monorepo-projects/pull/372),
+   the pending `next@16.3.1` upgrade: merging it moves six of these apps from
+   the second shell to the first. Both are handled, so the filter's result does
+   not change — but a single-marker filter would have silently changed
+   behaviour on a framework bump.)
+2. **The obvious marker for the second shell is in 106 of 138 documents.**
+   Next's built-in error component is identified by `next-error-h1`, and
+   grepping for that string matches almost the whole corpus, because Next
+   inlines a stylesheet naming that class into every ordinary page for the
+   client-side error boundary. As a parsed *element* it appears in 16
+   documents — and 11 of those 16 are the projects' own `404`/`_not-found`
+   pages, which render that same built-in component *inside the project's own
+   root layout*. So the component alone is not enough either. What separates
+   the 5 from the 11 is that the framework's document has **no attributes at
+   all on `<html>`** — no `lang`, no class, nothing any layout of the project's
+   put there. That conjunction is the rule, and it is why the exclusion can be
+   defended to a customer rather than merely applied to them.
+
+**What this does to the numbers Finding 1 published.** Of the 67 hand-reviewed
+findings, 55 were confirmed, 4 contested and 8 false positives; the filter
+removes 7 of the 8, all of them the framework `lang` finding, leaving the
+`display:none` control as the only false positive a reader still meets. On that
+denominator the record's precision is **0.917–0.983**, against the engine's
+0.821–0.881. **The figure printed to customers has deliberately not been raised
+to it.** The revision would rest on this engine's own filter rather than on a
+second review by hand, and precision is the number that protects the buyer:
+overstating it is the direction that costs them and pays us. The record instead
+prints the measured 0.821–0.881 and says outright that the filter makes it a
+floor rather than an estimate.
+
+**A side effect worth recording.** The corpus was rebuilt from scratch across
+all 7 apps to take this measurement, and every field of the new results file is
+identical to the committed 2026-08-21 run except the new `provenance` key —
+same 118 pages, same 780 findings, same 91/118 agreement. That independently
+confirms that [#601](https://github.com/Duncan-Haywood/monorepo-projects/pull/601)'s
+fix to the shared CSS reader moved nothing on this corpus, which was asserted
+for `a11y-contrast-decidability` and had not been checked here.
+
 ## What could not be measured here
 
 - **No render, no interaction, no assistive technology, beyond contrast.**
@@ -335,6 +411,13 @@ which sells the same audit through a different channel:
 1. The free qualification audit needs a **build-artifact filter** before it is
    shown to anyone. Without one, 12% of what a stranger reads first is
    un-actionable and the most frequent single finding is always un-actionable.
+
+   **Done, 2026-08-22: see [Finding 5](#finding-5-2026-08-22-the-filter-finding-1-asked-for-built-and-measured).**
+   It removes exactly those 7 findings and keeps the 7 project pages a
+   filename-shaped filter would have taken with them. No score moved: the
+   record's precision on the hand-reviewed denominator rises to 0.917–0.983,
+   and the figure printed to customers was deliberately left at the measured
+   0.821–0.881.
 2. The two-engine attribution divergence is not a residual. It sets the
    criterion cited on 22.9% of real pages, and the record is the product.
 
