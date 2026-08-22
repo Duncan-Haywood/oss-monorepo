@@ -60,6 +60,7 @@ turned off.
 | Autoplay with sound | 1.4.2 | blocking | `<video>`/`<audio autoplay>` without `muted` |
 | Zoom blocked | 1.4.4 | blocking | viewport meta sets `user-scalable=no` or `maximum-scale` < 2 |
 | Text contrast | 1.4.3 | blocking | text resolves below 3:1 against its background |
+| Use of colour | 1.4.1 | blocking | a link in body text has `text-decoration: none` and a decidably different colour from its surroundings |
 | Page title | 2.4.2 | degrading | no non-empty `<title>` |
 | Heading order | 2.4.6 | degrading | a heading level is skipped (h1 → h3) |
 | Data-table headers | 1.3.1 | degrading | a multi-row data table has no `<th>` |
@@ -104,10 +105,12 @@ that ship disabled or experimental, so the claim that an independent engine
 automates them was never true of a default run. Those three stay
 `unimplemented`, and their catalog rows now give the measured reason instead.
 
-The genuine remaining gap is **1.4.1 Use of Color** — axe reports it by
-default, it fires once on this portfolio's own pages, and no rule here looks
-for it yet. It is named as such in `COVERAGE` rather than grouped with the
-three that are not gaps.
+The genuine remaining gap was **1.4.1 Use of Color** — axe reports it by
+default, it fired once on this portfolio's own pages when this catalog was
+written, and no rule here looked for it yet. It is named as such in
+`COVERAGE` rather than grouped with the three that are not gaps, and it
+closed in a later pass the same day — see
+["Use of Color: added 2026-08-22"](#use-of-color-added-2026-08-22) below.
 
 **3.1.1 was downgraded in the same pass, from `automated` to `partial`.** The
 only rule behind it checked that `<html lang>` *existed*; nothing checked that
@@ -155,6 +158,84 @@ out-of-sample positive control there; see that directory's Finding 4 for the
 full table. The honest reading is unchanged — the delivered pages themselves
 still carry zero findings for all four — but it is no longer an unexercised
 zero.
+
+## Use of Color: added 2026-08-22
+
+The fifth of the eight criteria `a11y-external-coverage-reference` disclosed,
+and the only one of the eight the reference itself named as a genuine gap
+rather than a rule that was never going to exist — see the note above. Closed
+by [`rule_use_of_color`](src/wcag_triage/rules.py), in the same pass that
+added the four other rules but written and tested separately because it needed
+new machinery: the contrast module can name one element's colour, but
+answering 1.4.1 means comparing *two* elements' colours, which no existing
+rule did.
+
+**What fires.** A link inside body text — one with at least a few characters
+of non-link text beside it, so a standalone nav item, card, or CTA is not in
+scope — whose own `text-decoration` (or `-line`) is explicitly `none`, and
+whose resolved text colour decidably differs from the surrounding text's, in
+at least one colour scheme the page ships.
+
+**Every gate is a refusal to guess, not a threshold to tune:**
+
+- **No declaration at all is not "no underline."** The user-agent default for
+  a naked `<a>` is underlined, so only a literal `none` counts as removing it.
+  A page that never mentions `text-decoration` is *not* flagged — the finding
+  needs positive evidence the decoration was taken away, the same standard
+  every other rule in this module holds itself to.
+- **`inherit`, a hover-only rule, and an unresolved `var()` are all
+  undecidable, not resolved.** `text-decoration` is not an inherited
+  property, so `inherit` needs the same ancestor walk colour gets and this
+  function does not attempt it — a Tailwind reset writing
+  `a { text-decoration: inherit }` is common, and guessing "none" from it
+  would be exactly the false positive this probe exists to avoid. A
+  `:hover`-scoped rule is invisible to `css.py`'s single-class reader by
+  design (see its module docstring), so `hover:underline`-only markup reads as
+  "nothing declared," not as decorated.
+- **Colour is checked per scheme, independently of decoration.** A page can
+  read the same in light and dark mode and diverge only in one — the same
+  asymmetry 1.4.3 measured on this portfolio's own pages (260 dark-mode-only
+  failures a single-scheme pass would have missed) — so this rule evaluates
+  `contrast.SCHEMES` separately and names which scheme(s) it decided the
+  finding in, rather than picking one.
+
+**What this deliberately does not attempt**, and why each is a false negative
+rather than a false positive: a link distinguished by bold weight,
+letter-spacing, or a border instead of an underline (only `text-decoration` is
+read); a decoration painted by an ancestor and shown through a descendant's
+text by the browser's own layout, which is a rendering mechanism distinct from
+CSS inheritance; and any decoration gated on `:hover` or `:focus`, since a
+static pass cannot observe interaction state. Every one under-reports, which
+is the direction this probe commits to everywhere else, including 1.4.1's
+`COVERAGE` row, downgraded from `unimplemented` to `partial` rather than
+`automated` for exactly these reasons.
+
+**Measured out of sample against one rendered corpus, not yet against the
+118-page build corpus.** The four siblings this rule joined were run against
+`a11y-own-sites`'s 118 built pages the same day they were written, and it
+changed one of them (`rule_bypass_blocks` gained its content-gate from that
+run) — this rule was not, in that same pass: exercising it needed a rebuild of
+all 7 apps' `npm run build` output, which that pass did not do. A narrower
+version of that gap closed the same day, in
+[`a11y-generated-sites`](../../../research/a11y-generated-sites/), which
+renders `local-site-studio`'s delivered pages through the real component
+tree and already had a build of that one venture available. Its positive
+control gained a mutation for 1.4.1 and the rule fires 14/14 — but as an
+**injection**, not a removal: the corpus's one real underlined body-text link
+(`/docs/product-bundles`) carries no colour override of its own, so there was
+no real colour-only link to remove, which is itself a small honest finding
+about that page rather than a weaker test of the rule. See that directory's
+Finding 5 for the full account, including why a removal mutation was not
+possible here.
+
+That still leaves the wider question the four siblings answered for
+themselves: whether the rule holds up against the 118-page build corpus
+(different pages, different content, seven ventures rather than one), which
+still needs the same full 7-app rebuild this pass continued not to do. The
+fixture and unit-test coverage is real, and one genuine rendered page is now
+real evidence too, but both remain markup written or selected to exercise the
+rule rather than a broad, arbitrary sample — a rebuilt 118-page corpus run is
+still the next thing that would settle it more widely.
 
 ## The build-artifact filter: added 2026-08-22
 
@@ -284,12 +365,14 @@ issues the generated fixes actually close under AT verification"* — is the rea
 measurement, and it needs three live shop themes and a contractor, neither of
 which an agent session has. This probe closes the smaller, prior question:
 whether the blocking/degrading triage the candidate sells can be produced
-mechanically at all. It can, and the coverage split it produces (11 criteria
-reasoned about, 9 named criteria explicitly deferred to a human) is itself the
-first concrete instance of the "quarter to a third" gap the candidate asserts.
-That split moved on 2026-08-21, when 1.4.3 crossed from deferred to partial —
-the only criterion that has ever crossed, and it crossed because the corpus
-changed, not because the rules got cleverer.
+mechanically at all. It can, and the coverage split it produces (16 criteria
+reasoned about, 9 named criteria explicitly deferred to a human, 3 disclosed
+as decidable but not yet built) is itself the first concrete instance of the
+"quarter to a third" gap the candidate asserts. The split has moved twice
+since it was first drawn: on 2026-08-21, when 1.4.3 crossed from deferred to
+partial because the corpus changed, not because the rules got cleverer; and
+on 2026-08-22, when four criteria a prior pass had disclosed as
+`unimplemented` — including 1.4.1 — became rules.
 
 ## Run it
 
@@ -317,7 +400,7 @@ Run in CI by [`eaa-wcag-triage-ci.yml`](../../../../.github/workflows/eaa-wcag-t
 which also re-runs `run_fixture_validation.py` and fails if the committed
 record no longer matches what the engine emits.
 
-189 tests: parser behaviour, each rule and its negative control, the
+206 tests: parser behaviour, each rule and its negative control, the
 blocking-before-degrading ordering, dedup of one element matched by two rules,
 the evidence record's JSON/markdown shape and its compliance disclaimer, the
 fixture validation, and — added 2026-08-21 — the two rules this engine was
@@ -330,7 +413,12 @@ its own coverage statement. Added 2026-08-21: `colors.py` (colour syntax
 against published WCAG ratios, the `lab()` conversion against a real build's own
 hex fallbacks, gradient bounds), `css.py` (every selector shape it refuses, the
 colour-scheme split), and `contrast.py` (one test per named undecidable reason,
-plus the specificity case that shipped a wrong answer on a real page).
+plus the specificity case that shipped a wrong answer on a real page). Added
+2026-08-22, for `rule_use_of_color`: every named undecidable reason
+`decoration_line()` can return (no declaration, `inherit`, an unresolved
+`var()`, a `:hover`-only rule, a scheme-conditional override resolved on both
+sides), the surrounding-text gate, and the dark-mode-only case named in its
+own message.
 
 ## Scope and honesty, in one place
 

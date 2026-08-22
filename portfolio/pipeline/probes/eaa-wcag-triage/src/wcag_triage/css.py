@@ -46,6 +46,14 @@ TRACKED_PROPERTIES = frozenset(
         "font-size",
         "font-weight",
         "opacity",
+        # Added for SC 1.4.1 (Use of Color) — see
+        # ``wcag_triage.contrast.decoration_line``. Kept to the two properties
+        # that can state "no underline" outright; a shorthand or longhand
+        # naming any other sub-property (``text-decoration-color``,
+        # ``-style``, ``-thickness``) is not read, because none of them
+        # decides whether a line is present at all.
+        "text-decoration",
+        "text-decoration-line",
     }
 )
 

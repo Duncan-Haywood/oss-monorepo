@@ -32,12 +32,15 @@ WRAPPER = '<html lang="en"><head><title>t</title>{head}</head><body>{body}</body
 AS_FOUND_GAPS = ["1.2.1", "1.3.4", "1.4.1", "2.2.1",
                  "2.2.2", "2.4.1", "2.5.3", "3.1.2"]
 
-# 2026-08-22: four of the eight became rules in `eaa-wcag-triage`. The split is
-# not "the easy ones" -- it is the four a *default* `axe.run()` actually
-# reports as violations, established by running axe rather than by reading its
-# rule list. See Finding 5 and `AXE_DEFAULT_RUN_VERDICTS` below.
-IMPLEMENTED = ["2.2.1", "2.2.2", "2.4.1", "3.1.2"]
-STILL_UNIMPLEMENTED = ["1.2.1", "1.3.4", "1.4.1", "2.5.3"]
+# 2026-08-22: four of the eight became rules in `eaa-wcag-triage` in a first
+# pass, chosen as the four a *default* `axe.run()` actually reports as
+# violations, established by running axe rather than by reading its rule list.
+# 1.4.1 -- named at the time as the one genuine remaining gap, since it too is
+# a default-run violation -- closed in a second pass the same day. See
+# Finding 5, that probe's "Use of Color" section, and `AXE_DEFAULT_RUN_VERDICTS`
+# below.
+IMPLEMENTED = ["1.4.1", "2.2.1", "2.2.2", "2.4.1", "3.1.2"]
+STILL_UNIMPLEMENTED = ["1.2.1", "1.3.4", "2.5.3"]
 
 # What axe-core 4.13.0 does with each fixture below, measured on 2026-08-22 by
 # running it in Chromium (see `a11y-axe-recall/` for the harness). Recorded as
@@ -66,7 +69,15 @@ DEFECTS = {
     "1.2.1": ("", '<audio controls src="a.mp3"></audio>'),
     "1.3.4": ("<style>@media(orientation:portrait){html{transform:rotate(90deg)}}</style>",
               "<p>x</p>"),
-    "1.4.1": ("", '<p>See <a href="/x" style="color:blue;text-decoration:none">this</a>.</p>'),
+    # eaa-wcag-triage's rule requires a *decidable* colour on both the link
+    # and the text around it -- it will not assume a browser's default black
+    # for an element with no declared colour at all (the same refusal 1.4.3
+    # makes). The original fixture left the <p> undeclared and this rule
+    # correctly stayed silent on it; the explicit colour below is what a real
+    # page almost always has (from its own reset) and is what axe itself
+    # never needed declared to flag the fixture.
+    "1.4.1": ("", '<p style="color:#333">See '
+                  '<a href="/x" style="color:blue;text-decoration:none">this</a>.</p>'),
     "2.2.1": ('<meta http-equiv="refresh" content="5">', "<p>x</p>"),
     "2.2.2": ("", "<marquee>Sale!</marquee><blink>now</blink>"),
     # Corrected 2026-08-22. The original fixture here was
@@ -274,20 +285,17 @@ class TestGapsAreReal(unittest.TestCase):
                 self.assertIn(criterion, found)
 
     def test_the_split_follows_what_a_default_axe_run_reports(self):
-        # Why these four and not the other four. Every criterion implemented
-        # is one axe reports by default; every one left is one it does not.
+        # Why these five and not the other three: every criterion implemented
+        # is one axe reports by default; every one left rests on an axe rule
+        # that ships disabled or experimental, so a default run never reaches
+        # it. 1.4.1 belongs on the "violation" side of this split like the
+        # other four -- it was simply the last of the five to get a rule.
         for criterion in IMPLEMENTED:
             self.assertEqual(AXE_DEFAULT_RUN_VERDICTS[criterion], "violation",
                              criterion)
         for criterion in STILL_UNIMPLEMENTED:
-            if criterion == "1.4.1":
-                # The one genuine remaining gap: axe does report it, and no
-                # rule here looks yet. Named rather than quietly grouped with
-                # the three that rest on rules axe does not run.
-                self.assertEqual(AXE_DEFAULT_RUN_VERDICTS[criterion], "violation")
-            else:
-                self.assertEqual(AXE_DEFAULT_RUN_VERDICTS[criterion], "off",
-                                 criterion)
+            self.assertEqual(AXE_DEFAULT_RUN_VERDICTS[criterion], "off",
+                             criterion)
 
     def test_criteria_axe_does_not_run_by_default_are_marked_in_the_catalog(self):
         # The catalog half of the same fact, derived from the committed

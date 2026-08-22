@@ -207,3 +207,28 @@ matching how `a11y-own-sites/` keeps a single current file.
 **Still no engine change from this directory.** The four rules were written in
 the probe, against the coverage catalog, and this module re-measured them; it
 did not author them.
+
+## 2026-08-22, later the same day — 1.4.1 became a rule too, unmeasured here
+
+`eaa-wcag-triage` gained `rule_use_of_color` for SC 1.4.1 in a second pass —
+see that probe's README. `measure.checked_criteria()` now includes 1.4.1, and
+`CheckedCriteria`'s tests were updated to match: the assertion that 1.4.1 is
+*not* checked, quoted above as "the sharpest open item," is no longer true of
+the code and had to be removed rather than left to rot.
+
+**What did not happen: a re-run.** `results-2026-08-22.json` is untouched, and
+its own `checked_criteria` is still the 17-item universe from before this
+rule existed — it does not include 1.4.1, and this file's `SavedResults` tests
+were deliberately left asserting exactly that frozen snapshot. Producing a
+real answer needs the same thing the first re-run above needed: the actual
+built corpus and a live axe-core pass, neither of which this offline session
+had. So the one fact this directory exists to establish — whether
+`rule_use_of_color` actually catches the real instance on
+`photo-editing/docs-site/index.html` axe already found — is still unknown.
+Widening the claim without measuring it is exactly the gap Finding 0 named for
+the stylesheet bug: a claim is not evidence until it is run.
+
+The next re-run should rebuild the corpus, re-run `measure.py`, and report
+whether the checked-criteria universe holds at 39/40 = 0.975 or moves either
+way — the same three questions the 2.2.1/2.2.2/2.4.1/3.1.2 pass above already
+answered for its four criteria, still open for this fifth one.

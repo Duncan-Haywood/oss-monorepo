@@ -223,6 +223,25 @@ MUTATIONS: tuple = (
                                  re.sub(r"<h([1-6])\b", r"<div data-was-h\1",
                                         re.sub(r"</main>", "</div>",
                                                re.sub(r"<main\b", "<div", html)))))),
+    # Added 2026-08-22, alongside `rule_use_of_color` -- the fifth and last of
+    # the criteria `a11y-external-coverage-reference` disclosed as
+    # `unimplemented`, closed in a second pass the same day the four above
+    # were closed. Injection, not removal: this corpus's one real body-text
+    # link with an underline (`/docs/product-bundles`, "See <a>project
+    # documentation</a> for implementation plans.") carries no colour class of
+    # its own at all -- stripping its `underline` class leaves it the same
+    # colour as its surroundings, because it always was, so there is nothing
+    # for a removal mutation here to reach. That is itself worth recording:
+    # the one real underlined body link in this corpus is not colour-only
+    # even potentially, because it never overrides colour. The injected
+    # snippet is the minimal positive case the rule is built to catch --
+    # `wcag_triage.contrast.decoration_line` requires a literal `none`, which
+    # only an injected inline style can supply here.
+    ("1.4.1", "injection", "add a <p> with a link styled colour-only (no underline)",
+     _sub(r"<body([^>]*)>",
+          r'<body\1><p style="color:#333">See '
+          r'<a href="/x" style="color:#06c;text-decoration:none">'
+          r"our documentation</a> for details.</p>")),
 )
 
 

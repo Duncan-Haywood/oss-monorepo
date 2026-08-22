@@ -231,6 +231,23 @@ class SavedResults(unittest.TestCase):
                 self.assertEqual(row["audit_py_cites"], {})
                 self.assertTrue(probe_cites)
 
+    def test_use_of_color_fires_on_the_real_corpus_via_injection(self):
+        """The fifth criterion `a11y-external-coverage-reference` disclosed as
+        `unimplemented`, closed after the four above in a second pass the same
+        day. Injection, not removal, and that is itself a finding: this
+        corpus's one real underlined body-text link
+        (`/docs/product-bundles`) carries no colour override at all, so
+        stripping its underline leaves it the same colour as its
+        surroundings -- there is no real colour-only link here for a removal
+        mutation to reach. `audit.py` has no rule for 1.4.1 either, so this
+        is the same disclosed asymmetry as the four above, not a fresh gap.
+        """
+        row = next(r for r in self.data["control"] if r["criterion"] == "1.4.1")
+        self.assertEqual(row["kind"], "injection")
+        self.assertTrue(row["exercised"])
+        self.assertEqual(row["probe_fired"], row["pages_changed"])
+        self.assertEqual(row["audit_py_cites"], {})
+
     def test_the_frame_control_is_recorded(self):
         """The row that caught the detection gap. Before the rule added to
         `eaa-wcag-triage` in this pass, this row read probe 0 / audit.py 14."""

@@ -481,3 +481,88 @@ def test_script_text_does_not_count_as_content():
 def test_aria_hidden_text_does_not_count_as_content():
     hidden = '<div aria-hidden="true"><p>' + ("z " * 200) + "</p></div>"
     assert "2.4.1" not in _page(body=NAV + hidden)
+
+
+# SC 1.4.1 — use of colour, implemented 2026-08-22
+
+def test_link_with_no_underline_and_different_colour_is_flagged():
+    body = (
+        '<p style="color:#333">Read our '
+        '<a href="/terms" style="color:#06c;text-decoration:none">terms</a>'
+        " before continuing.</p>"
+    )
+    assert "1.4.1" in _page(body=body)
+
+
+def test_link_with_no_decoration_declared_at_all_is_not_flagged():
+    # No text-decoration declared: this is the ordinary case (a naked <a> is
+    # underlined by every browser's UA stylesheet, so most real markup never
+    # says so explicitly), and it is *not* positive evidence of a removed
+    # underline -- decoration_line() reports it undecidable, and this rule
+    # only fires on a decided "none".
+    body = (
+        '<p style="color:#333">Read our '
+        '<a href="/terms" style="color:#06c">terms</a>'
+        " before continuing.</p>"
+    )
+    assert "1.4.1" not in _page(body=body)
+
+
+def test_same_colour_link_without_underline_is_not_flagged():
+    # Nothing distinguishes it from the surrounding text at all -- not this
+    # criterion's business, and there is nothing to say about *how* it fails.
+    body = (
+        '<p style="color:#333">Read our '
+        '<a href="/terms" style="color:#333;text-decoration:none">terms</a>'
+        " before continuing.</p>"
+    )
+    assert "1.4.1" not in _page(body=body)
+
+
+def test_standalone_link_with_no_surrounding_text_is_not_flagged():
+    body = '<div style="color:#333"><a href="/terms" style="color:#06c;text-decoration:none">Terms</a></div>'
+    assert "1.4.1" not in _page(body=body)
+
+
+def test_inherited_decoration_is_undecidable_not_flagged():
+    body = (
+        '<p style="color:#333">Read our '
+        '<a href="/terms" style="color:#06c;text-decoration:inherit">terms</a>'
+        " before continuing.</p>"
+    )
+    assert "1.4.1" not in _page(body=body)
+
+
+def test_unresolvable_colour_is_undecidable_not_flagged():
+    body = (
+        '<p>Read our '
+        '<a href="/terms" style="color:var(--link);text-decoration:none">terms</a>'
+        " before continuing.</p>"
+    )
+    assert "1.4.1" not in _page(body=body)
+
+
+def test_use_of_color_finding_is_blocking():
+    body = (
+        '<p style="color:#333">Read our '
+        '<a href="/terms" style="color:#06c;text-decoration:none">terms</a>'
+        " before continuing.</p>"
+    )
+    findings = audit_html(PAGE.format(head="", body=body)).findings
+    assert [f.impact for f in findings if f.criterion == "1.4.1"] == ["blocking"]
+
+
+def test_dark_mode_only_colour_difference_is_flagged_and_named():
+    css = (
+        "<style>"
+        ".t{color:#333}"
+        ".l{color:#333;text-decoration:none}"
+        "@media (prefers-color-scheme: dark){.t{color:#eee}.l{color:#06c}}"
+        "</style>"
+    )
+    body = '<p class="t">Read our <a href="/terms" class="l">terms</a> today.</p>'
+    findings = audit_html(PAGE.format(head=css, body=body)).findings
+    use_of_color = [f for f in findings if f.criterion == "1.4.1"]
+    assert len(use_of_color) == 1
+    assert "dark mode" in use_of_color[0].message
+    assert "light mode" not in use_of_color[0].message

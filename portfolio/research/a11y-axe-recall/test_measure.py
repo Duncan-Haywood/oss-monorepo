@@ -45,11 +45,11 @@ class CheckedCriteria(unittest.TestCase):
         self.assertIn("1.4.3", checked)
         # A criterion either engine declines as manual/unimplemented is not
         # "checked", even if axe-core automates it (a11y-external-coverage-reference).
-        # 1.4.1 is the example because it is the sharp case: axe-core reports
-        # it by default, it fires once on this very corpus
-        # (photo-editing/docs-site), and no rule in either engine looks for
-        # it. 2.4.1 stood here until 2026-08-22, when it became a rule.
-        self.assertNotIn("1.4.1", checked)
+        # 2.5.3 is the example now: axe-core has a rule for it, but that rule
+        # is experimental and off by default, so "an independent engine
+        # automates this" does not hold as measured, and no in-house rule
+        # exists either. 2.4.1 stood here until 2026-08-22's first pass, and
+        # 1.4.1 stood here until 2026-08-22's second pass -- see below.
         self.assertNotIn("2.5.3", checked)
 
     def test_the_four_criteria_implemented_on_2026_08_22_are_now_in_scope(self):
@@ -59,6 +59,24 @@ class CheckedCriteria(unittest.TestCase):
         checked = measure.checked_criteria()
         for criterion in ("2.2.1", "2.2.2", "2.4.1", "3.1.2"):
             self.assertIn(criterion, checked, criterion)
+
+    def test_use_of_color_implemented_2026_08_22_is_now_in_scope_too(self):
+        # The fifth criterion, and the one this module's own comment named as
+        # the sharp case: axe-core reports it by default, it fired once on
+        # this corpus (photo-editing/docs-site), and until rule_use_of_color
+        # existed neither in-house engine looked for it. It is now checked
+        # here the same way the other four are -- but the *recall* numbers in
+        # `SavedResults` below still reflect the run before this rule existed
+        # (results-2026-08-22.json is a frozen ground-truth snapshot from a
+        # real axe-core + browser pass over the built corpus, which this
+        # offline test suite has no way to redo). That snapshot's own
+        # `checked_criteria` list is 17 long and does not include 1.4.1 --
+        # deliberately not touched here. Re-running measure.py against a
+        # rebuilt corpus is the one thing that would settle whether the new
+        # rule actually catches the real instance; see eaa-wcag-triage's
+        # README for why this pass did not do that.
+        checked = measure.checked_criteria()
+        self.assertIn("1.4.1", checked)
 
 
 class StylesheetMatters(unittest.TestCase):

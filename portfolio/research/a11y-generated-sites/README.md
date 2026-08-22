@@ -208,6 +208,49 @@ disclosed asymmetry the probe's README describes. Pinned in
 later added to `audit.py` for one of these shows up as a numbers change here,
 not a surprise.
 
+## Finding 5 — the fifth new rule found no real defect to remove, which is itself the finding
+
+Added 2026-08-22, later the same day as Finding 4.
+[`eaa-wcag-triage`](../../pipeline/probes/eaa-wcag-triage/) closed the last of
+the eight criteria `a11y-external-coverage-reference` disclosed —
+**1.4.1 Use of Color** — with `rule_use_of_color`, which flags a link inside
+body text whose `text-decoration` is explicitly `none` and whose colour
+decidably differs from the text around it.
+
+Every mutation in Finding 4's table could be a removal, because this corpus
+already carries the markup each criterion needs (a navigation block, a
+heading, an in-page link). This one could not be. The delivered pages have
+exactly one real body-text link with an underline —
+`/docs/product-bundles`, in "See *project documentation* for implementation
+plans." on the generic demo — and checking it directly (`decoration_line` and
+`foreground_color` against the built stylesheet) shows why a removal mutation
+here would be a no-op: the link carries no colour class of its own at all, so
+stripping its `underline` class leaves it exactly the same colour as its
+surrounding text, because it always was. There is no real colour-only link in
+this corpus for a removal mutation to reach.
+
+That is worth recording on its own, separate from what the control could
+prove: the one place this corpus uses an underline, it is not standing in for
+a colour distinction that would survive its removal. A finding a stripped
+mutation cannot produce is not evidence the criterion is safe here — it is
+evidence this corpus's one candidate does not happen to combine both defects
+at once, which is a narrower and more honest claim.
+
+| Criterion | Kind | Mutation | Result |
+|---|---|---|---|
+| 1.4.1 | **injection** | add a `<p>` with a link styled colour-only (`color:#06c;text-decoration:none`) against differently-coloured surrounding text | caught 14/14 |
+
+Injection only proves the rule works, not that these delivered pages carry the
+defect — same caveat Finding 1 gives every injected row. `audit.py` finds
+nothing here either, the same disclosed asymmetry as the four criteria in
+Finding 4, not a fresh gap: it declares no rule for 1.4.1 in its own
+`COVERAGE` table. Pinned in
+`test_use_of_color_fires_on_the_real_corpus_via_injection`.
+
+The delivered-page result for 1.4.1 is **0 findings**, on a corpus verified
+capable of exercising the criterion under injection, with the removal path's
+absence itself recorded rather than silently skipped.
+
 ## What could not be measured here
 
 - **Pre-hydration output only.** `renderToStaticMarkup` is what the server
