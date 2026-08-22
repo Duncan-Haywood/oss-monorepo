@@ -788,6 +788,27 @@ def rule_bypass_blocks(root: Node, label_targets: set):
     )
 
 
+# How much non-link text must surround a link for 1.4.1 to consider it "body
+# text" rather than a standalone link (a nav item, a card, a button). Set low
+# on purpose: the rule already requires an *explicit* text-decoration:none and
+# a *decided* colour difference before this gate is even reached, so it exists
+# only to rule out links with nothing beside them to be distinguished from,
+# not to add a second layer of judgement about how much text counts.
+# SC 1.4.1's rule does not live here. It needs the resolved stylesheet and a
+# comparison between two elements' colours, which is a different shape from
+# every rule above, so it is `wcag_triage.usecolor` and the engine calls
+# `rule_link_color_only` with its results the way it calls
+# `rule_text_contrast` with the 1.4.3 ones.
+#
+# Two implementations of this criterion landed within an hour of each other on
+# 2026-08-22 (#621 and #622, independent scheduled sessions). This is the
+# consolidation: the merged one's per-element `contrast.decoration_line` and
+# `contrast.foreground_color` helpers and its per-scheme naming are kept, and
+# its rule body is replaced by the one whose out-of-sample result matches the
+# reference engine node for node. See the probe README's "Two sessions, one
+# criterion" section for the measurement that decided it.
+
+
 def rule_text_contrast(results):
     """SC 1.4.3, for the elements whose colours the artifact actually states.
 
@@ -854,11 +875,17 @@ def rule_link_color_only(results):
             )
         else:
             measured = "is exactly the colour of the text around it"
+        # Naming the scheme matters for the repair, not just the report: a
+        # barrier present in one scheme only is a fix in that scheme's
+        # declarations, and a reader told "this page fails" would check the
+        # wrong one first.
+        where = (" in " + " and ".join(f"{scheme} mode" for scheme in result.schemes)
+                 if len(result.schemes) == 1 else "")
         yield Finding(
             "1.4.1", "Use of Color", "A", BLOCKING, "a", node.line,
-            f"The link {measured} and carries no underline, border, weight or "
-            "background of its own, so colour is the only thing marking it as "
-            "a link.",
+            f"The link {measured}{where} and carries no underline, border, "
+            "weight or background of its own, so colour is the only thing "
+            "marking it as a link.",
             "Underline links in body text, or mark them some other way that "
             "does not depend on colour; a colour difference alone has to reach "
             f"{usecolor.LINK_TEXT_RATIO}:1 against the surrounding text.",

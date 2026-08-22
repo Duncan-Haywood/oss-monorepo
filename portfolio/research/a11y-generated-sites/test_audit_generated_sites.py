@@ -274,6 +274,39 @@ class SavedResults(unittest.TestCase):
                 self.assertEqual(row["audit_py_cites"], {})
                 self.assertTrue(probe_cites)
 
+    def test_use_of_color_has_both_a_removal_and_an_injection_control(self):
+        """The fifth criterion, and the only one here with two controls.
+
+        The pass that wrote the injection concluded a removal was impossible:
+        this corpus's one real body-text link (`/docs/product-bundles`)
+        carries no colour override, "so stripping its underline leaves it the
+        same colour as its surroundings -- there is nothing for a removal
+        mutation to reach." The observation is right; the conclusion is not. A
+        link the same colour as its prose with the underline taken away is the
+        *worst* case of this criterion, and stripping that class is now the
+        strongest control in this table: it puts the defect into markup the
+        customer's page actually renders, rather than adding markup no page
+        has.
+
+        Both are asserted, because they test different halves — an identical
+        colour with an inherited decoration, and a differing colour under 3:1
+        with a literal `none`. `audit.py` has no rule for 1.4.1 either way, so
+        both rows show the same disclosed asymmetry as the four above rather
+        than a fresh gap.
+        """
+        rows = {r["kind"]: r for r in self.data["control"] if r["criterion"] == "1.4.1"}
+        self.assertEqual(sorted(rows), ["injection", "removal"])
+        for kind, row in rows.items():
+            with self.subTest(kind=kind):
+                self.assertTrue(row["exercised"])
+                self.assertEqual(row["probe_fired"], row["pages_changed"])
+                self.assertEqual(row["audit_py_cites"], {})
+        # The removal reaches only the pages that have a link inside prose;
+        # the injection reaches every page. A row that quietly stopped
+        # reaching anything would still satisfy the equality above.
+        self.assertEqual(rows["removal"]["pages_changed"], 4)
+        self.assertEqual(rows["injection"]["pages_changed"], 14)
+
     def test_the_frame_control_is_recorded(self):
         """The row that caught the detection gap. Before the rule added to
         `eaa-wcag-triage` in this pass, this row read probe 0 / audit.py 14."""

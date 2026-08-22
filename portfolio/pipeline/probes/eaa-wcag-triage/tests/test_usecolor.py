@@ -282,7 +282,31 @@ def test_links_in_text_reports_the_prose_that_surrounds_a_link():
 
 def test_worst_of_prefers_a_decided_failure_over_an_undecidable_scheme():
     results = [
-        usecolor.LinkResult(verdict=usecolor.UNDECIDABLE, reason="translucent-text"),
-        usecolor.LinkResult(verdict=usecolor.FAIL, ratio=1.2),
+        ("light", usecolor.LinkResult(verdict=usecolor.UNDECIDABLE, reason="translucent-text")),
+        ("dark", usecolor.LinkResult(verdict=usecolor.FAIL, ratio=1.2)),
     ]
-    assert usecolor.worst_of(results).verdict == usecolor.FAIL
+    combined = usecolor.worst_of(results)
+    assert combined.verdict == usecolor.FAIL
+    assert combined.schemes == ("dark",)
+
+
+def test_a_failure_in_one_scheme_only_names_that_scheme():
+    html = _page(
+        "a{text-decoration:inherit}.link{color:#c00000}.body{color:#eeeeee}"
+        "@media (prefers-color-scheme: dark){.body{color:#c81212}}",
+        f'<p class="body">{PROSE}See <a class="link" href="/x">terms</a>.</p>',
+    )
+    findings = _findings(html)
+    assert len(findings) == 1
+    assert "in dark mode" in findings[0].message
+
+
+def test_a_failure_in_both_schemes_names_neither():
+    # Nothing to disambiguate: the barrier is simply on the page.
+    html = _page(
+        "a{text-decoration:inherit}.link{color:#38bdf8}.body{color:#e8edf7}",
+        f'<p class="body">{PROSE}See <a class="link" href="/x">terms</a>.</p>',
+    )
+    findings = _findings(html)
+    assert len(findings) == 1
+    assert "mode" not in findings[0].message

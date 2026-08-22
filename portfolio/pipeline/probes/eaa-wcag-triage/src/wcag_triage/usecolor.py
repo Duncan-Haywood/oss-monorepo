@@ -51,7 +51,7 @@ in a document that has not opted into a dark colour scheme, which
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Optional
 
 from . import contrast
@@ -168,6 +168,11 @@ class LinkResult:
     link_color: Optional[str] = None
     text_color: Optional[str] = None
     distinguisher: str = ""
+    # Which colour scheme(s) this verdict was reached in. A page delivered in
+    # both owes the criterion in both, and a barrier that exists only in one
+    # is a different repair from one that exists in both — so the finding says
+    # which, rather than leaving the reader to check the other scheme by hand.
+    schemes: tuple = ()
 
     @property
     def decided(self) -> bool:
@@ -314,11 +319,10 @@ def links_in_text(root: Node, sheet: Optional[Stylesheet] = None) -> list:
 def _decorated(sheet: Stylesheet, node: Node, scheme: str) -> Optional[bool]:
     """Whether this link renders with a text decoration. ``None`` if unknown.
 
-    ``text-decoration`` is not an inherited property, but it *propagates* to
-    descendants visually, and a reset that writes ``a { text-decoration:
-    inherit }`` — which is what Tailwind's preflight does, and the single
-    commonest reason a modern page fails this criterion — asks explicitly for
-    the parent's value. Both cases are the same walk up the tree.
+    :func:`wcag_triage.contrast.decoration_line` answers this for one element's
+    own declarations; the question here is what is *in force*, which is that
+    answer plus two rules the per-element function deliberately leaves to its
+    caller.
 
     **Where the UA default applies is the whole question**, and getting it
     wrong is silent in the direction that hurts. The underline a browser gives
@@ -340,33 +344,22 @@ def _decorated(sheet: Stylesheet, node: Node, scheme: str) -> Optional[bool]:
     """
     chain = [node] + list(node.ancestors())
     for index, current in enumerate(chain):
-        declaration = None
-        for prop in ("text-decoration-line", "text-decoration"):
-            found = contrast._declared_ranked(sheet, current, prop, scheme)
-            if found is None:
-                continue
-            if declaration is None or found.weight >= declaration.weight:
-                declaration = found
-        if declaration is None:
-            if index == 0:
-                # Nothing in the page touches the link's own decoration, so the
-                # UA stylesheet still applies and it is underlined.
-                return True
-            continue  # an ancestor that says nothing inherits from further up
-        if declaration.value is None:
-            return None  # declared only inside a condition the file leaves open
-        value = declaration.value.strip().lower()
-        if any(mark in value for mark in _DECORATION_MARKS):
-            return True
-        if value in _UA_DECORATION:
+        decorated, reason = contrast.decoration_line(sheet, current, scheme)
+        if decorated is not None:
+            return decorated
+        if reason == "inherited-decoration":
+            continue  # the parent's value is this element's value
+        if reason == "ua-decoration":
             # `revert` hands the element back to the UA stylesheet, which
             # underlines a link and decorates nothing else.
             return current.tag == "a"
-        if value in _NO_DECORATION:
-            return False
-        if value in _INHERITED_DECORATION:
-            continue  # the parent's value is this element's value
-        return None  # something this reader does not understand
+        if reason == "no-declared-decoration":
+            if index == 0:
+                # Nothing in the page touches the link's own decoration, so
+                # the UA stylesheet still applies and it is underlined.
+                return True
+            continue  # an ancestor that says nothing inherits from further up
+        return None  # conditional or unresolvable — refuse rather than guess
     # The chain ended in inheritance with nothing declared above it: the value
     # is `text-decoration`'s initial one, which is no decoration at all. The UA
     # rule that would have underlined the link was overridden by whichever
@@ -520,17 +513,21 @@ def worst_of(results: list) -> LinkResult:
     Same rule :func:`wcag_triage.contrast.worst_of` follows, and for the same
     reason: a page delivered in two colour schemes owes the criterion in both,
     and a link that is bare prose in dark mode is a barrier however it looks in
-    light mode.
+    light mode. The schemes a failure was reached in are carried on the result,
+    so the finding can name them.
     """
     if not results:
         return _undecidable("unresolvable-link-color")
-    failures = [r for r in results if r.verdict == FAIL]
+    failures = [(scheme, r) for scheme, r in results if r.verdict == FAIL]
     if failures:
-        return min(failures, key=lambda r: (r.ratio if r.ratio is not None else 1.0))
-    unknown = [r for r in results if r.verdict == UNDECIDABLE]
+        scheme, worst = min(
+            failures, key=lambda pair: (pair[1].ratio if pair[1].ratio is not None else 1.0)
+        )
+        return replace(worst, schemes=tuple(s for s, _ in failures))
+    unknown = [r for _, r in results if r.verdict == UNDECIDABLE]
     if unknown:
         return unknown[0]
-    return results[0]
+    return results[0][1]
 
 
 def evaluate_document(
@@ -546,7 +543,7 @@ def evaluate_document(
                 link,
                 worst_of(
                     [
-                        evaluate_link(sheet, link, block, surrounding, scheme, dark)
+                        (scheme, evaluate_link(sheet, link, block, surrounding, scheme, dark))
                         for scheme in schemes
                     ]
                 ),

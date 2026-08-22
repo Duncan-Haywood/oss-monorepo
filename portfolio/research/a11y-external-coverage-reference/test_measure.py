@@ -72,7 +72,15 @@ DEFECTS = {
     "1.2.1": ("", '<audio controls src="a.mp3"></audio>'),
     "1.3.4": ("<style>@media(orientation:portrait){html{transform:rotate(90deg)}}</style>",
               "<p>x</p>"),
-    "1.4.1": ("", '<p>See <a href="/x" style="color:blue;text-decoration:none">this</a>.</p>'),
+    # eaa-wcag-triage's rule requires a *decidable* colour on both the link
+    # and the text around it -- it will not assume a browser's default black
+    # for an element with no declared colour at all (the same refusal 1.4.3
+    # makes). The original fixture left the <p> undeclared and this rule
+    # correctly stayed silent on it; the explicit colour below is what a real
+    # page almost always has (from its own reset) and is what axe itself
+    # never needed declared to flag the fixture.
+    "1.4.1": ("", '<p style="color:#333">See '
+                  '<a href="/x" style="color:blue;text-decoration:none">this</a>.</p>'),
     "2.2.1": ('<meta http-equiv="refresh" content="5">', "<p>x</p>"),
     "2.2.2": ("", "<marquee>Sale!</marquee><blink>now</blink>"),
     # Corrected 2026-08-22. The original fixture here was
@@ -293,8 +301,11 @@ class TestGapsAreReal(unittest.TestCase):
                 self.assertIn(criterion, found)
 
     def test_the_split_follows_what_a_default_axe_run_reports(self):
-        # Why these four and not the other four. Every criterion implemented
-        # is one axe reports by default; every one left is one it does not.
+        # Why these five and not the other three: every criterion implemented
+        # is one axe reports by default; every one left rests on an axe rule
+        # that ships disabled or experimental, so a default run never reaches
+        # it. 1.4.1 belongs on the "violation" side of this split like the
+        # other four -- it was simply the last of the five to get a rule.
         for criterion in IMPLEMENTED:
             self.assertEqual(AXE_DEFAULT_RUN_VERDICTS[criterion], "violation",
                              criterion)

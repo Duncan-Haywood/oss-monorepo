@@ -64,6 +64,28 @@ class CheckedCriteria(unittest.TestCase):
         for criterion in ("1.4.1", "2.2.1", "2.2.2", "2.4.1", "3.1.2"):
             self.assertIn(criterion, checked, criterion)
 
+    def test_use_of_color_is_in_scope_and_the_snapshot_was_re_run(self):
+        """The one criterion whose implementation could only be settled by a run.
+
+        When 1.4.1 was first implemented, this test recorded an open question:
+        the committed results file was a frozen browser pass taken *before* the
+        rule existed, so nothing here could say whether the rule catches the
+        real instance — only that the criterion had entered scope. That
+        question is answered rather than still open: the corpus was rebuilt
+        from all 7 applications and axe-core 4.13.0 re-run over all 118 pages,
+        the snapshot regenerated from that run, and the instance is matched.
+
+        Both halves are asserted, because "in scope" and "actually caught" are
+        different claims and the first one alone is what a stale snapshot can
+        support.
+        """
+        self.assertIn("1.4.1", measure.checked_criteria())
+        data = json.loads(RESULTS.read_text())
+        matched = [(r["app"], r["page"]) for r in data["per_page"]
+                   if "1.4.1" in r["matched"]]
+        self.assertEqual(
+            matched, [("ventures/photo-editing/docs-site", "index.html")])
+
 
 class StylesheetMatters(unittest.TestCase):
     """The bug: without a stylesheet, 1.4.3 finds nothing to decide at all."""

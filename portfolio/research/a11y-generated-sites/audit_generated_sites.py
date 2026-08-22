@@ -239,6 +239,35 @@ MUTATIONS: tuple = (
                                  re.sub(r"<h([1-6])\b", r"<div data-was-h\1",
                                         re.sub(r"</main>", "</div>",
                                                re.sub(r"<main\b", "<div", html)))))),
+    # Added 2026-08-22 alongside the 1.4.1 rule, and kept beside the removal
+    # mutation above rather than instead of it, because the two test different
+    # halves and the pass that wrote this one had reached the opposite
+    # conclusion about whether a removal was possible.
+    #
+    # Its reasoning was that this corpus's one real body-text link
+    # (`/docs/product-bundles`, "See <a>project documentation</a> for
+    # implementation plans.") carries no colour class of its own, "so
+    # stripping its `underline` class leaves it the same colour as its
+    # surroundings, because it always was, so there is nothing for a removal
+    # mutation here to reach." The observation is exactly right and the
+    # conclusion does not follow: a link the same colour as its prose with no
+    # underline left is the *worst* case of this criterion, not a case outside
+    # it -- which is what the removal mutation above now exercises, at 4/4.
+    #
+    # What this injection still adds is the other shape: a link whose colour
+    # differs from the prose but by less than 3:1, with a literal
+    # `text-decoration: none` rather than an inherited one. The prose had to
+    # be lengthened to make it a fair control -- the first version's
+    # surrounding text ("See ... for details.") was fifteen characters against
+    # a seventeen-character link, so the rule's "is this prose at all" gate
+    # excluded it and the row read 0/14. A control that does not reach the
+    # rule reports as a coverage gap.
+    ("1.4.1", "injection", "add a <p> with a link styled colour-only (no underline)",
+     _sub(r"<body([^>]*)>",
+          r'<body\1><p style="color:#333">Every order ships within two working '
+          r"days from our workshop, and you can see "
+          r'<a href="/x" style="color:#06c;text-decoration:none">'
+          r"our documentation</a> for the full delivery timetable.</p>")),
 )
 
 

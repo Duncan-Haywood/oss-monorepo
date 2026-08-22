@@ -221,15 +221,29 @@ matching how `a11y-own-sites/` keeps a single current file.
 the probe, against the coverage catalog, and this module re-measured them; it
 did not author them.
 
-## 2026-08-22 (second pass) — 1.4.1 became a rule, and the denominator grew with it
+## 2026-08-22 (second pass) — 1.4.1 became a rule, the claim widened, and the run answered it
 
-`eaa-wcag-triage` implemented **1.4.1 Use of Color**, the one criterion this
-module had been recording as an axe finding nobody claimed. Re-run live against
-the same rebuilt corpus, same browser, same pinned axe-core:
+Two independent scheduled sessions implemented SC 1.4.1 within an hour of each
+other ([#622](https://github.com/Duncan-Haywood/monorepo-projects/pull/622) and
+[#621](https://github.com/Duncan-Haywood/monorepo-projects/pull/621)), and this
+directory got both halves of a lesson it already knew.
+
+**First, the claim widened without a measurement.** `measure.checked_criteria()`
+began including 1.4.1 — so the criterion entered the universe this module holds
+the engines to — while `results-2026-08-22.json` stayed frozen at the 17-item
+universe from a browser pass taken before any such rule existed. That session
+said so plainly, and named the consequence: *"the one fact this directory exists
+to establish — whether the rule actually catches the real instance on
+`photo-editing/docs-site/index.html` axe already found — is still unknown.
+Widening the claim without measuring it is exactly the gap Finding 0 named for
+the stylesheet bug: a claim is not evidence until it is run."*
+
+**Then it was run.** The corpus was rebuilt from all 7 applications and
+axe-core 4.13.0 re-run in Chromium over all 118 pages:
 
 - **Checked-criteria universe 17 → 18.**
 - **Recall 39/40 = 0.975 → 40/41 = 0.976.** The instance that entered the
-  denominator is matched: the probe reports the same node on the same page.
+  denominator is **matched**: the same node, on the same page.
 - **The same single miss** (4.1.2, the contested disabled checkbox).
 - Instances outside the universe: **3 → 2** (`2.1.1`, `2.1.3`), both criteria
   whose coverage row says a human is needed.
@@ -240,5 +254,13 @@ claims more and is *still* corroborated is a stronger claim than one whose
 recall is high because its universe is small. The number to watch is not 0.976
 — it is that the denominator is 41 rather than 40.
 
-**Still no engine change from this directory.** The rule was written in the
-probe against the coverage catalog; this module re-measured it.
+**The run also decided which of the two rules survives.** Measured against this
+same corpus, the merged implementation reported **30 findings on
+`photo-editing/docs-site` where axe reports 1** — the site's brand link, nine
+`display:block` card links, and five list rows. That is the consolidation
+recorded in the probe's README, and it is the second thing this module exists
+for: the reference is not here to raise a recall figure, it is here to say when
+an in-house rule is wrong.
+
+**Still no engine change from this directory.** Both rules were written in the
+probe against the coverage catalog; this module re-measured them.

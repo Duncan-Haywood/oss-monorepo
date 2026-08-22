@@ -481,3 +481,128 @@ def test_script_text_does_not_count_as_content():
 def test_aria_hidden_text_does_not_count_as_content():
     hidden = '<div aria-hidden="true"><p>' + ("z " * 200) + "</p></div>"
     assert "2.4.1" not in _page(body=NAV + hidden)
+
+
+# SC 1.4.1 — use of colour, implemented 2026-08-22
+
+def test_link_with_no_underline_and_different_colour_is_flagged():
+    body = (
+        '<p style="color:#333">Read our '
+        '<a href="/terms" style="color:#06c;text-decoration:none">terms</a>'
+        " before continuing.</p>"
+    )
+    assert "1.4.1" in _page(body=body)
+
+
+def test_link_with_no_decoration_declared_at_all_is_not_flagged():
+    # No text-decoration declared: this is the ordinary case (a naked <a> is
+    # underlined by every browser's UA stylesheet, so most real markup never
+    # says so explicitly), and it is *not* positive evidence of a removed
+    # underline -- decoration_line() reports it undecidable, and this rule
+    # only fires on a decided "none".
+    body = (
+        '<p style="color:#333">Read our '
+        '<a href="/terms" style="color:#06c">terms</a>'
+        " before continuing.</p>"
+    )
+    assert "1.4.1" not in _page(body=body)
+
+
+def test_same_colour_link_without_underline_is_flagged():
+    """The worst case of the criterion, not a case outside it.
+
+    This assertion was inverted until 2026-08-22, on the reasoning that a link
+    identical to its prose is "not distinguished by colour either, so not this
+    criterion's business". Measured against the reference engine, that reading
+    is wrong in the direction that hides the most serious instance: axe-core's
+    `link-in-text-block` fires below 3:1 and a ratio of 1.0 is as far below as
+    it gets. A reader cannot see the link at all, and a record that says
+    nothing about it has told the customer their page is fine.
+    """
+    body = (
+        '<p style="color:#333">Read our '
+        '<a href="/terms" style="color:#333;text-decoration:none">terms</a>'
+        " before continuing, and see the shipping page for delivery times.</p>"
+    )
+    assert "1.4.1" in _page(body=body)
+
+
+def test_standalone_link_with_no_surrounding_text_is_not_flagged():
+    body = '<div style="color:#333"><a href="/terms" style="color:#06c;text-decoration:none">Terms</a></div>'
+    assert "1.4.1" not in _page(body=body)
+
+
+def test_inherited_decoration_is_resolved_not_declined():
+    """`text-decoration: inherit` is a removed underline, not an unknown one.
+
+    Also inverted on 2026-08-22, and this is the one that decides real pages:
+    the declaration *overrides* the UA underline, so the value comes from the
+    paragraph, which declares none. Treating it as undecidable is the same as
+    treating it as underlined, and every Tailwind preflight writes exactly
+    this rule — 152 in-prose links in this portfolio's own corpus, none of
+    them underlined, all of them passing before the resolution was added.
+    """
+    body = (
+        '<p style="color:#333">Read our '
+        '<a href="/terms" style="color:#06c;text-decoration:inherit">terms</a>'
+        " before continuing, and see the shipping page for delivery times.</p>"
+    )
+    assert "1.4.1" in _page(body=body)
+
+
+def test_a_decoration_no_reader_can_resolve_is_still_declined():
+    """The refusal survives where it is genuinely a refusal.
+
+    A conditional decoration — declared only inside a media query this module
+    cannot decide — yields nothing, which is the direction this probe commits
+    to everywhere else.
+    """
+    css = (
+        "<style>"
+        ".t{color:#333}.l{color:#06c}"
+        "@media (min-width: 40rem){.l{text-decoration:none}}"
+        "</style>"
+    )
+    body = '<p class="t">Read our <a href="/terms" class="l">terms</a> before continuing today.</p>'
+    assert "1.4.1" not in _criteria(PAGE.format(head=css, body=body))
+
+
+def test_unresolvable_colour_is_undecidable_not_flagged():
+    body = (
+        '<p>Read our '
+        '<a href="/terms" style="color:var(--link);text-decoration:none">terms</a>'
+        " before continuing.</p>"
+    )
+    assert "1.4.1" not in _page(body=body)
+
+
+def test_use_of_color_finding_is_blocking():
+    body = (
+        '<p style="color:#333">Read our '
+        '<a href="/terms" style="color:#06c;text-decoration:none">terms</a>'
+        " before continuing.</p>"
+    )
+    findings = audit_html(PAGE.format(head="", body=body)).findings
+    assert [f.impact for f in findings if f.criterion == "1.4.1"] == ["blocking"]
+
+
+def test_a_scheme_specific_failure_names_its_scheme():
+    css = (
+        "<style>"
+        ".t{color:#333}"
+        ".l{color:#333;text-decoration:none}"
+        "@media (prefers-color-scheme: dark){.t{color:#eee}.l{color:#06c}}"
+        "</style>"
+    )
+    body = ('<p class="t">Read our <a href="/terms" class="l">terms</a> today, '
+            "and see the shipping page for delivery times.</p>")
+    findings = audit_html(PAGE.format(head=css, body=body)).findings
+    use_of_color = [f for f in findings if f.criterion == "1.4.1"]
+    assert len(use_of_color) == 1
+    # The scheme named is the one that *fails*. In this fixture that is light
+    # mode, where link and prose are the same `#333`; in dark mode the prose
+    # lifts to `#eee` and the link clears 3:1 against it, which passes. The
+    # naming mechanism is the merged implementation's and is kept; which
+    # scheme it names follows from the threshold, and the fixture's own
+    # colours say light.
+    assert "in light mode" in use_of_color[0].message

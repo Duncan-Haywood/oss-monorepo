@@ -354,11 +354,15 @@ four are now rules.
 
 **Its severity was overstated**, in a way that matters for how the next reader
 uses it. "An independent engine automates this and we do not" was true of five
-of the eight and is not true of 1.2.1, 1.3.4 or 2.5.3. The honest residue was
-**one** criterion that axe reports by default and neither engine looked for:
-**1.4.1 Use of Color** — which fires once on this portfolio's own corpus
-(`photo-editing/docs-site`), and was named in the probe's catalog as the single
-genuine remaining gap rather than grouped with the three that are not.
+of the eight and is not true of 1.2.1, 1.3.4 or 2.5.3. The honest residue, at
+the point this finding was written, was **one** criterion that axe reports by
+default and neither engine looked for: **1.4.1 Use of Color** — which fired
+once on this portfolio's own corpus (`photo-editing/docs-site`), and was named
+in the probe's catalog as the single genuine remaining gap rather than grouped
+with the three that are not. It closed the same day, in the second pass
+recorded under ["What changed on 2026-08-22"](#what-changed-on-2026-08-22)
+below — the three left in `STILL_UNIMPLEMENTED` are the ones this section's
+"1.2.1, 1.3.4 or 2.5.3" already named as resting on rules axe does not run.
 
 **That residue is now closed** (later the same day; see the section below).
 Nothing is left in between: every criterion still unimplemented in either
@@ -383,19 +387,33 @@ capability*. Run the thing.
 - **The catalog** carries `enabled` and `experimental`; `load_reference()`
   exposes `default_run_rules` beside `rules`, and every reported row now says
   whether a default run reaches it.
-- **Four of the eight are implemented** in `eaa-wcag-triage` — 2.2.1, 2.2.2,
-  2.4.1 and 3.1.2, exactly the four a default axe run reports as violations.
-  See that probe's README for the rules and their out-of-sample result.
+- **Four of the eight were implemented** in `eaa-wcag-triage` in a first pass
+  — 2.2.1, 2.2.2, 2.4.1 and 3.1.2, exactly the four a default axe run reports
+  as violations.
+- **1.4.1 Use of Color — named above as the one genuine remaining gap — was
+  implemented in a second pass the same day.** `IMPLEMENTED` now holds all
+  five criteria this reference measured as default-run violations;
+  `STILL_UNIMPLEMENTED` holds the three left (1.2.1, 1.3.4, 2.5.3), each still
+  resting on an axe rule that ships disabled or experimental. See that
+  probe's README for the rule, its scheme-by-scheme colour comparison, and
+  what it deliberately still cannot decide.
 - **`results-2026-08-21-after-disclosure.json` is now addressed by revision**
   (`7ce8473`) rather than by "worktree". It records the state disclosure left
   behind — eight rows declared, no rule for any of them — and that state is
   history. Leaving it pinned to the worktree would have meant overwriting the
   before-state this module exists to compare against, to keep its own test
-  passing. `results-2026-08-22-after-rules.json` is the new worktree file.
-- **`TestGapsAreReal` gained the other direction.** It still asserts the four
-  remaining criteria are undetected; it now also asserts the four implemented
-  ones *are* detected, so a row cannot move off `unimplemented` without a rule
-  behind it.
+  passing. `results-2026-08-22-after-rules.json` is the worktree file, twice
+  regenerated the same day — once after the first four rules, again after
+  1.4.1 — so it always reflects what the probe currently detects rather than
+  a snapshot of the first pass.
+- **`TestGapsAreReal` gained the other direction.** It still asserts the
+  criteria left undetected; it now also asserts every implemented one *is*
+  detected, so a row cannot move off `unimplemented` without a rule behind
+  it. The 1.4.1 fixture needed a real edit to exercise this correctly: the
+  rule refuses to decide a link's colour is "different" from text whose own
+  colour was never declared (the same refusal SC 1.4.3 makes), so the
+  fixture's `<p>` now carries an explicit colour the way a real page's own
+  reset almost always would.
 
 ## The score, and why it does not move
 
@@ -474,6 +492,15 @@ module's disclosure list at three criteria — 1.2.1, 1.3.4, 2.5.3 — each of
 which a default axe run never executes, so the split is now exactly "the
 reference reports it" against "the reference does not run it", with nothing
 in between.
+
+**Two sessions implemented it within the hour**, independently
+([#622](https://github.com/Duncan-Haywood/monorepo-projects/pull/622) merged
+first, [#621](https://github.com/Duncan-Haywood/monorepo-projects/pull/621)
+consolidated after). What settled which rule survives was this directory's own
+kind of evidence: run against the 118-page corpus, the merged rule reported
+**30 findings on `photo-editing/docs-site` where axe reports 1**. The
+consolidation is recorded in the probe's README; the merged pass's per-element
+`decoration_line`/`foreground_color` helpers and its per-scheme naming are kept.
 
 Two things about *this* module fell out of building it, both worth recording
 because they are about the reference rather than about the probe:

@@ -325,6 +325,110 @@ def _resolve_foreground(sheet: Stylesheet, node: Node, scheme: str = LIGHT) -> t
     return (None, "no-declared-color")
 
 
+def foreground_color(sheet: Stylesheet, node: Node, scheme: str = LIGHT) -> tuple:
+    """Public wrapper around :func:`_resolve_foreground`.
+
+    For a rule that needs one element's own text colour in isolation —
+    :mod:`wcag_triage.usecolor` compares a link's colour against the prose
+    around it, which is not a 1.4.3 verdict (there is no background or font
+    size in that question), so it has no use for :class:`ContrastResult`.
+    """
+    return _resolve_foreground(sheet, node, scheme)
+
+
+# ---------------------------------------------------------------------------
+# Text decoration (SC 1.4.1 only — 1.4.3 never reads this).
+# ---------------------------------------------------------------------------
+
+_DECORATION_PROPS = ("text-decoration-line", "text-decoration")
+# The three CSS-wide keywords behave differently here and were collapsed into
+# one set until 2026-08-22, when measuring the corpus showed the difference
+# decides real pages. `text-decoration-line` is not inherited, so `initial` and
+# `unset` both resolve to `none` — a decided answer, not an unknown one.
+# `inherit` genuinely defers to the parent, which is a walk this function does
+# not do and its caller does. `revert` hands the element back to the UA
+# stylesheet, where the answer depends on the element.
+_DECORATION_RESOLVES_TO_NONE = frozenset({"unset", "initial"})
+_DECORATION_DEFERS_TO_PARENT = frozenset({"inherit"})
+_DECORATION_DEFERS_TO_UA = frozenset({"revert", "revert-layer"})
+# The complete `text-decoration-line` value set (CSS Text Decoration 3). A
+# resolved value is decided only when every space-separated token is one of
+# these -- see the comment at its use in decoration_line().
+_DECORATION_LINE_KEYWORDS = frozenset(
+    {"none", "underline", "overline", "line-through", "blink"}
+)
+
+
+def decoration_line(sheet: Stylesheet, node: Node, scheme: str = LIGHT) -> tuple:
+    """Whether ``node``'s own declared decoration includes an underline.
+
+    Returns ``(True, "")``, ``(False, "")``, or ``(None, reason)`` when this
+    cannot be decided. Deliberately narrow, and for the opposite reason
+    :func:`_resolve_foreground` walks ancestors: ``text-decoration`` is not an
+    inherited property, so only ``node``'s own winning declaration (inline, a
+    class, or a type-selector rule for its tag) can answer this. What *is*
+    common — and NOT handled here — is a decoration painted by an ancestor
+    still showing through a descendant's text; that is a distinct rendering
+    mechanism from CSS inheritance and would need layout, not just the
+    cascade, so a node with no decoration of its own is reported exactly that
+    way rather than guessed at.
+
+    ``inherit`` is reported as ``(None, "inherited-decoration")`` rather than
+    resolved, because resolving it correctly needs the ancestor walk this
+    function does not do. **That reason is not interchangeable with "nothing
+    was declared"**, and the difference decides pages rather than edge cases: a
+    Tailwind reset writes ``a { text-decoration: inherit }``, which *overrides*
+    the UA underline, so a caller that treats the two alike applies a browser
+    default that no longer applies. Measured on this portfolio's own 118-page
+    corpus, that mistake counts **152 links that are not underlined as
+    underlined** — every in-prose link on every Tailwind page.
+    :func:`wcag_triage.usecolor` does the walk and resolves it; this function
+    reports the state and lets it.
+
+    The caller applies the user-agent default for a node this function found
+    nothing declared for (a naked ``<a>`` is underlined by every browser) —
+    that default is element-specific and not this module's to know.
+
+    ``scheme`` matters here the same way it matters to colour: a class-level
+    rule can carry a ``prefers-color-scheme`` override (``dark:underline`` is
+    real Tailwind, however rare), and ``_declared_ranked`` already resolves
+    that into the *scheme-appropriate* winning value the same way it does for
+    ``color`` — a light-mode query and a dark-mode query on the same node can
+    legitimately return different verdicts. A caller that wants the answer for
+    a page overall has to check both, exactly as :func:`evaluate_document`
+    does for 1.4.3.
+    """
+    for prop in _DECORATION_PROPS:
+        declaration = _declared_ranked(sheet, node, prop, scheme)
+        if declaration is None:
+            continue
+        value = declaration.value
+        if value is None:
+            return (None, "conditional-decoration")
+        text = value.strip().lower()
+        if text in _DECORATION_RESOLVES_TO_NONE:
+            return (False, "")
+        if text in _DECORATION_DEFERS_TO_PARENT:
+            return (None, "inherited-decoration")
+        if text in _DECORATION_DEFERS_TO_UA:
+            return (None, "ua-decoration")
+        tokens = text.split()
+        if not tokens or not all(token in _DECORATION_LINE_KEYWORDS for token in tokens):
+            # Not composed entirely of line keywords -- e.g. a raw
+            # `var(--x)` this module could not expand, or a shorthand
+            # carrying a colour/style component (`underline solid red`) this
+            # reader does not parse. Guessing which keyword is the line value
+            # is exactly the kind of guess this probe refuses to make.
+            return (None, "unresolvable-decoration")
+        for raw in declaration.variants:
+            if raw is None:
+                return (None, "unresolvable-decoration")
+            if ("underline" in raw.lower()) != ("underline" in text):
+                return (None, "conditional-decoration")
+        return ("underline" in tokens, "")
+    return (None, "no-declared-decoration")
+
+
 # ---------------------------------------------------------------------------
 # Background.
 # ---------------------------------------------------------------------------
