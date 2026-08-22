@@ -109,6 +109,42 @@ Fourteen days, under €150:
 
 Kill it if step 1 shows negligible drift, or if fewer than two of ten will pay.
 
+**Amendment 2026-08-22 — step 2's classifier measured out of sample, and it does
+not hold. No score moved.** The step-2 write-up closed by saying its 7.2% was
+in-sample "and will not hold unchanged on fresh data". A probe now exists for
+this candidate — [`probes/mcp-drift-watch/`](../probes/mcp-drift-watch/), the
+Pin/Diff/Classify/Archive surface plus a subscriber record — and it re-ran the
+shipped rules, unmodified, over **136 description changes from 23 npm-published
+servers none of which was read while those rules were being written**.
+
+The rate held and the labels did not. Held out, the classifier flags **7.4%** of
+changes against 7.2% in sample — but its **precision is 0.40** and its **recall
+0.24–0.29**. The two errors run in opposite directions and nearly cancel in the
+count, which is why the count looked stable. `alerting_share_pct` is the number
+Finding 4 turns into alerts per server-month, so the alert-fatigue conclusion
+survives; what does not survive is the assumption underneath it, that the alerts
+a customer sees are the changes that matter.
+
+The error localises to one signal. `secret_or_credential` produced **6 of the 10
+alerts and 0 of the true positives** — five are one publisher writing "works
+without an API key" into five descriptions, and the sixth reads "token" as a
+secret where the server means units of text. It has now produced zero true
+positives on two independent corpora. The dominant miss is the reverse: "prefer
+`other_tool`" matches no rule, and carries half the clear false negatives.
+
+**The rules were deliberately not fixed**, because dropping that one signal takes
+precision to 1.00 with no true positive lost and that figure would be in-sample —
+the exact error this pass exists to correct. A third corpus is a command away
+(164 eligible packages; 60 taken, recorded rather than truncated) and the labels
+are committed as data.
+
+Bearing on the scores, neither applied: this is the strongest evidence yet that
+the classification is **not** rule-separable, which argues `ai_leverage` is higher
+than the 6 it was lowered to on 2026-08-19 — but no model has been run against
+this corpus, so that is an argument and not a measurement. Running one is the
+obvious next pass and is now cheap, since the hand labels exist. Recorded as
+examined-and-not-revised, on the precedent `shopify-a11y-evidence` set.
+
 **Update 2026-08-19 — steps 1 and 2 done, step 3 outstanding.** Step 1 ran
 retrospectively (diffing the versions npm already holds rather than waiting two
 weeks): 69% of adjacent releases change the tool surface, 29% remove a tool, and

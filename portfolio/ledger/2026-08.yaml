@@ -17870,3 +17870,71 @@ entries:
         re-verification of anything already verified. No revenue; the $0
         ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business projects
+        that aren't already here" session, designated branch
+        claude/laughing-pasteur-uum9yc. `session_gate.py` -> PROCEED (0.79
+        sessions/hour, 100% meta-work, 68% re-verification). Per `CLAUDE.md`'s
+        intake gate that brief is already answered, so no candidate list was
+        produced; took the first move it names -- advance a probe already
+        specified in `portfolio/pipeline/`. Checked the 4 open PRs (#583, #531,
+        #372, #368) and the branch list first: all four still correctly
+        owner-gated, unchanged, nothing to consolidate.
+      - >-
+        Deliberately picked the one candidate nobody was racing. The last six
+        ledger entries all landed on `eaa-wcag-triage` and four of them
+        collided on SC 1.4.1; `mcp-supply-chain-watch` was the only candidate
+        with committed research and no probe artifact at all, and its own
+        research calls it "the single candidate in the pipeline that can be
+        de-risked without anyone unblocking anything". Built
+        `portfolio/pipeline/probes/mcp-drift-watch/` -- Pin / Diff / Classify /
+        Archive plus the subscriber record, 32 tests, standard library only,
+        with a path-filtered CI runner matching the five sibling probes.
+      - >-
+        The result refutes the operating point of the classifier it ships, and
+        does it on a number that looked healthy. `portfolio/research/
+        mcp-tool-drift/` closed its own write-up on "the corrected classifier
+        was tuned on the corpus it is scored against, so 7.2% is in-sample and
+        will not hold unchanged on fresh data", and nobody had re-opened it.
+        Re-run unmodified over 136 description changes from 23 npm-published
+        servers none of which was read while the rules were written, it flags
+        7.4% -- and is wrong about it. Precision 0.40 (4 of 10 alerts real),
+        recall 0.24-0.29. The two errors run opposite ways and nearly cancel in
+        the count, which is exactly why the count looked stable. The reusable
+        finding for this repository is that a reproduced alert *rate* is not
+        evidence the alerts are the right ones, and rate stability has been
+        read as that evidence before.
+      - >-
+        The error localises to one signal, on two independent corpora.
+        `secret_or_credential` raised 6 of the 10 alerts and 0 of the true
+        positives -- five are one publisher writing "works without an API key"
+        into five descriptions, the sixth reads "token" as a secret where the
+        server means units of text -- while `tool_routing` and
+        `imperative_priority` went 4 for 4. The dominant miss is the mirror
+        image: "prefer `other_tool`" matches no rule and carries 5 of the 10
+        clear false negatives, six misses coming from one package in a single
+        version bump.
+      - >-
+        Deliberately did not fix the rules. Retiring that one signal takes
+        precision to 1.00 with no true positive lost, and that figure would be
+        in-sample -- the exact error this pass exists to correct. A third
+        corpus is a command away (164 eligible packages, 60 taken and the
+        remainder recorded rather than truncated) and every hand label is
+        committed as data with its rubric and its three borderline calls
+        marked. No score moved in `candidates.yaml`: 0.40/0.25 argues
+        `ai_leverage` is higher than the 6 it was lowered to, but no model was
+        run against the corpus, so it is an argument and is recorded as
+        examined-and-not-revised. Running a model over the now-labelled corpus
+        is the named next pass.
+      - >-
+        Net effect: one new probe and one negative measurement on `main`, zero
+        re-verification of anything already verified, zero duplicate work, no
+        publishing and no spend enabled. Step 3 of this candidate's experiment
+        (take the rate to ten teams at $29/server/month) is unchanged and still
+        needs buyer contact an unattended agent cannot make. No revenue; the $0
+        ceiling is unchanged.
+    mrr_end: null
