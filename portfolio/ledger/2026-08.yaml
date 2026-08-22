@@ -17069,3 +17069,57 @@ entries:
         `a11y-contrast-decidability` and never checked for this corpus. No
         revenue; the $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/nice-mendel-bqa5kz. Ran `session_gate.py` first per
+        `CLAUDE.md` -- it read PROCEED at "0.00 sessions/hour" on this
+        session's own as-cloned checkout. Checked the 4 open PRs (#583,
+        #531, #372, #368) against the current `main` tip first: all still
+        correctly human-gated by prior sessions, `git merge-tree` clean
+        against the live tip for each, nothing to re-derive there.
+      - >-
+        The PROCEED reading was false, for a cause distinct from the one
+        #600 already fixed. #600 handles a shallow clone whose history is
+        truncated within the 24h window `session_gate.py` asks about. This
+        session's fresh checkout instead had `origin/main` pointing at a
+        plain stale commit -- dated 2026-07-29, 878 commits behind the true
+        tip -- with deep, non-shallow history behind it. `history_span_hours`
+        read that deep-but-old history as reliable, while `git log
+        origin/main --since=24 hours ago` against the stale ref correctly
+        found zero session commits in that ref's own last 24 hours and
+        reported 0.00/hour -- a real answer computed against the wrong
+        commit. The actual cadence at that moment was 2.58/hour, ~2.6x the
+        threshold, and only surfaced once `git fetch origin main` caught the
+        ref up to the true tip. Shallowness and staleness fool the same
+        depth-based reliability check in opposite ways, so it can't tell
+        them apart after the fact.
+      - >-
+        Fixed by having `session_gate.py` fetch `origin/main` itself
+        (`refresh_origin_main()`, best-effort, fails closed to "not
+        reliable" rather than crashing) before computing cadence, instead of
+        depending on every caller to remember to fetch first. Verified: full
+        `portfolio/ledger/` suite 79/79 (6 new tests covering the fetch's
+        success/failure/timeout paths, the new render note, and an
+        end-to-end `main()` test reproducing the exact live bug shape),
+        `platform/ci/validate_workflows.py` 36/36, `portfolio/router/validate.py`
+        10/10, live before/after on this session's own checkout (PROCEED,
+        0.00/hour before the fetch; NO-OP, 2.58/hour after), and `git
+        merge-tree` against the live tip clean immediately before pushing.
+      - >-
+        Merged as #604, agent-decidable per `CLAUDE.md` (touches only
+        `portfolio/ledger/session_gate.py` and its test file; no
+        `ventures/*` app code; publishes, registers, and spends nothing
+        beyond agent time; the one new network call reuses this session's
+        existing repo access rather than a new credential). GitHub's own
+        `validate` check ran green on the merged head before this session
+        merged it. Re-ran `session_gate.py` on `main` post-merge: real
+        verdict is NO-OP (100% meta-work share, 52% re-verification share,
+        4 concurrent sessions in a 15-min window in the last 6h) -- so no
+        further generic work was started this session beyond this fix and
+        its own record. No revenue; the $0 ceiling is unchanged.
+    mrr_end: null
