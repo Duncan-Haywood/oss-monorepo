@@ -66,6 +66,7 @@ turned off.
 | Data-table headers | 1.3.1 | degrading | a multi-row data table has no `<th>` |
 | Text contrast | 1.4.3 | degrading | text resolves between 3:1 and the 4.5:1 its size requires |
 | Colour-only link | 1.4.1 | blocking | a link inside prose, with no underline/border/weight/background of its own, under 3:1 against the text around it |
+| Label in name | 2.5.3 | blocking | a control that names itself from its own content carries an `aria-label`/`aria-labelledby` that does not contain the text on the control |
 
 ## What it deliberately cannot do — and says so in every record
 
@@ -103,8 +104,18 @@ of the eight fixtures was rendered in Chromium and run through axe-core 4.13.0,
 and only five are failures a *default* `axe.run()` reports. Three of the
 remaining criteria (1.2.1, 1.3.4, 2.5.3) are reachable only through axe rules
 that ship disabled or experimental, so the claim that an independent engine
-automates them was never true of a default run. Those three stay
-`unimplemented`, and their catalog rows now give the measured reason instead.
+automates them was never true of a default run. Their catalog rows now give
+the measured reason instead.
+
+**Amended later the same day: that measurement answered a different question
+than the one it was used to settle.** What a default `axe.run()` executes is
+evidence about axe. Whether a barrier is decidable from the artifact is a
+separate question, and for one of the three the catalog already answered it —
+2.5.3's row had said "decidable from the markup" since it was written. It is
+now a rule (see [below](#label-in-name-added-2026-08-22)), which leaves two
+`unimplemented` rows and only one of them undecidable. Reading "the reference
+does not run it" as "we were right not to build it" is the mistake, and it
+held for about four hours.
 
 The genuine remaining gap was **1.4.1 Use of Color** — axe reports it by
 default, it fired once on this portfolio's own pages when this catalog was
@@ -307,6 +318,95 @@ found a defect in the harness rather than the rule; see its Finding 5.
   and 29 of another implementation's on the way — none of them a defect in the
   record.
 
+## Label in Name: added 2026-08-22
+
+SC 2.5.3 is the first criterion this engine decides that a default reference
+run does not report at all, and that is the whole reason it is worth a section.
+
+**What fires.** A control that takes its accessible name from its own content —
+a `<button>`, an `<a href>`, an `<input type=submit>`, or any element with an
+explicit widget role — carrying an `aria-label` or `aria-labelledby` whose text
+does not contain the label a sighted user reads. `<button aria-label="Submit
+order">Buy now</button>` is the shape. A speech-input user says "Buy now" and
+nothing happens: the spoken command is matched against the accessible name, and
+that name does not contain the words on the control. Rated **blocking** on the
+same reading that makes the `aria-hidden` rule blocking — the barrier stops one
+population completely rather than slowing everyone down.
+
+**Why it was not built until now.** It was disclosed as `unimplemented` on
+2026-08-21 and left there on 2026-08-22, both times because axe's only rule for
+it (`label-content-name-mismatch`) ships experimental and off by default, so a
+default run never reports it. That measurement is correct and was read as
+though it decided what to build. It does not: what the reference executes is a
+fact about the reference. The row's own note had said *"decidable from the
+markup"* from the day it was written, and it is — two strings and a comparison.
+
+The comparison normalises case, punctuation and whitespace before testing
+containment, which can only make two strings match that otherwise would not.
+That direction is deliberate: it costs recall and never precision, and "Buy
+now!" against "Buy now" is not a defect worth a finding.
+
+**What it refuses to decide**, each an under-report and together the reason the
+row is `partial` rather than `automated`:
+
+| Refused | Why |
+|---|---|
+| A label rendered as an image | WCAG counts images *of text* as part of the label; an `alt` is a description of an image, not a transcription of it, so a mismatch between an `alt` and an `aria-label` would be a finding about a guess |
+| A glyph-only label (`×`, `→`) | Not text presented visually. An `aria-label` is how such a control is *supposed* to be named, so firing there would flag the fix rather than the defect |
+| An `aria-labelledby` pointing at an id the document does not define | A name resolved from nothing is not a name this rule may reason about |
+| A label injected by CSS `content`, or assembled at runtime | Not in the artifact |
+| A separate visible label next to a field (a textbox, a combobox) | Those do not take their name from content, and the two strings alone do not decide the criterion |
+
+### Out-of-sample: zero findings, and zero pairs to decide
+
+Run over 71 real pages — the 31 HTML files committed in this repository plus a
+fresh `npm run build` of `ventures/print-atelier` (40 pages) — the rule produced
+**no findings at all**. That number says nothing about whether those pages
+conform, and the second measurement is the one that matters:
+
+| | committed pages | print-atelier build | total |
+|---|---|---|---|
+| Pages | 31 | 40 | 71 |
+| In-scope widgets | 315 | 677 | 992 |
+| …carrying an `aria-label`/`aria-labelledby` at all | 1 | 8 | 9 |
+| …with a decidable visible label | 0 | 0 | **0** |
+
+All nine overrides sit on controls with **no visible text** — icon-only buttons
+whose only child is an `<svg>` (`Search prints`, `Shopping cart`, `Open
+navigation`), which is exactly what `aria-label` exists for and a shape this
+criterion cannot apply to. So the corpus **cannot exercise the rule**, and the
+zero is a property of the corpus rather than evidence about the rule's
+precision. This is the same wall the 2.4.1 pass hit from the other direction,
+and it is stated here rather than left for a reader to infer from a clean run:
+outside its own fixtures, this rule has never been given a pair to judge.
+
+A source scan of all 13 ventures agrees and explains why — 34 `aria-label` uses,
+every one of them on an icon-only button, an `<input>`, a `<select>` or a `<nav>`
+landmark. Rebuilding the other six applications would not change the table
+above, which is why only one was built.
+
+### What moved elsewhere
+
+- **`a11y-axe-recall`'s checked-criteria universe goes 18 → 19**, and unlike
+  1.4.1 this one **cannot move the recall rate**: a default axe run never
+  executes a rule for 2.5.3, so there is no instance for the wider universe to
+  include. The committed snapshot is a frozen browser pass and now lags the
+  worktree by exactly this criterion. Rather than rebuild all seven
+  applications to regenerate a file that would come back field for field
+  identical, the lag is pinned by a test that asserts both halves — the
+  difference is exactly `{2.5.3}`, and axe emitted nothing for it anywhere in
+  the 118-page corpus. If a future axe version turns that rule on by default,
+  the test fails and the corpus has to be re-run.
+- **`a11y-engine-agreement`'s catalogs**, regenerated rather than hand-edited.
+  Only the `catalogs` key changed; `silent_gaps`, `attribution` and the corpus
+  agreement are identical. 2.5.3 becomes the second criterion this engine
+  checks and the sibling does not — the asymmetry 1.4.1 introduced, now with a
+  second instance.
+- **`eaa-remediation-pipeline`'s scores do not move.** `liability_containment`
+  stays at 5. Implementing a criterion is not a measurement of whether the
+  coverage statement is accurate — the rule that only a re-measurement of the
+  thing being scored may move a score, not a pass liking its own work.
+
 ## The build-artifact filter: added 2026-08-22
 
 A build directory is not a list of the customer's pages. It also holds documents
@@ -435,14 +535,15 @@ issues the generated fixes actually close under AT verification"* — is the rea
 measurement, and it needs three live shop themes and a contractor, neither of
 which an agent session has. This probe closes the smaller, prior question:
 whether the blocking/degrading triage the candidate sells can be produced
-mechanically at all. It can, and the coverage split it produces (16 criteria
-reasoned about, 9 named criteria explicitly deferred to a human, 3 disclosed
+mechanically at all. It can, and the coverage split it produces (17 criteria
+reasoned about, 9 named criteria explicitly deferred to a human, 2 disclosed
 as decidable but not yet built) is itself the first concrete instance of the
-"quarter to a third" gap the candidate asserts. The split has moved twice
-since it was first drawn: on 2026-08-21, when 1.4.3 crossed from deferred to
-partial because the corpus changed, not because the rules got cleverer; and
-on 2026-08-22, when four criteria a prior pass had disclosed as
-`unimplemented` — including 1.4.1 — became rules.
+"quarter to a third" gap the candidate asserts. The split has moved three
+times since it was first drawn: on 2026-08-21, when 1.4.3 crossed from
+deferred to partial because the corpus changed, not because the rules got
+cleverer; on 2026-08-22, when four criteria a prior pass had disclosed as
+`unimplemented` — including 1.4.1 — became rules; and later that day, when
+2.5.3 became the fifth.
 
 ## Run it
 
@@ -470,7 +571,7 @@ Run in CI by [`eaa-wcag-triage-ci.yml`](../../../../.github/workflows/eaa-wcag-t
 which also re-runs `run_fixture_validation.py` and fails if the committed
 record no longer matches what the engine emits.
 
-206 tests: parser behaviour, each rule and its negative control, the
+253 tests: parser behaviour, each rule and its negative control, the
 blocking-before-degrading ordering, dedup of one element matched by two rules,
 the evidence record's JSON/markdown shape and its compliance disclaimer, the
 fixture validation, and — added 2026-08-21 — the two rules this engine was
@@ -488,7 +589,12 @@ plus the specificity case that shipped a wrong answer on a real page). Added
 `decoration_line()` can return (no declaration, `inherit`, an unresolved
 `var()`, a `:hover`-only rule, a scheme-conditional override resolved on both
 sides), the surrounding-text gate, and the dark-mode-only case named in its
-own message.
+own message. Added 2026-08-22, for `rule_label_in_name` (20 tests): the
+mismatch itself, a name that extends the visible label rather than replacing
+it, case/punctuation normalisation, `aria-labelledby` resolved rather than
+assumed and taking precedence over `aria-label`, every refusal above (glyph-only
+label, image label, unresolvable id, textbox out of scope, `aria-hidden`), and
+the `role` attribute moving an element both into and out of scope.
 
 ## Scope and honesty, in one place
 

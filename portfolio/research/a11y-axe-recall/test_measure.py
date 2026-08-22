@@ -45,23 +45,30 @@ class CheckedCriteria(unittest.TestCase):
         self.assertIn("1.4.3", checked)
         # A criterion either engine declines as manual/unimplemented is not
         # "checked", even if axe-core automates it (a11y-external-coverage-reference).
-        # 2.5.3 is the example that survives: axe ships its only rule for it
-        # experimental and off, so neither this corpus nor a default axe run
-        # has anything to say about it. 2.4.1 stood here until 2026-08-22, and
-        # 1.4.1 until later the same day — the one criterion axe reported by
-        # default that neither engine looked for, and the reason it was the
-        # next rule built rather than the next row disclosed.
-        self.assertNotIn("2.5.3", checked)
+        # 1.3.4 is the example that survives: axe ships its only rule for it
+        # experimental and off, and neither engine has a rule either, so
+        # nothing in this corpus has anything to say about it. 2.4.1 stood
+        # here until 2026-08-22, 1.4.1 until later the same day, and 2.5.3
+        # until later again — and 2.5.3 left for a different reason than the
+        # other two. They were criteria axe reports by default that neither
+        # engine looked for. 2.5.3 is one axe still does not report at all:
+        # the probe built it because its own catalog note had always said it
+        # was decidable from the markup, which is a claim about the artifact
+        # rather than about what the reference happens to run.
+        self.assertNotIn("1.3.4", checked)
         self.assertIn("1.4.1", checked)
+        self.assertIn("2.5.3", checked)
 
-    def test_the_five_criteria_implemented_on_2026_08_22_are_now_in_scope(self):
+    def test_the_criteria_implemented_on_2026_08_22_are_now_in_scope(self):
         # They moved from "declared unimplemented" to "checked", so axe
         # findings on them now count for or against recall instead of being
         # set aside as a known coverage gap. 1.4.1 is the one that changes an
-        # actual number here: it is the only one of the five that axe reports
-        # anywhere in this corpus.
+        # actual number here: it is the only one of the six that axe reports
+        # anywhere in this corpus. 2.5.3 cannot change a number in either
+        # direction — a default axe run never executes a rule for it, so
+        # entering scope adds a criterion this corpus can never score.
         checked = measure.checked_criteria()
-        for criterion in ("1.4.1", "2.2.1", "2.2.2", "2.4.1", "3.1.2"):
+        for criterion in ("1.4.1", "2.2.1", "2.2.2", "2.4.1", "2.5.3", "3.1.2"):
             self.assertIn(criterion, checked, criterion)
 
     def test_use_of_color_is_in_scope_and_the_snapshot_was_re_run(self):
@@ -85,6 +92,30 @@ class CheckedCriteria(unittest.TestCase):
                    if "1.4.1" in r["matched"]]
         self.assertEqual(
             matched, [("ventures/photo-editing/docs-site", "index.html")])
+
+    def test_the_snapshots_universe_lags_by_2_5_3_and_cannot_matter(self):
+        """The committed file is a frozen browser pass; 2.5.3 entered scope after it.
+
+        1.4.1 set the precedent that a criterion entering scope means re-running
+        the corpus, because axe reports 1.4.1 and the number moved. 2.5.3 is the
+        case where that reasoning does not carry: a default `axe.run()` never
+        executes a rule for it, so there is no instance for the universe to
+        newly include, and a rebuild of all 7 applications would reproduce this
+        file field for field.
+
+        Rather than leave that as an unstated difference between the snapshot
+        and the worktree, both halves are asserted here — the lag is exactly
+        one criterion, and axe emitted nothing for it anywhere in the corpus.
+        If a future axe version turns `label-content-name-mismatch` on by
+        default, the second half fails and the corpus has to be re-run.
+        """
+        data = json.loads(RESULTS.read_text())
+        live = measure.checked_criteria()
+        self.assertEqual(live - set(data["checked_criteria"]), {"2.5.3"})
+        emitted = set()
+        for row in data["per_page"]:
+            emitted |= set(row["axe_all_criteria"])
+        self.assertNotIn("2.5.3", emitted)
 
 
 class StylesheetMatters(unittest.TestCase):
