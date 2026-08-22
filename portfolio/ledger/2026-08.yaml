@@ -17350,3 +17350,65 @@ entries:
         `results-2026-08-22-after-rules.json`. No revenue; the $0 ceiling is
         unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/zealous-curie-g94e7m. `session_gate.py` -> PROCEED
+        (0.83 sessions/hour, peak concurrency 1 within any 15-min window
+        over the last 6h -- the #598 burst-detection field this session
+        checked for the first time). Checked the 4 open PRs (#583, #531,
+        #372, #368) first: all still correctly human-gated (deployable
+        `ventures/*` app code or unattended automation) and
+        `mergeable_state: clean`, nothing to consolidate. Read issue #139's
+        decision queue and this file's tail before starting anything new.
+      - >-
+        The most recent entry above (#612/#613) named the concrete next
+        step: `eaa-wcag-triage`'s four rules built that day for previously-
+        disclosed-but-unchecked criteria (2.2.1, 2.2.2, 2.4.1, 3.1.2) had
+        only been run against a build-directory corpus that could not
+        exercise them -- page structure isn't settled pre-hydration, and the
+        one out-of-sample hit it got was a false positive. Its own README
+        said "a rendered corpus is what would settle it." One already
+        existed: `a11y-generated-sites`, built 2026-08-21 for a different
+        question, renders `local-site-studio`'s delivered customer pages
+        through the real Vite SSR component tree rather than a Next.js
+        build directory.
+      - >-
+        Added one positive-control mutation per new rule to that
+        directory's existing removal/injection framework. The 2.4.1 one
+        answers the actual question: this corpus's real delivered pages
+        already carry a `<main>`, headings, and an in-page link, so 2.4.1
+        passes them honestly rather than by having nothing to bypass.
+        Stripping all three suppressing mechanisms at once puts the defect
+        back on markup a customer's page actually renders to, and the rule
+        fires on all 14 pages -- a positive control a build-directory
+        corpus could not offer this rule at all. All four new rules: caught
+        14/14, delivered pages still 0 findings, now backed by a working
+        control instead of an unexercised one. Merged as #614 (agent-
+        decidable: `portfolio/research` + `portfolio/pipeline` docs + CI
+        config only, no `ventures/*` app code changed, publishes/registers/
+        spends nothing).
+      - >-
+        Verified: rebuilt `local-site-studio` and regenerated the corpus
+        with `render_corpus.mjs` (byte-identical to committed); `python3 -m
+        unittest discover` in `a11y-generated-sites` 19/19 (was 16, two
+        tests updated for the new mutation count, one added distinguishing
+        the four rules' expected `audit.py` asymmetry -- declared
+        `unimplemented` there, not a fresh detection gap -- from a real
+        relabelling); `eaa-wcag-triage` (docs-only change there) 189/189
+        unchanged; `platform/ci/validate_workflows.py` 36/36. All 7 CI
+        check suites green on the merged head, `git merge-tree` clean
+        against the live tip immediately before merging.
+      - >-
+        Deliberately left `eaa-remediation-pipeline`'s `liability_containment`
+        score unchanged (5, on the gate): that score turns on the coverage
+        statement's accuracy against an external reference, which this pass
+        didn't touch -- it measured whether the four newly-implemented
+        rules actually detect what they claim to, a related but distinct
+        question. Left the scoring judgment call for review rather than
+        deciding it here. No revenue; the $0 ceiling is unchanged.
+    mrr_end: null
