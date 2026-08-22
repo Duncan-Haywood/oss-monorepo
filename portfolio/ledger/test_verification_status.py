@@ -208,6 +208,27 @@ class Report(unittest.TestCase):
         self.assertNotIn("VOID", out)
         self.assertIn("VALID", out)
 
+    def test_a_shallow_clone_deepens_before_giving_up(self):
+        # A scheduled session's clone is shallow (see the module docstring), so
+        # the first `resolve(head)`/`resolve(verified)` pair legitimately fails
+        # for every record older than the clone's fetch depth -- not just for a
+        # genuinely unresolvable one. `deepen()` must run before the tool
+        # concludes UNRESOLVABLE, or every such record reads as stale forever.
+        resolve = mock.Mock(side_effect=["m" * 40, None, "m" * 40, "m" * 40])
+        deepen = mock.Mock()
+        out = self._run(
+            {
+                "resolve": resolve,
+                "fetch_pr_head": mock.Mock(return_value="a" * 40),
+                "deepen": deepen,
+                "merge_base": mock.Mock(return_value="base"),
+                "changed_files": mock.Mock(return_value=[]),
+            }
+        )
+        deepen.assert_called_once()
+        self.assertNotIn("UNRESOLVABLE", out)
+        self.assertIn("VALID", out)
+
     def test_no_fetch_skips_the_fetch(self):
         fetch = mock.Mock()
         with mock.patch.multiple(
