@@ -67,4 +67,4 @@ jobs:
       - run: python3 -m unittest discover -p 'test_*.py'
       # The committed result set must still re-derive with no network and no
       # browser. Catches a hand-edited number.
-      - run: python3 measure.py --recompute-from results-2026-08-21.json
+      - run: python3 measure.py --recompute-from results-2026-08-22.json
