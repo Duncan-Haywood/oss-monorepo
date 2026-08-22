@@ -18435,3 +18435,92 @@ entries:
         tip per the merged-PR-branch rule before writing this entry. No
         revenue; the $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business projects
+        that aren't already here" session (the screening brief), designated
+        branch claude/laughing-pasteur-v9od2u. `CLAUDE.md`'s intake gate
+        redirected it as designed -- no candidate added, no score changed, no
+        screening pass run. `session_gate.py` -> PROCEED (0.71 sessions/hour;
+        2 distinct sessions within a 15-minute window in the last 6h, so it
+        told me to check open PRs first and re-check `main` before pushing;
+        5-entry stale open-PR-check streak, so it told me not to write an
+        entry merely to say the check found nothing).
+      - >-
+        Checked the 4 open PRs (#583, #531, #372, #368) with `git merge-tree`
+        against the live tip: all four still merge cleanly and all four are
+        still correctly human-gated. Also confirmed #372 and #531 are not
+        zombies -- their parents #222 and #523 were closed unmerged and
+        deliberately superseded by them, so the open successors are the live
+        carriers. Per the gate's own instruction this is recorded as context
+        for the action below, not as an entry of its own.
+      - >-
+        Of the gate's three permitted moves, took "advance a probe already
+        specified in `portfolio/pipeline/`" and picked the coldest one on
+        purpose: `eaa-wcag-triage` and `mcp-drift-watch` had both been touched
+        within the hour by other sessions (#641, #645), which is where this
+        repo's duplicate work keeps landing. `source-silence-detector` had a
+        named, unbuilt next step sitting in its own amendment 2 since
+        2026-08-21 -- "anyone shipping this needs a small-sample anchor: a
+        pooled gap distribution, a parametric fit, or a stated refusal to
+        calibrate a source with under 100 gaps".
+      - >-
+        Built all three, plus the obvious fourth nobody had written down (a
+        linearly interpolated quantile), and measured them on the same 17
+        dormancy episodes. Two are inert and one is worse. On `FDA/openfda`
+        -- the corpus's only degenerate source, 37 closed gaps against the 100
+        nearest rank needs at q=0.99, carrying 9 of the 17 episodes -- the
+        interpolated anchor cuts the threshold 2060d -> 1634d and the
+        exponential fit cuts it to 820d, and neither detects one more episode
+        than the incumbent (3/9 in all three cases). The lognormal fit that
+        amendment named explicitly lands at 4811d, 3.5x the longest gap the
+        source has ever had, because a fit is not bounded by its sample, and
+        detects 1/9. The reusable point is why: all three are functions of the
+        same 37 numbers, so changing the estimator cannot add information the
+        sample does not contain -- the collapse onto `max` was a symptom, not
+        the disease. Only `pooled-shape`, which reads a ratio fitted on the
+        other eight sources and refitted per fold, moves it (3/9 -> 5/9), and
+        it is deliberately not adopted because its family and its quantile
+        were both chosen by reading the same table.
+      - >-
+        The near-miss worth recording: widening the candidate set does lift
+        cross-validated recall 6/17 -> 8/17, which would have read as the
+        small-sample fix working. It is not -- the entire gain is one fold on
+        `datasets/covid-19` (744 gaps, never degenerate) flipping anchor, and
+        realised nuisance goes 3.91 -> 6.72 alarm-days per source-year, over
+        the 5/yr budget the folds selected under. So the grid was left
+        unwidened and the 6-of-17 / 110d that `subscriber_record.py` prints at
+        a customer did not move, with a test asserting it. Widening a
+        candidate list is a one-line edit that silently moves a published
+        accuracy figure.
+      - >-
+        Also found and fixed a CI cost regression I had just introduced: the
+        two new test classes each built their own `build_report` (~16s, the
+        most expensive call in the suite), taking it 56s -> 94s on a job that
+        runs on every PR touching that directory. Cached the shared build and
+        stopped the widened selection re-scoring the incumbent grid: 137 tests
+        in 57s, below the pre-amendment baseline with 24 more tests. Corrected
+        the commit message when measurement showed the second fix was close to
+        noise and the cache was the whole saving.
+      - >-
+        Verified: 137 offline tests (24 new) pass; every figure the README
+        quotes is re-derived from `results-small-sample-2026-08-22.json` by a
+        new citation test in the shape `probes/README.md` asks for; the saved
+        run reproduces field for field from the committed history; all four
+        validators green (candidates 8/8, doc-consistency 8/8, router 10/10,
+        workflows 37/37). Internal-only (`portfolio/pipeline/probes/` plus
+        that probe's own path-filtered CI workflow), no venture code, no
+        credential, nothing published, no score change -- agent-decidable per
+        `CLAUDE.md`: opened as #647, all four check runs green, `merge-tree`
+        re-checked clean against the live `main` tip immediately before
+        merging, merged the same session. One CI note for later sessions: the
+        check-run API read that job as `in_progress` for ~40 minutes after it
+        had actually finished in 1m41s, and a `cancel` call returning "cannot
+        cancel a completed run" is what revealed it -- do not re-run a job on
+        that signal alone. Restarted the designated branch from the fresh
+        `main` tip per the merged-PR-branch rule before writing this entry.
+        No revenue; the $0 ceiling is unchanged.
+    mrr_end: null
