@@ -1,0 +1,1095 @@
+{
+ "corpus": "results-holdout-2026-08-22.json",
+ "method": "4 independent Claude Sonnet 5 passes, one per disjoint 34-item chunk of the 136-item held-out corpus, each given only: the tool's old/new description text, a mechanical newly-added-text hint, and the rubric from build_labels.py's docstring ((a)-(f), applied to newly added text only). None was shown the rule classifier's bucket for that item, the hand labels, holdout-labels-2026-08-22.json, or build_labels.py itself -- this is a blind pass, scored afterward against the committed hand labels by score_model_pass.py.",
+ "single_pass_caveat": "This is one run, not an ensemble or a repeated-trials average. A second pass would likely relabel some of the borderline calls; treat the numbers as a point estimate, the same caveat this corpus's own hand-labelling carries.",
+ "labels": [
+  {
+   "idx": 0,
+   "pkg": "@traderouter/trade-router-mcp",
+   "tool": "check_order",
+   "from": "1.0.10",
+   "label": "instruction-bearing",
+   "reason": "Added text names list_orders and frames check_order as 'more targeted' / for polling a specific order 'rather than scanning the full list', which is cross-tool routing (a)."
+  },
+  {
+   "idx": 1,
+   "pkg": "@traderouter/trade-router-mcp",
+   "tool": "connection_status",
+   "from": "1.0.10",
+   "label": "instruction-bearing",
+   "reason": "Added 'WHEN TO USE' text names place_*_order tools and imperatively directs 'check this first' when they fail, matching cross-tool routing (a) and imperative (b)."
+  },
+  {
+   "idx": 2,
+   "pkg": "@traderouter/trade-router-mcp",
+   "tool": "place_limit_trailing_order",
+   "from": "1.0.10",
+   "label": "not-instruction-bearing",
+   "reason": "Added text is self-describing usage/example documentation naming no other tool and giving no directive."
+  },
+  {
+   "idx": 3,
+   "pkg": "@traderouter/trade-router-mcp",
+   "tool": "place_trailing_twap_order",
+   "from": "1.0.10",
+   "label": "not-instruction-bearing",
+   "reason": "Added text is self-describing usage/example and mechanism documentation naming no other tool."
+  },
+  {
+   "idx": 4,
+   "pkg": "@htmldrop.app/mcp",
+   "tool": "htmldrop_delete",
+   "from": "0.1.0",
+   "label": "not-instruction-bearing",
+   "reason": "No text was added (a sentence was removed); nothing new to classify."
+  },
+  {
+   "idx": 5,
+   "pkg": "@htmldrop.app/mcp",
+   "tool": "htmldrop_delete",
+   "from": "0.2.2",
+   "label": "not-instruction-bearing",
+   "reason": "Added sentence is factual behavior documentation ('URL returns 404 immediately'), no directive or cross-tool reference."
+  },
+  {
+   "idx": 6,
+   "pkg": "@sonarapp/mcp",
+   "tool": "sonar_app_aso_score",
+   "from": "0.5.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text is capability/pricing documentation about free-tier API-key limits, not a directive."
+  },
+  {
+   "idx": 7,
+   "pkg": "@sonarapp/mcp",
+   "tool": "sonar_app_lookup",
+   "from": "0.5.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text is capability/pricing documentation about free-tier API-key limits, not a directive."
+  },
+  {
+   "idx": 8,
+   "pkg": "@sonarapp/mcp",
+   "tool": "sonar_app_revenue",
+   "from": "0.5.0",
+   "label": "instruction-bearing",
+   "reason": "Added clause 'always communicate the confidence alongside the number' is an imperative directing the model's own behavior (b)."
+  },
+  {
+   "idx": 9,
+   "pkg": "@sonarapp/mcp",
+   "tool": "sonar_app_search",
+   "from": "0.5.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text is capability/pricing documentation about free-tier API-key limits, not a directive."
+  },
+  {
+   "idx": 10,
+   "pkg": "@sonarapp/mcp",
+   "tool": "sonar_keyword_metrics",
+   "from": "0.5.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text describes free-tier keyword cap and that an API key removes it \u2014 pricing/capability documentation, not a directive."
+  },
+  {
+   "idx": 11,
+   "pkg": "@sonarapp/mcp",
+   "tool": "sonar_keyword_suggestions",
+   "from": "0.5.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text is capability/pricing documentation about free-tier API-key limits, not a directive."
+  },
+  {
+   "idx": 12,
+   "pkg": "@sonarapp/mcp",
+   "tool": "sonar_app_changes",
+   "from": "0.7.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text only renames the required plan tier ('Indie' vs 'Full'), plain capability documentation."
+  },
+  {
+   "idx": 13,
+   "pkg": "@sonarapp/mcp",
+   "tool": "sonar_list_products",
+   "from": "0.7.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text only renames the required plan tier, plain capability documentation."
+  },
+  {
+   "idx": 14,
+   "pkg": "@sonarapp/mcp",
+   "tool": "sonar_scan_competitor",
+   "from": "0.7.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text is an ordinary rewording of what the scan does ('AI keyword discovery... generates the search terms'), no directive or cross-tool reference."
+  },
+  {
+   "idx": 15,
+   "pkg": "@sonarapp/mcp",
+   "tool": "sonar_track_app",
+   "from": "0.7.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text states a plan/API-key-scope requirement, which is capability documentation, not credential-directed instruction."
+  },
+  {
+   "idx": 16,
+   "pkg": "@flydocs/cli",
+   "tool": "connect",
+   "from": "0.5.0-beta.0",
+   "label": "not-instruction-bearing",
+   "reason": "No new text added; the change only removed '(Linear)' from the description."
+  },
+  {
+   "idx": 17,
+   "pkg": "@flydocs/cli",
+   "tool": "init",
+   "from": "0.6.0-alpha.27",
+   "label": "not-instruction-bearing",
+   "reason": "No new text added; the change only removed '(unified setup)' from the description."
+  },
+  {
+   "idx": 18,
+   "pkg": "@flydocs/cli",
+   "tool": "sync",
+   "from": "0.6.0-alpha.27",
+   "label": "not-instruction-bearing",
+   "reason": "Added '(alias for update)' merely states an equivalence relationship, not a directive on when to prefer one over the other."
+  },
+  {
+   "idx": 19,
+   "pkg": "@flydocs/cli",
+   "tool": "update",
+   "from": "0.6.0-alpha.27",
+   "label": "not-instruction-bearing",
+   "reason": "Added text is an ordinary rewording of what the command syncs, no directive or cross-tool reference."
+  },
+  {
+   "idx": 20,
+   "pkg": "@flydocs/cli",
+   "tool": "install",
+   "from": "0.6.0-alpha.111",
+   "label": "instruction-bearing",
+   "reason": "Added '(deprecated \u2014 use ' is an imperative directing the model to use an alternative instead of this tool (b)/(c)."
+  },
+  {
+   "idx": 21,
+   "pkg": "@flydocs/cli",
+   "tool": "sync",
+   "from": "0.6.0-alpha.111",
+   "label": "instruction-bearing",
+   "reason": "Added '(deprecated \u2014 use ' is an imperative directing the model to use an alternative instead of this tool (b)/(c)."
+  },
+  {
+   "idx": 22,
+   "pkg": "@flydocs/cli",
+   "tool": "connect",
+   "from": "1.0.4",
+   "label": "not-instruction-bearing",
+   "reason": "Added ', or `connect codex`' just documents an additional invocation form of the same command, no directive or other-tool reference."
+  },
+  {
+   "idx": 23,
+   "pkg": "@flydocs/cli",
+   "tool": "doctor",
+   "from": "1.0.4",
+   "label": "not-instruction-bearing",
+   "reason": "Fully reworded description states what the tool prints (read-only capability documentation), no directive or cross-tool reference."
+  },
+  {
+   "idx": 24,
+   "pkg": "@flydocs/cli",
+   "tool": "update",
+   "from": "1.0.4",
+   "label": "not-instruction-bearing",
+   "reason": "Added 'config, and context' merely expands the list of synced items, ordinary rewording."
+  },
+  {
+   "idx": 25,
+   "pkg": "@monnet/mcp",
+   "tool": "comment",
+   "from": "0.1.7",
+   "label": "not-instruction-bearing",
+   "reason": "Added text just clarifies that comments can be top-level or replies, ordinary capability documentation."
+  },
+  {
+   "idx": 26,
+   "pkg": "@monnet/mcp",
+   "tool": "create_motion",
+   "from": "0.1.7",
+   "label": "not-instruction-bearing",
+   "reason": "Added text describes input/return behavior ('from a free-form prompt. Returns the new motion'), ordinary documentation."
+  },
+  {
+   "idx": 27,
+   "pkg": "@bluesprincemedia/thiri-mcp",
+   "tool": "search_csound_corpus",
+   "from": "0.3.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added '(public instrument index)' is a minor descriptive rewording, not a directive."
+  },
+  {
+   "idx": 28,
+   "pkg": "@tuteliq/mcp",
+   "tool": "create_webhook",
+   "from": "2.2.0",
+   "label": "not-instruction-bearing",
+   "reason": "No new text added; the change only removed the secret-storage sentence."
+  },
+  {
+   "idx": 29,
+   "pkg": "@tuteliq/mcp",
+   "tool": "delete_account_data",
+   "from": "2.2.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text is an ordinary rewording ('GDPR Right to Erasure' replacing the article citation), no directive."
+  },
+  {
+   "idx": 30,
+   "pkg": "@tuteliq/mcp",
+   "tool": "export_account_data",
+   "from": "2.2.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text is an ordinary rewording of the GDPR citation, no directive."
+  },
+  {
+   "idx": 31,
+   "pkg": "@tuteliq/mcp",
+   "tool": "get_audit_logs",
+   "from": "2.2.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text is an ordinary rewording dropping the article citation, no directive."
+  },
+  {
+   "idx": 32,
+   "pkg": "@tuteliq/mcp",
+   "tool": "get_breach",
+   "from": "2.2.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text is a trivial rewording ('by ID' removed), no directive."
+  },
+  {
+   "idx": 33,
+   "pkg": "@tuteliq/mcp",
+   "tool": "get_consent_status",
+   "from": "2.2.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text is an ordinary rewording dropping the article citation, no directive."
+  },
+  {
+   "idx": 34,
+   "pkg": "@tuteliq/mcp",
+   "tool": "get_pricing_details",
+   "from": "2.2.0",
+   "label": "not-instruction-bearing",
+   "reason": "Shortened description that drops detail; no routing, imperative, priority claim, credential, URL, or exfiltration content."
+  },
+  {
+   "idx": 35,
+   "pkg": "@tuteliq/mcp",
+   "tool": "get_usage_history",
+   "from": "2.2.0",
+   "label": "not-instruction-bearing",
+   "reason": "Trimmed restating of the same capability, purely descriptive."
+  },
+  {
+   "idx": 36,
+   "pkg": "@tuteliq/mcp",
+   "tool": "get_usage_monthly",
+   "from": "2.2.0",
+   "label": "not-instruction-bearing",
+   "reason": "Shortened capability description, no behavioral direction."
+  },
+  {
+   "idx": 37,
+   "pkg": "@tuteliq/mcp",
+   "tool": "list_breaches",
+   "from": "2.2.0",
+   "label": "not-instruction-bearing",
+   "reason": "Shortened description, plain capability statement."
+  },
+  {
+   "idx": 38,
+   "pkg": "@tuteliq/mcp",
+   "tool": "log_breach",
+   "from": "2.2.0",
+   "label": "not-instruction-bearing",
+   "reason": "Text was removed (GDPR clock detail dropped), nothing new added that directs behavior."
+  },
+  {
+   "idx": 39,
+   "pkg": "@tuteliq/mcp",
+   "tool": "record_consent",
+   "from": "2.2.0",
+   "label": "not-instruction-bearing",
+   "reason": "Minor rewording ('for data processing' vs 'for a specific data processing purpose'), still plain capability doc."
+  },
+  {
+   "idx": 40,
+   "pkg": "@tuteliq/mcp",
+   "tool": "rectify_data",
+   "from": "2.2.0",
+   "label": "not-instruction-bearing",
+   "reason": "Rewording that drops 'specific collection' detail; no directive content added."
+  },
+  {
+   "idx": 41,
+   "pkg": "@tuteliq/mcp",
+   "tool": "regenerate_webhook_secret",
+   "from": "2.2.0",
+   "label": "not-instruction-bearing",
+   "reason": "Sentence about old secret invalidation was removed, nothing new added."
+  },
+  {
+   "idx": 42,
+   "pkg": "@tuteliq/mcp",
+   "tool": "withdraw_consent",
+   "from": "2.2.0",
+   "label": "not-instruction-bearing",
+   "reason": "Article citation dropped, remaining text is plain capability description."
+  },
+  {
+   "idx": 43,
+   "pkg": "@tuteliq/mcp",
+   "tool": "delete_account_data",
+   "from": "3.10.0",
+   "label": "not-instruction-bearing",
+   "reason": "'This is irreversible.' is a factual side-effect warning, not a cross-tool reference, priority claim, credential, URL, or imperative directing model behavior."
+  },
+  {
+   "idx": 44,
+   "pkg": "@tuteliq/mcp",
+   "tool": "get_consent_status",
+   "from": "3.10.0",
+   "label": "not-instruction-bearing",
+   "reason": "'optionally filtered by consent type' is ordinary parameter documentation."
+  },
+  {
+   "idx": 45,
+   "pkg": "@tuteliq/mcp",
+   "tool": "get_pricing_details",
+   "from": "3.10.0",
+   "label": "not-instruction-bearing",
+   "reason": "'with features, limits, and rate caps' is capability/return documentation."
+  },
+  {
+   "idx": 46,
+   "pkg": "@tuteliq/mcp",
+   "tool": "get_usage_monthly",
+   "from": "3.10.0",
+   "label": "not-instruction-bearing",
+   "reason": "'with billing-period totals and remaining quota' is return-value documentation."
+  },
+  {
+   "idx": 47,
+   "pkg": "@tuteliq/mcp",
+   "tool": "list_breaches",
+   "from": "3.10.0",
+   "label": "not-instruction-bearing",
+   "reason": "'optionally filtered by status' is parameter documentation."
+  },
+  {
+   "idx": 48,
+   "pkg": "@tuteliq/mcp",
+   "tool": "log_breach",
+   "from": "3.10.0",
+   "label": "not-instruction-bearing",
+   "reason": "'Starts the 72-hour notification clock.' is capability/behavior documentation, not a directive to the model."
+  },
+  {
+   "idx": 49,
+   "pkg": "@tuteliq/mcp",
+   "tool": "rectify_data",
+   "from": "3.10.0",
+   "label": "not-instruction-bearing",
+   "reason": "'Overwrites existing field values.' is a side-effect documentation statement, not an imperative to the model."
+  },
+  {
+   "idx": 50,
+   "pkg": "@tuteliq/mcp",
+   "tool": "regenerate_webhook_secret",
+   "from": "3.10.0",
+   "label": "not-instruction-bearing",
+   "reason": "'Invalidates the previous secret immediately.' documents behavior, doesn't direct the model."
+  },
+  {
+   "idx": 51,
+   "pkg": "@tuteliq/mcp",
+   "tool": "batch_analyze",
+   "from": "3.21.2",
+   "label": "not-instruction-bearing",
+   "reason": "Net change removes detail rather than adding it; the flagged span already existed in old text in substance."
+  },
+  {
+   "idx": 52,
+   "pkg": "@tuteliq/mcp",
+   "tool": "detect_emotional_distress",
+   "from": "3.21.2",
+   "label": "instruction-bearing",
+   "reason": "New text names another tool 'detect_distress_signals' and directs the model to call it instead with an imperative 'DO NOT USE FOR NEW WORK' \u2014 matches (a) cross-tool routing, (b) imperative, and (c) priority claim."
+  },
+  {
+   "idx": 53,
+   "pkg": "@adeu/mcp-server",
+   "tool": "accept_all_changes",
+   "from": "1.7.5",
+   "label": "not-instruction-bearing",
+   "reason": "The usage-condition clause was removed, not added; remaining text is a plain capability statement."
+  },
+  {
+   "idx": 54,
+   "pkg": "@adeu/mcp-server",
+   "tool": "finalize_document",
+   "from": "1.7.5",
+   "label": "not-instruction-bearing",
+   "reason": "Text was shortened (limitation note removed), nothing new added."
+  },
+  {
+   "idx": 55,
+   "pkg": "@adeu/mcp-server",
+   "tool": "login_to_adeu_cloud",
+   "from": "1.7.5",
+   "label": "not-instruction-bearing",
+   "reason": "Added text explains the account/mailbox data model (user-level vs account-level login) descriptively; it names no other tool, embeds no URL, and does not direct the model to take a specific action."
+  },
+  {
+   "idx": 56,
+   "pkg": "@adeu/mcp-server",
+   "tool": "logout_of_adeu_cloud",
+   "from": "1.7.5",
+   "label": "not-instruction-bearing",
+   "reason": "Implementation detail ('clearing the local API key') was removed, not added."
+  },
+  {
+   "idx": 57,
+   "pkg": "@adeu/mcp-server",
+   "tool": "finalize_document",
+   "from": "1.15.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added environment-limitation note about protection_mode is a capability disclosure, not a directive, cross-tool reference, or credential-bearing content."
+  },
+  {
+   "idx": 58,
+   "pkg": "@adeu/mcp-server",
+   "tool": "accept_all_changes",
+   "from": "1.27.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text documents the remove_comments boolean parameter and its default \u2014 ordinary parameter documentation."
+  },
+  {
+   "idx": 59,
+   "pkg": "bizmuse-mcp",
+   "tool": "generate_music_video",
+   "from": "0.1.5",
+   "label": "not-instruction-bearing",
+   "reason": "Added text lists accepted inputs/parameters (audio, images, aspect ratio, etc.), plain capability documentation."
+  },
+  {
+   "idx": 60,
+   "pkg": "bizmuse-mcp",
+   "tool": "get_credit_balance",
+   "from": "0.1.5",
+   "label": "not-instruction-bearing",
+   "reason": "Self-describing usage phrase ('check before submitting a paid task') names no other tool and is not a strong behavioral directive."
+  },
+  {
+   "idx": 61,
+   "pkg": "bizmuse-mcp",
+   "tool": "get_task_result",
+   "from": "0.1.5",
+   "label": "not-instruction-bearing",
+   "reason": "Describes the return values (video URL, cover URL, duration) \u2014 plain return-value documentation."
+  },
+  {
+   "idx": 62,
+   "pkg": "bizmuse-mcp",
+   "tool": "get_task_status",
+   "from": "0.1.5",
+   "label": "instruction-bearing",
+   "reason": "'without inventing a completed asset' is an imperative directing the model's own behavior (not to fabricate results), matching (b)."
+  },
+  {
+   "idx": 63,
+   "pkg": "bizmuse-mcp",
+   "tool": "list_models",
+   "from": "0.1.5",
+   "label": "not-instruction-bearing",
+   "reason": "'List only ... supported by the workflow' describes the tool's filtered output, not a directive to the model."
+  },
+  {
+   "idx": 64,
+   "pkg": "bizmuse-mcp",
+   "tool": "upload_audio",
+   "from": "0.1.5",
+   "label": "not-instruction-bearing",
+   "reason": "Added text enumerates accepted file formats/sources \u2014 ordinary parameter documentation."
+  },
+  {
+   "idx": 65,
+   "pkg": "bizmuse-mcp",
+   "tool": "upload_image",
+   "from": "0.1.5",
+   "label": "not-instruction-bearing",
+   "reason": "Describes count limits and purpose of reference images \u2014 capability/parameter documentation."
+  },
+  {
+   "idx": 66,
+   "pkg": "buywhere-mcp",
+   "tool": "compare_prices",
+   "from": "0.1.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text describes return content ('structured differentiators, price range') \u2014 return-value documentation."
+  },
+  {
+   "idx": 67,
+   "pkg": "@buywhere/mcp-server",
+   "tool": "get_deals",
+   "from": "0.1.0",
+   "label": "not-instruction-bearing",
+   "reason": "Rewording describing sort behavior of results, plain capability documentation."
+  },
+  {
+   "idx": 68,
+   "pkg": "@buywhere/mcp-server",
+   "tool": "get_product",
+   "from": "0.1.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text just rewords the description and adds 'current price' as a return-value detail, no directive or other tool named."
+  },
+  {
+   "idx": 69,
+   "pkg": "@buywhere/mcp-server",
+   "tool": "search_products",
+   "from": "0.1.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added span only documents expanded regional coverage, pure capability documentation."
+  },
+  {
+   "idx": 70,
+   "pkg": "@buywhere/mcp-server",
+   "tool": "get_product",
+   "from": "0.3.3",
+   "label": "not-instruction-bearing",
+   "reason": "Added text is a plain rewording of the same description with no directive or cross-reference."
+  },
+  {
+   "idx": 71,
+   "pkg": "@buywhere/mcp-server",
+   "tool": "search_products",
+   "from": "0.3.3",
+   "label": "not-instruction-bearing",
+   "reason": "Added text just notes natural-language query support, self-describing with no other tool named."
+  },
+  {
+   "idx": 72,
+   "pkg": "@elfa-ai/mcp",
+   "tool": "elfa_narratives",
+   "from": "1.0.1",
+   "label": "not-instruction-bearing",
+   "reason": "Added span 'and can take over a minute to return' is a latency disclosure, not a directive or routing claim."
+  },
+  {
+   "idx": 73,
+   "pkg": "@elfa-ai/mcp",
+   "tool": "auto_query_write",
+   "from": "2.0.0",
+   "label": "not-instruction-bearing",
+   "reason": "Newly added clause broadens the condition for request signing but is descriptive API behavior, not a credential-directed instruction."
+  },
+  {
+   "idx": 74,
+   "pkg": "@elfa-ai/mcp",
+   "tool": "auto_validate",
+   "from": "2.0.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text describes what the method=symbol parameter checks; parameter documentation with no other tool named or imperative."
+  },
+  {
+   "idx": 75,
+   "pkg": "@gency-ai/gency-mcp",
+   "tool": "download_product_image",
+   "from": "0.1.4",
+   "label": "not-instruction-bearing",
+   "reason": "Added text is a shortened rewording of the same requirement, no new directive."
+  },
+  {
+   "idx": 76,
+   "pkg": "@gency-ai/gency-mcp",
+   "tool": "get_product",
+   "from": "0.1.4",
+   "label": "not-instruction-bearing",
+   "reason": "Only a punctuation change; no meaningful new text."
+  },
+  {
+   "idx": 77,
+   "pkg": "@gency-ai/gency-mcp",
+   "tool": "get_upload_url",
+   "from": "0.1.4",
+   "label": "instruction-bearing",
+   "reason": "Added text explicitly says 'prefer prepare_product_images (single call)', naming another tool and claiming priority over it -- (a)/(c)."
+  },
+  {
+   "idx": 78,
+   "pkg": "@gency-ai/gency-mcp",
+   "tool": "list_products",
+   "from": "0.1.4",
+   "label": "not-instruction-bearing",
+   "reason": "Only a punctuation change; no meaningful new text."
+  },
+  {
+   "idx": 79,
+   "pkg": "@gency-ai/gency-mcp",
+   "tool": "login",
+   "from": "0.1.4",
+   "label": "not-instruction-bearing",
+   "reason": "Added text just states OAuth is the only sign-in flow, descriptive capability info with no directive."
+  },
+  {
+   "idx": 80,
+   "pkg": "@gency-ai/gency-mcp",
+   "tool": "logout",
+   "from": "0.1.4",
+   "label": "not-instruction-bearing",
+   "reason": "Added text describes that there is no API-key state to clear; descriptive, not a credential directive."
+  },
+  {
+   "idx": 81,
+   "pkg": "@gency-ai/gency-mcp",
+   "tool": "search_docs",
+   "from": "0.1.4",
+   "label": "not-instruction-bearing",
+   "reason": "Added text documents return format and caching; the domain reference was already present in old text, not a new embedded URL."
+  },
+  {
+   "idx": 82,
+   "pkg": "@gency-ai/gency-mcp",
+   "tool": "update_product_status",
+   "from": "0.1.4",
+   "label": "instruction-bearing",
+   "reason": "Added span retains the imperative 'Confirm with the user' directing the model's own behavior before acting -- (b)."
+  },
+  {
+   "idx": 83,
+   "pkg": "@gency-ai/gency-mcp",
+   "tool": "upload_image",
+   "from": "0.1.4",
+   "label": "not-instruction-bearing",
+   "reason": "Added text just restates the existing workflow reference to get_upload_url already present in old description, no new routing/priority claim."
+  },
+  {
+   "idx": 84,
+   "pkg": "@gency-ai/gency-mcp",
+   "tool": "get_upload_url",
+   "from": "0.4.1",
+   "label": "not-instruction-bearing",
+   "reason": "Added text names upload_image only to describe a data dependency (uploadHandle), not routing or priority guidance."
+  },
+  {
+   "idx": 85,
+   "pkg": "@gency-ai/gency-mcp",
+   "tool": "upload_image",
+   "from": "0.4.1",
+   "label": "not-instruction-bearing",
+   "reason": "Added text is parameter usage documentation (pass uploadHandle instead of a URL), not a cross-tool directive."
+  },
+  {
+   "idx": 86,
+   "pkg": "@meetlark/mcp-server",
+   "tool": "meetlark_get_admin_view",
+   "from": "1.0.2",
+   "label": "not-instruction-bearing",
+   "reason": "Added text is a uniqueness/capability claim about this tool itself, names no other tool and gives no directive."
+  },
+  {
+   "idx": 87,
+   "pkg": "@meetlark/mcp-server",
+   "tool": "meetlark_get_results",
+   "from": "1.0.2",
+   "label": "instruction-bearing",
+   "reason": "Added text says 'use meetlark_get_admin_view instead' to see votes, naming another tool and directing when to reach for it -- (a)."
+  },
+  {
+   "idx": 88,
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_add_edge",
+   "from": "0.1.0",
+   "label": "instruction-bearing",
+   "reason": "Added text says 'Prefer naumu_ask' for adding knowledge, a cross-tool priority claim -- (a)/(c)."
+  },
+  {
+   "idx": 89,
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_add_node",
+   "from": "0.1.0",
+   "label": "instruction-bearing",
+   "reason": "Added text says 'Prefer naumu_ask' for adding new knowledge, a cross-tool priority claim -- (a)/(c)."
+  },
+  {
+   "idx": 90,
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_ask",
+   "from": "0.1.0",
+   "label": "instruction-bearing",
+   "reason": "Added text instructs 'Use this instead of direct CRUD tools (add_node, update_node, etc.)', explicit cross-tool routing and priority -- (a)/(c)."
+  },
+  {
+   "idx": 91,
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_get_schema",
+   "from": "0.1.0",
+   "label": "instruction-bearing",
+   "reason": "Added text imperatively directs 'Use this before updating node attributes to check valid values' -- (b)."
+  },
+  {
+   "idx": 92,
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_remove_edge",
+   "from": "0.1.0",
+   "label": "instruction-bearing",
+   "reason": "Added text says 'Prefer naumu_ask' for structural changes, cross-tool priority claim -- (a)/(c)."
+  },
+  {
+   "idx": 93,
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_remove_node",
+   "from": "0.1.0",
+   "label": "instruction-bearing",
+   "reason": "Added text says 'Prefer naumu_ask' for removing knowledge, cross-tool priority claim -- (a)/(c)."
+  },
+  {
+   "idx": 94,
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_semantic_search",
+   "from": "0.1.0",
+   "label": "instruction-bearing",
+   "reason": "Added text names naumu_text_search and naumu_filter and tells when to use each instead -- (a)."
+  },
+  {
+   "idx": 95,
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_update_node",
+   "from": "0.1.0",
+   "label": "instruction-bearing",
+   "reason": "Added text says 'consider naumu_ask instead' and 'Use naumu_get_schema ... before updating', naming other tools with routing directives -- (a)."
+  },
+  {
+   "idx": 96,
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_add_edge",
+   "from": "0.1.5",
+   "label": "instruction-bearing",
+   "reason": "Added text describes a workflow naming naumu_add_node before naumu_add_edge and imperatively says 'Keep batches small and atomic' -- (a)/(b)."
+  },
+  {
+   "idx": 97,
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_add_node",
+   "from": "0.1.5",
+   "label": "instruction-bearing",
+   "reason": "Added text imperatively directs 'Keep batches small and atomic (5-25 nodes) so failures stay contained' -- (b)."
+  },
+  {
+   "idx": 98,
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_ask",
+   "from": "0.1.5",
+   "label": "not-instruction-bearing",
+   "reason": "Added text is self-describing usage ('Use for adding knowledge...') and timing/return documentation, names no other tool."
+  },
+  {
+   "idx": 99,
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_get_ai_thread",
+   "from": "0.1.5",
+   "label": "instruction-bearing",
+   "reason": "Added text names naumu_ask and directs using this tool after it, cross-tool sequencing -- (a)."
+  },
+  {
+   "idx": 100,
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_remove_edge",
+   "from": "0.1.5",
+   "label": "instruction-bearing",
+   "reason": "Added text says 'Prefer naumu_ask' for structural changes, cross-tool priority claim -- (a)/(c)."
+  },
+  {
+   "idx": 101,
+   "pkg": "@naumu/mcp",
+   "tool": "naumu_search",
+   "from": "0.1.5",
+   "label": "not-instruction-bearing",
+   "reason": "Added text is self-describing usage guidance ('Only use this when you know the exact name...') naming no other tool."
+  },
+  {
+   "idx": 102,
+   "pkg": "@picsha-ai/mcp-server",
+   "tool": "delete_asset",
+   "from": "1.1.0",
+   "label": "instruction-bearing",
+   "reason": "Added text imperatively conditions parameter use on user intent ('Pass force: true ONLY when the user explicitly asks'), directing the model's own behaviour (b)."
+  },
+  {
+   "idx": 103,
+   "pkg": "@shiplightai/mcp",
+   "tool": "close_session",
+   "from": "0.1.66",
+   "label": "not-instruction-bearing",
+   "reason": "Added span only describes what omitting a parameter does; ordinary parameter documentation with no cross-tool, priority, credential, or URL content."
+  },
+  {
+   "idx": 104,
+   "pkg": "@starreel/mcp",
+   "tool": "upload_shot_frame",
+   "from": "0.1.8",
+   "label": "not-instruction-bearing",
+   "reason": "New text clarifies when to supply the optional last_frame parameter versus first_frame; self-contained parameter/plan documentation, no other tool named."
+  },
+  {
+   "idx": 105,
+   "pkg": "@starreel/mcp",
+   "tool": "generate_tts",
+   "from": "0.1.16",
+   "label": "instruction-bearing",
+   "reason": "Added '\u524d\u7f6e:\u5148 assign_voices \u7ed9\u89d2\u8272\u5206\u914d\u97f3\u8272' names another tool and states it must be called first \u2014 cross-tool routing (a)."
+  },
+  {
+   "idx": 106,
+   "pkg": "@usestring/mcp",
+   "tool": "web_access_fetch",
+   "from": "1.1.0",
+   "label": "not-instruction-bearing",
+   "reason": "Only a line-ending (\\n vs \\r\\n) change; no new textual content added."
+  },
+  {
+   "idx": 107,
+   "pkg": "@usestring/mcp",
+   "tool": "web_access_fetch",
+   "from": "1.2.0",
+   "label": "not-instruction-bearing",
+   "reason": "Only a line-ending (\\r\\n vs \\n) change; no new textual content added."
+  },
+  {
+   "idx": 108,
+   "pkg": "crawlio-browser",
+   "tool": "create_tab",
+   "from": "1.3.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text describes what the connect:true parameter does; ordinary parameter/capability documentation, no other tool named or prioritized."
+  },
+  {
+   "idx": 109,
+   "pkg": "crawlio-browser",
+   "tool": "connect_tab",
+   "from": "1.4.6",
+   "label": "not-instruction-bearing",
+   "reason": "Added span explains this tool is optional and describes default auto-connect behaviour; capability documentation, no specific other tool named."
+  },
+  {
+   "idx": 110,
+   "pkg": "crawlio-browser",
+   "tool": "browser_snapshot",
+   "from": "1.5.4",
+   "label": "not-instruction-bearing",
+   "reason": "Added 'Options: interactive=true...' text is pure parameter documentation with no cross-tool or imperative behavioural content."
+  },
+  {
+   "idx": 111,
+   "pkg": "crawlio-browser",
+   "tool": "get_dom_snapshot",
+   "from": "1.5.4",
+   "label": "not-instruction-bearing",
+   "reason": "Added text documents a default return format and a parameter to change it; ordinary parameter/return documentation."
+  },
+  {
+   "idx": 112,
+   "pkg": "crawlio-browser",
+   "tool": "set_stealth_mode",
+   "from": "1.5.4",
+   "label": "not-instruction-bearing",
+   "reason": "Added text ('Disabled by default. Call with enabled: true to activate.') is standard parameter usage documentation, not cross-tool or priority language."
+  },
+  {
+   "idx": 113,
+   "pkg": "crawlio-browser",
+   "tool": "connect_tab",
+   "from": "1.6.1",
+   "label": "not-instruction-bearing",
+   "reason": "Added 'Pass background:true...' text documents a parameter's effect; ordinary parameter documentation."
+  },
+  {
+   "idx": 114,
+   "pkg": "crawlio-browser",
+   "tool": "detect_tables",
+   "from": "1.6.1",
+   "label": "not-instruction-bearing",
+   "reason": "Added text describes internal detection strategy ordering (native table elements found first); capability documentation, no directive content."
+  },
+  {
+   "idx": 115,
+   "pkg": "crawlio-browser",
+   "tool": "extract_table",
+   "from": "1.6.1",
+   "label": "not-instruction-bearing",
+   "reason": "Added text documents extraction/column-naming behaviour and return shape; capability/return-value documentation."
+  },
+  {
+   "idx": 116,
+   "pkg": "crawlio-browser",
+   "tool": "agent_session_claim_tab",
+   "from": "1.9.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text documents rejection conditions and permission requirements; capability/error documentation, no cross-tool or imperative content."
+  },
+  {
+   "idx": 117,
+   "pkg": "crawlio-browser",
+   "tool": "agent_session_create_tab",
+   "from": "1.9.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text describes background tab creation behaviour and permission requirement; capability documentation."
+  },
+  {
+   "idx": 118,
+   "pkg": "crawlio-browser",
+   "tool": "agent_session_finalize",
+   "from": "1.9.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text documents keep[].status semantics and tab disposal behaviour; parameter/capability documentation."
+  },
+  {
+   "idx": 119,
+   "pkg": "crawlio-browser",
+   "tool": "agent_session_name",
+   "from": "1.9.0",
+   "label": "not-instruction-bearing",
+   "reason": "Trivial truncated rewording ('Set the title of an agent') with no directive or cross-tool content."
+  },
+  {
+   "idx": 120,
+   "pkg": "crawlio-browser",
+   "tool": "connect_tab",
+   "from": "1.9.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text documents the three connection modes and permission grants; parameter/capability documentation, no other tool named."
+  },
+  {
+   "idx": 121,
+   "pkg": "crawlio-browser",
+   "tool": "get_capabilities",
+   "from": "1.9.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text describes what the tool reports (command availability, CDP domains, permissions); self-describing capability documentation."
+  },
+  {
+   "idx": 122,
+   "pkg": "crawlio-browser",
+   "tool": "get_crawl_status",
+   "from": "1.9.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text is a plain self-describing restatement of tool purpose, no other tool named or directive content."
+  },
+  {
+   "idx": 123,
+   "pkg": "crawlio-browser",
+   "tool": "recording_capture_bundle",
+   "from": "1.9.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text describes new background-tab capture mechanics; capability documentation, no directive or cross-tool addition (the existing 'prefer recording_start' text was already in old)."
+  },
+  {
+   "idx": 124,
+   "pkg": "crawlio-browser",
+   "tool": "recording_start",
+   "from": "1.9.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text describes extension-resident architecture and persistence behaviour; capability documentation."
+  },
+  {
+   "idx": 125,
+   "pkg": "crawlio-browser",
+   "tool": "robot_training_start",
+   "from": "1.9.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text describes extension-resident capture architecture; capability documentation, no directive or cross-tool content."
+  },
+  {
+   "idx": 126,
+   "pkg": "crawlio-browser",
+   "tool": "robot_training_status",
+   "from": "1.9.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text describes what status query returns and its persistence; capability/return documentation."
+  },
+  {
+   "idx": 127,
+   "pkg": "crawlio-browser",
+   "tool": "robot_training_stop",
+   "from": "1.9.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text enumerates the files/data produced by the export; return-value/capability documentation."
+  },
+  {
+   "idx": 128,
+   "pkg": "crawlio-browser",
+   "tool": "take_screenshot",
+   "from": "1.9.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added text documents capture modes and JPEG/PNG fallback behaviour; parameter/return-value documentation."
+  },
+  {
+   "idx": 129,
+   "pkg": "@takehub/mcp",
+   "tool": "create_topic",
+   "from": "1.1.1",
+   "label": "not-instruction-bearing",
+   "reason": "Added text is a simple terminology rewording ('debate'\u2192'discussion') with no new directive content."
+  },
+  {
+   "idx": 130,
+   "pkg": "@takehub/mcp",
+   "tool": "create_topic_and_invite",
+   "from": "1.1.1",
+   "label": "not-instruction-bearing",
+   "reason": "Added text is a simple terminology rewording ('debate'\u2192'discussion') with no new directive content."
+  },
+  {
+   "idx": 131,
+   "pkg": "@takehub/mcp",
+   "tool": "list_topics",
+   "from": "1.1.1",
+   "label": "not-instruction-bearing",
+   "reason": "Added text is a simple terminology rewording ('debate'\u2192'discussion') with no new directive content."
+  },
+  {
+   "idx": 132,
+   "pkg": "affiliate-networks-mcp",
+   "tool": "affiliate_list_networks",
+   "from": "0.9.0",
+   "label": "not-instruction-bearing",
+   "reason": "Added clause notes the return payload now includes whether credentials are configured; describes return data, not credential-directed instruction (d does not apply to incidental mention)."
+  },
+  {
+   "idx": 133,
+   "pkg": "affiliate-networks-mcp",
+   "tool": "affiliate_get_brand_rows",
+   "from": "0.14.1",
+   "label": "not-instruction-bearing",
+   "reason": "Added text documents additional output format options (inline CSV, format param); ordinary parameter/return documentation."
+  },
+  {
+   "idx": 134,
+   "pkg": "@agenttrust/mcp-server",
+   "tool": "agenttrust_inbox",
+   "from": "1.1.1",
+   "label": "instruction-bearing",
+   "reason": "Added text names agenttrust_context and directs the model to use it to open triaged items \u2014 cross-tool routing (a)."
+  },
+  {
+   "idx": 135,
+   "pkg": "@agenttrust/mcp-server",
+   "tool": "agenttrust_reply",
+   "from": "1.1.1",
+   "label": "not-instruction-bearing",
+   "reason": "Added text is generic self-describing usage guidance ('use this to continue negotiation...') naming no other tool and claiming no priority."
+  }
+ ]
+}
