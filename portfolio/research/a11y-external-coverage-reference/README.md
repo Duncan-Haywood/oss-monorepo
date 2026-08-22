@@ -281,3 +281,165 @@ axe-core is fetchable. That is a genuinely independent third detector rather
 than two engines with a shared author lineage, and it is the first thing in this
 repository that could put a number on what both of ours miss. It needs a
 headless browser, which is why it is named here rather than done.
+
+---
+
+## Finding 5 (2026-08-22) — three of the eight rest on rules axe-core does not run
+
+Findings 1 and 3 were derived from `axe.getRules()`, which lists every rule
+axe-core **ships**. A default `axe.run()` does not execute all of them, and the
+extraction above dropped the two flags that say which: `enabled` and
+`experimental`. A rule axe never runs counted as evidence that an independent
+engine automates a criterion.
+
+The catalog now carries both flags (purely additive — same 75 rules, same
+criteria, same levels), and four A/AA criteria turn out to be reachable only
+through rules a default run skips:
+
+| Criterion | Level | axe rule | why it never fires |
+|---|---|---|---|
+| 1.2.1 Audio-only and Video-only | A | `audio-caption` | ships **disabled**; returns *incomplete* even when forced on |
+| 1.3.4 Orientation | AA | `css-orientation-lock` | **experimental**, off by default |
+| 2.5.3 Label in Name | A | `label-content-name-mismatch` | **experimental**, off by default |
+| 2.5.8 Target Size | AA | `target-size` | ships **disabled** |
+
+**The denominator is 18, not 22.** Three of those four are from Finding 1's
+eight; the fourth, 2.5.8, is from Finding 3's list of criteria "declined as
+needing a human that axe automates" — and axe does not automate it either.
+
+### This was measured by running axe, not by reading its rule list
+
+The claim above would be another table comparison if it stopped at the flags.
+Every fixture in `test_measure.py`'s `DEFECTS` was rendered in Chromium and run
+through axe-core 4.13.0 (the harness in [`a11y-axe-recall/`](../a11y-axe-recall/)
+already existed). Of the nine fixtures, **a default run reports five**:
+
+| Fixture | default run | forced on |
+|---|---|---|
+| 1.4.1, 2.2.1, 2.2.2, 3.1.2, 1.3.5 | violation | — |
+| 1.3.4, 2.5.3 | *rule not executed* | violation |
+| 1.2.1 | *rule not executed* | **incomplete** |
+| 2.4.1 | **pass** | **pass** |
+
+### 2.4.1's fixture was not a 2.4.1 failure
+
+The last row is a separate defect, and a sharper one. The fixture was:
+
+```html
+<nav><a href='/a'>a</a></nav><main><p>x</p></main>
+```
+
+It contains a `<main>` landmark — one of the three mechanisms axe's `bypass`
+rule accepts — so axe *passes* it. `TestGapsAreReal` asserted that both
+in-house engines were silent on this markup, and they were, because there was
+nothing to find. **That subtest could not have failed**, on the one criterion
+the write-up above singled out to read twice.
+
+The gap it was evidence for is real: neither engine had a rule for 2.4.1, and
+the catalog said nothing about it. What is gone is the behavioural
+confirmation, on that row, that the module's whole design rests on. The fixture
+is corrected, and the correction is load-bearing now that 2.4.1 is implemented.
+
+A further measured detail, worth stating because it changes what a rule for
+this criterion can claim: given a genuine failure — navigation, prose, no
+mechanism at all — axe's `bypass` returns **incomplete**, not a violation. On
+2.4.1 the reference declines to decide.
+
+### What this does and does not do to Finding 1
+
+**Finding 1 stands.** Its claim is that eight criteria were in neither engine's
+checked list nor its not-tested list, and that is a fact about the catalogs,
+independent of what axe runs. All eight are decidable from the artifact, and
+four are now rules.
+
+**Its severity was overstated**, in a way that matters for how the next reader
+uses it. "An independent engine automates this and we do not" was true of five
+of the eight and is not true of 1.2.1, 1.3.4 or 2.5.3. The honest residue is
+**one** criterion that axe reports by default and neither engine looks for:
+**1.4.1 Use of Color** — which fires once on this portfolio's own corpus
+(`photo-editing/docs-site`), and is named in the probe's catalog as the single
+genuine remaining gap rather than grouped with the three that are not.
+
+### The pattern, restated
+
+`rescore-2026-08-20.md`'s rule is that product assumptions cost points and
+environmental ones give them back. Finding 1 was both at once. This one is a
+third thing neither category covers: **the reference itself was measured
+optimistically.** The error was the same shape the module was built to catch —
+counting a capability from a listing rather than from a run — committed one
+level up, against the tool being used as ground truth.
+
+`data-reachability/`'s rule was "probe every channel a feed publishes, not just
+its canonical host." The generalisation this adds: *a capability list is not a
+capability*. Run the thing.
+
+## What changed on 2026-08-22
+
+- **The catalog** carries `enabled` and `experimental`; `load_reference()`
+  exposes `default_run_rules` beside `rules`, and every reported row now says
+  whether a default run reaches it.
+- **Four of the eight are implemented** in `eaa-wcag-triage` — 2.2.1, 2.2.2,
+  2.4.1 and 3.1.2, exactly the four a default axe run reports as violations.
+  See that probe's README for the rules and their out-of-sample result.
+- **`results-2026-08-21-after-disclosure.json` is now addressed by revision**
+  (`7ce8473`) rather than by "worktree". It records the state disclosure left
+  behind — eight rows declared, no rule for any of them — and that state is
+  history. Leaving it pinned to the worktree would have meant overwriting the
+  before-state this module exists to compare against, to keep its own test
+  passing. `results-2026-08-22-after-rules.json` is the new worktree file.
+- **`TestGapsAreReal` gained the other direction.** It still asserts the four
+  remaining criteria are undetected; it now also asserts the four implemented
+  ones *are* detected, so a row cannot move off `unimplemented` without a rule
+  behind it.
+
+## The score, and why it does not move
+
+`eaa-remediation-pipeline`'s `liability_containment` stays at **5**, on the
+gate, and this is a deliberate non-revision rather than an oversight.
+
+The case for raising it: half the disclosed gap is now closed with tested
+rules, the reference that docked the point turns out to have overstated it, and
+the remaining rows carry measured reasons instead of an unsupported claim.
+
+The case against, which wins: this pass also found a **new** overclaim in the
+same artifact — 3.1.1 was labelled `automated`, the catalog's strongest word,
+while the only rule behind it checked that `lang` *existed* and never that it
+held a language. That is the third time the coverage statement has been wrong
+when checked against something new (1.4.3 declared manual for five passes; the
+eight rows; now this). A statement with that history does not earn a point back
+on a pass that also had to fix it, and a session raising a score on the
+strength of its own work is measuring itself.
+
+What would earn it: out-of-sample **recall** for the new rules, on a corpus
+that can exercise them. This one cannot, and the reason is Finding 6.
+
+## Finding 6 (2026-08-22) — a build directory cannot settle structural criteria
+
+The 2.4.1 rule's first out-of-sample run over the 118-page corpus produced
+exactly one finding, on `ventures/quick-pick-survey`'s `/app` route, and
+hand-checking it in a browser showed it was **wrong**.
+
+The prerendered file has a `<nav>`, no `<main>`, no heading of any level and no
+in-page link — a textbook failure. The delivered page has a `<main>` and a
+heading: the content region of the prerender is the string `Loading…`, and the
+rest arrives when the client renders. axe agrees the delivered page passes.
+**The finding was true of the file and false of the page.**
+
+The rule gained a third gate as a result — there must be content to bypass
+*to*, not merely a navigation bar above an empty region — and with it the
+corpus reproduces the committed 780 findings field for field, no page
+differing.
+
+This repository has now hit the same wall from both sides. `a11y-generated-sites`
+found an `<iframe>` that no build-directory corpus could reach, because the
+route it lives on appears in no build. This is the mirror image: a build
+directory shows a *barrier* that the delivered page does not have. Contrast
+(1.4.3) survives the prerender because colours are in the stylesheet either
+way; **structural** criteria — is there a landmark, a heading, a skip link —
+do not, because for a client-rendered app the structure is the part that has
+not happened yet.
+
+So the out-of-sample result for the four new rules is **zero findings across
+118 pages**, and that number should be read as *this corpus cannot exercise
+them* rather than *these pages are clean*. A rendered corpus is what would
+settle it, and the tooling for one now exists in `a11y-axe-recall/`.

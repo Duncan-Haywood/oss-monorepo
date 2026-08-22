@@ -426,3 +426,34 @@ not in the terms* — is the reason both belong here rather than in a backlog. A
 record that lists a framework's internal error document as a customer's
 blocking defect states its coverage inaccurately in the direction that flatters
 the seller.
+
+## 2026-08-22 — re-measured after four new criteria, corpus unchanged
+
+`eaa-wcag-triage` gained rules for 2.2.1, 2.2.2, 2.4.1 and 3.1.2 (see
+[`a11y-external-coverage-reference/`](../a11y-external-coverage-reference/)
+Findings 5–6). The corpus was rebuilt from all 7 apps and re-measured to find
+out what they add here.
+
+**They add nothing, and the committed results file is unchanged** — 780
+findings, every page identical field for field. That is worth stating rather
+than passing over, because the first run was not clean:
+
+The 2.4.1 rule initially produced **one** finding, on
+`ventures/quick-pick-survey`'s `/app` route, and hand-checking it in a browser
+showed it was a false positive. The prerendered file has a `<nav>`, no
+`<main>`, no heading and no in-page link. The delivered page has a `<main>` and
+a heading — the prerender's whole content region is the string `Loading…`, and
+the rest is rendered client-side. axe-core passes the delivered page.
+
+This directory found the mirror image of that once already: Finding 1's
+false positives were the *build tool's* own error documents, pages no venture
+wrote. This is a different failure of the same corpus. A build directory holds
+documents that are not the customer's page (fixed by the provenance filter),
+**and** it holds pages that are not yet the page they will be. Contrast
+survives a prerender because the colours are in the stylesheet either way;
+structural criteria — landmark, heading, skip link — do not.
+
+So the four new rules are exercised by **nothing** in this corpus, and the
+right reading of their zero findings is *out of scope of this measurement*, not
+*clean*. Settling them needs a rendered corpus; the Playwright harness in
+[`a11y-axe-recall/`](../a11y-axe-recall/) is where one would start.
