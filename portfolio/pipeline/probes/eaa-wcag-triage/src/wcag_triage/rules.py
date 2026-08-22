@@ -17,11 +17,12 @@ That list is the product's coverage statement, surfaced rather than buried.
 
 from __future__ import annotations
 
+import math
 import re
 from dataclasses import dataclass
 from typing import Callable, Optional
 
-from . import contrast, lang, usecolor
+from . import contrast, css, lang, usecolor
 from .parser import Node
 
 BLOCKING = "blocking"
@@ -183,9 +184,10 @@ COVERAGE: tuple = (
     # though it settled which rows to build, and it does not: what the
     # reference runs is evidence about the reference. Of the three, only 1.2.1
     # is undecidable from the artifact -- 2.5.3's own note had said the
-    # opposite since the row was written -- so 2.5.3 is now a rule, and 1.3.4
-    # is decidable from the CSS and still unbuilt. Two remain, and only one of
-    # them is here because it cannot be done.
+    # opposite since the row was written, so 2.5.3 became a rule, and 1.3.4
+    # followed later the same day once the same correction was applied to it
+    # too (see below). 1.2.1 is the one left, and it is the one that actually
+    # cannot be done.
     Criterion("1.2.1", "Audio-only and Video-only (Prerecorded)", "A", "unimplemented",
               "Whether an audio-only file has an equivalent elsewhere on the "
               "page is not decidable from markup; the reference's rule for it "
@@ -215,10 +217,18 @@ COVERAGE: tuple = (
               "injected by CSS content, or assembled at runtime is not, and a "
               "mismatch between a separate visible label and a field's name "
               "needs someone to look at the page."),
-    Criterion("1.3.4", "Orientation", "AA", "unimplemented",
-              "A stylesheet locking orientation is decidable from the CSS; the "
-              "reference's rule for it is experimental and off by default, so "
-              "the same caveat applies."),
+    # Implemented 2026-08-22, the same correction as 2.5.3 and on the same
+    # day: the row's own note had said "decidable from the CSS" since it was
+    # written, and the reference's rule for it (`css-orientation-lock`)
+    # shipping experimental and off by default was a fact about the reference,
+    # never a reason this artifact could not decide it. See
+    # `rule_orientation_lock`.
+    Criterion("1.3.4", "Orientation", "AA", "partial",
+              "A stylesheet rotating <html> or <body> a non-trivial angle "
+              "under a media query conditioned purely on one orientation -- "
+              "the classic 'lock the display to landscape' hack -- is "
+              "detectable; a lock imposed by script, or by an @page rule on "
+              "a print stylesheet, is not."),
 )
 
 
@@ -1064,6 +1074,134 @@ def rule_link_color_only(results):
             f"{usecolor.LINK_TEXT_RATIO}:1 against the surrounding text.",
             seq=node.order,
         )
+
+
+# SC 1.3.4 Orientation.
+#
+# Like 1.4.1, this needs the resolved stylesheet rather than one element's own
+# attributes, so it does not fit the `rule(root, label_targets)` shape either.
+# Unlike 1.4.1, though, there is nothing to tally per element: the question is
+# a single yes/no about the whole document -- does any stylesheet rule rotate
+# `<html>` or `<body>` under one orientation? -- so this is wired directly into
+# the engine the way `rule_link_color_only` is, but without the
+# `evaluate_document`/tally machinery 1.4.1 needed and this criterion does not.
+
+_ROTATE_RE = re.compile(r"rotate\(\s*(-?[\d.]+)\s*(deg|grad|rad|turn)?\s*\)", re.IGNORECASE)
+_ANGLE_TO_DEGREES = {"deg": 1.0, "grad": 0.9, "rad": 180.0 / math.pi, "turn": 360.0}
+
+
+def _has_visual_rotation(value: str) -> bool:
+    """Whether a ``transform`` value contains a ``rotate()`` that is not a
+    no-op.
+
+    ``rotate(0deg)``, ``rotate(360deg)`` and ``rotate(-360deg)`` all return
+    the element to the orientation it started in -- a full turn looks
+    identical to no turn at all -- so only an angle that is not a multiple of
+    360 degrees is a real, visible rotation. A ``rotate()`` written with a
+    unit this reader does not recognise is left alone rather than guessed at,
+    the same direction of refusal as everywhere else in this module.
+    """
+    for magnitude, unit in _ROTATE_RE.findall(value):
+        scale = _ANGLE_TO_DEGREES.get((unit or "deg").lower())
+        if scale is None:
+            continue
+        if abs((float(magnitude) * scale) % 360.0) > 1e-9:
+            return True
+    return False
+
+
+def rule_orientation_lock(root: Node, sheet: css.Stylesheet):
+    """SC 1.3.4 -- a stylesheet that rotates the whole page under one
+    orientation: the classic "hide the portrait warning, spin the page 90deg
+    to force landscape" hack.
+
+    Implemented 2026-08-22, the same day and the same correction as
+    :func:`rule_label_in_name`: the row's own note had said this was
+    "decidable from the CSS" since it was written, and the only thing keeping
+    it unbuilt was that the reference engine's rule for it
+    (``css-orientation-lock``) ships experimental and off by default -- a fact
+    about the reference, not about whether this artifact can decide the
+    question. 1.2.1 is the one row in this catalog that measurement correctly
+    leaves unbuilt; see its own note for why it is different.
+
+    **The mechanism.** A page that wants to force one orientation instead of
+    building a layout that works in both conditions a ``transform: rotate()``
+    on the document root or the whole body on ``@media (orientation:
+    portrait)`` (to force landscape) or the reverse. The effect is that
+    whichever way the reader physically holds the device, the rendered page is
+    turned 90 degrees relative to it -- there is no orientation left in which
+    it reads right-side up.
+
+    Scoped to the same two elements 1.4.1's colour-scheme handling already
+    established as the ones a static reader can say something about without
+    layout information it does not have: ``<html>`` and ``<body>``, which land
+    in :attr:`css.Stylesheet.elements` through the existing bare-type-selector
+    handling. A ``transform`` declared on a class selector is not read at all
+    here -- deciding which elements a class applies to, and whether any of
+    them amounts to "the whole page", needs the DOM-and-cascade reasoning
+    :mod:`wcag_triage.css` refuses to do for anything but a bare type
+    selector. A page that locks orientation through a wrapper `<div>` class
+    is a real instance of this barrier that this rule does not catch, and
+    that is a limitation of what a source-only reader can attribute the
+    rotation *to*, not a claim that such a lock does not count.
+
+    Only a condition that is *purely* an orientation check counts --
+    :func:`css.orientation_of` mirrors :func:`css.scheme_of`'s refusal to
+    decide a condition combined with a breakpoint, for the same reason: a
+    query that also checks ``min-width`` needs the viewport, which this reader
+    does not have.
+
+    **Blocking.** Locked to one orientation, the page is not merely awkward
+    for a reader who cannot or does not rotate their device -- a phone in a
+    fixed mount, a monitor bolted in one orientation, a reader whose motor
+    impairment makes physically rotating a handheld device difficult or
+    impossible. For that reader the page renders sideways with no control on
+    the page that can right it, which is the same "stops one population
+    completely" test that makes :func:`rule_interactive_aria_hidden` and
+    :func:`rule_label_in_name` blocking rather than degrading.
+
+    ``partial``, not ``automated``: this catches exactly one shape of the
+    criterion. A lock enforced by script (a ``resize``/``orientationchange``
+    handler that reflows or re-rotates the page) or by an ``@page``
+    orientation restriction on a print stylesheet is not decidable from a
+    stylesheet reader and is not attempted here.
+
+    **The false-positive case considered and rejected.** A tiny, deliberately
+    imperceptible rotation (``rotate(0.001deg)``) is a real CSS hack, used to
+    force a browser onto its GPU compositing path for smoother text -- and it
+    would still count here, since any non-zero angle does. It is not treated
+    as a special case, because the conjunction this rule requires is narrow
+    enough that the hack and the barrier do not actually collide in practice:
+    the compositing trick is applied to the *specific element* it is meant to
+    smooth, not to the document root or the whole body, and it is not
+    conditioned on device orientation -- there is no reason a rendering
+    optimisation would apply in portrait and not landscape. Nothing in this
+    repository's own fixtures or pages exercises this combination either way
+    -- see the README's disclosure that this rule has had no out-of-sample
+    corpus run -- so this is a reasoned judgement about the shape of the two
+    hacks, not a measured one.
+    """
+    for tag in ("html", "body"):
+        node = next((n for n in root.iter() if n.tag == tag), None)
+        if node is None:
+            continue
+        entry = sheet.element_property_for(tag, "transform")
+        if entry is None:
+            continue
+        for orientation, value in css.orientation_conditionals(entry):
+            if not _has_visual_rotation(value):
+                continue
+            yield Finding(
+                "1.3.4", "Orientation", "AA", BLOCKING, tag, node.line,
+                f"<{tag}> is rotated ({value.strip()}) whenever the device "
+                f"reports {orientation} orientation, locking the display to "
+                "the other one with no way for the reader to undo it.",
+                f"Remove the rotation applied to <{tag}> under "
+                f"(orientation: {orientation}), or replace it with a "
+                "responsive layout that works in both orientations.",
+                seq=node.order,
+            )
+            return  # one document-level barrier is enough to report
 
 
 ALL_RULES: tuple = (

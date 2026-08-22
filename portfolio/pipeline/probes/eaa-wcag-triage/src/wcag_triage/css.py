@@ -69,6 +69,11 @@ TRACKED_PROPERTIES = frozenset(
         "outline-width",
         "outline-style",
         "color-scheme",
+        # Added 2026-08-22 for SC 1.3.4 (`rule_orientation_lock` in rules.py):
+        # the "rotate the whole page 90deg to force landscape" hack lives
+        # entirely in this one property, conditioned on `@media (orientation:
+        # ...)` on `html` or `body`.
+        "transform",
     }
 )
 
@@ -131,6 +136,53 @@ def scheme_order(entry: "PropertyValue", scheme: str) -> int:
 def general_conditionals(entry: "PropertyValue") -> list:
     """Conditional values whose condition is *not* just a colour scheme."""
     return [d.value for d in entry.conditional if scheme_of(d.condition) is None]
+
+
+_PORTRAIT_RE = re.compile(r"orientation\s*:\s*portrait", re.IGNORECASE)
+_LANDSCAPE_RE = re.compile(r"orientation\s*:\s*landscape", re.IGNORECASE)
+
+
+def orientation_of(condition: str) -> Optional[str]:
+    """``"portrait"``/``"landscape"`` if this at-rule condition selects one
+    device orientation, mirroring :func:`scheme_of` exactly.
+
+    Only a condition that is *solely* about orientation counts. A condition
+    that also carries a breakpoint (``(min-width: 40rem) and (orientation:
+    portrait)``) is left undecided, for the same reason a colour-scheme query
+    combined with one is: deciding it would still need the viewport. A
+    condition naming both orientations at once is nonsensical CSS but must not
+    crash this reader; ``_only_orientation`` rejects it the same way
+    ``_only_scheme`` rejects a query naming both colour schemes.
+    """
+    if _PORTRAIT_RE.search(condition) and not _LANDSCAPE_RE.search(condition):
+        return "portrait" if _only_orientation(condition) else None
+    if _LANDSCAPE_RE.search(condition):
+        return "landscape" if _only_orientation(condition) else None
+    return None
+
+
+def _only_orientation(condition: str) -> bool:
+    stripped = re.sub(r"@media|\s|\(|\)", "", condition, flags=re.IGNORECASE)
+    return bool(re.fullmatch(r"orientation:(portrait|landscape)", stripped, re.IGNORECASE))
+
+
+def orientation_conditionals(entry: "PropertyValue") -> list:
+    """``[(orientation, value), ...]`` for declarations conditioned purely on
+    one orientation, mirroring :func:`general_conditionals`.
+
+    Kept separate from ``general_conditionals`` rather than reusing it: that
+    function only tells a caller a condition was *not* a colour scheme, which
+    is not enough here — the finding this feeds has to name which orientation
+    the rotation triggers under, so the orientation itself has to travel with
+    the value.
+    """
+    out = []
+    for declaration in entry.conditional:
+        orientation = orientation_of(declaration.condition)
+        if orientation is not None:
+            out.append((orientation, declaration.value))
+    return out
+
 
 _SINGLE_CLASS_RE = re.compile(r"^\.((?:[^\s.,:>+~()\[\]#\\]|\\.)+)$")
 _VAR_RE = re.compile(r"var\(\s*(--[A-Za-z0-9_-]+)\s*(?:,\s*(.*?))?\s*\)", re.DOTALL)

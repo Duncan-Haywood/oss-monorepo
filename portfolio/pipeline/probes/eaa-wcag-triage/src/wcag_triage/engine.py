@@ -37,6 +37,7 @@ from .rules import (
     Finding,
     build_label_index,
     rule_link_color_only,
+    rule_orientation_lock,
     rule_text_contrast,
 )
 
@@ -121,6 +122,14 @@ def audit_html(html: str, stylesheet: Optional[Stylesheet] = None) -> Audit:
                 continue
             seen.add(finding.key())
             findings.append(finding)
+    # SC 1.3.4 needs the stylesheet directly rather than a precomputed results
+    # list -- there is no per-element tally for a document-level yes/no check,
+    # so unlike the two rules above it takes (root, sheet) rather than results.
+    for finding in rule_orientation_lock(root, sheet):
+        if finding.key() in seen:
+            continue
+        seen.add(finding.key())
+        findings.append(finding)
     # Blocking first, then by document order.
     findings.sort(key=lambda f: (0 if f.impact == BLOCKING else 1, f.line))
     return Audit(

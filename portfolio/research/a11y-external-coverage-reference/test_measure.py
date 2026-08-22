@@ -51,12 +51,15 @@ AS_FOUND_GAPS = ["1.2.1", "1.3.4", "1.4.1", "2.2.1",
 # first criterion either engine here decides that a default reference run does
 # not report at all. The containment that survives is one-directional and is
 # the one worth pinning: everything axe reports by default is implemented.
-IMPLEMENTED = ["1.4.1", "2.2.1", "2.2.2", "2.4.1", "2.5.3", "3.1.2"]
+IMPLEMENTED = ["1.3.4", "1.4.1", "2.2.1", "2.2.2", "2.4.1", "2.5.3", "3.1.2"]
 # Implemented despite the reference never running a rule for it. Kept separate
 # so the assertions below can still say which side of the axe line each row
-# sits on without implying the line decided anything.
-IMPLEMENTED_BEYOND_THE_REFERENCE = ["2.5.3"]
-STILL_UNIMPLEMENTED = ["1.2.1", "1.3.4"]
+# sits on without implying the line decided anything. 1.3.4 joins 2.5.3 here:
+# `css-orientation-lock` ships experimental and off, same as
+# `label-content-name-mismatch`, and the probe's own catalog note had called
+# the criterion decidable from the CSS since the row was written.
+IMPLEMENTED_BEYOND_THE_REFERENCE = ["1.3.4", "2.5.3"]
+STILL_UNIMPLEMENTED = ["1.2.1"]
 
 # What axe-core 4.13.0 does with each fixture below, measured on 2026-08-22 by
 # running it in Chromium (see `a11y-axe-recall/` for the harness). Recorded as
@@ -342,16 +345,18 @@ class TestGapsAreReal(unittest.TestCase):
                              criterion)
 
     def test_what_is_left_unimplemented_is_not_explained_by_axe_alone(self):
-        # Both remaining rows are ones a default axe run never executes, so no
-        # engine anywhere reports them. That is still true and still worth
-        # stating -- but after 2.5.3 it is no longer the *reason* they are
-        # unbuilt, and only one of the two is genuinely undecidable.
+        # The one remaining row is a criterion a default axe run never
+        # executes either, so no engine anywhere reports it. That is still
+        # true and still worth stating -- but after 2.5.3 and 1.3.4 it is no
+        # longer the *reason* it is unbuilt: it is genuinely undecidable from
+        # the artifact, not merely unbuilt because axe declines to run a rule.
         for criterion in STILL_UNIMPLEMENTED:
             self.assertEqual(AXE_DEFAULT_RUN_VERDICTS[criterion], "off",
                              criterion)
-        # 1.3.4 is decidable from the CSS and simply has no rule yet; 1.2.1 is
-        # the only row here because the artifact cannot answer it.
-        self.assertEqual(STILL_UNIMPLEMENTED, ["1.2.1", "1.3.4"])
+        # 1.3.4 was decidable from the CSS and has a rule now; 1.2.1 is the
+        # only row left because the artifact itself cannot answer it (no
+        # transcript is present in static markup to judge).
+        self.assertEqual(STILL_UNIMPLEMENTED, ["1.2.1"])
 
     def test_criteria_axe_does_not_run_by_default_are_marked_in_the_catalog(self):
         # The catalog half of the same fact, derived from the committed
