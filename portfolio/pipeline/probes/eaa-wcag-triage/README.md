@@ -237,6 +237,18 @@ real evidence too, but both remain markup written or selected to exercise the
 rule rather than a broad, arbitrary sample — a rebuilt 118-page corpus run is
 still the next thing that would settle it more widely.
 
+**Settled the same day, in a third pass.** Every venture buildable at the
+time was rebuilt (the corpus had grown to 128 pages/10 apps by then — see
+[`a11y-axe-recall`](../../../research/a11y-axe-recall/)'s own README for that
+unrelated finding) and run through `a11y-axe-recall`'s harness live, not a
+recomputation. `rule_use_of_color` catches exactly the real instance that
+harness had already recorded axe flagging — `photo-editing/docs-site
+/index.html`'s `<a href="/docs/security">Site security</a>`, coloured and
+underline-stripped by a class rule rather than the fixture's inline
+`style=` — with zero new false positives across the other 127 pages.
+Checked-criteria universe 17 → 18, matched 39 → 40, missed unchanged at 1
+(the same already-contested checkbox), recall 0.975 → 0.976.
+
 ## The build-artifact filter: added 2026-08-22
 
 A build directory is not a list of the customer's pages. It also holds documents

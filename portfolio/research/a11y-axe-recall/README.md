@@ -232,3 +232,49 @@ The next re-run should rebuild the corpus, re-run `measure.py`, and report
 whether the checked-criteria universe holds at 39/40 = 0.975 or moves either
 way — the same three questions the 2.2.1/2.2.2/2.4.1/3.1.2 pass above already
 answered for its four criteria, still open for this fifth one.
+
+## 2026-08-22, a third pass the same day — the re-run above, done live
+
+Rebuilt every venture (`npm ci && npm run build` per app; `pnpm -r run build`
+for `retail-pilot-intel`'s workspace) and ran `measure.py` live against the
+repository as it stood after `rule_use_of_color` landed — not
+`--recompute-from`, which cannot see a code change.
+
+`rule_use_of_color` **does** catch the real instance: `photo-editing/docs-site
+/index.html`'s `<a href="/docs/security">Site security</a>`, coloured and
+underline-stripped by a class rule, matches. That was the one fact this
+directory existed to establish for this criterion, and it now has an answer.
+
+| | before (committed, 17-criterion universe) | live, after `rule_use_of_color` |
+|---|---:|---:|
+| checked-criteria universe | 17 | **18** (+1.4.1) |
+| axe-flagged checked instances | 40 | 41 |
+| matched | 39 | **40** |
+| missed | 1 | 1 (same page, same criterion) |
+| recall | 0.975 | **0.976** |
+| outside-universe instances | 3 | 2 (1.4.1 moved in) |
+
+The one miss is unchanged: `real-estate-agent-photo-app/docs-site/strategy.html`,
+`4.1.2`, the already-contested disabled checkbox. Widening the claim did not
+cost anything, the same shape the 2.2.1/2.2.2/2.4.1/3.1.2 re-run found for its
+four criteria.
+
+**A second thing turned up that this pass did not set out to find.** The live
+corpus is **128 unique pages across 10 apps**, not the 118/7 `results-2026-08-22.json`
+pins: `ventures/ai-engineering-academy/site` did not exist at the last
+measurement, and `retail-pilot-intel`'s two Vite sub-apps (`apps/docs`,
+`apps/portal`) were not built into it either. Neither newly-built app changed
+a match or a miss above — their pages simply added to the denominator. This is
+unrelated to 1.4.1 and **not re-baselined here**: doing so means rewriting
+every `SavedResults` assertion in `test_measure.py` (`test_corpus_matches_a11y_own_sites`,
+`test_checked_criteria_universe`, `test_widening_the_claim_did_not_cost_recall`,
+`test_recall_after_the_stylesheet_fix`, `test_axe_findings_outside_the_checked_universe_are_known_gaps`)
+on the strength of a check this pass was not scoped to make. Recorded so the
+next session that touches this file does not have to rediscover it: **the
+committed `results-2026-08-22.json` is now known-stale on corpus size**, and a
+dedicated re-baselining pass — not a paragraph in this one — is the right next
+step for that.
+
+The live output is not committed (build directories are not tracked, so it
+cannot be replayed without rebuilding); the table above is transcribed from
+it, not estimated.

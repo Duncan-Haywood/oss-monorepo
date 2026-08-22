@@ -392,6 +392,14 @@ capability*. Run the thing.
   resting on an axe rule that ships disabled or experimental. See that
   probe's README for the rule, its scheme-by-scheme colour comparison, and
   what it deliberately still cannot decide.
+- **1.4.1's rule was confirmed against the real instance, live, in a third
+  pass the same day.** `a11y-axe-recall` rebuilt every venture it could
+  (128 pages, 10 apps by then — corpus growth unrelated to this criterion,
+  recorded but not re-baselined) and re-ran its harness: `rule_use_of_color`
+  matches the exact page axe had already flagged
+  (`photo-editing/docs-site/index.html`), checked-criteria universe moved
+  17 → 18, matched 39 → 40, missed unchanged at 1, recall 0.975 → 0.976. See
+  that directory's own README for the full table.
 - **`results-2026-08-21-after-disclosure.json` is now addressed by revision**
   (`7ce8473`) rather than by "worktree". It records the state disclosure left
   behind — eight rows declared, no rule for any of them — and that state is
