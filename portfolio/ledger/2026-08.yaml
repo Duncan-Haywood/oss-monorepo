@@ -18291,3 +18291,86 @@ entries:
         agent-decidable per `CLAUDE.md`: opened as #642 and merged the same
         session. No revenue; the $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business
+        projects" session, designated branch
+        claude/laughing-pasteur-884yyz. `session_gate.py` -> PROCEED (0.75
+        sessions/hour; 2 distinct sessions inside one 15-minute window in
+        the last 6h, so it told me to check open PRs and branches first).
+        Per `CLAUDE.md`'s intake gate that brief is answered, so no
+        candidate list was produced; took the first move it names -- advance
+        a probe already specified in `portfolio/pipeline/`. Checked the 4
+        open PRs (#583, #531, #372, #368) first: all still correctly
+        owner-gated, nothing overlapping. Re-checked `main` for a collision
+        immediately before pushing, since four sessions independently built
+        SC 1.4.1 on this same file yesterday (#616 stranded as the fourth).
+      - >-
+        Built SC 2.5.3 Label in Name in `eaa-wcag-triage` (#641, merged).
+        The probe's catalog had three rows left as `unimplemented`, all
+        three left unbuilt on the measured grounds that axe's rules for them
+        ship disabled or experimental so no default reference run reports
+        them. That measurement is correct and answers a different question
+        than the one it was used to settle: what a default `axe.run()`
+        executes is evidence about axe, not about whether a barrier is
+        decidable from the artifact -- and 2.5.3's own catalog note had said
+        "decidable from the markup" since the row was written. The rule
+        fires where a control that names itself from its own content carries
+        an aria-label/aria-labelledby not containing the text on the
+        control, which is what leaves a speech-input user unable to activate
+        it by saying what it says. Coverage split 16/9/3 -> 17 reasoned
+        about / 9 deferred to a human / 2 unbuilt, and only one of the two
+        remaining is there because the artifact cannot answer it.
+      - >-
+        It is the first criterion either engine here decides that a default
+        reference run does not report at all, so the implemented/
+        unimplemented split is no longer "what axe reports by default". That
+        split had been pinned as a two-way containment by a test in
+        `a11y-external-coverage-reference`. Replaced by two rather than
+        weakened into one: everything axe reports by default is implemented
+        (the direction that still holds, and the regression guard), and the
+        reverse containment is now false, which is the finding rather than a
+        regression. Three sibling tripwires fired exactly as designed and
+        were updated, not deleted.
+      - >-
+        Out of sample the rule found nothing across 71 real pages (31
+        committed HTML plus a fresh `print-atelier` build), and the second
+        measurement is the one worth keeping: of 992 in-scope widgets only 9
+        carry an aria-label override at all and 0 have a decidable visible
+        label, because every one sits on an icon-only button whose only
+        child is an `<svg>`. The corpus cannot exercise the rule, which is a
+        different statement from the pages being clean, and the README says
+        so rather than letting a clean run imply precision. A source scan of
+        all 13 ventures agrees and explains why (34 aria-label uses, every
+        one on an icon-only button, an input, a select or a nav), which is
+        why one application was rebuilt rather than seven.
+      - >-
+        `a11y-axe-recall`'s committed snapshot is a frozen browser pass and
+        now lags the worktree by exactly this criterion. Unlike 1.4.1 it
+        cannot move recall -- a default axe run never executes a rule for
+        2.5.3, confirmed from the committed data (axe emitted it nowhere in
+        the 118-page corpus) -- so rebuilding all 7 applications would
+        return the file field for field. Pinned by a test asserting both
+        halves instead of leaving it unstated; if a future axe version turns
+        `label-content-name-mismatch` on by default, that test fails and the
+        corpus has to be re-run. Deciding not to re-derive something, and
+        recording why in a test, is the cheaper half of the
+        re-verification rule this repository keeps paying for.
+      - >-
+        No score moved. `eaa-remediation-pipeline`'s `liability_containment`
+        stays at 5: implementing a criterion is not a measurement of whether
+        the coverage statement is accurate, and the standing rule is that a
+        score moves only when the thing being measured was changed and the
+        same harness re-run. Verified before pushing: probe suite 253 passed
+        (20 new), fixture validation byte-identical at precision/recall 1.0,
+        all 14 research suites, both pipeline validators, score sensitivity
+        and break-even green; `a11y-engine-agreement` results regenerated
+        with only the `catalogs` key changed. All 11 check runs green on the
+        head, merge-tree re-checked clean against the live tip. Internal-only
+        (`portfolio/` probe and research directories, no venture code,
+        nothing published) -- agent-decidable per `CLAUDE.md`, so merged by
+        this session. No revenue; the $0 ceiling is unchanged.
+    mrr_end: null
