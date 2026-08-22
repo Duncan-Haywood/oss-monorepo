@@ -10,6 +10,8 @@ from wcag_triage.css import (
     LIGHT,
     Stylesheet,
     general_conditionals,
+    orientation_conditionals,
+    orientation_of,
     parse_stylesheet,
     scheme_of,
     scheme_value,
@@ -126,6 +128,29 @@ def test_breakpoint_conditionals_stay_variants_not_overrides():
     # And the scheme resolver must not claim a breakpoint value applies.
     assert scheme_value(sheet.property_for("a", "color"), DARK) is None
     assert general_conditionals(sheet.property_for("a", "color")) == ["blue"]
+
+
+def test_orientation_of_only_matches_a_bare_orientation_query():
+    assert orientation_of("@media (orientation: portrait)") == "portrait"
+    assert orientation_of("@media (orientation:landscape)") == "landscape"
+    assert orientation_of("@media (min-width:40rem)") is None
+    # A compound query still needs the viewport, so it stays undecidable.
+    assert orientation_of("@media (min-width:40rem) and (orientation:portrait)") is None
+    # Nonsensical, but must refuse rather than crash or pick one.
+    assert orientation_of("@media (orientation:portrait) and (orientation:landscape)") is None
+
+
+def test_orientation_conditionals_pairs_the_orientation_with_its_value():
+    sheet = parse_stylesheet(
+        "@media (orientation: portrait) { html { transform: rotate(90deg); } }"
+        "@media (min-width: 40rem) { html { transform: scale(2); } }"
+    )
+    entry = sheet.element_property_for("html", "transform")
+    assert orientation_conditionals(entry) == [("portrait", "rotate(90deg)")]
+    # The breakpoint conditional is not an orientation and is excluded here,
+    # but `general_conditionals` does not know about orientation either -- it
+    # only excludes colour schemes -- so it still reports both values.
+    assert general_conditionals(entry) == ["rotate(90deg)", "scale(2)"]
 
 
 def test_comments_and_nested_rules_do_not_leak_declarations():

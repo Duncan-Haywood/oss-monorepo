@@ -407,6 +407,48 @@ above, which is why only one was built.
   coverage statement is accurate — the rule that only a re-measurement of the
   thing being scored may move a score, not a pass liking its own work.
 
+## Orientation: added 2026-08-22
+
+1.3.4 was the last row this catalog disclosed as `unimplemented` whose own
+note said the criterion was decidable — the same overdue correction 2.5.3
+got earlier the same day: axe's rule for this (`css-orientation-lock`) ships
+experimental and off by default, which is a fact about axe, not about
+whether a stylesheet reader can decide the question. 1.2.1 is the one row
+left, and it is left because the reference's own rule for it returns
+"incomplete" even when forced on — a genuine gap, not an unread note.
+
+**What fires.** The classic "hide the portrait warning, spin the whole page
+90 degrees to force landscape" hack: a stylesheet conditions a `transform:
+rotate()` on `<html>` or `<body>` under `@media (orientation: portrait)` (to
+force landscape) or the reverse, with an angle that is not a multiple of 360
+degrees — an actual visual rotation rather than a no-op like `rotate(360deg)`.
+Whichever way the reader holds the device, the page renders sideways. Rated
+**blocking**, on the same reading that makes `rule_interactive_aria_hidden`
+and `rule_label_in_name` blocking: a reader who cannot or does not rotate
+their device — a phone in a fixed mount, a monitor bolted in place, a motor
+impairment that makes physically rotating a handheld device difficult — is
+stopped completely, not merely slowed down.
+
+**What it refuses to decide**, each an under-report and the reason the row
+stays `partial`: a lock enforced by a `resize`/`orientationchange` script
+handler rather than CSS; an `@page` orientation restriction on a print
+stylesheet; and a rotation applied through a class selector rather than a
+bare `<html>`/`<body>` type selector — deciding which elements a class
+reaches, and whether any of them amounts to "the whole page", needs the
+DOM-and-cascade reasoning `css.py` refuses to do for anything but a bare type
+selector, the same boundary that already scopes every rule in this file.
+
+**No out-of-sample corpus run for this one.** Unlike 2.5.3 and 1.4.1, this
+pass was not re-checked against `a11y-own-sites`, `a11y-generated-sites`, or
+an `a11y-axe-recall` re-run — the orientation-lock hack is a fixed-viewport
+hack aimed at mobile devices, and none of this portfolio's own pages attempt
+to lock orientation, so a corpus check would report the same true zero
+`rule_bypass_blocks` did before its rendered-corpus check existed, for a
+different reason each time. The rule is verified here only by its own tests
+and by confirming the committed fixture-validation record does not change —
+which it does not, because none of the three hand-labeled fixtures contain a
+stylesheet that touches `transform`.
+
 ## The build-artifact filter: added 2026-08-22
 
 A build directory is not a list of the customer's pages. It also holds documents
@@ -535,15 +577,17 @@ issues the generated fixes actually close under AT verification"* — is the rea
 measurement, and it needs three live shop themes and a contractor, neither of
 which an agent session has. This probe closes the smaller, prior question:
 whether the blocking/degrading triage the candidate sells can be produced
-mechanically at all. It can, and the coverage split it produces (17 criteria
-reasoned about, 9 named criteria explicitly deferred to a human, 2 disclosed
+mechanically at all. It can, and the coverage split it produces (18 criteria
+reasoned about, 9 named criteria explicitly deferred to a human, 1 disclosed
 as decidable but not yet built) is itself the first concrete instance of the
-"quarter to a third" gap the candidate asserts. The split has moved three
+"quarter to a third" gap the candidate asserts. The split has moved four
 times since it was first drawn: on 2026-08-21, when 1.4.3 crossed from
 deferred to partial because the corpus changed, not because the rules got
 cleverer; on 2026-08-22, when four criteria a prior pass had disclosed as
-`unimplemented` — including 1.4.1 — became rules; and later that day, when
-2.5.3 became the fifth.
+`unimplemented` — including 1.4.1 — became rules; later that day, when 2.5.3
+became the fifth; and later still the same day, when 1.3.4 became the sixth,
+leaving 1.2.1 as the only `unimplemented` row left and the only one of the
+original eight that is actually undecidable rather than merely unbuilt.
 
 ## Run it
 
@@ -571,7 +615,7 @@ Run in CI by [`eaa-wcag-triage-ci.yml`](../../../../.github/workflows/eaa-wcag-t
 which also re-runs `run_fixture_validation.py` and fails if the committed
 record no longer matches what the engine emits.
 
-253 tests: parser behaviour, each rule and its negative control, the
+272 tests: parser behaviour, each rule and its negative control, the
 blocking-before-degrading ordering, dedup of one element matched by two rules,
 the evidence record's JSON/markdown shape and its compliance disclaimer, the
 fixture validation, and — added 2026-08-21 — the two rules this engine was
@@ -594,7 +638,16 @@ mismatch itself, a name that extends the visible label rather than replacing
 it, case/punctuation normalisation, `aria-labelledby` resolved rather than
 assumed and taking precedence over `aria-label`, every refusal above (glyph-only
 label, image label, unresolvable id, textbox out of scope, `aria-hidden`), and
-the `role` attribute moving an element both into and out of scope.
+the `role` attribute moving an element both into and out of scope. Added
+2026-08-22, for `rule_orientation_lock` (17 tests, plus 2 more in `css.py`'s
+own suite for `orientation_of`/`orientation_conditionals`): the positive case
+on both `html` and `body`, every refusal (a breakpoint combined with the
+orientation condition, both orientations named at once, `rotate(0deg)` /
+`rotate(360deg)` / `rotate(-360deg)`, no `transform` in the block at all, a
+`transform` on a class selector instead of a bare type selector, a `transform`
+that carries no `rotate()`, an unconditional rotation that never locks
+anything), unit conversion (`turn`, `grad`) feeding the same no-op check, and
+that only one finding is ever reported even when both elements are locked.
 
 ## Scope and honesty, in one place
 

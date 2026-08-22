@@ -734,3 +734,156 @@ def test_coverage_catalog_records_it_as_partial():
 
     row = next(c for c in COVERAGE if c.criterion == "2.5.3")
     assert row.coverage == "partial"
+
+
+# --------------------------------------------------------------------------
+# SC 1.3.4 Orientation. Added 2026-08-22.
+# --------------------------------------------------------------------------
+
+
+def _orientation_findings(css_text, body="<p>Some ordinary page content.</p>"):
+    html = PAGE.format(head=f"<style>{css_text}</style>", body=body)
+    return [f for f in audit_html(html).findings if f.criterion == "1.3.4"]
+
+
+def test_portrait_lock_rotating_html_is_flagged():
+    found = _orientation_findings(
+        "@media (orientation: portrait) { html { transform: rotate(90deg); } }"
+    )
+    assert len(found) == 1
+    assert found[0].impact == "blocking"
+    assert found[0].level == "AA"
+    assert found[0].element == "html"
+
+
+def test_landscape_lock_rotating_body_is_flagged_and_names_its_orientation():
+    found = _orientation_findings(
+        "@media (orientation: landscape) { body { transform: rotate(-90deg); } }"
+    )
+    assert len(found) == 1
+    assert found[0].element == "body"
+    assert "landscape" in found[0].message
+
+
+def test_condition_combined_with_a_breakpoint_is_left_alone():
+    # A media query that also checks min-width needs the viewport, which this
+    # reader does not have -- the same refusal `scheme_of` makes for a
+    # colour-scheme query combined with one.
+    found = _orientation_findings(
+        "@media (orientation: portrait) and (min-width: 40rem) "
+        "{ html { transform: rotate(90deg); } }"
+    )
+    assert found == []
+
+
+def test_condition_naming_both_orientations_does_not_crash():
+    # Nonsensical CSS -- a single condition cannot be both orientations at
+    # once -- but this reader must refuse it rather than fall over on it.
+    found = _orientation_findings(
+        "@media (orientation: portrait) and (orientation: landscape) "
+        "{ html { transform: rotate(90deg); } }"
+    )
+    assert found == []
+
+
+def test_rotate_zero_degrees_is_a_no_op():
+    found = _orientation_findings(
+        "@media (orientation: portrait) { html { transform: rotate(0deg); } }"
+    )
+    assert found == []
+
+
+def test_rotate_360_degrees_is_a_no_op():
+    found = _orientation_findings(
+        "@media (orientation: portrait) { html { transform: rotate(360deg); } }"
+    )
+    assert found == []
+
+
+def test_rotate_negative_360_degrees_is_a_no_op():
+    found = _orientation_findings(
+        "@media (orientation: portrait) { html { transform: rotate(-360deg); } }"
+    )
+    assert found == []
+
+
+def test_no_transform_in_the_conditional_block_is_not_flagged():
+    found = _orientation_findings(
+        "@media (orientation: portrait) { html { background: red; } }"
+    )
+    assert found == []
+
+
+def test_transform_on_a_class_selector_is_not_flagged():
+    # Only the bare-type-selector bucket (`css.Stylesheet.elements`) is read
+    # here: deciding which elements a class applies to, and whether any of
+    # them amounts to "the whole page", needs DOM-and-cascade reasoning this
+    # module refuses to do for anything but a bare type selector -- the same
+    # boundary every other rule in css.py draws.
+    found = _orientation_findings(
+        "@media (orientation: portrait) { .rotator { transform: rotate(90deg); } }",
+        body='<div class="rotator">Some ordinary page content.</div>',
+    )
+    assert found == []
+
+
+def test_transform_without_rotate_is_not_flagged():
+    found = _orientation_findings(
+        "@media (orientation: portrait) { html { transform: scale(1.5); } }"
+    )
+    assert found == []
+
+
+def test_unconditional_transform_is_not_an_orientation_lock():
+    # A rotation that applies regardless of orientation is not what this
+    # criterion is about -- it never locks the display to one orientation.
+    found = _orientation_findings("html { transform: rotate(90deg); }")
+    assert found == []
+
+
+def test_grad_and_turn_units_are_converted_before_the_no_op_check():
+    # 0.25turn is 90 degrees -- a real rotation.
+    assert _orientation_findings(
+        "@media (orientation: portrait) { html { transform: rotate(0.25turn); } }"
+    ) != []
+    # 400grad is exactly 360 degrees -- a full turn, and a no-op.
+    assert _orientation_findings(
+        "@media (orientation: portrait) { html { transform: rotate(400grad); } }"
+    ) == []
+
+
+def test_only_one_finding_even_if_both_elements_are_locked():
+    # A single yes/no document-level check, not a per-element tally.
+    found = _orientation_findings(
+        "@media (orientation: portrait) { html { transform: rotate(90deg); } "
+        "body { transform: rotate(90deg); } }"
+    )
+    assert len(found) == 1
+
+
+def test_orientation_lock_finding_names_the_rotation_value():
+    found = _orientation_findings(
+        "@media (orientation: portrait) { html { transform: rotate(90deg); } }"
+    )
+    assert "rotate(90deg)" in found[0].message
+
+
+def test_clean_page_has_no_orientation_finding():
+    assert _orientation_findings("@media (min-width: 40rem) { html { color: red; } }") == []
+
+
+def test_coverage_catalog_records_orientation_as_partial_not_unimplemented():
+    from wcag_triage.rules import COVERAGE
+
+    row = next(c for c in COVERAGE if c.criterion == "1.3.4")
+    assert row.coverage == "partial"
+
+
+def test_only_one_unimplemented_row_remains():
+    # 1.3.4 was the last row disclosed as `unimplemented` that this catalog's
+    # own note said was decidable. 1.2.1 is what is left, and it is left
+    # because it genuinely cannot be done from a static artifact.
+    from wcag_triage.rules import COVERAGE
+
+    unimplemented = [c.criterion for c in COVERAGE if c.coverage == "unimplemented"]
+    assert unimplemented == ["1.2.1"]
