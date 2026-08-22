@@ -17417,6 +17417,66 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit... more strategic
+        work" session, designated branch claude/wizardly-albattani-wjttm3.
+        `session_gate.py` -> PROCEED (0.79-0.83 sessions/hour, at the
+        maintenance rate; peak concurrency 1 within any 15-min window over
+        the prior 6h, though that reading undercounted what was about to
+        happen). Checked the 4 open PRs (#583, #531, #372, #368) and issue
+        #139's decision queue first: all four still correctly human-gated,
+        unchanged, CI green -- nothing to consolidate or add.
+      - >-
+        The most recent ledger entry above and `rule_bypass_blocks`'s own
+        docstring both named the same next step: out-of-sample recall for
+        `eaa-wcag-triage`'s four new rules on a rendered corpus, since a
+        build directory can't exercise them. Built it independently against
+        `a11y-generated-sites` -- same four mutations (injections for
+        2.2.1/2.2.2/3.1.2, a compound removal stripping every 2.4.1 bypass
+        mechanism from the 14 real delivered pages) -- and while finishing
+        verification, fetched `origin/main` and found **#614 had landed
+        the identical build minutes earlier**, merged and already folded
+        into a ledger entry (#615) by the time this session got there.
+        Independent convergence on a well-specified next step, same pattern
+        this repo has hit before, this time on a single well-named task
+        rather than a vaguely-scoped one.
+      - >-
+        Discarded the duplicate code (`git checkout origin/main --
+        portfolio/research/a11y-generated-sites/`) rather than open a
+        competing PR. Two things survived because #614's own commit message
+        explicitly left them for review: `eaa-remediation-pipeline.md`'s
+        `liability_containment` amendment and
+        `a11y-external-coverage-reference/README.md`'s closing "what would
+        earn it" pointer, both of which the settled finding now answers.
+        Wrote dated amendments to both recording that all four rules fire
+        14/14 on real delivered pages, that `audit.py`'s silence is the
+        already-disclosed asymmetry rather than a new gap, and that
+        `liability_containment` stays at 5 for the same one-corpus,
+        one-venture reason `a11y-axe-recall`'s recall figure didn't move it
+        -- explicitly not deciding the scoring judgment #614 deferred.
+        Also corrected a small inaccuracy in the external-coverage-reference
+        closing line, which had credited `a11y-axe-recall/` as "the
+        tooling" for a rendered corpus; that directory still audits the
+        same 118-page build output through a different engine, not a
+        per-request render.
+      - >-
+        Merged as #618 (agent-decidable: two `portfolio/` docs only, no
+        `ventures/*` app code, publishes/registers/spends nothing).
+        Verified: `validate_doc_consistency.py` (all 8 candidates score
+        identically across `candidates.yaml`, write-ups, and README's
+        table), `validate_candidates.py` (all 8 internally consistent),
+        `score_sensitivity.py` (runs clean, no score or composite moved by
+        this diff), `portfolio/router/validate.py` (10/10 `VENTURE.yaml`
+        valid). `git merge-tree` clean against the live tip immediately
+        before merging, re-checked again after an unrelated ledger commit
+        (#615) landed on `main` between opening the PR and merging it.
+        No revenue; the $0 ceiling is unchanged.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Scheduled "continue work... maintain and improve the development
         process... increase in profit" session, designated branch
         claude/ecstatic-volta-w0c8s4. `session_gate.py` -> PROCEED (0.83
@@ -17424,20 +17484,20 @@ entries:
         implies). Checked the 4 open PRs (#583, #531, #372, #368) first:
         all still correctly human-gated, clean, nothing overlapping.
       - >-
-        This is the collision `CLAUDE.md`'s top section warns about,
-        caught rather than compounded. The most recent entry above named
-        the out-of-sample-recall-on-a-rendered-corpus next step; this
-        session dispatched an agent to do exactly that against
-        `a11y-generated-sites`, and while it was in progress a concurrent
-        session did the identical task and merged it first (#614, ledger
-        entry immediately above, follow-up #618). `git fetch origin main`
-        after opening a PR for the finished work showed it had gone
-        `dirty` against the new tip -- diffing confirmed #614's version
-        was fully equivalent, nothing unique to salvage.
+        A third instance of the same collision, on the same well-named
+        next step, alongside #614 and the claude/wizardly-albattani-wjttm3
+        session recorded immediately above (#618): this session also
+        dispatched an agent to run out-of-sample recall against
+        `a11y-generated-sites` for `eaa-wcag-triage`'s four new rules, and
+        by the time the finished work was ready to open as a PR, `git
+        fetch origin main` showed #614 had already landed it. Diffing
+        confirmed #614's version was fully equivalent, nothing unique to
+        salvage.
       - >-
         Rather than force through a duplicate, reset the branch to the new
         `main` tip and looked for what #614 had actually left undone
-        instead. Found one real gap: #614 added a fourth Finding to
+        instead. Found one real gap the wizardly-albattani session's own
+        #618 pass didn't touch: #614 added a fourth Finding to
         `a11y-generated-sites/README.md` (one mutation per new rule) but
         never went back to update the file's top mutation-count summary
         table, which still read "Removal 8 | 7 | 7/7" -- itself a stale
@@ -17460,6 +17520,11 @@ entries:
         (189/189 in `eaa-wcag-triage`, 19/19 here, both validators, no
         `ventures/*` diff) before the collision was discovered -- the
         spend on that duplicate pass is the actual cost of this entry, not
-        the two-line fix that shipped. No revenue; the $0 ceiling is
-        unchanged.
+        the two-line fix that shipped. Three independent sessions
+        converging on one well-specified next step within roughly the same
+        hour is worth naming plainly as cadence, not scope, ambiguity: the
+        task was precise enough that all three built the same thing: the
+        session_gate.py concurrency reading (peak 1 within any 15-min
+        window) undercounts same-task collisions that resolve within a
+        single window. No revenue; the $0 ceiling is unchanged.
     mrr_end: null
