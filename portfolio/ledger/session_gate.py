@@ -82,11 +82,18 @@ REVERIFICATION_PATTERN = re.compile(r"re-?verif|duplicate|already (?:covered|don
 
 # `CLAUDE.md`'s ledger-discipline section already says "don't add an entry the
 # latest one already covers" -- in prose, read only by a session that scrolls
-# to it. Measured directly on 2026-08-22: the trailing run of entries doing
-# nothing but "checked the same open PRs, still all correctly gated" is not a
-# handful, it's dozens, because each session re-derives "was this covered
-# already?" by skimming the ledger tail rather than being told. This pattern
-# is the boilerplate every one of those entries converged on independently.
+# to it. Measured directly on 2026-08-22: entries whose outcomes include
+# "checked the same open PRs, still all correctly gated" and record no other
+# action are not a handful, they're dozens, because each session re-derives
+# "was this covered already?" by skimming the ledger tail rather than being
+# told. This pattern is the boilerplate those entries converged on
+# independently -- it also appears, harmlessly, as a preamble sentence in
+# entries that go on to do real work (this check runs a matched clause
+# against the joined outcome text, not against the whole entry, so it cannot
+# tell "this is all the entry says" from "the entry mentions this and then
+# does something else"). The streak this drives is a coarse, cheap-to-compute
+# proxy for the waste, not a precise count of contentless entries -- read it
+# as "this clause recurred N times in a row", not as "N sessions did nothing".
 STALE_PR_CHECK_PATTERN = re.compile(
     r"checked the \d+ open prs?\s*\([^)]*\)[^.]{0,220}?"
     r"(?:all|nothing)[^.]{0,150}?"
@@ -131,14 +138,14 @@ def reverification_share(entries: list[dict], window: int = WINDOW) -> float:
 
 
 def stale_pr_check_streak(entries: list[dict]) -> int:
-    """Count trailing entries whose outcomes independently re-derive "the open
-    PRs are unchanged and still correctly gated" -- entries that recorded a
-    check finding nothing new, one after another. Stops at the first entry
-    (scanning from the newest) that doesn't match: a genuinely new finding, a
-    merge, a close, or any other entry shape breaks the streak, same as it
-    should -- this only measures a run of entries that are purely the same
-    recheck. Empty ledger, or a most-recent entry that already found
-    something, both correctly read as 0.
+    """Count trailing entries whose outcomes include the "checked the open PRs,
+    still unchanged and correctly gated" clause. Stops at the first entry
+    (scanning from the newest) whose outcomes don't contain that clause at
+    all. It does NOT verify the clause is all an entry says -- an entry that
+    mentions it in passing and then does real work still counts, so this is a
+    lower bound on "entries carrying this recheck", not a count of entries
+    that did nothing else. Empty ledger, or a most-recent entry that omits the
+    clause entirely, both correctly read as 0.
     """
     streak = 0
     for e in reversed(entries):
@@ -356,11 +363,11 @@ def report(
         ]
     if stale_streak >= STALE_PR_STREAK_THRESHOLD:
         reasons = reasons + [
-            f"The last {stale_streak} ledger entries in a row recorded nothing but "
+            f"The last {stale_streak} ledger entries in a row included "
             "'checked the open PRs, still unchanged and correctly gated' — that check "
             "has already been answered that many times over. If your own check agrees "
-            "nothing changed, do not write an entry to say so again; only add one if "
-            "you found something the latest entry doesn't have (a new PR, a changed "
+            "nothing changed, don't write an entry just to say so again; only add one "
+            "if you found something the latest entry doesn't have (a new PR, a changed "
             "finding, or an action you actually took)."
         ]
     return {
