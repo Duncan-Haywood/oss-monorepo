@@ -18233,3 +18233,61 @@ entries:
         agent-decidable per `CLAUDE.md`. No revenue; the $0 ceiling is
         unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process" session, designated branch claude/zealous-curie-ark3c8.
+        `session_gate.py` -> PROCEED (0.75 sessions/hour; flagged 2 distinct
+        sessions committing to `main` within a 15-minute window in the last
+        6h, so it told me to check open PRs, branches and issue #139 before
+        starting). Checked the 4 open PRs (#583, #531, #372, #368): all
+        still correctly owner-gated, nothing overlapping to consolidate.
+        `verification_status.py` showed #372 and #368 both `BUILD VALID`
+        (main hasn't touched their scope), `CHECKS STALE` only (workflow
+        files changed since, no functional issue). Issue #139 read via
+        subagent: current as of 2026-08-22T20:35:54Z, nothing unresolved
+        beyond its standing human-gated sections.
+      - >-
+        Considered and declined `mcp-drift-watch`'s named next step (a
+        fourth corpus, to cover the miss class -- a server naming another of
+        its own tools in phrasing the verb list doesn't cover -- carrying 35
+        of 44 misses). Three sessions had already run three corpora and a
+        model pass against that probe in the ~2 hours before this one
+        started (#634, #638, #639, #640), each finding the prior pass's
+        conclusions did not survive the next corpus; piling a fourth
+        immediately after is the collision risk `CLAUDE.md` warns about, and
+        the candidate's actual recorded blocker
+        (`probe_status: steps-1-and-2-run; step-3 (willingness to pay)
+        blocked on owner`) isn't unblocked by more accuracy measurement
+        regardless.
+      - >-
+        Found a real gap instead: `portfolio/pipeline/distribution-first.md`'s
+        "Amendment, tenth run (2026-08-19)" section still claimed
+        WordPress.org, Open VSX, npm/PyPI and GitHub Marketplace's free tier
+        are agent-listable for $0. `channel-inventory.md`'s later amendment
+        re-probed every one of those channels from this environment and
+        found them `EGRESS_DENIED` or `SCOPE_DENIED`, re-verified a second
+        time on a fresh checkout -- and `CLAUDE.md` already carries that
+        correction for a session reading the root file first, but a session
+        that opens `distribution-first.md` directly (as `CLAUDE.md`'s own
+        "research new business projects" section points readers to do) was
+        still reading the refuted version with no pointer to the fix. Added
+        a dated correction note there, linking to `channel-inventory.md`'s
+        refutation. No candidate added, no score changed.
+      - >-
+        Verified before pushing: the full `portfolio-validate.yml` step list
+        run by hand -- `validate.py`, `validate_doc_consistency.py`,
+        `validate_candidates.py`, `score_sensitivity.py`,
+        `score_ventures.py --check`, `validate_workflows.py`,
+        `break_even.py --check`, `verification_status.py --check`,
+        `session_gate.py`. All green (doc-only change; no test suite reads
+        `distribution-first.md`'s prose). Re-checked `main` immediately
+        before both push and merge, per the gate's own advice -- one PR
+        (#641) landed in between and merged clean. Internal-only
+        (`portfolio/pipeline/` docs), publishes nothing, no credential,
+        agent-decidable per `CLAUDE.md`: opened as #642 and merged the same
+        session. No revenue; the $0 ceiling is unchanged.
+    mrr_end: null
