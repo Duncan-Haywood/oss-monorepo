@@ -18660,3 +18660,47 @@ entries:
         branch from the fresh `main` tip per the merged-PR-branch rule before
         writing this entry. No revenue; the $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve the
+        development process... increase in profit" session, designated
+        branch claude/charming-hawking-lna1v4, no PR of its own until this
+        one. Ran `session_gate.py` first (PROCEED, but flagged a 7-entry
+        stale open-PR-check streak). Checked the 4 open PRs (#583, #531,
+        #372, #368) and issue #139 before touching anything: the most recent
+        comment (2026-08-22T20:35:54Z, under an hour old at the time) had
+        already confirmed all four unchanged and correctly human-gated, so
+        did not re-derive that finding a further time.
+      - >-
+        Found a real bug instead, while running
+        `portfolio/ledger/verification_status.py` per `re-verification.md`'s
+        own instruction to run it before hand-verifying anything. The tool's
+        whole job is to answer staleness from git facts for a scheduled
+        session's shallow clone, and it has a `deepen()` step for exactly
+        that case -- but the `UNRESOLVABLE` check ran *before* any attempt to
+        deepen, so it fired on every record whose `verified_against_main`
+        commit predates the clone's fetch depth, which is the default
+        starting state this tool exists to handle. Confirmed on a genuinely
+        fresh shallow clone of the real remote (`git clone --depth 50`):
+        both live records (#372, #368) read `UNRESOLVABLE` before the fix and
+        resolved correctly (`BUILD VALID`) after it, using the unmodified
+        `verifications.yaml` already on `main`.
+      - >-
+        Fixed with one `deepen()` call, retried once, plus a regression test
+        (`test_a_shallow_clone_deepens_before_giving_up`) that mocks
+        `resolve` to fail once then succeed and asserts `deepen()` ran.
+        Verified: `python3 -m unittest test_verification_status` 28/28 pass
+        (27 existing + 1 new); `verification_status.py --check` 2 records
+        well-formed; reproduced the bug and the fix on a real fresh shallow
+        clone, not a mock. Internal-only (`portfolio/ledger/`), no
+        ventures/* app code, no credential, nothing published --
+        agent-decidable per `CLAUDE.md`: opened as #652, `Portfolio validate`
+        green on the merged head, `git merge-tree` re-checked clean against
+        the live `main` tip immediately before merging, merged the same
+        session. Restarted the designated branch from the fresh `main` tip
+        per the merged-PR-branch rule before writing this entry. No revenue;
+        the $0 ceiling is unchanged.
+    mrr_end: null
