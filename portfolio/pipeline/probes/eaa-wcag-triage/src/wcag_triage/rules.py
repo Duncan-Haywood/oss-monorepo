@@ -21,7 +21,7 @@ import re
 from dataclasses import dataclass
 from typing import Callable, Optional
 
-from . import contrast
+from . import contrast, lang
 from .parser import Node
 
 BLOCKING = "blocking"
@@ -89,7 +89,16 @@ COVERAGE: tuple = (
               "Empty links are detectable; whether visible text is *descriptive* is a judgement."),
     Criterion("2.4.6", "Headings and Labels", "AA", "partial",
               "Skipped heading levels are detectable; whether a heading is descriptive is not."),
-    Criterion("3.1.1", "Language of Page", "A", "automated"),
+    # Downgraded from "automated" to "partial" on 2026-08-22. The rule here had
+    # only ever checked that <html lang> *exists*; nothing checked that its
+    # value was a language, while this row carried the catalog's strongest
+    # word. `rule_html_lang_valid` closes that half. The reference's third
+    # rule for this criterion -- a lang/xml:lang disagreement on the root --
+    # is still not checked, so "partial" is what this row can honestly say.
+    Criterion("3.1.1", "Language of Page", "A", "partial",
+              "A missing <html lang>, and a lang that is not a valid language "
+              "tag, are both detectable; a lang that disagrees with xml:lang "
+              "is not checked."),
     Criterion("4.1.2", "Name, Role, Value", "A", "partial",
               "Missing accessible names on controls and on embedded frames, and interactive elements hidden from AT, are detectable; correct roles under scripting are not."),
     # Added 2026-08-21. Both were checked by the sibling engine
@@ -137,32 +146,59 @@ COVERAGE: tuple = (
     # portfolio/research/a11y-external-coverage-reference/. Disclosed here
     # before any of them is implemented, because the disclosure is what the
     # record's honesty rests on and it does not have to wait for the rule.
+    # Four of those eight became rules on 2026-08-22, and the other four did
+    # not. The split is not arbitrary and it is not "the easy ones first": each
+    # of the four below was re-checked by *running* axe-core 4.13.0 rather than
+    # by reading its rule list, and only these four are failures a default
+    # `axe.run()` actually reports. See
+    # portfolio/research/a11y-external-coverage-reference/ Finding 5.
+    Criterion("2.2.1", "Timing Adjustable", "A", "partial",
+              "A <meta http-equiv=refresh> on a positive delay is detectable; "
+              "a time limit imposed by script is not."),
+    Criterion("2.2.2", "Pause, Stop, Hide", "A", "partial",
+              "<blink> and <marquee> are detectable; content set moving by CSS "
+              "animation or by script is not."),
+    Criterion("2.4.1", "Bypass Blocks", "A", "partial",
+              "A page carrying a navigation block and no bypass mechanism at "
+              "all -- no skip link, no <main>, no heading -- is detectable; "
+              "whether a mechanism that exists actually precedes the repeated "
+              "block is not."),
+    Criterion("3.1.2", "Language of Parts", "AA", "partial",
+              "A lang attribute holding a malformed or unknown tag is "
+              "detectable; a passage in another language carrying no lang at "
+              "all needs someone to read the prose."),
+    # The remaining four. Their notes were rewritten on 2026-08-22, because
+    # three of them rested on a claim that measurement did not support. The
+    # reference catalog was built from `axe.getRules()`, which lists every rule
+    # axe *ships*, and the extraction dropped the `enabled` and `experimental`
+    # flags -- so a rule axe never runs by default counted the same as one it
+    # does. Running the fixtures settled it: `audio-caption` (1.2.1) ships
+    # disabled and returns "incomplete" even when forced on, and
+    # `css-orientation-lock` (1.3.4) and `label-content-name-mismatch` (2.5.3)
+    # are experimental and off by default. "An independent engine automates
+    # this" was therefore true of none of the three. They stay unimplemented,
+    # and the reason each row gives is now the measured one.
     Criterion("1.2.1", "Audio-only and Video-only (Prerecorded)", "A", "unimplemented",
-              "A media element with no transcript or alternative is detectable "
-              "from the markup; no rule here looks."),
+              "Whether an audio-only file has an equivalent elsewhere on the "
+              "page is not decidable from markup; the reference's rule for it "
+              "ships disabled and returns 'needs review' rather than a "
+              "failure, so no engine decides this one."),
     Criterion("1.4.1", "Use of Color", "A", "unimplemented",
               "A link distinguished from surrounding body text by colour alone "
-              "is decidable where the stylesheet names the colours; no rule "
-              "here looks."),
-    Criterion("2.2.1", "Timing Adjustable", "A", "unimplemented",
-              "A <meta http-equiv=refresh> timeout is detectable from the head; "
-              "no rule here looks."),
-    Criterion("2.2.2", "Pause, Stop, Hide", "A", "unimplemented",
-              "<blink> and <marquee> are detectable from the markup; no rule "
-              "here looks."),
-    Criterion("2.4.1", "Bypass Blocks", "A", "unimplemented",
-              "The absence of a skip link or of landmark structure is "
-              "detectable from the markup; no rule here looks. This is a "
-              "commonly-failed Level A criterion on shop pages."),
+              "is decidable where the stylesheet names the colours -- this one "
+              "is a genuine gap, and the only one of the four that is. It "
+              "needs the contrast machinery pointed at a link against its "
+              "surrounding text rather than its background; no rule here "
+              "looks yet."),
     Criterion("2.5.3", "Label in Name", "A", "unimplemented",
               "An accessible name that does not contain the control's visible "
-              "text is decidable from the markup; no rule here looks."),
-    Criterion("3.1.2", "Language of Parts", "AA", "unimplemented",
-              "A lang attribute holding an invalid tag is decidable; no rule "
-              "here looks."),
+              "text is decidable from the markup; the reference's rule for it "
+              "is experimental and off by default, so the claim that an "
+              "independent engine automates it does not hold as measured."),
     Criterion("1.3.4", "Orientation", "AA", "unimplemented",
-              "A stylesheet locking orientation is decidable from the CSS; no "
-              "rule here looks."),
+              "A stylesheet locking orientation is decidable from the CSS; the "
+              "reference's rule for it is experimental and off by default, so "
+              "the same caveat applies."),
 )
 
 
@@ -485,6 +521,267 @@ def rule_data_table_headers(root: Node, label_targets: set):
             )
 
 
+_REFRESH_DELAY = re.compile(r"^\s*(\d+(?:\.\d+)?)")
+
+
+def rule_meta_refresh(root: Node, label_targets: set):
+    """SC 2.2.1 — a ``<meta http-equiv=refresh>`` that moves the page on a timer.
+
+    Implemented 2026-08-22. Until then this criterion was declared
+    ``unimplemented`` here — decidable from the head, with no rule looking. See
+    ``portfolio/research/a11y-external-coverage-reference/``.
+
+    Only a *positive* delay is a barrier. ``content="0"`` is an immediate
+    redirect: it imposes no time limit on the reader, because there was never
+    a moment in which they were reading. A delay this cannot parse yields
+    nothing rather than a guess.
+    """
+    for node in root.iter():
+        if node.tag != "meta" or _text(node.attr("http-equiv")).lower() != "refresh":
+            continue
+        match = _REFRESH_DELAY.match(_text(node.attr("content")))
+        if match is None:
+            continue
+        delay = float(match.group(1))
+        if delay <= 0:
+            continue
+        yield Finding(
+            "2.2.1", "Timing Adjustable", "A", BLOCKING, "meta", node.line,
+            f"The page refreshes itself after {delay:g}s, with no way to turn "
+            "the timer off, extend it, or finish reading first.",
+            "Remove the meta refresh, or give the user a control to extend or "
+            "disable the time limit before it expires.",
+            seq=node.order,
+        )
+
+
+# Elements whose entire purpose is content that moves and cannot be stopped.
+_MOVING_TAGS = frozenset({"blink", "marquee"})
+
+
+def rule_moving_content(root: Node, label_targets: set):
+    """SC 2.2.2 — ``<blink>`` and ``<marquee>``.
+
+    Implemented 2026-08-22, from the same gap as :func:`rule_meta_refresh`.
+
+    Both are blocking rather than degrading: neither element offers any way to
+    pause it, so text inside one is not merely harder to read but unreadable
+    for anyone who cannot read at the speed the element chose. This catches
+    only the two elements. Content set moving by CSS animation or by script is
+    the larger share on a modern page and is not decidable from markup alone,
+    which is why the criterion is declared ``partial`` and not ``automated``.
+    """
+    for node in root.iter():
+        if node.tag not in _MOVING_TAGS:
+            continue
+        yield Finding(
+            "2.2.2", "Pause, Stop, Hide", "A", BLOCKING, node.tag, node.line,
+            f"<{node.tag}> moves its content continuously and offers no way to "
+            "pause, stop, or hide it.",
+            f"Replace <{node.tag}> with static content, or with a control the "
+            "user can pause.",
+            seq=node.order,
+        )
+
+
+def _lang_finding(node: Node, value: str, reason: str, criterion: str, name: str,
+                  level: str) -> Finding:
+    if reason == lang.MALFORMED:
+        why = f"is not a language tag ({value!r} is not well-formed BCP 47)"
+    else:
+        why = f"names no known language ({value!r})"
+    return Finding(
+        criterion, name, level, DEGRADING, node.tag, node.line,
+        f"<{node.tag} lang> {why}, so a screen reader falls back to the "
+        "surrounding language and pronounces the text with the wrong voice.",
+        "Set lang to a valid BCP 47 tag, e.g. lang=\"fr\" or lang=\"pt-BR\".",
+        seq=node.order,
+    )
+
+
+def rule_valid_lang(root: Node, label_targets: set):
+    """SC 3.1.2 — a part of the page declaring a language that is not one.
+
+    Implemented 2026-08-22, from the same gap as :func:`rule_meta_refresh`.
+
+    Scoped to elements *other than* ``<html>``: a language declared on the root
+    is the page's language (3.1.1), and a language declared on anything inside
+    it is a part's. The validity test itself is shared — see
+    :mod:`wcag_triage.lang` for what it decides and what it deliberately does
+    not.
+
+    Degrading rather than blocking. The text is still there and still readable
+    visually; what breaks is pronunciation, which makes the passage hard to
+    follow rather than unreachable.
+
+    A passage genuinely in another language carrying *no* ``lang`` at all is
+    the other half of this criterion and is not detectable without reading the
+    prose, so the criterion stays ``partial``.
+    """
+    for node in root.iter():
+        if node.tag in {"html", "#root"}:
+            continue
+        for attr in ("lang", "xml:lang"):
+            if not node.has_attr(attr):
+                continue
+            value = _text(node.attr(attr))
+            reason = lang.check(value)
+            if reason is not None:
+                yield _lang_finding(node, value, reason, "3.1.2",
+                                    "Language of Parts", "AA")
+                break
+
+
+def rule_html_lang_valid(root: Node, label_targets: set):
+    """SC 3.1.1 — the page's own ``lang``, when it is present but not a language.
+
+    Implemented 2026-08-22. :func:`rule_html_lang` has always checked that the
+    attribute *exists*; nothing checked what was in it, while this catalog
+    declared 3.1.1 ``automated`` — its strongest word. An independent reference
+    carries three rules for this criterion (``html-has-lang``,
+    ``html-lang-valid``, ``html-xml-lang-mismatch``) against the one rule here,
+    which is the shape
+    ``portfolio/research/a11y-external-coverage-reference/`` named as Finding 2:
+    criterion-level disclosure hiding what is missing one level down. This
+    closes the second of the three; the third is still not checked.
+    """
+    html_nodes = [n for n in root.iter() if n.tag == "html"]
+    if not html_nodes:
+        return
+    node = html_nodes[0]
+    if not node.has_attr("lang"):
+        return  # absence is rule_html_lang's finding, not this one's
+    value = _text(node.attr("lang"))
+    if not value:
+        return
+    reason = lang.check(value)
+    if reason is not None:
+        yield _lang_finding(node, value, reason, "3.1.1", "Language of Page", "A")
+
+
+# How many links make a page's navigation a "block" worth bypassing, when the
+# page has no <nav> to say so itself. Ten is a threshold, and a threshold is a
+# judgement — it is set here rather than hidden in the rule body so a reviewer
+# can argue with it. See `rule_bypass_blocks` for why the gate exists at all.
+_REPEATED_BLOCK_LINKS = 10
+
+# How much text outside the navigation makes a document a page with content to
+# skip *to*. Added 2026-08-22 after the rule's first out-of-sample run, which
+# is the only reason this number exists — see `rule_bypass_blocks`.
+_MIN_CONTENT_CHARS = 200
+
+_TEXT_OPAQUE = frozenset({"script", "style", "template", "noscript"})
+
+
+def _non_navigation_text(node: Node) -> str:
+    """Visible text on the page that is not part of its navigation.
+
+    Navigation subtrees are skipped whole, because their text is the block the
+    reader wants *past* — counting it would make a page of nothing but links
+    look like a page with plenty to read.
+    """
+    role = _text(node.attr("role")).lower()
+    if node.tag in _TEXT_OPAQUE or node.tag == "nav" or role == "navigation":
+        return ""
+    if _is_aria_hidden(node):
+        return ""
+    parts = [part.strip() for part in node.text_parts if part and part.strip()]
+    for child in node.children:
+        text = _non_navigation_text(child)
+        if text:
+            parts.append(text)
+    return " ".join(parts)
+
+
+def rule_bypass_blocks(root: Node, label_targets: set):
+    """SC 2.4.1 — no way past the navigation to the content.
+
+    Implemented 2026-08-22. This is the criterion
+    ``portfolio/research/a11y-external-coverage-reference/`` singled out —
+    Level A, among the most commonly failed on commerce pages, and the opening
+    move of the free qualification audit the parent candidate sells.
+
+    **This rule decides a case the external reference declines.** Run against
+    markup with a navigation block and no bypass mechanism at all, axe-core
+    4.13.0's ``bypass`` rule returns ``incomplete`` rather than a violation —
+    measured, not assumed. So this is not a re-implementation of that rule; it
+    is a narrower question answered definitely: *is there any bypass mechanism
+    on this page whatsoever?*
+
+    Three conditions, all required:
+
+    - **There is a block to bypass.** Either the page marks one with ``<nav>``
+      or ``role="navigation"``, or it carries at least
+      ``_REPEATED_BLOCK_LINKS`` links. Without this gate the rule fires on a
+      one-paragraph page with nothing to skip, which is not a barrier and
+      would be the sort of finding that gets a checker switched off.
+    - **There is content to bypass *to*** — at least ``_MIN_CONTENT_CHARS``
+      of text outside the navigation. This condition exists because the rule's
+      first out-of-sample run found exactly one page in 118 and it was wrong.
+      ``ventures/quick-pick-survey``'s ``/app`` route prerenders to a shell
+      whose entire content region is the string ``Loading…``; the ``<main>``
+      and the heading are rendered by script after hydration. Checked in a
+      real browser, the delivered DOM has both, and axe-core's own ``bypass``
+      rule passes the page. The finding was true of the file and false of the
+      page.
+
+      The honest reading is that a build artifact is not always the document
+      the reader receives, and this repository has learned that once already
+      from the opposite direction — ``a11y-generated-sites`` found an
+      ``<iframe>`` no build-directory corpus could reach. So the gate is not a
+      patch for one venture: a document with a navigation bar and no content
+      is not a page failing 2.4.1, it is a page that has not finished being a
+      page. Structural criteria of this kind cannot be settled from a
+      prerender, and a rendered corpus is what would settle them.
+    - **There is no mechanism.** No ``<main>`` landmark, no heading, and no
+      in-page link. Any one of the three is enough to suppress the finding,
+      matching what the reference treats as sufficient.
+
+    The gates are why this is declared ``partial``: a page that *does* have a
+    heading still fails the criterion if the heading does not actually precede
+    the repeated block, and this rule says nothing about that. Both thresholds
+    under-report by construction, which is the direction this module commits
+    to in its own docstring.
+    """
+    body = next((n for n in root.iter() if n.tag == "body"), None)
+    if body is None:
+        return  # a fragment, not a page — there is no navigation to bypass
+
+    has_nav = False
+    heading = False
+    landmark = False
+    internal_link = False
+    links = 0
+    for node in root.iter():
+        role = _text(node.attr("role")).lower()
+        if node.tag == "nav" or role == "navigation":
+            has_nav = True
+        elif node.tag == "main" or role == "main":
+            landmark = True
+        elif len(node.tag) == 2 and node.tag[0] == "h" and node.tag[1] in "123456":
+            heading = True
+        elif node.tag == "a" and node.has_attr("href"):
+            href = _text(node.attr("href"))
+            links += 1
+            if href.startswith("#") and len(href) > 1:
+                internal_link = True
+    if not (has_nav or links >= _REPEATED_BLOCK_LINKS):
+        return
+    if landmark or heading or internal_link:
+        return
+    if len(_non_navigation_text(body)) < _MIN_CONTENT_CHARS:
+        return
+    yield Finding(
+        "2.4.1", "Bypass Blocks", "A", BLOCKING, "body", body.line,
+        "The page has a block of navigation links and no way past it: no skip "
+        "link, no <main> landmark, and no heading. A keyboard or screen-reader "
+        "user has to travel the whole navigation again on every page.",
+        'Add a "skip to content" link as the first focusable element, wrap the '
+        "content in <main>, or give the content a heading.",
+        seq=body.order,
+    )
+
+
 def rule_text_contrast(results):
     """SC 1.4.3, for the elements whose colours the artifact actually states.
 
@@ -534,4 +831,11 @@ ALL_RULES: tuple = (
     rule_viewport_scaling,
     rule_heading_order,
     rule_data_table_headers,
+    # Added 2026-08-22, closing four of the eight rows
+    # `a11y-external-coverage-reference` disclosed as `unimplemented`.
+    rule_meta_refresh,
+    rule_moving_content,
+    rule_valid_lang,
+    rule_html_lang_valid,
+    rule_bypass_blocks,
 )

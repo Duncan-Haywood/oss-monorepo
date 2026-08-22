@@ -166,14 +166,23 @@ def load_reference(path: pathlib.Path = CATALOG) -> dict:
         if len(rule["sc"]) == 1 and len(rule["levels"]) == 1:
             level_of.setdefault(rule["sc"][0], rule["levels"][0])
     rules_for = collections.defaultdict(set)
+    default_for = collections.defaultdict(set)
     for rule in raw["rules"]:
+        # A rule axe ships disabled, or ships behind its `experimental` flag,
+        # is not executed by a default `axe.run()`. Both kinds still appear in
+        # `axe.getRules()`, which is why the first version of this catalog
+        # counted them and this one separates them. See Finding 5.
+        in_default_run = rule.get("enabled", True) and not rule.get("experimental", False)
         for criterion in rule["sc"]:
             if level_of.get(criterion) in LEVELS_IN_SCOPE:
                 rules_for[criterion].add(rule["id"])
+                if in_default_run:
+                    default_for[criterion].add(rule["id"])
     return {
         "axe_core_version": raw["axe_core_version"],
         "level": {c: level_of[c] for c in rules_for},
         "rules": {c: sorted(ids) for c, ids in rules_for.items()},
+        "default_run_rules": {c: sorted(default_for[c]) for c in rules_for},
     }
 
 
@@ -202,6 +211,12 @@ def compare(reference: dict, engines: dict) -> dict:
                 name for name, e in engines.items()
                 if criterion in e.get("declared_unimplemented", set())
             ),
+            # Whether the reference actually reports this criterion by
+            # default. False means every axe rule naming it ships disabled or
+            # experimental, so "an independent engine automates it" is not a
+            # claim a default run supports.
+            "axe_default_run_rules": reference["default_run_rules"][criterion],
+            "in_default_run": bool(reference["default_run_rules"][criterion]),
         }
         if not row["disclosed_by"]:
             undisclosed.append(row)
@@ -222,6 +237,7 @@ def compare(reference: dict, engines: dict) -> dict:
             "level": reference["level"][criterion],
             "axe_rule_count": len(reference["rules"][criterion]),
             "axe_rules": reference["rules"][criterion],
+            "axe_default_run_rule_count": len(reference["default_run_rules"][criterion]),
             "claimed_by": sorted(
                 name for name, e in engines.items() if criterion in e["checked"]
             ),
@@ -284,6 +300,8 @@ const axe = require(process.argv[1]);
 const pkg = require(process.argv[2]);
 const LV = {wcag2a:'A', wcag21a:'A', wcag22a:'A',
             wcag2aa:'AA', wcag21aa:'AA', wcag22aa:'AA', wcag2aaa:'AAA'};
+const byId = {};
+for (const r of axe._audit.rules) byId[r.id] = r;
 const rules = [];
 for (const r of axe.getRules()) {
   const sc = r.tags.filter(t => /^wcag\\d{3,4}$/.test(t)).map(t => {
@@ -292,7 +310,16 @@ for (const r of axe.getRules()) {
   });
   if (!sc.length) continue;
   const levels = [...new Set(r.tags.filter(t => LV[t]).map(t => LV[t]))];
-  rules.push({id: r.ruleId, sc: sc.sort(), levels: levels.sort()});
+  // `enabled` and `experimental` are the difference between a rule axe
+  // *ships* and one a default `axe.run()` executes. Dropping them, as the
+  // first version of this extraction did, makes a disabled rule count as
+  // evidence that an independent engine automates a criterion -- which it is
+  // not. `axe.getRules()` does not carry `enabled`, so it is read from the
+  // audit's own rule objects.
+  const full = byId[r.ruleId];
+  rules.push({id: r.ruleId, sc: sc.sort(), levels: levels.sort(),
+              enabled: full ? full.enabled !== false : true,
+              experimental: r.tags.includes('experimental')});
 }
 rules.sort((a, b) => (a.id < b.id ? -1 : 1));
 process.stdout.write(JSON.stringify({axe_core_version: pkg.version, rules}, null, 1));

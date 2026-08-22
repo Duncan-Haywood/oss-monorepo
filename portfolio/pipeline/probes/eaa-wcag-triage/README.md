@@ -81,6 +81,69 @@ criteria remain unverified."
 This is the honest form of assertion #1: the tool measures its own blind spot
 and hands it to the contractor, instead of implying a scanner is the whole job.
 
+## Four criteria became rules: added 2026-08-22
+
+[`a11y-external-coverage-reference/`](../../../research/a11y-external-coverage-reference/)
+found eight A/AA criteria that this catalog listed in neither direction —
+neither checked nor declared untested — and disclosed all eight under a new
+`unimplemented` value without implementing any of them, on the principle that
+disclosure is not detection. Four of the eight are now rules:
+
+| Criterion | Level | What fires | Impact |
+|---|---|---|---|
+| **2.2.1** Timing Adjustable | A | `<meta http-equiv="refresh">` on a positive delay | blocking |
+| **2.2.2** Pause, Stop, Hide | A | `<blink>`, `<marquee>` | blocking |
+| **2.4.1** Bypass Blocks | A | a navigation block, prose to skip to, and no skip link / `<main>` / heading | blocking |
+| **3.1.2** Language of Parts | AA | a `lang` on any non-root element holding a malformed or unknown tag | degrading |
+
+**Why these four and not the other four.** Not difficulty — measurement. Each
+of the eight fixtures was rendered in Chromium and run through axe-core 4.13.0,
+and only five are failures a *default* `axe.run()` reports. Three of the
+remaining criteria (1.2.1, 1.3.4, 2.5.3) are reachable only through axe rules
+that ship disabled or experimental, so the claim that an independent engine
+automates them was never true of a default run. Those three stay
+`unimplemented`, and their catalog rows now give the measured reason instead.
+
+The genuine remaining gap is **1.4.1 Use of Color** — axe reports it by
+default, it fires once on this portfolio's own pages, and no rule here looks
+for it yet. It is named as such in `COVERAGE` rather than grouped with the
+three that are not gaps.
+
+**3.1.1 was downgraded in the same pass, from `automated` to `partial`.** The
+only rule behind it checked that `<html lang>` *existed*; nothing checked that
+it held a language, while the row carried this catalog's strongest word. A page
+declaring `lang="engl"` was reported clean. `rule_html_lang_valid` closes that,
+and the row now says what it does not do (a `lang`/`xml:lang` disagreement is
+still unchecked). Finding an overclaim while closing a gap is the reason the
+parent candidate's `liability_containment` did **not** move up this pass.
+
+### The one out-of-sample finding was a false positive, and it changed the rule
+
+Run over the 118 built pages of
+[`a11y-own-sites/`](../../../research/a11y-own-sites/), the four new rules
+produced exactly one finding: 2.4.1 on `ventures/quick-pick-survey`'s `/app`
+route. Checked by hand in a browser, it was **wrong**. The prerendered file has
+a `<nav>`, no `<main>`, no heading and no in-page link; the delivered page has
+a `<main>` and a heading, because the content region of the prerender is the
+string `Loading…` and the rest is rendered by script. axe passes the delivered
+page.
+
+`rule_bypass_blocks` gained a third gate from this — there must be content to
+bypass *to*, not just a navigation bar above an empty region — and the corpus
+then reproduced its committed 780 findings field for field, no page differing.
+
+So the honest out-of-sample result for all four rules is **zero findings across
+118 pages**, and it means *this corpus cannot exercise them*, not *these pages
+are clean*. Contrast survives a prerender because the colours are in the
+stylesheet either way; structural criteria do not, because for a
+client-rendered app the structure is the part that has not happened yet. A
+rendered corpus is what would settle it.
+
+Both thresholds in the 2.4.1 rule (ten links, 200 characters) are judgements,
+and both are named constants at the top of the rule rather than numbers buried
+in its body, so a reviewer can argue with them. Both under-report by
+construction.
+
 ## The build-artifact filter: added 2026-08-22
 
 A build directory is not a list of the customer's pages. It also holds documents
@@ -242,7 +305,7 @@ Run in CI by [`eaa-wcag-triage-ci.yml`](../../../../.github/workflows/eaa-wcag-t
 which also re-runs `run_fixture_validation.py` and fails if the committed
 record no longer matches what the engine emits.
 
-144 tests: parser behaviour, each rule and its negative control, the
+189 tests: parser behaviour, each rule and its negative control, the
 blocking-before-degrading ordering, dedup of one element matched by two rules,
 the evidence record's JSON/markdown shape and its compliance disclaimer, the
 fixture validation, and — added 2026-08-21 — the two rules this engine was

@@ -9,7 +9,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "aria-allowed-attr",
@@ -18,7 +20,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "aria-braille-equivalent",
@@ -27,7 +31,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "aria-command-name",
@@ -36,7 +42,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "aria-conditional-attr",
@@ -45,7 +53,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "aria-deprecated-role",
@@ -54,7 +64,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "aria-hidden-body",
@@ -64,7 +76,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "aria-hidden-focus",
@@ -73,7 +87,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "aria-input-field-name",
@@ -82,7 +98,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "aria-meter-name",
@@ -91,7 +109,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "aria-progressbar-name",
@@ -100,7 +120,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "aria-prohibited-attr",
@@ -109,7 +131,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "aria-required-attr",
@@ -118,7 +142,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "aria-required-children",
@@ -127,7 +153,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "aria-required-parent",
@@ -136,7 +164,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "aria-roledescription",
@@ -145,7 +175,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": false,
+   "experimental": false
   },
   {
    "id": "aria-roles",
@@ -154,7 +186,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "aria-tab-name",
@@ -163,7 +197,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "aria-toggle-field-name",
@@ -172,7 +208,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "aria-tooltip-name",
@@ -181,7 +219,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "aria-valid-attr",
@@ -190,7 +230,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "aria-valid-attr-value",
@@ -199,7 +241,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "audio-caption",
@@ -208,7 +252,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": false,
+   "experimental": false
   },
   {
    "id": "autocomplete-valid",
@@ -217,7 +263,9 @@
    ],
    "levels": [
     "AA"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "avoid-inline-spacing",
@@ -226,7 +274,9 @@
    ],
    "levels": [
     "AA"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "blink",
@@ -235,7 +285,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "button-name",
@@ -244,7 +296,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "bypass",
@@ -253,7 +307,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "color-contrast",
@@ -262,7 +318,9 @@
    ],
    "levels": [
     "AA"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "color-contrast-enhanced",
@@ -271,7 +329,9 @@
    ],
    "levels": [
     "AAA"
-   ]
+   ],
+   "enabled": false,
+   "experimental": false
   },
   {
    "id": "css-orientation-lock",
@@ -280,7 +340,9 @@
    ],
    "levels": [
     "AA"
-   ]
+   ],
+   "enabled": true,
+   "experimental": true
   },
   {
    "id": "definition-list",
@@ -289,7 +351,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "dlitem",
@@ -298,7 +362,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "document-title",
@@ -307,21 +373,27 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "duplicate-id",
    "sc": [
     "4.1.1"
    ],
-   "levels": []
+   "levels": [],
+   "enabled": false,
+   "experimental": false
   },
   {
    "id": "duplicate-id-active",
    "sc": [
     "4.1.1"
    ],
-   "levels": []
+   "levels": [],
+   "enabled": false,
+   "experimental": false
   },
   {
    "id": "duplicate-id-aria",
@@ -330,7 +402,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "form-field-multiple-labels",
@@ -339,7 +413,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "frame-focusable-content",
@@ -348,7 +424,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "frame-title",
@@ -357,7 +435,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "frame-title-unique",
@@ -366,7 +446,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "html-has-lang",
@@ -375,7 +457,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "html-lang-valid",
@@ -384,7 +468,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "html-xml-lang-mismatch",
@@ -393,7 +479,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "identical-links-same-purpose",
@@ -402,7 +490,9 @@
    ],
    "levels": [
     "AAA"
-   ]
+   ],
+   "enabled": false,
+   "experimental": false
   },
   {
    "id": "image-alt",
@@ -411,7 +501,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "input-button-name",
@@ -420,7 +512,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "input-image-alt",
@@ -430,7 +524,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "label",
@@ -439,7 +535,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "label-content-name-mismatch",
@@ -448,7 +546,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": true
   },
   {
    "id": "link-in-text-block",
@@ -457,7 +557,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "link-name",
@@ -467,7 +569,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "list",
@@ -476,7 +580,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "listitem",
@@ -485,7 +591,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "marquee",
@@ -494,7 +602,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "meta-refresh",
@@ -503,7 +613,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "meta-refresh-no-exceptions",
@@ -513,7 +625,9 @@
    ],
    "levels": [
     "AAA"
-   ]
+   ],
+   "enabled": false,
+   "experimental": false
   },
   {
    "id": "meta-viewport",
@@ -522,7 +636,9 @@
    ],
    "levels": [
     "AA"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "nested-interactive",
@@ -531,7 +647,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "no-autoplay-audio",
@@ -540,7 +658,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "object-alt",
@@ -549,7 +669,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "p-as-heading",
@@ -558,7 +680,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": true
   },
   {
    "id": "role-img-alt",
@@ -567,7 +691,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "scrollable-region-focusable",
@@ -577,7 +703,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "select-name",
@@ -586,7 +714,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "server-side-image-map",
@@ -595,7 +725,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "summary-name",
@@ -604,7 +736,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "svg-img-alt",
@@ -613,7 +747,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "table-fake-caption",
@@ -622,7 +758,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": true
   },
   {
    "id": "target-size",
@@ -631,7 +769,9 @@
    ],
    "levels": [
     "AA"
-   ]
+   ],
+   "enabled": false,
+   "experimental": false
   },
   {
    "id": "td-has-header",
@@ -640,7 +780,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": true
   },
   {
    "id": "td-headers-attr",
@@ -649,7 +791,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "th-has-data-cells",
@@ -658,7 +802,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "valid-lang",
@@ -667,7 +813,9 @@
    ],
    "levels": [
     "AA"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   },
   {
    "id": "video-caption",
@@ -676,7 +824,9 @@
    ],
    "levels": [
     "A"
-   ]
+   ],
+   "enabled": true,
+   "experimental": false
   }
  ]
 }

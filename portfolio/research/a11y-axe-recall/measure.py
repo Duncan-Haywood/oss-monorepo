@@ -39,7 +39,7 @@ Reproducing the corpus (the builds are not committed; the results are)::
 Offline re-derivation of every number in the README, with no build, no
 browser, no network::
 
-    python3 measure.py --recompute-from results-2026-08-21.json
+    python3 measure.py --recompute-from results-2026-08-22.json
 
 Reads local files and the committed `axe-rules-4.13.0.json` catalog; writes
 only `--out`. The only network step is `npm install` above, against

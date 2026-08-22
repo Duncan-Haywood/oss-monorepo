@@ -5,7 +5,7 @@ Built and measured 2026-08-21. Re-runnable, offline, no credentials:
 ```bash
 cd portfolio/research/a11y-axe-recall
 python3 -m unittest discover                                     # 10 tests
-python3 measure.py --recompute-from results-2026-08-21.json      # offline
+python3 measure.py --recompute-from results-2026-08-22.json      # offline
 # to regenerate: npm ci && npm run build in each of the 7 apps, then
 npm install axe-core@4.13.0 playwright@1.56.1 --no-save          # not committed
 python3 measure.py --repo-root ../../.. --out results.json
@@ -174,3 +174,36 @@ one data point.
 - **The contested checkbox is not re-litigated.** Same reason
   `a11y-own-sites/` gave: settling it needs the normative spec text, which is
   egress-denied from here.
+
+## 2026-08-22 — re-run after four criteria became rules
+
+`eaa-wcag-triage` implemented 2.2.1, 2.2.2, 2.4.1 and 3.1.2 (see
+[`a11y-external-coverage-reference/`](../a11y-external-coverage-reference/)
+Finding 5), which widens what this measurement holds the engines to: a
+criterion the engines merely *disclosed* was set aside as a known coverage gap,
+and one they *claim* counts for or against recall.
+
+Re-run live against a rebuilt corpus, same browser, same pinned axe-core:
+
+- **Checked-criteria universe 13 → 17.**
+- **Recall unchanged: 39/40 = 0.975**, the same single miss (4.1.2 on
+  `real-estate-agent-photo-app/docs-site/strategy.html`, the already-contested
+  checkbox). Widening the claim brought no new axe-flagged instances with it,
+  because axe reports **none** of the four anywhere in these 118 pages.
+- **The raw axe output reproduces the 2026-08-21 run field for field** across
+  all 118 pages — an incidental but useful confirmation that the corpus
+  rebuild and this harness are both deterministic.
+- Still 3 axe-flagged instances outside the universe: **1.4.1**, 2.1.1, 2.1.3.
+
+That 1.4.1 instance (`photo-editing/docs-site/index.html`) is now the sharpest
+open item in this family. It is the **only** criterion that a default axe run
+reports, that fires on this portfolio's own corpus, and that neither in-house
+engine has any rule for — the three other criteria left unimplemented rest on
+axe rules that ship disabled or experimental and never fire at all.
+
+The results file is renamed `results-2026-08-22.json` for the date of this run,
+matching how `a11y-own-sites/` keeps a single current file.
+
+**Still no engine change from this directory.** The four rules were written in
+the probe, against the coverage catalog, and this module re-measured them; it
+did not author them.

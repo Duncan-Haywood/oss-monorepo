@@ -74,3 +74,4 @@ jobs:
       # Catches a hand-edited number.
       - run: python3 measure.py --recompute-from results-2026-08-21-as-found.json
       - run: python3 measure.py --recompute-from results-2026-08-21-after-disclosure.json
+      - run: python3 measure.py --recompute-from results-2026-08-22-after-rules.json
