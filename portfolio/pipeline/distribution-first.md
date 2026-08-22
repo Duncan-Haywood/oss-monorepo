@@ -208,3 +208,23 @@ taking money is the only part that genuinely requires the owner.
 See [channel-inventory.md](channel-inventory.md) for the full inventory, the
 credential gradient, and the mapping of the eight candidates onto channels an
 agent can publish into for $0.
+
+---
+
+## Correction (2026-08-22): the channels named above are not actually reachable
+
+The claim two paragraphs up — that WordPress.org, Open VSX, npm/PyPI, and
+GitHub Marketplace's free tier are agent-listable for $0 — was never probed
+from this environment before it was written, and five later runs spent their
+budget finding that it does not hold. See
+[channel-inventory.md](channel-inventory.md)'s "Amendment: the free channels
+were measured, and the plan does not survive" section: every channel this
+tenth-run amendment named came back `EGRESS_DENIED` or `SCOPE_DENIED`,
+re-verified on a second date from a fresh checkout. Permission was never the
+binding constraint — the network policy and app scope are, and neither
+changes on owner approval alone. `CLAUDE.md` now carries this correction
+directly so a session reading only the root file is not misled; this note
+exists so a session that lands on this file instead, without also opening
+`channel-inventory.md`, is not either. Do not plan work here on the premise
+that a free listing can be published from this environment — that premise
+has been probed and is false.
