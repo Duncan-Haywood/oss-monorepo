@@ -10,6 +10,15 @@ used to answer the question its research left open.
 
 ---
 
+> **Two further passes landed the same day, by sessions that could not see each
+> other, and they took the two different next steps the first pass named.** This
+> one collected the third corpus and measured the rule edits on it. The other
+> ran a model over corpus 2 and is the [model-pass
+> amendment](#amendment-2026-08-22-a-model-was-run-over-the-corpus) at the end
+> of this file; it is the one that moved `ai_leverage` 6 → 7. They do not
+> overlap, and each bears on the other: the model's figure is a single held-out
+> measurement of exactly the kind this pass shows can halve on a second corpus.
+
 ## Second pass, 2026-08-22: a third corpus, and the fixes measured on it
 
 The first pass below closed by naming three rule edits, declining to make them,
@@ -248,11 +257,19 @@ scores and neither is a measurement:
   and a recall of 0.25 is the strongest evidence yet that rules are *not*
   sufficient here, which argues the leverage is higher than 6 — but no model was
   run against this corpus, so that is an argument. Running one is the obvious
-  next pass and it is now cheap: 284 changes across two corpora with committed
-  hand labels. **Corpus 3 strengthens the argument and still does not settle
-  it** — recall 0.10 is the weakest showing yet for the rule approach — and it
-  is recorded as examined-and-not-revised for the second time rather than acted
-  on, because a second unmeasured argument is not evidence.
+  next pass and it is now cheap: 136 changes with committed hand labels.
+
+  **Both later passes acted on this, in opposite ways, and the model pass is the
+  one that moved the score.** The corpus-3 pass strengthened the argument
+  without settling it — recall of 0.10 is the weakest showing yet for the rule
+  approach, and a second unmeasured argument is not evidence, so it recorded
+  examined-and-not-revised a second time. The model pass measured it: a blind
+  Claude Sonnet 5 read scores F1 0.61–0.71 against the rules' 0.30–0.33 on the
+  same corpus, and `ai_leverage` moved **6 → 7**. What is still open is whether
+  *that* figure replicates, since the corpus-3 pass showed the rules' own F1
+  falling by half between two corpora drawn the same way, and the model has only
+  been asked about one of them. There are now 284 changes with committed hand
+  labels; the model has seen 136.
 - `ethical_robustness` is 8. This probe ships the disclosure surface the
   candidate never had, and it does so from its first version rather than after a
   deduction. There was no measured deficit to restore, so the score is recorded
@@ -345,10 +362,92 @@ are a set difference between two pins, exact, with no rule in between.
 - **That the three edits are the right fix.** They are measured out of sample
   and they help, and they leave 86% of the qualifying changes unfound. The class
   that carries 35 of 44 misses has no rule at all yet.
-- **That a model would do better.** Nobody has tried. That is the next pass.
+- **That a model would do better.** Measured now — see the model-pass amendment
+  below. It does, on precision and recall both, and it does worse on the one
+  thing this probe's whole methodology is built around: judging only the newly
+  added text. **That measurement is on corpus 2 only**, and the corpus-3 pass
+  above is a demonstration that a single held-out figure from this corpus family
+  does not have to hold: the rules' own F1 fell by half between the two. The
+  model's 0.61–0.71 has not been asked the same question.
 - **That severity is separable at all.** A benign deprecation notice and an
   injected routing instruction are the same shape in text. This probe labels
   *whether* text addresses the model, never whether it is hostile, and the
   record says so.
 - **Anything about the 85%.** Every number here is from the 15% of the registry
   that ships a package.
+
+## Amendment, 2026-08-22: a model was run over the corpus
+
+The write-up above named this the obvious next pass and put a number on why it
+was cheap: 136 changes with committed hand labels. Run here, blind: four
+independent Claude Sonnet 5 passes, one per disjoint 34-item slice of the
+corpus, each given only a tool's old/new description text, a mechanical
+newly-added-text hint, and the rubric from `build_labels.py`'s docstring — not
+the rule classifier's bucket for that item, not the hand labels, not
+`build_labels.py` itself. Scored against the same committed hand labels the
+rules were scored against, by `score_model_pass.py`.
+
+|  | rules (2026-08-22) | model, one blind pass |
+|---|---:|---:|
+| precision | 0.40 | **0.48–0.60** |
+| recall | 0.24–0.29 | **0.86–0.88** |
+| F1 | 0.30–0.33 | **0.61–0.71** |
+
+**The model beats the rules on both axes, by a wide margin on recall.** It
+caught 15 of 17 hand-labelled instruction-bearing changes (13 of 15 counting
+borderline calls conservatively) against the rules' 4 of 17 (4 of 14
+conservative). That is direct evidence against this candidate's `ai_leverage`
+score of 6, which was lowered on 2026-08-19 on the finding that "the
+classification is rule-separable rather than model work" — on this corpus it
+demonstrably is not: a model gets roughly twice the rules' F1.
+
+**It is not simply better, and the way it is worse is the reusable finding.**
+Of the model's 10 false positives (counting borderline calls as positive), 4
+are hand-noted as judging text that was not actually new — the exact
+discipline `build_labels.py`'s rubric leads with ("applied to the *newly
+added* text only … text already present in the old description is not new
+evidence"):
+
+- `@gency-ai/gency-mcp` `update_product_status`: flagged "Confirm with the
+  user" as a new imperative; the old text already carried the identical
+  instruction, just at greater length.
+- `@naumu/mcp` `naumu_remove_edge` (0.1.5): flagged "Prefer `naumu_ask`" as a
+  new priority claim; it is in both versions, unchanged — the case the
+  hand-labels call out as "the span-must-be-new rule working" against the
+  rules, and the model missed it in the direction the rules got right.
+- `@naumu/mcp` `naumu_add_node` (0.1.5): flagged a new imperative in a version
+  where the hand labels record the *opposite* edit — a directive being
+  *removed*, not added.
+- `@agenttrust/mcp-server` `agenttrust_inbox`: flagged a tool reference as new
+  routing guidance; the same routing was already present in the prior
+  description.
+
+A rule-based diff can guarantee it only ever sees the new span; nothing here
+stopped the model from re-reading the full before/after pair and losing track
+of which words were actually added, and about a quarter of its false alarms
+came from exactly that. The other 6 false positives and both false negatives
+are genuine judgement calls, not this failure mode — see
+`score_model_pass.py --disagree` for the full list with both readings side by
+side, including one item (`@flydocs/cli` `install`/`sync`) where the "new"
+text is itself truncated mid-sentence ("deprecated — use ") in a way that
+makes the hand label's call defensible but not obviously the only reasonable
+one.
+
+**What was deliberately not done here either:** the disagreements were not
+adjudicated in the model's favour, the hand labels were not revised, and this
+was not repeated to average away the single-pass noise the labels
+(`model-pass-2026-08-22.json`'s own `single_pass_caveat`) already flag. One
+blind pass beating the rules by this much is itself the finding; turning it
+into a shippable classifier is a different, larger piece of work this pass
+does not claim to have done.
+
+**Score moved:** `ai_leverage` 6 → 7 in `candidates.yaml`, reversing part of
+the 2026-08-19 reduction — see that file's `measured` block for the exact
+wording. Composite 6.75 → 6.875. No other score moves; `defensibility` (the
+candidate's actual floor, at 3, mitigation refuted per the entry above) is
+untouched and this still cannot graduate under README.md rule 2.
+
+| File | What it is |
+|---|---|
+| `model-pass-2026-08-22.json` | The model's 136 blind labels plus its per-item reasoning, and the exact method in its own `method` field. |
+| `score_model_pass.py` | Scores the model pass against the hand labels; `--disagree` lists every split with both sides' reasoning. |

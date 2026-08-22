@@ -249,13 +249,18 @@ class AgainstTheLiveFile(unittest.TestCase):
 
         This is the distinction that keeps the record honest: a score may rise
         because someone fixed the thing being measured, never because a later
-        pass liked the candidate more. All four current upward revisions are on
-        ``ethical_robustness``. Three trace to
+        pass liked the candidate more. Four of the five current upward
+        revisions are on ``ethical_robustness``. Three trace to
         ``portfolio/research/error-rate-disclosure/`` directly; the fourth,
         ``agent-permission-harness``, traces to
         ``probes/agent-permission-harness/`` closing the gap that pass measured
         the same day (``validate_accuracy.py``'s 34-case fixture corpus, then
-        disclosed in ``harness.render_markdown()``).
+        disclosed in ``harness.render_markdown()``). The fifth,
+        ``mcp-supply-chain-watch``'s ``ai_leverage``, traces to
+        ``probes/mcp-drift-watch/``'s blind model pass over the held-out
+        corpus that pass's own README already scored the rules classifier
+        against -- the artifact that changed is "was the classifier tried
+        with a model", not an opinion about the candidate.
         """
         up = [r for r in self.revisions if r.delta > 0]
         self.assertEqual(
@@ -264,6 +269,7 @@ class AgainstTheLiveFile(unittest.TestCase):
                 ("agent-permission-harness", "ethical_robustness"),
                 ("cra-evidence-desk", "ethical_robustness"),
                 ("eaa-remediation-pipeline", "ethical_robustness"),
+                ("mcp-supply-chain-watch", "ai_leverage"),
                 ("public-record-watch", "ethical_robustness"),
             ],
         )

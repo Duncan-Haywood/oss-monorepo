@@ -11,10 +11,13 @@ that one proposes runtime enforcement and competes with funded platforms on
 their roadmap. This one is a monitoring feed over a mutable supply chain, which
 is a smaller claim and a faster sale.
 
-Scored 2026-08-18. Composite 6.75 · floor 3 (defensibility). AI leverage
+Scored 2026-08-18. Composite 6.875 · floor 3 (defensibility). AI leverage
 lowered 7→6 on 2026-08-19 after the probe (below) showed the classification is
 rule-separable, not model work; defensibility and distribution further lowered
-2026-08-20 from 4/6 to 3/5 (PRs #245, #225, #229 — see the table below).
+2026-08-20 from 4/6 to 3/5 (PRs #245, #225, #229 — see the table below). AI
+leverage raised back 6→7 on 2026-08-22 after a blind model pass on the same
+held-out corpus roughly doubled the rules' F1 — see the amendment near the
+bottom of this file. Composite: 6.75 → 6.875.
 **The named mitigation is refuted by measurement with no replacement found
 (PR #245): under `README.md` rule 2 this candidate cannot graduate until
 either the remote-endpoint egress is granted or a durable asset other than
@@ -31,7 +34,7 @@ the archive is named and tested.**
 
 | Dimension | Score | Why |
 |---|---|---|
-| AI leverage | ~~7~~ 6 | Scored as model work; the [step-2 measurement](../../research/mcp-tool-drift/) separated 119 cosmetic from 11 instruction-bearing changes with deterministic rules and no model, so the leverage is lower and the copy-cost (defensibility floor) is a touch worse than scored |
+| AI leverage | ~~7~~ ~~6~~ 7 | Scored as model work; the [step-2 measurement](../../research/mcp-tool-drift/) separated 119 cosmetic from 11 instruction-bearing changes with deterministic rules and no model, lowering it — then a 2026-08-22 blind model pass on the held-out corpus roughly doubled the rules' F1, raising it back (see amendment below) |
 | Autonomous ops | 9 | Poll, diff, classify, alert. No human step in the normal path |
 | Time to revenue | 7 | Security buyers move slowly, but this is a monitoring line item, not a platform decision |
 | Gross margin | 9 | Polling, storage, and inference on diffs only |
@@ -138,12 +141,12 @@ the exact error this pass exists to correct. A third corpus is a command away
 (164 eligible packages; 60 taken, recorded rather than truncated) and the labels
 are committed as data.
 
-Bearing on the scores, neither applied: this is the strongest evidence yet that
-the classification is **not** rule-separable, which argues `ai_leverage` is higher
-than the 6 it was lowered to on 2026-08-19 — but no model has been run against
-this corpus, so that is an argument and not a measurement. Running one is the
-obvious next pass and is now cheap, since the hand labels exist. Recorded as
-examined-and-not-revised, on the precedent `shopify-a11y-evidence` set.
+Bearing on the scores, neither applied at the time: this is the strongest
+evidence yet that the classification is **not** rule-separable, which argues
+`ai_leverage` is higher than the 6 it was lowered to on 2026-08-19 — but no
+model had been run against this corpus, so that was an argument and not a
+measurement. One has been run since — see the 2026-08-22 amendment below,
+where the argument became a measurement and the score moved.
 
 **Amendment 2026-08-22 (second pass, same day) — the third corpus was collected
 and it refutes the pass above as well as the one before it. Still no score
@@ -170,13 +173,18 @@ change:
   before a dot, so neither has ever fired. The one repair carries the entire
   out-of-sample recall gain.
 
-`ai_leverage` is recorded examined-and-not-revised for the **second** time:
-recall of 0.10 is the strongest case yet that rules are insufficient, and no
-model has still been run, so it is still an argument. Naming the condition
-rather than repeating the note: the next pass on this candidate should run a
-model against the 284 committed hand labels, or write a rule for the class that
-carries 35 of 44 misses (`use x_y for …`, `hosted users should call x_y`) and
-measure it on a fourth corpus — which now requires the registry to grow.
+This pass recorded `ai_leverage` examined-and-not-revised for the second time —
+recall of 0.10 is the strongest case yet that rules are insufficient, and it is
+still an argument until a model is run. **A concurrent session ran one the same
+day and the score moved 6 → 7** on that evidence (see the model-pass amendment
+above); nothing here disputes it. What this pass adds to it is a caution: the
+model's F1 of 0.61–0.71 is a single held-out measurement on corpus 2, and the
+rules' own F1 fell from 0.30–0.33 to roughly half that between corpus 2 and
+corpus 3. **Asking the model the same question on corpus 3 is now the cheap
+next step**, and its 148 hand labels are committed for exactly that. The other
+open item is a rule for the class that carries 35 of 44 misses (`use x_y for …`,
+`hosted users should call x_y`), measured on a fourth corpus — which now
+requires the registry to grow.
 
 **Update 2026-08-19 — steps 1 and 2 done, step 3 outstanding.** Step 1 ran
 retrospectively (diffing the versions npm already holds rather than waiting two
@@ -190,3 +198,31 @@ per-server, not over-alerting, which argues for **selling the archive rather
 than the alert**. Step 3 (take the rate to ten teams at $29/server/month) is the
 only remaining gate and is exactly the step an unattended agent cannot run. See
 [`portfolio/research/mcp-tool-drift/`](../../research/mcp-tool-drift/).
+
+**Update 2026-08-22 — a probe built, and a model finally run against the
+corpus.** [`portfolio/pipeline/probes/mcp-drift-watch/`](../probes/mcp-drift-watch/)
+built the candidate's own "Pin · Diff · Classify · Archive" as the smallest
+working thing and re-ran the classifier out of sample, on 136 changes across 23
+npm-published servers none of which were read while the rules were written.
+The rate held (7.2% in sample vs 7.4% held out) but the labels did not:
+precision 0.40, recall 0.24–0.29 — six of ten alerts wrong, about three of four
+qualifying changes missed. `secret_or_credential` produced 6 of the 10 alerts
+and 0 true positives, on two independent corpora now.
+
+That probe's own README then took the pass this file had been deferring:
+running a model, blind, over the same 136 changes and their committed hand
+labels. It scored **precision 0.48–0.60, recall 0.86–0.88, F1 0.61–0.71** —
+roughly double the rules' F1 — with a distinct, reproducible weakness of its
+own: a quarter of its false positives came from judging text that was not
+actually newly added, the exact discipline the rules classifier enforces by
+construction. Full breakdown, including the four specific mislabelled items and
+the one item whose "new" text is itself truncated mid-sentence, in
+[`probes/mcp-drift-watch/README.md`](../probes/mcp-drift-watch/README.md#amendment-2026-08-22-a-model-was-run-over-the-corpus).
+
+`ai_leverage` moved 6 → 7 on this measurement (composite 6.75 → 6.875, in
+`candidates.yaml`) — the classification is not rule-separable after all, which
+is the reversal this file's 2026-08-19 note said would need an actual model
+run to earn. Nothing else moved: `defensibility` is still the floor at 3, the
+mitigation is still refuted, and this still cannot graduate under
+`README.md` rule 2 without either the remote-endpoint egress grant or a
+durable asset other than the archive.
