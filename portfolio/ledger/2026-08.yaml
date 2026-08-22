@@ -18012,3 +18012,77 @@ entries:
         individual PR-recheck entries, not a prompt to write another one. No
         revenue; the $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve the
+        development process... increase in profit" session, designated branch
+        claude/nifty-goodall-y2cyei. `session_gate.py` -> PROCEED (maintenance
+        cadence), flagging 2 sessions had committed to `main` within one
+        15-minute window in the last 6h and to check open PRs/branches/#139
+        before starting. Did: 4 open PRs (#583, #531, #372, #368), all still
+        correctly human-gated and already flagged on #139; `router/allocate.py`
+        confirmed all 10 ventures blocked on the same unpublished-app-code
+        decision. Nothing there to act on, so took `CLAUDE.md`'s next-named
+        move -- advance a probe already specified in `portfolio/pipeline/`.
+      - >-
+        Independently landed on the exact task a concurrent session was
+        already running: `mcp-drift-watch/README.md`'s own closing line,
+        "That a model would do better. Nobody has tried. That is the next
+        pass," read as the highest-value unclaimed unit of work in the
+        pipeline. Built it in full before checking for collisions again --
+        extracted the 136 held-out changes with hand labels stripped, ran one
+        blind subagent classification pass against the published rubric,
+        scored it against the committed ground truth (precision 0.737,
+        recall 0.824, roughly double the rules' 0.40/0.24-0.29), and had
+        `candidates.yaml`, `README.md`, `candidates/mcp-supply-chain-watch.md`,
+        the probe's own README, and `test_score_sensitivity.py` all edited and
+        passing (`validate_candidates.py`, `validate_doc_consistency.py`,
+        63 unit tests) to move `ai_leverage` 6 -> 7 (composite 6.75 -> 6.875).
+      - >-
+        A `git fetch origin main` immediately before pushing -- done on
+        habit, not because anything seemed wrong -- found `main` had moved
+        to PR #634 four minutes earlier: an independent concurrent session
+        had run the identical next pass (a 4-way-ensemble blind classification
+        instead of one full-corpus pass) and landed the identical score move,
+        already merged. Same conclusion, same numbers to two decimal places
+        on precision, a wider ensemble that also caught a failure mode
+        (judging text that was not actually new) this session's single-pass
+        version did not surface. Discarded this session's redraft of every
+        file #634 had already changed rather than opening a competing PR
+        against still-warm work -- `git checkout` on the modified files,
+        deleted the three new ones, fast-forwarded the branch onto `origin/main`.
+        Verified the fast-forwarded tree is unchanged from #634's merge and
+        all tests still pass.
+      - >-
+        The near-miss is the reusable finding, not the classifier result
+        itself (which #634 already fully documents and this entry does not
+        repeat). Both sessions read the same README line as the obvious next
+        move within the same maintenance-cadence window `session_gate.py`
+        itself flagged as running two concurrent sessions -- the gate's own
+        collision warning fired and was heeded on the open-PR check, but a
+        newly-completed probe's "next pass" line is exactly the kind of
+        freshly-uncontested-looking task two sessions converge on
+        simultaneously, faster than either can discover the other by
+        checking open PRs alone. The mitigation actually taken here was
+        procedural, not novel: re-fetch `main` immediately before pushing
+        _every_ time, including after a long single-threaded work session
+        with no intervening tool calls that would have surfaced a collision
+        earlier, and prefer discarding a redundant diff over merging a
+        competing PR against work already on `main`. No process or tooling
+        change proposed beyond that; the existing fetch-before-push habit
+        caught this one before it cost a review cycle, which is the reason
+        to keep doing it as a matter of course rather than only when
+        something feels contested.
+      - >-
+        Net effect: zero code shipped (correctly -- the code was already
+        shipped, by #634), zero duplicate PRs opened, ~2 hours of this
+        session's own agent time spent re-deriving a result that added
+        nothing beyond what #634 already established. That spend is the
+        cost side of running maintenance-cadence sessions without a
+        claim mechanism for in-flight work; recorded here rather than
+        omitted, per this file's own instruction to log wasted spend
+        honestly. No revenue; the $0 ceiling is unchanged.
+    mrr_end: null
