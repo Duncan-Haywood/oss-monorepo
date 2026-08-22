@@ -270,3 +270,84 @@ def test_sessions_per_hour_trusts_history_that_covers_the_window(monkeypatch):
     cadence, reliable = sg.sessions_per_hour(hours=24)
     assert reliable is True
     assert cadence == 1 / 24
+
+
+# --- a stale (un-fetched) origin/main must not manufacture a false PROCEED ---
+#
+# Distinct failure mode from shallow truncation above: a fresh session's
+# `origin/main` can point at a commit that is simply old (days or weeks
+# stale), not depth-truncated. Its reachable history is deep, so
+# `history_span_hours` reads it as reliable, while `--since=24 hours ago`
+# against that stale tip correctly finds nothing in *its* last 24 hours and
+# reports 0.00 sessions/hour -- a real answer computed against the wrong
+# commit. Measured live on 2026-08-22: a fresh checkout's `origin/main` sat at
+# a 2026-07-29 commit, 878 commits behind the true tip. Fetching before
+# reading is the only fix; these tests cover that fetch and its wiring.
+
+
+def test_refresh_origin_main_true_on_success(monkeypatch):
+    import subprocess
+
+    monkeypatch.setattr(
+        sg.subprocess,
+        "run",
+        lambda *a, **k: subprocess.CompletedProcess([], 0),
+    )
+    assert sg.refresh_origin_main() is True
+
+
+def test_refresh_origin_main_false_on_nonzero_exit(monkeypatch):
+    import subprocess
+
+    monkeypatch.setattr(
+        sg.subprocess,
+        "run",
+        lambda *a, **k: subprocess.CompletedProcess([], 1),
+    )
+    assert sg.refresh_origin_main() is False
+
+
+def test_refresh_origin_main_false_when_offline(monkeypatch):
+    import subprocess
+
+    def raises(*a, **k):
+        raise subprocess.TimeoutExpired(cmd="git fetch", timeout=20)
+
+    monkeypatch.setattr(sg.subprocess, "run", raises)
+    assert sg.refresh_origin_main() is False
+
+
+def test_report_surfaces_whether_origin_was_fetched():
+    entries = [entry("portfolio")] * sg.WINDOW
+    fetched = sg.report(entries, cadence=2.0, origin_fetched=True)
+    stale = sg.report(entries, cadence=2.0, origin_fetched=False)
+    assert fetched["origin_fetched"] is True
+    assert stale["origin_fetched"] is False
+
+
+def test_render_flags_a_failed_fetch_distinctly_from_shallow_truncation():
+    entries = [entry("portfolio")] * sg.WINDOW
+    r = sg.report(entries, cadence=0.0, cadence_reliable=False, origin_fetched=False)
+    rendered = sg.render(r)
+    assert "git fetch origin main` failed" in rendered
+    assert "stale by days or weeks" in rendered
+    # the shallow-truncation note is a different diagnosis; don't show both
+    assert "truncate `git log" not in rendered
+
+
+def test_main_does_not_trust_a_reading_the_fetch_could_not_refresh(monkeypatch, capsys):
+    """Reproduces the exact live bug: a stale `origin/main` reads as a reliable
+    0.00 sessions/hour (deep-but-old history passes `history_span_hours`), which
+    would clear the gate to PROCEED unless the failed fetch overrides it."""
+    monkeypatch.setattr(sg, "refresh_origin_main", lambda: False)
+    monkeypatch.setattr(sg, "sessions_per_hour", lambda: (0.0, True))
+    monkeypatch.setattr(sg, "max_concurrent_sessions", lambda *_a, **_k: 0)
+    monkeypatch.setattr(sg, "commits_with_sessions", lambda *_a, **_k: [])
+    monkeypatch.setattr(sg, "load_entries", lambda *_a, **_k: [entry("portfolio")] * sg.WINDOW)
+    monkeypatch.setattr(sg.sys, "argv", ["session_gate.py"])
+
+    sg.main()
+
+    out = capsys.readouterr().out
+    assert "VERDICT: NO-OP" in out
+    assert "git fetch origin main` failed" in out

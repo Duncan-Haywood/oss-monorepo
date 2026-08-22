@@ -28,7 +28,10 @@ dated measurement is right for a document that is read later; a gate consulted
 at the top of a session is only useful if it reflects the regime the session is
 actually about to spend money in.
 
-Reads only committed repo data and `git log`. No network, no credential.
+Reads committed repo data and `git log`, plus one `git fetch origin main`
+issued by this script itself (read-only, no credential beyond the repo access
+the session already has) — see `refresh_origin_main`'s docstring for why that
+fetch turned out not to be optional.
 """
 
 from __future__ import annotations
@@ -104,6 +107,42 @@ def reverification_share(entries: list[dict], window: int = WINDOW) -> float:
         if REVERIFICATION_PATTERN.search(text):
             hits += 1
     return hits / len(recent)
+
+
+def refresh_origin_main(timeout: float = 20.0) -> bool:
+    """Best-effort `git fetch origin main`. Returns whether it succeeded.
+
+    #600 fixed the case where `origin/main` points at the right commit but a
+    shallow clone truncates the history behind it. It did not fix a cheaper
+    way for the same false PROCEED to happen: a container's initial checkout
+    can leave the local `origin/main` ref itself stale — pointing at a commit
+    from days or weeks ago — without the depth being shallow at all. Measured
+    live on 2026-08-22: a fresh session's un-fetched `origin/main` sat at a
+    2026-07-29 commit, 878 commits behind the true tip. Its reachable history
+    still spanned far more than 24 hours (that old commit has deep history
+    behind it), so `history_span_hours` read it as reliable — `git log
+    --since=24 hours ago` against that stale ref then correctly found zero
+    commits in *its* last 24 hours and reported 0.00 sessions/hour, a real
+    answer to the wrong question. Shallowness and staleness fool the same
+    reliability check in opposite ways, so the check cannot tell them apart
+    after the fact; the only fix is to make `origin/main` fresh before reading
+    it, which is what this does.
+
+    Failure (offline, no remote configured, network denied) is swallowed —
+    callers treat a failed refresh as another reason not to trust the reading,
+    not as a crash.
+    """
+    try:
+        result = subprocess.run(
+            ["git", "fetch", "origin", "main", "--quiet"],
+            cwd=REPO,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+    except (subprocess.TimeoutExpired, OSError):
+        return False
+    return result.returncode == 0
 
 
 def history_span_hours(commit_timestamps: list[int]) -> float:
@@ -258,6 +297,7 @@ def report(
     cadence: float,
     burst: int = 0,
     cadence_reliable: bool = True,
+    origin_fetched: bool = True,
 ) -> dict:
     revenue = revenue_recorded(entries)
     meta = meta_share(entries)
@@ -282,6 +322,7 @@ def report(
         "reverification_share_recent": round(reverif, 4),
         "sessions_per_hour": round(cadence, 4),
         "cadence_reliable": cadence_reliable,
+        "origin_fetched": origin_fetched,
         "window": WINDOW,
         "max_concurrent_sessions": burst,
         "burst_window_minutes": BURST_WINDOW_MINUTES,
@@ -314,7 +355,16 @@ def render(r: dict) -> str:
         f"VERDICT: {r['verdict']}",
     ]
     lines += [f"  - {reason}" for reason in r["reasons"]]
-    if not r["cadence_reliable"]:
+    if not r.get("origin_fetched", True):
+        lines += [
+            "",
+            "  NOTE: `git fetch origin main` failed this run (offline? network denied?),",
+            "  so this reading falls back to whatever `origin/main` already pointed to",
+            "  locally -- which can be stale by days or weeks, not just shallow. The",
+            "  cadence figure above may be a stale snapshot, not a floor, and was",
+            "  excluded from clearing the gate this run.",
+        ]
+    elif not r["cadence_reliable"]:
         lines += [
             "",
             "  NOTE: this clone's local history doesn't reach back the full 24h window",
@@ -342,9 +392,16 @@ def main() -> int:
     parser.add_argument("--json", action="store_true", help="emit the reading as JSON")
     args = parser.parse_args()
 
+    fetched = refresh_origin_main()
     burst = max_concurrent_sessions(commits_with_sessions())
     cadence, cadence_reliable = sessions_per_hour()
-    r = report(load_entries(), cadence, burst=burst, cadence_reliable=cadence_reliable)
+    r = report(
+        load_entries(),
+        cadence,
+        burst=burst,
+        cadence_reliable=cadence_reliable and fetched,
+        origin_fetched=fetched,
+    )
     print(json.dumps(r, indent=2) if args.json else render(r))
     return 0
 
