@@ -381,9 +381,11 @@ suppression, not a synthetic fixture corpus, which is why it was left open
 through the build-surface pass above.
 
 Method: re-ran the engine against a freshly downloaded OSV npm feed (same
-2026-08-21 fetch used above) across all seven npm products in this portfolio,
-and inspected every one of the **102 suppressed findings** the run produced by
-hand. They reduce to **53 distinct `(advisory, rule, package)` claims** — the
+2026-08-21 fetch used above) across the seven npm products in this portfolio's
+hand-written sample list — 7 of the 18 npm manifests a repository walk later
+found here, and 7 of the 9 this tool can read at all, per [the coverage
+section](#half-of-this-repository-was-never-scanned-2026-08-22) — and inspected
+every one of the **102 suppressed findings** the run produced by hand. They reduce to **53 distinct `(advisory, rule, package)` claims** — the
 same advisory suppressed the same way on more than one product counts once,
 since the reasoning is identical. Full detail for all 53 is in
 [`wrong-suppression-verification-2026-08-21.json`](wrong-suppression-verification-2026-08-21.json).
@@ -494,11 +496,115 @@ the pre-guard behaviour when no context is passed). Re-running the full
 sample against the live feed after the fix produced the identical 102/30
 split, so the fix closes a real gap without changing this sample's answer.
 
+## Half of this repository was never scanned (2026-08-22)
+
+Every measurement above — the validation table, the bimodality finding, the
+102 hand-verified suppressions — was run over a **hand-written list of seven
+product directories** in `run_portfolio_sample.py`. That list was assembled by
+someone who already knew where the projects were, and it is the reason this
+pass exists: a list like that cannot answer the question a reader of a record
+actually has, which is *did you look at all of my code*.
+
+`src/triage/discovery.py` walks the repository instead. Run over this one
+([`coverage-2026-08-22.json`](coverage-2026-08-22.json), regenerate with
+`run_repository_coverage.py`):
+
+| | count |
+|---|---:|
+| npm manifests found | **18** |
+| readable by this tool | **9** |
+| refused | **9** |
+| in the verification above | **7** |
+
+**Exactly half of this repository's npm projects cannot be read by this tool at
+all**, and the refusals are not scattered: **7 of the 9 are one venture**,
+`retail-pilot-intel`, and they are refused for a single reason — its lockfile
+is pnpm. One venture's choice of package manager removes seven manifests, two
+of them deployable Vite apps, from every record this tool has ever produced.
+Nothing in any of those records said so.
+
+### Why a coverage rule that already existed did not catch it
+
+`COVERAGE_LIMITS` has carried this line since the record was first written:
+
+> Only npm dependencies declared in package-lock.json (v2/v3) are analysed.
+> **Other ecosystems in the same repository are not covered.**
+
+That sentence is true, and it is precisely why the gap survived five passes. It
+was written about pip and Go. A reader whose repository holds no Python reads
+it, correctly concludes it does not apply to them, and is left believing their
+npm code was covered — because **pnpm is npm**. The limit named the wrong axis:
+the boundary that matters is not the ecosystem, it is the lockfile format, and
+a repository can be entirely npm and still be more than half unreadable.
+
+This is the same failure `evidence.py` already guards one level down, where
+every *suppressed* finding is listed on the reasoning that "suppression a user
+cannot audit is indistinguishable from a missed finding." A project the tool
+was never pointed at is strictly worse: it produces no findings, which is
+byte-identical to a project that has none.
+
+### What the walk changes, and what it does not
+
+**It does not change a single number above.** Run against the same feed, the
+walk finds the same seven products and reproduces the build-surface run field
+for field — 132 findings, 30 deployed, 102 suppressed, every per-product row
+identical. That is the point: this is a coverage correction, not a
+re-measurement, and a test pins the totals so the two cannot drift apart.
+
+What it adds is the nine it refuses, each with the specific thing that stopped
+it and what would clear it (`pnpm-lockfile` → run `npm install
+--package-lock-only`), and **two projects that were in neither list**:
+`ai-engineering-academy/site` and `real-estate-agent-photo-app/pipeline` are
+readable, but their deployment mode resolves to `unknown`, so no finding in
+them can be suppressed on the grounds that its surface is not deployed. They
+are reported as `analysed-no-deployment-mode` rather than folded into
+"analysed", because the reachability narrowing this tool sells is not being
+applied to them and that is invisible from a finding count of zero. They are
+also the answer to a discrepancy sitting in this README the whole time: the
+accuracy note said *nine* products, the validation table showed *seven* rows,
+and nothing reconciled them.
+
+### The accuracy note was overstating its own coverage
+
+It read "hand-verified … across **all seven npm products in this portfolio**."
+There are 18 npm manifests here and 9 this tool can read. The verified figure
+(0 wrong suppressions in 53 distinct claims) is unaffected — that hand review
+covered what it covered — but the sentence framing it claimed the sample was
+the whole portfolio when it was 7 of 18, which is an error in the direction
+that flatters the tool. Corrected, with the three counts pinned to
+`coverage-2026-08-22.json` by `tests/test_discovery.py::TestCoverageCitations`
+so a stale figure fails the build instead of being quoted at a buyer.
+
+### Limits of the walk itself
+
+- **Refusing loudly is not covering.** This does not read pnpm or yarn
+  lockfiles. `retail-pilot-intel` is still unanalysed; it is now unanalysed *in
+  writing*.
+- **The npm-workspace rule is fixture-tested only.** A member with no lockfile
+  of its own counts as covered when an ancestor's lockfile declares it as a
+  workspace entry, and deliberately *not* when only the root manifest's
+  `workspaces` glob claims it — a stated intention is not a resolved dependency
+  set. No npm workspace exists in this repository, so that path has unit tests
+  and no out-of-sample evidence.
+- **Two of the nine refusals are not products.** `a11y-axe-recall` and
+  `a11y-delivered-contrast` are research harnesses with a manifest and no
+  lockfile. "Half" is the honest repository-wide number, since a walk cannot
+  know which manifests their owner considers products; counting only the 16
+  under `ventures/`, 9 are readable and 7 are refused, and the whole of that 7
+  is still the one pnpm venture.
+
 ## Usage
 
 ```bash
 pip install -e .
 npm-reachability-triage --project ./my-app --output-dir ./record
+```
+
+On a repository with more than one npm project, scan the repository rather than
+a project — the record then leads with what it could not read:
+
+```bash
+npm-reachability-triage --repository . --output-dir ./record
 ```
 
 Or as a GitHub Action — see [`examples/workflow.yml`](examples/workflow.yml):
@@ -539,7 +645,11 @@ npm-reachability-triage --advisories ./osv-npm-all.zip
 
 - npm only, `package-lock.json` v2/v3 only. A v1 lockfile carries no
   per-location `dev` flag, so the analysis is impossible and the tool refuses
-  rather than degrading to name-level matching.
+  rather than degrading to name-level matching. A pnpm or yarn lockfile is not
+  read either. On this repository that is not a corner case: it is half the npm
+  manifests present, and `--repository` exists so a record names them instead
+  of omitting them silently — see [the coverage
+  section](#half-of-this-repository-was-never-scanned-2026-08-22).
 - Deployment detection is Next.js-specific and textual. It does not execute the
   config, so a computed `output` value resolves to `unknown` and suppresses
   nothing. Other frameworks always resolve to `unknown`.
@@ -583,8 +693,9 @@ decision away from a live listing.
 ## Development
 
 ```bash
-python3 -m pytest                            # 202 tests, no network required
+python3 -m pytest                            # 237 tests, no network required
 python3 run_portfolio_sample.py <osv.zip>    # re-run the validation
+python3 run_repository_coverage.py <osv.zip> # re-measure repository coverage
 ```
 
 The test suite is weighted towards proving suppression requires evidence:

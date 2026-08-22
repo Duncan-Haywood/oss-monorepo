@@ -298,9 +298,11 @@ PROBE_SPECS = (
             ("0 of 53", "0 of 102", "0/53", "0/102"),
             "0 of 53 hand-verified suppression claims (0 of 102 raw suppressed "
             "findings) were wrong, checked on 2026-08-21 against real advisory "
-            "text and lockfile evidence across all seven npm products in the "
-            "portfolio — a sample, not a general proof the rules cannot "
-            "misfire on a different project's lockfile shape.",
+            "text and lockfile evidence across 7 npm products in the portfolio "
+            "— a sample, not a general proof the rules cannot misfire on a "
+            "different project's lockfile shape, and not the whole portfolio "
+            "either: a repository walk on 2026-08-22 found 18 npm manifests, 9 "
+            "of them readable by that tool at all.",
         ),
         "prior": 8,
         "revenue_model": "€99–€399/month subscription by dependency count "

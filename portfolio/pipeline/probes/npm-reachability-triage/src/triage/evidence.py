@@ -31,6 +31,12 @@ from .engine import DEV_ONLY, NOT_DEPLOYED, SHIPPED, Finding
 COVERAGE_LIMITS: tuple[str, ...] = (
     "Only npm dependencies declared in package-lock.json (v2/v3) are analysed. "
     "Other ecosystems in the same repository are not covered.",
+    "This record covers the project directories named in its coverage section "
+    "and no others. A repository can hold npm projects this tool cannot read — "
+    "a pnpm or yarn workspace, a v1 lockfile, a directory with no lockfile at "
+    "all — and those are listed by name there rather than omitted. If the "
+    "coverage section is absent, this record was produced for a single project "
+    "and says nothing about the rest of the repository it came from.",
     "Reachability means the vulnerable package is present on a production "
     "dependency path and its affected surface is deployed. It does not mean an "
     "exploit exists, and no call-graph analysis is performed.",
@@ -71,10 +77,19 @@ ACCURACY_WRONG_CLAIMS = 0
 ACCURACY_RAW_FINDINGS = 102
 ACCURACY_WRONG_RAW_FINDINGS = 0
 
+#: Measured by `run_repository_coverage.py` on 2026-08-22, walking the whole
+#: repository rather than the hand-written product list the verification used.
+#: Held here because the accuracy note quotes them, and a coverage figure that
+#: can drift silently is the defect this pass exists to close.
+PORTFOLIO_MANIFESTS_FOUND = 18
+PORTFOLIO_MANIFESTS_ANALYSABLE = 9
+PORTFOLIO_VERIFICATION_SAMPLE = 7
+
 ACCURACY_NOTE = (
     "## How this can be wrong\n\n"
     f"Hand-verified on {ACCURACY_VERIFIED_ON} against a freshly downloaded OSV "
-    "feed across all seven npm products in this portfolio: every one of the "
+    f"feed across {PORTFOLIO_VERIFICATION_SAMPLE} npm products in this "
+    "portfolio: every one of the "
     f"{ACCURACY_RAW_FINDINGS} suppressed findings that run produced reduces to "
     f"{ACCURACY_DISTINCT_CLAIMS} distinct (advisory, rule, package) claims (the "
     "same advisory suppressed the same way on more than one product counts "
@@ -85,13 +100,112 @@ ACCURACY_NOTE = (
     "were wrong** — suppressed a vulnerability actually present in the "
     "deployed artifact, the failure this tool is built to avoid.\n\n"
     "This is one portfolio's sample, not a general proof the suppression rules "
-    "cannot misfire on a different project's lockfile shape: four of the nine "
-    "products this measurement's own sample covers are documentation sites, "
-    "and 24 of the 102 suppressions checked trace to a single edge claim, "
-    "`next -> postcss`. See this probe's README and "
-    "`wrong-suppression-verification-2026-08-21.json` for the full per-claim "
-    "record."
+    "cannot misfire on a different project's lockfile shape: four of those "
+    "products are documentation sites, and 24 of the 102 suppressions checked "
+    "trace to a single edge claim, `next -> postcss`. See this probe's README "
+    "and `wrong-suppression-verification-2026-08-21.json` for the full "
+    "per-claim record.\n\n"
+    "**The sample is also smaller than the portfolio.** Walking the whole "
+    f"repository on 2026-08-22 found {PORTFOLIO_MANIFESTS_FOUND} npm "
+    f"manifests, of which {PORTFOLIO_MANIFESTS_ANALYSABLE} are readable by "
+    f"this tool at all and {PORTFOLIO_VERIFICATION_SAMPLE} are in the "
+    "verification above. This note previously described its sample as *all* "
+    "the npm products in the portfolio, which was wrong in the direction that "
+    "flatters the tool: a rate measured on the projects it can read says "
+    "nothing about the ones it cannot. Run with `--repository` to get the "
+    "coverage table for your own repository rather than inheriting this one's."
 )
+
+
+#: Rendered above the per-project findings in a repository record. States the
+#: thing the finding counts cannot: that "no findings" and "never looked" are
+#: the same artifact unless the unread projects are named.
+COVERAGE_PREAMBLE = (
+    "A project this tool could not read produces no findings, which looks "
+    "exactly like a project with none. Every npm manifest found in the "
+    "repository is therefore listed below, analysed or not, with the specific "
+    "thing that stopped it and what would clear it."
+)
+
+
+def render_repository_coverage(coverage) -> list[str]:
+    """Render the coverage section for a whole-repository record.
+
+    Takes a :class:`triage.discovery.RepositoryCoverage`; typed loosely to keep
+    :mod:`triage.evidence` free of an import cycle with the discovery walk.
+    """
+    from .discovery import ANALYSED_NO_DEPLOYMENT_MODE
+
+    counts = coverage.counts()
+    lines = [
+        "## Repository coverage",
+        "",
+        COVERAGE_PREAMBLE,
+        "",
+        f"**{counts['analysed']} of {counts['manifests_found']} npm projects in "
+        f"this repository were analysed.** {counts['refused']} could not be.",
+        "",
+    ]
+
+    if coverage.refused:
+        lines.append("| Project | Not analysed because | What would clear it |")
+        lines.append("|---|---|---|")
+        for project in coverage.refused:
+            remedy = (project.remedy or "—").replace("|", "/")
+            lines.append(f"| `{project.path}` | `{project.reason}` | {remedy} |")
+        lines.append("")
+
+    members = tuple(p for p in coverage.analysed if p.covered_by is not None)
+    if members:
+        lines.append(
+            "These are workspace members with no lockfile of their own. They "
+            "are covered, but their dependencies resolve through the root "
+            "lockfile shown, so their findings are reported under that root "
+            "rather than in a section of their own — one lockfile is one "
+            "dependency set, and splitting it per member would report the same "
+            "component several times."
+        )
+        lines.append("")
+        for project in members:
+            lines.append(f"- `{project.path}` → resolved by `{project.lockfile}`")
+        lines.append("")
+
+    degraded = tuple(
+        p for p in coverage.analysed if p.status == ANALYSED_NO_DEPLOYMENT_MODE
+    )
+    if degraded:
+        lines.append(
+            "These were analysed, but their deployment mode could not be "
+            "determined, so no finding in them was suppressed on the grounds "
+            "that its surface is not deployed. The dependency-path analysis "
+            "still applies; the reachability narrowing does not."
+        )
+        lines.append("")
+        for project in degraded:
+            lines.append(f"- `{project.path}`")
+        lines.append("")
+
+    return lines
+
+
+def coverage_to_dict(coverage) -> dict:
+    """Serialise a :class:`triage.discovery.RepositoryCoverage`."""
+    return {
+        "root": coverage.root,
+        "counts": coverage.counts(),
+        "refusals_by_reason": coverage.refusals_by_reason(),
+        "projects": [
+            {
+                "path": project.path,
+                "status": project.status,
+                "reason": project.reason,
+                "remedy": project.remedy,
+                "lockfile": project.lockfile,
+                "covered_by": project.covered_by,
+            }
+            for project in coverage.projects
+        ],
+    }
 
 
 @dataclass(frozen=True)
@@ -167,7 +281,7 @@ def to_json(report: Report) -> str:
     return json.dumps(payload, indent=2, sort_keys=False)
 
 
-def _render_table(findings: tuple[Finding, ...], show_reason: bool) -> list[str]:
+def render_findings_table(findings: tuple[Finding, ...], show_reason: bool) -> list[str]:
     header = ["| Package | Versions | Advisory | Severity |" + (" Why suppressed |" if show_reason else " Summary |")]
     header.append("|---|---|---|---|---|")
     rows = []
@@ -235,3 +349,7 @@ def to_markdown(report: Report) -> str:
     lines.append("")
 
     return "\n".join(lines)
+
+
+#: Retained name; the table renderer is used by the repository record too.
+_render_table = render_findings_table

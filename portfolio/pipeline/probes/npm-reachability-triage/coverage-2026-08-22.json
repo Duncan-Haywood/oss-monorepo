@@ -1,0 +1,277 @@
+{
+  "generated_at": "2026-08-22T23:22:52Z",
+  "feed": "osv-npm.zip",
+  "coverage": {
+    "root": "/home/user/monorepo-projects",
+    "counts": {
+      "manifests_found": 18,
+      "analysed": 9,
+      "refused": 9
+    },
+    "refusals_by_reason": {
+      "no-lockfile": 2,
+      "pnpm-lockfile": 7
+    },
+    "projects": [
+      {
+        "path": "portfolio/research/a11y-axe-recall",
+        "status": "refused",
+        "reason": "no-lockfile",
+        "remedy": "no lockfile found for this manifest or any ancestor; run `npm install` to generate one",
+        "lockfile": null,
+        "covered_by": null
+      },
+      {
+        "path": "portfolio/research/a11y-delivered-contrast",
+        "status": "refused",
+        "reason": "no-lockfile",
+        "remedy": "no lockfile found for this manifest or any ancestor; run `npm install` to generate one",
+        "lockfile": null,
+        "covered_by": null
+      },
+      {
+        "path": "ventures/ai-engineering-academy/site",
+        "status": "analysed-no-deployment-mode",
+        "reason": null,
+        "remedy": null,
+        "lockfile": "ventures/ai-engineering-academy/site/package-lock.json",
+        "covered_by": null
+      },
+      {
+        "path": "ventures/ai-first-markets",
+        "status": "analysed",
+        "reason": null,
+        "remedy": null,
+        "lockfile": "ventures/ai-first-markets/package-lock.json",
+        "covered_by": null
+      },
+      {
+        "path": "ventures/local-site-studio",
+        "status": "analysed",
+        "reason": null,
+        "remedy": null,
+        "lockfile": "ventures/local-site-studio/package-lock.json",
+        "covered_by": null
+      },
+      {
+        "path": "ventures/photo-editing/docs-site",
+        "status": "analysed",
+        "reason": null,
+        "remedy": null,
+        "lockfile": "ventures/photo-editing/docs-site/package-lock.json",
+        "covered_by": null
+      },
+      {
+        "path": "ventures/print-atelier",
+        "status": "analysed",
+        "reason": null,
+        "remedy": null,
+        "lockfile": "ventures/print-atelier/package-lock.json",
+        "covered_by": null
+      },
+      {
+        "path": "ventures/quick-pick-survey",
+        "status": "analysed",
+        "reason": null,
+        "remedy": null,
+        "lockfile": "ventures/quick-pick-survey/package-lock.json",
+        "covered_by": null
+      },
+      {
+        "path": "ventures/real-estate-agent-photo-app/docs-site",
+        "status": "analysed",
+        "reason": null,
+        "remedy": null,
+        "lockfile": "ventures/real-estate-agent-photo-app/docs-site/package-lock.json",
+        "covered_by": null
+      },
+      {
+        "path": "ventures/real-estate-agent-photo-app/pipeline",
+        "status": "analysed-no-deployment-mode",
+        "reason": null,
+        "remedy": null,
+        "lockfile": "ventures/real-estate-agent-photo-app/pipeline/package-lock.json",
+        "covered_by": null
+      },
+      {
+        "path": "ventures/real-estate-agent-photo-app/research",
+        "status": "analysed",
+        "reason": null,
+        "remedy": null,
+        "lockfile": "ventures/real-estate-agent-photo-app/research/package-lock.json",
+        "covered_by": null
+      },
+      {
+        "path": "ventures/retail-pilot-intel",
+        "status": "refused",
+        "reason": "pnpm-lockfile",
+        "remedy": "resolved by a pnpm lockfile, which this tool cannot read; run `npm install --package-lock-only` to emit a package-lock.json, or use a pnpm-native scanner",
+        "lockfile": "ventures/retail-pilot-intel/pnpm-lock.yaml",
+        "covered_by": null
+      },
+      {
+        "path": "ventures/retail-pilot-intel/apps/docs",
+        "status": "refused",
+        "reason": "pnpm-lockfile",
+        "remedy": "resolved by a pnpm lockfile, which this tool cannot read; run `npm install --package-lock-only` to emit a package-lock.json, or use a pnpm-native scanner",
+        "lockfile": "ventures/retail-pilot-intel/pnpm-lock.yaml",
+        "covered_by": null
+      },
+      {
+        "path": "ventures/retail-pilot-intel/apps/portal",
+        "status": "refused",
+        "reason": "pnpm-lockfile",
+        "remedy": "resolved by a pnpm lockfile, which this tool cannot read; run `npm install --package-lock-only` to emit a package-lock.json, or use a pnpm-native scanner",
+        "lockfile": "ventures/retail-pilot-intel/pnpm-lock.yaml",
+        "covered_by": null
+      },
+      {
+        "path": "ventures/retail-pilot-intel/packages/analytics",
+        "status": "refused",
+        "reason": "pnpm-lockfile",
+        "remedy": "resolved by a pnpm lockfile, which this tool cannot read; run `npm install --package-lock-only` to emit a package-lock.json, or use a pnpm-native scanner",
+        "lockfile": "ventures/retail-pilot-intel/pnpm-lock.yaml",
+        "covered_by": null
+      },
+      {
+        "path": "ventures/retail-pilot-intel/packages/edge",
+        "status": "refused",
+        "reason": "pnpm-lockfile",
+        "remedy": "resolved by a pnpm lockfile, which this tool cannot read; run `npm install --package-lock-only` to emit a package-lock.json, or use a pnpm-native scanner",
+        "lockfile": "ventures/retail-pilot-intel/pnpm-lock.yaml",
+        "covered_by": null
+      },
+      {
+        "path": "ventures/retail-pilot-intel/packages/pos",
+        "status": "refused",
+        "reason": "pnpm-lockfile",
+        "remedy": "resolved by a pnpm lockfile, which this tool cannot read; run `npm install --package-lock-only` to emit a package-lock.json, or use a pnpm-native scanner",
+        "lockfile": "ventures/retail-pilot-intel/pnpm-lock.yaml",
+        "covered_by": null
+      },
+      {
+        "path": "ventures/retail-pilot-intel/packages/schemas",
+        "status": "refused",
+        "reason": "pnpm-lockfile",
+        "remedy": "resolved by a pnpm lockfile, which this tool cannot read; run `npm install --package-lock-only` to emit a package-lock.json, or use a pnpm-native scanner",
+        "lockfile": "ventures/retail-pilot-intel/pnpm-lock.yaml",
+        "covered_by": null
+      }
+    ]
+  },
+  "projects": [
+    {
+      "project": "ventures/ai-engineering-academy/site",
+      "status": "analysed-no-deployment-mode",
+      "mode": "unknown",
+      "confidence": "low",
+      "components": 1,
+      "findings": 0,
+      "deployed": 0,
+      "suppressed": 0,
+      "dev_only": 0,
+      "not_deployed": 0
+    },
+    {
+      "project": "ventures/ai-first-markets",
+      "status": "analysed",
+      "mode": "server",
+      "confidence": "medium",
+      "components": 858,
+      "findings": 7,
+      "deployed": 3,
+      "suppressed": 4,
+      "dev_only": 0,
+      "not_deployed": 4
+    },
+    {
+      "project": "ventures/local-site-studio",
+      "status": "analysed",
+      "mode": "server",
+      "confidence": "medium",
+      "components": 516,
+      "findings": 1,
+      "deployed": 1,
+      "suppressed": 0,
+      "dev_only": 0,
+      "not_deployed": 0
+    },
+    {
+      "project": "ventures/photo-editing/docs-site",
+      "status": "analysed",
+      "mode": "server",
+      "confidence": "medium",
+      "components": 378,
+      "findings": 5,
+      "deployed": 1,
+      "suppressed": 4,
+      "dev_only": 0,
+      "not_deployed": 4
+    },
+    {
+      "project": "ventures/print-atelier",
+      "status": "analysed",
+      "mode": "server",
+      "confidence": "medium",
+      "components": 454,
+      "findings": 27,
+      "deployed": 21,
+      "suppressed": 6,
+      "dev_only": 2,
+      "not_deployed": 4
+    },
+    {
+      "project": "ventures/quick-pick-survey",
+      "status": "analysed",
+      "mode": "server",
+      "confidence": "medium",
+      "components": 572,
+      "findings": 0,
+      "deployed": 0,
+      "suppressed": 0,
+      "dev_only": 0,
+      "not_deployed": 0
+    },
+    {
+      "project": "ventures/real-estate-agent-photo-app/docs-site",
+      "status": "analysed",
+      "mode": "static-export",
+      "confidence": "high",
+      "components": 614,
+      "findings": 55,
+      "deployed": 2,
+      "suppressed": 53,
+      "dev_only": 28,
+      "not_deployed": 25
+    },
+    {
+      "project": "ventures/real-estate-agent-photo-app/pipeline",
+      "status": "analysed-no-deployment-mode",
+      "mode": "unknown",
+      "confidence": "low",
+      "components": 64,
+      "findings": 0,
+      "deployed": 0,
+      "suppressed": 0,
+      "dev_only": 0,
+      "not_deployed": 0
+    },
+    {
+      "project": "ventures/real-estate-agent-photo-app/research",
+      "status": "analysed",
+      "mode": "static-export",
+      "confidence": "high",
+      "components": 422,
+      "findings": 37,
+      "deployed": 2,
+      "suppressed": 35,
+      "dev_only": 10,
+      "not_deployed": 25
+    }
+  ],
+  "totals": {
+    "deployed": 30,
+    "suppressed": 102,
+    "findings": 132
+  }
+}
