@@ -81,8 +81,14 @@ difference is the point.
 
 | | mutations | exercised by this corpus | caught |
 |---|---:|---:|---:|
-| Removal | 8 | **7** | **7 / 7** |
-| Injection | 3 | 3 | 3 / 3 |
+| Removal | 12 | **8** | **8 / 8** |
+| Injection | 6 | 6 | 6 / 6 |
+
+(Table current as of 2026-08-22, after Finding 4's four additions below. The
+"8" this table showed for the removal total before that pass was itself a
+stale drafting error — the code and `results-2026-08-21.json` had always had
+11, not 8 — caught while reconciling this table against the underlying data
+rather than introduced by Finding 4.)
 
 The four unexercised removals are reported as **not exercised**, not as passing:
 the delivered pages contain no `<img>`, no `aria-label` on a control, and no
