@@ -18017,6 +18017,67 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Scheduled "continue work on the projects, maintain and improve the
+        development process, increase profit" session, designated branch
+        claude/keen-knuth-fvbm5o. `session_gate.py` -> PROCEED (cadence
+        already at the maintenance rate; flagged 2 distinct sessions
+        committing within a 15-minute window in the last 6h, so checked open
+        PRs and their mergeability before starting). All 4 open PRs (#583,
+        #531, #372, #368) were already correctly owner-gated by prior
+        sessions and still merged cleanly against the then-current `main` --
+        nothing stale, nothing to consolidate, no duplicate work started.
+      - >-
+        Picked up the one next step `mcp-drift-watch`'s own write-up had
+        named and nobody had taken: the corpus-3 rules pass (#638, merged
+        hours earlier) closed by quoting the corpus-2 model-pass amendment's
+        open question verbatim -- "the model's 0.61-0.71 has not been asked
+        the same question" on corpus 3. Ran the identical blind method (four
+        independent Claude Sonnet 5 reads, one per disjoint 37-item slice of
+        the 148-item corpus, shown only old/new description text, a
+        mechanical newly-added-text hint, and the rubric -- not the rules'
+        bucket or the hand labels) and scored it against the committed
+        corpus-3 hand labels with a new `score_model_pass_c3.py` mirroring
+        the existing scorer.
+      - >-
+        Result: F1 0.93-0.96 against the rules' 0.17-0.19 on this corpus --
+        a wider margin than corpus 2's 0.61-0.71 vs 0.30-0.33, not a
+        narrower one. Caught 44-47 of 49 hand-labelled positives against the
+        rules' 5. Only 4 of 148 labels disagreed with hand labels at all; one
+        reproduced the known span-must-be-new failure mode (judging text
+        already present in the old description as newly added), and the
+        model independently agreed with all 3 borderline hand calls in this
+        corpus, including the one written in Chinese -- a language no rule
+        pattern in this probe can match by construction.
+      - >-
+        Score not moved further: `ai_leverage` stays at 7. The second corpus
+        corroborates the qualitative finding the 2026-08-19/2026-08-22
+        amendments already scored on (beats the rules, not rule-separable)
+        but not a stronger quantitative one -- the model's own F1 swings
+        about as much between corpora (0.61-0.71 to 0.93-0.96) as the rules'
+        did (0.30-0.33 to 0.17-0.19), so moving the score again on the more
+        flattering of two disagreeing measurements would repeat the exact
+        error the corpus-3 rules section is named for. `defensibility` (the
+        actual floor, at 3) is untouched; still cannot graduate under
+        `README.md` rule 2.
+      - >-
+        Verified before pushing: the probe's own 68 tests (unchanged, still
+        pass), and every step of `portfolio-validate.yml` run by hand --
+        venture schema, both pipeline validators, score sensitivity, venture
+        scoring, router, workflow validator, break-even, verification
+        records, session gate. All green. Internal-only
+        (`portfolio/pipeline/`), no venture code, no credential, nothing
+        published -- agent-decidable per `CLAUDE.md`. Opened as #639,
+        confirmed `mergeable_state: clean` against the live `main` tip after
+        CI went green on all 3 checks, self-merged. Designated branch had
+        already carried the now-merged PR, so restarted it from the fresh
+        `main` tip per the merged-PR-branch rule before writing this entry.
+        No revenue; the $0 ceiling is unchanged.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Scheduled "continue work... maintain and improve the development
         process... increase in profit... this run should be more strategic
         work" session, designated branch claude/wizardly-albattani-2y3fte.
