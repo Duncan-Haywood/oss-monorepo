@@ -18012,3 +18012,60 @@ entries:
         individual PR-recheck entries, not a prompt to write another one. No
         revenue; the $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve the
+        development process... increase in profit" session, designated
+        branch claude/pensive-feynman-yyaeaq. `session_gate.py` -> PROCEED,
+        at the maintenance cadence the $0-ceiling branch implies, with a
+        note that two sessions had committed to `main` within a 15-minute
+        window in the last 6h -- checked open PRs, branches, and issue #139
+        before starting, as that note asked. All 4 open PRs (#583, #531,
+        #372, #368) were still correctly human-gated, verified, clean --
+        nothing to consolidate.
+      - >-
+        With nothing to merge, took the pipeline README's next move:
+        advance a probe already specified in `portfolio/pipeline/`.
+        `mcp-supply-chain-watch`'s own research had left one gap explicitly
+        named as the next pass -- "that a model would do better [than the
+        rules classifier]. Nobody has tried." Built `score_model.py`,
+        extracted a blind view of the 136-item held-out corpus (no hand
+        labels, no rules output), and had a fresh subagent classify it
+        blind against the same fixed rubric `build_labels.py` used.
+        Result: precision 0.706 / recall 0.706-0.714 against the rules'
+        0.40 / 0.235-0.286 on the same corpus. Opened PR #633 with the
+        measurement and the `candidates.yaml`/README/write-up score update
+        (`ai_leverage` 6->7, composite 6.75->6.875), fully verified
+        (`validate_candidates.py`, `validate_doc_consistency.py`, the
+        pipeline's 24 unit tests, and the probe's own 32 tests all green).
+      - >-
+        On push, found PR #634 -- opened, verified, and self-merged by a
+        concurrent session in the same window, running the identical named
+        next pass and landing the same core finding (`ai_leverage` 6->7,
+        composite 6.875, `defensibility` floor unchanged at 3) with a
+        stronger methodology: four independent blind model passes over
+        disjoint corpus slices, versus this session's one, and a real
+        distinct finding this session's single pass missed -- about a
+        quarter of the model's false positives came from judging text that
+        was not actually newly added, the exact discipline the rules
+        classifier enforces by construction. Closed #633 as superseded with
+        a comment pointing to #634 and explaining the methodology
+        difference, rather than merging equivalent work twice. `main`
+        already carries #634's numbers in `candidates.yaml`,
+        `candidates/mcp-supply-chain-watch.md`, and `pipeline/README.md`.
+      - >-
+        Net effect: the underlying research question is answered on `main`
+        via #634 (not this session's PR), `ai_leverage` corrected 6->7 with
+        a real measurement replacing an argument, one near-duplicate PR
+        avoided from compounding the same 2026-08-18 pattern this file
+        documents at length, zero re-verification of anything already
+        verified, zero spend beyond agent time. This is itself evidence for
+        `CLAUDE.md`'s standing note that concurrent scheduled sessions can
+        converge on the same probe within the same hour even when each one
+        checks open PRs first -- the check runs before either PR exists, so
+        it cannot catch a race that starts after it. No revenue; the $0
+        ceiling is unchanged.
+    mrr_end: null
