@@ -4,7 +4,7 @@ Built and measured 2026-08-21. Re-runnable, offline, no credentials:
 
 ```bash
 cd portfolio/research/a11y-axe-recall
-python3 -m unittest discover                                     # 10 tests
+python3 -m unittest discover                                     # 12 tests
 python3 measure.py --recompute-from results-2026-08-22.json      # offline
 # to regenerate: npm ci && npm run build in each of the 7 apps, then
 npm install axe-core@4.13.0 playwright@1.56.1 --no-save          # not committed
@@ -207,3 +207,34 @@ matching how `a11y-own-sites/` keeps a single current file.
 **Still no engine change from this directory.** The four rules were written in
 the probe, against the coverage catalog, and this module re-measured them; it
 did not author them.
+
+## 2026-08-22 — second re-run, after 1.4.1 (Use of Color) became a rule
+
+Later the same day, `eaa-wcag-triage` gained a rule for WCAG SC 1.4.1 "Use of
+Color" (a link identifiable from surrounding body text by color alone), and
+its `COVERAGE` catalog entry moved from `unimplemented` to `partial` — the
+exact criterion the previous section named as "the sharpest open item in this
+family": the only criterion a default axe run reports, that fires on this
+portfolio's own corpus, and that no in-house rule covered.
+
+Re-run live against a rebuilt corpus (all 7 apps, same 118 unique pages),
+same browser, same pinned axe-core 4.13.0:
+
+- **Checked-criteria universe 17 → 18.**
+- **axe's one 1.4.1 instance (`photo-editing/docs-site/index.html`) is now
+  matched, not just corroborated-but-uncounted.** The new rule catches the
+  exact element axe flagged there, so it moves from "outside the checked
+  universe" straight to a match — no new miss.
+- **Recall: 40/41 = 0.976** (was 39/40 = 0.975). Both the numerator and the
+  denominator rose by exactly 1, and the one surviving miss is unchanged: the
+  same already-contested checkbox (`4.1.2` on
+  `real-estate-agent-photo-app/docs-site/strategy.html`).
+- Diffing the new results file against the pre-run one field for field shows
+  **exactly this one change and nothing else** — every other page, criterion,
+  and count reproduces identically, the same determinism check the four-
+  criteria re-run made.
+- Axe-flagged instances outside the checked universe: 3 → **2** (`2.1.1`,
+  `2.1.3` only — `1.4.1` is no longer one of them).
+
+**Still no engine change from this directory.** The 1.4.1 rule was written in
+the probe; this module only re-measured against it.

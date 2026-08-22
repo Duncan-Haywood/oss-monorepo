@@ -45,19 +45,20 @@ class CheckedCriteria(unittest.TestCase):
         self.assertIn("1.4.3", checked)
         # A criterion either engine declines as manual/unimplemented is not
         # "checked", even if axe-core automates it (a11y-external-coverage-reference).
-        # 1.4.1 is the example because it is the sharp case: axe-core reports
-        # it by default, it fires once on this very corpus
-        # (photo-editing/docs-site), and no rule in either engine looks for
-        # it. 2.4.1 stood here until 2026-08-22, when it became a rule.
-        self.assertNotIn("1.4.1", checked)
+        # 1.4.1 stood here as the sharp example (axe-core reports it by
+        # default and fires once on this corpus) until 2026-08-22, when
+        # eaa-wcag-triage built a rule for it and it moved to "checked" —
+        # see test_the_five_criteria_implemented_on_2026_08_22_are_now_in_scope.
         self.assertNotIn("2.5.3", checked)
 
-    def test_the_four_criteria_implemented_on_2026_08_22_are_now_in_scope(self):
+    def test_the_five_criteria_implemented_on_2026_08_22_are_now_in_scope(self):
         # They moved from "declared unimplemented" to "checked", so axe
         # findings on them now count for or against recall instead of being
-        # set aside as a known coverage gap.
+        # set aside as a known coverage gap. 2.2.1/2.2.2/2.4.1/3.1.2 landed
+        # earlier the same day; 1.4.1 (Use of Color) landed later that day,
+        # in a second, separate change.
         checked = measure.checked_criteria()
-        for criterion in ("2.2.1", "2.2.2", "2.4.1", "3.1.2"):
+        for criterion in ("1.4.1", "2.2.1", "2.2.2", "2.4.1", "3.1.2"):
             self.assertIn(criterion, checked, criterion)
 
 
@@ -102,30 +103,40 @@ class SavedResults(unittest.TestCase):
 
     def test_checked_criteria_universe(self):
         # 13 until 2026-08-22, when `eaa-wcag-triage` implemented 2.2.1,
-        # 2.2.2, 2.4.1 and 3.1.2 and they became claims this measurement
-        # holds the engines to.
-        self.assertEqual(len(self.data["checked_criteria"]), 17)
-        for criterion in ("2.2.1", "2.2.2", "2.4.1", "3.1.2"):
+        # 2.2.2, 2.4.1 and 3.1.2 (-> 17), then later the same day implemented
+        # 1.4.1 (Use of Color) too (-> 18). All five became claims this
+        # measurement holds the engines to.
+        self.assertEqual(len(self.data["checked_criteria"]), 18)
+        for criterion in ("1.4.1", "2.2.1", "2.2.2", "2.4.1", "3.1.2"):
             self.assertIn(criterion, self.data["checked_criteria"])
 
     def test_widening_the_claim_did_not_cost_recall(self):
-        # The four criteria added to the universe on 2026-08-22 brought no
-        # new axe-flagged instances with them: axe reports none of them
-        # anywhere in this corpus, so the denominator is unchanged at 40 and
-        # recall stays 0.975. Claiming more did not mean missing more --
-        # which is the direction that would have mattered.
+        # The four criteria added to the universe earlier on 2026-08-22
+        # brought no new axe-flagged instances with them: axe reports none of
+        # them anywhere in this corpus. 1.4.1, added later the same day, is
+        # different -- it is exactly the criterion axe already flagged once
+        # on this corpus (photo-editing/docs-site), and the new rule catches
+        # that same instance, so it becomes a match, not a miss. See
+        # test_recall_after_the_1_4_1_rule for the resulting counts.
         rows = self.data["per_page"]
-        new_rules = {"2.2.1", "2.2.2", "2.4.1", "3.1.2"}
-        flagged = [c for r in rows for c in r["axe_checked_criteria"] if c in new_rules]
+        new_rules_with_no_instances = {"2.2.1", "2.2.2", "2.4.1", "3.1.2"}
+        flagged = [
+            c for r in rows for c in r["axe_checked_criteria"]
+            if c in new_rules_with_no_instances
+        ]
         self.assertEqual(flagged, [])
 
-    def test_recall_after_the_stylesheet_fix(self):
+    def test_recall_after_the_1_4_1_rule(self):
+        # 39/40 = 0.975 until 2026-08-22, when eaa-wcag-triage built the 1.4.1
+        # rule and it started counting: axe's one 1.4.1 instance on this
+        # corpus moves from "outside the checked universe" to "checked and
+        # matched", so the denominator and the matched count both rise by 1.
         rows = self.data["per_page"]
         total = sum(len(r["axe_checked_criteria"]) for r in rows)
         matched = sum(len(r["matched"]) for r in rows)
         missed = sum(len(r["missed"]) for r in rows)
-        self.assertEqual(total, 40)
-        self.assertEqual(matched, 39)
+        self.assertEqual(total, 41)
+        self.assertEqual(matched, 40)
         self.assertEqual(missed, 1)
 
     def test_the_one_surviving_miss_is_the_already_contested_checkbox(self):
@@ -140,9 +151,12 @@ class SavedResults(unittest.TestCase):
         outside = set()
         for r in self.data["per_page"]:
             outside |= set(r["axe_all_criteria"]) - checked
-        # 1.4.1 and 2.1.1/2.1.3 are named, already-disclosed gaps in
+        # 2.1.1/2.1.3 are named, already-disclosed gaps in
         # a11y-external-coverage-reference — not a new class of finding.
-        self.assertEqual(outside, {"1.4.1", "2.1.1", "2.1.3"})
+        # 1.4.1 stood here too until 2026-08-22, when eaa-wcag-triage built a
+        # rule for it and its one corpus instance moved into the checked
+        # universe as a match (see test_recall_after_the_1_4_1_rule).
+        self.assertEqual(outside, {"2.1.1", "2.1.3"})
 
 
 if __name__ == "__main__":
