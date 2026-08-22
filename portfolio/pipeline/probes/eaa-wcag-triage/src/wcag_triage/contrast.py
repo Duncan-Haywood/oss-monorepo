@@ -325,6 +325,92 @@ def _resolve_foreground(sheet: Stylesheet, node: Node, scheme: str = LIGHT) -> t
     return (None, "no-declared-color")
 
 
+def foreground_color(sheet: Stylesheet, node: Node, scheme: str = LIGHT) -> tuple:
+    """Public wrapper around :func:`_resolve_foreground`.
+
+    For a rule that needs one element's own text colour in isolation —
+    ``wcag_triage.rules.rule_use_of_color`` compares a link's colour against
+    its surrounding text's, which is not a 1.4.3 verdict (there is no
+    background or font size in that question), so it has no use for
+    :class:`ContrastResult`.
+    """
+    return _resolve_foreground(sheet, node, scheme)
+
+
+# ---------------------------------------------------------------------------
+# Text decoration (SC 1.4.1 only — 1.4.3 never reads this).
+# ---------------------------------------------------------------------------
+
+_DECORATION_PROPS = ("text-decoration-line", "text-decoration")
+_DECORATION_INHERITED_KEYWORDS = frozenset({"inherit", "unset", "initial", "revert"})
+# The complete `text-decoration-line` value set (CSS Text Decoration 3). A
+# resolved value is decided only when every space-separated token is one of
+# these -- see the comment at its use in decoration_line().
+_DECORATION_LINE_KEYWORDS = frozenset(
+    {"none", "underline", "overline", "line-through", "blink"}
+)
+
+
+def decoration_line(sheet: Stylesheet, node: Node, scheme: str = LIGHT) -> tuple:
+    """Whether ``node``'s own declared decoration includes an underline.
+
+    Returns ``(True, "")``, ``(False, "")``, or ``(None, reason)`` when this
+    cannot be decided. Deliberately narrow, and for the opposite reason
+    :func:`_resolve_foreground` walks ancestors: ``text-decoration`` is not an
+    inherited property, so only ``node``'s own winning declaration (inline, a
+    class, or a type-selector rule for its tag) can answer this. What *is*
+    common — and NOT handled here — is a decoration painted by an ancestor
+    still showing through a descendant's text; that is a distinct rendering
+    mechanism from CSS inheritance and would need layout, not just the
+    cascade, so a node with no decoration of its own is reported exactly that
+    way rather than guessed at.
+
+    ``inherit`` is reported undecidable rather than resolved, even though a
+    Tailwind reset commonly writes ``a { text-decoration: inherit }``:
+    resolving it correctly needs the ancestor walk this function does not do,
+    and a false "no underline" here would be an over-reported finding on a
+    criterion this probe would rather under-report than over-report.
+
+    The caller applies the user-agent default for a node this function found
+    nothing declared for (a naked ``<a>`` is underlined by every browser) —
+    that default is element-specific and not this module's to know.
+
+    ``scheme`` matters here the same way it matters to colour: a class-level
+    rule can carry a ``prefers-color-scheme`` override (``dark:underline`` is
+    real Tailwind, however rare), and ``_declared_ranked`` already resolves
+    that into the *scheme-appropriate* winning value the same way it does for
+    ``color`` — a light-mode query and a dark-mode query on the same node can
+    legitimately return different verdicts. A caller that wants the answer for
+    a page overall has to check both, exactly as :func:`evaluate_document`
+    does for 1.4.3.
+    """
+    for prop in _DECORATION_PROPS:
+        declaration = _declared_ranked(sheet, node, prop, scheme)
+        if declaration is None:
+            continue
+        value = declaration.value
+        if value is None:
+            return (None, "conditional-decoration")
+        text = value.strip().lower()
+        if text in _DECORATION_INHERITED_KEYWORDS:
+            continue
+        tokens = text.split()
+        if not tokens or not all(token in _DECORATION_LINE_KEYWORDS for token in tokens):
+            # Not composed entirely of line keywords -- e.g. a raw
+            # `var(--x)` this module could not expand, or a shorthand
+            # carrying a colour/style component (`underline solid red`) this
+            # reader does not parse. Guessing which keyword is the line value
+            # is exactly the kind of guess this probe refuses to make.
+            return (None, "unresolvable-decoration")
+        for raw in declaration.variants:
+            if raw is None:
+                return (None, "unresolvable-decoration")
+            if ("underline" in raw.lower()) != ("underline" in text):
+                return (None, "conditional-decoration")
+        return ("underline" in tokens, "")
+    return (None, "no-declared-decoration")
+
+
 # ---------------------------------------------------------------------------
 # Background.
 # ---------------------------------------------------------------------------

@@ -183,13 +183,18 @@ COVERAGE: tuple = (
               "page is not decidable from markup; the reference's rule for it "
               "ships disabled and returns 'needs review' rather than a "
               "failure, so no engine decides this one."),
-    Criterion("1.4.1", "Use of Color", "A", "unimplemented",
-              "A link distinguished from surrounding body text by colour alone "
-              "is decidable where the stylesheet names the colours -- this one "
-              "is a genuine gap, and the only one of the four that is. It "
-              "needs the contrast machinery pointed at a link against its "
-              "surrounding text rather than its background; no rule here "
-              "looks yet."),
+    # Implemented 2026-08-22, closing the one criterion of the four that
+    # `a11y-external-coverage-reference` named as a genuine gap rather than a
+    # rule that was never going to exist -- see rule_use_of_color.
+    Criterion("1.4.1", "Use of Color", "A", "partial",
+              "A link inside body text whose own text-decoration is "
+              "explicitly 'none' and whose colour is decidably different from "
+              "its surrounding text is detectable; a link distinguished by "
+              "bold weight or a border instead of an underline, one whose "
+              "decoration is inherited or conditional, and one with no "
+              "surrounding text to compare against (a standalone nav or card "
+              "link) are all left undecided rather than guessed at, which "
+              "under-reports by construction."),
     Criterion("2.5.3", "Label in Name", "A", "unimplemented",
               "An accessible name that does not contain the control's visible "
               "text is decidable from the markup; the reference's rule for it "
@@ -780,6 +785,114 @@ def rule_bypass_blocks(root: Node, label_targets: set):
         "content in <main>, or give the content a heading.",
         seq=body.order,
     )
+
+
+# How much non-link text must surround a link for 1.4.1 to consider it "body
+# text" rather than a standalone link (a nav item, a card, a button). Set low
+# on purpose: the rule already requires an *explicit* text-decoration:none and
+# a *decided* colour difference before this gate is even reached, so it exists
+# only to rule out links with nothing beside them to be distinguished from,
+# not to add a second layer of judgement about how much text counts.
+_MIN_SURROUNDING_TEXT_CHARS = 3
+
+
+def _surrounding_text(link: Node) -> str:
+    parent = link.parent
+    if parent is None:
+        return ""
+    chunks = list(parent.text_parts)
+    for sibling in parent.children:
+        if sibling is link:
+            continue
+        chunks.append(sibling.accessible_text())
+    return " ".join(chunk.strip() for chunk in chunks if chunk and chunk.strip())
+
+
+def rule_use_of_color(root: Node, label_targets: set, sheet):
+    """SC 1.4.1 -- a link inside body text told apart only by its colour.
+
+    Implemented 2026-08-22, from the same disclosure as ``rule_meta_refresh``
+    and its siblings, but the last of the four to close: the coverage note
+    named this "the genuine remaining gap" precisely because axe-core reports
+    it by default while the other three sat behind rules that ship disabled.
+
+    Unlike every other rule in this module, this one needs the resolved
+    stylesheet, not just the parsed document -- the question is a colour
+    comparison, not a structural one -- so it is not in ``ALL_RULES`` and is
+    invoked directly by ``wcag_triage.engine.audit_html`` the same way
+    ``rule_text_contrast`` is, just with the sheet instead of precomputed
+    per-element results (this rule compares two elements' colours, which the
+    1.4.3 pass never needs to do).
+
+    Three things all have to be decided, in order from cheapest to check to
+    most demanding, so a page that fails an early gate never pays for a colour
+    resolution it will not use:
+
+    1. **There is surrounding text.** A link with nothing beside it -- a nav
+       item, a card, a standalone CTA -- is not "distinguished from its
+       surroundings"; it has no surroundings. See
+       :func:`_surrounding_text`.
+    2. **The link's own decoration is explicitly ``none``, and the colours
+       decidably differ, in the same colour scheme.** Both are checked once
+       per scheme in :data:`wcag_triage.contrast.SCHEMES`, independently --
+       decoration can itself carry a `prefers-color-scheme` override (rare,
+       but real: `dark:underline`), so "no underline" is not one fact about
+       the page, it is one fact per scheme, exactly like colour. A scheme
+       where the decoration is merely undeclared (the user-agent default for
+       ``<a>`` is underlined), ``inherit``, or hover-only is skipped for that
+       scheme rather than guessed at --
+       :func:`wcag_triage.contrast.decoration_line` refuses rather than picks
+       a state. Only a literal ``none`` in a given scheme is positive evidence
+       the underline was removed there.
+    3. **At least one scheme passes both of the above.** The page can look
+       identical in light mode and diverge only in dark mode -- the same
+       asymmetry 1.4.3 measured on this portfolio's own pages -- so a finding
+       fires if either scheme alone is a barrier, and names which one(s).
+
+    What this deliberately does not attempt: a link distinguished by bold
+    weight, letter-spacing, or a border instead of an underline (the
+    "not-colour" cue can be any of these, and only text-decoration is checked
+    here); a decoration painted by an ancestor and shown through the link's
+    text by the browser's own layout rather than declared on the link itself;
+    and any decoration that depends on ``:hover`` or ``:focus``, since a
+    static pass cannot observe interaction state. Every one of those is a
+    false negative, not a false positive -- the direction this probe commits
+    to everywhere else.
+    """
+    for link in root.iter():
+        if link.tag != "a" or not link.has_attr("href"):
+            continue
+        if _is_aria_hidden(link):
+            continue
+        if not link.accessible_text():
+            continue  # rule_link_text's finding, not this one's
+        if len(_surrounding_text(link)) < _MIN_SURROUNDING_TEXT_CHARS:
+            continue
+        parent = link.parent
+        differing_schemes = []
+        for scheme in contrast.SCHEMES:
+            decoration, _reason = contrast.decoration_line(sheet, link, scheme)
+            if decoration is not False:
+                continue  # underlined, unknown, or conditional in this scheme
+            link_color, _ = contrast.foreground_color(sheet, link, scheme)
+            text_color, _ = contrast.foreground_color(sheet, parent, scheme)
+            if link_color is None or text_color is None:
+                continue
+            if link_color.hex() != text_color.hex():
+                differing_schemes.append(scheme)
+        if not differing_schemes:
+            continue
+        where = " and ".join(f"{scheme} mode" for scheme in differing_schemes)
+        yield Finding(
+            "1.4.1", "Use of Color", "A", BLOCKING, "a", link.line,
+            "Link has no underline (text-decoration: none) and is coloured "
+            f"differently from the text around it, in {where}, so a "
+            "colour-blind or greyscale reader has no way to tell it is a "
+            "link.",
+            "Add an underline (or another non-colour cue such as a border) "
+            "to the link, or remove the text-decoration override.",
+            seq=link.order,
+        )
 
 
 def rule_text_contrast(results):

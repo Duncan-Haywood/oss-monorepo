@@ -238,6 +238,22 @@ tracked in [`../a11y-evidence-record/README.md`](../a11y-evidence-record/README.
 rather than here, since it is a property of one engine's corpus, not of
 whether the two agree.
 
+## Amendment (2026-08-22): the probe gained 1.4.1, `audit.py` did not
+
+The probe gained SC 1.4.1 Use of Color (`rule_use_of_color` in
+`eaa-wcag-triage`) — see that probe's README. `audit.py` has no rule for it
+and does not declare it untested, so this is a genuinely new asymmetry rather
+than one both engines already knew about: 1.4.1 moves from the probe's
+`declared_untested` list to its checked catalog, one line, and
+`results-2026-08-21.json` was regenerated to record it (the file keeps its
+original name; it is the live-comparison snapshot, not a dated historical
+one — see the two amendments above). `test_results_file_matches_a_live_run`
+passed against the regenerated file, confirming this is the only catalog
+effect. Not closed here: porting the rule to `audit.py` would need the same
+two-element colour comparison this probe just built, against a template
+engine whose `class`/`style` are render-time output — the same open
+constraint the 1.4.3 port above already named for that engine.
+
 ## Status of these claims
 
 Primary measurement, re-derivable offline. Every number in this document comes

@@ -273,6 +273,20 @@
         "2.4.1": 14
       },
       "probe_fired": 14
+    },
+    {
+      "audit_py_cites": {},
+      "audit_py_fired": 0,
+      "both_detected": 0,
+      "criterion": "1.4.1",
+      "exercised": true,
+      "kind": "injection",
+      "mutation": "add a <p> with a link styled colour-only (no underline)",
+      "pages_changed": 14,
+      "probe_cites": {
+        "1.4.1": 14
+      },
+      "probe_fired": 14
     }
   ],
   "corpus": {

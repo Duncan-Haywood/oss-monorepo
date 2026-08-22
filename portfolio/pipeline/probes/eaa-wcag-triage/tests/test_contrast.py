@@ -314,3 +314,88 @@ def test_an_inline_style_block_does_not_leak_between_pages():
     leaked = C.evaluate_document(second, base)[-1][1]
     assert leaked.verdict == C.UNDECIDABLE
     assert leaked.reason == "no-declared-color"
+
+
+# ---------------------------------------------------------------------------
+# decoration_line() -- SC 1.4.1 only. 1.4.3 never reads this.
+# ---------------------------------------------------------------------------
+
+
+def _decoration(html: str, css: str = ""):
+    root = parse(html)
+    sheet = parse_stylesheet(css)
+    link = [n for n in root.iter() if n.tag == "a"][-1]
+    return C.decoration_line(sheet, link)
+
+
+def test_no_declaration_at_all_is_undecidable():
+    assert _decoration('<html><body><a href="/x">go</a></body></html>') == (
+        None, "no-declared-decoration"
+    )
+
+
+def test_explicit_none_is_decided_false():
+    assert _decoration(
+        '<html><body><a href="/x" style="text-decoration:none">go</a></body></html>'
+    ) == (False, "")
+
+
+def test_explicit_underline_is_decided_true():
+    assert _decoration(
+        '<html><body><a href="/x" style="text-decoration:underline">go</a></body></html>'
+    ) == (True, "")
+
+
+def test_longhand_text_decoration_line_is_read_too():
+    assert _decoration(
+        '<html><body><a href="/x" style="text-decoration-line:none">go</a></body></html>'
+    ) == (False, "")
+
+
+def test_inherit_is_undecidable_not_resolved():
+    assert _decoration(
+        '<html><body><a href="/x" style="text-decoration:inherit">go</a></body></html>'
+    )[0] is None
+
+
+def test_unresolvable_variable_is_undecidable():
+    assert _decoration(
+        '<html><body><a href="/x" style="text-decoration:var(--deco)">go</a></body></html>'
+    ) == (None, "unresolvable-decoration")
+
+
+def test_hover_only_underline_is_invisible_not_assumed_present():
+    # `.hover\:underline:hover { ... }` has a pseudo-class in its selector, so
+    # css.py's single-class reader never records it (by design -- see its
+    # module docstring). No unconditional rule means "nothing declared",
+    # which is undecidable, not "has an underline".
+    css = ".hover\\:underline:hover{text-decoration-line:underline}"
+    assert _decoration('<html><body><a href="/x" class="hover:underline">go</a></body></html>', css) == (
+        None, "no-declared-decoration"
+    )
+
+
+def test_scheme_override_resolves_independently_per_scheme():
+    """A `dark:underline`-shaped override does not make the whole property
+    undecidable -- it means light and dark each get their own decided
+    answer, the same as colour. See rule_use_of_color, which checks both."""
+    css = ".l{text-decoration:none}@media (prefers-color-scheme: dark){.l{text-decoration:underline}}"
+    root = parse('<html><body><a href="/x" class="l">go</a></body></html>')
+    sheet = parse_stylesheet(css)
+    link = [n for n in root.iter() if n.tag == "a"][-1]
+    assert C.decoration_line(sheet, link, LIGHT) == (False, "")
+    assert C.decoration_line(sheet, link, DARK) == (True, "")
+
+
+# ---------------------------------------------------------------------------
+# foreground_color() -- the public wrapper rule_use_of_color calls.
+# ---------------------------------------------------------------------------
+
+
+def test_foreground_color_matches_the_private_resolver():
+    root = parse('<html><body style="color:#123456"><p>hi</p></body></html>')
+    sheet = parse_stylesheet("")
+    body = [n for n in root.iter() if n.tag == "body"][0]
+    color, reason = C.foreground_color(sheet, body)
+    assert reason == ""
+    assert color.hex() == "#123456"

@@ -30,7 +30,15 @@ from . import contrast
 from .css import Stylesheet
 from .parser import parse
 from .provenance import Provenance, classify
-from .rules import ALL_RULES, BLOCKING, DEGRADING, Finding, build_label_index, rule_text_contrast
+from .rules import (
+    ALL_RULES,
+    BLOCKING,
+    DEGRADING,
+    Finding,
+    build_label_index,
+    rule_text_contrast,
+    rule_use_of_color,
+)
 
 
 @dataclass
@@ -99,6 +107,11 @@ def audit_html(html: str, stylesheet: Optional[Stylesheet] = None) -> Audit:
             findings.append(finding)
     contrast_results = contrast.evaluate_document(root, sheet)
     for finding in rule_text_contrast(contrast_results):
+        if finding.key() in seen:
+            continue
+        seen.add(finding.key())
+        findings.append(finding)
+    for finding in rule_use_of_color(root, label_targets, sheet):
         if finding.key() in seen:
             continue
         seen.add(finding.key())
