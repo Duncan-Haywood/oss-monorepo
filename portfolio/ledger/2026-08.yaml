@@ -17594,3 +17594,108 @@ entries:
         Agent-decidable per `CLAUDE.md`. No revenue; the $0 ceiling is
         unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business
+        projects" session, designated branch
+        claude/laughing-pasteur-8ec5co. `session_gate.py` -> PROCEED (0.83
+        sessions/hour). Per `CLAUDE.md`'s intake gate that brief is
+        answered, so this took the first move it names -- advance a probe
+        already specified in `portfolio/pipeline/` -- rather than producing
+        a candidate list. Checked the 4 open PRs (#583, #531, #372, #368)
+        first: all still correctly owner-gated, nothing overlapping.
+      - >-
+        Implemented SC 1.4.1 Use of Color in eaa-wcag-triage
+        (`wcag_triage.usecolor`, 26 new tests), the last of the eight
+        criteria #565 disclosed and the only one of the four left that a
+        default axe run actually reports. Three gates in order -- is the
+        link inside prose (not a box of its own, prose longer than the
+        links), is it marked some other way (an underline including the
+        browser's own, a border, weight, family, background), are the two
+        colours under the 3:1 technique G183 names -- with a named
+        `undecidable` reason wherever the page does not state enough.
+      - >-
+        A second scheduled session (#622) implemented the same criterion in
+        the same file within the hour and merged first. Neither run could
+        see the other; both read the same three files naming 1.4.1 as the
+        remaining gap. This is the duplicate-work pattern `CLAUDE.md`
+        documents, landing on one criterion rather than on one topic, and
+        it is the second collision this week (#614/#617 was the first).
+        Consolidated per that rule rather than opening a rival PR.
+      - >-
+        What decided between the two implementations was a measurement, not
+        an argument. Over the same 118 built pages the merged rule reports
+        30 findings on `photo-editing/docs-site` where axe-core 4.13.0
+        reports 1 -- the brand link, nine `display:block` card links, five
+        file-list rows -- and `usecolor` reports 1, the same node. Three
+        differences produce it, each now a named test: a character floor
+        for "surrounding text" that a card grid and a file-list row both
+        clear; firing on any colour difference rather than the 3:1 the
+        criterion's own technique names, which also means never firing on a
+        link identical to its prose (the worst case); and declining
+        `text-decoration: inherit` as undecidable, which is what every
+        Tailwind preflight writes -- 152 in-prose links in this corpus,
+        none underlined, none flaggable.
+      - >-
+        The merged pass was not careless about this: it recorded in two
+        places that it had not run the corpus and named that as the open
+        question. Kept from it: `contrast.decoration_line` and
+        `contrast.foreground_color` as per-element helpers (usecolor walks
+        the inheritance chain on top of `decoration_line` rather than
+        replacing it), per-scheme evaluation and the naming of which scheme
+        decided a finding, its unit tests -- three now assert the opposite,
+        each carrying the measurement that inverted it -- and its injected
+        positive control, whose prose had to be lengthened after it turned
+        out to be 15 characters against a 17-character link.
+      - >-
+        This pass's own rule was wrong three times first, and only a corpus
+        showed it: a 25-character floor over-reported 6:1; reading a
+        Tailwind reset as "nobody said anything" passed 152 un-underlined
+        links; and reading `display` only on the link missed that a flex
+        container blockifies its children (3 of 5 remaining findings were
+        header buttons). Corroborated two ways beyond axe: all 123 examined
+        links cross-checked against Chromium's computed styles (0
+        disagreements), and a delivered-page positive control in
+        `a11y-generated-sites` that fires 4/4 where a real in-prose link
+        exists.
+      - >-
+        That control found two defects in the harness rather than the
+        engine: `run_control` audited every mutated page with no
+        stylesheet, so the first colour-dependent control ever added read
+        as caught on 0/14 -- the same defect `a11y-axe-recall` Finding 0
+        found in `a11y-own-sites`'s adapters, surviving because every
+        mutation until now targeted markup -- and a first mutation that
+        also hit `hover:underline` on pages the criterion has nothing to
+        say about, turning 4/4 into 4/14.
+      - >-
+        Knock-on measurements all re-derived by re-running them, including
+        the live axe-core pass the merged session recorded as the one thing
+        it could not do: recall 0.975 -> 0.976 with the checked-criteria
+        universe 17 -> 18 and the new instance matched (first time widening
+        a coverage claim moved a number there); the customer-facing
+        record's printed figure updated, forced by the probe's own
+        `test_accuracy_citations.py`; engine agreement 91 -> 90 of 118,
+        the first disagreement in this corpus that is not a relabelling;
+        corpus findings 780 -> 781; `a11y-external-coverage-reference`'s
+        disclosure list 4 -> 3.
+      - >-
+        Verified by running every affected suite rather than trusting the
+        diff: eaa-wcag-triage 237/237 (fixture validation regenerated,
+        byte-identical), a11y-own-sites 26/26, a11y-axe-recall 14/14,
+        a11y-external-coverage-reference 27/27, a11y-generated-sites 21/21,
+        a11y-engine-agreement 15/15, a11y-evidence-record 89/89,
+        error-rate-disclosure 25/25, plus the contrast/theme/render
+        siblings and both probe suites; `validate_candidates.py`,
+        `validate_doc_consistency.py`, `score_sensitivity` and
+        `break_even.py --check` all pass. 7 ventures rebuilt (`npm ci &&
+        npm run build`, gitignored) and axe-core 4.13.0 re-run in Chromium
+        over all 118 pages. Merged as #621: internal-only, publishes
+        nothing, spends nothing beyond agent time, 10 CI checks green,
+        agent-decidable per `CLAUDE.md`. Scores unchanged --
+        `liability_containment` stays at 5, since implementing a criterion
+        is not a measurement of whether the coverage statement is accurate.
+        No revenue; the $0 ceiling is unchanged.
+    mrr_end: null
