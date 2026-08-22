@@ -1,0 +1,1191 @@
+{
+  "corpus": "results-holdout-c3-2026-08-22.json",
+  "method": "4 independent Claude Sonnet 5 passes, one per disjoint 37-item chunk of the 148-item held-out corpus-3, each given only: the tool's old/new description text, a mechanical newly-added-text hint, and the rubric from build_labels.py's docstring ((a)-(f), applied to newly added text only). None was shown the rule classifier's bucket for that item, the hand labels, holdout-labels-c3-2026-08-22.json, or build_labels.py/build_labels_c3.py themselves -- this is a blind pass, scored afterward against the committed hand labels by score_model_pass_c3.py. Same method as model-pass-2026-08-22.json's corpus-2 pass, run here on the corpus that pass did not have.",
+  "single_pass_caveat": "This is one run, not an ensemble or a repeated-trials average. A second pass would likely relabel some of the borderline calls; treat the numbers as a point estimate, the same caveat this corpus's own hand-labelling and the corpus-2 model pass both carry.",
+  "labels": [
+    {
+      "idx": 0,
+      "pkg": "autonomad-travel",
+      "tool": "register_agent",
+      "from": "1.0.0",
+      "label": "instruction-bearing",
+      "reason": "New text explicitly directs the model not to invoke the tool in a given context: \"humans booking via Claude/ChatGPT do NOT need to call this\" \u2014 an imperative about the model's own call behavior (rubric b)."
+    },
+    {
+      "idx": 1,
+      "pkg": "autonomad-travel",
+      "tool": "create_booking_intent",
+      "from": "1.1.0",
+      "label": "not-instruction-bearing",
+      "reason": "The genuinely new fragment, \"Call this AFTER showing search results to the user and they [...]\", is plain self-describing usage guidance (when to call this tool) with no other tool named and no priority/credential/URL content."
+    },
+    {
+      "idx": 2,
+      "pkg": "autonomad-travel",
+      "tool": "search_dining",
+      "from": "1.2.0",
+      "label": "not-instruction-bearing",
+      "reason": "Added text \"Use this when the user wants to find a restaurant, book dinner, plan a meal...\" is self-describing usage naming no other tool and issuing no directive to the model."
+    },
+    {
+      "idx": 3,
+      "pkg": "autonomad-travel",
+      "tool": "search_flights",
+      "from": "1.2.0",
+      "label": "not-instruction-bearing",
+      "reason": "Added content is expanded capability description (airline count, filters) plus \"Use this when the user wants to book a flight...\" self-describing usage; no other tool, priority, credential, or URL content."
+    },
+    {
+      "idx": 4,
+      "pkg": "autonomad-travel",
+      "tool": "search_hotels",
+      "from": "1.2.0",
+      "label": "not-instruction-bearing",
+      "reason": "Added content is capability/coverage documentation (\"2M+ properties\") plus self-describing usage \"Use this when the user wants to book a hotel...\"; no cross-tool routing or model directive."
+    },
+    {
+      "idx": 5,
+      "pkg": "autonomad-travel",
+      "tool": "search_transport",
+      "from": "1.2.0",
+      "label": "not-instruction-bearing",
+      "reason": "Added text lists partner brands and adds \"Use this when the user wants a rental car, an airport transfer, or rideshare...\" \u2014 self-describing usage, no other tool named, no imperative."
+    },
+    {
+      "idx": 6,
+      "pkg": "autonomad-travel",
+      "tool": "create_booking_intent",
+      "from": "1.3.2",
+      "label": "instruction-bearing",
+      "reason": "New text \"ALWAYS call this instead of trying to book directly through MCP\" is an explicit priority claim between approaches (rubric c) and a direct imperative to the model (rubric b)."
+    },
+    {
+      "idx": 7,
+      "pkg": "@clawfetch/mcp",
+      "tool": "check_domains",
+      "from": "0.2.2",
+      "label": "not-instruction-bearing",
+      "reason": "Only a price figure changed (\"$0.002\" to \"$0.008\"); pure pricing documentation with no directive content."
+    },
+    {
+      "idx": 8,
+      "pkg": "@clawfetch/mcp",
+      "tool": "extract_data",
+      "from": "0.2.2",
+      "label": "not-instruction-bearing",
+      "reason": "Only the per-request cost figure changed; pricing documentation only."
+    },
+    {
+      "idx": 9,
+      "pkg": "@clawfetch/mcp",
+      "tool": "render_page",
+      "from": "0.2.2",
+      "label": "not-instruction-bearing",
+      "reason": "Only the per-request cost figure changed; pricing documentation only."
+    },
+    {
+      "idx": 10,
+      "pkg": "@clawfetch/mcp",
+      "tool": "research_topic",
+      "from": "0.2.2",
+      "label": "not-instruction-bearing",
+      "reason": "Only the per-request cost figure changed; pricing documentation only."
+    },
+    {
+      "idx": 11,
+      "pkg": "@clawfetch/mcp",
+      "tool": "suggest_domains",
+      "from": "0.2.2",
+      "label": "not-instruction-bearing",
+      "reason": "Only the per-request cost figure changed; pricing documentation only."
+    },
+    {
+      "idx": 12,
+      "pkg": "@clize/clize",
+      "tool": "clize_email_send",
+      "from": "0.1.0",
+      "label": "instruction-bearing",
+      "reason": "New text adds an explicit workflow imperative to the model: confirm defaults to draft-only and it \"must\" show the draft to the user and get human confirmation before passing confirm=true (rubric b), beyond mere parameter documentation."
+    },
+    {
+      "idx": 13,
+      "pkg": "@clize/clize",
+      "tool": "clize_domain_search",
+      "from": "0.7.2",
+      "label": "not-instruction-bearing",
+      "reason": "Added clause only states the query parameter can accept multiple values \u2014 plain parameter documentation, no directive."
+    },
+    {
+      "idx": 14,
+      "pkg": "@clize/clize",
+      "tool": "clize_claim",
+      "from": "0.8.2",
+      "label": "not-instruction-bearing",
+      "reason": "Added text describes a changed default mailbox address and project-scoping behavior; capability documentation, not a directive to the model or another tool."
+    },
+    {
+      "idx": 15,
+      "pkg": "@clize/clize",
+      "tool": "clize_deploy_site",
+      "from": "0.8.2",
+      "label": "not-instruction-bearing",
+      "reason": "Added text documents the notFound parameter's option values (404-page/spa/none/auto); pure parameter documentation."
+    },
+    {
+      "idx": 16,
+      "pkg": "@clize/clize",
+      "tool": "clize_domain_buy",
+      "from": "0.8.2",
+      "label": "not-instruction-bearing",
+      "reason": "Added clause just states the purchase is scoped to the checked-out/specified project \u2014 capability documentation, no directive."
+    },
+    {
+      "idx": 17,
+      "pkg": "@clize/clize",
+      "tool": "clize_status",
+      "from": "0.8.2",
+      "label": "not-instruction-bearing",
+      "reason": "Added parenthetical only documents that a checked-out project scopes the status view; capability documentation, no directive."
+    },
+    {
+      "idx": 18,
+      "pkg": "@clize/clize",
+      "tool": "clize_shop_orders",
+      "from": "0.17.0",
+      "label": "not-instruction-bearing",
+      "reason": "New text documents the site/all/status filter parameters and persistence layer; plain parameter/capability documentation."
+    },
+    {
+      "idx": 19,
+      "pkg": "@clize/clize",
+      "tool": "clize_shop_webhook",
+      "from": "0.17.0",
+      "label": "not-instruction-bearing",
+      "reason": "New text documents which order events trigger the webhook POST; capability documentation, no cross-tool routing or model imperative."
+    },
+    {
+      "idx": 20,
+      "pkg": "@optimalai/optibot-mcp",
+      "tool": "check_auth",
+      "from": "1.1.0",
+      "label": "not-instruction-bearing",
+      "reason": "Added clause only notes the response now includes the active organization; capability documentation."
+    },
+    {
+      "idx": 21,
+      "pkg": "@optimalai/optibot-mcp",
+      "tool": "login",
+      "from": "1.1.0",
+      "label": "not-instruction-bearing",
+      "reason": "Added sentences describe behavior (returns an onboarding URL, refuses in CI) rather than embedding a fetchable URL or issuing a directive; capability documentation only."
+    },
+    {
+      "idx": 22,
+      "pkg": "@i18n-agent/mcp-client",
+      "tool": "check_translation_status",
+      "from": "1.8.178",
+      "label": "not-instruction-bearing",
+      "reason": "Added text describes a new pagination capability and when it's recommended; self-describing capability documentation, no cross-tool routing or imperative."
+    },
+    {
+      "idx": 23,
+      "pkg": "@i18n-agent/mcp-client",
+      "tool": "check_translation_status",
+      "from": "1.8.385",
+      "label": "instruction-bearing",
+      "reason": "New text \"IMPORTANT: Always report the progress percentage to the user\" is a direct imperative telling the model how to behave after calling the tool (rubric b)."
+    },
+    {
+      "idx": 24,
+      "pkg": "@i18n-agent/mcp-client",
+      "tool": "download_translations",
+      "from": "1.8.385",
+      "label": "instruction-bearing",
+      "reason": "New text \"IMPORTANT: After downloading, copy each {lang}.json file to the correct locale folder...\" is an explicit imperative directing the model's follow-on file actions (rubric b)."
+    },
+    {
+      "idx": 25,
+      "pkg": "@i18n-agent/mcp-client",
+      "tool": "get_credits",
+      "from": "1.8.385",
+      "label": "not-instruction-bearing",
+      "reason": "Only the price-per-word figure changed (0.001 credits/word to 1 credit/word, $0.01/word); pricing documentation only."
+    },
+    {
+      "idx": 26,
+      "pkg": "@i18n-agent/mcp-client",
+      "tool": "translate_text",
+      "from": "1.8.385",
+      "label": "instruction-bearing",
+      "reason": "Genuinely new trailing text \"CRITICAL: If a previous translation job failed with\" introduces a flagged conditional directive to the model (rubric b); the parameter-format clause about targetLanguages is mere documentation but the CRITICAL clause is new imperative-framed guidance not present in the old description."
+    },
+    {
+      "idx": 27,
+      "pkg": "@ai-dossier/mcp-server",
+      "tool": "execute-dossier",
+      "from": "1.0.1",
+      "label": "not-instruction-bearing",
+      "reason": "Added sentence just documents an automatic-selection capability (\"Automatically chooses single-dossier or multi-dossier journey flow...\"); no directive to the model or another tool."
+    },
+    {
+      "idx": 28,
+      "pkg": "@ai-dossier/mcp-server",
+      "tool": "verify_dossier",
+      "from": "1.0.1",
+      "label": "not-instruction-bearing",
+      "reason": "Change is a reworded description of the return format (ALLOW/WARN/BLOCK to pass/fail with stage details); no genuinely new instruction content, just capability rewording."
+    },
+    {
+      "idx": 29,
+      "pkg": "intodns-mcp",
+      "tool": "check_dns_propagation",
+      "from": "1.0.0",
+      "label": "not-instruction-bearing",
+      "reason": "Text is a shorter rewording of the same capability (checking DNS propagation across resolvers/regions); no new instruction content added."
+    },
+    {
+      "idx": 30,
+      "pkg": "intodns-mcp",
+      "tool": "check_email_security",
+      "from": "1.0.0",
+      "label": "not-instruction-bearing",
+      "reason": "Text is a rewording of the same email-security check capability; no new instruction content added."
+    },
+    {
+      "idx": 31,
+      "pkg": "intodns-mcp",
+      "tool": "lookup_dns",
+      "from": "1.0.0",
+      "label": "not-instruction-bearing",
+      "reason": "Added text names the service's own transport (\"IntoDNS.ai DNS-over-HTTPS\") and documents multi-type support; capability documentation, no embedded URL or directive."
+    },
+    {
+      "idx": 32,
+      "pkg": "intodns-mcp",
+      "tool": "scan_domain",
+      "from": "1.0.0",
+      "label": "instruction-bearing",
+      "reason": "New clause \"This is the default tool for agent-visible scan evidence\" is a priority claim steering the model to prefer this tool over other scan/report options (rubric c)."
+    },
+    {
+      "idx": 33,
+      "pkg": "intodns-mcp",
+      "tool": "validate_dnssec",
+      "from": "1.0.0",
+      "label": "not-instruction-bearing",
+      "reason": "Text is a rewording of the same DNSSEC-validation capability (chain data, algorithms, DS/DNSKEY); no new instruction content."
+    },
+    {
+      "idx": 34,
+      "pkg": "intodns-mcp",
+      "tool": "get_everything_report",
+      "from": "1.1.0",
+      "label": "not-instruction-bearing",
+      "reason": "Text is a reworded self-describing usage clause (\"Use when the user asks for everything now or a full current-state report...\"); no other tool named, no directive."
+    },
+    {
+      "idx": 35,
+      "pkg": "intodns-mcp",
+      "tool": "analyze_raw_email",
+      "from": "1.2.0",
+      "label": "instruction-bearing",
+      "reason": "New text \"use create_email_test instead when the user can resend it\" names another tool and states when to prefer it over this one \u2014 cross-tool routing and priority claim (rubric a, c)."
+    },
+    {
+      "idx": 36,
+      "pkg": "intodns-mcp",
+      "tool": "cancel_deep_scan",
+      "from": "1.2.0",
+      "label": "instruction-bearing",
+      "reason": "New text \"Use when ... polling get_deep_scan_status would otherwise time out\" names another tool and gives cross-tool guidance on when to reach for this one instead (rubric a)."
+    },
+    {
+      "idx": 37,
+      "pkg": "intodns-mcp",
+      "tool": "check_bimi",
+      "from": "1.2.0",
+      "label": "not-instruction-bearing",
+      "reason": "The added text is capability/output documentation (what fields are parsed, what is checked) plus a self-describing usage note ('Use before paying for a VMC/CMC and before publishing the DNS record') that names no other tool and gives no imperative to the model."
+    },
+    {
+      "idx": 38,
+      "pkg": "intodns-mcp",
+      "tool": "check_dmarc",
+      "from": "1.2.0",
+      "label": "instruction-bearing",
+      "reason": "Rubric (a): the new text says 'use check_sender_requirements for combined Google/Yahoo SPF+DKIM+DMARC pass/fail verdict', naming another tool and when to reach for it."
+    },
+    {
+      "idx": 39,
+      "pkg": "intodns-mcp",
+      "tool": "check_email_security",
+      "from": "1.2.0",
+      "label": "instruction-bearing",
+      "reason": "Rubric (a): 'use check_sender_requirements specifically for Google/Yahoo bulk-sender compliance, or the individual check_* tools when you need only one signal' names other tools and routes to them."
+    },
+    {
+      "idx": 40,
+      "pkg": "intodns-mcp",
+      "tool": "check_mta_sts",
+      "from": "1.2.0",
+      "label": "instruction-bearing",
+      "reason": "Rubric (a): 'pair with check_smtp_tls for live STARTTLS validation' names another tool and directs when to use it alongside this one."
+    },
+    {
+      "idx": 41,
+      "pkg": "intodns-mcp",
+      "tool": "check_sender_requirements",
+      "from": "1.2.0",
+      "label": "instruction-bearing",
+      "reason": "Rubric (a): 'use check_email_security for the broader read of SPF/DKIM/DMARC alone' names another tool and states when to use it instead."
+    },
+    {
+      "idx": 42,
+      "pkg": "intodns-mcp",
+      "tool": "check_spf",
+      "from": "1.2.0",
+      "label": "instruction-bearing",
+      "reason": "Rubric (a): 'use check_email_security for the broader SPF+DKIM+DMARC overview' names another tool and when to reach for it."
+    },
+    {
+      "idx": 43,
+      "pkg": "intodns-mcp",
+      "tool": "check_tlsa_dane",
+      "from": "1.2.0",
+      "label": "not-instruction-bearing",
+      "reason": "New text is parameter/output documentation plus a self-describing usage line ('Use before publishing DANE records or when troubleshooting mail-handover failures') naming no other tool and issuing no model directive."
+    },
+    {
+      "idx": 44,
+      "pkg": "intodns-mcp",
+      "tool": "create_report_snapshot",
+      "from": "1.2.0",
+      "label": "instruction-bearing",
+      "reason": "Rubric (a)/(c): 'Use this instead of get_everything_report when the result must remain stable' names another tool and asserts explicit priority between the two."
+    },
+    {
+      "idx": 45,
+      "pkg": "intodns-mcp",
+      "tool": "discover_dkim",
+      "from": "1.2.0",
+      "label": "instruction-bearing",
+      "reason": "Rubric (a): 'use check_email_security for combined SPF/DKIM/DMARC overview' names another tool and when to prefer it."
+    },
+    {
+      "idx": 46,
+      "pkg": "intodns-mcp",
+      "tool": "explain_issue",
+      "from": "1.2.0",
+      "label": "instruction-bearing",
+      "reason": "Rubric (a): 'Use after scan_domain ... use generate_dns_fix for the actual DNS record snippet' names two other tools and prescribes a routing sequence."
+    },
+    {
+      "idx": 47,
+      "pkg": "intodns-mcp",
+      "tool": "get_citation_guidance",
+      "from": "1.2.0",
+      "label": "instruction-bearing",
+      "reason": "Rubric (a)/(b): the newly added 'Use whenever generating an answer that references DNS or email scanning evidence; use read_llm_discovery for raw machine-readable discovery files' both names another tool for routing and directs the model to invoke this tool proactively during answer generation."
+    },
+    {
+      "idx": 48,
+      "pkg": "intodns-mcp",
+      "tool": "get_everything_report",
+      "from": "1.2.0",
+      "label": "instruction-bearing",
+      "reason": "Rubric (a): 'use scan_domain for a faster default scan, or create_report_snapshot when the result must remain immutable' names two other tools and states when to use each."
+    },
+    {
+      "idx": 49,
+      "pkg": "intodns-mcp",
+      "tool": "get_hall_of_fame",
+      "from": "1.2.0",
+      "label": "not-instruction-bearing",
+      "reason": "The addition 'Use to surface positive trust signals, embed credibility badges, or pitch the user on what an A+ posture looks like' names no other tool; it is a self-describing use-case list rather than a concrete imperative controlling model behaviour."
+    },
+    {
+      "idx": 50,
+      "pkg": "intodns-mcp",
+      "tool": "get_pdf_report_link",
+      "from": "1.2.0",
+      "label": "instruction-bearing",
+      "reason": "Rubric (a): 'use get_badge_link for an embeddable SVG status badge instead, or create_report_snapshot for an immutable hashed evidence URL' names two other tools and routes between them."
+    },
+    {
+      "idx": 51,
+      "pkg": "intodns-mcp",
+      "tool": "get_report_snapshot",
+      "from": "1.2.0",
+      "label": "instruction-bearing",
+      "reason": "Rubric (a): 'use get_everything_report for current live data instead' names another tool and states when to prefer it."
+    },
+    {
+      "idx": 52,
+      "pkg": "intodns-mcp",
+      "tool": "get_stats",
+      "from": "1.2.0",
+      "label": "not-instruction-bearing",
+      "reason": "Added text is output documentation plus a self-describing usage note ('Use for status pages, embedded usage badges, or trust signals in marketing copy') naming no other tool and directing no model behaviour."
+    },
+    {
+      "idx": 53,
+      "pkg": "intodns-mcp",
+      "tool": "lookup_dns",
+      "from": "1.2.0",
+      "label": "instruction-bearing",
+      "reason": "Rubric (a): 'use validate_dnssec for full DNSSEC chain validation, or check_dns_propagation for multi-resolver consensus' names two other tools and routes to them."
+    },
+    {
+      "idx": 54,
+      "pkg": "intodns-mcp",
+      "tool": "read_llm_discovery",
+      "from": "1.2.0",
+      "label": "instruction-bearing",
+      "reason": "Rubric (a): 'use get_citation_guidance for a topic-narrowed citation list' names another tool and states when to reach for it."
+    },
+    {
+      "idx": 55,
+      "pkg": "intodns-mcp",
+      "tool": "scan_domain",
+      "from": "1.2.0",
+      "label": "instruction-bearing",
+      "reason": "Rubric (a)/(b): 'use get_everything_report ... or start_deep_scan ...' names other tools, and 'After running, use explain_issue or generate_dns_fix on any returned issue' is an explicit imperative directing the model's follow-up behaviour."
+    },
+    {
+      "idx": 56,
+      "pkg": "intodns-mcp",
+      "tool": "check_bimi",
+      "from": "1.7.1",
+      "label": "not-instruction-bearing",
+      "reason": "The rewrite adds only accuracy caveats about what the tool does not verify and a self-describing usage line ('Use for a technical preflight before a formal BIMI/VMC review'); no other tool is named and no model behaviour is directed."
+    },
+    {
+      "idx": 57,
+      "pkg": "intodns-mcp",
+      "tool": "check_sender_requirements",
+      "from": "1.7.1",
+      "label": "instruction-bearing",
+      "reason": "Rubric (a): 'use analyze_raw_email or create_email_test to verify message-level requirements' names two other tools and directs when to use them."
+    },
+    {
+      "idx": 58,
+      "pkg": "intodns-mcp",
+      "tool": "check_tlsa_dane",
+      "from": "1.7.1",
+      "label": "instruction-bearing",
+      "reason": "Rubric (a): 'pair it with check_smtp_tls for SMTP certificate evidence' names another tool and directs pairing it with this one."
+    },
+    {
+      "idx": 59,
+      "pkg": "intodns-mcp",
+      "tool": "discover_dkim",
+      "from": "1.7.1",
+      "label": "instruction-bearing",
+      "reason": "Rubric (a): 'use check_email_security for the broader SPF/DKIM/DMARC overview' names another tool and states when to prefer it."
+    },
+    {
+      "idx": 60,
+      "pkg": "intodns-mcp",
+      "tool": "get_hall_of_fame",
+      "from": "1.7.1",
+      "label": "instruction-bearing",
+      "reason": "Rubric (a): 'use scan_domain for current evidence because Hall of Fame data may be older' names another tool and gives a reason to route to it."
+    },
+    {
+      "idx": 61,
+      "pkg": "intodns-mcp",
+      "tool": "get_stats",
+      "from": "1.7.1",
+      "label": "instruction-bearing",
+      "reason": "Rubric (a): 'use get_hall_of_fame for top-scoring public domains' names another tool and directs when to use it instead."
+    },
+    {
+      "idx": 62,
+      "pkg": "nocturnusai-mcp",
+      "tool": "aggregate",
+      "from": "0.3.12",
+      "label": "not-instruction-bearing",
+      "reason": "Added text is side-effect/auth/rate-limit/error documentation ('Auth: requires X-Tenant-ID header; FACT_READ permission ...'); it documents the API's own auth requirement rather than directing the model to obtain or send credentials anywhere, and names no other tool."
+    },
+    {
+      "idx": 63,
+      "pkg": "nocturnusai-mcp",
+      "tool": "ask",
+      "from": "0.3.12",
+      "label": "not-instruction-bearing",
+      "reason": "Added text is capability/auth/error documentation (result cap, X-Tenant-ID header requirement, error codes); purely descriptive, no cross-tool routing or model-directed imperative."
+    },
+    {
+      "idx": 64,
+      "pkg": "nocturnusai-mcp",
+      "tool": "bulk_assert",
+      "from": "0.3.12",
+      "label": "not-instruction-bearing",
+      "reason": "Added text documents side effects (additive mutation, partial success persistence), auth header requirement, and error behaviour; plan/capability documentation with no other tool named and no directive to the model."
+    },
+    {
+      "idx": 65,
+      "pkg": "nocturnusai-mcp",
+      "tool": "cleanup",
+      "from": "0.3.12",
+      "label": "not-instruction-bearing",
+      "reason": "Added text is a destructiveness warning plus auth/rate-limit/error documentation ('Side effects: DESTRUCTIVE ... Auth: requires X-Tenant-ID header'); capability documentation, not a cross-tool directive."
+    },
+    {
+      "idx": 66,
+      "pkg": "nocturnusai-mcp",
+      "tool": "context",
+      "from": "0.3.12",
+      "label": "not-instruction-bearing",
+      "reason": "The 'new' text is a trivial rewording of the same sentence already in 'old' (minor phrasing changes only); no substantively new content, let alone instruction-bearing content."
+    },
+    {
+      "idx": 67,
+      "pkg": "nocturnusai-mcp",
+      "tool": "delete_scope",
+      "from": "0.3.12",
+      "label": "not-instruction-bearing",
+      "reason": "Added text documents destructive/irreversible side effects, cascading retraction, auth header requirement, and error condition; descriptive capability documentation, no other tool named, no model imperative."
+    },
+    {
+      "idx": 68,
+      "pkg": "nocturnusai-mcp",
+      "tool": "forget",
+      "from": "0.3.12",
+      "label": "not-instruction-bearing",
+      "reason": "The new text ('Inverse of') is a truncation/shortening of the old sentence ('This is the inverse of'); nothing new is added beyond rewording."
+    },
+    {
+      "idx": 69,
+      "pkg": "nocturnusai-mcp",
+      "tool": "fork_scope",
+      "from": "0.3.12",
+      "label": "not-instruction-bearing",
+      "reason": "The new text ('Use for hypothetical reasoning (') is a trivial rewording of the old ('Use this for hypothetical reasoning ('); no new instruction-bearing content added."
+    },
+    {
+      "idx": 70,
+      "pkg": "nocturnusai-mcp",
+      "tool": "list_scopes",
+      "from": "0.3.12",
+      "label": "not-instruction-bearing",
+      "reason": "Added text is read-only/auth/rate-limit/error documentation; descriptive capability documentation with no other tool named and no imperative to the model."
+    },
+    {
+      "idx": 71,
+      "pkg": "nocturnusai-mcp",
+      "tool": "predicates",
+      "from": "0.3.12",
+      "label": "not-instruction-bearing",
+      "reason": "Added text is read-only/auth/rate-limit/error documentation appended to an already self-describing usage sentence; no other tool named, no model-directed imperative beyond normal self-usage guidance."
+    },
+    {
+      "idx": 72,
+      "pkg": "nocturnusai-mcp",
+      "tool": "recall",
+      "from": "0.3.12",
+      "label": "not-instruction-bearing",
+      "reason": "Added text is read-only/auth/rate-limit/error documentation ('Side effects: none (read-only). Auth: requires X-Tenant-ID header ...'); purely descriptive, no cross-tool routing or directive."
+    },
+    {
+      "idx": 73,
+      "pkg": "nocturnusai-mcp",
+      "tool": "retract_pattern",
+      "from": "0.3.12",
+      "label": "not-instruction-bearing",
+      "reason": "Added text documents destructive/irreversible side effects, cascading retraction, auth header requirement, and error condition; capability/plan documentation, no other tool named, no model imperative."
+    },
+    {
+      "idx": 74,
+      "pkg": "nocturnusai-mcp",
+      "tool": "teach",
+      "from": "0.3.12",
+      "label": "not-instruction-bearing",
+      "reason": "The new text is a shorter rewording of the same rule-semantics already stated in old ('conditions true -> conclusion derivable', '?-prefixed variables', 'Negation-as-Failure'); nothing genuinely new is added, so no rubric letter applies."
+    },
+    {
+      "idx": 75,
+      "pkg": "nocturnusai-mcp",
+      "tool": "tell",
+      "from": "0.3.12",
+      "label": "not-instruction-bearing",
+      "reason": "Added text ('Side effects...', 'Auth: requires X-Tenant-ID header... FACT_WRITE permission...', 'Errors: VALIDATION_ERROR...') documents this tool's own side-effects, auth requirements and error codes; it is self-describing API documentation, not a directive to the model, a routing to another tool, or exfiltration-shaped credential handling."
+    },
+    {
+      "idx": 76,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "includeCode",
+      "from": "0.8.0",
+      "label": "not-instruction-bearing",
+      "reason": "New text just narrows 'code examples' to 'current SAP MCP JSON tool-call examples' -- a wording tweak with no imperative, routing, or credential/URL content."
+    },
+    {
+      "idx": 77,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_create_escrow_v2",
+      "from": "0.8.0",
+      "label": "not-instruction-bearing",
+      "reason": "Added text 'Defaults to DisputeWindow settlementSecurity=2; SelfReport/0 is rejected' is plain parameter/default documentation, not a directive to the model or reference to another tool."
+    },
+    {
+      "idx": 78,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_discover_agents",
+      "from": "0.8.0",
+      "label": "not-instruction-bearing",
+      "reason": "New text describes pricing/filters and 'Use this for targeted agent discovery before calling per-agent fetch tools' -- self-describing usage that names no specific other tool, so it doesn't meet the (a) cross-tool-routing bar."
+    },
+    {
+      "idx": 79,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_list_agents",
+      "from": "0.8.0",
+      "label": "not-instruction-bearing",
+      "reason": "The new alias-naming of sap_discover_agents restates what old already implied, and the truly added part ('Supports query, wallet, protocol, capability, x402 endpoint filtering, and cursor pagination') is plain capability documentation with no imperative or priority claim."
+    },
+    {
+      "idx": 80,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_list_all_agents",
+      "from": "0.8.0",
+      "label": "not-instruction-bearing",
+      "reason": "New text ('Paid hosted global SAP agent directory read... supports query, wallet, protocol, capability, x402 endpoint filtering, compact/full views, and cursor pagination') is pricing/capability documentation with no model directive or named tool routing."
+    },
+    {
+      "idx": 81,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_register_agent",
+      "from": "0.8.0",
+      "label": "instruction-bearing",
+      "reason": "Added text directs the model's own action: 'run it through a local SAP MCP profile or external signer' is an imperative telling the model what to do when the hosted write is rejected, satisfying rubric (b)."
+    },
+    {
+      "idx": 82,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_sns_build_manage_record_transaction",
+      "from": "0.8.0",
+      "label": "instruction-bearing",
+      "reason": "Added text 'In hosted mode, finalize the returned transaction locally with sap_payments_finalize_transaction' names a specific other tool and states when to use it, satisfying rubric (a)."
+    },
+    {
+      "idx": 83,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_sns_build_set_primary_domain_transaction",
+      "from": "0.8.0",
+      "label": "not-instruction-bearing",
+      "reason": "The rewritten description states the builder is unavailable and why ('requires the Bonfida SNS CLI', 'until a production unsigned builder is available'); it's status/limitation documentation with no model directive, tool routing, or credential content."
+    },
+    {
+      "idx": 84,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_sns_register_agent_domain",
+      "from": "0.8.0",
+      "label": "not-instruction-bearing",
+      "reason": "New text ('Local-signer-only tool... builds, signs, and submits... with the local profile signer or external signer. Hosted accountless SAP MCP rejects this tool before x402 payment because OOBE never custodies user keys') explains the tool's own mechanics and rejection reason but issues no imperative and names no other tool to route to."
+    },
+    {
+      "idx": 85,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_x402_prepare_payment",
+      "from": "0.8.0",
+      "label": "not-instruction-bearing",
+      "reason": "The priority claim ('prefer Escrow V2 tools for new flows') already existed in old; the new sentence ('New production escrow funding should use Escrow V2 fields and nonce-aware flows') is a reworded restatement of the same substance, not genuinely new content."
+    },
+    {
+      "idx": 86,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_close_escrow_v2",
+      "from": "0.9.11",
+      "label": "instruction-bearing",
+      "reason": "Added text 'Hosted users should call sap_escrow_build_close_transaction and finalize locally' names a specific other tool and tells the model when/how to use it, satisfying rubric (a)."
+    },
+    {
+      "idx": 87,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_create_escrow_v2",
+      "from": "0.9.11",
+      "label": "instruction-bearing",
+      "reason": "Added text 'hosted users should call sap_escrow_build_create_transaction and finalize locally' names a specific other tool and directs when to use it (rubric a)."
+    },
+    {
+      "idx": 88,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_deposit_escrow_v2",
+      "from": "0.9.11",
+      "label": "instruction-bearing",
+      "reason": "Added text 'Hosted users should call sap_escrow_build_deposit_transaction and finalize locally' names another tool and routes to it (rubric a)."
+    },
+    {
+      "idx": 89,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_finalize_settlement_v2",
+      "from": "0.9.11",
+      "label": "instruction-bearing",
+      "reason": "Added text 'Hosted users should call sap_escrow_build_finalize_transaction and finalize locally' names another tool and routes to it (rubric a)."
+    },
+    {
+      "idx": 90,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_get_agent",
+      "from": "0.9.11",
+      "label": "not-instruction-bearing",
+      "reason": "Added text 'Use this before paid discovery when the wallet is known' is self-describing usage that names no specific other tool, so it fails to meet the (a) routing bar despite the sequencing language."
+    },
+    {
+      "idx": 91,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_get_agent_profile",
+      "from": "0.9.11",
+      "label": "not-instruction-bearing",
+      "reason": "Added text 'Use this for a known agent before read-premium discovery or enrichment' references a generic capability, not a named tool, so it stays self-describing usage rather than cross-tool routing."
+    },
+    {
+      "idx": 92,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_get_agent_stats",
+      "from": "0.9.11",
+      "label": "instruction-bearing",
+      "reason": "Added text 'Use after sap_get_agent or sap_get_agent_profile when stats are needed' explicitly names two other tools and states when to reach for this one relative to them, satisfying rubric (a)."
+    },
+    {
+      "idx": 93,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_get_global_state",
+      "from": "0.9.11",
+      "label": "not-instruction-bearing",
+      "reason": "Added text 'Use for initial orientation before paid network analytics' names no specific other tool, only a generic capability category, so it doesn't meet the cross-tool-routing bar."
+    },
+    {
+      "idx": 94,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_is_agent_active",
+      "from": "0.9.11",
+      "label": "not-instruction-bearing",
+      "reason": "Added text 'Use this before read-premium discovery when the wallet is known' names no specific other tool, so it is self-describing usage rather than instruction-bearing routing."
+    },
+    {
+      "idx": 95,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_list_agents",
+      "from": "0.9.11",
+      "label": "not-instruction-bearing",
+      "reason": "New text describes pricing-tier conditions ('Micro-read when limit <= 20... larger or enriched pages are read-premium') -- plain pricing/parameter documentation with no model directive or named-tool routing."
+    },
+    {
+      "idx": 96,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_register_agent",
+      "from": "0.9.11",
+      "label": "instruction-bearing",
+      "reason": "Added text 'Production registration must use sap_payments_register_agent so the local signer path confirms the account...' names a specific other tool and asserts it as mandatory/preferred, satisfying rubric (a) and (c)."
+    },
+    {
+      "idx": 97,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_settle_escrow_v2",
+      "from": "0.9.11",
+      "label": "instruction-bearing",
+      "reason": "Added text 'Hosted users should call sap_escrow_build_settle_transaction and finalize locally' names another tool and routes to it (rubric a)."
+    },
+    {
+      "idx": 98,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_update_agent",
+      "from": "0.9.11",
+      "label": "instruction-bearing",
+      "reason": "Added text 'hosted users should call sap_payments_update_agent from the local sap_payments bridge' names a specific other tool and directs when to use it (rubric a)."
+    },
+    {
+      "idx": 99,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_withdraw_escrow_v2",
+      "from": "0.9.11",
+      "label": "instruction-bearing",
+      "reason": "Added text 'Hosted users should call sap_escrow_build_withdraw_transaction and finalize locally' names another tool and routes to it (rubric a)."
+    },
+    {
+      "idx": 100,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_sns_batch_check_domains",
+      "from": "0.9.61",
+      "label": "not-instruction-bearing",
+      "reason": "Added text describes the new implementation mechanism ('deriving each SNS PDA and checking account existence on-chain') and safety note ('read-only and safe for hosted mode') -- factual capability documentation, no directive or tool reference."
+    },
+    {
+      "idx": 101,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_sns_build_manage_record_transaction",
+      "from": "0.9.61",
+      "label": "not-instruction-bearing",
+      "reason": "Rewritten to explain the builder is temporarily unavailable and why ('historical Bonfida SNS npm package is not installable'); this drops the prior tool-routing language and adds only status explanation, no imperative or new tool reference."
+    },
+    {
+      "idx": 102,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_sns_build_set_primary_domain_transaction",
+      "from": "0.9.61",
+      "label": "not-instruction-bearing",
+      "reason": "New text restates unavailability and its cause ('disabled... until the SNS write path is migrated to a current installable SDK and covered by end-to-end tests') -- status documentation with no directive or tool routing."
+    },
+    {
+      "idx": 103,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_sns_check_domain",
+      "from": "0.9.61",
+      "label": "not-instruction-bearing",
+      "reason": "Added text describes the new lookup mechanism and dependency-free nature ('does not require the historical Bonfida npm package') -- implementation documentation, not a directive or tool reference."
+    },
+    {
+      "idx": 104,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_sns_check_ownership",
+      "from": "0.9.61",
+      "label": "not-instruction-bearing",
+      "reason": "Added text explains the resolution logic ('uses the SOL record when present and the domain owner as fallback') -- behavioral/capability documentation, no model directive or tool reference."
+    },
+    {
+      "idx": 105,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_sns_get_domain_pda",
+      "from": "0.9.61",
+      "label": "not-instruction-bearing",
+      "reason": "Added text ('deterministic, read-only, and does not require any external SNS SDK') is plain capability documentation with no directive or tool reference."
+    },
+    {
+      "idx": 106,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_sns_get_domain_records",
+      "from": "0.9.61",
+      "label": "not-instruction-bearing",
+      "reason": "Added text describes the new read mechanism and return semantics ('records that exist and can be decoded') -- implementation documentation, no directive."
+    },
+    {
+      "idx": 107,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_sns_get_record",
+      "from": "0.9.61",
+      "label": "not-instruction-bearing",
+      "reason": "Added text describes return semantics ('Returns null if the record account is absent or empty') -- plain behavior documentation, no directive or tool reference."
+    },
+    {
+      "idx": 108,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_sns_get_record_pda",
+      "from": "0.9.61",
+      "label": "not-instruction-bearing",
+      "reason": "Added text lists supported record types ('SOL, TXT, Pic, Url, or IPFS') -- parameter/value documentation, no directive or tool reference."
+    },
+    {
+      "idx": 109,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_sns_register_agent_domain",
+      "from": "0.9.61",
+      "label": "not-instruction-bearing",
+      "reason": "Added text explains the tool is temporarily unavailable and its purpose is now only to report status ('Use this tool only to receive the fail-fast status before any payment or signing attempt'); this is self-describing usage naming no other tool, not instruction-bearing routing."
+    },
+    {
+      "idx": 110,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_sns_resolve_domain",
+      "from": "0.9.61",
+      "label": "instruction-bearing",
+      "reason": "Added sentence 'Agents should treat TXT/Pic/Url records as optional metadata and fall back to the wallet owner when no SOL record exists' is an explicit imperative directing the model's interpretation/behavior, satisfying rubric (b)."
+    },
+    {
+      "idx": 111,
+      "pkg": "@oobe-protocol-labs/sap-mcp-server",
+      "tool": "sap_sns_resolve_wallet",
+      "from": "0.9.61",
+      "label": "not-instruction-bearing",
+      "reason": "The added text ('prefers the SOL record when available and falls back to the domain owner field') describes the tool's own internal data-resolution logic, not a priority between tools or a directive to the model."
+    },
+    {
+      "idx": 112,
+      "pkg": "ponlo-ai",
+      "tool": "ponlo_tasks_list",
+      "from": "1.0.0",
+      "label": "not-instruction-bearing",
+      "reason": "The addition 'Optionally filter by status, assignee, or search keyword' is plain parameter documentation, not a directive or cross-tool reference."
+    },
+    {
+      "idx": 113,
+      "pkg": "ponlo-ai",
+      "tool": "ponlo_tasks_update",
+      "from": "1.3.0",
+      "label": "not-instruction-bearing",
+      "reason": "old/new differ only by a trailing backslash artifact; there is no genuinely new text to judge."
+    },
+    {
+      "idx": 114,
+      "pkg": "ponlo-ai",
+      "tool": "ponlo_ai_chat",
+      "from": "1.6.0",
+      "label": "instruction-bearing",
+      "reason": "New text names specific other tools and claims priority: 'prefer the structured tools (ponlo_calendar_delete_event, ponlo_tasks_update, etc.) as they are more reliable' \u2014 matches (a) cross-tool routing and (c) priority claim."
+    },
+    {
+      "idx": 115,
+      "pkg": "ponlo-ai",
+      "tool": "ponlo_calendar_update_event",
+      "from": "1.6.0",
+      "label": "not-instruction-bearing",
+      "reason": "old/new differ only by a trailing backslash artifact; no genuinely new content."
+    },
+    {
+      "idx": 116,
+      "pkg": "ponlo-ai",
+      "tool": "ponlo_daily_briefing",
+      "from": "1.10.0",
+      "label": "not-instruction-bearing",
+      "reason": "old/new differ only by a trailing backslash artifact; no genuinely new content."
+    },
+    {
+      "idx": 117,
+      "pkg": "ponlo-ai",
+      "tool": "ponlo_notes_update",
+      "from": "1.13.0",
+      "label": "not-instruction-bearing",
+      "reason": "old/new differ only by a trailing backslash artifact; no genuinely new content."
+    },
+    {
+      "idx": 118,
+      "pkg": "ponlo-ai",
+      "tool": "ponlo_rewards_redeem",
+      "from": "1.13.0",
+      "label": "not-instruction-bearing",
+      "reason": "The 'added_hint' text ('Deducts stars from the family member') is already present verbatim in old, just at a truncation boundary caused by a trailing backslash; nothing is genuinely new."
+    },
+    {
+      "idx": 119,
+      "pkg": "@spideriq/mcp-publish",
+      "tool": "form_get_embed_snippet",
+      "from": "1.25.0",
+      "label": "not-instruction-bearing",
+      "reason": "The only change is the template placeholder name (${V} to ${se}), a minified-variable artifact, not a real URL or new instruction."
+    },
+    {
+      "idx": 120,
+      "pkg": "@variel/mcp-server",
+      "tool": "get_brand_tokens",
+      "from": "0.1.0",
+      "label": "not-instruction-bearing",
+      "reason": "The addition 'On a keyless or bootstrap connection, this returns Variel...' describes a data/capability fallback under a connection mode, naming no other tool and issuing no directive to the model."
+    },
+    {
+      "idx": 121,
+      "pkg": "@variel/mcp-server",
+      "tool": "get_component",
+      "from": "0.1.0",
+      "label": "not-instruction-bearing",
+      "reason": "The addition describes where component data originates under a keyless/bootstrap connection; it is self-describing capability text, not a directive or cross-tool reference."
+    },
+    {
+      "idx": 122,
+      "pkg": "@variel/mcp-server",
+      "tool": "list_components",
+      "from": "0.1.0",
+      "label": "not-instruction-bearing",
+      "reason": "Same pattern as the other Variel tools: describes data provenance under a connection mode, not an instruction to the model or another tool."
+    },
+    {
+      "idx": 123,
+      "pkg": "verifox-mcp",
+      "tool": "find_email",
+      "from": "1.0.0",
+      "label": "not-instruction-bearing",
+      "reason": "'Find someone' to 'Find ONE person' is a cardinality clarification of the tool's own function, not a directive or cross-tool reference."
+    },
+    {
+      "idx": 124,
+      "pkg": "verifox-mcp",
+      "tool": "verify_email",
+      "from": "1.0.0",
+      "label": "not-instruction-bearing",
+      "reason": "New text just documents additional checks and 'returns a 0-100 quality score' \u2014 output/capability documentation, no directive or cross-tool content."
+    },
+    {
+      "idx": 125,
+      "pkg": "@wpconvert/mcp",
+      "tool": "wpconvert_check_status",
+      "from": "0.1.0",
+      "label": "instruction-bearing",
+      "reason": "New text names other tools and says when to call them: 'When done, you can call wpconvert_download_result and/or wpconvert_create_preview' \u2014 matches (a) cross-tool routing."
+    },
+    {
+      "idx": 126,
+      "pkg": "@wpconvert/mcp",
+      "tool": "wpconvert_convert_folder",
+      "from": "0.1.0",
+      "label": "instruction-bearing",
+      "reason": "New text issues direct imperatives to the model: 'Leave idempotency_key blank for a new intentional conversion... retry with the exact idempotency_key returned by that prior call \u2014 do not omit it and do not invent a new one' \u2014 matches (b) directing model behaviour."
+    },
+    {
+      "idx": 127,
+      "pkg": "@wpconvert/mcp",
+      "tool": "wpconvert_download_result",
+      "from": "0.1.0",
+      "label": "instruction-bearing",
+      "reason": "New text names another specific tool and when to use it: 'Optionally, use wpconvert_create_preview to view the theme in a live WordPress before/after downloading' \u2014 matches (a) cross-tool routing."
+    },
+    {
+      "idx": 128,
+      "pkg": "@wpconvert/mcp",
+      "tool": "wpconvert_explain_failure",
+      "from": "0.1.0",
+      "label": "not-instruction-bearing",
+      "reason": "New text explains what scenarios the failure explanation distinguishes (mentioning wpconvert_convert_folder only to describe a retry concept), rather than instructing the model when to call it \u2014 explanatory, not directive."
+    },
+    {
+      "idx": 129,
+      "pkg": "@wpconvert/mcp",
+      "tool": "wpconvert_check_status",
+      "from": "0.2.0",
+      "label": "instruction-bearing",
+      "reason": "New text names other tools and specifies exactly when to reach for each: 'recommended_next points to wpconvert_download_result; for preview-only jobs it points to wpconvert_create_preview instead' \u2014 matches (a) cross-tool routing."
+    },
+    {
+      "idx": 130,
+      "pkg": "@wpconvert/mcp",
+      "tool": "wpconvert_download_result",
+      "from": "0.2.0",
+      "label": "instruction-bearing",
+      "reason": "New text is a direct usage directive naming other tools: 'Only use when wpconvert_check_status shows download_available... For preview-only jobs, use wpconvert_create_preview or upgrade and re-convert instead' \u2014 matches (a) and (b)."
+    },
+    {
+      "idx": 131,
+      "pkg": "@wpconvert/mcp",
+      "tool": "wpconvert_quota",
+      "from": "0.2.0",
+      "label": "instruction-bearing",
+      "reason": "New text is an imperative naming another tool: 'Call this before wpconvert_convert_folder to understand what the next conversion will consume' \u2014 matches (a) cross-tool routing and (b) directing model behaviour."
+    },
+    {
+      "idx": 132,
+      "pkg": "@wpconvert/mcp",
+      "tool": "wpconvert_check_status",
+      "from": "0.3.0",
+      "label": "not-instruction-bearing",
+      "reason": "New text is a technical clarification of the status enum values ('processing... is not a persisted API value'), documentation of output semantics rather than a directive or new cross-tool reference."
+    },
+    {
+      "idx": 133,
+      "pkg": "@wpconvert/mcp",
+      "tool": "wpconvert_create_preview",
+      "from": "0.3.0",
+      "label": "not-instruction-bearing",
+      "reason": "Only change is the expiry duration figure ('~30 minutes' to 'about ten minutes'); the surrounding 'treat it as sensitive' language is carried over from old, not newly added."
+    },
+    {
+      "idx": 134,
+      "pkg": "devglow-mcp",
+      "tool": "check_port",
+      "from": "1.0.0",
+      "label": "not-instruction-bearing",
+      "reason": "New text describes an added capability ('also reports who holds it') without naming another tool or directing model behaviour."
+    },
+    {
+      "idx": 135,
+      "pkg": "devglow-mcp",
+      "tool": "create_project",
+      "from": "1.1.0",
+      "label": "not-instruction-bearing",
+      "reason": "The visible new text is only the truncated fragment 'This is how you', which replaces (rather than adds to) old's cross-tool routing sentence; as given it contains no instruction-bearing content of its own."
+    },
+    {
+      "idx": 136,
+      "pkg": "devglow-mcp",
+      "tool": "run_process",
+      "from": "1.1.4",
+      "label": "not-instruction-bearing",
+      "reason": "'Create and start a new temporary process' to 'Create and start ONE new temporary process' is a cardinality emphasis, not a directive or cross-tool reference."
+    },
+    {
+      "idx": 137,
+      "pkg": "devglow-mcp",
+      "tool": "start_project",
+      "from": "1.1.4",
+      "label": "instruction-bearing",
+      "reason": "New text claims explicit priority over a named tool and directs model behaviour: 'PREFER this over run_process: call list_projects first, and if a project for this path/command already exists, start it here instead of re-running it yourself' \u2014 matches (a), (b), and (c)."
+    },
+    {
+      "idx": 138,
+      "pkg": "todoglow-mcp",
+      "tool": "set_topic",
+      "from": "0.1.0",
+      "label": "not-instruction-bearing",
+      "reason": "The visible new text is the truncated self-describing fragment 'Add a todo to the user', naming no other tool and issuing no imperative."
+    },
+    {
+      "idx": 139,
+      "pkg": "todoglow-mcp",
+      "tool": "update_thread",
+      "from": "0.1.0",
+      "label": "not-instruction-bearing",
+      "reason": "New text is a condensed rewording of the same self-describing function ('Register and update your work status in todoglow'), with no new directive or cross-tool content."
+    },
+    {
+      "idx": 140,
+      "pkg": "@faqai/mcp-server",
+      "tool": "upload_document",
+      "from": "0.3.0",
+      "label": "not-instruction-bearing",
+      "reason": "The only addition is 'MD' to the accepted file-type list \u2014 capability documentation, not a directive."
+    },
+    {
+      "idx": 141,
+      "pkg": "@humanform/mcp",
+      "tool": "predict_measurement",
+      "from": "0.1.3",
+      "label": "not-instruction-bearing",
+      "reason": "New text 'Returns value, unit, and source (modeled or derived)' documents the output shape, not model behaviour or another tool."
+    },
+    {
+      "idx": 142,
+      "pkg": "@odyssey365/mcp-server",
+      "tool": "complete_todo",
+      "from": "0.1.0",
+      "label": "not-instruction-bearing",
+      "reason": "New text explains the doneTime parameter's ISO 8601 format for backdating completion \u2014 parameter documentation, no directive or cross-tool content."
+    },
+    {
+      "idx": 143,
+      "pkg": "@odyssey365/mcp-server",
+      "tool": "update_todo",
+      "from": "0.1.0",
+      "label": "not-instruction-bearing",
+      "reason": "Same as complete_todo: describes the doneTime parameter's ISO 8601 format \u2014 parameter documentation, not instruction-bearing."
+    },
+    {
+      "idx": 144,
+      "pkg": "@trustrails/mcp-server",
+      "tool": "get_product",
+      "from": "1.0.5",
+      "label": "not-instruction-bearing",
+      "reason": "Pure rewording of the same self-describing sentence ('Get full details for a single product by ID'), no new directive or cross-tool content."
+    },
+    {
+      "idx": 145,
+      "pkg": "@trustrails/mcp-server",
+      "tool": "search_products",
+      "from": "1.0.5",
+      "label": "not-instruction-bearing",
+      "reason": "New text adds a quantitative capability claim ('26,000+ UK electronics products'), plain capability documentation."
+    },
+    {
+      "idx": 146,
+      "pkg": "@trustrails/mcp-server",
+      "tool": "search_products",
+      "from": "1.0.19",
+      "label": "not-instruction-bearing",
+      "reason": "Adds 'deduplicated' and 'with price comparison' \u2014 capability documentation, not a directive or cross-tool reference."
+    },
+    {
+      "idx": 147,
+      "pkg": "@drantoniou/uploadcheck-mcp",
+      "tool": "qc_estimate_cost",
+      "from": "0.1.0",
+      "label": "not-instruction-bearing",
+      "reason": "Rewording of the tool's own self-description ('Estimate checked minutes and effective QC gates'), no new directive or cross-tool content."
+    }
+  ]
+}
