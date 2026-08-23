@@ -812,6 +812,96 @@ should spend it there, not on a third lockfile format.
 and closing a gap the previous pass declared, plus fixing two stale figures the
 previous pass introduced, is not a result worth a point.
 
+## Hand-verifying the pnpm gap found a withdrawn-advisory defect (2026-08-23)
+
+The previous pass named the open task precisely: the hand review behind the
+wrong-suppression rate covers npm projects only, pnpm's dev-only
+classification is derived rather than read, and "a session with a pass to
+spend on this probe should spend it there, not on a third lockfile format."
+This pass spent it there.
+
+### What the newly-readable set actually contains
+
+Re-running the tool over every one of the 9 projects the pnpm reader and the
+repository walk had made readable but nobody had hand-verified —
+`retail-pilot-intel`'s root, its 2 apps and its 4 packages,
+`ai-engineering-academy/site`, and `real-estate-agent-photo-app/pipeline` —
+produced almost nothing to verify:
+**2 raw findings total, both the same advisory** (`GHSA-gv7w-rqvm-qjhr`,
+`esbuild@0.25.12`, on `retail-pilot-intel/apps/docs` and `apps/portal`), both
+suppressed `dev-only`. Every other project in the set — including all of
+`ai-engineering-academy/site` and `real-estate-agent-photo-app/pipeline` —
+matched no advisory at all.
+
+### Reading the advisory's own text, as the existing methodology requires
+
+The hand-review methodology this probe already established (the
+[wrong-suppression pass](#wrong-suppression-rate-hand-verified-2026-08-21))
+says to read the advisory text, not just trust the rule's verdict. Doing that
+for this one showed its title starts with the words **"Withdrawn Advisory"**:
+GitHub's advisory database retracted `GHSA-gv7w-rqvm-qjhr` outright, because
+the vulnerability it describes belongs to an npm-unrelated Deno module, never
+to the npm `esbuild` package this feed had it filed under.
+`triage.advisories.advisory_from_osv` had no code path that read OSV's
+`withdrawn` field — every advisory the feed shipped was treated as live,
+retracted or not. `pyflakes`-clean, `advisory_from_osv` now returns an
+advisory with no affected ranges when `withdrawn` is set, which both existing
+call sites already drop the same way they drop an advisory naming no package.
+Pinned by `tests/test_advisories.py`, a file this module had none of before.
+
+**654 of the current feed's 227,165 npm records (0.29%) are withdrawn.** Rare,
+but not rare enough that one hadn't already reached a suppressed finding in
+the sample this probe had already hand-verified.
+
+### The same defect was already inside the 7-product npm sample
+
+Re-running `run_portfolio_sample.py` against the fix over the original
+7-product sample turned up two more withdrawn records behaving the same way —
+`GHSA-8h3q-9fpp-c883` (`wrangler`, withdrawn as a duplicate of another
+advisory) and `GHSA-p5wg-g6qr-c7cg` (`eslint`, withdrawn) — both matched by the
+same `dependency-path` rule that caught the esbuild one. All three together
+account for 3 of the 53 distinct claims and 5 of the 102 raw findings the
+2026-08-21 pass hand-verified as correctly-reasoned suppressions — and they
+were: nothing about *how* the rule suppressed them was wrong, only the
+advisory feed handed the rule three records the database itself had retracted.
+`ACCURACY_DISTINCT_CLAIMS` and `ACCURACY_RAW_FINDINGS` in
+[`evidence.py`](src/triage/evidence.py) move to 50 and 97; `ACCURACY_WRONG_CLAIMS`
+stays 0, because none of the 50 surviving claims changed verdict.
+
+**A category the 2026-08-21 pass never measured: is an *unsuppressed* finding
+real?** Two of the three withdrawn advisories were also reported — on a
+different, deploying product — as **shipped**, not suppressed:
+`ai-first-markets` had 3 findings reported as live vulnerabilities before this
+fix (`GHSA-gv7w-rqvm-qjhr`, `GHSA-8h3q-9fpp-c883`, and the real one,
+`GHSA-f88m-g3jw-g9cj` — `sharp` inheriting a libvips CVE), and
+`local-site-studio` had 1 (`GHSA-gv7w-rqvm-qjhr`). After the fix, both drop to
+just the real `sharp` finding. Two-thirds of what `ai-first-markets` was
+reporting as deployed vulnerabilities were noise from retracted advisory
+records — a false alarm, the opposite failure mode from a wrong suppression,
+and one this probe had never checked for because its whole methodology was
+built to catch the other direction.
+
+### What this closes, and what it does not
+
+As of this pass, there is nothing left unverified in the set that opened the
+gap: all 9 previously-unchecked projects produce zero findings once withdrawn
+records are excluded, and the npm sample's own hand-verified suppressions are
+now net of the same defect. This is a point-in-time result. It does not mean
+pnpm's derived dev-only classification has been proven correct in general —
+that claim still rests on the structural reasoning in
+["An edge the reader cannot follow no longer disappears"](#an-edge-the-reader-cannot-follow-no-longer-disappears)
+above, not on a hand review, because there was nothing but the one withdrawn
+advisory for a hand review to exercise. A pnpm project with a real, live
+suppressed finding still has not been hand-verified; there has not yet been
+one to check.
+
+Full per-record detail: [`withdrawn-advisories-2026-08-23.json`](withdrawn-advisories-2026-08-23.json).
+
+**No score moved.** No revenue; the $0 ceiling is unchanged. This closes a
+gap the previous two passes each named and neither closed, which is the
+whole reason it was the next thing to spend a pass on rather than a fourth
+lockfile format.
+
 ## Usage
 
 ```bash

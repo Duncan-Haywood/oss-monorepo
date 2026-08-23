@@ -80,10 +80,39 @@ NOT_AN_ATTESTATION = (
 #: one-time hand review of real advisories against real lockfile evidence, not
 #: something a test suite regenerates on every run.
 ACCURACY_VERIFIED_ON = "2026-08-21"
-ACCURACY_DISTINCT_CLAIMS = 53
+ACCURACY_DISTINCT_CLAIMS = 50
 ACCURACY_WRONG_CLAIMS = 0
-ACCURACY_RAW_FINDINGS = 102
+ACCURACY_RAW_FINDINGS = 97
 ACCURACY_WRONG_RAW_FINDINGS = 0
+
+#: `advisory_from_osv` gained a filter for OSV's `withdrawn` field on this
+#: date, found while hand-verifying the two `esbuild` suppressions that were
+#: the entire yield of re-running the tool over the nine projects the pnpm
+#: reader newly made visible (`retail-pilot-intel`'s seven packages plus two
+#: other no-deployment-mode projects) — the specific gap the note below used
+#: to describe as unclosed. Reading the advisory GHSA-gv7w-rqvm-qjhr actually
+#: named showed it had been withdrawn: GitHub's own advisory database retracted
+#: it as a misattribution, the affected package was never npm `esbuild` at
+#: all. `advisory_from_osv` had no field for `withdrawn` and matched it anyway.
+#: Re-running the original 7-product sample against the fix found two more
+#: withdrawn records doing the same thing — GHSA-8h3q-9fpp-c883 (`wrangler`,
+#: withdrawn as a duplicate) and GHSA-p5wg-g6qr-c7cg (`eslint`, withdrawn) —
+#: for 3 of the figures above's original 53 distinct claims and 5 of the
+#: original 102 raw findings, all three previously verified as reasoned
+#: correctly and still are: the suppression logic was never wrong, only the
+#: advisory feed's own retracted records were being read as live ones.
+#: `ACCURACY_WRONG_CLAIMS` stays 0 because none of the surviving 50 claims
+#: changed verdict; the reasoning behind those 3 was equally sound, and the
+#: advisories underneath it are simply gone now.
+#:
+#: This is the first check of a category the note before this fix never
+#: measured: whether an *unsuppressed* finding is real, not just whether a
+#: suppressed one is safe. Two of the three withdrawn advisories were also
+#: reported unsuppressed (unrelated to the sample above, which counts only
+#: suppressions) on a project that deploys: `ai-first-markets` had 3 findings
+#: reported as live before this fix, of which only 1 (`sharp`/libvips) was
+#: real. See this probe's README for the full accounting.
+WITHDRAWN_FILTER_ADDED_ON = "2026-08-23"
 
 #: Measured by `run_repository_coverage.py` on 2026-08-23, walking the whole
 #: repository rather than the hand-written product list the verification used.
@@ -119,10 +148,12 @@ ACCURACY_NOTE = (
     "deployed artifact, the failure this tool is built to avoid.\n\n"
     "This is one portfolio's sample, not a general proof the suppression rules "
     "cannot misfire on a different project's lockfile shape: four of those "
-    "products are documentation sites, and 24 of the 102 suppressions checked "
+    "products are documentation sites, and 24 of the "
+    f"{ACCURACY_RAW_FINDINGS} suppressions checked "
     "trace to a single edge claim, `next -> postcss`. See this probe's README "
     "and `wrong-suppression-verification-2026-08-21.json` for the full "
-    "per-claim record.\n\n"
+    "per-claim record — 3 of that file's 53 entries are since superseded, see "
+    f"{WITHDRAWN_FILTER_ADDED_ON}'s note below.\n\n"
     "**The sample is also smaller than the portfolio.** Walking the whole "
     f"repository on {PORTFOLIO_MEASURED_ON} found {PORTFOLIO_MANIFESTS_FOUND} "
     f"npm manifests, of which {PORTFOLIO_MANIFESTS_ANALYSABLE} are readable by "
@@ -132,16 +163,23 @@ ACCURACY_NOTE = (
     "the tool: a rate measured on the projects it can read says nothing about "
     "the ones it cannot. Run with `--repository` to get the coverage table for "
     "your own repository rather than inheriting this one's.\n\n"
-    "**Reading a second lockfile format widened that gap rather than closing "
-    "it.** Readable went "
+    "**Reading a second lockfile format widened that gap, and closing it found "
+    "a defect this note's own sample had already absorbed.** Readable went "
     f"{PORTFOLIO_MANIFESTS_ANALYSABLE_NPM_ONLY} -> "
-    f"{PORTFOLIO_MANIFESTS_ANALYSABLE} when pnpm lockfiles became readable, "
-    f"and the verified sample stayed at {PORTFOLIO_VERIFICATION_SAMPLE}: the "
-    "hand review behind the rate above covers npm projects only, and no "
-    "equivalent review has been done on a pnpm one. The rate is therefore not "
-    "evidence about this tool's behaviour on a pnpm lockfile, whose dev-only "
-    "classification is derived by reachability rather than read from a stored "
-    "flag."
+    f"{PORTFOLIO_MANIFESTS_ANALYSABLE} when pnpm lockfiles became readable, and "
+    f"the verified sample stayed at {PORTFOLIO_VERIFICATION_SAMPLE} npm "
+    "products: the hand review above covers npm only. Re-running the tool over "
+    "the other 9 — `retail-pilot-intel`'s 7 pnpm packages plus 2 more npm "
+    f"projects with no deployment mode — found exactly 2 raw findings, both the "
+    "same advisory, both suppressed `dev-only`. Reading that advisory's actual "
+    "text to hand-verify it is what surfaced the defect above: it had been "
+    "withdrawn by the database that published it, and `advisory_from_osv` had "
+    "no filter for that field. Once withdrawn records are excluded, those 2 "
+    f"findings are 0, on all 9 — so as of {WITHDRAWN_FILTER_ADDED_ON} there is "
+    "nothing left unverified in the set that opened this gap, though a fresh "
+    "advisory landing on one of those 9 tomorrow would reopen it; this is a "
+    "point-in-time result, not a structural guarantee the way the dev-only "
+    "reachability logic itself is."
 )
 
 
