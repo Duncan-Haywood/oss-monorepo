@@ -1,7 +1,7 @@
 # mcp-drift-watch
 
 **Probe for [`mcp-supply-chain-watch`](../../candidates/mcp-supply-chain-watch.md).**
-Built 2026-08-22. 104 tests. Not published, not a graduation. `ai_leverage`
+Built 2026-08-22. 116 tests. Not published, not a graduation. `ai_leverage`
 moved once (6 → 7); still capped by `defensibility` at 3.
 
 Pin what a connected MCP server declared, diff it on re-poll, classify what
@@ -36,9 +36,126 @@ used to answer the question its research left open.
 >
 > **A fifth pass, 2026-08-23**, measured that last sentence on the classifier it
 > indicts — the shipped one, the only one a customer is ever shown a figure
-> from — and it is the section immediately below. The consequence holds and the
-> shape does not: there is no well-watched population. The record now discloses
-> the split.
+> from. The consequence holds and the shape does not: there is no well-watched
+> population. The record now discloses the split.
+>
+> **A sixth pass, 2026-08-23**, applied the fifth pass's own instrument to the
+> figures it left pooled — the *model's*, which are the ones this candidate's
+> `ai_leverage` score actually rests on — and it is the section immediately
+> below. "There is no well-watched population" turns out to be a property of
+> the rules, not of the class: on the same publishers, the same corpora and the
+> same labels, the model has one.
+
+## Sixth pass, 2026-08-23: the fifth pass split the figures the record quotes, not the ones the score rests on
+
+The fifth pass indicted, and then split, "every accuracy figure this probe
+publishes." It split the shipped rules. It did not split the model — and the
+model's figures are the ones that moved a score: `ai_leverage` 6 → 7 cited the
+corpus-2 model pass, and the third pass weighed the corpus-3 one. So the fifth
+pass reproduced, one level up, the error it was written to correct: it laid a
+charge against every published figure, measured it on the ones a *customer* is
+shown, and left the ones a *decision* was made on pooled.
+
+[`score_model_by_publisher.py`](score_model_by_publisher.py) splits them, from
+the committed blind passes — no model is re-run and nothing reaches the
+network. Same corpora, same hand labels, same borderline calls, and literally
+`score_by_publisher.summarise`; the only column that changes is the
+classifier's. A test asserts the reused instrument reproduces the fifth pass's
+committed rules table field for field, so any gap between the two columns is
+the classifier and not the scorer.
+
+### The fifth pass's structural finding is a property of the rules
+
+| pooled over both corpora, 16 publishers with a qualifying change | shipped rules | model |
+|---|---:|---:|
+| median per-publisher recall | 0.00 | **1.00** |
+| publishers it caught nothing at all on | 9 of 16 | **1 of 16** |
+| qualifying changes caught (change-weighted) | 9 of 66 | **62 of 66** |
+| recall on the largest publisher, corpus 2 (`@naumu/mcp`, 59% of that corpus's positives) | 0.20 | **0.90** |
+| recall on the largest publisher, corpus 3 (`intodns-mcp`, 43%) | 0.095 | **1.00** |
+
+The fifth pass's sharpest commercial line was that "the servers generating the
+most work for a subscriber are the ones it is worst on, because bulk rewrites
+are where the cross-tool routing class lives." That reads as a fact about the
+class. It is a fact about regexes: on those same two publishers a method
+already measured on these corpora scores 0.90 and 1.00. Bulk rewrites are
+where the class lives, and the model reads them.
+
+### The one comparison the small-denominator caveat does not dissolve
+
+A median of 1.00 across 16 publishers is not by itself worth much here — 12 of
+the 16 have three or fewer qualifying changes, which is the fifth pass's own
+caveat and it applies to the model unchanged. Neither is `intodns-mcp`'s 21 of
+21 an impressive twenty-one observations; it is one publisher's release
+rewrite, which both earlier passes established is one editorial decision.
+
+So restrict to the set where a recall is a rate at all — the **six** publishers
+with more than one qualifying change, six separate editorial decisions across
+two disjoint corpora — and use the fifth pass's own cutoff-free instrument:
+
+- the rules' **best** recall on any of the six is **0.333**;
+- the model's **worst** is **0.667**.
+
+The two ranges do not overlap. That is the finding, and it needs no cutoff, no
+median over coin flips, and no publisher counted twice.
+
+### The direction that runs against the model, stated as plainly
+
+Splitting the other axis does not flatter it. Pooled, the model raises **12**
+false alerts from **7** of the 44 publishers watched, against the rules' 9 from
+4; counting the borderline calls as negatives it is **18** from **12**. The
+model's advantage is recall, bought with more noise in absolute count, not less.
+
+And it dissolves the fifth pass's one genuinely customer-friendly finding. That
+pass could tell a subscriber "your noise comes from one server" — 5 of the 6
+corpus-2 false alerts came from `@sonarapp/mcp`, correctly attributed to that
+publisher's prose. The model's noise has no such source: its largest single
+contributor in the same corpus raises 3. Higher precision, less explicable
+support burden. A complaint you can attribute to one server is a complaint you
+can answer.
+
+### What this does not settle
+
+- **Still two single blind passes.** The third pass's caveat carries over word
+  for word: 0.61–0.71 and 0.93–0.96 are single measurements roughly 2–5× apart,
+  and splitting them by publisher does not make either a rate. This pass says
+  the *direction* is not an artifact of pooling; it does not say what the model's
+  per-publisher accuracy is.
+- **Nothing a subscriber sees changes.** The model is not shipped and this pass
+  does not propose shipping it. `subscriber_record.py` is untouched: it quotes
+  `classify_drift`, and every figure in it — including the fifth pass's
+  disclosure that no server is well covered — is still true of the product.
+- **A per-server rate remains unquotable in advance**, for either method. That
+  was the fifth pass's conclusion and this pass reaches it from the other side.
+- **Nothing was re-labelled.** Corpora, hand labels, borderline calls and both
+  committed model passes are untouched; only the grouping changed.
+
+**No score moved.** `ai_leverage` stays at 7. This is a second angle on the
+claim that move already rested on — the class is not rule-separable — and not
+support for a stronger one; the magnitude that would justify moving again is
+precisely what two disagreeing single passes still do not pin down, and moving
+on the more flattering reading is the error this probe's corpus-3 section is
+named for. `defensibility` at 3 is untouched and remains the floor that keeps
+`mcp-supply-chain-watch` from graduating under `README.md` rule 2.
+
+Twelve tests, each figure above re-derived from the raw corpora and model
+passes by plain counting rather than by calling the summariser that produced
+it, and each of the 25 asserted values mutation-checked to a neighbouring value
+and confirmed to fail. Suite 104 → 116.
+
+Reproduce (offline, from the committed corpora and model passes):
+
+```bash
+python3 -m pytest portfolio/pipeline/probes/mcp-drift-watch/ -q
+python3 score_model_by_publisher.py   # both classifiers, both corpora, per publisher
+```
+
+| File | What it is |
+|---|---|
+| `score_model_by_publisher.py` | The split: the committed model passes and the shipped rules, scored per publisher by the same summariser, on both corpora and under both borderline conventions. |
+| `model-publisher-split-2026-08-23.json` | That run, committed: every publisher's counts under each classifier, and the side-by-side the section above quotes. |
+
+---
 
 ## Fifth pass, 2026-08-23: the consequence the fourth pass named, measured on the shipped rules
 
