@@ -1,0 +1,2121 @@
+{
+ "model": "the committed blind passes, unmodified -- what `ai_leverage` rests on",
+ "rules": "classify_drift.classify(strict=True), unmodified -- what the record quotes",
+ "corpora": {
+  "corpus 2": {
+   "model": {
+    "borderline_counted_as_positive": {
+     "changes": 136,
+     "publishers": 23,
+     "publishers_with_a_qualifying_change": 8,
+     "aggregate": {
+      "true_positives": 15,
+      "false_positives": 10,
+      "false_negatives": 2,
+      "true_negatives": 109,
+      "precision": 0.6,
+      "recall": 0.882,
+      "f1": 0.714
+     },
+     "median_per_publisher_recall": 1.0,
+     "publishers_caught_nothing": [
+      "@adeu/mcp-server"
+     ],
+     "publishers_catching_everything": {
+      "@gency-ai/gency-mcp": 1,
+      "@meetlark/mcp-server": 1,
+      "@picsha-ai/mcp-server": 1,
+      "@sonarapp/mcp": 1,
+      "@tuteliq/mcp": 1,
+      "bizmuse-mcp": 1
+     },
+     "best_recall_where_more_than_one_qualifying_change": {
+      "pkg": "@naumu/mcp",
+      "qualifying_changes": 10,
+      "recall": 0.9
+     },
+     "largest_publisher": {
+      "pkg": "@naumu/mcp",
+      "qualifying_changes": 10,
+      "share_of_corpus_positives": 0.588,
+      "recall": 0.9
+     },
+     "total_qualifying_changes": 17,
+     "false_alerts": {
+      "total": 10,
+      "publishers_producing_one": [
+       "@agenttrust/mcp-server",
+       "@flydocs/cli",
+       "@gency-ai/gency-mcp",
+       "@naumu/mcp",
+       "@starreel/mcp",
+       "@traderouter/trade-router-mcp"
+      ],
+      "largest_source": {
+       "pkg": "@naumu/mcp",
+       "false_alerts": 3
+      }
+     },
+     "per_publisher": {
+      "@naumu/mcp": {
+       "changes": 14,
+       "qualifying_changes": 10,
+       "caught": 9,
+       "flagged": 12,
+       "false_alerts": 3,
+       "recall": 0.9
+      },
+      "@sonarapp/mcp": {
+       "changes": 10,
+       "qualifying_changes": 1,
+       "caught": 1,
+       "flagged": 1,
+       "false_alerts": 0,
+       "recall": 1.0
+      },
+      "@tuteliq/mcp": {
+       "changes": 25,
+       "qualifying_changes": 1,
+       "caught": 1,
+       "flagged": 1,
+       "false_alerts": 0,
+       "recall": 1.0
+      },
+      "@adeu/mcp-server": {
+       "changes": 6,
+       "qualifying_changes": 1,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": 0.0
+      },
+      "bizmuse-mcp": {
+       "changes": 7,
+       "qualifying_changes": 1,
+       "caught": 1,
+       "flagged": 1,
+       "false_alerts": 0,
+       "recall": 1.0
+      },
+      "@gency-ai/gency-mcp": {
+       "changes": 11,
+       "qualifying_changes": 1,
+       "caught": 1,
+       "flagged": 2,
+       "false_alerts": 1,
+       "recall": 1.0
+      },
+      "@meetlark/mcp-server": {
+       "changes": 2,
+       "qualifying_changes": 1,
+       "caught": 1,
+       "flagged": 1,
+       "false_alerts": 0,
+       "recall": 1.0
+      },
+      "@picsha-ai/mcp-server": {
+       "changes": 1,
+       "qualifying_changes": 1,
+       "caught": 1,
+       "flagged": 1,
+       "false_alerts": 0,
+       "recall": 1.0
+      },
+      "@traderouter/trade-router-mcp": {
+       "changes": 4,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 2,
+       "false_alerts": 2,
+       "recall": null
+      },
+      "@htmldrop.app/mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@flydocs/cli": {
+       "changes": 9,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 2,
+       "false_alerts": 2,
+       "recall": null
+      },
+      "@monnet/mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@bluesprincemedia/thiri-mcp": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "buywhere-mcp": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@buywhere/mcp-server": {
+       "changes": 5,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@elfa-ai/mcp": {
+       "changes": 3,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@shiplightai/mcp": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@starreel/mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 1,
+       "false_alerts": 1,
+       "recall": null
+      },
+      "@usestring/mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "crawlio-browser": {
+       "changes": 21,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@takehub/mcp": {
+       "changes": 3,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "affiliate-networks-mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@agenttrust/mcp-server": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 1,
+       "false_alerts": 1,
+       "recall": null
+      }
+     }
+    },
+    "borderline_counted_as_negative": {
+     "changes": 136,
+     "publishers": 23,
+     "publishers_with_a_qualifying_change": 6,
+     "aggregate": {
+      "true_positives": 12,
+      "false_positives": 13,
+      "false_negatives": 2,
+      "true_negatives": 109,
+      "precision": 0.48,
+      "recall": 0.857,
+      "f1": 0.615
+     },
+     "median_per_publisher_recall": 1.0,
+     "publishers_caught_nothing": [
+      "@adeu/mcp-server"
+     ],
+     "publishers_catching_everything": {
+      "@gency-ai/gency-mcp": 1,
+      "@meetlark/mcp-server": 1,
+      "@picsha-ai/mcp-server": 1,
+      "@tuteliq/mcp": 1
+     },
+     "best_recall_where_more_than_one_qualifying_change": {
+      "pkg": "@naumu/mcp",
+      "qualifying_changes": 9,
+      "recall": 0.889
+     },
+     "largest_publisher": {
+      "pkg": "@naumu/mcp",
+      "qualifying_changes": 9,
+      "share_of_corpus_positives": 0.643,
+      "recall": 0.889
+     },
+     "total_qualifying_changes": 14,
+     "false_alerts": {
+      "total": 13,
+      "publishers_producing_one": [
+       "@agenttrust/mcp-server",
+       "@flydocs/cli",
+       "@gency-ai/gency-mcp",
+       "@naumu/mcp",
+       "@sonarapp/mcp",
+       "@starreel/mcp",
+       "@traderouter/trade-router-mcp",
+       "bizmuse-mcp"
+      ],
+      "largest_source": {
+       "pkg": "@naumu/mcp",
+       "false_alerts": 4
+      }
+     },
+     "per_publisher": {
+      "@naumu/mcp": {
+       "changes": 14,
+       "qualifying_changes": 9,
+       "caught": 8,
+       "flagged": 12,
+       "false_alerts": 4,
+       "recall": 0.889
+      },
+      "@tuteliq/mcp": {
+       "changes": 25,
+       "qualifying_changes": 1,
+       "caught": 1,
+       "flagged": 1,
+       "false_alerts": 0,
+       "recall": 1.0
+      },
+      "@adeu/mcp-server": {
+       "changes": 6,
+       "qualifying_changes": 1,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": 0.0
+      },
+      "@gency-ai/gency-mcp": {
+       "changes": 11,
+       "qualifying_changes": 1,
+       "caught": 1,
+       "flagged": 2,
+       "false_alerts": 1,
+       "recall": 1.0
+      },
+      "@meetlark/mcp-server": {
+       "changes": 2,
+       "qualifying_changes": 1,
+       "caught": 1,
+       "flagged": 1,
+       "false_alerts": 0,
+       "recall": 1.0
+      },
+      "@picsha-ai/mcp-server": {
+       "changes": 1,
+       "qualifying_changes": 1,
+       "caught": 1,
+       "flagged": 1,
+       "false_alerts": 0,
+       "recall": 1.0
+      },
+      "@traderouter/trade-router-mcp": {
+       "changes": 4,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 2,
+       "false_alerts": 2,
+       "recall": null
+      },
+      "@htmldrop.app/mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@sonarapp/mcp": {
+       "changes": 10,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 1,
+       "false_alerts": 1,
+       "recall": null
+      },
+      "@flydocs/cli": {
+       "changes": 9,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 2,
+       "false_alerts": 2,
+       "recall": null
+      },
+      "@monnet/mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@bluesprincemedia/thiri-mcp": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "bizmuse-mcp": {
+       "changes": 7,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 1,
+       "false_alerts": 1,
+       "recall": null
+      },
+      "buywhere-mcp": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@buywhere/mcp-server": {
+       "changes": 5,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@elfa-ai/mcp": {
+       "changes": 3,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@shiplightai/mcp": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@starreel/mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 1,
+       "false_alerts": 1,
+       "recall": null
+      },
+      "@usestring/mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "crawlio-browser": {
+       "changes": 21,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@takehub/mcp": {
+       "changes": 3,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "affiliate-networks-mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@agenttrust/mcp-server": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 1,
+       "false_alerts": 1,
+       "recall": null
+      }
+     }
+    }
+   },
+   "rules": {
+    "borderline_counted_as_positive": {
+     "changes": 136,
+     "publishers": 23,
+     "publishers_with_a_qualifying_change": 8,
+     "aggregate": {
+      "true_positives": 4,
+      "false_positives": 6,
+      "false_negatives": 13,
+      "true_negatives": 113,
+      "precision": 0.4,
+      "recall": 0.235,
+      "f1": 0.296
+     },
+     "median_per_publisher_recall": 0.0,
+     "publishers_caught_nothing": [
+      "@adeu/mcp-server",
+      "@gency-ai/gency-mcp",
+      "@picsha-ai/mcp-server",
+      "@sonarapp/mcp",
+      "bizmuse-mcp"
+     ],
+     "publishers_catching_everything": {
+      "@meetlark/mcp-server": 1,
+      "@tuteliq/mcp": 1
+     },
+     "best_recall_where_more_than_one_qualifying_change": {
+      "pkg": "@naumu/mcp",
+      "qualifying_changes": 10,
+      "recall": 0.2
+     },
+     "largest_publisher": {
+      "pkg": "@naumu/mcp",
+      "qualifying_changes": 10,
+      "share_of_corpus_positives": 0.588,
+      "recall": 0.2
+     },
+     "total_qualifying_changes": 17,
+     "false_alerts": {
+      "total": 6,
+      "publishers_producing_one": [
+       "@sonarapp/mcp",
+       "crawlio-browser"
+      ],
+      "largest_source": {
+       "pkg": "@sonarapp/mcp",
+       "false_alerts": 5
+      }
+     },
+     "per_publisher": {
+      "@naumu/mcp": {
+       "changes": 14,
+       "qualifying_changes": 10,
+       "caught": 2,
+       "flagged": 2,
+       "false_alerts": 0,
+       "recall": 0.2
+      },
+      "@sonarapp/mcp": {
+       "changes": 10,
+       "qualifying_changes": 1,
+       "caught": 0,
+       "flagged": 5,
+       "false_alerts": 5,
+       "recall": 0.0
+      },
+      "@tuteliq/mcp": {
+       "changes": 25,
+       "qualifying_changes": 1,
+       "caught": 1,
+       "flagged": 1,
+       "false_alerts": 0,
+       "recall": 1.0
+      },
+      "@adeu/mcp-server": {
+       "changes": 6,
+       "qualifying_changes": 1,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": 0.0
+      },
+      "bizmuse-mcp": {
+       "changes": 7,
+       "qualifying_changes": 1,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": 0.0
+      },
+      "@gency-ai/gency-mcp": {
+       "changes": 11,
+       "qualifying_changes": 1,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": 0.0
+      },
+      "@meetlark/mcp-server": {
+       "changes": 2,
+       "qualifying_changes": 1,
+       "caught": 1,
+       "flagged": 1,
+       "false_alerts": 0,
+       "recall": 1.0
+      },
+      "@picsha-ai/mcp-server": {
+       "changes": 1,
+       "qualifying_changes": 1,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": 0.0
+      },
+      "@traderouter/trade-router-mcp": {
+       "changes": 4,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@htmldrop.app/mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@flydocs/cli": {
+       "changes": 9,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@monnet/mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@bluesprincemedia/thiri-mcp": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "buywhere-mcp": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@buywhere/mcp-server": {
+       "changes": 5,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@elfa-ai/mcp": {
+       "changes": 3,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@shiplightai/mcp": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@starreel/mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@usestring/mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "crawlio-browser": {
+       "changes": 21,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 1,
+       "false_alerts": 1,
+       "recall": null
+      },
+      "@takehub/mcp": {
+       "changes": 3,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "affiliate-networks-mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@agenttrust/mcp-server": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      }
+     }
+    },
+    "borderline_counted_as_negative": {
+     "changes": 136,
+     "publishers": 23,
+     "publishers_with_a_qualifying_change": 6,
+     "aggregate": {
+      "true_positives": 4,
+      "false_positives": 6,
+      "false_negatives": 10,
+      "true_negatives": 116,
+      "precision": 0.4,
+      "recall": 0.286,
+      "f1": 0.333
+     },
+     "median_per_publisher_recall": 0.111,
+     "publishers_caught_nothing": [
+      "@adeu/mcp-server",
+      "@gency-ai/gency-mcp",
+      "@picsha-ai/mcp-server"
+     ],
+     "publishers_catching_everything": {
+      "@meetlark/mcp-server": 1,
+      "@tuteliq/mcp": 1
+     },
+     "best_recall_where_more_than_one_qualifying_change": {
+      "pkg": "@naumu/mcp",
+      "qualifying_changes": 9,
+      "recall": 0.222
+     },
+     "largest_publisher": {
+      "pkg": "@naumu/mcp",
+      "qualifying_changes": 9,
+      "share_of_corpus_positives": 0.643,
+      "recall": 0.222
+     },
+     "total_qualifying_changes": 14,
+     "false_alerts": {
+      "total": 6,
+      "publishers_producing_one": [
+       "@sonarapp/mcp",
+       "crawlio-browser"
+      ],
+      "largest_source": {
+       "pkg": "@sonarapp/mcp",
+       "false_alerts": 5
+      }
+     },
+     "per_publisher": {
+      "@naumu/mcp": {
+       "changes": 14,
+       "qualifying_changes": 9,
+       "caught": 2,
+       "flagged": 2,
+       "false_alerts": 0,
+       "recall": 0.222
+      },
+      "@tuteliq/mcp": {
+       "changes": 25,
+       "qualifying_changes": 1,
+       "caught": 1,
+       "flagged": 1,
+       "false_alerts": 0,
+       "recall": 1.0
+      },
+      "@adeu/mcp-server": {
+       "changes": 6,
+       "qualifying_changes": 1,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": 0.0
+      },
+      "@gency-ai/gency-mcp": {
+       "changes": 11,
+       "qualifying_changes": 1,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": 0.0
+      },
+      "@meetlark/mcp-server": {
+       "changes": 2,
+       "qualifying_changes": 1,
+       "caught": 1,
+       "flagged": 1,
+       "false_alerts": 0,
+       "recall": 1.0
+      },
+      "@picsha-ai/mcp-server": {
+       "changes": 1,
+       "qualifying_changes": 1,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": 0.0
+      },
+      "@traderouter/trade-router-mcp": {
+       "changes": 4,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@htmldrop.app/mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@sonarapp/mcp": {
+       "changes": 10,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 5,
+       "false_alerts": 5,
+       "recall": null
+      },
+      "@flydocs/cli": {
+       "changes": 9,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@monnet/mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@bluesprincemedia/thiri-mcp": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "bizmuse-mcp": {
+       "changes": 7,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "buywhere-mcp": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@buywhere/mcp-server": {
+       "changes": 5,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@elfa-ai/mcp": {
+       "changes": 3,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@shiplightai/mcp": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@starreel/mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@usestring/mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "crawlio-browser": {
+       "changes": 21,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 1,
+       "false_alerts": 1,
+       "recall": null
+      },
+      "@takehub/mcp": {
+       "changes": 3,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "affiliate-networks-mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@agenttrust/mcp-server": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      }
+     }
+    }
+   },
+   "comparison": {
+    "borderline_counted_as_positive": {
+     "median_per_publisher_recall": {
+      "rules": 0.0,
+      "model": 1.0
+     },
+     "publishers_with_a_qualifying_change": 8,
+     "publishers_caught_nothing": {
+      "rules": 5,
+      "model": 1
+     },
+     "best_recall_where_more_than_one_qualifying_change": {
+      "rules": {
+       "pkg": "@naumu/mcp",
+       "qualifying_changes": 10,
+       "recall": 0.2
+      },
+      "model": {
+       "pkg": "@naumu/mcp",
+       "qualifying_changes": 10,
+       "recall": 0.9
+      }
+     },
+     "largest_publisher": {
+      "pkg": "@naumu/mcp",
+      "qualifying_changes": 10,
+      "share_of_corpus_positives": 0.588,
+      "rules_recall": 0.2,
+      "model_recall": 0.9
+     },
+     "false_alerts": {
+      "rules": {
+       "total": 6,
+       "publishers": 2,
+       "largest_source": {
+        "pkg": "@sonarapp/mcp",
+        "false_alerts": 5
+       }
+      },
+      "model": {
+       "total": 10,
+       "publishers": 6,
+       "largest_source": {
+        "pkg": "@naumu/mcp",
+        "false_alerts": 3
+       }
+      }
+     }
+    },
+    "borderline_counted_as_negative": {
+     "median_per_publisher_recall": {
+      "rules": 0.111,
+      "model": 1.0
+     },
+     "publishers_with_a_qualifying_change": 6,
+     "publishers_caught_nothing": {
+      "rules": 3,
+      "model": 1
+     },
+     "best_recall_where_more_than_one_qualifying_change": {
+      "rules": {
+       "pkg": "@naumu/mcp",
+       "qualifying_changes": 9,
+       "recall": 0.222
+      },
+      "model": {
+       "pkg": "@naumu/mcp",
+       "qualifying_changes": 9,
+       "recall": 0.889
+      }
+     },
+     "largest_publisher": {
+      "pkg": "@naumu/mcp",
+      "qualifying_changes": 9,
+      "share_of_corpus_positives": 0.643,
+      "rules_recall": 0.222,
+      "model_recall": 0.889
+     },
+     "false_alerts": {
+      "rules": {
+       "total": 6,
+       "publishers": 2,
+       "largest_source": {
+        "pkg": "@sonarapp/mcp",
+        "false_alerts": 5
+       }
+      },
+      "model": {
+       "total": 13,
+       "publishers": 8,
+       "largest_source": {
+        "pkg": "@naumu/mcp",
+        "false_alerts": 4
+       }
+      }
+     }
+    }
+   },
+   "multi_positive_recalls": {
+    "borderline_counted_as_positive": {
+     "model": {
+      "@naumu/mcp": 0.9
+     },
+     "rules": {
+      "@naumu/mcp": 0.2
+     }
+    },
+    "borderline_counted_as_negative": {
+     "model": {
+      "@naumu/mcp": 0.889
+     },
+     "rules": {
+      "@naumu/mcp": 0.222
+     }
+    }
+   }
+  },
+  "corpus 3": {
+   "model": {
+    "borderline_counted_as_positive": {
+     "changes": 148,
+     "publishers": 21,
+     "publishers_with_a_qualifying_change": 8,
+     "aggregate": {
+      "true_positives": 47,
+      "false_positives": 2,
+      "false_negatives": 2,
+      "true_negatives": 97,
+      "precision": 0.959,
+      "recall": 0.959,
+      "f1": 0.959
+     },
+     "median_per_publisher_recall": 1.0,
+     "publishers_caught_nothing": [],
+     "publishers_catching_everything": {
+      "@clize/clize": 1,
+      "@i18n-agent/mcp-client": 3,
+      "@wpconvert/mcp": 6,
+      "devglow-mcp": 1,
+      "intodns-mcp": 21,
+      "ponlo-ai": 1
+     },
+     "best_recall_where_more_than_one_qualifying_change": {
+      "pkg": "@i18n-agent/mcp-client",
+      "qualifying_changes": 3,
+      "recall": 1.0
+     },
+     "largest_publisher": {
+      "pkg": "intodns-mcp",
+      "qualifying_changes": 21,
+      "share_of_corpus_positives": 0.429,
+      "recall": 1.0
+     },
+     "total_qualifying_changes": 49,
+     "false_alerts": {
+      "total": 2,
+      "publishers_producing_one": [
+       "intodns-mcp"
+      ],
+      "largest_source": {
+       "pkg": "intodns-mcp",
+       "false_alerts": 2
+      }
+     },
+     "per_publisher": {
+      "intodns-mcp": {
+       "changes": 33,
+       "qualifying_changes": 21,
+       "caught": 21,
+       "flagged": 23,
+       "false_alerts": 2,
+       "recall": 1.0
+      },
+      "@oobe-protocol-labs/sap-mcp-server": {
+       "changes": 36,
+       "qualifying_changes": 13,
+       "caught": 12,
+       "flagged": 12,
+       "false_alerts": 0,
+       "recall": 0.923
+      },
+      "@wpconvert/mcp": {
+       "changes": 9,
+       "qualifying_changes": 6,
+       "caught": 6,
+       "flagged": 6,
+       "false_alerts": 0,
+       "recall": 1.0
+      },
+      "autonomad-travel": {
+       "changes": 7,
+       "qualifying_changes": 3,
+       "caught": 2,
+       "flagged": 2,
+       "false_alerts": 0,
+       "recall": 0.667
+      },
+      "@i18n-agent/mcp-client": {
+       "changes": 5,
+       "qualifying_changes": 3,
+       "caught": 3,
+       "flagged": 3,
+       "false_alerts": 0,
+       "recall": 1.0
+      },
+      "@clize/clize": {
+       "changes": 8,
+       "qualifying_changes": 1,
+       "caught": 1,
+       "flagged": 1,
+       "false_alerts": 0,
+       "recall": 1.0
+      },
+      "ponlo-ai": {
+       "changes": 7,
+       "qualifying_changes": 1,
+       "caught": 1,
+       "flagged": 1,
+       "false_alerts": 0,
+       "recall": 1.0
+      },
+      "devglow-mcp": {
+       "changes": 4,
+       "qualifying_changes": 1,
+       "caught": 1,
+       "flagged": 1,
+       "false_alerts": 0,
+       "recall": 1.0
+      },
+      "@clawfetch/mcp": {
+       "changes": 5,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@optimalai/optibot-mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@ai-dossier/mcp-server": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "nocturnusai-mcp": {
+       "changes": 14,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@spideriq/mcp-publish": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@variel/mcp-server": {
+       "changes": 3,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "verifox-mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "todoglow-mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@faqai/mcp-server": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@humanform/mcp": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@odyssey365/mcp-server": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@trustrails/mcp-server": {
+       "changes": 3,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@drantoniou/uploadcheck-mcp": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      }
+     }
+    },
+    "borderline_counted_as_negative": {
+     "changes": 148,
+     "publishers": 21,
+     "publishers_with_a_qualifying_change": 7,
+     "aggregate": {
+      "true_positives": 44,
+      "false_positives": 5,
+      "false_negatives": 2,
+      "true_negatives": 97,
+      "precision": 0.898,
+      "recall": 0.957,
+      "f1": 0.926
+     },
+     "median_per_publisher_recall": 1.0,
+     "publishers_caught_nothing": [],
+     "publishers_catching_everything": {
+      "@i18n-agent/mcp-client": 2,
+      "@wpconvert/mcp": 5,
+      "devglow-mcp": 1,
+      "intodns-mcp": 21,
+      "ponlo-ai": 1
+     },
+     "best_recall_where_more_than_one_qualifying_change": {
+      "pkg": "@i18n-agent/mcp-client",
+      "qualifying_changes": 2,
+      "recall": 1.0
+     },
+     "largest_publisher": {
+      "pkg": "intodns-mcp",
+      "qualifying_changes": 21,
+      "share_of_corpus_positives": 0.457,
+      "recall": 1.0
+     },
+     "total_qualifying_changes": 46,
+     "false_alerts": {
+      "total": 5,
+      "publishers_producing_one": [
+       "@clize/clize",
+       "@i18n-agent/mcp-client",
+       "@wpconvert/mcp",
+       "intodns-mcp"
+      ],
+      "largest_source": {
+       "pkg": "intodns-mcp",
+       "false_alerts": 2
+      }
+     },
+     "per_publisher": {
+      "intodns-mcp": {
+       "changes": 33,
+       "qualifying_changes": 21,
+       "caught": 21,
+       "flagged": 23,
+       "false_alerts": 2,
+       "recall": 1.0
+      },
+      "@oobe-protocol-labs/sap-mcp-server": {
+       "changes": 36,
+       "qualifying_changes": 13,
+       "caught": 12,
+       "flagged": 12,
+       "false_alerts": 0,
+       "recall": 0.923
+      },
+      "@wpconvert/mcp": {
+       "changes": 9,
+       "qualifying_changes": 5,
+       "caught": 5,
+       "flagged": 6,
+       "false_alerts": 1,
+       "recall": 1.0
+      },
+      "autonomad-travel": {
+       "changes": 7,
+       "qualifying_changes": 3,
+       "caught": 2,
+       "flagged": 2,
+       "false_alerts": 0,
+       "recall": 0.667
+      },
+      "@i18n-agent/mcp-client": {
+       "changes": 5,
+       "qualifying_changes": 2,
+       "caught": 2,
+       "flagged": 3,
+       "false_alerts": 1,
+       "recall": 1.0
+      },
+      "ponlo-ai": {
+       "changes": 7,
+       "qualifying_changes": 1,
+       "caught": 1,
+       "flagged": 1,
+       "false_alerts": 0,
+       "recall": 1.0
+      },
+      "devglow-mcp": {
+       "changes": 4,
+       "qualifying_changes": 1,
+       "caught": 1,
+       "flagged": 1,
+       "false_alerts": 0,
+       "recall": 1.0
+      },
+      "@clawfetch/mcp": {
+       "changes": 5,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@clize/clize": {
+       "changes": 8,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 1,
+       "false_alerts": 1,
+       "recall": null
+      },
+      "@optimalai/optibot-mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@ai-dossier/mcp-server": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "nocturnusai-mcp": {
+       "changes": 14,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@spideriq/mcp-publish": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@variel/mcp-server": {
+       "changes": 3,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "verifox-mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "todoglow-mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@faqai/mcp-server": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@humanform/mcp": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@odyssey365/mcp-server": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@trustrails/mcp-server": {
+       "changes": 3,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@drantoniou/uploadcheck-mcp": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      }
+     }
+    }
+   },
+   "rules": {
+    "borderline_counted_as_positive": {
+     "changes": 148,
+     "publishers": 21,
+     "publishers_with_a_qualifying_change": 8,
+     "aggregate": {
+      "true_positives": 5,
+      "false_positives": 3,
+      "false_negatives": 44,
+      "true_negatives": 96,
+      "precision": 0.625,
+      "recall": 0.102,
+      "f1": 0.175
+     },
+     "median_per_publisher_recall": 0.048,
+     "publishers_caught_nothing": [
+      "@clize/clize",
+      "@i18n-agent/mcp-client",
+      "@oobe-protocol-labs/sap-mcp-server",
+      "ponlo-ai"
+     ],
+     "publishers_catching_everything": {
+      "devglow-mcp": 1
+     },
+     "best_recall_where_more_than_one_qualifying_change": {
+      "pkg": "autonomad-travel",
+      "qualifying_changes": 3,
+      "recall": 0.333
+     },
+     "largest_publisher": {
+      "pkg": "intodns-mcp",
+      "qualifying_changes": 21,
+      "share_of_corpus_positives": 0.429,
+      "recall": 0.095
+     },
+     "total_qualifying_changes": 49,
+     "false_alerts": {
+      "total": 3,
+      "publishers_producing_one": [
+       "@i18n-agent/mcp-client",
+       "@oobe-protocol-labs/sap-mcp-server"
+      ],
+      "largest_source": {
+       "pkg": "@oobe-protocol-labs/sap-mcp-server",
+       "false_alerts": 2
+      }
+     },
+     "per_publisher": {
+      "intodns-mcp": {
+       "changes": 33,
+       "qualifying_changes": 21,
+       "caught": 2,
+       "flagged": 2,
+       "false_alerts": 0,
+       "recall": 0.095
+      },
+      "@oobe-protocol-labs/sap-mcp-server": {
+       "changes": 36,
+       "qualifying_changes": 13,
+       "caught": 0,
+       "flagged": 2,
+       "false_alerts": 2,
+       "recall": 0.0
+      },
+      "@wpconvert/mcp": {
+       "changes": 9,
+       "qualifying_changes": 6,
+       "caught": 1,
+       "flagged": 1,
+       "false_alerts": 0,
+       "recall": 0.167
+      },
+      "autonomad-travel": {
+       "changes": 7,
+       "qualifying_changes": 3,
+       "caught": 1,
+       "flagged": 1,
+       "false_alerts": 0,
+       "recall": 0.333
+      },
+      "@i18n-agent/mcp-client": {
+       "changes": 5,
+       "qualifying_changes": 3,
+       "caught": 0,
+       "flagged": 1,
+       "false_alerts": 1,
+       "recall": 0.0
+      },
+      "@clize/clize": {
+       "changes": 8,
+       "qualifying_changes": 1,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": 0.0
+      },
+      "ponlo-ai": {
+       "changes": 7,
+       "qualifying_changes": 1,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": 0.0
+      },
+      "devglow-mcp": {
+       "changes": 4,
+       "qualifying_changes": 1,
+       "caught": 1,
+       "flagged": 1,
+       "false_alerts": 0,
+       "recall": 1.0
+      },
+      "@clawfetch/mcp": {
+       "changes": 5,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@optimalai/optibot-mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@ai-dossier/mcp-server": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "nocturnusai-mcp": {
+       "changes": 14,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@spideriq/mcp-publish": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@variel/mcp-server": {
+       "changes": 3,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "verifox-mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "todoglow-mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@faqai/mcp-server": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@humanform/mcp": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@odyssey365/mcp-server": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@trustrails/mcp-server": {
+       "changes": 3,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@drantoniou/uploadcheck-mcp": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      }
+     }
+    },
+    "borderline_counted_as_negative": {
+     "changes": 148,
+     "publishers": 21,
+     "publishers_with_a_qualifying_change": 7,
+     "aggregate": {
+      "true_positives": 5,
+      "false_positives": 3,
+      "false_negatives": 41,
+      "true_negatives": 99,
+      "precision": 0.625,
+      "recall": 0.109,
+      "f1": 0.185
+     },
+     "median_per_publisher_recall": 0.095,
+     "publishers_caught_nothing": [
+      "@i18n-agent/mcp-client",
+      "@oobe-protocol-labs/sap-mcp-server",
+      "ponlo-ai"
+     ],
+     "publishers_catching_everything": {
+      "devglow-mcp": 1
+     },
+     "best_recall_where_more_than_one_qualifying_change": {
+      "pkg": "autonomad-travel",
+      "qualifying_changes": 3,
+      "recall": 0.333
+     },
+     "largest_publisher": {
+      "pkg": "intodns-mcp",
+      "qualifying_changes": 21,
+      "share_of_corpus_positives": 0.457,
+      "recall": 0.095
+     },
+     "total_qualifying_changes": 46,
+     "false_alerts": {
+      "total": 3,
+      "publishers_producing_one": [
+       "@i18n-agent/mcp-client",
+       "@oobe-protocol-labs/sap-mcp-server"
+      ],
+      "largest_source": {
+       "pkg": "@oobe-protocol-labs/sap-mcp-server",
+       "false_alerts": 2
+      }
+     },
+     "per_publisher": {
+      "intodns-mcp": {
+       "changes": 33,
+       "qualifying_changes": 21,
+       "caught": 2,
+       "flagged": 2,
+       "false_alerts": 0,
+       "recall": 0.095
+      },
+      "@oobe-protocol-labs/sap-mcp-server": {
+       "changes": 36,
+       "qualifying_changes": 13,
+       "caught": 0,
+       "flagged": 2,
+       "false_alerts": 2,
+       "recall": 0.0
+      },
+      "@wpconvert/mcp": {
+       "changes": 9,
+       "qualifying_changes": 5,
+       "caught": 1,
+       "flagged": 1,
+       "false_alerts": 0,
+       "recall": 0.2
+      },
+      "autonomad-travel": {
+       "changes": 7,
+       "qualifying_changes": 3,
+       "caught": 1,
+       "flagged": 1,
+       "false_alerts": 0,
+       "recall": 0.333
+      },
+      "@i18n-agent/mcp-client": {
+       "changes": 5,
+       "qualifying_changes": 2,
+       "caught": 0,
+       "flagged": 1,
+       "false_alerts": 1,
+       "recall": 0.0
+      },
+      "ponlo-ai": {
+       "changes": 7,
+       "qualifying_changes": 1,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": 0.0
+      },
+      "devglow-mcp": {
+       "changes": 4,
+       "qualifying_changes": 1,
+       "caught": 1,
+       "flagged": 1,
+       "false_alerts": 0,
+       "recall": 1.0
+      },
+      "@clawfetch/mcp": {
+       "changes": 5,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@clize/clize": {
+       "changes": 8,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@optimalai/optibot-mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@ai-dossier/mcp-server": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "nocturnusai-mcp": {
+       "changes": 14,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@spideriq/mcp-publish": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@variel/mcp-server": {
+       "changes": 3,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "verifox-mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "todoglow-mcp": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@faqai/mcp-server": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@humanform/mcp": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@odyssey365/mcp-server": {
+       "changes": 2,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@trustrails/mcp-server": {
+       "changes": 3,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      },
+      "@drantoniou/uploadcheck-mcp": {
+       "changes": 1,
+       "qualifying_changes": 0,
+       "caught": 0,
+       "flagged": 0,
+       "false_alerts": 0,
+       "recall": null
+      }
+     }
+    }
+   },
+   "comparison": {
+    "borderline_counted_as_positive": {
+     "median_per_publisher_recall": {
+      "rules": 0.048,
+      "model": 1.0
+     },
+     "publishers_with_a_qualifying_change": 8,
+     "publishers_caught_nothing": {
+      "rules": 4,
+      "model": 0
+     },
+     "best_recall_where_more_than_one_qualifying_change": {
+      "rules": {
+       "pkg": "autonomad-travel",
+       "qualifying_changes": 3,
+       "recall": 0.333
+      },
+      "model": {
+       "pkg": "@i18n-agent/mcp-client",
+       "qualifying_changes": 3,
+       "recall": 1.0
+      }
+     },
+     "largest_publisher": {
+      "pkg": "intodns-mcp",
+      "qualifying_changes": 21,
+      "share_of_corpus_positives": 0.429,
+      "rules_recall": 0.095,
+      "model_recall": 1.0
+     },
+     "false_alerts": {
+      "rules": {
+       "total": 3,
+       "publishers": 2,
+       "largest_source": {
+        "pkg": "@oobe-protocol-labs/sap-mcp-server",
+        "false_alerts": 2
+       }
+      },
+      "model": {
+       "total": 2,
+       "publishers": 1,
+       "largest_source": {
+        "pkg": "intodns-mcp",
+        "false_alerts": 2
+       }
+      }
+     }
+    },
+    "borderline_counted_as_negative": {
+     "median_per_publisher_recall": {
+      "rules": 0.095,
+      "model": 1.0
+     },
+     "publishers_with_a_qualifying_change": 7,
+     "publishers_caught_nothing": {
+      "rules": 3,
+      "model": 0
+     },
+     "best_recall_where_more_than_one_qualifying_change": {
+      "rules": {
+       "pkg": "autonomad-travel",
+       "qualifying_changes": 3,
+       "recall": 0.333
+      },
+      "model": {
+       "pkg": "@i18n-agent/mcp-client",
+       "qualifying_changes": 2,
+       "recall": 1.0
+      }
+     },
+     "largest_publisher": {
+      "pkg": "intodns-mcp",
+      "qualifying_changes": 21,
+      "share_of_corpus_positives": 0.457,
+      "rules_recall": 0.095,
+      "model_recall": 1.0
+     },
+     "false_alerts": {
+      "rules": {
+       "total": 3,
+       "publishers": 2,
+       "largest_source": {
+        "pkg": "@oobe-protocol-labs/sap-mcp-server",
+        "false_alerts": 2
+       }
+      },
+      "model": {
+       "total": 5,
+       "publishers": 4,
+       "largest_source": {
+        "pkg": "intodns-mcp",
+        "false_alerts": 2
+       }
+      }
+     }
+    }
+   },
+   "multi_positive_recalls": {
+    "borderline_counted_as_positive": {
+     "model": {
+      "intodns-mcp": 1.0,
+      "@oobe-protocol-labs/sap-mcp-server": 0.923,
+      "@wpconvert/mcp": 1.0,
+      "autonomad-travel": 0.667,
+      "@i18n-agent/mcp-client": 1.0
+     },
+     "rules": {
+      "intodns-mcp": 0.095,
+      "@oobe-protocol-labs/sap-mcp-server": 0.0,
+      "@wpconvert/mcp": 0.167,
+      "autonomad-travel": 0.333,
+      "@i18n-agent/mcp-client": 0.0
+     }
+    },
+    "borderline_counted_as_negative": {
+     "model": {
+      "intodns-mcp": 1.0,
+      "@oobe-protocol-labs/sap-mcp-server": 0.923,
+      "@wpconvert/mcp": 1.0,
+      "autonomad-travel": 0.667,
+      "@i18n-agent/mcp-client": 1.0
+     },
+     "rules": {
+      "intodns-mcp": 0.095,
+      "@oobe-protocol-labs/sap-mcp-server": 0.0,
+      "@wpconvert/mcp": 0.2,
+      "autonomad-travel": 0.333,
+      "@i18n-agent/mcp-client": 0.0
+     }
+    }
+   }
+  }
+ },
+ "pooled": {
+  "borderline_counted_as_positive": {
+   "model": {
+    "publishers_with_a_qualifying_change": 16,
+    "publishers_caught_nothing": 1,
+    "median_per_publisher_recall": 1.0,
+    "caught": 62,
+    "qualifying_changes": 66,
+    "false_alerts": 12,
+    "publishers_with_a_false_alert": 7
+   },
+   "rules": {
+    "publishers_with_a_qualifying_change": 16,
+    "publishers_caught_nothing": 9,
+    "median_per_publisher_recall": 0.0,
+    "caught": 9,
+    "qualifying_changes": 66,
+    "false_alerts": 9,
+    "publishers_with_a_false_alert": 4
+   }
+  },
+  "borderline_counted_as_negative": {
+   "model": {
+    "publishers_with_a_qualifying_change": 13,
+    "publishers_caught_nothing": 1,
+    "median_per_publisher_recall": 1.0,
+    "caught": 56,
+    "qualifying_changes": 60,
+    "false_alerts": 18,
+    "publishers_with_a_false_alert": 12
+   },
+   "rules": {
+    "publishers_with_a_qualifying_change": 13,
+    "publishers_caught_nothing": 6,
+    "median_per_publisher_recall": 0.095,
+    "caught": 9,
+    "qualifying_changes": 60,
+    "false_alerts": 9,
+    "publishers_with_a_false_alert": 4
+   }
+  }
+ }
+}

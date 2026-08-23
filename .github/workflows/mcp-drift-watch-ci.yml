@@ -88,6 +88,11 @@ jobs:
       # The model pass's score is a claim in the README too, and it is derived
       # from a committed transcript rather than by calling a model here.
       - run: python3 score_model_pass.py
+      # The per-publisher split of both classifiers. This also exercises
+      # score_by_publisher.py, which it imports rather than forks — the whole
+      # comparison rests on the two being scored by one summariser, so an edit
+      # that makes them diverge must fail here.
+      - run: python3 score_model_by_publisher.py
       # The two fetching scripts are never run here, but an import or
       # argument-parsing break in them would otherwise be invisible to CI.
       - run: python3 collect_holdout.py --help
