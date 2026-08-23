@@ -1,0 +1,116 @@
+{
+  "generated_at": "2026-08-23",
+  "method": "Hand-verifying the two esbuild suppressions produced by re-running npm-reachability-triage over the 9 projects the pnpm reader and repository walk made readable but nobody had hand-verified found that the matched advisory carries a withdrawn field OSV publishes but advisory_from_osv did not read. Re-running run_portfolio_sample.py against the fix over the original 7-product npm sample surfaced two more withdrawn records the same way. This file records all three, each read directly from the OSV npm feed used for this pass.",
+  "feed": "osv-npm-all.zip (storage.googleapis.com/osv-vulnerabilities/npm/all.zip), fetched 2026-08-23",
+  "feed_wide_withdrawn_count": {
+    "total_npm_records": 227165,
+    "withdrawn_records": 654
+  },
+  "withdrawn_advisories_matched_in_this_portfolio": [
+    {
+      "id": "GHSA-gv7w-rqvm-qjhr",
+      "withdrawn": "2026-06-17T13:42:24Z",
+      "summary": "Withdrawn Advisory: esbuild: Missing binary integrity verification in Deno module enables remote code execution via NPM_CONFIG_REGISTRY",
+      "affected_package": "esbuild",
+      "why_withdrawn": "misattributed to the wrong ecosystem (the real affected package is a Deno-only module, not npm esbuild)"
+    },
+    {
+      "id": "GHSA-8h3q-9fpp-c883",
+      "withdrawn": "2026-01-21T23:00:08Z",
+      "summary": "Duplicate Advisory: Wrangler affected by OS Command Injection in `wrangler pages deploy`",
+      "affected_package": "wrangler",
+      "why_withdrawn": "withdrawn as a duplicate of another advisory"
+    },
+    {
+      "id": "GHSA-p5wg-g6qr-c7cg",
+      "withdrawn": "2026-02-03T17:43:56Z",
+      "summary": "Withdrawn Advisory: eslint has a Stack Overflow when serializing objects with circular references",
+      "affected_package": "eslint",
+      "why_withdrawn": "withdrawn outright"
+    }
+  ],
+  "effect_on_the_2026-08-21_hand_verified_sample": {
+    "sample": "7 npm products, run_portfolio_sample.py",
+    "before_fix": {
+      "raw_findings": 132,
+      "deployed_shipped": 30,
+      "suppressed": 102,
+      "distinct_suppression_claims": 53
+    },
+    "after_fix": {
+      "raw_findings": 124,
+      "deployed_shipped": 27,
+      "suppressed": 97,
+      "distinct_suppression_claims": 50
+    },
+    "per_project_raw_findings_removed": {
+      "ventures/ai-first-markets": [
+        {
+          "advisory": "GHSA-gv7w-rqvm-qjhr",
+          "verdict_before_fix": "shipped"
+        },
+        {
+          "advisory": "GHSA-8h3q-9fpp-c883",
+          "verdict_before_fix": "shipped"
+        }
+      ],
+      "ventures/local-site-studio": [
+        {
+          "advisory": "GHSA-gv7w-rqvm-qjhr",
+          "verdict_before_fix": "shipped"
+        }
+      ],
+      "ventures/real-estate-agent-photo-app/docs-site": [
+        {
+          "advisory": "GHSA-gv7w-rqvm-qjhr",
+          "verdict_before_fix": "dev-only"
+        },
+        {
+          "advisory": "GHSA-8h3q-9fpp-c883",
+          "verdict_before_fix": "dev-only"
+        },
+        {
+          "advisory": "GHSA-p5wg-g6qr-c7cg",
+          "verdict_before_fix": "dev-only"
+        }
+      ],
+      "ventures/print-atelier": [
+        {
+          "advisory": "GHSA-p5wg-g6qr-c7cg",
+          "verdict_before_fix": "dev-only"
+        }
+      ],
+      "ventures/real-estate-agent-photo-app/research": [
+        {
+          "advisory": "GHSA-p5wg-g6qr-c7cg",
+          "verdict_before_fix": "dev-only"
+        }
+      ]
+    },
+    "note": "Every removed claim had been reasoned correctly by the suppression rule (dependency-path: dev-only in every location) -- ACCURACY_WRONG_CLAIMS stays 0. The 2 shipped-verdict instances (ai-first-markets: 2, local-site-studio: 1, both esbuild/GHSA-gv7w-rqvm-qjhr; ai-first-markets also had the wrangler/GHSA-8h3q-9fpp-c883 one shipped) were never covered by the wrong-suppression methodology at all, since that measures suppressed findings only -- this is the first check of whether an unsuppressed (shipped) finding is itself real."
+  },
+  "effect_on_the_9_newly_readable_projects": {
+    "projects": [
+      "ventures/retail-pilot-intel",
+      "ventures/retail-pilot-intel/apps/docs",
+      "ventures/retail-pilot-intel/apps/portal",
+      "ventures/retail-pilot-intel/packages/analytics",
+      "ventures/retail-pilot-intel/packages/edge",
+      "ventures/retail-pilot-intel/packages/pos",
+      "ventures/retail-pilot-intel/packages/schemas",
+      "ventures/ai-engineering-academy/site",
+      "ventures/real-estate-agent-photo-app/pipeline"
+    ],
+    "before_fix": {
+      "raw_findings": 2,
+      "shipped": 0,
+      "suppressed": 2
+    },
+    "after_fix": {
+      "raw_findings": 0,
+      "shipped": 0,
+      "suppressed": 0
+    },
+    "note": "The 2 pre-fix findings were both GHSA-gv7w-rqvm-qjhr on retail-pilot-intel/apps/docs and apps/portal."
+  }
+}

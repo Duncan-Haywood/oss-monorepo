@@ -902,6 +902,83 @@ the two findings this venture has produced today. It says nothing about a
 `build-surface` or `server-surface:*` pnpm claim, because none exists yet to
 check.
 
+## The withdrawn-advisory fact above is now a fix, not just a note (2026-08-23)
+
+The section above filed `GHSA-gv7w-rqvm-qjhr`'s withdrawn status as "a
+data-quality fact about the feed... not this tool's reachability logic" — true
+of that one instance, but the fact itself was general: nothing in
+`triage.advisories.advisory_from_osv` read OSV's `withdrawn` field at all, on
+any advisory, in any project. This pass, running concurrently, turned that
+observation into a fix and then asked how far the same bug reached.
+
+### The newly-readable set had nothing else to find
+
+Re-running the tool over the other 8 projects the pnpm reader and the
+repository walk had made readable but nobody had hand-verified —
+`retail-pilot-intel`'s root, its 2 apps and its 4 packages minus the one pair
+of findings above, plus `ai-engineering-academy/site` and
+`real-estate-agent-photo-app/pipeline` — matched no advisory at all. The two
+`GHSA-gv7w-rqvm-qjhr` findings the sections above already examined were the
+entire yield of the newly-readable set.
+
+### The fix, and what it found elsewhere
+
+`advisory_from_osv` now returns an advisory with no affected ranges when OSV's
+`withdrawn` field is set, dropped by both existing callers the same way they
+already drop an advisory naming no package — `pyflakes`-clean, pinned by
+`tests/test_advisories.py`, a file this module had none of before. **654 of
+the current feed's 227,165 npm records (0.29%) are withdrawn** — rare, but not
+rare enough that only one had reached this portfolio.
+
+Re-running `run_portfolio_sample.py` against the fix over the original
+7-product npm sample turned up two more withdrawn records behaving the same
+way as `GHSA-gv7w-rqvm-qjhr` — `GHSA-8h3q-9fpp-c883` (`wrangler`, withdrawn as
+a duplicate of another advisory) and `GHSA-p5wg-g6qr-c7cg` (`eslint`,
+withdrawn) — both matched by the same `dependency-path` rule. All three
+together account for 3 of the 53 distinct claims and 5 of the 102 raw findings
+the 2026-08-21 pass hand-verified as correctly-reasoned suppressions — and
+they were: nothing about *how* the rule suppressed them was wrong, only the
+advisory feed handed it three records the database itself had retracted.
+`ACCURACY_DISTINCT_CLAIMS` and `ACCURACY_RAW_FINDINGS` in
+[`evidence.py`](src/triage/evidence.py) move to 50 and 97 — the note now reads
+**0 of 50 distinct claims (0 of 97 raw findings) were wrong** — because none of
+the 50 surviving claims changed verdict.
+
+### A category neither hand review above measured: is an unsuppressed finding real?
+
+Two of the three withdrawn advisories were also reported — on a different,
+deploying product, unrelated to any pnpm project — as **shipped**, not
+suppressed: `ai-first-markets` had 3 findings reported as live vulnerabilities
+before this fix (`GHSA-gv7w-rqvm-qjhr`, `GHSA-8h3q-9fpp-c883`, and the real
+one, `GHSA-f88m-g3jw-g9cj` — `sharp` inheriting a libvips CVE), and
+`local-site-studio` had 1 (`GHSA-gv7w-rqvm-qjhr`). After the fix, both drop to
+just the real `sharp` finding. Two-thirds of what `ai-first-markets` was
+reporting as deployed vulnerabilities were noise from retracted advisory
+records — a false alarm, the opposite failure mode from a wrong suppression,
+and one this probe's wrong-suppression methodology was never built to catch,
+since it counts suppressed findings only.
+
+### What this closes, and what it does not
+
+As of this pass, there is nothing left unverified in the set that opened the
+gap: all 9 previously-unchecked projects produce zero findings once withdrawn
+records are excluded, and the npm sample's own hand-verified suppressions are
+now net of the same defect. This is a point-in-time result, not a structural
+guarantee the way the dev-only reachability logic itself is — a fresh advisory
+landing on one of those 9 tomorrow would reopen it. It does not mean pnpm's
+derived dev-only classification has been proven correct in general; that claim
+still rests on the structural check two sections above, not on a hand review,
+because there was nothing but the one (now-filtered) withdrawn advisory for a
+hand review to exercise. A pnpm project with a real, live suppressed finding
+still has not been hand-verified; there has not yet been one to check.
+
+Full per-record detail: [`withdrawn-advisories-2026-08-23.json`](withdrawn-advisories-2026-08-23.json).
+
+**No score moved.** No revenue; the $0 ceiling is unchanged. This closes a gap
+three passes in a row named and none had fully closed, which is the whole
+reason it was the next thing to spend a pass on rather than a fourth lockfile
+format.
+
 ## Usage
 
 ```bash

@@ -59,7 +59,19 @@ class Advisory:
 
 
 def advisory_from_osv(record: dict) -> Advisory:
-    """Build an :class:`Advisory` from one OSV JSON record."""
+    """Build an :class:`Advisory` from one OSV JSON record.
+
+    A ``withdrawn`` record is returned with no affected ranges rather than
+    skipped here, so both callers' existing ``if not advisory.affected``
+    filter drops it the same way an advisory naming no package would. OSV
+    sets this field when the database retracts a record outright — including
+    a misattribution, where the advisory's own text says the affected
+    package was never the one it names — and a retracted claim matched
+    against a live lockfile is not a finding.
+    """
+    if record.get("withdrawn"):
+        return Advisory(id=record.get("id", "<unknown>"))
+
     affected: list[AffectedRange] = []
     for entry in record.get("affected", []) or []:
         package = (entry.get("package") or {}).get("name")
