@@ -1,0 +1,25 @@
+[
+  {
+    "advisory_id": "GHSA-gv7w-rqvm-qjhr",
+    "rule": "dependency-path",
+    "package": "esbuild",
+    "aliases": [],
+    "summary": "Withdrawn Advisory: esbuild: Missing binary integrity verification in Deno module enables remote code execution via NPM_CONFIG_REGISTRY",
+    "advisory_status_note": "This OSV record is itself withdrawn: the advisory's own text states the affected code is the esbuild Deno module (github.com/esbuild/deno-esbuild), 'not in a supported ecosystem', and the affected-package/purl field naming npm esbuild is an OSV cataloguing artifact rather than a claim that the npm esbuild package (installed here) is vulnerable. This is a data-quality observation about the feed, separate from and in addition to the reachability verdict below.",
+    "severity": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "verdict": "dev-only",
+    "reason": "Every install location is reachable only through devDependencies (esbuild@0.25.12), so the vulnerable code is not in the published artifact.",
+    "versions": ["0.25.12"],
+    "lockfile_format": "pnpm",
+    "lockfile": "ventures/retail-pilot-intel/pnpm-lock.yaml (lockfileVersion 9.0)",
+    "method": "Independent hand check, bypassing triage.pnpm entirely: (1) read each app's package.json `dependencies` block directly -- esbuild is absent from both (only react, react-dom, react-router-dom are declared production deps); (2) grepped each app's own src/ and config files for the literal string 'esbuild' -- no direct reference in either app; (3) wrote a standalone BFS over the raw pnpm-lock.yaml `importers`/`snapshots` maps (via yaml.safe_load, no triage code), starting only from each importer's own `dependencies`+`optionalDependencies` roots (never `devDependencies`), following only `dependencies`/`optionalDependencies` edges at each snapshot. The resulting production closure for both apps/docs and apps/portal is the same 7 packages -- {cookie, react, react-dom, react-router, react-router-dom, scheduler, set-cookie-parser} -- and contains neither `vite` nor `esbuild`. `esbuild` is installed at two snapshot versions (0.25.12, 0.28.2); the lockfile's own snapshot dependency edges show it is required only by `vite@6.4.3(...)` (dependencies -> esbuild@0.25.12) and `tsx@4.23.12` (dependencies -> esbuild@0.28.2), and both `vite` and `tsx` are declared solely as devDependencies of both importers, never as production dependencies, and are themselves absent from the production BFS closure above.",
+    "source_imports_package_directly": false,
+    "declared_production_dependency": false,
+    "unresolved_production_edges": [],
+    "projects": [
+      "ventures/retail-pilot-intel/apps/docs",
+      "ventures/retail-pilot-intel/apps/portal"
+    ],
+    "verdict_correct": true
+  }
+]

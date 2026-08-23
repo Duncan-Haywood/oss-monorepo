@@ -865,6 +865,43 @@ The verified sample is one pnpm venture's honest classification of every
 package it installs, not a general proof pnpm's dev/production split can never
 misfire on a lockfile shaped differently from this one.
 
+## The pnpm advisory-text hand review, closed (2026-08-23)
+
+The section above left one gap open by name: a structural check confirms the
+*reachability fact* a pnpm suppression rests on, not that a rule's reading of
+a real advisory's *text* is correct — the npm side has that as a separate
+hand review (`wrong-suppression-verification-2026-08-21.json`), and pnpm had
+no example of it, because `retail-pilot-intel` had produced only
+`dependency-path` findings and nobody had read what they actually named.
+
+It has one distinct claim to check: `esbuild`/`GHSA-gv7w-rqvm-qjhr`,
+suppressed `dependency-path` on both `apps/docs` and `apps/portal`. Checked
+by hand, independently of `triage.pnpm` and of
+`verify_pnpm_dev_classification.py` above (a from-scratch BFS over the raw
+`pnpm-lock.yaml` `importers`/`snapshots` maps, plus a direct read of both
+apps' `package.json` and a grep of both apps' own source for the literal
+string `esbuild`): **the suppression is correct.** `esbuild` is reachable in
+this lockfile only through `vite` and `tsx`, both declared solely as
+`devDependencies` in both apps; neither app's production dependency closure
+(the same 7 packages in both) nor its own source touches `esbuild` or `vite`.
+Full record: [`wrong-suppression-verification-pnpm-2026-08-23.json`](wrong-suppression-verification-pnpm-2026-08-23.json).
+
+**A second finding, independent of reachability.** `GHSA-gv7w-rqvm-qjhr` is
+itself a **withdrawn OSV advisory** — its own text says the affected code is
+the esbuild *Deno* module (`github.com/esbuild/deno-esbuild`), "not in a
+supported ecosystem," and the affected-package/purl field naming npm's
+`esbuild` is an OSV cataloguing artifact rather than a claim that the npm
+package installed here is vulnerable. That is a data-quality fact about the
+feed this tool reads, not this tool's reachability logic; recorded here
+because a suppressed finding whose underlying advisory should not have
+matched at all is a distinct failure mode from a wrong reachability verdict,
+and worth being able to tell apart.
+
+Same scope note as the structural check above: one claim, checked once, on
+the two findings this venture has produced today. It says nothing about a
+`build-surface` or `server-surface:*` pnpm claim, because none exists yet to
+check.
+
 ## Usage
 
 ```bash
