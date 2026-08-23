@@ -20109,3 +20109,99 @@ entries:
         ships as its own PR rather than riding along in #691, per the
         ledger-discipline rule. No revenue; the $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business
+        projects that aren't already here" session, designated branch
+        claude/laughing-pasteur-y6bst4. `session_gate.py` -> PROCEED with
+        its concurrency note. Per `CLAUDE.md` this brief is answered in
+        `portfolio/pipeline/`, so no candidate list, no screening pass and
+        no new research probe. Fetched `main` (tip f2a5bb6) and listed the
+        4 open PRs (#583, #531, #372, #368) before starting; the entries
+        from the last two hours already record them as unchanged and
+        correctly owner-gated, so they were not re-verified again and that
+        finding is not repeated here.
+      - >-
+        Took the routed first move -- "advance a probe already specified in
+        `portfolio/pipeline/`" -- and read the probes' own READMEs rather
+        than the index, the discipline the previous two sessions
+        established. The fifth pass on `mcp-drift-watch` (#691, ~50 minutes
+        earlier) opened by indicting **every** accuracy figure the probe
+        publishes as an aggregate over publishers who behave nothing alike.
+        It then split the shipped rules -- the figures the subscriber
+        record quotes -- and left the model's pooled. Those are the ones a
+        decision rests on: the `ai_leverage` 6 -> 7 move cited the corpus-2
+        model pass. So the pass reproduced, one level up, the exact error
+        it was written to correct.
+      - >-
+        Split them in #694 (merged, c91a158e). `score_model_by_publisher.py`
+        scores the committed blind model passes per publisher -- no model
+        re-run, no network, one local run rather than one paid run --
+        reusing `score_by_publisher.summarise` verbatim so the only column
+        that changes is the classifier's, with a test asserting the reused
+        instrument reproduces the fifth pass's committed rules table field
+        for field.
+      - >-
+        The fifth pass's structural finding turns out to be a property of
+        the rules, not of the class. Pooled over the same 16 publishers:
+        median per-publisher recall 0.00 -> 1.00, caught nothing at all on
+        9 of 16 -> 1 of 16, change-weighted 9 of 66 -> 62 of 66. On the two
+        publishers carrying 59% and 43% of their corpus's positives -- the
+        ones that pass singled out as the watch's worst, because bulk
+        rewrites are where the cross-tool routing class lives -- 0.20 ->
+        0.90 and 0.095 -> 1.00. The comparison that survives the
+        small-denominator caveat (12 of the 16 have three or fewer
+        qualifying changes, and `intodns-mcp`'s 21 of 21 is one release
+        rewrite rather than 21 observations) is the six publishers with
+        more than one: the rules' *best* on any of them is 0.333 and the
+        model's *worst* is 0.667, non-overlapping ranges over six separate
+        editorial decisions.
+      - >-
+        The other axis runs against the model and is recorded as plainly:
+        it raises 12 false alerts from 7 of the 44 publishers watched
+        against the rules' 9 from 4, and 18 from 12 counting the borderline
+        calls as negatives. It also dissolves the fifth pass's one
+        customer-friendly finding -- 5 of 6 corpus-2 false alerts
+        attributable to one publisher's prose becomes a largest single
+        source of 3. Higher precision, less explicable support burden, and
+        a complaint you can attribute to one server is one you can answer.
+      - >-
+        Verified by running the checks, not by reading the diff: probe
+        suite 104 -> 116, every quoted figure re-derived in the tests by
+        plain counting over the raw corpora and model passes rather than by
+        the summariser that produced it, and all 25 asserted values
+        mutation-checked one at a time to a neighbouring value (25 of 25
+        killed the suite). Also ran every command the probe's CI workflow
+        runs, `probes/validate_probe_index.py`,
+        `pipeline/validate_doc_consistency.py`,
+        `validate_candidates.py` and `test_score_sensitivity.py`, and
+        `git merge-tree` against the live tip. All four CI workflows were
+        green on the PR head before merging. (The `__pycache__` trap the
+        previous entry recorded is real and was hit again -- a restored
+        file of identical length within the same second runs the mutated
+        bytecode. That note saved the diagnosis.)
+      - >-
+        Two stale figures in the probe index cell were fixed in the same
+        PR: it still quoted the "every per-publisher recall above a third"
+        phrasing the fifth pass had *withdrawn* for being cutoff-dependent,
+        and its suite count said 95 -> 103 where the suite reports 104. The
+        index lags the probes in one direction again, which is the third
+        time this week that has been the finding.
+      - >-
+        No score moved. `ai_leverage` stays at 7 -- a second angle on the
+        claim that move already rested on, not support for a stronger one,
+        and magnitude (two single blind passes 2-5x apart) is still exactly
+        what is unsettled; `defensibility` at 3 remains the floor. Nothing
+        shipped and nothing re-labelled: `subscriber_record.py` is
+        untouched and still quotes the rules, so every figure a customer
+        sees remains true of the product. Internal-only
+        (`portfolio/pipeline/probes/` plus one CI runner line), publishes
+        nothing, registers nothing, uses no credential, spends nothing
+        beyond agent time -- agent-decidable per `CLAUDE.md`, self-merged.
+        This entry ships as its own PR rather than riding along in #694,
+        per the ledger-discipline rule. No revenue; the $0 ceiling is
+        unchanged.
+    mrr_end: null
