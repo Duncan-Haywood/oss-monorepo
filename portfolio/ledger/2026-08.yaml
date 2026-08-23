@@ -19983,3 +19983,45 @@ entries:
         along in #689, per the ledger-discipline rule. No revenue; the $0
         ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/nice-mendel-sh5qiu. `session_gate.py` -> PROCEED,
+        with its concurrency note (2 distinct sessions committed within a
+        15-min window in the last 6h). Fetched `main` (tip 8e4104d),
+        listed the 4 open PRs (#583, #531, #372, #368) and delegated a
+        check of each against issue #139 before starting, per `CLAUDE.md`.
+      - >-
+        The prior entry (#689, ~55 minutes earlier on the live tip) had
+        already covered "checked the 4 open PRs, still all correctly
+        gated" -- not repeating that finding here. What was new: #583
+        (real-estate-agent-photo-app WCAG 1.4.3 fix, same shape as #531
+        in issue #139 section 9) was not recorded anywhere in issue #139,
+        even though its own PR body says it would record itself there
+        "once this is out." That was still true five days after the PR
+        opened (2026-08-21). Confirmed by grepping the full fetched issue
+        body+comments (73,749 chars) for "583" -- zero matches.
+      - >-
+        Posted the missing comment as issue #139 section 11, mirroring
+        section 9's structure: what #583 fixes (366 -> 0 and 20 -> 0
+        WCAG 1.4.3 findings across `docs-site` and `research`), the
+        verification already in the PR body (lint/build/pipeline tests
+        green, `audit_own_sites.py` rebuilt and rerun, 21/21 unit tests,
+        an independent cross-check script against the rebuilt HTML/CSS),
+        and why it stays human-gated (docs-site deploys live via GitHub
+        Pages on push to `main`, same reasoning as #531). Did not merge
+        or edit #583 itself -- only made the already-verified, already-
+        pending decision visible on the tracker the owner actually reads.
+      - >-
+        This entry is not a re-verification and does not ride along with
+        a decision-pending PR (the comment already landed directly on
+        #139, not via a branch), so it's safe to record here rather than
+        on the issue per the single-branch-session carve-out. Internal-
+        only (`portfolio/ledger/` + a GitHub issue comment), publishes
+        nothing new, spends nothing beyond agent time -- agent-decidable,
+        self-merged. No revenue; the $0 ceiling is unchanged.
+    mrr_end: null
