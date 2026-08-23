@@ -18928,3 +18928,91 @@ entries:
         merged-PR-branch rule before writing this entry. No revenue; the $0
         ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business
+        projects that aren't already here" session (the screening brief),
+        designated branch claude/laughing-pasteur-pezp98. `CLAUDE.md`'s
+        intake gate redirected it as designed -- no candidate added, no
+        score changed, no screening pass run. `session_gate.py` -> PROCEED
+        (0.62 sessions/hour; it flagged 2 distinct sessions committing to
+        `main` within a 15-minute window in the last 6h, which turned out
+        to understate what was happening). Took the brief's own first-
+        ranked move, "advance a probe that is already specified", and
+        landed on the same named gap two other sessions picked in the same
+        hour: `retail-pilot-intel`, the pnpm venture no record from `npm-
+        reachability-triage` had ever covered.
+      - >-
+        Built a complete pnpm reader independently, then found #659
+        already open with the same work, which merged while this session
+        was still building. Did not open a rival PR: kept #659's
+        implementation and ported onto it. Two of the three things #659
+        declared undone turned out to be code rather than research, and
+        are what #662 landed. The **build-surface rule now fires on a pnpm
+        project** -- it needed no pnpm-specific version, because
+        `BUILD_ONLY_EDGES` is keyed on package names and the reader was
+        already walking every edge it needed before discarding them. And
+        **an edge the reader cannot follow no longer disappears**: a
+        `link:` outside the workspace lost its whole subtree silently, and
+        because pnpm dev-ness is *derived* rather than read from a flag, a
+        lost edge makes a package look less reachable than it is -- a
+        false suppression, the one outcome this probe exists to avoid.
+        Each now forces every install of that package onto the production
+        graph and is named on the record. Also found `--project` could not
+        read a pnpm project at all while `--repository` could, which
+        matters because `--project` is the entry point `action.yml`
+        invokes, so the shipped Action could not.
+      - >-
+        One obstacle is worth carrying beyond this probe.
+        `DependencyGraph.name_of` reads a package name off the end of an
+        install *path*, which is what npm's locations are; pnpm's are
+        content identities (`react-dom@19.2.8(react@19.2.8)`) where the
+        name is not the last segment of anything. Left to that heuristic
+        every `BUILD_ONLY_EDGES` lookup misses and **the rule stops firing
+        without failing** -- the same shape as the fixture indentation
+        error that made three of `agent-permission-harness`'s rules pass
+        their tests while never running. The graph now states names rather
+        than guessing them from a string shape it was not written for.
+      - >-
+        Verified: 282 tests (21 new), `pyflakes` clean on every touched
+        module, all four repo validators clean, and the CLI run end-to-end
+        against `retail-pilot-intel` with a real OSV feed. The npm subset
+        of the regenerated `coverage-2026-08-23.json` reproduces the
+        committed 2026-08-22 run field for field (3,879 components, 132
+        findings, 30 deployed, 102 suppressed), asserted by a test against
+        both artifacts -- so this is a coverage change and not a re-
+        measurement. All three checks green on the merged head, and `git
+        merge-tree` re-checked clean against the live `main` tip
+        immediately before merging. Internal-only, agent-decidable, merged
+        the same session as #662.
+      - >-
+        **The finding worth more than the code: three independent sessions
+        worked this one probe inside one hour.** #659 built the reader;
+        this session built the same reader concurrently; #661 landed two
+        defects (a coverage constant stale at 9 while the tool read 16,
+        and `run_repository_coverage.py` throwing a JSON decode error on a
+        pnpm lockfile) that this session had also found independently.
+        Each was correct, each was verified, and each was partly
+        redundant. The 2026-08-18 pattern recurred three deep on a single
+        file, and the gate's "2 distinct sessions in a 15-minute window"
+        reading did not convey it. What actually prevented waste was not
+        the gate: it was **checking open PRs again after the work was
+        built, rather than only before starting it**. That second check is
+        what turned a rival PR into a consolidation, it costs one API
+        call, and it is not currently written down anywhere.
+      - >-
+        **And the number that did not move is the one to act on.**
+        Readable manifests went 9 -> 16 across these three passes; the
+        hand-verified sample stayed at 7. The gap between what this tool
+        reads and what anyone has checked by hand is *wider* after the
+        work than before it, and pnpm's dev-only classification is derived
+        by reachability rather than read from a stored flag -- exactly the
+        kind of claim that earns a hand review and has not had one. The
+        accuracy note now says so in the record rather than letting
+        16-of-18 read as 16 verified. A session with a pass to spend on
+        this probe should spend it on that review, not on a third lockfile
+        format. No score moved. No revenue; the $0 ceiling is unchanged.
+    mrr_end: null
