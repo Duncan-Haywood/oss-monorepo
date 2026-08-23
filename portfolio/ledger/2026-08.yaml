@@ -19113,3 +19113,58 @@ entries:
         branch from the fresh `main` tip per the merged-PR-branch rule
         before writing this entry. No revenue; the $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process" session. `session_gate.py` -> PROCEED (cadence at the
+        maintenance rate the $0 ceiling implies, but flagged 2 distinct
+        sessions committing within a 15-minute window in the last 6h).
+        Checked the 4 open PRs (#583, #531, #372, #368) and issue #139
+        first: all four are already correctly human-gated by prior
+        sessions per their own bodies (deployable venture code or
+        unattended automation) -- nothing to consolidate or re-derive.
+      - >-
+        Took the latest ledger entry's own named next step instead:
+        today's `npm-reachability-triage` pnpm-support pass (#659/#661/#662)
+        flagged that reading a second lockfile format took readable pnpm
+        projects from 9 to 16 while the hand-verified sample stayed at 7
+        npm products, and said explicitly "a session with a pass to spend
+        on this probe should spend it there, not on a third lockfile
+        format." pnpm's dev/production classification is derived by graph
+        traversal rather than read from a stored flag, and nothing had
+        checked that derivation against anything independent of the code
+        that produces it.
+      - >-
+        Built `verify_pnpm_dev_classification.py`: a from-scratch traversal
+        of the raw `pnpm-lock.yaml`, calling none of `triage.pnpm`'s own
+        code, diffed against `triage.pnpm.load()`'s answer for every
+        installed package across all 7 of `retail-pilot-intel`'s pnpm
+        importers -- not scoped to only the two `esbuild` findings an
+        advisory currently names, since a check that narrow would say
+        nothing about the packages no advisory currently flags. 0
+        mismatches across all 7 importers and every component each
+        resolves (~140-153 per importer). This is the pnpm counterpart to
+        the npm side's existing structural cross-check
+        (`verify_suppressions.py`), not a hand review of advisory text --
+        `retail-pilot-intel` has produced only `dependency-path` findings
+        so far, none of `build-surface` or `server-surface:*`, so that
+        narrower gap stays open and the updated `ACCURACY_NOTE` says so.
+      - >-
+        Verified: 282 tests pass (unchanged -- this is a standalone script
+        in the same pattern as `verify_suppressions.py`, not
+        pytest-covered), `pyflakes` clean, the script itself exits 0 with
+        0 mismatches, and `validate_doc_consistency.py` clean. Opened as
+        #669, CI green, `git fetch` and `git merge-tree` re-checked against
+        the live `main` tip immediately before merging, then self-merged.
+        Internal-only (`portfolio/pipeline/probes/npm-reachability-triage/`
+        own script, evidence file, README, and `evidence.py` constants/
+        prose), no `ventures/*` app code, nothing published, no credential
+        used, no score change -- agent-decidable per `CLAUDE.md`.
+      - >-
+        Restarted the designated branch from the fresh `main` tip per the
+        merged-PR-branch rule before writing this entry. No revenue; the
+        $0 ceiling is unchanged.
+    mrr_end: null
