@@ -93,15 +93,29 @@ ACCURACY_WRONG_RAW_FINDINGS = 0
 #: `retail-pilot-intel`'s seven pnpm-resolved projects as unreadable; see
 #: `coverage-2026-08-23.json`.)
 #:
-#: The verification sample did **not** move with the analysable figure: the
-#: hand review behind the wrong-suppression rate covers npm projects only and
-#: has not been repeated on a pnpm one, so the gap between what is read and
-#: what has been checked by hand is wider than it was, not narrower.
+#: The hand-reviewed advisory-text sample (the wrong-suppression rate above)
+#: still covers npm projects only. A separate, structural check --
+#: `verify_pnpm_dev_classification.py`, run 2026-08-23 -- independently
+#: re-derives production reachability for every package `retail-pilot-intel`'s
+#: seven pnpm importers install and found zero mismatches against
+#: `triage.pnpm`'s own answer; see `PNPM_STRUCTURAL_*` below and this probe's
+#: README. That closes the "nothing has checked the pnpm classification
+#: mechanism itself" gap, not the "an advisory's text has been hand-read
+#: against a pnpm suppression" one -- retail-pilot-intel has produced only
+#: `dependency-path` findings so far, none of `build-surface` or
+#: `server-surface:*`.
 PORTFOLIO_MEASURED_ON = "2026-08-23"
 PORTFOLIO_MANIFESTS_FOUND = 18
 PORTFOLIO_MANIFESTS_ANALYSABLE = 16
 PORTFOLIO_MANIFESTS_ANALYSABLE_NPM_ONLY = 9
 PORTFOLIO_VERIFICATION_SAMPLE = 7
+
+#: `verify_pnpm_dev_classification.py`'s own result, held as constants for the
+#: same reason the npm figures above are: so the rendered number cannot drift
+#: from the value this module actually holds.
+PNPM_STRUCTURAL_VERIFIED_ON = "2026-08-23"
+PNPM_STRUCTURAL_IMPORTERS_CHECKED = 7
+PNPM_STRUCTURAL_MISMATCHES = 0
 
 ACCURACY_NOTE = (
     "## How this can be wrong\n\n"
@@ -133,15 +147,28 @@ ACCURACY_NOTE = (
     "the ones it cannot. Run with `--repository` to get the coverage table for "
     "your own repository rather than inheriting this one's.\n\n"
     "**Reading a second lockfile format widened that gap rather than closing "
-    "it.** Readable went "
+    "it, and it is now partly closed.** Readable went "
     f"{PORTFOLIO_MANIFESTS_ANALYSABLE_NPM_ONLY} -> "
     f"{PORTFOLIO_MANIFESTS_ANALYSABLE} when pnpm lockfiles became readable, "
-    f"and the verified sample stayed at {PORTFOLIO_VERIFICATION_SAMPLE}: the "
-    "hand review behind the rate above covers npm projects only, and no "
-    "equivalent review has been done on a pnpm one. The rate is therefore not "
-    "evidence about this tool's behaviour on a pnpm lockfile, whose dev-only "
-    "classification is derived by reachability rather than read from a stored "
-    "flag."
+    f"and the hand-reviewed advisory-text sample above stayed at "
+    f"{PORTFOLIO_VERIFICATION_SAMPLE}: it covers npm projects only, and no "
+    "pnpm suppression has had its advisory text hand-read against it, because "
+    "`retail-pilot-intel` — this portfolio's one pnpm venture — has produced "
+    "only `dependency-path` findings so far, none of `build-surface` or "
+    "`server-surface:*`. What *has* been checked, "
+    f"on {PNPM_STRUCTURAL_VERIFIED_ON}, is the mechanism underneath: pnpm's "
+    "dev-only classification is derived by reachability rather than read "
+    "from a stored flag, and "
+    f"`verify_pnpm_dev_classification.py` independently re-walked "
+    f"{PNPM_STRUCTURAL_IMPORTERS_CHECKED} pnpm importers' production graphs "
+    f"from the raw lockfile — every installed package, not only the ones an "
+    f"advisory currently names — and found "
+    f"{PNPM_STRUCTURAL_MISMATCHES} mismatches against `triage.pnpm`'s own "
+    "answer. That is the npm side's structural cross-check "
+    "(`verify_suppressions.py`), not its hand review: it confirms the "
+    "reachability fact the suppression rests on, not that a rule's reading of "
+    "a real advisory's text is correct, which is the part that still has no "
+    "pnpm example to check."
 )
 
 
