@@ -1,10 +1,11 @@
 name: npm-reachability-triage CI
 
-# Test coverage for the pipeline probe merged in #280. It is stdlib-only and its
-# suite needs no network, so this workflow does no more than a contributor runs
-# locally: run the tests and check they import cleanly. It publishes nothing,
-# registers nothing, and spends no API budget — it is a test runner, not the
-# unattended-automation kind of workflow CLAUDE.md gates.
+# Test coverage for the pipeline probe merged in #280. Its only third-party
+# dependency is PyYAML (added for pnpm-lock.yaml support), and its suite needs
+# no network, so this workflow does no more than a contributor runs locally:
+# install that one dependency, run the tests, check they import cleanly. It
+# publishes nothing, registers nothing, and spends no API budget — it is a
+# test runner, not the unattended-automation kind of workflow CLAUDE.md gates.
 
 on:
   pull_request:
@@ -38,7 +39,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install pytest
+      - run: pip install pytest "pyyaml>=6"
       # No network: the OSV feed download in run_portfolio_sample.py is not
       # exercised here — only the offline unit suite is.
       - run: python3 -m pytest
