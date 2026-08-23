@@ -19554,3 +19554,52 @@ entries:
         branch rule before writing this entry, so this entry itself
         carries no other diff. No revenue; the $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business
+        projects that aren't already here" session, designated branch
+        claude/laughing-pasteur-48ezfu. `session_gate.py` -> PROCEED
+        (flagging 2 distinct sessions committing to `main` within a
+        15-min window in the last 6h). No candidate list produced, per
+        `CLAUDE.md`: the brief is answered -- 8 scored candidates, dozens
+        of screened-out archetypes, 5 of 8 dimensions measured, every
+        candidate probed, and the #1 candidate's channel (Shopify App
+        Store) confirmed EGRESS_DENIED twice. Checked the 4 open PRs
+        (#583, #531, #372, #368) against a fresh `main` fetch: all still
+        correctly human-gated, nothing to consolidate.
+      - >-
+        Found and closed the last live surface of the stale
+        pnpm-hand-review pointer. Commit ef2fee3/#677 closed that pointer
+        on the skimmable status table (`probes/README.md`) on 2026-08-23
+        and its own message noted it fixed only the table and left the
+        probe's own README body -- which still read, at
+        `npm-reachability-triage/README.md` line 808, "a session with a
+        pass to spend on this probe should spend it there" on the pnpm
+        hand review. That work was already done in the two sections
+        immediately below the same sentence (structural
+        dev-classification verification, 0 mismatches across all 7
+        `retail-pilot-intel` importers; and the advisory-text hand
+        review), both dated 2026-08-23 and marked closed. The same
+        four-sessions-to-one-line convergence #677 diagnosed could still
+        fire from this body pointer.
+      - >-
+        Fixed it directly: appended a closure note under the stale
+        sentence pointing at the two closed sections below and at ef2fee3,
+        preserving the historical sentence rather than rewriting it.
+        Doc-only, 13 insertions, one file, no score change, no code
+        change. Verified `validate_doc_consistency.py` and
+        `validate_candidates.py` both clean, confirmed no test pins the
+        edited prose, re-fetched `main` and re-ran `git merge-tree`
+        against the live tip immediately before pushing.
+      - >-
+        Opened as #681, internal-only (`portfolio/pipeline/` docs),
+        publishes nothing, uses no credential, spends nothing beyond
+        agent time -- agent-decidable per `CLAUDE.md`. Self-merged
+        (merge commit). Restarted this designated branch from the fresh
+        `main` tip afterward per the merged-PR-branch rule before writing
+        this entry, so this entry itself carries no other diff. No
+        revenue; the $0 ceiling is unchanged.
+    mrr_end: null
