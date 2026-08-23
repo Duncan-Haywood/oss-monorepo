@@ -19016,3 +19016,223 @@ entries:
         this probe should spend it on that review, not on a third lockfile
         format. No score moved. No revenue; the $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business
+        projects that aren't already here" session, designated branch
+        claude/laughing-pasteur-qjh9a0. That brief is the one `CLAUDE.md`
+        marks already answered, so no candidate list was produced. Ran
+        `session_gate.py` first (PROCEED, flagging 2 distinct sessions
+        committing to `main` within a 15-minute window in the last 6h) and
+        `verification_status.py` (2 records, #372 and #368, both BUILD
+        VALID / CHECKS STALE, neither needing a rebuild). Listed the 5 open
+        PRs (#664, #583, #531, #372, #368) -- #664 was a ledger entry that
+        has since merged, and the other four remain correctly owner-gated
+        by prior sessions with nothing new to add.
+      - >-
+        Acted on the immediately preceding entry's own finding rather than
+        repeating it. That entry recorded three independent sessions
+        working `npm-reachability-triage` inside one hour; `git log` per
+        probe directory confirmed that probe was touched today while
+        `agent-permission-harness` had not been touched since 2026-08-21.
+        Picked the least-recently-worked probe deliberately, which is the
+        cheapest available answer to a concentration pattern the gate's
+        15-minute-window reading does not convey.
+      - >-
+        Found a live gap between what that probe claims and what it
+        measures. R7 -- its headline rule, and the one it argues attack
+        replay structurally cannot reach -- reports that an agent's
+        instruction set is "the transitive closure of what the prompt
+        directs the agent to read". The rule docstring, the probe README
+        and the candidate write-up all said transitive closure. The
+        implementation expanded the paths the prompt itself names and
+        stopped: one hop, described as a fixed point. Same defect class as
+        #661's stale coverage constant -- a documented figure the tool does
+        not produce -- and here it understated the finding in the direction
+        that flatters it, since `CLAUDE.md` is reached in one hop and
+        spends most of its length issuing further reading orders the prompt
+        names nowhere.
+      - >-
+        `instruction_closure()` now walks to a fixed point over a visited
+        set, so a cycle terminates (`CLAUDE.md` and `README.md` cite each
+        other here, so that is the ordinary case). Against this repository
+        the agent's instruction set is **115 files at depth 4, not 21**.
+        The first-hop count is unchanged, so nothing prior is retracted;
+        the finding text now reports both plus the per-depth breakdown.
+        What it reaches matters more than the size: depth 2 includes
+        `portfolio/ledger/2026-08.yaml`, `portfolio/router/allocate.py` and
+        `portfolio/scoring/venture-scores.yaml` -- the ledger the router
+        reads and the code deciding which venture an unattended session
+        works on next, all `REPO_WRITE`, none named by the prompt. The
+        probe's own `harness.py` is in the closure at depth 3, via
+        `portfolio/research/README.md`: a file in the agent's instruction
+        set that also decides what that agent is told about its instruction
+        set.
+      - >-
+        Recursion exposed a resolution bug one hop had hidden. Bare
+        filenames were resolved by a repository-wide walk -- right for a
+        root-level prompt saying "each venture's `AGENTS.md`", wrong for
+        `ventures/print-atelier/AGENTS.md` saying "the scripts in
+        `package.json`", which answered with all fourteen manifests in the
+        monorepo. Resolution is now nearest-scope-first: the naming
+        document's own subtree, then the repository. Without it the count
+        was 129. Both directions of error are now disclosed in the
+        generated finding rather than only in the README -- an upper bound
+        on what the prompt directs (a named path counts whether the
+        document orders the read or merely mentions the file) and a lower
+        bound on the surface (only prose is walked through). A cue-word
+        classifier for imperative mood was built, measured against
+        `CLAUDE.md`, found to drop two files that file explicitly orders
+        read, and discarded in favour of the stated bounds.
+      - >-
+        Verified rather than trusted: 84 tests pass (15 new, pinning the
+        fixed point, cycle termination, depth attribution, scoped
+        resolution, the walkable-suffix bound, and that the closure is
+        strictly larger than its own first hop against this repository);
+        the results file regenerates byte-identically under a different
+        `PYTHONHASHSEED`; both documented CLI invocations run clean;
+        `validate_candidates.py`, `validate_doc_consistency.py`,
+        `portfolio/router/validate.py` and the pipeline's own 24 tests all
+        pass. Opened as #665, all 3 attached checks green, `git fetch` and
+        `git merge-tree` re-checked against the live `main` tip
+        immediately before merging, then self-merged. Internal-only
+        (`portfolio/pipeline/` plus repointing one CI test-runner workflow
+        at the new dated results file so it would not land red), no
+        `ventures/*` app code, nothing published, no credential used --
+        agent-decidable per `CLAUDE.md`. The 34-case accuracy corpus was
+        deliberately left unchanged: R7 fires on a non-empty closure and
+        did before, so this changes how large the closure is, not when the
+        rule speaks, and re-deriving that corpus would spend budget without
+        moving a number.
+      - >-
+        No score moves -- `ai_leverage` stays 8 and the verdict stays park;
+        the finding gets larger, not different. Restarted the designated
+        branch from the fresh `main` tip per the merged-PR-branch rule
+        before writing this entry. No revenue; the $0 ceiling is unchanged.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work, maintain and improve the development
+        process" session. `session_gate.py` -> PROCEED (cadence at the
+        maintenance rate the $0 ceiling implies, but flagged 2 distinct
+        sessions committing within a 15-minute window in the last 6h).
+        Checked the 4 open PRs (#583, #531, #372, #368) and issue #139
+        first: all four are already correctly human-gated by prior
+        sessions per their own bodies (deployable venture code or
+        unattended automation) -- nothing to consolidate or re-derive.
+      - >-
+        Took the latest ledger entry's own named next step instead:
+        today's `npm-reachability-triage` pnpm-support pass (#659/#661/#662)
+        flagged that reading a second lockfile format took readable pnpm
+        projects from 9 to 16 while the hand-verified sample stayed at 7
+        npm products, and said explicitly "a session with a pass to spend
+        on this probe should spend it there, not on a third lockfile
+        format." pnpm's dev/production classification is derived by graph
+        traversal rather than read from a stored flag, and nothing had
+        checked that derivation against anything independent of the code
+        that produces it.
+      - >-
+        Built `verify_pnpm_dev_classification.py`: a from-scratch traversal
+        of the raw `pnpm-lock.yaml`, calling none of `triage.pnpm`'s own
+        code, diffed against `triage.pnpm.load()`'s answer for every
+        installed package across all 7 of `retail-pilot-intel`'s pnpm
+        importers -- not scoped to only the two `esbuild` findings an
+        advisory currently names, since a check that narrow would say
+        nothing about the packages no advisory currently flags. 0
+        mismatches across all 7 importers and every component each
+        resolves (~140-153 per importer). This is the pnpm counterpart to
+        the npm side's existing structural cross-check
+        (`verify_suppressions.py`), not a hand review of advisory text --
+        `retail-pilot-intel` has produced only `dependency-path` findings
+        so far, none of `build-surface` or `server-surface:*`, so that
+        narrower gap stays open and the updated `ACCURACY_NOTE` says so.
+      - >-
+        Verified: 282 tests pass (unchanged -- this is a standalone script
+        in the same pattern as `verify_suppressions.py`, not
+        pytest-covered), `pyflakes` clean, the script itself exits 0 with
+        0 mismatches, and `validate_doc_consistency.py` clean. Opened as
+        #669, CI green, `git fetch` and `git merge-tree` re-checked against
+        the live `main` tip immediately before merging, then self-merged.
+        Internal-only (`portfolio/pipeline/probes/npm-reachability-triage/`
+        own script, evidence file, README, and `evidence.py` constants/
+        prose), no `ventures/*` app code, nothing published, no credential
+        used, no score change -- agent-decidable per `CLAUDE.md`.
+      - >-
+        Restarted the designated branch from the fresh `main` tip per the
+        merged-PR-branch rule before writing this entry. No revenue; the
+        $0 ceiling is unchanged.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects, maintain and improve the
+        development process, increase profit" session. `session_gate.py` ->
+        PROCEED. Checked the 4 open PRs (#583, #531, #372, #368) and issue
+        #139 against a fresh `main` fetch first: all four still correctly
+        human-gated by prior sessions (deployable `ventures/*` app code or
+        unattended automation), still mergeable against current `main` --
+        nothing to consolidate or re-derive. `portfolio/router/allocate.py`
+        showed 0/10 ventures dispatchable, all blocked on the same
+        publish-approval decision, matching prior sessions' finding.
+      - >-
+        Took the immediately preceding entry's own named next step: its
+        `verify_pnpm_dev_classification.py` (merged as #669) closed the
+        structural half of the pnpm accuracy gap and named the half it
+        deliberately left open -- a rule's reading of a real advisory's
+        *text*, since `retail-pilot-intel` had produced only
+        `dependency-path` findings and nobody had read what they named.
+        Built the hand review for that one claim (`esbuild`/
+        `GHSA-gv7w-rqvm-qjhr`, suppressed on both `apps/docs` and
+        `apps/portal`): read against the real advisory text and the raw
+        `pnpm-lock.yaml`/`package.json`, independently of `triage.pnpm` and
+        of #669's script. Verdict correct -- `esbuild` is reachable only
+        through `vite`/`tsx`, both `devDependencies` in both apps.
+      - >-
+        Found something the structural check could not have: the advisory
+        itself, `GHSA-gv7w-rqvm-qjhr`, is a **withdrawn OSV record**. Its
+        own text names the affected code as esbuild's Deno module, not the
+        npm package installed here -- a feed cataloguing artifact, not a
+        claim about this project, and a different failure mode from a wrong
+        reachability verdict. Recorded distinctly in `evidence.py`'s
+        `ACCURACY_NOTE` and the probe's README so the two are not
+        conflated.
+      - >-
+        **Caught a live instance of the duplicate-work pattern this file
+        has warned about since 2026-08-18, in real time, before it cost
+        anything.** This session picked the same next step the immediately
+        preceding session had (both reading the same "spend a pass on this
+        probe" line), built a first attempt at the identical hand-review
+        work concurrently, then re-fetched `main` before pushing and found
+        #669 had already merged. Rather than pushing a rival PR, discarded
+        the redundant hunks (the general accuracy-note rewrite, already
+        done more thoroughly by #669's all-importers structural sweep),
+        reset onto the merged tip, and kept only what #669's own README
+        said was still missing plus the withdrawn-advisory finding it could
+        not have produced. The mechanism that worked was exactly the one
+        the 2026-08-22 entry named: re-checking `main` a second time, after
+        building and immediately before pushing, not only before starting.
+      - >-
+        Verified: 283 tests pass (282 + 1 new), `pyflakes` clean on both
+        touched modules, and all three repo validators
+        (`validate_candidates.py`, `validate_doc_consistency.py`,
+        `portfolio/router/validate.py`) pass unchanged. Opened as #671, all
+        3 attached checks green, `git fetch` and `git merge-tree`
+        re-checked against the live `main` tip immediately before merging,
+        then self-merged. Internal-only
+        (`portfolio/pipeline/probes/npm-reachability-triage/` own evidence
+        file, `evidence.py` constants/prose, README, one new test), no
+        `ventures/*` app code, nothing published, no credential used, no
+        score change -- agent-decidable per `CLAUDE.md`.
+      - >-
+        Restarted the designated branch from the fresh `main` tip per the
+        merged-PR-branch rule before writing this entry. No revenue; the
+        $0 ceiling is unchanged.
+    mrr_end: null

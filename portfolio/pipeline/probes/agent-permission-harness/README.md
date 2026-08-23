@@ -53,8 +53,10 @@ itself in exactly those terms. Writer sets are ordered, widest last:
 
 ## The result
 
-Full report: [`results-2026-08-21.md`](results-2026-08-21.md). Regenerate with
-`python3 harness.py`.
+Full report: [`results-2026-08-23.md`](results-2026-08-23.md). Regenerate with
+`python3 harness.py`. [`results-2026-08-21.md`](results-2026-08-21.md) is kept
+as the prior snapshot: the two differ only in R7, and the difference is the
+subject of the amendment below.
 
 **7 findings across 2 of 31 workflow files — 1 defect, 6 posture records. All
 7 are decided from the artifact with nothing running. Zero require a running
@@ -132,19 +134,27 @@ README, every `ventures/*/VENTURE.yaml`, each venture's `IMPROVEMENT-PLAN.md`,
 `developmentprocess.tsx`, and — in the imperative — each venture's `AGENTS.md`
 ("heed them", "read their AGENTS.md first").
 
-Resolved against this checkout, that is **21 files, not 1**. Every one is an
-ordinary repository file. Every one is one merged pull request away from saying
-something else. And the agent reads all of them while holding
+Resolved against this checkout, that is **21 files, not 1** — and those 21 are
+only the first hop. `CLAUDE.md` is one of them, and what `CLAUDE.md` mostly does
+is issue further reading orders: the pipeline directory, the ledger README and
+its `break-even.md`, `re-verification.md`, the research index, the router
+README. None of those is named by the prompt. Taking the closure to its fixed
+point, as [the amendment below](#amendment-2026-08-23-the-closure-is-transitive-and-was-measured-one-hop-deep)
+records, the instruction set is **115 files at a maximum depth of 4**.
+
+Every one is an ordinary repository file. Every one is one merged pull request
+away from saying something else. And the agent reads all of them while holding
 `contents: write`, `pull-requests: write`, `id-token: write`, `GITHUB_TOKEN` and
 `OPENCODE_API_KEY`.
 
 An attack-replay harness pointed at this agent tests the `prompt:` input. That
-input is 1 of the 21 files in the instruction set, and it is the only one of the
-21 that an attacker has no particular reason to write to. The harness would test
-the surface at a ratio of 1:21, and it would test the wrong end of it.
+input is 1 of the 115 files in the instruction set, and it is the only one of
+the 115 that an attacker has no particular reason to write to. The harness would
+test the surface at a ratio of 1:115, and it would test the wrong end of it.
 
 This is not a subtle property that needed a clever tool. It is four regexes over
-a markdown file and a glob expansion — about 60 lines. It is also invisible to
+a markdown file, a glob expansion, and a worklist that keeps going until it
+stops finding new files — about 120 lines. It is also invisible to
 the dynamic method by construction: replay measures the agent's *response* to
 inputs you already thought to send, and the entire point here is that the
 instruction surface is larger than the one you were aiming at.
@@ -159,9 +169,80 @@ and it is statically enumerable wherever the prompt names paths.
 
 Where it stops being enumerable — and this bound is real — is when a prompt
 delegates *discovery* rather than paths: "read whatever the venture's docs tell
-you to." This probe cannot follow that, and neither can a regex. It follows one
-hop from a prompt that names its paths. This repository's prompt does name them,
-which is why the number here is exact.
+you to." This probe cannot follow that, and neither can a regex. It follows
+named paths, to a fixed point, from a prompt that names its paths. This
+repository's prompt does name them, which is why the number here is exact.
+
+### Amendment 2026-08-23: the closure is transitive, and was measured one hop deep
+
+Everything above this line was written against a measurement of **one hop**.
+The rule's own docstring said the instruction set was "the transitive closure of
+what the prompt directs the agent to read," the paragraph above said the
+property "is statically enumerable wherever the prompt names paths," and the
+implementation expanded the prompt's own paths and stopped. That gap is the same
+defect class this pipeline keeps finding in itself — a documented figure the
+tool does not actually produce — and it understated the finding in the direction
+that flatters it.
+
+`instruction_closure()` now walks to a fixed point. Against this repository:
+
+| | Files |
+|---|---:|
+| prompt input | 1 |
+| depth 1 — paths the prompt names | 21 |
+| depth 2 | 55 |
+| depth 3 | 35 |
+| depth 4 | 4 |
+| **instruction set (fixed point)** | **115** |
+
+The first-hop number is unchanged, so nothing above it is retracted; what
+changed is that the walk no longer stops there. Three things are worth naming
+about the result:
+
+- **The reachable set is what an attacker would pick.** Depth 2 includes
+  `portfolio/ledger/2026-08.yaml`, `portfolio/router/allocate.py` and
+  `portfolio/scoring/venture-scores.yaml` — the ledger the router reads and the
+  code that decides which venture an unattended session works on next, all
+  three reached through `portfolio/router/README.md`. The prompt names none of
+  them.
+- **The tool is inside the surface it measures.**
+  `portfolio/pipeline/probes/agent-permission-harness/harness.py` is itself in
+  the closure, at depth 3, reached because `portfolio/research/README.md` names
+  it. A file in an agent's instruction set that also decides what that agent is
+  told about its own instruction set is worth stating out loud, and it is not a
+  hypothetical here.
+- **A fix on the way in.** Recursion exposed a resolution bug that one hop had
+  hidden. Bare filenames (`` `package.json` ``, `` `AGENTS.md` ``) were resolved
+  by a repository-wide walk, which is right for a root-level prompt saying "each
+  venture's `AGENTS.md`" and wrong for `ventures/print-atelier/AGENTS.md` saying
+  "the scripts in `package.json`" — that answered with all fourteen manifests in
+  the monorepo. Resolution is now nearest-scope-first: the naming document's own
+  subtree, then the repository. Without it the count was 129; of the extra 14,
+  eleven were other ventures' `package.json` and the rest were the same shape —
+  `vitest.config.ts`, `not-found.tsx`, and one venture's `ORCHESTRATOR.md`
+  pulled in by a *different* venture's `AGENTS.md`. That last one is the clearest
+  case: `ventures/retail-pilot-intel/AGENTS.md` says `` `ORCHESTRATOR.md` `` and
+  means its own, which is what the scoped walk now returns.
+
+**Two bounds, both stated in the finding text rather than here alone.** The
+count is an *upper* bound on what the prompt directs: a named path is counted
+whether the document orders the read or merely mentions the file. Distinguishing
+those is imperative mood in prose, and a cue-word classifier was tried and
+measured worse than either bound — on `CLAUDE.md` it dropped
+`portfolio/pipeline/README.md` and `portfolio/research/README.md`, both of which
+that file explicitly orders read. Over-approximating is also the safe direction
+for a reachability rule, which asks who can *write* to the surface, not how
+often the agent reads it. The count is simultaneously a *lower* bound on the
+surface: only prose is walked through, so a path named solely inside a `.yaml`
+or `.tsx` already in the closure is missed.
+
+The measured-accuracy corpus is deliberately unchanged at 34 cases. R7 fires on
+a non-empty closure and did before; this changes how large the closure is, not
+when the rule speaks, so re-deriving that corpus would spend budget without
+moving a number. The transitive behaviour is pinned in `test_harness.py`
+instead — the fixed point, cycle termination, depth attribution, the scoping
+rule, the walkable-suffix bound, and the claim that against this repository the
+closure is strictly larger than its first hop.
 
 ## What this probe deliberately does not do
 
@@ -274,17 +355,26 @@ already in `portfolio/router/requirements.txt`.
 
 ## Tests
 
-60 tests. Each rule is pinned on a synthetic repository in both directions —
+84 tests. Each rule is pinned on a synthetic repository in both directions —
 the negative cases matter more than the positive ones, since a rule that fires
 on everything is worth less than no rule.
 
 `TestHeadlineNumbersAgainstThisRepo` asserts the claims above directly against
 the live `.github/workflows`: that R3 still finds nothing, that nothing found
 requires a running agent, that the missing prompt script is still missing, that
-the delimiter is still fixed, and that the instruction closure is still an order
-of magnitude larger than the prompt. A workflow edit that changes any of those
-turns this red rather than leaving a document quietly describing a repository
-that no longer exists.
+the delimiter is still fixed, that the instruction closure is still an order of
+magnitude larger than the prompt, and — since the 2026-08-23 amendment — that
+the closure is strictly larger than its own first hop and reaches files the
+prompt never names. A workflow edit that changes any of those turns this red
+rather than leaving a document quietly describing a repository that no longer
+exists.
+
+`TestInstructionClosureWalk` pins the walk itself on synthetic trees, apart from
+the rule that reports it: that it continues past the first hop, that a cycle
+terminates (`CLAUDE.md` and `README.md` cite each other here, so this is the
+ordinary case), that each file is attributed to whichever document reached it
+first, that data files are counted but not walked through, and that bare
+filenames resolve against the naming document rather than the whole repository.
 
 Two of those tests exist because a bug got through: the fixture builders assert
 that they produce the YAML they claim to. An indentation error in a fixture made

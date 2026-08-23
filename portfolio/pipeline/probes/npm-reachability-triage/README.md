@@ -812,95 +812,171 @@ should spend it there, not on a third lockfile format.
 and closing a gap the previous pass declared, plus fixing two stale figures the
 previous pass introduced, is not a result worth a point.
 
-## Hand-verifying the pnpm gap found a withdrawn-advisory defect (2026-08-23)
+## pnpm dev-classification, hand-verified (2026-08-23)
 
-The previous pass named the open task precisely: the hand review behind the
-wrong-suppression rate covers npm projects only, pnpm's dev-only
-classification is derived rather than read, and "a session with a pass to
-spend on this probe should spend it there, not on a third lockfile format."
-This pass spent it there.
+The previous section named a specific, scoped gap rather than a vague one: the
+pnpm dev/production classification is *derived* by graph traversal
+(`triage.pnpm._traverse`), not read from a stored flag the way npm's
+`dependency-path` rule is, and nothing had checked that derivation against
+anything independent of the code that produces it.
 
-### What the newly-readable set actually contains
+[`verify_pnpm_dev_classification.py`](verify_pnpm_dev_classification.py) closes
+that gap the same way [`verify_suppressions.py`](verify_suppressions.py) closes
+the equivalent one for npm: it re-reads the raw `pnpm-lock.yaml` with
+`yaml.safe_load` and walks `dependencies`/`optionalDependencies` edges with a
+traversal written from scratch, calling none of `triage.pnpm`'s own code, then
+diffs its answer against `triage.pnpm.load()`'s for every installed package —
+not only the two the engine happens to have flagged today, since a check
+scoped to known findings would say nothing about the packages no advisory
+currently names.
 
-Re-running the tool over every one of the 9 projects the pnpm reader and the
+```
+python3 verify_pnpm_dev_classification.py   # writes verify-pnpm-dev-classification-2026-08-23.json, exits 1 if any mismatch found
+```
+
+**Result: 0 mismatches across all 7 pnpm importers in `retail-pilot-intel`**
+(the lockfile root plus `apps/docs`, `apps/portal`, and the four `packages/*`
+workspace members) **and all ~140–153 components each resolves**, not just the
+two `esbuild` findings named in the previous section. Raw output:
+[`verify-pnpm-dev-classification-2026-08-23.json`](verify-pnpm-dev-classification-2026-08-23.json).
+
+This also gives the two `esbuild`/`GHSA-gv7w-rqvm-qjhr` suppressions named
+above (`apps/docs`, `apps/portal`) an independent structural check they did not
+previously have: `esbuild@0.25.12` is reached in this lockfile only through
+`vite`, and `vite` appears in both apps' own `dependencies` and
+`devDependencies` blocks in exactly one place — `devDependencies` — confirmed
+directly against `package.json`, not inferred. Traced from the importer's own
+production roots (`react`, `react-dom`, `react-router-dom`), neither `vite` nor
+`esbuild` is reachable by any path this independent walk can follow.
+
+**What this does not cover.** This is a structural check, the pnpm counterpart
+to `verify_suppressions.py` — it confirms the *reachability fact* the engine's
+dev/production split rests on, the same way the npm structural check does. It
+is not the *hand review* the npm side also has (`wrong-suppression-verification-2026-08-21.json`,
+reading real advisory text against real evidence): `retail-pilot-intel`
+currently produces only the two `dependency-path` findings named above, so
+there is no `build-surface` or `server-surface:*` pnpm claim yet to hand-review
+the reasoning of, and a project only reachable through a `link:` outside this
+workspace or a git/tarball dependency is still untested, because
+`retail-pilot-intel`'s lockfile has none (`unresolved_production_edges` is
+empty on every real importer here, pinned by
+`tests/test_pnpm.py::test_every_real_importer_resolves_with_no_unfollowable_edge`).
+The verified sample is one pnpm venture's honest classification of every
+package it installs, not a general proof pnpm's dev/production split can never
+misfire on a lockfile shaped differently from this one.
+
+## The pnpm advisory-text hand review, closed (2026-08-23)
+
+The section above left one gap open by name: a structural check confirms the
+*reachability fact* a pnpm suppression rests on, not that a rule's reading of
+a real advisory's *text* is correct — the npm side has that as a separate
+hand review (`wrong-suppression-verification-2026-08-21.json`), and pnpm had
+no example of it, because `retail-pilot-intel` had produced only
+`dependency-path` findings and nobody had read what they actually named.
+
+It has one distinct claim to check: `esbuild`/`GHSA-gv7w-rqvm-qjhr`,
+suppressed `dependency-path` on both `apps/docs` and `apps/portal`. Checked
+by hand, independently of `triage.pnpm` and of
+`verify_pnpm_dev_classification.py` above (a from-scratch BFS over the raw
+`pnpm-lock.yaml` `importers`/`snapshots` maps, plus a direct read of both
+apps' `package.json` and a grep of both apps' own source for the literal
+string `esbuild`): **the suppression is correct.** `esbuild` is reachable in
+this lockfile only through `vite` and `tsx`, both declared solely as
+`devDependencies` in both apps; neither app's production dependency closure
+(the same 7 packages in both) nor its own source touches `esbuild` or `vite`.
+Full record: [`wrong-suppression-verification-pnpm-2026-08-23.json`](wrong-suppression-verification-pnpm-2026-08-23.json).
+
+**A second finding, independent of reachability.** `GHSA-gv7w-rqvm-qjhr` is
+itself a **withdrawn OSV advisory** — its own text says the affected code is
+the esbuild *Deno* module (`github.com/esbuild/deno-esbuild`), "not in a
+supported ecosystem," and the affected-package/purl field naming npm's
+`esbuild` is an OSV cataloguing artifact rather than a claim that the npm
+package installed here is vulnerable. That is a data-quality fact about the
+feed this tool reads, not this tool's reachability logic; recorded here
+because a suppressed finding whose underlying advisory should not have
+matched at all is a distinct failure mode from a wrong reachability verdict,
+and worth being able to tell apart.
+
+Same scope note as the structural check above: one claim, checked once, on
+the two findings this venture has produced today. It says nothing about a
+`build-surface` or `server-surface:*` pnpm claim, because none exists yet to
+check.
+
+## The withdrawn-advisory fact above is now a fix, not just a note (2026-08-23)
+
+The section above filed `GHSA-gv7w-rqvm-qjhr`'s withdrawn status as "a
+data-quality fact about the feed... not this tool's reachability logic" — true
+of that one instance, but the fact itself was general: nothing in
+`triage.advisories.advisory_from_osv` read OSV's `withdrawn` field at all, on
+any advisory, in any project. This pass, running concurrently, turned that
+observation into a fix and then asked how far the same bug reached.
+
+### The newly-readable set had nothing else to find
+
+Re-running the tool over the other 8 projects the pnpm reader and the
 repository walk had made readable but nobody had hand-verified —
-`retail-pilot-intel`'s root, its 2 apps and its 4 packages,
-`ai-engineering-academy/site`, and `real-estate-agent-photo-app/pipeline` —
-produced almost nothing to verify:
-**2 raw findings total, both the same advisory** (`GHSA-gv7w-rqvm-qjhr`,
-`esbuild@0.25.12`, on `retail-pilot-intel/apps/docs` and `apps/portal`), both
-suppressed `dev-only`. Every other project in the set — including all of
-`ai-engineering-academy/site` and `real-estate-agent-photo-app/pipeline` —
-matched no advisory at all.
+`retail-pilot-intel`'s root, its 2 apps and its 4 packages minus the one pair
+of findings above, plus `ai-engineering-academy/site` and
+`real-estate-agent-photo-app/pipeline` — matched no advisory at all. The two
+`GHSA-gv7w-rqvm-qjhr` findings the sections above already examined were the
+entire yield of the newly-readable set.
 
-### Reading the advisory's own text, as the existing methodology requires
+### The fix, and what it found elsewhere
 
-The hand-review methodology this probe already established (the
-[wrong-suppression pass](#wrong-suppression-rate-hand-verified-2026-08-21))
-says to read the advisory text, not just trust the rule's verdict. Doing that
-for this one showed its title starts with the words **"Withdrawn Advisory"**:
-GitHub's advisory database retracted `GHSA-gv7w-rqvm-qjhr` outright, because
-the vulnerability it describes belongs to an npm-unrelated Deno module, never
-to the npm `esbuild` package this feed had it filed under.
-`triage.advisories.advisory_from_osv` had no code path that read OSV's
-`withdrawn` field — every advisory the feed shipped was treated as live,
-retracted or not. `pyflakes`-clean, `advisory_from_osv` now returns an
-advisory with no affected ranges when `withdrawn` is set, which both existing
-call sites already drop the same way they drop an advisory naming no package.
-Pinned by `tests/test_advisories.py`, a file this module had none of before.
-
-**654 of the current feed's 227,165 npm records (0.29%) are withdrawn.** Rare,
-but not rare enough that one hadn't already reached a suppressed finding in
-the sample this probe had already hand-verified.
-
-### The same defect was already inside the 7-product npm sample
+`advisory_from_osv` now returns an advisory with no affected ranges when OSV's
+`withdrawn` field is set, dropped by both existing callers the same way they
+already drop an advisory naming no package — `pyflakes`-clean, pinned by
+`tests/test_advisories.py`, a file this module had none of before. **654 of
+the current feed's 227,165 npm records (0.29%) are withdrawn** — rare, but not
+rare enough that only one had reached this portfolio.
 
 Re-running `run_portfolio_sample.py` against the fix over the original
-7-product sample turned up two more withdrawn records behaving the same way —
-`GHSA-8h3q-9fpp-c883` (`wrangler`, withdrawn as a duplicate of another
-advisory) and `GHSA-p5wg-g6qr-c7cg` (`eslint`, withdrawn) — both matched by the
-same `dependency-path` rule that caught the esbuild one. All three together
-account for 3 of the 53 distinct claims and 5 of the 102 raw findings the
-2026-08-21 pass hand-verified as correctly-reasoned suppressions — and they
-were: nothing about *how* the rule suppressed them was wrong, only the
-advisory feed handed the rule three records the database itself had retracted.
+7-product npm sample turned up two more withdrawn records behaving the same
+way as `GHSA-gv7w-rqvm-qjhr` — `GHSA-8h3q-9fpp-c883` (`wrangler`, withdrawn as
+a duplicate of another advisory) and `GHSA-p5wg-g6qr-c7cg` (`eslint`,
+withdrawn) — both matched by the same `dependency-path` rule. All three
+together account for 3 of the 53 distinct claims and 5 of the 102 raw findings
+the 2026-08-21 pass hand-verified as correctly-reasoned suppressions — and
+they were: nothing about *how* the rule suppressed them was wrong, only the
+advisory feed handed it three records the database itself had retracted.
 `ACCURACY_DISTINCT_CLAIMS` and `ACCURACY_RAW_FINDINGS` in
 [`evidence.py`](src/triage/evidence.py) move to 50 and 97; `ACCURACY_WRONG_CLAIMS`
 stays 0, because none of the 50 surviving claims changed verdict.
 
-**A category the 2026-08-21 pass never measured: is an *unsuppressed* finding
-real?** Two of the three withdrawn advisories were also reported — on a
-different, deploying product — as **shipped**, not suppressed:
-`ai-first-markets` had 3 findings reported as live vulnerabilities before this
-fix (`GHSA-gv7w-rqvm-qjhr`, `GHSA-8h3q-9fpp-c883`, and the real one,
-`GHSA-f88m-g3jw-g9cj` — `sharp` inheriting a libvips CVE), and
+### A category neither hand review above measured: is an unsuppressed finding real?
+
+Two of the three withdrawn advisories were also reported — on a different,
+deploying product, unrelated to any pnpm project — as **shipped**, not
+suppressed: `ai-first-markets` had 3 findings reported as live vulnerabilities
+before this fix (`GHSA-gv7w-rqvm-qjhr`, `GHSA-8h3q-9fpp-c883`, and the real
+one, `GHSA-f88m-g3jw-g9cj` — `sharp` inheriting a libvips CVE), and
 `local-site-studio` had 1 (`GHSA-gv7w-rqvm-qjhr`). After the fix, both drop to
 just the real `sharp` finding. Two-thirds of what `ai-first-markets` was
 reporting as deployed vulnerabilities were noise from retracted advisory
 records — a false alarm, the opposite failure mode from a wrong suppression,
-and one this probe had never checked for because its whole methodology was
-built to catch the other direction.
+and one this probe's wrong-suppression methodology was never built to catch,
+since it counts suppressed findings only.
 
 ### What this closes, and what it does not
 
 As of this pass, there is nothing left unverified in the set that opened the
 gap: all 9 previously-unchecked projects produce zero findings once withdrawn
 records are excluded, and the npm sample's own hand-verified suppressions are
-now net of the same defect. This is a point-in-time result. It does not mean
-pnpm's derived dev-only classification has been proven correct in general —
-that claim still rests on the structural reasoning in
-["An edge the reader cannot follow no longer disappears"](#an-edge-the-reader-cannot-follow-no-longer-disappears)
-above, not on a hand review, because there was nothing but the one withdrawn
-advisory for a hand review to exercise. A pnpm project with a real, live
-suppressed finding still has not been hand-verified; there has not yet been
-one to check.
+now net of the same defect. This is a point-in-time result, not a structural
+guarantee the way the dev-only reachability logic itself is — a fresh advisory
+landing on one of those 9 tomorrow would reopen it. It does not mean pnpm's
+derived dev-only classification has been proven correct in general; that claim
+still rests on the structural check two sections above, not on a hand review,
+because there was nothing but the one (now-filtered) withdrawn advisory for a
+hand review to exercise. A pnpm project with a real, live suppressed finding
+still has not been hand-verified; there has not yet been one to check.
 
 Full per-record detail: [`withdrawn-advisories-2026-08-23.json`](withdrawn-advisories-2026-08-23.json).
 
-**No score moved.** No revenue; the $0 ceiling is unchanged. This closes a
-gap the previous two passes each named and neither closed, which is the
-whole reason it was the next thing to spend a pass on rather than a fourth
-lockfile format.
+**No score moved.** No revenue; the $0 ceiling is unchanged. This closes a gap
+three passes in a row named and none had fully closed, which is the whole
+reason it was the next thing to spend a pass on rather than a fourth lockfile
+format.
 
 ## Usage
 

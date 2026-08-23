@@ -55,6 +55,7 @@ import re
 import sys
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
+from typing import NamedTuple, Sequence
 
 try:
     import yaml
@@ -658,8 +659,8 @@ PROMPT_PATH_DIR = re.compile(r"`([\w][\w./*-]*/)`")
 PRUNED_DIRS = {".git", "node_modules", "dist", "build", ".next", ".venv", "vendor", "out"}
 
 
-def _expand_prompt_path(spec: str, repo_root: Path) -> list[str]:
-    """Resolve a path a prompt names into the concrete files it selects.
+def _expand_prompt_path(spec: str, repo_root: Path, base_dir: str = "") -> list[str]:
+    """Resolve a path a document names into the concrete files it selects.
 
     Prompts name paths the way documentation does, in three shapes, and all
     three have to be handled or the closure is undercounted into looking safe:
@@ -673,6 +674,19 @@ def _expand_prompt_path(spec: str, repo_root: Path) -> list[str]:
     `Path.glob` is used rather than `fnmatch` deliberately: `fnmatch`'s `*`
     crosses `/`, so `ventures/*/VENTURE.yaml` would also collect
     `ventures/a/b/c/VENTURE.yaml` and inflate every count here.
+
+    `base_dir` is the directory of the document doing the naming, and it only
+    affects the bare-filename shape, where it is **nearest-scope-first**: the
+    naming document's own subtree is searched before the repository-wide walk.
+    This matters once the closure recurses (see `instruction_closure`). A
+    repository-root prompt saying "each venture's `AGENTS.md`" does mean every
+    copy, and gets it, because `.github/prompts/` contains none. But
+    `ventures/print-atelier/AGENTS.md` saying "the scripts in `package.json`"
+    means *its* `package.json`, and the repository-wide walk answers that with
+    all fourteen in the monorepo. Left unscoped, one such mention inflated the
+    measured closure by more than a tenth -- a count that is mostly other
+    ventures' build manifests is a statement about `rglob`, not about an
+    instruction surface.
     """
     normalised = re.sub(r"<[^>]+>", "*", spec).rstrip("/")
     if not normalised:
@@ -689,8 +703,17 @@ def _expand_prompt_path(spec: str, repo_root: Path) -> list[str]:
         return [normalised]
 
     if "/" not in normalised:
-        # A bare filename the repository root does not have. The prompt means
-        # the per-venture copy, so resolve it to every copy that exists.
+        # A bare filename the repository root does not have. Nearest scope
+        # first: the naming document's own subtree, then the whole repository.
+        scope = repo_root / base_dir if base_dir else repo_root
+        if scope.is_dir() and scope != repo_root:
+            scoped = sorted(
+                str(p.relative_to(repo_root))
+                for p in scope.rglob(normalised)
+                if p.is_file() and not _pruned(p, repo_root)
+            )
+            if scoped:
+                return scoped
         return sorted(
             str(p.relative_to(repo_root))
             for p in repo_root.rglob(normalised)
@@ -717,6 +740,99 @@ def find_prompt_files(wf: WorkflowFile, repo_root: Path) -> list[str]:
     return sorted(dict.fromkeys(candidates))
 
 
+# Documents the closure walks *through*. A path in the closure is counted
+# whatever its extension, but only prose is re-read for further reading orders:
+# a `VENTURE.yaml` or a `developmentprocess.tsx` is data the agent is told to
+# consult, not a document that issues its own reading orders. That makes the
+# count below a lower bound in one direction -- see `instruction_closure`.
+CLOSURE_WALKABLE_SUFFIXES = (".md",)
+
+# A prompt that delegates reading can send the agent through a chain of
+# documents that cites itself. Termination does not depend on this bound -- the
+# walk is a fixed point over a visited set, so a cycle ends on its own. It
+# exists only so a pathological generated tree cannot make `analyse()` run long.
+# When it binds it is visible rather than silent: the per-depth breakdown in the
+# finding text ends at this number.
+CLOSURE_MAX_DEPTH = 16
+
+
+class ClosureEntry(NamedTuple):
+    """One file in an agent's instruction set, and how the agent gets to it."""
+
+    depth: int          # hops from the prompt; 1 is a path the prompt itself names
+    source: str         # the document that named it
+    spec: str           # the path expression that document used
+
+
+def instruction_closure(
+    repo_root: Path, prompt_files: Sequence[str]
+) -> dict[str, ClosureEntry]:
+    """Every repository file an agent's prompt directs it to read, transitively.
+
+    R7's claim has always been that an agent's instruction set is the
+    *transitive* closure of what its prompt directs it to read. The rule
+    measured one hop of that, and one hop understates it in the direction that
+    matters: `CLAUDE.md` is reached in one hop, and `CLAUDE.md` spends most of
+    its length ordering reads of the pipeline, ledger, research and router
+    documents, none of which the prompt names. Against this repository the one
+    hop is 21 files and the fixed point is 115, at a maximum depth of 4.
+
+    What is counted, stated so the number can be checked rather than believed:
+
+    * A file enters the closure when a document already in it names that path.
+      "Names" is the same rule at every depth -- a backticked path expression,
+      resolved by `_expand_prompt_path` against the naming document's
+      directory. The rule does not try to distinguish an order to read a file
+      from a mention of one, because the difference is imperative mood in prose
+      and a regex reading of it was measurably worse than either bound: on
+      `CLAUDE.md` a cue-word classifier dropped `portfolio/pipeline/README.md`
+      and `portfolio/research/README.md`, both of which that file explicitly
+      orders read. So this is an **upper bound** on what the prompt directs,
+      and it is the safe direction for a reachability measurement, where the
+      question R7 asks is who can write to the surface rather than how often
+      the agent reads it.
+    * Only prose is walked through (`CLOSURE_WALKABLE_SUFFIXES`). Data files
+      are counted but not re-read, so in that direction the count is a **lower
+      bound**: a path named only inside a `.yaml` or `.tsx` in the closure is
+      missed.
+
+    Both bounds are stated in the finding text, because a single number with an
+    undisclosed direction of error is the failure mode this probe exists to
+    avoid.
+    """
+    closure: dict[str, ClosureEntry] = {}
+    seen: set[str] = set(prompt_files)
+    frontier = [(p, 0) for p in sorted(prompt_files)]
+
+    while frontier:
+        nxt: list[tuple[str, int]] = []
+        for doc, depth in frontier:
+            path = repo_root / doc
+            if path.suffix not in CLOSURE_WALKABLE_SUFFIXES or not path.is_file():
+                continue
+            try:
+                body = path.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            base_dir = str(Path(doc).parent) if Path(doc).parent != Path(".") else ""
+            specs = set(PROMPT_PATH.findall(body)) | set(PROMPT_PATH_DIR.findall(body))
+            # Sorted, not set order, at every level. Several specs can resolve
+            # to the same file and the first arrival wins, so unsorted
+            # iteration makes the report text differ run to run under hash
+            # randomisation. A results file that cannot be regenerated
+            # byte-identically is not a measurement anyone can check.
+            for spec in sorted(specs):
+                for resolved in _expand_prompt_path(spec, repo_root, base_dir):
+                    if resolved in seen:
+                        continue
+                    seen.add(resolved)
+                    closure[resolved] = ClosureEntry(depth + 1, doc, spec)
+                    if depth + 1 < CLOSURE_MAX_DEPTH:
+                        nxt.append((resolved, depth + 1))
+        frontier = nxt
+    return closure
+
+
 def rule_agent_instruction_closure(wf: WorkflowFile, repo_root: Path) -> list[Finding]:
     """R7: the agent's real instruction set is every file its prompt sends it to.
 
@@ -727,6 +843,11 @@ def rule_agent_instruction_closure(wf: WorkflowFile, repo_root: Path) -> list[Fi
     actually write to. The closure is enumerable from the prompt text, and its
     writer set is REPO_WRITE -- every file in it is one merged pull request away
     from saying something else.
+
+    The closure is a fixed point, not one hop: a document the prompt names can
+    itself order further reads, and here the first-hop `CLAUDE.md` does little
+    else. See `instruction_closure` for what is counted and which way each of
+    the two bounds runs.
     """
     findings = []
     prompt_files = find_prompt_files(wf, repo_root)
@@ -740,27 +861,33 @@ def rule_agent_instruction_closure(wf: WorkflowFile, repo_root: Path) -> list[Fi
     if not agent_jobs:
         return findings
 
+    closure = instruction_closure(repo_root, prompt_files)
+    if not closure:
+        return findings
+
+    direct = sorted(p for p, e in closure.items() if e.depth == 1)
+    max_depth = max(e.depth for e in closure.values())
+    per_depth = ", ".join(
+        f"{sum(1 for e in closure.values() if e.depth == d)} at depth {d}"
+        for d in range(1, max_depth + 1)
+    )
+    # The specs are the prompt's own words, so only first-hop ones are quoted:
+    # a depth-3 spec is some other document's phrasing and reads as noise here.
+    direct_specs = sorted({closure[p].spec for p in direct})
+    # Sampled from beyond the first hop, since those are the files the prompt
+    # never names and the reason the walk recurses at all. A closure that stops
+    # at depth 1 has nothing to show here and says so rather than trailing an
+    # empty list.
+    beyond = sorted(p for p, e in closure.items() if e.depth > 1)
+    sample = (
+        ", among them " + ", ".join(f"`{p}`" for p in beyond[:6]) if beyond else ""
+    )
+
     for job in agent_jobs:
-        closure: dict[str, str] = {}
-        for prompt_file in prompt_files:
-            body = (repo_root / prompt_file).read_text()
-            specs = set(PROMPT_PATH.findall(body)) | set(PROMPT_PATH_DIR.findall(body))
-            # Sorted, not set order. Several specs can resolve to the same file
-            # (`VENTURE.yaml` and `ventures/*/VENTURE.yaml` both do here) and
-            # setdefault keeps whichever arrives first, so unsorted iteration
-            # makes the report text differ run to run under hash randomisation.
-            # A results file that cannot be regenerated byte-identically is not
-            # a measurement anyone can check.
-            for spec in sorted(specs):
-                for resolved in _expand_prompt_path(spec, repo_root):
-                    closure.setdefault(resolved, spec)
-        if not closure:
-            continue
-        sample = sorted(closure)[:8]
         findings.append(
             Finding(
                 rule="R7-agent-instruction-closure",
-                        severity="defect",
+                severity="defect",
                 workflow=wf.rel,
                 job=job.name,
                 line=job.line,
@@ -770,14 +897,20 @@ def rule_agent_instruction_closure(wf: WorkflowFile, repo_root: Path) -> list[Fi
                 ),
                 detail=(
                     "The prompt handed to this agent directs it to read and heed "
-                    + ", ".join(f"`{spec}`" for spec in sorted(set(closure.values()))[:10])
-                    + f" -- which resolve to {len(closure)} files in this checkout, "
-                    f"among them "
-                    + ", ".join(f"`{p}`" for p in sample)
+                    + ", ".join(f"`{spec}`" for spec in direct_specs[:10])
+                    + f" -- which resolve to {len(direct)} files in this checkout. "
+                    "Those files order further reads of their own, and the fixed "
+                    f"point of that is {len(closure)} files ({per_depth})"
+                    + sample
                     + ". Every one is an ordinary repository file with writer set "
                     "REPO_WRITE, and the agent reads them while holding "
                     f"{_privilege_label(job)}. Hardening or replaying attacks against "
-                    "the prompt input alone leaves this surface untested."
+                    "the prompt input alone leaves this surface untested. The count "
+                    "is an upper bound on what the prompt directs (a named path is "
+                    "counted whether the naming document orders the read or merely "
+                    "mentions the file) and a lower bound on the surface (only "
+                    "prose is walked through, so a path named solely inside a data "
+                    "file in the closure is missed)."
                 ),
                 input_writer_set="REPO_WRITE",
                 privilege=_privilege_label(job),

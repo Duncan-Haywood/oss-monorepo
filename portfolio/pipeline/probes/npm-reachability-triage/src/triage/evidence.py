@@ -88,9 +88,9 @@ ACCURACY_WRONG_RAW_FINDINGS = 0
 #: `advisory_from_osv` gained a filter for OSV's `withdrawn` field on this
 #: date, found while hand-verifying the two `esbuild` suppressions that were
 #: the entire yield of re-running the tool over the nine projects the pnpm
-#: reader newly made visible (`retail-pilot-intel`'s seven packages plus two
-#: other no-deployment-mode projects) — the specific gap the note below used
-#: to describe as unclosed. Reading the advisory GHSA-gv7w-rqvm-qjhr actually
+#: reader newly made visible (`retail-pilot-intel`'s root, 2 apps and 4
+#: packages, plus two other no-deployment-mode npm projects) — the specific
+#: gap the note below used to describe as unclosed. Reading the advisory GHSA-gv7w-rqvm-qjhr actually
 #: named showed it had been withdrawn: GitHub's own advisory database retracted
 #: it as a misattribution, the affected package was never npm `esbuild` at
 #: all. `advisory_from_osv` had no field for `withdrawn` and matched it anyway.
@@ -122,15 +122,42 @@ WITHDRAWN_FILTER_ADDED_ON = "2026-08-23"
 #: `retail-pilot-intel`'s seven pnpm-resolved projects as unreadable; see
 #: `coverage-2026-08-23.json`.)
 #:
-#: The verification sample did **not** move with the analysable figure: the
-#: hand review behind the wrong-suppression rate covers npm projects only and
-#: has not been repeated on a pnpm one, so the gap between what is read and
-#: what has been checked by hand is wider than it was, not narrower.
+#: The hand-reviewed advisory-text sample (the wrong-suppression rate above)
+#: still covers npm projects only. A separate, structural check --
+#: `verify_pnpm_dev_classification.py`, run 2026-08-23 -- independently
+#: re-derives production reachability for every package `retail-pilot-intel`'s
+#: seven pnpm importers install and found zero mismatches against
+#: `triage.pnpm`'s own answer; see `PNPM_STRUCTURAL_*` below and this probe's
+#: README. That closes the "nothing has checked the pnpm classification
+#: mechanism itself" gap, not the "an advisory's text has been hand-read
+#: against a pnpm suppression" one -- retail-pilot-intel has produced only
+#: `dependency-path` findings so far, none of `build-surface` or
+#: `server-surface:*`.
 PORTFOLIO_MEASURED_ON = "2026-08-23"
 PORTFOLIO_MANIFESTS_FOUND = 18
 PORTFOLIO_MANIFESTS_ANALYSABLE = 16
 PORTFOLIO_MANIFESTS_ANALYSABLE_NPM_ONLY = 9
 PORTFOLIO_VERIFICATION_SAMPLE = 7
+
+#: `verify_pnpm_dev_classification.py`'s own result, held as constants for the
+#: same reason the npm figures above are: so the rendered number cannot drift
+#: from the value this module actually holds.
+PNPM_STRUCTURAL_VERIFIED_ON = "2026-08-23"
+PNPM_STRUCTURAL_IMPORTERS_CHECKED = 7
+PNPM_STRUCTURAL_MISMATCHES = 0
+
+#: The hand review the paragraph above says pnpm still lacks, closed the same
+#: day for the one claim that exists: `retail-pilot-intel`'s two suppressed
+#: findings (`apps/docs`, `apps/portal`) reduce to one distinct (advisory,
+#: rule, package) claim, checked against its real advisory text and the raw
+#: `pnpm-lock.yaml` by hand -- see
+#: `wrong-suppression-verification-pnpm-2026-08-23.json`. Same standard as
+#: `ACCURACY_*` above, one claim instead of 53, because that is all this
+#: portfolio's one pnpm venture has produced so far.
+PNPM_ADVISORY_TEXT_VERIFIED_ON = "2026-08-23"
+PNPM_ADVISORY_TEXT_DISTINCT_CLAIMS = 1
+PNPM_ADVISORY_TEXT_WRONG_CLAIMS = 0
+PNPM_ADVISORY_TEXT_WITHDRAWN_ADVISORIES = 1
 
 ACCURACY_NOTE = (
     "## How this can be wrong\n\n"
@@ -163,21 +190,59 @@ ACCURACY_NOTE = (
     "the tool: a rate measured on the projects it can read says nothing about "
     "the ones it cannot. Run with `--repository` to get the coverage table for "
     "your own repository rather than inheriting this one's.\n\n"
-    "**Reading a second lockfile format widened that gap, and closing it found "
-    "a defect this note's own sample had already absorbed.** Readable went "
+    "**Reading a second lockfile format widened that gap; two independent "
+    "passes on the same day closed different parts of it.** Readable went "
     f"{PORTFOLIO_MANIFESTS_ANALYSABLE_NPM_ONLY} -> "
-    f"{PORTFOLIO_MANIFESTS_ANALYSABLE} when pnpm lockfiles became readable, and "
-    f"the verified sample stayed at {PORTFOLIO_VERIFICATION_SAMPLE} npm "
-    "products: the hand review above covers npm only. Re-running the tool over "
-    "the other 9 — `retail-pilot-intel`'s 7 pnpm packages plus 2 more npm "
-    f"projects with no deployment mode — found exactly 2 raw findings, both the "
-    "same advisory, both suppressed `dev-only`. Reading that advisory's actual "
-    "text to hand-verify it is what surfaced the defect above: it had been "
-    "withdrawn by the database that published it, and `advisory_from_osv` had "
-    "no filter for that field. Once withdrawn records are excluded, those 2 "
-    f"findings are 0, on all 9 — so as of {WITHDRAWN_FILTER_ADDED_ON} there is "
-    "nothing left unverified in the set that opened this gap, though a fresh "
-    "advisory landing on one of those 9 tomorrow would reopen it; this is a "
+    f"{PORTFOLIO_MANIFESTS_ANALYSABLE} when pnpm lockfiles became readable, "
+    f"and the hand-reviewed advisory-text sample above stayed at "
+    f"{PORTFOLIO_VERIFICATION_SAMPLE} npm products: it covers npm only. One "
+    f"pass, on {PNPM_STRUCTURAL_VERIFIED_ON}, checked the mechanism "
+    "underneath — pnpm's dev-only classification is derived by reachability "
+    "rather than read from a stored flag, and "
+    f"`verify_pnpm_dev_classification.py` independently re-walked "
+    f"{PNPM_STRUCTURAL_IMPORTERS_CHECKED} pnpm importers' production graphs "
+    "from the raw lockfile and found "
+    f"{PNPM_STRUCTURAL_MISMATCHES} mismatches against `triage.pnpm`'s own "
+    "answer. A second pass, the same day, read the advisory text behind the "
+    "one claim `retail-pilot-intel` had produced — `esbuild`/"
+    "`GHSA-gv7w-rqvm-qjhr`, suppressed `dependency-path` on both `apps/docs` "
+    "and `apps/portal` — confirmed the reachability verdict: "
+    f"**{PNPM_ADVISORY_TEXT_WRONG_CLAIMS} of {PNPM_ADVISORY_TEXT_DISTINCT_CLAIMS} "
+    "was wrong** (see `wrong-suppression-verification-pnpm-2026-08-23.json`), "
+    f"and separately found {PNPM_ADVISORY_TEXT_WITHDRAWN_ADVISORIES} of the "
+    "claims it checked traces to a **withdrawn OSV advisory** — its own text "
+    "names the affected code as esbuild's Deno module, not the npm package "
+    "installed here — and filed that as a data-quality fact about the feed, "
+    "distinct from the reachability logic.\n\n"
+    "**A third pass turned that fact into a fix.** Re-running the tool over "
+    "the other 8 previously-unverified projects — `retail-pilot-intel`'s 6 "
+    "packages and root plus 2 more npm projects with no deployment mode — "
+    "found no further claims, so `GHSA-gv7w-rqvm-qjhr` was the entire yield of "
+    "the newly-readable set. Reading it, `advisory_from_osv` had no code path "
+    "for `withdrawn` at all: every record the feed marked retracted was still "
+    "matched as live. It now returns no affected ranges for a withdrawn "
+    "record, dropped by both callers the same way an advisory naming no "
+    "package already was. Re-running the original 7-product npm sample "
+    "against the fix surfaced two more withdrawn records behaving the same "
+    "way — `GHSA-8h3q-9fpp-c883` (`wrangler`, withdrawn as a duplicate) and "
+    "`GHSA-p5wg-g6qr-c7cg` (`eslint`, withdrawn) — for 3 of that sample's "
+    "original 53 distinct claims and 5 of its 102 raw findings, all reasoned "
+    "correctly and still are: `ACCURACY_WRONG_CLAIMS` stays 0, because the "
+    "suppression logic was never wrong, only the feed's own retracted records "
+    "were being read as live ones.\n\n"
+    "**A category the hand review before this fix never measured: is an "
+    "*unsuppressed* finding real?** Two of the three withdrawn advisories "
+    "were also reported **shipped**, not suppressed, on a deploying product: "
+    "`ai-first-markets` had 3 findings reported as live vulnerabilities before "
+    "this fix, of which only 1 (`sharp`/libvips) was real, and "
+    "`local-site-studio` had 1, now 0. That is a false alarm, the opposite "
+    "failure mode from a wrong suppression, and one this note's own "
+    "methodology was never built to catch because it counts suppressed "
+    "findings only. "
+    f"As of {WITHDRAWN_FILTER_ADDED_ON}, all 9 previously-unverified projects "
+    "produce zero findings once withdrawn records are excluded — nothing is "
+    "left unverified in the set that opened this gap, though a fresh advisory "
+    "landing on one of those 9 tomorrow would reopen it; this is a "
     "point-in-time result, not a structural guarantee the way the dev-only "
     "reachability logic itself is."
 )
