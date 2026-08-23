@@ -20025,3 +20025,87 @@ entries:
         nothing new, spends nothing beyond agent time -- agent-decidable,
         self-merged. No revenue; the $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business
+        projects that aren't already here" session, designated branch
+        claude/laughing-pasteur-jgr8ty. `session_gate.py` -> PROCEED, with
+        its concurrency note. Fetched `main` (tip 8e4104d), checked the 4
+        open PRs and the ledger tail before starting. All four are clean
+        against the live tip by `git merge-tree` and correctly owner-gated
+        by prior sessions; the entries from ~40 minutes earlier already
+        recorded that, so it is not being re-derived here. Produced no
+        candidate list: `CLAUDE.md` routes this brief at
+        `portfolio/pipeline/` and the question is answered there.
+      - >-
+        The routed first move -- "advance a probe already specified" --
+        looked closed: the previous session audited all five cells of the
+        probe index and every named next step was done. But the index's
+        own "this table lags the probes" section says the lag runs one
+        way, so the probes' own READMEs were read instead of the table.
+        `mcp-drift-watch`'s fourth pass (`relation.py`, earlier the same
+        day) had closed by indicting every accuracy figure the probe
+        publishes -- "including the 0.40-0.62 span the subscriber record
+        prints" -- as an aggregate over publishers who behave nothing
+        alike. It argued that from `relation.py`'s per-publisher table,
+        which scores `variant` and `variant+relation`. The record quotes
+        the *shipped* classifier, which that table never scored. The
+        charge had been laid against figures nobody had split.
+      - >-
+        Split them in #691 (merged, 46464568). `score_by_publisher.py`
+        labels both committed held-out corpora with `classify_drift`
+        unmodified and scores each publisher on its own. The consequence
+        holds; the shape the fourth pass assumed does not, in the
+        unfavourable direction. There is no well-watched population: of
+        the 16 publishers with a qualifying change the watch caught
+        nothing at all on 9, median per-publisher recall is 0.00 against
+        the 0.10-0.29 pooled, every publisher it caught everything on had
+        exactly one qualifying change, and on every publisher with more
+        than one it never caught more than a third. The publishers
+        carrying the most change are the ones it is worst on -- the
+        largest in each corpus holds 59% and 43% of that corpus's
+        qualifying changes, at recall 0.20 and 0.095. The other direction
+        concentrates harder and nobody had looked: all 9 false alerts
+        across both corpora came from 4 of the 44 publishers watched, 5 of
+        them from one. The subscriber record now discloses all of it,
+        including the paragraph saying what does *not* follow.
+      - >-
+        Verified by running the checks, not by reading the diff: probe
+        suite 95 -> 104, and all 14 newly printed figures are re-derived
+        in the tests from the corpora by an independent path (plain
+        counting over `label_corpus`, deliberately not by calling the new
+        script's own summary). Each of the 14 was mutation-checked --
+        changed one at a time to a neighbouring value, all 14 failed the
+        suite -- and the committed artifact is pinned the same way. Full
+        portfolio-validate suite run locally beforehand (10 validators + 9
+        unit suites green), and all three CI workflows were green on the
+        PR head before merging.
+      - >-
+        Two figures were rewritten mid-verification rather than after,
+        worth recording because it is the same error this probe's own
+        corpus-3 section is named for: the first draft reported
+        "publishers with recall above a third", and that claim flips
+        between a 0.25 and a 0.33 cutoff, both defensible, both read off
+        the very table the claim described. Replaced with two figures
+        needing no cutoff -- caught *everything* on, and *best* recall
+        where n > 1. Same conclusion, no free parameter.
+      - >-
+        One process note for the next session: mutating a constant to a
+        same-length value and restoring it within the same second leaves
+        Python's `__pycache__` valid by size and mtime, so a restored file
+        silently runs the mutated bytecode. It looked exactly like a test
+        that passes alone and fails in the suite. Clear `__pycache__`
+        between mutation runs.
+      - >-
+        No score moved: this corrects how an already-measured figure is
+        presented rather than measuring a new capability, and
+        `defensibility` at 3 still caps `mcp-supply-chain-watch`.
+        Internal-only (`portfolio/pipeline/probes/`), publishes nothing,
+        registers nothing, uses no credential, spends nothing beyond agent
+        time -- agent-decidable per `CLAUDE.md`, self-merged. This entry
+        ships as its own PR rather than riding along in #691, per the
+        ledger-discipline rule. No revenue; the $0 ceiling is unchanged.
+    mrr_end: null
