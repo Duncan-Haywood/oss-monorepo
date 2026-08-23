@@ -18853,3 +18853,78 @@ entries:
         merged-PR-branch rule before writing this entry. No revenue; the $0
         ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve the
+        development process... increase in profit" session, designated
+        branch claude/keen-knuth-nvqapy. Ran `session_gate.py` first
+        (PROCEED, flagging 2 distinct sessions committing to `main` within a
+        15-minute window in the last 6h as a reason to check for duplicates
+        before starting). Listed the 4 open PRs (#583, #531, #372, #368) and
+        read issue #139's recent history: all four remain unchanged and
+        correctly human-gated, confirmed again a few hours before this
+        session by the entry immediately above. Did not re-verify them.
+      - >-
+        `portfolio/router/allocate.py` still shows all 10 ventures blocked on
+        publish approval, so no venture work was dispatchable. Found a real,
+        currently-broken tool instead: the immediately preceding entry
+        (#659, this session's own predecessor) reported taking this
+        repository's `--repository` coverage from 9/18 to 16/18 analysed npm
+        projects after adding pnpm support, but that figure was only ever
+        produced by an ad-hoc `cli.py --repository` run. The dedicated
+        `run_repository_coverage.py` script -- the one `evidence.py`'s
+        accuracy note and `tests/test_discovery.py::TestCoverageCitations`
+        are actually pinned to via the committed `coverage-2026-08-22.json`
+        -- still called the npm-only lockfile parser unconditionally.
+        Running it against this repository crashed with
+        `json.decoder.JSONDecodeError` on the first `pnpm-lock.yaml` it
+        reached, instead of reporting the refusal the coverage table is
+        supposed to name. The committed coverage figure `PORTFOLIO_MANIFESTS_
+        ANALYSABLE` (still 9) had silently gone stale relative to what the
+        tool can actually do -- the exact defect class this probe's own
+        README says the coverage work exists to close, here pointed at its
+        own tooling.
+      - >-
+        Root cause: `run_repository_coverage.py` duplicated `cli.py`'s
+        npm-or-pnpm dispatch logic instead of calling it, and the duplicate
+        was never updated when pnpm support landed on the other copy. Fixed
+        by renaming `cli.py`'s `_parse_project_lockfile`/
+        `_dependency_graph_for` to `parse_project_lockfile`/
+        `dependency_graph_for` and having `run_repository_coverage.py`
+        import and call them (plus the same `covered_by` skip `cli.py`'s
+        `run_repository` already applies, to avoid double-triaging a
+        workspace member) -- one dispatch implementation instead of two that
+        can drift apart again. Fetched the real OSV npm bulk feed (network
+        reachable from this session) and regenerated the measurement as
+        `coverage-2026-08-23.json`: 16/18 analysed, matching #659's
+        previously-unpersisted prose figure. Updated
+        `PORTFOLIO_MANIFESTS_ANALYSABLE` (9 -> 16) and the README to match,
+        and split the pinned validation-totals test so the seven
+        hand-verified sample products (132/30/102) are checked apart from
+        the two additional suppressed findings pnpm's newly-analysed
+        `retail-pilot-intel` projects contribute -- real, but outside the
+        hand-reviewed sample and explicitly unverified for precision per the
+        probe's own README. Kept `coverage-2026-08-22.json` as a historical
+        artifact rather than deleting it, matching this probe's existing
+        pattern of dated snapshots.
+      - >-
+        Verified rather than trusted: full suite (264 tests, all passing,
+        including the corrected coverage-citation tests) and
+        `portfolio/router/validate.py` clean; ran
+        `run_repository_coverage.py` end-to-end against this repository
+        (previously crashed, now completes); `python3 -m pyflakes` on both
+        touched modules clean. Opened as #661; its own CI
+        (`npm-reachability-triage CI`) went green (1/1 checks), `git fetch`
+        confirmed `main` unchanged at `72a23fd` immediately before merging,
+        then self-merged. Internal-only (`portfolio/pipeline/probes/`, a
+        probe's own script/tests/docs), no `ventures/*` app code touched,
+        nothing published, no credential used -- agent-decidable per
+        `CLAUDE.md`.
+      - >-
+        Restarted the designated branch from the fresh `main` tip per the
+        merged-PR-branch rule before writing this entry. No revenue; the $0
+        ceiling is unchanged.
+    mrr_end: null

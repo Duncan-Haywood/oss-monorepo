@@ -409,8 +409,9 @@ class TestCoverageCitations:
 
     `probes/README.md` asks for this shape explicitly: *"a figure printed at a
     customer must not be able to go stale"*. These re-derive each printed
-    coverage number from `coverage-2026-08-22.json` rather than trusting the
-    constant beside it.
+    coverage number from `coverage-2026-08-23.json` rather than trusting the
+    constant beside it. (`coverage-2026-08-22.json` predates pnpm support and
+    is kept only as a historical artifact.)
     """
 
     MEASUREMENT = (
@@ -450,14 +451,49 @@ class TestCoverageCitations:
         assert "all seven npm products" not in evidence.ACCURACY_NOTE
         assert str(evidence.PORTFOLIO_MANIFESTS_FOUND) in evidence.ACCURACY_NOTE
 
-    def test_the_npm_projects_still_reproduce_the_validation_run(self):
-        """The npm half must be unchanged, field for field.
+    #: The seven `ventures/**/package-lock.json` products `run_portfolio_sample.py`
+    #: hand-verifies. Only these are asserted against the pinned sample totals
+    #: below — the repository walk also analyses others (pnpm's
+    #: `retail-pilot-intel`, and two npm projects with no deployment mode),
+    #: which is the whole point of the walk, but their findings were never
+    #: part of the 53-claim hand review and must not be silently absorbed into
+    #: a number that reads as "the verified sample."
+    SAMPLE_PROJECTS = frozenset(
+        {
+            "ventures/ai-first-markets",
+            "ventures/local-site-studio",
+            "ventures/photo-editing/docs-site",
+            "ventures/print-atelier",
+            "ventures/quick-pick-survey",
+            "ventures/real-estate-agent-photo-app/docs-site",
+            "ventures/real-estate-agent-photo-app/research",
+        }
+    )
 
-        Reading a second lockfile format is a *coverage* change. If it also
-        moved a number on a project that was already readable it would be a
-        re-measurement wearing a coverage change's clothes, and the two would
-        have to be argued separately. They are not: the npm subset of the new
-        run equals the whole of the old one.
+    def test_committed_findings_match_the_hand_enumerated_validation_run(self):
+        """The walk must reproduce the sample run, not merely resemble it."""
+        sample_rows = [
+            p for p in self.load()["projects"] if p["project"] in self.SAMPLE_PROJECTS
+        ]
+        assert {p["project"] for p in sample_rows} == self.SAMPLE_PROJECTS
+
+        totals = {
+            "deployed": sum(p["deployed"] for p in sample_rows),
+            "suppressed": sum(p["suppressed"] for p in sample_rows),
+            "findings": sum(p["findings"] for p in sample_rows),
+        }
+        assert totals == {"deployed": 30, "suppressed": 102, "findings": 132}
+
+    def test_every_npm_row_still_reproduces_the_prior_committed_run(self):
+        """The wider version of the same claim, and what makes this pass a
+        coverage change rather than a re-measurement.
+
+        The sample check above pins the seven hand-verified products. This pins
+        the whole npm subset — the nine this tool could read before pnpm support
+        — against the whole of the prior committed run. Had reading a second
+        format moved a number on a project that was already readable, the
+        coverage change and a measurement change would have to be argued apart.
+        They do not, because it did not.
         """
         npm_rows = [
             row for row in self.load()["projects"] if row["lockfile_format"] == "npm"
@@ -467,7 +503,6 @@ class TestCoverageCitations:
             for key in ("deployed", "suppressed", "findings")
         }
 
-        assert totals == {"deployed": 30, "suppressed": 102, "findings": 132}
         assert totals == self.load_prior()["totals"]
 
     def test_the_pnpm_venture_is_what_the_totals_gained(self):

@@ -567,12 +567,13 @@ and nothing reconciled them.
 ### The accuracy note was overstating its own coverage
 
 It read "hand-verified … across **all seven npm products in this portfolio**."
-There are 18 npm manifests here and 9 this tool can read. The verified figure
-(0 wrong suppressions in 53 distinct claims) is unaffected — that hand review
-covered what it covered — but the sentence framing it claimed the sample was
-the whole portfolio when it was 7 of 18, which is an error in the direction
-that flatters the tool. Corrected, with the three counts pinned to
-`coverage-2026-08-22.json` by `tests/test_discovery.py::TestCoverageCitations`
+There were 18 npm manifests here and, at the time, 9 this tool could read (now
+16 — see [pnpm is now analysed](#pnpm-is-now-analysed-2026-08-23) below). The
+verified figure (0 wrong suppressions in 53 distinct claims) is unaffected —
+that hand review covered what it covered — but the sentence framing it claimed
+the sample was the whole portfolio when it was 7 of 18, which is an error in
+the direction that flatters the tool. Corrected, with the three counts pinned
+to `coverage-2026-08-23.json` by `tests/test_discovery.py::TestCoverageCitations`
 so a stale figure fails the build instead of being quoted at a buyer.
 
 ### Limits of the walk itself
@@ -636,6 +637,23 @@ pnpm's per-importer lockfile structure makes possible and npm's flat
 (`portfolio/research/a11y-axe-recall`, `portfolio/research/a11y-delivered-contrast`)
 are unrelated research harnesses with a manifest and no lockfile at all.
 
+That 16/18 figure was, until now, only reproducible by running `--repository`
+by hand: `run_repository_coverage.py` — the standalone script that produced
+the committed `coverage-*.json` this README's figures cite — dispatched every
+lockfile through the npm-only parser regardless of format, so pointing it at
+this repository raised `json.decoder.JSONDecodeError` on the first
+`pnpm-lock.yaml` it reached rather than reporting the refusal. It duplicated
+`cli.py`'s pnpm-or-npm dispatch instead of calling it, and the duplicate
+silently fell behind when the pnpm branch was added to one copy and not the
+other — the same drift this probe's coverage work exists to catch, here
+pointed at its own tooling. Fixed by having both call the same dispatch rather
+than maintaining two copies of it (one function, `cli.resolve_project`, since
+the pass below); `coverage-2026-08-23.json` is the
+first committed measurement taken since, and is what `PORTFOLIO_MANIFESTS_ANALYSABLE`
+(now 16) and `tests/test_discovery.py::TestCoverageCitations` are pinned to.
+`coverage-2026-08-22.json` is kept as the historical pre-pnpm artifact rather
+than deleted.
+
 **What this does not yet do:** there is no pnpm equivalent of `graph.py`'s
 build-surface rule (the `next` → `postcss` reasoning). That rule only ever
 moves a finding *out of* "shipped", so its absence cannot produce a false
@@ -655,12 +673,13 @@ the gap.
 ## What the pnpm reader was still missing (2026-08-23)
 
 The section above landed the reader and named three things it did not do. Two
-of them turned out to be code rather than research, and this pass is those two
-plus two defects the pass that found them did not have to look far for. Written
-by a second session the same hour, which had built its own version of the same
-reader before the first one merged — the duplicate-work pattern `CLAUDE.md`
-documents, resolved by keeping the merged implementation and porting onto it
-rather than opening a rival pull request.
+of them turned out to be code rather than research, and this pass is those two.
+Written by a second session the same hour, which had built its own version of
+the same reader before the first one merged — the duplicate-work pattern
+`CLAUDE.md` documents, resolved by keeping the merged implementation and
+porting onto it rather than opening a rival pull request. A *third* session was
+working on the same probe in the same hour; where its work overlaps this one,
+the sections below say so and keep its version.
 
 ### The build-surface rule now fires on a pnpm project
 
@@ -707,24 +726,22 @@ On this repository the guard never fires — all seven importers resolve with ze
 unfollowable edges, asserted by a test — so the committed counts are a narrowed
 answer rather than a widened one.
 
-### Two defects, both in figures the record prints
+### Two defects a third session found first
 
-**The record was printing a coverage number the tool had already outgrown.**
-`PORTFOLIO_MANIFESTS_ANALYSABLE` stayed at `9` while the walk it quotes now
-returns `16`, and the accuracy note was still dated 2026-08-22, so every record
-generated after the pnpm reader landed understated its own coverage. That is the
-exact failure `TestCoverageCitations` exists to catch, and it did — but only
-once the committed measurement was regenerated, because the test compares the
-constant against the artifact and *both* were stale.
-[`coverage-2026-08-23.json`](coverage-2026-08-23.json) is that run.
+This session's own pass found the same two things the section above already
+records, and got there second: `PORTFOLIO_MANIFESTS_ANALYSABLE` stale at `9`
+while the walk returns `16`, and `run_repository_coverage.py` throwing a JSON
+decode error on the first pnpm lockfile it reached. **#661 landed both while
+this was being written**, which is three sessions on one probe in one hour and
+is the pattern `CLAUDE.md` documents rather than a coincidence worth
+celebrating. Their fix stands; this pass keeps it and folds the two dispatch
+helpers it introduced into the single `cli.resolve_project` the graph work
+below needs anyway, so there is still exactly one copy of the dispatch — which
+was #661's own point.
 
-**And `run_repository_coverage.py`, the script that regenerates it, was
-broken.** It called `parse_lockfile` unconditionally on every analysed project,
-which throws a JSON decode error the moment the walk starts returning pnpm
-projects — so the one command that can refresh the figures a customer reads
-stopped working in the same change that made the figures stale. Both are fixed
-here, and the script now records each project's lockfile format and its
-unfollowable edges.
+What is added on top: the committed measurement now records each project's
+`lockfile_format` and its unfollowable edges, and the accuracy note says what
+the corrected `16` does *not* mean — see the last section below.
 
 ### `--project` could not read a pnpm project at all
 
@@ -901,7 +918,7 @@ decision away from a live listing.
 ## Development
 
 ```bash
-python3 -m pytest                            # 281 tests, no network required
+python3 -m pytest                            # 282 tests, no network required
 python3 run_portfolio_sample.py <osv.zip>    # re-run the validation
 python3 run_repository_coverage.py <osv.zip> # re-measure repository coverage
 ```

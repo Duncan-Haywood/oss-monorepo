@@ -61,7 +61,7 @@ class ResolvedProject:
     unresolved_production_edges: tuple[str, ...] = ()
 
 
-def _resolve_project(
+def resolve_project(
     lockfile_path: Path, pnpm_importer: str | None
 ) -> ResolvedProject:
     """Read whichever lockfile format ``lockfile_path`` actually is.
@@ -70,6 +70,10 @@ def _resolve_project(
     project through a ``pnpm-lock.yaml`` — it names the key into that
     lockfile's own ``importers`` map, which is not always this project's own
     repository-relative path (a pnpm workspace can be nested).
+
+    Public because ``run_repository_coverage.py`` needs the same dispatch and
+    must not re-derive it: that drift is exactly what left that script crashing
+    on a pnpm lockfile after this module learned to read one (#661).
 
     Both formats supply a dependency graph. ``graph.py``'s build-surface rule
     is keyed on package *names*, not on install paths, so it needed no
@@ -240,7 +244,7 @@ def _report_for_project(
     pnpm_importer: str | None = None,
 ) -> Report:
     """Triage one project against an already-loaded advisory list."""
-    resolved = _resolve_project(lockfile_path, pnpm_importer)
+    resolved = resolve_project(lockfile_path, pnpm_importer)
     installed = resolved.installed
     names = {package.name for package in installed}
     relevant = [a for a in advisory_list if a.packages & names]
@@ -296,7 +300,7 @@ def run_repository(args) -> int:
         if lockfile_path is None or not lockfile_path.is_file():
             continue
         try:
-            installed = _resolve_project(lockfile_path, entry.pnpm_importer).installed
+            installed = resolve_project(lockfile_path, entry.pnpm_importer).installed
         except (UnsupportedLockfile, pnpm_mod.UnsupportedPnpmLockfile, ValueError, OSError):
             continue
         all_names |= {p.name for p in installed}
@@ -432,7 +436,7 @@ def run(argv: list[str] | None = None) -> int:
 
     try:
         pnpm_importer = _pnpm_importer_for(lockfile_path, project)
-        resolved = _resolve_project(lockfile_path, pnpm_importer)
+        resolved = resolve_project(lockfile_path, pnpm_importer)
     except (UnsupportedLockfile, pnpm_mod.UnsupportedPnpmLockfile) as error:
         print(f"error: {error}", file=sys.stderr)
         return 2

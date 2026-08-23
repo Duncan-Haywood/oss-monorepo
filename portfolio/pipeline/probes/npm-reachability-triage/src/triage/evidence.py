@@ -88,14 +88,15 @@ ACCURACY_WRONG_RAW_FINDINGS = 0
 #: Measured by `run_repository_coverage.py` on 2026-08-23, walking the whole
 #: repository rather than the hand-written product list the verification used.
 #: Held here because the accuracy note quotes them, and a coverage figure that
-#: can drift silently is the defect this pass exists to close.
+#: can drift silently is the defect this pass exists to close. (The
+#: 2026-08-22 run this replaces predates pnpm support and undercounted
+#: `retail-pilot-intel`'s seven pnpm-resolved projects as unreadable; see
+#: `coverage-2026-08-23.json`.)
 #:
-#: The analysable figure was 9 while this tool read only package-lock.json, and
-#: is 16 now that it reads pnpm-lock.yaml too; the 7 that moved are one pnpm
-#: venture. The verification sample did **not** move with it: the hand review
-#: behind the wrong-suppression rate covers npm projects only and has not been
-#: repeated on a pnpm one, so the gap between what is read and what has been
-#: checked by hand is wider than it was, not narrower.
+#: The verification sample did **not** move with the analysable figure: the
+#: hand review behind the wrong-suppression rate covers npm projects only and
+#: has not been repeated on a pnpm one, so the gap between what is read and
+#: what has been checked by hand is wider than it was, not narrower.
 PORTFOLIO_MEASURED_ON = "2026-08-23"
 PORTFOLIO_MANIFESTS_FOUND = 18
 PORTFOLIO_MANIFESTS_ANALYSABLE = 16

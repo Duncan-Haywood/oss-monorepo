@@ -30,10 +30,12 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 from triage import advisories as advisories_mod  # noqa: E402
 from triage import deployment as deployment_mod  # noqa: E402
 from triage import discovery as discovery_mod  # noqa: E402
+from triage import pnpm as pnpm_mod  # noqa: E402
 from triage import sources as sources_mod  # noqa: E402
+from triage.cli import resolve_project  # noqa: E402
 from triage.engine import DEV_ONLY, NOT_DEPLOYED, SHIPPED, ProjectContext, triage  # noqa: E402
 from triage.evidence import coverage_to_dict  # noqa: E402
-from triage.cli import _resolve_project  # noqa: E402
+from triage.lockfile import UnsupportedLockfile  # noqa: E402
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -51,14 +53,23 @@ def main(argv: list[str] | None = None) -> int:
     resolved = []
     names: set[str] = set()
     for entry in coverage.analysed:
+        # A workspace member resolves through its root's lockfile, so triaging
+        # it separately would re-report the whole workspace once per member —
+        # the same skip `cli.py`'s `run_repository` applies, for the same
+        # reason. A pnpm importer is never `covered_by` anything (each keeps
+        # its own dependency list in the lockfile), so it always reaches here.
+        if entry.covered_by is not None:
+            continue
         project_dir = root if entry.path == "." else root / entry.path
         lockfile_path = root / entry.lockfile
-        # Reads whichever format the walk classified this project through. It
-        # called `parse_lockfile` unconditionally until 2026-08-23, which threw
-        # a JSON decode error the moment the walk started returning pnpm
-        # projects as analysed — so this script could not regenerate the very
-        # coverage figures the record quotes.
-        project = _resolve_project(lockfile_path, entry.pnpm_importer)
+        # Reads whichever format the walk classified this project through,
+        # via the one dispatch in cli.py rather than a second copy of it — a
+        # duplicate here is what left this script throwing a JSON decode error
+        # on the first pnpm lockfile it reached (#661).
+        try:
+            project = resolve_project(lockfile_path, entry.pnpm_importer)
+        except (UnsupportedLockfile, pnpm_mod.UnsupportedPnpmLockfile, ValueError, OSError):
+            continue
         names |= {package.name for package in project.installed}
         resolved.append((entry, project_dir, project))
 
