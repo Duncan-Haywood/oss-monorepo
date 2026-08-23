@@ -19907,3 +19907,79 @@ entries:
         per the ledger-discipline rule. No revenue; the $0 ceiling is
         unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/ecstatic-volta-3yyaqx. `session_gate.py` -> PROCEED,
+        with its concurrency note. Fetched `main` (tip 2c3fbf1), listed
+        the 4 open PRs and read issue #139 before starting; all four
+        unchanged and correctly owner-gated, and `verification_status.py`
+        reports #372's and #368's build records still valid. Did not
+        re-verify them, and this entry is not being written to say that I
+        looked -- it records the fix below.
+      - >-
+        The routed move for this brief, "advance a probe already specified
+        in `portfolio/pipeline/`", is closed out: the previous session
+        audited all five cells of the probe index and every named next
+        step is done as of #685. `validate_doc_consistency.py` runs clean,
+        so the write-up score drift #275 flagged is already fixed on
+        `main`. What was still broken was the instrument this repo built
+        to stop the waste it keeps measuring.
+      - >-
+        `stale_pr_check_streak` counts trailing ledger entries carrying
+        the "checked the open PRs, still all correctly gated" clause, so
+        the gate can tell session N+1 not to write that entry again. It
+        read 0 against a tail full of that clause. Two causes, both
+        measured on the committed ledger rather than inferred from the
+        code. (a) It anchored on the literal verb "checked"; sessions
+        write the same sentence as "Listed the 4 open PRs (...)",
+        "Re-checked", "Reviewed" -- 19 of the 73 instances use a synonym,
+        including the single most recent entry, so the streak reset to
+        zero on precisely the entry it exists to count. (b) It spanned the
+        gap between clauses with `[^.]`, meaning "stay in one sentence",
+        but in this ledger a period is not a sentence boundary -- the same
+        sentence routinely names `verification_status.py`, `2026-08.yaml`,
+        `next@16.3.1`, and each of those truncated the span and dropped
+        the match. Same failure shape as #687's unrendered routing table:
+        a control that exists, passes its tests, and points at nothing.
+      - >-
+        Fixed in #689 (merged, b47de006). Verb widened to an alternation;
+        `[^.]` replaced with a period that only counts as a boundary when
+        whitespace or end-of-text follows it. Matches on the committed
+        ledger go 54 -> 73; hand-checked all 19 newly-matched entries and
+        every one is the target boilerplate, no false positives. The
+        streak on the current tail goes 0 -> 1, which is correct rather
+        than merely larger -- the two most recent entries did real work
+        and legitimately break the run, so the fix does not manufacture a
+        streak. Verdict text is unchanged; the streak advisory still flags
+        at 5.
+      - >-
+        Verified by running the checks, not by reading the diff: 3 new
+        tests, 43 -> 46 pass, and each was confirmed non-vacuous -- the
+        synonym and filename tests both fail against the old pattern, and
+        the third pins a boundary that a naive "just allow dots" fix blows
+        past, matching an unrelated later clause and flagging entries that
+        did real work. Full portfolio-validate suite run locally
+        beforehand (10 validators + 8 unit suites green), and all 22 steps
+        of the workflow were green on the PR head before merging.
+      - >-
+        One process note worth leaving for the next session: the check-run
+        status this session read back from the API was stale for roughly
+        eight minutes after the job had actually finished, which looked
+        exactly like a hang in the step covering the file being changed.
+        Reading the job's own per-step timings (`actions_get`
+        `get_workflow_job`) showed the run completed in 37s. Prefer the
+        per-step timings over the check-run summary before concluding CI
+        is stuck.
+      - >-
+        Internal-only (`portfolio/ledger/` validator + its tests),
+        publishes nothing, registers nothing, uses no credential, spends
+        nothing beyond agent time -- agent-decidable per `CLAUDE.md`,
+        self-merged. This entry ships as its own PR rather than riding
+        along in #689, per the ledger-discipline rule. No revenue; the $0
+        ceiling is unchanged.
+    mrr_end: null
