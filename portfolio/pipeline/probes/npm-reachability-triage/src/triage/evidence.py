@@ -117,6 +117,19 @@ PNPM_STRUCTURAL_VERIFIED_ON = "2026-08-23"
 PNPM_STRUCTURAL_IMPORTERS_CHECKED = 7
 PNPM_STRUCTURAL_MISMATCHES = 0
 
+#: The hand review the paragraph above says pnpm still lacks, closed the same
+#: day for the one claim that exists: `retail-pilot-intel`'s two suppressed
+#: findings (`apps/docs`, `apps/portal`) reduce to one distinct (advisory,
+#: rule, package) claim, checked against its real advisory text and the raw
+#: `pnpm-lock.yaml` by hand -- see
+#: `wrong-suppression-verification-pnpm-2026-08-23.json`. Same standard as
+#: `ACCURACY_*` above, one claim instead of 53, because that is all this
+#: portfolio's one pnpm venture has produced so far.
+PNPM_ADVISORY_TEXT_VERIFIED_ON = "2026-08-23"
+PNPM_ADVISORY_TEXT_DISTINCT_CLAIMS = 1
+PNPM_ADVISORY_TEXT_WRONG_CLAIMS = 0
+PNPM_ADVISORY_TEXT_WITHDRAWN_ADVISORIES = 1
+
 ACCURACY_NOTE = (
     "## How this can be wrong\n\n"
     f"Hand-verified on {ACCURACY_VERIFIED_ON} against a freshly downloaded OSV "
@@ -167,8 +180,25 @@ ACCURACY_NOTE = (
     "answer. That is the npm side's structural cross-check "
     "(`verify_suppressions.py`), not its hand review: it confirms the "
     "reachability fact the suppression rests on, not that a rule's reading of "
-    "a real advisory's text is correct, which is the part that still has no "
-    "pnpm example to check."
+    "a real advisory's text is correct.\n\n"
+    "**That hand review now has a pnpm example, as of "
+    f"{PNPM_ADVISORY_TEXT_VERIFIED_ON}.** The one distinct claim "
+    "`retail-pilot-intel` produces -- `esbuild`/`GHSA-gv7w-rqvm-qjhr`, "
+    "suppressed `dependency-path` on both `apps/docs` and `apps/portal` -- was "
+    "read against its real advisory text and the raw `pnpm-lock.yaml`/"
+    "`package.json`, independently of `triage.pnpm`: "
+    f"**{PNPM_ADVISORY_TEXT_WRONG_CLAIMS} of {PNPM_ADVISORY_TEXT_DISTINCT_CLAIMS} "
+    "was wrong**. See `wrong-suppression-verification-pnpm-2026-08-23.json`. "
+    f"That review also found {PNPM_ADVISORY_TEXT_WITHDRAWN_ADVISORIES} of the "
+    "claims it checked traces to a **withdrawn OSV advisory**: "
+    "`GHSA-gv7w-rqvm-qjhr`'s own text names the affected code as esbuild's "
+    "Deno module, not the npm package installed here, so the match is a feed "
+    "cataloguing artifact rather than a claim about this project -- a "
+    "data-quality fact about the advisory feed, separate from the reachability "
+    "verdict. This is one claim seen twice, not a sweep the size of the npm "
+    "review above: it closes the gap for the findings that exist today, and "
+    "says nothing about a `build-surface` or `server-surface:*` pnpm claim, "
+    "because this venture has not produced one yet."
 )
 
 

@@ -14,6 +14,9 @@ from triage.evidence import (
     ACCURACY_WRONG_CLAIMS,
     ACCURACY_WRONG_RAW_FINDINGS,
     COVERAGE_LIMITS,
+    PNPM_ADVISORY_TEXT_DISTINCT_CLAIMS,
+    PNPM_ADVISORY_TEXT_WITHDRAWN_ADVISORIES,
+    PNPM_ADVISORY_TEXT_WRONG_CLAIMS,
     Report,
     to_json,
     to_markdown,
@@ -123,6 +126,15 @@ class TestMarkdown:
         assert "How this can be wrong" in rendered
         assert f"{ACCURACY_WRONG_CLAIMS} of {ACCURACY_DISTINCT_CLAIMS} distinct claims" in rendered
         assert f"{ACCURACY_WRONG_RAW_FINDINGS} of {ACCURACY_RAW_FINDINGS} raw findings" in rendered
+
+    def test_states_the_pnpm_advisory_text_hand_review(self):
+        rendered = to_markdown(_report())
+        assert (
+            f"**{PNPM_ADVISORY_TEXT_WRONG_CLAIMS} of {PNPM_ADVISORY_TEXT_DISTINCT_CLAIMS} "
+            "was wrong**" in rendered
+        )
+        assert "withdrawn OSV advisory" in rendered
+        assert str(PNPM_ADVISORY_TEXT_WITHDRAWN_ADVISORIES) in rendered
 
     def test_escapes_pipes_so_tables_survive(self):
         finding = Finding(
