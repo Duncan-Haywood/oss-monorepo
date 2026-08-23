@@ -85,12 +85,15 @@ ACCURACY_WRONG_CLAIMS = 0
 ACCURACY_RAW_FINDINGS = 102
 ACCURACY_WRONG_RAW_FINDINGS = 0
 
-#: Measured by `run_repository_coverage.py` on 2026-08-22, walking the whole
+#: Measured by `run_repository_coverage.py` on 2026-08-23, walking the whole
 #: repository rather than the hand-written product list the verification used.
 #: Held here because the accuracy note quotes them, and a coverage figure that
-#: can drift silently is the defect this pass exists to close.
+#: can drift silently is the defect this pass exists to close. (The
+#: 2026-08-22 run this replaces predates pnpm support and undercounted
+#: `retail-pilot-intel`'s seven pnpm-resolved projects as unreadable; see
+#: `coverage-2026-08-23.json`.)
 PORTFOLIO_MANIFESTS_FOUND = 18
-PORTFOLIO_MANIFESTS_ANALYSABLE = 9
+PORTFOLIO_MANIFESTS_ANALYSABLE = 16
 PORTFOLIO_VERIFICATION_SAMPLE = 7
 
 ACCURACY_NOTE = (
@@ -114,7 +117,7 @@ ACCURACY_NOTE = (
     "and `wrong-suppression-verification-2026-08-21.json` for the full "
     "per-claim record.\n\n"
     "**The sample is also smaller than the portfolio.** Walking the whole "
-    f"repository on 2026-08-22 found {PORTFOLIO_MANIFESTS_FOUND} npm "
+    f"repository on 2026-08-23 found {PORTFOLIO_MANIFESTS_FOUND} npm "
     f"manifests, of which {PORTFOLIO_MANIFESTS_ANALYSABLE} are readable by "
     f"this tool at all and {PORTFOLIO_VERIFICATION_SAMPLE} are in the "
     "verification above. This note previously described its sample as *all* "

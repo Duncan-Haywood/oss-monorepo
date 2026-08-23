@@ -567,12 +567,13 @@ and nothing reconciled them.
 ### The accuracy note was overstating its own coverage
 
 It read "hand-verified … across **all seven npm products in this portfolio**."
-There are 18 npm manifests here and 9 this tool can read. The verified figure
-(0 wrong suppressions in 53 distinct claims) is unaffected — that hand review
-covered what it covered — but the sentence framing it claimed the sample was
-the whole portfolio when it was 7 of 18, which is an error in the direction
-that flatters the tool. Corrected, with the three counts pinned to
-`coverage-2026-08-22.json` by `tests/test_discovery.py::TestCoverageCitations`
+There were 18 npm manifests here and, at the time, 9 this tool could read (now
+16 — see [pnpm is now analysed](#pnpm-is-now-analysed-2026-08-23) below). The
+verified figure (0 wrong suppressions in 53 distinct claims) is unaffected —
+that hand review covered what it covered — but the sentence framing it claimed
+the sample was the whole portfolio when it was 7 of 18, which is an error in
+the direction that flatters the tool. Corrected, with the three counts pinned
+to `coverage-2026-08-23.json` by `tests/test_discovery.py::TestCoverageCitations`
 so a stale figure fails the build instead of being quoted at a buyer.
 
 ### Limits of the walk itself
@@ -635,6 +636,23 @@ pnpm's per-importer lockfile structure makes possible and npm's flat
 `packages` map does not. The two remaining refusals
 (`portfolio/research/a11y-axe-recall`, `portfolio/research/a11y-delivered-contrast`)
 are unrelated research harnesses with a manifest and no lockfile at all.
+
+That 16/18 figure was, until now, only reproducible by running `--repository`
+by hand: `run_repository_coverage.py` — the standalone script that produced
+the committed `coverage-*.json` this README's figures cite — dispatched every
+lockfile through the npm-only parser regardless of format, so pointing it at
+this repository raised `json.decoder.JSONDecodeError` on the first
+`pnpm-lock.yaml` it reached rather than reporting the refusal. It duplicated
+`cli.py`'s pnpm-or-npm dispatch instead of calling it, and the duplicate
+silently fell behind when the pnpm branch was added to one copy and not the
+other — the same drift this probe's coverage work exists to catch, here
+pointed at its own tooling. Fixed by having both call the same
+`parse_project_lockfile`/`dependency_graph_for` functions rather than
+maintaining two copies of the dispatch; `coverage-2026-08-23.json` is the
+first committed measurement taken since, and is what `PORTFOLIO_MANIFESTS_ANALYSABLE`
+(now 16) and `tests/test_discovery.py::TestCoverageCitations` are pinned to.
+`coverage-2026-08-22.json` is kept as the historical pre-pnpm artifact rather
+than deleted.
 
 **What this does not yet do:** there is no pnpm equivalent of `graph.py`'s
 build-surface rule (the `next` → `postcss` reasoning). That rule only ever
