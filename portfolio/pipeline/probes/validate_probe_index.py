@@ -62,11 +62,33 @@ substrings]). Keep the required substrings short and specific -- a whole
 sentence is brittle against ordinary editing, and a bare number is too weak to
 mean anything.
 
+The second thing this checks: the tables still render
+-----------------------------------------------------
+A figure can also be lost without going stale, by never reaching the reader at
+all. GitHub-flavoured Markdown splits a table cell on every unescaped `|`
+*including inside a backtick span*, so quoting a regex that contains an
+alternation silently adds columns to that row, and the row renders mangled --
+in a table whose whole job is to route a session to the right probe.
+
+That is not hypothetical. Both routing documents `CLAUDE.md` sends generic
+sessions to had exactly this defect, from the same quoted pattern:
+`probes/README.md`'s `mcp-drift-watch` row and `research/README.md`'s
+`mcp-tool-drift/` row each carried four unescaped pipes inside
+``` `\b( … |important:| … |\.env\b| … )\b` ```, rendering as 8-column rows in
+3-column tables. The probes one was spotted and recorded as "out of scope"
+rather than fixed; the research one nobody had noticed at all.
+
+`check_table_rows_render` therefore asserts that every table row in those
+documents has the column count its own delimiter row declares. It is a
+rendering check, not a figure check, so it is deliberately *not* in CHECKS --
+it derives nothing from an artifact and would not fit that contract.
+
 Reads only the working tree. Writes nothing, fetches nothing, needs no
 credentials, and imports probe code without running any network call.
 
 Usage: python3 portfolio/pipeline/probes/validate_probe_index.py
-Exit status: 0 if every derived figure appears in README.md, 1 otherwise.
+Exit status: 0 if every derived figure appears in README.md and every routing
+table renders, 1 otherwise.
 """
 
 from __future__ import annotations
@@ -74,10 +96,20 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 INDEX = os.path.join(HERE, "README.md")
+
+# Documents `CLAUDE.md` routes a session with no target of its own at. A table
+# that renders wrong here misroutes the session that reads it, which is the
+# same cost as a cell that has gone stale.
+PORTFOLIO = os.path.dirname(os.path.dirname(HERE))
+ROUTING_DOCS = [
+    INDEX,
+    os.path.join(PORTFOLIO, "research", "README.md"),
+]
 
 # The en dash the index and the probe READMEs use in numeric spans.
 DASH = "–"
@@ -195,6 +227,73 @@ def check_mcp_corpus3_model_f1():
     return described, [f"{low:.2f}{DASH}{high:.2f}"]
 
 
+def _cell_count(row: str) -> int:
+    """Columns a GFM table row declares: unescaped `|` minus the two rails.
+
+    A backslash-escaped pipe is content, everywhere, including inside a
+    backtick span -- which is exactly the case that keeps being got wrong.
+    """
+    return len(re.findall(r"(?<!\\)\|", row)) - 1
+
+
+def _is_delimiter(row: str) -> bool:
+    """True for a `|---|---|` row, which is what fixes a GFM table's width."""
+    return set(row.replace("|", "").replace(":", "").strip()) == {"-"}
+
+
+def _table_blocks(text: str):
+    """Yield each contiguous run of table rows as a list of (line_number, row).
+
+    Runs, not individual rows: a document holds several tables, and each one's
+    own delimiter row sets its width. Anything inside a fenced code block is
+    skipped -- sample output and diffs can look like tables and render as none.
+    """
+    fenced = False
+    block = []
+    for number, line in enumerate(text.split("\n") + [""], 1):
+        if line.lstrip().startswith("```"):
+            fenced = not fenced
+            line = ""
+        stripped = "" if fenced else line.strip()
+        if stripped.startswith("|") and stripped.endswith("|") and len(stripped) > 1:
+            block.append((number, stripped))
+            continue
+        if block:
+            yield block
+            block = []
+
+
+def check_table_rows_render(paths=None) -> list:
+    """Every table row must have the column count its delimiter row declares.
+
+    The delimiter row (`|---|---|---|`) is the authority rather than the header
+    or the majority: it is what GFM itself uses to fix the table's width, so a
+    row disagreeing with it is precisely a row that renders wrong.
+    """
+    failures = []
+    for path in paths if paths is not None else ROUTING_DOCS:
+        with open(path, encoding="utf-8") as handle:
+            blocks = list(_table_blocks(handle.read()))
+
+        for block in blocks:
+            delimiters = [row for _, row in block if _is_delimiter(row)]
+            if not delimiters:
+                continue  # a run of pipe-led lines that is not a table
+            expected = _cell_count(delimiters[0])
+            for number, row in block:
+                if _is_delimiter(row):
+                    continue
+                found = _cell_count(row)
+                if found != expected:
+                    failures.append(
+                        f"{os.path.relpath(path, PORTFOLIO)}:{number}: table row has "
+                        f"{found} cells, but its delimiter row declares {expected}. "
+                        f"An unescaped '|' -- even inside a backtick span -- splits a "
+                        f"GFM cell; write it as '\\|'."
+                    )
+    return failures
+
+
 CHECKS = [
     (
         "eaa-wcag-triage",
@@ -237,18 +336,35 @@ def run(index_text: str | None = None) -> list:
 
 def main() -> int:
     print("Checking probes/README.md against the probes' own artifacts\n")
-    failures = run()
+    stale = run()
     print()
-    if failures:
-        print(f"{len(failures)} stale figure(s) in probes/README.md:\n")
-        for failure in failures:
+
+    print("Checking that the routing tables still render\n")
+    broken = check_table_rows_render()
+    for path in ROUTING_DOCS:
+        relative = os.path.relpath(path, PORTFOLIO)
+        hits = [f for f in broken if f.startswith(f"{relative}:")]
+        print(f"  [{'MISSING' if hits else 'ok':>7}] {relative}: "
+              f"{len(hits)} malformed table row(s)")
+    print()
+
+    if stale:
+        print(f"{len(stale)} stale figure(s) in probes/README.md:\n")
+        for failure in stale:
             print(f"  - {failure}")
         print(
             "\nThe artifact is the source of truth. Update the index cell to the "
             "derived figure\nrather than editing the artifact to match the prose."
         )
+    if broken:
+        print(f"{len(broken)} malformed table row(s) in the routing documents:\n")
+        for failure in broken:
+            print(f"  - {failure}")
+    if stale or broken:
         return 1
-    print(f"All {len(CHECKS)} derived figures in probes/README.md match their artifacts.")
+
+    print(f"All {len(CHECKS)} derived figures in probes/README.md match their artifacts,")
+    print(f"and every table row in {len(ROUTING_DOCS)} routing document(s) renders.")
     return 0
 
 

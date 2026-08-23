@@ -21,6 +21,13 @@ name: Portfolio validate
 # costing "one run" that was already committed. Figures a probe's own artifacts
 # can recompute are now checked against them.
 #
+# A routing table can also fail by not rendering. GFM splits a cell on every
+# unescaped `|`, including inside a backtick span, so quoting a regex with an
+# alternation silently adds columns and mangles the row. Both documents
+# CLAUDE.md routes generic sessions at -- `pipeline/probes/README.md` and
+# `research/README.md` -- shipped with exactly that defect, from the same
+# quoted pattern, so their table widths are checked too.
+#
 # And the router's ranking logic must keep working: its pure-function unit
 # suite is what a rescore or a signal-source change is checked against, and it
 # had been runnable only by hand.
@@ -37,6 +44,7 @@ on:
       - "ventures/**/NOT-A-VENTURE"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
+      - "portfolio/research/README.md"
       - "portfolio/scoring/**"
       - "portfolio/ledger/break-even.md"
       - "portfolio/ledger/break_even.py"
@@ -56,6 +64,7 @@ on:
       - "ventures/**/NOT-A-VENTURE"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
+      - "portfolio/research/README.md"
       - "portfolio/scoring/**"
       - "portfolio/ledger/break-even.md"
       - "portfolio/ledger/break_even.py"
