@@ -1,7 +1,7 @@
 # mcp-drift-watch
 
 **Probe for [`mcp-supply-chain-watch`](../../candidates/mcp-supply-chain-watch.md).**
-Built 2026-08-22. 68 tests. Not published, not a graduation. `ai_leverage`
+Built 2026-08-22. 95 tests. Not published, not a graduation. `ai_leverage`
 moved once (6 → 7); still capped by `defensibility` at 3.
 
 Pin what a connected MCP server declared, diff it on re-poll, classify what
@@ -25,6 +25,174 @@ used to answer the question its research left open.
 > section](#third-pass-2026-08-22-the-model-asked-the-same-question-on-corpus-3).
 > The short version: it still beats the rules, by a much wider margin than on
 > corpus 2 — which is itself the caution, not just the result.
+>
+> **A fourth pass, 2026-08-23**, built the rule those passes named as the real
+> gap, and it is the section immediately below. It reproduces the same
+> in-sample/out-of-sample collapse a third time — and finds why: the class the
+> rule detects is a property of *which publisher* you watch, not of the
+> population, so the aggregate accuracy figures this probe prints are averages
+> over two populations that behave nothing alike.
+
+## Fourth pass, 2026-08-23: the rule for the class corpus 3 named
+
+The corpus-3 pass named the gap and the next spend:
+
+> 35 of the 44 missed positives are one mechanism the first pass never saw ...
+> **a server naming another of its own tools and saying when to reach for it,
+> in a phrasing the verb list does not cover** ... What would be worth it is a
+> rule for the class below, measured on a fourth corpus.
+
+[`relation.py`](relation.py) is that rule, with 27 tests. A fourth corpus turned
+out not to be what it needed: the eligible population was exhausted by corpora 2
+and 3, and **corpus 2 is already held out for this rule** — collected and
+hand-labelled the day before this file existed, sharing no package with corpus
+3, and not inspected while the rule was written. Corpus 3 named the class, so
+corpus 3 is in sample. That is the same split `rule_variants.py` had, one corpus
+later.
+
+### It could not be edit 4 in the signal table, and that is the reason five passes of widening failed
+
+Every prior attempt at this class was a wider regex in
+`classify_drift.INSTRUCTION_SIGNALS`, and each bought less than the last. The
+obstacle is structural, not a failure of pattern-writing. A signal in that table
+is a function of one description's text, and the relation needs two facts that
+are not in that text:
+
+1. **which tool is being described**, so a tool naming *itself* is not read as
+   routing — the rubric scores self-description negative; and
+2. **what the server's other tools are called**, so that `check_smtp_tls` is
+   distinguishable from `idempotency_key`. Both are snake_case; only one is a
+   tool.
+
+`classify(old, new)` is handed neither, so a regex can only guess that any
+snake_case token is a tool name — which is exactly what makes phrase-keyed rules
+fire on parameter documentation. **Both facts are already in the subscriber's
+pin**, because the watch stores the whole tool list per server. The product had
+the information the classifier's signature could not see. The rule therefore
+lives here and takes the namespace as an argument; `classify_drift.py` is still
+imported unmodified and still decides the bucket first, and the rule only ever
+*upgrades* a change the engine did not already flag — so every figure this
+repository quotes about the shipped rules is untouched, asserted by a test.
+
+### 1. The in-sample / out-of-sample gap reproduces a third time
+
+| | corpus 3 (named the class) | corpus 2 (held out) |
+|---|---|---|
+| `variant` (the three prior edits) | P 0.778 · R 0.143 · F1 0.241 | P 1.00 · R 0.529 · F1 0.692 |
+| `variant+relation` | P **0.929** · R **0.796** · F1 **0.857** | P 0.917 · R **0.647** · F1 **0.759** |
+| changes the rule moved | 33 (32 agree with the hand label) | 3 (2 agree) |
+
+In sample the rule finds 32 of the 44 misses that motivated it. Held out it
+finds two. Both prior passes closed on a version of this — the corpus-2 pass
+found a stable rate hiding unstable labels, the corpus-3 pass found the three
+fixes ranked in reverse out of sample — and this is the third instance in the
+same probe: **a rule written from the corpus that named its class is worth an
+order of magnitude less on a corpus that did not.** The gain is real (recall
+0.529 → 0.647, one false positive) and it is 6% of what the in-sample table
+shows.
+
+### 2. The class is a property of the publisher, not of the population
+
+That gap is not sampling noise, and this is the finding worth carrying
+elsewhere. Recall per server, hand positives caught:
+
+| server | corpus | `variant` | `variant+relation` |
+|---|---|---:|---:|
+| `intodns-mcp` | 3 | 2/21 | **21/21** |
+| `@oobe-protocol-labs/sap-mcp-server` | 3 | 0/13 | **9/13** |
+| `@wpconvert/mcp` | 3 | 1/6 | **4/6** |
+| `@naumu/mcp` | 2 | 6/10 | **8/10** |
+| `autonomad-travel`, `@i18n-agent/mcp-client`, `@clize/clize`, `@adeu/mcp-server`, `bizmuse-mcp`, `@sonarapp/mcp`, `@picsha-ai/mcp-server` | 2, 3 | unchanged | unchanged |
+
+On the four servers that write cross-tool routing the rule takes recall from
+near zero to 0.67–1.00. On the nine whose positives are the imperative class it
+changes nothing at all. Corpus 3 happened to contain two publishers who rewrote
+every description with routing text in one release; corpus 2 contained one. That
+is the whole explanation of both the 35-of-44 that named the class and the
+2-of-3 that is all it wins held out.
+
+The consequence is commercial rather than statistical. **A portfolio-wide recall
+figure is a weighted average over two populations, and the weights are whichever
+servers a subscriber happens to watch.** A customer subscribed to `intodns-mcp`
+would see a watch that finds essentially everything; a customer subscribed to
+`bizmuse-mcp` would see the same 0.10 recall the shipped rules have. Quoting one
+aggregate number at both of them is quoting a number that is true of neither.
+Every accuracy figure this probe has published so far — including the 0.40–0.62
+span the subscriber record prints — is an aggregate of exactly this kind.
+
+### 3. Alert volume, which is the candidate's own kill question
+
+| | `variant` | `variant+relation` |
+|---|---:|---:|
+| corpus 3, share of changes flagged | 6.1% | **28.4%** |
+| corpus 2, share of changes flagged | 6.6% | **8.8%** |
+
+[`mcp-tool-drift`](../../../research/mcp-tool-drift/) Finding 4 converts the
+alerting share into "roughly two alerts a month across twenty servers", and that
+figure has been quoted as evidence that alert fatigue is survivable. It was
+derived from a classifier that misses 86% of what it defines as an alert, so it
+is a floor rather than an estimate: a classifier that actually detects the class
+raises the same subscriber's volume by 1.3× or 4.6×, decided by which servers
+they watch. The candidate names alert fatigue as its own kill condition. It is
+not settled by the old number, and this pass does not settle it either — it
+shows the number was measuring the classifier's blindness as much as the
+market's churn.
+
+### What was deliberately not done, and the two defects found in building it
+
+**Not adopted** — not into `classify_drift.py`, not into the shipped signal
+table, and not into `subscriber_record.py`'s printed rates. The reason is the
+denominator, not the gain: the entire held-out evidence for this rule is **three
+changes on one publisher**, `@naumu/mcp`, and both prior passes established that
+one publisher rewriting a release is one editorial decision rather than N
+independent observations. A test pins that all three moves are that publisher.
+Adopting on that evidence would repeat, at the level of a rule, the error the
+corpus-3 pass documented at the level of a ranking.
+
+**The one held-out false positive is a rubric disagreement, and it is not
+relabelled.** `naumu_get_ai_thread` gained *"Use to read the AI response after a
+`naumu_ask` call"* — a named sibling tool with an ordering cue, which is what
+this rule detects, and which the hand labels score negative because it says when
+to reach for *this* tool rather than for the other one. Rubric (a) is written
+the other way round. Moving a hand label to suit a new rule is how a corpus
+stops being evidence, so the label stands and the rule wears the false positive.
+The in-sample false positive (`wpconvert_explain_failure`, *"recovering a
+submission ... via `wpconvert_convert_folder`"*) is a genuine over-fire on a
+descriptive mention, and `via`/`from` were kept rather than trimmed to fix it —
+trimming a cue to remove one false positive on the corpus that suggested it is
+the same error one level down.
+
+**A defect the first draft had, worth naming because it is the shipped engine's
+own bug one level down.** Newness was first tested on the text span from cue to
+tool name, taking the *first* cue in the window. `discover_dkim` reworded a
+clause sitting beside a routing clause that had pointed at the same tool for
+releases; the span straddled the semicolon, was new because its neighbour was,
+and the rule reported a months-old relation as newly injected. Newness is now
+tested on the **relation** — a tool this description already pointed at is not
+an alert, however much the prose around it moved — and the cue nearest the name
+is the one used. Both are pinned by tests.
+
+**Coverage limits, stated as numbers.** Single-word tool names (`ask`, `sync`,
+`context` — 21 of them across 7 packages in the two corpora) are out of scope by
+construction: they cannot be told from prose without a parser, and admitting
+them would trade the precision case for a handful of changes. The namespace here
+is derived from the corpus, so it holds only tools whose descriptions changed —
+a lower bound, which makes every recall figure above a floor. A subscriber's pin
+carries the full list and would do better.
+
+**No score moved.** `ai_leverage` stays at 7: this pass is more evidence that
+rules can be pushed further than the corpus-2 reading assumed, and the model
+pass already measured the model beating them on both corpora. A rule whose
+held-out evidence is one publisher does not revise a score in either direction.
+
+Reproduce (offline, from the committed corpora):
+
+```bash
+python3 -m pytest portfolio/pipeline/probes/mcp-drift-watch/ -q
+python3 score_relation.py            # both corpora, four rule sets, per-publisher split
+```
+
+---
 
 ## Second pass, 2026-08-22: a third corpus, and the fixes measured on it
 
@@ -307,6 +475,9 @@ here changes it.
 | `build_labels.py` | The hand labels as data, the rubric that produced them, and the scoring. |
 | `build_labels_c3.py` | The same, for corpus 3, scoring both rule sets. Reuses the scorer rather than forking it. |
 | `rule_variants.py` | The three edits corpus 2 argued for, applied by swapping the signal table into the shipped `classify()`. |
+| `relation.py` | The named-tool-relation rule: fires on a relation between two named tools, using the server's own namespace. Upgrade-only; never edits the shipped engine. |
+| `score_relation.py` | Scores four rule sets on both corpora, with the per-publisher split and the coverage gap. |
+| `relation-scores-2026-08-23.json` | That run, committed: every moved change, the per-publisher recall, both borderline readings. |
 | `render_sample.py` | Renders one real record from live npm data. |
 | `results-holdout-2026-08-22.json` | Corpus 2: 136 changes, 23 packages, with full before/after text. |
 | `holdout-labels-2026-08-22.json` | Every label, every borderline call, and a note on each judgement. |
@@ -315,7 +486,7 @@ here changes it.
 | `model-pass-c3-2026-08-22.json` | The model's 148 blind labels on corpus 3, same method as the corpus-2 pass. |
 | `score_model_pass_c3.py` | Scores the corpus-3 model pass against its hand labels; `--disagree` lists every split. |
 | `sample-record-2026-08-22.md` | A real record, chosen to be unflattering — see below. |
-| `test_drift_watch.py`, `test_subscriber_record.py`, `test_rule_variants.py`, `test_build_labels_c3.py` | 68 tests. |
+| `test_drift_watch.py`, `test_subscriber_record.py`, `test_rule_variants.py`, `test_build_labels_c3.py`, `test_relation.py` | 95 tests. |
 
 ```bash
 python3 -m pytest portfolio/pipeline/probes/mcp-drift-watch/ -q   # offline

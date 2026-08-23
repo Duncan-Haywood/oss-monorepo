@@ -1,0 +1,796 @@
+{
+ "corpus 2 (held out for this rule)": {
+  "corpus": "results-holdout-2026-08-22.json",
+  "changes": 136,
+  "rule_sets": {
+   "shipped": {
+    "alerting_share_pct": 7.4,
+    "borderline_counted_as_positive": {
+     "true_positives": 4,
+     "false_positives": 6,
+     "false_negatives": 13,
+     "true_negatives": 113,
+     "precision": 0.4,
+     "recall": 0.235,
+     "f1": 0.296
+    },
+    "borderline_counted_as_negative": {
+     "true_positives": 4,
+     "false_positives": 6,
+     "false_negatives": 10,
+     "true_negatives": 116,
+     "precision": 0.4,
+     "recall": 0.286,
+     "f1": 0.333
+    },
+    "precision_by_signal": {
+     "secret_or_credential": {
+      "flagged": 6,
+      "correct": 0,
+      "precision": 0.0
+     },
+     "imperative_priority": {
+      "flagged": 1,
+      "correct": 1,
+      "precision": 1.0
+     },
+     "tool_routing": {
+      "flagged": 3,
+      "correct": 3,
+      "precision": 1.0
+     }
+    }
+   },
+   "variant": {
+    "alerting_share_pct": 6.6,
+    "borderline_counted_as_positive": {
+     "true_positives": 9,
+     "false_positives": 0,
+     "false_negatives": 8,
+     "true_negatives": 119,
+     "precision": 1.0,
+     "recall": 0.529,
+     "f1": 0.692
+    },
+    "borderline_counted_as_negative": {
+     "true_positives": 9,
+     "false_positives": 0,
+     "false_negatives": 5,
+     "true_negatives": 122,
+     "precision": 1.0,
+     "recall": 0.643,
+     "f1": 0.783
+    },
+    "precision_by_signal": {
+     "imperative_priority": {
+      "flagged": 1,
+      "correct": 1,
+      "precision": 1.0
+     },
+     "tool_routing": {
+      "flagged": 8,
+      "correct": 8,
+      "precision": 1.0
+     }
+    }
+   },
+   "shipped+relation": {
+    "alerting_share_pct": 12.5,
+    "borderline_counted_as_positive": {
+     "true_positives": 10,
+     "false_positives": 7,
+     "false_negatives": 7,
+     "true_negatives": 112,
+     "precision": 0.588,
+     "recall": 0.588,
+     "f1": 0.588
+    },
+    "borderline_counted_as_negative": {
+     "true_positives": 10,
+     "false_positives": 7,
+     "false_negatives": 4,
+     "true_negatives": 115,
+     "precision": 0.588,
+     "recall": 0.714,
+     "f1": 0.645
+    },
+    "precision_by_signal": {
+     "secret_or_credential": {
+      "flagged": 6,
+      "correct": 0,
+      "precision": 0.0
+     },
+     "imperative_priority": {
+      "flagged": 1,
+      "correct": 1,
+      "precision": 1.0
+     },
+     "tool_routing": {
+      "flagged": 3,
+      "correct": 3,
+      "precision": 1.0
+     },
+     "named_tool_relation": {
+      "flagged": 7,
+      "correct": 6,
+      "precision": 0.857
+     }
+    }
+   },
+   "variant+relation": {
+    "alerting_share_pct": 8.8,
+    "borderline_counted_as_positive": {
+     "true_positives": 11,
+     "false_positives": 1,
+     "false_negatives": 6,
+     "true_negatives": 118,
+     "precision": 0.917,
+     "recall": 0.647,
+     "f1": 0.759
+    },
+    "borderline_counted_as_negative": {
+     "true_positives": 11,
+     "false_positives": 1,
+     "false_negatives": 3,
+     "true_negatives": 121,
+     "precision": 0.917,
+     "recall": 0.786,
+     "f1": 0.846
+    },
+    "precision_by_signal": {
+     "imperative_priority": {
+      "flagged": 1,
+      "correct": 1,
+      "precision": 1.0
+     },
+     "tool_routing": {
+      "flagged": 8,
+      "correct": 8,
+      "precision": 1.0
+     },
+     "named_tool_relation": {
+      "flagged": 3,
+      "correct": 2,
+      "precision": 0.667
+     }
+    }
+   }
+  },
+  "relation_rule_moved": [
+   {
+    "pkg": "@naumu/mcp",
+    "tool": "naumu_semantic_search",
+    "from": "0.1.0",
+    "was": "cosmetic",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "@naumu/mcp",
+    "tool": "naumu_add_edge",
+    "from": "0.1.5",
+    "was": "cosmetic",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "@naumu/mcp",
+    "tool": "naumu_get_ai_thread",
+    "from": "0.1.5",
+    "was": "capability-change",
+    "now": "instruction-bearing",
+    "hand_label": "not-instruction-bearing",
+    "borderline": false,
+    "correct": false
+   }
+  ],
+  "per_package": {
+   "@sonarapp/mcp": {
+    "changes": 10,
+    "hand_positives": 1,
+    "variant": 0,
+    "variant+relation": 0
+   },
+   "@tuteliq/mcp": {
+    "changes": 25,
+    "hand_positives": 1,
+    "variant": 1,
+    "variant+relation": 1
+   },
+   "@adeu/mcp-server": {
+    "changes": 6,
+    "hand_positives": 1,
+    "variant": 0,
+    "variant+relation": 0
+   },
+   "bizmuse-mcp": {
+    "changes": 7,
+    "hand_positives": 1,
+    "variant": 0,
+    "variant+relation": 0
+   },
+   "@gency-ai/gency-mcp": {
+    "changes": 11,
+    "hand_positives": 1,
+    "variant": 1,
+    "variant+relation": 1
+   },
+   "@meetlark/mcp-server": {
+    "changes": 2,
+    "hand_positives": 1,
+    "variant": 1,
+    "variant+relation": 1
+   },
+   "@naumu/mcp": {
+    "changes": 14,
+    "hand_positives": 10,
+    "variant": 6,
+    "variant+relation": 8
+   },
+   "@picsha-ai/mcp-server": {
+    "changes": 1,
+    "hand_positives": 1,
+    "variant": 0,
+    "variant+relation": 0
+   }
+  },
+  "coverage_gap": {
+   "packages": 23,
+   "packages_with_single_word_tool_names": 3,
+   "single_word_tool_names": 9,
+   "packages_with_one_tool_in_corpus": 6,
+   "changes_on_those_packages": 8
+  }
+ },
+ "corpus 3 (in sample: it named the class)": {
+  "corpus": "results-holdout-c3-2026-08-22.json",
+  "changes": 148,
+  "rule_sets": {
+   "shipped": {
+    "alerting_share_pct": 5.4,
+    "borderline_counted_as_positive": {
+     "true_positives": 5,
+     "false_positives": 3,
+     "false_negatives": 44,
+     "true_negatives": 96,
+     "precision": 0.625,
+     "recall": 0.102,
+     "f1": 0.175
+    },
+    "borderline_counted_as_negative": {
+     "true_positives": 5,
+     "false_positives": 3,
+     "false_negatives": 41,
+     "true_negatives": 99,
+     "precision": 0.625,
+     "recall": 0.109,
+     "f1": 0.185
+    },
+    "precision_by_signal": {
+     "imperative_priority": {
+      "flagged": 1,
+      "correct": 1,
+      "precision": 1.0
+     },
+     "tool_routing": {
+      "flagged": 7,
+      "correct": 5,
+      "precision": 0.714
+     },
+     "secret_or_credential": {
+      "flagged": 1,
+      "correct": 0,
+      "precision": 0.0
+     }
+    }
+   },
+   "variant": {
+    "alerting_share_pct": 6.1,
+    "borderline_counted_as_positive": {
+     "true_positives": 7,
+     "false_positives": 2,
+     "false_negatives": 42,
+     "true_negatives": 97,
+     "precision": 0.778,
+     "recall": 0.143,
+     "f1": 0.241
+    },
+    "borderline_counted_as_negative": {
+     "true_positives": 7,
+     "false_positives": 2,
+     "false_negatives": 39,
+     "true_negatives": 100,
+     "precision": 0.778,
+     "recall": 0.152,
+     "f1": 0.255
+    },
+    "precision_by_signal": {
+     "imperative_priority": {
+      "flagged": 3,
+      "correct": 3,
+      "precision": 1.0
+     },
+     "tool_routing": {
+      "flagged": 7,
+      "correct": 5,
+      "precision": 0.714
+     }
+    }
+   },
+   "shipped+relation": {
+    "alerting_share_pct": 27.7,
+    "borderline_counted_as_positive": {
+     "true_positives": 37,
+     "false_positives": 4,
+     "false_negatives": 12,
+     "true_negatives": 95,
+     "precision": 0.902,
+     "recall": 0.755,
+     "f1": 0.822
+    },
+    "borderline_counted_as_negative": {
+     "true_positives": 37,
+     "false_positives": 4,
+     "false_negatives": 9,
+     "true_negatives": 98,
+     "precision": 0.902,
+     "recall": 0.804,
+     "f1": 0.851
+    },
+    "precision_by_signal": {
+     "imperative_priority": {
+      "flagged": 1,
+      "correct": 1,
+      "precision": 1.0
+     },
+     "tool_routing": {
+      "flagged": 7,
+      "correct": 5,
+      "precision": 0.714
+     },
+     "secret_or_credential": {
+      "flagged": 1,
+      "correct": 0,
+      "precision": 0.0
+     },
+     "named_tool_relation": {
+      "flagged": 33,
+      "correct": 32,
+      "precision": 0.97
+     }
+    }
+   },
+   "variant+relation": {
+    "alerting_share_pct": 28.4,
+    "borderline_counted_as_positive": {
+     "true_positives": 39,
+     "false_positives": 3,
+     "false_negatives": 10,
+     "true_negatives": 96,
+     "precision": 0.929,
+     "recall": 0.796,
+     "f1": 0.857
+    },
+    "borderline_counted_as_negative": {
+     "true_positives": 39,
+     "false_positives": 3,
+     "false_negatives": 7,
+     "true_negatives": 99,
+     "precision": 0.929,
+     "recall": 0.848,
+     "f1": 0.886
+    },
+    "precision_by_signal": {
+     "imperative_priority": {
+      "flagged": 3,
+      "correct": 3,
+      "precision": 1.0
+     },
+     "tool_routing": {
+      "flagged": 7,
+      "correct": 5,
+      "precision": 0.714
+     },
+     "named_tool_relation": {
+      "flagged": 33,
+      "correct": 32,
+      "precision": 0.97
+     }
+    }
+   }
+  },
+  "relation_rule_moved": [
+   {
+    "pkg": "intodns-mcp",
+    "tool": "cancel_deep_scan",
+    "from": "1.2.0",
+    "was": "capability-change",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "intodns-mcp",
+    "tool": "check_dmarc",
+    "from": "1.2.0",
+    "was": "capability-change",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "intodns-mcp",
+    "tool": "check_email_security",
+    "from": "1.2.0",
+    "was": "capability-change",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "intodns-mcp",
+    "tool": "check_mta_sts",
+    "from": "1.2.0",
+    "was": "capability-change",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "intodns-mcp",
+    "tool": "check_sender_requirements",
+    "from": "1.2.0",
+    "was": "capability-change",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "intodns-mcp",
+    "tool": "check_spf",
+    "from": "1.2.0",
+    "was": "capability-change",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "intodns-mcp",
+    "tool": "discover_dkim",
+    "from": "1.2.0",
+    "was": "capability-change",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "intodns-mcp",
+    "tool": "explain_issue",
+    "from": "1.2.0",
+    "was": "capability-change",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "intodns-mcp",
+    "tool": "get_citation_guidance",
+    "from": "1.2.0",
+    "was": "capability-change",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "intodns-mcp",
+    "tool": "get_everything_report",
+    "from": "1.2.0",
+    "was": "capability-change",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "intodns-mcp",
+    "tool": "get_pdf_report_link",
+    "from": "1.2.0",
+    "was": "cosmetic",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "intodns-mcp",
+    "tool": "get_report_snapshot",
+    "from": "1.2.0",
+    "was": "cosmetic",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "intodns-mcp",
+    "tool": "lookup_dns",
+    "from": "1.2.0",
+    "was": "capability-change",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "intodns-mcp",
+    "tool": "read_llm_discovery",
+    "from": "1.2.0",
+    "was": "capability-change",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "intodns-mcp",
+    "tool": "scan_domain",
+    "from": "1.2.0",
+    "was": "capability-change",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "intodns-mcp",
+    "tool": "check_sender_requirements",
+    "from": "1.7.1",
+    "was": "cosmetic",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "intodns-mcp",
+    "tool": "check_tlsa_dane",
+    "from": "1.7.1",
+    "was": "capability-change",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "intodns-mcp",
+    "tool": "get_hall_of_fame",
+    "from": "1.7.1",
+    "was": "cosmetic",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "intodns-mcp",
+    "tool": "get_stats",
+    "from": "1.7.1",
+    "was": "cosmetic",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "@oobe-protocol-labs/sap-mcp-server",
+    "tool": "sap_close_escrow_v2",
+    "from": "0.9.11",
+    "was": "cosmetic",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "@oobe-protocol-labs/sap-mcp-server",
+    "tool": "sap_create_escrow_v2",
+    "from": "0.9.11",
+    "was": "cosmetic",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "@oobe-protocol-labs/sap-mcp-server",
+    "tool": "sap_deposit_escrow_v2",
+    "from": "0.9.11",
+    "was": "cosmetic",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "@oobe-protocol-labs/sap-mcp-server",
+    "tool": "sap_finalize_settlement_v2",
+    "from": "0.9.11",
+    "was": "cosmetic",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "@oobe-protocol-labs/sap-mcp-server",
+    "tool": "sap_get_agent_stats",
+    "from": "0.9.11",
+    "was": "capability-change",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "@oobe-protocol-labs/sap-mcp-server",
+    "tool": "sap_register_agent",
+    "from": "0.9.11",
+    "was": "cosmetic",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "@oobe-protocol-labs/sap-mcp-server",
+    "tool": "sap_settle_escrow_v2",
+    "from": "0.9.11",
+    "was": "cosmetic",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "@oobe-protocol-labs/sap-mcp-server",
+    "tool": "sap_update_agent",
+    "from": "0.9.11",
+    "was": "capability-change",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "@oobe-protocol-labs/sap-mcp-server",
+    "tool": "sap_withdraw_escrow_v2",
+    "from": "0.9.11",
+    "was": "cosmetic",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "ponlo-ai",
+    "tool": "ponlo_ai_chat",
+    "from": "1.6.0",
+    "was": "cosmetic",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "@wpconvert/mcp",
+    "tool": "wpconvert_check_status",
+    "from": "0.1.0",
+    "was": "cosmetic",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "@wpconvert/mcp",
+    "tool": "wpconvert_explain_failure",
+    "from": "0.1.0",
+    "was": "cosmetic",
+    "now": "instruction-bearing",
+    "hand_label": "not-instruction-bearing",
+    "borderline": false,
+    "correct": false
+   },
+   {
+    "pkg": "@wpconvert/mcp",
+    "tool": "wpconvert_download_result",
+    "from": "0.2.0",
+    "was": "cosmetic",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   },
+   {
+    "pkg": "@wpconvert/mcp",
+    "tool": "wpconvert_quota",
+    "from": "0.2.0",
+    "was": "capability-change",
+    "now": "instruction-bearing",
+    "hand_label": "instruction-bearing",
+    "borderline": false,
+    "correct": true
+   }
+  ],
+  "per_package": {
+   "autonomad-travel": {
+    "changes": 7,
+    "hand_positives": 3,
+    "variant": 1,
+    "variant+relation": 1
+   },
+   "@clize/clize": {
+    "changes": 8,
+    "hand_positives": 1,
+    "variant": 0,
+    "variant+relation": 0
+   },
+   "@i18n-agent/mcp-client": {
+    "changes": 5,
+    "hand_positives": 3,
+    "variant": 2,
+    "variant+relation": 2
+   },
+   "intodns-mcp": {
+    "changes": 33,
+    "hand_positives": 21,
+    "variant": 2,
+    "variant+relation": 21
+   },
+   "@oobe-protocol-labs/sap-mcp-server": {
+    "changes": 36,
+    "hand_positives": 13,
+    "variant": 0,
+    "variant+relation": 9
+   },
+   "ponlo-ai": {
+    "changes": 7,
+    "hand_positives": 1,
+    "variant": 0,
+    "variant+relation": 1
+   },
+   "@wpconvert/mcp": {
+    "changes": 9,
+    "hand_positives": 6,
+    "variant": 1,
+    "variant+relation": 4
+   },
+   "devglow-mcp": {
+    "changes": 4,
+    "hand_positives": 1,
+    "variant": 1,
+    "variant+relation": 1
+   }
+  },
+  "coverage_gap": {
+   "packages": 21,
+   "packages_with_single_word_tool_names": 4,
+   "single_word_tool_names": 12,
+   "packages_with_one_tool_in_corpus": 4,
+   "changes_on_those_packages": 4
+  }
+ }
+}
