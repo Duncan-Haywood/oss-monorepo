@@ -39,7 +39,7 @@ from .evidence import (
 from .lockfile import InstalledPackage, UnsupportedLockfile, parse_lockfile
 
 
-def _parse_project_lockfile(
+def parse_project_lockfile(
     lockfile_path: Path, pnpm_importer: str | None
 ) -> list[InstalledPackage]:
     """Parse whichever lockfile format ``lockfile_path`` actually is.
@@ -48,13 +48,18 @@ def _parse_project_lockfile(
     project through a ``pnpm-lock.yaml`` — it names the key into that
     lockfile's own ``importers`` map, which is not always this project's own
     repository-relative path (a pnpm workspace can be nested).
+
+    Shared with ``run_repository_coverage.py``, which needs the same dispatch
+    to avoid re-deriving (and drifting from) it a second time — that drift is
+    exactly what left it crashing on a pnpm lockfile after this function
+    learned to read one.
     """
     if pnpm_importer is not None:
         return pnpm_mod.parse_pnpm_lockfile(lockfile_path, importer_path=pnpm_importer)
     return parse_lockfile(lockfile_path)
 
 
-def _dependency_graph_for(
+def dependency_graph_for(
     lockfile_path: Path, pnpm_importer: str | None
 ) -> graph_mod.DependencyGraph | None:
     """The build-surface dependency graph for ``lockfile_path``, or ``None``.
@@ -171,12 +176,12 @@ def _report_for_project(
     pnpm_importer: str | None = None,
 ) -> Report:
     """Triage one project against an already-loaded advisory list."""
-    installed = _parse_project_lockfile(lockfile_path, pnpm_importer)
+    installed = parse_project_lockfile(lockfile_path, pnpm_importer)
     names = {package.name for package in installed}
     relevant = [a for a in advisory_list if a.packages & names]
 
     context = ProjectContext(
-        dependency_graph=_dependency_graph_for(lockfile_path, pnpm_importer),
+        dependency_graph=dependency_graph_for(lockfile_path, pnpm_importer),
         declared_dependencies=sources_mod.declared_production_dependencies(project),
         source_imports=frozenset()
         if args.no_source_scan
@@ -225,7 +230,7 @@ def run_repository(args) -> int:
         if lockfile_path is None or not lockfile_path.is_file():
             continue
         try:
-            installed = _parse_project_lockfile(lockfile_path, entry.pnpm_importer)
+            installed = parse_project_lockfile(lockfile_path, entry.pnpm_importer)
         except (UnsupportedLockfile, pnpm_mod.UnsupportedPnpmLockfile, ValueError, OSError):
             continue
         all_names |= {p.name for p in installed}

@@ -30,11 +30,12 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 from triage import advisories as advisories_mod  # noqa: E402
 from triage import deployment as deployment_mod  # noqa: E402
 from triage import discovery as discovery_mod  # noqa: E402
-from triage import graph as graph_mod  # noqa: E402
+from triage import pnpm as pnpm_mod  # noqa: E402
 from triage import sources as sources_mod  # noqa: E402
+from triage.cli import dependency_graph_for, parse_project_lockfile  # noqa: E402
 from triage.engine import DEV_ONLY, NOT_DEPLOYED, SHIPPED, ProjectContext, triage  # noqa: E402
 from triage.evidence import coverage_to_dict  # noqa: E402
-from triage.lockfile import parse_lockfile  # noqa: E402
+from triage.lockfile import UnsupportedLockfile  # noqa: E402
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -52,9 +53,19 @@ def main(argv: list[str] | None = None) -> int:
     resolved = []
     names: set[str] = set()
     for entry in coverage.analysed:
+        # A workspace member resolves through its root's lockfile, so triaging
+        # it separately would re-report the whole workspace once per member —
+        # the same skip `cli.py`'s `run_repository` applies, for the same
+        # reason. A pnpm importer is never `covered_by` anything (each keeps
+        # its own dependency list in the lockfile), so it always reaches here.
+        if entry.covered_by is not None:
+            continue
         project_dir = root if entry.path == "." else root / entry.path
         lockfile_path = root / entry.lockfile
-        installed = parse_lockfile(lockfile_path)
+        try:
+            installed = parse_project_lockfile(lockfile_path, entry.pnpm_importer)
+        except (UnsupportedLockfile, pnpm_mod.UnsupportedPnpmLockfile, ValueError, OSError):
+            continue
         names |= {package.name for package in installed}
         resolved.append((entry, project_dir, lockfile_path, installed))
 
@@ -68,7 +79,7 @@ def main(argv: list[str] | None = None) -> int:
         relevant = [a for a in advisory_list if a.packages & installed_names]
         profile = deployment_mod.detect(project_dir)
         context = ProjectContext(
-            dependency_graph=graph_mod.build_from_lockfile(lockfile_path),
+            dependency_graph=dependency_graph_for(lockfile_path, entry.pnpm_importer),
             declared_dependencies=sources_mod.declared_production_dependencies(project_dir),
             source_imports=sources_mod.scan_project_imports(project_dir),
         )

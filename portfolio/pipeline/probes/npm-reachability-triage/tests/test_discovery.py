@@ -409,12 +409,13 @@ class TestCoverageCitations:
 
     `probes/README.md` asks for this shape explicitly: *"a figure printed at a
     customer must not be able to go stale"*. These re-derive each printed
-    coverage number from `coverage-2026-08-22.json` rather than trusting the
-    constant beside it.
+    coverage number from `coverage-2026-08-23.json` rather than trusting the
+    constant beside it. (`coverage-2026-08-22.json` predates pnpm support and
+    is kept only as a historical artifact.)
     """
 
     MEASUREMENT = (
-        Path(__file__).resolve().parents[1] / "coverage-2026-08-22.json"
+        Path(__file__).resolve().parents[1] / "coverage-2026-08-23.json"
     )
 
     def load(self):
@@ -444,10 +445,37 @@ class TestCoverageCitations:
         assert "all seven npm products" not in evidence.ACCURACY_NOTE
         assert str(evidence.PORTFOLIO_MANIFESTS_FOUND) in evidence.ACCURACY_NOTE
 
+    #: The seven `ventures/**/package-lock.json` products `run_portfolio_sample.py`
+    #: hand-verifies. Only these are asserted against the pinned sample totals
+    #: below — the repository walk also analyses others (pnpm's
+    #: `retail-pilot-intel`, and two npm projects with no deployment mode),
+    #: which is the whole point of the walk, but their findings were never
+    #: part of the 53-claim hand review and must not be silently absorbed into
+    #: a number that reads as "the verified sample."
+    SAMPLE_PROJECTS = frozenset(
+        {
+            "ventures/ai-first-markets",
+            "ventures/local-site-studio",
+            "ventures/photo-editing/docs-site",
+            "ventures/print-atelier",
+            "ventures/quick-pick-survey",
+            "ventures/real-estate-agent-photo-app/docs-site",
+            "ventures/real-estate-agent-photo-app/research",
+        }
+    )
+
     def test_committed_findings_match_the_hand_enumerated_validation_run(self):
         """The walk must reproduce the sample run, not merely resemble it."""
-        totals = self.load()["totals"]
+        sample_rows = [
+            p for p in self.load()["projects"] if p["project"] in self.SAMPLE_PROJECTS
+        ]
+        assert {p["project"] for p in sample_rows} == self.SAMPLE_PROJECTS
 
+        totals = {
+            "deployed": sum(p["deployed"] for p in sample_rows),
+            "suppressed": sum(p["suppressed"] for p in sample_rows),
+            "findings": sum(p["findings"] for p in sample_rows),
+        }
         assert totals == {"deployed": 30, "suppressed": 102, "findings": 132}
 
 
