@@ -18780,3 +18780,76 @@ entries:
         drop what it already duplicated rather than restate it. No revenue;
         the $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve the
+        development process... increase in profit" session, designated
+        branch claude/ecstatic-volta-5az82q. Ran `session_gate.py` first
+        (PROCEED, flagging 2 distinct sessions committing to `main` within a
+        15-minute window in the last 6h as a reason to check for duplicates
+        before starting). Listed the 4 open PRs (#583, #531, #372, #368) and
+        checked issue #139: the most recent comment there
+        (2026-08-22T20:35:54Z) had already confirmed all four unchanged and
+        correctly human-gated a few hours before this session started, and
+        `portfolio/ledger/verification_status.py` still reports #372/#368 as
+        `BUILD VALID` with no code drift since -- nothing new to add there,
+        so this session did not re-verify them.
+      - >-
+        `portfolio/router/allocate.py` shows all 10 ventures blocked on
+        publish approval (owner-gated), so no venture work was dispatchable.
+        Per the pipeline brief's own ordering ("advance a probe that is
+        already specified"), picked up the one named, unclosed gap in
+        `portfolio/pipeline/probes/npm-reachability-triage/`: all seven of
+        `retail-pilot-intel`'s pnpm workspace members were refused outright
+        (`pnpm-lockfile` -- "this tool cannot read this format at all"),
+        per that probe's own 2026-08-22 repository-walk finding.
+      - >-
+        Added `triage/pnpm.py`: parses `pnpm-lock.yaml` (major version `9`,
+        the version `retail-pilot-intel` actually uses) into the same
+        `InstalledPackage` shape `lockfile.py` produces for npm, so
+        `engine.py`'s suppression rules needed no pnpm-specific branch.
+        Handles pnpm's per-snapshot (not per-install-location) dedup,
+        peer-suffix resolution, and `link:../other` cross-workspace-member
+        edges, walking only a linked member's *production* dependencies into
+        the consumer's reachability, never its dev ones. `discovery.py` now
+        classifies a pnpm v9 project as `ANALYSED` per workspace `importers`
+        entry (each keeps its own dependency list, so each gets its own
+        report rather than being folded into one root report the way an npm
+        workspace member is), and refuses with a specific, actionable reason
+        (`pnpm-lockfile` for an unsupported/unparseable lockfile,
+        `not-in-pnpm-workspace` for an undeclared directory) instead of one
+        blanket code. `cli.py` dispatches to the right parser per project.
+        Documented, not silently claimed: no pnpm equivalent of the
+        `build-surface` rule yet (can only under-suppress, never
+        over-suppress, so this is safe rather than a correctness gap), and
+        pnpm's precision has not been checked against a hand-labelled
+        advisory set the way the npm side has.
+      - >-
+        Verified: full test suite (285 tests, 21 new in
+        `tests/test_pnpm.py`, `tests/test_discovery.py` extended for the new
+        classification) passes; ran the CLI end-to-end
+        (`--repository .` against the whole monorepo, a local empty
+        advisory file, no network egress) and confirmed retail-pilot-intel's
+        root and all six workspace members resolve with real component
+        counts, taking this repository's own `--repository` coverage from
+        9/18 to 16/18 analysed npm projects; `portfolio/router/validate.py`
+        clean; `python3 -m pyflakes` on the touched modules clean. Opened as
+        #659; its own CI (`npm-reachability-triage CI`, a path-filtered
+        workflow with no network access) initially failed because the
+        `pip install pytest` step predated PyYAML becoming a real
+        dependency -- fixed by adding it to that step and to `action.yml`'s
+        own dependency-install step, re-ran green (4/4 checks), then merged.
+        Internal-only (`portfolio/pipeline/probes/`,
+        `.github/workflows/npm-reachability-triage-ci.yml`), no `ventures/*`
+        app code touched, nothing published, no credential used --
+        agent-decidable per `CLAUDE.md`: `git merge-tree` re-checked clean
+        against the live `main` tip immediately before merging, merged the
+        same session.
+      - >-
+        Restarted the designated branch from the fresh `main` tip per the
+        merged-PR-branch rule before writing this entry. No revenue; the $0
+        ceiling is unchanged.
+    mrr_end: null
