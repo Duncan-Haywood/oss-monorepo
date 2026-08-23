@@ -64,6 +64,10 @@ runs:
       with:
         python-version: "3.11"
 
+    - name: Install dependencies
+      shell: bash
+      run: python3 -m pip install --quiet "pyyaml>=6"
+
     - name: Run reachability triage
       id: triage
       shell: bash

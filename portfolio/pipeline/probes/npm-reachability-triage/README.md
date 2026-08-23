@@ -577,9 +577,15 @@ so a stale figure fails the build instead of being quoted at a buyer.
 
 ### Limits of the walk itself
 
-- **Refusing loudly is not covering.** This does not read pnpm or yarn
-  lockfiles. `retail-pilot-intel` is still unanalysed; it is now unanalysed *in
-  writing*.
+- **Refusing loudly is not covering — but pnpm is covered as of 2026-08-23.**
+  This paragraph originally read *"This does not read pnpm or yarn lockfiles.
+  retail-pilot-intel is still unanalysed; it is now unanalysed in writing."*
+  `src/triage/pnpm.py` closes the pnpm half of that: `retail-pilot-intel`'s
+  `pnpm-lock.yaml` is `lockfileVersion: '9.0'`, and this tool now reads that
+  format — every one of its seven workspace members walks to `ANALYSED`,
+  taking this repository's own analysed count from 9/18 to 16/18 (see
+  [pnpm is now analysed](#pnpm-is-now-analysed-2026-08-23) below). Yarn
+  remains unread; a yarn lockfile is still refused with `yarn-lockfile`.
 - **The npm-workspace rule is fixture-tested only.** A member with no lockfile
   of its own counts as covered when an ancestor's lockfile declares it as a
   workspace entry, and deliberately *not* when only the root manifest's
@@ -592,6 +598,56 @@ so a stale figure fails the build instead of being quoted at a buyer.
   know which manifests their owner considers products; counting only the 16
   under `ventures/`, 9 are readable and 7 are refused, and the whole of that 7
   is still the one pnpm venture.
+
+## pnpm is now analysed (2026-08-23)
+
+`retail-pilot-intel` was, until this pass, the one venture no record from this
+tool had ever said anything about: seven manifests, refused with a single
+reason (`pnpm-lockfile`) that meant "this tool cannot read this format at
+all". `src/triage/pnpm.py` reads `pnpm-lock.yaml` (major version `9`, the one
+this repository's own venture uses) into the same
+`InstalledPackage(name, version, path, dev, optional)` shape `lockfile.py`
+produces for npm, so nothing downstream — `engine.py`'s suppression rules,
+`evidence.py`'s rendering, the CLI — needed a pnpm-specific branch.
+
+The two formats need genuinely different reasoning to get there, not a shared
+parser with a format switch. npm keeps a `dev` flag *per install location*,
+because the same name+version can sit at more than one path with different
+reachability (the `postcss` worked example the build-surface section above is
+built on). pnpm de-duplicates globally by content address — one node per
+`name@version(peer-suffix)`, called a *snapshot* — so there is no stored `dev`
+flag to read; whether a snapshot is production or dev-only is a property of
+*which of an importer's own `dependencies`/`devDependencies` roots reach it*,
+computed by graph traversal rather than a field lookup. And pnpm's `importers`
+map keeps one entry per workspace member with its own `dependencies` and
+`devDependencies`, cross-referencing other members with a `link:../other`
+version rather than a snapshot key — `retail-pilot-intel`'s `packages/pos`
+depends on the local `packages/schemas` this way, and only `schemas`' own
+*production* dependencies (it happens to have none; only `devDependencies`)
+should propagate to a consumer.
+
+Run against this repository with `--repository .`, the walk now reports **16
+of 18** npm projects analysed, up from 9 — every `retail-pilot-intel` importer
+(`.`, `apps/docs`, `apps/portal`, `packages/analytics`, `packages/edge`,
+`packages/pos`, `packages/schemas`) resolves, each with its own dependency
+list rather than one merged report for the whole workspace, which is what
+pnpm's per-importer lockfile structure makes possible and npm's flat
+`packages` map does not. The two remaining refusals
+(`portfolio/research/a11y-axe-recall`, `portfolio/research/a11y-delivered-contrast`)
+are unrelated research harnesses with a manifest and no lockfile at all.
+
+**What this does not yet do:** there is no pnpm equivalent of `graph.py`'s
+build-surface rule (the `next` → `postcss` reasoning). That rule only ever
+moves a finding *out of* "shipped", so its absence cannot produce a false
+suppression on a pnpm project — it can only under-suppress relative to an
+equivalent npm project, which is the safe direction this tool always fails
+towards. And unlike the npm side, this module's precision has not been
+checked against a hand-labelled advisory set the way `eaa-wcag-triage` or the
+`wrong-suppression-verification-2026-08-21.json` sample was — its test suite
+(`tests/test_pnpm.py`) is structural (synthetic lockfile shapes plus the real
+`retail-pilot-intel` lockfile as a smoke test), not an accuracy citation.
+Treat pnpm output as sound, not yet validated the way the npm figures above
+are.
 
 ## Usage
 
@@ -643,13 +699,19 @@ npm-reachability-triage --advisories ./osv-npm-all.zip
 
 ## Limits
 
-- npm only, `package-lock.json` v2/v3 only. A v1 lockfile carries no
-  per-location `dev` flag, so the analysis is impossible and the tool refuses
-  rather than degrading to name-level matching. A pnpm or yarn lockfile is not
-  read either. On this repository that is not a corner case: it is half the npm
-  manifests present, and `--repository` exists so a record names them instead
-  of omitting them silently — see [the coverage
-  section](#half-of-this-repository-was-never-scanned-2026-08-22).
+- npm's `package-lock.json` v2/v3, and pnpm's `pnpm-lock.yaml` major version
+  `9` — the version this repository's own pnpm venture uses; a different pnpm
+  major version is refused (`pnpm-lockfile`) rather than assumed compatible. A
+  v1 npm lockfile carries no per-location `dev` flag, so the analysis is
+  impossible and the tool refuses rather than degrading to name-level
+  matching. A yarn lockfile is not read at all. `--repository` names every
+  refusal by reason rather than omitting it silently — see [the coverage
+  section](#half-of-this-repository-was-never-scanned-2026-08-22) and [pnpm is
+  now analysed](#pnpm-is-now-analysed-2026-08-23).
+- The pnpm side has no build-surface rule yet (see [pnpm is now
+  analysed](#pnpm-is-now-analysed-2026-08-23)), so a pnpm project can
+  under-suppress relative to an equivalent npm one; this cannot cause a false
+  suppression, only a missed one.
 - Deployment detection is Next.js-specific and textual. It does not execute the
   config, so a computed `output` value resolves to `unknown` and suppresses
   nothing. Other frameworks always resolve to `unknown`.

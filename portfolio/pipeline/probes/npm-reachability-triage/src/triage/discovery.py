@@ -24,9 +24,20 @@ projects in the same repository are not covered either.
 
 So the unit here is the repository, and the output names every manifest found,
 whether it was analysed, and — when it was not — which specific thing stopped
-it. A refusal a user can read is a refusal they can act on: `pnpm-lockfile`
-tells them to run `npm install --package-lock-only`, where silence tells them
-nothing.
+it. A refusal a user can read is a refusal they can act on: `no-lockfile`
+tells them to run `npm install`, where silence tells them nothing.
+
+**pnpm is analysed, not refused, as of the lockfile-version-9 support added in
+`triage.pnpm`.** A `pnpm-lock.yaml` this repository's own venture
+(`retail-pilot-intel`) uses — `lockfileVersion: '9.0'` — is now read the same
+way a `package-lock.json` is: each workspace member (`importers` key) gets its
+own analysed project, walking `dependencies`/`optionalDependencies` edges
+through `snapshots` and across `link:` workspace cross-references to decide
+production reachability. `pnpm-lockfile` remains a live refusal reason for a
+lockfile this repository has not been built and tested against — a different
+major version, or one that fails to parse at all — because "this looks like a
+pnpm lockfile" is not the same claim as "this pnpm lockfile has been read
+correctly", and only the latter earns `ANALYSED`.
 
 Two decisions worth stating, because both could reasonably have gone the other
 way:
@@ -54,7 +65,10 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
+import yaml
+
 from . import deployment as deployment_mod
+from . import pnpm as pnpm_mod
 from .lockfile import UnsupportedLockfile, parse_lockfile_data
 
 #: Directories never descended into. ``node_modules`` is the one that matters —
@@ -96,9 +110,17 @@ REFUSAL_REMEDIES: dict[str, str] = {
         "to generate one"
     ),
     "pnpm-lockfile": (
-        "resolved by a pnpm lockfile, which this tool cannot read; run "
-        "`npm install --package-lock-only` to emit a package-lock.json, or use "
-        "a pnpm-native scanner"
+        "resolved by a pnpm lockfile this tool could not analyse — either its "
+        f"lockfileVersion is not major version {pnpm_mod.SUPPORTED_MAJOR_VERSION} "
+        "(the only one this tool has been built and tested against) or the "
+        "file failed to parse; run `npm install --package-lock-only` to emit "
+        "a package-lock.json, or use a pnpm-native scanner"
+    ),
+    "not-in-pnpm-workspace": (
+        "an ancestor pnpm-lock.yaml exists and parses, but its `importers` map "
+        "does not declare this directory as a workspace member, so its "
+        "dependencies are not resolved anywhere this tool can read; run `pnpm "
+        "install` here, or add it to the workspace"
     ),
     "yarn-lockfile": (
         "resolved by a yarn lockfile, which this tool cannot read; run "
@@ -139,6 +161,11 @@ class DiscoveredProject:
     lockfile: str | None = None
     #: Set when this project is resolved by an ancestor's workspace lockfile.
     covered_by: str | None = None
+    #: For a pnpm project, the key into that lockfile's own ``importers`` map
+    #: (relative to the pnpm-lock.yaml's directory, which can differ from
+    #: this project's path when the lockfile itself is nested in the
+    #: repository). ``None`` for everything else, including npm projects.
+    pnpm_importer: str | None = None
 
     @property
     def analysed(self) -> bool:
@@ -235,6 +262,60 @@ def _read_lockfile_status(path: Path) -> tuple[bool, str | None, dict | None]:
     return True, None, raw
 
 
+def _read_pnpm_lockfile_status(path: Path) -> tuple[bool, str | None, dict | None]:
+    """Return ``(analysable, reason, raw)`` for a ``pnpm-lock.yaml``.
+
+    ``analysable`` means this module has actually parsed it and confirmed it
+    is the one major version :mod:`triage.pnpm` has been built and tested
+    against — not merely that the file exists and looks like YAML.
+    """
+    try:
+        raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError):
+        return False, "pnpm-lockfile", None
+    if not isinstance(raw, dict):
+        return False, "pnpm-lockfile", None
+    if pnpm_mod.major_version(raw) != pnpm_mod.SUPPORTED_MAJOR_VERSION:
+        return False, "pnpm-lockfile", raw
+    return True, None, raw
+
+
+def _classify_pnpm(
+    project_dir: Path,
+    ancestor: Path,
+    pnpm_lock: Path,
+    root: Path,
+    relative: str,
+    detect_deployment: bool,
+) -> DiscoveredProject:
+    """Classify a project resolved by a ``pnpm-lock.yaml`` found at ``ancestor``.
+
+    ``project_dir``'s key into that lockfile's own ``importers`` map is
+    relative to ``ancestor`` (the lockfile's directory), which is not always
+    ``root`` — a pnpm workspace can sit nested inside a larger repository, as
+    ``retail-pilot-intel``'s does in this one.
+    """
+    lock_relative = _relative(pnpm_lock, root)
+    analysable, reason, raw = _read_pnpm_lockfile_status(pnpm_lock)
+    if not analysable:
+        return DiscoveredProject(relative, REFUSED, reason, lockfile=lock_relative)
+
+    importer_key = _relative(project_dir, ancestor)
+    if importer_key not in pnpm_mod.importer_paths(raw):
+        return DiscoveredProject(
+            relative, REFUSED, "not-in-pnpm-workspace", lockfile=lock_relative
+        )
+
+    status = ANALYSED
+    if detect_deployment:
+        profile = deployment_mod.detect(project_dir)
+        if profile.mode == deployment_mod.UNKNOWN:
+            status = ANALYSED_NO_DEPLOYMENT_MODE
+    return DiscoveredProject(
+        relative, status, None, lockfile=lock_relative, pnpm_importer=importer_key
+    )
+
+
 def _workspace_keys(raw: dict) -> set[str]:
     """Workspace member paths a v2/v3 lockfile resolves.
 
@@ -287,8 +368,8 @@ def _classify(
 
         pnpm = ancestor / "pnpm-lock.yaml"
         if pnpm.is_file():
-            return DiscoveredProject(
-                relative, REFUSED, "pnpm-lockfile", lockfile=_relative(pnpm, root)
+            return _classify_pnpm(
+                project_dir, ancestor, pnpm, root, relative, detect_deployment
             )
 
         for yarn_name in ("yarn.lock",):
