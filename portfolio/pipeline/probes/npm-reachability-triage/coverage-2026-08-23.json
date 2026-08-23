@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-23T00:51:37Z",
-  "feed": "osv-npm.zip",
+  "generated_at": "2026-08-23T01:02:55Z",
+  "feed": "osv-npm-all.zip",
   "coverage": {
     "root": "/home/user/monorepo-projects",
     "counts": {
@@ -162,6 +162,8 @@
     {
       "project": "ventures/ai-engineering-academy/site",
       "status": "analysed-no-deployment-mode",
+      "lockfile_format": "npm",
+      "unresolved_production_edges": [],
       "mode": "unknown",
       "confidence": "low",
       "components": 1,
@@ -174,6 +176,8 @@
     {
       "project": "ventures/ai-first-markets",
       "status": "analysed",
+      "lockfile_format": "npm",
+      "unresolved_production_edges": [],
       "mode": "server",
       "confidence": "medium",
       "components": 858,
@@ -186,6 +190,8 @@
     {
       "project": "ventures/local-site-studio",
       "status": "analysed",
+      "lockfile_format": "npm",
+      "unresolved_production_edges": [],
       "mode": "server",
       "confidence": "medium",
       "components": 516,
@@ -198,6 +204,8 @@
     {
       "project": "ventures/photo-editing/docs-site",
       "status": "analysed",
+      "lockfile_format": "npm",
+      "unresolved_production_edges": [],
       "mode": "server",
       "confidence": "medium",
       "components": 378,
@@ -210,6 +218,8 @@
     {
       "project": "ventures/print-atelier",
       "status": "analysed",
+      "lockfile_format": "npm",
+      "unresolved_production_edges": [],
       "mode": "server",
       "confidence": "medium",
       "components": 454,
@@ -222,6 +232,8 @@
     {
       "project": "ventures/quick-pick-survey",
       "status": "analysed",
+      "lockfile_format": "npm",
+      "unresolved_production_edges": [],
       "mode": "server",
       "confidence": "medium",
       "components": 572,
@@ -234,6 +246,8 @@
     {
       "project": "ventures/real-estate-agent-photo-app/docs-site",
       "status": "analysed",
+      "lockfile_format": "npm",
+      "unresolved_production_edges": [],
       "mode": "static-export",
       "confidence": "high",
       "components": 614,
@@ -246,6 +260,8 @@
     {
       "project": "ventures/real-estate-agent-photo-app/pipeline",
       "status": "analysed-no-deployment-mode",
+      "lockfile_format": "npm",
+      "unresolved_production_edges": [],
       "mode": "unknown",
       "confidence": "low",
       "components": 64,
@@ -258,6 +274,8 @@
     {
       "project": "ventures/real-estate-agent-photo-app/research",
       "status": "analysed",
+      "lockfile_format": "npm",
+      "unresolved_production_edges": [],
       "mode": "static-export",
       "confidence": "high",
       "components": 422,
@@ -270,6 +288,8 @@
     {
       "project": "ventures/retail-pilot-intel",
       "status": "analysed-no-deployment-mode",
+      "lockfile_format": "pnpm",
+      "unresolved_production_edges": [],
       "mode": "unknown",
       "confidence": "low",
       "components": 140,
@@ -282,6 +302,8 @@
     {
       "project": "ventures/retail-pilot-intel/apps/docs",
       "status": "analysed-no-deployment-mode",
+      "lockfile_format": "pnpm",
+      "unresolved_production_edges": [],
       "mode": "unknown",
       "confidence": "low",
       "components": 153,
@@ -294,6 +316,8 @@
     {
       "project": "ventures/retail-pilot-intel/apps/portal",
       "status": "analysed-no-deployment-mode",
+      "lockfile_format": "pnpm",
+      "unresolved_production_edges": [],
       "mode": "unknown",
       "confidence": "low",
       "components": 153,
@@ -306,6 +330,8 @@
     {
       "project": "ventures/retail-pilot-intel/packages/analytics",
       "status": "analysed-no-deployment-mode",
+      "lockfile_format": "pnpm",
+      "unresolved_production_edges": [],
       "mode": "unknown",
       "confidence": "low",
       "components": 32,
@@ -318,6 +344,8 @@
     {
       "project": "ventures/retail-pilot-intel/packages/edge",
       "status": "analysed-no-deployment-mode",
+      "lockfile_format": "pnpm",
+      "unresolved_production_edges": [],
       "mode": "unknown",
       "confidence": "low",
       "components": 3,
@@ -330,6 +358,8 @@
     {
       "project": "ventures/retail-pilot-intel/packages/pos",
       "status": "analysed-no-deployment-mode",
+      "lockfile_format": "pnpm",
+      "unresolved_production_edges": [],
       "mode": "unknown",
       "confidence": "low",
       "components": 3,
@@ -342,6 +372,8 @@
     {
       "project": "ventures/retail-pilot-intel/packages/schemas",
       "status": "analysed-no-deployment-mode",
+      "lockfile_format": "pnpm",
+      "unresolved_production_edges": [],
       "mode": "unknown",
       "confidence": "low",
       "components": 1,

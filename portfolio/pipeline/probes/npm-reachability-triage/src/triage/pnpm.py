@@ -55,31 +55,58 @@ still marks it ``dev=False``, because a wrongly-``dev`` snapshot is a false
 suppression, and this module would rather report a devDependency as shipped
 than mis-clear something that actually ships.
 
-## What this module deliberately does not do yet
+## The direction a gap in this module runs, and the guard on it
 
-It has no pnpm equivalent of ``graph.py``'s build-surface rule (the
-``next`` → ``postcss`` reasoning). That rule only ever moves a finding
-*out* of "shipped", so its absence here cannot produce a false suppression —
-it can only under-suppress, which is the direction this package always fails
-towards. A pnpm project can still be suppressed by the dependency-path rule
-this module feeds, and by the deployment-surface and dev-server rules in
-``engine.py``, which read no lockfile format at all.
+Deriving dev-ness rather than reading it introduces a failure npm's stored
+flag cannot have: an edge this module fails to follow makes a package look
+*less* reachable than it is, and that ends in a false suppression — the one
+outcome this probe exists to avoid.
 
-It has also only been validated against ``lockfileVersion`` major version
-``9`` — the version this portfolio's own pnpm venture uses. Unlike
-``eaa-wcag-triage`` or the npm side of this probe, this module's precision
-has not been checked against a hand-labelled advisory set; treat its output
-as structurally sound (tested against the real ``retail-pilot-intel``
-lockfile and a battery of synthetic cases) rather than accuracy-validated.
+So an unfollowable production-side edge is never simply dropped. A ``link:``
+pointing outside the workspace, a tarball or git URL, a snapshot key the
+lockfile omits: each forces every install of the package it named onto the
+production graph, and each is reported in
+:attr:`PnpmProject.unresolved_production_edges` so the record can say the
+graph was incomplete instead of presenting a narrowed answer as a complete
+one.
+
+## The dependency graph, added 2026-08-23
+
+This module originally returned install locations only, and the CLI passed no
+dependency graph for a pnpm project — so ``graph.py``'s build-surface rule
+(the ``next`` → ``postcss`` reasoning that took the static-export residual
+from 11 to 2 on the npm side) did not exist here. It does now, and it needed
+no pnpm-specific version: the rule is keyed on package *names*, so all it
+wanted was a graph whose locations resolve to names.
+
+That last part is the only thing pnpm made awkward. npm's locations are
+filesystem paths, so ``DependencyGraph.name_of`` reads the name off the end
+of one; pnpm's are content identities, where the name is not the last segment
+of anything. Left to that heuristic every edge lookup would miss and the rule
+would silently stop firing rather than fail, so this module states the names
+directly in :attr:`triage.graph.DependencyGraph.names`.
+
+## What this module deliberately does not do
+
+It has only been validated against ``lockfileVersion`` major version ``9`` —
+the version this portfolio's own pnpm venture uses. Unlike ``eaa-wcag-triage``
+or the npm side of this probe, this module's precision has not been checked
+against a hand-labelled advisory set; treat its output as structurally sound
+(tested against the real ``retail-pilot-intel`` lockfile and a battery of
+synthetic cases) rather than accuracy-validated. Reading this format widened
+the gap between what the tool reads and what anyone has hand-verified, from
+9-of-9 to 7-of-16, and ``evidence.ACCURACY_NOTE`` says so.
 """
 
 from __future__ import annotations
 
 import posixpath
+from dataclasses import dataclass
 from pathlib import Path
 
 import yaml
 
+from .graph import ROOT, DependencyGraph
 from .lockfile import InstalledPackage
 
 #: The only lockfileVersion major version this module has been built and
@@ -182,34 +209,73 @@ def _resolve_link(importer_path: str, version: str) -> str:
     return "." if joined in ("", ".") else joined
 
 
-def _reachable_snapshots(
+@dataclass(frozen=True)
+class _Traversal:
+    """What one walk outward from an importer's roots found."""
+
+    #: Every snapshot key reached.
+    snapshots: set[str]
+    #: ``(dependent node, target node)`` pairs, as graph location strings. The
+    #: analysed importer is :data:`triage.graph.ROOT`; another workspace member
+    #: is its importer path; a package is its snapshot key.
+    edges: set[tuple[str, str]]
+    #: Package names on an edge that named nothing this module could follow —
+    #: a ``link:`` outside the workspace, a tarball or git URL, or a snapshot
+    #: key the lockfile does not carry.
+    unresolved: set[str]
+
+
+def _traverse(
     roots: dict[str, str],
     importer_path: str,
     importers: dict,
     snapshots: dict,
-) -> set[str]:
-    """Every snapshot key reachable from ``roots`` (an importer's own
-    ``name -> version`` map), following ``link:`` edges into other
-    importers' own production dependencies and ordinary edges through
-    ``snapshots``.
+) -> _Traversal:
+    """Walk outward from ``roots`` (an importer's own ``name -> version`` map).
 
-    Two kinds of node are walked — snapshot keys and importer paths — kept in
-    one visited set with distinct prefixes so a workspace member and a
-    same-named snapshot key can never collide.
+    Follows ``link:`` edges into other importers' own production dependencies
+    and ordinary edges through ``snapshots``. Two kinds of node are walked —
+    snapshot keys and importer paths — kept in one visited set with distinct
+    prefixes so a workspace member and a same-named snapshot key can never
+    collide.
+
+    Alongside the reachable set it records the edges it walked, which is what
+    makes the build-surface rule in :mod:`triage.graph` usable here, and the
+    edges it could **not** walk. The second one is not bookkeeping: dev-ness is
+    derived from reachability rather than read from a flag, so an edge this
+    module fails to follow makes a package look *less* reachable than it is,
+    and that direction ends in a false suppression. Naming them lets the caller
+    fail towards reporting and lets the record say the graph was incomplete.
     """
     visited: set[str] = set()
     reached_snapshots: set[str] = set()
+    edges: set[tuple[str, str]] = set()
+    unresolved: set[str] = set()
     stack: list[tuple[str, str]] = []
 
-    def push_edges(edges: dict[str, str], from_importer: str) -> None:
-        for name, version in edges.items():
+    def push_edges(declared: dict[str, str], source: str, from_importer: str) -> None:
+        for name, version in declared.items():
             if version.startswith(_LINK_PREFIX):
                 target = _resolve_link(from_importer, version)
+                if target not in importers:
+                    # A link out of the workspace: the target's own dependency
+                    # set is not in this lockfile, so everything behind it is
+                    # invisible here rather than absent.
+                    unresolved.add(name)
+                    continue
+                edges.add((source, target))
                 stack.append(("importer", target))
-            else:
-                stack.append(("snapshot", f"{name}@{version}"))
+                continue
+            key = f"{name}@{version}"
+            if key not in snapshots:
+                # A tarball, a git URL, or a snapshot the lockfile omits. It is
+                # still emitted as a component below — dropping it would lose a
+                # finding — but nothing behind it can be walked.
+                unresolved.add(name)
+            edges.add((source, key))
+            stack.append(("snapshot", key))
 
-    push_edges(roots, importer_path)
+    push_edges(roots, ROOT, importer_path)
 
     while stack:
         kind, key = stack.pop()
@@ -219,24 +285,38 @@ def _reachable_snapshots(
         visited.add(marker)
 
         if kind == "importer":
-            edges = _importer_dependency_entries(
+            declared = _importer_dependency_entries(
                 importers.get(key), _PRODUCTION_FIELDS
             )
-            push_edges(edges, key)
+            push_edges(declared, key, key)
             continue
 
         # kind == "snapshot"
         reached_snapshots.add(key)
-        edges = _snapshot_edges(snapshots.get(key))
-        push_edges(edges, importer_path)
+        push_edges(_snapshot_edges(snapshots.get(key)), key, importer_path)
 
-    return reached_snapshots
+    return _Traversal(reached_snapshots, edges, unresolved)
 
 
-def parse_pnpm_lockfile_data(
-    raw: dict, importer_path: str = "."
-) -> list[InstalledPackage]:
-    """Parse already-decoded pnpm lockfile YAML for one importer.
+@dataclass(frozen=True)
+class PnpmProject:
+    """One importer resolved: its install locations and its production graph."""
+
+    importer_path: str
+    installed: tuple[InstalledPackage, ...]
+    #: Production dependency edges, in the shape :mod:`triage.graph`'s
+    #: build-surface rule consumes. It is keyed on package names, so it needs no
+    #: pnpm-specific version — only a graph whose locations resolve to names,
+    #: which :attr:`triage.graph.DependencyGraph.names` supplies.
+    graph: DependencyGraph
+    #: Package names on a production-side edge this module could not follow.
+    #: Non-empty means the graph is incomplete and the answer was widened, not
+    #: narrowed — see :func:`_traverse`.
+    unresolved_production_edges: tuple[str, ...] = ()
+
+
+def analyse(raw: dict, importer_path: str = ".") -> PnpmProject:
+    """Resolve one importer of an already-decoded pnpm lockfile.
 
     ``importer_path`` is the workspace-relative path used as a key in the
     lockfile's own ``importers`` map (``"."`` for the lockfile root, or a
@@ -263,39 +343,95 @@ def parse_pnpm_lockfile_data(
     prod_roots = _importer_dependency_entries(importer, _PRODUCTION_FIELDS)
     dev_roots = _importer_dependency_entries(importer, ("devDependencies",))
 
-    prod_reachable = _reachable_snapshots(
-        prod_roots, importer_path, importers, snapshots
-    )
-    dev_reachable = _reachable_snapshots(
-        dev_roots, importer_path, importers, snapshots
-    )
+    production = _traverse(prod_roots, importer_path, importers, snapshots)
+    development = _traverse(dev_roots, importer_path, importers, snapshots)
+
+    prod_reachable = set(production.snapshots)
+    all_reachable = prod_reachable | development.snapshots
+
+    # An edge that could not be followed is not evidence of absence. Force every
+    # install of the package it named onto the production graph, so a gap in
+    # this reader can only ever widen the answer. Without this, a package whose
+    # only *followable* path runs through a devDependency reads as dev-only and
+    # every finding on it is suppressed.
+    if production.unresolved:
+        for key in all_reachable:
+            split = _split_name_version(_base_key(key))
+            if split is not None and split[0] in production.unresolved:
+                prod_reachable.add(key)
 
     installed: list[InstalledPackage] = []
-    for key in sorted(prod_reachable | dev_reachable):
+    names: dict[str, str] = {}
+    for key in sorted(all_reachable):
         split = _split_name_version(_base_key(key))
         if split is None:
             continue
         name, version = split
+        names[key] = name
+        snapshot = snapshots.get(key)
         installed.append(
             InstalledPackage(
                 name=name,
                 version=version,
                 path=key,
                 dev=key not in prod_reachable,
-                optional=False,
+                optional=bool(
+                    isinstance(snapshot, dict) and snapshot.get("optional", False)
+                ),
             )
         )
-    return installed
+
+    dev_locations = all_reachable - prod_reachable
+    dependents: dict[str, set[str]] = {}
+    for source, target in production.edges:
+        if source in dev_locations:
+            # Mirrors `graph.build_from_lockfile_data`: a dev-only location
+            # cannot put anything on the production graph.
+            continue
+        dependents.setdefault(target, set()).add(source)
+
+    # Every node the graph mentions, not only the packages: a workspace member
+    # reached through `link:` is an edge endpoint with no snapshot of its own,
+    # and leaving it out would make the graph disagree with its own edges.
+    locations = {ROOT} | all_reachable
+    for source, target in production.edges:
+        locations.add(source)
+        locations.add(target)
+    graph = DependencyGraph(
+        locations=frozenset(locations),
+        dependents={key: frozenset(value) for key, value in dependents.items()},
+        dev_locations=frozenset(dev_locations),
+        names=names,
+    )
+
+    return PnpmProject(
+        importer_path=importer_path,
+        installed=tuple(installed),
+        graph=graph,
+        unresolved_production_edges=tuple(sorted(production.unresolved)),
+    )
+
+
+def parse_pnpm_lockfile_data(
+    raw: dict, importer_path: str = "."
+) -> list[InstalledPackage]:
+    """The install locations :func:`analyse` resolves, for callers wanting only those."""
+    return list(analyse(raw, importer_path).installed)
+
+
+def load(path: str | Path, importer_path: str = ".") -> PnpmProject:
+    """Read a ``pnpm-lock.yaml`` file and resolve one importer from it."""
+    raw = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+    if not isinstance(raw, dict):
+        raise UnsupportedPnpmLockfile("pnpm lockfile is not a mapping")
+    return analyse(raw, importer_path)
 
 
 def parse_pnpm_lockfile(
     path: str | Path, importer_path: str = "."
 ) -> list[InstalledPackage]:
     """Read a ``pnpm-lock.yaml`` file and parse one importer from it."""
-    raw = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
-    if not isinstance(raw, dict):
-        raise UnsupportedPnpmLockfile("pnpm lockfile is not a mapping")
-    return parse_pnpm_lockfile_data(raw, importer_path)
+    return list(load(path, importer_path).installed)
 
 
 def importer_paths(raw: dict) -> list[str]:

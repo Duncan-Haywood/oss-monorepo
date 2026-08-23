@@ -417,9 +417,15 @@ class TestCoverageCitations:
     MEASUREMENT = (
         Path(__file__).resolve().parents[1] / "coverage-2026-08-23.json"
     )
+    #: The run from before pnpm lockfiles were readable, kept committed so the
+    #: coverage change is checkable against an artifact rather than asserted.
+    PRIOR = Path(__file__).resolve().parents[1] / "coverage-2026-08-22.json"
 
     def load(self):
         return json.loads(self.MEASUREMENT.read_text(encoding="utf-8"))
+
+    def load_prior(self):
+        return json.loads(self.PRIOR.read_text(encoding="utf-8"))
 
     def test_printed_totals_match_the_committed_measurement(self):
         from triage import evidence
@@ -477,6 +483,71 @@ class TestCoverageCitations:
             "findings": sum(p["findings"] for p in sample_rows),
         }
         assert totals == {"deployed": 30, "suppressed": 102, "findings": 132}
+
+    def test_every_npm_row_still_reproduces_the_prior_committed_run(self):
+        """The wider version of the same claim, and what makes this pass a
+        coverage change rather than a re-measurement.
+
+        The sample check above pins the seven hand-verified products. This pins
+        the whole npm subset — the nine this tool could read before pnpm support
+        — against the whole of the prior committed run. Had reading a second
+        format moved a number on a project that was already readable, the
+        coverage change and a measurement change would have to be argued apart.
+        They do not, because it did not.
+        """
+        npm_rows = [
+            row for row in self.load()["projects"] if row["lockfile_format"] == "npm"
+        ]
+        totals = {
+            key: sum(row[key] for row in npm_rows)
+            for key in ("deployed", "suppressed", "findings")
+        }
+
+        assert totals == self.load_prior()["totals"]
+
+    def test_the_pnpm_venture_is_what_the_totals_gained(self):
+        rows = [
+            row for row in self.load()["projects"] if row["lockfile_format"] == "pnpm"
+        ]
+
+        assert len(rows) == 7
+        assert all(
+            row["project"].startswith("ventures/retail-pilot-intel") for row in rows
+        )
+        assert sum(row["components"] for row in rows) == 485
+        # Two findings, both suppressed as dev-only; nothing new is deployed.
+        assert sum(row["findings"] for row in rows) == 2
+        assert sum(row["deployed"] for row in rows) == 0
+
+    def test_no_committed_answer_rests_on_an_edge_the_reader_could_not_follow(self):
+        """A narrowed answer from a graph known to be incomplete is not a claim.
+
+        The reader forces every install of an unfollowable edge's package onto
+        the production graph, so an incomplete graph over-reports rather than
+        over-suppresses. The committed measurement should still not be leaning
+        on that safety net without saying so.
+        """
+        for row in self.load()["projects"]:
+            assert row["unresolved_production_edges"] == [], row["project"]
+
+    def test_the_readable_count_rose_and_the_verified_sample_did_not(self):
+        """The figure that goes stale first, pinned to both committed runs.
+
+        Reading pnpm took readable from 9 to 16 without moving the hand-verified
+        7. A record printing the old 9 would understate its own coverage; one
+        printing 16 without saying what is verified would let 16-of-18 read as
+        16 verified. Both are wrong, in opposite directions.
+        """
+        from triage import evidence
+
+        assert self.load_prior()["coverage"]["counts"]["analysed"] == (
+            evidence.PORTFOLIO_MANIFESTS_ANALYSABLE_NPM_ONLY
+        )
+        assert self.load()["coverage"]["counts"]["analysed"] == (
+            evidence.PORTFOLIO_MANIFESTS_ANALYSABLE
+        )
+        assert evidence.PORTFOLIO_VERIFICATION_SAMPLE == 7
+        assert "widened that gap" in evidence.ACCURACY_NOTE
 
 
 class TestWorkspaceMembersAreNotDoubleCounted:

@@ -103,26 +103,39 @@ BUILD_ONLY_EDGES: dict[tuple[str, str], str] = {
 
 @dataclass(frozen=True)
 class DependencyGraph:
-    """Production dependency edges recovered from a v2/v3 ``package-lock.json``.
+    """Production dependency edges recovered from a lockfile.
 
-    ``locations`` is every ``packages`` key in the lockfile, which is what npm's
-    resolution algorithm searches. ``dependents`` maps an install-location path
-    to the paths that depend on it *on the production graph*; the root project
+    ``locations`` is every install location the resolver searches — for npm,
+    every ``packages`` key in the lockfile. ``dependents`` maps a location to
+    the locations that depend on it *on the production graph*; the root project
     appears as :data:`ROOT`.
+
+    ``names`` exists because a location is not always a path. npm's locations
+    are filesystem paths, so the package name is readable off the end of one.
+    pnpm's are content identities (``react-dom@19.2.8(react@19.2.8)``), where
+    the name is not the last path segment of anything. A builder that knows the
+    name states it here rather than leaving :meth:`name_of` to guess from a
+    string shape it was not written for — and the rules that consume this graph
+    are keyed on package *names*, so guessing wrong makes them silently stop
+    firing rather than fail.
     """
 
     locations: frozenset[str]
     dependents: dict[str, frozenset[str]] = field(default_factory=dict)
     dev_locations: frozenset[str] = frozenset()
+    names: dict[str, str] = field(default_factory=dict)
 
     def name_of(self, path: str) -> str:
-        """The package name an install-location path denotes.
+        """The package name an install location denotes.
 
         The root project has no package name; it is reported as ``<root>`` so a
         reason string can name it without pretending it is a dependency.
         """
         if path == ROOT:
             return "<root>"
+        stated = self.names.get(path)
+        if stated is not None:
+            return stated
         marker = "node_modules/"
         index = path.rfind(marker)
         return path[index + len(marker) :] if index != -1 else path

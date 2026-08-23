@@ -15,8 +15,11 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+
+import yaml
 
 from . import advisories as advisories_mod
 from . import deployment as deployment_mod
@@ -39,39 +42,56 @@ from .evidence import (
 from .lockfile import InstalledPackage, UnsupportedLockfile, parse_lockfile
 
 
-def parse_project_lockfile(
+@dataclass(frozen=True)
+class ResolvedProject:
+    """One project's install locations and production graph, format-agnostic.
+
+    Both readers produce all three of these, and every module downstream of
+    here consumes only these three — which is what keeps "which lockfile was
+    this" a detail of reading rather than, as it was until pnpm support landed,
+    a detail of coverage.
+    """
+
+    installed: list[InstalledPackage]
+    graph: graph_mod.DependencyGraph
+    #: Production-side edges the reader could not follow. Always empty for npm,
+    #: which resolves every edge inside its own ``packages`` map by
+    #: construction; possible for pnpm, where dev-ness is derived rather than
+    #: read. Non-empty means the answer was widened rather than narrowed.
+    unresolved_production_edges: tuple[str, ...] = ()
+
+
+def resolve_project(
     lockfile_path: Path, pnpm_importer: str | None
-) -> list[InstalledPackage]:
-    """Parse whichever lockfile format ``lockfile_path`` actually is.
+) -> ResolvedProject:
+    """Read whichever lockfile format ``lockfile_path`` actually is.
 
     ``pnpm_importer`` is set exactly when ``discovery.py`` classified this
     project through a ``pnpm-lock.yaml`` — it names the key into that
     lockfile's own ``importers`` map, which is not always this project's own
     repository-relative path (a pnpm workspace can be nested).
 
-    Shared with ``run_repository_coverage.py``, which needs the same dispatch
-    to avoid re-deriving (and drifting from) it a second time — that drift is
-    exactly what left it crashing on a pnpm lockfile after this function
-    learned to read one.
+    Public because ``run_repository_coverage.py`` needs the same dispatch and
+    must not re-derive it: that drift is exactly what left that script crashing
+    on a pnpm lockfile after this module learned to read one (#661).
+
+    Both formats supply a dependency graph. ``graph.py``'s build-surface rule
+    is keyed on package *names*, not on install paths, so it needed no
+    pnpm-specific version — only a graph whose locations resolve to names,
+    which the pnpm reader states directly rather than leaving to be read off a
+    path shape that does not exist there.
     """
     if pnpm_importer is not None:
-        return pnpm_mod.parse_pnpm_lockfile(lockfile_path, importer_path=pnpm_importer)
-    return parse_lockfile(lockfile_path)
-
-
-def dependency_graph_for(
-    lockfile_path: Path, pnpm_importer: str | None
-) -> graph_mod.DependencyGraph | None:
-    """The build-surface dependency graph for ``lockfile_path``, or ``None``.
-
-    ``graph.py`` is written against npm's per-location ``packages`` map; a
-    pnpm project gets no build-surface rule yet (see ``COVERAGE_LIMITS``),
-    which can only mean it under-suppresses relative to an equivalent npm
-    project, never the reverse.
-    """
-    if pnpm_importer is not None:
-        return None
-    return graph_mod.build_from_lockfile(lockfile_path)
+        project = pnpm_mod.load(lockfile_path, importer_path=pnpm_importer)
+        return ResolvedProject(
+            installed=list(project.installed),
+            graph=project.graph,
+            unresolved_production_edges=project.unresolved_production_edges,
+        )
+    return ResolvedProject(
+        installed=parse_lockfile(lockfile_path),
+        graph=graph_mod.build_from_lockfile(lockfile_path),
+    )
 
 SEVERITY_ORDER = {"low": 0, "moderate": 1, "medium": 1, "high": 2, "critical": 3}
 
@@ -155,6 +175,54 @@ def _load_local_advisories(path: Path, packages: set[str]):
     raise ValueError(f"unrecognised advisory file shape in {path}")
 
 
+#: Lockfile filenames a project directory is searched for, in the order tried.
+#: A directory holding both is read as npm, which is the lockfile npm's own
+#: tooling would use; ``--lockfile`` overrides the choice either way.
+LOCKFILE_NAMES = ("package-lock.json", "pnpm-lock.yaml")
+
+
+def _find_lockfile(project: Path) -> Path | None:
+    """The nearest lockfile resolving ``project``, searching it then its parents.
+
+    Under either package manager a workspace member has no lockfile of its own —
+    the root holds one for the whole tree — so stopping at the project directory
+    refuses exactly the projects the repository walk reports as analysed. Until
+    this existed, ``--project`` looked only for ``<project>/package-lock.json``,
+    which meant the shipped Action could not read a pnpm project at all while
+    ``--repository`` could. The nearest holder of *any* lockfile wins, matching
+    the ancestor walk in :func:`triage.discovery._classify`.
+    """
+    resolved = project.resolve()
+    for directory in (resolved, *resolved.parents):
+        for name in LOCKFILE_NAMES:
+            candidate = directory / name
+            if candidate.is_file():
+                return candidate
+    return None
+
+
+def _pnpm_importer_for(lockfile_path: Path, project: Path) -> str | None:
+    """The pnpm importer key for ``project``, or ``None`` for an npm lockfile.
+
+    Raises when the lockfile is pnpm but does not resolve this directory, rather
+    than falling back to its root importer — answering for the wrong importer is
+    a wrong record, not a partial one.
+    """
+    if lockfile_path.name != "pnpm-lock.yaml":
+        return None
+    relative = project.resolve().relative_to(lockfile_path.resolve().parent)
+    key = relative.as_posix() or "."
+    raw = yaml.safe_load(lockfile_path.read_text(encoding="utf-8"))
+    if not isinstance(raw, dict):
+        raise pnpm_mod.UnsupportedPnpmLockfile("pnpm lockfile is not a mapping")
+    if key not in pnpm_mod.importer_paths(raw):
+        raise pnpm_mod.UnsupportedPnpmLockfile(
+            f"{key!r} is not an importer in {lockfile_path.name}; its "
+            "dependencies are not resolved anywhere this tool can read"
+        )
+    return key
+
+
 def _profile_for(project: Path, override: str | None):
     if override:
         return deployment_mod.DeploymentProfile(
@@ -176,12 +244,13 @@ def _report_for_project(
     pnpm_importer: str | None = None,
 ) -> Report:
     """Triage one project against an already-loaded advisory list."""
-    installed = parse_project_lockfile(lockfile_path, pnpm_importer)
+    resolved = resolve_project(lockfile_path, pnpm_importer)
+    installed = resolved.installed
     names = {package.name for package in installed}
     relevant = [a for a in advisory_list if a.packages & names]
 
     context = ProjectContext(
-        dependency_graph=dependency_graph_for(lockfile_path, pnpm_importer),
+        dependency_graph=resolved.graph,
         declared_dependencies=sources_mod.declared_production_dependencies(project),
         source_imports=frozenset()
         if args.no_source_scan
@@ -196,6 +265,7 @@ def _report_for_project(
         component_count=len(installed),
         profile=profile,
         findings=tuple(findings),
+        unresolved_production_edges=resolved.unresolved_production_edges,
     )
 
 
@@ -230,7 +300,7 @@ def run_repository(args) -> int:
         if lockfile_path is None or not lockfile_path.is_file():
             continue
         try:
-            installed = parse_project_lockfile(lockfile_path, entry.pnpm_importer)
+            installed = resolve_project(lockfile_path, entry.pnpm_importer).installed
         except (UnsupportedLockfile, pnpm_mod.UnsupportedPnpmLockfile, ValueError, OSError):
             continue
         all_names |= {p.name for p in installed}
@@ -349,17 +419,28 @@ def run(argv: list[str] | None = None) -> int:
     if args.repository:
         return run_repository(args)
     project = Path(args.project)
-    lockfile_path = Path(args.lockfile) if args.lockfile else project / "package-lock.json"
-
-    if not lockfile_path.is_file():
-        print(f"error: no lockfile at {lockfile_path}", file=sys.stderr)
-        return 2
+    if args.lockfile:
+        lockfile_path = Path(args.lockfile)
+        if not lockfile_path.is_file():
+            print(f"error: no lockfile at {lockfile_path}", file=sys.stderr)
+            return 2
+    else:
+        lockfile_path = _find_lockfile(project)
+        if lockfile_path is None:
+            print(
+                f"error: no lockfile for {project}; looked for "
+                f"{' and '.join(LOCKFILE_NAMES)} here and in each parent directory",
+                file=sys.stderr,
+            )
+            return 2
 
     try:
-        installed = parse_lockfile(lockfile_path)
-    except UnsupportedLockfile as error:
+        pnpm_importer = _pnpm_importer_for(lockfile_path, project)
+        resolved = resolve_project(lockfile_path, pnpm_importer)
+    except (UnsupportedLockfile, pnpm_mod.UnsupportedPnpmLockfile) as error:
         print(f"error: {error}", file=sys.stderr)
         return 2
+    installed = resolved.installed
 
     if args.deployment_mode:
         profile = deployment_mod.DeploymentProfile(
@@ -381,7 +462,7 @@ def run(argv: list[str] | None = None) -> int:
         advisory_list = advisories_mod.fetch_osv_bulk(names)
 
     context = ProjectContext(
-        dependency_graph=graph_mod.build_from_lockfile(lockfile_path),
+        dependency_graph=resolved.graph,
         declared_dependencies=sources_mod.declared_production_dependencies(project),
         source_imports=frozenset()
         if args.no_source_scan

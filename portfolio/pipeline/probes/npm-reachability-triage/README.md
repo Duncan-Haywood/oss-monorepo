@@ -646,9 +646,9 @@ this repository raised `json.decoder.JSONDecodeError` on the first
 `cli.py`'s pnpm-or-npm dispatch instead of calling it, and the duplicate
 silently fell behind when the pnpm branch was added to one copy and not the
 other — the same drift this probe's coverage work exists to catch, here
-pointed at its own tooling. Fixed by having both call the same
-`parse_project_lockfile`/`dependency_graph_for` functions rather than
-maintaining two copies of the dispatch; `coverage-2026-08-23.json` is the
+pointed at its own tooling. Fixed by having both call the same dispatch rather
+than maintaining two copies of it (one function, `cli.resolve_project`, since
+the pass below); `coverage-2026-08-23.json` is the
 first committed measurement taken since, and is what `PORTFOLIO_MANIFESTS_ANALYSABLE`
 (now 16) and `tests/test_discovery.py::TestCoverageCitations` are pinned to.
 `coverage-2026-08-22.json` is kept as the historical pre-pnpm artifact rather
@@ -659,13 +659,158 @@ build-surface rule (the `next` → `postcss` reasoning). That rule only ever
 moves a finding *out of* "shipped", so its absence cannot produce a false
 suppression on a pnpm project — it can only under-suppress relative to an
 equivalent npm project, which is the safe direction this tool always fails
-towards. And unlike the npm side, this module's precision has not been
+towards. **Closed the same day — see [the section
+below](#what-the-pnpm-reader-was-still-missing-2026-08-23).** And unlike the
+npm side, this module's precision has not been
 checked against a hand-labelled advisory set the way `eaa-wcag-triage` or the
 `wrong-suppression-verification-2026-08-21.json` sample was — its test suite
 (`tests/test_pnpm.py`) is structural (synthetic lockfile shapes plus the real
 `retail-pilot-intel` lockfile as a smoke test), not an accuracy citation.
 Treat pnpm output as sound, not yet validated the way the npm figures above
-are.
+are. That half stands, and the section below measures how much wider it made
+the gap.
+
+## What the pnpm reader was still missing (2026-08-23)
+
+The section above landed the reader and named three things it did not do. Two
+of them turned out to be code rather than research, and this pass is those two.
+Written by a second session the same hour, which had built its own version of
+the same reader before the first one merged — the duplicate-work pattern
+`CLAUDE.md` documents, resolved by keeping the merged implementation and
+porting onto it rather than opening a rival pull request. A *third* session was
+working on the same probe in the same hour; where its work overlaps this one,
+the sections below say so and keep its version.
+
+### The build-surface rule now fires on a pnpm project
+
+It needed no pnpm-specific version. `BUILD_ONLY_EDGES` is keyed on package
+**names**, so all the rule wanted was a graph — and the reader was already
+walking every edge it needed, then discarding them and returning only the
+reachable set. `_traverse` now records them, and `next → postcss → nanoid`
+suppresses transitively through a pnpm lockfile, with the root-project guard
+intact, pinned by tests.
+
+One thing pnpm made awkward, and it is the kind of failure worth naming because
+it is silent in the wrong direction. `DependencyGraph.name_of` reads a package
+name off the end of an install *path*, which is what npm's locations are.
+pnpm's are content identities — `react-dom@19.2.8(react@19.2.8)` — where the
+name is not the last segment of anything, so that heuristic returns the whole
+key, every `BUILD_ONLY_EDGES` lookup misses, and **the rule stops firing without
+failing**. `DependencyGraph` gained a `names` map the builder fills in, so the
+name is stated rather than guessed.
+
+On this repository this changes nothing measurable: `retail-pilot-intel` is
+Vite, not Next.js, so no named edge applies. It is a capability, not a result,
+and the counts below are unmoved by it.
+
+### An edge the reader cannot follow no longer disappears
+
+This is the failure deriving dev-ness introduces and reading npm's stored flag
+cannot. If an edge is lost, a package looks **less** reachable than it is —
+which is a false suppression, the one outcome this probe exists to avoid.
+
+Two edges could be lost. A `link:` pointing outside the workspace resolved to an
+importer key that is not in the map, and the whole subtree behind it silently
+vanished. And a dependency resolved through a tarball or git URL named no
+snapshot, so nothing behind it could be walked. In both cases the reader carried
+on with a quieter answer and said nothing.
+
+Now each forces every install of the package it named onto the production graph,
+and the names are printed in the record under *"the dependency graph read here
+is incomplete"*. The test that matters is the one that would have gone wrong: a
+production dependency resolved through a URL whose only *followable* path runs
+through a `devDependency` reads as dev-only under the old behaviour, and every
+finding on it is suppressed.
+
+On this repository the guard never fires — all seven importers resolve with zero
+unfollowable edges, asserted by a test — so the committed counts are a narrowed
+answer rather than a widened one.
+
+### Two defects a third session found first
+
+This session's own pass found the same two things the section above already
+records, and got there second: `PORTFOLIO_MANIFESTS_ANALYSABLE` stale at `9`
+while the walk returns `16`, and `run_repository_coverage.py` throwing a JSON
+decode error on the first pnpm lockfile it reached. **#661 landed both while
+this was being written**, which is three sessions on one probe in one hour and
+is the pattern `CLAUDE.md` documents rather than a coincidence worth
+celebrating. Their fix stands; this pass keeps it and folds the two dispatch
+helpers it introduced into the single `cli.resolve_project` the graph work
+below needs anyway, so there is still exactly one copy of the dispatch — which
+was #661's own point.
+
+What is added on top: the committed measurement now records each project's
+`lockfile_format` and its unfollowable edges, and the accuracy note says what
+the corrected `16` does *not* mean — see the last section below.
+
+### `--project` could not read a pnpm project at all
+
+`--repository` read pnpm; `--project` looked only for
+`<project>/package-lock.json` and exited 2. That is the entry point
+[`action.yml`](action.yml) invokes, so the shipped GitHub Action could not
+analyse a pnpm project. It now searches the project directory and each parent
+for either lockfile, nearest wins — which is also what a workspace member needs
+under *either* package manager, since neither puts a lockfile in the member —
+and resolves the importer key from the project's path relative to the lockfile,
+refusing loudly if that key is not one the lockfile declares. Answering for the
+wrong importer would be a wrong record, not a partial one.
+
+`optional` was also hardcoded `False`; pnpm records it per snapshot and the
+reader now reads it.
+
+### The numbers, and the one that did not move
+
+| | npm subset | pnpm | total |
+|---|---:|---:|---:|
+| projects | 9 | 7 | 16 of 18 |
+| components | 3,879 | 485 | 4,364 |
+| findings | 132 | 2 | 134 |
+| deployed | 30 | 0 | 30 |
+
+**The npm subset reproduces the committed 2026-08-22 run field for field**, and
+a test asserts that against both files rather than the README claiming it. That
+is what makes this a coverage change and not a re-measurement: had a number
+moved on a project that was already readable, the two would have to be argued
+apart.
+
+One thing does move if you re-run `run_portfolio_sample.py` today, and it is
+not either pnpm pass. Against a freshly downloaded feed, one `next` advisory
+lands in `server-surface:server-functions` where the 2026-08-21 run had it in
+`server-surface:middleware`, on both static-export products. Every total is
+unchanged (132/30, per-project rows identical) and every module on that path —
+`lockfile.py`, `graph.py`, `surfaces.py`, `advisories.py`, `engine.py` — is
+untouched by either pnpm change, so the cause is the advisory's own text being
+republished between the two dates. Recorded here because a reader diffing the
+two validation files would otherwise have to work that out themselves.
+
+The venture's two findings are both `esbuild` 0.25.12 / `GHSA-gv7w-rqvm-qjhr`,
+on `apps/docs` and `apps/portal`, each suppressed `dev-only`. The advisory
+describes esbuild's development server; esbuild is here only underneath `vite`,
+which both apps declare as a `devDependency`. The suppression and the advisory
+agree about the same obvious fact, which is where a suppression is worth least —
+so the honest reading of "0 deployed findings across a venture that was
+invisible yesterday" is that **this corpus barely exercises the tool**, not that
+anything was cleared.
+
+All seven importers land in `analysed-no-deployment-mode`, because deployment
+detection is Next.js-specific and these are Vite apps: the `dependency-path`
+rule fires, the surface rule cannot. **9 of the 16 readable projects are now in
+that weaker state, up from 2 of 9.** Reading a lockfile made the venture
+visible, not narrowed.
+
+**And the verified sample did not move with the readable count.** The
+wrong-suppression rate this record prints (0 wrong in 53 distinct claims) was
+hand-reviewed across npm projects only. Readable went 9 → 16; hand-verified
+stayed at 7. **The gap between what this tool reads and what anyone has checked
+by hand is wider after this pass than before it**, and the accuracy note now
+says so in the record rather than letting 16-of-18 read as 16 verified. The pnpm
+dev classification is derived, which is exactly the kind of claim that earns a
+hand review and has not had one. A session with a pass to spend on this probe
+should spend it there, not on a third lockfile format.
+
+**No score moved.** Nothing here touches `time_to_revenue` or `distribution`,
+and closing a gap the previous pass declared, plus fixing two stale figures the
+previous pass introduced, is not a result worth a point.
 
 ## Usage
 
@@ -726,10 +871,10 @@ npm-reachability-triage --advisories ./osv-npm-all.zip
   refusal by reason rather than omitting it silently — see [the coverage
   section](#half-of-this-repository-was-never-scanned-2026-08-22) and [pnpm is
   now analysed](#pnpm-is-now-analysed-2026-08-23).
-- The pnpm side has no build-surface rule yet (see [pnpm is now
-  analysed](#pnpm-is-now-analysed-2026-08-23)), so a pnpm project can
-  under-suppress relative to an equivalent npm one; this cannot cause a false
-  suppression, only a missed one.
+- ~~The pnpm side has no build-surface rule yet~~ — closed 2026-08-23; a pnpm
+  project now gets the same rules an npm one does. What remains is that its
+  dev-only classification is *derived* rather than read, so an edge the reader
+  cannot follow widens the answer and is named in the record.
 - Deployment detection is Next.js-specific and textual. It does not execute the
   config, so a computed `output` value resolves to `unknown` and suppresses
   nothing. Other frameworks always resolve to `unknown`.
@@ -773,7 +918,7 @@ decision away from a live listing.
 ## Development
 
 ```bash
-python3 -m pytest                            # 237 tests, no network required
+python3 -m pytest                            # 282 tests, no network required
 python3 run_portfolio_sample.py <osv.zip>    # re-run the validation
 python3 run_repository_coverage.py <osv.zip> # re-measure repository coverage
 ```
