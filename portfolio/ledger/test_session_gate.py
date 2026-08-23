@@ -321,6 +321,53 @@ def test_stale_pr_check_streak_empty_ledger_is_zero():
     assert sg.stale_pr_check_streak([]) == 0
 
 
+def test_stale_pr_check_streak_counts_synonyms_of_checked():
+    """Sessions write this sentence with whichever verb comes to hand. The
+    first draft matched only "checked", so an entry saying "Listed" read as a
+    real finding and reset the streak to zero -- both of the ledger's two most
+    recent entries at the time were of that shape.
+    """
+    for verb in ("Listed", "Re-checked", "Rechecked", "Reviewed", "Surveyed"):
+        e = entry(
+            outcomes=[
+                f"{verb} the 4 open PRs (#583, #531, #372, #368) before starting: "
+                "all four remain correctly owner-gated, nothing new to add."
+            ]
+        )
+        assert sg.stale_pr_check_streak([e]) == 1, verb
+
+
+def test_stale_pr_check_streak_survives_filenames_in_the_same_sentence():
+    """The gap between "open PRs (...)" and "all still correctly gated" is
+    spanned by a sentence-bounded wildcard. A period inside `foo.py` is not a
+    sentence boundary, and this ledger's prose is full of them -- treating it
+    as one silently dropped the match.
+    """
+    e = entry(
+        outcomes=[
+            "Checked the 4 open PRs (#583, #531, #372, #368), "
+            "`verification_status.py` and the `main` tip first: all four still "
+            "correctly owner-gated, nothing to consolidate."
+        ]
+    )
+    assert sg.stale_pr_check_streak([e]) == 1
+
+
+def test_stale_pr_check_streak_still_stops_at_a_sentence_boundary():
+    """The widened gap must not run past a real sentence break and staple an
+    unrelated later clause onto the opening one -- that would match entries
+    that merely mention the PR set and then report actual work.
+    """
+    e = entry(
+        outcomes=[
+            "Checked the 4 open PRs (#583, #531, #372, #368) and found #616 "
+            "stranded. Closed it, and all of that is now recorded as correctly "
+            "owner-gated elsewhere."
+        ]
+    )
+    assert sg.stale_pr_check_streak([e]) == 0
+
+
 def test_stale_pr_check_streak_measured_on_the_real_ledger():
     """The real ledger has this pattern *somewhere* in its history -- guard
     against the detector regressing to always-zero on the artifact it exists
