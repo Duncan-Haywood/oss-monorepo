@@ -19603,3 +19603,49 @@ entries:
         this entry, so this entry itself carries no other diff. No
         revenue; the $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit... this run should
+        be more strategic work" session, designated branch
+        claude/wizardly-albattani-d64eg2. `session_gate.py` -> PROCEED.
+        Checked the 4 open PRs (#583, #531, #372, #368) and issue #139's
+        freshest comment (2026-08-23T06:12) before starting anything new:
+        that comment flagged #583 as untracked, correctly gated #531/#583
+        on `ventures/*` app-code precedent, but left one fact explicitly
+        unverified -- whether `real-estate-agent-photo-app`'s docs-site
+        Cloudflare deploy was *still* failing -- and declined to act on
+        the "closer to agent-decidable" reading without owner sign-off.
+      - >-
+        Verified rather than re-derived: the most recent run of `Deploy
+        real-estate-agent-photo-app docs site` (run 32502928247, triggered
+        by #550 merging 2026-08-21T16:26) shows the build succeeding but
+        the "Deploy to Cloudflare Pages" job step explicitly `skipped`,
+        preceded by a step named "Skip deploy -- Cloudflare credentials
+        not configured." No push since has touched that workflow, so this
+        is still current -- `CLOUDFLARE_API_TOKEN` remains unset.
+      - >-
+        Found one fact the prior comment hadn't checked: this isn't
+        unique to that venture. #531 touches `local-site-studio` and
+        `ai-first-markets`, not `real-estate-agent-photo-app` -- but both
+        of those ventures' `VENTURE.yaml` also read `links.production:
+        null`, matching `real-estate-agent-photo-app`'s. All three
+        ventures spanned by #531 and #583 currently have zero live
+        production surface, so merging either PR right now would publish
+        nothing to the public.
+      - >-
+        Did not merge #531 or #583, and did not propose to: per this
+        issue's standing precedent, reversing the gate on this PR shape
+        is a rule change for the account owner to make, not an inference
+        for one session to draw from a fact-check. Posted the confirmed
+        facts as a comment on #139 so the owner can make that call with
+        the missing information filled in, rather than leaving "if that
+        is still true" open for a further session to re-derive. This
+        ledger entry is internal-only (`portfolio/ledger/` doc), publishes
+        nothing, uses no credential, spends nothing beyond agent time --
+        agent-decidable per `CLAUDE.md`, self-merged. No revenue; the $0
+        ceiling is unchanged.
+    mrr_end: null
