@@ -262,3 +262,48 @@ at 7** rather than moving again on the more flattering of two disagreeing
 measurements — moving it further would repeat the exact error this pass's own
 rules section names. `defensibility` remains the untouched floor at 3; this
 still cannot graduate under `README.md` rule 2.
+
+**Update 2026-08-23 — the missing rule was built, and it corrects two claims
+above.** The paragraph two above says the class carrying most of the misses
+"has no rule yet and would need a fourth corpus the registry cannot currently
+supply." A rule now exists ([`relation.py`](../probes/mcp-drift-watch/relation.py),
+27 tests), and no fourth corpus was needed: corpus 2 was already held out for a
+rule written from corpus 3's misses, since the two share no package and corpus
+2 was labelled before the rule existed. Three results, in the order they change
+what this candidate can claim.
+
+**The class was never expressible as another signal regex**, which is why five
+passes of widening the patterns each bought less than the last. A relation
+between two named tools needs which tool is being described and what the
+server's other tools are called; `classify(old, new)` is handed neither, so a
+regex can only guess that any snake_case token is a tool name — the guess that
+makes phrase-keyed rules fire on parameter documentation. Both facts sit in the
+subscriber's pin. The product has had the information its classifier's
+signature cannot see, and the rule takes the namespace as an argument rather
+than editing the shipped engine.
+
+**The in-sample/out-of-sample collapse reproduces a third time**: the rule finds
+32 of corpus 3's 44 misses and 2 of corpus 2's (recall 0.143 → 0.796 in sample,
+0.529 → 0.647 held out). **The reason is a fact about buyers rather than about
+sampling**, and it is the finding this candidate should carry: the class is a
+property of the publisher, not of the population. On the four servers that write
+cross-tool routing, recall goes 2/21 → 21/21, 0/13 → 9/13, 1/6 → 4/6, 6/10 →
+8/10; on the nine whose positives are the imperative class it changes nothing.
+Every accuracy figure this candidate quotes — including the 0.40–0.62 precision
+span the probe's subscriber record prints — is therefore an average over two
+populations that behave nothing alike, weighted by whichever servers a customer
+happens to watch. A per-server disclosure, not a portfolio-wide one, is what an
+honest product owes a subscriber here.
+
+**Alert fatigue is reopened, not settled.** Flagged share moves 6.1% → 28.4% on
+corpus 3 and 6.6% → 8.8% on corpus 2 once the class is detected, so
+`mcp-tool-drift` Finding 4's "roughly two alerts a month across twenty servers"
+is a floor produced by the classifier's blindness rather than an estimate of
+the churn. The kill condition this candidate names for itself is unresolved on
+better evidence than before.
+
+Not adopted, and no score moved: the entire held-out evidence for the rule is
+three changes on one publisher, which is one editorial decision rather than
+three observations. Step 3 — the base rate in front of ten teams at
+$29/server/month — is unchanged and still the step an unattended agent cannot
+run.
