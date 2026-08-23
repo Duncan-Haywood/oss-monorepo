@@ -12,6 +12,7 @@ Usage: python3 -m unittest discover -s portfolio/pipeline/probes -p 'test_valida
 
 import os
 import sys
+import tempfile
 import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -95,9 +96,77 @@ class TestDerivationsComeFromArtifacts(unittest.TestCase):
         self.assertIn(f"{low:.2f}", described)
 
 
+class TestTableRowsRender(unittest.TestCase):
+    """The negative cases here are the two rows that actually shipped broken.
+
+    Both routing documents quoted the same regex, and the four unescaped pipes
+    inside its backtick span turned a 3-column row into a 7-column one in each.
+    """
+
+    # The alternation exactly as `mcp-drift-watch`/`mcp-tool-drift` quoted it.
+    QUOTED_REGEX = r"`\b( … |important:| … |\.env\b| … )\b`"
+
+    def _write(self, text: str) -> str:
+        directory = tempfile.mkdtemp()
+        path = os.path.join(directory, "README.md")
+        with open(path, "w", encoding="utf-8") as handle:
+            handle.write(text)
+        return path
+
+    def test_unescaped_pipe_in_a_code_span_is_rejected(self):
+        path = self._write(
+            "| Probe | Candidate | Status |\n"
+            "|---|---|---|\n"
+            f"| [`mcp-drift-watch`](d/) | [`c`](c.md) | Dead patterns: {self.QUOTED_REGEX} |\n"
+        )
+        failures = vpi.check_table_rows_render([path])
+        self.assertEqual(len(failures), 1, failures)
+        self.assertIn("7 cells", failures[0])
+        self.assertIn("delimiter row declares 3", failures[0])
+
+    def test_escaping_those_pipes_passes(self):
+        escaped = self.QUOTED_REGEX.replace("|", r"\|")
+        path = self._write(
+            "| Probe | Candidate | Status |\n"
+            "|---|---|---|\n"
+            f"| [`mcp-drift-watch`](d/) | [`c`](c.md) | Dead patterns: {escaped} |\n"
+        )
+        self.assertEqual(vpi.check_table_rows_render([path]), [])
+
+    def test_each_table_is_measured_against_its_own_delimiter(self):
+        """A 2-column table after a 3-column one is not a failure.
+
+        This is the false positive the first version of the check produced on
+        `research/README.md`, which holds tables of both widths.
+        """
+        path = self._write(
+            "| A | B | C |\n|---|---|---|\n| 1 | 2 | 3 |\n\n"
+            "| Directory | Established |\n|---|---|\n| `x/` | y |\n"
+        )
+        self.assertEqual(vpi.check_table_rows_render([path]), [])
+
+    def test_pipe_tables_inside_fenced_blocks_are_ignored(self):
+        path = self._write(
+            "```\n| not | a | table |\n|---|\n```\n"
+            "| A | B |\n|---|---|\n| 1 | 2 |\n"
+        )
+        self.assertEqual(vpi.check_table_rows_render([path]), [])
+
+    def test_routing_docs_are_the_two_CLAUDE_md_routes_at(self):
+        self.assertIn(vpi.INDEX, vpi.ROUTING_DOCS)
+        self.assertTrue(
+            any(p.endswith(os.path.join("research", "README.md")) for p in vpi.ROUTING_DOCS)
+        )
+        for path in vpi.ROUTING_DOCS:
+            self.assertTrue(os.path.exists(path), path)
+
+
 class TestCurrentTree(unittest.TestCase):
     def test_index_is_currently_consistent(self):
         self.assertEqual(vpi.run(), [])
+
+    def test_routing_tables_currently_render(self):
+        self.assertEqual(vpi.check_table_rows_render(), [])
 
 
 if __name__ == "__main__":
