@@ -29,14 +29,22 @@ from .engine import DEV_ONLY, NOT_DEPLOYED, SHIPPED, Finding
 #: Stated in the record itself, every run. These are the things a reader would
 #: otherwise have to assume, and each one is a real gap rather than boilerplate.
 COVERAGE_LIMITS: tuple[str, ...] = (
-    "Only npm dependencies declared in package-lock.json (v2/v3) are analysed. "
-    "Other ecosystems in the same repository are not covered.",
+    "Only npm dependencies declared in package-lock.json (v2/v3) or "
+    "pnpm-lock.yaml (major version 9) are analysed. Other ecosystems in the "
+    "same repository are not covered.",
     "This record covers the project directories named in its coverage section "
-    "and no others. A repository can hold npm projects this tool cannot read — "
-    "a pnpm or yarn workspace, a v1 lockfile, a directory with no lockfile at "
-    "all — and those are listed by name there rather than omitted. If the "
-    "coverage section is absent, this record was produced for a single project "
-    "and says nothing about the rest of the repository it came from.",
+    "and no others. A repository can hold npm-ecosystem projects this tool "
+    "cannot read — a yarn workspace, a v1 lockfile, a pnpm lockfile of a "
+    "different major version, a directory with no lockfile at all — and "
+    "those are listed by name there rather than omitted. If the coverage "
+    "section is absent, this record was produced for a single project and "
+    "says nothing about the rest of the repository it came from.",
+    "The build-surface rule (a package a build tool loads and the deployed "
+    "artifact never does, e.g. PostCSS inside a Next.js build) is only "
+    "implemented for package-lock.json. A pnpm project gets the "
+    "dependency-path, dev-server, and deployment-surface rules but not this "
+    "one, so a pnpm project can under-suppress relative to an equivalent npm "
+    "one; it cannot over-suppress because of this gap.",
     "Reachability means the vulnerable package is present on a production "
     "dependency path and its affected surface is deployed. It does not mean an "
     "exploit exists, and no call-graph analysis is performed.",

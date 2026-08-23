@@ -22,6 +22,7 @@ from . import advisories as advisories_mod
 from . import deployment as deployment_mod
 from . import discovery as discovery_mod
 from . import graph as graph_mod
+from . import pnpm as pnpm_mod
 from . import sources as sources_mod
 from .engine import SHIPPED, ProjectContext, triage
 from .evidence import (
@@ -35,7 +36,37 @@ from .evidence import (
     to_json,
     to_markdown,
 )
-from .lockfile import UnsupportedLockfile, parse_lockfile
+from .lockfile import InstalledPackage, UnsupportedLockfile, parse_lockfile
+
+
+def _parse_project_lockfile(
+    lockfile_path: Path, pnpm_importer: str | None
+) -> list[InstalledPackage]:
+    """Parse whichever lockfile format ``lockfile_path`` actually is.
+
+    ``pnpm_importer`` is set exactly when ``discovery.py`` classified this
+    project through a ``pnpm-lock.yaml`` — it names the key into that
+    lockfile's own ``importers`` map, which is not always this project's own
+    repository-relative path (a pnpm workspace can be nested).
+    """
+    if pnpm_importer is not None:
+        return pnpm_mod.parse_pnpm_lockfile(lockfile_path, importer_path=pnpm_importer)
+    return parse_lockfile(lockfile_path)
+
+
+def _dependency_graph_for(
+    lockfile_path: Path, pnpm_importer: str | None
+) -> graph_mod.DependencyGraph | None:
+    """The build-surface dependency graph for ``lockfile_path``, or ``None``.
+
+    ``graph.py`` is written against npm's per-location ``packages`` map; a
+    pnpm project gets no build-surface rule yet (see ``COVERAGE_LIMITS``),
+    which can only mean it under-suppresses relative to an equivalent npm
+    project, never the reverse.
+    """
+    if pnpm_importer is not None:
+        return None
+    return graph_mod.build_from_lockfile(lockfile_path)
 
 SEVERITY_ORDER = {"low": 0, "moderate": 1, "medium": 1, "high": 2, "critical": 3}
 
@@ -137,14 +168,15 @@ def _report_for_project(
     advisory_list,
     feed: str,
     display_name: str,
+    pnpm_importer: str | None = None,
 ) -> Report:
     """Triage one project against an already-loaded advisory list."""
-    installed = parse_lockfile(lockfile_path)
+    installed = _parse_project_lockfile(lockfile_path, pnpm_importer)
     names = {package.name for package in installed}
     relevant = [a for a in advisory_list if a.packages & names]
 
     context = ProjectContext(
-        dependency_graph=graph_mod.build_from_lockfile(lockfile_path),
+        dependency_graph=_dependency_graph_for(lockfile_path, pnpm_importer),
         declared_dependencies=sources_mod.declared_production_dependencies(project),
         source_imports=frozenset()
         if args.no_source_scan
@@ -184,7 +216,8 @@ def run_repository(args) -> int:
         # A workspace member resolves through its root's lockfile, so triaging it
         # separately would re-report the entire workspace's components once per
         # member. The root's own run already covers it; the coverage table says
-        # so by name.
+        # so by name. A pnpm importer is not "covered_by" anything (each keeps
+        # its own dependency list in the lockfile), so it always reaches here.
         if entry.covered_by is not None:
             continue
         project_dir = root if entry.path == "." else root / entry.path
@@ -192,9 +225,10 @@ def run_repository(args) -> int:
         if lockfile_path is None or not lockfile_path.is_file():
             continue
         try:
-            all_names |= {p.name for p in parse_lockfile(lockfile_path)}
-        except (UnsupportedLockfile, ValueError, OSError):
+            installed = _parse_project_lockfile(lockfile_path, entry.pnpm_importer)
+        except (UnsupportedLockfile, pnpm_mod.UnsupportedPnpmLockfile, ValueError, OSError):
             continue
+        all_names |= {p.name for p in installed}
         projects.append((entry, project_dir, lockfile_path))
 
     if args.advisories:
@@ -209,7 +243,13 @@ def run_repository(args) -> int:
     for entry, project_dir, lockfile_path in projects:
         reports.append(
             _report_for_project(
-                project_dir, lockfile_path, args, advisory_list, feed, entry.path
+                project_dir,
+                lockfile_path,
+                args,
+                advisory_list,
+                feed,
+                entry.path,
+                pnpm_importer=entry.pnpm_importer,
             )
         )
 

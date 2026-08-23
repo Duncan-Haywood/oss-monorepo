@@ -13,6 +13,7 @@ import json
 from pathlib import Path
 
 import pytest
+import yaml
 
 from triage.discovery import (
     ANALYSED,
@@ -25,6 +26,17 @@ from triage.discovery import (
 from triage.evidence import render_repository_coverage
 
 V3_LOCK = {"lockfileVersion": 3, "packages": {"": {}, "node_modules/left-pad": {"version": "1.3.0"}}}
+
+
+def write_pnpm_lockfile(path: Path, importers: dict, version: str = "9.0") -> None:
+    """Write a minimal but structurally real ``pnpm-lock.yaml``: the
+    ``importers`` map is all this module's own classification reads, but a
+    hand-typed string missing it silently tested the wrong thing before this
+    helper existed."""
+    path.write_text(
+        yaml.safe_dump({"lockfileVersion": version, "importers": importers}),
+        encoding="utf-8",
+    )
 
 
 def write(path: Path, payload) -> None:
@@ -131,9 +143,13 @@ class TestClassification:
 
 
 class TestNonNpmWorkspaces:
-    def test_pnpm_root_and_every_member_are_refused(self, tmp_path):
+    def test_pnpm_members_the_lockfile_does_not_declare_are_refused(self, tmp_path):
+        # A pnpm-lock.yaml with no `importers` entry for these directories at
+        # all -- the file parses, but nothing in it resolves "apps/web" or
+        # "packages/core", the same shape as an npm workspace member missing
+        # from the root's own `packages` map.
         make_project(tmp_path, "", lock=None)
-        (tmp_path / "pnpm-lock.yaml").write_text("lockfileVersion: '9.0'\n", encoding="utf-8")
+        write_pnpm_lockfile(tmp_path / "pnpm-lock.yaml", importers={})
         make_project(tmp_path, "apps/web", lock=None)
         make_project(tmp_path, "packages/core", lock=None)
 
@@ -141,11 +157,48 @@ class TestNonNpmWorkspaces:
         projects = by_path(coverage)
 
         assert coverage.counts() == {"manifests_found": 3, "analysed": 0, "refused": 3}
-        # The workspace root holds the lockfile itself; reporting it as having no
-        # lockfile would hand the reader the wrong remedy.
         for path in (".", "apps/web", "packages/core"):
-            assert projects[path].reason == "pnpm-lockfile"
+            assert projects[path].reason == "not-in-pnpm-workspace"
             assert projects[path].lockfile == "pnpm-lock.yaml"
+
+    def test_pnpm_members_the_lockfile_declares_are_analysed(self, tmp_path):
+        make_project(tmp_path, "", lock=None)
+        write_pnpm_lockfile(
+            tmp_path / "pnpm-lock.yaml",
+            importers={".": {}, "apps/web": {}, "packages/core": {}},
+        )
+        make_project(tmp_path, "apps/web", lock=None)
+        make_project(tmp_path, "packages/core", lock=None)
+
+        coverage = discover(tmp_path, detect_deployment=False)
+        projects = by_path(coverage)
+
+        assert coverage.counts() == {"manifests_found": 3, "analysed": 3, "refused": 0}
+        assert projects["."].pnpm_importer == "."
+        assert projects["apps/web"].pnpm_importer == "apps/web"
+        assert projects["apps/web"].lockfile == "pnpm-lock.yaml"
+        # Unlike an npm workspace member, a pnpm member is not "covered_by" the
+        # root: each importer carries its own dependency list in the lockfile,
+        # so each gets its own separate report rather than being folded away.
+        assert projects["apps/web"].covered_by is None
+
+    def test_a_pnpm_lockfile_this_tool_has_not_validated_is_refused(self, tmp_path):
+        # lockfileVersion 6 parses as YAML but is not the major version
+        # triage.pnpm has been built and tested against.
+        make_project(tmp_path, "", lock=None)
+        write_pnpm_lockfile(tmp_path / "pnpm-lock.yaml", importers={".": {}}, version="6.0")
+
+        project = by_path(discover(tmp_path))["."]
+
+        assert project.reason == "pnpm-lockfile"
+
+    def test_an_unparseable_pnpm_lockfile_is_refused_not_skipped(self, tmp_path):
+        make_project(tmp_path, "", lock=None)
+        (tmp_path / "pnpm-lock.yaml").write_text("{ not: yaml: [", encoding="utf-8")
+
+        project = by_path(discover(tmp_path))["."]
+
+        assert project.reason == "pnpm-lockfile"
 
     def test_yarn_lockfile_is_named_distinctly(self, tmp_path):
         make_project(tmp_path, "", lock=None)
@@ -157,11 +210,13 @@ class TestNonNpmWorkspaces:
     def test_nearest_lockfile_wins_over_a_further_one(self, tmp_path):
         make_project(tmp_path, "", lock=V3_LOCK)
         (tmp_path / "vendored").mkdir()
-        (tmp_path / "vendored/pnpm-lock.yaml").write_text("lockfileVersion: '9.0'\n", encoding="utf-8")
+        write_pnpm_lockfile(tmp_path / "vendored/pnpm-lock.yaml", importers={".": {}})
         make_project(tmp_path, "vendored/app", lock=None)
 
-        # The root npm lockfile does not resolve past the intervening pnpm one.
-        assert by_path(discover(tmp_path))["vendored/app"].reason == "pnpm-lockfile"
+        # The root npm lockfile does not resolve past the intervening pnpm
+        # one, whose own `importers` map does not declare "vendored/app" (it
+        # only declares its own root, ".").
+        assert by_path(discover(tmp_path))["vendored/app"].reason == "not-in-pnpm-workspace"
 
 
 class TestNpmWorkspaces:
@@ -238,6 +293,7 @@ class TestEveryRefusalIsActionable:
         emitted = {
             "no-lockfile",
             "pnpm-lockfile",
+            "not-in-pnpm-workspace",
             "yarn-lockfile",
             "lockfile-v1",
             "unreadable-lockfile",
@@ -250,7 +306,7 @@ class TestEveryRefusalIsActionable:
 class TestCoverageRendering:
     def test_every_refused_project_is_named_in_the_record(self, tmp_path):
         make_project(tmp_path, "", lock=None)
-        (tmp_path / "pnpm-lock.yaml").write_text("lockfileVersion: '9.0'\n", encoding="utf-8")
+        write_pnpm_lockfile(tmp_path / "pnpm-lock.yaml", importers={})
         make_project(tmp_path, "apps/web", lock=None)
         make_project(tmp_path, "readable")
 
@@ -260,9 +316,9 @@ class TestCoverageRendering:
         assert "1 of 3 npm projects in this repository were analysed" in rendered
         for path in (".", "apps/web"):
             assert f"`{path}`" in rendered
-        assert "pnpm-lockfile" in rendered
+        assert "not-in-pnpm-workspace" in rendered
         # The remedy, not just the refusal.
-        assert "--package-lock-only" in rendered
+        assert "pnpm install" in rendered
 
     def test_record_never_claims_compliance(self, tmp_path):
         make_project(tmp_path, "web")
@@ -296,17 +352,34 @@ class TestThisRepository:
     # tests/ -> npm-reachability-triage -> probes -> pipeline -> portfolio -> repo root
     ROOT = Path(__file__).resolve().parents[5]
 
-    def test_the_pnpm_venture_is_still_invisible_to_the_tool(self):
+    def test_the_pnpm_venture_is_now_analysed_not_refused(self):
+        """As of the pnpm lockfile-version-9 support added to `triage.pnpm`,
+        this is no longer the coverage gap it names in the probe's own
+        README: every real workspace member in `retail-pilot-intel`'s
+        pnpm-lock.yaml resolves to an analysed project."""
         venture = self.ROOT / "ventures/retail-pilot-intel"
         if not venture.is_dir():  # pragma: no cover - defensive
             pytest.skip("retail-pilot-intel not present")
 
         coverage = discover(self.ROOT, detect_deployment=False)
-        refused = {p.path: p.reason for p in coverage.refused}
-        members = [p for p in refused if p.startswith("ventures/retail-pilot-intel")]
+        by_path_ = {p.path: p for p in coverage.projects}
+        members = {
+            path: project
+            for path, project in by_path_.items()
+            if path.startswith("ventures/retail-pilot-intel")
+        }
 
-        assert members, "the pnpm venture should be discovered and refused"
-        assert all(refused[path] == "pnpm-lockfile" for path in members)
+        assert members, "the pnpm venture should be discovered"
+        assert all(project.status == ANALYSED for project in members.values())
+        assert all(
+            project.lockfile == "ventures/retail-pilot-intel/pnpm-lock.yaml"
+            for project in members.values()
+        )
+        # covered_by stays unset for pnpm: each importer keeps its own
+        # dependency list in the lockfile, so each is triaged separately
+        # rather than folded into one root report the way an npm workspace
+        # member with no lockfile of its own would be.
+        assert all(project.covered_by is None for project in members.values())
 
     def test_the_walk_reaches_the_hand_written_sample(self):
         """Every product `run_portfolio_sample.py` enumerates is found by the walk.
