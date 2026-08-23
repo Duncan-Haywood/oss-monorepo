@@ -19236,3 +19236,96 @@ entries:
         merged-PR-branch rule before writing this entry. No revenue; the
         $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work... maintain and improve the development
+        process... increase in profit" session, designated branch
+        claude/pensive-feynman-p0v8m3. `session_gate.py` -> PROCEED, but
+        flagged 2 distinct sessions committing to `main` within a 15-minute
+        window in the last 6h. Checked the 4 open PRs (#583, #531, #372,
+        #368) and issue #139 against a fresh `main` fetch first: all four
+        still correctly human-gated on deployable `ventures/*` app code or
+        unattended automation -- nothing to consolidate. The immediately
+        preceding entry named the exact next step: `npm-reachability-triage`'s
+        wrong-suppression hand review covers npm projects only, and "a
+        session with a pass to spend on this probe should spend it there,
+        not on a third lockfile format."
+      - >-
+        Re-ran the tool over the 9 projects the pnpm reader and repository
+        walk had made readable but nobody had hand-verified. Found almost
+        nothing -- 2 raw findings, both `esbuild`/`GHSA-gv7w-rqvm-qjhr` --
+        and, reading that advisory's own text, that it is withdrawn: GitHub's
+        database retracted it as a misattribution to a Deno-only module,
+        never npm `esbuild`. `triage.advisories.advisory_from_osv` had no
+        code path reading OSV's `withdrawn` field at all, so every retracted
+        record in the feed was matched as live, on any project, not just
+        this one instance.
+      - >-
+        Fixed it generically rather than filing it as a one-off data-quality
+        note: `advisory_from_osv` now returns no affected ranges for a
+        withdrawn record, dropped by both callers the same way an advisory
+        naming no package already is. Re-running the original 7-product npm
+        sample against the fix surfaced two more withdrawn records the same
+        way (`wrangler`/`GHSA-8h3q-9fpp-c883`, a duplicate; `eslint`/
+        `GHSA-p5wg-g6qr-c7cg`) -- 3 of the 2026-08-21 hand review's 53
+        distinct claims and 5 of its 102 raw findings, all reasoned
+        correctly and still are; `evidence.py`'s `ACCURACY_DISTINCT_CLAIMS`/
+        `ACCURACY_RAW_FINDINGS` move to 50/97, `ACCURACY_WRONG_CLAIMS` stays
+        0.
+      - >-
+        **A category no prior pass measured: is an unsuppressed finding
+        real?** Two of the three withdrawn advisories were also reported
+        **shipped** (live, not suppressed) on `ai-first-markets`, a real
+        deploying venture -- 3 findings reported as live vulnerabilities
+        before this fix, of which only 1 (`sharp`/libvips CVEs) was real.
+        That is a false alarm, the opposite failure mode from a wrong
+        suppression, and one this probe's methodology was never built to
+        catch, since it counts suppressed findings only.
+      - >-
+        Two other sessions landed related work on this same probe while
+        this one was in flight (#669's structural pnpm cross-check, #671's
+        pnpm advisory-text hand review, which found the same withdrawal but
+        filed it as a data-quality note without changing the code). Caught
+        by re-fetching `main` before pushing, not only before starting --
+        the same mechanism the immediately preceding entry named. Did not
+        open a rival PR: rebased onto the merged tip and wrote the new
+        README section to extend #671's, crediting its reachability verdict
+        rather than re-deriving it.
+      - >-
+        CI caught something worth recording on its own: a repository-wide
+        validator (`portfolio/research/error-rate-disclosure/measure.py`)
+        hardcodes a citation that verifies this probe's rendered accuracy
+        note still carries "0 of 53"/"0 of 102" and feeds that into
+        `cra-evidence-desk`'s derived `ethical_robustness` score. Correcting
+        the note's own counts silently broke an assumption two directories
+        away -- the derived score would have disagreed with
+        `candidates.yaml`'s recorded 8 had CI not caught it. Updated the
+        citation to 50/97, regenerated `results-2026-08-22.json` (that
+        directory's own convention: "the rerun is a re-quote, not a
+        re-measurement"), and touched up one live scorecard line in
+        `candidates/cra-evidence-desk.md` -- left the dated historical
+        narrative passages elsewhere untouched, matching this repo's
+        established practice.
+      - >-
+        Verified: 289 tests pass in the probe (282 baseline + 6 new +
+        1 from #671's merge), 25 pass in `error-rate-disclosure`, `pyflakes`
+        clean, and all four repo validators (`validate_candidates.py`,
+        `validate_doc_consistency.py`, `portfolio/router/validate.py`,
+        `platform/ci/validate_workflows.py`) pass clean. Opened as #673; the
+        probe's own CI and the portfolio validator both went green on the
+        first push, but a third, separate `error-rate-disclosure CI`
+        workflow failed once (the citation), fixed and re-pushed, all 3
+        green on the second run, `git merge-tree` re-checked
+        clean against the live `main` tip immediately before merging, then
+        self-merged. Internal-only (probe source/tests/docs, one research
+        directory's citation and committed re-quote, one candidate write-up
+        line), no `ventures/*` app code, nothing published, no credential
+        used -- agent-decidable per `CLAUDE.md`.
+      - >-
+        Restarted the designated branch from the fresh `main` tip per the
+        merged-PR-branch rule before writing this entry. No revenue; the $0
+        ceiling is unchanged.
+    mrr_end: null
