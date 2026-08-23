@@ -19016,3 +19016,100 @@ entries:
         this probe should spend it on that review, not on a third lockfile
         format. No score moved. No revenue; the $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business
+        projects that aren't already here" session, designated branch
+        claude/laughing-pasteur-qjh9a0. That brief is the one `CLAUDE.md`
+        marks already answered, so no candidate list was produced. Ran
+        `session_gate.py` first (PROCEED, flagging 2 distinct sessions
+        committing to `main` within a 15-minute window in the last 6h) and
+        `verification_status.py` (2 records, #372 and #368, both BUILD
+        VALID / CHECKS STALE, neither needing a rebuild). Listed the 5 open
+        PRs (#664, #583, #531, #372, #368) -- #664 was a ledger entry that
+        has since merged, and the other four remain correctly owner-gated
+        by prior sessions with nothing new to add.
+      - >-
+        Acted on the immediately preceding entry's own finding rather than
+        repeating it. That entry recorded three independent sessions
+        working `npm-reachability-triage` inside one hour; `git log` per
+        probe directory confirmed that probe was touched today while
+        `agent-permission-harness` had not been touched since 2026-08-21.
+        Picked the least-recently-worked probe deliberately, which is the
+        cheapest available answer to a concentration pattern the gate's
+        15-minute-window reading does not convey.
+      - >-
+        Found a live gap between what that probe claims and what it
+        measures. R7 -- its headline rule, and the one it argues attack
+        replay structurally cannot reach -- reports that an agent's
+        instruction set is "the transitive closure of what the prompt
+        directs the agent to read". The rule docstring, the probe README
+        and the candidate write-up all said transitive closure. The
+        implementation expanded the paths the prompt itself names and
+        stopped: one hop, described as a fixed point. Same defect class as
+        #661's stale coverage constant -- a documented figure the tool does
+        not produce -- and here it understated the finding in the direction
+        that flatters it, since `CLAUDE.md` is reached in one hop and
+        spends most of its length issuing further reading orders the prompt
+        names nowhere.
+      - >-
+        `instruction_closure()` now walks to a fixed point over a visited
+        set, so a cycle terminates (`CLAUDE.md` and `README.md` cite each
+        other here, so that is the ordinary case). Against this repository
+        the agent's instruction set is **115 files at depth 4, not 21**.
+        The first-hop count is unchanged, so nothing prior is retracted;
+        the finding text now reports both plus the per-depth breakdown.
+        What it reaches matters more than the size: depth 2 includes
+        `portfolio/ledger/2026-08.yaml`, `portfolio/router/allocate.py` and
+        `portfolio/scoring/venture-scores.yaml` -- the ledger the router
+        reads and the code deciding which venture an unattended session
+        works on next, all `REPO_WRITE`, none named by the prompt. The
+        probe's own `harness.py` is in the closure at depth 3, via
+        `portfolio/research/README.md`: a file in the agent's instruction
+        set that also decides what that agent is told about its instruction
+        set.
+      - >-
+        Recursion exposed a resolution bug one hop had hidden. Bare
+        filenames were resolved by a repository-wide walk -- right for a
+        root-level prompt saying "each venture's `AGENTS.md`", wrong for
+        `ventures/print-atelier/AGENTS.md` saying "the scripts in
+        `package.json`", which answered with all fourteen manifests in the
+        monorepo. Resolution is now nearest-scope-first: the naming
+        document's own subtree, then the repository. Without it the count
+        was 129. Both directions of error are now disclosed in the
+        generated finding rather than only in the README -- an upper bound
+        on what the prompt directs (a named path counts whether the
+        document orders the read or merely mentions the file) and a lower
+        bound on the surface (only prose is walked through). A cue-word
+        classifier for imperative mood was built, measured against
+        `CLAUDE.md`, found to drop two files that file explicitly orders
+        read, and discarded in favour of the stated bounds.
+      - >-
+        Verified rather than trusted: 84 tests pass (15 new, pinning the
+        fixed point, cycle termination, depth attribution, scoped
+        resolution, the walkable-suffix bound, and that the closure is
+        strictly larger than its own first hop against this repository);
+        the results file regenerates byte-identically under a different
+        `PYTHONHASHSEED`; both documented CLI invocations run clean;
+        `validate_candidates.py`, `validate_doc_consistency.py`,
+        `portfolio/router/validate.py` and the pipeline's own 24 tests all
+        pass. Opened as #665, all 3 attached checks green, `git fetch` and
+        `git merge-tree` re-checked against the live `main` tip
+        immediately before merging, then self-merged. Internal-only
+        (`portfolio/pipeline/` plus repointing one CI test-runner workflow
+        at the new dated results file so it would not land red), no
+        `ventures/*` app code, nothing published, no credential used --
+        agent-decidable per `CLAUDE.md`. The 34-case accuracy corpus was
+        deliberately left unchanged: R7 fires on a non-empty closure and
+        did before, so this changes how large the closure is, not when the
+        rule speaks, and re-deriving that corpus would spend budget without
+        moving a number.
+      - >-
+        No score moves -- `ai_leverage` stays 8 and the verdict stays park;
+        the finding gets larger, not different. Restarted the designated
+        branch from the fresh `main` tip per the merged-PR-branch rule
+        before writing this entry. No revenue; the $0 ceiling is unchanged.
+    mrr_end: null
