@@ -82,8 +82,8 @@ running service.
 The last line of "What would unpark it" said the harness was worth building
 internally for the portfolio's own agents. That was taken literally rather than
 as a gesture, and the build is
-[`probes/agent-permission-harness/`](../probes/agent-permission-harness/) — 960
-lines, seven rules, 61 tests, run over all 31 workflow files in this repository.
+[`probes/agent-permission-harness/`](../probes/agent-permission-harness/) — 1150
+lines, seven rules, 84 tests, run over all 31 workflow files in this repository.
 
 Three things came out of it, in descending order of how much they change the
 argument above.
@@ -94,13 +94,23 @@ what fires. But an agent's instruction set is not its `prompt:` input — it is
 the transitive closure of what that prompt *directs it to read*. This
 portfolio's agent prompt is 52 fixed lines whose main content is reading orders:
 read `CLAUDE.md`, read every `ventures/*/VENTURE.yaml`, read each venture's
-`AGENTS.md` and "heed them". Resolved, that is **21 repository files**, every one
-of them `REPO_WRITE` — one merged pull request from saying something else — and
-the agent reads all of them holding `contents: write`, `pull-requests: write`
-and two secrets. Replay tests 1 of those 21, and it is the one an attacker has
-least reason to write to. The closure is enumerable from the prompt text in
-about 60 lines of regex and glob, and it is invisible to replay by construction:
-replay measures a response to inputs you already thought to send.
+`AGENTS.md` and "heed them". Resolved one hop, that is **21 repository files**.
+Taken to its fixed point — those documents issue reading orders of their own,
+and `CLAUDE.md` does little else — it is **115 files at depth 4**, among them
+the ledger and `portfolio/router/allocate.py`, the code that decides which
+venture an unattended session works on next. Every one is `REPO_WRITE` — one
+merged pull request from saying something else — and the agent reads all of
+them holding `contents: write`, `pull-requests: write` and two secrets. Replay
+tests 1 of those 115, and it is the one an attacker has least reason to write
+to. The closure is enumerable from the prompt text in about 120 lines of regex,
+glob and a worklist, and it is invisible to replay by construction: replay
+measures a response to inputs you already thought to send.
+
+*(Amended 2026-08-23. The rule shipped claiming a transitive closure and
+measuring one hop; the first-hop figure of 21 was correct and is unchanged, and
+the fixed point is what the sentence above always said it was reporting. No
+score moves — the finding gets larger, not different. Derivation and both
+bounds on the count are in the probe's README.)*
 
 **2. Nothing found on this surface needed anything to run.** 13 findings across
 3 of 31 workflow files, all decided from the artifact — 7 since three of them

@@ -32,6 +32,7 @@ from harness import (
     analyse,
     effective_write_scopes,
     find_prompt_files,
+    instruction_closure,
     is_agent_step,
     load_with_lines,
     parse_workflow,
@@ -610,6 +611,137 @@ class TestPromptPathExpansion(unittest.TestCase):
     def test_bare_filename_resolves_to_every_copy_in_the_tree(self):
         self.assertEqual(_expand_prompt_path("AGENTS.md", self.root), ["ventures/alpha/AGENTS.md"])
 
+    def test_bare_filename_prefers_the_naming_documents_own_subtree(self):
+        # The inflation this guards: once the closure recurses, the document
+        # naming a bare filename is usually not at the repository root, and a
+        # repository-wide walk answers "the scripts in `VENTURE.yaml`" with
+        # every venture's copy. Nearest scope first.
+        self.assertEqual(
+            _expand_prompt_path("VENTURE.yaml", self.root, "ventures/alpha"),
+            ["ventures/alpha/VENTURE.yaml"],
+        )
+
+    def test_bare_filename_falls_back_when_the_subtree_has_no_copy(self):
+        # `.github/prompts/` holds no AGENTS.md, and a root-level prompt saying
+        # "each venture's AGENTS.md" does mean every copy. The fallback is what
+        # keeps the first-hop count what it was before scoping existed.
+        self.assertEqual(
+            _expand_prompt_path("AGENTS.md", self.root, ".github/prompts"),
+            ["ventures/alpha/AGENTS.md"],
+        )
+
+    def test_scoping_does_not_apply_to_an_explicit_path(self):
+        # Only the bare-filename shape is scoped. A spec with a separator is
+        # already repository-relative and must stay so.
+        self.assertEqual(
+            _expand_prompt_path("ventures/alpha/VENTURE.yaml", self.root, "ventures/beta"),
+            ["ventures/alpha/VENTURE.yaml"],
+        )
+
+
+class TestInstructionClosureWalk(unittest.TestCase):
+    """The fixed point itself, apart from the rule that reports it.
+
+    R7 always claimed the instruction set was the *transitive* closure of what
+    the prompt directs the agent to read, and for its first three days it
+    measured one hop of that. One hop understates it exactly where it matters:
+    the conventions file a prompt names first is typically the file that does
+    the most delegating.
+    """
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self._tmp.name)
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    def _write(self, files: dict[str, str]) -> None:
+        for rel, body in files.items():
+            path = self.root / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(textwrap.dedent(body).lstrip("\n"))
+
+    def test_the_walk_continues_past_the_first_hop(self):
+        self._write({
+            ".github/prompts/work.md": "Read `CLAUDE.md`.\n",
+            "CLAUDE.md": "Then read `docs/conventions.md`.\n",
+            "docs/conventions.md": "And `docs/style.md`.\n",
+            "docs/style.md": "No paths here.\n",
+        })
+        closure = instruction_closure(self.root, [".github/prompts/work.md"])
+        self.assertEqual(
+            {p: e.depth for p, e in closure.items()},
+            {"CLAUDE.md": 1, "docs/conventions.md": 2, "docs/style.md": 3},
+        )
+
+    def test_each_file_is_attributed_to_the_document_that_reached_it_first(self):
+        self._write({
+            ".github/prompts/work.md": "Read `CLAUDE.md`.\n",
+            "CLAUDE.md": "See `docs/style.md`.\n",
+            "docs/style.md": "x\n",
+        })
+        entry = instruction_closure(self.root, [".github/prompts/work.md"])["docs/style.md"]
+        self.assertEqual((entry.depth, entry.source, entry.spec), (2, "CLAUDE.md", "docs/style.md"))
+
+    def test_a_cycle_terminates(self):
+        # Two conventions files citing each other is the ordinary case, not a
+        # pathological one -- this repository's CLAUDE.md and README.md do it.
+        # Without a visited set the walk never returns.
+        self._write({
+            ".github/prompts/work.md": "Read `a.md`.\n",
+            "a.md": "See `b.md`.\n",
+            "b.md": "Back to `a.md`, and also `c.md`.\n",
+            "c.md": "x\n",
+        })
+        closure = instruction_closure(self.root, [".github/prompts/work.md"])
+        self.assertEqual(sorted(closure), ["a.md", "b.md", "c.md"])
+
+    def test_the_prompt_itself_is_not_counted_as_its_own_instruction(self):
+        self._write({
+            ".github/prompts/work.md": "Read `.github/prompts/work.md` and `a.md`.\n",
+            "a.md": "x\n",
+        })
+        self.assertEqual(sorted(instruction_closure(self.root, [".github/prompts/work.md"])), ["a.md"])
+
+    def test_data_files_are_counted_but_not_walked_through(self):
+        # The stated lower bound. A path named only inside a YAML file already
+        # in the closure is missed, on purpose: a data file the agent is told
+        # to consult is not a document issuing reading orders, and walking one
+        # would turn the count into a statement about the repository's data.
+        self._write({
+            ".github/prompts/work.md": "Read `conf.yaml`.\n",
+            "conf.yaml": "note: see `secret-plan.md`\n",
+            "secret-plan.md": "x\n",
+        })
+        closure = instruction_closure(self.root, [".github/prompts/work.md"])
+        self.assertEqual(sorted(closure), ["conf.yaml"])
+
+    def test_bare_filenames_resolve_against_the_naming_document(self):
+        # End-to-end version of the scoping fix: beta's own notes mean beta's
+        # own manifest, not every manifest in the repository.
+        self._write({
+            ".github/prompts/work.md": "Read `ventures/beta/NOTES.md`.\n",
+            "ventures/beta/NOTES.md": "The scripts in `package.json`.\n",
+            "ventures/beta/package.json": "{}\n",
+            "ventures/alpha/package.json": "{}\n",
+        })
+        closure = instruction_closure(self.root, [".github/prompts/work.md"])
+        self.assertIn("ventures/beta/package.json", closure)
+        self.assertNotIn("ventures/alpha/package.json", closure)
+
+    def test_the_walk_is_bounded(self):
+        chain = {".github/prompts/work.md": "Read `d0.md`.\n"}
+        for i in range(harness.CLOSURE_MAX_DEPTH + 5):
+            chain[f"d{i}.md"] = f"Read `d{i + 1}.md`.\n"
+        chain[f"d{harness.CLOSURE_MAX_DEPTH + 5}.md"] = "x\n"
+        self._write(chain)
+        closure = instruction_closure(self.root, [".github/prompts/work.md"])
+        self.assertEqual(max(e.depth for e in closure.values()), harness.CLOSURE_MAX_DEPTH)
+
+    def test_no_prompt_files_is_an_empty_closure(self):
+        self.assertEqual(instruction_closure(self.root, []), {})
+
     def test_vendored_trees_are_pruned(self):
         self.assertNotIn("node_modules/pkg/AGENTS.md", _expand_prompt_path("AGENTS.md", self.root))
 
@@ -655,6 +787,25 @@ class TestAgentInstructionClosure(RepoCase):
             hits[0].observable_by_replay,
             "this is the finding attack replay cannot reach; the flag is the claim",
         )
+
+    def test_a_closure_that_stops_at_the_first_hop_reports_cleanly(self):
+        # The sample in the finding text is drawn from beyond the first hop,
+        # because those are the files the prompt never names. When there are
+        # none, the sentence has to end rather than trail "among them ." --
+        # a report with a dangling clause reads as a bug in the measurement.
+        findings = self.run_rules(
+            {"a.yml": self.WORKFLOW},
+            {
+                ".github/prompts/work.md": self.PROMPT,
+                "CLAUDE.md": "no paths here",
+                "ventures/alpha/AGENTS.md": "none either",
+                "ventures/alpha/VENTURE.yaml": "x",
+            },
+        )
+        hits = [f for f in findings if f.rule == "R7-agent-instruction-closure"]
+        self.assertEqual(len(hits), 1)
+        self.assertIn("(3 at depth 1). Every one is", hits[0].detail)
+        self.assertNotIn("among them", hits[0].detail)
 
     def test_silent_when_the_workflow_runs_no_agent(self):
         findings = self.run_rules(
@@ -786,6 +937,50 @@ class TestHeadlineNumbersAgainstThisRepo(unittest.TestCase):
         count = int(hits[0].summary.split()[4])
         self.assertGreaterEqual(count, 10)
         self.assertIn("CLAUDE.md", hits[0].detail)
+
+    def test_the_closure_against_this_repo_is_transitive_not_one_hop(self):
+        # The claim the rule made in prose for three days before it measured
+        # it. Exact counts move with every document added, so what is pinned
+        # is that the fixed point is strictly past the first hop and that the
+        # finding text still reports both -- a single number would hide which
+        # one it is.
+        closure = harness.instruction_closure(
+            REPO_ROOT, [".github/prompts/portfolio-work.md"]
+        )
+        first_hop = [p for p, e in closure.items() if e.depth == 1]
+        self.assertGreater(len(closure), len(first_hop))
+        self.assertGreater(max(e.depth for e in closure.values()), 1)
+
+        hits = [f for f in self.findings if f.rule == "R7-agent-instruction-closure"]
+        self.assertIn(f"resolve to {len(first_hop)} files", hits[0].detail)
+        self.assertIn(f"fixed point of that is {len(closure)} files", hits[0].detail)
+
+    def test_the_closure_reaches_files_the_prompt_never_names(self):
+        # The point of recursing at all. CLAUDE.md is one hop from the prompt
+        # and spends most of its length ordering reads the prompt says nothing
+        # about; those are the files a one-hop measurement called out of scope.
+        closure = harness.instruction_closure(
+            REPO_ROOT, [".github/prompts/portfolio-work.md"]
+        )
+        prompt_named = {p for p, e in closure.items() if e.depth == 1}
+        self.assertIn("CLAUDE.md", prompt_named)
+        beyond = {p for p, e in closure.items() if e.depth > 1}
+        self.assertTrue(
+            beyond & {"portfolio/pipeline/README.md", "portfolio/ledger/README.md"},
+            "CLAUDE.md orders these reads and the prompt does not; if this fails, "
+            "either CLAUDE.md stopped naming them or the walk stopped recursing",
+        )
+
+    def test_no_vendored_or_generated_tree_is_in_the_closure(self):
+        # A closure that is mostly node_modules is a statement about rglob.
+        closure = harness.instruction_closure(
+            REPO_ROOT, [".github/prompts/portfolio-work.md"]
+        )
+        for path in closure:
+            self.assertFalse(
+                set(Path(path).parts) & harness.PRUNED_DIRS,
+                f"{path} is in a pruned tree",
+            )
 
     def test_third_party_actions_receiving_secrets_are_pinned(self):
         # Was pinned the other way: R4's 4 hits were cloudflare/wrangler-action@v3,
