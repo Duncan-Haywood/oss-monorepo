@@ -1,7 +1,7 @@
 # mcp-drift-watch
 
 **Probe for [`mcp-supply-chain-watch`](../../candidates/mcp-supply-chain-watch.md).**
-Built 2026-08-22. 95 tests. Not published, not a graduation. `ai_leverage`
+Built 2026-08-22. 104 tests. Not published, not a graduation. `ai_leverage`
 moved once (6 → 7); still capped by `defensibility` at 3.
 
 Pin what a connected MCP server declared, diff it on re-poll, classify what
@@ -27,11 +27,139 @@ used to answer the question its research left open.
 > corpus 2 — which is itself the caution, not just the result.
 >
 > **A fourth pass, 2026-08-23**, built the rule those passes named as the real
-> gap, and it is the section immediately below. It reproduces the same
+> gap. See [that section](#fourth-pass-2026-08-23-the-rule-for-the-class-corpus-3-named).
+> It reproduces the same
 > in-sample/out-of-sample collapse a third time — and finds why: the class the
 > rule detects is a property of *which publisher* you watch, not of the
 > population, so the aggregate accuracy figures this probe prints are averages
 > over two populations that behave nothing alike.
+>
+> **A fifth pass, 2026-08-23**, measured that last sentence on the classifier it
+> indicts — the shipped one, the only one a customer is ever shown a figure
+> from — and it is the section immediately below. The consequence holds and the
+> shape does not: there is no well-watched population. The record now discloses
+> the split.
+
+## Fifth pass, 2026-08-23: the consequence the fourth pass named, measured on the shipped rules
+
+The fourth pass closed by indicting every figure this probe publishes:
+
+> A portfolio-wide recall figure is a weighted average over two populations, and
+> the weights are whichever servers a subscriber happens to watch. [...] Every
+> accuracy figure this probe has published so far — including the 0.40–0.62 span
+> the subscriber record prints — is an aggregate of exactly this kind.
+
+It argued that from `relation.py`'s per-publisher table. But `relation.py` is not
+adopted and never will be shown to a customer, and the table scores `variant` and
+`variant+relation` — **not the shipped classifier the record actually quotes**.
+So the charge was laid against figures that had never been split. This pass
+splits them: [`score_by_publisher.py`](score_by_publisher.py) labels both
+committed held-out corpora with `classify_drift.classify` unmodified and scores
+each publisher on its own.
+
+### The consequence holds. The shape the fourth pass assumed does not
+
+That distinction is the finding, and it runs the *unfavourable* way.
+
+|  | pooled (what the record printed) | split by publisher |
+|---|---:|---:|
+| recall, corpus 2 | 0.235 | median publisher **0.00** |
+| recall, corpus 3 | 0.102 | median publisher **0.048** |
+| publishers with a qualifying change | — | 16 |
+| …on which the watch caught **nothing at all** | — | **9** |
+| …on which it caught **everything** | — | 3, each with exactly **1** qualifying change |
+| best recall on any publisher with more than one | — | **0.33** |
+
+The fourth pass's table showed `variant+relation` taking recall from near zero to
+0.67–1.00 on four publishers and leaving nine unmoved, which reads as two
+populations: servers a watch covers well and servers it does not. **On the
+shipped rules there is no first population.** Every publisher the watch caught
+*everything* on had exactly one qualifying change, where the figure is one coin
+flip and not a rate; on every publisher with more than one, it never caught more
+than a third. The pooled number is not a blend of good and bad
+coverage; it is a blend of near-zero coverage and small samples, and the second
+is what lifts it.
+
+The direction is worse still on the servers that matter most. The largest
+publisher in each corpus carries **59%** and **43%** of that corpus's qualifying
+changes — one publisher rewriting a release, the concentration both prior passes
+noted — and the shipped watch scores **0.20** and **0.095** on exactly those two.
+The servers generating the most work for a subscriber are the ones it is worst
+on, because bulk rewrites are where the cross-tool routing class lives.
+
+### The false alerts concentrate harder than the misses
+
+Split the same way, the other direction is sharper and nobody had looked:
+
+- All **9** false alerts across both corpora came from **4 of the 44 publishers
+  watched**. Forty produced none.
+- **5 of the 6** false alerts in corpus 2 came from one publisher,
+  `@sonarapp/mcp`.
+
+So `0.40–0.62 precision` is not a tax paid evenly. On most servers it is
+invisible; on one it was most of what the subscriber saw. That is worth stating
+to a customer because it predicts the complaint they will actually have — "all my
+noise comes from one server" — and correctly attributes it to that server's
+prose rather than to its behaviour.
+
+### What shipped, and the rule it is held to
+
+`subscriber_record.py` now prints the split: one clause in the headline (the 9 of
+16 that caught nothing, beside the pooled span) and three paragraphs in the
+accuracy section, including the paragraph that says what does **not** follow —
+that no server is well covered, so nobody should read the split as a good tier
+they might be in.
+
+Fourteen figures are printed, and every one is re-derived in
+`test_subscriber_record.py` from the two committed corpora by plain counting over
+`label_corpus`, not by calling `score_by_publisher`'s own summary — re-deriving a
+figure with the code that produced it checks nothing. That is the
+`eaa-wcag-triage` citation pattern the probes README asks for. Each of the
+fourteen was mutation-checked: changed one at a time to a neighbouring value, all
+fourteen failed the suite. Suite 95 → 104.
+
+Two figures were rewritten during that check rather than after it, and the reason
+is worth recording because it is this probe's own recurring error. The first
+draft reported *"publishers with recall above a third"* — and that claim flips
+between a cutoff of 0.25 and one of 0.33, both defensible, both read off the very
+table the claim described. It was replaced by two figures that need no cutoff:
+which publishers the watch caught **everything** on (3, each with one qualifying
+change), and the **best** recall on any publisher with more than one (0.33). Same
+conclusion, no free parameter.
+
+### What this does not settle
+
+- **44 publishers and 2 corpora.** This is the direction of the error, not a
+  per-server rate that could be quoted in advance, and the record says so in
+  those words. A per-server rate is precisely what the finding says cannot be
+  quoted.
+- **The per-publisher denominators are small** — 12 of the 16 publishers with a
+  qualifying change have three or fewer. That is not a flaw in the split; it is
+  the reason the pooled figure was misleading, and it is why the disclosure is
+  written as a count of servers rather than as a distribution.
+- **Nothing here re-labels anything.** The hand labels, corpora, and shipped
+  rules are untouched; only the reporting changed. The pooled figures are still
+  printed, unaltered, beside the split.
+
+**No score moved.** This corrects how an already-measured figure is presented
+rather than measuring a new capability, and `defensibility` at 3 — the floor that
+keeps this candidate from graduating under README.md rule 2 — is untouched. The
+fourth pass's own reason applies unchanged: a finding about presentation does not
+revise a score in either direction.
+
+Reproduce (offline, from the committed corpora):
+
+```bash
+python3 -m pytest portfolio/pipeline/probes/mcp-drift-watch/ -q
+python3 score_by_publisher.py        # both corpora, shipped rules, per publisher
+```
+
+| File | What it is |
+|---|---|
+| `score_by_publisher.py` | The split: shipped classifier, both corpora, scored per publisher, both directions. |
+| `publisher-split-2026-08-23.json` | That run, committed: every publisher's own counts, and the pooled figures the record cites. |
+
+---
 
 ## Fourth pass, 2026-08-23: the rule for the class corpus 3 named
 
@@ -486,7 +614,7 @@ here changes it.
 | `model-pass-c3-2026-08-22.json` | The model's 148 blind labels on corpus 3, same method as the corpus-2 pass. |
 | `score_model_pass_c3.py` | Scores the corpus-3 model pass against its hand labels; `--disagree` lists every split. |
 | `sample-record-2026-08-22.md` | A real record, chosen to be unflattering — see below. |
-| `test_drift_watch.py`, `test_subscriber_record.py`, `test_rule_variants.py`, `test_build_labels_c3.py`, `test_relation.py` | 95 tests. |
+| `test_drift_watch.py`, `test_subscriber_record.py`, `test_rule_variants.py`, `test_build_labels_c3.py`, `test_relation.py` | 104 tests. |
 
 ```bash
 python3 -m pytest portfolio/pipeline/probes/mcp-drift-watch/ -q   # offline

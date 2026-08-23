@@ -103,10 +103,53 @@ IN_SAMPLE = {
 HELD_OUT_ALERTING_SHARE_PCT = 7.4
 HELD_OUT_C3_ALERTING_SHARE_PCT = 5.4
 
+# The same two corpora, split by publisher instead of pooled. Derivation:
+# `score_by_publisher.py`, which labels both with the shipped classifier
+# unmodified and scores each publisher on its own; `test_subscriber_record.py`
+# re-derives every field below from the committed corpora.
+#
+# This exists because the figures above are change-weighted -- they answer "of
+# every qualifying change anywhere, what share did we catch", which is the
+# question a vendor asks. A subscriber connects some servers and experiences the
+# per-server rate on those servers, and the two are not close. Printing only the
+# first is the shape of misrepresentation this record exists not to commit: not
+# a wrong number, a number that answers a question the reader is not asking.
+PUBLISHER_SPLIT = {
+    "measured_on": "2026-08-23",
+    "publishers_watched": 44,
+    # Recall is only defined where something qualifying actually happened.
+    "publishers_with_a_qualifying_change": 16,
+    "publishers_caught_nothing": 9,
+    "median_per_publisher_recall": 0.0,
+    "qualifying_changes": 66,
+    "caught": 9,
+    # Stated without a cutoff, because any cutoff here would have been chosen
+    # from the table it describes. Every publisher the watch caught *everything*
+    # on had exactly one qualifying change, so each of those figures is one coin
+    # flip rather than a rate; and the best it did on any publisher with more
+    # than one qualifying change is the second figure.
+    "publishers_catching_everything": 3,
+    "max_qualifying_changes_among_those": 1,
+    "best_recall_on_a_multi_change_server": 0.333,
+    # The single publisher holding the most qualifying changes in each corpus:
+    # its share of that corpus's positives, and the recall achieved on it. The
+    # point of the pair is that the servers generating the most work are not the
+    # ones the watch does best on.
+    "largest_publisher_shares": (0.588, 0.429),
+    "largest_publisher_recalls": (0.2, 0.095),
+    # The other direction splits the same way, and more sharply.
+    "false_alerts": 9,
+    "publishers_with_a_false_alert": 4,
+    "largest_false_alert_source_share": 5,
+    "derivation": "portfolio/pipeline/probes/mcp-drift-watch/score_by_publisher.py "
+    "(publisher-split-2026-08-23.json)",
+}
+
 
 def accuracy_headline() -> str:
     p_low, p_high = PRECISION_RANGE
     r_low, r_high = RECALL_RANGE
+    s = PUBLISHER_SPLIT
     return (
         f"**Accuracy, measured out of sample on two independent corpora: "
         f"precision {p_low:.2f}-{p_high:.2f}, recall {r_low:.2f}-{r_high:.2f}.** "
@@ -114,7 +157,11 @@ def accuracy_headline() -> str:
         f"says they are, and it finds between one in ten and one in four of the "
         f"changes that meet its own definition. The two corpora disagree by more "
         f"than either figure's own uncertainty, so read the whole span as the "
-        f"claim. Read the accuracy section before acting on any row."
+        f"claim. **Both are corpus-wide rates, not rates for your servers** -- on "
+        f"{s['publishers_caught_nothing']} of the "
+        f"{s['publishers_with_a_qualifying_change']} servers we have measured "
+        f"where a qualifying change happened, this watch caught none of it. Read "
+        f"the accuracy section before acting on any row."
     )
 
 
@@ -122,6 +169,10 @@ def accuracy_section() -> str:
     p_low, p_high = PRECISION_RANGE
     r_low, r_high = RECALL_RANGE
     c2, c3 = HELD_OUT
+    s = PUBLISHER_SPLIT
+    big_shares = " and ".join(f"{share:.0%}" for share in s["largest_publisher_shares"])
+    # `:g`, not `:.2f` -- rounding 0.095 up to "0.10" would flatter the figure.
+    big_recalls = " and ".join(f"{recall:g}" for recall in s["largest_publisher_recalls"])
     return f"""## How this watch can be wrong
 
 Measured twice, on two corpora that share no package, neither of them read while
@@ -170,6 +221,43 @@ reach for it -- "use `other_tool` for X", "hosted users should call
 arrive in clumps: two servers rewrote every description in one release and
 carry 34 of that corpus's 49 qualifying changes between them, so a month can be
 quiet for reasons that have nothing to do with your servers being quiet.
+
+**Neither figure above is a rate your servers will experience.** Both are
+change-weighted: they pool every qualifying change across every server we
+measured. You do not connect a corpus, you connect servers, and split by server
+the same two corpora say something the pooled figure hides. Of the
+{s['publishers_with_a_qualifying_change']} servers where a qualifying change
+happened, this watch caught **none of it on {s['publishers_caught_nothing']} of
+them**, and the median server's recall is
+**{s['median_per_publisher_recall']:.2f}** against the {r_low:.2f}-{r_high:.2f}
+pooled above. The {s['publishers_catching_everything']} servers where it caught
+everything had exactly {s['max_qualifying_changes_among_those']} qualifying
+change each -- a coin flip that landed, not a rate. **On every server that had
+more than one qualifying change, it never caught more than
+{s['best_recall_on_a_multi_change_server']:.0%} of them.** And the servers
+carrying the most change are not the ones it does best on: the largest single
+publisher in each corpus held {big_shares} of that corpus's qualifying changes,
+at recall {big_recalls}.
+
+**The false alerts concentrate too, harder.** All
+{s['false_alerts']} false alerts across both corpora came from
+**{s['publishers_with_a_false_alert']} of the {s['publishers_watched']} servers
+watched** -- {s['largest_false_alert_source_share']} of them from one server
+alone. Most servers never produced a false alert at all. So the
+{p_low:.2f}-{p_high:.2f} precision above is not a tax you pay evenly either: on
+most servers it is invisible, and on one it is most of what you saw. If your
+alerts cluster on a single server, that is the shape this measurement predicts,
+and it is evidence about that server's prose rather than about its behaviour.
+
+**What follows from that, and what does not.** It follows that you should not
+plan against either pooled figure as though it applied to your servers -- ask
+instead what this watch has caught on *your* servers, which the record for each
+one shows. It does **not** follow that some servers are well covered and others
+badly: on this measurement no server is well covered, and every per-server
+figure that looks good rests on a single change. The pooled number is not a blend
+of good and bad coverage. It is a blend of near-zero coverage and small samples.
+This split was measured on 2 corpora and {s['publishers_watched']} servers; it
+is the direction of the error, not a per-server rate we can quote you in advance.
 
 **The direction that pays us is the first one.** This subscription is priced per
 connected server, and a month with no alert looks, from outside, exactly like a
