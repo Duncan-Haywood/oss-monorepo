@@ -39,12 +39,12 @@ COVERAGE_LIMITS: tuple[str, ...] = (
     "those are listed by name there rather than omitted. If the coverage "
     "section is absent, this record was produced for a single project and "
     "says nothing about the rest of the repository it came from.",
-    "The build-surface rule (a package a build tool loads and the deployed "
-    "artifact never does, e.g. PostCSS inside a Next.js build) is only "
-    "implemented for package-lock.json. A pnpm project gets the "
-    "dependency-path, dev-server, and deployment-surface rules but not this "
-    "one, so a pnpm project can under-suppress relative to an equivalent npm "
-    "one; it cannot over-suppress because of this gap.",
+    "For a pnpm lockfile, dev-only is derived rather than read: pnpm stores no "
+    "per-install dev flag, so this tool computes reachability from the "
+    "analysed importer's own production declarations. An edge it cannot follow "
+    "therefore forces every install of the package that edge named onto the "
+    "production graph, and those names are listed in this record — a narrower "
+    "answer is never produced from a graph the tool knows is incomplete.",
     "Reachability means the vulnerable package is present on a production "
     "dependency path and its affected surface is deployed. It does not mean an "
     "exploit exists, and no call-graph analysis is performed.",
@@ -85,12 +85,21 @@ ACCURACY_WRONG_CLAIMS = 0
 ACCURACY_RAW_FINDINGS = 102
 ACCURACY_WRONG_RAW_FINDINGS = 0
 
-#: Measured by `run_repository_coverage.py` on 2026-08-22, walking the whole
+#: Measured by `run_repository_coverage.py` on 2026-08-23, walking the whole
 #: repository rather than the hand-written product list the verification used.
 #: Held here because the accuracy note quotes them, and a coverage figure that
 #: can drift silently is the defect this pass exists to close.
+#:
+#: The analysable figure was 9 while this tool read only package-lock.json, and
+#: is 16 now that it reads pnpm-lock.yaml too; the 7 that moved are one pnpm
+#: venture. The verification sample did **not** move with it: the hand review
+#: behind the wrong-suppression rate covers npm projects only and has not been
+#: repeated on a pnpm one, so the gap between what is read and what has been
+#: checked by hand is wider than it was, not narrower.
+PORTFOLIO_MEASURED_ON = "2026-08-23"
 PORTFOLIO_MANIFESTS_FOUND = 18
-PORTFOLIO_MANIFESTS_ANALYSABLE = 9
+PORTFOLIO_MANIFESTS_ANALYSABLE = 16
+PORTFOLIO_MANIFESTS_ANALYSABLE_NPM_ONLY = 9
 PORTFOLIO_VERIFICATION_SAMPLE = 7
 
 ACCURACY_NOTE = (
@@ -114,14 +123,24 @@ ACCURACY_NOTE = (
     "and `wrong-suppression-verification-2026-08-21.json` for the full "
     "per-claim record.\n\n"
     "**The sample is also smaller than the portfolio.** Walking the whole "
-    f"repository on 2026-08-22 found {PORTFOLIO_MANIFESTS_FOUND} npm "
-    f"manifests, of which {PORTFOLIO_MANIFESTS_ANALYSABLE} are readable by "
-    f"this tool at all and {PORTFOLIO_VERIFICATION_SAMPLE} are in the "
-    "verification above. This note previously described its sample as *all* "
-    "the npm products in the portfolio, which was wrong in the direction that "
-    "flatters the tool: a rate measured on the projects it can read says "
-    "nothing about the ones it cannot. Run with `--repository` to get the "
-    "coverage table for your own repository rather than inheriting this one's."
+    f"repository on {PORTFOLIO_MEASURED_ON} found {PORTFOLIO_MANIFESTS_FOUND} "
+    f"npm manifests, of which {PORTFOLIO_MANIFESTS_ANALYSABLE} are readable by "
+    f"this tool and {PORTFOLIO_VERIFICATION_SAMPLE} are in the verification "
+    "above. This note previously described its sample as *all* the npm "
+    "products in the portfolio, which was wrong in the direction that flatters "
+    "the tool: a rate measured on the projects it can read says nothing about "
+    "the ones it cannot. Run with `--repository` to get the coverage table for "
+    "your own repository rather than inheriting this one's.\n\n"
+    "**Reading a second lockfile format widened that gap rather than closing "
+    "it.** Readable went "
+    f"{PORTFOLIO_MANIFESTS_ANALYSABLE_NPM_ONLY} -> "
+    f"{PORTFOLIO_MANIFESTS_ANALYSABLE} when pnpm lockfiles became readable, "
+    f"and the verified sample stayed at {PORTFOLIO_VERIFICATION_SAMPLE}: the "
+    "hand review behind the rate above covers npm projects only, and no "
+    "equivalent review has been done on a pnpm one. The rate is therefore not "
+    "evidence about this tool's behaviour on a pnpm lockfile, whose dev-only "
+    "classification is derived by reachability rather than read from a stored "
+    "flag."
 )
 
 
@@ -226,6 +245,12 @@ class Report:
     component_count: int
     profile: DeploymentProfile
     findings: tuple[Finding, ...]
+    #: Production-side dependency edges the reader could not follow. Non-empty
+    #: means the graph is incomplete and every install of the named packages was
+    #: forced onto the production graph rather than narrowed. Reported because a
+    #: suppression rate computed over an incomplete graph is not the same claim
+    #: as one computed over a complete one.
+    unresolved_production_edges: tuple[str, ...] = ()
 
     @property
     def shipped(self) -> tuple[Finding, ...]:
@@ -268,6 +293,7 @@ def to_json(report: Report) -> str:
         "advisory_feed": report.feed,
         "not_an_attestation": NOT_AN_ATTESTATION,
         "components_analysed": report.component_count,
+        "unresolved_production_edges": list(report.unresolved_production_edges),
         "deployment": {
             "mode": report.profile.mode,
             "confidence": report.profile.confidence,
@@ -326,6 +352,17 @@ def to_markdown(report: Report) -> str:
     for item in report.profile.evidence:
         lines.append(f"  - {item}")
     lines.append("")
+
+    if report.unresolved_production_edges:
+        lines.append(
+            "**The dependency graph read here is incomplete.** These packages "
+            "sit on a production-side edge this tool could not follow to a "
+            "resolved install, so every install of each was treated as "
+            "production rather than narrowed. A suppression that would have "
+            "depended on one of them did not fire: "
+            + ", ".join(f"`{name}`" for name in report.unresolved_production_edges)
+        )
+        lines.append("")
 
     lines.append("## Findings in deployed code")
     lines.append("")

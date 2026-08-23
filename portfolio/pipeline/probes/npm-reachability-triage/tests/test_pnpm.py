@@ -4,9 +4,12 @@ from pathlib import Path
 
 import pytest
 
+from triage.graph import ROOT, build_only_reasons
 from triage.pnpm import (
     UnsupportedPnpmLockfile,
+    analyse,
     importer_paths,
+    load,
     parse_pnpm_lockfile,
     parse_pnpm_lockfile_data,
 )
@@ -279,3 +282,228 @@ def test_the_real_retail_pilot_intel_lockfile_resolves_workspace_link_only_membe
     installed = parse_pnpm_lockfile(RETAIL_PILOT_LOCKFILE, importer_path=importer_path)
     assert installed, f"expected at least the devDependencies for {importer_path}"
     assert all(p.dev for p in installed)
+
+
+# ---------------------------------------------------------------------------
+# The dependency graph, added 2026-08-23.
+#
+# The reader originally returned install locations only, and `cli.py` passed no
+# dependency graph for a pnpm project — so the build-surface rule (the one that
+# took the static-export residual from 11 to 2 on the npm side) did not exist
+# for pnpm at all. That was declared honestly as a coverage limit rather than
+# hidden, and this section is that limit closed: the rule is keyed on package
+# *names*, so it needed no pnpm-specific version, only a graph whose locations
+# resolve to names.
+# ---------------------------------------------------------------------------
+
+
+def test_the_build_surface_rule_fires_through_a_pnpm_graph():
+    raw = _lockfile(
+        importers={
+            ".": {"dependencies": {"next": {"specifier": "^16", "version": "16.0.0"}}}
+        },
+        snapshots={
+            "next@16.0.0": {"dependencies": {"postcss": "8.4.0"}},
+            "postcss@8.4.0": {"dependencies": {"nanoid": "3.3.7"}},
+            "nanoid@3.3.7": {},
+        },
+    )
+    graph = analyse(raw).graph
+
+    reasons = build_only_reasons(graph, "postcss@8.4.0")
+
+    assert reasons and "`next` → `postcss`" in reasons[0]
+
+
+def test_the_build_surface_rule_still_propagates_transitively():
+    # nanoid's only production dependent is the postcss above, not next — the
+    # case the npm README recorded as needing call-graph analysis and does not.
+    raw = _lockfile(
+        importers={
+            ".": {"dependencies": {"next": {"specifier": "^16", "version": "16.0.0"}}}
+        },
+        snapshots={
+            "next@16.0.0": {"dependencies": {"postcss": "8.4.0"}},
+            "postcss@8.4.0": {"dependencies": {"nanoid": "3.3.7"}},
+            "nanoid@3.3.7": {},
+        },
+    )
+
+    assert build_only_reasons(analyse(raw).graph, "nanoid@3.3.7")
+
+
+def test_a_package_the_project_itself_declares_is_never_build_only():
+    """The structural half of "do not fire when the project uses it itself"."""
+    raw = _lockfile(
+        importers={
+            ".": {"dependencies": {"next": {"specifier": "^16", "version": "16.0.0"}}}
+        },
+        snapshots={"next@16.0.0": {}},
+    )
+
+    assert build_only_reasons(analyse(raw).graph, "next@16.0.0") is None
+
+
+def test_a_snapshot_key_resolves_to_its_package_name_in_the_graph():
+    """`BUILD_ONLY_EDGES` is keyed on names, and a pnpm location is not a path.
+
+    Left to `name_of`'s path heuristic, `react-dom@19.2.8(react@19.2.8)` reads
+    back as the whole key, no edge ever matches, and the rule silently stops
+    firing rather than failing.
+    """
+    raw = _lockfile(
+        importers={
+            ".": {
+                "dependencies": {
+                    "react-dom": {"specifier": "^19", "version": "19.2.8(react@19.2.8)"}
+                }
+            }
+        },
+        snapshots={"react-dom@19.2.8(react@19.2.8)": {}, "react@19.2.8": {}},
+    )
+    graph = analyse(raw).graph
+
+    assert graph.name_of("react-dom@19.2.8(react@19.2.8)") == "react-dom"
+    assert graph.name_of(ROOT) == "<root>"
+
+
+def test_a_dev_only_location_is_never_an_edge_source():
+    """Mirrors `build_from_lockfile_data`: a dev location puts nothing on the
+    production graph, so its edges are not recorded as production ones."""
+    raw = _lockfile(
+        importers={
+            ".": {"devDependencies": {"vite": {"specifier": "^6", "version": "6.0.0"}}}
+        },
+        snapshots={"vite@6.0.0": {"dependencies": {"esbuild": "0.25.0"}}, "esbuild@0.25.0": {}},
+    )
+    graph = analyse(raw).graph
+
+    assert "vite@6.0.0" in graph.dev_locations
+    assert graph.dependents.get("esbuild@0.25.0") is None
+
+
+def test_a_linked_workspace_member_is_a_graph_node_and_is_not_build_only():
+    raw = _lockfile(
+        importers={
+            "packages/pos": {
+                "dependencies": {
+                    "schemas": {"specifier": "workspace:*", "version": "link:../schemas"}
+                }
+            },
+            "packages/schemas": {
+                "dependencies": {"zod": {"specifier": "^3", "version": "3.22.0"}}
+            },
+        },
+        snapshots={"zod@3.22.0": {}},
+    )
+    graph = analyse(raw, "packages/pos").graph
+
+    assert "packages/schemas" in graph.locations
+    # First-party source is the application, not a build tool it pulls in.
+    assert build_only_reasons(graph, "packages/schemas") is None
+    assert graph.dependents["packages/schemas"] == frozenset({ROOT})
+
+
+# ---------------------------------------------------------------------------
+# An edge the reader cannot follow, added 2026-08-23.
+#
+# This is the failure deriving dev-ness introduces and reading a flag does not:
+# a lost edge makes a package look *less* reachable than it is, and that ends in
+# a false suppression — the one outcome this probe exists to avoid.
+# ---------------------------------------------------------------------------
+
+
+def test_a_link_outside_the_workspace_is_reported_rather_than_dropped():
+    raw = _lockfile(
+        importers={
+            ".": {
+                "dependencies": {
+                    "@w/gone": {"specifier": "workspace:*", "version": "link:../../elsewhere"}
+                }
+            }
+        },
+        snapshots={},
+    )
+
+    assert analyse(raw).unresolved_production_edges == ("@w/gone",)
+
+
+def test_an_unfollowable_edge_forces_that_package_onto_the_production_graph():
+    """Without this the package reads dev-only and every finding on it vanishes.
+
+    `tarballed` is a production dependency resolved through a URL, which names
+    no snapshot. Its only *followable* path is through a devDependency, so a
+    reader that simply dropped the unresolvable edge would classify it dev-only.
+    """
+    raw = _lockfile(
+        importers={
+            ".": {
+                "dependencies": {
+                    "tarballed": {
+                        "specifier": "https://example.invalid/t.tgz",
+                        "version": "https://example.invalid/t.tgz",
+                    }
+                },
+                "devDependencies": {"tool": {"specifier": "^1", "version": "1.0.0"}},
+            }
+        },
+        snapshots={
+            "tool@1.0.0": {"dependencies": {"tarballed": "1.0.0"}},
+            "tarballed@1.0.0": {},
+        },
+    )
+    project = analyse(raw)
+
+    assert project.unresolved_production_edges == ("tarballed",)
+    by_name = {p.name: p for p in project.installed}
+    assert by_name["tarballed"].dev is False
+
+
+def test_a_fully_resolvable_lockfile_reports_no_unfollowable_edges():
+    raw = _lockfile(
+        importers={
+            ".": {"dependencies": {"left-pad": {"specifier": "^1", "version": "1.3.0"}}}
+        },
+        snapshots={"left-pad@1.3.0": {}},
+    )
+
+    assert analyse(raw).unresolved_production_edges == ()
+
+
+def test_the_optional_flag_is_read_from_the_snapshot_rather_than_assumed():
+    """pnpm records this itself; it was hardcoded False until 2026-08-23."""
+    raw = _lockfile(
+        importers={
+            ".": {
+                "dependencies": {
+                    "fsevents": {"specifier": "^2", "version": "2.3.0"},
+                    "left-pad": {"specifier": "^1", "version": "1.3.0"},
+                }
+            }
+        },
+        snapshots={"fsevents@2.3.0": {"optional": True}, "left-pad@1.3.0": {}},
+    )
+    by_name = {p.name: p for p in analyse(raw).installed}
+
+    assert by_name["fsevents"].optional is True
+    assert by_name["left-pad"].optional is False
+
+
+@pytest.mark.skipif(
+    not RETAIL_PILOT_LOCKFILE.is_file(), reason="retail-pilot-intel lockfile not present"
+)
+@pytest.mark.parametrize(
+    "importer_path",
+    [".", "apps/docs", "apps/portal", "packages/analytics", "packages/edge",
+     "packages/pos", "packages/schemas"],
+)
+def test_every_real_importer_resolves_with_no_unfollowable_edge(importer_path):
+    """The committed measurement rests on this: nothing was widened for safety.
+
+    If a future lockfile introduces an edge this reader cannot follow, the
+    counts in `coverage-2026-08-23.json` stop being a narrowed answer, and this
+    is where that shows up rather than in a footnote nobody reads.
+    """
+    project = load(RETAIL_PILOT_LOCKFILE, importer_path)
+
+    assert project.unresolved_production_edges == ()

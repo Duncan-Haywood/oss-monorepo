@@ -30,11 +30,10 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 from triage import advisories as advisories_mod  # noqa: E402
 from triage import deployment as deployment_mod  # noqa: E402
 from triage import discovery as discovery_mod  # noqa: E402
-from triage import graph as graph_mod  # noqa: E402
 from triage import sources as sources_mod  # noqa: E402
 from triage.engine import DEV_ONLY, NOT_DEPLOYED, SHIPPED, ProjectContext, triage  # noqa: E402
 from triage.evidence import coverage_to_dict  # noqa: E402
-from triage.lockfile import parse_lockfile  # noqa: E402
+from triage.cli import _resolve_project  # noqa: E402
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -54,21 +53,27 @@ def main(argv: list[str] | None = None) -> int:
     for entry in coverage.analysed:
         project_dir = root if entry.path == "." else root / entry.path
         lockfile_path = root / entry.lockfile
-        installed = parse_lockfile(lockfile_path)
-        names |= {package.name for package in installed}
-        resolved.append((entry, project_dir, lockfile_path, installed))
+        # Reads whichever format the walk classified this project through. It
+        # called `parse_lockfile` unconditionally until 2026-08-23, which threw
+        # a JSON decode error the moment the walk started returning pnpm
+        # projects as analysed — so this script could not regenerate the very
+        # coverage figures the record quotes.
+        project = _resolve_project(lockfile_path, entry.pnpm_importer)
+        names |= {package.name for package in project.installed}
+        resolved.append((entry, project_dir, project))
 
     advisory_list = advisories_mod.load_osv_zip(
         Path(args.advisories).read_bytes(), names
     )
 
     projects = []
-    for entry, project_dir, lockfile_path, installed in resolved:
+    for entry, project_dir, project in resolved:
+        installed = project.installed
         installed_names = {package.name for package in installed}
         relevant = [a for a in advisory_list if a.packages & installed_names]
         profile = deployment_mod.detect(project_dir)
         context = ProjectContext(
-            dependency_graph=graph_mod.build_from_lockfile(lockfile_path),
+            dependency_graph=project.graph,
             declared_dependencies=sources_mod.declared_production_dependencies(project_dir),
             source_imports=sources_mod.scan_project_imports(project_dir),
         )
@@ -77,6 +82,10 @@ def main(argv: list[str] | None = None) -> int:
             {
                 "project": entry.path,
                 "status": entry.status,
+                "lockfile_format": "pnpm" if entry.pnpm_importer is not None else "npm",
+                "unresolved_production_edges": list(
+                    project.unresolved_production_edges
+                ),
                 "mode": profile.mode,
                 "confidence": profile.confidence,
                 "components": len(installed),
