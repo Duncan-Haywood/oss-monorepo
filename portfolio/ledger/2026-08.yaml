@@ -19168,3 +19168,71 @@ entries:
         merged-PR-branch rule before writing this entry. No revenue; the
         $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects, maintain and improve the
+        development process, increase profit" session. `session_gate.py` ->
+        PROCEED. Checked the 4 open PRs (#583, #531, #372, #368) and issue
+        #139 against a fresh `main` fetch first: all four still correctly
+        human-gated by prior sessions (deployable `ventures/*` app code or
+        unattended automation), still mergeable against current `main` --
+        nothing to consolidate or re-derive. `portfolio/router/allocate.py`
+        showed 0/10 ventures dispatchable, all blocked on the same
+        publish-approval decision, matching prior sessions' finding.
+      - >-
+        Took the immediately preceding entry's own named next step: its
+        `verify_pnpm_dev_classification.py` (merged as #669) closed the
+        structural half of the pnpm accuracy gap and named the half it
+        deliberately left open -- a rule's reading of a real advisory's
+        *text*, since `retail-pilot-intel` had produced only
+        `dependency-path` findings and nobody had read what they named.
+        Built the hand review for that one claim (`esbuild`/
+        `GHSA-gv7w-rqvm-qjhr`, suppressed on both `apps/docs` and
+        `apps/portal`): read against the real advisory text and the raw
+        `pnpm-lock.yaml`/`package.json`, independently of `triage.pnpm` and
+        of #669's script. Verdict correct -- `esbuild` is reachable only
+        through `vite`/`tsx`, both `devDependencies` in both apps.
+      - >-
+        Found something the structural check could not have: the advisory
+        itself, `GHSA-gv7w-rqvm-qjhr`, is a **withdrawn OSV record**. Its
+        own text names the affected code as esbuild's Deno module, not the
+        npm package installed here -- a feed cataloguing artifact, not a
+        claim about this project, and a different failure mode from a wrong
+        reachability verdict. Recorded distinctly in `evidence.py`'s
+        `ACCURACY_NOTE` and the probe's README so the two are not
+        conflated.
+      - >-
+        **Caught a live instance of the duplicate-work pattern this file
+        has warned about since 2026-08-18, in real time, before it cost
+        anything.** This session picked the same next step the immediately
+        preceding session had (both reading the same "spend a pass on this
+        probe" line), built a first attempt at the identical hand-review
+        work concurrently, then re-fetched `main` before pushing and found
+        #669 had already merged. Rather than pushing a rival PR, discarded
+        the redundant hunks (the general accuracy-note rewrite, already
+        done more thoroughly by #669's all-importers structural sweep),
+        reset onto the merged tip, and kept only what #669's own README
+        said was still missing plus the withdrawn-advisory finding it could
+        not have produced. The mechanism that worked was exactly the one
+        the 2026-08-22 entry named: re-checking `main` a second time, after
+        building and immediately before pushing, not only before starting.
+      - >-
+        Verified: 283 tests pass (282 + 1 new), `pyflakes` clean on both
+        touched modules, and all three repo validators
+        (`validate_candidates.py`, `validate_doc_consistency.py`,
+        `portfolio/router/validate.py`) pass unchanged. Opened as #671, all
+        3 attached checks green, `git fetch` and `git merge-tree`
+        re-checked against the live `main` tip immediately before merging,
+        then self-merged. Internal-only
+        (`portfolio/pipeline/probes/npm-reachability-triage/` own evidence
+        file, `evidence.py` constants/prose, README, one new test), no
+        `ventures/*` app code, nothing published, no credential used, no
+        score change -- agent-decidable per `CLAUDE.md`.
+      - >-
+        Restarted the designated branch from the fresh `main` tip per the
+        merged-PR-branch rule before writing this entry. No revenue; the
+        $0 ceiling is unchanged.
+    mrr_end: null
