@@ -12,6 +12,15 @@ name: Portfolio validate
 # minimums, and the mitigation rule — so a hand-edited number that is merely
 # self-consistent across the three files but arithmetically wrong still fails.
 #
+# And the probe index must keep matching the probes. `probes/README.md` is the
+# table CLAUDE.md routes the recurring "research new business projects" brief
+# at, so a cell naming work as outstanding after that work has landed sends
+# sessions at nothing. It has happened three times: a pnpm hand-review pointer
+# that pulled four sessions to one closed line, a WCAG coverage split
+# advertising two buildable rules when zero remained, and a model run named as
+# costing "one run" that was already committed. Figures a probe's own artifacts
+# can recompute are now checked against them.
+#
 # And the router's ranking logic must keep working: its pure-function unit
 # suite is what a rescore or a signal-source change is checked against, and it
 # had been runnable only by hand.
@@ -86,6 +95,13 @@ jobs:
 
       - name: Check candidate scores obey the rubric rules
         run: python3 portfolio/pipeline/validate_candidates.py
+
+      - name: Check the probe index's figures still match the probes' artifacts
+        run: python3 portfolio/pipeline/probes/validate_probe_index.py
+
+      - name: Probe-index validator unit tests
+        working-directory: portfolio/pipeline/probes
+        run: python3 -m unittest test_validate_probe_index
 
       - name: Check the measurement record in candidates.yaml is still readable
         run: python3 portfolio/pipeline/score_sensitivity.py

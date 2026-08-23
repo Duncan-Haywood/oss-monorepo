@@ -19710,3 +19710,85 @@ entries:
         beyond agent time -- agent-decidable per `CLAUDE.md`, self-merged.
         No revenue.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research new business projects" session (run thirteen of
+        this brief), designated branch claude/laughing-pasteur-bhj1ew.
+        `session_gate.py` -> PROCEED with its concurrency warning. Per
+        `CLAUDE.md` the brief is already answered, so produced no candidate
+        list and no screening pass. Checked the 4 open PRs (#583, #531,
+        #372, #368), `verification_status.py` and the `main` tip (27f668c)
+        first: all four still correctly owner-gated, nothing to unblock,
+        and run twelve had re-measured egress ~3h earlier, so re-probing
+        that would have been the duplicate work `CLAUDE.md` warns about.
+      - >-
+        Took `CLAUDE.md`'s first-listed move for this brief -- "advance a
+        probe that is already specified in `portfolio/pipeline/`" -- and
+        found the routing table that instruction points at was itself
+        misrouting. Audited all five cells of `probes/README.md` against
+        the probes' own READMEs: two of five were stale, both in the same
+        direction, both naming work as outstanding that had already
+        landed. `eaa-wcag-triage` advertised "2 disclosed as decidable but
+        unbuilt" when SC 1.3.4 had landed later the same day, making the
+        real split 18/9/1 with the one remaining row (`1.2.1`) the only
+        one in the catalog whose own note says it is *not* decidable --
+        so the cell offered two buildable rules where zero existed.
+        `mcp-drift-watch` said corpus 3's model question "costs one run"
+        when that run was committed the same day; the index named it
+        pending and omitted its result entirely.
+      - >-
+        The omitted result is decision-relevant rather than cosmetic: the
+        corpus-3 model pass scores precision 0.90-0.96, recall 0.96, F1
+        0.93-0.96 against the rules' 0.17-0.19 on the same corpus, which
+        is the second held-out corpus on which the model beats the rules
+        and the evidence `mcp-supply-chain-watch`'s `ai_leverage` 6 -> 7
+        move had rested on a single corpus for. Both cells now carry the
+        landed result. Deliberately did **not** move any score: 0.61-0.71
+        and 0.93-0.96 are both single blind passes ~2-5x apart, and moving
+        on the more flattering of two disagreeing measurements is the
+        error that probe's own corpus-3 section is named for.
+      - >-
+        Recorded the rate rather than just the two instances, because it
+        is the third occurrence in about a week: `npm-reachability-triage`
+        is current only because #677 and #681 were spent closing its stale
+        pnpm-hand-review pointer after four independent sessions converged
+        on that one sentence. So the observed cost of this failure mode is
+        two pull requests and four sessions' attention spent on a pointer
+        rather than a probe.
+      - >-
+        Shipped a check rather than another warning, on `CLAUDE.md`'s own
+        argument about itself ("this file has warned ... in steadily more
+        detail, and the re-verification share has not fallen"): added
+        `portfolio/pipeline/probes/validate_probe_index.py` (+ 7 tests),
+        wired into `portfolio-validate.yml` beside
+        `validate_doc_consistency.py`. Each check re-derives a figure from
+        the probe's own committed artifacts -- the WCAG coverage catalog,
+        `score_model_pass_c3.py` and its labels -- and asserts the index
+        states it; the artifact is always the source and the prose always
+        the thing checked. Stated its limit in the script and the README:
+        it catches a figure going stale, not a cell merely out of date in
+        its narration, and `mcp-drift-watch`'s pointer was catchable only
+        because the run it called pending left a scored artifact behind.
+        The tests assert it rejects the two pre-fix cells verbatim, since
+        a validator passing on a tree just edited to make it pass proves
+        nothing.
+      - >-
+        Verified: `validate_probe_index.py` clean (3/3 derived figures)
+        and its 7 tests pass; `eaa-wcag-triage` 272 tests and
+        `mcp-drift-watch` 95 tests pass via `pytest`, the way their CI
+        workflows invoke them; `validate_doc_consistency.py`,
+        `validate_candidates.py`, `score_sensitivity.py`,
+        `router/validate.py` and `score_ventures.py --check` all clean;
+        the edited workflow YAML parses (21 steps). No engine code was
+        touched, so fixture validation is unaffected. Noted but did not
+        fix a pre-existing rendering defect: the `mcp-drift-watch` row has
+        unescaped `|` in quoted regex text, so it has rendered as a broken
+        table row since before this change -- out of scope here rather
+        than widening the diff. Internal-only (`portfolio/pipeline/` docs
+        + validator, CI config), publishes nothing, uses no credential,
+        spends nothing beyond agent time -- agent-decidable per
+        `CLAUDE.md`, self-merged. No revenue; the $0 ceiling is unchanged.
+    mrr_end: null
