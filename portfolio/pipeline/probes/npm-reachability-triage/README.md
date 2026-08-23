@@ -808,6 +808,19 @@ dev classification is derived, which is exactly the kind of claim that earns a
 hand review and has not had one. A session with a pass to spend on this probe
 should spend it there, not on a third lockfile format.
 
+> **Closed 2026-08-23 — do not spend a pass re-deriving this.** The two
+> sections below this one did exactly what this sentence asks: the pnpm
+> dev/production classification is hand-verified structurally in
+> [pnpm dev-classification, hand-verified](#pnpm-dev-classification-hand-verified-2026-08-23)
+> (0 mismatches across all 7 `retail-pilot-intel` importers), and its one
+> advisory-text claim is hand-reviewed in
+> [The pnpm advisory-text hand review, closed](#the-pnpm-advisory-text-hand-review-closed-2026-08-23).
+> This in-body pointer is the counterpart of the status-table cell that
+> commit `ef2fee3` closed on the same day — that commit noted it fixed only
+> the skimmable table and left the probe README's own body, which is this.
+> Four sessions converged on this exact line before; the closure is recorded
+> here so a fifth reads "done" instead of re-running it.
+
 **No score moved.** Nothing here touches `time_to_revenue` or `distribution`,
 and closing a gap the previous pass declared, plus fixing two stale figures the
 previous pass introduced, is not a result worth a point.
