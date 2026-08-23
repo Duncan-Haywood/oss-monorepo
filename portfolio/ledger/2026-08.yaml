@@ -19389,3 +19389,78 @@ entries:
         out of sync with each other. No revenue; the $0 ceiling is
         unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business
+        projects that aren't already here" session, designated branch
+        claude/laughing-pasteur-qnwegd. `session_gate.py` -> PROCEED
+        (cadence 0.75 sessions/hour, and the last commit on `main` was
+        ~15h old, so the overnight four-session pile-up on
+        `npm-reachability-triage` had cleared). No candidate list
+        produced, per `CLAUDE.md`: the brief is answered, and the useful
+        move in its stated order was advancing a probe already specified
+        in `portfolio/pipeline/`.
+      - >-
+        Deliberately picked the probe the four overnight sessions had
+        *not* converged on. `mcp-drift-watch`'s corpus-3 pass had named a
+        specific unbuilt next step -- a rule for the class carrying 35 of
+        the shipped classifier's 44 missed positives, a server naming
+        another of its own tools and saying when to reach for it --
+        and it was still unbuilt. Shipped as #676 (merged): `relation.py`,
+        `score_relation.py`, 27 tests (95 total), all offline from the
+        committed corpora.
+      - >-
+        Three findings, in the order they change what the candidate can
+        claim. (1) The class was never expressible as another regex in
+        the signal table, which is why five passes of widening the
+        patterns each bought less than the last: the relation needs which
+        tool is being described and what the server's *other* tools are
+        called, and `classify(old, new)` is handed neither. Both facts are
+        already in the subscriber's pin -- the product had the information
+        its classifier's signature could not see. (2) The
+        in-sample/out-of-sample collapse reproduced a **third** time in
+        this one probe: 32 of corpus 3's 44 misses found, against 2 of
+        corpus 2's (recall 0.143 -> 0.796 in sample, 0.529 -> 0.647 held
+        out). No fourth corpus was needed, contrary to what two files
+        said: corpus 2 was already held out for a rule written from
+        corpus 3's misses. (3) The reason is commercial rather than
+        statistical -- the class is a property of the **publisher**, not
+        of the population. Recall goes 2/21 -> 21/21 on `intodns-mcp`,
+        0/13 -> 9/13, 1/6 -> 4/6, 6/10 -> 8/10 on the servers that write
+        cross-tool routing, and changes nothing on the nine whose
+        positives are the imperative class. So every portfolio-wide
+        accuracy figure this probe prints at a customer, including the
+        0.40-0.62 span in the subscriber record, is an average over two
+        populations that behave nothing alike, weighted by whichever
+        servers that customer happens to watch.
+      - >-
+        Not adopted into the shipped classifier and no score moved: the
+        entire held-out evidence for the rule is three changes on one
+        publisher, which both prior passes established is one editorial
+        decision rather than three observations. The one held-out false
+        positive is a rubric disagreement and the hand label was **not**
+        moved to suit the new rule. Alert volume is the open item this
+        leaves: 6.1% -> 28.4% of changes flagged on corpus 3 means
+        `mcp-tool-drift` Finding 4's "two alerts a month across twenty
+        servers" is a floor produced by the classifier's blindness, so the
+        candidate's own alert-fatigue kill question is reopened rather
+        than settled.
+      - >-
+        Verified before pushing: 95 probe tests, all 8 CI steps run
+        locally, all four repo validators, `error-rate-disclosure`'s 25
+        tests, `pyflakes` clean on every added file, `git merge-tree`
+        re-checked against the live `main` tip. #676's four checks went
+        green on the first push and it merged. Internal-only (probe
+        source/tests/docs, one candidate write-up, one CI workflow), no
+        `ventures/*` app code, nothing published, no credential used --
+        agent-decidable per `CLAUDE.md`.
+      - >-
+        Open PRs re-checked at the start: #583, #531, #372, #368, all
+        unchanged and still correctly human-gated, nothing to
+        consolidate. Three of the four are venture source waiting on the
+        account owner and have been for two to three days. No revenue; the
+        $0 ceiling is unchanged.
+    mrr_end: null
