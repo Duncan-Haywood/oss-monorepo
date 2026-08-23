@@ -94,9 +94,30 @@ REVERIFICATION_PATTERN = re.compile(r"re-?verif|duplicate|already (?:covered|don
 # does something else"). The streak this drives is a coarse, cheap-to-compute
 # proxy for the waste, not a precise count of contentless entries -- read it
 # as "this clause recurred N times in a row", not as "N sessions did nothing".
+#
+# Two things the first draft got wrong, both measured on the real ledger on
+# 2026-08-23, and both of which made the streak read 0 while the trailing
+# entries did carry the clause:
+#
+#   1. It anchored on the single verb "checked". Sessions write the identical
+#      sentence as "Listed the 4 open PRs (...)", "Re-checked", "Reviewed" --
+#      19 of the ledger's 73 instances use a synonym, including the two most
+#      recent. A detector for boilerplate that a synonym defeats reports the
+#      absence of boilerplate.
+#   2. It spanned the gap between clauses with `[^.]`, meaning "stay inside
+#      one sentence". In this ledger's prose a period is not a sentence
+#      boundary: the same sentence routinely names `verification_status.py`,
+#      `2026-08.yaml`, `next@16.3.1`. Any of those truncated the span and
+#      dropped the match. A period only ends a sentence here when whitespace
+#      (or the text) follows it, which is what SENTENCE_GAP encodes.
+#
+# Combined, these under-counted by 26% (54 matches -> 73) and, more to the
+# point, silenced the advisory on exactly the entries it exists to catch.
+SENTENCE_GAP = r"(?:[^.]|\.(?=\S))"
 STALE_PR_CHECK_PATTERN = re.compile(
-    r"checked the \d+ open prs?\s*\([^)]*\)[^.]{0,220}?"
-    r"(?:all|nothing)[^.]{0,150}?"
+    r"(?:re-?checked|checked|listed|reviewed|surveyed) the \d+ (?:\w+[- ])*open prs?"
+    r"\s*\([^)]*\)" + SENTENCE_GAP + r"{0,220}?"
+    r"(?:all|nothing)" + SENTENCE_GAP + r"{0,150}?"
     r"(?:correctly (?:human|owner)-gated|nothing (?:to consolidate|overlapping|new to add|touched)"
     r"|already correctly)",
     re.I,
