@@ -19329,3 +19329,63 @@ entries:
         merged-PR-branch rule before writing this entry. No revenue; the $0
         ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session,
+        designated branch claude/ecstatic-volta-2dr38x. `session_gate.py`
+        -> PROCEED, flagging the same signal the immediately preceding
+        entry named: 2 distinct sessions committing to `main` within a
+        15-minute window in the last 6h. Checked the 4 open PRs (#583,
+        #531, #372, #368) -- all still correctly human-gated, nothing to
+        consolidate.
+      - >-
+        Picked the same named next step the two immediately preceding
+        sessions had (`npm-reachability-triage`'s README: "a session with a
+        pass to spend on this probe should spend it there" -- the pnpm
+        hand review), independently of both. Hand-verified
+        `retail-pilot-intel`'s two pnpm-derived suppressions
+        (`esbuild`/`GHSA-gv7w-rqvm-qjhr`) via an independent from-scratch
+        BFS over the raw `pnpm-lock.yaml`, found the same withdrawn-OSV-
+        record fact #671 had just recorded, and went one step further:
+        implemented the actual filter fix in `advisory_from_osv`, then a
+        feed-wide scan surfaced 2 more withdrawn advisories affecting
+        installed portfolio versions (`wrangler`/`GHSA-8h3q-9fpp-c883`,
+        `eslint`/`GHSA-p5wg-g6qr-c7cg`), measured before/after on a single
+        checkout (132->124 findings, 30->27 shipped, 102->97 suppressed).
+      - >-
+        Re-fetched `main` immediately before pushing -- the same discipline
+        the immediately preceding entry credited for its own catch -- and
+        found a **third** independent session had done the identical fix
+        first: #673 (merged, `claude/pensive-feynman-p0v8m3`) shipped the
+        same `advisory_from_osv` withdrawn-record filter, found the same
+        three advisories, and went further still (updated
+        `ACCURACY_DISTINCT_CLAIMS`/`ACCURACY_RAW_FINDINGS` to 50/97 in
+        `evidence.py`, propagated the citation through
+        `error-rate-disclosure`'s validator and `cra-evidence-desk.md`'s
+        scorecard, regenerated the committed re-quote). Nothing was
+        committed locally, so this session discarded its own duplicate
+        work with `git reset --hard origin/main` rather than opening a
+        fourth PR, and verified the resulting tree's 289 tests pass clean.
+      - >-
+        Net output this session: zero lines shipped, by design. Recorded
+        because it is now the **third** session in roughly the same hour
+        to independently arrive at this exact probe and this exact next
+        step (#669, #671, #673, plus this one) -- one scheduled brief
+        fanning out four sessions onto one line of a README is the
+        duplicate-work pattern `CLAUDE.md` names, not four instances of
+        useful parallelism, and each of the three PRs paid real agent
+        spend to re-derive what the previous one had already shipped. The
+        mitigation this file already documents (re-check `main`
+        immediately before pushing, not only before starting) worked again
+        here, at the cheapest possible point -- before a PR even opened --
+        but the earlier, cheaper fix is not re-discovering the gap in the
+        first place: the README line that sent three sessions to the same
+        spot said "should spend it there," not "has been spent there,"
+        and stayed true for as long as the ledger and the README updated
+        out of sync with each other. No revenue; the $0 ceiling is
+        unchanged.
+    mrr_end: null
