@@ -940,8 +940,9 @@ the 2026-08-21 pass hand-verified as correctly-reasoned suppressions — and
 they were: nothing about *how* the rule suppressed them was wrong, only the
 advisory feed handed it three records the database itself had retracted.
 `ACCURACY_DISTINCT_CLAIMS` and `ACCURACY_RAW_FINDINGS` in
-[`evidence.py`](src/triage/evidence.py) move to 50 and 97; `ACCURACY_WRONG_CLAIMS`
-stays 0, because none of the 50 surviving claims changed verdict.
+[`evidence.py`](src/triage/evidence.py) move to 50 and 97 — the note now reads
+**0 of 50 distinct claims (0 of 97 raw findings) were wrong** — because none of
+the 50 surviving claims changed verdict.
 
 ### A category neither hand review above measured: is an unsuppressed finding real?
 

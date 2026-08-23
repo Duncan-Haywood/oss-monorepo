@@ -45,6 +45,20 @@ python3 -m unittest discover -s . -t . # 25 tests
 > score is unchanged**, on all four probes. The rerun is a re-quote, not a
 > re-measurement.
 
+> **Re-quoted again 2026-08-23** (same file, `results-2026-08-22.json` —
+> `test_rerun_matches_the_committed_file` re-derives it from the live artifacts
+> on every run and only the *date in the name* is historical). Hand-verifying
+> `npm-reachability-triage`'s pnpm gap found 3 of its 53 hand-verified
+> suppression claims traced to withdrawn OSV advisories rather than a
+> reasoning error; the committed figure moved from **0 of 53 (0 of 102 raw)**
+> to **0 of 50 (0 of 97 raw)**, and this directory's citation for
+> `cra-evidence-desk` now quotes the revised number. `npm-reachability-triage`'s
+> artifact also grew a second direction-vocabulary match (a new sentence
+> mentioning that a suppression could be wrong, which the D2 vocabulary
+> correctly catches). **Every verdict, every rubric dimension and every score
+> is unchanged** — `cra-evidence-desk` stays 8 in `candidates.yaml`, because
+> the deduction this citation feeds was never charged either before or after.
+
 ## Why this is the gate and not an essay
 
 [`pipeline/README.md`](../../pipeline/README.md) defines `ethical_robustness`
