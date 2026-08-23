@@ -812,6 +812,59 @@ should spend it there, not on a third lockfile format.
 and closing a gap the previous pass declared, plus fixing two stale figures the
 previous pass introduced, is not a result worth a point.
 
+## pnpm dev-classification, hand-verified (2026-08-23)
+
+The previous section named a specific, scoped gap rather than a vague one: the
+pnpm dev/production classification is *derived* by graph traversal
+(`triage.pnpm._traverse`), not read from a stored flag the way npm's
+`dependency-path` rule is, and nothing had checked that derivation against
+anything independent of the code that produces it.
+
+[`verify_pnpm_dev_classification.py`](verify_pnpm_dev_classification.py) closes
+that gap the same way [`verify_suppressions.py`](verify_suppressions.py) closes
+the equivalent one for npm: it re-reads the raw `pnpm-lock.yaml` with
+`yaml.safe_load` and walks `dependencies`/`optionalDependencies` edges with a
+traversal written from scratch, calling none of `triage.pnpm`'s own code, then
+diffs its answer against `triage.pnpm.load()`'s for every installed package —
+not only the two the engine happens to have flagged today, since a check
+scoped to known findings would say nothing about the packages no advisory
+currently names.
+
+```
+python3 verify_pnpm_dev_classification.py   # writes verify-pnpm-dev-classification-2026-08-23.json, exits 1 if any mismatch found
+```
+
+**Result: 0 mismatches across all 7 pnpm importers in `retail-pilot-intel`**
+(the lockfile root plus `apps/docs`, `apps/portal`, and the four `packages/*`
+workspace members) **and all ~140–153 components each resolves**, not just the
+two `esbuild` findings named in the previous section. Raw output:
+[`verify-pnpm-dev-classification-2026-08-23.json`](verify-pnpm-dev-classification-2026-08-23.json).
+
+This also gives the two `esbuild`/`GHSA-gv7w-rqvm-qjhr` suppressions named
+above (`apps/docs`, `apps/portal`) an independent structural check they did not
+previously have: `esbuild@0.25.12` is reached in this lockfile only through
+`vite`, and `vite` appears in both apps' own `dependencies` and
+`devDependencies` blocks in exactly one place — `devDependencies` — confirmed
+directly against `package.json`, not inferred. Traced from the importer's own
+production roots (`react`, `react-dom`, `react-router-dom`), neither `vite` nor
+`esbuild` is reachable by any path this independent walk can follow.
+
+**What this does not cover.** This is a structural check, the pnpm counterpart
+to `verify_suppressions.py` — it confirms the *reachability fact* the engine's
+dev/production split rests on, the same way the npm structural check does. It
+is not the *hand review* the npm side also has (`wrong-suppression-verification-2026-08-21.json`,
+reading real advisory text against real evidence): `retail-pilot-intel`
+currently produces only the two `dependency-path` findings named above, so
+there is no `build-surface` or `server-surface:*` pnpm claim yet to hand-review
+the reasoning of, and a project only reachable through a `link:` outside this
+workspace or a git/tarball dependency is still untested, because
+`retail-pilot-intel`'s lockfile has none (`unresolved_production_edges` is
+empty on every real importer here, pinned by
+`tests/test_pnpm.py::test_every_real_importer_resolves_with_no_unfollowable_edge`).
+The verified sample is one pnpm venture's honest classification of every
+package it installs, not a general proof pnpm's dev/production split can never
+misfire on a lockfile shaped differently from this one.
+
 ## Usage
 
 ```bash
