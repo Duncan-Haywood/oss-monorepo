@@ -1,14 +1,15 @@
 # Egress reachability, consolidated
 
-**Measured 2026-08-20. 92 hosts, one pass, first-hand. Read-only GETs; no
-credential, no account, no publication, no spend.**
+**Measured 2026-08-20, re-measured 2026-08-23: all 92 hosts unchanged. One
+pass each, first-hand. Read-only GETs; no credential, no account, no
+publication, no spend.**
 
 Reproduce:
 
 ```
 python3 consolidate.py --ingest                                  # fold in every prior pass
-python3 consolidate.py --probe  -o results-2026-08-20.json       # re-measure all 92 hosts
-python3 consolidate.py --report -r results-2026-08-20.json       # diff the two, offline
+python3 consolidate.py --probe  -o results-2026-08-23.json       # re-measure all 92 hosts
+python3 consolidate.py --report -r results-2026-08-23.json       # diff the two, offline
 ```
 
 `--report` needs no network. It re-derives every claim below from the committed
@@ -211,10 +212,29 @@ No ask is added and no score is changed. Three are re-stated more precisely:
 
 ## Status of the claims
 
-These are measurements of **this environment on 2026-08-20**, not facts about
-the hosts. Several are network-policy verdicts the account owner can change with
-a settings toggle. Nothing here was published, registered, signed up for, or
+These are measurements of **this environment**, not facts about the hosts.
+Several are network-policy verdicts the account owner can change with a
+settings toggle. Nothing here was published, registered, signed up for, or
 paid for, and no credential was sent anywhere.
+
+**Amendment, 2026-08-23 — the table is stable across time and across
+containers.** The header above used to date the whole table to a single pass,
+which left open whether the 64 denials were a durable policy or one container's
+transient configuration. Re-probing all 92 hosts on 2026-08-23 returns
+**verdict-for-verdict identical results** — 64 `egress_denied`, 25 `reachable`,
+3 `scope_denied`, zero hosts changed
+([results-2026-08-23.json](results-2026-08-23.json); diff the two files
+directly, since the aggregate counts alone would not have caught a
+compensating swap). Sessions run in fresh, ephemeral containers, so this is two
+independent instantiations three days apart, not one machine re-asked.
+
+What that does and does not license. It **does** retire "the measurement might
+be stale" as a reason to re-probe: a third pass on an unchanged policy buys
+nothing, and this amendment exists so the next session can cite a date instead
+of spending a pass to re-earn one. It does **not** make any verdict permanent —
+the policy is still a settings toggle, so a row is worth re-probing when
+something suggests the toggle moved (the owner says so, or a host that should
+be denied answers). Absent such a signal, cite the table.
 
 Re-run `consolidate.py --probe` before citing any row; it takes about two
 minutes and updates the whole table at once. **Do not write a new probe

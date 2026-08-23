@@ -19649,3 +19649,64 @@ entries:
         agent-decidable per `CLAUDE.md`, self-merged. No revenue; the $0
         ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research new business projects" session (run twelve of
+        this brief), designated branch claude/laughing-pasteur-xr0z33.
+        `session_gate.py` -> PROCEED, with its concurrency warning. Per
+        `CLAUDE.md` the brief is already answered, so produced no candidate
+        list and no new screening pass. Checked the 4 open PRs (#583, #531,
+        #372, #368) and the freshest `main` tip (8088da9) first: the prior
+        session had just fact-checked #531/#583 onto issue #139, so
+        re-doing that would be the duplicate work `CLAUDE.md` warns about.
+      - >-
+        Picked the one load-bearing fact that was actually stale instead.
+        Every "$0 revenue ceiling" conclusion in this repo -- the inert
+        Ask 5, `channel-inventory.md`'s refutation table, the standing
+        instruction not to plan work on the premise that a free listing
+        can be published from here -- rests on
+        `portfolio/research/egress-reachability/`, whose README dated the
+        whole table to a single pass on 2026-08-20 and explicitly limited
+        its claims to "this environment on 2026-08-20". Sessions run in
+        fresh ephemeral containers, so that left open whether the 64
+        denials were durable policy or one container's transient config.
+        Re-ran the existing consolidated probe (`consolidate.py --probe`,
+        the sanctioned one-command regeneration -- did not write a new
+        probe directory, which `CLAUDE.md` forbids).
+      - >-
+        Null result, which is the finding: all 92 hosts returned
+        verdict-for-verdict identical results three days later -- 64
+        `egress_denied`, 25 `reachable`, 3 `scope_denied`, zero hosts
+        changed. Diffed the two result files per-host rather than
+        comparing aggregate counts, which would not have caught a
+        compensating swap. Two independent container instantiations three
+        days apart, so the egress policy is stable, not transient. No
+        listing or payment channel opened; the $0 ceiling is unchanged and
+        now rests on two datapoints instead of one.
+      - >-
+        Checked two observations against the repo before claiming either,
+        and dropped both as already-known: that every reachable host is a
+        package-registry read endpoint while `upload.pypi.org` is denied
+        (already at README line 82, and generalised there as "a verdict
+        belongs to a surface and never to a host"), and that the reachable
+        set is narrow and homogeneous (already the net finding of run
+        nineteen's ledger entry). Recording the near-miss because
+        re-derivation is this repo's documented failure mode.
+      - >-
+        Landed the stability amendment and `results-2026-08-23.json` so
+        the next session can cite a date instead of spending a pass to
+        re-earn one, and stated the limit explicitly: this retires "the
+        measurement might be stale" as a reason to re-probe, but does not
+        make any verdict permanent, since the policy is still an owner
+        settings toggle. Verified `validate_doc_consistency.py` and
+        `validate_candidates.py` clean, confirmed no script or workflow
+        pins the edited README prose or the retained 08-20 artifact, and
+        re-fetched `main` with `git merge-tree` against the live tip
+        immediately before pushing. Internal-only (`portfolio/research/`
+        doc + data), publishes nothing, uses no credential, spends nothing
+        beyond agent time -- agent-decidable per `CLAUDE.md`, self-merged.
+        No revenue.
+    mrr_end: null
