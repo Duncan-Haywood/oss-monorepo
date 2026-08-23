@@ -19839,3 +19839,71 @@ entries:
         agent time -- agent-decidable per `CLAUDE.md`, self-merged. No
         revenue; the $0 ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business
+        projects that aren't already here" session, designated branch
+        claude/laughing-pasteur-jho6kr. Ran `session_gate.py` first --
+        PROCEED, with its concurrency note (2 distinct sessions committed
+        to `main` within a 15-minute window in the last 6h). Per
+        `CLAUDE.md` this brief is already answered, so no candidate list,
+        no screening pass, and no new research probe were produced. Listed
+        the 4 open PRs (#583, #531, #372, #368) and read issue #139 before
+        starting: all four remain correctly owner-gated and unchanged from
+        what the previous entry recorded, so they were not re-verified
+        again. None of the 9 asks on #139 has moved.
+      - >-
+        The routed move for this brief is "advance a probe that is already
+        specified in `portfolio/pipeline/`", so audited all five cells of
+        the probe index. Every cell's named next step is closed as of #685
+        earlier today -- there was no probe step left to advance. What
+        there was instead: a defect in the routing table itself, which
+        #685's own ledger entry had recorded as "a pre-existing rendering
+        defect ... out of scope here rather than widening the diff".
+      - >-
+        Fixed it in #687 (merged, 7c5ebc6e). Both documents `CLAUDE.md`
+        routes a generic session at quote the same regex alternation
+        inside a backtick span, and GFM splits a table cell on every
+        unescaped pipe -- backtick span included -- so four pipes turned a
+        3-column row into a 7-column one in each file:
+        `portfolio/pipeline/probes/README.md:32` (the `mcp-drift-watch`
+        row) and `portfolio/research/README.md:68` (the `mcp-tool-drift/`
+        row). The probes one was known and deferred; the research one
+        nobody had noticed, and `research/README.md` is the other document
+        `CLAUDE.md` points sessions at ("Read this before writing any
+        probe"). Both are the failure the index's own "this table lags the
+        probes" section argues about: a session reads the table and is
+        routed at nothing.
+      - >-
+        Escaped the pipes (1 line changed in each file; GFM resolves the
+        escape to a literal pipe, so the rendered regex text is unchanged)
+        and added `check_table_rows_render` to `validate_probe_index.py`,
+        which asserts every table row has the column count its own
+        delimiter row declares -- the delimiter being what GFM itself uses
+        to fix the table width. Deliberately not an entry in `CHECKS`,
+        whose contract is "re-derive a figure from a probe's committed
+        artifact"; this derives nothing. Wired
+        `portfolio/research/README.md` into `portfolio-validate.yml`'s
+        trigger paths (the specific file, not the whole tree) so the check
+        runs when that file changes.
+      - >-
+        Verified by running the checks, not by reading the diff: the check
+        rejects both rows as they actually shipped (7 cells against a
+        delimiter declaring 3) and passes once escaped; unit tests 8 -> 13,
+        including one pinning a false positive the first draft produced
+        (`research/README.md` holds both 3- and 2-column tables, so each
+        table must be measured against its own delimiter, not a carried-over
+        width). Full portfolio-validate suite run locally beforehand, and
+        all 22 steps of the workflow plus the two path-filtered venture CI
+        runs were green on the PR head before merging.
+      - >-
+        Internal-only (`portfolio/` docs + validator, CI config), publishes
+        nothing, registers nothing, uses no credential, spends nothing
+        beyond agent time -- agent-decidable per `CLAUDE.md`, self-merged.
+        This entry ships as its own PR rather than riding along in #687,
+        per the ledger-discipline rule. No revenue; the $0 ceiling is
+        unchanged.
+    mrr_end: null
