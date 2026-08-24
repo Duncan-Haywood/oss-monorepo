@@ -21,4 +21,13 @@ test("generated draft preserves factual-input and review language", () => {
   assert.match(html, /Factual timeline/);
   assert.match(html, /Review before submitting/);
   assert.match(html, /This is an observation, not a decision/);
+  assert.match(html, /Order date: \$\{date\}/);
+  assert.match(html, /navigator\.clipboard\.writeText/);
+  assert.match(html, /draft_copied/);
+});
+
+test("discoverability answers the two most important questions", () => {
+  assert.match(html, /FAQPage/);
+  assert.match(html, /What is a chargeback evidence packet/);
+  assert.match(html, /Does this tool submit a chargeback response/);
 });

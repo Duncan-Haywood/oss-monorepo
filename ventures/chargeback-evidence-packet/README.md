@@ -11,3 +11,18 @@ This is an evidence organizer and drafting aid, not legal, financial, or payment
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or payment advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
 
 Licensed under MIT.
+
+## Why this exists
+
+This is deliberately narrower than automated chargeback filing. Filing on a
+seller's behalf creates legal, fraud, and deadline risk, so the product stops at
+organizing evidence and drafting text that a seller must review and submit.
+Potential future value is a private export format for processor-specific
+workflows, without uploading customer data or making a decision for the seller.
+
+## Usage
+
+The browser records only local counts of `packet_built` and `draft_copied`.
+Those counts contain no order IDs, notes, IPs, cookies, or identifiers. Uncheck
+the usage option to clear and stop counting. The baseline is recorded in
+`portfolio/usage/usage.yaml`; there is no hosted analytics service.
