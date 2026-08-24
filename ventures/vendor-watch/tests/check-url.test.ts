@@ -11,13 +11,20 @@ function fetchReturning(status: number, html: string): FetchFn {
   return async () => fakeResponse(status, html);
 }
 
-test("isPlausibleHttpUrl accepts only well-formed http(s) URLs", () => {
+test("isPlausibleHttpUrl accepts only well-formed public http(s) URLs", () => {
   assert.equal(isPlausibleHttpUrl("https://example.com/terms"), true);
   assert.equal(isPlausibleHttpUrl("http://example.com"), true);
   assert.equal(isPlausibleHttpUrl("ftp://example.com"), false);
   assert.equal(isPlausibleHttpUrl("javascript:alert(1)"), false);
   assert.equal(isPlausibleHttpUrl("not a url"), false);
   assert.equal(isPlausibleHttpUrl(""), false);
+  assert.equal(isPlausibleHttpUrl("http://127.0.0.1/"), false);
+  assert.equal(isPlausibleHttpUrl("http://localhost/admin"), false);
+  assert.equal(isPlausibleHttpUrl("http://192.168.1.1/"), false);
+  assert.equal(isPlausibleHttpUrl("http://10.0.0.5/"), false);
+  assert.equal(isPlausibleHttpUrl("http://169.254.169.254/latest/meta-data/"), false);
+  assert.equal(isPlausibleHttpUrl("http://[::1]/"), false);
+  assert.equal(isPlausibleHttpUrl("http://[::ffff:127.0.0.1]/"), false);
 });
 
 test("normalizeHtmlToText strips tags, scripts, and collapses whitespace", () => {
@@ -100,11 +107,16 @@ test("an aborted/timed-out fetch is labeled inconclusive", async () => {
   clearWatchStoreForTests();
   const abortingFetch: FetchFn = async (_url, init) => {
     return new Promise((_resolve, reject) => {
-      init?.signal?.addEventListener("abort", () => {
+      const rejectAbort = () => {
         const err = new Error("This operation was aborted");
         err.name = "AbortError";
         reject(err);
-      });
+      };
+      if (init?.signal?.aborted) {
+        rejectAbort();
+        return;
+      }
+      init?.signal?.addEventListener("abort", rejectAbort);
     });
   };
   const controller = new AbortController();
@@ -115,4 +127,61 @@ test("an aborted/timed-out fetch is labeled inconclusive", async () => {
   const result = await checkUrl("https://example.com/terms", wrapped);
   assert.equal(result.outcome, "inconclusive");
   assert.equal(result.httpStatus, null);
+});
+
+test("a failure while reading the response body is labeled inconclusive", async () => {
+  clearWatchStoreForTests();
+  await checkUrl("https://example.com/terms", fetchReturning(200, "<p>Original text.</p>"));
+
+  const body = new ReadableStream({
+    start(controller) {
+      controller.error(new Error("stream reset"));
+    },
+  });
+  const fetchImpl: FetchFn = async () => new Response(body, { status: 200 });
+  const second = await checkUrl("https://example.com/terms", fetchImpl);
+
+  assert.equal(second.outcome, "inconclusive");
+  assert.equal(second.httpStatus, null);
+  assert.match(second.errorMessage ?? "", /stream reset/);
+
+  const third = await checkUrl("https://example.com/terms", fetchReturning(200, "<p>Original text.</p>"));
+  assert.equal(third.outcome, "unchanged");
+});
+
+test("does not follow a redirect onto a private or loopback address", async () => {
+  clearWatchStoreForTests();
+  const requested: string[] = [];
+  const fetchImpl: FetchFn = async (input) => {
+    requested.push(String(input));
+    if (String(input) === "https://example.com/terms") {
+      return new Response(null, {
+        status: 302,
+        headers: { location: "http://127.0.0.1/secret" },
+      });
+    }
+    return new Response("internal secret", { status: 200 });
+  };
+
+  const result = await checkUrl("https://example.com/terms", fetchImpl);
+  assert.equal(result.outcome, "inconclusive");
+  assert.equal(result.httpStatus, null);
+  assert.ok(!requested.some((value) => value.includes("127.0.0.1")));
+});
+
+test("stops reading an oversized response body before it is fully buffered", async () => {
+  clearWatchStoreForTests();
+  let pulled = 0;
+  const chunk = new Uint8Array(8192);
+  const body = new ReadableStream<Uint8Array>({
+    pull(controller) {
+      pulled += chunk.byteLength;
+      controller.enqueue(chunk);
+    },
+  });
+  const fetchImpl: FetchFn = async () => new Response(body, { status: 200 });
+  const result = await checkUrl("https://example.com/huge", fetchImpl);
+
+  assert.equal(result.outcome, "first_snapshot");
+  assert.ok(pulled < 512_000, `read ${pulled} bytes before cancelling`);
 });
