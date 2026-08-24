@@ -22,7 +22,7 @@ export function AudienceComparison() {
                 <p className="font-display text-5xl font-semibold text-white">
                   {audience.fit}
                 </p>
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
                   fit score
                 </p>
               </div>
@@ -47,7 +47,7 @@ export function AudienceComparison() {
               ))}
             </ul>
             <div className="mt-6 rounded-2xl bg-white/[0.04] p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
                 Buyer persona
               </p>
               <p className="mt-2 text-sm leading-6 text-slate-200">

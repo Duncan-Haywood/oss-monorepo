@@ -116,7 +116,7 @@ export function ValidationPlan() {
                 </li>
               ))}
             </ul>
-            <p className="mt-6 font-display text-5xl text-white/10">
+            <p className="mt-6 font-display text-5xl text-white/50">
               0{index + 1}
             </p>
           </article>

@@ -61,7 +61,7 @@ export function StatCard({ value, label, source }: StatCardProps) {
     <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 shadow-glow backdrop-blur">
       <p className="font-display text-4xl font-semibold text-white">{value}</p>
       <p className="mt-2 text-sm font-medium text-slate-200">{label}</p>
-      {source ? <p className="mt-3 text-xs text-slate-500">{source}</p> : null}
+      {source ? <p className="mt-3 text-xs text-slate-400">{source}</p> : null}
     </div>
   );
 }

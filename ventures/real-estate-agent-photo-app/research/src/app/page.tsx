@@ -68,7 +68,7 @@ export default function Home() {
 
       <footer className="border-t border-white/10 px-6 py-10">
         <div className="mx-auto max-w-6xl">
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-400">
             Confidential market-research scaffold for Listing Lens. Private /
             proprietary. Verdict preserved: {REPORT_META.verdictRaw} (confidence:{" "}
             {REPORT_META.confidence}).

@@ -37,7 +37,7 @@ export default function DocPage({ params }: DocPageProps) {
   return (
     <DocsShell pages={pages} activeSlug={doc.slug}>
       <div className="space-y-6">
-        <Link href="/" className="text-sm text-slate-500 transition-colors hover:text-slate-300">
+        <Link href="/" className="text-sm text-slate-400 transition-colors hover:text-slate-300">
           ← Back to docs home
         </Link>
         <Markdown>{doc.content}</Markdown>
