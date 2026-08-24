@@ -38,7 +38,15 @@ class ChecksTest(unittest.TestCase):
             usage_path = Path(directory) / "usage.json"
             invoice_path.write_text(json.dumps(VALID))
             self.assertEqual(main([str(invoice_path), "--format", "json", "--usage-file", str(usage_path)]), 0)
-            self.assertEqual(json.loads(usage_path.read_text()), {"events": {"invoice_preflight_checked": 1}})
+            recorded = json.loads(usage_path.read_text())
+            # The counters say what happened, never what was in the invoice:
+            # an event name and a count, and nothing else in the file.
+            self.assertEqual(set(recorded), {"events"})
+            self.assertEqual(
+                recorded["events"],
+                {"invoice_preflight_checked": 1, "syntax_json": 1, "preflight_clean": 1},
+            )
+            self.assertNotIn("Supplier", usage_path.read_text())
 
     def test_cli_returns_failure_for_bad_invoice(self):
         with tempfile.TemporaryDirectory() as directory:

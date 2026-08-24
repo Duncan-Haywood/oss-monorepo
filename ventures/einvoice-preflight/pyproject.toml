@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "einvoice-preflight"
 version = "0.1.0"
-description = "Local, explainable preflight checks for structured e-invoice JSON"
+description = "Local, explainable preflight checks for UBL, CII and JSON e-invoices"
 requires-python = ">=3.10"
 
 [tool.setuptools.packages.find]
