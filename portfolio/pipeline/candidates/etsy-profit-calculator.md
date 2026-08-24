@@ -1,5 +1,7 @@
 # Candidate: Etsy profit calculator
 
+Composite 7.125 · floor 2 (ai_leverage)
+
 **One line.** A local calculator that shows an Etsy seller's order contribution
 after marketplace fees, shipping, materials, ads, and other variable costs.
 
