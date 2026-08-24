@@ -490,3 +490,32 @@ decisions:
     repo found 220 branches it would delete (166 already-merged, 107 whose
     tip moved after their PR closed, 7 still in grace) out of 608 total.
     No ledger hunk riding along, so it stays mergeable while it waits.
+
+- id: eaa-evidence-product-line
+  asks: []
+  prs: [814]
+  gates: deployment
+  exposure: none
+  opened: "2026-08-24"
+  action: "Merge or decline #814."
+  unlocks:
+    - >-
+      Initiates the pipeline's only `build-now` candidate
+      (`eaa-remediation-pipeline`) as a `local-site-studio` product line:
+      catalog and buyer-qualification logic, a public
+      `/accessibility-evidence` page disclosing the probe's committed
+      precision/recall rather than a compliance claim, and `/docs/eaa-evidence`.
+      Checkout is explicitly not wired -- no Stripe Price IDs, mailto inquiry
+      only.
+  blocked_by: []
+  note: >-
+    Correctly self-flagged human-gated in its own PR body: touches deployable
+    `ventures/local-site-studio` app code and adds new customer-facing
+    copy/pricing, which `venture-gate-premise` (ask 9) has not yet settled
+    even though `publish_surface.py` currently reports nothing live. Checks
+    reported in the PR body: `portfolio/router/validate.py` (10 VENTURE.yaml
+    valid), pipeline validators pass, `vitest run` 77/77, `tsc --noEmit` and
+    eslint clean, `next build` prerenders the new routes, and a browser pass
+    of the microenterprise-refusal and obligated-inquiry paths. No ledger
+    hunk riding along. Same gate question as `contrast-fixes` (#531) --
+    answering `venture-gate-premise` once settles both.
