@@ -186,21 +186,66 @@ def test_an_unreadable_pipeline_is_not_an_empty_one(tmp_path, monkeypatch):
     assert sg.build_targets() == []  # read fine, genuinely nothing eligible
 
 
-def test_a_quoted_composite_does_not_crash_the_sort(tmp_path, monkeypatch):
-    """validate_candidates.py normalises with float(), so this data passes CI.
+def test_a_quoted_composite_sorts_rather_than_crashing(tmp_path, monkeypatch):
+    """validate_candidates.py:73 normalises with float(), so it accepts '7.5'.
 
-    Sorting on the raw value would compare str against float and raise, making
-    the gate crash on a pipeline the repository validator calls clean.
+    Sorting on the raw value compared str against float and raised. This
+    fixture is not a full validator-clean record (it carries no `scores`
+    mapping, which the validator requires and reports on first); what it pins
+    is only that the gate tolerates the quoted-number shape the validator's
+    own coercion lets through.
     """
     _pipeline(
         tmp_path,
         monkeypatch,
         "candidates:\n"
-        "  - {slug: quoted, verdict: build-now, graduate_as: venture, composite: '7.5'}\n"
         "  - {slug: numeric, verdict: build-now, graduate_as: venture, composite: 7.0}\n"
-        "  - {slug: absent, verdict: build-now, graduate_as: venture}\n",
+        "  - {slug: quoted, verdict: build-now, graduate_as: venture, composite: '7.5'}\n",
     )
-    assert [c["slug"] for c in sg.build_targets()] == ["quoted", "numeric", "absent"]
+    assert [c["slug"] for c in sg.build_targets()] == ["quoted", "numeric"]
+
+
+def test_an_incomplete_build_now_record_is_malformed_not_a_target(tmp_path, monkeypatch):
+    """Every field here builds a path or the instruction; none may be missing.
+
+    Without this, `{verdict: build-now}` produced a target whose slug was the
+    literal string "None", naming `ventures/None/`, and an unset `graduate_as`
+    silently took the venture path.
+    """
+    for record in (
+        "{verdict: build-now}",
+        "{verdict: build-now, graduate_as: venture, composite: 7}",  # no slug
+        "{slug: s, verdict: build-now, composite: 7}",  # no graduate_as
+        "{slug: s, verdict: build-now, graduate_as: nonsense, composite: 7}",
+        "{slug: s, verdict: build-now, graduate_as: venture}",  # no composite
+        "{slug: s, verdict: build-now, graduate_as: venture, composite: abc}",
+        "{slug: s, verdict: build-now, graduate_as: product-line, composite: 7}",  # no host
+    ):
+        _pipeline(tmp_path, monkeypatch, f"candidates:\n  - {record}\n")
+        assert sg.build_targets() is None, record
+
+
+def test_a_non_list_product_lines_does_not_crash_the_gate(tmp_path, monkeypatch):
+    """`product_lines: true` reached any() and took the whole gate down."""
+    (tmp_path / "ventures" / "host").mkdir(parents=True)
+    (tmp_path / "ventures" / "host" / "VENTURE.yaml").write_text(
+        "name: host\nproduct_lines: true\n"
+    )
+    _pipeline(
+        tmp_path,
+        monkeypatch,
+        "candidates:\n"
+        "  - {slug: line, verdict: build-now, graduate_as: product-line,"
+        " host_venture: host, composite: 7}\n",
+    )
+    assert [c["slug"] for c in sg.build_targets()] == ["line"]
+
+
+def test_a_directory_named_venture_yaml_is_not_routable(tmp_path, monkeypatch):
+    """allocate.py:229 and validate.py:114 both use is_file(), so this must too."""
+    (tmp_path / "ventures" / "odd" / "VENTURE.yaml").mkdir(parents=True)
+    monkeypatch.setattr(sg, "REPO", tmp_path)
+    assert sg.routable("odd") is False
 
 
 def test_the_build_footer_does_not_promise_a_candidate_that_was_not_named(monkeypatch):
@@ -674,7 +719,16 @@ def test_render_flags_a_failed_fetch_distinctly_from_shallow_truncation():
 def test_main_does_not_trust_a_reading_the_fetch_could_not_refresh(monkeypatch, capsys):
     """Reproduces the exact live bug: a stale `origin/main` reads as a reliable
     0.00 sessions/hour (deep-but-old history passes `history_span_hours`), which
-    would clear the gate to PROCEED unless the failed fetch overrides it."""
+    used to clear the gate to PROCEED unless the failed fetch overrode it."""
+    captured: dict = {}
+    real_report = sg.report
+
+    def spy(*a, **kw):
+        r = real_report(*a, **kw)
+        captured.update(r)
+        return r
+
+    monkeypatch.setattr(sg, "report", spy)
     monkeypatch.setattr(sg, "refresh_origin_main", lambda: False)
     monkeypatch.setattr(sg, "sessions_per_hour", lambda: (0.0, True))
     monkeypatch.setattr(sg, "max_concurrent_sessions", lambda *_a, **_k: 0)
@@ -687,3 +741,8 @@ def test_main_does_not_trust_a_reading_the_fetch_could_not_refresh(monkeypatch, 
     out = capsys.readouterr().out
     assert "VERDICT: BUILD" in out
     assert "git fetch origin main` failed" in out
+    # The wiring this test is named for: a failed fetch must still mark the
+    # reading untrusted. Cadence no longer moves the verdict, so asserting the
+    # lane alone would pass even if main() stopped propagating `fetched`.
+    assert captured["cadence_reliable"] is False
+    assert captured["origin_fetched"] is False

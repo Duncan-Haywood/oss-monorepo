@@ -213,7 +213,11 @@ document was the last place still stating them as pending.
 
 **What has not changed is the binary itself**, and it is the reason to leave
 the rest of this file standing: commit to a payout rail, or accept that the
-portfolio cannot earn and set the cadence to match. As of this amendment it
+portfolio cannot earn and set the cadence to match. **The second half of that
+sentence is retired — see the 2026-08-24 amendment at the end of this file.**
+Under a flat subscription there is no cash saving in a lower cadence, so
+"cannot earn" no longer implies "run less"; what survives is the payout-rail
+decision itself. As of this amendment it
 has waited five days, and one of the eight queued decisions was answered in
 that window while the fleet kept running at roughly its full cadence. The
 arithmetic in "Deriving the spend side" is unchanged and still the only thing

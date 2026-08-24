@@ -327,7 +327,11 @@ def routable(venture: str) -> bool:
     directory no budget will ever reach.
     """
     d = REPO / "ventures" / venture
-    return (d / "VENTURE.yaml").exists() and not (d / "NOT-A-VENTURE").is_file()
+    # `.is_file()`, not `.exists()`: allocate.py:229 and validate.py:114 both
+    # test the manifest with `is_file()`, so a directory (or anything else)
+    # named VENTURE.yaml is invisible to the router. Mirroring the predicate is
+    # the whole point of this helper.
+    return (d / "VENTURE.yaml").is_file() and not (d / "NOT-A-VENTURE").is_file()
 
 
 def build_targets() -> list[dict] | None:
@@ -351,16 +355,16 @@ def build_targets() -> list[dict] | None:
         candidates = doc["candidates"]
     except (OSError, yaml.YAMLError, KeyError, TypeError, AttributeError):
         return None
-    if candidates is None:
-        candidates = []
-    # Must be a *list*, not merely iterable. A mapping or a string satisfies
-    # `iter()` and then contributes no dict entries to the loop below, so the
-    # function would return [] -- "read it, nothing eligible" -- for a file
-    # that is in fact malformed, which is exactly the confusion this None
+    # Must be a *list*, not merely iterable and not `null`. A mapping or a
+    # string satisfies `iter()` and then contributes no records to the loop
+    # below; `candidates: null` is rejected outright by validate_candidates.py.
+    # Normalising any of those to [] would answer "read it, nothing eligible"
+    # for a file that is in fact malformed -- exactly the confusion this None
     # return exists to prevent.
     if not isinstance(candidates, list):
         return None
-    out = []
+
+    scored: list[tuple[float, dict]] = []
     for c in candidates:
         # A scalar or nested-list entry is a malformed record, not an ineligible
         # one. Skipping it would land in the same "read it, nothing eligible"
@@ -369,36 +373,49 @@ def build_targets() -> list[dict] | None:
             return None
         if c.get("verdict") != "build-now":
             continue
-        slug = str(c.get("slug"))
-        if c.get("graduate_as") == "product-line":
-            host = str(c.get("host_venture") or "")
+
+        # Each field below builds a filesystem path or the BUILD instruction
+        # itself, so a build-now record missing one cannot produce a usable
+        # target: `str(None)` would name `ventures/None/`, and an unset
+        # `graduate_as` would silently take the venture path. Report the
+        # pipeline unreadable rather than emit an instruction nobody can follow.
+        slug = c.get("slug")
+        if not isinstance(slug, str) or not slug:
+            return None
+        graduate_as = c.get("graduate_as")
+        if graduate_as not in ("venture", "product-line"):
+            return None
+        try:
+            # Coerced, because validate_candidates.py:73 normalises with
+            # float() and so accepts a quoted numeric composite. A missing or
+            # unparseable one is malformed data, though -- not a zero.
+            composite = float(c["composite"])
+        except (KeyError, TypeError, ValueError):
+            return None
+
+        if graduate_as == "product-line":
+            host = c.get("host_venture")
+            if not isinstance(host, str) or not host:
+                return None
             if not routable(host):
-                out.append(c)  # nothing routable to have graduated into
+                scored.append((composite, c))  # nothing routable to graduate into
                 continue
             try:
-                listed = yaml.safe_load((REPO / "ventures" / host / "VENTURE.yaml").read_text())
-                listed = (listed or {}).get("product_lines") or []
+                parsed = yaml.safe_load((REPO / "ventures" / host / "VENTURE.yaml").read_text())
+                listed = (parsed or {}).get("product_lines")
             except (OSError, yaml.YAMLError, AttributeError):
+                listed = None
+            # A non-list `product_lines` (`true`, say) would raise inside any()
+            # and take the whole gate down with it.
+            if not isinstance(listed, list):
                 listed = []
             if any((p.get("slug") if isinstance(p, dict) else p) == slug for p in listed):
                 continue
         elif routable(slug):
             continue
-        out.append(c)
-    def composite(c: dict) -> float:
-        """Sort key, coerced.
+        scored.append((composite, c))
 
-        `validate_candidates.py` normalises with `float(...)` before comparing,
-        so a quoted numeric composite passes the repository validator. Sorting
-        on the raw value would then compare a str against a float and raise,
-        making the gate crash on data the validator calls clean.
-        """
-        try:
-            return float(c.get("composite") or 0)
-        except (TypeError, ValueError):
-            return 0.0
-
-    return sorted(out, key=composite, reverse=True)
+    return [c for _, c in sorted(scored, key=lambda pair: pair[0], reverse=True)]
 
 
 def verdict(
