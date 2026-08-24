@@ -508,3 +508,46 @@ ventures:
       with resolver and timestamp provenance, and explicitly does not warrant
       security, deliverability, uptime, or compliance. Authorization and
       remediation remain customer responsibilities.
+  - slug: shopify-permission-drift
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 7
+      time_to_revenue: 5
+      gross_margin: 9
+      defensibility: 4
+      distribution: 3
+    composite: 5.333
+    rater_b: null
+    floor: 3
+    floor_dimension: distribution
+    floor_note: >-
+      The comparator itself is a reproducible, deterministic diff over
+      customer-supplied exports, but nothing about it is distinctive to
+      Shopify agencies beyond that they are the named buyer: distribution
+      depends on a Shopify App Store listing or agency channel that does not
+      exist yet, and autonomous_ops is capped below dns-configuration-evidence
+      because there is no scheduled collection step -- the customer runs the
+      export and the diff by hand each time.
+    basis: >-
+      A local, read-only CLI that diffs two customer-authorized Shopify app
+      permission/webhook/authorization exports and reports additions,
+      removals, and scope changes with source and capture-time provenance. No
+      network call, credential, payment, or inference dependency; usage
+      logging is opt-in and records only an aggregate event count, never
+      store, app, or scope names. Malformed or incomplete exports are
+      rejected rather than silently treated as unchanged. Gross margin and
+      liability containment mirror dns-configuration-evidence's shape; time
+      to revenue and distribution are lower because the Shopify App Store
+      channel and the recurring-comparison workflow are both still untested
+      (see kill_criteria in VENTURE.yaml: three qualified operators and one
+      returning pilot within 90 days).
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: reports only customer-authorized, store-exported
+      metadata: no Shopify connection, no order or customer data, no scope
+      inference, no claim that an app is unsafe or that a merchant is
+      compliant. Authorization, retention, and any remediation action stay
+      the customer's responsibility, matching the disclaimer already shipped
+      in the venture's README.
