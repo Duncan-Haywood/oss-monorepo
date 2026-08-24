@@ -21768,3 +21768,26 @@ entries:
           (#736-#772) are owner-gated per the `dependabot` row in `asks.yaml`;
           the owner can merge or decline them knowingly.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Follow-up to the #368 gate-crossing recorded above: after #777
+          reverted the Dependabot merge, the `dependabot` row in `asks.yaml`
+          still referenced the revert as `ee5bbd8f`/PR #740 (a Dependabot
+          version bump, not the revert) and kept `action: "Merge or decline
+          #368"` even though #368 was merged-and-reverted. Corrected the row
+          to the actual revert (`86627270`, PR #777) and to the question that
+          remains -- re-apply `.github/dependabot.yml` or leave Dependabot
+          off. `prs: [368]` stays as the schema-required anchor; the note
+          records the merge and revert.
+      - >-
+          Verified by running: `decision_queue.py --check` (9 decisions,
+          schema OK) and the ledger suite (57/58; the failure is the
+          pre-existing missing-local-`pytest` gap in `test_break_even`,
+          documented on main). Merged as #782 (`c5a2659a`). Agent-decidable:
+          `portfolio/ledger/` only, publishes nothing, spends nothing, adds no
+          automation. `payout-rail` remains the only queue item that moves the
+          revenue ceiling off $0.
+    mrr_end: null
