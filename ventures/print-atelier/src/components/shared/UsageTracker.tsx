@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 
-export function trackUsageEvent(name: "catalog_cta" | "room_visualizer_cta", path: string): void {
+export function trackUsageEvent(name: "catalog_cta" | "room_visualizer_cta" | "artist_terms_ack", path: string): void {
   void fetch("/api/usage", {
     method: "POST",
     headers: { "content-type": "application/json" },

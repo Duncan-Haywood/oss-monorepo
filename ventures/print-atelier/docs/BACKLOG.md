@@ -26,7 +26,6 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 - [ ] [legal] Add consent gate for artist artwork in AI-generated room scenes and paid ad previews
 - [ ] [sales] Add outreach personalization field for why each artist should trust the payout math
 - [ ] [finance] Add payout sensitivity price-floor optimizer by artist trust, CAC, and POD cost
-- [ ] [legal] Add artist terms explainer for copyright retention, POD license, ad rights, and payout acknowledgement
 - [ ] [platform] Persist payout exception decisions with current economics, suggested retail, override reason, and remediation history
 - [ ] [gtm] Add payout-safe outreach segment builder that only enrolls artists whose SKU economics clear trust guardrails
 - [ ] [ai-ml] Add POD cost sensitivity recommender for cheaper fulfillment options before raising retail price
@@ -42,6 +41,7 @@ _(agent assigns at run start)_
 
 ## done
 
+- [x] [legal] Artist terms explainer at `/artist-terms` for copyright retention, POD license, ad rights, AI room scenes, and payout acknowledgement — linked from onboarding consent and artist portal settings
 - [x] [platform] Google/Pinterest CAPI HTTP fire on checkout session (parity with Meta)
 - [x] [platform] Gelato order API scaffold from Stripe webhook (parity with Printful)
 - [x] [ops] Fulfillment submissions dashboard on `/admin-portal` with `GET /api/fulfillment/submissions`

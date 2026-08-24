@@ -307,6 +307,15 @@ export default function ArtistPortal() {
                   </div>
                 </div>
                 <div className="bg-white dark:bg-gray-800 rounded-2xl border border-stone-200 dark:border-gray-700 p-6">
+                  <h3 className="font-bold text-stone-900 dark:text-white mb-2">Rights & payout terms</h3>
+                  <p className="text-sm text-stone-500 mb-3">
+                    What you agreed to for copyright, print fulfillment, ad use, AI room scenes, and payout.
+                  </p>
+                  <Link href="/artist-terms" className="text-sm text-blue-600 flex items-center gap-1 hover:underline">
+                    Read the full explainer <ExternalLink className="w-3 h-3" />
+                  </Link>
+                </div>
+                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-stone-200 dark:border-gray-700 p-6">
                   <h3 className="font-bold text-stone-900 dark:text-white mb-2">Stripe Connect</h3>
                   <p className="text-sm text-stone-500 mb-3">Payouts enabled • Bank account ending in 4521</p>
                   <button className="text-sm text-blue-600 flex items-center gap-1 hover:underline">

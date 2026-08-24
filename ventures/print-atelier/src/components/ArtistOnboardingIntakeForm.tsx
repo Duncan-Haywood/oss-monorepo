@@ -177,7 +177,15 @@ export default function ArtistOnboardingIntakeForm({
           </div>
 
           <div className="bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 rounded-xl p-6 space-y-3">
-            <h2 className="font-semibold text-lg">Rights & payout consent</h2>
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="font-semibold text-lg">Rights & payout consent</h2>
+              <Link
+                href="/artist-terms"
+                className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline whitespace-nowrap"
+              >
+                Read the full explainer →
+              </Link>
+            </div>
             {(Object.keys(CONSENT_LABELS) as Array<keyof typeof CONSENT_LABELS>).map((key) => (
               <label
                 key={key}
