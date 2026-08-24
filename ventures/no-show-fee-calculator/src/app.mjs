@@ -1,4 +1,4 @@
-import { parseInputs, computeAll, generatePolicyText, buildShareUrl, readShareValues } from "./calc.mjs";
+import { parseInputs, computeAll, compareFeeScenarios, generatePolicyText, buildShareUrl, readShareValues } from "./calc.mjs";
 import { recordEvent, isOptedOut, setOptedOut, getUsageSummary, clearUsageLog } from "./usage.mjs";
 
 const form = document.getElementById("calc-form");
@@ -12,6 +12,8 @@ const copyStatus = document.getElementById("copy-status");
 const optOutCheckbox = document.getElementById("usage-opt-out");
 const usageSummaryEl = document.getElementById("usage-summary");
 const clearUsageBtn = document.getElementById("clear-usage");
+const scenarioSection = document.getElementById("scenario-section");
+const scenarioBody = document.getElementById("scenario-body");
 
 const currencyFormatter = new Intl.NumberFormat(undefined, {
   style: "currency",
@@ -47,6 +49,20 @@ function renderResults(result) {
   document.getElementById("out-annual-fee-revenue").textContent = fmtMoney(result.annualFeeRevenue);
 }
 
+function renderScenarios(values) {
+  scenarioBody.replaceChildren();
+  for (const scenario of compareFeeScenarios(values)) {
+    const row = document.createElement("tr");
+    const selected = scenario.feePercent === values.feePercent;
+    if (selected) row.className = "selected-scenario";
+    row.appendChild(Object.assign(document.createElement("th"), { scope: "row", textContent: `${scenario.feePercent}%${selected ? " (selected)" : ""}` }));
+    row.insertCell().textContent = fmtMoney(scenario.feeAmount);
+    row.insertCell().textContent = fmtMoney(scenario.annualFeeRevenue);
+    scenarioBody.appendChild(row);
+  }
+  scenarioSection.hidden = false;
+}
+
 function renderUsageSummary() {
   const { total, byEvent } = getUsageSummary();
   if (total === 0) {
@@ -79,6 +95,7 @@ form.addEventListener("submit", (event) => {
   renderErrors([]);
   const result = computeAll(parsed.values);
   renderResults(result);
+  renderScenarios(parsed.values);
 
   const policyText = generatePolicyText({
     businessName: String(raw.businessName ?? ""),
@@ -91,6 +108,7 @@ form.addEventListener("submit", (event) => {
   policySection.hidden = false;
 
   recordEvent("calculation_run");
+  recordEvent("fee_scenarios_viewed");
   renderUsageSummary();
 });
 

@@ -114,6 +114,31 @@ export function computeAll(values) {
 }
 
 /**
+ * Compares practical fee levels against the same booking exposure.
+ * @param {{ price: number, bookingsPerWeek: number, noShowRatePct: number, feePercent: number, enforcementRatePct: number }} values
+ */
+export function compareFeeScenarios(values) {
+  const percentages = [50, 75, 100];
+  if (!percentages.includes(values.feePercent)) percentages.push(values.feePercent);
+  const { noShowsPerYear } = computeAnnualExposure(values);
+
+  return percentages
+    .sort((a, b) => a - b)
+    .map((feePercent) => {
+      const feeAmount = computeFeeAmount({ price: values.price, feePercent });
+      return {
+        feePercent,
+        feeAmount,
+        annualFeeRevenue: computeAnnualFeeRevenue({
+          feeAmount,
+          noShowsPerYear,
+          enforcementRatePct: values.enforcementRatePct,
+        }),
+      };
+    });
+}
+
+/**
  * Generates a plain-language, copy-paste cancellation / no-show policy.
  * Always returns text ending in the non-warranty note — callers should not
  * strip it.
