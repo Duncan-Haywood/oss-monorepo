@@ -9,8 +9,9 @@ resale price that still breaks even. Set a target net margin to get the listing
 price required to reach it, which makes the calculator useful for repricing as
 well as sourcing.
 Enter multiple units to see total batch economics and profit per unit without
-repeating the calculation. Break-even and target-margin prices remain listing
-prices for one unit.
+repeating the calculation. The fixed fee is charged once per order, while
+product and fulfilment costs scale per unit. Break-even and target-margin prices
+remain listing prices for one unit.
 Below the result, an **If you repriced** table prices the same order 20% and
 10% either side of what you entered, so you can see what a price move is
 actually worth before making it — no re-entering numbers.
