@@ -5,6 +5,7 @@ shop pages, re-audit, and pin the close rate. A low blocking rate is the
 honest result — most blocking findings on these pages are missing words.
 """
 
+import re
 from collections import Counter
 from pathlib import Path
 
@@ -283,6 +284,84 @@ def test_possible_match_is_not_rewritten():
     assert result.html == html
     assert result.applied == []
     assert result.after.counts()["blocking"] == 0
+
+
+def test_autoplay_gets_muted_and_keeps_autoplay():
+    html = (
+        '<html lang="en"><head><title>t</title></head>'
+        '<body><video autoplay src="clip.mp4"></video></body></html>'
+    )
+    assert any(f.criterion == "1.4.2" for f in audit_html(html).findings)
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "1.4.2" for f in result.after.findings)
+    assert re.search(r"<video\b[^>]*\bmuted\b", result.html, flags=re.I)
+    assert re.search(r"<video\b[^>]*\bautoplay\b", result.html, flags=re.I)
+    assert any(p.criterion == "1.4.2" for p in result.applied)
+
+
+def test_already_muted_autoplay_is_left_alone():
+    html = (
+        '<html lang="en"><head><title>t</title></head>'
+        '<body><audio autoplay muted src="clip.mp3"></audio></body></html>'
+    )
+    result = apply_mechanical_fixes(html)
+    assert result.html == html
+    assert result.applied == []
+
+
+def test_orientation_lock_rotate_is_removed_other_decls_stay():
+    html = (
+        '<html lang="en"><head><title>t</title>'
+        "<style>@media (orientation: portrait) { "
+        "html { color: red; transform: rotate(90deg); } }</style>"
+        "</head><body><p>Hi</p></body></html>"
+    )
+    assert any(f.criterion == "1.3.4" for f in audit_html(html).findings)
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "1.3.4" for f in result.after.findings)
+    assert "rotate(90deg)" not in result.html
+    assert "color: red" in result.html
+    assert "@media (orientation: portrait)" in result.html
+    assert any(p.criterion == "1.3.4" for p in result.applied)
+
+
+def test_orientation_lock_only_decl_drops_the_empty_query():
+    html = (
+        '<html lang="en"><head><title>t</title>'
+        "<style>@media (orientation: landscape) { "
+        "body { transform: rotate(-90deg); } }</style>"
+        "</head><body><p>Hi</p></body></html>"
+    )
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "1.3.4" for f in result.after.findings)
+    assert "transform" not in result.html
+    assert "@media (orientation: landscape)" not in result.html
+
+
+def test_combined_orientation_query_is_not_rewritten():
+    html = (
+        '<html lang="en"><head><title>t</title>'
+        "<style>@media (orientation: portrait) and (min-width: 40rem) { "
+        "html { transform: rotate(90deg); } }</style>"
+        "</head><body><p>Hi</p></body></html>"
+    )
+    result = apply_mechanical_fixes(html)
+    assert result.html == html
+    assert "rotate(90deg)" in result.html
+
+
+def test_compound_transform_is_not_stripped():
+    html = (
+        '<html lang="en"><head><title>t</title>'
+        "<style>@media (orientation: portrait) { "
+        "html { transform: rotate(90deg) translateX(10px); } }</style>"
+        "</head><body><p>Hi</p></body></html>"
+    )
+    before = audit_html(html)
+    assert any(f.criterion == "1.3.4" for f in before.findings)
+    result = apply_mechanical_fixes(html)
+    assert result.html == html
+    assert any(s.criterion == "1.3.4" for s in result.skipped)
 
 
 def test_search_field_with_no_label_is_not_invented():
