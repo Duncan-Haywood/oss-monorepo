@@ -21791,3 +21791,151 @@ entries:
           automation. `payout-rail` remains the only queue item that moves the
           revenue ceiling off $0.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled "continue work on the repo... follow branch and PR
+          workflow" session, designated branch
+          `session/agent_1a7734f2-248c-4263-b0d0-240c0f680b59`.
+          `session_gate.py` -> PROCEED (cadence 0.88/h at the maintenance
+          rate, flagged 3 distinct sessions committing to `main` within a
+          15-minute window in the last 6h). Checked open PRs, branches and
+          the decision queue before touching anything, per that flag.
+      - >-
+          Read the healthy in-flight workstream: a11y-evidence-record SC
+          ports (#726 1.4.1, #728 2.2.1/2.2.2/3.1.2 + 3.1.1 validity, #729
+          2.4.1/2.5.3) all landed the same morning, and the README's last
+          amendment named 1.3.4 Orientation as the one remaining disclosed
+          row whose note said "no rule here looks" while naming the CSS
+          adapter as the fix. The sibling engine (`eaa-wcag-triage`)
+          already implements `rule_orientation_lock` (#648), so the port
+          was a well-specified, agent-decidable next step: `portfolio/
+          research/` only, publishes nothing, spends nothing.
+      - >-
+          Built the full port before discovering the collision: added
+          `findings_and_undecidables_orientation_lock` to `contrast_pass.py`
+          reusing the sibling's `_has_visual_rotation` /
+          `orientation_conditionals` / `element_property_for` decision,
+          wired it into `audit.py`'s `CHECKS`/`NOT_TESTED`, wrote 13 tests,
+          and updated the two cross-engine results snapshots. A concurrent
+          session had already merged the identical port as #735
+          (`4948d5bb`, 09:40Z -- minutes after this session started at
+          09:31Z) and it had passed CI on `main` by the time the rebase was
+          checked. Rather than open a competing PR, the duplicate was
+          discarded: `git reset --hard origin/main` and the working tree
+          cleaned. The merged version was then verified by running, not by
+          trusting the title: `a11y-evidence-record` 153/153,
+          `a11y-engine-agreement` 15/15, `a11y-external-coverage-reference`
+          29/29, `a11y-axe-recall` 15/15, all on current `main`. The merged
+          implementation is the stronger of the two (its `_value_is_expr`
+          handles both raw `{{ }}` and sentinel spellings; mine only raw).
+      - >-
+          Lesson for the next session in this file's own terms: the port
+          was not visible as an open PR when the open-PR list was read
+          (it was on a branch merged within the same hour), so the only
+          guard against this duplicate was re-fetching `main` immediately
+          before pushing -- which is what caught it. No ledger entry
+          recorded #735's merge before this one. `payout-rail` remains the
+          only queue item that moves the revenue ceiling off $0.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          GitHub-triggered session (`pull_request.opened` on #784),
+          designated branch `claude/intelligent-knuth-ovs7at`, folded into a
+          generic "continue work, maintain the process, review open PRs"
+          brief. `session_gate.py` -> PROCEED, flagging 3 distinct sessions
+          committed to `main` within one 15-minute window in the last 6h;
+          checked open PRs before touching anything, per that flag. Five
+          were open: #784, #783, #781, #720, #531.
+      - >-
+          Merged #784 (agent-decidable, ledger-only, clean against `main`,
+          checks green): records #782's dependabot-row correction, which had
+          no ledger entry yet.
+      - >-
+          #781 and #783 both append to the same ledger tail as #784 and had
+          gone `mergeable_state: dirty` once #784 landed. #781's content
+          (recording #735's 1.3.4 Orientation port and this session's
+          discarded duplicate) was new information, not yet on `main`, so
+          it was worth keeping: merged `origin/main` into the PR branch
+          (not a rebase -- the branch belongs to a different session),
+          resolved the append-only conflict by keeping both new entries in
+          sequence, re-verified (`portfolio/ledger` suite 120/120,
+          `decision_queue.py --check` 9 decisions schema OK), pushed, waited
+          for CI (test + validate green), merged.
+      - >-
+          #783 (delete the `dependabot` row from `asks.yaml` outright) was
+          built against a stale premise: it assumed #368's merge-and-revert
+          left "nothing to grant," but #782 (merged earlier, before #783 was
+          opened) had already taken the row the other way -- corrected its
+          identifiers and reframed `action` to the genuinely open question
+          (re-apply `.github/dependabot.yml` or leave it off), which is a
+          live decision under CLAUDE.md's unattended-automation gate, not a
+          stale reference. Merging #783 would have silently dropped that
+          decision from the queue. Closed with a comment pointing to #782
+          and #784 rather than merged; its other (already-landed) work --
+          closing 28 orphaned Dependabot PRs, the #777 rebase/CI fix -- was
+          not lost, since those commits merged independently beforehand.
+      - >-
+          #720 (deployment platform: Railway) and #531 (contrast-fix
+          colour-token substitutions in two deploying ventures) are both
+          already correctly self-flagged human-gated in their own PR bodies
+          -- account creation + ongoing spend, and a breaking change to
+          deployable `ventures/*` code, respectively -- and both already
+          have rows in `asks.yaml` (`deployment-platform`, `contrast-fixes`).
+          Left untouched; no new flag needed. #785 (a11y-evidence-record
+          forgotten-prefix label-repair suggestions), opened mid-session by
+          a Cursor-triggered run, is still marked draft by its own author --
+          not this session's call to merge or mark ready.
+      - >-
+          This session's designated branch had been seeded at the same
+          commit as #784's head and was therefore already-merged before any
+          new work started; restarted it from current `main` per CLAUDE.md's
+          already-merged-branch rule before adding this entry.
+          `payout-rail` remains the only queue item that moves the revenue
+          ceiling off $0.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          PR-subscription wake, `pull_request.opened` on #787, folded into
+          this session's "continue work / review open PRs" scheduled brief.
+          `session_gate.py` -> PROCEED, flagging 3 sessions committing within
+          a 15-minute window in the last 6h; checked open PRs and issue #139
+          before touching anything, per that flag.
+      - >-
+          Merged #787 (`fdf71af`): removes the `local-site-studio-subtree` row
+          from `asks.yaml` now that #731 is merged. Verified independently
+          rather than trusting the diff: `decision_queue.py --check` on the
+          PR's own head (8 decisions, schema OK), `git merge-tree` against the
+          then-current `main` tip clean, both CI checks (`test`, `validate`)
+          green. Agent-decidable: `portfolio/ledger/` only, no `ventures/*`
+          code, publishes and spends nothing.
+      - >-
+          #720/#531/#785 reviewed and left untouched -- same conclusion the
+          immediately preceding entry (#784's session) already recorded, not
+          repeated here. This entry's distinct addition: read #139's most
+          recent comments, covering an incident from just before this session
+          started -- `kilo-code-bot[bot]` auto-merged six PRs at 09:43-09:45
+          UTC without review, five explicitly self-flagged human-gated (#731
+          venture subtree merge, #368 unattended Dependabot automation, #372
+          and #583 live-adjacent venture-code changes). Already flagged on
+          #139 with a push notification sent by the session that caught it;
+          #368's gate-crossing already reverted (`8662727`/`3a5dc20`, PR
+          #777); stale decision-queue rows for #372/#368/#583 already
+          corrected (`7c2f5ac`), including that correction's own note about a
+          duplicate PR (#764) from a concurrent session. Nothing further
+          needed from this session on that thread; recording it here so it
+          isn't independently re-investigated.
+      - >-
+          `payout-rail` remains the only queue item that moves the revenue
+          ceiling off $0. No push notification sent from this session: the
+          one new action (#787) is routine and already-flagged items were
+          left exactly as found.
+    mrr_end: null

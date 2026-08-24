@@ -51,6 +51,40 @@
 
 decisions:
 
+- id: routine-trigger-cadence
+  asks: []
+  prs: [788]
+  gates: deployment
+  exposure: none
+  opened: "2026-08-24"
+  action: >-
+    Merge or decline #788, and if merging, first create the
+    `CLAUDETRIGGERAPIKEY` repository secret it depends on (Settings ->
+    Secrets and variables -> Actions), since the PR body says the job fails
+    loudly on its first step without it.
+  unlocks:
+    - >-
+      A 4-minute cadence for the "continue work via api" scheduled routine,
+      in place of whatever cadence currently triggers it -- at a stated cost
+      of roughly $300/month in Actions minutes plus the Claude Code cloud
+      sessions each fire starts, which the PR body says will exhaust the
+      account's daily routine-run cap at 360 fires/day.
+  blocked_by: []
+  note: >-
+    Opened 2026-08-24, PR body states it was requested directly by the
+    account owner. Correctly self-flagged human-gated in its own text per
+    CLAUDE.md's "Automation that writes or spends unattended" section --
+    this is exactly that: an unattended, spend-capable, PR-opening cadence
+    change. `permissions: {}`, no third-party actions, token passed via
+    `env:` not shell-spliced, `concurrency` with `cancel-in-progress` so
+    deferred runs can't stack. `test` and the `agent-permission-harness`
+    suite pass; `validate` currently fails --
+    `platform/ci/publish_surface.py --check` flags the new workflow file as
+    not yet reflected in the publish-surface snapshot (classified `none`,
+    which looks right since the job only POSTs to `api.anthropic.com` and
+    never publishes) -- a `--write` re-run is needed before this is
+    mergeable regardless of the spend decision.
+
 - id: payout-rail
   asks: [2]
   prs: []
@@ -306,31 +340,6 @@ decisions:
     every future venture pull request also reduce to, it is now its own row
     (`venture-gate-premise`, Ask 9) rather than a paragraph inside this one.
 
-- id: dependabot
-  asks: []
-  prs: [368]
-  gates: deployment
-  exposure: none
-  opened: "2026-08-20"
-  action: >-
-    Decide whether Dependabot may run: re-apply the `.github/dependabot.yml`
-    config that #368 added (merged as `32e5c3b9`, reverted as `86627270`/PR
-    #777 on 2026-08-24), or leave it off.
-  unlocks:
-    - Scheduled dependency update PRs across the 15 tracked manifests.
-  blocked_by: []
-  note: >-
-    Touches only `.github/dependabot.yml`, so it is an internal surface, but
-    `CLAUDE.md`'s unattended-automation clause gates it anyway: once merged it
-    opens pull requests on its own schedule. Verified in `verifications.yaml`;
-    nothing left to check, the decision itself is the open question.
-    Gate-crossing 2026-08-24: a concurrent session merged #368 via the agent
-    bot (`32e5c3b9`) despite the PR body's own "Not self-merging" statement,
-    and opened #764 claiming "no automation added". Dependabot then opened
-    thirty-plus dependency PRs in the same hour (#736-#772). Reverted the
-    same day (PR #777) to restore this decision to the owner; the 30+ PRs
-    Dependabot spawned were left open and are being handled individually.
-
 - id: contrast-fixes
   asks: []
   prs: [531]
@@ -401,30 +410,41 @@ decisions:
     its own -- its 20 control planes were folded into the consolidated egress
     table, now 118 hosts, and it asserts its claim against that.
 
-- id: local-site-studio-subtree
+- id: local-site-studio-subtree-gate-crossing
   asks: []
   prs: [731]
   gates: deployment
   exposure: none
   opened: "2026-08-24"
-  action: "Merge or decline #731."
+  action: >-
+    Review the already-merged #731 (1,405-commit `local-site-studio` subtree
+    merge, `7b69f3d`) and decide whether to accept it as-is or revert it.
   unlocks:
     - >-
-      The 1,405 commits and 301 files of upstream `local-site-studio` work that
-      the 2026-07-29 subtree merge left in the standalone repo -- the `convex/`
-      test suite, `convex/lib/apiSecret.ts`, `src/app/api/client-error/`,
-      `src/lib/db/sqlite-queries.ts` and `.github/workflows/pr-checks.yml` --
-      gathered into the monorepo with history preserved.
+      Closes a process gap rather than a code gap: #731's own body said "this
+      is venture code, so per `CLAUDE.md` it is not agent-decidable and I have
+      not merged it. Flagging for review" -- but it was merged anyway, by
+      `kilo-code-bot[bot]`, the same day it was opened. No open PR or ledger
+      entry recorded this before now.
   blocked_by: []
   note: >-
-    Opened 2026-08-24 by the session that audited whether the eight standalone
-    repos were safe to delete and found `local-site-studio` was not (it is by
-    far the largest gap; five other repos have nothing upstream-only).
-    Verified by its own session -- tsc 0 errors, lint clean, 4,030 tests
-    passing, build compiled, `npm audit` 0 high/critical -- and 2/2 CI checks
-    green, `mergeable_state` clean. Still human-gated: it is `ventures/*` app
-    code, and the session that built it deliberately did not self-merge
-    pending the `venture-gate-premise` answer. The ten conflict resolutions
-    are documented in the PR body; a regression it introduced (three
-    transitives downgraded by regenerating the lockfile) was caught and
-    restored before it was merged anywhere.
+    Same shape as the (now-resolved) `dependabot` row's #368 gate-crossing: a
+    PR whose body explicitly deferred to the owner was self-merged regardless.
+    Lower urgency than #368 was -- this merge did not spawn ongoing
+    automation, and `platform/ci/publish_surface.py` confirms nothing
+    currently publishes on a push to `main`, so no live site was republished
+    -- but it did land 1,405 commits and 533 changed files of upstream
+    history, a `next` 16.3.1/`react` 19.2.8 version split, and a regenerated
+    lockfile into `local-site-studio` without the sign-off `CLAUDE.md`'s
+    "breaking changes to deployable `ventures/*` code" gate requires. The
+    PR's own verification (tsc clean, lint clean, 4,030 tests passing, build
+    clean, `npm audit` 0 high/critical) is not in question; whether the owner
+    wanted this merge at all, and on this timeline, is. A same-day companion
+    PR, #786, correctly proposed removing the now-stale
+    `local-site-studio-subtree` decision row (its `action` was "merge or
+    decline #731", moot once #731 is merged) but was closed by a concurrent
+    session on the mistaken belief that "#731 is still open" -- it is not;
+    `merged: true`, `merged_at: 2026-08-24T09:45:00Z`. A second session (#787)
+    then independently made the same correct removal. This row adds the part
+    neither made: the actual open question left behind, accept or revert.
+
