@@ -16,6 +16,16 @@ Use JSON output for an approval queue or CI artifact:
 python3 src/permission_drift.py examples/before.json examples/after.json --format json --usage-log usage.jsonl
 ```
 
+Save a portable JSON evidence artifact for a ticket or approval queue:
+
+```bash
+python3 src/permission_drift.py examples/before.json examples/after.json --output permission-drift-report.json
+```
+
+The saved report contains only the comparison result and source/capture metadata
+already present in the exports. It does not copy app scopes, webhook topics, or
+any merchant data into the optional usage log.
+
 Each inventory contains the store's own exported evidence: app identifiers,
 scopes, webhook topics, authorization state, API version, source, and capture
 time. Malformed or incomplete exports are rejected; the tool never turns an

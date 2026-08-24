@@ -74,17 +74,31 @@ def usage_event(path: Path, finding_count: int) -> None:
         handle.write(json.dumps(event, sort_keys=True) + "\n")
 
 
+def write_report(path: Path, report: dict) -> None:
+    """Persist a portable JSON evidence report without adding customer data."""
+    try:
+        path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    except OSError as exc:
+        raise ValueError(f"cannot write report: {exc}") from exc
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Compare two customer-authorized Shopify app inventory exports.")
     parser.add_argument("before", type=Path)
     parser.add_argument("after", type=Path)
     parser.add_argument("--format", choices=("text", "json"), default="text")
+    parser.add_argument("--output", type=Path, help="write the report as a portable JSON artifact")
     parser.add_argument("--usage-log", type=Path, help="opt-in aggregate event log")
     args = parser.parse_args()
     try:
         report = compare(load_inventory(args.before), load_inventory(args.after))
     except ValueError as exc:
         parser.error(str(exc))
+    if args.output:
+        try:
+            write_report(args.output, report)
+        except ValueError as exc:
+            parser.error(str(exc))
     if args.usage_log:
         usage_event(args.usage_log, len(report["changes"]))
     if args.format == "json":
