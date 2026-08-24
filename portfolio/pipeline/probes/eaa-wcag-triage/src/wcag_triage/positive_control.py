@@ -86,6 +86,25 @@ def _inject_body(fragment: str) -> Callable[[str], str]:
     return apply
 
 
+def _inject_bypass_failure(html: str) -> str:
+    """Replace the body contents with a known navigation-without-bypass page."""
+    nav = "".join(f'<a href="/section-{i}">Section {i}</a>' for i in range(10))
+    content = (
+        "This deliberately long control page contains enough ordinary content "
+        "to make the navigation a block that a keyboard or screen-reader user "
+        "must pass before reaching the page content. "
+    ) * 3
+    fragment = f"<nav>{nav}</nav><p>{content}</p>"
+    new, count = re.subn(
+        r"(<body\b[^>]*>).*?(</body\s*>)",
+        rf"\1{fragment}\2",
+        html,
+        count=1,
+        flags=re.I | re.S,
+    )
+    return new if count else html
+
+
 # (criterion, kind, description, mutate)
 #
 # Injections first in each group so an engagement whose pages are fragments
@@ -168,6 +187,24 @@ MUTATIONS: tuple = (
             '<a href="/control-probe" style="color:#06c;text-decoration:none">'
             "our documentation</a> for the full delivery timetable.</p>"
         ),
+    ),
+    (
+        "2.2.2",
+        "injection",
+        "add a <marquee> with no pause mechanism",
+        _inject_body("<marquee>Control content moves continuously.</marquee>"),
+    ),
+    (
+        "2.4.1",
+        "injection",
+        "replace the body with navigation and content lacking a bypass",
+        _inject_bypass_failure,
+    ),
+    (
+        "3.1.2",
+        "injection",
+        "add a page part with a malformed language tag",
+        _inject_body('<p lang="en_US">Control text.</p>'),
     ),
 )
 

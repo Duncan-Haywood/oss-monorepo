@@ -52,6 +52,9 @@ workflows:
   - job: deploy
     step: runs 'npm run deploy'
     gates: []
+- workflow: claude-routine-trigger.yml
+  classification: none
+  publishes: []
 - workflow: demand-signal-reachability-ci.yml
   classification: none
   publishes: []
