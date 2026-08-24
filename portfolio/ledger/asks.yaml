@@ -163,13 +163,14 @@ decisions:
   exposure: credential
   opened: "2026-08-19"
   action: >-
-    Create one Railway account, set a usage limit before deploying anything,
-    then add a Railway deploy token as a repository secret plus `AUTH_SECRET`
-    for `ai-first-markets` and a Postgres service for `quick-pick-survey`.
-    Leave `GITHUB_PAGES_ENABLED`, `VERCEL_DEPLOY` and the `CLOUDFLARE_*`
-    secrets unset. Floor is $5/month; the cap is the point. Choose Vercel
-    instead if only the Next.js apps will ever deploy, or Hetzner if ops hours
-    are cheap -- `platform/deployment/README.md` says where each wins.
+    Take one Hetzner CX-class VPS (~EUR 4/month, 20 TB traffic, fixed price so
+    there is nothing to cap), point
+    `ventures/ubuntu-agent-server/inventory.ini` at it and run that playbook.
+    Leave `agent_runner_start_disabled: true` -- switching the fleet on is a
+    separate decision. Leave `GITHUB_PAGES_ENABLED`, `VERCEL_DEPLOY` and the
+    `CLOUDFLARE_*` secrets unset. Choose Railway instead (~$5-25/month) if you
+    would rather never touch a server; `platform/deployment/README.md` says
+    where each of the four candidates wins.
   unlocks:
     - Three ventures whose builds already pass but which deploy nothing.
     - "`retail-pilot-intel`'s docs deploy, which since #347 is green *and publishes nothing* -- the workflow skips the publish job rather than failing, so the record shows success for a site that does not exist."
@@ -238,6 +239,23 @@ decisions:
     host, not a public web server. Railway is the only option scoring on both
     axes. Note it is also the only one of the three with no workflow written
     yet, which is the honest extra cost of the choice.
+
+    Revised a third time 2026-08-24 when the question was put as "cloud power
+    for the monorepo, if it's just one" -- which is a different question from
+    where the ventures deploy, and has a different answer. Only Hetzner gives
+    the repository compute rather than hosting, and the decisive fact is
+    already in the repo: `ventures/ubuntu-agent-server/` is a complete,
+    linted Ansible playbook for a 24/7 coding-agent host (Tailscale, Docker,
+    Node 22, agent CLIs, systemd timer, unattended-upgrades) whose README
+    opens by telling you to go buy a physical Ubuntu box. The automation is
+    paid for; the machine is what is missing, and no managed platform can be
+    it. That playbook also weakens two objections this row previously carried:
+    unattended-upgrades is already configured, and the Tailscale role means
+    the box is private by default rather than a public web server. What is
+    genuinely not automated is nginx/TLS, Postgres and app deploy -- real work
+    that Railway would give away, and the honest price of this answer.
+    Railway remains the recommendation for anyone who would rather not run a
+    server at all.
 
     Counter-evidence worth watching, added the same day: four ventures now
     carry a `vercel.json` (`quick-pick-survey`, `local-site-studio`,
@@ -386,14 +404,15 @@ decisions:
   unlocks:
     - >-
       One named deployment platform in place of the three-way menu
-      `deploy-settings` had carried for five days. Revised 2026-08-24 to
-      **Railway**, after the owner asked for best value and most all-inclusive
-      rather than best fit: two workloads here are daemons with persistent
-      state (`retail-pilot-intel`'s `analytics-sync`, `photos-import-tools`)
-      and Vercel hosts neither, so it cannot be the all-inclusive answer.
-      Vercel stays the pick if only the Next.js apps will ever deploy; Hetzner
-      wins on raw cost. The document says where each wins and flags the claims
-      that need a browser check.
+      `deploy-settings` had carried for five days. The answer moved as the
+      question was sharpened -- Cloudflare on lowest spend risk, Vercel on code
+      fit, Railway on all-inclusive-plus-value, and finally **Hetzner** when it
+      was put as compute for the monorepo rather than hosting for the ventures.
+      The document keeps all four readings side by side, which is the durable
+      artifact; the single recommendation is not. Hetzner is the only one that
+      can also be the agent host `ventures/ubuntu-agent-server/` already
+      automates and has never had a machine to run on. Railway stays the pick
+      for anyone who would rather not run a server.
   blocked_by: []
   note: >-
     #720 answers the menu that `deploy-settings` (asks 4/6) posed as an open

@@ -8,9 +8,12 @@ covering everything the ventures need — then, finally, judged on **best value
 and most all-inclusive**. What is already wired into this repo is explicitly
 not a reason.
 
-**Answer: Railway**, on the criteria as they now stand. Hetzner wins on raw
-cost and Vercel on code fit, and the sections below say exactly where each of
-those wins — but only Railway is simultaneously all-inclusive and cheap.
+**Answer: Hetzner**, on the criteria as they now stand — the question was
+finally put as *"cloud power for the monorepo, if it's just one"*, and that is
+a different question from *"where do the ventures deploy"*. It is the only
+option that gives the repository **compute** rather than **hosting**, and it is
+the answer that contains the other answers: everything Railway would run, plus
+the one thing neither managed platform will.
 
 This answer moved twice as the criteria were sharpened, so the reasoning is
 kept per criterion rather than rewritten each time:
@@ -22,7 +25,8 @@ kept per criterion rather than rewritten each time:
 | **A spend cap built into the vendor** | **Vercel or Railway** | Only these two ship a halt-at-an-amount control |
 | **Most all-inclusive** | **Railway** | The only managed platform that hosts *every* workload here |
 | **Best value** | **Hetzner** | ~$5/month for all of it; the tenth app costs $0 |
-| **All-inclusive + value together** | **Railway** | Hosts everything, one bill, one hard cap, ~$5–25/month |
+| **All-inclusive + value together** | **Railway** | Hosts everything deployable, one bill, one hard cap, ~$5–25/month |
+| **Compute for the monorepo itself** | **Hetzner** | The only one that also runs the agent host this repo has already automated |
 
 ## The criterion, stated precisely
 
@@ -143,6 +147,47 @@ rather than an add-on, bills once, caps once, and costs a fraction of Vercel
 while asking for none of Hetzner's ops hours. On "all-inclusive **and** value
 together" it is the only option that scores on both.
 
+## Why the compute reading changes the answer
+
+Every earlier framing asked where the *ventures* deploy. "Cloud power for the
+monorepo" asks something larger: what does this repository get a machine for?
+And the repository has already answered that, in code, for a machine it does
+not own.
+
+`ventures/ubuntu-agent-server/` is a complete Ansible playbook for a **24/7
+coding-agent host** — `base`, `docker`, `nodejs`, `tailscale`, `agent_clis`
+and `agent_runner` roles, Claude Code / Codex / Antigravity / opencode
+installed, a systemd timer polling every ten minutes, `unattended_upgrades`
+on. It is built, it is linted, it has a `Makefile`, and its README opens by
+telling you to go install Ubuntu Server on a physical box and find its LAN IP.
+
+**That is the gap.** The portfolio has already paid the automation cost for
+exactly one thing, and what it lacks is the thing to run it on. A €4 Hetzner
+VPS is that thing. Vercel and Railway will never be — neither runs an agent
+fleet, a systemd timer, or an SSH host, and that is not a shortcoming in them.
+
+Two objections this document raised earlier are weaker than they looked, and
+the reason is in that same playbook:
+
+- **"You own OS patching."** `unattended_upgrades_enabled: true` is already in
+  `group_vars/all.yml`, with the reboot policy exposed as a variable.
+- **"A public box an unattended fleet pushes to."** The `tailscale` role is
+  already there and the README's whole bootstrap sequence is *get on the
+  tailnet, then stop using the public address.* The box is private by default;
+  a site is public only when you choose to publish one. That is a materially
+  smaller surface than "a public web server", which is how the earlier
+  Hetzner section framed it.
+
+What is genuinely **not** automated, and is the honest cost of this choice:
+there is no nginx/TLS role, no Postgres role, and no app-deploy role. Serving
+the nine web apps from this box is real work that Railway would hand you free.
+
+One thing this explicitly does **not** license. `agent_runner_start_disabled:
+true` is the playbook's own default, and `CLAUDE.md` is unambiguous that
+enabling unattended, spend-capable automation is always the owner's call.
+Buying the box does not switch the fleet on, and no session should. The
+capability arriving is the point; using it is a separate decision.
+
 ## Runners-up, and when each would win
 
 **Vercel** — still the best fit for the *code*, and the strongest cap control
@@ -153,11 +198,13 @@ all, so it is not the all-inclusive answer by definition; and $20/seat is four
 times Railway's floor. **Choose Vercel if the Next.js apps are the only thing
 that will ever be deployed** and the two daemons stay off-platform.
 
-**Hetzner** — the best value on dollars, and the only option where adding
-workloads is free. Also the strictest spend bound: a fixed price traffic cannot
-move. **Choose Hetzner if ops hours are cheap for you**, or if the portfolio
-ever wants one box it fully controls — the existing `ubuntu-agent-server`
-Ansible roles are a real head start toward that.
+**Railway** — the answer if the question is only *where do the ventures
+deploy*, and the right choice for anyone who would rather never touch a
+server. It hosts every deployable workload including the two daemons, includes
+Postgres as a service, bills once and caps once. It loses here only because it
+cannot be the monorepo's compute: no agent host, no SSH, no systemd. **Choose
+Railway if the agent fleet is never going to move off GitHub Actions** and the
+ops hours matter more than the four-times cost difference.
 
 **Cloudflare** — wins only on a $0 floor: free tier, no card, stops rather than
 bills, unmetered static bandwidth. It is not all-inclusive (no daemons, no
@@ -186,20 +233,26 @@ exists only to make Next.js run somewhere it is not native.
 
 ## What this does not cover
 
-- **The cap is a configuration, not a default.** Railway does not stop unless a
-  usage limit is set. Setting it is part of granting this, not a follow-up.
-- **The API token is a credential.** A Railway deploy token in repository
-  secrets is used by unattended workflows; scope it to the project.
-- **Nothing here ports the two daemons.** Railway *can* host
+- **No cap is needed, and that is the point.** A fixed monthly price cannot be
+  exceeded by traffic, so there is no spend control to configure and none to
+  forget. This is the only option on the shortlist where the bound is a
+  property of the product rather than a setting.
+- **Serving the web apps is not included.** No nginx/TLS role, no Postgres
+  role, no app-deploy role. That is real follow-on work, and Railway would
+  have given it away.
+- **Nothing here ports the two daemons.** The box *can* run
   `retail-pilot-intel`'s `analytics-sync` and `photos-import-tools`; actually
   moving them is separate work, not part of this ask.
+- **SSH and root are credentials.** A box the fleet can deploy to is a box a
+  compromised token can reach. Tailscale-only access is the mitigation the
+  playbook already sets up, and it should stay that way.
 - **`local-site-studio` still needs Convex** regardless of platform.
 - **Deployment is not the binding constraint.** Per
   `portfolio/ledger/break-even.md` and `portfolio/pipeline/distribution-first.md`,
   the revenue ceiling is $0 because of distribution and the payout rail, not
   because nothing is deployed. This makes ventures publishable; it does not
   make them earn, and it adds a standing monthly cost to a portfolio earning
-  nothing. The `payout-rail` row remains the only queue item that moves the
+  nothing — the smallest such cost on the shortlist, but not zero. The `payout-rail` row remains the only queue item that moves the
   ceiling.
 
 ## What is measured here, and what is not
@@ -241,31 +294,39 @@ claim above is from model knowledge, not first-hand: the vendor documentation
 hosts are all egress-denied from this environment, so none of it could be
 re-verified. Four items are load-bearing enough to check in a browser first:
 
-1. **Railway's usage limit still hard-stops** — takes workloads offline at the
-   ceiling rather than only warning — and is available on the Hobby plan.
-2. **Railway's Hobby plan permits commercial use.** This one would change the
-   answer most if wrong: Vercel's Hobby tier forbids it, and if Railway's does
-   too, the floor becomes its Pro plan and the value gap narrows sharply.
-3. Railway still bills Postgres through the same meter and the same cap.
-4. Hetzner CX22 is still roughly €4/month with 20 TB of traffic, if the value
-   comparison is being leaned on.
+1. **Hetzner CX22 is still roughly €4/month with 20 TB of traffic included**,
+   and IPv4 is still a small monthly add-on rather than a surprise. This is the
+   load-bearing one: the whole value argument is the four-times gap against
+   Vercel's floor.
+2. **Hetzner still bills a fixed monthly price with no metered compute** — if
+   any part of the plan has become usage-billed, the "no cap needed" claim
+   fails and Railway's hard limit becomes the safer shape.
+3. Hetzner signup still needs only a payment method, with no business-entity
+   requirement for an individual account.
+4. If the fallback is being weighed: Railway's usage limit still hard-stops,
+   and its Hobby plan permits commercial use (Vercel's forbids it).
 
-If (1) fails, the answer is Vercel. If (2) fails, it becomes a straight choice
-between Vercel (fit) and Hetzner (cost). The criteria do not change either way.
+If (2) fails, the answer is Railway. If the ops work in step 3 of the action
+below is unwelcome, the answer is Railway. The criteria do not change either
+way — and note that this is now the *fourth* framing of the question, so the
+per-criterion table at the top is the durable artifact here, not any single
+recommendation.
 
 ## The one action
 
-1. Create the Railway account and **set a usage limit before deploying
-   anything** — the cap is the point.
-2. Add a Railway deploy token as a repository secret, plus `AUTH_SECRET` for
-   `ai-first-markets` and a Postgres service for `quick-pick-survey`.
-3. Leave `GITHUB_PAGES_ENABLED`, `VERCEL_DEPLOY` and the `CLOUDFLARE_*` secrets
-   unset.
+1. Create the Hetzner account and take one CX-class VPS (~€4/month, 20 TB
+   traffic). Fixed price; nothing to cap, because nothing meters.
+2. Point `ventures/ubuntu-agent-server/inventory.ini` at it and run the
+   playbook — public IP for the bootstrap run, Tailscale address thereafter,
+   exactly as that README already documents.
+3. Leave `agent_runner_start_disabled: true`. Turning the fleet on is a
+   separate decision and this is not it.
+4. Leave `GITHUB_PAGES_ENABLED`, `VERCEL_DEPLOY` and the `CLOUDFLARE_*`
+   secrets unset.
 
-No workflow targets Railway yet — the three that exist target Cloudflare,
-GitHub Pages and Vercel. Writing one is agent-decidable work that should follow
-once the account exists, not a prerequisite, and it is the honest extra cost of
-this choice over Vercel, whose job is already written.
+Serving the web apps from the box is follow-on work — nginx/TLS, Postgres, a
+deploy path — and is agent-decidable once the box exists. It is also the part
+Railway would have given away, and it is the honest price of this choice.
 
 Expect `platform/ci/publish_surface.py --check` to go red once any deploy job
 goes live; rewriting the snapshot is the correct follow-up, not a regression.
