@@ -6,6 +6,14 @@ The tool is a local, read-only evidence record. It does not connect to Shopify,
 request credentials, inspect orders or customers, declare an app unsafe, or
 recommend removing a vendor. Start with the included fixture:
 
+## Browser checker
+
+Open [`index.html`](index.html) to compare two JSON exports in a responsive
+browser workflow. Choose the before and after files, review the source-linked
+changes, then download a portable report or copy a short handoff summary. The
+browser implementation uses no server, account, cookie, network call, or paid
+dependency; files remain in the browser tab.
+
 ```bash
 python3 src/permission_drift.py examples/before.json examples/after.json
 ```

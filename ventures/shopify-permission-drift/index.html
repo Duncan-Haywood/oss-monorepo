@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shopify Permission Drift Checker | Local Evidence Report</title>
+  <meta name="description" content="Compare two Shopify app permission exports locally and create a source-linked drift report without uploading merchant data.">
+  <meta property="og:title" content="Shopify Permission Drift Checker">
+  <meta property="og:description" content="A private, local-first before-and-after comparison for Shopify app scopes, webhooks, and authorization state.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Shopify Permission Drift Checker","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compare customer-authorized Shopify app inventory exports locally."}</script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <header class="hero">
+      <p class="eyebrow">PRIVATE EVIDENCE TOOL / NO ACCOUNT</p>
+      <h1>Did a Shopify app's access change?</h1>
+      <p class="lede">Compare two customer-authorized app inventory exports and get a review-ready record of changed scopes, webhooks, or authorization state. Nothing leaves this browser.</p>
+    </header>
+    <section class="panel workflow" aria-labelledby="workflow-title">
+      <div class="section-heading"><span>01</span><h2 id="workflow-title">Choose two exports</h2></div>
+      <p class="hint">Use JSON files exported by a store owner or authorized administrator. The included examples are available in the repository's <code>examples/</code> folder.</p>
+      <div class="file-grid">
+        <label>Before snapshot<input id="before" type="file" accept="application/json,.json"></label>
+        <label>After snapshot<input id="after" type="file" accept="application/json,.json"></label>
+      </div>
+      <button id="compare" type="button" disabled>Compare inventories</button>
+      <p id="error" class="error" role="alert" hidden></p>
+    </section>
+    <section id="result" class="panel result" aria-live="polite" hidden>
+      <div class="section-heading"><span>02</span><h2>Review the evidence</h2></div>
+      <div id="status" class="status"></div>
+      <div id="metadata" class="metadata"></div>
+      <ul id="changes" class="changes"></ul>
+      <div class="actions"><button id="download" type="button">Download JSON report</button><button id="copy" type="button" class="secondary">Copy summary</button></div>
+      <p class="evidence-note">Evidence only: review each change with the merchant. This tool does not decide whether an app is safe or recommend an action.</p>
+    </section>
+    <section class="panel privacy">
+      <div class="section-heading"><span>03</span><h2>Privacy and limits</h2></div>
+      <p>Files are read in your browser and never uploaded. Anonymous local usage counting is <label class="toggle"><input id="usage" type="checkbox" checked> enabled</label>; only the feature name and date are stored, never store names, app names, scopes, or file contents. Turn it off or clear it below.</p>
+      <button id="clear-usage" type="button" class="text-button">Clear local usage count</button>
+      <p class="disclaimer"><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, financial, security, or compliance advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    </section>
+  </main>
+  <footer>Shopify Permission Drift Record · local-first · free to use</footer>
+  <script src="app.js"></script>
+</body>
+</html>
