@@ -173,7 +173,12 @@ decisions:
     **First create a protected `agent-server` Environment** (Settings ->
     Environments) with yourself as required reviewer, and put the SSH key,
     known-hosts and any Tailscale key in it with `gh secret set --env
-    agent-server`. Repository-scoped secrets do not work here: a write-access
+    agent-server` -- **and the public key too**, with `gh variable set --env
+    agent-server`. The public half is not a secret but it decides which key the
+    playbook installs on a root-equivalent account, so as a repository variable
+    someone with write access could point it at their own key and have a
+    routine-looking approval install it. Integrity and confidentiality are
+    different questions; only the second is about secrecy. Repository-scoped secrets do not work here: a write-access
     collaborator can push a branch deleting the workflow's `environment:` line
     and still read them, which is the bypass the environment binding exists to
     close.

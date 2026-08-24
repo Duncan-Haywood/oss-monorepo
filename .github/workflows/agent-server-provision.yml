@@ -28,7 +28,19 @@ name: Provision agent server
 #                                    pinned afterwards cannot authenticate a
 #                                    connection already made.
 #   var    AGENT_SERVER_HOST         IP or hostname to reach the box on
-#   var    AGENT_SERVER_PUBKEY       public half, installed as an authorized key
+#   var    AGENT_SERVER_PUBKEY       public half, installed as an authorized key.
+#                                    **Environment-scoped, not repository.** It
+#                                    is not a secret, but it is integrity-
+#                                    sensitive: whoever can set it decides
+#                                    which key ends up in `authorized_keys` on
+#                                    a root-equivalent account. As a repository
+#                                    variable, a write-access collaborator
+#                                    could point it at their own key and let a
+#                                    routine-looking approval install it -- a
+#                                    bypass that goes *through* the gate rather
+#                                    than around it. Confidentiality and
+#                                    integrity are different questions and only
+#                                    the first is about secrecy.
 # Optional:
 #   var    AGENT_SERVER_SSH_USER     login used to connect (default: root --
 #                                    a fresh cloud image has no other account)
@@ -90,13 +102,13 @@ jobs:
       - name: Check the required configuration is present
         env:
           HOST: ${{ vars.AGENT_SERVER_HOST }}
-          PUBKEY: ${{ vars.AGENT_SERVER_PUBKEY }}
+          PUBKEY: ${{ vars.AGENT_SERVER_PUBKEY }}   # environment-scoped; see header
           KEY: ${{ secrets.AGENT_SERVER_SSH_KEY }}
           KNOWN_HOSTS: ${{ secrets.AGENT_SERVER_KNOWN_HOSTS }}
         run: |
           missing=()
           [ -n "$HOST" ]        || missing+=("var AGENT_SERVER_HOST")
-          [ -n "$PUBKEY" ]      || missing+=("var AGENT_SERVER_PUBKEY")
+          [ -n "$PUBKEY" ]      || missing+=("var AGENT_SERVER_PUBKEY -- set it on the agent-server environment, not the repository")
           [ -n "$KEY" ]         || missing+=("secret AGENT_SERVER_SSH_KEY")
           [ -n "$KNOWN_HOSTS" ] || missing+=("secret AGENT_SERVER_KNOWN_HOSTS -- read the fingerprint from the Hetzner console, do not trust it on first use")
           if [ ${#missing[@]} -ne 0 ]; then

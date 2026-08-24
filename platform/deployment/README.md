@@ -533,13 +533,24 @@ that cannot be reached that way.** In Settings → Environments, create
 ```bash
 ssh-keygen -t ed25519 -N "" -C "agent-server ci" -f /tmp/agent-ci
 gh secret   set AGENT_SERVER_SSH_KEY --env agent-server < /tmp/agent-ci
-gh variable set AGENT_SERVER_PUBKEY  < /tmp/agent-ci.pub   # public, not a secret
+gh variable set AGENT_SERVER_PUBKEY  --env agent-server < /tmp/agent-ci.pub
 gh variable set AGENT_SERVER_HOST --body "<box ip>"
 shred -u /tmp/agent-ci /tmp/agent-ci.pub
 ```
 
 `AGENT_SERVER_KNOWN_HOSTS` and `TAILSCALE_AUTHKEY` go in the same environment,
 for the same reason — both reach the box.
+
+**The public key goes there too, and that is not obvious.** It is not a secret,
+so an earlier draft set it as a plain repository variable and said so in a
+comment. Review caught the flaw: whoever can set that variable decides which
+key the playbook installs into `authorized_keys` on a root-equivalent account.
+A write-access collaborator could point it at their own key and let a
+routine-looking environment approval install it — a bypass that goes *through*
+the gate rather than around it, and one the approver has no way to see. The
+lesson generalises: **confidentiality and integrity are different questions,
+and only the first is about secrecy.** Anything that decides who gets access
+belongs behind the same gate as the credentials, secret or not.
 
 Piping straight into `gh` keeps the private key off your screen, out of your
 shell history and out of any transcript. Create the server in the Hetzner
