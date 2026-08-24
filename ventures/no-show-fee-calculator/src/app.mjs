@@ -89,6 +89,9 @@ form.addEventListener("submit", (event) => {
     renderErrors(parsed.errors);
     resultsEl.hidden = true;
     policySection.hidden = true;
+    // Hide the comparison too: a stale table next to fresh errors reads as if
+    // the old numbers still apply to the edited inputs.
+    scenarioSection.hidden = true;
     return;
   }
 
