@@ -14,5 +14,5 @@ test('rejects a cut longer than stock', () => assert.throws(() => optimizeCutLis
 test('rejects an empty cut list', () => assert.throws(() => optimizeCutList({ stockLength: 10, kerf: 0, cuts: [] }), /at least one/));
 test('formats a plan for copying into a job ticket', () => {
   const result = optimizeCutList({ stockLength: 60, kerf: 1, cuts: [36, 20, 10] });
-  assert.equal(formatCutPlan(result, { stockUnit: 'in' }), 'Cut plan: 2 stock pieces\nRequired material: 66.00 in\nOffcut after kerf allowance: 53.00 in\n\nStock 1: 36.00 + 20.00 in\n  3.00 in remaining after kerf allowance\nStock 2: 10.00 in\n  50.00 in remaining after kerf allowance');
+  assert.equal(formatCutPlan(result, { stockUnit: 'in', stockLength: 60, kerf: 1 }), 'Cut plan: 2 stock pieces\nStock length: 60.00 in\nKerf per cut: 1.00 in\nRequired material: 66.00 in\nOffcut after kerf allowance: 53.00 in\n\nStock 1: 36.00 + 20.00 in\n  3.00 in remaining after kerf allowance\nStock 2: 10.00 in\n  50.00 in remaining after kerf allowance');
 });
