@@ -201,7 +201,31 @@ def _text_dump_kind(header: bytes) -> tuple[str, bytes] | None:
     return None
 
 
-def _check_compressed_stream(path: Path, fmt: str, max_bytes: int | None) -> dict[str, Any]:
+def _opaque_payload_format(inner: bytes) -> str | None:
+    """Name a payload we can recognise inside a compressed file but cannot verify.
+
+    A clean decompression proves the *wrapper* finished, not the payload. For a
+    payload with no structure we can read (plain text, a raw dump), the wrapper
+    is the only claim available and `intact` is the honest answer. But when the
+    payload is itself a checksummed container we simply cannot check in-stream
+    -- a SQLite database needs a seekable file, and `pg_dump -Fc` needs
+    PostgreSQL's reader -- reporting `intact` would repeat the exact overclaim
+    that decompressing a truncated dump used to make. `gzip app.db` is a common
+    enough backup that this is worth naming rather than glossing.
+    """
+    if inner.startswith(_SQLITE_MAGIC):
+        return "a SQLite database"
+    if inner.startswith(b"PGDMP"):
+        return "a PostgreSQL custom-format dump"
+    return None
+
+
+def _check_compressed_stream(
+    path: Path,
+    fmt: str,
+    max_bytes: int | None,
+    opaque_payload: str | None = None,
+) -> dict[str, Any]:
     """Decompress a non-tar compressed file to its end and discard the output."""
     opener = _decompressor(fmt)
     assert opener is not None  # callers only route compressible formats here
@@ -233,6 +257,16 @@ def _check_compressed_stream(path: Path, fmt: str, max_bytes: int | None) -> dic
             INCONCLUSIVE,
             fmt,
             f"could not read the {fmt} stream to its end ({type(exc).__name__}: {exc})",
+            bytes_read=read,
+        )
+    if opaque_payload is not None:
+        return _result(
+            UNSUPPORTED,
+            fmt,
+            f"the {fmt} wrapper decompressed to a clean end and its checksum matched, but the "
+            f"payload is {opaque_payload}, which cannot be checked from a stream without "
+            "extracting it. The wrapper being intact does not mean the payload is: decompress "
+            "it and run verify on the result for a real answer.",
             bytes_read=read,
         )
     return _result(
@@ -552,7 +586,9 @@ def inspect_artifact(path: str | Path, *, max_bytes: int | None = None) -> dict[
         dump_kind = _text_dump_kind(inner)
         if dump_kind is not None:
             return _check_compressed_text_dump(path, fmt, dump_kind, max_bytes)
-        return _check_compressed_stream(path, fmt, max_bytes)
+        return _check_compressed_stream(
+            path, fmt, max_bytes, opaque_payload=_opaque_payload_format(inner)
+        )
 
     if fmt == "tar":
         return _check_tar(path, "tar", max_bytes)

@@ -59,8 +59,16 @@ reading one to completion is a real test that the writer finished.
 | `.gz`, `.bz2`, `.xz` | decompressed to end of stream; the format's own checksum must match |
 | `.zip` | every member's stored CRC re-checked |
 | SQLite `.db` / `.sqlite` | SQLite's own `PRAGMA quick_check`, opened strictly read-only |
-| `pg_dump`/`mysqldump` plain text | the dump-complete trailer a finished dump ends with |
+| `pg_dump`/`mysqldump` plain text, **including inside `.gz`/`.bz2`/`.xz`** | the dump-complete trailer a finished dump ends with |
 | restic/borg directories, zstd, `pg_dump -Fc` | reported `unsupported`, never guessed — with the native command to run instead |
+
+A clean wrapper is never mistaken for a clean payload. `pg_dump … \| gzip` writes
+a **CRC-valid gzip around a truncated dump**, so the compressed dump is unwrapped
+and its trailer checked too — otherwise the headline case above would slip
+through. Where a compressed payload is a container that genuinely cannot be
+checked from a stream (a SQLite database, a `pg_dump -Fc` file), the result is
+`unsupported` and says the wrapper verified but the payload did not, rather than
+`intact`.
 
 Formats are detected from magic bytes, not extensions, because backup
 filenames lie routinely.

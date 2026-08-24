@@ -219,9 +219,15 @@ class SqliteTests(ArtifactFixtureCase):
         self.assertEqual(sorted(p.name for p in self.dir.iterdir()), ["app.db"])
 
     def test_uri_special_characters_in_path_stay_read_only(self) -> None:
-        # SQLite URI filenames treat # as a fragment and ? as the query
-        # delimiter. Without encoding, mode=ro is dropped and the wrong
-        # path is opened.
+        """A `#` or `?` in the path must not silently drop `mode=ro`.
+
+        SQLite URI filenames treat `#` as a fragment delimiter and `?` as the
+        query delimiter, so an unencoded `file:/backups/app#1.db?mode=ro`
+        parses as the path `/backups/app` with *no* query -- which means the
+        default `rwc` mode, on the wrong file. The tell is not an exception
+        (there is none) but a stray database appearing next to the real one,
+        so that is what this asserts.
+        """
         for name in ("app#1.db", "app 1.db", "app?1.db"):
             with self.subTest(name=name):
                 path = self._db(name)
@@ -229,7 +235,19 @@ class SqliteTests(ArtifactFixtureCase):
                 result = inspect_artifact(path)
                 self.assertEqual(result["result"], INTACT)
                 self.assertEqual(path.read_bytes(), before)
-                self.assertIn(name, [p.name for p in self.dir.iterdir()])
+                # Exact directory contents: the unencoded form created an
+                # empty `app` alongside the real file and still reported ok.
+                self.assertEqual([p.name for p in self.dir.iterdir()], [name])
+                path.unlink()
+
+    def test_the_connection_used_for_checking_cannot_write(self) -> None:
+        # Direct evidence that mode=ro survives URI construction, rather than
+        # inferring it from the absence of side effects.
+        path = self._db("app#1.db")
+        connection = sqlite3.connect(f"{path.resolve().as_uri()}?mode=ro", uri=True)
+        self.addCleanup(connection.close)
+        with self.assertRaises(sqlite3.OperationalError):
+            connection.execute("CREATE TABLE injected (a)")
 
 
 class TextDumpTests(ArtifactFixtureCase):
@@ -324,3 +342,54 @@ class UnsupportedAndEdgeCaseTests(ArtifactFixtureCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CompressedOpaquePayloadTests(ArtifactFixtureCase):
+    """A clean wrapper must not be reported as a clean payload.
+
+    Sibling of the `pg_dump | gzip` case: `gzip app.db` produces a file whose
+    gzip CRC is perfect regardless of whether the database inside it is whole.
+    Text dumps get a trailer check; a SQLite payload has no equivalent that
+    works on a stream, so the honest answer is that it was not checked.
+    """
+
+    def _db_bytes(self) -> bytes:
+        path = self.dir / "src.db"
+        connection = sqlite3.connect(path)
+        connection.execute("CREATE TABLE t (a INTEGER, b TEXT)")
+        connection.executemany(
+            "INSERT INTO t VALUES (?, ?)", [(i, "x" * 200) for i in range(2000)]
+        )
+        connection.commit()
+        connection.close()
+        raw = path.read_bytes()
+        path.unlink()
+        return raw
+
+    def test_gzipped_sqlite_is_not_claimed_intact(self) -> None:
+        raw = self._db_bytes()
+        result = inspect_artifact(self.write("app.db.gz", gzip.compress(raw)))
+        self.assertEqual(result["result"], UNSUPPORTED)
+        self.assertIn("SQLite", result["detail"])
+        self.assertIn("decompress it and run verify", result["detail"].lower())
+
+    def test_gzipped_truncated_sqlite_is_not_claimed_intact(self) -> None:
+        # The failure case: wrapper perfect, payload destroyed. Reporting
+        # `intact` here would be the same overclaim the trailer check removed.
+        raw = self._db_bytes()
+        path = self.write("app.db.gz", gzip.compress(raw[: len(raw) // 2]))
+        self.assertTrue(gzip.decompress(path.read_bytes()))  # wrapper is fine
+        self.assertNotEqual(inspect_artifact(path)["result"], INTACT)
+
+    def test_gzipped_pg_custom_dump_is_not_claimed_intact(self) -> None:
+        result = inspect_artifact(
+            self.write("db.dump.gz", gzip.compress(b"PGDMP" + b"\x00" * 4096))
+        )
+        self.assertEqual(result["result"], UNSUPPORTED)
+        self.assertIn("PostgreSQL custom-format", result["detail"])
+
+    def test_gzipped_plain_text_is_still_intact(self) -> None:
+        # Control: an unrecognised payload has no checkable structure, so the
+        # wrapper genuinely is the whole claim and `intact` stays correct.
+        result = inspect_artifact(self.write("notes.txt.gz", gzip.compress(b"log line\n" * 500)))
+        self.assertEqual(result["result"], INTACT)

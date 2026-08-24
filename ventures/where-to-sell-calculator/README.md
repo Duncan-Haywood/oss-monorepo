@@ -45,6 +45,11 @@ for anything not listed (Mercari, Poshmark, Depop, a craft fair, wholesale).
 Entries are saved in your own browser so the page remembers them next time.
 "Reset everything" clears them.
 
+Use **Copy share link** to send a calculation to someone else. The link carries
+only the numeric assumptions and channel settings needed to reproduce the table;
+it does not include local usage counts or browser-saved data. Anyone with the
+link can read those assumptions, so do not include confidential costs.
+
 ## Rates are inputs, not a published schedule
 
 Every rate ships with an **illustrative** US default and is editable. This
@@ -81,7 +86,8 @@ pixels, or analytics vendors. Saved entries stay in `localStorage` on that
 device.
 
 The optional usage counter records only an event name (`comparison_calculated`,
-`channel_rates_edited`, `channel_toggled`, `subscription_toggled`) and the
+`channel_rates_edited`, `channel_toggled`, `subscription_toggled`,
+`share_link_copied`) and the
 current day, in the visitor's own `localStorage`. It never records inputs, it
 never leaves the device, it is off for anyone sending Do Not Track or Global
 Privacy Control, and the footer checkbox turns it off and discards what was

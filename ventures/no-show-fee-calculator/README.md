@@ -39,7 +39,9 @@ No build step, no install, no dependencies. It's plain HTML/CSS/JS.
    often clients no-show or cancel late.
 2. Enter the notice window you want to require and what percentage of the
    price you'd charge as a fee.
-3. Get: the fee amount, how many no-shows/late-cancels you can expect in a
+3. Choose the currency your prices already use. The calculator labels amounts
+   in USD, EUR, GBP, CAD, or AUD; it does not convert between currencies.
+4. Get: the fee amount, how many no-shows/late-cancels you can expect in a
    year at your rate, what that time is worth, and an estimate of fee
    revenue you could collect if you enforce the policy — plus a plain-text
    cancellation policy you can copy straight into your booking system,
@@ -51,9 +53,9 @@ guesswork — it's your numbers, run through a fixed formula you can read.
 
 After calculating, use **Copy share link** to create a bookmarkable URL that
 restores the form and results on another device. The link contains the values
-in its query string, including any business or service names, so treat it like
-any other link containing business information. It is not uploaded or stored
-by this tool.
+in its query string, including the selected currency and any business or
+service names, so treat it like any other link containing business information.
+It is not uploaded or stored by this tool.
 
 ## Disclaimer
 
