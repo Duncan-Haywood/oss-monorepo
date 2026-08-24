@@ -19,3 +19,12 @@ test('parses quoted commas and rejects malformed rows instead of silently droppi
   assert.equal(records[0].cents, 10000);
   assert.throws(() => readRecords('date,net\n2026-08-20,100.00\nnot-a-date,25.50', 'payouts'), /invalid date or amount/);
 });
+
+test('matches a payout split across multiple bank deposits', () => {
+  const payouts = readRecords('date,net\n2026-08-20,100.00', 'payouts');
+  const deposits = readRecords('date,amount\n2026-08-21,60.00\n2026-08-22,40.00', 'deposits');
+  const result = reconcile(payouts, deposits, 3);
+  assert.equal(result[0].status, 'matched');
+  assert.equal(result[0].deposits.length, 2);
+  assert.equal(result[0].deposits.reduce((sum, deposit) => sum + deposit.cents, 0), 10000);
+});
