@@ -52,9 +52,11 @@ on:
         type: string
         default: "24"
 
+# Floor is read-only. Each job below re-declares what it actually needs, so the
+# write scope is a decision on the job that deletes refs rather than a scope
+# every job in the file inherits by living here (agent-permission-harness R5).
 permissions:
-  contents: write # deleting a ref
-  pull-requests: read
+  contents: read
 
 # Two sweeps at once would race each other into 404s on the same refs. Queue
 # rather than cancel: a cancelled sweep leaves the backlog half-done.
@@ -68,6 +70,9 @@ jobs:
     # grace period, so it is the scheduled sweep that picks it up, not this job.
     if: github.event_name == 'pull_request_target' && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # deleting the head ref
+      pull-requests: read
     steps:
       - uses: actions/checkout@v4 # no `ref`: base branch, not the PR head
       - uses: actions/setup-python@v5
@@ -84,6 +89,9 @@ jobs:
     # ago, and catches any merged PR whose on-close run was missed.
     if: github.event_name != 'pull_request_target'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # deleting head refs
+      pull-requests: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
