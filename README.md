@@ -106,6 +106,16 @@ other. The router consumes the composite as a tiebreaker. See
 pass found, including why merit and the router's dispatchable/blocked split
 disagree.
 
+## Product-first execution
+
+New work should end in a runnable customer workflow, not only a research note
+or governance artifact. Prefer narrow browser tools, CLIs, and user-owned
+integrations that deliver measurable time or money savings at zero marginal
+cost. Ship the deterministic core first, include visible disclaimers, local
+opt-out usage signals, and search-friendly landing copy, then use return usage
+to choose the next feature. Payment, public publishing, and paid unattended
+automation remain owner-gated; private product implementation is not.
+
 ## History
 
 Ventures were merged in with `git subtree`, so each one's full commit history
