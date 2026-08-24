@@ -1,5 +1,16 @@
 period: 2026-08
 entries:
+  - venture: etsy-profit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and implemented a browser-local Etsy order-profit calculator
+        with a complete fee and variable-cost breakdown, visible disclaimer,
+        local opt-out usage counter, SEO metadata, sitemap, robots.txt, and
+        six behavior tests. Public URL and current Etsy fee verification remain
+        owner-gated or user-supplied.
+    mrr_end: null
   - venture: photos-import-tools
     agent_spend_usd: null
     human_hours: 0
