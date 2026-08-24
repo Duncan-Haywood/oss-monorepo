@@ -250,6 +250,14 @@
     return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
+  function csvField(value) {
+    const text = String(value);
+    if (/[",\n\r]/.test(text)) {
+      return `"${text.replace(/"/g, '""')}"`;
+    }
+    return text;
+  }
+
   function update() {
     try {
       const quote = loadQuote(readInputs());
@@ -288,15 +296,15 @@
     }
     const { quote, r } = lastReport;
     const rows = [
-      "measure,value,unit",
-      `quoted_price,${quote.price.toFixed(2)},${quote.currency}`,
-      `total_working_hours,${r.total_hours.toFixed(2)},hours`,
-      `direct_costs,${r.direct_costs.toFixed(2)},${quote.currency}`,
-      `effective_hourly_rate,${r.effective_hourly_rate.toFixed(2)},${quote.currency}/hour`,
-      `target_price,${r.target_price.toFixed(2)},${quote.currency}`,
-      `gap_to_target,${r.gap_to_target.toFixed(2)},${quote.currency}`,
-      `cost_coverage,${r.cost_coverage.toFixed(2)},${quote.currency}`,
-    ].join("\n");
+      ["measure", "value", "unit"],
+      ["quoted_price", quote.price.toFixed(2), quote.currency],
+      ["total_working_hours", r.total_hours.toFixed(2), "hours"],
+      ["direct_costs", r.direct_costs.toFixed(2), quote.currency],
+      ["effective_hourly_rate", r.effective_hourly_rate.toFixed(2), `${quote.currency}/hour`],
+      ["target_price", r.target_price.toFixed(2), quote.currency],
+      ["gap_to_target", r.gap_to_target.toFixed(2), quote.currency],
+      ["cost_coverage", r.cost_coverage.toFixed(2), quote.currency],
+    ].map((row) => row.map(csvField).join(",")).join("\n");
     try {
       await navigator.clipboard.writeText(rows);
       copyStatus.textContent = "Copied — paste into a spreadsheet.";
