@@ -34,9 +34,34 @@ function compare(before, after) {
 }
 function usage(event) { if (document.querySelector('#usage').checked && !navigator.globalPrivacyControl && navigator.doNotTrack !== '1') { const key = 'shopify-drift-usage'; const events = JSON.parse(localStorage.getItem(key) || '[]'); events.push({ event, day:new Date().toISOString().slice(0,10) }); localStorage.setItem(key, JSON.stringify(events)); } }
 async function read(file) { return validInventory(JSON.parse(await file.text())); }
-function render() { document.querySelector('#status').textContent = report.status === 'changed' ? `${report.changes.length} change${report.changes.length === 1 ? '' : 's'} require review` : 'No changes found'; document.querySelector('#status').className = `status ${report.status}`; document.querySelector('#metadata').textContent = `${report.metadata.before_source} → ${report.metadata.after_source} · captured ${report.metadata.before_captured_at} → ${report.metadata.after_captured_at}`; document.querySelector('#changes').innerHTML = report.changes.length ? report.changes.map(change => `<li><span class="change-kind">${change.kind}</span>${change.app ? ` · ${change.app}` : ''}${change.added?.length ? ` · added: ${change.added.join(', ')}` : ''}${change.removed?.length ? ` · removed: ${change.removed.join(', ')}` : ''}${change.before ? ` · ${change.before} → ${change.after}` : ''}</li>`).join('') : '<li>Both snapshots describe the same app inventory and metadata.</li>'; result.hidden = false; }
+function render() {
+  const status = document.querySelector('#status');
+  const metadata = document.querySelector('#metadata');
+  const changes = document.querySelector('#changes');
+  status.textContent = report.status === 'changed' ? `${report.changes.length} change${report.changes.length === 1 ? '' : 's'} require review` : 'No changes found';
+  status.className = `status ${report.status}`;
+  metadata.textContent = `${report.metadata.before_source} -> ${report.metadata.after_source} · captured ${report.metadata.before_captured_at} -> ${report.metadata.after_captured_at}`;
+  changes.replaceChildren();
+  if (!report.changes.length) {
+    const item = document.createElement('li');
+    item.textContent = 'Both snapshots describe the same app inventory and metadata.';
+    changes.append(item);
+  } else {
+    report.changes.forEach(change => {
+      const item = document.createElement('li');
+      const kind = document.createElement('span');
+      kind.className = 'change-kind';
+      kind.textContent = change.kind;
+      item.append(kind);
+      const details = [change.app && ` · ${change.app}`, change.added?.length && ` · added: ${change.added.join(', ')}`, change.removed?.length && ` · removed: ${change.removed.join(', ')}`, change.before && ` · ${change.before} -> ${change.after}`].filter(Boolean).join('');
+      item.append(document.createTextNode(details));
+      changes.append(item);
+    });
+  }
+  result.hidden = false;
+}
 async function run() { error.hidden = true; try { report = compare(await read(beforeInput.files[0]), await read(afterInput.files[0])); render(); usage('inventory_compared'); } catch (err) { error.textContent = err.message; error.hidden = false; } }
 beforeInput.addEventListener('change', () => { compareButton.disabled = !(beforeInput.files[0] && afterInput.files[0]); }); afterInput.addEventListener('change', () => { compareButton.disabled = !(beforeInput.files[0] && afterInput.files[0]); }); compareButton.addEventListener('click', run);
 document.querySelector('#download').addEventListener('click', () => { const blob = new Blob([JSON.stringify(report, null, 2)], { type:'application/json' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'shopify-permission-drift-report.json'; link.click(); URL.revokeObjectURL(link.href); usage('report_exported'); });
-document.querySelector('#copy').addEventListener('click', async () => { await navigator.clipboard.writeText(`Shopify permission drift: ${report.status}. ${report.changes.length} change(s) require review. Evidence only; review with the merchant.`); usage('summary_copied'); });
+document.querySelector('#copy').addEventListener('click', async () => { try { await navigator.clipboard.writeText(`Shopify permission drift: ${report.status}. ${report.changes.length} change(s) require review. Evidence only; review with the merchant.`); usage('summary_copied'); } catch { error.textContent = 'Clipboard access was unavailable. Use the downloaded report instead.'; error.hidden = false; } });
 document.querySelector('#clear-usage').addEventListener('click', () => localStorage.removeItem('shopify-drift-usage'));
