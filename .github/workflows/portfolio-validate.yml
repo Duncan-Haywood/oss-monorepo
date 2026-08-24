@@ -137,6 +137,12 @@ jobs:
         working-directory: portfolio/pipeline/probes
         run: python3 -m unittest test_validate_probe_index
 
+      - name: Evidence-boundary probe tests
+        run: |
+          python3 -m pytest -q \
+            portfolio/pipeline/probes/vendor-change-evidence/test_vendor_diff.py \
+            portfolio/pipeline/probes/dns-configuration-evidence/test_dns_diff.py
+
       - name: Check the measurement record in candidates.yaml is still readable
         run: python3 portfolio/pipeline/score_sensitivity.py
 
