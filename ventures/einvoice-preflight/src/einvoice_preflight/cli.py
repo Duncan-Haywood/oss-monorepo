@@ -39,7 +39,10 @@ def _record_usage(path: str) -> None:
         pass
 
 
-def _sarif_report(reports: list[tuple[Path, list[dict[str, str]]]]) -> dict[str, Any]:
+def _sarif_report(
+    reports: list[tuple[Path, list[dict[str, str]]]],
+    read_errors: list[dict[str, str]],
+) -> dict[str, Any]:
     """Build a SARIF 2.1.0 report for CI annotations and code scanning tools."""
     rules = {}
     results = []
@@ -54,6 +57,17 @@ def _sarif_report(reports: list[tuple[Path, list[dict[str, str]]]]) -> dict[str,
                 "properties": {"jsonPointer": error["path"]},
                 "locations": [{"physicalLocation": {"artifactLocation": {"uri": invoice_path.as_posix()}}}],
             })
+    for read_error in read_errors:
+        rules.setdefault("INV-READ", {
+            "id": "INV-READ",
+            "shortDescription": {"text": "Invoice could not be read."},
+        })
+        results.append({
+            "ruleId": "INV-READ",
+            "level": "error",
+            "message": {"text": f"Invoice could not be read: {read_error['error']}"},
+            "locations": [{"physicalLocation": {"artifactLocation": {"uri": read_error["file"]}}}],
+        })
     return {
         "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
         "version": "2.1.0",
@@ -325,7 +339,7 @@ def main(argv: list[str] | None = None) -> int:
     elif args.format == "junit":
         print(_junit_report(reports, read_errors), end="")
     elif args.format == "sarif":
-        print(json.dumps(_sarif_report(reports), indent=2))
+        print(json.dumps(_sarif_report(reports, read_errors), indent=2))
     elif args.format == "github":
         print(_github_report(reports, read_errors), end="")
     elif errors:

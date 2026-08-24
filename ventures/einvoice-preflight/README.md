@@ -65,7 +65,8 @@ envelope, whether the input is one file or a directory: `status`,
 reimplementing the rules. `--format sarif` emits SARIF
 2.1.0 for GitHub code scanning, CI annotations, and
 editor integrations. It contains the rule IDs, fixes, JSON Pointer paths, and the local invoice
-filename, never invoice fields or line contents. Both formats exit `1` when
+filename, never invoice fields or line contents. Unreadable files are emitted as `INV-READ`
+results so a CI consumer cannot mistake a skipped file for a clean check. Both formats exit `1` when
 any check fails and `2` for an unreadable input file. Pass a directory to scan
 all `.json` files recursively; batch JSON includes per-file errors and batch
 SARIF uses paths relative to the input directory. An empty directory is an

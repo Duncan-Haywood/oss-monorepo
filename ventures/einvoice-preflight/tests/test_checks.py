@@ -211,6 +211,18 @@ class ChecksTest(unittest.TestCase):
             report = json.loads(output.getvalue())
             self.assertEqual(report["runs"][0]["results"], [])
 
+    def test_cli_emits_sarif_result_for_read_errors(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "broken.json"
+            invoice_path.write_text("not json")
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "sarif"]), 2)
+            result = json.loads(output.getvalue())["runs"][0]["results"][0]
+            self.assertEqual(result["ruleId"], "INV-READ")
+            self.assertEqual(result["locations"][0]["physicalLocation"]["artifactLocation"]["uri"], "broken.json")
+            self.assertIn("Invoice could not be read", result["message"]["text"])
+
     def test_cli_emits_github_annotations_without_invoice_contents(self):
         with tempfile.TemporaryDirectory() as directory:
             invoice_path = Path(directory) / "invoice,review.json"
