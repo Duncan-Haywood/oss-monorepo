@@ -251,6 +251,23 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(record["errors"], [])
             self.assertIn("Expecting value", record["error"])
 
+    def test_cli_max_files_bounds_directory_scan_before_reading(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "one.json").write_text(json.dumps(VALID))
+            (root / "two.xml").write_bytes(UBL_VALID)
+            output = io.StringIO()
+            errors = io.StringIO()
+            with contextlib.redirect_stdout(output), contextlib.redirect_stderr(errors):
+                self.assertEqual(main([directory, "--max-files", "1", "--format", "json"]), 2)
+            self.assertEqual(output.getvalue(), "")
+            self.assertIn("exceeding --max-files 1", errors.getvalue())
+
+    def test_cli_rejects_non_positive_max_files(self):
+        with self.assertRaises(SystemExit) as result:
+            main([".", "--max-files", "0"])
+        self.assertEqual(result.exception.code, 2)
+
     def test_cli_batch_flags_duplicate_invoice_numbers_without_disclosing_number(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -413,22 +430,6 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(report["reports"][0]["errors"][0]["rule"], "INV-017")
             self.assertEqual(report["observations"], 1)
             self.assertEqual(report["rules"], {"INV-017": 1})
-
-    def test_cli_refuses_directory_over_max_files_before_reading(self):
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            (root / "one.json").write_text(json.dumps(VALID))
-            (root / "two.json").write_text(json.dumps(VALID))
-            output = io.StringIO()
-            with contextlib.redirect_stdout(output):
-                self.assertEqual(main([directory, "--format", "json", "--max-files", "1"]), 2)
-            self.assertIn("exceeding --max-files 1", output.getvalue())
-            self.assertNotIn("INV-1", output.getvalue())
-
-    def test_cli_rejects_non_positive_max_files(self):
-        with self.assertRaises(SystemExit) as raised:
-            main([".", "--max-files", "0"])
-        self.assertEqual(raised.exception.code, 2)
 
     def test_cli_batch_sarif_uses_relative_file_locations(self):
         with tempfile.TemporaryDirectory() as directory:

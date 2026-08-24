@@ -401,6 +401,17 @@ def _markdown_text(value: str) -> str:
     return value.replace("\\", "\\\\").replace("|", "\\|").replace("`", "\\`")
 
 
+def _positive_int(value: str) -> int:
+    """Parse a positive CLI limit with an actionable argparse error."""
+    try:
+        parsed = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("must be a positive integer") from exc
+    if parsed < 1:
+        raise argparse.ArgumentTypeError("must be a positive integer")
+    return parsed
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check a local JSON or UBL XML e-invoice before submission. No tax advice or submission.")
     parser.add_argument("--version", action="version", version=f"einvoice-preflight {VERSION}")
@@ -433,8 +444,8 @@ def main(argv: list[str] | None = None) -> int:
             return 2
         if args.max_files is not None and len(paths) > args.max_files:
             print(
-                f"Directory contains {len(paths)} JSON/XML invoices, exceeding "
-                f"--max-files {args.max_files}. Refusing to scan."
+                f"Directory contains {len(paths)} JSON/XML files, exceeding --max-files {args.max_files}.",
+                file=sys.stderr,
             )
             return 2
         sources = []
