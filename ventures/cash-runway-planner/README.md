@@ -2,7 +2,7 @@
 
 Small service businesses often know their profit and still run out of cash because invoices arrive later than bills. Cash Runway Planner turns starting cash, weekly income, invoice collection delay, and recurring costs into a 12-week low-balance forecast.
 
-Open `index.html` in a browser. No account, server, API key, or upload is required. Draft values stay in your browser and can be cleared with **Reset**.
+Serve this directory locally with `python3 -m http.server` and open the displayed localhost URL. A browser server is needed for the ES module; no account, API key, or upload is required. Draft values stay in your browser and can be cleared with **Reset**.
 
 ## Privacy and usage
 
