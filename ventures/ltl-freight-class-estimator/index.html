@@ -17,7 +17,7 @@
     h2 { margin: 0 0 5px; font-size: 1.2rem; } .hint { color: #5b625f; font-size: .88rem; margin-top: 0; }
     .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; } label { display: grid; gap: 5px; font-weight: 650; font-size: .88rem; } input { width: 100%; box-sizing: border-box; padding: 11px; border: 1px solid #b8aea3; border-radius: 8px; font: inherit; background: white; }
     button { border: 0; border-radius: 8px; padding: 11px 15px; background: #9a4c25; color: white; font: inherit; font-weight: 750; cursor: pointer; } button.secondary { background: #eee4d8; color: #57301f; } .actions { display: flex; gap: 9px; margin-top: 17px; flex-wrap: wrap; }
-    .result { background: #243d3b; color: #f4f5ed; border-color: #243d3b; position: sticky; top: 14px; } .class { font-size: 4.5rem; line-height: 1; color: #f2b66c; font-weight: 850; letter-spacing: -.08em; margin: 13px 0 4px; } .result dl { display: grid; grid-template-columns: 1fr auto; gap: 10px; } dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; font-weight: 700; } .notice { border-left: 4px solid #f2b66c; padding-left: 11px; font-size: .86rem; color: #dce6de; }
+     .result { background: #243d3b; color: #f4f5ed; border-color: #243d3b; position: sticky; top: 14px; } .class { font-size: 4.5rem; line-height: 1; color: #f2b66c; font-weight: 850; letter-spacing: -.08em; margin: 13px 0 4px; } .result dl { display: grid; grid-template-columns: 1fr auto; gap: 10px; } dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; font-weight: 700; } .notice { border-left: 4px solid #f2b66c; padding-left: 11px; font-size: .86rem; color: #dce6de; } .threshold { color: #f2d6ad; font-size: .86rem; }
     footer { color: #5b625f; font-size: .8rem; margin-top: 22px; } footer button { background: transparent; color: #9a4c25; padding: 0; font-size: inherit; }
     @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
   </style>
@@ -28,7 +28,7 @@
     <section><h2>Your freight</h2><p class="hint">Use the packed outside dimensions. Weight is per piece; pieces can be pallets, crates, or cartons.</p><div class="fields">
       <label>Length (inches)<input id="length" type="number" min="0.01" step="0.01" value="48"></label><label>Width (inches)<input id="width" type="number" min="0.01" step="0.01" value="40"></label><label>Height (inches)<input id="height" type="number" min="0.01" step="0.01" value="36"></label><label>Weight per piece (lb)<input id="weight" type="number" min="0.01" step="0.01" value="500"></label><label>Identical pieces<input id="pieces" type="number" min="1" step="1" value="1"></label>
     </div><div class="actions"><button id="copy" type="button">Copy estimate</button><button class="secondary" id="reset" type="button">Reset example</button></div><p id="status" class="hint" role="status"></p></section>
-    <section class="result"><h2>Planning estimate</h2><p class="hint" style="color:#c7d7ce">Density-based class band</p><div class="class" id="freightClass">85</div><p id="band">Estimated freight class</p><dl><dt>Total cube</dt><dd id="cube">40.00 ft³</dd><dt>Total weight</dt><dd id="totalWeight">500 lb</dd><dt>Density</dt><dd id="density">12.50 lb/ft³</dd></dl><p class="notice">This is not an official NMFC classification or freight quote. Handling, stowability, liability, packaging, commodity, and carrier rules may change the result. Verify it before booking.</p></section>
+     <section class="result"><h2>Planning estimate</h2><p class="hint" style="color:#c7d7ce">Density-based class band</p><div class="class" id="freightClass">85</div><p id="band">Estimated freight class</p><p class="threshold" id="threshold"></p><dl><dt>Total cube</dt><dd id="cube">40.00 ft³</dd><dt>Total weight</dt><dd id="totalWeight">500 lb</dd><dt>Density</dt><dd id="density">12.50 lb/ft³</dd></dl><p class="notice">This is not an official NMFC classification or freight quote. Handling, stowability, liability, packaging, commodity, and carrier rules may change the result. Verify it before booking.</p></section>
   </main>
   <footer><strong>No warranty.</strong> Free and as-is. Not legal, tax, financial, or shipping advice. Verify the output with a qualified freight professional; you remain responsible for decisions made from it. No data is uploaded. Usage counting is local and opt-out. <button id="clearUsage" type="button">Clear local usage count</button></footer>
   <script type="module">
@@ -42,7 +42,10 @@
         const result = estimateFreightClass(Object.fromEntries(ids.map(id => [id, value(id)])));
         document.getElementById('status').textContent = '';
         document.getElementById('freightClass').textContent = result.freightClass;
-        document.getElementById('band').textContent = `Estimated class from ${result.bandMinimumDensity} lb/ft³ minimum density`;
+         document.getElementById('band').textContent = `Estimated class from ${result.bandMinimumDensity} lb/ft³ minimum density`;
+         document.getElementById('threshold').textContent = result.nextLowerClass
+           ? `${(result.nextLowerClassDensity - result.density).toFixed(2)} lb/ft³ more density reaches the ${result.nextLowerClass} band.`
+           : 'This is the densest band in the planning table.';
         document.getElementById('cube').textContent = `${result.totalCube.toFixed(2)} ft³`;
         document.getElementById('totalWeight').textContent = `${result.totalWeight.toFixed(0)} lb`;
         document.getElementById('density').textContent = `${result.density.toFixed(2)} lb/ft³`;
@@ -53,14 +56,15 @@
         document.getElementById('band').textContent = 'No estimate until the inputs are valid';
         document.getElementById('cube').textContent = '--';
         document.getElementById('totalWeight').textContent = '--';
-        document.getElementById('density').textContent = '--';
+         document.getElementById('density').textContent = '--';
+         document.getElementById('threshold').textContent = '';
         document.getElementById('status').textContent = 'Enter positive dimensions, weight, and a whole-number piece count.';
         return false;
       }
       return true;
     }
     ids.forEach(id => document.getElementById(id).addEventListener('input', () => update()));
-    document.getElementById('copy').addEventListener('click', async () => { if (!update(false)) return; const text = `Estimated LTL freight class: ${document.getElementById('freightClass').textContent}\nDensity: ${document.getElementById('density').textContent}\nTotal cube: ${document.getElementById('cube').textContent}\nTotal weight: ${document.getElementById('totalWeight').textContent}\nPlanning estimate only; verify with the carrier.`; try { await navigator.clipboard.writeText(text); document.getElementById('status').textContent = 'Estimate copied.'; recordUsage('result_copied'); } catch { document.getElementById('status').textContent = 'Copy is unavailable in this browser.'; } });
+     document.getElementById('copy').addEventListener('click', async () => { if (!update(false)) return; const text = `Estimated LTL freight class: ${document.getElementById('freightClass').textContent}\nDensity: ${document.getElementById('density').textContent}\nTotal cube: ${document.getElementById('cube').textContent}\nTotal weight: ${document.getElementById('totalWeight').textContent}\n${document.getElementById('threshold').textContent}\nPlanning estimate only; verify with the carrier.`; try { await navigator.clipboard.writeText(text); document.getElementById('status').textContent = 'Estimate copied.'; recordUsage('result_copied'); } catch { document.getElementById('status').textContent = 'Copy is unavailable in this browser.'; } });
     document.getElementById('reset').addEventListener('click', () => { [['length',48],['width',40],['height',36],['weight',500],['pieces',1]].forEach(([id, val]) => { document.getElementById(id).value = val; }); countedSignature = ''; update(false); });
     document.getElementById('clearUsage').addEventListener('click', () => { clearUsage(); document.getElementById('status').textContent = 'Local usage count cleared.'; });
     update(false);

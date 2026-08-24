@@ -42,5 +42,21 @@ export function estimateFreightClass(input) {
     throw new Error('Values are too large to calculate safely');
   }
   const band = CLASS_BANDS.find(candidate => density >= candidate.minDensity);
-  return { length, width, height, weight, pieces, pieceCube, totalCube, totalWeight, density, freightClass: band.freightClass, bandMinimumDensity: band.minDensity };
+  const bandIndex = CLASS_BANDS.indexOf(band);
+  const nextBand = CLASS_BANDS[bandIndex - 1] ?? null;
+  return {
+    length,
+    width,
+    height,
+    weight,
+    pieces,
+    pieceCube,
+    totalCube,
+    totalWeight,
+    density,
+    freightClass: band.freightClass,
+    bandMinimumDensity: band.minDensity,
+    nextLowerClass: nextBand?.freightClass ?? null,
+    nextLowerClassDensity: nextBand?.minDensity ?? null,
+  };
 }

@@ -28,6 +28,10 @@ carrier can reclassify freight based on handling, stowability, liability,
 packaging, NMFC item, and current rules. Confirm the final class with the
 carrier or a qualified freight professional.
 
+The result also shows how far the shipment's density is from the next denser
+class band. That is a planning aid for comparing packaging options, not a
+promise that changing dimensions or weight will change a carrier's class.
+
 ## Privacy and usage
 
 Everything runs in the browser. Dimensions and weights are never uploaded. No
