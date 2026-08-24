@@ -21,10 +21,17 @@ name: a11y-contrast-decidability CI
 #
 # The probe's path is watched because this directory imports the resolver
 # directly, and a change there can invalidate these results without touching
-# this directory. The four scanned ventures' source is watched for the same
-# reason in reverse — a colour change in venture source makes the committed
-# results stale — but note CI cannot detect that, only a re-run with builds can;
-# the watch exists so the diff shows up next to this file in review.
+# this directory.
+#
+# The four scanned ventures' source is NOT watched, and that is deliberate as of
+# 2026-08-24. This comment used to claim it was, which was false — no ventures/**
+# glob has ever appeared below. Adding one would be worse than leaving it out: a
+# colour change in venture source does make the committed results stale, but
+# nothing this job runs can detect that (the corpus is built output, and there is
+# no npm or `next build` here), so the run would go green beside the very diff
+# that invalidated the artifact. A green check next to an unmeasured change
+# reads as validation. The staleness is real and is caught by rebuild, by
+# TestOpenVentureFailures when the file is regenerated, and by review — not here.
 
 on:
   pull_request:
@@ -64,6 +71,9 @@ jobs:
       # corpus-dependent cases skip themselves when no build is present, which
       # is always the case here.
       - run: python3 -m unittest discover -p 'test_*.py'
-      # The summary in README.md must still re-derive from the committed
-      # results with no network and no build. Catches a hand-edited number.
+      # `totals` is exactly summarise(ventures), so the committed file must
+      # re-derive its own headline figures from its own rows. Until 2026-08-24
+      # this step only re-printed the file and returned 0 — it could not fail,
+      # while its comment here claimed it caught a hand-edited number. It now
+      # exits 1 naming each figure that disagrees.
       - run: python3 measure.py --recompute-from results-2026-08-21.json

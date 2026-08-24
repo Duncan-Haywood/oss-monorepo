@@ -160,6 +160,22 @@ def build_results() -> dict:
     return {"ventures": ventures, "totals": summarise(ventures)}
 
 
+def totals_disagreement(results: dict) -> list:
+    """Names of stored totals that the recorded venture rows do not re-derive.
+
+    The scan needs the ventures' built `.next` output, which a CI checkout does
+    not have, so `--recompute-from` cannot re-measure. It can still check this:
+    `totals` is nothing but `summarise(ventures)`, so a file whose headline
+    figures disagree with its own rows was hand-edited or half-regenerated.
+    """
+    derived = summarise(results["ventures"])
+    stored = results["totals"]
+    return sorted(
+        key for key in set(derived) | set(stored)
+        if derived.get(key) != stored.get(key)
+    )
+
+
 def report(results: dict) -> str:
     lines = []
     header = f"{'venture':22s} {'pages':>5s} {'elements':>9s} {'decidable':>10s} {'fail(2)':>8s} {'fail(1)':>8s}"
@@ -207,6 +223,15 @@ def main() -> int:
 
     if args.recompute_from:
         results = json.loads(args.recompute_from.read_text())
+        disagree = totals_disagreement(results)
+        if disagree:
+            print(
+                f"{args.recompute_from}: stored totals disagree with the "
+                f"recorded venture rows: {', '.join(disagree)}. Regenerate the "
+                "file with --out rather than editing its headline figures.",
+                file=sys.stderr,
+            )
+            return 1
     else:
         results = build_results()
         if not results["totals"]["elements"]:

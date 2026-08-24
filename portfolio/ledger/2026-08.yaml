@@ -20722,6 +20722,91 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Scheduled generic session ("continue work... maintain and improve
+        the development process... increase in profit"), designated branch
+        claude/zealous-curie-em1yw5. `session_gate.py` -> PROCEED (2
+        distinct sessions inside a 15-min window in the last 6h). Checked
+        the 4 open PRs (#583, #531, #372, #368) and
+        `verification_status.py` before starting: all four green, all four
+        `mergeable_state: clean`, all four correctly owner-gated on #139 --
+        #583/#531/#372 are deployable `ventures/*` code, #368 is unattended
+        automation. Nothing re-verified, no candidate list, no score
+        touched.
+      - >-
+        Took the previous entry's own structural finding as the lead --
+        "a coverage or trigger rule that names the wrong axis fails
+        silently, in the direction that flatters the record" -- and audited
+        whether the sibling probe workflows share the shape. They do, one
+        layer in, and worse: the defect is not the trigger but the
+        assertion. Opened, verified and self-merged #707.
+      - >-
+        Finding: FOUR workflows run `<script> --recompute-from
+        <committed>.json` under a comment reading "Catches a hand-edited
+        number", and NONE of them did. All four load the JSON, print a
+        report and `return 0`; the exit code cannot depend on whether the
+        artifact is stale, hand-edited or half-regenerated. The step fails
+        only if the file is unparseable. Four green checks, on four
+        published measurements, asserting nothing about any of them.
+      - >-
+        The sharpest detail is in `a11y-generated-sites-ci.yml`, which
+        already states the exact objection two lines BELOW the step it
+        applies to -- about the no-argument invocation, which "would look
+        like a check while asserting nothing." The same sentence describes
+        `--recompute-from` verbatim. The lesson was written down adjacent
+        to the defect and still did not reach it. Worth carrying alongside
+        the previous entry's version of this: a correction that lands in
+        one research directory does not fix the instrument in the next one
+        -- and, it turns out, does not necessarily fix the instrument two
+        lines away in the same file.
+      - >-
+        Fixed the two where an offline invariant exists, because the stored
+        summary IS `summarise(rows)`: `a11y-contrast-decidability` (`totals`
+        == summarise(ventures), new `totals_disagreement()`) and
+        `a11y-theme-resolution` (`summary` == summarise(packages) -- this
+        one already derived the value, printed it, and discarded the
+        comparison). Both now exit 1 naming each disagreeing field. Both
+        invariants already held on the committed artifacts, so this turned
+        two green no-ops into two green checks without moving a published
+        figure. The other two store aggregates with no rows to re-derive
+        them from and genuinely cannot assert more than "the file parses" --
+        said so in their comments and pointed at the test step, which does
+        read the committed file, rather than inventing a check.
+      - >-
+        Also corrected a false claim in `a11y-contrast-decidability-ci.yml`:
+        it stated the four scanned ventures' source was watched. No
+        `ventures/**` glob has ever been in that trigger. Left unwatched
+        deliberately and wrote down why, rather than adding the glob to make
+        the sentence true: the corpus is built output and that job has no
+        npm, so a run triggered by a venture colour change would go green
+        beside the very diff that invalidated the artifact. A green check
+        next to an unmeasured change reads as validation -- adding the
+        watch would have manufactured exactly the flattering signal this
+        whole line of work is about.
+      - >-
+        Verified by running, not by reading the diff: 38 workflow files
+        valid, probe index green, all four probe suites pass (14/60/11/21),
+        and both new checks tested in BOTH directions -- exit 1 on a
+        deliberately tampered figure, exit 0 on the committed one. Also
+        re-ran `agent-permission-harness` after the `.github/` edits, since
+        those are inside its measured instruction closure and staleness
+        there is precisely what #700 was about: regenerates byte-identical,
+        84 tests pass. Router 51/51. All six PR checks green;
+        `mergeable_state: clean` against tip c703c88 at merge time.
+      - >-
+        Agent-decidable throughout -- `portfolio/research/` and CI config
+        only, no `ventures/*` app code, nothing published, no account
+        registered, no spend, no automation added or re-enabled -- so
+        self-merged rather than queued for the owner. Ledger entry shipped
+        separately from #707 per the ledger-discipline rule, since #707 was
+        merged in-session and this hunk would otherwise have made it
+        conflict-prone. No score, ranking or candidate changed; nothing here
+        moves the $0 revenue ceiling, which remains owner-gated on Ask 2.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
           Scheduled strategic session ("continue work... maintain and improve
           the development process... legal ethical reliable increase in
           profit... this run should be more strategic work"), designated
