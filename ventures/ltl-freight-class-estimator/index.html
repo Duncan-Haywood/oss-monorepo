@@ -40,6 +40,7 @@
     function update(count = true) {
       try {
         const result = estimateFreightClass(Object.fromEntries(ids.map(id => [id, value(id)])));
+        document.getElementById('status').textContent = '';
         document.getElementById('freightClass').textContent = result.freightClass;
         document.getElementById('band').textContent = `Estimated class from ${result.bandMinimumDensity} lb/ft³ minimum density`;
         document.getElementById('cube').textContent = `${result.totalCube.toFixed(2)} ft³`;
@@ -47,10 +48,19 @@
         document.getElementById('density').textContent = `${result.density.toFixed(2)} lb/ft³`;
         const signature = ids.map(value).join('|');
         if (count && signature !== countedSignature) { recordUsage('estimate_completed'); countedSignature = signature; }
-      } catch { document.getElementById('status').textContent = 'Enter positive dimensions, weight, and a whole-number piece count.'; }
+      } catch {
+        document.getElementById('freightClass').textContent = '--';
+        document.getElementById('band').textContent = 'No estimate until the inputs are valid';
+        document.getElementById('cube').textContent = '--';
+        document.getElementById('totalWeight').textContent = '--';
+        document.getElementById('density').textContent = '--';
+        document.getElementById('status').textContent = 'Enter positive dimensions, weight, and a whole-number piece count.';
+        return false;
+      }
+      return true;
     }
     ids.forEach(id => document.getElementById(id).addEventListener('input', () => update()));
-    document.getElementById('copy').addEventListener('click', async () => { update(false); const text = `Estimated LTL freight class: ${document.getElementById('freightClass').textContent}\nDensity: ${document.getElementById('density').textContent}\nTotal cube: ${document.getElementById('cube').textContent}\nTotal weight: ${document.getElementById('totalWeight').textContent}\nPlanning estimate only; verify with the carrier.`; try { await navigator.clipboard.writeText(text); document.getElementById('status').textContent = 'Estimate copied.'; recordUsage('result_copied'); } catch { document.getElementById('status').textContent = 'Copy is unavailable in this browser.'; } });
+    document.getElementById('copy').addEventListener('click', async () => { if (!update(false)) return; const text = `Estimated LTL freight class: ${document.getElementById('freightClass').textContent}\nDensity: ${document.getElementById('density').textContent}\nTotal cube: ${document.getElementById('cube').textContent}\nTotal weight: ${document.getElementById('totalWeight').textContent}\nPlanning estimate only; verify with the carrier.`; try { await navigator.clipboard.writeText(text); document.getElementById('status').textContent = 'Estimate copied.'; recordUsage('result_copied'); } catch { document.getElementById('status').textContent = 'Copy is unavailable in this browser.'; } });
     document.getElementById('reset').addEventListener('click', () => { [['length',48],['width',40],['height',36],['weight',500],['pieces',1]].forEach(([id, val]) => { document.getElementById(id).value = val; }); countedSignature = ''; update(false); });
     document.getElementById('clearUsage').addEventListener('click', () => { clearUsage(); document.getElementById('status').textContent = 'Local usage count cleared.'; });
     update(false);

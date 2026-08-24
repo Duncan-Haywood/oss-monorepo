@@ -33,11 +33,14 @@ export function estimateFreightClass(input) {
   const height = positive(input.height, 'Height');
   const weight = positive(input.weight, 'Weight');
   const pieces = positive(input.pieces ?? 1, 'Pieces');
-  if (!Number.isInteger(pieces)) throw new Error('Pieces must be a whole number');
+  if (!Number.isSafeInteger(pieces)) throw new Error('Pieces must be a whole number');
   const pieceCube = length * width * height / 1728;
   const totalCube = pieceCube * pieces;
   const totalWeight = weight * pieces;
   const density = totalWeight / totalCube;
+  if (![pieceCube, totalCube, totalWeight, density].every(Number.isFinite)) {
+    throw new Error('Values are too large to calculate safely');
+  }
   const band = CLASS_BANDS.find(candidate => density >= candidate.minDensity);
   return { length, width, height, weight, pieces, pieceCube, totalCube, totalWeight, density, freightClass: band.freightClass, bandMinimumDensity: band.minDensity };
 }

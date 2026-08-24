@@ -26,3 +26,8 @@ test('rejects missing or fractional pieces', () => {
   assert.throws(() => estimateFreightClass({ length: 1, width: 1, height: 1, weight: 1, pieces: 0 }));
   assert.throws(() => estimateFreightClass({ length: 1, width: 1, height: 1, weight: 1, pieces: 1.5 }), /whole number/);
 });
+
+test('rejects unsafe piece counts and arithmetic overflow', () => {
+  assert.throws(() => estimateFreightClass({ length: 1, width: 1, height: 1, weight: 1, pieces: Number.MAX_SAFE_INTEGER + 1 }), /whole number/);
+  assert.throws(() => estimateFreightClass({ length: 1e308, width: 1e308, height: 1e308, weight: 1 }), /too large/);
+});
