@@ -5,7 +5,15 @@
 # signal. A reading of zero is worth recording; it is how a product gets
 # retired honestly instead of quietly.
 period: 2026-08
-products: []
+products:
+  - slug: quote-margin-check
+    surface: static-browser-app
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          local_events_reported: 0
+          public_url: false
+        note: Browser-local quote checker shipped; baseline before public distribution.
 # Example of the shape, once a product has shipped:
 #
 # products:

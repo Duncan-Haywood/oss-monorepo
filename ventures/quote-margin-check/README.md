@@ -1,9 +1,10 @@
 # Quote Margin Check
 
 Quote Margin Check is a free, local-first calculator for freelancers and small
-agencies. It turns a proposed price, delivery hours, overhead, subcontractor
-costs, and revision buffer into a transparent effective hourly rate and a
-target-price comparison.
+agencies. Open [`index.html`](index.html) in a browser to turn a proposed
+price, delivery hours, overhead, subcontractor costs, and revision buffer into
+a transparent effective hourly rate and a target-price comparison. It also
+exports a JSON evidence record so a quote can be reviewed before it is sent.
 
 ```bash
 python3 src/quote_margin.py examples/website-redesign.json --format markdown
@@ -13,8 +14,19 @@ The report distinguishes the customer's inputs from derived arithmetic. It does
 not recommend prices, provide tax or financial advice, or claim that a quote is
 profitable. The customer decides what costs and target rate are appropriate.
 
-Only aggregate `report_generated` events are optionally appended to the usage
-log. Inputs, project names, prices, and file contents never leave the machine.
+Only aggregate feature names and dates are optionally stored in localStorage.
+Inputs, project names, prices, and file contents never leave the machine. The
+counter is visible and switch-off-able in the page, and honors Do Not Track.
+
+**No warranty.** This tool is provided free and as-is, without warranty of any
+kind, express or implied. It is not financial or business advice, and it does
+not replace a qualified professional. **You are responsible for reviewing and
+verifying its output before relying on it**, and for meeting any obligation it
+helps you prepare for. To the maximum extent permitted by law, the authors
+accept no liability for any loss or damage arising from its use.
+
+Everything runs in your browser. Your data is never uploaded, and we use no
+accounts, tracking cookies, or analytics vendor.
 
 ## Input
 
