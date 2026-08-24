@@ -124,6 +124,69 @@ def test_build_targets_skips_what_has_already_graduated(tmp_path, monkeypatch):
     assert [c["slug"] for c in sg.build_targets()] == ["pending"]
 
 
+def _pipeline(tmp_path, monkeypatch, body: str):
+    (tmp_path / "portfolio" / "pipeline").mkdir(parents=True, exist_ok=True)
+    candidates = tmp_path / "portfolio" / "pipeline" / "candidates.yaml"
+    candidates.write_text(body)
+    monkeypatch.setattr(sg, "REPO", tmp_path)
+    monkeypatch.setattr(sg, "CANDIDATES", candidates)
+    return candidates
+
+
+def test_a_not_a_venture_marker_means_the_candidate_has_not_graduated(tmp_path, monkeypatch):
+    """The marker wins over a VENTURE.yaml beside it, so the router sees nothing.
+
+    `ventures/ai-first-markets/` carries both in the live repo, and
+    `test_allocate.py` pins that allocate.py skips such a directory. Reading
+    only for VENTURE.yaml would drop an unbuilt candidate on the strength of a
+    graduation that routes no budget.
+    """
+    for name in ("marked", "marked-host"):
+        (tmp_path / "ventures" / name).mkdir(parents=True)
+        (tmp_path / "ventures" / name / "VENTURE.yaml").write_text(
+            f"name: {name}\nproduct_lines:\n  - slug: line\n"
+        )
+        (tmp_path / "ventures" / name / "NOT-A-VENTURE").write_text("infra, not a business\n")
+    _pipeline(
+        tmp_path,
+        monkeypatch,
+        "candidates:\n"
+        "  - {slug: marked, verdict: build-now, graduate_as: venture, composite: 9}\n"
+        "  - {slug: line, verdict: build-now, graduate_as: product-line,"
+        " host_venture: marked-host, composite: 8}\n",
+    )
+
+    assert sorted(c["slug"] for c in sg.build_targets()) == ["line", "marked"]
+
+
+def test_an_unreadable_pipeline_is_not_an_empty_one(tmp_path, monkeypatch):
+    """None (could not read) and [] (read it, nothing eligible) are different facts."""
+    missing = tmp_path / "portfolio" / "pipeline" / "candidates.yaml"
+    missing.parent.mkdir(parents=True)
+    monkeypatch.setattr(sg, "REPO", tmp_path)
+    monkeypatch.setattr(sg, "CANDIDATES", missing)
+    assert sg.build_targets() is None  # file absent
+
+    _pipeline(tmp_path, monkeypatch, "candidates: [oops\n")
+    assert sg.build_targets() is None  # malformed YAML
+
+    _pipeline(tmp_path, monkeypatch, "scored: 2026-01-01\n")
+    assert sg.build_targets() is None  # no `candidates` key at all
+
+    _pipeline(tmp_path, monkeypatch, "candidates: []\n")
+    assert sg.build_targets() == []  # read fine, genuinely nothing eligible
+
+
+def test_an_unreadable_pipeline_does_not_send_a_session_off_to_research(tmp_path, monkeypatch):
+    """The failure must be reported as a failure, not laundered into a fallback."""
+    monkeypatch.setattr(sg, "build_targets", lambda: None)
+    call, reasons = sg.verdict(revenue=False, meta=1.0, cadence=2.0)
+    joined = " ".join(reasons)
+    assert call == "BUILD"
+    assert "could not be read or parsed" in joined
+    assert "screened-out.md" not in joined  # the research fallback must not fire
+
+
 # --- the reading comes from the ledger, not from constants -------------------
 
 

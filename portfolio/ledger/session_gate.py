@@ -316,33 +316,62 @@ def break_even_per_session() -> float | None:
     return json.loads(SNAPSHOT.read_text()).get("break_even_per_session_usd")
 
 
-def build_targets() -> list[dict]:
+def routable(venture: str) -> bool:
+    """Whether `portfolio/router/` can see this venture directory at all.
+
+    A `VENTURE.yaml` is necessary but not sufficient. `allocate.py` skips any
+    directory carrying a `NOT-A-VENTURE` marker, and `test_allocate.py` pins
+    that the marker wins over a `VENTURE.yaml` in the same directory —
+    `ventures/ai-first-markets/` currently carries both. So a graduation check
+    that reads only for `VENTURE.yaml` can call a candidate graduated into a
+    directory no budget will ever reach.
+    """
+    d = REPO / "ventures" / venture
+    return (d / "VENTURE.yaml").exists() and not (d / "NOT-A-VENTURE").is_file()
+
+
+def build_targets() -> list[dict] | None:
     """Candidates carrying a `build-now` verdict that nobody has built yet.
 
     Graduation is a fact on disk, not a note in a table: a candidate with
-    `graduate_as: venture` has graduated once `ventures/<slug>/VENTURE.yaml`
-    exists; one with `graduate_as: product-line` has graduated once its host
-    venture's `VENTURE.yaml` lists the slug under `product_lines`. Whatever is
+    `graduate_as: venture` has graduated once its own venture directory is
+    routable; one with `graduate_as: product-line` has graduated once its host
+    venture is routable *and* lists the slug under `product_lines`. Whatever is
     left is work the pipeline already decided to do and no session has done.
+
+    **Returns `None` when the pipeline could not be read**, which is not the
+    same fact as an empty list and must not collapse into one. An empty list
+    means "read it, nothing eligible" and legitimately routes a session to
+    researching a new candidate; a missing or malformed `candidates.yaml` means
+    the gate does not know, and sending a session off to research on that basis
+    would invent work while real `build-now` items sit unbuilt.
     """
     try:
         doc = yaml.safe_load(CANDIDATES.read_text())
-    except (OSError, yaml.YAMLError, AttributeError):
-        return []
+        candidates = doc["candidates"]
+        if candidates is None:
+            candidates = []
+        iter(candidates)
+    except (OSError, yaml.YAMLError, KeyError, TypeError, AttributeError):
+        return None
     out = []
-    for c in doc.get("candidates", []) or []:
-        if c.get("verdict") != "build-now":
+    for c in candidates:
+        if not isinstance(c, dict) or c.get("verdict") != "build-now":
             continue
         slug = str(c.get("slug"))
         if c.get("graduate_as") == "product-line":
-            host = REPO / "ventures" / str(c.get("host_venture") or "") / "VENTURE.yaml"
+            host = str(c.get("host_venture") or "")
+            if not routable(host):
+                out.append(c)  # nothing routable to have graduated into
+                continue
             try:
-                listed = yaml.safe_load(host.read_text()).get("product_lines") or []
+                listed = yaml.safe_load((REPO / "ventures" / host / "VENTURE.yaml").read_text())
+                listed = (listed or {}).get("product_lines") or []
             except (OSError, yaml.YAMLError, AttributeError):
                 listed = []
             if any((p.get("slug") if isinstance(p, dict) else p) == slug for p in listed):
                 continue
-        elif (REPO / "ventures" / slug / "VENTURE.yaml").exists():
+        elif routable(slug):
             continue
         out.append(c)
     return sorted(out, key=lambda c: c.get("composite") or 0, reverse=True)
@@ -394,7 +423,14 @@ def verdict(
         "recording that you looked.",
     ]
     targets = build_targets() if targets is None else targets
-    if targets:
+    if targets is None:
+        reasons.append(
+            f"`{CANDIDATES.relative_to(REPO)}` could not be read or parsed, so the gate cannot "
+            "tell which candidates are unbuilt. Fix that first — do not read this as an empty "
+            "pipeline and go research a new candidate, which is how an unreadable file turns "
+            "into invented work while real `build-now` items sit untouched."
+        )
+    elif targets:
         t = targets[0]
         where = (
             f"a product line inside `ventures/{t.get('host_venture')}/`"

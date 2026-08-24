@@ -7,9 +7,22 @@ written-up candidates with an explicit verdict, so that starting a new venture
 is a decision someone makes against evidence rather than an idea that arrived on
 a good afternoon.
 
-Nothing here is committed to. A candidate graduates by someone writing
-`ventures/<name>/VENTURE.yaml`; until that file exists the router cannot see it
-and no agent budget flows to it.
+Nothing here is committed to. A candidate graduates in one of two ways,
+matching its `graduate_as` field, and until one of them is true the router
+cannot see it and no agent budget flows to it:
+
+- **`graduate_as: venture`** — someone writes `ventures/<name>/VENTURE.yaml`.
+- **`graduate_as: product-line`** — someone adds the candidate's slug under
+  `product_lines` in its `host_venture`'s `VENTURE.yaml`. Most verdicts here
+  are product lines rather than new directories (see the closing section on why
+  adding ventures to an unmeasured portfolio is the more expensive problem), so
+  this is the common path, not the exception.
+
+In both cases the directory must actually be routable: a `NOT-A-VENTURE`
+marker wins over a `VENTURE.yaml` in the same directory and `allocate.py` skips
+it, so a graduation into a marked directory routes nothing.
+`python3 portfolio/ledger/session_gate.py` reads exactly this rule to name the
+next unbuilt `build-now` candidate.
 
 ## Why this is separate from `ventures/ai-first-markets`
 
