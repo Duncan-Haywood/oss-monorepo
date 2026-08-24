@@ -1,7 +1,7 @@
 export function forecast({ cash, weeklyIncome, collectionWeeks, weeklyCosts, weeks = 12 }) {
   const [startingCash, incomePerWeek, delayWeeks, costsPerWeek] = [cash, weeklyIncome, collectionWeeks, weeklyCosts].map(Number);
   const values = [startingCash, incomePerWeek, delayWeeks, costsPerWeek];
-  if (values.some((value) => !Number.isFinite(value) || value < 0) || delayWeeks > 52) {
+  if (values.some((value) => !Number.isFinite(value) || value < 0) || delayWeeks > 52 || !Number.isInteger(delayWeeks) || !Number.isInteger(weeks) || weeks < 1) {
     throw new Error('Enter non-negative numbers; collection delay must be 52 weeks or less.');
   }
   let balance = startingCash;
@@ -13,8 +13,10 @@ export function forecast({ cash, weeklyIncome, collectionWeeks, weeklyCosts, wee
 }
 
 export function status(rows) {
+  if (!rows.length) throw new Error('At least one forecast week is required.');
   const low = rows.reduce((best, row) => row.balance < best.balance ? row : best, rows[0]);
-  return { lowest: low.balance, week: low.week, shortfall: low.balance < 0 };
+  const firstShortfall = rows.find((row) => row.balance < 0);
+  return { lowest: low.balance, week: low.week, shortfall: low.balance < 0, shortfallWeek: firstShortfall?.week ?? null };
 }
 
 if (typeof document !== 'undefined') {
@@ -26,7 +28,10 @@ if (typeof document !== 'undefined') {
     const data = Object.fromEntries(new FormData(form));
     const rows = forecast(data);
     const result = status(rows);
-    output.innerHTML = `<strong>${result.shortfall ? 'Cash shortfall' : 'Cash stays positive'}</strong><p>Lowest projected balance: $${result.lowest.toFixed(2)} in week ${result.week}.</p><ol>${rows.map((row) => `<li>Week ${row.week}: $${row.balance.toFixed(2)}</li>`).join('')}</ol>`;
+    const action = result.shortfall
+      ? `<p>First projected shortfall: week ${result.shortfallWeek}. Review collection timing or costs before that week.</p>`
+      : '<p>No projected negative balance in this 12-week window.</p>';
+    output.innerHTML = `<strong>${result.shortfall ? 'Cash shortfall' : 'Cash stays positive'}</strong><p>Lowest projected balance: $${result.lowest.toFixed(2)} in week ${result.week}.</p>${action}<ol>${rows.map((row) => `<li>Week ${row.week}: ${row.income ? `+$${row.income.toFixed(2)} collected, ` : ''}-$${row.costs.toFixed(2)} costs, balance $${row.balance.toFixed(2)}</li>`).join('')}</ol>`;
     localStorage.setItem('cash-runway-draft', JSON.stringify(data));
     if (usage.checked) localStorage.setItem('cash-runway-events', String(Number(localStorage.getItem('cash-runway-events') || 0) + 1));
   };
