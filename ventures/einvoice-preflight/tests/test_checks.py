@@ -28,6 +28,7 @@ class ChecksTest(unittest.TestCase):
         errors = check_invoice(invoice)
         self.assertIn("INV-017", {error["rule"] for error in errors})
         self.assertTrue(any("net plus tax" in error["message"] for error in errors))
+        self.assertEqual(next(error for error in errors if error["rule"] == "INV-017")["path"], "/totals/gross")
 
     def test_tax_total_must_match_line_tax_percentages(self):
         invoice = json.loads(json.dumps(VALID))
@@ -127,6 +128,7 @@ class ChecksTest(unittest.TestCase):
             result = report["runs"][0]["results"][0]
             self.assertEqual(result["ruleId"], "INV-017")
             self.assertEqual(result["locations"][0]["physicalLocation"]["artifactLocation"]["uri"], "invoice.json")
+            self.assertEqual(result["properties"]["jsonPointer"], "/totals/gross")
 
     def test_cli_emits_empty_sarif_for_valid_invoice(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -223,6 +225,7 @@ class ChecksTest(unittest.TestCase):
             self.assertIn("## `invoice.json`", markdown)
             self.assertIn("Status: **FAIL**", markdown)
             self.assertIn("**INV-017**", markdown)
+            self.assertIn("`/totals/gross`", markdown)
             self.assertIn("Fix:", markdown)
             self.assertNotIn("INV-1", markdown)
 

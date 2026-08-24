@@ -52,9 +52,11 @@ decide whether a tax percentage is legally correct.
 `--format json` is suitable for an ERP adapter. It always returns the same
 envelope, whether the input is one file or a directory: `status`,
 `files_checked`, `files_failed`, `observations`, per-file `reports`, and
-`read_errors`. `--format sarif` emits SARIF
+`read_errors`. Each finding also includes a `path` JSON Pointer (for example,
+`/totals/gross`), so adapters can focus a field-level repair UI without
+reimplementing the rules. `--format sarif` emits SARIF
 2.1.0 for GitHub code scanning, CI annotations, and
-editor integrations. It contains the rule IDs, fixes, and the local invoice
+editor integrations. It contains the rule IDs, fixes, JSON Pointer paths, and the local invoice
 filename, never invoice fields or line contents. Both formats exit `1` when
 any check fails and `2` for an unreadable input file. Pass a directory to scan
 all `.json` files recursively; batch JSON includes per-file errors and batch
