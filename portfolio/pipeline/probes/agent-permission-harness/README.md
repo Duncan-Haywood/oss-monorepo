@@ -190,10 +190,10 @@ that flatters it.
 |---|---:|---:|
 | prompt input | 1 | 1 |
 | depth 1 — paths the prompt names | 4 | 21 |
-| depth 2 | 32 | 56 |
+| depth 2 | 33 | 56 |
 | depth 3 | 10 | 40 |
 | depth 4 | 27 | 4 |
-| **instruction set (fixed point)** | **73** | **121** |
+| **instruction set (fixed point)** | **74** | **121** |
 
 The right column is the measurement this amendment was written against, kept
 because the argument below is stated in its numbers. The left column is the
@@ -407,12 +407,12 @@ artifact.**
 
 A follow-up pull request then took `41` to `72` by adding `PRODUCT_PLAYBOOK.md`
 and `portfolio/usage/README.md` and naming them from three documents already at
-depth 1; merging main brought one more depth-2 path in, for `73`
-(`4 / 32 / 10 / 27`) in the tree this table was regenerated against. Both new
+depth 1; merging main brought two more depth-2 paths in, for `74`
+(`4 / 33 / 10 / 27`) in the tree this table was regenerated against. Both new
 files are ordinary documentation. The 27 files that appeared at depth 4 are the
 compounding this rule exists to show: a document that is *itself* newly inside
 the closure brings everything it names, so the surface grows by far more than
-the count of files a diff adds — two new documents, thirty-two new files in the
+the count of files a diff adds — two new documents, thirty-three new files in the
 instruction set.
 
 That same pull request also hit the race this probe's CI had against `main`:
