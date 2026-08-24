@@ -244,6 +244,30 @@ class ChecksTest(unittest.TestCase):
                 self.assertEqual(main([str(invoice_path), "--format", "github"]), 0)
             self.assertEqual(output.getvalue(), "")
 
+    def test_cli_emits_junit_for_findings_without_invoice_contents(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            invoice = json.loads(json.dumps(VALID))
+            invoice["totals"]["gross"] = 200
+            invoice_path.write_text(json.dumps(invoice))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "junit"]), 1)
+            self.assertIn('<testsuite name="einvoice-preflight"', output.getvalue())
+            self.assertIn("INV-017", output.getvalue())
+            self.assertIn("/totals/gross", output.getvalue())
+            self.assertNotIn("INV-1", output.getvalue())
+
+    def test_cli_emits_passing_junit_for_clean_invoice(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            invoice_path.write_text(json.dumps(VALID))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "junit"]), 0)
+            self.assertIn('tests="1" failures="0"', output.getvalue())
+            self.assertNotIn("<failure", output.getvalue())
+
     def test_cli_reads_valid_invoice_from_stdin(self):
         output = io.StringIO()
         with patch("sys.stdin", io.StringIO(json.dumps(VALID))), contextlib.redirect_stdout(output):
