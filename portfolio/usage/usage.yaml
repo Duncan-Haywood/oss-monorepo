@@ -18,3 +18,23 @@ products:
           (publishing is owner-gated), so there is no traffic signal to read
           and its local-first event counter reports only to the user's own
           browser. Baseline row.
+  - slug: repository-branch-hygiene
+    surface: github-repository
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          local_smoke_scan_findings: 3
+          local_smoke_scan_risk: 1
+          release_downloads_total: 0
+        note: Shipped ancestor detection; local smoke scan found protected and shared refs.
+# Example of the shape, once a product has shipped:
+#
+# products:
+#   - slug: example-product
+#     surface: github-pages
+#     readings:
+#       - as_of: 2026-08-24
+#         signals:
+#           repo_views_14d: 0
+#           release_downloads_total: 0
+#         note: Shipped today; baseline reading.
