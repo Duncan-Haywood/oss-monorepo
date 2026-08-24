@@ -4,7 +4,7 @@ Small ecommerce sellers often assemble a dispute response from scattered order, 
 
 Enter the deadline shown by your processor to get a simple urgency reminder. The tool does date arithmetic only; it does not infer processor rules, filing extensions, or the correct deadline.
 
-Open `index.html` in a browser. No account, server, API key, or paid dependency is required. Order details and notes stay in the browser; only anonymous feature counts are stored locally and can be disabled or cleared through browser storage. The counter also stays off when the browser sends Do Not Track or Global Privacy Control.
+Open `index.html` in a browser. No account, server, API key, or paid dependency is required. Order details and notes stay in the browser; the reviewable packet can be downloaded as JSON and stays on your device unless you choose to share it. Only anonymous feature counts are stored locally and can be disabled or cleared through browser storage. The counter also stays off when the browser sends Do Not Track or Global Privacy Control.
 
 ## Safety boundary
 
