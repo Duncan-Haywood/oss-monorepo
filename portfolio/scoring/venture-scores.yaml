@@ -603,6 +603,31 @@ ventures:
     gates:
       liability_containment: pass
       ethical_robustness: pass
+
+  - slug: cut-list-optimizer
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: AI is intentionally absent from the deterministic packing core.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local cut-list planner for
+      woodworkers, sign shops, and makers. The first slice expands required
+      quantities, accounts for saw kerf, and produces a transparent heuristic
+      stock plan without uploads, accounts, or paid dependencies. Distribution
+      is supported by the specific low-waste and kerf-aware planning search
+      intent, while defensibility remains modest until repeat usage creates
+      niche templates or workflow data.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
     gate_note: >-
       Pass, conditionally: `verified` is scoped in both the CLI output and
       the README to "exit code 0 and artifact meets the stated size/age
