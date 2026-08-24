@@ -54,6 +54,34 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Scheduled generic session ran `session_gate.py` first (BUILD). After
+        checking the existing pipeline and open PRs, selected the specified
+        vendor-change-evidence follow-on rather than re-screening candidates.
+      - >-
+        Implemented the internal `vendor-change-watch` probe under
+        `portfolio/pipeline/probes/`: deterministic snapshot comparison,
+        provenance-preserving changed/unchanged/inconclusive reports, and
+        fixtures/tests covering changed evidence, failed fetches, URL changes,
+        and JSON serialization. No account, credential, publication, customer
+        data, payment, or deployable venture change was involved.
+      - >-
+        Verified with the built-in unittest suite (4/4),
+        `validate_candidates.py`, `validate_doc_consistency.py`,
+        `validate_probe_index.py`, `git diff --check`, and the sample CLI
+        report. Pytest was unavailable in the environment, so unittest was
+        used instead. Refreshed `origin/main`, confirmed a clean merge tree,
+        and confirmed `publish_surface.py` reports no push-to-main publication
+        path for this internal change.
+      - >-
+        Opened PR #843, waited for and reviewed all three required CI checks
+        (all passed), then squash-merged it as commit `011ee3a7` under the
+        agent-decidable internal-surface policy. No revenue or MRR impact.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Scheduled session found ~25 PRs opened against main within a few
         hours on 2026-08-18, most from independent scheduled runs that could
         not see each other's work. Recurring duplicate clusters: VENTURE.yaml
@@ -21898,6 +21926,34 @@ entries:
           already-merged-branch rule before adding this entry.
           `payout-rail` remains the only queue item that moves the revenue
           ceiling off $0.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled generic session ran `session_gate.py` first (BUILD). After
+        checking the existing pipeline and open PRs, selected the specified
+        vendor-change-evidence follow-on rather than re-screening candidates.
+      - >-
+        Implemented the internal `vendor-change-watch` probe under
+        `portfolio/pipeline/probes/`: deterministic snapshot comparison,
+        provenance-preserving changed/unchanged/inconclusive reports, and
+        fixtures/tests covering changed evidence, failed fetches, URL changes,
+        and JSON serialization. No account, credential, publication, customer
+        data, payment, or deployable venture change was involved.
+      - >-
+        Verified with the built-in unittest suite (4/4),
+        `validate_candidates.py`, `validate_doc_consistency.py`,
+        `validate_probe_index.py`, `git diff --check`, and the sample CLI
+        report. Pytest was unavailable in the environment, so unittest was
+        used instead. Refreshed `origin/main`, confirmed a clean merge tree,
+        and confirmed `publish_surface.py` reports no push-to-main publication
+        path for this internal change.
+      - >-
+        Opened PR #843, waited for and reviewed all three required CI checks
+        (all passed), then squash-merged it as commit `011ee3a7` under the
+        agent-decidable internal-surface policy. No revenue or MRR impact.
     mrr_end: null
   - venture: portfolio
     agent_spend_usd: null
