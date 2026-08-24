@@ -67,7 +67,28 @@ ventures:
       Graduated on 2026-08-24 as a browser-local construction retainage and
       payment-delay worksheet. It produces a modeled cash snapshot without
       credentials, network access, uploads, or legal entitlement claims.
-    gates:
+  - slug: public-record-watch
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 9
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 4
+    composite: 6.167
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The first slice is deterministic snapshot comparison; AI classification
+      may improve a later alert feed but is not required for the core evidence.
+    basis: >-
+      Graduated on 2026-08-24 from the public-record watch candidate. The local
+      CLI compares customer-supplied register snapshots and preserves source
+      URLs, making it distinct from vendor-page monitoring, DNS evidence, and
+      business calculators. Buyer distribution and repeat usage remain
+      unmeasured; the first experiment is credentialing practitioners.
+    gates: 
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
