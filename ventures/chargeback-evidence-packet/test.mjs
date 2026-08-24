@@ -30,3 +30,9 @@ test("discovery and privacy controls are explicit", () => {
   assert.match(html, /Do Not Track and Global Privacy Control/);
   assert.match(html, /draft_copied/);
 });
+
+test("copy action degrades gracefully when Clipboard API is unavailable", () => {
+  assert.match(html, /navigator\.clipboard\?\.writeText/);
+  assert.match(html, /document\.execCommand\('copy'\)/);
+  assert.match(html, /Select the draft and copy it manually/);
+});
