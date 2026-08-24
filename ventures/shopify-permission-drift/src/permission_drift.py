@@ -86,7 +86,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Compare two customer-authorized Shopify app inventory exports.")
     parser.add_argument("before", type=Path)
     parser.add_argument("after", type=Path)
-    parser.add_argument("--format", choices=("text", "json"), default="text")
+    parser.add_argument("--format", choices=("text", "json", "github"), default="text")
     parser.add_argument("--output", type=Path, help="write the report as a portable JSON artifact")
     parser.add_argument("--usage-log", type=Path, help="opt-in aggregate event log")
     args = parser.parse_args()
@@ -103,6 +103,11 @@ def main() -> int:
         usage_event(args.usage_log, len(report["changes"]))
     if args.format == "json":
         print(json.dumps(report, indent=2, sort_keys=True))
+    elif args.format == "github":
+        for change in report["changes"]:
+            print(f"::warning title=Shopify permission drift::{json.dumps(change, sort_keys=True)}")
+        if not report["changes"]:
+            print("No Shopify permission drift detected.")
     else:
         print(f"Status: {report['status']}")
         print("Review required: yes" if report["review_required"] else "Review required: no")

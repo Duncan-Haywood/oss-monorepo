@@ -22,6 +22,18 @@ Save a portable JSON evidence artifact for a ticket or approval queue:
 python3 src/permission_drift.py examples/before.json examples/after.json --output permission-drift-report.json
 ```
 
+Use the report directly in a GitHub Actions log. Each changed app, scope, or
+webhook is emitted as a warning annotation, and the command exits successfully
+so the merchant or workflow owner can decide whether to block a deployment:
+
+```bash
+python3 src/permission_drift.py examples/before.json examples/after.json --format github
+```
+
+For a workflow that should block on drift, combine this output with the JSON
+report and check its `review_required` field rather than treating a warning as
+a security certification.
+
 The saved report contains only the comparison result and source/capture metadata
 already present in the exports. It does not copy app scopes, webhook topics, or
 any merchant data into the optional usage log.

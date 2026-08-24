@@ -1,4 +1,5 @@
 import json
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -42,6 +43,18 @@ class PermissionDriftTests(unittest.TestCase):
             saved = json.loads(path.read_text(encoding="utf-8"))
             self.assertEqual(saved, report)
             self.assertNotIn("scopes", saved["metadata"])
+
+    def test_github_format_emits_one_warning_per_change(self):
+        root = Path(__file__).parents[1]
+        result = subprocess.run(
+            [sys.executable, str(root / "src/permission_drift.py"), str(root / "examples/before.json"), str(root / "examples/after.json"), "--format", "github"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        warnings = [line for line in result.stdout.splitlines() if line.startswith("::warning")]
+        self.assertEqual(len(warnings), 2)
+        self.assertTrue(all('title=Shopify permission drift::' in line for line in warnings))
 
     def test_rejects_invalid_capture_time_and_duplicate_scopes(self):
         invalid_time = dict(self.before, captured_at="not-a-timestamp")

@@ -13,7 +13,8 @@ products:
         signals:
           local_comparisons: 1
           qualified_pilots: 0
-        note: Shipped fixture-backed local comparison; customer demand remains untested.
+          github_annotation_comparisons: 0
+        note: Shipped fixture-backed local comparison and CI warning output; customer demand remains untested.
   - slug: ai-engineering-academy
     surface: static-page-in-repo
     readings:
