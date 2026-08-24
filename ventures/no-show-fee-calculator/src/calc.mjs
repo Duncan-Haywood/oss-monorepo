@@ -26,7 +26,17 @@ function isFinitePercent(n) {
 export function parseInputs(raw) {
   const errors = [];
   const num = (key, label) => {
-    const v = Number(raw[key]);
+    // `Number("")` and `Number("   ")` are both 0, and 0 passes every range
+    // check below. A cleared field therefore used to validate as a deliberate
+    // zero and the calculator answered "$0.00 suggested fee" with no error --
+    // the wrong answer stated confidently, which is worse than no answer. An
+    // absent field is missing input, not the number zero.
+    const rawValue = raw[key];
+    if (rawValue === undefined || rawValue === null || String(rawValue).trim() === "") {
+      errors.push(`${label} is required.`);
+      return 0;
+    }
+    const v = Number(rawValue);
     if (!Number.isFinite(v)) {
       errors.push(`${label} must be a number.`);
       return 0;
