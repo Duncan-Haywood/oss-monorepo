@@ -274,7 +274,10 @@ decisions:
     usage-billed, the fallback is Railway. Note also the one measured
     exception: `cloudresourcemanager.googleapis.com` is reachable and is a
     write API, so the reachability claim is "every vendor control plane probed
-    except GCP's Resource Manager", not a blanket one. `quick-pick-survey`'s
+    except GCP's Resource Manager", not a blanket one. Superseded 2026-08-24:
+    `ec2.amazonaws.com` is reachable too -- a false denial this probe's own
+    redirect-following bug had produced -- so the exception list is GCP
+    Resource Manager *and* AWS EC2. Left dated rather than rewritten. `quick-pick-survey`'s
     Postgres remains a Vercel-marketplace consideration only if Vercel is
     chosen; on Hetzner or Railway it is a service on the platform itself.
 

@@ -24,7 +24,7 @@ kept per criterion rather than rewritten each time:
 | Best fit for the code as written | **Vercel** | Seven of the ten web apps are Next.js; **four ventures carry a `vercel.json`** |
 | **A spend cap built into the vendor** | **Vercel or Railway** | Only these two ship a halt-at-an-amount control |
 | **Most all-inclusive** | **Railway** | The only managed platform that hosts *every* workload here |
-| **Best value** | **Hetzner** | ~$5/month for all of it; the tenth workload costs $0 — but a *soft* ceiling, see below |
+| **Best value** | **Hetzner** | ~$5/month for all of it; the tenth web app costs $0 — but a *soft* ceiling, see below |
 | **All-inclusive + value together** | **Railway** | Hosts everything deployable, one bill, one vendor-side stop, ~$5–25/month |
 | **Compute for the monorepo itself** | **Hetzner** | The only one that also runs the agent host this repo has already automated |
 
@@ -176,7 +176,9 @@ installs the agent runner disabled behind a kill-switch precisely because
 unattended agents on a box are treated as a deliberate decision. So it is a
 head start, not a solution.
 
-**Railway is the compromise that is actually being recommended.** It hosts
+**Railway is the compromise on *this* criterion — all-inclusive plus value.**
+It is not the document's overall answer; that moved to Hetzner when the
+question became compute for the monorepo. On venture hosting alone, it hosts
 every hostable workload including the daemon, includes Postgres as a service
 rather than an add-on, bills once, caps once, and costs a fraction of Vercel
 while asking for none of Hetzner's ops hours. On "all-inclusive **and** value
@@ -364,10 +366,12 @@ dashboard. An earlier draft filed it under "context", where its reachability
 could not fail the claim — the same bucket-shuffle that had left Railway out of
 the load-bearing set entirely. It is a write surface now, carried as an
 explicit exception with its reason, and the check fails both if anything else
-becomes reachable *and* if this one goes quiet. The accurate claim is therefore
-not "every vendor control plane is unreachable" but "every one probed except
-GCP's Resource Manager". Reaching it would still need a credential, and GCP
-stays disqualified on the absence of a native spend cap, not on reachability.
+becomes reachable *and* if a listed exception goes quiet. The accurate claim is
+therefore not "every vendor control plane is unreachable" but "every one probed
+except **GCP's Resource Manager and AWS EC2**" — EC2 joined the list on
+2026-08-24 when re-measurement exposed its verdict as a false denial. Reaching
+either would still need a credential, and both vendors stay disqualified on the
+absence of a native spend cap, not on reachability.
 
 `portal.azure.com` (200) is genuinely a dashboard root and stays context.
 
@@ -397,8 +401,11 @@ re-verified. Four items are load-bearing enough to check in a browser first:
    where Vercel's forbids it. The overshoot window is itself unverified from
    here; Vercel publishes theirs, Railway's is assumed to be similar.
 
-If (2) fails, the answer is Railway. If the ops work in step 3 of the action
-below is unwelcome, the answer is Railway. The criteria do not change either
+If (2) fails, the answer is Railway. If the serving work Hetzner leaves you —
+nginx/TLS, Postgres, an app-deploy path, none of which the playbook provides
+(see *What this does not cover*) — is unwelcome, the answer is Railway; that is
+the work the fallback exists to avoid, and it is not one of the numbered action
+steps because nothing in this PR builds it. The criteria do not change either
 way — and note that this is now the *fourth* framing of the question, so the
 per-criterion table at the top is the durable artifact here, not any single
 recommendation.
@@ -552,12 +559,17 @@ that cannot be reached that way.** In Settings → Environments, create
 ssh-keygen -t ed25519 -N "" -C "agent-server ci" -f /tmp/agent-ci
 gh secret   set AGENT_SERVER_SSH_KEY --env agent-server < /tmp/agent-ci
 gh variable set AGENT_SERVER_PUBKEY  --env agent-server < /tmp/agent-ci.pub
-gh variable set AGENT_SERVER_HOST --body "<box ip>"
+gh variable set AGENT_SERVER_HOST --env agent-server --body "<box ip>"
 shred -u /tmp/agent-ci /tmp/agent-ci.pub
 ```
 
 `AGENT_SERVER_KNOWN_HOSTS` and `TAILSCALE_AUTHKEY` go in the same environment,
-for the same reason — both reach the box.
+for the same reason — both reach the box. **So does `AGENT_SERVER_HOST`**: it
+names *where* the root-equivalent key is sent, so as a repository variable it
+could be retargeted at an attacker's host without touching a single protected
+secret. Same integrity argument as the public key below, and I missed it the
+first time round for the same reason — I was asking what was confidential
+rather than what decided access.
 
 **The public key goes there too, and that is not obvious.** It is not a secret,
 so an earlier draft set it as a plain repository variable and said so in a
@@ -574,13 +586,27 @@ Piping straight into `gh` keeps the private key off your screen, out of your
 shell history and out of any transcript. Create the server in the Hetzner
 console first, pasting the same public key so the box comes up reachable.
 
-Then pin the host key **before the first run**, reading the fingerprint from
-the Hetzner console rather than from the network:
+Then pin the host key **before the first run**. A previous draft of this step
+said to "read the fingerprint from the console", which cannot be followed:
+`known_hosts` needs the host's *full public key*, and the console shows a
+SHA256 **fingerprint** — a hash of it. You cannot reconstruct one from the
+other. What you can do is take the key from the network and then verify it
+against the console's fingerprint, which is what makes it trustworthy rather
+than trust-on-first-use:
 
 ```bash
-gh secret set AGENT_SERVER_KNOWN_HOSTS --env agent-server \
-  --body "<host> ssh-ed25519 AAAA..."
+ssh-keyscan -t ed25519 <box ip> > /tmp/hostkey            # the full key
+ssh-keygen -lf /tmp/hostkey                               # its SHA256 fingerprint
+# compare that fingerprint, by eye, against the one in the Hetzner console.
+# Only if they match:
+gh secret set AGENT_SERVER_KNOWN_HOSTS --env agent-server < /tmp/hostkey
 ```
+
+The comparison is the whole point: `ssh-keyscan` on its own is trust-on-first-
+use wearing a different hat. If Hetzner's console does not show a host
+fingerprint for the image you chose, get it from the server console/VNC on the
+box itself (`ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub`) before it has
+ever been reached over the network.
 
 The workflow refuses to start without it, and that is deliberate. An earlier
 draft fell back to `accept-new` and pinned afterwards — but the first run is

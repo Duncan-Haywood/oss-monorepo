@@ -27,7 +27,13 @@ name: Provision agent server
 #                                    may carry TAILSCALE_AUTHKEY, and a key
 #                                    pinned afterwards cannot authenticate a
 #                                    connection already made.
-#   var    AGENT_SERVER_HOST         IP or hostname to reach the box on
+#   var    AGENT_SERVER_HOST         IP or hostname to reach the box on.
+#                                    **Environment-scoped**, for the same
+#                                    reason as the public key: it names where
+#                                    the root-equivalent key is sent. As a
+#                                    repository variable it could be retargeted
+#                                    at another host without touching a single
+#                                    protected secret.
 #   var    AGENT_SERVER_PUBKEY       public half, installed as an authorized key.
 #                                    **Environment-scoped, not repository.** It
 #                                    is not a secret, but it is integrity-
@@ -98,6 +104,13 @@ jobs:
     environment: agent-server
     steps:
       - uses: actions/checkout@v4
+        with:
+          # `actions/checkout` writes the workflow token into the checkout's
+          # git config by default. This job then runs repository-controlled
+          # Ansible and third-party collections while holding a root-equivalent
+          # SSH key -- a workspace that has no need of a GITHUB_TOKEN and every
+          # reason not to offer one to whatever it executes.
+          persist-credentials: false
 
       - name: Check the required configuration is present
         env:
@@ -107,7 +120,7 @@ jobs:
           KNOWN_HOSTS: ${{ secrets.AGENT_SERVER_KNOWN_HOSTS }}
         run: |
           missing=()
-          [ -n "$HOST" ]        || missing+=("var AGENT_SERVER_HOST")
+          [ -n "$HOST" ]        || missing+=("var AGENT_SERVER_HOST -- set it on the agent-server environment, not the repository")
           [ -n "$PUBKEY" ]      || missing+=("var AGENT_SERVER_PUBKEY -- set it on the agent-server environment, not the repository")
           [ -n "$KEY" ]         || missing+=("secret AGENT_SERVER_SSH_KEY")
           [ -n "$KNOWN_HOSTS" ] || missing+=("secret AGENT_SERVER_KNOWN_HOSTS -- read the fingerprint from the Hetzner console, do not trust it on first use")

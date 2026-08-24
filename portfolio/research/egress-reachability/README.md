@@ -4,6 +4,16 @@
 pass each, first-hand. Read-only GETs; no credential, no account, no
 publication, no spend.**
 
+**2026-08-24, later the same day: the table is 121 hosts.** The 23 hosting
+control planes behind `platform/deployment/README.md` were folded in through
+`unindexed-hosts.json`, and one of them (`ec2.amazonaws.com`) arrived as a
+correction rather than an addition — a false denial produced by that probe's
+redirect-following bug, which outlived the fix because the data was never
+re-measured. Every count below that says 92 or 98 is as-of its own date and has
+not been recomputed; `consolidate.py --check` compares the committed table to a
+fresh ingest and is silent about this prose, so treat the narrative figures as
+dated and the artifact as current.
+
 **2026-08-24: the table is 98 hosts.** Six were measured and never folded in —
 four by a sibling pass this ingest could see and nobody ran, two it structurally
 could not see at all, one of which the account owner is being asked to
