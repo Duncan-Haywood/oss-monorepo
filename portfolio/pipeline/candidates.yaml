@@ -645,3 +645,39 @@ candidates:
       not EAA/web accessibility. See screened-out.md.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+
+  - slug: pod-print-file-preflight
+    name: POD print-file preflight
+    doc: candidates/pod-print-file-preflight.md
+    scored: 2026-08-24
+    verdict: build-now
+    graduate_as: product-line
+    host_venture: print-atelier
+    scores:
+      ai_leverage: 6
+      autonomous_ops: 8
+      time_to_revenue: 6
+      gross_margin: 8
+      defensibility: 5
+      distribution: 5
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 6.625
+    floor: 5
+    floor_dimension: distribution
+    floor_note: >-
+      Two dimensions tie at the floor. `floor_dimension` names distribution
+      because that is the variable that has blocked every other candidate
+      here; defensibility at 5 only lowers the composite.
+    mitigation: >-
+      Graduates as a product line of `print-atelier` (same artist, same
+      upload folder). Bleed, CMYK/ICC, PDF fonts, and lab-specific extras
+      are disclosed as unimplemented, not sold as covered. The record never
+      says a lab will print the file.
+    note: >-
+      Added 2026-08-24 after session_gate reported the pipeline empty
+      (eaa-remediation-pipeline and mls-photo-spec-preflight had graduated).
+      Not a restatement of print-atelier the marketplace, not MLS photo
+      spec, not photo-editing, not EAA. See screened-out.md.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0

@@ -13,10 +13,11 @@ cannot see it and no agent budget flows to it:
 
 - **`graduate_as: venture`** — someone writes `ventures/<name>/VENTURE.yaml`.
 - **`graduate_as: product-line`** — someone adds the candidate's slug under
-  `product_lines` in its `host_venture`'s `VENTURE.yaml`. Two `build-now`
+  `product_lines` in its `host_venture`'s `VENTURE.yaml`. Three `build-now`
   verdicts have graduated this way: `eaa-remediation-pipeline` into
-  `local-site-studio` and `mls-photo-spec-preflight` into
-  `real-estate-agent-photo-app`, both on 2026-08-24. See the closing section
+  `local-site-studio`, `mls-photo-spec-preflight` into
+  `real-estate-agent-photo-app`, and `pod-print-file-preflight` into
+  `print-atelier`, all on 2026-08-24. See the closing section
   on why adding ventures to an unmeasured portfolio is the more expensive
   problem.
 
@@ -125,10 +126,11 @@ four candidates carrying a probe have moved and the table is re-ordered.
 | 6 | [MLS photo spec preflight](candidates/mls-photo-spec-preflight.md) | 6.75 | 5 | Build now, as a `real-estate-agent-photo-app` product line. Scored 2026-08-24 — file-spec evidence, not listing photography the venture and not web accessibility |
 | 7 | [CRA evidence desk](candidates/cra-evidence-desk.md) | 6.75 | 3 | Probe (was build-now); wedge is egress-blocked. `ethical_robustness` 8→6→7→8 — 7→8 on 2026-08-21 after the triage engine's own record began carrying its hand-verified wrong-suppression rate (0 of 53 claims wrong) |
 | 8 | [Vendor-change evidence monitor](candidates/vendor-change-evidence.md) | 6.75 | 4 | Probe; public-page evidence feed, with distribution and archive value still unmeasured |
-| 9 | [Tender radar](candidates/tender-radar.md) | 6.625 | 4 | Park; needs a channel partner |
-| 10 | [Software evidence provenance ledger](candidates/software-evidence-provenance.md) | 6.375 | 3 | Reject; existing provenance standards leave no defensible wedge and distribution is unresolved |
-| 11 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
-| 12 | [Consent change record](candidates/consent-change-record.md) | 6.125 | 4 | Probe; needs an agency or privacy-implementation channel |
+| 9 | [POD print-file preflight](candidates/pod-print-file-preflight.md) | 6.625 | 5 | Build now, as a `print-atelier` product line. Scored 2026-08-24 — print-size evidence, not the marketplace venture and not MLS photo spec |
+| 10 | [Tender radar](candidates/tender-radar.md) | 6.625 | 4 | Park; needs a channel partner |
+| 11 | [Software evidence provenance ledger](candidates/software-evidence-provenance.md) | 6.375 | 3 | Reject; existing provenance standards leave no defensible wedge and distribution is unresolved |
+| 12 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
+| 13 | [Consent change record](candidates/consent-change-record.md) | 6.125 | 4 | Probe; needs an agency or privacy-implementation channel |
 
 **"No measured dimension has ever risen" is no longer true, and the way it
 stopped being true is the useful part.** This file said it across four
@@ -573,3 +575,12 @@ file-spec evidence product line of `real-estate-agent-photo-app`. Named
 against [screened-out.md](screened-out.md) (not listing photography the
 venture, not multi-location-listing-guard, not web accessibility). The
 probe is [`probes/mls-photo-spec/`](probes/mls-photo-spec/).
+
+A later 2026-08-24 session found the pipeline empty again after that
+graduation landed, and added one more candidate that is *not* MLS photo
+spec restated:
+[pod-print-file-preflight](candidates/pod-print-file-preflight.md), a
+print-size evidence product line of `print-atelier`. Named against
+[screened-out.md](screened-out.md) (not the marketplace venture, not
+listing photography, not photo-editing, not EAA). The probe is
+[`probes/pod-print-file/`](probes/pod-print-file/).
