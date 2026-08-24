@@ -45,6 +45,26 @@ for anything not listed (Mercari, Poshmark, Depop, a craft fair, wholesale).
 Entries are saved in your own browser so the page remembers them next time.
 "Reset everything" clears them.
 
+### Reading the table
+
+Alongside net profit and margin, each channel reports two figures that answer
+questions the ranking alone does not:
+
+- **Break-even price** — how low you can list before the sale costs you money.
+  This is the floor for a discount or a "best offer", and it is *different on
+  every channel*, because a per-listing fee, a fixed payment fee and a share of
+  a monthly plan all have to be recovered before a percentage fee is even
+  covered. It turns red when your current price is already below it.
+- **Return on cash** — profit against the cash you actually laid out to source,
+  pack and ship. Fees come out of the sale rather than your pocket, so they are
+  not counted as invested; that keeps the figure comparable across channels
+  whose fee structures differ. It reads "—" when nothing was invested (a
+  giveaway, or an item with no per-unit cost), rather than an infinite return.
+
+Margin answers "how good is this sale", return on cash answers "how hard is my
+money working", and break-even answers "how far can I move the price" — which
+is usually the one a seller can act on today.
+
 ## Rates are inputs, not a published schedule
 
 Every rate ships with an **illustrative** US default and is editable. This
@@ -72,6 +92,14 @@ target-profit solving round-tripping through the calculator, ranking and the
 gap against the best channel, the switched-off-channel rule, input validation,
 and the usage counter's opt-out, Do Not Track / Global Privacy Control, and
 hostile-storage behaviour.
+
+`page.test.mjs` adds structural checks on `index.html` itself, because
+`calc.test.mjs` imports `calc.mjs` directly and never looks at the page. It
+asserts that the results table declares exactly as many columns as the row
+template emits cells (a mismatch silently renders every value under the wrong
+heading), that every figure named in the page's schema.org `featureList` is
+actually rendered, and that the fields which can be `null` are rendered
+defensively.
 
 ## Privacy
 
