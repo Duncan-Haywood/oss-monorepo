@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
-from branch_hygiene import has_unresolved_risk, scan, snapshot_from_repo, write_outputs
+from branch_hygiene import has_unresolved_risk, load_pr_export, scan, snapshot_from_repo, write_outputs
 
 class BranchHygieneTests(unittest.TestCase):
     def setUp(self):
@@ -82,6 +82,69 @@ class BranchHygieneTests(unittest.TestCase):
             self.assertEqual(snapshot["default_branch"], "main")
             self.assertEqual({branch["name"] for branch in snapshot["branches"]}, {"main", "feature"})
             self.assertEqual(subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip(), before)
+
+    def test_load_pr_export_normalizes_gh_cli_states(self):
+        with tempfile.TemporaryDirectory() as directory:
+            export = Path(directory) / "prs.json"
+            export.write_text(json.dumps([
+                {"headRefName": "feature/a", "state": "MERGED", "baseRefName": "main"},
+                {"headRefName": "feature/b", "state": "OPEN", "baseRefName": "main"},
+                {"headRefName": "feature/c", "state": "CLOSED", "baseRefName": "main"},
+            ]))
+            records = {record["head"]: record for record in load_pr_export(export)}
+            self.assertEqual(records["feature/a"], {"head": "feature/a", "base": "main", "state": "closed", "merged": True})
+            self.assertEqual(records["feature/b"]["state"], "open")
+            self.assertFalse(records["feature/b"]["merged"])
+            self.assertEqual(records["feature/c"]["state"], "closed")
+            self.assertFalse(records["feature/c"]["merged"])
+
+    def test_load_pr_export_rejects_malformed_records(self):
+        with tempfile.TemporaryDirectory() as directory:
+            export = Path(directory) / "prs.json"
+            export.write_text(json.dumps({"not": "a list"}))
+            with self.assertRaises(ValueError):
+                load_pr_export(export)
+            export.write_text(json.dumps([{"headRefName": "feature/a"}]))
+            with self.assertRaises(ValueError):
+                load_pr_export(export)
+
+    def test_local_snapshot_with_pr_export_resolves_uncertain_branches(self):
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory)
+            subprocess.run(["git", "init", "-q", "-b", "main", str(repo)], check=True)
+            (repo / "README").write_text("base\n")
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+            env = ["-c", "user.name=Test", "-c", "user.email=test@example.com"]
+            subprocess.run(["git", "-C", str(repo), *env, "commit", "-qm", "base"], check=True)
+            subprocess.run(["git", "-C", str(repo), "branch", "feature/merged"], check=True)
+            subprocess.run(["git", "-C", str(repo), "branch", "feature/open"], check=True)
+            subprocess.run(["git", "-C", str(repo), "checkout", "-q", "feature/merged"], check=True)
+            (repo / "README").write_text("merged work\n")
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+            subprocess.run(["git", "-C", str(repo), *env, "commit", "-qm", "merged work"], check=True)
+            subprocess.run(["git", "-C", str(repo), "checkout", "-q", "main"], check=True)
+            subprocess.run(["git", "-C", str(repo), *env, "merge", "-q", "--no-ff", "-m", "merge feature/merged", "feature/merged"], check=True)
+
+            export = repo / "prs.json"
+            export.write_text(json.dumps([
+                {"headRefName": "feature/merged", "state": "MERGED", "baseRefName": "main"},
+                {"headRefName": "feature/open", "state": "OPEN", "baseRefName": "main"},
+            ]))
+            snapshot = snapshot_from_repo(repo, pr_export=export)
+            findings = {item.branch: item for item in scan(snapshot)}
+            self.assertEqual(findings["feature/merged"].classification, "merged")
+            self.assertEqual(findings["feature/open"].classification, "active")
+
+    def test_cli_rejects_pr_json_without_repo(self):
+        project = Path(__file__).parents[1]
+        result = subprocess.run(
+            [sys.executable, str(project / "src/branch_hygiene.py"), str(project / "examples/snapshot.json"), "--pr-json", "prs.json"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("--pr-json requires --repo", result.stderr)
 
 if __name__ == "__main__":
     unittest.main()

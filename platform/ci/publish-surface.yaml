@@ -119,6 +119,9 @@ workflows:
 - workflow: register-change-rate-ci.yml
   classification: none
   publishes: []
+- workflow: repository-branch-hygiene-ci.yml
+  classification: none
+  publishes: []
 - workflow: retail-pilot-intel-ci.yml
   classification: none
   publishes: []

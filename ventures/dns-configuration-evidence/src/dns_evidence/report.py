@@ -22,12 +22,29 @@ def load_snapshot(path: str | Path) -> dict[str, Any]:
     observations = snapshot.get("observations")
     if not isinstance(observations, list):
         raise ValueError("input must include an observations list")
+    identities: set[tuple[str, str, str]] = set()
     for observation in observations:
+        if not isinstance(observation, dict):
+            raise ValueError("each observation must be an object")
         missing = [key for key in REQUIRED if not observation.get(key)]
         if missing:
             raise ValueError(f"observation missing required fields: {', '.join(missing)}")
+        try:
+            datetime.fromisoformat(observation["observed_at"].replace("Z", "+00:00"))
+        except ValueError as error:
+            raise ValueError("observation observed_at must be an ISO 8601 timestamp") from error
         if "answers" not in observation and observation.get("status") not in UNCERTAIN:
             raise ValueError("successful observations require answers; failures require a known status")
+        identity = _key(observation)
+        if identity in identities:
+            raise ValueError("snapshot contains duplicate name/type/resolver observations")
+        identities.add(identity)
+    captured_at = snapshot.get("captured_at")
+    if captured_at:
+        try:
+            datetime.fromisoformat(captured_at.replace("Z", "+00:00"))
+        except ValueError as error:
+            raise ValueError("captured_at must be an ISO 8601 timestamp") from error
     return snapshot
 
 

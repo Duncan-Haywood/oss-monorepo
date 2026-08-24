@@ -14,6 +14,8 @@ and deciding whether a change needs remediation.
 ```bash
 python3 -m unittest discover -s tests -v
 PYTHONPATH=src python3 -m dns_evidence.cli --before before.json --after after.json --format markdown
+# Exit 2 if any DNS observation changed, suitable for a review gate:
+PYTHONPATH=src python3 -m dns_evidence.cli --before examples/before.json --after examples/after.json --fail-on changed
 ```
 
 The input is customer-supplied JSON. It must contain `authorized: true`, a
@@ -23,6 +25,22 @@ either `answers` or an explicit `status` such as `timeout` or `refused`.
 The CLI writes one anonymized local usage counter when `--usage-file` is given.
 It records event names and counts only, never domains, answers, IP addresses,
 or request content.
+
+**No warranty.** This tool is provided free and as-is, without warranty of any
+kind, express or implied. It is not legal, tax, financial, medical, or
+engineering advice, and it does not replace a qualified professional. **You
+are responsible for reviewing and verifying its output before relying on it**,
+and for meeting any obligation it helps prepare for. To the maximum extent
+permitted by law, the authors accept no liability for any loss or damage
+arising from its use.
+
+## CI and handoffs
+
+Use `--fail-on changed` to turn a changed observation into a reviewable exit
+status without claiming the change is harmful. Use `--fail-on inconclusive` to
+prevent incomplete resolver evidence from passing silently. The JSON output is
+portable and contains the resolver, timestamps, before/after answers, and
+limitations needed for a customer handoff.
 
 ## Cost and limits
 

@@ -51,6 +51,16 @@ products:
           resistor + power rating for one or more series LEDs, 12 passing
           unit tests). Same publishing gate as above — no traffic signal yet.
           Baseline row for the second tool.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Third tool shipped: voltage-divider-calculator (unloaded/loaded
+          Vout with a load-loading correction, plus a target-Vout design
+          mode that snaps R2 to a buyable E24 value, 14 passing unit
+          tests). Same publishing gate as above — no traffic signal yet.
+          Baseline row for the third tool.
   - slug: quote-margin-check
     surface: repository-cli
     readings:
