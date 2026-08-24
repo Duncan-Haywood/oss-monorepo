@@ -70,6 +70,12 @@ Margin answers "how good is this sale", return on cash answers "how hard is my
 money working", and break-even answers "how far can I move the price" — which
 is usually the one a seller can act on today.
 
+On a narrow screen the comparison becomes one card per channel instead of a
+nine-column table, with the channel as the card's heading and every figure on
+its own labelled line. "Where should I sell this?" is often asked while
+standing over the item — at a thrift store, a garage sale, a storage unit — so
+the phone layout shows the same numbers rather than a table dragged sideways.
+
 ## Rates are inputs, not a published schedule
 
 Every rate ships with an **illustrative** US default and is editable. This
@@ -100,11 +106,13 @@ hostile-storage behaviour.
 
 `page.test.mjs` adds structural checks on `index.html` itself, because
 `calc.test.mjs` imports `calc.mjs` directly and never looks at the page. It
-asserts that the results table declares exactly as many columns as the row
-template emits cells (a mismatch silently renders every value under the wrong
-heading), that every figure named in the page's schema.org `featureList` is
-actually rendered, and that the fields which can be `null` are rendered
-defensively.
+asserts that the label declared for each figure matches its column heading in
+order (they are the same list; drift would put a value under one heading on
+desktop and a different caption on a phone), that every figure named in the
+page's schema.org `featureList` is actually rendered, that fields which can be
+`null` are rendered defensively, and that the narrow-screen card layout is
+still reachable — including the `<caption>` rule without which the table's
+caption renders as a one-word-wide column of text.
 
 ## Privacy
 

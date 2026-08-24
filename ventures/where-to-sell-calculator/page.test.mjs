@@ -3,9 +3,11 @@
 // calc.test.mjs imports calc.mjs directly and never looks at the page, so it
 // stays green for a whole class of defect this page is exposed to:
 //
-//   1. A column added to <thead> without a matching cell in the row template
-//      (or the reverse) silently shifts every value one column left or right.
+//   1. A column added to <thead> without a matching entry in resultCells() (or
+//      the reverse) silently shifts every value one column left or right.
 //      Nothing throws; the table just quietly reports margin under "Gives up".
+//      Below ~700px the same declaration supplies the label printed beside each
+//      figure in card mode, so drift there mislabels the number outright.
 //   2. calc.mjs can compute a figure that index.html never renders. That is
 //      not hypothetical: `breakEvenPrice` and `roi` were computed and unit
 //      tested from the first commit, were named in the page's own schema.org
@@ -50,6 +52,17 @@ const scriptSource = scripts.join('\n');
 // The <tr> the results table builds for each channel, lifted out of update().
 const rowTemplate = scriptSource.match(/<tr class="\$\{result\.isBest[\s\S]*?<\/tr>/);
 
+// The body of resultCells(), which declares one [label, value, class] tuple per
+// value column. Below ~700px the table is restyled into one card per channel
+// and these labels are what the reader sees beside each number, so they must
+// stay in step with <thead>.
+const cellsSource = scriptSource.match(/function resultCells\(result\) \{[\s\S]*?\n    \}/);
+
+// The label (first element) of each declared tuple, in order.
+const declaredLabels = cellsSource
+  ? [...cellsSource[0].matchAll(/^\s*\["([^"]+)",/gm)].map((m) => m[1])
+  : [];
+
 test('every raw-text element is closed', () => {
   assert.equal(unclosed, null, `<${unclosed}> is never closed; everything after it is swallowed as text instead of parsed as markup`);
 });
@@ -58,19 +71,58 @@ test('the results row template exists', () => {
   assert.ok(rowTemplate, 'could not find the per-channel <tr> template in update(); the tests below cannot check column alignment without it');
 });
 
-test('every results column has a cell, and every cell has a column', () => {
+test('the results cell declaration exists', () => {
+  assert.ok(cellsSource, 'could not find resultCells() in the page script');
+  assert.ok(declaredLabels.length > 0, 'resultCells() declares no labelled cells');
+});
+
+test('card labels match the column headings, in order', () => {
   const headers = [...markup.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
     m[1].replace(/\s+/g, ' ').trim());
-  // One <th scope="row"> (the channel name) plus the <td>s.
-  const cells = (rowTemplate[0].match(/<t[hd][\s>]/g) || []).length;
 
   assert.ok(headers.length > 0, 'no column headers found');
-  assert.equal(
-    cells,
-    headers.length,
-    `the results table declares ${headers.length} columns (${headers.join(' | ')}) but the row template emits ${cells} cells — ` +
-      'every value after the mismatch renders under the wrong heading',
+  // The first column is the channel name, rendered as each row's <th
+  // scope="row"> rather than as a value cell, so it has no tuple.
+  assert.deepEqual(
+    declaredLabels,
+    headers.slice(1),
+    'the labels rendered beside each figure in card mode have drifted from the table headings — ' +
+      'on a wide screen the value would sit under one heading and on a phone be captioned with another',
   );
+});
+
+test('the row renders every declared cell, with its label as real text', () => {
+  assert.match(
+    rowTemplate[0],
+    /resultCells\(result\)/,
+    'the row template no longer builds its cells from resultCells(); the label/heading check above would then be checking a declaration nothing renders',
+  );
+  // A CSS ::before label is decorative content that assistive technology may
+  // not announce. In card mode the label is the only thing identifying the
+  // number, so it has to be in the markup.
+  assert.match(
+    rowTemplate[0],
+    /class="cell-label"/,
+    'cell labels must be real elements, not CSS-generated content, so they are readable in card mode',
+  );
+});
+
+test('card mode is actually reachable', () => {
+  // The card layout is pure CSS; if the media query or the block-display rule
+  // is dropped, the page silently reverts to a nine-column table dragged
+  // sideways on a phone, and nothing else in this suite would notice.
+  const style = (html.match(/<style[^>]*>([\s\S]*?)<\/style>/) || [, ''])[1];
+  const cardQuery = style.match(/@media \(max-width: 700px\) \{[\s\S]*?\n    \}/);
+  assert.ok(cardQuery, 'the narrow-screen card layout media query is missing');
+  assert.match(cardQuery[0], /tbody tr[\s\S]*?display: block|display: block[\s\S]*?tbody tr/,
+    'card mode must switch the table rows to block layout');
+  assert.match(cardQuery[0], /\.cell-label \{[^}]*display: inline/,
+    'card mode must reveal the per-cell labels hidden on wide screens');
+  // Switching the table to block display leaves <caption> shrink-wrapping to
+  // its longest word, which renders the sentence as a one-word-wide column.
+  // Caught in a phone screenshot, not by any assertion, so pin it here.
+  assert.match(cardQuery[0], /caption \{[^}]*display: block/,
+    'card mode must give <caption> block display, or it renders as a vertical sliver of text');
 });
 
 test('figures named in schema.org featureList are actually rendered', () => {
@@ -95,7 +147,7 @@ test('figures named in schema.org featureList are actually rendered', () => {
       `featureList no longer advertises "${claim}"; update this test or restore the claim`,
     );
     assert.match(
-      rowTemplate[0],
+      cellsSource[0],
       rendered,
       `featureList advertises "${claim}" but the results row never renders ${rendered} — the page under-delivers against its own description`,
     );
@@ -108,12 +160,12 @@ test('figures that can be absent are rendered defensively', () => {
   // channel (the question is meaningless). Rendering null unguarded prints
   // "null%" or throws on .toFixed.
   assert.match(
-    rowTemplate[0],
+    cellsSource[0],
     /result\.roi === null/,
     'roi is null when nothing was invested; render a placeholder instead of calling .toFixed on null',
   );
   assert.match(
-    rowTemplate[0],
+    cellsSource[0],
     /result\.priceToMatchBest === null/,
     'priceToMatchBest is null on the best channel; render a placeholder instead of formatting null',
   );

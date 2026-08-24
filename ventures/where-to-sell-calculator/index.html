@@ -90,6 +90,11 @@
     tbody tr.best { background: #3b2c80; }
     tbody tr.best th::after { content: " · best"; color: #c9bcff; font-weight: 700; font-size: .8rem; }
     td.money { font-variant-numeric: tabular-nums; }
+    /* On a wide screen the column heading carries the label, so the per-cell
+       label is redundant. It stays in the markup (rather than being generated
+       by CSS) so that in card mode below it is real text every assistive
+       technology reads, not decorative ::before content. */
+    .cell-label { display: none; }
     .rates { margin-top: 18px; }
     details { border: 1px solid #ded9f0; border-radius: 10px; padding: 10px 12px; margin-bottom: 9px; background: #faf9ff; }
     summary { cursor: pointer; font-weight: 650; }
@@ -106,6 +111,39 @@
     footer { margin-top: 25px; font-size: .82rem; color: #4a4270; }
     footer a { color: #4b32a8; }
     @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .fields, details .fields { grid-template-columns: 1fr; } }
+
+    /* Nine columns do not fit a phone. Rather than leave the seller dragging a
+       560px-wide table sideways — losing the channel name, which is the row's
+       only anchor, as soon as they scroll — each row becomes a card with the
+       channel as its heading and every figure on its own labelled line.
+       "Where should I sell this?" is a question asked while standing over the
+       item, so the phone layout is the one that has to read well. */
+    @media (max-width: 700px) {
+      .scroller { overflow-x: visible; }
+      table { min-width: 0; }
+      table, tbody, tbody tr, tbody th, tbody td { display: block; width: auto; }
+      /* A table-caption inside a block-display table shrink-wraps to its
+         longest word and renders as a one-word-wide column of text. */
+      caption { display: block; width: auto; }
+      /* Hidden visually, kept for assistive technology and for the caption's
+         reading order; each cell carries its own label in card mode. */
+      thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+      tbody tr {
+        border: 1px solid #4a3d99; border-radius: 10px;
+        padding: 4px 12px 8px; margin-bottom: 10px; background: #2c2064;
+      }
+      tbody tr.best { background: #3b2c80; border-color: #7a67e0; }
+      tbody th[scope="row"] {
+        font-size: 1.05rem; padding: 9px 0 7px;
+        border-bottom: 1px solid #4a3d99; margin-bottom: 3px;
+      }
+      tbody td {
+        display: flex; justify-content: space-between; align-items: baseline;
+        gap: 12px; padding: 5px 0; border-bottom: none; text-align: right;
+      }
+      .cell-label { display: inline; font-size: .82rem; color: #c3b9ee; text-align: left; }
+      .cell-value { font-variant-numeric: tabular-nums; }
+    }
   </style>
 </head>
 <body>
@@ -265,6 +303,31 @@
     const SAVE_KEY = "where-to-sell-inputs";
     const money = (value) => `$${value.toFixed(2)}`;
 
+    /**
+     * The value cells of one results row, as [column label, text, extra class].
+     *
+     * The label travels with the value rather than living only in <thead>,
+     * because under ~700px the table is restyled into one card per channel and
+     * the header row is no longer beside the number — the label is rendered
+     * next to the value instead. Declaring both here keeps the card labels and
+     * the column headings from drifting apart; page.test.mjs asserts they still
+     * match, in order.
+     */
+    function resultCells(result) {
+      return [
+        ["Price", money(result.price), ""],
+        ["Fees", money(result.feeTotal), ""],
+        ["You keep", money(result.profit), ""],
+        ["Margin", `${result.margin.toFixed(1)}%`, ""],
+        ["Return on cash", result.roi === null ? "—" : `${result.roi.toFixed(0)}%`, ""],
+        ["Gives up", result.isBest ? "—" : money(result.gapVsBest), ""],
+        // Flagged when the seller is already listing below this channel's
+        // floor, which is the case worth noticing at a glance.
+        ["Break-even price", money(result.breakEvenPrice), result.price < result.breakEvenPrice ? " negative" : ""],
+        ["Price to match best", result.priceToMatchBest === null ? "—" : money(result.priceToMatchBest), ""],
+      ];
+    }
+
     // Deep-ish clone so editing a channel never mutates the shipped presets.
     const freshChannels = () => CHANNEL_PRESETS.map((channel) => ({ ...channel }));
     let channels = freshChannels();
@@ -417,14 +480,8 @@
         .map((result) => `
           <tr class="${result.isBest ? "best" : ""}">
             <th scope="row" style="text-align:left;font-weight:650">${result.label}</th>
-            <td class="money">${money(result.price)}</td>
-            <td class="money">${money(result.feeTotal)}</td>
-            <td class="money">${money(result.profit)}</td>
-            <td class="money">${result.margin.toFixed(1)}%</td>
-            <td class="money">${result.roi === null ? "—" : `${result.roi.toFixed(0)}%`}</td>
-            <td class="money">${result.isBest ? "—" : money(result.gapVsBest)}</td>
-            <td class="money${result.price < result.breakEvenPrice ? " negative" : ""}">${money(result.breakEvenPrice)}</td>
-            <td class="money">${result.priceToMatchBest === null ? "—" : money(result.priceToMatchBest)}</td>
+            ${resultCells(result).map(([label, value, extraClass]) => `
+            <td class="money${extraClass}"><span class="cell-label">${label}</span><span class="cell-value">${value}</span></td>`).join("")}
           </tr>`).join("");
     }
 
