@@ -107,3 +107,84 @@ test("fetchRepoFacts treats a 404 FUNDING.yml as missing, not rate-limited", asy
     globalThis.fetch = originalFetch;
   }
 });
+
+test("fetchRepoFacts treats a custom CoC file as present when GitHub has no template metadata", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    const path = String(url);
+    if (path.endsWith("/repos/octocat/hello-world")) {
+      return jsonResponse(200, { description: "hi", homepage: "", topics: [], license: { key: "mit" }, pushed_at: "2026-08-01T00:00:00Z", archived: false, owner: { type: "User" } }, "10");
+    }
+    if (path.includes("/community/profile")) {
+      return jsonResponse(200, {
+        files: {
+          code_of_conduct: null,
+          code_of_conduct_file: { url: "https://api.github.com/repos/octocat/hello-world/contents/CODE_OF_CONDUCT.md", html_url: "https://github.com/octocat/hello-world/blob/main/CODE_OF_CONDUCT.md" },
+        },
+      }, "9");
+    }
+    if (path.includes("/readme")) {
+      return jsonResponse(200, { content: Buffer.from("# Hello").toString("base64") }, "8");
+    }
+    return jsonResponse(404, { message: "Not Found" }, "7");
+  };
+  try {
+    const facts = await fetchRepoFacts("octocat", "hello-world");
+    assert.equal(facts.community.hasCodeOfConduct, true);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("fetchRepoFacts uses the org .github default FUNDING.yml when the scanned repo has none", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    const path = String(url);
+    if (path.endsWith("/repos/acme/widget")) {
+      return jsonResponse(200, { description: "hi", homepage: "", topics: [], license: { key: "mit" }, pushed_at: "2026-08-01T00:00:00Z", archived: false, owner: { login: "acme", type: "Organization" } }, "10");
+    }
+    if (path.includes("/community/profile")) {
+      return jsonResponse(200, { files: {} }, "9");
+    }
+    if (path.includes("/readme")) {
+      return jsonResponse(200, { content: Buffer.from("# Hello").toString("base64") }, "8");
+    }
+    if (path.includes("/repos/acme/.github/contents/.github/FUNDING.yml")) {
+      return jsonResponse(200, { content: Buffer.from("github: [acme]\n").toString("base64") }, "7");
+    }
+    return jsonResponse(404, { message: "Not Found" }, "6");
+  };
+  try {
+    const facts = await fetchRepoFacts("acme", "widget");
+    assert.equal(facts.funding.present, true);
+    assert.equal(facts.funding.hasEntries, true);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("fetchRepoFacts does not look up an org default FUNDING.yml for a user-owned repo", async () => {
+  const originalFetch = globalThis.fetch;
+  const requested = [];
+  globalThis.fetch = async (url) => {
+    const path = String(url);
+    requested.push(path);
+    if (path.endsWith("/repos/octocat/hello-world")) {
+      return jsonResponse(200, { description: "hi", homepage: "", topics: [], license: { key: "mit" }, pushed_at: "2026-08-01T00:00:00Z", archived: false, owner: { login: "octocat", type: "User" } }, "10");
+    }
+    if (path.includes("/community/profile")) {
+      return jsonResponse(200, { files: {} }, "9");
+    }
+    if (path.includes("/readme")) {
+      return jsonResponse(200, { content: Buffer.from("# Hello").toString("base64") }, "8");
+    }
+    return jsonResponse(404, { message: "Not Found" }, "7");
+  };
+  try {
+    const facts = await fetchRepoFacts("octocat", "hello-world");
+    assert.equal(facts.funding.present, false);
+    assert.equal(requested.some((p) => p.includes("/repos/octocat/.github/")), false);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});

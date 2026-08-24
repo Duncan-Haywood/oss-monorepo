@@ -127,7 +127,20 @@ async function fetchRepoFacts(owner, repo) {
     throw new Error(RATE_LIMIT_ERROR);
   }
 
-  const fundingRes2 = fundingRes.ok ? fundingRes : fundingRootRes;
+  // Repo-level FUNDING.yml wins. If the scanned repo has none, GitHub still
+  // shows the Sponsor button from the org's public `.github` default file.
+  let fundingRes2 = fundingRes.ok ? fundingRes : fundingRootRes;
+  if (!fundingRes2.ok && repoData.owner?.type === "Organization" && repo !== ".github") {
+    const orgGithub = `/repos/${encodeURIComponent(owner)}/.github`;
+    const [orgFundingRes, orgFundingRootRes] = await Promise.all([
+      fetchJson(`${orgGithub}/contents/.github/FUNDING.yml`),
+      fetchJson(`${orgGithub}/contents/FUNDING.yml`),
+    ]);
+    if ([orgFundingRes, orgFundingRootRes].some((r) => r.rateLimited)) {
+      throw new Error(RATE_LIMIT_ERROR);
+    }
+    fundingRes2 = orgFundingRes.ok ? orgFundingRes : orgFundingRootRes;
+  }
   const fundingText = fundingRes2.ok ? decodeBase64Content(fundingRes2) : "";
   const readmeText = readmeRes.ok ? decodeBase64Content(readmeRes) : "";
 
@@ -143,7 +156,9 @@ async function fetchRepoFacts(owner, repo) {
       archived: Boolean(repoData.archived),
     },
     community: {
-      hasCodeOfConduct: Boolean(community?.files?.code_of_conduct),
+      // `code_of_conduct` is recognized-template metadata and can be null for
+      // a custom file; `code_of_conduct_file` is the actual community-health file.
+      hasCodeOfConduct: Boolean(community?.files?.code_of_conduct_file || community?.files?.code_of_conduct),
       hasContributing: Boolean(community?.files?.contributing),
       hasIssueTemplate: Boolean(community?.files?.issue_template),
       hasLicenseFile: Boolean(community?.files?.license),
