@@ -27,8 +27,33 @@ jobs:
             echo >> "$HOME/.ssh/id_test"
           fi
           chmod 600 "$HOME/.ssh/id_test"
-          if ! grep -q "BEGIN .*PRIVATE KEY" "$HOME/.ssh/id_test"; then
-            echo "Secret is not an OpenSSH/PEM private key"
+          python3 -c '
+          from pathlib import Path
+          raw = Path.home().joinpath(".ssh/id_test").read_bytes()
+          text = raw.decode("utf-8", "replace")
+          stripped = text.lstrip()
+          print("bytes", len(raw))
+          print("newline_count", raw.count(b"\n"))
+          print("has_cr", b"\r" in raw)
+          print("literal_backslash_n", b"\\n" in raw)
+          print("has_begin", b"BEGIN" in raw)
+          print("looks_like_public", stripped.startswith(("ssh-ed25519", "ssh-rsa", "ecdsa-sha2")))
+          print("header_preview", "".join(chr(c) if 32 <= c < 127 else "." for c in raw[:24]))
+          if b"\\n" in raw and b"BEGIN" not in raw:
+              Path.home().joinpath(".ssh/id_test").write_bytes(raw.replace(b"\\n", b"\n").replace(b"\\r", b""))
+              print("normalized_escaped_newlines")
+          '
+          if grep -q "BEGIN .*PRIVATE KEY" "$HOME/.ssh/id_test"; then
+            echo "classified=private_key"
+          elif grep -Eq "^ssh-(ed25519|rsa)|ecdsa-sha2" "$HOME/.ssh/id_test"; then
+            echo "classified=public_key"
+            echo "Public key fingerprint:"
+            ssh-keygen -lf "$HOME/.ssh/id_test"
+            echo "A public key cannot open an SSH session. Store the matching private key in HETZNERSSHKEY."
+            exit 1
+          else
+            echo "classified=unknown"
+            echo "Secret is not an OpenSSH/PEM private key after normalization"
             exit 1
           fi
           echo "Fingerprint:"
