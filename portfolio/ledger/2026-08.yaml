@@ -21631,3 +21631,43 @@ entries:
           restatement of a prior finding. `payout-rail` remains the only
           queue item that moves the revenue ceiling off $0.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled "continue work on the repo... follow branch and PR workflow"
+          session, designated branch `claude/decision-queue-deployment-platform`.
+          `session_gate.py` -> PROCEED (cadence 0.88/h, burst of 3 within a
+          15-minute window in the last 6h). Fetched `main` fresh, read the open
+          pull requests, `decision_queue.py`, `verification_status.py` and
+          issue #139's current body before touching anything.
+      - >-
+          Found the owner's decision queue (`asks.yaml`) carrying only 4 of the
+          6 open pull requests. Two decisions waiting on the owner were visible
+          only in ledger prose: #720 (deployment-platform choice, opens a
+          Vercel account and commits standing spend) and #731 (local-site-studio
+          subtree gather of 1,405 upstream commits, venture code whose own
+          session deliberately did not self-merge pending the
+          `venture-gate-premise` answer). The queue file's stated purpose is
+          that the owner can read the whole queue from one place, so this was a
+          gap in the decision surface, not a re-verification.
+      - >-
+          Added both as rows to `asks.yaml` and corrected the stale 'four open
+          PRs / eight decisions' counts in `decision_queue.py` and the ledger
+          README. Verified by running, not by reading the diff:
+          `decision_queue.py --check` (10 decisions, schema OK), 28 queue tests,
+          and the `agent-permission-harness` regeneration stayed byte-identical
+          (closure 120 -- the new prose names paths that do not exist on `main`
+          yet, so nothing new resolves). `git merge-tree` clean against live
+          `main` and against #720's branch, which edits the same file (#720
+          narrows `deploy-settings`; this PR appends two rows elsewhere).
+          Merged as #733 (`ef3a689f`).
+      - >-
+          Agent-decidable per `CLAUDE.md`: `portfolio/ledger/` only, no
+          `ventures/*` code, publishes nothing, spends nothing, adds no
+          automation. Ledger entry shipped separately from #733 per the
+          ledger-discipline rule. Owner-gated PRs left untouched: #720, #731,
+          #583, #531, #372, #368. `payout-rail` remains the only queue item
+          that moves the revenue ceiling off $0.
+    mrr_end: null
