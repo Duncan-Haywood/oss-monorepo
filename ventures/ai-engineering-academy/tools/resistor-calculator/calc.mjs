@@ -171,3 +171,26 @@ export function solveOhmsLaw(known) {
 
   return { v, i, r, p };
 }
+
+/**
+ * Calculates the series resistor for a single LED. Inputs use volts and amps.
+ * The recommended wattage rounds the calculated dissipation up to the next
+ * common quarter-watt step, with a 0.25 W floor.
+ */
+export function calculateLedResistor({ supplyVoltage, ledForwardVoltage, targetCurrent }) {
+  const values = { supplyVoltage, ledForwardVoltage, targetCurrent };
+  for (const [name, value] of Object.entries(values)) {
+    if (!Number.isFinite(Number(value))) throw new Error(`${name} must be a finite number.`);
+  }
+  const voltage = Number(supplyVoltage);
+  const forward = Number(ledForwardVoltage);
+  const current = Number(targetCurrent);
+  if (voltage <= 0 || forward < 0 || current <= 0) {
+    throw new Error("Supply voltage and current must be positive; LED forward voltage cannot be negative.");
+  }
+  if (forward >= voltage) throw new Error("LED forward voltage must be lower than supply voltage.");
+  const resistance = roundOhms((voltage - forward) / current);
+  const power = roundOhms((voltage - forward) * current);
+  const recommendedWattage = Math.max(0.25, Math.ceil((power * 2) / 0.25) * 0.25);
+  return { resistance, power, recommendedWattage };
+}
