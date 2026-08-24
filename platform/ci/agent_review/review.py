@@ -31,6 +31,23 @@ import yaml
 CONFIG_PATH = Path(__file__).resolve().parent / "config.yaml"
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
+# Check runs created by this reviewer / auto-merge workflow. They must not
+# gate approval: the four review jobs run in parallel on the same head SHA
+# and would otherwise see each other (and themselves) as pending, and a
+# missing App secret would leave a failed check that blocks every reviewer.
+SELF_CHECK_RUN_NAMES = frozenset(
+    {
+        "resolve-pr",
+        "review-gh",
+        "review-kilo",
+        "review-cursor",
+        "review-claude",
+        "auto-merge",
+    }
+)
+
+_DECISIVE_REVIEW_STATES = frozenset({"APPROVED", "CHANGES_REQUESTED", "DISMISSED"})
+
 
 @dataclass(frozen=True)
 class ReviewerConfig:
@@ -124,42 +141,94 @@ def fetch_pull_request(pr_number: int) -> dict[str, Any]:
 
 def fetch_reviews(pr_number: int) -> list[dict[str, Any]]:
     slug = repo_slug()
-    return gh_api(f"repos/{slug}/pulls/{pr_number}/reviews")
+    reviews: list[dict[str, Any]] = []
+    page = 1
+    while True:
+        batch = gh_api(
+            f"repos/{slug}/pulls/{pr_number}/reviews?per_page=100&page={page}"
+        )
+        if not batch:
+            break
+        reviews.extend(batch)
+        if len(batch) < 100:
+            break
+        page += 1
+    return reviews
 
 
 def fetch_check_runs(pr_number: int) -> list[dict[str, Any]]:
     slug = repo_slug()
     pr = fetch_pull_request(pr_number)
     head_sha = pr["head"]["sha"]
-    payload = gh_api(f"repos/{slug}/commits/{head_sha}/check-runs")
-    return payload.get("check_runs", [])
+    runs: list[dict[str, Any]] = []
+    page = 1
+    while True:
+        payload = gh_api(
+            f"repos/{slug}/commits/{head_sha}/check-runs?per_page=100&page={page}"
+        )
+        batch = (payload or {}).get("check_runs", [])
+        runs.extend(batch)
+        if len(batch) < 100:
+            break
+        page += 1
+    return runs
 
 
-def reviewer_already_approved(
-    reviews: list[dict[str, Any]], reviewer_login: str
-) -> bool:
-    login = _normalize_login(reviewer_login)
-    for review in reviews:
-        user = review.get("user") or {}
-        if _normalize_login(user.get("login", "")) != login:
-            continue
-        if review.get("state") == "APPROVED":
-            return True
-    return False
+def _is_self_check_run(name: str) -> bool:
+    bare = name.rsplit(" / ", 1)[-1].strip()
+    return bare in SELF_CHECK_RUN_NAMES
 
 
-def count_allowed_approvals(
-    reviews: list[dict[str, Any]], allowed: frozenset[str]
-) -> set[str]:
-    allowed_norm = {_normalize_login(a) for a in allowed}
-    approvers: set[str] = set()
-    for review in reviews:
-        if review.get("state") != "APPROVED":
+def latest_decisive_reviews(
+    reviews: list[dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    """Latest APPROVED / CHANGES_REQUESTED / DISMISSED review per login."""
+    latest: dict[str, dict[str, Any]] = {}
+    ordered = sorted(reviews, key=lambda r: str(r.get("submitted_at") or ""))
+    for review in ordered:
+        if review.get("state") not in _DECISIVE_REVIEW_STATES:
             continue
         user = review.get("user") or {}
         login = _normalize_login(user.get("login", ""))
-        if login in allowed_norm:
-            approvers.add(login)
+        if not login:
+            continue
+        latest[login] = review
+    return latest
+
+
+def _approval_matches_head(review: dict[str, Any], head_sha: str | None) -> bool:
+    if not head_sha:
+        return True
+    return review.get("commit_id") == head_sha
+
+
+def reviewer_already_approved(
+    reviews: list[dict[str, Any]],
+    reviewer_login: str,
+    head_sha: str | None = None,
+) -> bool:
+    login = _normalize_login(reviewer_login)
+    latest = latest_decisive_reviews(reviews).get(login)
+    if latest is None or latest.get("state") != "APPROVED":
+        return False
+    return _approval_matches_head(latest, head_sha)
+
+
+def count_allowed_approvals(
+    reviews: list[dict[str, Any]],
+    allowed: frozenset[str],
+    head_sha: str | None = None,
+) -> set[str]:
+    allowed_norm = {_normalize_login(a) for a in allowed}
+    approvers: set[str] = set()
+    for login, review in latest_decisive_reviews(reviews).items():
+        if review.get("state") != "APPROVED":
+            continue
+        if login not in allowed_norm:
+            continue
+        if not _approval_matches_head(review, head_sha):
+            continue
+        approvers.add(login)
     return approvers
 
 
@@ -168,9 +237,17 @@ def checks_all_success(check_runs: list[dict[str, Any]]) -> tuple[bool, list[str
     if not check_runs:
         return False, ["no check runs on head commit yet"]
 
+    relevant = [
+        run for run in check_runs if not _is_self_check_run(run.get("name", "unknown"))
+    ]
+    if not relevant:
+        return True, [
+            "only agent review/auto-merge checks on head commit; those do not gate approval"
+        ]
+
     reasons: list[str] = []
     blocking: list[str] = []
-    for run in check_runs:
+    for run in relevant:
         name = run.get("name", "unknown")
         status = run.get("status")
         conclusion = run.get("conclusion")
@@ -233,14 +310,18 @@ def run_decision_queue_check() -> tuple[bool, str]:
 
 def run_publish_surface() -> tuple[bool, str]:
     result = subprocess.run(
-        [sys.executable, str(REPO_ROOT / "platform/ci/publish_surface.py")],
+        [
+            sys.executable,
+            str(REPO_ROOT / "platform/ci/publish_surface.py"),
+            "--check",
+        ],
         cwd=REPO_ROOT,
         capture_output=True,
         text=True,
     )
     if result.returncode != 0:
         return False, result.stdout + result.stderr
-    return True, "publish_surface.py passed"
+    return True, "publish_surface.py --check passed"
 
 
 def path_touches_ventures(files: list[str]) -> bool:
@@ -340,7 +421,8 @@ def review_pull_request(pr_number: int, reviewer_key: str) -> str:
         return f"skip: PR #{pr_number} authored by {author} (self-review)"
 
     reviews = fetch_reviews(pr_number)
-    if reviewer_already_approved(reviews, reviewer.github_login):
+    head_sha = (pr.get("head") or {}).get("sha")
+    if reviewer_already_approved(reviews, reviewer.github_login, head_sha):
         return f"skip: {reviewer.github_login} already approved PR #{pr_number}"
 
     ok, reasons = evaluate_pr(pr_number)
@@ -367,13 +449,22 @@ def merge_eligible(pr_number: int) -> tuple[bool, list[str]]:
         return False, reasons
 
     reviews = fetch_reviews(pr_number)
-    approvers = count_allowed_approvals(reviews, config.allowed_approvers)
+    head_sha = (pr.get("head") or {}).get("sha")
+    approvers = count_allowed_approvals(
+        reviews, config.allowed_approvers, head_sha
+    )
     reasons.append(
         f"{len(approvers)} allowed approver(s): {', '.join(sorted(approvers)) or '(none)'}"
     )
     if len(approvers) < config.required_approvals:
         return False, reasons + [
             f"need {config.required_approvals} allowed approvals, have {len(approvers)}"
+        ]
+
+    files = changed_files(pr_number)
+    if path_touches_ventures(files):
+        return False, reasons + [
+            "touches ventures/* — human-gated; owner must merge"
         ]
 
     ok, eval_reasons = evaluate_pr(pr_number)

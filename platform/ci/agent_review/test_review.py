@@ -8,6 +8,8 @@ from review import (
     checks_all_success,
     count_allowed_approvals,
     load_config,
+    path_touches_ventures,
+    reviewer_already_approved,
 )
 
 
@@ -61,6 +63,35 @@ class ChecksAllSuccessTest(unittest.TestCase):
         )
         self.assertTrue(ok)
 
+    def test_ignores_in_progress_review_jobs(self):
+        ok, _ = checks_all_success(
+            [
+                {"name": "portfolio-validate", "status": "completed", "conclusion": "success"},
+                {"name": "review-gh", "status": "in_progress", "conclusion": None},
+                {"name": "review-kilo", "status": "queued", "conclusion": None},
+            ]
+        )
+        self.assertTrue(ok)
+
+    def test_ignores_failed_review_and_auto_merge_jobs(self):
+        ok, _ = checks_all_success(
+            [
+                {"name": "CI", "status": "completed", "conclusion": "success"},
+                {"name": "review-cursor", "status": "completed", "conclusion": "failure"},
+                {"name": "auto-merge", "status": "completed", "conclusion": "failure"},
+            ]
+        )
+        self.assertTrue(ok)
+
+    def test_only_self_checks_do_not_block(self):
+        ok, _ = checks_all_success(
+            [
+                {"name": "Agent cross-review / review-claude", "status": "in_progress", "conclusion": None},
+                {"name": "resolve-pr", "status": "completed", "conclusion": "success"},
+            ]
+        )
+        self.assertTrue(ok)
+
 
 class CountApprovalsTest(unittest.TestCase):
     def test_counts_distinct_allowed_approvers(self):
@@ -90,6 +121,67 @@ class CountApprovalsTest(unittest.TestCase):
             ),
         )
         self.assertEqual(approvers, {"kilo-code-bot[bot]", "cursor[bot]"})
+
+    def test_superseded_approval_does_not_count(self):
+        reviews = [
+            {
+                "state": "APPROVED",
+                "commit_id": "aaa",
+                "submitted_at": "2026-08-24T10:00:00Z",
+                "user": {"login": "kilo-code-bot[bot]"},
+            },
+            {
+                "state": "CHANGES_REQUESTED",
+                "commit_id": "bbb",
+                "submitted_at": "2026-08-24T11:00:00Z",
+                "user": {"login": "kilo-code-bot[bot]"},
+            },
+        ]
+        allowed = frozenset({"kilo-code-bot[bot]", "cursor[bot]"})
+        self.assertEqual(count_allowed_approvals(reviews, allowed), set())
+        self.assertFalse(
+            reviewer_already_approved(reviews, "kilo-code-bot[bot]")
+        )
+
+    def test_comment_after_approve_still_counts(self):
+        reviews = [
+            {
+                "state": "APPROVED",
+                "commit_id": "abc",
+                "submitted_at": "2026-08-24T10:00:00Z",
+                "user": {"login": "cursor[bot]"},
+            },
+            {
+                "state": "COMMENTED",
+                "commit_id": "abc",
+                "submitted_at": "2026-08-24T11:00:00Z",
+                "user": {"login": "cursor[bot]"},
+            },
+        ]
+        allowed = frozenset({"cursor[bot]"})
+        self.assertEqual(
+            count_allowed_approvals(reviews, allowed, "abc"), {"cursor[bot]"}
+        )
+
+    def test_stale_head_sha_does_not_count(self):
+        reviews = [
+            {
+                "state": "APPROVED",
+                "commit_id": "old",
+                "submitted_at": "2026-08-24T10:00:00Z",
+                "user": {"login": "cursor[bot]"},
+            },
+        ]
+        allowed = frozenset({"cursor[bot]"})
+        self.assertEqual(count_allowed_approvals(reviews, allowed, "new"), set())
+        self.assertFalse(reviewer_already_approved(reviews, "cursor[bot]", "new"))
+        self.assertTrue(reviewer_already_approved(reviews, "cursor[bot]", "old"))
+
+
+class HumanGateTest(unittest.TestCase):
+    def test_ventures_paths_are_human_gated(self):
+        self.assertTrue(path_touches_ventures(["ventures/local-site-studio/app/page.tsx"]))
+        self.assertFalse(path_touches_ventures(["platform/ci/agent_review/review.py"]))
 
 
 if __name__ == "__main__":

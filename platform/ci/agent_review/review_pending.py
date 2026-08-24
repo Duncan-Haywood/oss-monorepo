@@ -48,7 +48,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"skip #{number}: authored by {author}")
             continue
         reviews = fetch_reviews(number)
-        if reviewer_already_approved(reviews, reviewer.github_login):
+        head_sha = (pr.get("head") or {}).get("sha")
+        if reviewer_already_approved(reviews, reviewer.github_login, head_sha):
             print(f"skip #{number}: already reviewed by {reviewer.github_login}")
             continue
         print(review_pull_request(number, args.reviewer))

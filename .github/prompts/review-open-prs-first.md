@@ -51,5 +51,5 @@ When **two** allowed reviewer Apps have approved and all checks pass,
 to merge manually for agent-decidable PRs.
 
 Human-gated PRs (`ventures/*` deployable changes, payout rails, etc.) still
-need owner sign-off per `CLAUDE.md` even if bots approve — tighten
-`config.yaml` or rulesets if you want to block those paths.
+need owner sign-off per `CLAUDE.md` even if bots approve. Auto-merge refuses
+`ventures/*` paths so those PRs stay owner-merged.

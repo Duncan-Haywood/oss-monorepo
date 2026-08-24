@@ -51,5 +51,11 @@ jobs:
           esac
           for pr in $prs; do
             [ -n "$pr" ] || continue
+            # Validators in review.py read the working tree. These triggers
+            # check out the default branch, so switch to the PR head first.
+            gh pr checkout "$pr" || {
+              echo "skip merge: could not checkout PR $pr"
+              continue
+            }
             python3 platform/ci/agent_review/review.py --auto-merge --pr "$pr" || true
           done
