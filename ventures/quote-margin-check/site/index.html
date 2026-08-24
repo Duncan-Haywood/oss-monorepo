@@ -104,6 +104,8 @@
   .sensitivity th:first-child, .sensitivity td:first-child { text-align: left; }
   .table-scroll { overflow-x: auto; }
   .actions { margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .library-list { margin: 0.75rem 0 0; padding: 0; list-style: none; }
+  .library-list li { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.55rem 0; border-bottom: 1px solid var(--border); }
   button { font: inherit; padding: 0.5rem 0.9rem; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); cursor: pointer; }
   button:hover { border-color: var(--accent); }
   footer { border-top: 1px solid var(--border); margin-top: 2rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
@@ -186,6 +188,9 @@
       <button type="button" id="copy-csv">Copy as CSV row</button>
       <span id="copy-status" class="hint" role="status" aria-live="polite"></span>
     </div>
+    <div class="actions"><label for="quote-name" style="flex:1;min-width:12rem;margin-top:0">Save this quote locally<input type="text" id="quote-name" maxlength="80" placeholder="e.g. Website refresh" /></label><button type="button" id="save-quote">Save quote</button></div>
+    <p class="hint">Saved quotes stay in this browser only. Use the same name to update an existing saved quote.</p>
+    <ul class="library-list" id="saved-quotes" aria-live="polite"></ul>
   </section>
 
   <section aria-labelledby="about-heading">
@@ -253,6 +258,7 @@
   import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
   import { reviewQuote } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+  import { deleteSavedQuote, listSavedQuotes, saveQuote } from "./library.mjs";
 
   // Counts settled quotes rather than keystrokes — see usage.mjs.
   const reportCounter = createReportCounter();
@@ -262,6 +268,8 @@
   const result = document.getElementById("result");
   const review = document.getElementById("review");
   const sensitivity = document.getElementById("sensitivity");
+  const quoteName = document.getElementById("quote-name");
+  const savedQuotes = document.getElementById("saved-quotes");
 
   let lastReport = null;
 
@@ -316,6 +324,10 @@
        review.querySelector(".checks").textContent = "Fix the inputs above to review this quote.";
     }
   }
+  function renderSavedQuotes() {
+    const quotes = listSavedQuotes();
+    savedQuotes.innerHTML = quotes.length ? quotes.map((item) => `<li><span><strong>${escapeHtml(item.name)}</strong><br><span class="hint">${escapeHtml(item.quote.currency)} ${fmt(item.quote.price)} · updated ${new Date(item.updatedAt).toLocaleDateString()}</span></span><span><button type="button" data-load="${escapeHtml(item.id)}">Load</button> <button type="button" data-delete="${escapeHtml(item.id)}">Delete</button></span></li>`).join("") : `<li class="hint">No saved quotes yet.</li>`;
+  }
 
   // Once the visitor edits anything, the numbers are theirs — drop the
   // "this is an example" note rather than leaving it contradicting the form.
@@ -363,6 +375,16 @@
       copyStatus.textContent = "Couldn't access the clipboard in this browser.";
     }
   });
+  document.getElementById("save-quote").addEventListener("click", () => {
+    if (!lastReport) return;
+    try { saveQuote(quoteName.value, lastReport.quote); quoteName.value = ""; quoteName.setCustomValidity(""); recordEvent("quote_saved"); renderSavedQuotes(); }
+    catch (error) { quoteName.setCustomValidity(error.message); quoteName.reportValidity(); }
+  });
+  savedQuotes.addEventListener("click", (event) => {
+    if (event.target.dataset.load) { const item = listSavedQuotes().find((saved) => saved.id === event.target.dataset.load); if (item) { for (const id of ids) el[id].value = item.quote[id]; dismissExampleNote(); update(); recordEvent("quote_loaded"); } }
+    if (event.target.dataset.delete) { deleteSavedQuote(event.target.dataset.delete); renderSavedQuotes(); recordEvent("quote_deleted"); }
+  });
+  renderSavedQuotes();
 
   const usageToggle = document.getElementById("usage-toggle");
   const usageStatus = document.getElementById("usage-status");

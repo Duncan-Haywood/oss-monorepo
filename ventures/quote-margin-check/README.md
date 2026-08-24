@@ -44,6 +44,10 @@ quoted price and direct costs fixed while showing how the effective hourly rate
 and gap to the supplied target change. They are arithmetic what-if comparisons,
 not a forecast of project delivery time.
 
+The browser can save named quotes locally and load them again during recurring
+pipeline reviews. Saved names and figures stay in this browser's `localStorage`
+and are never uploaded; using the same name updates the local copy.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -52,7 +56,7 @@ it helps you prepare for. To the maximum extent permitted by law, the authors
 accept no liability for any loss or damage arising from its use.
 
 Only aggregate `report_generated` events are optionally appended to the usage
-log. Inputs, project names, prices, and file contents never leave the machine.
+ log. Inputs, project names, prices, saved quotes, and file contents never leave the machine.
 Pass `--usage-log PATH` to opt in; omit it to keep usage counting off. The
 browser version counts the same event locally in `localStorage` (on by
 default, off-switchable in the page footer, and honors Do Not Track/Global

@@ -126,6 +126,14 @@ products:
           target-gap, hidden-time, and revision-assumption observations. No
           public URL yet; the feature counter stores only aggregate local
           events and remains opt-out.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          quote_saved: 0
+          quote_loaded: 0
+        note: >-
+          Added a browser-local saved quote library for recurring reviews; no
+          public URL yet, so feature adoption baseline is zero.
   - slug: etsy-profit-calculator
     surface: static-page-in-repo
     readings:
