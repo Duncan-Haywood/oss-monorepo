@@ -116,6 +116,18 @@ products:
         note: >-
           Shipped a local stock-cut planning baseline for makers; public URL
           remains owner-gated and the browser counter is local and opt-out.
+  - slug: shopify-fee-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped local Shopify Payments vs PayPal/Stripe profit calculator
+          (plan presets, both-path comparison, break-even and target-margin
+          price). Public URL remains owner-gated; the local-first counter
+          reports only to the user's own browser and is opt-out. Baseline row.
   - slug: no-show-fee-calculator
     surface: static-page-in-repo
     readings:
