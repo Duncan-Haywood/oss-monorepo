@@ -39,8 +39,50 @@ def _git(repo: Path, *args: str) -> str:
     return result.stdout
 
 
-def snapshot_from_repo(repo: Path, protected: set[str] | None = None) -> dict[str, Any]:
-    """Build a read-only snapshot from local refs without contacting a remote."""
+def _is_ancestor(repo: Path, commit: str, ref: str) -> bool:
+    result = subprocess.run(
+        ["git", "-C", str(repo), "merge-base", "--is-ancestor", commit, ref],
+        capture_output=True,
+        text=True,
+    )
+    return result.returncode == 0
+
+
+def load_pr_export(path: Path) -> list[dict[str, Any]]:
+    """Normalize a `gh pr list --json headRefName,state,baseRefName` export.
+
+    This is the customer's own already-exported pull-request record, read
+    from disk; the tool never calls the GitHub API itself.
+    """
+    records = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(records, list):
+        raise ValueError("PR export must be a JSON array of pull request records")
+    normalized = []
+    for record in records:
+        if not isinstance(record, dict) or not isinstance(record.get("headRefName"), str) or not isinstance(record.get("state"), str):
+            raise ValueError("each PR record requires string headRefName and state")
+        state = record["state"].upper()
+        base = record.get("baseRefName")
+        if base is not None and not isinstance(base, str):
+            raise ValueError("baseRefName must be a string when present")
+        normalized.append({
+            "head": record["headRefName"],
+            "base": base,
+            "state": "open" if state == "OPEN" else "closed",
+            "merged": state == "MERGED",
+        })
+    # `gh pr list` is newest-first; scan treats the last closed record per
+    # head as authoritative, so keep oldest-first order here.
+    normalized.reverse()
+    return normalized
+
+def snapshot_from_repo(repo: Path, protected: set[str] | None = None, pr_export: Path | None = None) -> dict[str, Any]:
+    """Build a read-only snapshot from local refs without contacting a remote.
+
+    When `pr_export` is given, its pull-request records are resolved against
+    this same local checkout's own ref ancestry (never a network call) so
+    local-mode scans stop defaulting every branch to "uncertain".
+    """
     repo = repo.resolve()
     names = [
         line
@@ -56,11 +98,25 @@ def snapshot_from_repo(repo: Path, protected: set[str] | None = None) -> dict[st
         if commits:
             branches.append({"name": name, "tip": commits[0], "commits": commits})
     protected_branches = {default, *(protected or set())}
+    tip_by_name = {branch["name"]: branch["tip"] for branch in branches}
+    pull_requests = []
+    if pr_export is not None:
+        for record in load_pr_export(pr_export):
+            base = record["base"] or default
+            tip = tip_by_name.get(record["head"])
+            base_commits = [tip] if tip and _is_ancestor(repo, tip, base) else []
+            pull_requests.append({
+                "head": record["head"],
+                "state": record["state"],
+                "merged": record["merged"],
+                "base": base,
+                "base_commits": base_commits,
+            })
     return {
         "default_branch": default,
         "protected_branches": sorted(protected_branches),
         "branches": branches,
-        "pull_requests": [],
+        "pull_requests": pull_requests,
     }
 
 def scan(snapshot: dict[str, Any]) -> list[Finding]:
@@ -84,7 +140,13 @@ def scan(snapshot: dict[str, Any]) -> list[Finding]:
     for branch in branches:
         name, tip = branch["name"], branch["tip"]
         commits = tuple(branch.get("commits", []))
-        related = by_head.get(name, [])[-1] if by_head.get(name) else None
+        records = by_head.get(name, [])
+        # A reused branch name can carry more than one PR record (an old
+        # closed/merged PR plus a new open one). An open record always wins,
+        # so active work never inherits a stale closed record and lands as a
+        # delete candidate; otherwise fall back to the last record, matching
+        # prior behavior for the common single-record case.
+        related = next((record for record in records if record.get("state") == "open"), records[-1] if records else None)
         if name in protected:
             classification, reason = "protected", "branch is explicitly protected"
         elif len(tips[tip]) > 1:
@@ -127,6 +189,14 @@ def main() -> int:
     parser.add_argument("snapshot", type=Path, nargs="?", help="JSON snapshot (omit when using --repo)")
     parser.add_argument("--repo", type=Path, help="scan local branches from this checkout")
     parser.add_argument("--protect", action="append", default=[], help="additional protected branch name")
+    parser.add_argument(
+        "--pr-json",
+        type=Path,
+        help=(
+            "gh pr list --json headRefName,state,baseRefName export (requires --repo); "
+            "resolves branches against this same local checkout instead of leaving them uncertain"
+        ),
+    )
     parser.add_argument("--report", type=Path, default=Path("branch-report.txt"))
     parser.add_argument("--manifest", type=Path, default=Path("recovery-manifest.json"))
     parser.add_argument("--usage-log", type=Path)
@@ -135,8 +205,10 @@ def main() -> int:
     args = parser.parse_args()
     if bool(args.snapshot) == bool(args.repo):
         parser.error("provide exactly one of SNAPSHOT or --repo")
+    if args.pr_json and not args.repo:
+        parser.error("--pr-json requires --repo")
     snapshot = (
-        snapshot_from_repo(args.repo, set(args.protect))
+        snapshot_from_repo(args.repo, set(args.protect), args.pr_json)
         if args.repo
         else json.loads(args.snapshot.read_text(encoding="utf-8"))
     )

@@ -48,6 +48,72 @@ scoring_rule: >-
   near-zero-price norm is a real property of the business on any host.
 
 ventures:
+  - slug: shopify-permission-drift
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 9
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 4
+    composite: 5.833
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The first release is intentionally deterministic and local-first. Its
+      defensibility depends on portable evidence records and agency workflow
+      adoption, neither of which has customer evidence yet.
+    basis: >-
+      Graduated from the Shopify permission drift candidate on 2026-08-24. The
+      first slice compares customer-authorized app scopes, webhook topics, and
+      authorization state without Shopify credentials, network calls, or
+      customer data. The schema is strict about provenance and uncertainty.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
+  - slug: etsy-profit-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: AI is intentionally absent from the arithmetic core.
+    basis: Graduated on 2026-08-24 as a browser-local Etsy seller fee and profit calculator.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
+  - slug: ebay-fee-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: AI is intentionally absent from the arithmetic core.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local eBay reseller fee, profit and
+      ROI calculator. Scored one below its etsy-profit-calculator sibling on
+      defensibility and distribution: "eBay fee calculator" is a more saturated
+      SERP with entrenched ad-funded incumbents, so the cost-of-goods/ROI
+      differentiator is thinner cover there than on Etsy's.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
   - slug: quote-margin-check
     scores:
       ai_leverage: 3
@@ -544,59 +610,30 @@ ventures:
       Testing restores and maintaining an independent backup strategy remain
       customer responsibilities.
 
-  - slug: shopify-permission-drift
+  - slug: shopify-a11y-evidence
     scores:
-      ai_leverage: 7
-      autonomous_ops: 8
-      time_to_revenue: 6
-      gross_margin: 9
-      defensibility: 4
-      distribution: 6
-    composite: 6.667
-    rater_b: null
-    floor: 4
-    floor_dimension: defensibility
-    floor_note: >-
-      Local, source-linked comparisons are useful but readily replicated; a
-      hosted agency workflow or repeatable App Store search channel is still
-      untested.
-    basis: >-
-      Graduated from the Shopify permission drift candidate on 2026-08-24. The
-      first slice compares customer-authorized exports locally with no Shopify
-      credentials, network dependency, or paid service.
-    gates:
-      liability_containment: pass
-      ethical_robustness: pass
-    gate_note: >-
-      Pass, conditionally: the tool reports differences in supplied exports and
-      does not claim that an app is compliant or safe. Minimum scopes and any
-      hosted integration require explicit customer authorization.
-
-  - slug: no-show-fee-calculator
-    scores:
-      ai_leverage: 1
+      ai_leverage: 3
       autonomous_ops: 10
-      time_to_revenue: 7
+      time_to_revenue: 6
       gross_margin: 10
       defensibility: 4
-      distribution: 7
+      distribution: 6
     composite: 6.5
     rater_b: null
-    floor: 1
+    floor: 3
     floor_dimension: ai_leverage
     floor_note: >-
-      AI is intentionally unnecessary: transparent arithmetic and policy
-      drafting are the user value. Repeat usage and niche templates may provide
-      a future moat, but demand is untested.
+      The initial evidence report is intentionally deterministic; a dated
+      history and agency workflow can provide defensibility after usage proves
+      repeat demand.
     basis: >-
-      Graduated as a new venture on 2026-08-24. The browser-local calculator
-      addresses a specific revenue leak for appointment businesses, has no
-      account, network, inference, or payment dependency, and produces a
-      copyable policy draft from user-supplied numbers.
+      Graduated on 2026-08-24 as a browser-local axe-core JSON report for
+      Shopify merchants and agencies. It produces a portable record without
+      Shopify credentials, network access, or server-side data retention.
     gates:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
-      Pass, conditionally: results are estimates and draft text, not legal or
-      financial advice. The interface tells users to verify local consumer,
-      industry, and payment-processor requirements before publishing.
+      Pass, conditionally: output is explicitly a record of a supplied
+      automated test, never a compliance determination, and every result calls
+      for manual review.

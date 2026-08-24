@@ -4,6 +4,22 @@ Newest first. Each hourly/half-hourly run appends an entry.
 
 ---
 
+## 2026-08-24 — Revenue in dailySummary
+
+**Theme shipped:** `dailySummary` (`packages/analytics/src/report.ts`) now returns `revenue_cents` (sum of `sale_events.total_cents` for the day) and `revenue_per_entrant_cents` (revenue divided by entries, rounded, zeroed when there are no entries). A sale with a null `total_cents` counts as zero revenue rather than corrupting the sum. Flows through unchanged to `printReport`/`cli.ts report`, since both already iterate the summary object's fields.
+
+**Tests:** Extended `report.test.ts` with 3 new cases (revenue sum + rounding, null `total_cents`, updated the two `deepEqual` fixtures for the new fields) — 18/18 pass in `packages/analytics`. Ran `pnpm -r --if-present run test` at the venture root: all workspace packages pass. `pnpm typecheck` clean.
+
+**Backlog:** Marked "Extend `dailySummary` with revenue cents + revenue per entrant" done in `docs/BACKLOG.md`.
+
+**Top 3 next run tasks:**
+
+1. Hourly rollup table + CLI `report --hour` for same-day ops
+2. POS adapter v0: watch `data/pos/inbox` for Tilby-style CSV export
+3. Edge CLI `--sample` batch mode simulating a day of entries/exits/bounces
+
+---
+
 ## 2026-06-12 — Orchestrator bootstrap
 
 **Hygiene:** Created orchestrator automation + state files (`ORCHESTRATOR.md`, `docs/PRODUCT.md`, `docs/BACKLOG.md`, `docs/IDEAS.md`, this log). Remote `cursor/*` security branches present — review on first scheduled run.

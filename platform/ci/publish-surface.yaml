@@ -67,6 +67,9 @@ workflows:
 - workflow: eaa-wcag-triage-ci.yml
   classification: none
   publishes: []
+- workflow: ebay-fee-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: error-rate-disclosure-ci.yml
   classification: none
   publishes: []
@@ -109,6 +112,9 @@ workflows:
 - workflow: quick-pick-survey-ci.yml
   classification: none
   publishes: []
+- workflow: quote-margin-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: real-estate-agent-photo-app-ci.yml
   classification: none
   publishes: []
@@ -120,6 +126,9 @@ workflows:
     gates:
     - env.CLOUDFLARE_API_TOKEN != ''
 - workflow: register-change-rate-ci.yml
+  classification: none
+  publishes: []
+- workflow: repository-branch-hygiene-ci.yml
   classification: none
   publishes: []
 - workflow: retail-pilot-intel-ci.yml

@@ -24,8 +24,38 @@ products:
         note: >-
           resistor-calculator shipped; not yet deployed to a public URL
           (publishing is owner-gated), so there is no traffic signal to read
-         and its local-first event counter reports only to the user's own
-         browser. Baseline row.
+          and its local-first event counter reports only to the user's own
+          browser. Baseline row.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Second tool shipped: led-resistor-calculator (E24 nearest-standard
+          resistor + power rating for one or more series LEDs, 12 passing
+          unit tests). Same publishing gate as above — no traffic signal yet.
+          Baseline row for the second tool.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Third tool shipped: voltage-divider-calculator (unloaded/loaded
+          Vout with a load-loading correction, plus a target-Vout design
+          mode that snaps R2 to a buyable E24 value, 14 passing unit
+          tests). Same publishing gate as above — no traffic signal yet.
+          Baseline row for the third tool.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Fourth tool shipped: rc-filter-calculator (first-order RC/RL
+          filter cutoff frequency and time constant across all four
+          topologies, plus a design mode that solves for the missing
+          component from a target cutoff and snaps it to a buyable
+          preferred value, 24 passing unit tests). Same publishing gate as
+          above — no traffic signal yet. Baseline row for the fourth tool.
   - slug: quote-margin-check
     surface: repository-cli
     readings:
@@ -35,15 +65,47 @@ products:
           repo_views_14d: 0
           release_downloads_total: 0
         note: Shipped calculator baseline; no public distribution or usage yet.
-  - slug: no-show-fee-calculator
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Second surface: site/index.html, a zero-dependency static page
+          running the same math as the Python CLI (most of this venture's
+          target freelancers will not run a script). Publishing is
+          owner-gated, so there is no traffic signal to read yet; the
+          page's counter reports only to the visitor's own browser.
+          Baseline row for the browser surface.
+  - slug: etsy-profit-calculator
     surface: static-page-in-repo
     readings:
       - as_of: 2026-08-24
         signals:
           live_url_visitors: null
           local_events_reported: 0
-          repo_views_14d: 0
-        note: Shipped browser-local calculator baseline; public publishing remains owner-gated.
+        note: Shipped local Etsy order-profit calculator; public URL remains owner-gated.
+  - slug: shopify-a11y-evidence
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped browser-local axe JSON evidence report; public URL remains
+          owner-gated and the local counter has no external reporting path.
+  - slug: ebay-fee-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped local eBay reseller fee/profit/ROI calculator (10 passing
+          unit tests). Public URL remains owner-gated, so there is no traffic
+          signal to read; the local-first counter reports only to the user's
+          own browser and is opt-out. Baseline row.
 # Example of the shape, once a product has shipped:
 #
 # products:

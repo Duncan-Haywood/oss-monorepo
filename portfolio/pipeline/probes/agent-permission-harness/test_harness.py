@@ -24,6 +24,7 @@ import textwrap
 import unittest
 from pathlib import Path
 
+import check_results_current
 import harness
 from harness import (
     Finding,
@@ -1011,6 +1012,109 @@ class TestHeadlineNumbersAgainstThisRepo(unittest.TestCase):
     def test_json_output_is_serialisable(self):
         payload = json.dumps({"summary": self.summary, "findings": [f.__dict__ for f in self.findings]})
         self.assertIn("R7-agent-instruction-closure", payload)
+
+
+class TestResultsCurrencyNormalisation(unittest.TestCase):
+    """Pin what the CI currency gate ignores and what it still catches.
+
+    The gate masks R7's repository census -- the closure size, its per-depth
+    histogram, the first-hop count and the sampled paths -- because those move
+    with any prose added anywhere in the repository, which made `main` red on
+    merges that had nothing to do with this probe. Everything else must still
+    diff, so both halves are asserted here rather than only the permissive one.
+    """
+
+    # A stand-in for the R7 paragraph, close enough in shape to exercise every
+    # pattern without pinning the harness's exact wording twice.
+    SENTENCE = (
+        "- **`.github/workflows/a.yml` job `agent` (line 109)** — agent "
+        "instruction set is {size} repository files, not the 1 prompt file(s) "
+        "passed to it\n"
+        "  - The prompt handed to this agent directs it to read and heed "
+        "`AGENTS.md` -- which resolve to {hop} files in this checkout. Those "
+        "files order further reads of their own, and the fixed point of that "
+        "is {size} files ({depths}), among them {sample}. Every one is an "
+        "ordinary repository file with writer set REPO_WRITE.\n"
+    )
+
+    def _render(self, size, hop, depths, sample):
+        return self.SENTENCE.format(size=size, hop=hop, depths=depths, sample=sample)
+
+    def test_census_drift_alone_is_not_a_failure(self):
+        # The exact shape of the 2026-08-24 breakage: an unrelated document
+        # entered the closure between one merge and the next.
+        before = self._render(77, 4, "4 at depth 1, 36 at depth 2", "`a.md`, `b.md`")
+        after = self._render(78, 4, "4 at depth 1, 37 at depth 2", "`a.md`, `c.md`")
+        self.assertNotEqual(before, after)
+        self.assertEqual(
+            check_results_current.normalise(before),
+            check_results_current.normalise(after),
+        )
+
+    def test_first_hop_drift_alone_is_not_a_failure(self):
+        before = self._render(77, 4, "4 at depth 1", "`a.md`")
+        after = self._render(77, 5, "5 at depth 1", "`a.md`")
+        self.assertEqual(
+            check_results_current.normalise(before),
+            check_results_current.normalise(after),
+        )
+
+    def test_a_line_shift_alone_is_not_a_failure(self):
+        # Reversed on 2026-08-24. This previously asserted that a moved line
+        # *is* a failure, which made the gate red on a workflow edit that
+        # altered no grant: inserting a comment, a step, or the `permissions:`
+        # block R5 recommends shifts every finding below it. That is the same
+        # unactionable drift the census masking was added to remove, and the
+        # only remedy it offers is regenerating without reading -- the reflex
+        # that would let a real posture change through.
+        before = self._render(77, 4, "4 at depth 1", "`a.md`")
+        after = before.replace("(line 109)", "(line 250)")
+        self.assertNotEqual(before, after)
+        self.assertEqual(
+            check_results_current.normalise(before),
+            check_results_current.normalise(after),
+        )
+
+    def test_a_finding_moving_to_another_job_still_differs(self):
+        # What masking the line number must not cost: relocation that is a
+        # posture change is still caught, because the job name is compared.
+        before = self._render(77, 4, "4 at depth 1", "`a.md`")
+        after = before.replace("job `agent`", "job `deploy`")
+        self.assertNotEqual(
+            check_results_current.normalise(before),
+            check_results_current.normalise(after),
+        )
+
+    def test_a_finding_changing_rule_still_differs(self):
+        before = self._render(77, 4, "4 at depth 1", "`a.md`")
+        after = before.replace("agent instruction set is", "agent step runs with")
+        self.assertNotEqual(
+            check_results_current.normalise(before),
+            check_results_current.normalise(after),
+        )
+
+    def test_a_changed_prompt_file_count_still_differs(self):
+        # This one is a property of the workflow under test, not of repository
+        # prose, so it is deliberately outside the mask.
+        before = self._render(77, 4, "4 at depth 1", "`a.md`")
+        after = before.replace("not the 1 prompt file(s)", "not the 2 prompt file(s)")
+        self.assertNotEqual(
+            check_results_current.normalise(before),
+            check_results_current.normalise(after),
+        )
+
+    def test_changed_prose_around_a_number_still_differs(self):
+        before = self._render(77, 4, "4 at depth 1", "`a.md`")
+        after = before.replace("writer set REPO_WRITE", "writer set LITERAL")
+        self.assertNotEqual(
+            check_results_current.normalise(before),
+            check_results_current.normalise(after),
+        )
+
+    def test_committed_results_file_is_current(self):
+        # The gate itself, run against the real checkout: the same assertion CI
+        # makes, so a stale committed file fails locally too.
+        self.assertEqual(check_results_current.main(), 0)
 
 
 if __name__ == "__main__":
