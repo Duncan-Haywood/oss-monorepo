@@ -49,6 +49,7 @@ import yaml
 REPO = Path(__file__).resolve().parents[2]
 LEDGER = REPO / "portfolio" / "ledger" / "2026-08.yaml"
 SNAPSHOT = REPO / "portfolio" / "ledger" / "results-break-even-2026-08-20.json"
+CANDIDATES = REPO / "portfolio" / "pipeline" / "candidates.yaml"
 
 # Entries land several times an hour, so a whole-month share is dominated by
 # history and answers "what has the fleet been", not "what is it doing now".
@@ -315,49 +316,191 @@ def break_even_per_session() -> float | None:
     return json.loads(SNAPSHOT.read_text()).get("break_even_per_session_usd")
 
 
+def routable(venture: str) -> bool:
+    """Whether `portfolio/router/` can see this venture directory at all.
+
+    A `VENTURE.yaml` is necessary but not sufficient. `allocate.py` skips any
+    directory carrying a `NOT-A-VENTURE` marker, and `test_allocate.py` pins
+    that the marker wins over a `VENTURE.yaml` in the same directory —
+    `ventures/ai-first-markets/` currently carries both. So a graduation check
+    that reads only for `VENTURE.yaml` can call a candidate graduated into a
+    directory no budget will ever reach.
+    """
+    d = REPO / "ventures" / venture
+    # `.is_file()`, not `.exists()`: allocate.py:229 and validate.py:114 both
+    # test the manifest with `is_file()`, so a directory (or anything else)
+    # named VENTURE.yaml is invisible to the router. Mirroring the predicate is
+    # the whole point of this helper.
+    return (d / "VENTURE.yaml").is_file() and not (d / "NOT-A-VENTURE").is_file()
+
+
+def build_targets() -> list[dict] | None:
+    """Candidates carrying a `build-now` verdict that nobody has built yet.
+
+    Graduation is a fact on disk, not a note in a table: a candidate with
+    `graduate_as: venture` has graduated once its own venture directory is
+    routable; one with `graduate_as: product-line` has graduated once its host
+    venture is routable *and* lists the slug under `product_lines`. Whatever is
+    left is work the pipeline already decided to do and no session has done.
+
+    **Returns `None` when the pipeline could not be read**, which is not the
+    same fact as an empty list and must not collapse into one. An empty list
+    means "read it, nothing eligible" and legitimately routes a session to
+    researching a new candidate; a missing or malformed `candidates.yaml` means
+    the gate does not know, and sending a session off to research on that basis
+    would invent work while real `build-now` items sit unbuilt.
+    """
+    try:
+        doc = yaml.safe_load(CANDIDATES.read_text())
+        candidates = doc["candidates"]
+    except (OSError, yaml.YAMLError, KeyError, TypeError, AttributeError):
+        return None
+    # Must be a *list*, not merely iterable and not `null`. A mapping or a
+    # string satisfies `iter()` and then contributes no records to the loop
+    # below; `candidates: null` is rejected outright by validate_candidates.py.
+    # Normalising any of those to [] would answer "read it, nothing eligible"
+    # for a file that is in fact malformed -- exactly the confusion this None
+    # return exists to prevent.
+    if not isinstance(candidates, list):
+        return None
+
+    scored: list[tuple[float, dict]] = []
+    for c in candidates:
+        # A scalar or nested-list entry is a malformed record, not an ineligible
+        # one. Skipping it would land in the same "read it, nothing eligible"
+        # answer as a clean empty pipeline and send a session off to research.
+        if not isinstance(c, dict):
+            return None
+        if c.get("verdict") != "build-now":
+            continue
+
+        # Each field below builds a filesystem path or the BUILD instruction
+        # itself, so a build-now record missing one cannot produce a usable
+        # target: `str(None)` would name `ventures/None/`, and an unset
+        # `graduate_as` would silently take the venture path. Report the
+        # pipeline unreadable rather than emit an instruction nobody can follow.
+        slug = c.get("slug")
+        if not isinstance(slug, str) or not slug:
+            return None
+        graduate_as = c.get("graduate_as")
+        if graduate_as not in ("venture", "product-line"):
+            return None
+        # `name` and `doc` are not path components, but they are interpolated
+        # into the same instruction, where a missing one reads as the literal
+        # "None" -- and `doc` becomes a brief at `portfolio/pipeline/None`,
+        # which is worse than no pointer because it looks like one.
+        # validate_candidates.py does not require either field.
+        if not all(isinstance(c.get(k), str) and c.get(k) for k in ("name", "doc")):
+            return None
+        try:
+            # Coerced, because validate_candidates.py:73 normalises with
+            # float() and so accepts a quoted numeric composite. A missing or
+            # unparseable one is malformed data, though -- not a zero.
+            composite = float(c["composite"])
+        except (KeyError, TypeError, ValueError):
+            return None
+
+        if graduate_as == "product-line":
+            host = c.get("host_venture")
+            if not isinstance(host, str) or not host:
+                return None
+            if not routable(host):
+                scored.append((composite, c))  # nothing routable to graduate into
+                continue
+            try:
+                parsed = yaml.safe_load((REPO / "ventures" / host / "VENTURE.yaml").read_text())
+                listed = (parsed or {}).get("product_lines")
+            except (OSError, yaml.YAMLError, AttributeError):
+                listed = None
+            # A non-list `product_lines` (`true`, say) would raise inside any()
+            # and take the whole gate down with it.
+            if not isinstance(listed, list):
+                listed = []
+            if any((p.get("slug") if isinstance(p, dict) else p) == slug for p in listed):
+                continue
+        elif routable(slug):
+            continue
+        scored.append((composite, c))
+
+    return [c for _, c in sorted(scored, key=lambda pair: pair[0], reverse=True)]
+
+
 def verdict(
     *,
     revenue: bool,
     meta: float,
     cadence: float,
     cadence_reliable: bool = True,
+    targets: list[dict] | None = None,
 ) -> tuple[str, list[str]]:
-    """NO-OP only when every condition holds. Any one of them clears the gate.
+    """Route a generic scheduled session into a lane. Never stops one.
 
-    `cadence_reliable` gates the cadence condition specifically: an
-    undercounted reading (see `sessions_per_hour`) must never manufacture a
-    false PROCEED, so when it's False the cadence branch is skipped entirely
-    rather than evaluated against a number that may be too low.
+    This used to return NO-OP — "the highest-value output of your session is
+    nothing" — on `break-even.md`'s reasoning: no revenue means a $0 ceiling on
+    justifiable spend, so a session that cannot book revenue should not run.
+    The account owner corrected the premise on 2026-08-24. Fleet capacity is
+    bought as a flat subscription, so the marginal cash cost of a session that
+    is already running is not $0.12, it is $0; idle capacity is not a saving,
+    it is the waste. And a gate cannot refund a session either way — by the
+    time this script runs the container is provisioned, the repo is cloned and
+    the tokens are spent. NO-OP only ever suppressed the *output* of a session
+    that had already been paid for.
+
+    The cadence reading no longer participates in the verdict at all. It was
+    the input that made the old verdict depend on `git log` depth: a shallow
+    clone (the default for a fresh session here) left cadence unmeasurable, the
+    cadence branch was skipped rather than cleared, and the session fell
+    through to NO-OP. Two sessions seconds apart got opposite verdicts on
+    identical facts, decided by how many commits their container happened to
+    fetch. Cadence stays in the report as a collision signal — see the burst
+    warning — but it gates nothing, so clone depth cannot decide a lane.
     """
     if revenue:
-        return "PROCEED", ["Revenue is recorded this month — the $0-ceiling regime has ended."]
+        return "PROCEED", ["Revenue is recorded this month — work the venture that is earning."]
     if meta < META_SHARE_THRESHOLD:
         return "PROCEED", [
             f"Recent meta-work share {meta:.0%} is below the {META_SHARE_THRESHOLD:.0%} "
-            "threshold — the fleet is spending on ventures, not on itself."
-        ]
-    if cadence_reliable and cadence < CADENCE_THRESHOLD_PER_HOUR:
-        return "PROCEED", [
-            f"Cadence {cadence:.2f} sessions/hour is already at the maintenance rate "
-            "the $0-ceiling branch implies."
+            "threshold — the fleet is spending on ventures, not on itself. Continue as briefed."
         ]
     reasons = [
-        "No revenue is recorded, so the ceiling on justifiable spend is the one "
-        "break-even.md derives, and it is $0.",
-        f"{meta:.0%} of the last {WINDOW} ledger entries are portfolio meta-work, "
-        "not venture work.",
+        f"{meta:.0%} of the last {WINDOW} ledger entries are portfolio meta-work, not venture "
+        "work, and no revenue is recorded. The constraint is not that there is nothing to do — "
+        "it is that the fleet keeps choosing to write about itself.",
+        "So this brief is not generic any more: build venture value. Do not open another "
+        "analysis document, re-verify a PR someone already verified, or add a ledger entry "
+        "recording that you looked.",
     ]
-    if cadence_reliable:
+    targets = build_targets() if targets is None else targets
+    if targets is None:
         reasons.append(
-            f"The fleet is running at {cadence:.2f} sessions/hour, far above the "
-            "event-driven rate that regime implies."
+            f"`{CANDIDATES.relative_to(REPO)}` could not be read or parsed, so the gate cannot "
+            "tell which candidates are unbuilt. Fix that first — do not read this as an empty "
+            "pipeline and go research a new candidate, which is how an unreadable file turns "
+            "into invented work while real `build-now` items sit untouched."
         )
+    elif targets:
+        t = targets[0]
+        where = (
+            f"a product line inside `ventures/{t.get('host_venture')}/`"
+            if t.get("graduate_as") == "product-line"
+            else f"a new venture at `ventures/{t.get('slug')}/`"
+        )
+        reasons.append(
+            f"Start here: {t.get('name')} ({t.get('slug')}) — the pipeline scored it "
+            f"{t.get('composite')} and gave it a `build-now` verdict, and nobody has built it. "
+            f"Graduate it as {where}. Brief: `portfolio/pipeline/{t.get('doc')}`."
+        )
+        if len(targets) > 1:
+            rest = ", ".join(str(c.get("slug")) for c in targets[1:])
+            reasons.append(f"Also carrying an unbuilt `build-now` verdict: {rest}.")
     else:
         reasons.append(
-            "Cadence could not be reliably measured this run (shallow clone "
-            "truncates history) — not treated as evidence either way."
+            "No candidate carries an unbuilt `build-now` verdict, so the pipeline itself is "
+            "what is empty. Research a new candidate against `portfolio/pipeline/screened-out.md` "
+            "— name what it is *not* — score it on the eight dimensions, and if it clears both "
+            "gates, graduate it."
         )
-    return "NO-OP", reasons
+    return "BUILD", reasons
 
 
 def report(
@@ -366,13 +509,18 @@ def report(
     burst: int = 0,
     cadence_reliable: bool = True,
     origin_fetched: bool = True,
+    targets: list[dict] | None = None,
 ) -> dict:
     revenue = revenue_recorded(entries)
     meta = meta_share(entries)
     reverif = reverification_share(entries)
     stale_streak = stale_pr_check_streak(entries)
     call, reasons = verdict(
-        revenue=revenue, meta=meta, cadence=cadence, cadence_reliable=cadence_reliable
+        revenue=revenue,
+        meta=meta,
+        cadence=cadence,
+        cadence_reliable=cadence_reliable,
+        targets=targets,
     )
     if burst >= BURST_THRESHOLD_SESSIONS:
         reasons = reasons + [
@@ -424,7 +572,7 @@ def render(r: dict) -> str:
         f"  re-verification share .......... {r['reverification_share_recent']:.0%} of last "
         f"{r['window']} entries",
         f"  distinct sessions / hour ....... {r['sessions_per_hour']:.2f} over the last 24h "
-        f"(threshold {CADENCE_THRESHOLD_PER_HOUR:.2f}, lower bound)"
+        "(collision signal only — gates nothing)"
         + ("" if r["cadence_reliable"] else " [undercounted -- see note]"),
         f"  peak concurrent sessions ....... {r['max_concurrent_sessions']} within any "
         f"{r['burst_window_minutes']}-min window (last {r['burst_lookback_hours']}h)",
@@ -442,8 +590,8 @@ def render(r: dict) -> str:
             "  NOTE: `git fetch origin main` failed this run (offline? network denied?),",
             "  so this reading falls back to whatever `origin/main` already pointed to",
             "  locally -- which can be stale by days or weeks, not just shallow. The",
-            "  cadence figure above may be a stale snapshot, not a floor, and was",
-            "  excluded from clearing the gate this run.",
+            "  cadence figure above may be a stale snapshot rather than a floor. It is",
+            "  informational either way -- cadence decides no lane; it used to.",
         ]
     elif not r["cadence_reliable"]:
         lines += [
@@ -451,19 +599,20 @@ def render(r: dict) -> str:
             "  NOTE: this clone's local history doesn't reach back the full 24h window",
             "  (a shallow clone -- the default for a fresh session here -- can silently",
             "  truncate `git log --since`). The cadence figure above is a floor, not a",
-            "  reading, and was excluded from clearing the gate this run.",
+            "  reading. It decides nothing either way; it used to.",
         ]
-    if r["verdict"] == "NO-OP":
+    if r["verdict"] == "BUILD":
         lines += [
             "",
-            "  For a generic brief the highest-value output is nothing: no new",
-            "  analysis document, no re-verification of a PR another session already",
-            "  verified, no ledger entry recording that you looked. Say what the gate",
-            "  read, and stop.",
+            "  This is a routing call, not a stop. Fleet capacity is bought as a flat",
+            "  subscription, so a session that is already running costs nothing further",
+            "  to finish and idle capacity is the waste. Spend it on venture value, by",
+            "  taking whichever action the reasons above name -- a candidate to build, a",
+            "  new one to research, or a `candidates.yaml` to repair.",
             "",
-            "  This does not apply to venture work, a red CI run, a PR being driven to",
-            "  green, a review comment, or any named task. Those clear the gate by",
-            "  having a trigger of their own.",
+            "  What this is steering you away from is the meta-work loop, not work:",
+            "  another analysis document, a re-verification of a PR someone already",
+            "  verified, a ledger entry recording that you looked.",
         ]
     return "\n".join(lines)
 

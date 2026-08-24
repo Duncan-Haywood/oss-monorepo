@@ -22,9 +22,10 @@ Not assurance. The record says what changed between two observations. It never
 says a server is safe, and nothing here belongs in a request path -- an outage
 degrades to a stale record, not to a broken agent.
 
-Not a graduation. Per `portfolio/pipeline/probes/README.md`, a candidate
-graduates only when someone writes `ventures/<name>/VENTURE.yaml`; nothing here
-does that, changes a score, or publishes anything.
+Not a graduation. Per `portfolio/pipeline/README.md`, a candidate graduates
+either by someone writing `ventures/<name>/VENTURE.yaml` or by its slug being
+listed under its host venture's `product_lines`; nothing here does either,
+changes a score, or publishes anything.
 
 The classifier is imported
 --------------------------
