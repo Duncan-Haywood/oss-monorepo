@@ -352,7 +352,10 @@ export async function checkUrl(url: string, fetchImpl: FetchFn = fetch): Promise
     try {
       response = await fetchPublicUrl(url, fetchImpl, controller.signal);
       const status = response.status;
-      if (status < 200 || status >= 300) {
+      // 204/205 are 2xx but carry no page body — same as incomingToResponse,
+      // which already drops those bodies. Saving an empty snapshot would
+      // lock in empty evidence or later report a real 200 as "changed".
+      if (status < 200 || status >= 300 || status === 204 || status === 205) {
         await discardResponseBody(response);
         return {
           outcome: "inconclusive",
