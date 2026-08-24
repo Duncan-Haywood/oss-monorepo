@@ -24,6 +24,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 
 from .engine import Audit
+from .positive_control import ALREADY_PRESENT, CAUGHT, MISSED, NOT_EXERCISED
 from .rules import COVERAGE
 
 TOOL_NAME = "eaa-wcag-triage"
@@ -155,7 +156,7 @@ ACCURACY_STATEMENT = (
 )
 
 
-def build_record(audits: dict, checked_at: str) -> dict:
+def build_record(audits: dict, checked_at: str, control: dict | None = None) -> dict:
     """``audits`` maps a page label -> :class:`Audit`. ``checked_at`` is an
     ISO-8601 timestamp supplied by the caller (never read from the clock here,
     so records are reproducible).
@@ -165,6 +166,11 @@ def build_record(audits: dict, checked_at: str) -> dict:
     ``totals`` into ``excluded``, where they are still listed by name, marker
     and finding count. They are set aside, not dropped: a reader who thinks the
     exclusion is wrong can see the whole of what it removed and say so.
+
+    ``control`` is the per-engagement positive-control result from
+    :func:`wcag_triage.positive_control.run_control`. The CLI always supplies
+    it. Tests that build a record from a single fixture may omit it; the
+    section is then absent rather than silently reported as passing.
     """
     pages = []
     excluded = []
@@ -235,6 +241,7 @@ def build_record(audits: dict, checked_at: str) -> dict:
                 "findings": sum(d["counts"]["total"] for d in excluded),
             },
         },
+        "positive_control": control,
     }
 
 
@@ -421,6 +428,72 @@ def _exclusion_section(record: dict) -> list:
     return lines
 
 
+def _control_headline(record: dict) -> str:
+    """One line in the header, so a miss is not scroll-dependent.
+
+    A clean findings count with a buried miss is the failure this control
+    exists to make visible. The full table lives next to the findings.
+    """
+    control = record.get("positive_control")
+    if not control:
+        return ""
+    counts = control.get("counts") or {}
+    caught = counts.get(CAUGHT, 0)
+    missed = counts.get(MISSED, 0)
+    exercised = caught + missed + counts.get(ALREADY_PRESENT, 0)
+    if missed:
+        return (
+            f"**Positive control:** {caught} of {exercised} introduced defects "
+            f"caught, {missed} missed — a clean findings table would have been "
+            "wrong on those. See the section below."
+        )
+    if exercised == 0:
+        return (
+            "**Positive control:** none of the mutations could be applied to "
+            "these pages, so a clean findings table is unconfirmed."
+        )
+    return (
+        f"**Positive control:** {caught} of {exercised} introduced defects "
+        "caught. See the section below."
+    )
+
+
+def _control_section(record: dict) -> list:
+    """The per-engagement control table.
+
+    Placed immediately before the findings, for the same reason the accuracy
+    section is: a disclosure below the list it qualifies is a footnote, and a
+    miss next to a clean findings table is the whole point of this section.
+    Omitted when the caller did not run the control — absence is not a pass.
+    """
+    control = record.get("positive_control")
+    if not control:
+        return []
+    counts = control.get("counts") or {}
+    lines = [
+        "",
+        "## Positive control",
+        "",
+        control.get("statement", ""),
+        "",
+        (
+            f"{counts.get(CAUGHT, 0)} caught, "
+            f"{counts.get(MISSED, 0)} missed, "
+            f"{counts.get(ALREADY_PRESENT, 0)} already present, "
+            f"{counts.get(NOT_EXERCISED, 0)} not exercised."
+        ),
+        "",
+        "| Verdict | Criterion | Kind | Mutation |",
+        "|---|---|---|---|",
+    ]
+    for row in control.get("mutations") or []:
+        lines.append(
+            f"| {row['verdict']} | {row['criterion']} | {row['kind']} | "
+            f"{row['mutation']} |"
+        )
+    return lines
+
+
 def to_markdown(record: dict) -> str:
     cs = record["coverage_summary"]
     checked = record["totals"]["blocking"] + record["totals"]["degrading"]
@@ -447,6 +520,11 @@ def to_markdown(record: dict) -> str:
         "",
         _accuracy_headline(record),
         "",
+    ]
+    control_headline = _control_headline(record)
+    if control_headline:
+        lines += [control_headline, ""]
+    lines += [
         "> " + record["coverage_statement"].replace("\n", " "),
         "",
         "## What was tested automatically",
@@ -469,6 +547,7 @@ def to_markdown(record: dict) -> str:
     lines += _contrast_section(record.get("contrast") or {})
     lines += _use_of_color_section(record.get("use_of_color") or {})
     lines += _accuracy_section(record)
+    lines += _control_section(record)
     lines += ["", "## Findings", ""]
     if checked == 0:
         lines.append(

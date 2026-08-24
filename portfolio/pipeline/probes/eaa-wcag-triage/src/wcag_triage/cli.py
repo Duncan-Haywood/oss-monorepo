@@ -12,6 +12,11 @@ relative href meant is how a checker silently audits the wrong CSS. With no
 ``--stylesheet`` the record reports every element as undecidable for 1.4.3
 rather than as passing.
 
+Every run also mutates a copy of each page and checks that the target rule
+fires. That result is part of the record: a clean findings table with a miss
+means the scanner could not read the page, which is not the same claim as
+"no defects". See :mod:`wcag_triage.positive_control`.
+
 Like the sibling reachability probe, ``--fail-on`` is opt-in and defaults to
 never failing the build: a checker that breaks CI by default gets removed, and
 a removed checker records nothing.
@@ -28,6 +33,7 @@ from pathlib import Path
 from .css import Stylesheet, parse_stylesheet
 from .engine import audit_html
 from .evidence import build_record, to_markdown
+from .positive_control import run_control
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -85,6 +91,7 @@ def run(argv=None) -> int:
             parse_stylesheet(css, stylesheet)
 
     audits = {}
+    pages_html = {}
     for page in args.pages:
         path = Path(page)
         try:
@@ -92,9 +99,12 @@ def run(argv=None) -> int:
         except OSError as exc:
             print(f"error: cannot read {page}: {exc}", file=sys.stderr)
             return 2
+        pages_html[path.name] = html
         audits[path.name] = audit_html(html, stylesheet)
 
-    record = build_record(audits, checked_at)
+    record = build_record(
+        audits, checked_at, control=run_control(pages_html, stylesheet)
+    )
 
     if args.output_dir:
         out = Path(args.output_dir)
