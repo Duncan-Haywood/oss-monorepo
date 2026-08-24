@@ -319,6 +319,23 @@ decisions:
     in place: both merged at 2026-08-24T09:43:08Z and 09:45:03Z respectively,
     and neither has anything left to grant.
 
+
+    Correction, 2026-08-24 (later still): the previous correction's "conflict
+    resolution a session can do" is no longer true. #731 (merged
+    2026-08-24T09:45:00Z, the 1,405-commit `local-site-studio` subtree merge)
+    rewrote `ventures/local-site-studio/src/app/page.tsx`'s bundle-pricing
+    section in the meantime -- from reading the shared `BUNDLES` source of
+    truth (also read by Stripe checkout and the `/preview/[slug]` upsell) to
+    an inline hardcoded array, renaming the mapped variable throughout.
+    `git merge-tree` now conflicts on that file for real, not as a line-offset
+    rebase: reapplying #531's 11 colour-token substitutions means re-deriving
+    which classes carry the contrast fix against the new structure, closer to
+    redoing the `a11y-contrast-decidability` fix than resolving a merge.
+    Flagged as a PR comment on #531 rather than attempted blind, since
+    correctness there (checkout pricing, `BUNDLES` consistency) matters more
+    than speed. The merge-or-decline decision is still the owner's; what
+    changed is that "merge" no longer means taking the diff as-is.
+
 - id: deployment-platform
   asks: []
   prs: [720]
