@@ -232,6 +232,12 @@ products:
           local_preflights: 1
           qualified_pilots: 0
         note: Shipped local JSON preflight; format coverage and customer demand remain untested.
+      - as_of: 2026-08-24
+        signals:
+          local_preflights: 1
+          markdown_reports: 1
+          qualified_pilots: 0
+        note: Markdown review reports shipped for single files and batch scans; customer demand remains untested.
   - slug: backup-verification-evidence
     surface: local-cli
     readings:
