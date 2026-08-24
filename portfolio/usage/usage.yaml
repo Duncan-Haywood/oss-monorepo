@@ -5,7 +5,15 @@
 # signal. A reading of zero is worth recording; it is how a product gets
 # retired honestly instead of quietly.
 period: 2026-08
-products: []
+products:
+  - slug: quote-margin-check
+    surface: cli
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          report_generated: 0
+          csv_exports: 0
+        note: Added spreadsheet-ready quote review export; baseline before distribution.
 # Example of the shape, once a product has shipped:
 #
 # products:
