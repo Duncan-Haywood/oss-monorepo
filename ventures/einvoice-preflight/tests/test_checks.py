@@ -247,6 +247,30 @@ class ChecksTest(unittest.TestCase):
             self.assertIn("## Read errors", markdown)
             self.assertIn("`broken.json`", markdown)
 
+    def test_cli_emits_csv_triage_rows_without_invoice_contents(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "pass.json").write_text(json.dumps(VALID))
+            failed = json.loads(json.dumps(VALID))
+            failed["totals"]["gross"] = 200
+            (root / "fail.json").write_text(json.dumps(failed))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "csv"]), 1)
+            self.assertIn("file,status,rule,path,message,fix,error\n", output.getvalue())
+            self.assertIn("fail.json,fail,INV-017,/totals/gross", output.getvalue())
+            self.assertIn("pass.json,pass,,,,,", output.getvalue())
+            self.assertNotIn("INV-1", output.getvalue())
+
+    def test_cli_csv_preserves_read_errors_for_batch_triage(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "broken.json").write_text("not json")
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "csv"]), 2)
+            self.assertIn("broken.json,read_error", output.getvalue())
+
     def test_cli_emits_pass_summary_for_valid_batch(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

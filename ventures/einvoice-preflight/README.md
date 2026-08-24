@@ -11,6 +11,7 @@ PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format sarif > preflight.sarif
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format markdown > review.md
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format csv > triage.csv
 cat invoice.json | PYTHONPATH=src python3 -m einvoice_preflight - --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --usage-file ~/.local/state/einvoice-preflight/usage.json
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format json
@@ -72,6 +73,10 @@ observations, and fixes for single files and recursive directory scans. Batch
 reports also include a finding summary grouped by rule, so repeated defects can
 be triaged before reviewing individual invoices. Markdown-sensitive local names
 and messages are escaped in the report.
+`--format csv` produces one spreadsheet row per finding, plus explicit pass and
+read-error rows. Its stable columns are `file`, `status`, `rule`, `path`,
+`message`, `fix`, and `error`, making it suitable for triage queues without
+exposing invoice values or contents.
 
 ## Privacy and usage
 
