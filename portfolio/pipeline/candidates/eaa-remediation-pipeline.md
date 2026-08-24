@@ -425,11 +425,14 @@ every injected finding. Blocking close-rate **1.0**. Operator job and
 committed JSON: `ventures/local-site-studio/scripts/eaa-evidence-job/`.
 
 A colour-only link (1.4.1) is closed by restoring the underline the page
-removed; the words and the colours stay. `muted` on autoplaying media
-(1.4.2) and a visual `rotate()` on `<html>`/`<body>` under a pure
-orientation query (1.3.4) already landed in #835. Timed refresh,
-blink/marquee, and name-override already landed in #825. None of these
-invent words.
+removed; the words and the colours stay. A page with a navigation block
+and no bypass (2.4.1) is closed by wrapping the content after that block
+in `<main>` — a landmark, not invented skip-link text. `muted` on
+autoplaying media (1.4.2) and a visual `rotate()` on `<html>`/`<body>`
+under a pure orientation query (1.3.4) already landed in #835. Timed
+refresh, blink/marquee, and name-override already landed in #825. None
+of these invent words. The host-theme close-rate job does not inject
+2.4.1: those pages already have headings, so the finding cannot fire.
 
 That 1.0 is the rate on defects written to be closeable, placed onto real
 theme markup. It is not a shop's natural mix. The probe's own fixture
