@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Janitorial Bid Calculator | Commercial Cleaning Price Per Month</title>
+  <meta name="description" content="Price a commercial cleaning contract from production rates: labor hours per visit, payroll burden, supplies, overhead, and margin — plus price per square foot, effective hourly rate, and the walk-away number.">
+  <meta property="og:title" content="Janitorial Bid Calculator">
+  <meta property="og:description" content="Bid commercial cleaning the way the trade does — square feet divided by production rate — and see the margin before you send the price.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Janitorial Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Production-rate labor hours by area, payroll burden, supplies and overhead, monthly contract price, price per square foot, effective hourly rate, break-even walk-away price, proposed-price margin check"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 720px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.6rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1c7a5e; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5666; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .area-row { display: grid; grid-template-columns: minmax(0, 2.9fr) repeat(3, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .area-row select, .area-row input { padding: 10px 7px; }
+    .area-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5a6779; }
+    /* The header row already names the columns on desktop, so each field's own
+       label is hidden visually but left in the accessibility tree — and shown
+       again on mobile, where the header row is dropped. Hiding it with
+       font-size:0 would be inherited by the input itself and make what the
+       contractor types invisible. */
+    .area-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e6ecf4; }
+    .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
+    .remove[disabled] { opacity: .4; cursor: not-allowed; }
+    .result { position: sticky; top: 15px; background: #143b31; color: #f2f8f5; border-color: #143b31; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #6fd6a8; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #1c7a5e; }
+    .support { margin-top: 14px; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+      .area-head { display: none; }
+      .area-row { grid-template-columns: 1fr 1fr; border: 1px solid #e0e6ee; border-radius: 9px; padding: 11px; }
+      .area-row label { font-size: .78rem; gap: 5px; }
+      .area-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+      .area-row label:first-child { grid-column: 1 / -1; }
+      .remove { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR COMMERCIAL CLEANING CONTRACTORS</p>
+    <h1>Bid the building, not the square footage.</h1>
+    <p>Price a janitorial contract the way the trade actually does: each space divided by the production rate your crew really hits, then wage burden, supplies, overhead, and the margin you intend to keep. You get the monthly price, what it works out to per square foot and per labor hour, and the number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The building</h2>
+        <p class="hint">One row per space type. Production rate is cleanable square feet one cleaner covers per hour — pick a space type to start from a common figure, then replace it with a rate timed from your own crew.</p>
+        <div class="area-row area-head" aria-hidden="true">
+          <span>Space type</span><span>Cleanable sq ft</span><span>Sq ft / hour</span><span>Cleans / week</span><span></span>
+        </div>
+        <div id="areas"></div>
+        <button type="button" id="addArea">+ Add a space</button>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Cleaner hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="17"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="28"></label>
+          <label>Supplies per sq ft / month <input id="suppliesPerSqFtMonth" type="number" min="0" step="0.001" value="0.005"></label>
+          <label>Equipment &amp; travel / month <input id="equipmentMonthly" type="number" min="0" step="1" value="25"></label>
+          <label>Other cost / month <input id="otherMonthly" type="number" min="0" step="1" value="0"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="20"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="10" placeholder="e.g. 1650"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off &mdash; the part of a cleaner&rsquo;s cost that never shows up on their pay rate. Underestimating it is the most common reason a janitorial bid that looked profitable was not.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">monthly contract price</div>
+      <dl>
+        <dt>Labor hours per visit</dt><dd id="hoursPerVisit"></dd>
+        <dt>Labor hours per month</dt><dd id="monthlyHours"></dd>
+        <dt>Loaded labor cost</dt><dd id="labor"></dd>
+        <dt>Supplies</dt><dd id="supplies"></dd>
+        <dt>Equipment &amp; other</dt><dd id="equipment"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total monthly cost</dt><dd id="cost"></dd>
+        <dt>Monthly profit</dt><dd id="profit"></dd>
+        <dt>Price per sq ft / month</dt><dd id="perSqFt"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+        <dt>Annual contract value</dt><dd id="annual"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the labor goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting production rates are common ballpark figures, not an industry standard, a benchmark, or a guarantee &mdash; time your own crews and replace them.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, and supply costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your building, wages, costs, or prices.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateBid, PRODUCTION_RATE_PRESETS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const COST_IDS = ['hourlyWage','burdenRate','suppliesPerSqFtMonth','equipmentMonthly','otherMonthly','overheadRate','targetMargin','proposedPrice'];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    // A small office building: enough rows that the labor split immediately
+    // shows why restrooms cannot be priced at the same rate as open floor.
+    const STARTING_AREAS = [
+      { name: 'Open office / cubicles', squareFeet: 6000, productionRate: 4000, cleaningsPerWeek: 5 },
+      { name: 'Restrooms (full clean)', squareFeet: 600, productionRate: 1200, cleaningsPerWeek: 5 },
+      { name: 'Break room / kitchen', squareFeet: 400, productionRate: 2000, cleaningsPerWeek: 5 },
+      { name: 'Lobby & corridors', squareFeet: 1000, productionRate: 5000, cleaningsPerWeek: 5 },
+    ];
+
+    // A select rather than a free-text field with suggestions: the ten space
+    // types are the discoverable part of the product — a contractor who has
+    // never timed a production rate needs to see that restrooms and open
+    // office are not the same job, and a dropdown shows that without them
+    // having to know the list exists. "Other" leaves the rate for them to set.
+    const TYPE_OPTIONS = PRODUCTION_RATE_PRESETS
+      .map((preset, index) => `<option value="${index}">${preset.label}</option>`)
+      .join('') + '<option value="other">Other space</option>';
+
+    const areasHost = el('areas');
+    let rowSeq = 0;
+
+    function addAreaRow(area) {
+      const id = `a${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'area-row';
+      row.innerHTML = `
+        <label for="${id}-type"><span class="lbl">Space type</span><select class="a-type" id="${id}-type">${TYPE_OPTIONS}</select></label>
+        <label for="${id}-sqft"><span class="lbl">Cleanable sq ft</span><input class="a-sqft" id="${id}-sqft" type="number" min="0" step="10"></label>
+        <label for="${id}-rate"><span class="lbl">Sq ft cleaned per hour</span><input class="a-rate" id="${id}-rate" type="number" min="1" step="50"></label>
+        <label for="${id}-freq"><span class="lbl">Cleans per week</span><input class="a-freq" id="${id}-freq" type="number" min="0" max="21" step="1"></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this space</span></button>`;
+
+      const typeField = row.querySelector('.a-type');
+      const rateField = row.querySelector('.a-rate');
+      const presetIndex = PRODUCTION_RATE_PRESETS.findIndex(p => p.label === area.name);
+      typeField.value = presetIndex === -1 ? 'other' : String(presetIndex);
+      row.querySelector('.a-sqft').value = area.squareFeet;
+      rateField.value = area.productionRate;
+      row.querySelector('.a-freq').value = area.cleaningsPerWeek;
+
+      // Picking a space type fills in its starting production rate, but never
+      // overwrites a rate the contractor has already changed themselves —
+      // their measured rate is worth more than our ballpark.
+      typeField.addEventListener('change', () => {
+        const preset = PRODUCTION_RATE_PRESETS[Number(typeField.value)];
+        if (preset && !rateField.dataset.edited) rateField.value = preset.rate;
+        count('bid_calculated');
+        update();
+      });
+      rateField.addEventListener('input', () => { rateField.dataset.edited = '1'; });
+      row.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count('bid_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('area_removed');
+        update();
+      });
+      areasHost.append(row);
+    }
+
+    function readAreas() {
+      return [...areasHost.querySelectorAll('.area-row')].map(row => {
+        const preset = PRODUCTION_RATE_PRESETS[Number(row.querySelector('.a-type').value)];
+        return {
+          // An "Other" row has no name, so the calculator falls back to a
+          // stable "Area N" label rather than several identical rows.
+          name: preset ? preset.label : '',
+          squareFeet: row.querySelector('.a-sqft').value,
+          productionRate: row.querySelector('.a-rate').value,
+          cleaningsPerWeek: row.querySelector('.a-freq').value,
+        };
+      });
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'monthly contract price';
+      ['hoursPerVisit','monthlyHours','labor','supplies','equipment','overhead','cost','profit','perSqFt','hourlyRate','breakEven','annual']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function update() {
+      const areas = readAreas();
+      if (areas.length === 0) {
+        clearOutputs('Add a space to price', false);
+        el('split').innerHTML = '<li class="empty">Add at least one space above and the labor split appears here.</li>';
+        return;
+      }
+      let result;
+      try {
+        result = calculateBid({
+          areas,
+          ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+          proposedPrice: el('proposedPrice').value,
+        });
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.monthlyPrice);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'monthly contract price';
+      el('hoursPerVisit').textContent = `${result.hoursPerVisitTotal.toFixed(2)} h`;
+      el('monthlyHours').textContent = `${result.monthlyHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.monthlyLaborCost);
+      el('supplies').textContent = money(result.monthlySupplies);
+      el('equipment').textContent = money(result.equipmentMonthly + result.otherMonthly);
+      el('overhead').textContent = money(result.monthlyOverhead);
+      el('cost').textContent = money(result.monthlyCost);
+      el('profit').textContent = money(result.monthlyProfit);
+      el('perSqFt').textContent = result.pricePerSqFtMonth === null ? 'n/a' : `$${result.pricePerSqFtMonth.toFixed(3)}`;
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenMonthlyPrice);
+      el('annual').textContent = money(result.annualPrice);
+
+      const worked = result.areas.filter(area => area.monthlyHours > 0);
+      el('split').innerHTML = worked.length === 0
+        ? '<li class="empty">No space is scheduled to be cleaned yet — set cleans per week above.</li>'
+        : worked
+          .slice()
+          .sort((a, b) => b.monthlyHours - a.monthlyHours)
+          .map(area => `<li><span>${area.name}</span><span>${area.hoursShare.toFixed(0)}% of hours</span>
+            <span class="bar"><span style="width:${area.hoursShare.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} a month this job <strong>loses ${money(Math.abs(result.proposed.profit))} a month</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenMonthlyPrice)}.`
+          : `At ${money(result.proposed.price)} a month you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    el('addArea').addEventListener('click', () => {
+      addAreaRow({ name: '', squareFeet: 0, productionRate: 3000, cleaningsPerWeek: 5 });
+      count('area_added');
+      update();
+    });
+
+    COST_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    el('usageOptOut').addEventListener('change', update);
+
+    STARTING_AREAS.forEach(addAreaRow);
+    update();
+  </script>
+</body>
+</html>
