@@ -20546,3 +20546,51 @@ entries:
         correctly owner-gated (deployable venture app code or unattended
         automation); not re-verified here since nothing about them had
         changed since their last recorded check.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same session as the entry immediately above this one, designated
+        branch claude/nice-mendel-j2qyih, hit the identical #700 CI
+        failure independently and in parallel -- worth recording as its
+        own entry because what happened next is the finding, not a repeat
+        of it. This session also fixed the stale `results-2026-08-23.md`
+        and, going further, the five leftover "115"/"35" prose mentions in
+        README.md and one in harness.py's docstring that a plain
+        results-file regen (the fix in #701 and in this session's own
+        first pass) does not touch. Opened #702 with both.
+      - >-
+        While #702 was mid-flight, `git merge` against `origin/main`
+        surfaced #701's independent fix. Merged main into #702's branch
+        (clean, no conflicts), re-verified the full 84-test suite plus the
+        portfolio-validate steps, and pushed. Unknown at push time: a
+        third, independent session (claude/wizardly-albattani-978ymv, the
+        entry above) had reached the identical README/harness.py
+        conclusion in parallel and opened #704 with the same 117/37 text
+        fix. #702 and #704 merged two seconds apart (02:31:15Z and
+        02:31:17Z) with byte-identical resulting diffs, so the second
+        merge was a content no-op -- `main` ended up correct and
+        undamaged, but #704 was pure duplicate spend on top of #702's own
+        final commit. Two sessions, same file, same numeric fix, minutes
+        apart -- the near-duplicate-discovery pattern `CLAUDE.md` warns
+        about, one layer down from a whole PR.
+      - >-
+        Verified the post-merge state directly rather than trusting either
+        PR's account of it: `main` regenerates `results-2026-08-23.md`
+        byte-identical to the committed copy, README.md and harness.py
+        both read 117/37 with no leftover 115/35 anywhere in the probe's
+        directory, and the full 84-test suite plus `validate_probe_index.py`,
+        `test_validate_probe_index`, `validate_workflows.py` (37 files),
+        and `test_allocate.py` all pass against the merged tip.
+      - >-
+        No ventures/* app code touched, nothing published, no account
+        registered, no automation added or re-enabled -- agent-decidable
+        throughout, both #702 and #704 self-merged by their own sessions.
+        No score, ranking, or candidate change. This entry exists
+        specifically to record the collision the entry above could not see
+        yet when it was written (#702 hadn't merged), so a later session
+        reading only the entry above wouldn't mistake #704 for the only
+        fix and re-derive the same 117/37 correction a third time.
+    mrr_end: null
