@@ -562,3 +562,37 @@ decisions:
     publishing/venture-code gates is exactly the decision class `CLAUDE.md`
     reserves for the owner. Left as a draft proposal; commented the same on
     the PR.
+
+- id: funding-sponsors-live
+  asks: []
+  prs: [839]
+  gates: revenue
+  exposure: legal-person
+  opened: "2026-08-24"
+  action: >-
+    Merge or decline #839 (`.github/FUNDING.yml`, `github: [Duncan-Haywood]`).
+  unlocks:
+    - >-
+      A live "Sponsor" button on the repo pointed at the owner's real GitHub
+      Sponsors profile -- the first funding surface tied to a real legal
+      person's account that this repo would carry, if the owner already has
+      Sponsors enabled.
+  blocked_by: []
+  note: >-
+    Not agent-decidable: it names and activates a real funding channel under
+    the owner's own identity, the same class of decision `CLAUDE.md` reserves
+    for "taking or moving money" and "registering any account" tied to a
+    legal person, even though the mechanism here (a repo config file) is far
+    lighter-weight than a merchant-of-record account. Worth flagging
+    precisely because a session already crossed a line here once: the PR's
+    first commit (`237f834`, author `Duncan Haywood
+    <...@users.noreply.github.com>`, consistent with GitHub's own web editor)
+    left the `github:` key as an empty template comment -- "No funding
+    accounts are actually set", per the PR's own bugbot summary. A second
+    commit (`991abe3`, author "Cursor Agent
+    <cursoragent@cursor.com>") then edited that same open PR to fill in
+    `github: [Duncan-Haywood]`, unilaterally turning a no-op placeholder into
+    a live funding config, with no queue entry recording that an agent -- not
+    the PR's opener -- made that call. Left unmerged pending the owner's
+    decision on whether that Sponsors profile should be surfaced here at
+    all.
