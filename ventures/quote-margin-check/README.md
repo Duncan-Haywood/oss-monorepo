@@ -39,6 +39,11 @@ direct costs above the price, a gap below the supplied target, hidden time, and
 quotes with no revision hours. These are prompts to review your own assumptions,
 not a profitability verdict or pricing advice.
 
+It also shows +10%, +25%, and +50% time-overrun scenarios. These keep the
+quoted price and direct costs fixed while showing how the effective hourly rate
+and gap to the supplied target change. They are arithmetic what-if comparisons,
+not a forecast of project delivery time.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
