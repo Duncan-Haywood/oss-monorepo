@@ -66,7 +66,7 @@ def test_injections_all_bite_a_well_formed_page():
 def test_new_structural_criteria_are_exercised_by_positive_controls():
     result = run_control({"shop.html": _PAGE})
     by_criterion = {row["criterion"]: row for row in result["mutations"]}
-    for criterion in ("2.2.2", "2.4.1", "3.1.2"):
+    for criterion in ("2.2.2", "2.4.1", "3.1.2", "1.3.4"):
         assert by_criterion[criterion]["verdict"] == CAUGHT
         assert by_criterion[criterion]["pages_changed"] == 1
 

@@ -8,9 +8,9 @@ owner-gated. This script is the software half that can run here:
 - take three committed category themes this venture already delivers
   (trades, salon, restaurant)
 - confirm the unmodified pages have no findings the probe can see
-- apply only the four defect classes the mechanical pass is allowed to
-  rewrite (title, heading skip, zoom-lock, aria-hidden on a named
-  control)
+- apply only the rewriteable defect classes the mechanical pass is
+  allowed to close (title, heading skip, zoom-lock, aria-hidden on a
+  named control, unmuted autoplay, orientation-lock rotate)
 - re-audit with the same engine
 
 A 1.0 close rate on those injected findings is not the kill-criterion
@@ -56,8 +56,8 @@ LIMITS = (
     "Re-audit by the same static engine, not assistive-technology verification.",
     "Does not settle the candidate's kill criterion (that needs live themes "
     "and a contractor).",
-    "Mutated close-rate injects only the four defect classes the pass can "
-    "rewrite. It is not a shop's natural blocking mix.",
+    "Mutated close-rate injects only the rewriteable defect classes the "
+    "pass can close. It is not a shop's natural blocking mix.",
     "Does not invent alt text, labels, captions, link names, button names, "
     "or a page language.",
     "Unmodified pages of this corpus were already measured clean; a null "
@@ -82,11 +82,20 @@ def apply_mechanical_defects(html: str) -> str:
         (
             '<head><meta name="viewport" content="width=device-width, '
             'maximum-scale=1, user-scalable=no"/>'
+            "<style>@media (orientation: portrait) { "
+            "html { transform: rotate(90deg); } }</style>"
         ),
         html,
         count=1,
     )
     html = re.sub(r"<button\b", '<button aria-hidden="true"', html, count=1)
+    html = re.sub(
+        r"(<body\b[^>]*>)",
+        r'\1<audio autoplay src="close-rate-probe.mp3"></audio>',
+        html,
+        count=1,
+        flags=re.I,
+    )
     return html
 
 
