@@ -1075,98 +1075,6 @@ ACCURACY_NOTE = (
 )
 
 
-# The fields of a Finding that identify *what was found and where*, as opposed
-# to how it is narrated. `summary` and `detail` are deliberately excluded: R7's
-# prose quotes the size of the repository's documentation closure, so it moves
-# whenever any file anywhere in the repo joins or leaves that closure -- adding
-# a venture write-up is enough. Diffing the narration therefore reports "the
-# permission posture changed" on commits that touched no workflow at all, which
-# is a false alarm that costs a red build on every open PR until someone
-# regenerates the snapshot, at which point the next merge invalidates it again.
-# These fields move only when a workflow file does, which is the drift the
-# probe exists to catch.
-#
-# `line` is excluded for the same reason: it is where a finding is, not which
-# finding it is. Adding a comment to a workflow shifts every line below it,
-# which would re-report every finding in the file as both new and gone while
-# the posture is untouched.
-FINGERPRINT_FIELDS = (
-    "rule",
-    "severity",
-    "workflow",
-    "job",
-    "input_writer_set",
-    "privilege",
-    "observable_by_replay",
-)
-
-
-def fingerprint(findings: list[Finding]) -> list[dict]:
-    """The findings reduced to their stable identity, in a deterministic order.
-
-    Sorted rather than left in discovery order so that a reordering inside the
-    harness cannot masquerade as a posture change.
-    """
-    rows = [{field: getattr(f, field) for field in FINGERPRINT_FIELDS} for f in findings]
-    return sorted(rows, key=lambda r: tuple(str(r[field]) for field in FINGERPRINT_FIELDS))
-
-
-def render_fingerprint(findings: list[Finding]) -> str:
-    return json.dumps(fingerprint(findings), indent=2, sort_keys=True) + "\n"
-
-
-def check_fingerprint(findings: list[Finding], path: Path) -> int:
-    """Compare the current findings against a committed fingerprint file.
-
-    Returns 0 when they agree. On disagreement, prints the findings that
-    appeared and disappeared -- the actionable form of the difference -- rather
-    than a line-oriented diff of the JSON.
-    """
-    if not path.exists():
-        print(f"{path} does not exist; regenerate it with --fingerprint", file=sys.stderr)
-        return 1
-    try:
-        committed = json.loads(path.read_text())
-    except json.JSONDecodeError as exc:
-        print(f"{path} is not valid JSON: {exc}", file=sys.stderr)
-        return 1
-
-    current = fingerprint(findings)
-    if committed == current:
-        return 0
-
-    def key(row):
-        return tuple(str(row.get(field)) for field in FINGERPRINT_FIELDS)
-
-    committed_keys = {key(r) for r in committed}
-    current_keys = {key(r) for r in current}
-
-    print(
-        f"The workflow permission posture has changed relative to {path.name}.",
-        file=sys.stderr,
-    )
-    for row in current:
-        if key(row) not in committed_keys:
-            print(f"  + new finding: {_describe(row)}", file=sys.stderr)
-    for row in committed:
-        if key(row) not in current_keys:
-            print(f"  - finding no longer produced: {_describe(row)}", file=sys.stderr)
-    print(
-        "\nIf a workflow change caused this, it is the change to review. If the "
-        "new posture is intended, regenerate with:\n"
-        "  python3 harness.py --fingerprint > findings-fingerprint.json",
-        file=sys.stderr,
-    )
-    return 1
-
-
-def _describe(row: dict) -> str:
-    location = f"`{row.get('workflow')}`"
-    if row.get("job"):
-        location += f" job `{row['job']}`"
-    return f"{row.get('rule')} [{row.get('severity')}] on {location}"
-
-
 def render_markdown(findings: list[Finding], summary: dict) -> str:
     out = ["# Agent permission harness — findings", ""]
     out.append(
@@ -1232,27 +1140,11 @@ def main(argv=None) -> int:
         help="override the workflow directory (default: <repo-root>/.github/workflows)",
     )
     parser.add_argument("--json", action="store_true", help="emit JSON instead of markdown")
-    parser.add_argument(
-        "--fingerprint",
-        action="store_true",
-        help="emit the stable finding identities (no prose) as JSON",
-    )
-    parser.add_argument(
-        "--check-fingerprint",
-        type=Path,
-        default=None,
-        metavar="PATH",
-        help="compare the current findings against a committed fingerprint file",
-    )
     args = parser.parse_args(argv)
 
     findings = analyse(args.repo_root, args.workflows_dir)
     summary = summarise(findings)
-    if args.check_fingerprint is not None:
-        return check_fingerprint(findings, args.check_fingerprint)
-    if args.fingerprint:
-        print(render_fingerprint(findings), end="")
-    elif args.json:
+    if args.json:
         print(json.dumps({"summary": summary, "findings": [asdict(f) for f in findings]}, indent=2))
     else:
         print(render_markdown(findings, summary))
