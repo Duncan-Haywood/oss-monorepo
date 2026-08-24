@@ -703,9 +703,13 @@ candidates:
   - slug: shopify-permission-drift
     name: Shopify app-permission drift record
     doc: candidates/shopify-permission-drift.md
-    verdict: probe
-    graduate_as: product-line
-    host_venture: local-site-studio
+    verdict: build-now
+    verdict_changed: >-
+      probe -> build-now, 2026-08-24. The first vertical slice is usable
+      without Shopify credentials: operators can compare customer-authorized
+      exports locally before any platform-scope or hosting dependency is taken.
+    graduate_as: venture
+    host_venture: null
     scores:
       ai_leverage: 7
       autonomous_ops: 8
@@ -719,10 +723,9 @@ candidates:
     floor: 4
     floor_dimension: defensibility
     mitigation: >-
-      Before graduation, retain immutable merchant-specific snapshots with a
-      portable export and test whether a new entrant can reconstruct the same
-      history without the merchant's prior records; also secure a Shopify
-      agency partner or measure repeatable App Store search demand.
+      The local comparator retains source-linked metadata and portable JSON
+      output; before hosted integration, verify minimum Shopify scopes and
+      secure an agency partner or measure repeatable App Store search demand.
     first_experiment_days: 14
     first_experiment_budget_usd: 150
 

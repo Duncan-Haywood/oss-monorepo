@@ -4,11 +4,11 @@
 requested access scopes, webhook subscriptions, and relevant app status for a
 merchant, then produces a source-linked diff when that inventory changes.
 
-**Verdict: probe.** Shopify supplies a real listing channel and the record can
+**Verdict: build-now.** Shopify supplies a real listing channel and the record can
 be useful to a merchant or agency without declaring an app safe or compliant.
-The unresolved questions are whether the platform exposes enough information
-for a reliable customer-authorized baseline and whether merchants will pay for
-recurring change evidence rather than inspect the admin themselves.
+The first slice is a local export comparator, so the core workflow can be tested
+without platform credentials while API coverage and willingness to pay remain
+untested.
 
 Scored 2026-08-24. Composite 6.75 · floor 4 (defensibility).
 
@@ -64,7 +64,11 @@ Two weeks, under EUR150:
    not use a production store or customer data for the fixture.
 3. Show the report privately to ten Shopify agencies or merchant operators in
    public communities. Ask three whether this is part of a recurring app-review
-   workflow and one to pre-pay EUR50/month for a 30-day pilot.
+ workflow and one to pre-pay EUR50/month for a 30-day pilot.
+
+The fixture workflow is implemented in `ventures/shopify-permission-drift` and
+is deliberately not a Shopify integration. It demonstrates the useful core at
+zero marginal cost; it is not evidence of platform API coverage or demand.
 
 Kill or narrow it if the platform cannot expose a stable, customer-authorized
 baseline, fewer than three qualified conversations can name a recurring review,
