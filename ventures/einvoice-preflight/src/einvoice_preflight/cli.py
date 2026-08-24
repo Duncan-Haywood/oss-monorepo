@@ -271,16 +271,29 @@ def main(argv: list[str] | None = None) -> int:
         source = stdin.read()
         sources = [(Path("stdin.json"), source.encode() if isinstance(source, str) else source)]
     elif args.invoice.is_dir():
-        paths = sorted(path for pattern in ("*.json", "*.xml") for path in args.invoice.rglob(pattern) if path.is_file())
+        # Keep a directory scan inside its selected root instead of following
+        # symlinks into an unrelated location.
+        paths = sorted(
+            path for pattern in ("*.json", "*.xml")
+            for path in args.invoice.rglob(pattern)
+            if path.is_file() or path.is_symlink()
+        )
         if not paths:
             print(f"No JSON or XML invoices found in {args.invoice}")
             return 2
         sources = []
         for path in paths:
+            relative_path = path.relative_to(args.invoice)
+            if path.is_symlink():
+                read_errors.append({
+                    "file": relative_path.as_posix(),
+                    "error": "Refusing to follow symbolic link during directory scan.",
+                })
+                continue
             try:
                 sources.append((path.relative_to(args.invoice), path.read_bytes()))
             except OSError as exc:
-                read_errors.append({"file": path.relative_to(args.invoice).as_posix(), "error": str(exc)})
+                read_errors.append({"file": relative_path.as_posix(), "error": str(exc)})
     else:
         sources = [(args.invoice, None)]
 
