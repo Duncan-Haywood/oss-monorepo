@@ -19,3 +19,8 @@ test("annual secured cash applies the assumed booking rate", () => {
 test("a zero deposit does not change the service balance", () => {
   assert.deepEqual(plan(80, 0, 10, 100), { deposit: 0, balance: 80, annual: 0 });
 });
+
+test("non-finite form numbers are rejected before formatting", () => {
+  assert.equal(Number.isFinite(Number("")), true);
+  assert.equal(Number.isFinite(Number("not-a-number")), false);
+});
