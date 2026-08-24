@@ -1,0 +1,9 @@
+{
+  "price": 2400,
+  "delivery_hours": 24,
+  "admin_hours": 5,
+  "revision_hours": 6,
+  "overhead": 180,
+  "subcontractor_cost": 300,
+  "target_hourly_rate": 75
+}

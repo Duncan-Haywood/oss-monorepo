@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import { clearSession, readSession } from "../auth/demoAuth";
 import { DemoGuide } from "./DemoGuide";
+import { EngagementSummary } from "./EngagementSummary";
+import { EngagementTracker } from "./EngagementTracker";
 import { storeProfile } from "../data/demoStore";
 
 const ownerNav = [
@@ -42,6 +44,7 @@ export function PortalShell({
 
   return (
     <div className="portal-layout">
+      <EngagementTracker />
       <aside className="portal-sidebar">
         <div className="brand">
           <span className="brand-mark">RPI</span>
@@ -79,6 +82,7 @@ export function PortalShell({
               demos.
             </p>
           ) : null}
+          <EngagementSummary />
           <button type="button" className="btn-ghost" onClick={signOut}>
             Sign out
           </button>
