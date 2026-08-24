@@ -199,7 +199,7 @@ The right column is the measurement this amendment was written against, kept
 because the argument below is stated in its numbers. The left column is the
 current checkout: the fleet prompt was rewritten on 2026-08-24 to name four
 documents instead of twenty-one, and documentation added since brought the
-result back up to 72. See the sixth-instance note at the end of this file for
+result back up to 74. See the sixth-instance note at the end of this file for
 both moves. The artifact
 [`results-2026-08-23.md`](results-2026-08-23.md) is the checked figure; this
 table is prose, which is exactly why it went stale once already.
