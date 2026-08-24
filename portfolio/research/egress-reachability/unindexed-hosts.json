@@ -190,7 +190,307 @@
       "url": "https://euvdservices.enisa.europa.eu/api/lastvulnerabilities",
       "verdict": "egress_denied",
       "why_unindexed": "The host that actually serves the EUVD API; euvd.enisa.europa.eu, the host the ask names, serves only the website. Probed 2026-08-23 by a pass living under portfolio/pipeline/probes/, outside this walk's tree."
+    },
+    {
+      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "host": "api.cloudflare.com",
+      "second_attempt": {
+        "detail": "Tunnel connection failed: 403 Forbidden",
+        "status": 0,
+        "verdict": "egress_denied"
+      },
+      "source": "platform/deployment/README.md",
+      "stable": true,
+      "status": 0,
+      "url": "https://api.cloudflare.com/",
+      "verdict": "egress_denied",
+      "why_unindexed": "Named in platform/deployment/README.md, the deployment-platform decision, which measures hosting control planes to establish that no vendor's deploy or teardown API is reachable from an agent session -- the reason that decision requires a spend cap inside the platform. It lives under platform/, outside the portfolio/research/ tree --ingest walks, so these verdicts would otherwise be invisible here and never re-probed."
+    },
+    {
+      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "host": "dash.cloudflare.com",
+      "second_attempt": {
+        "detail": "Tunnel connection failed: 403 Forbidden",
+        "status": 0,
+        "verdict": "egress_denied"
+      },
+      "source": "platform/deployment/README.md",
+      "stable": true,
+      "status": 0,
+      "url": "https://dash.cloudflare.com/",
+      "verdict": "egress_denied",
+      "why_unindexed": "Named in platform/deployment/README.md, the deployment-platform decision, which measures hosting control planes to establish that no vendor's deploy or teardown API is reachable from an agent session -- the reason that decision requires a spend cap inside the platform. It lives under platform/, outside the portfolio/research/ tree --ingest walks, so these verdicts would otherwise be invisible here and never re-probed."
+    },
+    {
+      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "host": "pages.dev",
+      "second_attempt": {
+        "detail": "Tunnel connection failed: 403 Forbidden",
+        "status": 0,
+        "verdict": "egress_denied"
+      },
+      "source": "platform/deployment/README.md",
+      "stable": true,
+      "status": 0,
+      "url": "https://pages.dev/",
+      "verdict": "egress_denied",
+      "why_unindexed": "Named in platform/deployment/README.md, the deployment-platform decision, which measures hosting control planes to establish that no vendor's deploy or teardown API is reachable from an agent session -- the reason that decision requires a spend cap inside the platform. It lives under platform/, outside the portfolio/research/ tree --ingest walks, so these verdicts would otherwise be invisible here and never re-probed."
+    },
+    {
+      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "host": "workers.dev",
+      "second_attempt": {
+        "detail": "Tunnel connection failed: 403 Forbidden",
+        "status": 0,
+        "verdict": "egress_denied"
+      },
+      "source": "platform/deployment/README.md",
+      "stable": true,
+      "status": 0,
+      "url": "https://workers.dev/",
+      "verdict": "egress_denied",
+      "why_unindexed": "Named in platform/deployment/README.md, the deployment-platform decision, which measures hosting control planes to establish that no vendor's deploy or teardown API is reachable from an agent session -- the reason that decision requires a spend cap inside the platform. It lives under platform/, outside the portfolio/research/ tree --ingest walks, so these verdicts would otherwise be invisible here and never re-probed."
+    },
+    {
+      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "host": "api.vercel.com",
+      "second_attempt": {
+        "detail": "Tunnel connection failed: 403 Forbidden",
+        "status": 0,
+        "verdict": "egress_denied"
+      },
+      "source": "platform/deployment/README.md",
+      "stable": true,
+      "status": 0,
+      "url": "https://api.vercel.com/",
+      "verdict": "egress_denied",
+      "why_unindexed": "Named in platform/deployment/README.md, the deployment-platform decision, which measures hosting control planes to establish that no vendor's deploy or teardown API is reachable from an agent session -- the reason that decision requires a spend cap inside the platform. It lives under platform/, outside the portfolio/research/ tree --ingest walks, so these verdicts would otherwise be invisible here and never re-probed."
+    },
+    {
+      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "host": "vercel.com",
+      "second_attempt": {
+        "detail": "Tunnel connection failed: 403 Forbidden",
+        "status": 0,
+        "verdict": "egress_denied"
+      },
+      "source": "platform/deployment/README.md",
+      "stable": true,
+      "status": 0,
+      "url": "https://vercel.com/",
+      "verdict": "egress_denied",
+      "why_unindexed": "Named in platform/deployment/README.md, the deployment-platform decision, which measures hosting control planes to establish that no vendor's deploy or teardown API is reachable from an agent session -- the reason that decision requires a spend cap inside the platform. It lives under platform/, outside the portfolio/research/ tree --ingest walks, so these verdicts would otherwise be invisible here and never re-probed."
+    },
+    {
+      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "host": "api.hetzner.cloud",
+      "second_attempt": {
+        "detail": "Tunnel connection failed: 403 Forbidden",
+        "status": 0,
+        "verdict": "egress_denied"
+      },
+      "source": "platform/deployment/README.md",
+      "stable": true,
+      "status": 0,
+      "url": "https://api.hetzner.cloud/",
+      "verdict": "egress_denied",
+      "why_unindexed": "Named in platform/deployment/README.md, the deployment-platform decision, which measures hosting control planes to establish that no vendor's deploy or teardown API is reachable from an agent session -- the reason that decision requires a spend cap inside the platform. It lives under platform/, outside the portfolio/research/ tree --ingest walks, so these verdicts would otherwise be invisible here and never re-probed."
+    },
+    {
+      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "host": "console.hetzner.cloud",
+      "second_attempt": {
+        "detail": "Tunnel connection failed: 403 Forbidden",
+        "status": 0,
+        "verdict": "egress_denied"
+      },
+      "source": "platform/deployment/README.md",
+      "stable": true,
+      "status": 0,
+      "url": "https://console.hetzner.cloud/",
+      "verdict": "egress_denied",
+      "why_unindexed": "Named in platform/deployment/README.md, the deployment-platform decision, which measures hosting control planes to establish that no vendor's deploy or teardown API is reachable from an agent session -- the reason that decision requires a spend cap inside the platform. It lives under platform/, outside the portfolio/research/ tree --ingest walks, so these verdicts would otherwise be invisible here and never re-probed."
+    },
+    {
+      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "host": "www.hetzner.com",
+      "second_attempt": {
+        "detail": "Tunnel connection failed: 403 Forbidden",
+        "status": 0,
+        "verdict": "egress_denied"
+      },
+      "source": "platform/deployment/README.md",
+      "stable": true,
+      "status": 0,
+      "url": "https://www.hetzner.com/",
+      "verdict": "egress_denied",
+      "why_unindexed": "Named in platform/deployment/README.md, the deployment-platform decision, which measures hosting control planes to establish that no vendor's deploy or teardown API is reachable from an agent session -- the reason that decision requires a spend cap inside the platform. It lives under platform/, outside the portfolio/research/ tree --ingest walks, so these verdicts would otherwise be invisible here and never re-probed."
+    },
+    {
+      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "host": "aws.amazon.com",
+      "second_attempt": {
+        "detail": "Tunnel connection failed: 403 Forbidden",
+        "status": 0,
+        "verdict": "egress_denied"
+      },
+      "source": "platform/deployment/README.md",
+      "stable": true,
+      "status": 0,
+      "url": "https://aws.amazon.com/",
+      "verdict": "egress_denied",
+      "why_unindexed": "Named in platform/deployment/README.md, the deployment-platform decision, which measures hosting control planes to establish that no vendor's deploy or teardown API is reachable from an agent session -- the reason that decision requires a spend cap inside the platform. It lives under platform/, outside the portfolio/research/ tree --ingest walks, so these verdicts would otherwise be invisible here and never re-probed."
+    },
+    {
+      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "host": "ec2.amazonaws.com",
+      "second_attempt": {
+        "detail": "Tunnel connection failed: 403 Forbidden",
+        "status": 0,
+        "verdict": "egress_denied"
+      },
+      "source": "platform/deployment/README.md",
+      "stable": true,
+      "status": 0,
+      "url": "https://ec2.amazonaws.com/",
+      "verdict": "egress_denied",
+      "why_unindexed": "Named in platform/deployment/README.md, the deployment-platform decision, which measures hosting control planes to establish that no vendor's deploy or teardown API is reachable from an agent session -- the reason that decision requires a spend cap inside the platform. It lives under platform/, outside the portfolio/research/ tree --ingest walks, so these verdicts would otherwise be invisible here and never re-probed."
+    },
+    {
+      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "host": "management.azure.com",
+      "second_attempt": {
+        "detail": "Tunnel connection failed: 403 Forbidden",
+        "status": 0,
+        "verdict": "egress_denied"
+      },
+      "source": "platform/deployment/README.md",
+      "stable": true,
+      "status": 0,
+      "url": "https://management.azure.com/",
+      "verdict": "egress_denied",
+      "why_unindexed": "Named in platform/deployment/README.md, the deployment-platform decision, which measures hosting control planes to establish that no vendor's deploy or teardown API is reachable from an agent session -- the reason that decision requires a spend cap inside the platform. It lives under platform/, outside the portfolio/research/ tree --ingest walks, so these verdicts would otherwise be invisible here and never re-probed."
+    },
+    {
+      "detail": "HTTP 200",
+      "host": "portal.azure.com",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "source": "platform/deployment/README.md",
+      "stable": true,
+      "status": 200,
+      "url": "https://portal.azure.com/",
+      "verdict": "reachable",
+      "why_unindexed": "Named in platform/deployment/README.md, the deployment-platform decision, which measures hosting control planes to establish that no vendor's deploy or teardown API is reachable from an agent session -- the reason that decision requires a spend cap inside the platform. It lives under platform/, outside the portfolio/research/ tree --ingest walks, so these verdicts would otherwise be invisible here and never re-probed."
+    },
+    {
+      "detail": "HTTP 404",
+      "host": "cloudresourcemanager.googleapis.com",
+      "second_attempt": {
+        "detail": "HTTP 404",
+        "status": 404,
+        "verdict": "reachable"
+      },
+      "source": "platform/deployment/README.md",
+      "stable": true,
+      "status": 404,
+      "url": "https://cloudresourcemanager.googleapis.com/",
+      "verdict": "reachable",
+      "why_unindexed": "Named in platform/deployment/README.md, the deployment-platform decision, which measures hosting control planes to establish that no vendor's deploy or teardown API is reachable from an agent session -- the reason that decision requires a spend cap inside the platform. It lives under platform/, outside the portfolio/research/ tree --ingest walks, so these verdicts would otherwise be invisible here and never re-probed."
+    },
+    {
+      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "host": "console.cloud.google.com",
+      "second_attempt": {
+        "detail": "Tunnel connection failed: 403 Forbidden",
+        "status": 0,
+        "verdict": "egress_denied"
+      },
+      "source": "platform/deployment/README.md",
+      "stable": true,
+      "status": 0,
+      "url": "https://console.cloud.google.com/",
+      "verdict": "egress_denied",
+      "why_unindexed": "Named in platform/deployment/README.md, the deployment-platform decision, which measures hosting control planes to establish that no vendor's deploy or teardown API is reachable from an agent session -- the reason that decision requires a spend cap inside the platform. It lives under platform/, outside the portfolio/research/ tree --ingest walks, so these verdicts would otherwise be invisible here and never re-probed."
+    },
+    {
+      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "host": "api.netlify.com",
+      "second_attempt": {
+        "detail": "Tunnel connection failed: 403 Forbidden",
+        "status": 0,
+        "verdict": "egress_denied"
+      },
+      "source": "platform/deployment/README.md",
+      "stable": true,
+      "status": 0,
+      "url": "https://api.netlify.com/",
+      "verdict": "egress_denied",
+      "why_unindexed": "Named in platform/deployment/README.md, the deployment-platform decision, which measures hosting control planes to establish that no vendor's deploy or teardown API is reachable from an agent session -- the reason that decision requires a spend cap inside the platform. It lives under platform/, outside the portfolio/research/ tree --ingest walks, so these verdicts would otherwise be invisible here and never re-probed."
+    },
+    {
+      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "host": "api.fly.io",
+      "second_attempt": {
+        "detail": "Tunnel connection failed: 403 Forbidden",
+        "status": 0,
+        "verdict": "egress_denied"
+      },
+      "source": "platform/deployment/README.md",
+      "stable": true,
+      "status": 0,
+      "url": "https://api.fly.io/",
+      "verdict": "egress_denied",
+      "why_unindexed": "Named in platform/deployment/README.md, the deployment-platform decision, which measures hosting control planes to establish that no vendor's deploy or teardown API is reachable from an agent session -- the reason that decision requires a spend cap inside the platform. It lives under platform/, outside the portfolio/research/ tree --ingest walks, so these verdicts would otherwise be invisible here and never re-probed."
+    },
+    {
+      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "host": "api.render.com",
+      "second_attempt": {
+        "detail": "Tunnel connection failed: 403 Forbidden",
+        "status": 0,
+        "verdict": "egress_denied"
+      },
+      "source": "platform/deployment/README.md",
+      "stable": true,
+      "status": 0,
+      "url": "https://api.render.com/",
+      "verdict": "egress_denied",
+      "why_unindexed": "Named in platform/deployment/README.md, the deployment-platform decision, which measures hosting control planes to establish that no vendor's deploy or teardown API is reachable from an agent session -- the reason that decision requires a spend cap inside the platform. It lives under platform/, outside the portfolio/research/ tree --ingest walks, so these verdicts would otherwise be invisible here and never re-probed."
+    },
+    {
+      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "host": "api.digitalocean.com",
+      "second_attempt": {
+        "detail": "Tunnel connection failed: 403 Forbidden",
+        "status": 0,
+        "verdict": "egress_denied"
+      },
+      "source": "platform/deployment/README.md",
+      "stable": true,
+      "status": 0,
+      "url": "https://api.digitalocean.com/",
+      "verdict": "egress_denied",
+      "why_unindexed": "Named in platform/deployment/README.md, the deployment-platform decision, which measures hosting control planes to establish that no vendor's deploy or teardown API is reachable from an agent session -- the reason that decision requires a spend cap inside the platform. It lives under platform/, outside the portfolio/research/ tree --ingest walks, so these verdicts would otherwise be invisible here and never re-probed."
+    },
+    {
+      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "host": "deno.com",
+      "second_attempt": {
+        "detail": "Tunnel connection failed: 403 Forbidden",
+        "status": 0,
+        "verdict": "egress_denied"
+      },
+      "source": "platform/deployment/README.md",
+      "stable": true,
+      "status": 0,
+      "url": "https://deno.com/",
+      "verdict": "egress_denied",
+      "why_unindexed": "Named in platform/deployment/README.md, the deployment-platform decision, which measures hosting control planes to establish that no vendor's deploy or teardown API is reachable from an agent session -- the reason that decision requires a spend cap inside the platform. It lives under platform/, outside the portfolio/research/ tree --ingest walks, so these verdicts would otherwise be invisible here and never re-probed."
     }
   ],
-  "why_this_file_exists": "consolidate.py --ingest walks portfolio/research/ for machine-readable results files. A host measured in prose, or measured by a pass living outside that tree, is invisible to it -- and because --probe iterates the table --ingest builds, an invisible host is also never re-measured. These two were invisible on both counts. Each record names, in `source`, the document that first measured it; the verdict fields are this pass's own re-measurement, taken with probe_host() so the body-based classification rule this directory established applies."
+  "why_this_file_exists": "consolidate.py --ingest walks portfolio/research/ for machine-readable results files. A host measured in prose, or measured by a pass living outside that tree, is invisible to it -- and because --probe iterates the table --ingest builds, an invisible host is also never re-measured. These two were invisible on both counts. Each record names, in `source`, the document that first measured it; the verdict fields are this pass's own re-measurement, taken with probe_host() so the body-based classification rule this directory established applies. Extended 2026-08-24 with the hosting control planes measured by platform/deployment/probe_control_planes.py, for the same reason: a pass living outside portfolio/research/ is invisible to --ingest, so its hosts would sit in a second table nobody re-probes. One table, one command."
 }

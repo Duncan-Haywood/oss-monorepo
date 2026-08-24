@@ -26,6 +26,19 @@
         "monetization-reachability/results-2026-08-19.json"
       ]
     },
+    "api.cloudflare.com": {
+      "n_observations": 1,
+      "prior_consensus": "egress_denied",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "egress_denied": 1
+      },
+      "probe_url": "https://api.cloudflare.com/",
+      "sources": [
+        "platform/deployment/README.md"
+      ]
+    },
     "api.deps.dev": {
       "n_observations": 1,
       "prior_consensus": "egress_denied",
@@ -39,6 +52,19 @@
         "monetization-reachability/results-2026-08-19.json"
       ]
     },
+    "api.digitalocean.com": {
+      "n_observations": 1,
+      "prior_consensus": "egress_denied",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "egress_denied": 1
+      },
+      "probe_url": "https://api.digitalocean.com/",
+      "sources": [
+        "platform/deployment/README.md"
+      ]
+    },
     "api.ecosyste.ms": {
       "n_observations": 1,
       "prior_consensus": "egress_denied",
@@ -50,6 +76,19 @@
       "probe_url": "https://api.ecosyste.ms/api/v1/registries",
       "sources": [
         "monetization-reachability/results-2026-08-19.json"
+      ]
+    },
+    "api.fly.io": {
+      "n_observations": 1,
+      "prior_consensus": "egress_denied",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "egress_denied": 1
+      },
+      "probe_url": "https://api.fly.io/",
+      "sources": [
+        "platform/deployment/README.md"
       ]
     },
     "api.github.com": {
@@ -90,6 +129,19 @@
         "monetization-reachability/results-2026-08-19.json"
       ]
     },
+    "api.hetzner.cloud": {
+      "n_observations": 1,
+      "prior_consensus": "egress_denied",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "egress_denied": 1
+      },
+      "probe_url": "https://api.hetzner.cloud/",
+      "sources": [
+        "platform/deployment/README.md"
+      ]
+    },
     "api.lemonsqueezy.com": {
       "n_observations": 1,
       "prior_consensus": "egress_denied",
@@ -101,6 +153,19 @@
       "probe_url": "https://api.lemonsqueezy.com/v1/",
       "sources": [
         "agent-reachability/results-2026-08-19.json"
+      ]
+    },
+    "api.netlify.com": {
+      "n_observations": 1,
+      "prior_consensus": "egress_denied",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "egress_denied": 1
+      },
+      "probe_url": "https://api.netlify.com/",
+      "sources": [
+        "platform/deployment/README.md"
       ]
     },
     "api.nuget.org": {
@@ -202,6 +267,19 @@
         "agent-reachability/results-2026-08-19.json"
       ]
     },
+    "api.render.com": {
+      "n_observations": 1,
+      "prior_consensus": "egress_denied",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "egress_denied": 1
+      },
+      "probe_url": "https://api.render.com/",
+      "sources": [
+        "platform/deployment/README.md"
+      ]
+    },
     "api.sam.gov": {
       "n_observations": 1,
       "prior_consensus": "egress_denied",
@@ -228,6 +306,19 @@
         "agent-reachability/results-2026-08-19.json",
         "monetization-reachability/results-2026-08-19.json",
         "publish-reachability/results-2026-08-19.json"
+      ]
+    },
+    "api.vercel.com": {
+      "n_observations": 1,
+      "prior_consensus": "egress_denied",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "egress_denied": 1
+      },
+      "probe_url": "https://api.vercel.com/",
+      "sources": [
+        "platform/deployment/README.md"
       ]
     },
     "api.wordpress.org": {
@@ -258,6 +349,19 @@
       "probe_url": "https://apps.shopify.com/",
       "sources": [
         "agent-reachability/results-2026-08-19.json"
+      ]
+    },
+    "aws.amazon.com": {
+      "n_observations": 1,
+      "prior_consensus": "egress_denied",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "egress_denied": 1
+      },
+      "probe_url": "https://aws.amazon.com/",
+      "sources": [
+        "platform/deployment/README.md"
       ]
     },
     "azuresearch-usnc.nuget.org": {
@@ -313,6 +417,19 @@
         "demand-signal-reachability/results-2026-08-24.json"
       ]
     },
+    "cloudresourcemanager.googleapis.com": {
+      "n_observations": 1,
+      "prior_consensus": "reachable",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "reachable": 1
+      },
+      "probe_url": "https://cloudresourcemanager.googleapis.com/",
+      "sources": [
+        "platform/deployment/README.md"
+      ]
+    },
     "codeload.github.com": {
       "curated": true,
       "curated_reason": "Same 403 scope message. Its committed verdict was 'reachable' on a 1-1 insertion-order tie, contradicting the README that shipped beside it.",
@@ -332,6 +449,32 @@
       ],
       "vote_consensus": "scope_denied"
     },
+    "console.cloud.google.com": {
+      "n_observations": 1,
+      "prior_consensus": "egress_denied",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "egress_denied": 1
+      },
+      "probe_url": "https://console.cloud.google.com/",
+      "sources": [
+        "platform/deployment/README.md"
+      ]
+    },
+    "console.hetzner.cloud": {
+      "n_observations": 1,
+      "prior_consensus": "egress_denied",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "egress_denied": 1
+      },
+      "probe_url": "https://console.hetzner.cloud/",
+      "sources": [
+        "platform/deployment/README.md"
+      ]
+    },
     "crates.io": {
       "n_observations": 12,
       "prior_consensus": "reachable",
@@ -350,6 +493,19 @@
         "publish-endpoint-reachability/results.json",
         "publish-reachability/results-2026-08-19.json",
         "runtime-data-reachability/results-2026-08-20.json"
+      ]
+    },
+    "dash.cloudflare.com": {
+      "n_observations": 1,
+      "prior_consensus": "egress_denied",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "egress_denied": 1
+      },
+      "probe_url": "https://dash.cloudflare.com/",
+      "sources": [
+        "platform/deployment/README.md"
       ]
     },
     "data.europa.eu": {
@@ -376,6 +532,19 @@
       "probe_url": "https://data.gov/",
       "sources": [
         "agent-reachability/results-2026-08-19.json"
+      ]
+    },
+    "deno.com": {
+      "n_observations": 1,
+      "prior_consensus": "egress_denied",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "egress_denied": 1
+      },
+      "probe_url": "https://deno.com/",
+      "sources": [
+        "platform/deployment/README.md"
       ]
     },
     "dev.to": {
@@ -444,6 +613,19 @@
       "probe_url": "https://ec.europa.eu/",
       "sources": [
         "data-reachability/results-2026-08-20.json"
+      ]
+    },
+    "ec2.amazonaws.com": {
+      "n_observations": 1,
+      "prior_consensus": "egress_denied",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "egress_denied": 1
+      },
+      "probe_url": "https://ec2.amazonaws.com/",
+      "sources": [
+        "platform/deployment/README.md"
       ]
     },
     "epss.empiricalsecurity.com": {
@@ -752,6 +934,19 @@
         "publish-reachability/results-2026-08-19.json"
       ]
     },
+    "management.azure.com": {
+      "n_observations": 1,
+      "prior_consensus": "egress_denied",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "egress_denied": 1
+      },
+      "probe_url": "https://management.azure.com/",
+      "sources": [
+        "platform/deployment/README.md"
+      ]
+    },
     "marketplace.visualstudio.com": {
       "n_observations": 4,
       "prior_consensus": "egress_denied",
@@ -852,6 +1047,19 @@
         "publish-reachability/results-2026-08-19.json"
       ]
     },
+    "pages.dev": {
+      "n_observations": 1,
+      "prior_consensus": "egress_denied",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "egress_denied": 1
+      },
+      "probe_url": "https://pages.dev/",
+      "sources": [
+        "platform/deployment/README.md"
+      ]
+    },
     "pkg.go.dev": {
       "n_observations": 1,
       "prior_consensus": "reachable",
@@ -877,6 +1085,19 @@
       "sources": [
         "publish-reachability/results-2026-08-19.json",
         "publisher-audience/channel-reachability-2026-08-19.json"
+      ]
+    },
+    "portal.azure.com": {
+      "n_observations": 1,
+      "prior_consensus": "reachable",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "reachable": 1
+      },
+      "probe_url": "https://portal.azure.com/",
+      "sources": [
+        "platform/deployment/README.md"
       ]
     },
     "proxy.golang.org": {
@@ -1180,6 +1401,19 @@
         "publish-reachability/results-2026-08-19.json"
       ]
     },
+    "vercel.com": {
+      "n_observations": 1,
+      "prior_consensus": "egress_denied",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "egress_denied": 1
+      },
+      "probe_url": "https://vercel.com/",
+      "sources": [
+        "platform/deployment/README.md"
+      ]
+    },
     "wordpress.org": {
       "n_observations": 5,
       "prior_consensus": "egress_denied",
@@ -1194,6 +1428,19 @@
         "demand-signal-reachability/results-2026-08-24.json",
         "publish-reachability/results-2026-08-19.json",
         "publisher-audience/channel-reachability-2026-08-19.json"
+      ]
+    },
+    "workers.dev": {
+      "n_observations": 1,
+      "prior_consensus": "egress_denied",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "egress_denied": 1
+      },
+      "probe_url": "https://workers.dev/",
+      "sources": [
+        "platform/deployment/README.md"
       ]
     },
     "www.cisa.gov": {
@@ -1274,6 +1521,19 @@
       "probe_url": "https://www.gov.uk",
       "sources": [
         "runtime-data-reachability/results-2026-08-20.json"
+      ]
+    },
+    "www.hetzner.com": {
+      "n_observations": 1,
+      "prior_consensus": "egress_denied",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "egress_denied": 1
+      },
+      "probe_url": "https://www.hetzner.com/",
+      "sources": [
+        "platform/deployment/README.md"
       ]
     },
     "www.npmjs.com": {
@@ -1463,6 +1723,6 @@
     "runtime-data-reachability/results-2026-08-20.json",
     "substitute-supply/results-2026-08-20.json"
   ],
-  "n_hosts": 98,
+  "n_hosts": 118,
   "n_source_files": 45
 }

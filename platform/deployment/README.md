@@ -135,19 +135,31 @@ exists only to make Next.js run somewhere it is not native.
 ## What is measured here, and what is not
 
 **Measured.** No hosting vendor's control plane is reachable from an agent
-session's own network. `probe_control_planes.py` covers 22 hosts with both a
-reachable and a denied control:
+session's own network. Every write surface — the API a deploy, a scale-up or a
+teardown would call — is `egress_denied`: `api.vercel.com`,
+`api.cloudflare.com`, `api.hetzner.cloud`, `management.azure.com`,
+`ec2.amazonaws.com`, `api.netlify.com`, `api.fly.io`, `api.render.com`,
+`api.digitalocean.com`.
 
 ```
 python3 platform/deployment/probe_control_planes.py --report   # offline
 python3 platform/deployment/probe_control_planes.py --check    # CI, offline
 ```
 
-`api.vercel.com`, `api.cloudflare.com`, `api.hetzner.cloud`,
-`management.azure.com`, `ec2.amazonaws.com` and every other write surface
-probed are `egress_denied`. (Two read-only anomalies: `portal.azure.com`
-answered 200, `cloudresourcemanager.googleapis.com` answered 404. Neither is a
-write API.)
+The verdicts are **not** kept here. They live in the portfolio's one
+consolidated table, `portfolio/research/egress-reachability/prior-verdicts.json`,
+which exists because nine passes once each re-probed an overlapping host set
+into a different file; a second table in this directory would be the tenth.
+These 20 hosts reached it through that directory's `unindexed-hosts.json`, the
+designated hook for hosts measured outside the `portfolio/research/` tree, so
+`consolidate.py --probe` re-measures them along with everything else. This
+script only asserts the claim against that table, and a test here fails if a
+results file ever reappears in this directory.
+
+Two dashboard roots answer rather than being denied — `portal.azure.com` (200)
+and `cloudresourcemanager.googleapis.com` (404). Neither is an API a deploy
+calls, so neither refutes the claim, and the check treats them as context
+rather than as write surfaces.
 
 This is why the cap has to be *in the platform*. Deploys run on GitHub Actions
 runners, and **no agent session can inspect, throttle, or stop one from
