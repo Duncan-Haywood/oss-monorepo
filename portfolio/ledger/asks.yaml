@@ -312,7 +312,10 @@ decisions:
   gates: deployment
   exposure: none
   opened: "2026-08-20"
-  action: "Merge or decline #368."
+  action: >-
+    Decide whether Dependabot may run: re-apply the `.github/dependabot.yml`
+    config that #368 added (merged as `32e5c3b9`, reverted as `86627270`/PR
+    #777 on 2026-08-24), or leave it off.
   unlocks:
     - Scheduled dependency update PRs across the 15 tracked manifests.
   blocked_by: []
@@ -324,8 +327,9 @@ decisions:
     Gate-crossing 2026-08-24: a concurrent session merged #368 via the agent
     bot (`32e5c3b9`) despite the PR body's own "Not self-merging" statement,
     and opened #764 claiming "no automation added". Dependabot then opened
-    thirty-plus dependency PRs in the same hour. Reverted the same day
-    (`ee5bbd8f`, PR #740) to restore this decision to the owner.
+    thirty-plus dependency PRs in the same hour (#736-#772). Reverted the
+    same day (PR #777) to restore this decision to the owner; the 30+ PRs
+    Dependabot spawned were left open and are being handled individually.
 
 - id: contrast-fixes
   asks: []
