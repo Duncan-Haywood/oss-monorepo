@@ -57,6 +57,10 @@ in its query string, including the selected currency and any business or
 service names, so treat it like any other link containing business information.
 It is not uploaded or stored by this tool.
 
+Use **Download .txt** to save the generated policy as a plain-text file for your
+booking system, client agreement, or records. The download is created locally
+in your browser; no policy text is uploaded.
+
 ## Disclaimer
 
 **No warranty.** This tool is provided free and as-is, without warranty of

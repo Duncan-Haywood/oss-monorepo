@@ -313,6 +313,16 @@ test("every id src/app.mjs looks up exists in index.html", () => {
   }
 });
 
+test("policy export control is wired to a local download", () => {
+  const html = readHtml();
+  const app = readApp();
+  assert.match(html, /id="download-policy"/);
+  assert.match(app, /downloadBtn\.addEventListener\("click"/);
+  assert.match(app, /new Blob\(\[policyEl\.value\]/);
+  assert.match(app, /link\.download = `\$\{safeName\}-policy\.txt`/);
+  assert.match(app, /recordEvent\("policy_downloaded"\)/);
+});
+
 test("raw-text elements in index.html are closed", () => {
   // The exact cut-list failure: <textarea> and <script> are raw-text elements,
   // so an unclosed one makes the browser swallow the rest of the document as
