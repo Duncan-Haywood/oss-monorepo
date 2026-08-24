@@ -165,7 +165,13 @@ def wrap(text: str, width: int, indent: str) -> list[str]:
     return lines
 
 
+def active_decisions(decisions: list[dict]) -> list[dict]:
+    """Owner queue rows still waiting on a decision (exclude resolved history)."""
+    return [d for d in decisions if not d.get("resolved")]
+
+
 def render(decisions: list[dict], today: dt.date) -> str:
+    decisions = active_decisions(decisions)
     ordered = sorted(decisions, key=sort_key)
     n_asks = sum(len(d["asks"]) for d in decisions)
     n_prs = sum(len(d["prs"]) for d in decisions)
@@ -234,7 +240,7 @@ def main() -> int:
     if args.json:
         print(json.dumps(
             [dict(d, age_days=age_days(d["opened"], today))
-             for d in sorted(decisions, key=sort_key)],
+             for d in sorted(active_decisions(decisions), key=sort_key)],
             indent=2,
         ))
     else:

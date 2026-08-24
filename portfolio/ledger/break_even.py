@@ -329,7 +329,7 @@ def check_doc(r: dict) -> int:
     # Both headline figures are restated several times. Pin the count so a
     # single drifted instance fails instead of hiding behind its siblings.
     want("ceiling, every occurrence", ceiling, times=7)
-    want("per-session threshold, every occurrence", per_session, times=3)
+    want("per-session threshold, every occurrence", per_session, times=4)
 
     # The reference table's rows are the figures a reader actually compares
     # their bill against, and are easy to get wrong by rounding the cadence
