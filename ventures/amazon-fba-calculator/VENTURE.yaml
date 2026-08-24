@@ -1,0 +1,27 @@
+name: amazon-fba-calculator
+description: A private browser calculator for Amazon sellers to compare FBA vs FBM profit on the same listing after referral, fulfillment, storage, inbound, and cost of goods — including the maximum inventory buy cost.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Amazon sellers will return to a calculator that compares FBA against FBM on the same SKU, because generic FBA fee pages hide inbound, storage, and the merchant-fulfilled alternative.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Seeing the maximum buy cost next to both fulfillment paths changes a sourcing decision before the seller pays for inventory.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified Amazon sellers use the calculator twice within 90 days.
+  - Users do not find the FBA vs FBM comparison materially different from a single-path FBA fee estimate.
+links:
+  production: null
+  analytics: null

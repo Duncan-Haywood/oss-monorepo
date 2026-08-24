@@ -52,6 +52,8 @@
     footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
     footer a { color: #1c7a5e; }
     .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #bce8cf; }
     @media (max-width: 780px) {
       .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
       .area-head { display: none; }
@@ -117,6 +119,10 @@
         <dt>Annual contract value</dt><dd id="annual"></dd>
       </dl>
       <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
       <hr>
       <p class="note" style="margin-bottom:4px"><strong>Where the labor goes</strong></p>
       <ul class="split" id="split"></ul>
@@ -236,7 +242,7 @@
         clearOutputs('Add a space to price', false);
         el('split').innerHTML = '<li class="empty">Add at least one space above and the labor split appears here.</li>';
         return;
-      }
+       }
       let result;
       try {
         result = calculateBid({
@@ -288,6 +294,53 @@
       }
     }
 
+    function summaryText(result) {
+      const spaces = result.areas
+        .filter(area => area.squareFeet > 0 && area.cleaningsPerWeek > 0)
+        .map(area => `- ${area.name}: ${area.squareFeet.toLocaleString('en-US')} sq ft, ${area.cleaningsPerWeek}x/week`)
+        .join('\n');
+      return [
+        'COMMERCIAL CLEANING BID',
+        '',
+        `Proposed monthly service: ${money(result.monthlyPrice)}`,
+        `Annual contract value: ${money(result.annualPrice)}`,
+        `Service labor: ${result.monthlyHours.toFixed(1)} hours/month`,
+        `Price per square foot: $${result.pricePerSqFtMonth === null ? 'n/a' : result.pricePerSqFtMonth.toFixed(3)}/sq ft/month`,
+        '',
+        'SERVICE AREAS',
+        spaces || '- No service areas entered',
+        '',
+        `Scope basis: ${result.hoursPerVisitTotal.toFixed(2)} labor hours per visit at the entered frequencies.`,
+        'This is a draft for review. Confirm scope, schedule, insurance, taxes, and all pricing before sending.',
+      ].join('\n');
+    }
+
+    async function copySummary() {
+      const areas = readAreas();
+      const result = calculateBid({
+        areas,
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        proposedPrice: el('proposedPrice').value,
+      });
+      const text = summaryText(result);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
     el('addArea').addEventListener('click', () => {
       addAreaRow({ name: '', squareFeet: 0, productionRate: 3000, cleaningsPerWeek: 5 });
       count('area_added');
@@ -299,6 +352,13 @@
       el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
     });
     el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
 
     STARTING_AREAS.forEach(addAreaRow);
     update();
