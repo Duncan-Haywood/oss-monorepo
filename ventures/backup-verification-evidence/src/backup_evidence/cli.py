@@ -20,6 +20,24 @@ def _now_iso() -> str:
 def _stat_artifact(path: Path) -> dict:
     if not path.exists():
         return {"path": str(path), "exists": False}
+    if path.is_dir():
+        # A repository-style artifact (restic, borg): st_size on the directory
+        # itself is inode metadata, not the backup's actual size, so sum the
+        # files it contains and use the most recently touched one as modified_at.
+        size_bytes = 0
+        latest_mtime = path.stat().st_mtime
+        for entry in path.rglob("*"):
+            if entry.is_file():
+                entry_stat = entry.stat()
+                size_bytes += entry_stat.st_size
+                latest_mtime = max(latest_mtime, entry_stat.st_mtime)
+        modified_at = datetime.fromtimestamp(latest_mtime, tz=timezone.utc).isoformat(timespec="seconds")
+        return {
+            "path": str(path),
+            "exists": True,
+            "size_bytes": size_bytes,
+            "modified_at": modified_at,
+        }
     stat = path.stat()
     modified_at = datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc).isoformat(timespec="seconds")
     return {
@@ -92,7 +110,6 @@ def build_parser() -> argparse.ArgumentParser:
         prog="backup-evidence",
         description="Record and check evidence of whether a scheduled backup actually worked.",
     )
-    parser.add_argument("--usage-file", type=Path, help="optional local event-count file")
     sub = parser.add_subparsers(dest="subcommand", required=True)
 
     record = sub.add_parser("record", help="run a backup command and save an observed run record")
@@ -102,11 +119,13 @@ def build_parser() -> argparse.ArgumentParser:
     record.add_argument("--min-size-bytes", type=int, default=None)
     record.add_argument("--log-lines", type=int, default=20)
     record.add_argument("--output", type=Path, required=True, help="where to write the run-record JSON")
+    record.add_argument("--usage-file", type=Path, help="optional local event-count file")
     record.add_argument("command", nargs=argparse.REMAINDER, help="-- the backup command to run")
     record.set_defaults(func=cmd_record)
 
     check = sub.add_parser("check", help="classify one or more saved run records")
     check.add_argument("records", nargs="+", type=Path)
+    check.add_argument("--usage-file", type=Path, help="optional local event-count file")
     check.add_argument("--format", choices=("json", "markdown"), default="json")
     check.add_argument("--output", type=Path)
     check.set_defaults(func=cmd_check)
