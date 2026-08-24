@@ -534,34 +534,6 @@ ventures:
       security, deliverability, uptime, or compliance. Authorization and
       remediation remain customer responsibilities.
 
-  - slug: shopify-permission-drift
-    scores:
-      ai_leverage: 7
-      autonomous_ops: 8
-      time_to_revenue: 6
-      gross_margin: 9
-      defensibility: 4
-      distribution: 6
-    composite: 6.667
-    rater_b: null
-    floor: 4
-    floor_dimension: defensibility
-    floor_note: >-
-      The permission-diff format is copyable; a merchant- or
-      agency-specific signed history could accrue value but does not
-      create a moat on day one. Distribution is stronger than most local
-      probes here (App Store category exists) but ranking within it is
-      unproven, so the score preserves the candidate's estimate rather
-      than assuming it.
-    basis: >-
-      Graduated from the shopify-permission-drift pipeline candidate.
-      Carries the candidate's own scores forward: a local, read-only
-      evidence record for customer-authorized Shopify app permission,
-      webhook, and authorization changes. No customer contact yet.
-    gates:
-      liability_containment: pass
-      ethical_robustness: pass
-
   - slug: backup-verification-evidence
     scores:
       ai_leverage: 5
