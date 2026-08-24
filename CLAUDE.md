@@ -128,6 +128,29 @@ Overlap is not supersession. A branch touching the same venture, the same
 file, or the same feature area as recent work on `main` is the normal case
 here, not evidence that its work already landed.
 
+There was a third close in that same five seconds — #1014, at 17:24:48,
+"superseded by the repricing/sensitivity improvements already present in
+the eBay calculator workstream". `main` had no `calculatePriceScenarios`
+and no sensitivity UI. It is on `main` now only because the close was
+reversed. Two of the three closes also gave a second reason, and both of
+those reasons are wrong on their own terms:
+
+**"The branch is conflicted" is not a reason to close.** It is a reason to
+merge `main` into the branch and resolve it. A conflict means the work is
+still wanted where someone else is editing — the opposite of redundant. All
+three of these branches conflicted; all three resolved in minutes, and one
+resolution turned up a live bug (`share.mjs` carried its own field
+allowlist, so a shared link silently dropped `quantity` and `targetMargin`
+and the recipient computed a different profit than the sender saw).
+
+**Absent CI is not failed CI.** PRs opened by bots using `GITHUB_TOKEN` do
+not trigger Actions, so most PRs here show *zero* checks — not red ones.
+#1006 was triaged as "not merge-ready because Portfolio validate and
+agent-permission-harness checks are failing" when neither check had ever
+run on it. If a PR shows no checks, verify locally (`node --test`, the
+venture's suite, a browser pass) and record what you ran; do not read the
+blank as a failure.
+
 ## Ledger (minimal)
 
 Record outcomes per `portfolio/ledger/README.md` when you **shipped or learned
