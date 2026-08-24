@@ -887,3 +887,91 @@ def test_only_one_unimplemented_row_remains():
 
     unimplemented = [c.criterion for c in COVERAGE if c.coverage == "unimplemented"]
     assert unimplemented == ["1.2.1"]
+
+
+# ---------------------------------------------------------------------------
+# Finding 3 of a11y-theme-resolution: match <label for> on raw template
+# text. The sibling engine (audit.py) already had these cases; this probe
+# did not. Rendered HTML (no expressions) is unchanged -- the fixtures
+# above still have to match byte-for-byte.
+# ---------------------------------------------------------------------------
+
+_THEME = '<html lang="en"><title>t</title>'
+
+
+def _name_findings(body):
+    return [
+        f for f in audit_html(_THEME + body + "</html>").findings
+        if f.criterion == "1.3.1" and f.element in {"input", "select", "textarea"}
+    ]
+
+
+def test_same_expression_with_different_spacing_resolves():
+    # The 64-of-69 case. Same expression, inner spacing differs, renders
+    # identically -- previously an unnamed-control false positive.
+    findings = _name_findings(
+        "<form><label for='{{id_prefix}}FirstName'>First name</label>"
+        "<input type='text' id='{{ id_prefix }}FirstName'></form>"
+    )
+    assert findings == []
+
+
+def test_dead_for_reference_is_a_finding():
+    # fassbender-shopify-theme newsletter field. No rendering of idPrefix
+    # puts the required '_' in front of mce-NAME.
+    findings = _name_findings(
+        "<form><label for='mce-NAME'>Name</label>"
+        "<input type='text' id='{{ idPrefix }}_mce-NAME'></form>"
+    )
+    assert len(findings) == 1
+    assert findings[0].impact == "blocking"
+    assert "mce-NAME" in findings[0].message
+    assert "dead" in findings[0].message
+
+
+def test_different_expressions_are_not_accused():
+    # Two different expressions could render to the same string.
+    findings = _name_findings(
+        "<form><label for='{{ a }}X'>X</label>"
+        "<input type='text' id='{{ b }}X'></form>"
+    )
+    assert findings == []
+
+
+def test_expression_that_could_render_empty_is_not_accused():
+    findings = _name_findings(
+        "<form><label for='X'>X</label>"
+        "<input type='text' id='{{ p }}X'></form>"
+    )
+    assert findings == []
+
+
+def test_expression_only_id_without_a_label_is_not_accused():
+    # No label in the file, id is an expression: undecidable, not unnamed.
+    findings = _name_findings("<form><input type='text' id='{{ field.id }}'></form>")
+    assert findings == []
+
+
+def test_same_expression_used_for_two_controls_stays_distinct():
+    findings = _name_findings(
+        "<form><label for='{{ a }}N'>N</label>"
+        "<input type='text' id='{{ a }}N'>"
+        "<input type='text' id='{{ b }}N'></form>"
+    )
+    # First control resolves; the second could match depending on rendering.
+    assert findings == []
+
+
+def test_expression_only_id_resolves_against_the_same_expression():
+    findings = _name_findings(
+        "<form><label for='{{ field.id }}'>Email</label>"
+        "<input type='text' id='{{ field.id }}'></form>"
+    )
+    assert findings == []
+
+
+def test_rendered_html_without_a_label_is_still_unnamed():
+    # Existing behaviour on expression-free markup must not change.
+    findings = _name_findings("<form><input type='text' id='orphan'></form>")
+    assert len(findings) == 1
+    assert "dead" not in findings[0].message

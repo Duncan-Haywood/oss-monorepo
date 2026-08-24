@@ -23,6 +23,14 @@ from dataclasses import dataclass
 from typing import Callable, Optional
 
 from . import contrast, css, lang, usecolor
+from .expressions import (
+    certain_match,
+    expr_free,
+    is_expr,
+    possible_match,
+    refs_can_match,
+    strip_expressions,
+)
 from .parser import Node
 
 BLOCKING = "blocking"
@@ -84,7 +92,10 @@ COVERAGE: tuple = (
     Criterion("1.2.2", "Captions (Prerecorded)", "A", "partial",
               "A missing <track kind=captions> is detectable; caption quality is not."),
     Criterion("1.3.1", "Info and Relationships", "A", "partial",
-              "Unlabelled controls and headerless data tables are detectable; correct semantic grouping is not."),
+              "Unlabelled controls and headerless data tables are detectable; "
+              "so is a <label for> that can never match any id in the same "
+              "file under any rendering of its template expressions. Correct "
+              "semantic grouping is not."),
     Criterion("2.4.2", "Page Titled", "A", "automated"),
     Criterion("2.4.4", "Link Purpose (In Context)", "A", "partial",
               "Empty links are detectable; whether visible text is *descriptive* is a judgement."),
@@ -274,11 +285,26 @@ def _has_aria_name(node: Node) -> bool:
     return bool(_text(node.attr("aria-label")) or _text(node.attr("aria-labelledby")))
 
 
+def _label_names_control(node_id: str, label_targets: set) -> bool:
+    """True when a ``<label for>`` certainly *or* possibly names this id.
+
+    A possible match (different expressions that could render equal) is
+    treated as named so the unnamed-control rule stays silent. Proven
+    mismatches are handled separately by ``rule_control_names``.
+    """
+    if node_id in label_targets:
+        return True
+    return any(
+        certain_match(target, node_id) or possible_match(target, node_id)
+        for target in label_targets
+    )
+
+
 def control_has_name(node: Node, label_targets: set) -> bool:
     if _has_aria_name(node) or _text(node.attr("title")):
         return True
     node_id = _text(node.attr("id"))
-    if node_id and node_id in label_targets:
+    if node_id and _label_names_control(node_id, label_targets):
         return True
     if _has_wrapping_label(node):
         return True
@@ -289,6 +315,24 @@ def control_has_name(node: Node, label_targets: set) -> bool:
         if input_type == "image" and node.has_attr("alt"):
             return True
     return False
+
+
+def _dangling_labels(root: Node, label_targets: set) -> list:
+    """``<label for>`` values that cannot match any id under any rendering."""
+    raw_ids = [_text(n.attr("id")) for n in root.iter() if _text(n.attr("id"))]
+    dangling = []
+    for target in label_targets:
+        stripped = strip_expressions(target)
+        if any(refs_can_match(stripped, strip_expressions(i)) for i in raw_ids):
+            continue
+        dangling.append(target)
+    return dangling
+
+
+def _involves_expressions(node_id: str, label_targets: set) -> bool:
+    if node_id and is_expr(strip_expressions(node_id)):
+        return True
+    return any(is_expr(strip_expressions(t)) for t in label_targets)
 
 
 # ---------------------------------------------------------------------------
@@ -334,18 +378,40 @@ def rule_page_title(root: Node, label_targets: set):
 
 
 def rule_control_names(root: Node, label_targets: set):
+    # Finding 3 of a11y-theme-resolution: on theme source, a <label for>
+    # that can never match any id is a defect, not an unknown, and a
+    # control whose id is an expression with no certain or possible label
+    # is undecidable rather than unnamed. Rendered HTML (no expressions)
+    # keeps the existing unnamed-control behaviour byte-for-byte.
+    dangling = _dangling_labels(root, label_targets)
     for node in root.iter():
         if _is_aria_hidden(node):
             continue
         if node.tag in {"select", "textarea"}:
             if not control_has_name(node, label_targets):
-                yield _unnamed_control(node)
+                yield from _optional_unnamed(node, dangling, label_targets)
         elif node.tag == "input":
             input_type = _text(node.attr("type")).lower() or "text"
             if input_type in _INPUT_NO_NAME or input_type in _INPUT_SELF_NAMED:
                 continue
             if not control_has_name(node, label_targets):
-                yield _unnamed_control(node)
+                yield from _optional_unnamed(node, dangling, label_targets)
+
+
+def _optional_unnamed(node: Node, dangling: list, label_targets: set):
+    finding = _unnamed_or_mismatch(node, dangling, label_targets)
+    if finding is not None:
+        yield finding
+
+
+def _unnamed_or_mismatch(node: Node, dangling: list, label_targets: set):
+    node_id = _text(node.attr("id"))
+    involves_expr = _involves_expressions(node_id, label_targets)
+    if dangling and involves_expr:
+        return _mismatched_label(node, dangling[0])
+    if involves_expr:
+        return None
+    return _unnamed_control(node)
 
 
 def _unnamed_control(node: Node) -> Finding:
@@ -353,6 +419,20 @@ def _unnamed_control(node: Node) -> Finding:
         "1.3.1", "Info and Relationships", "A", BLOCKING, node.tag, node.line,
         f"<{node.tag}> form control has no associated label, so a screen-reader user cannot tell what to enter.",
         "Associate a <label for> with the control, or give it an aria-label.",
+        seq=node.order,
+    )
+
+
+def _mismatched_label(node: Node, dangling_for: str) -> Finding:
+    shown = expr_free(dangling_for) or dangling_for
+    return Finding(
+        "1.3.1", "Info and Relationships", "A", BLOCKING, node.tag, node.line,
+        f"<{node.tag}> is unlabelled, and this file's "
+        f"<label for={shown!r}> matches no control here under any "
+        "rendering of its template expressions, so the label written "
+        "for it is dead in the rendered page.",
+        "Prefix the label's for attribute with the same expression the "
+        "control's id uses, or point it at an id this file actually generates.",
         seq=node.order,
     )
 

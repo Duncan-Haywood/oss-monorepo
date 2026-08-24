@@ -157,8 +157,18 @@ mismatch case as a finding rather than an undecidable.
 **Closed 2026-08-24 for `audit.py`.** The same-file half landed the next day
 (`a11y-evidence-record` README, 2026-08-21). The package-wide half -- the
 third fassbender defect, `search.liquid:22`, which has no `<label for>` in
-its own file -- is now `resolve_package_labels` in that engine. The HTML
-probe never stripped expressions and still needs no corresponding change.
+its own file -- is now `resolve_package_labels` in that engine.
+
+**The HTML probe did need the corresponding change, and now has it.** The
+previous sentence said it did not, because this engine never stripped
+expressions so it could not have the *undecidable* failure mode `audit.py`
+had. That was true of the failure mode and false of the defect: exact-string
+match still treats `{{id_prefix}}FirstName` and `{{ id_prefix }}FirstName`
+as different ids (the 64-of-69 case, a false unnamed) and reports the
+fassbender dead `for` as "no label" rather than as a label that can never
+resolve. `eaa-wcag-triage` now matches on raw expression text in
+`expressions.py`. Rendered HTML (the fixture corpus) is unchanged. No score
+moved.
 
 The correction cuts both ways, which is why it is worth having. It removes 64
 false undecidables *and* it is what exposes the fassbender defect: a
