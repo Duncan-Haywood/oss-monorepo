@@ -180,7 +180,7 @@
       row.className = 'tree';
       row.innerHTML = `
         <div class="tree-grid">
-          <label for="${id}-name">Label<input class="t-name" id="${id}-name" type="text" value="${tree.name || ''}" placeholder="e.g. Backyard oak"></label>
+          <label for="${id}-name">Label<input class="t-name" id="${id}-name" type="text" value="${escapeHtml(tree.name || '')}" placeholder="e.g. Backyard oak"></label>
           <label for="${id}-species">Species<select class="t-species" id="${id}-species">${optionHtml(SPECIES_PRESETS, tree.species || 'mixed')}</select></label>
           <label for="${id}-dbh">DBH (inches)<input class="t-dbh" id="${id}-dbh" type="number" min="1" step="1" value="${tree.dbhInches ?? 18}"></label>
           <label for="${id}-height">Height (feet)<input class="t-height" id="${id}-height" type="number" min="1" step="1" value="${tree.heightFeet ?? 50}"></label>

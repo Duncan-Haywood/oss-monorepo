@@ -257,6 +257,7 @@ test('browser escapes tree labels before inserting the hour split', () => {
   const here = path.dirname(fileURLToPath(import.meta.url));
   const html = readFileSync(path.join(here, 'index.html'), 'utf8');
   assert.match(html, /const escapeHtml = value =>/);
+  assert.match(html, /value="\$\{escapeHtml\(tree\.name \|\| ''\)\}"/);
   assert.match(html, /<span>\$\{escapeHtml\(tree\.name\)\}/);
 });
 
