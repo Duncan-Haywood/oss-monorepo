@@ -338,6 +338,24 @@ class GitHub:
             live_refs,
         )
 
+    def closed_pulls_for_head(self, ref, cap=100):
+        """Closed PRs whose head is this repository's `ref`.
+
+        Used by the on-close `--pr` path, which otherwise sees only the event
+        PR and would miss a still-open grace window on a reused branch.
+        """
+        owner = self.repo.split("/")[0]
+        return self._paginate(
+            "/repos/%s/pulls" % self.repo,
+            {
+                "state": "closed",
+                "head": "%s:%s" % (owner, ref),
+                "sort": "updated",
+                "direction": "desc",
+            },
+            cap,
+        )
+
     def delete_branch(self, ref):
         """Delete a ref. A ref that vanished under us is not an error."""
         path = "/repos/%s/git/refs/heads/%s" % (
@@ -347,13 +365,41 @@ class GitHub:
         self._request("DELETE", path, expect_missing=True)
 
 
+def expand_grace_prs(prs, lookup):
+    """Add other closed PRs that share a head ref with `prs`.
+
+    `--pr` mode only loads the event's pull request. Branch reuse is common
+    here (`claude/*`, `cursor/*`); a merged reuse must not end a still-open
+    closed-unmerged grace window on the same ref.
+    """
+    expanded = list(prs)
+    seen = {pr["number"] for pr in expanded}
+    for pr in prs:
+        ref = pr.get("head_ref")
+        if not ref:
+            continue
+        for payload in lookup(ref):
+            summary = summarise_pr(payload)
+            if summary["number"] not in seen:
+                expanded.append(summary)
+                seen.add(summary["number"])
+    return expanded
+
+
 def run(github, prs, protected, grace_hours, dry_run, out,
         delete_delay=DELETE_DELAY_SECONDS, sleep=time.sleep):
     """Apply `decide` to each PR, deleting what it approves. Returns the count."""
     branch_shas = github.branch_shas()
     reserved = github.open_pr_refs(exclude={pr["number"] for pr in prs})
     now = datetime.now(timezone.utc)
-    grace_refs = refs_in_grace(prs, now, grace_hours)
+    # A single-PR run (the on-close `--pr` job) does not see other closed
+    # rows, so a merged reuse of a branch still in another PR's grace would
+    # delete immediately. Ask the API for that head's other closed PRs. A
+    # sweep already loaded the closed set and must not N+1 the same query.
+    grace_prs = (
+        expand_grace_prs(prs, github.closed_pulls_for_head) if len(prs) == 1 else prs
+    )
+    grace_refs = refs_in_grace(grace_prs, now, grace_hours)
 
     deleted = 0
     for pr in prs:
