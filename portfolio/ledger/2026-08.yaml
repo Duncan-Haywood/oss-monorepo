@@ -22841,3 +22841,46 @@ entries:
           in CI currently loads this file, so it had gone unnoticed; fixed
           the indentation and confirmed the file parses.
     mrr_end: null
+  - venture: ai-engineering-academy
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Continued the same product-first session (branch
+          claude/exciting-brown-7crc4d) after shipping and merging
+          led-resistor-calculator (#932) and the agent-permission-harness
+          CI fix (#936). Shipped a third EE tool:
+          `tools/voltage-divider-calculator/` -- unloaded and loaded
+          V_out (the load-loading correction most beginner treatments
+          skip: a real load in parallel with R2 sags V_out below the
+          textbook value, and the tool shows both numbers plus the
+          percentage drop and per-component power), and a target-output
+          design mode that solves for R2 given a preferred R1 and snaps
+          it to a buyable E24 value. Same definition-of-done as the first
+          two tools: MIT LICENSE, no-warranty disclaimer, honest privacy
+          line, local-first opt-out/DNT-respecting usage counting, zero
+          dependencies, zero build step.
+      - >-
+          Verified rather than assumed: 14 unit tests pass (`node --test`)
+          covering the equal-resistor halving case, an unequal-ratio
+          case, the loaded-vs-unloaded divergence (33% sag verified by
+          hand-computed fraction), a light-load near-no-sag sanity check,
+          invalid-input rejection, and the target-design mode's exact/
+          nearest-E24 R2 with a real worked example (12V to 3.3V through
+          a 10k R1 lands on a standard 3.9k). Also re-ran the two sibling
+          tools' suites unchanged (21 and 16 passing) to catch any
+          regression, and drove the new page in a real headless Chromium
+          -- default inputs render 6.0000V/0.600mA/3.60mW and 3.9kOhm/
+          3.3669V, matching the unit tests exactly. Wired into the
+          `tools-test` CI matrix.
+      - >-
+          Noticed while re-verifying the previous session's CI fix
+          (#936) that `agent-permission-harness`'s committed results
+          snapshot had already drifted again from a concurrent session's
+          edit, minutes after landing. Left it alone this time rather
+          than chasing an actively-churning file a second time in one
+          session -- noted here so the next session sees the pattern
+          (broad-trigger workflow + a generated file some sessions edit
+          by hand instead of regenerating) rather than re-diagnosing it
+          from scratch.
+    mrr_end: null
