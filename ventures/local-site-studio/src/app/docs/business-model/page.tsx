@@ -65,6 +65,13 @@ export default function BusinessModelDocPage() {
             <td>{commerceAddonPriceHeadingLabel()}</td>
             <td>Stripe checkout, catalog ≤50 SKUs</td>
           </tr>
+          <tr>
+            <td>
+              <DocLink href="/docs/eaa-evidence">Accessibility evidence</DocLink>
+            </td>
+            <td>Indicative EUR range; checkout not live</td>
+            <td>Dated record for obligated EU shops — not a certificate</td>
+          </tr>
         </tbody>
       </table>
       <p>
