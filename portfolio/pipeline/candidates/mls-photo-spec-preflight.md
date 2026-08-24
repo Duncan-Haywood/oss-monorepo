@@ -93,6 +93,22 @@ behalf.
 - **Customer-supplied photos only.** No scraped listings, no purchased
   lead photos.
 
+## Shipped: free browser tool (2026-08-24)
+
+The folder check now also runs client-side at
+[`ventures/real-estate-agent-photo-app/research/src/app/photo-check/`](../../../ventures/real-estate-agent-photo-app/research/src/app/photo-check/page.tsx) —
+drag photos in, get the same findings table (same rule set, same
+disclosed-unimplemented list) with nothing uploaded anywhere. This is a
+direct answer to the `distribution` floor (5): instead of waiting on the
+host venture's first paying customer, any agent or photographer can find
+and use the check today, for free, without an account. The Python probe
+in `portfolio/pipeline/probes/mls-photo-spec/` stays the CLI/CI-testable
+reference implementation; the TypeScript port in `photo-spec.ts` is tested
+for parity against the same fixture corpus (`photo-spec.test.ts`, ported
+from `tests/test_check.py`). No usage or revenue data yet — the page is
+not deployed to a public domain (deployment is owner-gated per
+`portfolio/ledger/decision_queue.py`'s `deploy-settings` ask).
+
 ## First experiment
 
 Two weeks, $0 spend beyond agent time, no new directory:

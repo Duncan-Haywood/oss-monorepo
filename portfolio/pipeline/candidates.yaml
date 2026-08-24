@@ -89,6 +89,8 @@ candidates:
     verdict: build-now
     graduate_as: product-line
     host_venture: local-site-studio
+    initiated: 2026-08-24
+    initiated_path: ventures/local-site-studio
     scores:
       ai_leverage: 8
       autonomous_ops: 6
