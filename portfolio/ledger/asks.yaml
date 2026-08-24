@@ -129,12 +129,13 @@ decisions:
   exposure: credential
   opened: "2026-08-19"
   action: >-
-    Create one Vercel account, set Spend Management to *pause* at a chosen
-    amount before deploying anything, then add secrets `VERCEL_TOKEN`,
-    `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` and variable `VERCEL_DEPLOY=true`,
-    plus `AUTH_SECRET` for `ai-first-markets`. Leave `GITHUB_PAGES_ENABLED`
-    and the `CLOUDFLARE_*` secrets unset. Cost is $20/seat/month; the cap is
-    the point.
+    Create one Railway account, set a usage limit before deploying anything,
+    then add a Railway deploy token as a repository secret plus `AUTH_SECRET`
+    for `ai-first-markets` and a Postgres service for `quick-pick-survey`.
+    Leave `GITHUB_PAGES_ENABLED`, `VERCEL_DEPLOY` and the `CLOUDFLARE_*`
+    secrets unset. Floor is $5/month; the cap is the point. Choose Vercel
+    instead if only the Next.js apps will ever deploy, or Hetzner if ops hours
+    are cheap -- `platform/deployment/README.md` says where each wins.
   unlocks:
     - Three ventures whose builds already pass but which deploy nothing.
     - "`retail-pilot-intel`'s docs deploy, which since #347 is green *and publishes nothing* -- the workflow skips the publish job rather than failing, so the record shows success for a site that does not exist."
@@ -187,6 +188,22 @@ decisions:
     Railway and the criterion is unaffected. `quick-pick-survey`''s Postgres is
     covered only via Vercel''s marketplace, billed through Vercel and so under
     the same cap.
+
+    Revised again 2026-08-24 when the owner asked for best *value* and most
+    *all-inclusive* rather than best fit. Counting workloads instead of
+    frameworks disqualifies Vercel from the all-inclusive half outright:
+    `retail-pilot-intel/docker-compose.yml` declares `analytics-sync` as
+    `restart: unless-stopped` against a persistent volume, and
+    `photos-import-tools` is a Python watchdog daemon. Vercel hosts no
+    long-running process and no persistent volume, so choosing it means a
+    second platform for those two. Railway and Hetzner host every workload.
+    On raw dollars Hetzner wins and it is not close (~$5/month for all of it,
+    marginal app $0) but its price is not its cost -- ops hours are the
+    currency `CLAUDE.md` calls scarce, and `ubuntu-agent-server`''s Ansible
+    roles close only part of that gap since they provision a tailnet agent
+    host, not a public web server. Railway is the only option scoring on both
+    axes. Note it is also the only one of the three with no workflow written
+    yet, which is the honest extra cost of the choice.
 - id: publication-identity
   asks: [0, 1, 5]
   prs: []
