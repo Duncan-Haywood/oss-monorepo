@@ -650,8 +650,8 @@ candidates:
     name: Shopify app-permission drift record
     doc: candidates/shopify-permission-drift.md
     verdict: probe
-    graduate_as: product-line
-    host_venture: local-site-studio
+    graduate_as: venture
+    host_venture: null
     scores:
       ai_leverage: 7
       autonomous_ops: 8
