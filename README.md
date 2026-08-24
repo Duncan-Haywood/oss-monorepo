@@ -14,6 +14,17 @@ setup every new venture costs a fresh onboarding pass across every agent
 surface (Claude Code, Cursor, Antigravity, CI). Here a new venture is a new
 directory that inherits the platform automatically.
 
+## Product-first operating rule
+
+Sessions prioritize a runnable customer workflow over administrative output.
+New opportunities may be graduated when they are distinct from the portfolio,
+low-cost to operate, and safe to ship with local-first privacy and clear
+limitations. The first useful slice should include onboarding, a testable
+customer journey, anonymous opt-out usage counting, and the discoverability and
+disclaimer basics. Open PRs are triaged proportionately: merge when required
+checks are green and scope is safe, fix small blockers, and do not mass-close
+valuable product work merely to reduce the PR count.
+
 ## Layout
 
 ```
