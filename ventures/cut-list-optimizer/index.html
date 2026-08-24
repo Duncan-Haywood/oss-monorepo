@@ -16,7 +16,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any browser",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "sheet goods layout diagrams, guillotine cutting plans, saw kerf allowance, edge trim, grain direction lock, offcut list, linear stock optimization, material cost estimate, printable job ticket",
+    "featureList": "sheet goods layout diagrams, guillotine cutting plans, saw kerf allowance, edge trim, grain direction lock, offcut list, linear stock optimization, material cost estimate for sheets and linear stock, printable job ticket",
     "description": "A free browser tool that turns a parts list into a low-waste cutting plan for sheet goods or linear stock. Runs entirely on the visitor's device."
   }
   </script>
@@ -176,6 +176,7 @@ Top: 31.5 x 11.25 x 2</textarea>
               <option value="ft">feet</option>
             </select>
           </label>
+          <label>Cost per stock piece <span class="muted">optional</span><input id="stock-cost" type="number" min="0" step="0.01" placeholder="12.00"></label>
           <label class="wide">Required cuts, one per line
             <span class="muted">Use <code>24 x 3</code> for three pieces at 24</span>
             <textarea id="cuts" spellcheck="false">48 x 2
@@ -195,6 +196,7 @@ Top: 31.5 x 11.25 x 2</textarea>
           <dt>Required material</dt><dd id="used">—</dd>
           <dt>Offcut after kerf allowance</dt><dd id="waste">—</dd>
           <dt>Stock utilization</dt><dd id="utilization">—</dd>
+          <dt>Material cost</dt><dd id="linear-total-cost">—</dd>
         </dl>
         <div id="plan"></div>
         <div class="actions">
@@ -340,16 +342,19 @@ Top: 31.5 x 11.25 x 2</textarea>
 
     /* ---------------- Linear stock ---------------- */
 
-    const LINEAR_STATS = ['bars', 'used', 'waste', 'utilization'];
+    const LINEAR_STATS = ['bars', 'used', 'waste', 'utilization', 'linear-total-cost'];
 
     function renderLinear() {
       const unit = $('unit').value;
       const format = (n) => `${n.toFixed(2)} ${unit}`;
+      const rawCost = Number($('stock-cost').value);
+      const stockCost = Number.isFinite(rawCost) && rawCost >= 0 && $('stock-cost').value.trim() !== '' ? rawCost : null;
       try {
         const result = optimizeCutList({
           stockLength: Number($('stock').value),
           kerf: Number($('kerf').value),
           cuts: parseCuts($('cuts').value),
+          stockCost,
         });
         $('headline').textContent = `${result.bars.length} stock piece${result.bars.length === 1 ? '' : 's'}`;
         $('message').textContent = 'Largest cuts are placed first to keep the plan compact. Confirm against your actual saw and stock.';
@@ -357,6 +362,7 @@ Top: 31.5 x 11.25 x 2</textarea>
         $('used').textContent = format(result.totalCuts);
         $('waste').textContent = format(result.waste);
         $('utilization').textContent = `${(result.utilization * 100).toFixed(1)}%`;
+        $('linear-total-cost').textContent = result.totalCost === null ? 'add a stock price' : `$${result.totalCost.toFixed(2)}`;
         $('plan').innerHTML = result.bars.map((bar, i) => (
           `<div class="bar"><strong>Stock ${i + 1}: ${bar.cuts.map(format).join(' + ')}</strong>`
           + `<span class="muted">${format(bar.remaining)} remaining after kerf allowance</span></div>`
@@ -366,6 +372,7 @@ Top: 31.5 x 11.25 x 2</textarea>
           stockUnit: unit,
           stockLength: $('stock').value,
           kerf: $('kerf').value,
+          currency: '$',
         });
         ready.linear = true;
       } catch (error) {
@@ -421,7 +428,7 @@ Top: 31.5 x 11.25 x 2</textarea>
       ['sheet-width', 'sheet-height', 'sheet-kerf', 'sheet-trim', 'sheet-cost', 'sheet-parts', 'sheet-unit', 'sheet-rotate'],
       renderSheet, 'sheet', 'sheet-runs',
     );
-    wireInputs(['stock', 'kerf', 'cuts', 'unit'], renderLinear, 'linear', 'runs');
+    wireInputs(['stock', 'kerf', 'cuts', 'unit', 'stock-cost'], renderLinear, 'linear', 'runs');
 
     wireCopy('sheet-copy', 'sheet-copy-status', 'sheet-copies');
     wireCopy('copy-plan', 'copy-status', 'copies');

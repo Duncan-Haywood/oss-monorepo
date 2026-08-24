@@ -13,9 +13,10 @@ export function parseCuts(text) {
   return cuts.sort((a, b) => b - a);
 }
 
-export function optimizeCutList({ stockLength, kerf, cuts }) {
+export function optimizeCutList({ stockLength, kerf, cuts, stockCost = null }) {
   if (!(stockLength > 0) || kerf < 0) throw new Error('Stock length must be positive and kerf cannot be negative');
   if (!Array.isArray(cuts) || cuts.length === 0) throw new Error('Add at least one required cut');
+  if (stockCost !== null && (!Number.isFinite(Number(stockCost)) || Number(stockCost) < 0)) throw new Error('Stock cost must be a non-negative number');
   const sorted = [...cuts].sort((a, b) => b - a);
   if (sorted.some(cut => cut <= 0 || cut > stockLength)) throw new Error('Every required cut must fit inside one stock length');
   const bars = [];
@@ -35,16 +36,23 @@ export function optimizeCutList({ stockLength, kerf, cuts }) {
   }
   const totalStock = bars.length * stockLength;
   const totalCuts = sorted.reduce((sum, cut) => sum + cut, 0);
-  return { bars, totalStock, totalCuts, waste: totalStock - totalCuts - Math.max(0, sorted.length - bars.length) * kerf, utilization: totalCuts / totalStock };
+  return {
+    bars, totalStock, totalCuts,
+    waste: totalStock - totalCuts - Math.max(0, sorted.length - bars.length) * kerf,
+    utilization: totalCuts / totalStock,
+    stockCost: stockCost === null ? null : Number(stockCost),
+    totalCost: stockCost === null ? null : bars.length * Number(stockCost),
+  };
 }
 
-export function formatCutPlan(result, { stockUnit = 'units', stockLength, kerf } = {}) {
+export function formatCutPlan(result, { stockUnit = 'units', stockLength, kerf, currency = '$' } = {}) {
   const lines = [
     `Cut plan: ${result.bars.length} stock piece${result.bars.length === 1 ? '' : 's'}`,
     ...(stockLength ? [`Stock length: ${Number(stockLength).toFixed(2)} ${stockUnit}`] : []),
     ...(kerf !== undefined ? [`Kerf per cut: ${Number(kerf).toFixed(2)} ${stockUnit}`] : []),
     `Required material: ${result.totalCuts.toFixed(2)} ${stockUnit}`,
     `Offcut after kerf allowance: ${result.waste.toFixed(2)} ${stockUnit}`,
+    ...(result.totalCost !== null ? [`Material cost: ${currency}${result.totalCost.toFixed(2)} (${result.bars.length} × ${currency}${result.stockCost.toFixed(2)})`] : []),
     '',
   ];
   result.bars.forEach((bar, index) => {
