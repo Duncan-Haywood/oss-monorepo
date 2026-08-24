@@ -5,6 +5,10 @@ recurring janitorial contract the way the trade actually bids one — each space
 divided by the production rate the crew really hits — and shows the margin
 before the price goes out.
 
+Save and reload the current bid setup on the same device without an account.
+Saved bids stay in browser-local storage and never include calculated outputs or
+usage events.
+
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
 step, no network calls, no accounts. Not yet deployed to a public URL —
@@ -80,7 +84,7 @@ automatically when the browser sends Do Not Track or Global Privacy Control.
 See [`usage.mjs`](usage.mjs) and [`portfolio/usage/`](../../portfolio/usage/README.md).
 
 Events counted: `bid_calculated`, `area_added`, `area_removed`,
-`proposed_price_compared`, `summary_copied`.
+`proposed_price_compared`, `summary_copied`, `bid_saved`, `saved_bid_cleared`.
 
 ## Limitations
 

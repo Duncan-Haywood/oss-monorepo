@@ -52,8 +52,9 @@
     footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
     footer a { color: #1c7a5e; }
     .support { margin-top: 14px; }
-    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
     .summary-status { font-size: .8rem; color: #bce8cf; }
+    .save-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
     @media (max-width: 780px) {
       .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
       .area-head { display: none; }
@@ -97,6 +98,11 @@
           <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="10" placeholder="e.g. 1650"></label>
         </div>
         <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off &mdash; the part of a cleaner&rsquo;s cost that never shows up on their pay rate. Underestimating it is the most common reason a janitorial bid that looked profitable was not.</p>
+        <div class="save-actions">
+          <button type="button" id="saveBid">Save this bid on this device</button>
+          <button type="button" id="clearSavedBid">Clear saved bid</button>
+          <span id="saveStatus" class="summary-status" role="status" aria-live="polite"></span>
+        </div>
       </section>
     </div>
 
@@ -141,6 +147,7 @@
   <script type="module">
     import { calculateBid, PRODUCTION_RATE_PRESETS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { clearBidState, loadBidState, saveBidState } from './state.mjs';
 
     const COST_IDS = ['hourlyWage','burdenRate','suppliesPerSqFtMonth','equipmentMonthly','otherMonthly','overheadRate','targetMargin','proposedPrice'];
     const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -224,6 +231,10 @@
 
     function count(event) {
       recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function currentState() {
+      return { areas: readAreas(), costs: Object.fromEntries(COST_IDS.map(id => [id, el(id).value])) };
     }
 
     function clearOutputs(message, isError) {
@@ -360,7 +371,27 @@
       }
     });
 
-    STARTING_AREAS.forEach(addAreaRow);
+    el('saveBid').addEventListener('click', () => {
+      if (el('usageOptOut').checked) {
+        el('saveStatus').textContent = 'Turn off local usage opt-out to save on this device.';
+        return;
+      }
+      const saved = saveBidState(localStorage, currentState());
+      el('saveStatus').textContent = saved ? 'Saved on this device' : 'This browser blocked local saving.';
+      if (saved) count('bid_saved');
+    });
+    el('clearSavedBid').addEventListener('click', () => {
+      clearBidState(localStorage);
+      el('saveStatus').textContent = 'Saved bid cleared';
+      count('saved_bid_cleared');
+    });
+
+    const savedState = el('usageOptOut').checked ? null : loadBidState(localStorage);
+    (savedState ? savedState.areas : STARTING_AREAS).forEach(addAreaRow);
+    if (savedState) {
+      Object.entries(savedState.costs).forEach(([id, value]) => { if (el(id)) el(id).value = value; });
+      el('saveStatus').textContent = 'Saved bid loaded from this device';
+    }
     update();
   </script>
 </body>
