@@ -429,27 +429,31 @@ def main(argv: list[str] | None = None) -> int:
             if path.is_file() or path.is_symlink()
         )
         if not paths:
-            print(f"No JSON or XML invoices found in {args.invoice}")
-            return 2
-        if args.max_files is not None and len(paths) > args.max_files:
-            print(
-                f"Directory contains {len(paths)} JSON/XML invoices, exceeding "
-                f"--max-files {args.max_files}. Refusing to scan."
-            )
-            return 2
-        sources = []
-        for path in paths:
-            relative_path = path.relative_to(args.invoice)
-            if path.is_symlink():
-                read_errors.append({
-                    "file": relative_path.as_posix(),
-                    "error": "Refusing to follow symbolic link during directory scan.",
-                })
-                continue
-            try:
-                sources.append((path.relative_to(args.invoice), path.read_bytes()))
-            except OSError as exc:
-                read_errors.append({"file": relative_path.as_posix(), "error": str(exc)})
+            read_errors.append({"file": args.invoice.as_posix(), "error": "No JSON or XML invoices found."})
+            sources = []
+        elif args.max_files is not None and len(paths) > args.max_files:
+            read_errors.append({
+                "file": args.invoice.as_posix(),
+                "error": (
+                    f"Directory contains {len(paths)} JSON/XML invoices, exceeding "
+                    f"--max-files {args.max_files}. Refusing to scan."
+                ),
+            })
+            sources = []
+        else:
+            sources = []
+            for path in paths:
+                relative_path = path.relative_to(args.invoice)
+                if path.is_symlink():
+                    read_errors.append({
+                        "file": relative_path.as_posix(),
+                        "error": "Refusing to follow symbolic link during directory scan.",
+                    })
+                    continue
+                try:
+                    sources.append((path.relative_to(args.invoice), path.read_bytes()))
+                except OSError as exc:
+                    read_errors.append({"file": relative_path.as_posix(), "error": str(exc)})
     else:
         sources = [(args.invoice, None)]
 

@@ -293,6 +293,31 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(report["files_checked"], 0)
             self.assertEqual(report["read_errors"][0]["file"], "broken.json")
 
+    def test_cli_json_empty_directory_keeps_machine_readable_contract(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "json"]), 2)
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["schema_version"], 1)
+            self.assertEqual(report["exit_code"], 2)
+            self.assertEqual(report["files_checked"], 0)
+            self.assertEqual(report["read_errors"][0]["error"], "No JSON or XML invoices found.")
+
+    def test_cli_json_max_files_refusal_keeps_machine_readable_contract(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "one.json").write_text(json.dumps(VALID))
+            (root / "two.json").write_text(json.dumps({**VALID, "invoice_number": "INV-2"}))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "json", "--max-files", "1"]), 2)
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["schema_version"], 1)
+            self.assertEqual(report["exit_code"], 2)
+            self.assertEqual(report["files_checked"], 0)
+            self.assertIn("exceeding --max-files 1", report["read_errors"][0]["error"])
+
     def test_cli_emits_sarif_for_ci_and_editor_integrations(self):
         with tempfile.TemporaryDirectory() as directory:
             invoice_path = Path(directory) / "invoice.json"

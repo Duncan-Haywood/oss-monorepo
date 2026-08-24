@@ -129,6 +129,12 @@ other report formats and can be opened locally without a server.
 rule counts when findings exist. It includes counts and rule IDs only, never
 invoice values, numbers, or line contents.
 
+Machine-readable formats remain valid JSON, JSONL, SARIF, CSV, JUnit, Markdown,
+or HTML when a directory is empty or a `--max-files` limit refuses the scan.
+These input errors are reported in the selected format and the command exits
+`2`, so CI and ERP adapters do not need to special-case an unstructured stderr
+or stdout message.
+
 ## Privacy and usage
 
 Everything is local. Invoice contents are never uploaded or retained by this
