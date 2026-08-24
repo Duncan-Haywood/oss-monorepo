@@ -1,0 +1,68 @@
+# E-invoice preflight
+
+**Validate a structured invoice before submission.** This free local CLI checks
+a small, transparent JSON invoice shape for missing fields and arithmetic
+mistakes, then prints rule IDs and plain-language fixes. It is aimed at
+bookkeepers and ERP integrators searching for an e-invoice preflight check.
+
+```sh
+python3 -m einvoice_preflight invoice.json
+python3 -m einvoice_preflight invoice.json --format json
+python3 -m einvoice_preflight invoice.json --usage-file ~/.local/state/einvoice-preflight/usage.json
+```
+
+The tool never submits an invoice, chooses a tax rate, contacts a tax
+authority, or claims that an invoice is legally valid. It only checks the
+document facts represented in the input schema. The user remains responsible
+for selecting the correct format, tax treatment, and submission process.
+
+## Input shape
+
+The supported v0 shape is intentionally small and format-neutral:
+
+```json
+{
+  "invoice_number": "INV-1001",
+  "issue_date": "2026-08-24",
+  "currency": "EUR",
+  "supplier": {"id": "DE123", "name": "Supplier GmbH"},
+  "customer": {"id": "DE456", "name": "Customer GmbH"},
+  "lines": [{"description": "Consulting", "quantity": 2, "unit_price": 100, "tax_percent": 19}],
+  "totals": {"net": 200, "tax": 38, "gross": 238}
+}
+```
+
+Amounts use the currency's major unit and are compared to cent precision.
+`--format json` is suitable for an ERP adapter; the process exits `1` when
+any check fails and `2` for an unreadable input file.
+
+## Privacy and usage
+
+Everything is local. Invoice contents are never uploaded or retained by this
+tool. Usage counting is opt-in with `--usage-file` and stores only aggregate
+event counts, never invoice data, paths, IPs, or identifiers. Omit the flag to
+disable it. There are no accounts, cookies, or analytics vendors.
+
+## Safety boundary
+
+**No warranty.** This tool is provided free and as-is, without warranty of any
+kind, express or implied. It is not tax or legal advice, and it does not
+replace a qualified professional. **You are responsible for reviewing and
+verifying its output before relying on it**, and for meeting any obligation it
+helps you prepare for. To the maximum extent permitted by law, the authors
+accept no liability for any loss or damage arising from its use.
+
+This is a preflight observation, not a declaration that an invoice is valid or
+compliant. Format-specific validators and professional review are still
+needed before submission.
+
+## FAQ
+
+### Does this submit invoices?
+
+No. It reads one local JSON file and writes a report to stdout.
+
+### Does it calculate VAT?
+
+No. It checks the arithmetic for the tax percentage supplied in each line; it
+does not decide whether that percentage is legally correct.
