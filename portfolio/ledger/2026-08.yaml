@@ -21765,8 +21765,8 @@ entries:
           Decision queue now has 9 decisions (down from 10). `payout-rail`
           remains the only queue item that moves the revenue ceiling off $0.
           Owner-gated PRs left untouched: #720, #731, #531. The Dependabot PRs
-           (#736-#772) are owner-gated per the `dependabot` row in `asks.yaml`;
-           the owner can merge or decline them knowingly.
+          (#736-#772) are owner-gated per the `dependabot` row in `asks.yaml`;
+          the owner can merge or decline them knowingly.
     mrr_end: null
   - venture: portfolio
     agent_spend_usd: null
