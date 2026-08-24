@@ -87,6 +87,19 @@ class BranchHygieneTests(unittest.TestCase):
             self.assertEqual(event["finding_count"], 4)
             self.assertNotIn("feature/", event)
 
+    def test_cli_csv_emits_non_executable_approval_queue(self):
+        project = Path(__file__).parents[1]
+        result = subprocess.run(
+            [sys.executable, str(project / "src/branch_hygiene.py"), str(project / "examples/snapshot.json"), "--format", "csv"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        rows = result.stdout.splitlines()
+        self.assertEqual(rows[0], "branch,tip,classification,review_action,reason,commit_count")
+        self.assertTrue(any(row.startswith("feature/merged,m2,merged,review-delete-candidate,") for row in rows[1:]))
+        self.assertNotIn("git branch", result.stdout)
+
     def test_local_repository_snapshot_is_read_only_and_usable(self):
         with tempfile.TemporaryDirectory() as directory:
             repo = Path(directory)

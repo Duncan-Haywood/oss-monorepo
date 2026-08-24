@@ -2,8 +2,10 @@
 """Read-only branch inventory over a customer-controlled JSON snapshot."""
 from __future__ import annotations
 import argparse
+import csv
 import json
 import subprocess
+import sys
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -200,7 +202,7 @@ def main() -> int:
     parser.add_argument("--report", type=Path, default=Path("branch-report.txt"))
     parser.add_argument("--manifest", type=Path, default=Path("recovery-manifest.json"))
     parser.add_argument("--usage-log", type=Path)
-    parser.add_argument("--format", choices=("text", "json"), default="text", help="print a human or machine-readable summary")
+    parser.add_argument("--format", choices=("text", "json", "csv"), default="text", help="print a human or machine-readable summary")
     parser.add_argument("--fail-on-risk", action="store_true", help="exit 2 when shared, moved-tip, or uncertain findings need review")
     args = parser.parse_args()
     if bool(args.snapshot) == bool(args.repo):
@@ -223,6 +225,11 @@ def main() -> int:
         summary["classifications"][finding.classification] = summary["classifications"].get(finding.classification, 0) + 1
     if args.format == "json":
         print(json.dumps(summary, sort_keys=True))
+    elif args.format == "csv":
+        writer = csv.writer(sys.stdout, lineterminator="\n")
+        writer.writerow(("branch", "tip", "classification", "review_action", "reason", "commit_count"))
+        for finding in findings:
+            writer.writerow((finding.branch, finding.tip, finding.classification, finding.review_action, finding.reason, len(finding.commits)))
     else:
         status = "review required" if summary["risk"] else "no unresolved risk"
         print(f"Wrote {len(findings)} findings to {args.report} and {args.manifest}; {status}")
