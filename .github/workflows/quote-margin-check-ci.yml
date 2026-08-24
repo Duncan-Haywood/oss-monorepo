@@ -1,0 +1,50 @@
+name: quote-margin-check CI
+
+on:
+  pull_request:
+    paths:
+      - "ventures/quote-margin-check/**"
+      - ".github/workflows/quote-margin-check-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/quote-margin-check/**"
+      - ".github/workflows/quote-margin-check-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quote-margin-check-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cli-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ventures/quote-margin-check
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 -m unittest discover -s tests -v
+
+  # The browser tool's tests shell out to the real Python CLI to assert the two
+  # implementations produce byte-identical CSV, so this job needs both runtimes.
+  tools-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ventures/quote-margin-check/tools/quote-margin-calculator
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --test

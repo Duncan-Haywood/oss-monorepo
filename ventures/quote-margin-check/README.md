@@ -5,6 +5,23 @@ agencies. It turns a proposed price, delivery hours, overhead, subcontractor
 costs, and revision buffer into a transparent effective hourly rate and a
 target-price comparison.
 
+## Browser calculator
+
+Most freelancers won't run a Python script, so the same maths ships as a
+static page: [`tools/quote-margin-calculator/`](tools/quote-margin-calculator/).
+No install, no build step, nothing uploaded — open `index.html` in a browser
+or serve the directory. It loads prefilled with the worked example below, so
+there is a real result on screen before you type anything, and it can copy the
+result as CSV rows identical to the CLI's `--format csv` output.
+
+Not yet deployed to a public URL — publishing under the portfolio's name is
+owner-gated per `portfolio/DIRECTION.md` — but the directory is ready to
+deploy as a static site as-is.
+
+## Command line
+
+For scripting, or comparing a folder of proposals at once:
+
 ```bash
 python3 src/quote_margin.py examples/website-redesign.json --format markdown
 # Import the same result into a spreadsheet
@@ -34,7 +51,12 @@ accept no liability for any loss or damage arising from its use.
 
 Only aggregate `report_generated` events are optionally appended to the usage
 log. Inputs, project names, prices, and file contents never leave the machine.
-Pass `--usage-log PATH` to opt in; omit it to keep usage counting off.
+Pass `--usage-log PATH` to opt in; omit it to keep usage counting off. The
+browser calculator counts the same events locally in `localStorage` (on by
+default, off-switchable in the page footer, and honouring Do Not Track and
+Global Privacy Control) — see
+[`tools/quote-margin-calculator/usage.mjs`](tools/quote-margin-calculator/usage.mjs).
+Nothing is transmitted in either case.
 
 ## Input
 
