@@ -29,6 +29,8 @@ drive that decision:
   money, holding shipping charged constant.
 - **Target-margin item price** — the price needed to reach a chosen net margin
   after the same fees and cash costs.
+- **Repricing sensitivity** — compare profit and margin at prices 20% below or
+  above the current listing price before changing a listing.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
