@@ -190,8 +190,38 @@ def _json_report(
         "errors": errors,
         "read_errors": read_errors,
     }
-    output["reports"] = [{"file": path.as_posix(), "errors": invoice_errors} for path, invoice_errors in reports]
+    output["reports"] = [
+        {
+            "file": path.as_posix(),
+            "status": "fail" if invoice_errors else "pass",
+            "observations": len(invoice_errors),
+            "errors": invoice_errors,
+        }
+        for path, invoice_errors in reports
+    ]
     return output
+
+
+def _jsonl_report(
+    reports: list[tuple[Path, list[dict[str, str]]]],
+    read_errors: list[dict[str, str]],
+) -> str:
+    """Build one line-delimited result per invoice or read error."""
+    lines = [
+        json.dumps(
+            {"status": "pass" if not errors else "fail", "file": path.as_posix(), "errors": errors},
+            separators=(",", ":"),
+        )
+        for path, errors in reports
+    ]
+    lines.extend(
+        json.dumps(
+            {"status": "read_error", "file": error["file"], "errors": [], "error": error["error"]},
+            separators=(",", ":"),
+        )
+        for error in read_errors
+    )
+    return "\n".join(lines) + ("\n" if lines else "")
 
 
 def _csv_report(
@@ -352,7 +382,7 @@ def _markdown_text(value: str) -> str:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check a local JSON or UBL XML e-invoice before submission. No tax advice or submission.")
     parser.add_argument("invoice", type=Path, help="JSON/XML file, directory of JSON/XML files, or '-' for stdin")
-    parser.add_argument("--format", choices=("text", "json", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
+    parser.add_argument("--format", choices=("text", "json", "jsonl", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
     parser.add_argument("--output", help="write the report to a UTF-8 file instead of stdout")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
     args = parser.parse_args(argv)
@@ -412,6 +442,8 @@ def main(argv: list[str] | None = None) -> int:
     rendered: str | None = None
     if args.format == "json":
         rendered = json.dumps(_json_report(reports, read_errors), indent=2) + "\n"
+    elif args.format == "jsonl":
+        rendered = _jsonl_report(reports, read_errors)
     elif args.format == "markdown":
         rendered = _markdown_report(reports, read_errors)
     elif args.format == "html":

@@ -19,6 +19,7 @@ PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format junit > prefli
 cat invoice.json | PYTHONPATH=src python3 -m einvoice_preflight - --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --usage-file ~/.local/state/einvoice-preflight/usage.json
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format json
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format jsonl
 PYTHONPATH=src python3 -m einvoice_preflight invoice.xml --format json
 ```
 
@@ -62,7 +63,9 @@ decide whether a tax percentage is legally correct.
 `--format json` is suitable for an ERP adapter. It always returns the same
 envelope, whether the input is one file or a directory: `status`,
 `files_checked`, `files_failed`, `observations`, per-file `reports`, and
-`read_errors`. Each finding also includes a `path` JSON Pointer (for example,
+`read_errors`. Each `reports` item also includes an explicit `status` (`pass` or
+`fail`) and `observations` count, so adapters can render a batch queue without
+inferring state from the errors array. Each finding also includes a `path` JSON Pointer (for example,
 `/totals/gross`), so adapters can focus a field-level repair UI without
 reimplementing the rules. `--format sarif` emits SARIF
 2.1.0 for GitHub code scanning, CI annotations, and
@@ -79,6 +82,11 @@ JSON output uses the same summary fields for single files and directories:
 `read_errors`. Single-file output also includes `file` and `errors`; directory
 output includes the per-file `reports` array. Rule counts let a CI or ERP
 adapter show a compact defect summary without parsing human text.
+`--format jsonl` emits one compact JSON object per invoice (or read error),
+which is suitable for streaming directory results into CI or an ERP adapter
+without parsing an aggregate document. Each invoice record has `status`, `file`,
+and `errors`; read-error records also have `error`. The line-oriented mode uses
+the same privacy boundary and exit codes as JSON.
 `--format markdown` produces a reviewable report with filenames, rule IDs,
 observations, and fixes for single files and recursive directory scans. Batch
 reports also include a finding summary grouped by rule, so repeated defects can
@@ -102,6 +110,9 @@ bounded to its selected directory.
 `--format html` produces a standalone browser report with summary cards, finding
 counts, and per-file review sections. It has the same privacy boundary as the
 other report formats and can be opened locally without a server.
+Pass `--output report.ext` to write any report format as a UTF-8 artifact. The
+file is replaced atomically, so a CI consumer will not observe a half-written
+report; without this option, reports continue to print to standard output.
 Pass `--output report.ext` to write any report format as a UTF-8 artifact. The
 file is replaced atomically, so a CI consumer will not observe a half-written
 report; without this option, reports continue to print to standard output.
