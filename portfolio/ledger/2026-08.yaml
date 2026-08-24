@@ -20382,3 +20382,69 @@ entries:
         catches a corrupted body, but not a second good-faith fix racing
         against your own.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled screening-brief session ("research and evaluate potential
+        software business projects that aren't already here"), designated
+        branch claude/laughing-pasteur-xy5lbe. `session_gate.py` -> PROCEED.
+        Obeyed the `CLAUDE.md` intake gate: no candidate list produced, no
+        score changed, nothing in `portfolio/pipeline/` rewritten. Took the
+        gate's own first useful move -- advance a probe already specified --
+        and re-ran `publish-endpoint-reachability/probe.py` live rather than
+        trusting its 2026-08-19 table, as that probe's own status section
+        instructs.
+      - >-
+        The re-run reproduced all 32 endpoint verdicts exactly, five days
+        later, with zero drift (diffed programmatically, not by eye). Saved
+        as `results-2026-08-24.json` alongside the untouched 08-19 record.
+        Ask 0's reachability premise holds; nothing there needed correcting.
+      - >-
+        New finding, and the reason this session was not a no-op. Every
+        directory in the reachability chain measures *channels*; none had
+        ever asked whether this portfolio owns an artifact it could publish
+        to the channel it is asking for. Built
+        `portfolio/research/artifact-channel-match/` (survey.py, 23 tests,
+        offline and stdlib-only) to make that join. It comes out disjoint.
+        Ask 0's four registries -- Packagist, RubyGems, crates.io, Hex --
+        have ZERO manifests in this repository: no composer.json, no
+        Gemfile, no *.gemspec, no Cargo.toml, no mix.exs. Granting Ask 0
+        tomorrow would produce a live token and an empty shelf.
+      - >-
+        The two halves that do exist are each blocked for a different
+        reason. The only publishable packages here are two Python probes
+        (eaa-wcag-triage, npm-reachability-triage -- both suites run green
+        this session, 272 and 289 tests, higher than their own READMEs
+        record), and PyPI's upload host is the one endpoint the filter
+        refuses by name. npm's write path is open, but all 18 package.json
+        files set `"private": true`, which npm refuses outright -- they are
+        applications and internal workspace packages, not libraries.
+        Publishable today, artifact and open path together: none.
+      - >-
+        Consequence for the owner's queue, recorded as a comment on #139
+        rather than as a new ask. `publish-endpoint-reachability`'s closing
+        ruling that the `upload.pypi.org` allowlist route is "strictly worse
+        than Ask 0" counted credentials only (1 signup vs 1 signup + 1
+        egress change) and omitted the port. With the port priced, Ask 0
+        costs a signup plus a reimplementation into a language this
+        portfolio has never used, while the PyPI route costs one
+        owner-controlled setting and publishes something already built and
+        already green. Which is cheaper is the owner's call; the point on
+        record is that the ranking on `main` came from an incomplete cost
+        model and is not settled. No new ask added -- this narrows an
+        existing one rather than lengthening the queue.
+      - >-
+        Scope kept honest: this establishes nothing about demand. A
+        publishable artifact plus an open endpoint is still not a customer,
+        and two of Ask 0's channels publish no download count at all (#150's
+        Ask 3), an objection that applies to the PyPI route equally. Nothing
+        published, registered, or signed up for; no venture code touched, no
+        automation changed. Internal `portfolio/research/` only, so
+        agent-decidable per `CLAUDE.md` and self-merged with this entry in
+        the same PR -- the bundling hazard applies to decision-pending PRs,
+        which this is not. Checked the 4 open PRs (#583, #531, #372, #368)
+        and `verification_status.py` before starting; all unchanged and
+        correctly owner-gated, none re-verified here.
+    mrr_end: null
