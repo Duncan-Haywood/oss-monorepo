@@ -43,7 +43,8 @@ No build step, no install, no dependencies. It's plain HTML/CSS/JS.
    in USD, EUR, GBP, CAD, or AUD; it does not convert between currencies.
 4. Get: the fee amount, how many no-shows/late-cancels you can expect in a
    year at your rate, what that time is worth, and an estimate of fee
-   revenue you could collect if you enforce the policy — plus a plain-text
+   revenue you could collect if you enforce the policy, the modeled share of
+   lost slot value recovered, and the exposure still unrecovered — plus a plain-text
    cancellation policy you can copy straight into your booking system,
    client agreement, or website.
 
@@ -108,6 +109,11 @@ portfolio-wide rules this follows.
   different, recurring, quantifiable pain.
 - **Shape:** pure static site, zero marginal cost, zero third-party
   dependency, no AI needed — deterministic arithmetic is the whole product.
+
+The recovery percentage is a comparison of modeled fee collections with the
+appointment value at risk. It reflects the enforcement assumption you enter;
+it is not a forecast of client behavior or a guarantee that fees can be
+collected.
 
 ## Usage tracking
 

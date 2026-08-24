@@ -103,6 +103,22 @@ export function computeAnnualFeeRevenue({ feeAmount, noShowsPerYear, enforcement
 }
 
 /**
+ * Models how much of the appointment value represented by no-shows is
+ * recovered by the fee policy. This is intentionally an estimate based on
+ * the user's enforcement assumption, not a claim about actual collections.
+ * @param {{ annualFeeRevenue: number, annualLostRevenue: number }} args
+ */
+export function computeRecoveryEstimate({ annualFeeRevenue, annualLostRevenue }) {
+  const recoveredPct = annualLostRevenue > 0
+    ? round2((annualFeeRevenue / annualLostRevenue) * 100)
+    : 0;
+  return {
+    recoveredPct,
+    remainingAnnualExposure: round2(Math.max(0, annualLostRevenue - annualFeeRevenue)),
+  };
+}
+
+/**
  * Runs every calculation from a single validated input set.
  * @param {{ price: number, bookingsPerWeek: number, noShowRatePct: number, noticeHours: number, feePercent: number, enforcementRatePct: number }} values
  */
@@ -114,11 +130,14 @@ export function computeAll(values) {
     noShowsPerYear,
     enforcementRatePct: values.enforcementRatePct,
   });
+  const { recoveredPct, remainingAnnualExposure } = computeRecoveryEstimate({ annualFeeRevenue, annualLostRevenue });
   return {
     feeAmount,
     noShowsPerYear,
     annualLostRevenue,
     annualFeeRevenue,
+    recoveredPct,
+    remainingAnnualExposure,
     inputs: values,
   };
 }
