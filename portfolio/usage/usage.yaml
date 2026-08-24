@@ -6,6 +6,15 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: vendor-change-evidence
+    surface: repository-cli
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          snapshot_comparisons: 1
+          repo_views_14d: 0
+          release_downloads_total: 0
+        note: Shipped local source-linked snapshot comparison baseline; practitioner demand and distribution remain untested.
   - slug: shopify-permission-drift
     surface: local-cli
     readings:

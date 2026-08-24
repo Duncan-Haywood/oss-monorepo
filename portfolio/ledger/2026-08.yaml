@@ -1,5 +1,17 @@
 period: 2026-08
 entries:
+  - venture: vendor-change-evidence
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated the vendor-change evidence candidate into a local CLI that
+        compares customer-supplied SaaS policy snapshots, preserves source and
+        fetch provenance, marks failed fetches inconclusive, emits JSON or
+        Markdown review records, and includes visible disclaimer, local-only
+        privacy boundary, opt-in aggregate usage logging, examples, tests, and
+        MIT license. Public distribution and practitioner demand remain untested.
+    mrr_end: null
   - venture: shopify-a11y-evidence
     agent_spend_usd: null
     human_hours: 0

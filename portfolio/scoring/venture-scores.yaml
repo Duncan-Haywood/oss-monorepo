@@ -795,6 +795,34 @@ ventures:
       automated test, never a compliance determination, and every result calls
       for manual review.
 
+  - slug: vendor-change-evidence
+    scores:
+      ai_leverage: 6
+      autonomous_ops: 8
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 4
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: defensibility
+    floor_note: >-
+      Snapshot comparison is reproducible; customer-specific watch history and
+      a recurring procurement channel are not yet measured.
+    basis: >-
+      Graduated on 2026-08-24 as a local evidence CLI for customer-supplied
+      SaaS terms, privacy, subprocessor, and security snapshots. It preserves
+      source and fetch provenance, treats failed fetches as inconclusive, and
+      never claims legal, security, or compliance significance.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool reports source-linked observations only, operates on
+      customer-supplied data, and leaves contractual and security decisions to
+      the customer.
+
   - slug: janitorial-bid-calculator
     scores:
       ai_leverage: 1

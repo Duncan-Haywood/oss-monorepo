@@ -111,3 +111,12 @@ disagree.
 Ventures were merged in with `git subtree`, so each one's full commit history
 is preserved and attributed. The original standalone repositories still exist
 and were not deleted.
+
+## Product-first operating direction
+
+The portfolio prioritizes shipping useful, free, full-feature software over
+administrative work. New products target narrow problems with measurable
+customer value, run locally or on existing infrastructure, include visible
+disclaimers and privacy-conscious opt-in usage events, and ship a runnable
+vertical slice before deeper research. See [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md)
+and [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md).
