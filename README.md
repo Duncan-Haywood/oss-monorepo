@@ -111,3 +111,13 @@ disagree.
 Ventures were merged in with `git subtree`, so each one's full commit history
 is preserved and attributed. The original standalone repositories still exist
 and were not deleted.
+
+## Product-first operating direction
+
+The active strategy is to ship useful, free, full-featured software for narrow
+markets, measure anonymous feature usage, and let real customer use determine
+what receives more investment. Prefer client-local calculators, checkers, and
+evidence tools that run without accounts, paid APIs, or payment collection.
+Keep disclaimers, privacy boundaries, security tests, and deployment checks
+proportionate to product risk. See [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md)
+and [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) for the current workflow.

@@ -258,7 +258,7 @@ products:
           Distribution is still repo-only: no release, no package, no public
           URL, so there is no download or traffic signal to read yet. Getting
           one is the next step that would actually move this venture.
-  - slug: eaa-remediation-pipeline
+   - slug: eaa-remediation-pipeline
     surface: local-site-studio-browser
     readings:
       - as_of: 2026-08-24
@@ -266,7 +266,15 @@ products:
           public_url_visitors: null
           preaudit_checklist_events: 0
           handoff_exports: 0
-        note: Shipped browser-local pre-audit checklist; public deployment remains owner-gated.
+         note: Shipped browser-local pre-audit checklist; public deployment remains owner-gated.
+   - slug: ltl-freight-class-estimator
+     surface: static-page-in-repo
+     readings:
+       - as_of: 2026-08-24
+         signals:
+           live_url_visitors: null
+           local_events_reported: 0
+         note: Shipped browser-local density and LTL class planning estimate; public URL remains owner-gated.
 # Example of the shape, once a product has shipped:
 #
 # products:
