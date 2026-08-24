@@ -323,6 +323,52 @@ recommendation.
    separate decision and this is not it.
 4. Leave `GITHUB_PAGES_ENABLED`, `VERCEL_DEPLOY` and the `CLOUDFLARE_*`
    secrets unset.
+5. **Do not put a Hetzner Cloud API token in GitHub secrets.** See below —
+   this is the one step where the obvious move is the wrong one.
+
+### The credential this does *not* want
+
+The other three candidates are configured by putting a vendor token in
+repository secrets, so that is the reflex this option invites. It is wrong
+here, and wrong in a way that removes the reason for choosing Hetzner at all.
+
+A Hetzner Cloud API token is an **infrastructure control plane**, not a deploy
+credential. Read & Write on a project means create and destroy servers,
+volumes, snapshots, floating IPs, firewalls and load balancers — and Hetzner
+offers only *Read* or *Read & Write* per project, with no finer scoping, so
+there is no least-privilege version of it to reach for.
+
+That breaks the argument this whole section rests on. Hetzner was chosen
+because the spend bound is **structural** — a fixed monthly price that traffic
+cannot move, needing no cap to configure and none to forget. A read-write
+Cloud token can provision more servers, so the bound stops being "one box" and
+becomes "whatever the project quota allows". The one property that made this
+option safe without a cap feature is the property such a token removes.
+
+The blast radius is not hypothetical in this repository. The fleet workflow
+runs with `contents: write`, and `agent-permission-harness` measures its agent
+reading **121 repository files** — every one `REPO_WRITE` — while holding
+secrets. A workflow only receives the secrets it names, but anything with
+`contents: write` can add the line that names one, and `CLAUDE.md` already
+records a session merging a change against that pull request's own stated
+intent. A credential that can bill an account should not sit one workflow edit
+away from an unattended agent.
+
+Nothing needs it anyway:
+
+- **Provisioning is a one-time human action.** Create the box in the console,
+  or with `hcloud` from your own machine using a token that never leaves it.
+- **Configuration is SSH, not the Cloud API.** `ubuntu-agent-server` reaches
+  the box over SSH and Tailscale; it never calls Hetzner's API.
+- **If CI ever deploys**, what it wants is an SSH key for a restricted deploy
+  user on that one box — a credential whose worst case is that one box —
+  never a token that can create more of them.
+
+If such a token has already been added, revoke it in the Hetzner console
+rather than deleting the GitHub secret alone: deletion removes the copy, not
+the credential.
+
+
 
 Serving the web apps from the box is follow-on work — nginx/TLS, Postgres, a
 deploy path — and is agent-decidable once the box exists. It is also the part
