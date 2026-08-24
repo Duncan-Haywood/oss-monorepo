@@ -178,6 +178,10 @@
     <input type="number" id="target_hourly_rate" inputmode="decimal" value="75" min="0" step="any" />
     <p class="hint">What you'd want to be paid per hour if you were billing hourly instead.</p>
 
+    <label for="time_buffer_percent">Time buffer for your target-price check (%)</label>
+    <input type="number" id="time_buffer_percent" inputmode="decimal" value="20" min="0" step="any" />
+    <p class="hint">A what-if reserve for scope creep or slower delivery. It is not a forecast.</p>
+
     <div class="result" id="result" role="status" aria-live="polite"></div>
     <div class="result" id="sensitivity" aria-live="polite"><strong>If the work takes longer</strong><p class="hint">A scenario view, not a prediction. Direct costs stay unchanged.</p><div class="table-scroll"><table class="sensitivity"><thead><tr><th>Extra time</th><th>Total hours</th><th>Effective rate</th><th>Gap to target</th></tr></thead><tbody></tbody></table></div></div>
       <div class="result" id="review" aria-live="polite"><strong>Before you send it</strong><ul class="checks"></ul></div>
@@ -257,7 +261,7 @@
   // Counts settled quotes rather than keystrokes — see usage.mjs.
   const reportCounter = createReportCounter();
 
-  const ids = ["currency", "price", "delivery_hours", "admin_hours", "revision_hours", "overhead", "subcontractor_cost", "target_hourly_rate"];
+   const ids = ["currency", "price", "delivery_hours", "admin_hours", "revision_hours", "overhead", "subcontractor_cost", "target_hourly_rate", "time_buffer_percent"];
   const el = Object.fromEntries(ids.map((id) => [id, document.getElementById(id)]));
   const result = document.getElementById("result");
   const review = document.getElementById("review");
@@ -274,7 +278,8 @@
       revision_hours: Number(el.revision_hours.value),
       overhead: Number(el.overhead.value),
       subcontractor_cost: Number(el.subcontractor_cost.value),
-      target_hourly_rate: Number(el.target_hourly_rate.value),
+       target_hourly_rate: Number(el.target_hourly_rate.value),
+       time_buffer_percent: Number(el.time_buffer_percent.value),
     };
   }
 
@@ -298,7 +303,8 @@
           <dt>Total working hours</dt><dd>${fmt(r.total_hours)}</dd>
            <dt>Direct costs</dt><dd>${safeCurrency} ${fmt(r.direct_costs)}</dd>
            <dt>Effective hourly rate</dt><dd><strong>${safeCurrency} ${fmt(r.effective_hourly_rate)}/hour</strong></dd>
-           <dt>Price at your target rate</dt><dd>${safeCurrency} ${fmt(r.target_price)}</dd>
+            <dt>Price at your target rate</dt><dd>${safeCurrency} ${fmt(r.target_price)}</dd>
+            <dt>Price at target rate with ${fmt(quote.time_buffer_percent)}% time buffer</dt><dd>${safeCurrency} ${fmt(r.buffered_target_price)}</dd>
            <dt>Gap to target price</dt><dd>${safeCurrency} ${fmt(r.gap_to_target)}</dd>
            <dt>Left after direct costs</dt><dd>${safeCurrency} ${fmt(r.cost_coverage)}</dd>
         </dl>
@@ -352,7 +358,8 @@
       `direct_costs,${r.direct_costs.toFixed(2)},${quote.currency}`,
       `effective_hourly_rate,${r.effective_hourly_rate.toFixed(2)},${quote.currency}/hour`,
       `target_price,${r.target_price.toFixed(2)},${quote.currency}`,
-      `gap_to_target,${r.gap_to_target.toFixed(2)},${quote.currency}`,
+       `gap_to_target,${r.gap_to_target.toFixed(2)},${quote.currency}`,
+       `buffered_target_price,${r.buffered_target_price.toFixed(2)},${quote.currency}`,
       `cost_coverage,${r.cost_coverage.toFixed(2)},${quote.currency}`,
     ].join("\n");
     try {
