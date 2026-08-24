@@ -26,6 +26,12 @@ Enter the sheet size, your saw kerf, and one part per line:
 
 **Copy cut plan** puts a plain-text version on the clipboard for a job ticket or shop note. **Print** produces a paper copy of the diagrams with the controls hidden.
 
+The current form is saved as an optional local draft when a field is changed, so a
+shop can return to an unfinished list after closing the tab. **Clear saved draft**
+removes it immediately. Drafts contain only the form values and never leave the
+browser; enabling the footer opt-out clears both the draft and anonymous usage
+counts.
+
 ### How the layouts are produced, and what that means for you
 
 Every cut in a sheet plan runs edge to edge across whatever is left of the sheet — a **guillotine** layout. That is not a simplification, it is what a table saw, track saw, or panel saw can physically do. Nesting layouts that need an interior cut score better on paper and cannot be cut on the machines this tool's users own.
@@ -52,6 +58,8 @@ Everything runs in the browser. The cut list never leaves your device, there are
 | `cut-list-optimizer-copies` | A linear plan was copied out for a job ticket |
 | `cut-list-optimizer-sheet-runs` | A sheet layout was calculated from a settled edit |
 | `cut-list-optimizer-sheet-copies` | A sheet plan was copied out for a job ticket |
+
+The saved draft uses a separate local-storage key and is not an analytics event.
 
 Keeping them apart is what makes the numbers readable: `runs` shows the tool was used, `copies` shows a plan was good enough to carry into the shop, and the `sheet-` pair shows which half of the product people come back for. None of the counters records the cut list itself — no dimension, label, quantity, or price — and nothing is transmitted.
 

@@ -206,7 +206,8 @@ Top: 31.5 x 11.25 x 2</textarea>
   </div>
 
   <footer>
-    <label class="check"><input id="optout" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <label class="check"><input id="optout" type="checkbox"> Do not keep anonymous local usage counts or saved drafts</label>
+    <div class="actions"><button type="button" id="clear-draft" class="draft-button">Clear saved draft</button><span id="draft-status" role="status" aria-live="polite"></span></div>
     <p>
       <strong>No warranty.</strong> This free tool is provided as-is, without warranty of any kind, express or implied.
       It is not engineering, financial, or business advice and does not replace a qualified professional.
@@ -219,8 +220,8 @@ Top: 31.5 x 11.25 x 2</textarea>
       Kerf and edge trim are counted as waste rather than as usable material.
     </p>
     <p>
-      Everything runs in your browser. Your cut list is never uploaded. Anonymous calculation events are counted only
-      in local storage, can be switched off above, and are never sent to an analytics vendor.
+      Everything runs in your browser. Your cut list is never uploaded. Anonymous calculation events and your optional
+      unfinished draft are kept only in local storage, can be switched off and cleared above, and are never sent to an analytics vendor.
     </p>
   </footer>
 
@@ -228,6 +229,7 @@ Top: 31.5 x 11.25 x 2</textarea>
     import { parseCuts, optimizeCutList, formatCutPlan } from './calc.mjs';
     import { parsePanels, optimizeSheets, formatSheetPlan } from './sheet.mjs';
     import { recordUsage, clearUsage } from './usage.mjs';
+    import { loadDraft, saveDraft, clearDraft } from './draft.mjs';
 
     const $ = (id) => document.getElementById(id);
     const optedOut = () => $('optout').checked;
@@ -381,11 +383,36 @@ Top: 31.5 x 11.25 x 2</textarea>
 
     /* ---------------- Wiring ---------------- */
 
+    const DRAFT_FIELDS = [
+      'sheet-width', 'sheet-height', 'sheet-kerf', 'sheet-trim', 'sheet-cost', 'sheet-parts', 'sheet-unit', 'sheet-rotate',
+      'stock', 'kerf', 'cuts', 'unit',
+    ];
+
+    function draftValues() {
+      return Object.fromEntries(DRAFT_FIELDS.map((id) => [id, $(id).type === 'checkbox' ? $(id).checked : $(id).value]));
+    }
+
+    function restoreDraft() {
+      const draft = loadDraft(localStorage);
+      if (!draft) return false;
+      DRAFT_FIELDS.forEach((id) => {
+        if (!(id in draft)) return;
+        if ($(id).type === 'checkbox') $(id).checked = Boolean(draft[id]);
+        else $(id).value = String(draft[id]);
+      });
+      return true;
+    }
+
+    function persistDraft() {
+      if (!optedOut()) saveDraft(localStorage, draftValues());
+    }
+
     function wireInputs(ids, render, mode, runEvent) {
       ids.forEach((id) => {
         $(id).addEventListener('input', render);
         $(id).addEventListener('change', () => {
           render();
+          persistDraft();
           if (ready[mode]) recordUsage(localStorage, optedOut(), runEvent);
         });
       });
@@ -430,13 +457,26 @@ Top: 31.5 x 11.25 x 2</textarea>
     // Opting out is not only "stop counting" — it clears what was already
     // counted, so the checkbox means what a visitor reads it to mean.
     $('optout').addEventListener('change', () => {
-      if (optedOut()) clearUsage(localStorage);
+      if (optedOut()) {
+        clearUsage(localStorage);
+        clearDraft(localStorage);
+      } else {
+        persistDraft();
+      }
       renderSheet();
       renderLinear();
     });
 
+    $('clear-draft').addEventListener('click', () => {
+      clearDraft(localStorage);
+      $('draft-status').textContent = 'Saved draft cleared.';
+      setTimeout(() => { $('draft-status').textContent = ''; }, 4000);
+    });
+
+    const restored = restoreDraft();
     renderSheet();
     renderLinear();
+    if (restored) $('draft-status').textContent = 'Saved draft restored.';
   </script>
 </body>
 </html>
