@@ -21008,3 +21008,78 @@ entries:
           on Ask 2 (the payout rail). This entry ships separately from #710 per
           the ledger-discipline rule.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled strategic session ("continue work... maintain and improve
+          the development process... legal ethical reliable increase in
+          profit... this run should be more strategic work"), designated
+          branch claude/wizardly-albattani-as63k0. `session_gate.py` ->
+          PROCEED. Read the 4 open PRs, `verification_status.py`,
+          `decision_queue.py` and the latest ledger entries against a freshly
+          fetched `main` first. The immediately preceding entry was the same
+          brief and had built the decision-queue renderer (#708), so this
+          session took the successor question rather than repeating it: that
+          pass collapsed the queue to 7 rows, so this one asked whether every
+          row is a decision at all.
+      - >-
+          Reached the same finding #710 reached, independently and in
+          parallel, and #710 landed first. Measured from the workflow files
+          that no venture publishes anything on a merge to `main` --
+          `ai-first-markets` is `workflow_dispatch`-only, `retail-pilot-intel`
+          and `real-estate-agent-photo-app` gate their publish jobs on
+          repository variables the unanswered `deploy-settings` ask would set,
+          the other ten ventures have no deploy workflow, and every
+          `VENTURE.yaml` reads `links.production: null` -- so `CLAUDE.md`'s
+          live-site premise for the `ventures/*` merge gate is currently
+          false. Corroboration is worth something here (two implementations,
+          two evidence paths, same answer: 0 live) but it cost a session to
+          get, which is the pattern this file has been recording since
+          2026-08-18.
+      - >-
+          Discarded this session's own implementation rather than shipping it
+          alongside. It was a complete, tested, CI-wired tool
+          (`portfolio/ledger/deploy_exposure.py`, 19 tests, mutation-checked
+          both ways) and it duplicated `platform/ci/publish_surface.py`, which
+          was merged, working, and has the more complete publish-action list.
+          Notable that both implementations independently hit and rejected the
+          same trap: counting `actions/upload-pages-artifact` as publishing
+          classifies `retail-pilot-intel` as live on a run whose deploy job
+          demonstrably skipped. Two sessions, two codebases, same wrong first
+          draft, same correction -- which says the trap is in the domain, not
+          in either author. One invariant from the discarded tool was
+          considered and deliberately not ported (cross-checking a venture's
+          `links.production` against its classification): #710's snapshot
+          check already goes red when a workflow flips to live, so the drift
+          it guards is already caught by a different mechanism.
+      - >-
+          Kept only what #710 left unfixed, which is small and specific.
+          `portfolio/pipeline/README.md` still asserted "`ventures/ai-first-
+          markets` -- which does deploy to a live site"; corrected. The
+          `next-16-upgrade` row's `unlocks:` line still read "six live
+          ventures"; #372 touches five ventures across six apps and none is
+          live, so both halves were wrong and both are corrected, in the
+          `unlocks` and in #710's own note.
+      - >-
+          Added Ask 9 / `venture-gate-premise` to `asks.yaml`. #710 amended
+          `CLAUDE.md` to record the fact while leaving the gate in place --
+          the right conservative order -- but that leaves the rule genuinely
+          ambiguous, because the agent-decidable criterion excludes
+          "`ventures/*` app code *that deploys to a live site*" (which now
+          excludes nothing) while the human-gated list still covers "breaking
+          changes to deployable `ventures/*` code". #710 named the residual
+          question inside a note on one row; it is the same question
+          `contrast-fixes` and every future venture pull request reduce to, so
+          it is now its own answerable row with a stated action. It is the
+          only row in the queue whose answer makes the queue shorter:
+          answered one way it removes `next-16-upgrade` and `contrast-fixes`
+          outright, three pull requests the owner then never reads.
+      - >-
+          Did not merge #372, #531 or #583, and did not propose to. An
+          unattended agent that reinterprets its own merge gate in its own
+          favour is the reasoning pattern this portfolio should least want,
+          on the sessions where the reading happens to be right most of all.
+          The fact is now on `main` twice over; the rule is the owner's.
+    mrr_end: null

@@ -23,10 +23,10 @@ decide the answer are absent from that sort:
     are adjacent rows, and are not the same kind of decision. `exposure`
     separates them.
 
-Reading those two axes off `asks.yaml` collapses the eight live asks (#139
-lists nine; Ask 8 is superseded by `break-even.md` and has nothing to grant)
-and four open pull requests into seven decisions, of which exactly one moves
-the revenue ceiling.
+Reading those two axes off `asks.yaml` collapses the nine live asks (#139
+lists ten; Ask 8 is superseded by `break-even.md` and has nothing to grant)
+and four open pull requests into eight decisions, of which exactly one moves
+the revenue ceiling -- and one, Ask 9, would remove two of the others.
 
 This is a renderer, not a judge: every ordering rule below is a fixed rank over
 declared fields, so what it prints is a function of the data file and the data
