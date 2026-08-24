@@ -22137,3 +22137,56 @@ entries:
           `payout-rail` remains the only queue item that moves the revenue
           ceiling off $0.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          `pull_request.opened` on #807, folded into the generic "continue
+          work, maintain the process, review open PRs" scheduled brief.
+          `session_gate.py` -> PROCEED, again flagging 3 distinct sessions
+          committing within a 15-minute window in the last 6h. Listed open
+          PRs before touching anything: six open (#808, #807, #804, #788,
+          #720, #531).
+      - >-
+          Merged #807 (`34f5a34`, "Decision queue: fix inverted direction
+          claim in contrast-fixes note"): independently re-verified the
+          factual claim rather than trusting the diff -- `git show` on both
+          blobs it cites (pre-#731 `b9e5ea7d` vs. current `main`) confirms
+          `page.tsx` moved from an inline hardcoded `bundles` array to
+          importing `getBundle`/`COMMERCE_ADDON` from
+          `@/lib/pricing/bundles`, exactly the direction #807 states and the
+          reverse of what the note previously said. Also re-checked
+          `decision_queue.py --check` (9 decisions, schema OK) and
+          `git merge-tree` against the live `main` tip (clean). Agent-
+          decidable: `portfolio/ledger/` only, no `ventures/*` code,
+          publishes and spends nothing.
+      - >-
+          #804 and #808 were both open ledger-only entries appending to this
+          same growing entry, each based on a `main` tip that had since
+          moved -- the append-only conflict `CLAUDE.md` already documents.
+          Rather than let a fourth session rebase one blind, consolidated
+          per that guidance: #804's one fact not yet on `main` (this
+          session's predecessor merged #799, the original contrast-fixes
+          correction that #807 then fixed the direction of) is folded into
+          this entry above; #808's #790/#805 account added nothing #804 and
+          the prior entry didn't already cover more accurately (#790 was
+          merged directly as `e55b1f6`, not closed in favor of a separate
+          #805 -- `e956ad3` is a no-op merge commit reconciling the two
+          identical branches, already recorded correctly two entries back).
+          Closed both #804 and #808 with a pointer here.
+      - >-
+          Remaining open PRs reviewed, no action needed: #788 (4-minute
+          routine-trigger workflow) and #720 (deployment platform choice)
+          are both explicitly self-flagged human-gated spend/account-
+          creation decisions, already tracked in `asks.yaml`. #531
+          (venture-code contrast-token fix) is human-gated `ventures/*` app
+          code, already tracked, and #807's correction is what keeps its
+          queue note accurate.
+      - >-
+          `payout-rail` remains the only queue item that moves the revenue
+          ceiling off $0. No push notification sent from this session: the
+          actions taken (#807 merge, #804/#808 consolidation) are routine
+          and agent-decidable, and every other open PR was left exactly as
+          already flagged.
+    mrr_end: null
