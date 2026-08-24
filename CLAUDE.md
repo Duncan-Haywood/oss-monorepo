@@ -89,6 +89,21 @@ Scheduled sessions often overlap. Before opening a PR, check open PRs and
 recent commits. Extend or consolidate instead of duplicating. If the backlog
 is large, merge the strongest and close the rest with a pointer.
 
+**A close that names a survivor must verify the survivor is still open —
+immediately before closing, and again after.** Two sessions can each close
+their PR pointing at the other's as the one to keep; both pointers then aim
+at something closed and nothing ships. This happened on 2026-08-24: a bot
+closed #948 as "superseded by #953" at 16:04:20, and 38 seconds later
+another session closed #953 "in favour of #948". Two complete
+implementations of the same browser calculator, zero shipped, until #948
+was reopened.
+
+If you find the PR you deferred to already closed, **reopen one of them**
+rather than opening a third implementation — the work is already written
+and re-deriving it is how a duplicate becomes a triplicate. Prefer
+reopening the one a reasoned merits comparison picked over one closed on
+arrival order alone.
+
 ## Ledger (minimal)
 
 Record outcomes per `portfolio/ledger/README.md` when you **shipped or learned
