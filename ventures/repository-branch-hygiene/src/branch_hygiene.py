@@ -16,6 +16,18 @@ class Finding:
     reason: str
     commits: tuple[str, ...]
 
+    @property
+    def review_action(self) -> str:
+        """Return a review instruction, never an executable Git operation."""
+        return {
+            "merged": "review-delete-candidate",
+            "moved-tip": "preserve-and-review",
+            "active": "preserve-active-work",
+            "protected": "do-not-delete",
+            "shared": "preserve-shared-ref",
+            "uncertain": "investigate-missing-pr-record",
+        }[self.classification]
+
 def scan(snapshot: dict[str, Any]) -> list[Finding]:
     branches, pull_requests = snapshot.get("branches"), snapshot.get("pull_requests")
     protected = set(snapshot.get("protected_branches", []))
@@ -61,9 +73,15 @@ def write_outputs(findings: list[Finding], report_path: Path, manifest_path: Pat
     for finding in findings:
         counts[finding.classification] = counts.get(finding.classification, 0) + 1
     lines = ["Repository branch hygiene report", "", "Approval queue: review every finding before any Git operation.", "", "Counts: " + ", ".join(f"{key}={counts[key]}" for key in sorted(counts))]
-    lines.extend(f"- [{f.classification}] {f.branch} ({f.tip}): {f.reason}" for f in findings)
+    lines.extend(f"- [{f.classification}] {f.branch} ({f.tip}): {f.reason}; action={f.review_action}" for f in findings)
     report_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    manifest_path.write_text(json.dumps({"format": 1, "findings": [asdict(f) for f in findings]}, indent=2) + "\n", encoding="utf-8")
+    manifest = {
+        "format": 2,
+        "read_only": True,
+        "approval_required": True,
+        "findings": [dict(asdict(f), review_action=f.review_action) for f in findings],
+    }
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Create a read-only branch review report")
