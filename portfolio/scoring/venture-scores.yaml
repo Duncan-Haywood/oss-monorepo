@@ -1,7 +1,7 @@
 # The portfolio's own ventures, scored on ai-first-markets' six dimensions.
 #
 # Not candidates. `portfolio/pipeline/candidates.yaml` scores businesses the
-# portfolio has NOT started; this file scores the eleven it has started. Ten of
+# portfolio has NOT started; this file scores the twelve it has started. Eleven of
 # those are allocated to; `ai-first-markets` was reclassified 2026-08-20 and
 # keeps its row for the record -- see the note above its entry. The dimension
 # keys and the 0-10 scale are the same, so a venture and a candidate can be
@@ -17,7 +17,7 @@
 # Derived fields (`composite`, `floor`, `floor_dimension`) and every rule above
 # are checked by `score_ventures.py --check`. Run it after any score edit.
 #
-# STATUS OF THESE NUMBERS: agent estimates from repository evidence, 2026-08-20.
+# STATUS OF THESE NUMBERS: agent estimates from repository evidence, 2026-08-24.
 # Not one of them is a customer measurement, because the portfolio has no
 # customer contacts. `portfolio/pipeline/rescore-2026-08-20.md` established that
 # every product-assumption score in this portfolio that anyone has since
@@ -48,6 +48,34 @@ scoring_rule: >-
   near-zero-price norm is a real property of the business on any host.
 
 ventures:
+  - slug: cash-runway-planner
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The forecast is intentionally deterministic and local-first. Its value
+      comes from modeling invoice timing against recurring bills, not from
+      opaque inference.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local 12-week cash forecast for
+      independent service businesses. It models starting cash, invoice
+      collection delay, weekly income, and recurring costs without accounts,
+      network calls, or server-side data retention.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is arithmetic on the user's own inputs, is labeled a
+      projection rather than financial advice, and remains in the browser.
+
   - slug: shopify-permission-drift
     scores:
       ai_leverage: 2
