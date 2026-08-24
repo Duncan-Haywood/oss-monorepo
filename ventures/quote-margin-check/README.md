@@ -8,6 +8,8 @@ exports a JSON evidence record so a quote can be reviewed before it is sent.
 
 ```bash
 python3 src/quote_margin.py examples/website-redesign.json --format markdown
+# Export rows for a spreadsheet
+python3 src/quote_margin.py examples/website-redesign.json --format csv > quote-review.csv
 ```
 
 The report distinguishes the customer's inputs from derived arithmetic. It does
@@ -44,7 +46,25 @@ Pass `--usage-log PATH` to opt in; omit it to keep usage counting off.
 
 ## Input
 
-Required non-negative numbers are `price`, `delivery_hours`, and `target_hourly_rate`.
+An optional short `currency` label defaults to `units`. Required non-negative numbers are `price`, `delivery_hours`, and `target_hourly_rate`.
 Optional numbers are `admin_hours`, `revision_hours`, `overhead`, and
 `subcontractor_cost`. The calculator treats all monetary values as the same
 currency supplied by the user.
+
+After using this, you can compare a quote against the time and cost assumptions
+you supplied, including a spreadsheet-ready export, which used to require
+rebuilding the calculation by hand.
+
+## Privacy and usage
+
+Everything runs on your machine. Inputs are never uploaded, and there are no
+accounts, cookies, or analytics vendors. If `--usage-log` is supplied, the tool
+appends only an anonymous `report_generated` timestamp; it never records quote
+values or file contents.
+
+**No warranty.** This tool is provided free and as-is, without warranty of any
+kind, express or implied. It is not tax, financial, or business advice, and it
+does not replace a qualified professional. **You are responsible for reviewing
+and verifying its output before relying on it**, and for meeting any obligation
+it helps you prepare for. To the maximum extent permitted by law, the authors
+accept no liability for any loss or damage arising from its use.

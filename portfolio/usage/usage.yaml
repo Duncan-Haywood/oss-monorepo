@@ -35,6 +35,15 @@ products:
           repo_views_14d: 0
           release_downloads_total: 0
         note: Shipped calculator baseline; no public distribution or usage yet.
+    surface: static-browser-app-and-cli
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          local_events_reported: 0
+          report_generated: 0
+          csv_exports: 0
+          public_url: false
+        note: Browser calculator and spreadsheet-ready CLI export shipped; baseline before public distribution.
 # Example of the shape, once a product has shipped:
 #
 # products:
