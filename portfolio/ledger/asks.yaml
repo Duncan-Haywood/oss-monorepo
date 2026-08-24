@@ -460,3 +460,33 @@ decisions:
     fleet-wide on an unverifiable assertion of it. Flagged rather than
     reverted: reverting on the same kind of unverifiable judgment this row
     is objecting to would repeat the mistake in the opposite direction.
+
+- id: branch-cleanup-automation
+  asks: []
+  prs: [829]
+  gates: deployment
+  exposure: none
+  opened: "2026-08-24"
+  action: >-
+    Merge or decline #829 (adds `.github/workflows/branch-cleanup.yml`,
+    deleting a PR's head branch immediately on merge and 24h after an
+    unmerged close).
+  unlocks:
+    - >-
+      A live branch count that reflects open work: as of #829's own
+      read-only sweep, 608 branches exist against 6 open PRs, so the branch
+      list CLAUDE.md tells sessions to check before assuming work has not
+      been done is ~99% landed-or-abandoned noise.
+  blocked_by: []
+  note: >-
+    Correctly self-flagged human-gated in its own PR body per CLAUDE.md's
+    "Automation that writes or spends unattended" section: it is a new
+    unattended workflow that pushes branch deletions on a schedule plus a
+    `pull_request_target` trigger, even though it calls no paid API,
+    consumes no agent budget, and pushes no commits/PRs of its own. Local
+    verification in the PR body: `validate_workflows.py` (39 files),
+    `publish_surface.py --check` (0 live, unchanged), `test_branch_cleanup`
+    (25 tests) all green; a read-only `--sweep --dry-run` against the live
+    repo found 220 branches it would delete (166 already-merged, 107 whose
+    tip moved after their PR closed, 7 still in grace) out of 608 total.
+    No ledger hunk riding along, so it stays mergeable while it waits.
