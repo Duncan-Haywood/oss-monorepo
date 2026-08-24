@@ -7,6 +7,8 @@ const eventNames: UsageEventName[] = [
   "room_visualizer_cta",
   "storefront_search",
   "checkout_add",
+  "checkout_remove",
+  "checkout_quantity_change",
   "preflight_completed",
   "preflight_exported",
 ];

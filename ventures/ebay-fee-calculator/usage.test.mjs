@@ -28,6 +28,14 @@ test('honors opt out', () => {
   assert.equal(storage.getItem('ebay-fee-usage'), null);
 });
 
+test('records named feature events without storing inputs', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'target_margin_calculated');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.target_margin_calculated, 1);
+  assert.ok(stored.last_day);
+});
+
 test('honors Do Not Track and Global Privacy Control', () => {
   const previous = Object.getOwnPropertyDescriptor(globalThis, 'navigator');
   const restore = () => {

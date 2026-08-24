@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>No-Show &amp; Cancellation Fee Calculator for Service Businesses</title>
+  <meta name="description" content="Free calculator for personal trainers, salons, tutors, and therapists: work out a defensible no-show / late-cancellation fee from your own prices, see what no-shows are costing you a year, and get a ready-to-copy cancellation policy." />
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/no-show-fee-calculator/" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="No-Show &amp; Cancellation Fee Calculator" />
+  <meta property="og:description" content="Work out a defensible no-show fee from your own prices and get a ready-to-copy cancellation policy. Free, runs entirely in your browser." />
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/no-show-fee-calculator/" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="No-Show &amp; Cancellation Fee Calculator" />
+  <meta name="twitter:description" content="Work out a defensible no-show fee from your own prices and get a ready-to-copy cancellation policy." />
+
+  <link rel="stylesheet" href="style.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "No-Show & Cancellation Fee Calculator",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "description": "Free calculator that turns a service business's own appointment price, booking volume, and no-show rate into a defensible cancellation fee, an estimate of annual revenue at risk, and a ready-to-copy cancellation policy.",
+    "url": "https://duncan-haywood.github.io/monorepo-projects/no-show-fee-calculator/"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How much should I charge for a no-show or late cancellation?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "There's no single right number, but a common starting point is charging close to the full service price for a true no-show (since the slot usually can't be rebooked) and a partial fee for a late cancellation with some notice. This calculator turns your own price, notice window, and fee percentage into a specific dollar amount and a policy you can adjust."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is a cancellation or no-show fee legal?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Charging a disclosed cancellation fee is common practice across many service industries and is generally enforceable when clients agree to it in advance, but rules vary by location, payment processor, and industry (some regions treat fees for medical or dental appointments differently, for example). This tool is not legal advice -- check the requirements that apply to your business and location before publishing a policy."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much notice should I require before a cancellation is free?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "24 hours is the most common default because it usually gives enough time to fill the slot from a waitlist. Businesses with longer sessions or harder-to-fill slots (e.g. multi-hour bookings) often require 48 hours instead. The calculator defaults to 24 hours and you can change it."
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <header>
+    <h1>No-Show &amp; Cancellation Fee Calculator</h1>
+    <p class="tagline">
+      For personal trainers, salons, tutors, therapists, and other appointment-based
+      service businesses: put a specific, defensible number on your no-show fee and get
+      a policy you can hand to clients today.
+    </p>
+    <p class="value-sentence">
+      <strong>After using this, you can now</strong> state and defend a specific
+      no-show/late-cancellation fee — and hand clients a ready-to-use policy —
+      <strong>which used to take</strong> guessing a number or copying a boilerplate
+      template that doesn't match your prices.
+    </p>
+  </header>
+
+  <main>
+    <section aria-labelledby="calc-heading">
+      <h2 id="calc-heading">Your numbers</h2>
+      <form id="calc-form" novalidate>
+        <div class="field">
+          <label for="price">Appointment / session price ($)</label>
+          <input type="number" id="price" name="price" min="0" step="0.01" value="75" required />
+        </div>
+        <div class="field">
+          <label for="bookingsPerWeek">Bookings per week</label>
+          <input type="number" id="bookingsPerWeek" name="bookingsPerWeek" min="0" step="0.1" value="20" required />
+        </div>
+        <div class="field">
+          <label for="noShowRatePct">No-show / late-cancel rate (% of bookings)</label>
+          <input type="number" id="noShowRatePct" name="noShowRatePct" min="0" max="100" step="0.1" value="8" required />
+          <p class="hint">Not sure? Count last month's no-shows and late cancels, divide by total bookings, times 100.</p>
+        </div>
+        <div class="field">
+          <label for="noticeHours">Required notice window (hours)</label>
+          <input type="number" id="noticeHours" name="noticeHours" min="0" step="1" value="24" required />
+        </div>
+        <div class="field">
+          <label for="feePercent">Fee (% of the price above)</label>
+          <input type="number" id="feePercent" name="feePercent" min="0" max="100" step="1" value="100" required />
+        </div>
+        <div class="field">
+          <label for="enforcementRatePct">Assumed enforcement rate (%)</label>
+          <input type="number" id="enforcementRatePct" name="enforcementRatePct" min="0" max="100" step="1" value="70" required />
+          <p class="hint">How often you expect to actually collect the fee once the policy is in place. This is your assumption, not a measured number — the tool shows it back to you rather than hiding it.</p>
+        </div>
+
+        <fieldset>
+          <legend>For the generated policy text (optional)</legend>
+          <div class="field">
+            <label for="businessName">Business name</label>
+            <input type="text" id="businessName" name="businessName" placeholder="e.g. Riverside Personal Training" />
+          </div>
+          <div class="field">
+            <label for="serviceName">What you call the booking</label>
+            <input type="text" id="serviceName" name="serviceName" placeholder="e.g. training session, appointment, class" />
+          </div>
+        </fieldset>
+
+        <button type="submit">Calculate</button>
+      </form>
+
+      <div id="errors" role="alert" hidden></div>
+
+      <div id="results" hidden aria-live="polite">
+        <h2>Results</h2>
+        <dl class="results-grid">
+          <div>
+            <dt>Suggested fee per violation</dt>
+            <dd id="out-fee-amount">$0.00</dd>
+          </div>
+          <div>
+            <dt>No-shows / late cancels per year at your rate</dt>
+            <dd id="out-noshows-year">0</dd>
+          </div>
+          <div>
+            <dt>Revenue those slots represent per year</dt>
+            <dd id="out-annual-lost">$0.00</dd>
+          </div>
+          <div>
+            <dt>Estimated fee revenue per year if enforced</dt>
+            <dd id="out-annual-fee-revenue">$0.00</dd>
+          </div>
+        </dl>
+        <p class="note">
+          "Revenue those slots represent" is the value of the appointments themselves —
+          the fee does not replace that lost service time, it compensates for holding
+          the slot. "Estimated fee revenue" uses your assumed enforcement rate above and
+          is a model, not a promise.
+        </p>
+      </div>
+
+      <div id="policy-section" hidden>
+        <h2>Your draft policy</h2>
+        <textarea id="policy-text" rows="10" readonly></textarea>
+        <button type="button" id="copy-policy">Copy policy text</button>
+        <button type="button" id="share-link">Copy share link</button>
+        <span id="copy-status" role="status"></span>
+        <p class="hint">The link stores your calculator values, including business and service names, in the URL. Only share it with people you trust.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Common questions</h2>
+      <h3>How much should I charge for a no-show or late cancellation?</h3>
+      <p>
+        There's no single right number, but a common starting point is charging close to
+        the full service price for a true no-show (the slot usually can't be rebooked)
+        and a partial fee for a late cancellation with some notice. This calculator turns
+        your own price, notice window, and fee percentage into a specific number.
+      </p>
+      <h3>Is a cancellation or no-show fee legal?</h3>
+      <p>
+        Charging a disclosed cancellation fee is common practice across many service
+        industries and is generally enforceable when clients agree to it in advance, but
+        rules vary by location, payment processor, and industry — some regions treat fees
+        for medical or dental appointments differently, for example. This is not legal
+        advice; check the requirements for your business type and location.
+      </p>
+      <h3>How much notice should I require?</h3>
+      <p>
+        24 hours is the most common default — usually enough time to fill the slot from a
+        waitlist. Businesses with longer or harder-to-fill sessions often use 48 hours
+        instead.
+      </p>
+    </section>
+
+    <section aria-labelledby="usage-heading">
+      <h2 id="usage-heading">Usage</h2>
+      <p>
+        Everything above runs in your browser. Nothing you type is ever uploaded — there
+        is no server, no account, and no analytics vendor. This calculator counts a small
+        number of anonymous events (which buttons were used, nothing about who used them)
+        and keeps the count only in this browser, so it can tell whether anyone is using
+        it at all. See the <a href="README.md">README</a> for details.
+      </p>
+      <p id="usage-summary"></p>
+      <label>
+        <input type="checkbox" id="usage-opt-out" />
+        Don't count my usage in this browser
+      </label>
+      <button type="button" id="clear-usage">Clear local usage log</button>
+    </section>
+
+    <section aria-labelledby="disclaimer-heading">
+      <h2 id="disclaimer-heading">Disclaimer</h2>
+      <p>
+        <strong>No warranty.</strong> This tool is provided free and as-is, without
+        warranty of any kind, express or implied. It is not legal, tax, or financial
+        advice, and it does not replace a qualified professional. You are responsible for
+        reviewing and verifying its output before relying on it, and for meeting any
+        obligation it helps you prepare for. To the maximum extent permitted by law, the
+        authors accept no liability for any loss or damage arising from its use.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <p>
+      Free, open source (MIT licensed), no account required.
+      <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/no-show-fee-calculator">Source on GitHub</a>.
+    </p>
+  </footer>
+
+  <script type="module" src="src/app.mjs"></script>
+</body>
+</html>

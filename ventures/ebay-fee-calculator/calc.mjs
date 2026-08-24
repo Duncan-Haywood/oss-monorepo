@@ -2,6 +2,27 @@
 // state: every rate and cost is an input so the result stays a transparent
 // calculation the seller can check against their own eBay statements rather
 // than a claim about eBay's current fee schedule.
+
+// Every seller-supplied field, in the order the form presents them. The page
+// and the save/share encoder both read this rather than keeping their own
+// copies: when those lists drifted, a shared link silently dropped whichever
+// field the encoder had not heard about, and the recipient saw a different
+// order than the sender did.
+export const INPUT_FIELDS = [
+  'price',
+  'quantity',
+  'shippingCharged',
+  'finalValueRate',
+  'fixedFee',
+  'promotedRate',
+  'intlFeeRate',
+  'costOfGoods',
+  'shippingCost',
+  'packagingCost',
+  'otherCost',
+  'targetMargin',
+];
+
 export function calculateOrder(input) {
   const number = (value, name) => {
     const result = Number(value);
@@ -18,15 +39,19 @@ export function calculateOrder(input) {
   const shippingCost = number(input.shippingCost ?? 0, 'Shipping cost');
   const packagingCost = number(input.packagingCost ?? 0, 'Packaging cost');
   const otherCost = number(input.otherCost ?? 0, 'Other cost');
+  const targetMargin = number(input.targetMargin ?? 0, 'Target margin');
+  const quantity = number(input.quantity ?? 1, 'Units');
+  if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Units must be a whole number of at least 1');
+  if (targetMargin >= 100) throw new Error('Target margin must be less than 100%');
 
   // eBay charges the final value fee on the full order total (item + shipping),
   // so promoted-listings and international-fee percentages are modelled the same
   // way. The seller enters the blended rate that applies to their category.
-  const revenue = price + shippingCharged;
+  const revenue = (price + shippingCharged) * quantity;
   const percentRate = (finalValueRate + promotedRate + intlFeeRate) / 100;
   const fees = {
     finalValue: revenue * finalValueRate / 100,
-    fixed: fixedFee,
+    fixed: fixedFee * quantity,
     promoted: revenue * promotedRate / 100,
     international: revenue * intlFeeRate / 100,
   };
@@ -35,20 +60,24 @@ export function calculateOrder(input) {
   // Cash the seller lays out up front to source and ship the item. Fees are
   // deducted from the sale proceeds, not paid in advance, so they are excluded
   // from invested cash — that keeps return-on-investment honest.
-  const cashInvested = costOfGoods + shippingCost + packagingCost + otherCost;
+  const cashInvested = (costOfGoods + shippingCost + packagingCost + otherCost) * quantity;
   const costs = feeTotal + cashInvested;
   const profit = revenue - costs;
 
   // Fixed (non-percentage) cash outlay that must be recovered before the
   // percentage-based fees are covered, used to solve for break-even price.
-  const fixedCash = fixedFee + cashInvested;
+  const fixedCash = fixedFee + costOfGoods + shippingCost + packagingCost + otherCost;
+  const targetMarginRate = targetMargin / 100;
+  const targetRevenueDenominator = 1 - percentRate - targetMarginRate;
   return {
     revenue,
+    quantity,
     fees,
     feeTotal,
     cashInvested,
     costs,
     profit,
+    unitProfit: profit / quantity,
     margin: revenue === 0 ? 0 : profit / revenue * 100,
     // Return on the cash actually invested. Null when nothing was invested
     // (e.g. a giveaway item with no sourcing or shipping cost), where ROI is
@@ -59,5 +88,9 @@ export function calculateOrder(input) {
     breakEvenPrice: percentRate >= 1
       ? Infinity
       : Math.max(0, fixedCash / (1 - percentRate) - shippingCharged),
+    // Solve for the item price needed to reach the requested net margin.
+    targetMarginPrice: targetRevenueDenominator <= 0
+      ? Infinity
+      : Math.max(0, fixedCash / targetRevenueDenominator - shippingCharged),
   };
 }

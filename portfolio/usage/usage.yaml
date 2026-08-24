@@ -84,6 +84,16 @@ products:
           live_url_visitors: null
           local_events_reported: 0
         note: Shipped local Etsy order-profit calculator; public URL remains owner-gated.
+  - slug: shopify-a11y-evidence
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped browser-local axe JSON evidence report; public URL remains
+          owner-gated and the local counter has no external reporting path.
   - slug: ebay-fee-calculator
     surface: static-page-in-repo
     readings:
@@ -96,6 +106,39 @@ products:
           unit tests). Public URL remains owner-gated, so there is no traffic
           signal to read; the local-first counter reports only to the user's
           own browser and is opt-out. Baseline row.
+  - slug: cut-list-optimizer
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local stock-cut planning baseline for makers; public URL
+          remains owner-gated and the browser counter is local and opt-out.
+  - slug: shopify-fee-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped local Shopify Payments vs PayPal/Stripe profit calculator
+          (plan presets, both-path comparison, break-even and target-margin
+          price). Public URL remains owner-gated; the local-first counter
+          reports only to the user's own browser and is opt-out. Baseline row.
+  - slug: no-show-fee-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped browser-local no-show exposure calculator and policy draft
+          generator. Public URL remains owner-gated; the local counter is
+          anonymous, event-only, and opt-out. Baseline row.
 # Example of the shape, once a product has shipped:
 #
 # products:

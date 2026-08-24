@@ -1,4 +1,7 @@
-const FIELDS = ['price', 'shippingCharged', 'finalValueRate', 'fixedFee', 'promotedRate', 'intlFeeRate', 'costOfGoods', 'shippingCost', 'packagingCost', 'otherCost'];
+// Single-sourced from the calculator so a new input field is shareable the day
+// it ships, instead of being quietly discarded by an encoder that never learned
+// about it.
+import { INPUT_FIELDS as FIELDS } from './calc.mjs';
 
 export function encodeInputs(input) {
   const params = new URLSearchParams();
