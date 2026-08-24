@@ -27,9 +27,18 @@ def check_invoice(invoice: Any) -> list[dict[str, str]]:
     if not isinstance(invoice.get("invoice_number"), str) or not invoice.get("invoice_number", "").strip():
         fail("INV-002", "Invoice number is empty or not text.", "Provide a non-empty invoice number.", "/invoice_number")
     try:
-        date.fromisoformat(invoice.get("issue_date", ""))
+        issue_date = date.fromisoformat(invoice.get("issue_date", ""))
     except (ValueError, TypeError):
+        issue_date = None
         fail("INV-003", "Issue date is not an ISO date.", "Use YYYY-MM-DD, for example 2026-08-24.", "/issue_date")
+    if "due_date" in invoice and invoice.get("due_date") not in (None, ""):
+        try:
+            due_date = date.fromisoformat(invoice["due_date"])
+        except (ValueError, TypeError):
+            due_date = None
+            fail("INV-020", "Due date is not an ISO date.", "Use YYYY-MM-DD, for example 2026-09-23.", "/due_date")
+        if due_date is not None and issue_date is not None and due_date < issue_date:
+            fail("INV-021", "Due date is earlier than the issue date.", "Set due date to the issue date or a later date.", "/due_date")
     if not isinstance(invoice.get("currency"), str) or len(invoice.get("currency", "")) != 3 or not invoice.get("currency", "").isupper():
         fail("INV-004", "Currency is not a three-letter uppercase code.", "Use an ISO-style code such as EUR or GBP.", "/currency")
     for party_name in ("supplier", "customer"):

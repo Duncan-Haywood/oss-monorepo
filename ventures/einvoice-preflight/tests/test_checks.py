@@ -35,6 +35,14 @@ class ChecksTest(unittest.TestCase):
     def test_ubl_invoice_maps_to_supported_shape(self):
         self.assertEqual(check_invoice(parse_ubl_invoice(UBL_VALID)), [])
 
+    def test_ubl_due_date_is_preserved_for_date_checks(self):
+        invoice = parse_ubl_invoice(UBL_VALID.replace(
+            b"<cbc:ID>INV-XML-1</cbc:ID>",
+            b"<cbc:ID>INV-XML-1</cbc:ID><cbc:DueDate>2026-08-23</cbc:DueDate>",
+        ))
+        self.assertEqual(invoice["due_date"], "2026-08-23")
+        self.assertIn("INV-021", {error["rule"] for error in check_invoice(invoice)})
+
     def test_cli_accepts_ubl_xml_file(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "invoice.xml"
@@ -85,6 +93,22 @@ class ChecksTest(unittest.TestCase):
         rules = {error["rule"] for error in errors}
         self.assertIn("INV-001", rules)
         self.assertIn("INV-003", rules)
+
+    def test_due_date_is_optional_but_must_be_iso_and_not_before_issue_date(self):
+        invoice = json.loads(json.dumps(VALID))
+        invoice["due_date"] = "2026-08-23"
+        errors = check_invoice(invoice)
+        self.assertIn("INV-021", {error["rule"] for error in errors})
+        self.assertEqual(next(error for error in errors if error["rule"] == "INV-021")["path"], "/due_date")
+
+        invoice["due_date"] = "23/09/2026"
+        errors = check_invoice(invoice)
+        self.assertIn("INV-020", {error["rule"] for error in errors})
+
+    def test_due_date_is_accepted_when_on_or_after_issue_date(self):
+        invoice = json.loads(json.dumps(VALID))
+        invoice["due_date"] = "2026-08-24"
+        self.assertEqual(check_invoice(invoice), [])
 
     def test_cli_writes_only_aggregate_usage(self):
         with tempfile.TemporaryDirectory() as directory:
