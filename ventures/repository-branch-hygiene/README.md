@@ -8,6 +8,18 @@ and a recovery manifest.
 python3 src/branch_hygiene.py examples/snapshot.json --report report.txt --manifest recovery.json
 ```
 
+For a checkout you control, the same report can be produced directly from
+local branches. This reads refs only and never fetches, pushes, or deletes:
+
+```bash
+python3 src/branch_hygiene.py --repo /path/to/checkout --report report.txt --manifest recovery.json
+```
+
+The local mode intentionally has no pull-request metadata. Branches that are
+not protected or shared are therefore reported as `uncertain`, rather than
+being treated as safe to remove. Add `--protect release` for each additional
+protected local branch.
+
 The scanner distinguishes merged branches, closed-PR branches whose tip moved,
 shared refs, protected branches, active work, and uncertain records. Each
 finding includes a non-executable `review_action`, such as
