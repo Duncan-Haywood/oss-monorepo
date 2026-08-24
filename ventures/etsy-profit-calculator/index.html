@@ -35,11 +35,11 @@
       <label>Materials / supplies <input id="materialCost" type="number" min="0" step="0.01" value="4"></label>
       <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
     </div></section>
-    <section class="result"><h2>Order result</h2><div id="profit" class="hero-number">$24.00</div><div id="label">estimated net contribution</div><dl><dt>Total revenue</dt><dd id="revenue"></dd><dt>Marketplace and payment fees</dt><dd id="fees"></dd><dt>Other variable costs</dt><dd id="other"></dd><dt>Net margin</dt><dd id="margin"></dd><dt>Break-even item price</dt><dd id="breakEven"></dd></dl><hr><h2>Reprice for a goal</h2><label>Target margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="1" value="50"></label><p id="targetPrice"></p><table><thead><tr><th>Item price</th><th>Profit</th><th>Margin</th></tr></thead><tbody id="scenarios"></tbody></table><div class="actions"><button id="copyLink" type="button">Copy shareable link</button><button id="reset" type="button">Reset to defaults</button></div><p id="status" class="note" role="status" aria-live="polite"></p><hr><p class="note">Your numbers stay in this browser and are restored on your next visit. The shareable link puts them in the URL so you can bookmark your shop's fee setup or send it to a partner. This is a transparent arithmetic result using your inputs, not a statement of Etsy's current fee schedule.</p></section>
+    <section class="result"><h2>Order result</h2><div id="profit" class="hero-number">$24.00</div><div id="label">estimated net contribution</div><dl><dt>Total revenue</dt><dd id="revenue"></dd><dt>Marketplace and payment fees</dt><dd id="fees"></dd><dt>Other variable costs</dt><dd id="other"></dd><dt>Net margin</dt><dd id="margin"></dd><dt>Break-even item price</dt><dd id="breakEven"></dd></dl><hr><h2>Reprice for a goal</h2><label>Target margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="1" value="50"></label><p id="targetPrice"></p><table><thead><tr><th>Item price</th><th>Profit</th><th>Margin</th></tr></thead><tbody id="scenarios"></tbody></table><div class="actions"><button id="copySummary" type="button">Copy order summary</button><button id="copyLink" type="button">Copy shareable link</button><button id="reset" type="button">Reset to defaults</button></div><p id="status" class="note" role="status" aria-live="polite"></p><hr><p class="note">Your numbers stay in this browser and are restored on your next visit. The shareable link puts them in the URL so you can bookmark your shop's fee setup or send it to a partner. This is a transparent arithmetic result using your inputs, not a statement of Etsy's current fee schedule.</p></section>
   </main>
   <footer><label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label><p><strong>No warranty.</strong> This free tool is not tax, financial, or business advice. Verify every output and fee against your Etsy account and a qualified professional before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p></footer>
   <script type="module">
-    import { calculateOrder, priceForMargin } from './calc.mjs'; import { recordUsage } from './usage.mjs'; import { encodeInputs, decodeInputs, FIELD_IDS } from './share.mjs';
+    import { calculateOrder, priceForMargin } from './calc.mjs'; import { recordUsage } from './usage.mjs'; import { encodeInputs, decodeInputs, FIELD_IDS } from './share.mjs'; import { formatOrderSummary } from './summary.mjs';
     const ids = FIELD_IDS;
     const INPUTS_KEY = 'etsy-profit-inputs';
     const field = id => document.getElementById(id);
@@ -53,7 +53,8 @@
 
     function apply(values) { for (const id of ids) { if (values[id] !== undefined) field(id).value = values[id]; } }
 
-    function update() { try { const result = calculateOrder(currentInputs()); document.getElementById('profit').textContent = money(result.profit); document.getElementById('profit').className = `hero-number ${result.profit < 0 ? 'negative' : 'positive'}`; document.getElementById('label').textContent = result.profit < 0 ? 'loss on this order' : 'estimated net contribution'; document.getElementById('revenue').textContent = money(result.revenue); document.getElementById('fees').textContent = money(result.fees.listing + result.fees.transaction + result.fees.payment + result.fees.offsiteAd); document.getElementById('other').textContent = money(result.costs - result.fees.listing - result.fees.transaction - result.fees.payment - result.fees.offsiteAd); document.getElementById('margin').textContent = `${result.margin.toFixed(1)}%`; document.getElementById('breakEven').textContent = money(result.breakEvenPrice); renderRepricing(currentInputs()); } catch (error) { document.getElementById('profit').textContent = error.message; } }
+    let latestResult;
+    function update() { try { const input = currentInputs(); const result = calculateOrder(input); latestResult = result; document.getElementById('profit').textContent = money(result.profit); document.getElementById('profit').className = `hero-number ${result.profit < 0 ? 'negative' : 'positive'}`; document.getElementById('label').textContent = result.profit < 0 ? 'loss on this order' : 'estimated net contribution'; document.getElementById('revenue').textContent = money(result.revenue); document.getElementById('fees').textContent = money(result.fees.listing + result.fees.transaction + result.fees.payment + result.fees.offsiteAd); document.getElementById('other').textContent = money(result.costs - result.fees.listing - result.fees.transaction - result.fees.payment - result.fees.offsiteAd); document.getElementById('margin').textContent = `${result.margin.toFixed(1)}%`; document.getElementById('breakEven').textContent = money(result.breakEvenPrice); renderRepricing(input); } catch (error) { document.getElementById('profit').textContent = error.message; } }
 
     // Repricing panel: the target-margin price and the +/- $10 scenario rows.
     // Kept separate from update() so the share/persist path above stays readable.
@@ -100,6 +101,16 @@
       const url = location.href;
       try { await navigator.clipboard.writeText(url); flash('Link copied — it reopens the calculator with these numbers.'); }
       catch { flash('Link is in your address bar — copy it to share these numbers.'); }
+    });
+
+    document.getElementById('copySummary').addEventListener('click', async () => {
+      try {
+        const input = currentInputs();
+        const summary = formatOrderSummary(input, latestResult, field('targetMargin').value, priceForMargin(input, field('targetMargin').value));
+        await navigator.clipboard.writeText(summary); flash('Order summary copied.');
+      }
+      catch { flash('Copy is unavailable in this browser. Select the result details manually.'); }
+      recordUsage(safe(() => localStorage), field('usageOptOut').checked, 'summary_copied');
     });
 
     document.getElementById('reset').addEventListener('click', () => {
