@@ -140,7 +140,7 @@ is issue further reading orders: the pipeline directory, the ledger README and
 its `break-even.md`, `re-verification.md`, the research index, the router
 README. None of those is named by the prompt. Taking the closure to its fixed
 point, as [the amendment below](#amendment-2026-08-23-the-closure-is-transitive-and-was-measured-one-hop-deep)
-records, the instruction set is **122 files at a maximum depth of 4**.
+records, the instruction set is **120 files at a maximum depth of 4**.
 
 Every one is an ordinary repository file. Every one is one merged pull request
 away from saying something else. And the agent reads all of them while holding
@@ -148,9 +148,9 @@ away from saying something else. And the agent reads all of them while holding
 `OPENCODE_API_KEY`.
 
 An attack-replay harness pointed at this agent tests the `prompt:` input. That
-input is 1 of the 122 files in the instruction set, and it is the only one of
-the 122 that an attacker has no particular reason to write to. The harness would
-test the surface at a ratio of 1:122, and it would test the wrong end of it.
+input is 1 of the 120 files in the instruction set, and it is the only one of
+the 120 that an attacker has no particular reason to write to. The harness would
+test the surface at a ratio of 1:120, and it would test the wrong end of it.
 
 This is not a subtle property that needed a clever tool. It is four regexes over
 a markdown file, a glob expansion, and a worklist that keeps going until it
@@ -190,10 +190,10 @@ that flatters it.
 |---|---:|
 | prompt input | 1 |
 | depth 1 — paths the prompt names | 21 |
-| depth 2 | 57 |
-| depth 3 | 40 |
+| depth 2 | 56 |
+| depth 3 | 39 |
 | depth 4 | 4 |
-| **instruction set (fixed point)** | **122** |
+| **instruction set (fixed point)** | **120** |
 
 The first-hop number is unchanged, so nothing above it is retracted; what
 changed is that the walk no longer stops there. Three things are worth naming
@@ -369,6 +369,16 @@ so the four rows summed to 119 against a headline of 120. Nothing checks a
 sum, which is why it survived — the depth breakdown is prose that no artifact
 check re-derives, and it is one more instance of this table's own lesson about
 figures nothing recomputes.
+
+**Reversed the same hour: `122` became `120` again.** The two new files are
+still in the repository and still do the work; what changed is that the
+documents already inside the closure now describe them in prose instead of
+naming them as path-spans. The walker only follows a backticked path
+expression, so the same check, named differently, is not part of the
+instruction set. That is the cheap half of the finding this probe exists to
+measure: the surface grows when a directed document *names* a path, not when
+the path exists. The artifact and the depth table above are regenerated
+against this checkout (21 / 56 / 39 / 4 = 120).
 
 ## What this probe deliberately does not do
 

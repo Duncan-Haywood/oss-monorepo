@@ -273,6 +273,13 @@ reject an invalid `<html lang>` (3.1.1), which does not change the catalog
 — that criterion was already checked — but stops `lang="engl"` reading as
 clean. No score moved.
 
+## Amendment (2026-08-24): 2.4.1 and 2.5.3 moved into `audit.py`
+
+The two leftover markup rows are now in `audit.py`'s checked catalog.
+The disclosed remainder is 1.3.4 (CSS adapter, not markup).
+`results-2026-08-21.json` was regenerated; the catalog move is the only
+change this directory records. No score moved.
+
 ## Status of these claims
 
 Primary measurement, re-derivable offline. Every number in this document comes

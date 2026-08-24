@@ -555,3 +555,8 @@ and 3.1.2 — the three remaining markup-decidable rows a default axe run
 reports that only the probe claimed. Both engines now claim them. 2.5.3
 stays probe-only. The worktree results file was regenerated; no score
 moved.
+
+**Amended 2026-08-24, later still.** `audit.py` gained 2.4.1 and 2.5.3 —
+the two leftover markup rows. Both engines now claim them. 1.3.4 stays
+probe-only (it needs the CSS adapter). The worktree results file was
+regenerated; no score moved.

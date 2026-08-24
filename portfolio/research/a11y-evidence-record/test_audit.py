@@ -326,6 +326,255 @@ class TimingAndLanguage(unittest.TestCase):
                 self.assertNotIn(number, untested)
 
 
+# Enough prose that 2.4.1 has something to skip *to*. A nav above an empty
+# region is a page that has not finished rendering, not a 2.4.1 failure --
+# the sibling learned that on quick-pick-survey's /app prerender.
+_BYPASS_CONTENT = (
+    "<div><p>" + ("Every survey you answer sharpens the next one. " * 6)
+    + "</p></div>"
+)
+_BYPASS_NAV = "<nav><a href='/a'>a</a><a href='/b'>b</a></nav>"
+
+
+class BypassAndLabelInName(unittest.TestCase):
+    """2.4.1 and 2.5.3 -- ported 2026-08-24 from the sibling engine."""
+
+    def test_nav_with_no_bypass_mechanism_is_blocking(self):
+        source = DOC.format(_BYPASS_NAV + _BYPASS_CONTENT)
+        result = findings(source, "page.html")
+        bypass = [f for f in result if f["check"] == "bypass-blocks"]
+        self.assertEqual(len(bypass), 1)
+        self.assertEqual(bypass[0]["success_criterion"], "2.4.1 Bypass Blocks")
+        self.assertEqual(bypass[0]["severity"], "blocking")
+
+    def test_main_landmark_suppresses_bypass(self):
+        source = DOC.format(_BYPASS_NAV + "<main>" + _BYPASS_CONTENT + "</main>")
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "bypass-blocks"],
+            [],
+        )
+
+    def test_heading_suppresses_bypass(self):
+        source = DOC.format(
+            _BYPASS_NAV + "<div><h1>T</h1>" + _BYPASS_CONTENT + "</div>")
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "bypass-blocks"],
+            [],
+        )
+
+    def test_skip_link_suppresses_bypass(self):
+        source = DOC.format(
+            "<a href='#c'>Skip</a>" + _BYPASS_NAV
+            + "<div id='c'>" + _BYPASS_CONTENT + "</div>")
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "bypass-blocks"],
+            [],
+        )
+
+    def test_role_main_suppresses_bypass(self):
+        source = DOC.format(
+            _BYPASS_NAV + "<div role='main'>" + _BYPASS_CONTENT + "</div>")
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "bypass-blocks"],
+            [],
+        )
+
+    def test_role_navigation_counts_as_a_block(self):
+        source = DOC.format(
+            "<div role='navigation'><a href='/a'>a</a></div>" + _BYPASS_CONTENT)
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "bypass-blocks"],
+            ["bypass-blocks"],
+        )
+
+    def test_page_with_nothing_to_bypass_is_left_alone(self):
+        source = DOC.format(_BYPASS_CONTENT)
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "bypass-blocks"],
+            [],
+        )
+
+    def test_many_links_count_as_a_block_without_a_nav(self):
+        links = "".join(f"<a href='/p{i}'>p{i}</a>" for i in range(12))
+        source = DOC.format(f"<div>{links}</div>" + _BYPASS_CONTENT)
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "bypass-blocks"],
+            ["bypass-blocks"],
+        )
+
+    def test_fragment_without_a_body_is_not_a_page(self):
+        # Sibling: no <body> means no page, so no 2.4.1 finding.
+        self.assertEqual(
+            [f["check"] for f in findings(_BYPASS_NAV + _BYPASS_CONTENT)
+             if f["check"] == "bypass-blocks"],
+            [],
+        )
+
+    def test_unrendered_shell_is_not_a_bypass_failure(self):
+        shell = '<div class="flex"><div>Loading&#8230;</div></div>' + _BYPASS_NAV
+        source = DOC.format(shell)
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "bypass-blocks"],
+            [],
+        )
+
+    def test_expression_href_that_could_be_a_skip_link_is_undecidable(self):
+        source = DOC.format(
+            "<a href='{{ skip }}'>Skip</a>" + _BYPASS_NAV + _BYPASS_CONTENT)
+        self.assertEqual(checks(source, "page.html"), [])
+        self.assertEqual(undecidable(source, "page.html"), ["bypass-blocks"])
+
+    def test_aria_label_not_containing_visible_text_is_blocking(self):
+        source = DOC.format('<button aria-label="Submit order">Buy now</button>')
+        result = findings(source, "page.html")
+        labels = [f for f in result if f["check"] == "label-in-name"]
+        self.assertEqual(len(labels), 1)
+        self.assertEqual(labels[0]["success_criterion"], "2.5.3 Label in Name")
+        self.assertEqual(labels[0]["severity"], "blocking")
+        self.assertIn("Buy now", labels[0]["detail"])
+        self.assertIn("Submit order", labels[0]["detail"])
+
+    def test_accessible_name_containing_the_visible_text_passes(self):
+        source = DOC.format(
+            '<button aria-label="Buy now, adds to cart">Buy now</button>')
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "label-in-name"],
+            [],
+        )
+
+    def test_match_ignores_case_and_punctuation(self):
+        source = DOC.format(
+            '<button aria-label="please BUY NOW!">Buy now.</button>')
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "label-in-name"],
+            [],
+        )
+
+    def test_link_with_mismatched_name_is_flagged(self):
+        source = DOC.format('<a href="/x" aria-label="Read more">Shipping</a>')
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "label-in-name"],
+            ["label-in-name"],
+        )
+
+    def test_link_without_href_is_not_a_widget(self):
+        source = DOC.format('<a aria-label="Read more">Shipping</a>')
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "label-in-name"],
+            [],
+        )
+
+    def test_explicit_role_takes_the_element_out_of_scope(self):
+        source = DOC.format(
+            '<button role="presentation" aria-label="Submit order">'
+            "Buy now</button>")
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "label-in-name"],
+            [],
+        )
+
+    def test_explicit_widget_role_brings_a_plain_element_into_scope(self):
+        source = DOC.format(
+            '<div role="button" aria-label="Submit order">Buy now</div>')
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "label-in-name"],
+            ["label-in-name"],
+        )
+
+    def test_aria_labelledby_is_resolved_not_assumed(self):
+        source = DOC.format(
+            '<span id="n">Submit order</span>'
+            '<button aria-labelledby="n">Buy now</button>')
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "label-in-name"],
+            ["label-in-name"],
+        )
+
+    def test_unresolvable_aria_labelledby_is_left_alone(self):
+        source = DOC.format(
+            '<button aria-labelledby="missing">Buy now</button>')
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "label-in-name"],
+            [],
+        )
+
+    def test_no_override_is_never_a_finding(self):
+        source = DOC.format("<button>Buy now</button>")
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "label-in-name"],
+            [],
+        )
+
+    def test_glyph_only_label_is_not_text_presented_visually(self):
+        source = DOC.format('<button aria-label="Close">×</button>')
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "label-in-name"],
+            [],
+        )
+
+    def test_image_label_is_refused_rather_than_guessed_from_alt(self):
+        source = DOC.format(
+            '<button aria-label="Submit order">'
+            '<img src="b.png" alt="Buy now"></button>')
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "label-in-name"],
+            [],
+        )
+
+    def test_input_value_is_the_visible_label(self):
+        source = DOC.format(
+            '<input type="submit" value="Buy now" aria-label="Submit order">')
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "label-in-name"],
+            ["label-in-name"],
+        )
+
+    def test_text_input_is_out_of_scope(self):
+        source = DOC.format(
+            '<input type="text" value="Buy now" aria-label="Search products">')
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "label-in-name"],
+            [],
+        )
+
+    def test_aria_label_from_an_expression_is_undecidable(self):
+        source = DOC.format(
+            '<button aria-label="{{ name }}">Buy now</button>')
+        self.assertEqual(checks(source, "page.html"), [])
+        self.assertIn("label-in-name", undecidable(source, "page.html"))
+
+    def test_new_criteria_are_checked_not_declared_untested(self):
+        untested = {c.split()[0] for c, _ in audit.NOT_TESTED}
+        for number, key in (
+            ("2.4.1", "bypass-blocks"),
+            ("2.5.3", "label-in-name"),
+        ):
+            with self.subTest(criterion=number):
+                self.assertIn(key, audit.CHECKS)
+                self.assertNotIn(number, untested)
+
+
 class ReferencesAndOrder(unittest.TestCase):
     def test_broken_aria_labelledby(self):
         source = DOC.format("<div aria-labelledby='nope'>x</div>")
@@ -921,8 +1170,8 @@ class CoverageBoundaryIsComplete(unittest.TestCase):
         # markup. Any of these missing from both lists is a silent gap.
         statically_reachable = {
             "1.1.1", "1.2.2", "1.3.1", "1.4.1", "1.4.2", "1.4.3", "1.4.4",
-            "2.2.1", "2.2.2", "2.4.2", "2.4.3", "2.4.4",
-            "3.1.1", "3.1.2", "3.3.2", "4.1.2",
+            "2.2.1", "2.2.2", "2.4.1", "2.4.2", "2.4.3", "2.4.4",
+            "2.5.3", "3.1.1", "3.1.2", "3.3.2", "4.1.2",
         }
         self.assertEqual(statically_reachable - checked - declared, set())
 

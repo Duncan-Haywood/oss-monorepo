@@ -317,10 +317,10 @@ pointing at a first-hand measurement in this README; `prior_verdicts` and
 hidden. Pinning is deliberately hard to reach for — three entries, all of them
 the same finding.
 
-**What is checked now, and what still is not.** `consolidate.py --check` asserts
-the committed table equals a fresh ingest, offline; `check_ask_hosts.py` asserts
-every host named in an owner ask has a verdict here; both run in
-`portfolio-validate.yml`, with unit tests in
+**What is checked now, and what still is not.** The ingest-equality check
+asserts the committed table equals a fresh ingest, offline; the ask-host
+checker asserts every host named in an owner ask has a verdict here; both run
+in `portfolio-validate.yml`, with unit tests in
 [test_consolidate.py](test_consolidate.py). What none of them catches is the
 defect that would have cost the most — an ask naming a *real, measured, denied*
 host that is simply the wrong host for the thing it claims to unlock. No schema
