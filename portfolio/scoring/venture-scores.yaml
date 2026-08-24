@@ -543,3 +543,60 @@ ventures:
       expectations", never to restorability, completeness, or data safety.
       Testing restores and maintaining an independent backup strategy remain
       customer responsibilities.
+
+  - slug: shopify-permission-drift
+    scores:
+      ai_leverage: 7
+      autonomous_ops: 8
+      time_to_revenue: 6
+      gross_margin: 9
+      defensibility: 4
+      distribution: 6
+    composite: 6.667
+    rater_b: null
+    floor: 4
+    floor_dimension: defensibility
+    floor_note: >-
+      Local, source-linked comparisons are useful but readily replicated; a
+      hosted agency workflow or repeatable App Store search channel is still
+      untested.
+    basis: >-
+      Graduated from the Shopify permission drift candidate on 2026-08-24. The
+      first slice compares customer-authorized exports locally with no Shopify
+      credentials, network dependency, or paid service.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: the tool reports differences in supplied exports and
+      does not claim that an app is compliant or safe. Minimum scopes and any
+      hosted integration require explicit customer authorization.
+
+  - slug: no-show-fee-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      AI is intentionally unnecessary: transparent arithmetic and policy
+      drafting are the user value. Repeat usage and niche templates may provide
+      a future moat, but demand is untested.
+    basis: >-
+      Graduated as a new venture on 2026-08-24. The browser-local calculator
+      addresses a specific revenue leak for appointment businesses, has no
+      account, network, inference, or payment dependency, and produces a
+      copyable policy draft from user-supplied numbers.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: results are estimates and draft text, not legal or
+      financial advice. The interface tells users to verify local consumer,
+      industry, and payment-processor requirements before publishing.
