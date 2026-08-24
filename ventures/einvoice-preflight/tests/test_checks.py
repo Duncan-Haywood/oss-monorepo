@@ -9,7 +9,6 @@ from unittest.mock import patch
 from einvoice_preflight.checks import check_invoice
 from einvoice_preflight.cli import main
 from einvoice_preflight.ubl import parse_ubl_invoice
-from einvoice_preflight.ubl import parse_ubl_invoice
 
 
 VALID = {
