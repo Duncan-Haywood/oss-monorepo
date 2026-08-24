@@ -1,9 +1,9 @@
 # E-invoice preflight
 
 **Validate a structured invoice before submission.** This free local CLI checks
-a small, transparent JSON invoice shape for missing fields and arithmetic
-mistakes, then prints rule IDs and plain-language fixes. It is aimed at
-bookkeepers and ERP integrators searching for an e-invoice preflight check.
+a small, transparent JSON or UBL XML invoice shape for missing fields and
+arithmetic mistakes, then prints rule IDs and plain-language fixes. It is aimed
+at bookkeepers and ERP integrators searching for an e-invoice preflight check.
 
 ```sh
 cd ventures/einvoice-preflight
@@ -16,13 +16,16 @@ PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format csv > triage.c
 cat invoice.json | PYTHONPATH=src python3 -m einvoice_preflight - --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --usage-file ~/.local/state/einvoice-preflight/usage.json
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format json
+PYTHONPATH=src python3 -m einvoice_preflight invoice.xml --format json
 ```
 
 For an installed command, run `python3 -m pip install .` from this directory,
 then use `python3 -m einvoice_preflight invoice.json` from anywhere. Pass `-`
-as the filename to read one JSON invoice from standard input, which is useful
-for ERP adapters and CI pipelines. SARIF reports use `stdin.json` as the
-artifact name for piped input.
+as the filename to read one JSON or UBL XML invoice from standard input, which
+is useful for ERP adapters and CI pipelines. SARIF reports use `stdin.json` as
+the artifact name for piped input. Directories are scanned recursively for both
+`.json` and `.xml` files. XML input maps common UBL Invoice elements into the
+same checks; it is not a full Peppol or EN 16931 conformance validator.
 
 The tool never submits an invoice, chooses a tax rate, contacts a tax
 authority, or claims that an invoice is legally valid. It only checks the
@@ -31,7 +34,9 @@ for selecting the correct format, tax treatment, and submission process.
 
 ## Input shape
 
-The supported v0 shape is intentionally small and format-neutral:
+The supported v0 JSON shape is intentionally small and format-neutral. UBL XML
+input maps common `Invoice`, `InvoiceLine`, party, tax, and monetary-total
+elements into this shape:
 
 ```json
 {
