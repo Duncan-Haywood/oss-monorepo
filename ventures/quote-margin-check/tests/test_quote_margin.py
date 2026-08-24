@@ -1,6 +1,8 @@
+import contextlib
+import io
 import unittest
 
-from src.quote_margin import calculate, load_quote
+from src.quote_margin import calculate, csv_report, load_quote
 
 
 class QuoteMarginTests(unittest.TestCase):
@@ -34,3 +36,26 @@ class QuoteMarginTests(unittest.TestCase):
     def test_reports_price_left_after_direct_costs(self) -> None:
         quote = load_quote({"price": 1000, "delivery_hours": 10, "overhead": 125, "subcontractor_cost": 75, "target_hourly_rate": 80})
         self.assertEqual(calculate(quote)["cost_coverage"], 800)
+
+    def test_csv_report_is_ready_for_spreadsheet_import(self) -> None:
+        quote = load_quote({"currency": "EUR", "price": 2400, "delivery_hours": 24, "target_hourly_rate": 75})
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            csv_report(quote, calculate(quote))
+        self.assertEqual(
+            output.getvalue().splitlines(),
+            [
+                "measure,value,unit",
+                "quoted_price,2400.00,EUR",
+                "total_working_hours,24.00,hours",
+                "direct_costs,0.00,EUR",
+                "effective_hourly_rate,100.00,EUR/hour",
+                "target_price,1800.00,EUR",
+                "gap_to_target,600.00,EUR",
+                "cost_coverage,2400.00,EUR",
+            ],
+        )
+
+    def test_currency_defaults_and_is_trimmed(self) -> None:
+        quote = load_quote({"currency": " USD ", "price": 1000, "delivery_hours": 10, "target_hourly_rate": 100})
+        self.assertEqual(quote.currency, "USD")
