@@ -1,0 +1,12 @@
+{
+  "release": "acme-api@1.4.2",
+  "source": {
+    "commit": "9f3a1c7d2e5b4a80f1c6d3e2a9b8c7d6e5f40312",
+    "url": "https://example.test/acme/api/commit/9f3a1c7d2e5b4a80f1c6d3e2a9b8c7d6e5f40312"
+  },
+  "inputs": [
+    {"role": "manifest", "path": "project/package.json"},
+    {"role": "lockfile", "path": "project/package-lock.json"},
+    {"role": "artifact", "path": "project/acme-api-1.4.2.tgz", "declared_sha256": "802dfcd5c1f06b46b0d32888ec9f08d79b5969ea11bc8c476083620185d6dc43"}
+  ]
+}

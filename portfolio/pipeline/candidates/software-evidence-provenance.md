@@ -95,3 +95,20 @@ server. This candidate is narrower and different: it records provenance of a
 specific software release without scanning vulnerabilities, monitoring a vendor,
 or testing agent behavior. Its rejection is nevertheless deliberate because the
 distinction is a workflow detail, not a defensible business advantage.
+
+## Graduation note (2026-08-24)
+
+Graduated as a free venture at `ventures/software-evidence-provenance` — a
+local, deterministic CLI that hashes a release's named build inputs into a
+reproducible evidence bundle and reproduces it later. **The `reject` verdict
+above is retained deliberately and the scores are unchanged.** That verdict is
+about the *paid product*: defensibility (3) — the mechanism is an afternoon's
+work and SLSA/Sigstore/SBOM tooling already covers the adjacent records — and
+distribution (4) — the portfolio has no warm channel to release engineers or
+security reviewers. Neither blocks shipping *free* value now, which is the
+current product-first brief. The venture measures whether a reproducible
+input-hash record earns a place beside existing attestation tooling before any
+paid tier or moat claim is entertained. The liability and ethics gates (8/8),
+this candidate's strongest dimensions, are what make it safe to ship: every
+claim points back to a named input or is labelled unverified, and the tool
+never asserts a release is secure, licensed, or compliant.

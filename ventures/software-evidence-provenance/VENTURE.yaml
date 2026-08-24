@@ -1,0 +1,27 @@
+name: software-evidence-provenance
+description: A free local CLI that hashes a software release's named build inputs (manifest, lockfile, artifact, SBOM, commit reference) into a reproducible, source-linked evidence bundle, and reproduces that bundle later — so an unresolved or changed input is reported as exactly that, never folded into a passing review.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Release engineers, security reviewers, and consultants who sign off on third-party or customer software will run a free tool that pins the exact SHA-256 of every input they examined, because "was the thing that shipped the thing we reviewed?" is a recurring, high-cost-if-wrong question a checkmark in a ticket cannot answer.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A portable, reproducible evidence bundle is valuable on its own (audit trail, client hand-off, supply-chain due diligence) even without integrating with a signing authority, and stays useful beside — not instead of — SLSA/Sigstore/SBOM tooling.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three release engineers or security reviewers identify a recurring workflow where a reproducible input-hash record beats the SBOM/attestation tooling they already run, after ten conversations.
+  - The evidence bundle cannot keep "not observed" distinct from "verified absent" without nudging users toward a compliance claim it is not entitled to make.
+links:
+  production: null
+  analytics: null

@@ -585,3 +585,50 @@ ventures:
       expectations", never to restorability, completeness, or data safety.
       Testing restores and maintaining an independent backup strategy remain
       customer responsibilities.
+
+  - slug: software-evidence-provenance
+    scores:
+      ai_leverage: 6
+      autonomous_ops: 8
+      time_to_revenue: 5
+      gross_margin: 9
+      defensibility: 3
+      distribution: 4
+    composite: 5.833
+    rater_b: null
+    floor: 3
+    floor_dimension: defensibility
+    floor_note: >-
+      A content-hash-plus-stat evidence bundle is reproducible by anyone in
+      an afternoon, and SLSA/Sigstore/SBOM tooling already covers the adjacent
+      records; the only asset that could compound is a per-customer history of
+      what was reviewed and when, which is untested. Distribution is similarly
+      unproven until a named release-engineering or security-review channel
+      adopts it. These scores carry the pipeline candidate's estimate
+      (`portfolio/pipeline/candidates/software-evidence-provenance.md`,
+      composite 6.375 on eight dimensions); the six-dimension mean here is
+      lower because the two gate dimensions it excludes are this candidate's
+      strongest.
+    basis: >-
+      The shipped v1 is a deterministic local CLI with no network calls,
+      credentials, paid APIs, or inference dependency, which supports strong
+      autonomous operation and gross margin. AI leverage is modest by design --
+      hashing and presence checks are deterministic; a model could only help
+      summarize differences, which v1 does not do. Time to revenue and
+      distribution are moderated by an unproven recurring workflow and the
+      absence of an owned channel to release engineers and security reviewers.
+      The candidate doc's verdict is `reject` on paid-product moat and
+      distribution grounds; this venture graduates it as a free, usage-first
+      tool under the portfolio's current product-first brief, which those
+      grounds do not block -- see the PR and the candidate doc's graduation
+      note.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: every claim in a bundle points back to a named input file or is
+      labelled unverified. `reproduced` is scoped in the CLI output and README
+      to "the recorded files still hash to the same bytes", never to security,
+      licensing, completeness, or fitness to ship, and a recorded source commit
+      is explicitly marked not verified against any repository. The release
+      decision and any compliance conclusion remain the customer's.

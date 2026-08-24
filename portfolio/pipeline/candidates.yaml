@@ -87,6 +87,14 @@ candidates:
     verdict: reject
     graduate_as: venture
     host_venture: null
+    initiated: 2026-08-24
+    initiated_path: ventures/software-evidence-provenance
+    initiated_note: >-
+      Graduated as a free, usage-first CLI under the product-first brief. The
+      `reject` verdict below is retained deliberately: it is about paid-product
+      moat (defensibility 3) and an unproven sales channel (distribution 4),
+      neither of which blocks shipping free value now. Scores are unchanged.
+      See the venture's graduation note in the doc.
     scores:
       ai_leverage: 6
       autonomous_ops: 8
