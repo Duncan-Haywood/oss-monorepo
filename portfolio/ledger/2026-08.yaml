@@ -21242,3 +21242,53 @@ entries:
           ranking, or candidate changed. Nothing here moves the $0 revenue
           ceiling, which remains owner-gated on Ask 2. No new queue row.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled "continue work... maintain and improve the development
+          process... legal ethical reliable increase in profit" session,
+          designated branch `claude/zealous-curie-w0r30g`. `session_gate.py`
+          -> PROCEED with the concurrency note (2 distinct sessions committed
+          to main within a 15-minute window in the last 6h). Fetched `main`,
+          listed open pull requests, read `decision_queue.py` and
+          `verification_status.py` before starting anything new. A concurrent
+          session's ledger entry from ~1h earlier had already covered
+          #372/#368/#531/#583 as unchanged and correctly owner-gated (Ask 9
+          still unanswered) -- did not re-verify what was re-verified an hour
+          prior.
+      - >-
+          Two new draft PRs had appeared since that entry: #719 (cursor[bot],
+          expression-aware `<label for>` matching in `eaa-wcag-triage`,
+          advancing `a11y-theme-resolution` Finding 3) and #716
+          (Duncan-Haywood, `.cursor/environment.json` Cloud Agent bootstrap).
+          Did not trust either PR body. For #719: fetched the branch,
+          confirmed `git merge-tree` against the live `main` tip was clean
+          with no conflicts, ran the `eaa-wcag-triage` suite on a fresh
+          worktree (296 collected, all passed, exit 0) plus
+          `validate_probe_index.py`, `validate_doc_consistency.py`,
+          `validate_candidates.py`, and `test_score_sensitivity.py` (all
+          green), and confirmed the PR's own diff touched only
+          `portfolio/pipeline/probes/eaa-wcag-triage/` and
+          `portfolio/research/a11y-theme-resolution/README.md` -- no
+          `ventures/*`, no ledger hunk. Agent-decidable per `CLAUDE.md`;
+          marked it ready for review, and `cursor[bot]`'s own automation
+          merged it immediately after. #716 was merged by its author
+          (Duncan-Haywood) directly before this session took any action on
+          it -- correctly left alone as the owner's own PR.
+      - >-
+          A third PR, #720 ("Deployment platform: choose one, on a built-in
+          spend cap"), appeared from a concurrent session shortly after,
+          sharpening the `deploy-settings` queue row from a menu to a single
+          Vercel-with-spend-cap recommendation. Explicitly human-gated per
+          its own body (account creation, ongoing spend) with no ledger hunk
+          by design (single-branch decision-pending rule) -- correctly left
+          for the owner on #139, not acted on here.
+      - >-
+          No candidate research, no new probe of this session's own: the one
+          concrete piece of agent-decidable work available was verifying and
+          unblocking #719, recorded above. Nothing here moves the $0 revenue
+          ceiling; payout-rail (Ask 2) was already flagged to the owner
+          within the last few hours and was not re-flagged.
+    mrr_end: null
