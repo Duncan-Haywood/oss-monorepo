@@ -190,10 +190,10 @@ that flatters it.
 |---|---:|---:|
 | prompt input | 1 | 1 |
 | depth 1 — paths the prompt names | 4 | 21 |
-| depth 2 | 31 | 56 |
+| depth 2 | 32 | 56 |
 | depth 3 | 10 | 40 |
 | depth 4 | 27 | 4 |
-| **instruction set (fixed point)** | **72** | **121** |
+| **instruction set (fixed point)** | **73** | **121** |
 
 The right column is the measurement this amendment was written against, kept
 because the argument below is stated in its numbers. The left column is the
@@ -405,13 +405,22 @@ above reading `21 / 56 / 40 / 4 = 121` — a figure for a prompt that no longer
 exists, surviving for the usual reason: **nothing recomputes the table, only the
 artifact.**
 
-A follow-up pull request then took `41` to `72` (`4 / 31 / 10 / 27`) by adding
-`PRODUCT_PLAYBOOK.md` and `portfolio/usage/README.md` and naming them from three
-documents already at depth 1. Both are ordinary documentation. The 27 files that
-appeared at depth 4 are the compounding this rule exists to show: a document that
-is *itself* newly inside the closure brings everything it names, so the surface
-grows by more than the count of files a diff adds — two new documents, thirty-one
-new files in the instruction set.
+A follow-up pull request then took `41` to `72` by adding `PRODUCT_PLAYBOOK.md`
+and `portfolio/usage/README.md` and naming them from three documents already at
+depth 1; merging main brought one more depth-2 path in, for `73`
+(`4 / 32 / 10 / 27`) in the tree this table was regenerated against. Both new
+files are ordinary documentation. The 27 files that appeared at depth 4 are the
+compounding this rule exists to show: a document that is *itself* newly inside
+the closure brings everything it names, so the surface grows by far more than
+the count of files a diff adds — two new documents, thirty-two new files in the
+instruction set.
+
+That same pull request also hit the race this probe's CI had against `main`:
+two runs on one commit computed `72` and then `73`, because the default
+`pull_request` checkout measures an ephemeral merge-with-main preview while
+concurrent sessions push to `main` continuously. The workflow now checks out the
+PR's head SHA, making the measurement a function of the commit under test. A
+closure count is only reproducible if the thing measured holds still.
 
 Both corrections are in this pull request: the artifact is regenerated and the
 depth table now reads the current checkout. Two things worth keeping from the

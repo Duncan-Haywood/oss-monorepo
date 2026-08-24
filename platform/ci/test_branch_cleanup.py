@@ -18,6 +18,7 @@ from datetime import datetime, timedelta, timezone
 from branch_cleanup import (
     DEFAULT_PROTECTED,
     decide,
+    expand_grace_prs,
     iter_closed_for_sweep,
     refs_in_grace,
     run,
@@ -208,10 +209,12 @@ class SummarisePrTest(unittest.TestCase):
 
 
 class FakeGitHub:
-    def __init__(self, branch_shas, open_refs=(), after_snapshot=None):
+    def __init__(self, branch_shas, open_refs=(), after_snapshot=None,
+                 closed_for_head=None):
         self._branch_shas = dict(branch_shas)
         self._open_refs = set(open_refs)
         self._after_snapshot = after_snapshot
+        self._closed_for_head = closed_for_head or {}
         self.deleted = []
 
     def branch_shas(self):
@@ -229,6 +232,9 @@ class FakeGitHub:
             self._after_snapshot = None
             hook(self)
         return refs
+
+    def closed_pulls_for_head(self, ref, cap=100):
+        return list(self._closed_for_head.get(ref, []))[:cap]
 
     def delete_branch(self, ref):
         self.deleted.append(ref)
@@ -355,6 +361,34 @@ class RunTest(unittest.TestCase):
                 self.assertEqual(github.deleted, [])
                 self.assertIn("grace", out.getvalue())
 
+    def test_on_close_merged_pr_does_not_end_a_peer_grace_window(self):
+        # The pull_request_target job passes only the merged PR. A reused
+        # branch still inside another closed-unmerged PR's grace must stay.
+        ref = "claude/shared"
+        now = datetime.now(timezone.utc)
+        merged = pr(
+            number=10,
+            head_ref=ref,
+            merged_at=now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            closed_at=now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        )
+        peer = {
+            "number": 9,
+            "state": "closed",
+            "merged_at": None,
+            "closed_at": (now - timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "head": {"ref": ref, "sha": "a" * 40, "repo": {"full_name": REPO}},
+            "base": {"ref": "main", "repo": {"full_name": REPO}},
+        }
+        github = FakeGitHub({ref: "a" * 40}, closed_for_head={ref: [peer]})
+        out = io.StringIO()
+
+        deleted = run(github, [merged], DEFAULT_PROTECTED, 24.0, False, out)
+
+        self.assertEqual(deleted, 0)
+        self.assertEqual(github.deleted, [])
+        self.assertIn("another PR's grace period", out.getvalue())
+
 
 class SweepWindowTest(unittest.TestCase):
     def test_already_gone_heads_do_not_consume_the_sweep_cap(self):
@@ -383,6 +417,20 @@ class SweepWindowTest(unittest.TestCase):
         newer = pr(number=2, head_ref=ref, closed_at="2026-08-24T11:00:00Z")
         merged = pr(number=3, head_ref="claude/merged", merged_at="2026-08-24T11:00:00Z")
         self.assertEqual(refs_in_grace([older, newer, merged], NOW, 24.0), {ref})
+
+    def test_expand_grace_prs_loads_other_closed_prs_on_the_same_head(self):
+        target = pr(number=10, head_ref="claude/shared", merged_at="2026-08-24T11:30:00Z")
+        peer = {
+            "number": 9,
+            "state": "closed",
+            "merged_at": None,
+            "closed_at": "2026-08-24T11:00:00Z",
+            "head": {"ref": "claude/shared", "sha": "a" * 40, "repo": {"full_name": REPO}},
+            "base": {"ref": "main", "repo": {"full_name": REPO}},
+        }
+        expanded = expand_grace_prs([target], lambda ref: [peer])
+        self.assertEqual({row["number"] for row in expanded}, {9, 10})
+        self.assertEqual(expanded[1]["head_ref"], "claude/shared")
 
 
 if __name__ == "__main__":

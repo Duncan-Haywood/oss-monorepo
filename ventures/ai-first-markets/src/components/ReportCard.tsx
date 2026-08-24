@@ -35,7 +35,7 @@ export function ReportCard({ report }: ReportCardProps) {
       </h3>
       <p className="mt-2 text-sm text-zinc-400">{report.description}</p>
       {report.arrFocus && (
-        <p className="mt-3 text-xs text-zinc-500">
+        <p className="mt-3 text-xs text-zinc-400">
           Focus: {report.arrFocus === "100k" ? "$100k ARR" : "$1M ARR"}
         </p>
       )}
