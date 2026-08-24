@@ -35,6 +35,23 @@ name: Portfolio validate
 # And every workflow file must stay legible to GitHub itself: an unparseable
 # one registers under its own path and emits a zero-job startup_failure per
 # event, which no PR check surfaces.
+#
+# And the consolidated egress table must keep matching what has actually been
+# measured. `research/egress-reachability/` exists because nine passes each
+# re-probed an overlapping host set without folding the results anywhere; four
+# days after it landed it was six hosts short again, because `--ingest` is a
+# command someone has to remember to run. `--probe` iterates the committed
+# table, so a host missing from it is never re-measured either. The ingest is
+# deterministic and needs no network, so the drift is checkable.
+#
+# And no decision waiting on the account owner may name a host nothing has
+# probed. `asks.yaml`'s egress row asked for `www.ftc.gov` for five days with
+# no verdict in that table -- it had been measured by a pass that left prose
+# and no results file, which the ingest cannot see. That row also named the
+# EUVD *website* host while claiming to unlock a wedge that needs the *API*
+# host, so granting it as written would have spent the owner's one allowlist
+# decision and unblocked nothing. Naming a host now requires having measured
+# it.
 
 on:
   push:
@@ -45,6 +62,7 @@ on:
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
       - "portfolio/research/README.md"
+      - "portfolio/research/egress-reachability/**"
       - "portfolio/scoring/**"
       - "portfolio/ledger/break-even.md"
       - "portfolio/ledger/break_even.py"
@@ -68,6 +86,7 @@ on:
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
       - "portfolio/research/README.md"
+      - "portfolio/research/egress-reachability/**"
       - "portfolio/scoring/**"
       - "portfolio/ledger/break-even.md"
       - "portfolio/ledger/break_even.py"
@@ -177,3 +196,15 @@ jobs:
       - name: Decision-queue tests
         working-directory: portfolio/ledger
         run: python3 -m unittest test_decision_queue
+
+      - name: Check the consolidated egress table still matches a fresh ingest
+        working-directory: portfolio/research/egress-reachability
+        run: python3 consolidate.py --check
+
+      - name: Check every host in an owner ask has a measured verdict
+        working-directory: portfolio/research/egress-reachability
+        run: python3 check_ask_hosts.py
+
+      - name: Egress-consolidation tests
+        working-directory: portfolio/research/egress-reachability
+        run: python3 -m unittest test_consolidate

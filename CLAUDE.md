@@ -164,8 +164,12 @@ writing anything:
   probe. Fourteen passes over two days re-derived each other's work because
   each one's results sat in an unmerged branch; the index exists so a fifteenth
   does not. In particular, **do not write a new egress/reachability probe** —
-  `portfolio/research/egress-reachability/` covers 92 hosts and regenerates the
-  whole table with one command
+  `portfolio/research/egress-reachability/` covers 98 hosts and regenerates the
+  whole table with one command. If you measure a host it does not carry, fold it
+  in (`consolidate.py --ingest`, or `unindexed-hosts.json` if your pass lives
+  outside `portfolio/research/`) — `--probe` iterates that table, so a host
+  missing from it is never re-measured and the next session probes it from
+  scratch. CI checks this now
 
 The finding every run reproduces is that **the bottleneck is distribution and
 customer contact, not idea generation**. Every candidate in that directory is
