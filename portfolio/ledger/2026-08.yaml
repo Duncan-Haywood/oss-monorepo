@@ -20507,3 +20507,42 @@ entries:
         registered, no automation added or re-enabled -- agent-decidable
         throughout, self-merged. No score, ranking, or candidate change.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work... maintain and improve the development
+        process... legal ethical reliable increase in profit... more
+        strategic work" session, designated branch
+        claude/wizardly-albattani-978ymv. `session_gate.py` -> PROCEED,
+        flagging 2 distinct sessions committed to `main` within a
+        15-minute window in the last 6h. Checked the 5 open PRs (#700,
+        #583, #531, #372, #368) and issue #139 before starting.
+      - >-
+        #700 had a failing `test` check from `agent-permission-harness-
+        ci.yml`, reproduced locally: `main` no longer regenerated
+        `results-2026-08-23.md` byte-identically (R7's file count had
+        drifted 115->117 from unrelated files landing elsewhere in the
+        repo, unrelated to #700's own diff). Started building a fix, but
+        `git fetch origin main` turned up #701 -- merged minutes earlier by
+        a concurrent session, already regenerating the results file in
+        place to 117/37.
+      - >-
+        That left `results-2026-08-23.md` correct but README.md's prose
+        (five mentions: headline count, attacker-ratio sentence, depth-3
+        and fixed-point table cells) and harness.py's docstring still said
+        115/35, disagreeing with the artifact they describe. Opened,
+        verified, and self-merged #704: updated only that leftover prose
+        to 117/37. Confirmed harness.py's output stayed byte-identical to
+        the untouched results file, the probe's 84 tests passed, and the
+        full `portfolio-validate.yml` step set was green locally. `git
+        merge-tree` re-checked clean against the live `main` tip
+        immediately before pushing and again immediately before merging.
+      - >-
+        Agent-decidable per `CLAUDE.md`: two files of probe docs/docstring
+        only, no `ventures/*` app code, publishes nothing, spends nothing
+        beyond agent time. #583, #531, #372, #368 remain unchanged and
+        correctly owner-gated (deployable venture app code or unattended
+        automation); not re-verified here since nothing about them had
+        changed since their last recorded check.
