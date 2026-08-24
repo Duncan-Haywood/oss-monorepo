@@ -86,6 +86,27 @@ def _inject_body(fragment: str) -> Callable[[str], str]:
     return apply
 
 
+def _inject_bypass_defect(html: str) -> str:
+    """Make a page with navigation, content, and no bypass mechanism."""
+    without_headings = re.sub(
+        r"</?h[1-6]\b[^>]*>", "", html, flags=re.I
+    )
+    navigation = (
+        '<nav>'
+        + "".join(f'<a href="/control-{index}">Section {index}</a>' for index in range(10))
+        + "</nav>"
+    )
+    content = (
+        '<p>This deliberately long control passage supplies enough real page '
+        "content to make the missing bypass mechanism meaningful. "
+        "A keyboard or screen-reader user should be able to skip repeated "
+        "navigation and reach the article content without traversing every "
+        "link on each page. The passage is only test data and is not a claim "
+        "about the customer's content.</p>"
+    )
+    return _inject_body(navigation + content)(without_headings)
+
+
 # (criterion, kind, description, mutate)
 #
 # Injections first in each group so an engagement whose pages are fragments
@@ -154,6 +175,24 @@ MUTATIONS: tuple = (
         "injection",
         "add a <meta http-equiv=refresh>",
         _inject_head('<meta http-equiv="refresh" content="5"/>'),
+    ),
+    (
+        "2.2.2",
+        "injection",
+        "add a continuously moving <marquee>",
+        _inject_body("<marquee>control-probe</marquee>"),
+    ),
+    (
+        "2.4.1",
+        "injection",
+        "remove bypass mechanisms and add repeated navigation",
+        _inject_bypass_defect,
+    ),
+    (
+        "3.1.2",
+        "injection",
+        "add a part with an unknown language tag",
+        _inject_body('<span lang="zz">control-probe</span>'),
     ),
     (
         "1.4.1",

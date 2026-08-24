@@ -19,7 +19,8 @@ from wcag_triage.positive_control import (
     run_control,
 )
 
-# A well-formed page that exercises every removal and every injection.
+# A well-formed page that exercises every removal and every injection. The
+# bypass control removes its heading in the mutated copy before adding content.
 _PAGE = """<!doctype html>
 <html lang="en">
 <head>
@@ -61,6 +62,15 @@ def test_injections_all_bite_a_well_formed_page():
     assert injections
     assert all(row["verdict"] == CAUGHT for row in injections)
     assert all(row["pages_changed"] == 1 for row in injections)
+
+
+def test_new_structural_controls_exercise_their_target_rules():
+    result = run_control({"shop.html": _PAGE})
+    targets = {"2.2.2", "2.4.1", "3.1.2"}
+    rows = {row["criterion"]: row for row in result["mutations"]}
+    assert targets <= rows.keys()
+    assert all(rows[criterion]["verdict"] == CAUGHT for criterion in targets)
+    assert all(rows[criterion]["pages_changed"] == 1 for criterion in targets)
 
 
 def test_a_fragment_does_not_count_as_a_pass():
