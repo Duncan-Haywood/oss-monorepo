@@ -252,27 +252,185 @@ The general rule this run adds, extending #137's:
 > channels the portfolio was ready to spend its measurement on publish no
 > number, and no permission grant changes that.
 
+---
+
+# Amendment, 2026-08-24 — PyPI put through the same gate, and it fails at both
+
+Another firing of the screening brief. **No candidate added, no score changed,
+nothing in `portfolio/pipeline/` rewritten** — the `CLAUDE.md` intake gate
+applies and was obeyed. This is the gate's first named move (*advance a probe
+already specified*) applied to this directory's own probe, and it exists because
+a run the day before put a channel on the board that this directory had only
+ever used as a control.
+
+[`artifact-channel-match`](../artifact-channel-match/) (2026-08-24) measured the
+other half of the publishing join and found that the **only two publishable
+packages in this repository are Python** — the `eaa-wcag-triage` and
+`npm-reachability-triage` probes. That makes PyPI the one channel where an
+artifact already exists, and it reopened the ranking of the "PyPI route" against
+Ask 0. Its own closing section named what it had not done:
+
+> **Also unaddressed:** whether a published probe could be *measured.* […] PyPI's
+> JSON API returns `-1` for every download field, so the PyPI route as described
+> here publishes into a channel this portfolio cannot read a count from either.
+> That objection applies to the PyPI route and to parts of Ask 0 alike, and
+> neither this run nor the cost table above resolves it.
+
+That was a confident reading, not a measurement. This run measures it. PyPI is
+now a first-class channel in `TARGETS` (9 surfaces) rather than a control row,
+and the 27 original targets were re-run alongside it as a drift check.
+
+## Finding 4 — the PyPI route is blocked at `publish` *and* at `stats`
+
+| Surface | Gate | Verdict | What came back |
+|---|---|---|---|
+| `upload.pypi.org/legacy/` | `publish` | **`EGRESS_DENIED`** | HTTP 403: *"Host not in allowlist: upload.pypi.org. Add this host to your network egress settings to allow access."* |
+| `pypi.org/pypi/requests/json` → `info.downloads.last_month` | `stats` | `REACHABLE` | **`-1`** |
+| `pypi.org/pypi/black/json` → `info.downloads.last_week` | `stats` | `REACHABLE` | **`-1`** |
+| `pypi.org/stats/` | `stats` | `REACHABLE` | top-N projects by **stored size**; no download count for any project |
+| `pypistats.org/api/packages/requests/recent` | `stats` | **`EGRESS_DENIED`** | tunnel refused |
+| `api.pepy.tech/api/v2/projects/requests` | `stats` | **`EGRESS_DENIED`** | tunnel refused |
+| `clickpy-api.clickhouse.com` | `stats` | **`EGRESS_DENIED`** | tunnel refused |
+| `www.piwheels.org/project/requests/json/` | `stats` | **`EGRESS_DENIED`** | tunnel refused |
+| `bigquery.googleapis.com` (the `bigquery-public-data.pypi.file_downloads` route) | `stats` | `REACHABLE` | discovery document — **but querying it needs a billing-enabled Google Cloud project** |
+
+Read against this directory's own rule — *a channel produces a demand
+measurement only if `publish` and `stats` both answer* — PyPI passes neither:
+
+- **`publish` fails on this environment**, exactly as
+  [`publish-endpoint-reachability`](../publish-endpoint-reachability/) recorded.
+  One owner-controlled allowlist entry fixes it.
+- **`stats` fails on a second, independent thing.** Warehouse still serves a
+  `downloads` object and it is a sentinel: `-1` on both projects probed, on two
+  different windows. Every zero-credential surface that *does* publish the real
+  numbers — the three community aggregators and the piwheels mirror — is
+  egress-denied. The one count route that answers is PyPI's own documented one,
+  BigQuery, and reading it needs a cloud account with billing attached.
+
+So PyPI reproduces **the NuGet shape** this directory named in Finding 1 —
+publish host and statistics host judged separately, with different verdicts —
+and then goes one worse: NuGet's statistics host merely needs an allowlist entry,
+while PyPI's needs an allowlist entry *or* a credential heavier than any ask
+currently on the queue.
+
+## Finding 5 — the cost correction of 2026-08-24 was one-sided
+
+`artifact-channel-match` corrected a ranking on `main` by pricing a line item the
+original had omitted (the port into a language this portfolio has never used).
+That correction stands. It was, however, priced on one side only: it counted
+Ask 0's missing port and did not count the PyPI route's missing `stats` gate.
+Both sides, measured:
+
+| | Ask 0 (Packagist / RubyGems / crates.io / Hex) | PyPI route |
+|---|---|---|
+| Account signup | 1 | 1 |
+| Egress change to publish | 0 | **1** (`upload.pypi.org`) |
+| Egress change (or credential) to read a count | 0 | **1** (`pypistats.org`, or a billing-enabled cloud account) |
+| Port an artifact into an unused language | **1** | 0 |
+| Artifact exists today | no | **yes** (two probes, 272 + 289 tests green) |
+| Count readable today | **yes — measured, four of four channels** | **no** |
+
+The honest statement is that **neither route is one action away**, and the two
+are not comparable on a single axis: Ask 0 spends agent time on a port and buys a
+channel whose count this directory has read a live number from four times; the
+PyPI route spends two owner-controlled settings and buys a channel with an
+artifact already sitting in it. Which is cheaper depends on how the account owner
+prices their own settings against agent time — that is their call and this run
+does not make it. What is now on the record is that the version of the comparison
+sitting on `main` as of yesterday undercounted the PyPI side by two gates.
+
+One thing that is *not* uncertain: the four registries on Ask 0's amended menu
+each returned a real, live download total again in this run, five days after the
+first reading. The measurement Ask 0 buys is real. It is the artifact behind it
+that is missing.
+
+## Finding 6 — this probe's classifier had a blind spot, now closed
+
+`upload.pypi.org` refused **in band**: a real HTTP 403 from the enforcement layer,
+naming the host and the remedy, rather than the CONNECT-time tunnel failure every
+other denied host in the original 27 produced. This signature is not a discovery
+— [`publish-endpoint-reachability`](../publish-endpoint-reachability/) found it
+and named it (`x-deny-reason: host_not_allowed`), and corrected two readings that
+had mistaken it for an origin answer. The finding here is narrower and is about
+*this* directory: **its classifier never learned that lesson**, because none of
+the original 27 targets hit the in-band shape. It would have coded this
+`HTTP_403` — indistinguishable in the results file from PyPI itself refusing an
+unauthenticated upload, which is what a reader would reasonably assume a 403 from
+an upload endpoint means. A correction that lands in one directory does not
+propagate to the tool in the next one.
+
+Two refusal shapes, one policy, one remedy. The classifier now matches on the
+filter's own wording and both are `EGRESS_DENIED`; a plain 403 with any other
+body is still `HTTP_403`, pinned by a test. No verdict in the original 27 changes.
+
+The general rule, extending the one this directory already added:
+
+> **A reachable statistics host is not a readable number.** Score the `stats`
+> gate on whether a count comes back *without a credential this portfolio does
+> not have* — a sentinel value, a top-N page, and an endpoint that answers only
+> for billing-enabled accounts all pass a naive reachability check and none of
+> them measures anything.
+
+## Drift check — zero, over five days
+
+All 27 targets from the 2026-08-19 pass were re-run in the same invocation.
+**Every verdict reproduced exactly**, diffed programmatically rather than by eye.
+The only values that moved are the five live download totals, all upward by the
+amount five days of real traffic would add (crates.io +16.6M, Docker Hub +14.6M,
+Packagist +2.9M, RubyGems +1.6M, Hex +0.25M). Both controls held.
+
+That is the fourth independent confirmation of this environment's egress
+posture, and it is worth stating as its own result: the denials in this
+directory are stable policy, not transient failures.
+
+## What this does and does not establish
+
+**Does:** PyPI fails both gates from here; the sentinel is a property of the API
+rather than of one project or one window; the only reachable PyPI count route is
+credential-gated; and yesterday's cost correction, while right about the port,
+undercounted the PyPI side by two gates.
+
+**Does not:** say which route the owner should pick, or that either produces
+*demand*. Finding 3 above still applies to every number in this document. And
+predicting that an allowlist entry for `pypistats.org` *would* make it readable
+is a prediction, not a measurement — the same class of claim as `NO_SUCH_SURFACE`
+in Finding 1, and it should be re-probed after any egress change rather than
+assumed.
+
+Nothing was published, registered, uploaded, or signed up for. Read-only GETs
+against public endpoints, for packages this portfolio does not own; no credential
+was sent anywhere.
+
 ## Files
 
 - `probe_demand_signals.py` — the probe. Read-only, stdlib only, no credentials.
   `--recompute-from` re-derives the summary from saved results with no network
   access.
+- `test_probe_demand_signals.py` — 19 offline tests over the classifier, the
+  sentinel rule, the credential bucket, and both committed result files. Added
+  2026-08-24.
 - `results-2026-08-19.json` — 27 targets: per-target verdict, HTTP status,
   response snippet, the count value where one was read, and the declared
   `public_count` for each channel.
+- `results-2026-08-24.json` — 36 targets: the same 27 re-run, plus PyPI's 9
+  surfaces. Rows added this pass also carry `count_is_sentinel` and
+  `count_needs_credential`.
 
 Reproduce:
 
 ```
 python3 portfolio/research/demand-signal-reachability/probe_demand_signals.py --out /tmp/run.json
 python3 portfolio/research/demand-signal-reachability/probe_demand_signals.py --recompute-from /tmp/run.json
+cd portfolio/research/demand-signal-reachability && python3 -m unittest discover   # 19 tests, offline
 ```
 
 ## Status of the claims
 
-Measurements taken 2026-08-19 from this session's network environment. They are
-primary observations of **this environment on this date**, not statements about
-the channels' own policies, and an egress allowlist can change without notice.
+Findings 1–3 were measured 2026-08-19; Findings 4–6 on 2026-08-24, in a run that
+re-ran the 2026-08-19 targets alongside them and reproduced every verdict. They
+are primary observations of **this environment on those dates**, not statements
+about the channels' own policies, and an egress allowlist can change without
+notice.
 
 Four limits worth stating plainly:
 

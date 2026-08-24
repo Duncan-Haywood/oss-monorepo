@@ -153,6 +153,17 @@ described here publishes into a channel this portfolio cannot read a count
 from either. That objection applies to the PyPI route and to parts of Ask 0
 alike, and neither this run nor the cost table above resolves it.
 
+> **Resolved the same day, and it cuts against the cost table above.**
+> [`demand-signal-reachability`](../demand-signal-reachability/) measured the
+> `stats` gate this paragraph declined to. The `-1` is confirmed on two projects
+> and two windows; every zero-credential PyPI count surface is egress-denied
+> (pypistats.org, pepy.tech, clickpy, piwheels); and the one route that answers,
+> BigQuery, needs a billing-enabled cloud account. The cost table above priced
+> Ask 0's missing port and not the PyPI route's **two** missing gates, so it is
+> one-sided in the opposite direction to the ranking it corrects. Both
+> corrections stand, and the conclusion from the pair is that **neither route is
+> one action away**.
+
 ## Reproducing
 
 ```
