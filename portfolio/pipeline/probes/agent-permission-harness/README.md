@@ -140,7 +140,7 @@ is issue further reading orders: the pipeline directory, the ledger README and
 its `break-even.md`, `re-verification.md`, the research index, the router
 README. None of those is named by the prompt. Taking the closure to its fixed
 point, as [the amendment below](#amendment-2026-08-23-the-closure-is-transitive-and-was-measured-one-hop-deep)
-records, the instruction set is **115 files at a maximum depth of 4**.
+records, the instruction set is **117 files at a maximum depth of 4**.
 
 Every one is an ordinary repository file. Every one is one merged pull request
 away from saying something else. And the agent reads all of them while holding
@@ -148,9 +148,9 @@ away from saying something else. And the agent reads all of them while holding
 `OPENCODE_API_KEY`.
 
 An attack-replay harness pointed at this agent tests the `prompt:` input. That
-input is 1 of the 115 files in the instruction set, and it is the only one of
-the 115 that an attacker has no particular reason to write to. The harness would
-test the surface at a ratio of 1:115, and it would test the wrong end of it.
+input is 1 of the 117 files in the instruction set, and it is the only one of
+the 117 that an attacker has no particular reason to write to. The harness would
+test the surface at a ratio of 1:117, and it would test the wrong end of it.
 
 This is not a subtle property that needed a clever tool. It is four regexes over
 a markdown file, a glob expansion, and a worklist that keeps going until it
@@ -191,9 +191,9 @@ that flatters it.
 | prompt input | 1 |
 | depth 1 — paths the prompt names | 21 |
 | depth 2 | 55 |
-| depth 3 | 35 |
+| depth 3 | 37 |
 | depth 4 | 4 |
-| **instruction set (fixed point)** | **115** |
+| **instruction set (fixed point)** | **117** |
 
 The first-hop number is unchanged, so nothing above it is retracted; what
 changed is that the walk no longer stops there. Three things are worth naming
