@@ -96,6 +96,16 @@ products:
           unit tests). Public URL remains owner-gated, so there is no traffic
           signal to read; the local-first counter reports only to the user's
           own browser and is opt-out. Baseline row.
+  - slug: cut-list-optimizer
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local stock-cut planning baseline for makers; public URL
+          remains owner-gated and the browser counter is local and opt-out.
 # Example of the shape, once a product has shipped:
 #
 # products:
