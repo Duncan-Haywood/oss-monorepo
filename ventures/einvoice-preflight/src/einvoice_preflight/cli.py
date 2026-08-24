@@ -9,6 +9,7 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any
+from xml.sax.saxutils import escape, quoteattr
 
 from .checks import check_invoice
 from .ubl import parse_ubl_invoice
@@ -200,29 +201,34 @@ def _junit_report(
     reports: list[tuple[Path, list[dict[str, str]]]],
     read_errors: list[dict[str, str]],
 ) -> str:
-    """Build a privacy-safe JUnit report for CI result viewers."""
-    suite = ET.Element("testsuite", name="einvoice-preflight")
+    """Build a CI-compatible JUnit report without emitting invoice contents."""
+    testcases: list[str] = []
     failures = 0
-    for path, invoice_errors in reports:
-        if not invoice_errors:
-            ET.SubElement(suite, "testcase", name=path.as_posix())
-            continue
-        for error in invoice_errors:
-            testcase = ET.SubElement(
-                suite, "testcase", name=f"{path.as_posix()} [{error['rule']}]"
-            )
-            failure = ET.SubElement(testcase, "failure", message=error["message"])
-            failure.text = f"{error['message']} Fix: {error['fix']} Path: {error['path']}"
+    errors = 0
+    for path, findings in reports:
+        attributes = f" name={quoteattr(path.as_posix())} classname={quoteattr('einvoice-preflight')}"
+        if findings:
             failures += 1
-    for error in read_errors:
-        testcase = ET.SubElement(suite, "testcase", name=error["file"])
-        failure = ET.SubElement(testcase, "failure", message="Unreadable invoice")
-        failure.text = error["error"]
-        failures += 1
-    suite.set("tests", str(len(suite)))
-    suite.set("failures", str(failures))
-    suite.set("errors", "0")
-    return ET.tostring(suite, encoding="unicode") + "\n"
+            details = "\n".join(
+                f"[{finding['rule']}] {finding['path'] or '/'}: {finding['message']} Fix: {finding['fix']}"
+                for finding in findings
+            )
+            testcases.append(f"  <testcase{attributes}><failure message={quoteattr('Invoice preflight failed')}>{escape(details)}</failure></testcase>")
+        else:
+            testcases.append(f"  <testcase{attributes} />")
+    for read_error in read_errors:
+        errors += 1
+        testcases.append(
+            f"  <testcase name={quoteattr(read_error['file'])} classname={quoteattr('einvoice-preflight')}>"
+            f"<error message={quoteattr('Invoice could not be read')}>{escape(read_error['error'])}</error></testcase>"
+        )
+    total = len(reports) + len(read_errors)
+    body = "\n".join(testcases)
+    return (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        f'<testsuite name="einvoice-preflight" tests="{total}" failures="{failures}" errors="{errors}">\n'
+        f"{body}\n</testsuite>\n"
+    )
 
 
 def _add_batch_duplicate_findings(
