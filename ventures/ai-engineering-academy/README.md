@@ -25,24 +25,31 @@ platform design not yet started. `site/` is a static build (`npm run build`)
 that renders the constitution's markdown into a browsable HTML site
 (`docs/00-overview.md` and friends).
 
-The first learner-facing artifact now exists:
-[`tools/resistor-calculator/`](tools/resistor-calculator/) — a free,
-zero-dependency, client-side resistor color code decoder and Ohm's law
-solver, shipped as a standalone static page (LICENSE, disclaimer, privacy
-line, local-first usage counting, 19 passing unit tests). It is deliberately
-narrower than "the MVP": one useful, self-contained tool for the Circuits
-corner of the planned EE track, not a curriculum. Not yet deployed to a live
-URL — publishing under the portfolio's name is owner-gated per
-`portfolio/DIRECTION.md`; the artifact is ready to deploy once that gate
-opens.
+Two learner-facing artifacts now exist, both free, zero-dependency,
+client-side static pages (LICENSE, disclaimer, privacy line, local-first
+usage counting, unit tested):
+
+- [`tools/resistor-calculator/`](tools/resistor-calculator/) — a resistor
+  color code decoder and Ohm's law solver (21 passing unit tests).
+- [`tools/led-resistor-calculator/`](tools/led-resistor-calculator/) — an
+  LED current-limiting resistor calculator that also snaps to the nearest
+  standard (E24) resistor value and recommends a power rating (12 passing
+  unit tests).
+
+Both are deliberately narrower than "the MVP": small, self-contained tools
+for the Circuits corner of the planned EE track, not a curriculum. Neither
+is yet deployed to a live URL — publishing under the portfolio's name is
+owner-gated per `portfolio/DIRECTION.md`; both are ready to deploy once that
+gate opens.
 
 ## Next steps
 
 - Review, argue with, and revise the constitution in `docs/` — it's a v1
   draft meant to be tightened, not treated as settled.
-- Add more small, self-contained EE tools in `tools/` (e.g. voltage divider,
-  LED series-resistor calculator) as further seeds of the Circuits track,
-  each shippable and testable independently of the full curriculum design.
+- Add more small, self-contained EE tools in `tools/` (e.g. a voltage
+  divider calculator, a capacitor charge/discharge time calculator) as
+  further seeds of the Circuits track, each shippable and testable
+  independently of the full curriculum design.
 - Prototype the fuller MVP scope: Electrical Engineering track (Circuits,
   Electronics, Embedded Systems) with 30–50 projects, AI tutoring, and
   portfolio generation.

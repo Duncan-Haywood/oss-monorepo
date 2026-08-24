@@ -22781,3 +22781,56 @@ entries:
           consistent; `validate_candidates.py`, `validate_doc_consistency.py`,
           and `portfolio/router/validate.py` all pass.
     mrr_end: null
+  - venture: ai-engineering-academy
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Product-first autonomous session (scheduled brief, branch
+          claude/exciting-brown-7crc4d). session_gate.py read BUILD (92%
+          meta-work in the last 25 entries, no revenue). Before building,
+          triaged the 10 open PRs via a background agent: merged #915
+          (branch-hygiene probe) and #909 (backup-verification-evidence
+          CLI), closed five confirmed duplicates that a concurrent session
+          had already closed (#908, #911, #912, #914, #890/#887 group),
+          left #891 (merge conflict) and #905 (real CI failure -- new
+          venture-scores.yaml entry missing) for the next session with
+          reasoning posted on each.
+      - >-
+          Shipped `tools/led-resistor-calculator/` -- the second EE tool
+          this venture's own README named as its explicit next step ("Add
+          more small, self-contained EE tools ... e.g. voltage divider,
+          LED series-resistor calculator"). Given a supply voltage, an
+          LED's forward voltage/current, and how many are wired in series,
+          it returns the exact current-limiting resistor value, the
+          nearest resistor you can actually buy (snapped to the E24
+          preferred-number series across decade boundaries), the current
+          and dissipation that results, and a recommended power rating
+          derated 2x for reliability. Same definition-of-done as the first
+          tool: MIT LICENSE, no-warranty disclaimer, honest privacy line,
+          local-first opt-out/DNT-respecting usage counting, zero
+          dependencies, zero build step.
+      - >-
+          Verified rather than assumed: 16 unit tests pass (`node --test`)
+          covering E24 snapping (including the 9.6ohm -> 10ohm decade
+          boundary), power-rating selection, the classic 9V/2V/20mA
+          worked example (350ohm exact, 360ohm nearest, 0.5W recommended),
+          a 3-LED series string landing on an exact E24 value, and
+          rejection of insufficient headroom / invalid inputs. Also driven
+          in a real headless Chromium (chrome --dump-dom against a local
+          http.server): the page's default inputs render the same
+          350ohm/360ohm/0.5W result as the unit tests, confirming the DOM
+          wiring actually calls the tested calc module. Wired into
+          `ai-engineering-academy-ci.yml`'s `tools-test` matrix so the
+          tests gate future PRs. Not deployed to a public URL --
+          publishing under the portfolio's name stays owner-gated per
+          `portfolio/DIRECTION.md`; ready to deploy once that opens.
+      - >-
+          Fixed a pre-existing YAML bug in `portfolio/usage/usage.yaml`
+          while adding this tool's baseline usage row: two continuation
+          lines of the ai-engineering-academy note were indented one space
+          short of the block-scalar's opening line, which made the file
+          fail to parse (`yaml.safe_load` raised a ParserError). Nothing
+          in CI currently loads this file, so it had gone unnoticed; fixed
+          the indentation and confirmed the file parses.
+    mrr_end: null
