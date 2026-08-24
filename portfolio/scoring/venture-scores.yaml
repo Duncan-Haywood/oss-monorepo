@@ -458,31 +458,6 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
 
-  - slug: shopify-permission-drift
-    scores:
-      ai_leverage: 2
-      autonomous_ops: 9
-      time_to_revenue: 6
-      gross_margin: 10
-      defensibility: 4
-      distribution: 4
-    composite: 5.833
-    rater_b: null
-    floor: 2
-    floor_dimension: ai_leverage
-    floor_note: >-
-      The first release is intentionally deterministic and local-first. Its
-      defensibility depends on portable evidence records and agency workflow
-      adoption, neither of which has customer evidence yet.
-    basis: >-
-      Graduated from the Shopify permission drift candidate on 2026-08-24. The
-      first slice compares customer-authorized app scopes, webhook topics, and
-      authorization state without Shopify credentials, network calls, or
-      customer data. The schema is strict about provenance and uncertainty.
-    gates:
-      liability_containment: pass
-      ethical_robustness: pass
-
   - slug: print-atelier
     scores:
       ai_leverage: 6

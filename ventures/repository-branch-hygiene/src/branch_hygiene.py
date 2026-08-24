@@ -91,7 +91,11 @@ def snapshot_from_repo(repo: Path, protected: set[str] | None = None, pr_export:
         for record in load_pr_export(pr_export):
             base = record["base"] or default
             try:
-                base_commits = _git(repo, "rev-list", "--max-count=200", base).splitlines()
+                # No --max-count: merge classification checks tip membership in
+                # this full ancestry, and a truncated window can push a
+                # genuinely merged tip out of range on a busy base branch,
+                # misclassifying it as moved-tip instead of merged.
+                base_commits = _git(repo, "rev-list", base).splitlines()
             except subprocess.CalledProcessError:
                 base_commits = []
             pull_requests.append({
@@ -129,7 +133,13 @@ def scan(snapshot: dict[str, Any]) -> list[Finding]:
     for branch in branches:
         name, tip = branch["name"], branch["tip"]
         commits = tuple(branch.get("commits", []))
-        related = by_head.get(name, [])[-1] if by_head.get(name) else None
+        records = by_head.get(name, [])
+        # A reused branch name can carry more than one PR record (an old
+        # closed/merged PR plus a new open one). An open record always wins,
+        # so active work never inherits a stale closed record and lands as a
+        # delete candidate; otherwise fall back to the last record, matching
+        # prior behavior for the common single-record case.
+        related = next((record for record in records if record.get("state") == "open"), records[-1] if records else None)
         if name in protected:
             classification, reason = "protected", "branch is explicitly protected"
         elif len(tips[tip]) > 1:
