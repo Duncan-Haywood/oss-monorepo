@@ -60,6 +60,14 @@ def calculate(quote: Quote) -> dict[str, float]:
     }
 
 
+def batch_csv_report(rows: list[tuple[str, Quote, dict[str, float]]]) -> None:
+    """Write one comparable summary row per proposal."""
+    writer = csv.writer(sys.stdout, lineterminator="\n")
+    writer.writerow(("quote", "currency", "quoted_price", "total_hours", "effective_hourly_rate", "target_price", "gap_to_target", "status"))
+    for name, quote, result in rows:
+        writer.writerow((name, quote.currency, f"{quote.price:.2f}", f"{result['total_hours']:.2f}", f"{result['effective_hourly_rate']:.2f}", f"{result['target_price']:.2f}", f"{result['gap_to_target']:.2f}", "above target" if result["gap_to_target"] >= 0 else "below target"))
+
+
 def markdown(quote: Quote, result: dict[str, float]) -> str:
     status = "above target" if result["gap_to_target"] >= 0 else "below target"
     lines = [
@@ -106,9 +114,29 @@ def main() -> int:
     )
     parser.add_argument("input", type=Path)
     parser.add_argument("--format", choices=("json", "markdown", "csv"), default="markdown")
+    parser.add_argument("--batch", action="store_true", help="read a JSON array and emit a comparison CSV")
     parser.add_argument("--usage-log", type=Path)
     args = parser.parse_args()
-    quote = load_quote(json.loads(args.input.read_text(encoding="utf-8")))
+    data = json.loads(args.input.read_text(encoding="utf-8"))
+    if args.batch:
+        if args.format != "csv" or not isinstance(data, list):
+            parser.error("--batch requires --format csv and a JSON array")
+        rows = []
+        for index, item in enumerate(data, start=1):
+            if not isinstance(item, dict):
+                raise ValueError(f"batch item {index} must be an object")
+            name = item.get("name", f"Quote {index}")
+            if not isinstance(name, str) or not name.strip():
+                raise ValueError(f"batch item {index} name must be a non-empty string")
+            quote = load_quote(item)
+            rows.append((name.strip(), quote, calculate(quote)))
+        batch_csv_report(rows)
+        if args.usage_log:
+            event = {"event": "batch_report_generated", "format": "csv", "quote_count": len(rows), "at": datetime.now(timezone.utc).isoformat()}
+            with args.usage_log.open("a", encoding="utf-8") as handle:
+                handle.write(json.dumps(event) + "\n")
+        return 0
+    quote = load_quote(data)
     result = calculate(quote)
     if args.format == "json":
         print(json.dumps({"inputs": quote.__dict__, "result": result, "disclaimer": "Arithmetic only; not tax, financial, or business advice."}, indent=2))

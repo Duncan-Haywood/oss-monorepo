@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src.quote_margin import calculate, csv_report, load_quote, main
+from src.quote_margin import batch_csv_report, calculate, csv_report, load_quote, main
 
 
 class QuoteMarginTests(unittest.TestCase):
@@ -80,3 +80,31 @@ class QuoteMarginTests(unittest.TestCase):
             self.assertEqual(event["event"], "report_generated")
             self.assertEqual(event["format"], "csv")
             self.assertNotIn("price", event)
+
+    def test_batch_report_compares_named_quotes(self) -> None:
+        website = load_quote({"price": 1000, "delivery_hours": 10, "target_hourly_rate": 100})
+        brand = load_quote({"price": 500, "delivery_hours": 10, "target_hourly_rate": 75})
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            batch_csv_report([("Website", website, calculate(website)), ("Brand", brand, calculate(brand))])
+        self.assertIn("quote,currency,quoted_price,total_hours,effective_hourly_rate,target_price,gap_to_target,status", output.getvalue())
+        self.assertIn("Website,units,1000.00,10.00,100.00,1000.00,0.00,above target", output.getvalue())
+        self.assertIn("Brand,units,500.00,10.00,50.00,750.00,-250.00,below target", output.getvalue())
+
+    def test_batch_usage_event_contains_count_not_inputs(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            usage_path = Path(directory) / "usage.jsonl"
+            input_path = Path(directory) / "quotes.json"
+            input_path.write_text(json.dumps([{"name": "One", "price": 1000, "delivery_hours": 10, "target_hourly_rate": 100}]), encoding="utf-8")
+            import sys
+            original_argv = sys.argv
+            try:
+                sys.argv = ["quote_margin.py", str(input_path), "--batch", "--format", "csv", "--usage-log", str(usage_path)]
+                with contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(main(), 0)
+            finally:
+                sys.argv = original_argv
+            event = json.loads(usage_path.read_text(encoding="utf-8"))
+            self.assertEqual(event["event"], "batch_report_generated")
+            self.assertEqual(event["quote_count"], 1)
+            self.assertNotIn("One", event)

@@ -9,6 +9,8 @@ target-price comparison.
 python3 src/quote_margin.py examples/website-redesign.json --format markdown
 # Import the same result into a spreadsheet
 python3 src/quote_margin.py examples/website-redesign.json --format csv > quote-review.csv
+# Compare a week's proposals in one spreadsheet-ready report
+python3 src/quote_margin.py examples/quote-batch.json --batch --format csv > quote-comparison.csv
 ```
 
 The report distinguishes the customer's inputs from derived arithmetic. It does
@@ -20,6 +22,8 @@ compensation visible, while `Gap to target price` compares the quote with the
 supplied target rate. Both are arithmetic signals, not a profitability verdict.
 The CSV format emits stable `measure,value,unit` columns so you can append
 results from several proposals to a spreadsheet without retyping calculations.
+Batch mode accepts a JSON array with optional `name` fields and emits one row per
+proposal, making it easy to spot work below the supplied target before committing.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
