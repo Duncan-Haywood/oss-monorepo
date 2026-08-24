@@ -464,11 +464,11 @@ def verdict(
         ]
     reasons = [
         f"{meta:.0%} of the last {WINDOW} ledger entries are portfolio meta-work, not venture "
-        "work, and no revenue is recorded. The constraint is not that there is nothing to do — "
-        "it is that the fleet keeps choosing to write about itself.",
-        "So this brief is not generic any more: build venture value. Do not open another "
-        "analysis document, re-verify a PR someone already verified, or add a ledger entry "
-        "recording that you looked.",
+        "work, and no revenue is recorded. The fleet is debating process instead of shipping "
+        "products — that stops here.",
+        "Build product value: features, runnable apps, usage tracking, niche landing pages. "
+        "Do not re-verify PRs, expand the decision queue, or write ledger entries that "
+        "record looking without shipping.",
     ]
     targets = build_targets() if targets is None else targets
     if targets is None:
@@ -486,19 +486,19 @@ def verdict(
             else f"a new venture at `ventures/{t.get('slug')}/`"
         )
         reasons.append(
-            f"Start here: {t.get('name')} ({t.get('slug')}) — the pipeline scored it "
-            f"{t.get('composite')} and gave it a `build-now` verdict, and nobody has built it. "
-            f"Graduate it as {where}. Brief: `portfolio/pipeline/{t.get('doc')}`."
+            f"Start here: {t.get('name')} ({t.get('slug')}) — scored "
+            f"{t.get('composite')}, `build-now` verdict, not built yet. Graduate as {where} "
+            f"and ship a free full-feature MVP with usage stats. Brief: "
+            f"`portfolio/pipeline/{t.get('doc')}`. See `portfolio/DIRECTION.md`."
         )
         if len(targets) > 1:
             rest = ", ".join(str(c.get("slug")) for c in targets[1:])
             reasons.append(f"Also carrying an unbuilt `build-now` verdict: {rest}.")
     else:
         reasons.append(
-            "No candidate carries an unbuilt `build-now` verdict, so the pipeline itself is "
-            "what is empty. Research a new candidate against `portfolio/pipeline/screened-out.md` "
-            "— name what it is *not* — score it on the eight dimensions, and if it clears both "
-            "gates, graduate it."
+            "No `build-now` candidate is unbuilt — pick a super-niche product not in "
+            "`portfolio/pipeline/screened-out.md`, score it, graduate it, and ship. "
+            "Prefer ideas that run on this VM with low variable cost."
         )
     return "BUILD", reasons
 
@@ -604,15 +604,9 @@ def render(r: dict) -> str:
     if r["verdict"] == "BUILD":
         lines += [
             "",
-            "  This is a routing call, not a stop. Fleet capacity is bought as a flat",
-            "  subscription, so a session that is already running costs nothing further",
-            "  to finish and idle capacity is the waste. Spend it on venture value, by",
-            "  taking whichever action the reasons above name -- a candidate to build, a",
-            "  new one to research, or a `candidates.yaml` to repair.",
-            "",
-            "  What this is steering you away from is the meta-work loop, not work:",
-            "  another analysis document, a re-verification of a PR someone already",
-            "  verified, a ledger entry recording that you looked.",
+            "  Product-first routing (see portfolio/DIRECTION.md). Fleet capacity is already",
+            "  paid for — spend it on shippable user value, not meta-work. Free full-feature,",
+            "  usage stats, disclaimers; no payment rails yet.",
         ]
     return "\n".join(lines)
 

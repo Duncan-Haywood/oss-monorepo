@@ -1,0 +1,129 @@
+# Company direction
+
+**Effective 2026-08-24.** This is the portfolio's operating strategy. When
+instructions conflict, this document wins over older prose in `CLAUDE.md`, the
+ledger, or session notes that still treat policy compliance as the primary job.
+
+## What we are doing
+
+Build software products that create large amounts of value for real users.
+Target super-niche markets where people have money and a concrete problem —
+especially problems that help them earn more money. Ship traditional software;
+add AI only where it clearly improves the product, not as a wrapper.
+
+The starting point is **abundant free value**: full-feature products at no
+charge while we learn what people actually use. Measure that with **usage
+stats** (signups, active use, return visits, feature adoption, referral
+traffic). What people come back to without paid acquisition is what we double
+down on.
+
+Revenue comes later. For now:
+
+- Do **not** collect payment or wire payout rails.
+- **Do** keep liability-limiting disclaimers in every user-facing product
+  (see "Legal guardrails" below).
+- **Do** add GitHub Sponsors or a donation link where it fits — optional
+  support, not a paywall.
+
+## What a good product looks like here
+
+| Criterion | Why it matters |
+|---|---|
+| Runs on this VM / GitHub / agents | No new infra spend to try an idea |
+| Useful without a human in the loop | Matches how the fleet ships |
+| Low variable cost per user | Inference, storage, and egress must not scale linearly with usage at launch |
+| Turnkey with API keys | A product blocked only on an owner-supplied key is a win — build it, document the one key, move on |
+| Niche + searchable | SEO and AI discovery can carry early growth without ad spend |
+| High value per user | Tools that help someone make or save real money beat vanity metrics |
+
+Products that need a marketplace listing, a merchant account, or a paid ad
+budget before anyone can use them are **second priority**. Build the thing
+people can use from a URL or install command first; unblock distribution when
+the owner decides.
+
+## How agents should spend time
+
+**Default job: ship product value.** Features, landing pages, docs, onboarding,
+usage tracking, bug fixes, performance, SEO content, integrations behind
+env vars. Every session should leave a venture closer to something a stranger
+could use and benefit from.
+
+**Not the default job:**
+
+- Re-verifying pull requests another session already verified
+- Writing ledger entries that record looking but not building
+- Debating whether a prior rule was followed
+- Opening analysis documents when code could ship instead
+- Expanding the owner decision queue with items that do not block product work
+
+Run `python3 portfolio/ledger/session_gate.py` on a generic brief ("continue
+work", "improve the process", etc.). If it says **BUILD**, build — do not
+meta-work. If it says **PROCEED**, keep building what you were building.
+
+## Development flow
+
+**Speed over review ceremony.** Code that passes the venture's CI and stays
+within scope merges without waiting for human review. Iterate in production
+(on preview URLs or the VM) rather than in comment threads.
+
+Still required before merge:
+
+- Relevant tests and builds green (read CI; do not hand-rebuild what CI already ran)
+- No payment collection, no new legal exposure beyond documented disclaimers
+- Usage instrumentation included for new user-facing features
+
+Still **owner-only** (flag on issue #139 / `portfolio/ledger/asks.yaml` only
+when product work is actually blocked):
+
+- Taking or moving money (Stripe live keys, payout rails, billing)
+- Registering accounts that need a card, ID, domain, or bank account
+- **Publishing** under the portfolio's public name (store listing, npm publish,
+  production domain cutover) — building privately is always allowed
+- Enabling unattended automation that spends paid API budget
+
+Everything else — including `ventures/*` app code while nothing is live on
+`main` — is **agent-decidable**: verify, merge, ship.
+
+## Graduating new products
+
+1. Pick a niche from `portfolio/pipeline/` or invent one that is **not** in
+   `screened-out.md`.
+2. Create `ventures/<slug>/` with `VENTURE.yaml`, a runnable app, disclaimers,
+   and basic usage tracking.
+3. Ship on the VM or a preview deploy; record usage, not opinions.
+4. Let organic traffic and return usage decide what gets more investment.
+
+Pipeline candidates with a `build-now` verdict are pre-researched starting
+points — graduate and build them instead of re-screening.
+
+## Legal guardrails (non-negotiable)
+
+These stay in every product regardless of the speed mandate:
+
+- **No advice-of-record.** Not legal, tax, medical, or filing-on-behalf-of.
+  Produce evidence, drafts, and monitoring; the user decides and signs.
+- **No "you are compliant" warranties.** Report what was tested and when.
+- **No scraping personal data or bought lead lists.**
+- **Terms/disclaimers** on user-facing surfaces limiting liability.
+
+Payment is deferred, not disclaimers.
+
+## Success signals
+
+Track and prefer work that moves these:
+
+- Weekly active users (or equivalent usage events)
+- Return usage within 7 days
+- Organic landing traffic (referrer + search)
+- Time-to-first-value for a new visitor
+- GitHub stars, sponsors, or unsolicited feedback
+
+Deprioritize work that only moves internal metrics (ledger entries, open PR
+count, decision-queue rows) unless it directly unblocks a product.
+
+## What this replaces
+
+The portfolio spent August 2026 on meta-work: re-verification, policy
+debates, and decision-queue maintenance while **zero ventures had production
+URLs and zero revenue was recorded**. That ends here. The router, ledger, and
+pipeline remain as **tools** — not as the work itself.
