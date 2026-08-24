@@ -22841,17 +22841,3 @@ entries:
           in CI currently loads this file, so it had gone unnoticed; fixed
           the indentation and confirmed the file parses.
     mrr_end: null
-  - venture: portfolio
-    agent_spend_usd: null
-    human_hours: 0
-    outcomes:
-      - >-
-          Owner declared `https://buymeacoffee.com/duncanhaywood` as the
-          portfolio's donation payout method. Recorded it in
-          `portfolio/funding.yaml` with `portfolio/funding/validate.py` (CI-
-          checkable), updated `PRODUCT_PLAYBOOK.md` and `portfolio/DIRECTION.md`
-          so product sessions wire optional donate links from that file rather
-          than inventing URLs, and noted the declaration on the `payout-rail`
-          row in `asks.yaml` — donation-grade tips are now declared; Ask 2
-          (merchant-of-record product billing) remains open.
-    mrr_end: null

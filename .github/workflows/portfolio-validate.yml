@@ -77,8 +77,6 @@ on:
       - "portfolio/ledger/test_decision_queue.py"
       - "portfolio/ledger/asks.yaml"
       - "portfolio/ledger/2026-08.yaml"
-      - "portfolio/funding.yaml"
-      - "portfolio/funding/**"
       - "platform/ci/**"
       - ".github/workflows/**"
   pull_request:
@@ -103,8 +101,6 @@ on:
       - "portfolio/ledger/test_decision_queue.py"
       - "portfolio/ledger/asks.yaml"
       - "portfolio/ledger/2026-08.yaml"
-      - "portfolio/funding.yaml"
-      - "portfolio/funding/**"
       - "platform/ci/**"
       - ".github/workflows/**"
   workflow_dispatch:
@@ -215,13 +211,6 @@ jobs:
       - name: Decision-queue tests
         working-directory: portfolio/ledger
         run: python3 -m unittest test_decision_queue
-
-      - name: Check owner funding config
-        run: python3 portfolio/funding/validate.py --check
-
-      - name: Funding config tests
-        working-directory: portfolio/funding
-        run: python3 -m unittest test_validate
 
       - name: Check the consolidated egress table still matches a fresh ingest
         working-directory: portfolio/research/egress-reachability

@@ -69,8 +69,7 @@ already been asked; do not duplicate asks.
 2. **Usage stats** — anonymous events only (feature used, page viewed), never
    people: no PII, no IPs, no content, no analytics vendor. Rules and the file
    readings land in: [`portfolio/usage/`](portfolio/usage/README.md).
-3. **Free full access** for now — no paywalls; optional donate link from
-   [`portfolio/funding.yaml`](portfolio/funding.yaml) OK.
+3. **Free full access** for now — no paywalls; optional GitHub Sponsors/donate link OK.
 4. **A LICENSE and the discoverability basics** — landing copy in the user's
    search words, meta description, JSON-LD, sitemap, crawlable robots.txt.
    Search and AI-assistant discovery are the growth channel, so they ship with
