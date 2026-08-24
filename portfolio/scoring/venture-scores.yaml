@@ -568,3 +568,41 @@ ventures:
       expectations", never to restorability, completeness, or data safety.
       Testing restores and maintaining an independent backup strategy remain
       customer responsibilities.
+
+  - slug: consent-change-record
+    scores:
+      ai_leverage: 7
+      autonomous_ops: 7
+      time_to_revenue: 5
+      gross_margin: 8
+      defensibility: 5
+      distribution: 4
+    composite: 6.0
+    rater_b: null
+    floor: 4
+    floor_dimension: distribution
+    floor_note: >-
+      No web-agency or privacy-implementation partner has seen this tool yet;
+      distribution is exactly the pipeline candidate's own named mitigation,
+      still unsatisfied at graduation. Defensibility is also soft: the
+      HAR-diff logic and the tracker-domain list are both easy to
+      reimplement, though a customer's own before/after history could
+      compound if anyone starts using it recurringly.
+    basis: >-
+      A zero-dependency, client-side HAR-diff tool with no network calls,
+      accounts, or paid dependency, which supports strong autonomous
+      operation and gross margin. AI leverage is scored on the candidate's
+      original estimate (grouping and explaining request changes is model
+      work in a fuller version); the shipped v0 itself is deterministic
+      parsing and diffing, no model in the loop. Time to revenue is
+      moderated by the manual (not scheduled) HAR-export workflow and the
+      absence of an owned distribution channel.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool reports observed requests and cookies from the two
+      files a user supplies and never issues a compliance determination.
+      An "unclassified" domain is always shown, never hidden or treated as
+      a clean bill -- the same disclosure shape used by this portfolio's
+      other evidence products.
