@@ -7,6 +7,8 @@ target-price comparison.
 
 ```bash
 python3 src/quote_margin.py examples/website-redesign.json --format markdown
+# Import the same result into a spreadsheet
+python3 src/quote_margin.py examples/website-redesign.json --format csv > quote-review.csv
 ```
 
 The report distinguishes the customer's inputs from derived arithmetic. It does
@@ -16,6 +18,8 @@ profitable. The customer decides what costs and target rate are appropriate.
 The `After direct costs` line makes the amount left before the user's own
 compensation visible, while `Gap to target price` compares the quote with the
 supplied target rate. Both are arithmetic signals, not a profitability verdict.
+The CSV format emits stable `measure,value,unit` columns so you can append
+results from several proposals to a spreadsheet without retyping calculations.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
