@@ -57,6 +57,12 @@ in its query string, including the selected currency and any business or
 service names, so treat it like any other link containing business information.
 It is not uploaded or stored by this tool.
 
+The calculator also saves the current form locally in your browser as you edit,
+so a return visit starts with your own prices and policy assumptions. Use
+**Reset saved numbers** to remove that draft and restore the shipped defaults.
+Shared-link values take precedence over the saved draft. The draft never leaves
+your browser and is separate from the anonymous usage event log.
+
 ## Disclaimer
 
 **No warranty.** This tool is provided free and as-is, without warranty of

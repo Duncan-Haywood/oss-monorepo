@@ -138,6 +138,8 @@
         </fieldset>
 
         <button type="submit">Calculate</button>
+        <button type="button" id="reset-draft" class="secondary">Reset saved numbers</button>
+        <p class="hint">Your numbers are saved only in this browser so you can return without retyping them. Shared links still take precedence.</p>
       </form>
 
       <div id="errors" role="alert" hidden></div>
@@ -228,7 +230,9 @@
         is no server, no account, and no analytics vendor. This calculator counts a small
         number of anonymous events (which buttons were used, nothing about who used them)
         and keeps the count only in this browser, so it can tell whether anyone is using
-        it at all. See the <a href="README.md">README</a> for details.
+        it at all. Your calculator numbers are also saved locally for convenience
+        and can be removed with <strong>Reset saved numbers</strong>. See the
+        <a href="README.md">README</a> for details.
       </p>
       <p id="usage-summary"></p>
       <label>
