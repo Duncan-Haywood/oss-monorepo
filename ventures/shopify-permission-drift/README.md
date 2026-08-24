@@ -22,6 +22,16 @@ Save a portable JSON evidence artifact for a ticket or approval queue:
 python3 src/permission_drift.py examples/before.json examples/after.json --output permission-drift-report.json
 ```
 
+Create a Markdown review draft that can be pasted into a ticket:
+
+```bash
+python3 src/permission_drift.py examples/before.json examples/after.json --format markdown
+```
+
+The Markdown output is a draft for human review, not a Shopify security or
+compliance determination. It contains the same source and capture metadata as
+the comparison and escapes table cells before rendering.
+
 The saved report contains only the comparison result and source/capture metadata
 already present in the exports. It does not copy app scopes, webhook topics, or
 any merchant data into the optional usage log.

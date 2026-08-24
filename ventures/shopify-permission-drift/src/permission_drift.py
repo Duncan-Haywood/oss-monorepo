@@ -87,11 +87,40 @@ def write_report(path: Path, report: dict) -> None:
         raise ValueError(f"cannot write report: {exc}") from exc
 
 
+def _markdown_cell(value: object) -> str:
+    return str(value).replace("|", "\\|").replace("\n", " ")
+
+
+def markdown_report(report: dict) -> str:
+    """Render a ticket-friendly report without adding customer data."""
+    lines = [
+        "# Shopify permission drift review",
+        "",
+        f"- **Status:** {report['status']}",
+        f"- **Review required:** {'yes' if report['review_required'] else 'no'}",
+        f"- **Before capture:** {_markdown_cell(report['metadata']['before_captured_at'])}",
+        f"- **After capture:** {_markdown_cell(report['metadata']['after_captured_at'])}",
+        f"- **Sources:** {_markdown_cell(report['metadata']['before_source'])} -> {_markdown_cell(report['metadata']['after_source'])}",
+        "",
+        "| Finding | App | Added | Removed | Before | After |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    for change in report["changes"]:
+        lines.append(
+            "| " + " | ".join(
+                _markdown_cell(change.get(field, ""))
+                for field in ("kind", "app", "added", "removed", "before", "after")
+            ) + " |"
+        )
+    lines.extend(["", "> Evidence only: the merchant decides what each change means.", ""])
+    return "\n".join(lines)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Compare two customer-authorized Shopify app inventory exports.")
     parser.add_argument("before", type=Path)
     parser.add_argument("after", type=Path)
-    parser.add_argument("--format", choices=("text", "json"), default="text")
+    parser.add_argument("--format", choices=("text", "json", "markdown"), default="text")
     parser.add_argument("--output", type=Path, help="write the report as a portable JSON artifact")
     parser.add_argument("--usage-log", type=Path, help="opt-in aggregate event log")
     args = parser.parse_args()
@@ -108,6 +137,8 @@ def main() -> int:
         usage_event(args.usage_log, len(report["changes"]))
     if args.format == "json":
         print(json.dumps(report, indent=2, sort_keys=True))
+    elif args.format == "markdown":
+        print(markdown_report(report))
     else:
         print(f"Status: {report['status']}")
         print("Review required: yes" if report["review_required"] else "Review required: no")
