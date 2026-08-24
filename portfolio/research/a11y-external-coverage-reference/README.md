@@ -549,3 +549,9 @@ before shipping rather than a defect in the record.
 both now claim it. `results-2026-08-22-after-rules.json` was regenerated
 against the worktree; the catalog move is the only change this directory
 records. No score moved.
+
+**Amended 2026-08-24, later the same day.** `audit.py` gained 2.2.1, 2.2.2
+and 3.1.2 — the three remaining markup-decidable rows a default axe run
+reports that only the probe claimed. Both engines now claim them. 2.5.3
+stays probe-only. The worktree results file was regenerated; no score
+moved.

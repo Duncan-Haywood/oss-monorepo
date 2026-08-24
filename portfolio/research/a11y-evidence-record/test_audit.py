@@ -225,6 +225,106 @@ class DocumentLevel(unittest.TestCase):
         source = "<html lang='en'><head><title>t</title><meta name='viewport' content='width=device-width, initial-scale=1'></head><body></body></html>"
         self.assertEqual(checks(source, "page.html"), [])
 
+    def test_html_lang_engl_is_degrading_not_clean(self):
+        # The overclaim the sibling closed on 2026-08-22: existence was
+        # checked, validity was not, so lang="engl" read as a pass.
+        source = "<html lang='engl'><head><title>t</title></head><body></body></html>"
+        result = findings(source, "page.html")
+        lang = [f for f in result if f["check"] == "html-lang-invalid"]
+        self.assertEqual(len(lang), 1)
+        self.assertEqual(lang[0]["success_criterion"], "3.1.1 Language of Page")
+        self.assertEqual(lang[0]["severity"], "degrading")
+
+    def test_html_lang_from_an_expression_is_undecidable_not_a_finding(self):
+        source = "<html lang='{{ locale }}'><head><title>t</title></head><body></body></html>"
+        self.assertEqual(checks(source, "page.html"), [])
+        self.assertEqual(undecidable(source, "page.html"), ["html-lang-invalid"])
+
+
+class TimingAndLanguage(unittest.TestCase):
+    """2.2.1, 2.2.2, 3.1.2 -- ported 2026-08-24 from the sibling engine."""
+
+    def test_positive_meta_refresh_is_blocking(self):
+        source = (
+            "<html lang='en'><head><title>t</title>"
+            "<meta http-equiv='refresh' content='5'></head>"
+            "<body><p>x</p></body></html>"
+        )
+        result = findings(source, "page.html")
+        refresh = [f for f in result if f["check"] == "meta-refresh"]
+        self.assertEqual(len(refresh), 1)
+        self.assertEqual(refresh[0]["success_criterion"], "2.2.1 Timing Adjustable")
+        self.assertEqual(refresh[0]["severity"], "blocking")
+
+    def test_immediate_redirect_is_not_a_time_limit(self):
+        source = (
+            "<html lang='en'><head><title>t</title>"
+            "<meta http-equiv='refresh' content='0;url=/next'></head>"
+            "<body><p>x</p></body></html>"
+        )
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "meta-refresh"],
+            [],
+        )
+
+    def test_refresh_delay_from_an_expression_is_undecidable(self):
+        source = (
+            "<html lang='en'><head><title>t</title>"
+            "<meta http-equiv='refresh' content='{{ n }}'></head>"
+            "<body><p>x</p></body></html>"
+        )
+        self.assertEqual(checks(source, "page.html"), [])
+        self.assertEqual(undecidable(source, "page.html"), ["meta-refresh"])
+
+    def test_marquee_and_blink_are_blocking(self):
+        source = DOC.format("<marquee>Sale!</marquee><blink>now</blink>")
+        result = findings(source, "page.html")
+        moving = [f for f in result if f["check"] == "moving-content"]
+        self.assertEqual(sorted(f["element"] for f in moving), ["blink", "marquee"])
+        self.assertEqual({f["severity"] for f in moving}, {"blocking"})
+        self.assertEqual(moving[0]["success_criterion"], "2.2.2 Pause, Stop, Hide")
+
+    def test_part_lang_engl_is_degrading(self):
+        source = DOC.format("<p lang='engl'>bonjour</p>")
+        result = findings(source, "page.html")
+        parts = [f for f in result if f["check"] == "lang-of-parts-invalid"]
+        self.assertEqual(len(parts), 1)
+        self.assertEqual(parts[0]["success_criterion"], "3.1.2 Language of Parts")
+        self.assertEqual(parts[0]["severity"], "degrading")
+
+    def test_valid_part_lang_is_clean(self):
+        self.assertEqual(
+            [f["check"] for f in findings(DOC.format("<p lang='fr'>bonjour</p>"),
+                                          "page.html")
+             if f["check"] == "lang-of-parts-invalid"],
+            [],
+        )
+
+    def test_root_lang_is_not_charged_as_a_part(self):
+        # 3.1.2 is about parts; the root element's language is 3.1.1.
+        source = "<html lang='engl'><head><title>t</title></head><body></body></html>"
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")],
+            ["html-lang-invalid"],
+        )
+
+    def test_part_lang_from_an_expression_is_undecidable(self):
+        source = DOC.format("<p lang='{{ locale }}'>bonjour</p>")
+        self.assertEqual(checks(source, "page.html"), [])
+        self.assertEqual(undecidable(source, "page.html"), ["lang-of-parts-invalid"])
+
+    def test_new_criteria_are_checked_not_declared_untested(self):
+        untested = {c.split()[0] for c, _ in audit.NOT_TESTED}
+        for number, key in (
+            ("2.2.1", "meta-refresh"),
+            ("2.2.2", "moving-content"),
+            ("3.1.2", "lang-of-parts-invalid"),
+        ):
+            with self.subTest(criterion=number):
+                self.assertIn(key, audit.CHECKS)
+                self.assertNotIn(number, untested)
+
 
 class ReferencesAndOrder(unittest.TestCase):
     def test_broken_aria_labelledby(self):
@@ -821,7 +921,8 @@ class CoverageBoundaryIsComplete(unittest.TestCase):
         # markup. Any of these missing from both lists is a silent gap.
         statically_reachable = {
             "1.1.1", "1.2.2", "1.3.1", "1.4.1", "1.4.2", "1.4.3", "1.4.4",
-            "2.4.2", "2.4.3", "2.4.4", "3.1.1", "3.3.2", "4.1.2",
+            "2.2.1", "2.2.2", "2.4.2", "2.4.3", "2.4.4",
+            "3.1.1", "3.1.2", "3.3.2", "4.1.2",
         }
         self.assertEqual(statically_reachable - checked - declared, set())
 

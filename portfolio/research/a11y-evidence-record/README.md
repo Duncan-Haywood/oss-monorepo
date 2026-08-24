@@ -408,6 +408,19 @@ can change the other side of the ratio). No score moved. The theme-corpus
 decidable share was not re-measured; that is still finding 5's 1.4.3 figure,
 not a 1.4.1 one.
 
+**Amendment, 2026-08-24 — three markup rules, and the 3.1.1 overclaim.**
+The sibling's 2026-08-22 pass added 2.2.1, 2.2.2 and 3.1.2 as rules; this
+engine still listed them as "no rule here looks". They are now checks, with
+the one template adaptation those rules need: a `lang` or refresh delay that
+is a template expression is undecidable, never a guessed defect. The same
+pass closed the 3.1.1 overclaim the sibling closed two days earlier —
+existence was checked, validity was not, so `lang="engl"` read as clean.
+Validity reuses the sibling's BCP-47 check rather than reimplementing it.
+2.4.1, 2.5.3 and 1.3.4 stay disclosed-untested: the first two are still
+decidable from markup and still have no rule here; 1.3.4 needs the CSS
+adapter 1.4.1 used. Own-site / generated-site snapshots were not rebuilt.
+No score moved.
+
 ## What could not be measured here
 
 - **No AT verification, so the candidate's actual kill criterion is untested.**

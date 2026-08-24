@@ -328,6 +328,11 @@ CHECKS = {
     "button-no-accessible-name": ("4.1.2 Name, Role, Value", "blocking"),
     "control-no-label":      ("3.3.2 Labels or Instructions", "blocking"),
     "html-lang-missing":     ("3.1.1 Language of Page", "blocking"),
+    # Added 2026-08-24. Existence was already checked; validity was not, so
+    # lang="engl" read as clean while this catalog called 3.1.1 checked. The
+    # sibling engine closed the same overclaim on 2026-08-22. Degrading: the
+    # page is still there; pronunciation is wrong.
+    "html-lang-invalid":     ("3.1.1 Language of Page", "degrading"),
     "title-missing":         ("2.4.2 Page Titled", "degrading"),
     "iframe-no-title":       ("4.1.2 Name, Role, Value", "blocking"),
     "aria-reference-broken": ("1.3.1 Info and Relationships", "blocking"),
@@ -358,6 +363,13 @@ CHECKS = {
     # contrast_pass.py. Closes the asymmetry a11y-engine-agreement recorded
     # when the probe gained this criterion and this engine did not.
     "color-only-link":       ("1.4.1 Use of Color", "blocking"),
+    # Added 2026-08-24, porting the sibling engine's markup-decidable rules
+    # the same way 1.4.1 was ported: reuse the sibling's decision (here, its
+    # BCP-47 check) rather than reimplement it, and refuse a template
+    # expression rather than guess. 2.2.1 / 2.2.2 need no sibling import.
+    "meta-refresh":          ("2.2.1 Timing Adjustable", "blocking"),
+    "moving-content":        ("2.2.2 Pause, Stop, Hide", "blocking"),
+    "lang-of-parts-invalid": ("3.1.2 Language of Parts", "degrading"),
 }
 
 FILENAME_ALT = re.compile(
@@ -376,6 +388,31 @@ FOCUSABLE = {"a", "button", "input", "select", "textarea"}
 # because the distinction from `captions` is editorial (translation vs. sound
 # description) and firing on it would be a false positive more often than not.
 CAPTION_KINDS = {"captions", "subtitles"}
+
+_REFRESH_DELAY = re.compile(r"^\s*(\d+(?:\.\d+)?)")
+_MOVING_TAGS = frozenset({"blink", "marquee"})
+
+_lang_check = None
+
+
+def _lang_reason(value: str):
+    """None if `value` is a usable language tag, else a reason.
+
+    Reuses the sibling engine's BCP-47 + ISO 639-1 check, including the
+    `lang="engl"` case a grammar-only test misses. Three-letter codes are
+    accepted without a registry lookup -- the same under-report the sibling
+    states, on purpose.
+    """
+    global _lang_check
+    if _lang_check is None:
+        probe_src = os.path.abspath(os.path.join(
+            os.path.dirname(__file__), "..", "..", "pipeline",
+            "probes", "eaa-wcag-triage", "src"))
+        if probe_src not in sys.path:
+            sys.path.insert(0, probe_src)
+        from wcag_triage.lang import check as _imported
+        _lang_check = _imported
+    return _lang_check(value)
 
 
 def _accessible_name(node: Node) -> tuple[str, bool]:
@@ -610,6 +647,62 @@ def audit_source(source: str, path: str = "<string>", stylesheet=None) -> dict:
                     "viewport-scaling-blocked", node,
                     f"viewport meta prevents zooming to 200% ({content!r})", path))
 
+        # --- 2.2.1 timing adjustable ----------------------------------------
+        # A positive-delay <meta http-equiv=refresh> is a timer the reader
+        # cannot extend. content="0" is an immediate redirect, not a limit.
+        if node.tag == "meta":
+            http_equiv = node.attr("http-equiv")
+            refresh_content = node.attr("content")
+            if http_equiv is not None:
+                if is_expr(http_equiv) and not expr_free(http_equiv):
+                    undecided.append(_undecidable(
+                        "meta-refresh", node,
+                        "http-equiv is a template expression; whether this "
+                        "is a refresh is unknown without the data", path))
+                elif expr_free(http_equiv).lower() == "refresh":
+                    if is_expr(refresh_content) and not expr_free(refresh_content):
+                        undecided.append(_undecidable(
+                            "meta-refresh", node,
+                            "refresh delay is a template expression", path))
+                    else:
+                        match = _REFRESH_DELAY.match(expr_free(refresh_content) or "")
+                        if match is not None:
+                            delay = float(match.group(1))
+                            if delay > 0:
+                                findings.append(_finding(
+                                    "meta-refresh", node,
+                                    f"The page refreshes itself after {delay:g}s, "
+                                    "with no way to turn the timer off, extend "
+                                    "it, or finish reading first.", path))
+
+        # --- 2.2.2 pause, stop, hide ----------------------------------------
+        if node.tag in _MOVING_TAGS and not hidden:
+            findings.append(_finding(
+                "moving-content", node,
+                f"<{node.tag}> moves its content continuously and offers no "
+                "way to pause, stop, or hide it.", path))
+
+        # --- 3.1.2 language of parts ----------------------------------------
+        # Root <html lang> is 3.1.1's business (existence + validity below).
+        if node.tag != "html":
+            for attr in ("lang", "xml:lang"):
+                if not node.has_attr(attr):
+                    continue
+                raw = node.attr(attr)
+                if is_expr(raw) and not expr_free(raw):
+                    undecided.append(_undecidable(
+                        "lang-of-parts-invalid", node,
+                        f"{attr} is a template expression; whether it names "
+                        "a language is unknown without the data", path))
+                    break
+                if _lang_reason(expr_free(raw)) is not None:
+                    findings.append(_finding(
+                        "lang-of-parts-invalid", node,
+                        f"<{node.tag} {attr}> names no usable language "
+                        f"({expr_free(raw)!r}), so a screen reader falls "
+                        "back to the surrounding language", path))
+                    break
+
         # --- 1.4.2 audio ----------------------------------------------------
         if node.tag in ("video", "audio") and node.has_attr("autoplay"):
             if not node.has_attr("muted"):
@@ -693,6 +786,19 @@ def audit_source(source: str, path: str = "<string>", stylesheet=None) -> dict:
                 "html-lang-missing", root,
                 "<html> has no lang attribute, so assistive technology guesses "
                 "the pronunciation of the whole page", path))
+        else:
+            raw_lang = root.attr("lang") if root.has_attr("lang") else root.attr("xml:lang")
+            if is_expr(raw_lang) and not expr_free(raw_lang):
+                undecided.append(_undecidable(
+                    "html-lang-invalid", root,
+                    "lang is a template expression; whether it names a "
+                    "language is unknown without the data", path))
+            elif _lang_reason(expr_free(raw_lang)) is not None:
+                findings.append(_finding(
+                    "html-lang-invalid", root,
+                    f"<html lang> names no usable language "
+                    f"({expr_free(raw_lang)!r}), so assistive technology "
+                    "guesses the pronunciation of the whole page", path))
         heads = [n for n in nodes if n.tag == "head"]
         titles = [n for n in nodes if n.tag == "title" and n.parent and n.parent.tag == "head"]
         if heads and not titles:
@@ -883,11 +989,11 @@ NOT_TESTED = [
     ("1.2.1 Audio-only and Video-only (Prerecorded)", "a media element with no transcript or alternative is detectable from the markup; no rule here looks"),
     ("1.3.4 Orientation", "a stylesheet locking orientation is decidable from the CSS; no rule here looks"),
     # 1.4.1 moved to CHECKS 2026-08-24 -- see the "color-only-link" entry.
-    ("2.2.1 Timing Adjustable", "a <meta http-equiv=refresh> timeout is detectable from the head; no rule here looks"),
-    ("2.2.2 Pause, Stop, Hide", "<blink> and <marquee> are detectable from the markup; no rule here looks"),
+    # 2.2.1, 2.2.2, 3.1.2 moved to CHECKS 2026-08-24 -- see "meta-refresh",
+    # "moving-content", "lang-of-parts-invalid". 3.1.1 validity joined the
+    # existing existence check the same pass.
     ("2.4.1 Bypass Blocks", "the absence of a skip link or of landmark structure is detectable from the markup; no rule here looks -- a commonly-failed Level A criterion on shop pages"),
     ("2.5.3 Label in Name", "an accessible name that does not contain the control's visible text is decidable from the markup; no rule here looks"),
-    ("3.1.2 Language of Parts", "a lang attribute holding an invalid tag is decidable; no rule here looks"),
     ("Alt text quality", "an alt attribute that is present and non-empty may still describe the wrong thing; only a human can say"),
     ("Assistive-technology outcome", "no static tool establishes whether a real screen reader user can complete checkout"),
 ]
