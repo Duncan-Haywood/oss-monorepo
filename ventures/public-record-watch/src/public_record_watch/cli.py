@@ -6,7 +6,11 @@ from .report import build_report, load_snapshot, markdown_report
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Compare authorized public-register snapshots")
+    parser = argparse.ArgumentParser(
+        description="Compare authorized public-register snapshots",
+        epilog=("No warranty. This free tool is not legal, tax, financial, medical, "
+                 "or engineering advice. Verify every output before relying on it."),
+    )
     parser.add_argument("--before", required=True, type=Path)
     parser.add_argument("--after", required=True, type=Path)
     parser.add_argument("--format", choices=("json", "markdown"), default="markdown")
@@ -21,6 +25,8 @@ def main() -> None:
         print(output, end="")
     if args.usage_file:
         usage = json.loads(args.usage_file.read_text(encoding="utf-8")) if args.usage_file.exists() and args.usage_file.stat().st_size else {}
+        if not isinstance(usage, dict):
+            raise ValueError("usage file must contain a JSON object")
         usage["snapshot_compared"] = int(usage.get("snapshot_compared", 0)) + 1
         args.usage_file.write_text(json.dumps(usage, indent=2) + "\n", encoding="utf-8")
 

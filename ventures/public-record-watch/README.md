@@ -20,6 +20,9 @@ PYTHONPATH=src python3 -m public_record_watch.cli \
   --usage-file usage.json
 ```
 
+Run `PYTHONPATH=src python3 -m public_record_watch.cli --help` for the same
+limitation notice shown at the command line.
+
 Each input must be a customer-authorized JSON snapshot with `authorized: true`,
 a register name, a source URL, and a `records` list. Every record needs a stable
 `id`; all other fields are carried into the report and compared deterministically.

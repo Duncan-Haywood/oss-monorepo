@@ -33,10 +33,27 @@ class ReportTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "authorized"):
                 load_snapshot(path)
 
+    def test_invalid_source_and_non_string_id_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "snapshot.json"
+            path.write_text(json.dumps({**snapshot([{"id": 4}])}), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "each record"):
+                load_snapshot(path)
+            path.write_text(json.dumps({**snapshot([]), "source_url": "javascript:alert(1)"}), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "http"):
+                load_snapshot(path)
+
     def test_markdown_keeps_source_and_limits_visible(self):
         output = markdown_report(build_report(snapshot([]), snapshot([])))
         self.assertIn("https://example.test/register", output)
         self.assertIn("not a suitability or compliance determination", output)
+
+    def test_markdown_escapes_untrusted_table_values(self):
+        before = snapshot([{"id": "a|b", "status": "active"}])
+        after = {**snapshot([]), "source_url": "https://example.test/register?q=[x]"}
+        output = markdown_report(build_report(before, after))
+        self.assertIn("a\\|b", output)
+        self.assertNotIn("[x]", output)
 
 
 if __name__ == "__main__":
