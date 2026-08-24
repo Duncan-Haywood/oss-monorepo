@@ -6,7 +6,9 @@ import csv
 from html import escape as html_escape
 import io
 import json
+import os
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any
 from xml.sax.saxutils import escape, quoteattr
@@ -40,6 +42,29 @@ def _record_usage(path: str) -> None:
     except (OSError, TypeError, ValueError):
         # Usage is optional telemetry; never hide or change a preflight result.
         pass
+
+
+def _write_output(path: str, content: str) -> None:
+    """Write a generated report atomically so CI never sees a partial file."""
+    target = Path(path).expanduser()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    temporary: str | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w", encoding="utf-8", dir=target.parent, prefix=f".{target.name}.", delete=False
+        ) as handle:
+            temporary = handle.name
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, target)
+        temporary = None
+    finally:
+        if temporary is not None:
+            try:
+                os.unlink(temporary)
+            except OSError:
+                pass
 
 
 def _sarif_report(
@@ -407,6 +432,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("invoice", type=Path, help="JSON/XML file, directory of JSON/XML files, or '-' for stdin")
     parser.add_argument("--format", choices=("text", "summary", "json", "jsonl", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
+    parser.add_argument("--output", help="write the report to this local file atomically instead of stdout")
     parser.add_argument(
         "--max-files",
         type=_positive_int,
@@ -472,34 +498,46 @@ def main(argv: list[str] | None = None) -> int:
 
     errors = [error for _, invoice_errors in reports for error in invoice_errors]
     has_read_errors = bool(read_errors)
+    report: str | None = None
     if args.format == "json":
-        print(json.dumps(_json_report(reports, read_errors), indent=2))
+        report = json.dumps(_json_report(reports, read_errors), indent=2) + "\n"
     elif args.format == "summary":
-        print(_summary_report(reports, read_errors), end="")
+        report = _summary_report(reports, read_errors)
     elif args.format == "jsonl":
-        print(_jsonl_report(reports, read_errors), end="")
+        report = _jsonl_report(reports, read_errors)
     elif args.format == "markdown":
-        print(_markdown_report(reports, read_errors), end="")
+        report = _markdown_report(reports, read_errors)
     elif args.format == "html":
-        print(_html_report(reports, read_errors), end="")
+        report = _html_report(reports, read_errors)
     elif args.format == "csv":
-        print(_csv_report(reports, read_errors), end="")
+        report = _csv_report(reports, read_errors)
     elif args.format == "junit":
-        print(_junit_report(reports, read_errors), end="")
+        report = _junit_report(reports, read_errors)
     elif args.format == "sarif":
-        print(json.dumps(_sarif_report(reports, read_errors), indent=2))
+        report = json.dumps(_sarif_report(reports, read_errors), indent=2) + "\n"
     elif args.format == "github":
-        print(_github_report(reports, read_errors), end="")
+        report = _github_report(reports, read_errors)
     elif errors:
-        print(f"Preflight failed: {len(errors)} observation(s) across {len(reports)} invoice(s)")
+        lines = [f"Preflight failed: {len(errors)} observation(s) across {len(reports)} invoice(s)"]
         for path, invoice_errors in reports:
             for error in invoice_errors:
-                print(f"{path.as_posix()}: [{error['rule']}] {error['message']} Fix: {error['fix']}")
+                lines.append(f"{path.as_posix()}: [{error['rule']}] {error['message']} Fix: {error['fix']}")
         for read_error in read_errors:
-            print(f"{read_error['file']}: Could not read invoice: {read_error['error']}")
+            lines.append(f"{read_error['file']}: Could not read invoice: {read_error['error']}")
+        report = "\n".join(lines) + "\n"
     elif read_errors:
-        for read_error in read_errors:
-            print(f"{read_error['file']}: Could not read invoice: {read_error['error']}")
+        report = "\n".join(
+            f"{read_error['file']}: Could not read invoice: {read_error['error']}"
+            for read_error in read_errors
+        ) + "\n"
     else:
-        print(f"Preflight passed: {len(reports)} invoice(s), no defects found in the supported checks.")
+        report = f"Preflight passed: {len(reports)} invoice(s), no defects found in the supported checks.\n"
+    if args.output:
+        try:
+            _write_output(args.output, report)
+        except OSError as exc:
+            print(f"Could not write report to {args.output}: {exc}", file=sys.stderr)
+            return 2
+    else:
+        print(report, end="")
     return 2 if has_read_errors else (0 if not errors else 1)
