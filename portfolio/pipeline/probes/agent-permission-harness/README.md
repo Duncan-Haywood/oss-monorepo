@@ -53,10 +53,11 @@ itself in exactly those terms. Writer sets are ordered, widest last:
 
 ## The result
 
-Full report: [`results-2026-08-23.md`](results-2026-08-23.md). Regenerate with
-`python3 harness.py`. [`results-2026-08-21.md`](results-2026-08-21.md) is kept
-as the prior snapshot: the two differ only in R7, and the difference is the
-subject of the amendment below.
+Full report: [`results-2026-08-24.md`](results-2026-08-24.md). Regenerate with
+`python3 harness.py`. [`results-2026-08-21.md`](results-2026-08-21.md) and
+[`results-2026-08-23.md`](results-2026-08-23.md) are kept as prior snapshots:
+each consecutive pair differs only in R7, and the differences are the subject of
+the two amendments below.
 
 **7 findings across 2 of 31 workflow files — 1 defect, 6 posture records. All
 7 are decided from the artifact with nothing running. Zero require a running
@@ -140,7 +141,7 @@ is issue further reading orders: the pipeline directory, the ledger README and
 its `break-even.md`, `re-verification.md`, the research index, the router
 README. None of those is named by the prompt. Taking the closure to its fixed
 point, as [the amendment below](#amendment-2026-08-23-the-closure-is-transitive-and-was-measured-one-hop-deep)
-records, the instruction set is **115 files at a maximum depth of 4**.
+records, the instruction set is **117 files at a maximum depth of 4**.
 
 Every one is an ordinary repository file. Every one is one merged pull request
 away from saying something else. And the agent reads all of them while holding
@@ -148,9 +149,9 @@ away from saying something else. And the agent reads all of them while holding
 `OPENCODE_API_KEY`.
 
 An attack-replay harness pointed at this agent tests the `prompt:` input. That
-input is 1 of the 115 files in the instruction set, and it is the only one of
-the 115 that an attacker has no particular reason to write to. The harness would
-test the surface at a ratio of 1:115, and it would test the wrong end of it.
+input is 1 of the 117 files in the instruction set, and it is the only one of
+the 117 that an attacker has no particular reason to write to. The harness would
+test the surface at a ratio of 1:117, and it would test the wrong end of it.
 
 This is not a subtle property that needed a clever tool. It is four regexes over
 a markdown file, a glob expansion, and a worklist that keeps going until it
@@ -191,9 +192,9 @@ that flatters it.
 | prompt input | 1 |
 | depth 1 — paths the prompt names | 21 |
 | depth 2 | 55 |
-| depth 3 | 35 |
+| depth 3 | 37 |
 | depth 4 | 4 |
-| **instruction set (fixed point)** | **115** |
+| **instruction set (fixed point)** | **117** |
 
 The first-hop number is unchanged, so nothing above it is retracted; what
 changed is that the walk no longer stops there. Three things are worth naming
@@ -243,6 +244,47 @@ moving a number. The transitive behaviour is pinned in `test_harness.py`
 instead — the fixed point, cycle termination, depth attribution, the scoping
 rule, the walkable-suffix bound, and the claim that against this repository the
 closure is strictly larger than its first hop.
+
+### Amendment 2026-08-24: a sentence in a research index moved this number, and nothing was red
+
+`115` became **117** on `main` without any workflow, prompt, or file in this
+directory changing, and the committed results file read as a current measurement
+for the whole time it was wrong. The two files that entered the closure are
+`portfolio/research/a11y-axe-recall/package.json` and
+`portfolio/research/a11y-delivered-contrast/package.json` — both present in the
+repository since 2026-08-21, neither in the closure until 2026-08-24. What
+changed is that [#699](https://github.com/Duncan-Haywood/monorepo-projects/pull/699)
+added a row to `portfolio/research/README.md` — a depth-2 document — whose prose
+reads *"all 18 `package.json` files set `\"private\": true\"`"*. The walker resolved
+that bare spec against the naming document's own tree and found exactly those
+two.
+
+That is the disclosed upper bound doing precisely what it is disclosed to do:
+*a named path is counted whether the naming document orders the read or merely
+mentions the file.* Here the mention was a **statistic about** `package.json`
+files, in a document about publishing channels, and it enlarged a measured
+attack surface. The number is not wrong — those files really are named by a
+document the agent is directed to read, and the rule's stated direction of error
+is this one. It is worth recording anyway, because it shows how little it takes:
+one sentence, in a file nobody thought of as security-relevant, in a pull request
+about registries.
+
+The failure that mattered is the second one. This workflow triggered only on
+`.github/workflows/**`, `.github/prompts/**`, `.github/scripts/**` and this
+directory — the inputs the *probe* reads. But the artifact it pins is a function
+of the repository's **prose**, which is a much larger set, so a merge to
+`portfolio/research/README.md` invalidated the committed measurement with nothing
+red to say so. It surfaced only because an unrelated pull request happened to add
+a workflow file and so tripped the trigger by accident. The path filter has been
+widened to the documents the closure actually walks through; that is still an
+approximation of "any prose in this repository", and it is stated here rather
+than assumed away.
+
+The pattern is one this repository has now hit on three separate tools: **a
+coverage or trigger rule that names the wrong axis fails silently and in the
+direction that flatters the record.** `npm-reachability-triage`'s limit named the
+ecosystem when the boundary was the lockfile format; this one named the probe's
+inputs when the boundary is the closure's reachable set.
 
 ## What this probe deliberately does not do
 

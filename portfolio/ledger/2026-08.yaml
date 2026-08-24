@@ -20519,4 +20519,34 @@ entries:
         the 4 open PRs (#583, #531, #372, #368) and `verification_status.py`
         before starting; all unchanged and correctly owner-gated, none
         re-verified here.
+      - >-
+        Second, unrelated finding, surfaced by this PR's own CI and fixed in
+        it. `agent-permission-harness`'s committed results file was STALE ON
+        `main` and reading as a current security measurement: R7's instruction
+        closure is 117 files, not the 115 the artifact and five prose figures
+        all stated. Nothing in the probe changed. #699 added a row to
+        `portfolio/research/README.md` -- a depth-2 document in the closure --
+        whose prose mentions `package.json` in a sentence about npm privacy
+        flags, and the walker resolved that bare spec against the naming
+        document's tree, pulling two research `package.json` files (present
+        since 2026-08-21) into the closure at depth 3. The count is not wrong;
+        it is the disclosed upper bound behaving as disclosed. What is worth
+        recording is how little it took: one sentence, in a file nobody filed
+        under security, in a PR about registries.
+      - >-
+        The consequential half is the trigger. That workflow watched the
+        probe's *inputs* (`.github/**` and its own directory) while the
+        artifact it pins is a function of the repository's *prose*, so a merge
+        to a research index invalidated a committed measurement with nothing
+        red to say so -- and it surfaced only because this PR happened to add
+        a workflow file and tripped the filter by accident. Regenerated the
+        artifact with the probe's own tooling (`results-2026-08-24.md`, prior
+        snapshots kept), corrected the five stale figures, and widened the
+        path filter to the closure's prose roots, stating in the workflow that
+        this is still an approximation of "any prose in this repository".
+        Verified: 84 probe tests pass, `validate_probe_index.py` green, the CI
+        diff step reproduces the committed artifact byte for byte. Third tool
+        in this repository to be caught by the same shape -- a coverage or
+        trigger rule that names the wrong axis fails silently, in the
+        direction that flatters the record.
     mrr_end: null
