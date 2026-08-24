@@ -199,6 +199,18 @@ products:
           Shipped browser-local no-show exposure calculator and policy draft
           generator. Public URL remains owner-gated; the local counter is
           anonymous, event-only, and opt-out. Baseline row.
+  - slug: amazon-fba-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped local Amazon FBA vs FBM profit calculator (size-tier
+          fulfillment, storage, inbound, max buy cost, both-path comparison).
+          Public URL remains owner-gated; the local-first counter reports only
+          to the user's own browser and is opt-out. Baseline row.
   - slug: einvoice-preflight
     surface: local-cli
     readings:
