@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 
 export function trackUsageEvent(
-  name: "catalog_cta" | "room_visualizer_cta" | "storefront_search",
+  name: "catalog_cta" | "room_visualizer_cta" | "storefront_search" | "buyer_portal_search" | "checkout_add",
   path: string,
 ): void {
   void fetch("/api/usage", {

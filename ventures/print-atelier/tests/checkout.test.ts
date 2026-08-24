@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  addArtworkToCheckoutCart,
+  buildCheckoutAddHref,
   buildCheckoutFunnelMetrics,
   buildCheckoutReadiness,
   buildCheckoutSessionPayload,
@@ -95,6 +97,28 @@ test("buildCheckoutFunnelMetrics tracks cart-to-session readiness stages", () =>
   assert.equal(funnel.stages.length, 5);
   assert.ok(funnel.overallReadiness >= 0 && funnel.overallReadiness <= 100);
   assert.equal(funnel.checkoutSessionReady, false);
+});
+
+test("addArtworkToCheckoutCart accepts a consent-cleared listing and rejects blocked ones", () => {
+  const added = addArtworkToCheckoutCart([], "midnight-coast");
+  assert.equal(added.added, true);
+  assert.equal(added.alreadyInCart, false);
+  assert.equal(added.cart[0]?.artworkSlug, "midnight-coast");
+  assert.equal(buildCheckoutAddHref("midnight-coast"), "/checkout?add=midnight-coast");
+
+  const duplicate = addArtworkToCheckoutCart(added.cart, "midnight-coast");
+  assert.equal(duplicate.added, false);
+  assert.equal(duplicate.alreadyInCart, true);
+  assert.equal(duplicate.cart.length, 1);
+
+  const blocked = addArtworkToCheckoutCart([], "spring-bloom");
+  assert.equal(blocked.added, false);
+  assert.ok(blocked.blockers.some((blocker) => blocker.includes("Storefront consent")));
+  assert.equal(blocked.cart.length, 0);
+
+  const unknown = addArtworkToCheckoutCart([], "not-a-print");
+  assert.equal(unknown.added, false);
+  assert.ok(unknown.blockers[0]?.includes("Unknown artwork slug"));
 });
 
 test("buildCheckoutFunnelMetrics marks live checkout ready when env and POD configured", () => {

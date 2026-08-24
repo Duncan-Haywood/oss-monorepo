@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  addArtworkToCheckoutCart,
   buildCheckoutReadiness,
   buildCheckoutSessionPayload,
   buildFulfillmentRoute,
@@ -13,6 +14,7 @@ import {
   type CheckoutLineItem,
   type CheckoutShippingRegion,
 } from "@/lib/checkout";
+import { trackUsageEvent } from "@/components/shared/UsageTracker";
 import { catalogArtworks } from "@/lib/marketplace";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -37,17 +39,43 @@ type CheckoutApiResponse = CheckoutEnvStatus & {
 
 const regions: CheckoutShippingRegion[] = ["US", "EU", "UK", "APAC"];
 
-export default function CheckoutLab() {
+type CheckoutLabProps = {
+  addSlug?: string;
+};
+
+type CheckoutAddNotice = {
+  kind: "added" | "already" | "blocked";
+  slug: string;
+  title?: string;
+  blockers: string[];
+};
+
+export default function CheckoutLab({ addSlug }: CheckoutLabProps) {
   const [cart, setCart] = useState<CheckoutLineItem[]>([]);
   const [region, setRegion] = useState<CheckoutShippingRegion>("US");
   const [envStatus, setEnvStatus] = useState<CheckoutEnvStatus | null>(null);
   const [sessionPreview, setSessionPreview] = useState<CheckoutApiResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const [addNotice, setAddNotice] = useState<CheckoutAddNotice | null>(null);
 
   useEffect(() => {
     const stored = loadCheckoutCartFromStorage();
+    if (addSlug) {
+      const result = addArtworkToCheckoutCart(stored, addSlug);
+      setCart(result.cart);
+      const addedLine = result.cart.find((item) => item.artworkSlug === addSlug);
+      if (result.added) {
+        setAddNotice({ kind: "added", slug: addSlug, title: addedLine?.title, blockers: [] });
+        trackUsageEvent("checkout_add", `/checkout?add=${encodeURIComponent(addSlug)}`);
+      } else if (result.alreadyInCart) {
+        setAddNotice({ kind: "already", slug: addSlug, title: addedLine?.title, blockers: [] });
+      } else {
+        setAddNotice({ kind: "blocked", slug: addSlug, blockers: result.blockers });
+      }
+      return;
+    }
     setCart(stored.length > 0 ? stored : buildSampleCheckoutCart());
-  }, []);
+  }, [addSlug]);
 
   useEffect(() => {
     if (cart.length > 0) {
@@ -122,6 +150,29 @@ export default function CheckoutLab() {
           Consent-gated cart → Stripe Checkout session → POD fulfillment routing → Connect artist
           transfer. Cart persists in localStorage until Convex order records ship.
         </p>
+        {addNotice ? (
+          <div
+            role="status"
+            className={`mt-4 rounded-xl border px-4 py-3 text-sm ${
+              addNotice.kind === "blocked"
+                ? "border-amber-200 bg-amber-50 text-amber-950"
+                : "border-emerald-200 bg-emerald-50 text-emerald-950"
+            }`}
+          >
+            {addNotice.kind === "added"
+              ? `${addNotice.title ?? addNotice.slug} was added from the print page or buyer shop.`
+              : null}
+            {addNotice.kind === "already"
+              ? `${addNotice.title ?? addNotice.slug} is already in this cart.`
+              : null}
+            {addNotice.kind === "blocked"
+              ? `Could not add ${addNotice.slug}: ${addNotice.blockers.join(" · ") || "listing is not checkout-ready"}.`
+              : null}{" "}
+            <Link href="/buyer-portal" className="font-medium underline">
+              Back to buyer shop
+            </Link>
+          </div>
+        ) : null}
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

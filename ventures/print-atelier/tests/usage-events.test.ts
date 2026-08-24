@@ -40,3 +40,12 @@ test("counts storefront search events separately from page views", () => {
   assert.equal(summary.pageViews, 0);
   assert.equal(summary.featureEvents, 1);
 });
+
+test("counts buyer portal search with storefront searches", () => {
+  clearUsageEventsForTests();
+  recordUsageEvent({ name: "buyer_portal_search", path: "/buyer-portal?q=coast", createdAt: "2026-08-24T00:03:00.000Z" });
+  recordUsageEvent({ name: "checkout_add", path: "/checkout?add=midnight-coast", createdAt: "2026-08-24T00:04:00.000Z" });
+  const summary = getUsageEventSummary();
+  assert.equal(summary.searches, 1);
+  assert.equal(summary.featureEvents, 2);
+});

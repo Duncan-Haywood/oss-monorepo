@@ -6,6 +6,7 @@ import {
   type SeoLandingPage,
   type SeoPublishState,
 } from "@/lib/seo";
+import { buildCheckoutAddHref, validateCheckoutLineItem } from "@/lib/checkout";
 import {
   buildListingConsentGate,
   catalogArtworks,
@@ -36,6 +37,10 @@ export default function PrintLandingPage({ page, publishState }: PrintLandingPag
   const artwork = catalogArtworks.find((item) => item.slug === page.artworkSlug);
   const consentGate = buildListingConsentGate(catalogArtworks, defaultListingConsentRecords);
   const consentItem = consentGate.items.find((item) => item.artwork.slug === page.artworkSlug);
+  const checkout = artwork
+    ? validateCheckoutLineItem(artwork, defaultListingConsentRecords)
+    : { eligible: false, blockers: ["Listing is missing from the shared catalog"] };
+  const checkoutHref = artwork ? buildCheckoutAddHref(artwork.slug) : "/checkout";
 
   return (
     <div className="min-h-screen bg-stone-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
@@ -51,6 +56,9 @@ export default function PrintLandingPage({ page, publishState }: PrintLandingPag
             PRINT ATELIER
           </Link>
           <div className="flex gap-3 text-sm">
+            <Link href="/buyer-portal" className="text-indigo-600 dark:text-indigo-400 hover:underline">
+              Buyer shop
+            </Link>
             <Link href="/storefront" className="text-indigo-600 dark:text-indigo-400 hover:underline">
               Storefront
             </Link>
@@ -93,24 +101,34 @@ export default function PrintLandingPage({ page, publishState }: PrintLandingPag
             </div>
 
             <div className="flex flex-wrap gap-3">
-              <button
-                type="button"
-                disabled={!state.publishable}
-                className={`px-5 py-3 rounded-lg font-medium transition ${
-                  state.publishable
-                    ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                    : "bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400 cursor-not-allowed"
-                }`}
-              >
-                {page.primaryCta}
-              </button>
+              {checkout.eligible ? (
+                <Link
+                  href={checkoutHref}
+                  className="px-5 py-3 rounded-lg font-medium bg-indigo-600 text-white hover:bg-indigo-700 transition"
+                >
+                  {page.primaryCta}
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  className="px-5 py-3 rounded-lg font-medium bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400 cursor-not-allowed"
+                >
+                  {page.primaryCta}
+                </button>
+              )}
               <Link
-                href="/storefront"
+                href="/buyer-portal"
                 className="px-5 py-3 rounded-lg border border-stone-300 dark:border-gray-700 font-medium hover:bg-stone-100 dark:hover:bg-gray-800 transition"
               >
                 {page.secondaryCta}
               </Link>
             </div>
+            {!checkout.eligible ? (
+              <p className="text-xs text-amber-700 dark:text-amber-300">
+                Checkout blocked: {checkout.blockers.join(" · ")}
+              </p>
+            ) : null}
 
             <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1 border-t border-stone-200 dark:border-gray-800 pt-4">
               <p>Consent: {consentStatusLabel(consentItem)}</p>

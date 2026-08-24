@@ -100,6 +100,63 @@ function generateSessionId(): string {
   return `chk_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 }
 
+export function buildCheckoutAddHref(artworkSlug: string): string {
+  const slug = artworkSlug.trim();
+  return slug ? `/checkout?add=${encodeURIComponent(slug)}` : "/checkout";
+}
+
+export function addArtworkToCheckoutCart(
+  cart: CheckoutLineItem[],
+  artworkSlug: string,
+  artworks: CatalogArtwork[] = catalogArtworks,
+  consentRecords: ListingConsentRecord[] = defaultListingConsentRecords,
+): {
+  cart: CheckoutLineItem[];
+  added: boolean;
+  alreadyInCart: boolean;
+  blockers: string[];
+  artworkSlug: string;
+} {
+  const slug = artworkSlug.trim();
+  if (!slug) {
+    return { cart, added: false, alreadyInCart: false, blockers: ["Artwork slug is required"], artworkSlug: slug };
+  }
+
+  if (cart.some((item) => item.artworkSlug === slug)) {
+    return { cart, added: false, alreadyInCart: true, blockers: [], artworkSlug: slug };
+  }
+
+  const artwork = artworks.find((item) => item.slug === slug);
+  if (!artwork) {
+    return {
+      cart,
+      added: false,
+      alreadyInCart: false,
+      blockers: [`Unknown artwork slug: ${slug}`],
+      artworkSlug: slug,
+    };
+  }
+
+  const eligibility = validateCheckoutLineItem(artwork, consentRecords);
+  if (!eligibility.eligible) {
+    return {
+      cart,
+      added: false,
+      alreadyInCart: false,
+      blockers: eligibility.blockers,
+      artworkSlug: slug,
+    };
+  }
+
+  return {
+    cart: [...cart, artworkToCheckoutLine(artwork)],
+    added: true,
+    alreadyInCart: false,
+    blockers: [],
+    artworkSlug: slug,
+  };
+}
+
 export function artworkToCheckoutLine(
   artwork: CatalogArtwork,
   quantity = 1,

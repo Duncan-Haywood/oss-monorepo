@@ -40,6 +40,10 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 
 _(agent assigns at run start)_
 
+## recently completed this session
+
+- [x] [product] Buyer portal search/filter over the shared catalog, with print-page checkout `?add=` intent
+
 ## done
 
 - [x] [platform] Google/Pinterest CAPI HTTP fire on checkout session (parity with Meta)

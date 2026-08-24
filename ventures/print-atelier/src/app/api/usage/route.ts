@@ -6,6 +6,8 @@ const eventNames: UsageEventName[] = [
   "catalog_cta",
   "room_visualizer_cta",
   "storefront_search",
+  "buyer_portal_search",
+  "checkout_add",
 ];
 
 export async function POST(request: Request) {

@@ -2,7 +2,9 @@ export type UsageEventName =
   | "page_view"
   | "catalog_cta"
   | "room_visualizer_cta"
-  | "storefront_search";
+  | "storefront_search"
+  | "buyer_portal_search"
+  | "checkout_add";
 
 export type UsageEvent = {
   name: UsageEventName;
@@ -22,7 +24,9 @@ export function getUsageEventSummary() {
   return {
     totalEvents: events.length,
     pageViews: events.filter((event) => event.name === "page_view").length,
-    searches: events.filter((event) => event.name === "storefront_search").length,
+    searches: events.filter(
+      (event) => event.name === "storefront_search" || event.name === "buyer_portal_search",
+    ).length,
     featureEvents: events.filter((event) => event.name !== "page_view").length,
     recentEvents: events.slice(0, 20),
   };
