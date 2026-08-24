@@ -48,6 +48,31 @@ scoring_rule: >-
   near-zero-price norm is a real property of the business on any host.
 
 ventures:
+  - slug: shopify-permission-drift
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 9
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 4
+    composite: 5.833
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The first release is intentionally deterministic and local-first. Its
+      defensibility depends on portable evidence records and agency workflow
+      adoption, neither of which has customer evidence yet.
+    basis: >-
+      Graduated from the Shopify permission drift candidate on 2026-08-24. The
+      first slice compares customer-authorized app scopes, webhook topics, and
+      authorization state without Shopify credentials, network calls, or
+      customer data. The schema is strict about provenance and uncertainty.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
   - slug: etsy-profit-calculator
     scores:
       ai_leverage: 2
@@ -65,6 +90,109 @@ ventures:
     gates:
       liability_containment: pass
       ethical_robustness: pass
+
+  - slug: ebay-fee-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: AI is intentionally absent from the arithmetic core.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local eBay reseller fee, profit and
+      ROI calculator. Scored one below its etsy-profit-calculator sibling on
+      defensibility and distribution: "eBay fee calculator" is a more saturated
+      SERP with entrenched ad-funded incumbents, so the cost-of-goods/ROI
+      differentiator is thinner cover there than on Etsy's.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
+  - slug: shopify-fee-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: AI is intentionally absent from the arithmetic core.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local Shopify merchant fee and
+      profit calculator. The wedge is the Shopify Payments vs third-party
+      (PayPal/Stripe) comparison, including the extra Shopify transaction fee
+      generic calculators omit. Scored one above ebay-fee-calculator on
+      distribution: "Shopify fee calculator" and "Shopify PayPal fees" are
+      high-intent merchant queries with a clearer payment-path decision.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
+  - slug: where-to-sell-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 7.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: AI is intentionally absent from the arithmetic core.
+    basis: >-
+      Graduated on 2026-08-24 as the cross-channel counterpart to the
+      single-marketplace calculators already in the portfolio. Scored one above
+      shopify-fee-calculator on defensibility: the per-marketplace calculators
+      are each a commodity SERP, while a comparison that models differing fee
+      *shapes* — per-listing fees, subscription amortisation, and the price
+      needed to match the best channel — is the piece the incumbent ad-funded
+      pages do not attempt. Distribution matches at 8: "etsy vs ebay fees" and
+      "where to sell online" are high-intent seller queries.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
+  - slug: no-show-fee-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      AI is intentionally unnecessary: transparent arithmetic and policy
+      drafting are the user value. Repeat usage and niche templates may provide
+      a future moat, but demand is untested.
+    basis: >-
+      Graduated as a new venture on 2026-08-24. The browser-local calculator
+      addresses a specific revenue leak for appointment businesses, has no
+      account, network, inference, or payment dependency, and produces a
+      copyable policy draft from user-supplied numbers.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: results are estimates and draft text, not legal or
+      financial advice. The interface tells users to verify local consumer,
+      industry, and payment-processor requirements before publishing.
+
   - slug: quote-margin-check
     scores:
       ai_leverage: 3
@@ -452,31 +580,6 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
 
-  - slug: shopify-permission-drift
-    scores:
-      ai_leverage: 2
-      autonomous_ops: 9
-      time_to_revenue: 6
-      gross_margin: 10
-      defensibility: 4
-      distribution: 4
-    composite: 5.833
-    rater_b: null
-    floor: 2
-    floor_dimension: ai_leverage
-    floor_note: >-
-      The first release is intentionally deterministic and local-first. Its
-      defensibility depends on portable evidence records and agency workflow
-      adoption, neither of which has customer evidence yet.
-    basis: >-
-      Graduated from the Shopify permission drift candidate on 2026-08-24. The
-      first slice compares customer-authorized app scopes, webhook topics, and
-      authorization state without Shopify credentials, network calls, or
-      customer data. The schema is strict about provenance and uncertainty.
-    gates:
-      liability_containment: pass
-      ethical_robustness: pass
-
   - slug: print-atelier
     scores:
       ai_leverage: 6
@@ -551,6 +654,35 @@ ventures:
       security, deliverability, uptime, or compliance. Authorization and
       remediation remain customer responsibilities.
 
+  - slug: einvoice-preflight
+    scores:
+      ai_leverage: 5
+      autonomous_ops: 8
+      time_to_revenue: 5
+      gross_margin: 9
+      defensibility: 4
+      distribution: 5
+    composite: 6
+    rater_b: null
+    floor: 4
+    floor_dimension: defensibility
+    floor_note: >-
+      Format validation is reproducible and open-source substitutes exist;
+      explainable JSON output and integration fixtures are the proposed wedge,
+      but neither retention nor a buyer channel is measured.
+    basis: >-
+      Graduated as the narrow version of the e-invoice preflight candidate on
+      2026-08-24. The first slice is a local standard-library checker for
+      structural fields and arithmetic. It never transmits an invoice, chooses
+      tax treatment, or stores customer documents.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: output is limited to observations about supplied
+      fields and arithmetic. The user remains the filer, signer, and decision
+      maker; no format completeness or tax compliance warranty is made.
+
   - slug: backup-verification-evidence
     scores:
       ai_leverage: 5
@@ -579,9 +711,62 @@ ventures:
     gates:
       liability_containment: pass
       ethical_robustness: pass
+
+  - slug: cut-list-optimizer
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: AI is intentionally absent from the deterministic packing core.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local cut-list planner for
+      woodworkers, sign shops, and makers. The first slice expands required
+      quantities, accounts for saw kerf, and produces a transparent heuristic
+      stock plan without uploads, accounts, or paid dependencies. Distribution
+      is supported by the specific low-waste and kerf-aware planning search
+      intent, while defensibility remains modest until repeat usage creates
+      niche templates or workflow data.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
     gate_note: >-
-      Pass, conditionally: `verified` is scoped in both the CLI output and
-      the README to "exit code 0 and artifact meets the stated size/age
+      Pass, conditionally: `verified` is scoped in both the CLI output and the
+      README to "exit code 0 and artifact meets the stated size/age
       expectations", never to restorability, completeness, or data safety.
       Testing restores and maintaining an independent backup strategy remain
-      customer responsibilities.
+       customer responsibilities.
+
+  - slug: shopify-a11y-evidence
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The initial evidence report is intentionally deterministic; a dated
+      history and agency workflow can provide defensibility after usage proves
+      repeat demand.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local axe-core JSON report for
+      Shopify merchants and agencies. It produces a portable record without
+      Shopify credentials, network access, or server-side data retention.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: output is explicitly a record of a supplied
+      automated test, never a compliance determination, and every result calls
+      for manual review.

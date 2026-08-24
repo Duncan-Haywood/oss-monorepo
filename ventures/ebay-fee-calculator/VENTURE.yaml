@@ -1,0 +1,27 @@
+name: ebay-fee-calculator
+description: A private browser calculator for eBay resellers to see order profit, margin, ROI, and break-even resale price after eBay fees and cost of goods.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: eBay resellers will return to a fast profit calculator that includes their cost of goods, because generic fee calculators stop at the fee and never show ROI or break-even resale price.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Return on invested cash is the number resellers actually decide on when sourcing, more than the raw profit figure.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified eBay resellers use the calculator twice within 90 days.
+  - Users do not find at least one item whose break-even resale price differs materially from their expectation.
+links:
+  production: null
+  analytics: null
