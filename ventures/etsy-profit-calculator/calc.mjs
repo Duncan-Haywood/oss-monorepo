@@ -26,8 +26,9 @@ export function calculateOrder(input) {
   return {
     revenue, fees, costs, profit,
     margin: revenue === 0 ? 0 : profit / revenue * 100,
+    // Shipping charged is revenue too, so return the item-price portion.
     breakEvenPrice: Math.max(0, (listingFee + paymentFixed + shippingCost + materialCost + otherCost) /
-      (1 - (transactionRate + paymentRate + offsiteAdRate) / 100)),
+      (1 - (transactionRate + paymentRate + offsiteAdRate) / 100) - shippingCharged),
   };
 }
 

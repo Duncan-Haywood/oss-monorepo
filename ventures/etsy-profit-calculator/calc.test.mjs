@@ -17,9 +17,11 @@ test('includes offsite ads and shipping revenue in percentage fees', () => {
   assert.equal(result.profit, 13.425);
 });
 
-test('finds the price that covers fixed and percentage costs', () => {
-  const result = calculateOrder({ price: 100, listingFee: 1, paymentFixed: 1, transactionRate: 10, paymentRate: 5, shippingCost: 10, materialCost: 5 });
-  assert.equal(result.breakEvenPrice, 20);
+test('finds the item price that covers costs after shipping revenue', () => {
+  const input = { shippingCharged: 5, listingFee: 1, paymentFixed: 1, transactionRate: 10, paymentRate: 5, shippingCost: 10, materialCost: 5 };
+  const result = calculateOrder({ ...input, price: 100 });
+  assert.equal(result.breakEvenPrice, 15);
+  assert.equal(calculateOrder({ ...input, price: result.breakEvenPrice }).profit, 0);
 });
 
 test('rejects negative or non-numeric inputs', () => {
