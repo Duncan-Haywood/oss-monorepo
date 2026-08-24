@@ -485,3 +485,34 @@ ventures:
       with resolver and timestamp provenance, and explicitly does not warrant
       security, deliverability, uptime, or compliance. Authorization and
       remediation remain customer responsibilities.
+
+  - slug: vendor-change-watch
+    scores:
+      ai_leverage: 7
+      autonomous_ops: 9
+      time_to_revenue: 6
+      gross_margin: 9
+      defensibility: 4
+      distribution: 4
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: defensibility
+    floor_note: >-
+      A generic page monitor is reproducible and distribution is unproven until
+      a security, procurement, or privacy practitioner adopts the workflow.
+      Customer-specific watch lists and portable source-linked history are the
+      named mitigation, but neither has customer evidence yet.
+    basis: >-
+      Graduated from the vendor-change-evidence candidate on 2026-08-24. The
+      first slice is a local, deterministic CLI with customer-selected URLs,
+      section-aware diffs, explicit inconclusive fetch states, and no hosted
+      service or inference dependency. Scores preserve the candidate estimate
+      until the practitioner pilot establishes demand and retention.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: the product preserves source text and timestamps but
+      does not interpret contractual effect, provide legal advice, or warrant
+      compliance. Customers choose public pages and decide what changes mean.
