@@ -1,0 +1,209 @@
+# The account owner's decision queue, as data.
+#
+# Every item here is `CLAUDE.md`-human-gated: it needs a legal person, creates
+# an ongoing outside effect, or both. No session may decide one. This file
+# exists so a session can *read* the queue without re-deriving it, and so the
+# owner can read it without scrolling.
+#
+# Why a file and not issue #139. #139 is the living tracker and remains the
+# place the owner answers. But its body is ~82KB of prose, rewritten in place
+# by whichever session edits last -- and on 2026-08-24 two concurrent sessions
+# clobbered it twice in one day (recorded in #697, #698). A queue that two
+# agents can corrupt in an afternoon is not a queue the owner can trust. Git
+# merges concurrent edits; an issue body does not. So the *structure* of the
+# queue lives here, under review, and #139 keeps the discussion.
+#
+# What this file adds that the #139 asks table does not. That table is sorted
+# cheapest-first, which `break-even.md` already faulted for burying the only
+# ask that unlocks any revenue. Two axes it does not carry at all:
+#
+#   - `blocked_by` -- three of the nine asks cannot do anything if granted
+#     today, because a different ask gates them. `CLAUDE.md` states this for
+#     Ask 5 in prose ("Ask 5 is currently inert") and the table still lists it
+#     as available to grant.
+#   - `exposure` -- what granting it actually costs the owner in risk. A repo
+#     Settings toggle and opening a merchant-of-record account are adjacent
+#     rows in a cheapest-first table and are not the same kind of decision.
+#
+# Read it with:  python3 portfolio/ledger/decision_queue.py
+#
+# Schema (checked by `decision_queue.py --check` in CI):
+#   id           short slug, unique
+#   asks         list of #139 ask numbers this decision covers (may be empty)
+#   prs          list of open pull request numbers this decision covers
+#   gates        revenue | distribution | deployment | measurement
+#   exposure     none | credential | legal-person
+#   opened       "YYYY-MM-DD" the ask first appeared on #139
+#   action       the single thing the owner does, stated so it can be done
+#                without opening anything else
+#   unlocks      what becomes possible, one entry per distinct consequence
+#   blocked_by   ids in this file that must be granted first, or [] if none
+#   note         provenance and any correction since it was written
+#
+# Items live under a `decisions:` key rather than at the top level because the
+# router globs every *.yaml in this directory as a monthly ledger and reads
+# `entries:` off it; a bare list here crashes `allocate.py`.
+
+decisions:
+
+- id: payout-rail
+  asks: [2]
+  prs: []
+  gates: revenue
+  exposure: legal-person
+  opened: "2026-08-19"
+  action: >-
+    Decide the binary in `break-even.md`: either commit to a merchant-of-record
+    account (and the egress entry it needs), or say plainly that this portfolio
+    is not going to earn under the current design, so the fleet cadence can be
+    set to match.
+  unlocks:
+    - >-
+      The only thing that moves the revenue ceiling off $0. Every other item in
+      this file changes what is measurable, listed, or deployed; none of them
+      lets the portfolio take a dollar.
+  blocked_by: []
+  note: >-
+    Deliberately human-gated and correctly so -- `CLAUDE.md` and
+    `channel-inventory.md` both hold that an unattended agent holding a bank
+    credential is the liability this portfolio exists to avoid. So this is not
+    a gap to route around; it is a decision to make in one direction or the
+    other. `break-even.md` supersedes the old Ask 8 (report the API spend):
+    the owner does not need to report a number, only to check a bill they
+    already have against the $0.12/session threshold and then answer this.
+    Per #219 as revised by #225, the three candidates on reachable registries
+    do not on their own justify the compliance and tax overhead of a
+    merchant-of-record account -- which is an argument about *which* direction
+    to answer in, not a reason to leave it unanswered.
+
+- id: egress-policy
+  asks: [3, 7]
+  prs: []
+  gates: measurement
+  exposure: none
+  opened: "2026-08-19"
+  action: >-
+    One read-only egress allowlist decision covering `api.wordpress.org`, four
+    public storefronts (`formulae.brew.sh`, `www.raycast.com`, `obsidian.md`,
+    `zed.dev`) and the EU/US institutional publishers
+    (`eur-lex.europa.eu`, `ec.europa.eu`, `www.ftc.gov`, `www.w3.org`,
+    `www.federalregister.gov`, `euvd.enisa.europa.eu`). No account, no write
+    access, nothing published.
+  unlocks:
+    - WordPress.org `active_installs` -- the one adopter-rate observation available on a free channel with a business buyer.
+    - "`portfolio/pipeline/`'s own graduation gate, which requires obligation dates checked against primary legislation and is otherwise unsatisfiable by any session through any tool."
+    - "`cra-evidence-desk`'s EUVD wedge, its only remaining differentiator."
+    - "`mcp-supply-chain-watch`'s only surviving path to a defensible archive (the 84.5% remote-endpoint half of its market)."
+  blocked_by: []
+  note: >-
+    Asks 3 and 7 are one decision, not two: per #253 the policy is
+    general-web hosts denied and code/package/object-storage infrastructure
+    allowed, and `https://example.com` fails with the identical signature as
+    every host above -- so granting the policy resolves both rows. Confirmed
+    denied independently by #126/#137/#166, #177, #218, #219, #232, #253, and
+    for the harness's own `WebFetch` as well as `curl`. This is the highest-
+    leverage item with no legal exposure at all: it buys four distinct things
+    and costs the owner one allowlist decision.
+
+- id: deploy-settings
+  asks: [4, 6]
+  prs: []
+  gates: deployment
+  exposure: credential
+  opened: "2026-08-19"
+  action: >-
+    Set repository settings and secrets, all inside GitHub: Pages source to
+    "GitHub Actions" plus variable `GITHUB_PAGES_ENABLED=true` (or
+    `VERCEL_DEPLOY=true` with the three `VERCEL_*` secrets instead), and
+    `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` (plus `AUTH_SECRET` for
+    `ai-first-markets`).
+  unlocks:
+    - Three ventures whose builds already pass but which deploy nothing.
+    - "`retail-pilot-intel`'s docs deploy, which since #347 is green *and publishes nothing* -- the workflow skips the publish job rather than failing, so the record shows success for a site that does not exist."
+  blocked_by: []
+  note: >-
+    Grouped because both are repository settings the owner changes in one
+    sitting, with no third party involved and no ongoing spend commitment.
+    Note the correction recorded in #696 and on #139 (comment 5389301893):
+    Ask 6 as originally written described a *failing* deploy; it is now a
+    silently-skipped one, which is worse for the record and unchanged for the
+    site. Sequenced after `egress-policy` in the printed queue only because it
+    buys deployment rather than measurement -- nothing blocks it.
+
+- id: publication-identity
+  asks: [0, 1, 5]
+  prs: []
+  gates: distribution
+  exposure: legal-person
+  opened: "2026-08-19"
+  action: >-
+    Three related grants: one registry account signup (Packagist or RubyGems
+    preferred; not Docker Hub), one GitHub App permission change, and one
+    standing approval on whether an agent session may publish a *free* listing
+    -- no payment, no personal data, no compliance claim -- under this
+    portfolio's name.
+  unlocks:
+    - A demand measurement on a developer-buyer channel, and submission access to the git/PR-based channels.
+  blocked_by: [egress-policy]
+  note: >-
+    Listed as blocked, and this is the correction the #139 table does not
+    carry. `CLAUDE.md` states it in prose -- "Ask 5 is currently inert" --
+    because every channel nominated as agent-listable (WordPress.org, Open
+    VSX, VS Code Marketplace, GitHub Marketplace) measured egress- or
+    scope-denied, verified twice on separate dates against a control host. So
+    granting the publish approval today publishes nothing. Per #218 a cold
+    listing carries roughly 5% odds of reaching the top decile, and per
+    #219/#225 the payoff at today's reachable-registry regime is $16-$145/month
+    -- a rounding error against the ceiling in `break-even.md`. Worth granting
+    after the egress decision, not before it.
+
+- id: next-16-upgrade
+  asks: []
+  prs: [372]
+  gates: deployment
+  exposure: none
+  opened: "2026-08-20"
+  action: "Merge or decline #372."
+  unlocks:
+    - "`next@16.3.1` across six live ventures, clearing the advisories its ancestor #109 was carrying when #109 was closed unmerged by accident."
+  blocked_by: []
+  note: >-
+    Verified and CI-green (9/9 checks on the head), `mergeable_state` clean,
+    recorded in `verifications.yaml` with BUILD still VALID against the
+    current `main`. Owner-gated only because merging fires deploys to live
+    sites, not because anything is unverified. This is the item with a
+    measured carrying cost: it is the third conflict-resolution pass on the
+    #191 -> #208 -> #222 chain, so each day it waits has spent a session on
+    re-resolving it rather than on anything new.
+
+- id: dependabot
+  asks: []
+  prs: [368]
+  gates: deployment
+  exposure: none
+  opened: "2026-08-20"
+  action: "Merge or decline #368."
+  unlocks:
+    - Scheduled dependency update PRs across the 15 tracked manifests.
+  blocked_by: []
+  note: >-
+    Touches only `.github/dependabot.yml`, so it is an internal surface, but
+    `CLAUDE.md`'s unattended-automation clause gates it anyway: once merged it
+    opens pull requests on its own schedule. Verified in `verifications.yaml`;
+    nothing left to check, the decision itself is the open question.
+
+- id: contrast-fixes
+  asks: []
+  prs: [531, 583]
+  gates: deployment
+  exposure: none
+  opened: "2026-08-21"
+  action: "Merge or decline #531 and #583 together."
+  unlocks:
+    - WCAG 1.4.3 contrast failures fixed across `local-site-studio`, `ai-first-markets` and `real-estate-agent-photo-app`.
+  blocked_by: []
+  note: >-
+    Two pull requests, one decision: both are colour-token substitutions of
+    the same shape, both CI-green, both `mergeable_state` clean, and both are
+    owner-gated for the same single reason -- they republish live sites.
+    Neither changes behaviour beyond colour values.

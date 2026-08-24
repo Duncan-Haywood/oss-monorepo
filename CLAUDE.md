@@ -107,6 +107,26 @@ The goal is that the *only* things reaching the account owner are the ones on
 the human-gated list — everything else the portfolio needs, a session finishes
 itself.
 
+**Read the queue before you add to it:**
+
+```
+python3 portfolio/ledger/decision_queue.py
+```
+
+`portfolio/ledger/asks.yaml` holds every item currently waiting on the owner,
+with the one action that closes it, what that unlocks, and which other item
+blocks it. Add your flag there as well as on #139 — the file is in git, so
+concurrent sessions merge instead of overwriting each other, which #139's body
+does not (it was clobbered twice on 2026-08-24). Do not append a second record
+for an ask that already has one; CI rejects that.
+
+The queue is the portfolio's binding constraint, not its supply of work: every
+session's output is queued behind decisions only the owner can make, and
+between 2026-08-19 and 2026-08-24 exactly one was answered. So a flag that
+lands as a ninth undifferentiated row costs more than it buys. State what one
+action closes it and what that unlocks, or you have added to the backlog
+without adding to what can be decided.
+
 ## If your brief is "research new business projects"
 
 **It is already answered. Do not produce a candidate list.**

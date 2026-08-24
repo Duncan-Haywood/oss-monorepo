@@ -20717,3 +20717,94 @@ entries:
         armed. That is the argument for fixing the trigger rather than the
         figure, and it is what this branch carries on top of theirs.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled strategic session ("continue work... maintain and improve
+          the development process... legal ethical reliable increase in
+          profit... this run should be more strategic work"), designated
+          branch claude/wizardly-albattani-qwyzuv. `session_gate.py` ->
+          PROCEED, flagging 2 distinct sessions committed to `main` within a
+          15-minute window. Checked the 4 open PRs (#583, #531, #372, #368),
+          issue #139 and `verification_status.py` before starting. Found
+          nothing agent-decidable pending: every open PR is correctly owner-
+          gated, all their checks are green, and `main` had no red run among
+          its last 15 workflow runs. Re-verified none of them -- nothing about
+          them had changed since their last recorded check.
+      - >-
+          So the question was where a session's marginal output goes when the
+          queue of work it may decide is empty. It goes into the owner's
+          queue, which is the portfolio's actual binding constraint: `break-
+          even.md` establishes a structural `$0` revenue ceiling only the
+          owner can move, so every session's output is queued behind decisions
+          no agent may make. Between 2026-08-19 and 2026-08-24 exactly one
+          item on that queue was answered. The queue is not slow because the
+          owner is slow; it is 9 asks plus 4 pull requests presented as ~82KB
+          of prose on #139, sorted cheapest-first, and it had never been
+          rendered in a form that supports being answered.
+      - >-
+          Built `portfolio/ledger/asks.yaml` plus `decision_queue.py`
+          (renderer and `--check` validator) and `test_decision_queue.py` (28
+          tests), wired both into `portfolio-validate.yml` and both of its
+          path filters. It is a renderer over declared fields, not a judge:
+          every ordering rule is a fixed rank, so what it prints is a function
+          of the data file and the data file is what gets reviewed. The
+          ranking is `break-even.md`'s own "sorted by what each ask gates"
+          ordering rather than a new one, pinned by a test so a later pass
+          cannot quietly reintroduce the cheapest-first sort that document
+          faulted.
+      - >-
+          Two axes the #139 table does not carry, and both change the answer.
+          `blocked_by`: granting an ask can buy nothing while another ask
+          gates it. That is true of Ask 5 today -- `CLAUDE.md` says so in
+          prose ("Ask 5 is currently inert", every nominated channel egress-
+          or scope-denied, verified twice on separate dates) while the table
+          still lists it as available to grant. `exposure`: a repository
+          Settings toggle and opening a merchant-of-record account are
+          adjacent rows in a cheapest-first sort and are not the same kind of
+          decision. With both applied, 9 asks and 4 open PRs collapse to SEVEN
+          decisions, of which exactly one (Ask 2, the payout rail) moves the
+          ceiling off `$0`, and one is blocked. No new evidence is claimed
+          here: every input was already committed somewhere in this
+          repository. The contribution is the join, and that it is now a
+          command rather than a paragraph.
+      - >-
+          Chose git over #139 for a measured reason rather than a stylistic
+          one. #139's body is rewritten in place by whichever session edits
+          last, and it was clobbered twice in one day on 2026-08-24 (#697,
+          #698) by concurrent sessions restoring it. A queue two agents can
+          corrupt in an afternoon is not one the owner can trust. Git merges
+          concurrent edits; an issue body does not. #139 stays where the owner
+          answers; only the structure moved.
+      - >-
+          `--check` rejects an ask or pull request claimed by two decisions,
+          because that is precisely the collapse being wrong and a double-
+          counted row would make the printed header disagree with #139. It
+          caught two defects in this session's own work before they landed: an
+          unquoted `#372` in a YAML scalar silently truncated an action to
+          "Merge or decline" (YAML comment syntax), and the first gate ranking
+          put deployment above measurement, contradicting `break-even.md`'s
+          committed ordering.
+      - >-
+          Verified by running the checks rather than reading the diff: all 10
+          repo validators pass (router, doc-consistency, candidates, probe-
+          index, score-sensitivity, venture-scoring, workflows 38/38, break-
+          even --check, verification-status --check, decision-queue --check)
+          and all 7 unit suites (193 tests). Confirmed the router still parses
+          the new file -- it globs every `*.yaml` in this directory as a
+          monthly ledger, so these records live under a `decisions:` key for
+          the same reason `verifications.yaml` uses `records:`.
+      - >-
+          Agent-decidable per `CLAUDE.md`: `portfolio/ledger/`, `CLAUDE.md`
+          and CI config only. No `ventures/*` app code, nothing published, no
+          account registered, no credential used, and no unattended or spend-
+          capable automation added -- the two new CI steps run offline Python
+          checks in an existing workflow. Self-merged with this entry in the
+          same PR, which is safe here because the PR is merged in the same
+          session rather than waiting on the owner. Added no new ask: this
+          reorganizes what the owner was already being asked, and adding a
+          tenth row would have been the exact failure the tool exists to
+          measure.
+    mrr_end: null
