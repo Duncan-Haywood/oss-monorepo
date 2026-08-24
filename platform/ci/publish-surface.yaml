@@ -52,6 +52,9 @@ workflows:
   - job: deploy
     step: runs 'npm run deploy'
     gates: []
+- workflow: backup-verification-evidence-ci.yml
+  classification: none
+  publishes: []
 - workflow: branch-cleanup.yml
   classification: none
   publishes: []
