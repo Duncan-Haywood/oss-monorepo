@@ -5,7 +5,8 @@ platform that works on it.
 
 **Strategy:** [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) — build
 products people use (free, full-feature, usage-tracked), ship fast, minimize
-variable cost. Agent instructions: [`AGENTS.md`](AGENTS.md). How to build one:
+variable cost. New ventures are welcome when they are genuinely distinct and
+can reach a useful vertical slice quickly. Agent instructions: [`AGENTS.md`](AGENTS.md). How to build one:
 [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md). What to count and where it lands:
 [`portfolio/usage/`](portfolio/usage/README.md).
 
