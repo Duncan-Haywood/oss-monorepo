@@ -587,9 +587,14 @@ as decidable but not yet built) is itself the first concrete instance of the
 The first experiment's software half is now here: a pass that applies only
 rewrites that do not invent meaning, then re-runs the same engine. It will
 derive a title from the first heading, close a heading-level skip, remove
-`aria-hidden` from a focusable control, and drop a viewport zoom-lock. It
-will not invent alt text, labels, captions, link names, button names, or a
-page language.
+`aria-hidden` from a focusable control, drop a viewport zoom-lock, remove a
+timed meta refresh, unwrap `<blink>` / `<marquee>` (keeping the text), and
+drop an `aria-label` that does not contain the visible label. It will not
+invent alt text, labels, captions, link names, button names, or a page
+language. A dead `<label for>` whose pairing is a forgotten expression
+prefix is a different rewrite (two existing strings); this pass does not
+touch it. 1.2.1 stays unbuilt: the reference returns incomplete even
+when forced on.
 
 On the three fixture shops it closes **1 of 11 blocking** findings and
 **2 of 3 degrading** findings. That is a fixture re-audit, not AT
