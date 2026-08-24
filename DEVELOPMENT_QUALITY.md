@@ -14,14 +14,11 @@ separately derives a `$0` revenue ceiling for the current regime and finds
 roughly half of recent ledger entries re-derive conclusions already on `main`.
 Neither finding is overridden by this document. Raising a venture's tier is
 worth doing when a session is already touching that venture's code for another
-reason, not as a standalone goal, and does not change which PRs are
-agent-decidable: tests, linting, and tooling additions to `ventures/*` app
-code are still routed through the human-gated review path in `CLAUDE.md`
-("Breaking changes to deployable `ventures/*` code"), the same as any other
-change there, regardless of how safe or well-tested. A generic scheduled
-brief should run `portfolio/ledger/session_gate.py` first, as `CLAUDE.md`
-directs. When the gate reads **BUILD**, redirect to venture development or
-pipeline graduation — do not idle.
+reason, not as a standalone goal. Venture app code merges are agent-decidable
+when CI passes — see `CLAUDE.md` and `platform/deploy/README.md`. A generic
+scheduled brief should run `portfolio/ledger/session_gate.py` first, as
+`CLAUDE.md` directs. When the gate reads **BUILD**, redirect to venture
+development, Hetzner deploys, or pipeline graduation — do not idle.
 
 ## Quality Tiers
 

@@ -2,6 +2,20 @@
 
 Added 2026-08-19 by the tenth firing of the screening brief.
 
+## Portfolio Hetzner — the live deploy surface (use this first)
+
+The account owner has a **Hetzner VM with a domain attached**, provisioned via
+[`ventures/ubuntu-agent-server/`](../../ventures/ubuntu-agent-server/). This is
+the default channel for shipping ventures **today**:
+
+| Surface | Fee | Agent-available | Billing | Notes |
+|---|---|---|---|---|
+| **Portfolio Hetzner + domain** | Server cost only | **Yes** — SSH/Ansible from this repo | No (marketing without payment is fine) | Set `links.production` in `VENTURE.yaml`; see [`platform/deploy/README.md`](../../platform/deploy/README.md) |
+
+Agents should **deploy here, market, and measure signups** before waiting on
+any third-party marketplace or payout rail. Development is never blocked for
+want of a store account when this surface is available.
+
 > ⚠️ **Read the amendment at the end of this file before acting on the
 > "Recommended next action" section below.** That section tells an agent
 > session it may publish a free listing to WordPress.org, Open VSX, or GitHub

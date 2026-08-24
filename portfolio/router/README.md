@@ -122,115 +122,48 @@ hypotheses:
   - claim: Local businesses will pay $500 flat for a pre-built website.
     status: untested
     checked: null
-    evidence: customer-contact   # or: in-repo
+    evidence: customer-contact   # or: in-repo | external-service
 ```
 
-- **`customer-contact`** — settled only by a response from outside this repo.
-  The router marks it `BLOCKED` while `links.production` is null.
+- **`customer-contact`** — settled by a user response (signup, contact, usage).
+  While `links.production` is null, the router task is **deploy to portfolio
+  Hetzner and market without payment** — not "blocked".
 - **`in-repo`** — settled against code, data, or documents already here.
-  `photos-import-tools` is the worked example: its claim that stateful
-  imports reduce failed transfers was marked `supported` on 2026-07-29
-  without any buyer in it.
+- **`external-service`** — needs an app-store, marketplace, or payout account
+  the agent cannot hold. Marked **HELD** for that step only; development in
+  `ventures/*` continues in parallel.
 
-`validate.py` requires the field, so a new venture cannot quietly reappear at
-the top of the queue with work no session can start. `rank()` sorts
-dispatchable work above blocked work — below a venture that needs a kill
-decision, which still comes first — and `allocate.py` prints how many of the
-ten a session could settle a hypothesis on. Blocked ventures still have in-repo
-work available (features, tests, UX); `dispatchable` only means the next
-hypothesis needs customer contact.
+`validate.py` requires the field. `rank()` sorts ventures with an
+external-service hold after those ready to deploy on Hetzner — below a venture
+that needs a kill decision, which still comes first. **Development is never
+blocked:** every venture has product, test, UX, deploy, and marketing work
+available regardless of hypothesis type.
 
-**This is a reporting change, not a discovery.** Searching the parsed
-outcome text of `2026-08.yaml` finds at least three entries, from separate
-cycles, already concluding that the top-ranked task is "outside what an
-unattended session can drive" or "outside what a code-focused agent session
-can execute" — and two of those say they are themselves consistent with
-earlier entries phrased differently, so the real count is higher. Each was
-written in prose; none of it reached the router; the next session got the
-same impossible queue and wrote the finding down again. The point of the
-field is that the tool now says it once, instead of each session paying to
-rediscover it.
+**This is a reporting change, not a discovery.** The old model marked nine of
+eleven ventures "blocked on publish" and told sessions to stop. That was wrong:
+customer-contact hypotheses are settled by deploying to Hetzner and driving
+traffic, which agents can do today. The field now routes that work instead of
+hiding it behind a blocker string.
 
-## Merit is a separate axis, and it does not agree with this one
+## Merit is a separate axis
 
-Everything above ranks on whether a session can *start* on a venture. That is a
-question about testability. [`portfolio/scoring/`](../scoring/) answers the
-other one — whether the business is any good — by scoring all eleven ventures
-on the six dimensions `ai-first-markets` uses for its idea library.
+[`portfolio/scoring/`](../scoring/) scores ventures on business quality.
+`allocate.py` reports merit alongside the work queue and uses it to break ties
+within the same priority band. Merit does **not** gate development — a
+high-merit venture waiting on an app-store account still gets full in-repo
+work; deploy and market on Hetzner first.
 
-The two orderings disagree, and not mildly. The one dispatchable venture sits
-at merit rank 9 of 10, and its composite (4.17) is *below* the blocked
-ventures' mean (4.74). The reason is structural rather than accidental: a
-venture only has an `in-repo` next question when nobody is currently trying to
-sell it, so **dispatchability anti-selects for commercial intent**. The single
-dispatchable venture is the one with no price and no buyer —
-`photos-import-tools` has no monetization language anywhere in it. (The other
-formerly-dispatchable directory, `ai-first-markets`, was reclassified out of
-the allocated set on 2026-08-20 and no longer appears in the router's queue —
-see its `NOT-A-VENTURE` marker.)
-
-`allocate.py` therefore reports both rather than letting one stand in for the
-other:
-
-- a `merit` column, read from `portfolio/scoring/venture-scores.yaml`;
-- ventures that are otherwise tied are ordered by merit instead of by
-  `monthly_cap`, which was an input the portfolio assigned rather than evidence
-  about the venture;
-- when the highest-merit venture is blocked, the header says so by name.
-
-Merit sorts strictly *below* dispatchability in `rank()`. Promoting it would
-put work no session can start back at the top of the queue, which is the
-failure the dispatchable field was added to fix.
-
-### The one judgment call
-
-`ai-first-markets` is marked `in-repo`, which contradicts a prior ledger
-entry calling its claim "a customer-usage hypothesis test". Both readings
-are defensible: the claim is that a market map "improves which AI-first
-venture to validate next", and the decisions it would improve are recorded
-in this repository. Its own kill criteria settle it — "no decision or
-validation workflow uses the platform within 90 days" is checkable here,
-with no outsider involved.
-
-It is marked dispatchable deliberately rather than confidently. If it is
-wrong, a session picks the task up, finds it needs an outside response, and
-flips one field. The opposite error is worse: mark everything blocked and
-the queue reports that the portfolio has no available work at all, which is
-the conclusion that produced the meta-work it is supposed to replace.
+`decisions_by_merit()` groups only `external-service` holds (app store,
+marketplace, payout rail) for the owner decision queue. It no longer treats
+"needs a production URL" as a blocker.
 
 ## What each owner decision unblocks, weighted by merit
 
-The two axes above answer "which venture next" for a *session*. They do not
-answer the question the account owner's decision queue (issue #139) turns on:
-of the decisions only a human can make, which one releases the most, and is
-that the same as the one that costs the least? The #323 scoring pass found it
-is not — the highest-merit venture (`local-site-studio`, 6.00: coded and
-tested Stripe checkout, a $500 + $99–199/mo ladder, the only buyer in the
-portfolio holding a business budget) sits behind the ask ranked *last* in #139
-for being the most expensive, while the cheap asks at the top of that queue
-serve pipeline candidates rather than any venture. The queue was ordered
-cheapest-first, which was correct while nothing was known about what each ask
-released; now something is.
+`decisions_by_merit()` groups ventures whose next hypothesis needs an
+**external-service** account (app store, marketplace, payout rail) and reports
+how much merit waits on each owner decision. Customer-contact ventures are not
+included — agents deploy to Hetzner and market without waiting.
 
-`allocate.py` closes that half. It already records, per venture, *why* no
-session can start it (`blocked_on`) and *how good the business looks*
-(`merit`). `decisions_by_merit()` adds them up the other way: it groups the
-blocked ventures by the owner-gated decision that would unblock them and
-reports, per decision, how many ventures wait on it, the total composite merit
-it would release, and the single highest-merit venture in that group (because
-one 6.00 unblocked can matter more than three 4.00s, and the sum alone hides
-that). The table prints it under the work queue; `--decisions` emits it as
-JSON.
-
-Run today it collapses to one line, and that *is* the finding: **9 of the 11
-ventures — 42.67 total merit, `local-site-studio` at the top — are blocked on
-a single decision, publishing.** Nearly the entire portfolio's merit is
-waiting on one owner call, not spread across the several cheaper asks the #139
-ordering leads with. This is a reporting change, not a recommendation: it does
-not reorder #139 or make the publish decision, both of which stay the owner's.
-It puts the merit-unblocked number next to the cost so the two can be read
-together, which is what the cheapest-first ordering left out. As more distinct
-`evidence: customer-contact` blockers appear (a venture blocked on something
-other than publishing), the rollup gains rows and the comparison sharpens; the
-line stays honest because the blocker string is computed from each
-`VENTURE.yaml`, not written down anywhere that can go stale.
+This is a reporting aid for issue #139, not a development gate. Pair merit
+unblocked with cost in `asks.yaml`; the cheapest ask and the highest-merit one
+are often not the same.

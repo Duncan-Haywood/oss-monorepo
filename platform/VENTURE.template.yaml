@@ -18,11 +18,12 @@ hypotheses:
     status: untested        # untested | supported | refuted
     checked: null           # YYYY-MM-DD
     # What kind of evidence settles this claim. The router uses it to tell
-    # work it can dispatch from work no agent can start.
-    #   customer-contact — needs a response from someone outside this repo
-    #                      (a purchase, signup, download, survey answer).
-    #                      Unobservable while `links.production` is null.
+    # deploy/marketing work from steps held on external accounts.
+    #   customer-contact — settled by a user response (signup, contact, usage).
+    #                      Deploy to portfolio Hetzner and market without payment.
     #   in-repo          — settleable against code, data, or documents here.
+    #   external-service — needs an app-store, marketplace, or payout account
+    #                      the agent cannot hold; develop in-repo meanwhile.
     evidence: customer-contact
 
 # Where the money is. Nulls are fine early; the router treats an unmeasured

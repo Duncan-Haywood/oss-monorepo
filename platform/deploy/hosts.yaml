@@ -1,0 +1,29 @@
+# Portfolio deployment surface — Hetzner + attached domain.
+#
+# The account owner has a Hetzner server provisioned via
+# ventures/ubuntu-agent-server/ with a domain pointed at it. Agents use this
+# for venture deployments, marketing sites, and user acquisition without
+# accepting payments or registering third-party marketplace accounts.
+#
+# Do not commit secrets here. SSH keys, TLS certs, and registry credentials
+# live in GitHub Actions secrets or on the server inventory.
+
+deploy_target: hetzner
+ansible_playbook: ventures/ubuntu-agent-server/playbook.yml
+
+# Set to the hostname attached to the Hetzner box (account owner fills in).
+# Subdomains per venture: {venture-slug}.{base_domain}
+base_domain: null
+
+# Agent-decidable on this surface (no owner decision per deploy):
+agent_decidable:
+  - build and deploy venture apps to the portfolio Hetzner host
+  - landing pages, marketing copy, SEO, and lightweight analytics
+  - set ventures/*/VENTURE.yaml links.production when a deploy is live
+  - drive traffic and measure signups/installs without a payment rail
+
+# Held for the account owner (do not route around):
+requires_owner:
+  - merchant-of-record / Stripe / payout rails
+  - app-store and marketplace developer accounts (Apple, Google, Garmin, Shopify, etc.)
+  - any new third-party account requiring a government ID, payment card, or bank account

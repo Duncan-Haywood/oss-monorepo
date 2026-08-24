@@ -65,17 +65,17 @@ class RankTests(unittest.TestCase):
         self.assertFalse(v.needs_decision)
         self.assertFalse(v.measured)
 
-    def test_dispatchable_work_outranks_blocked_work(self):
-        blocked = make("blocked", stage="prototype", mrr=None, monthly_cap=100)
-        blocked.hypotheses = [
-            {"claim": "People will pay.", "status": "untested", "evidence": "customer-contact"}
+    def test_external_service_hold_outranks_other_unmeasured(self):
+        held = make("held", stage="prototype", mrr=None, monthly_cap=100)
+        held.hypotheses = [
+            {"claim": "Store will list us.", "status": "untested", "evidence": "external-service"}
         ]
         ready = make("ready", stage="idea", mrr=None, monthly_cap=10)
         ready.hypotheses = [
-            {"claim": "The tool dedupes.", "status": "untested", "evidence": "in-repo"}
+            {"claim": "People will pay.", "status": "untested", "evidence": "customer-contact"}
         ]
-        # `blocked` wins on both stage and cap; dispatchability must override.
-        self.assertEqual(rank([blocked, ready])[0].name, "ready")
+        # `held` wins on stage and cap; external-service hold must rank after.
+        self.assertEqual(rank([held, ready])[0].name, "ready")
 
     def test_a_venture_needing_a_kill_decision_still_outranks_dispatchable_work(self):
         stuck = make("stuck", stage="revenue", mrr=0)
@@ -136,13 +136,25 @@ class NextTaskTests(unittest.TestCase):
         v = make("v", stage="revenue", mrr=100, monthly_cost=200)
         self.assertIn("Review", next_task(v))
 
-    def test_customer_contact_claim_on_unpublished_venture_is_blocked(self):
+    def test_customer_contact_on_unpublished_venture_is_deployable(self):
         v = make("v", stage="idea", mrr=None)
         v.hypotheses = [
             {"claim": "People will pay.", "status": "untested", "evidence": "customer-contact"}
         ]
-        self.assertFalse(v.dispatchable)
-        self.assertIn("BLOCKED", next_task(v))
+        self.assertTrue(v.dispatchable)
+        self.assertIsNone(v.blocker)
+        self.assertIn("Deploy", next_task(v))
+        self.assertIn("Hetzner", next_task(v))
+
+    def test_external_service_hypothesis_is_held_not_blocked(self):
+        v = make("v", stage="idea", mrr=None)
+        v.hypotheses = [
+            {"claim": "Store will list us.", "status": "untested", "evidence": "external-service"}
+        ]
+        self.assertTrue(v.dispatchable)
+        self.assertIsNotNone(v.blocker)
+        self.assertIn("HELD", next_task(v))
+        self.assertIn("develop", next_task(v))
 
     def test_publishing_unblocks_a_customer_contact_claim(self):
         v = make("v", stage="idea", mrr=None)
@@ -330,21 +342,19 @@ class MeritTests(unittest.TestCase):
             [v.name for v in rank([big_budget, good])], ["good", "big-budget"]
         )
 
-    def test_dispatchability_still_outranks_merit(self):
-        # The whole point of the dispatchable field: a session must not be
-        # handed the best business if nobody can start on it today.
-        blocked = make("blocked", merit=9.0)
-        blocked.hypotheses = [
-            {"claim": "someone will pay", "status": "untested", "evidence": "customer-contact"}
+    def test_external_hold_ranks_after_deployable_work(self):
+        held = make("held", merit=9.0)
+        held.hypotheses = [
+            {"claim": "store listing", "status": "untested", "evidence": "external-service"}
         ]
-        startable = make("startable", merit=1.0)
-        startable.hypotheses = [
-            {"claim": "the code works", "status": "untested", "evidence": "in-repo"}
+        deployable = make("deployable", merit=1.0)
+        deployable.hypotheses = [
+            {"claim": "users will sign up", "status": "untested", "evidence": "customer-contact"}
         ]
-        self.assertFalse(blocked.dispatchable)
-        self.assertTrue(startable.dispatchable)
+        self.assertIsNotNone(held.blocker)
+        self.assertIsNone(deployable.blocker)
         self.assertEqual(
-            [v.name for v in rank([blocked, startable])], ["startable", "blocked"]
+            [v.name for v in rank([held, deployable])], ["deployable", "held"]
         )
 
     def test_unscored_venture_sorts_below_a_scored_one(self):
@@ -416,15 +426,15 @@ class LoadRealVenturesTests(unittest.TestCase):
                 if h.get("status") == "untested":
                     self.assertIn(
                         h.get("evidence"),
-                        {"customer-contact", "in-repo"},
+                        {"customer-contact", "in-repo", "external-service"},
                         f"{v.name}: hypothesis {h.get('claim')!r} has no `evidence`",
                     )
 
-    def test_every_blocked_real_venture_is_blocked_for_a_stated_reason(self):
+    def test_every_held_real_venture_has_external_service_evidence(self):
         for v in load_ventures(VENTURES_DIR):
-            if not v.dispatchable:
-                self.assertTrue(v.blocker)
-                self.assertIsNone(v.production_url)
+            if v.blocker:
+                h = v._first_untested
+                self.assertEqual(h.get("evidence"), "external-service", v.name)
 
     def test_ledger_entries_are_non_negative_ints(self):
         ventures = load_ventures(VENTURES_DIR)
@@ -441,10 +451,10 @@ class LoadRealVenturesTests(unittest.TestCase):
 
 class DecisionsByMeritTests(unittest.TestCase):
     @staticmethod
-    def _blocked(name, merit):
+    def _held(name, merit):
         v = make(name, stage="prototype", mrr=None, merit=merit)
         v.hypotheses = [
-            {"claim": "x", "status": "untested", "evidence": "customer-contact"}
+            {"claim": "x", "status": "untested", "evidence": "external-service"}
         ]
         return v
 
@@ -456,9 +466,9 @@ class DecisionsByMeritTests(unittest.TestCase):
         ]
         return v
 
-    def test_only_blocked_ventures_contribute(self):
+    def test_only_held_ventures_contribute(self):
         rows = decisions_by_merit(
-            [self._blocked("b", 5.0), self._ready("r", 9.0)]
+            [self._held("b", 5.0), self._ready("r", 9.0)]
         )
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["blocked_ventures"], 1)
@@ -466,39 +476,31 @@ class DecisionsByMeritTests(unittest.TestCase):
         # The dispatchable venture's merit must not be summed in.
         self.assertEqual(rows[0]["total_merit"], 5.0)
 
-    def test_no_blocked_ventures_yields_no_rows(self):
+    def test_no_held_ventures_yields_no_rows(self):
         self.assertEqual(decisions_by_merit([self._ready("r", 9.0)]), [])
 
     def test_total_merit_sums_and_top_is_the_max(self):
         rows = decisions_by_merit(
-            [self._blocked("a", 4.0), self._blocked("b", 6.0)]
+            [self._held("a", 4.0), self._held("b", 6.0)]
         )
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["total_merit"], 10.0)
         self.assertEqual(rows[0]["top_venture"], "b")
         self.assertEqual(rows[0]["top_merit"], 6.0)
 
-    def test_unscored_blocked_venture_counted_but_not_summed(self):
+    def test_unscored_held_venture_counted_but_not_summed(self):
         rows = decisions_by_merit(
-            [self._blocked("scored", 5.0), self._blocked("unscored", None)]
+            [self._held("scored", 5.0), self._held("unscored", None)]
         )
         self.assertEqual(rows[0]["blocked_ventures"], 2)
         self.assertEqual(rows[0]["merit_scored"], 1)
         self.assertEqual(rows[0]["total_merit"], 5.0)
 
     def test_rows_sorted_by_total_merit_descending(self):
-        # Two distinct blockers so they land in separate groups; the higher-
-        # merit group must come first.
-        low = self._blocked("low", 3.0)
-        high1 = self._blocked("high1", 5.0)
-        high2 = self._blocked("high2", 5.0)
-        # Force a second, different blocker string on `low`.
-        low.hypotheses = [
-            {"claim": "y", "status": "untested", "evidence": "customer-contact"}
-        ]
-        rows = decisions_by_merit([low, high1, high2])
-        # In this synthetic set every blocked venture shares the same blocker
-        # string, so they group together; assert the sum and top hold.
+        rows = decisions_by_merit(
+            [self._held("low", 3.0), self._held("high1", 5.0), self._held("high2", 5.0)]
+        )
+        self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["total_merit"], 13.0)
         self.assertEqual(rows[0]["top_merit"], 5.0)
 
@@ -506,9 +508,9 @@ class DecisionsByMeritTests(unittest.TestCase):
         ventures = load_ventures(VENTURES_DIR)
         rows = decisions_by_merit(ventures)
         queue = work_queue(ventures)
-        blocked_in_queue = sum(1 for item in queue if not item["dispatchable"])
-        blocked_in_rows = sum(r["blocked_ventures"] for r in rows)
-        self.assertEqual(blocked_in_rows, blocked_in_queue)
+        held_in_queue = sum(1 for item in queue if item["blocked_on"])
+        held_in_rows = sum(r["blocked_ventures"] for r in rows)
+        self.assertEqual(held_in_rows, held_in_queue)
         for r in rows:
             self.assertGreaterEqual(r["merit_scored"], 0)
             self.assertLessEqual(r["merit_scored"], r["blocked_ventures"])

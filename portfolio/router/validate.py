@@ -18,7 +18,7 @@ VENTURES_DIR = REPO_ROOT / "ventures"
 
 VALID_STAGES = {"idea", "prototype", "launched", "revenue", "scaling", "winding-down"}
 VALID_HYPOTHESIS_STATUS = {"untested", "supported", "refuted"}
-VALID_HYPOTHESIS_EVIDENCE = {"customer-contact", "in-repo"}
+VALID_HYPOTHESIS_EVIDENCE = {"customer-contact", "in-repo", "external-service"}
 
 
 def check(venture_dir, data, errors):

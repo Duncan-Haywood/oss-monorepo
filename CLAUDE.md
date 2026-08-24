@@ -41,23 +41,27 @@ decisions that do not need a human.** The split below is what actually needs
 one.
 
 **Agent-decidable — verify, merge, and record it yourself. Do not wait.**
+Development is not artificially constrained. The portfolio has a repo, a VM,
+and a DNS name — no external accounts, no payout rail, no live third-party
+publish surface. **Ship broadly and fast** across `ventures/*`, `portfolio/`,
+and `platform/` as long as you do not accept payments, register third-party
+accounts, or do anything illegal.
+
 A PR is in this class when *all* of the following hold, and a session that
 built or verified it should merge it rather than leave it for the owner:
 
-- It touches only internal surfaces — `portfolio/` (pipeline, research,
-  router, ledger), `platform/`, CI config, docs, tests — **not** any
-  `ventures/*` app code that deploys to a live site. Do not hand-derive which
-  code that is; `python3 platform/ci/publish_surface.py` reads it off the
-  workflow files. As of 2026-08-24 the answer is *none of it*: no workflow
-  publishes anything on a push to `main`, because the two Pages deploys skip
-  their publish jobs for want of credentials the owner has not set and the
-  third is `workflow_dispatch`-only. Sessions had been asserting the opposite
-  in the decision queue. That does not make venture app code agent-decidable
-  on its own — the human-gated list below still covers breaking changes to it
-  — but it does mean "a wrong merge ships a regression to a live site" is
-  currently false, and a claim that it is true needs the tool to agree.
-- It publishes nothing to the outside world, registers no account, and uses no
-  credential belonging to a legal person.
+- **Any `ventures/*` change** whose venture CI is green (or you verified the
+  affected builds). `python3 platform/ci/publish_surface.py` confirms no
+  GitHub Actions workflow publishes to a third-party surface on push to
+  `main`, so merging does not ship a regression to an app store or marketplace
+  listing. The portfolio Hetzner host (`platform/deploy/README.md`) is the
+  live deploy surface — use it freely.
+- **Portfolio Hetzner deploys and marketing** — build, deploy, landing pages,
+  SEO, analytics, traffic campaigns, contact forms, signups. Set
+  `links.production` when live. No payment acceptance.
+- **Internal surfaces** — `portfolio/`, `platform/`, CI config, docs, tests.
+- It registers no third-party account and uses no credential belonging to a
+  legal person.
 - It spends nothing beyond agent time and enables no unattended paid spend.
 - It is verified by actually running the repo's checks (the relevant
   validators and tests), not by trusting the diff or the title.
@@ -99,15 +103,18 @@ is the decision queue) and do not merge them on your own judgment:**
 - **Registering any account** that requires a payment card, a government ID, a
   domain, or a bank account (store developer programs, verified-publisher
   marketplaces).
-- **Publishing under this portfolio's name to the public** — a listing, a
-  package, a live-site content change. The *decision to publish at all* is the
-  owner's; building the artifact privately is not.
+- **Publishing under this portfolio's name to third-party marketplaces** — app
+  stores, Shopify, WordPress.org listings, etc. that need an account belonging
+  to a legal person. **Not** self-hosted deploys to the portfolio Hetzner
+  server (`platform/deploy/README.md`) — those are agent-decidable.
 - **Enabling unattended, spend-capable automation** — agent fleets, scheduled
   workflows that call paid APIs, cron jobs (see "Automation that writes or
   spends unattended" below). Adding or re-enabling one is always a human call.
-- **Breaking changes to deployable `ventures/*` code** where a wrong merge
-  ships a regression to a live site — merge these only when the venture's full
-  build/test passes and the change is in scope.
+
+Everything else — including framework upgrades, new ventures, marketing copy,
+Hetzner deploys, and broad parallel development across the fleet — is
+agent-decidable when CI passes. Do not wait for owner sign-off on work that
+does not touch the list above.
 
 When you merge something in the agent-decidable class, say so plainly in the
 merge and the ledger, with the verification you ran. When you flag something
@@ -129,12 +136,12 @@ concurrent sessions merge instead of overwriting each other, which #139's body
 does not (it was clobbered twice on 2026-08-24). Do not append a second record
 for an ask that already has one; CI rejects that.
 
-The queue is the portfolio's binding constraint, not its supply of work: every
-session's output is queued behind decisions only the owner can make, and
-between 2026-08-19 and 2026-08-24 exactly one was answered. So a flag that
-lands as a ninth undifferentiated row costs more than it buys. State what one
-action closes it and what that unlocks, or you have added to the backlog
-without adding to what can be decided.
+The queue gates **revenue capture and third-party accounts**, not development.
+Between 2026-08-19 and 2026-08-24 exactly one item was answered. Do not treat
+an open payout-rail or marketplace ask as a reason to idle on venture work —
+develop, deploy to Hetzner, and market without payment while those wait. A
+flag that lands as another undifferentiated row costs more than it buys;
+state what one action closes it and what that unlocks.
 
 ## If your brief is "research new business projects"
 
@@ -193,22 +200,15 @@ If you are handed this brief, the useful moves are, in order:
    not as a duplicate list.
 
 When `session_gate.py` reads **BUILD**, do not stop after checking — ship one
-of the above. If owner-gated decisions block publishing or payout rails, record
-that in the ledger but **still ship in-repo venture work** rather than idling.
-Before concluding you are blocked, check
-`channel-inventory.md` — but read it to the end. Its tenth-run amendment
-argued that demand measurement is *not* credential-blocked, only revenue
-capture is, and this file used to repeat that as settled. **Later runs
-refuted its factual half and the correction is on `main`:** every channel it
-nominated as agent-listable — WordPress.org, Open VSX, VS Code Marketplace,
-GitHub Marketplace — turned out to be egress- or scope-denied, verified twice
-on separate dates against a control host. The *conceptual* split still holds
-(measuring demand and taking money are different asks), but permission was
-never the binding constraint, so Ask 5 is currently inert. Do not plan work on
-the premise that a free listing can be published from here; that premise has
-been probed and is false. Adding a genuinely new candidate is legitimate only when you
-can name what in `screened-out.md` it is *not* — and it belongs as an amendment
-to that directory, not as a new list.
+of the above. Owner-gated items block **payment rails and third-party store
+accounts**, not product development. Deploy to portfolio Hetzner, market
+without accepting money, and keep building in parallel across ventures.
+
+Third-party marketplace listings (WordPress.org, Open VSX, app stores) remain
+egress- or account-blocked from this environment — see
+`channel-inventory.md`. That does not block Hetzner deploys or in-repo work.
+Adding a genuinely new pipeline candidate is legitimate only when you can name
+what in `screened-out.md` it is *not*.
 
 ## Run the session gate before doing generic work
 
@@ -225,15 +225,17 @@ When it prints **BUILD**, portfolio meta-work is wasteful right now — do not
 re-verify open PRs, re-triage the decision queue, or write a ledger-only entry
 recording that you looked. **Redirect compute to productive work instead:**
 
-1. Run `python3 portfolio/router/allocate.py` and pick the highest-merit venture.
-2. Ship in-repo work in `ventures/*` — features, tests, UX, performance, deployment readiness.
-3. If ventures lack meaningful in-repo work, graduate a pipeline candidate from
-   `portfolio/pipeline/` into `ventures/<name>/VENTURE.yaml`, or add a genuinely
-   new candidate per `screened-out.md`.
-4. Check open PRs only to extend or consolidate — never open a duplicate.
+1. Run `python3 portfolio/router/allocate.py` and pick a venture — prefer
+   highest merit, but parallel agents should spread across ventures.
+2. Ship in `ventures/*` — features, tests, UX, deploy to Hetzner, marketing.
+3. Graduate pipeline candidates or start new ventures when existing ones lack
+   meaningful next steps.
+4. Merge your own PR when CI is green — do not wait for owner review on
+   venture code that does not accept payments.
+5. Check open PRs only to extend or consolidate — never open a duplicate.
 
-High session throughput is intentional. Idling burns compute with zero output;
-building ventures or starting new ones does not.
+High session throughput is intentional. The fleet should develop broadly,
+quickly, and in parallel. Idling burns compute with zero output.
 
 When it prints **PROCEED**, conditions allow any work including portfolio
 meta-work. Still prefer venture development when the router has actionable tasks.

@@ -317,21 +317,17 @@ def break_even_per_session() -> float | None:
 def recommended_actions() -> list[str]:
     """What a generic session should do instead of portfolio meta-work."""
     return [
-        "Run `python3 portfolio/router/allocate.py` and pick the highest-merit "
-        "venture with in-repo work available — ship code, tests, or docs in "
-        "`ventures/*`.",
-        "If every venture's next hypothesis needs customer contact, develop the "
-        "product anyway: features, UX, performance, test coverage, and "
-        "deployment readiness are all in-repo and move the portfolio toward "
-        "revenue even while unpublished.",
-        "Check open PRs only to extend or consolidate existing work — do not "
-        "re-verify, re-triage, or open a duplicate PR for something already covered.",
-        "If no venture has meaningful in-repo work left, graduate a pipeline "
-        "candidate from `portfolio/pipeline/` into `ventures/<name>/VENTURE.yaml`, "
-        "or add a genuinely new candidate per `screened-out.md` — do not produce "
-        "another duplicate screening pass of the existing eight.",
-        "Do not write a ledger-only entry recording that you looked. Ship a PR "
-        "with venture or pipeline work instead.",
+        "Run `python3 portfolio/router/allocate.py` and pick a venture — spread "
+        "parallel agents across ventures, preferring highest merit within each.",
+        "Develop freely in `ventures/*`: features, UX, tests, docs, refactors. "
+        "Merge when CI is green — no owner sign-off needed for non-payment work.",
+        "Deploy to portfolio Hetzner (`platform/deploy/README.md`), set "
+        "`links.production`, and market without accepting money.",
+        "Start new ventures: graduate a pipeline candidate or add a genuinely "
+        "new one per `screened-out.md`.",
+        "External-service holds (app stores, marketplaces, payout rails) block "
+        "only that specific step — keep building the product in-repo.",
+        "Do not write a ledger-only entry recording that you looked. Ship a PR.",
     ]
 
 

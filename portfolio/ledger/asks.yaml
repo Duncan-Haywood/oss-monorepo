@@ -24,8 +24,8 @@
 #
 # Ask 8 is deliberately absent: `break-even.md` superseded it, so #139's ten
 # rows are nine live asks and one with nothing left to grant. Ask 9
-# (`venture-gate-premise`, added 2026-08-24) is the only row whose answer
-# removes other rows rather than adding work.
+# (`venture-gate-premise`) was answered 2026-08-24: agents may merge
+# `ventures/*` when CI passes; Hetzner is the live deploy surface.
 #   - `exposure` -- what granting it actually costs the owner in risk. A repo
 #     Settings toggle and opening a merchant-of-record account are adjacent
 #     rows in a cheapest-first table and are not the same kind of decision.
@@ -222,66 +222,24 @@ decisions:
   gates: deployment
   exposure: none
   opened: "2026-08-24"
+  resolved: "2026-08-24"
   action: >-
-    Answer one rule question, and it settles the remaining venture-code pull
-    request at once: while `publish_surface.py` reports nothing live, may a
-    session merge a `ventures/*` change that publishes nowhere and passes the
-    venture's full build, or does the human gate cover venture app code
-    regardless of what it deploys? Either answer is fine to give; leaving it
-    unanswered is what costs.
+    ANSWERED: agents may merge `ventures/*` changes that pass CI. No GitHub
+    Actions workflow publishes to a third-party surface on push to `main`
+    (`platform/ci/publish_surface.py`). Portfolio Hetzner is the live deploy
+    surface (`platform/deploy/README.md`). Development is not owner-gated.
   unlocks:
     - >-
-      Answered "yes, while nothing is live", `contrast-fixes` leaves this
-      queue outright -- one pull request the owner never has to read. This is
-      the only row here whose answer makes the queue shorter.
-    - >-
-      Answered "no, the gate stands regardless", every future `ventures/*`
-      pull request stops being re-argued from prose by each session that meets
-      one, and `CLAUDE.md`'s wording can stop citing a live site as the reason.
+      Venture PRs merge on green CI without owner sign-off, as long as they do
+      not accept payments or register third-party accounts.
   blocked_by: []
   note: >-
-    Raised 2026-08-24, and deliberately raised rather than acted on. #710
-    established the fact -- `platform/ci/publish_surface.py` derives from the
-    workflow files that 0 of 38 workflows publish on a push to `main` -- and
-    amended `CLAUDE.md` to say so while leaving the gate itself in place,
-    which is the right conservative order. But that leaves the rule genuinely
-    ambiguous: the agent-decidable criterion excludes "`ventures/*` app code
-    *that deploys to a live site*" (which now excludes nothing), while the
-    human-gated list still covers "breaking changes to deployable
-    `ventures/*` code". Both readings are defensible from the current text, so
-    sessions will keep deciding it individually and inconsistently until the
-    owner picks one. An unattended agent resolving its own merge gate in its
-    own favour is the reasoning pattern this portfolio should least want,
-    which is why this is a question and not a pull request.
-    Independently confirmed on the same day by a second session that measured
-    the same 0-of-13-ventures result from a separate implementation before
-    finding #710 had landed; that session's duplicate tool was discarded
-    rather than shipped alongside.
-
-
-    Correction, 2026-08-24 (later): this row originally cited `next-16-upgrade`
-    (#372) as a second pull request this question would settle. #372 merged
-    at 2026-08-24T09:43:08Z, independent of this question, so it is removed
-    from the `unlocks` text -- one fewer thing this answer needs to account
-    for, not evidence the question itself has narrowed.
-
-    Correction, 2026-08-24: this note previously read "owner-gated only
-    because merging fires deploys to live sites". That was false, and nothing
-    checked it. `platform/ci/publish_surface.py` derives the answer from the
-    workflow files and finds no workflow that publishes anything on a push to
-    `main`: `ai-first-markets-deploy.yml` is `workflow_dispatch`-only so a
-    push cannot start it, and the Cloudflare and GitHub Pages publish steps
-    are behind `if:` gates on credentials the owner has not set. The last run
-    of each confirms it -- the wrangler step skipped on 2026-08-21, and both
-    `deploy` and `deploy-vercel` skipped on 2026-08-24. So merging this fires
-    no deploy and regresses no live site, because there is no live site. What
-    is actually left to decide is narrower: whether a major framework bump
-    across five ventures (six apps) counts as a "breaking change to deployable
-    `ventures/*` code" under `CLAUDE.md` while nothing is deployed. That is a
-    smaller question than the one this row was posing, and it is the whole of
-    what remains -- and since it is the same question `contrast-fixes` and
-    every future venture pull request also reduce to, it is now its own row
-    (`venture-gate-premise`, Ask 9) rather than a paragraph inside this one.
+    Resolved 2026-08-24 per account owner direction: the portfolio has a repo,
+    a VM, and a DNS name — no external accounts, no payout rail, no meaningful
+    deploy risk from merging venture code. Agents develop broadly, deploy to
+    Hetzner, and market without payment. Only money, illegal activity, and
+    third-party marketplace accounts stay human-gated. This row remains for
+    history; do not re-flag it.
 
 - id: contrast-fixes
   asks: []

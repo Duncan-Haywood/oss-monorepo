@@ -90,34 +90,29 @@ class Venture:
 
     @property
     def blocker(self) -> Optional[str]:
-        """Why no agent session can *settle* this venture's next hypothesis.
+        """Why an external-only step is held — not why development is blocked.
 
-        A `customer-contact` claim is settled by a response from someone
-        outside this repository -- a purchase, a signup, a download, a
-        survey answer. None of that is observable while the venture has no
-        `links.production`: there is nothing published for anyone to respond
-        to, and publishing is the account owner's decision.
-
-        This does **not** mean no in-repo work is available. Features, tests,
-        UX, performance, and deployment readiness are always shippable in
-        `ventures/*` even while blocked on publishing.
-
-        Returning None means the next hypothesis is one a session can settle
-        from inside the repo. The router ranks on this so customer-contact
-        blockers do not crowd out in-repo tasks at the top of the queue.
+        Only `evidence: external-service` hypotheses are held here (app-store
+        submission, marketplace accounts, payment rails). `customer-contact`
+        hypotheses are settled by user response; agents deploy to the portfolio
+        Hetzner host and market without payment — see `platform/deploy/`.
         """
         h = self._first_untested
         if h is None:
             return None
-        if h.get("evidence") != "customer-contact":
-            return None
-        if self.production_url:
-            return None
-        return "not published — no `links.production`, so no customer can respond"
+        if h.get("evidence") == "external-service":
+            return (
+                "needs external account or credential the agent cannot hold "
+                "(app store, marketplace, payout rail)"
+            )
+        return None
 
     @property
     def dispatchable(self) -> bool:
-        return self.blocker is None
+        """Development is never blocked. False only when there is no venture work
+        left at all (not used today — every venture has an open hypothesis or
+        room to add one). `blocker` marks external-service holds separately."""
+        return True
 
     @property
     def measured(self) -> bool:
@@ -268,31 +263,24 @@ def rank(ventures: list[Venture]) -> list[Venture]:
     Priority:
       1. Measured at $0 MRR at revenue stage or beyond -- this needs a
          decision (kill or fix) before more spend, not blind continuation.
-      2. Work a session can actually start. A blocked venture ranked first
-         hands every session an impossible task, which is how the queue
-         came to be ignored: separate cycles kept concluding in the ledger
-         that the top-ranked task was "outside what an unattended session
-         can drive", each in prose, none of it reaching the router.
+      2. Work without an external-service hold. Ventures whose next hypothesis
+         needs an app-store or marketplace account rank after those that can
+         deploy to portfolio Hetzner today (`platform/deploy/README.md`).
       3. Unmeasured ventures -- still owed their protected explore budget;
          null MRR is "not yet measured", not "measured and failing".
       4. Everything else: later stage before earlier stage, then by merit
          score descending, then monthly_cap descending, then name for a
          stable order.
 
-    Merit (portfolio/scoring/) sits below dispatchability deliberately. The
-    two orderings disagree -- the scoring pass measured the dispatchable
-    ventures at a *lower* mean composite than the blocked ones -- so letting
-    merit outrank dispatchability would put work no session can start back at
-    the top of the queue, which is the failure `dispatchable` was added to
-    fix. What merit does is order ventures that are otherwise tied, which
-    before this was decided by budget cap: an input the portfolio set, not
-    evidence about the venture.
+    Merit (portfolio/scoring/) sits below external-service holds deliberately.
+    Ventures waiting on an app-store account still have full development work;
+    merit orders ventures that are otherwise tied.
     """
 
     def sort_key(v: Venture):
         return (
             0 if v.needs_decision else 1,
-            0 if v.dispatchable else 1,
+            0 if v.blocker is None else 1,
             0 if not v.measured else 1,
             0 if v.later_stage else 1,
             -(v.merit if v.merit is not None else 0.0),
@@ -308,10 +296,23 @@ def next_task(v: Venture) -> str:
         return "Review: measured at $0 MRR past revenue stage -- check against kill_criteria before further spend."
     if not v.measured:
         claim = v.untested_hypothesis
+        h = v._first_untested
+        if claim and h and h.get("evidence") == "external-service":
+            return (
+                f'HELD (external-service) -- develop in ventures/{v.name}/; '
+                f'owner must grant store/account access before: "{claim}"'
+            )
         if claim and v.blocker:
             return (
-                f'BLOCKED (customer-contact) -- ship in-repo work in ventures/{v.name}/ '
-                f'while waiting to publish; next hypothesis: "{claim}"'
+                f'HELD -- develop in ventures/{v.name}/ meanwhile; '
+                f'{v.blocker}; hypothesis: "{claim}"'
+            )
+        if claim and h and h.get("evidence") == "customer-contact":
+            if v.production_url:
+                return f'Explore: measure user response at {v.production_url} -- "{claim}"'
+            return (
+                f'Deploy: build, ship to portfolio Hetzner (platform/deploy/README.md), '
+                f'market without payment, set links.production -- "{claim}"'
             )
         if claim:
             return f'Explore: test the untested hypothesis -- "{claim}"'
@@ -354,14 +355,13 @@ def decisions_by_merit(ventures: list[Venture]) -> list[dict]:
     does clearing each blocker actually release -- so cost and merit-unblocked
     can be read side by side rather than one without the other.
 
-    Only blocked ventures contribute. `total_merit` sums the composites waiting
-    on the decision; `top_venture` is the single highest-merit one it would
-    release, because one 6.00 venture unblocked can matter more than three
-    4.00s, and the sum alone hides that.
+    Only ventures with an external-service hold contribute. `total_merit` sums
+    the composites waiting on that hold; `top_venture` is the single
+    highest-merit one in the group.
     """
     groups: dict[str, list[Venture]] = {}
     for v in ventures:
-        if v.dispatchable or v.blocker is None:
+        if v.blocker is None:
             continue
         groups.setdefault(v.blocker, []).append(v)
 
@@ -398,29 +398,33 @@ def print_table(ventures: list[Venture], queue: list[dict]) -> None:
         f"Target split per README.md: {EXPLORE_SPLIT_LATER:.0%} later-stage / "
         f"{EXPLORE_SPLIT_EARLY:.0%} early-stage"
     )
-    ready = sum(1 for item in queue if item["dispatchable"])
-    blocked = len(queue) - ready
-    summary = f"Dispatchable now: {ready} of {len(queue)} ventures."
-    if blocked:
+    ready = sum(1 for item in queue if item["dispatchable"] and not item["blocked_on"])
+    held = sum(1 for item in queue if item["blocked_on"])
+    summary = f"Ready now: {ready} of {len(queue)} ventures."
+    if held:
         summary += (
-            f" The other {blocked} cannot settle customer-contact hypotheses"
-            f" until published, but in-repo development in ventures/* is always"
-            f" available. See portfolio/pipeline/ to graduate new ventures."
+            f" {held} have an external-service step held for the owner"
+            f" (app store, marketplace, payout) — develop anyway in ventures/*."
         )
     print(summary)
-    if blocked and ready == 0:
+    if ready == 0 and held == len(queue):
         print(
-            "All ventures blocked on publishing: develop existing ventures in-repo"
-            " (features, tests, UX) or graduate a pipeline candidate — do not idle."
+            "Every open hypothesis needs an external account — ship product work"
+            " in-repo while waiting; see platform/deploy/ for Hetzner deploys."
+        )
+    elif ready > 0:
+        print(
+            "Deploy surface: portfolio Hetzner + attached domain"
+            " (platform/deploy/README.md). Marketing without payment is fine."
         )
     scored = [item for item in queue if item["merit"] is not None]
     if scored:
         best = max(scored, key=lambda item: item["merit"])
-        if not best["dispatchable"]:
+        if best.get("blocked_on"):
             print(
                 f"Highest merit ({best['merit']:.2f}, portfolio/scoring/) is "
-                f"{best['venture']}, which is blocked. Merit and dispatchability "
-                f"do not agree -- see portfolio/scoring/README.md."
+                f"{best['venture']}, which has an external-service step held — "
+                f"develop and deploy on Hetzner meanwhile."
             )
     print()
     print(
