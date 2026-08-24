@@ -69,6 +69,22 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(main([str(invoice_path), "--format", "json", "--usage-file", str(usage_path)]), 0)
             self.assertEqual(json.loads(usage_path.read_text()), {"events": {"invoice_preflight_checked": 1}})
 
+    def test_cli_ignores_invalid_usage_counter(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            usage_path = Path(directory) / "usage.json"
+            invoice_path.write_text(json.dumps(VALID))
+            usage_path.write_text(json.dumps({"events": {"invoice_preflight_checked": "unknown"}}))
+            self.assertEqual(main([str(invoice_path), "--format", "json", "--usage-file", str(usage_path)]), 0)
+            self.assertEqual(json.loads(usage_path.read_text()), {"events": {"invoice_preflight_checked": 1}})
+
+    def test_usage_write_failure_does_not_fail_preflight(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            invoice_path.write_text(json.dumps(VALID))
+            with patch("einvoice_preflight.cli.Path.write_text", side_effect=OSError("read-only")):
+                self.assertEqual(main([str(invoice_path), "--format", "json", "--usage-file", str(Path(directory) / "usage.json")]), 0)
+
     def test_cli_returns_failure_for_bad_invoice(self):
         with tempfile.TemporaryDirectory() as directory:
             invoice_path = Path(directory) / "invoice.json"

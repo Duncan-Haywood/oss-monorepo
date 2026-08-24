@@ -11,19 +11,28 @@ from .checks import check_invoice
 
 
 def _record_usage(path: str) -> None:
-    target = Path(path).expanduser()
-    target.parent.mkdir(parents=True, exist_ok=True)
-    data: dict[str, Any] = {"events": {}}
-    if target.exists():
+    """Record an aggregate event without affecting the validation result."""
+    try:
+        target = Path(path).expanduser()
+        target.parent.mkdir(parents=True, exist_ok=True)
+        data: dict[str, Any] = {"events": {}}
+        if target.exists():
+            try:
+                loaded = json.loads(target.read_text())
+                if isinstance(loaded, dict) and isinstance(loaded.get("events"), dict):
+                    data = loaded
+            except (OSError, json.JSONDecodeError):
+                pass
+        events = data.setdefault("events", {})
         try:
-            loaded = json.loads(target.read_text())
-            if isinstance(loaded, dict) and isinstance(loaded.get("events"), dict):
-                data = loaded
-        except (OSError, json.JSONDecodeError):
-            pass
-    events = data.setdefault("events", {})
-    events["invoice_preflight_checked"] = int(events.get("invoice_preflight_checked", 0)) + 1
-    target.write_text(json.dumps(data, indent=2) + "\n")
+            previous = int(events.get("invoice_preflight_checked", 0))
+        except (TypeError, ValueError):
+            previous = 0
+        events["invoice_preflight_checked"] = previous + 1
+        target.write_text(json.dumps(data, indent=2) + "\n")
+    except (OSError, TypeError, ValueError):
+        # Usage is optional telemetry; never hide or change a preflight result.
+        pass
 
 
 def _sarif_report(reports: list[tuple[Path, list[dict[str, str]]]]) -> dict[str, Any]:
