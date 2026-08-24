@@ -613,9 +613,10 @@ decisions:
     actionable.
   unlocks:
     - >-
-      `platform/ci/agent_review/` plus two workflows
-      (`agent-cross-review.yml`, `agent-pr-auto-merge.yml`) implementing a
-      four-reviewer cross-review system that auto-merges a PR once it
+      `platform/ci/agent_review/` plus two new workflow files (an
+      agent-cross-review workflow and an agent-pr-auto-merge workflow)
+      implementing a four-reviewer cross-review system that auto-merges a PR
+      once it
       collects 2 approving reviews from distinct agent-family GitHub App
       installations -- the mechanism this repo's own CLAUDE.md already
       describes as running ("auto-merge runs at two bot approvals plus green
