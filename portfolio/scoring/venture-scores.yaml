@@ -48,31 +48,6 @@ scoring_rule: >-
   near-zero-price norm is a real property of the business on any host.
 
 ventures:
-  - slug: repository-branch-hygiene
-    scores:
-      ai_leverage: 6
-      autonomous_ops: 8
-      time_to_revenue: 5
-      gross_margin: 9
-      defensibility: 5
-      distribution: 4
-    composite: 6.167
-    rater_b: null
-    floor: 4
-    floor_dimension: distribution
-    floor_note: >-
-      Distribution is unmeasured: the read-only CLI is useful without hosting,
-      but no repeatable DevOps channel or pilot buyer has been established.
-    basis: >-
-      Graduated from the repository-branch-hygiene candidate on 2026-08-24.
-      The first slice is a standard-library scanner over customer-controlled
-      snapshots, with deterministic classifications and portable recovery
-      manifests. Scores preserve the candidate estimate until pilot evidence
-      exists.
-    gates:
-      liability_containment: pass
-      ethical_robustness: pass
-
   - slug: local-site-studio
     scores:
       ai_leverage: 7
@@ -462,26 +437,23 @@ ventures:
       defensibility: 4
       distribution: 4
     composite: 6.333
-    rater_b: null
     floor: 4
     floor_dimension: defensibility
     floor_note: >-
-      Resolver lookup and diff logic are reproducible. A signed, portable,
-      customer-specific history could compound, but that defensibility is
-      untested; distribution is similarly unproven until a named MSP, agency,
-      or repeatable practitioner community adopts the workflow.
+      Carried over from the pipeline candidate's own floor note: nothing here
+      yet stops a new entrant from reproducing the same diff logic. Retaining
+      immutable customer-specific snapshots with a portable export is the
+      mitigation on file, and it is unbuilt -- the current slice diffs two
+      snapshots handed to it and keeps nothing between runs.
     basis: >-
-      The first slice is a deterministic, local recorder with JSON and Markdown
-      reports, resolver-aware uncertainty states, and no network, credential,
-      payment, or inference dependency. The candidate score supports strong
-      autonomous operation and gross margin once scheduled collection exists,
-      while time to revenue is moderated by the untested recurring workflow and
-      the absence of an owned distribution channel.
+      Graduated 2026-08-24 from candidates/dns-configuration-evidence.md
+      (pipeline composite 6.625, which also scored the two gate dimensions
+      this scale omits). The built slice is a free, local, no-network CLI:
+      resolver-aware snapshot diff with changed/unchanged/inconclusive states,
+      an authorization guard, and an anonymized local usage counter recording
+      event names only. No customer contact, scheduler, or hosted service
+      exists yet, so distribution and time-to-revenue stay unmeasured
+      assumptions rather than evidence.
     gates:
       liability_containment: pass
       ethical_robustness: pass
-    gate_note: >-
-      Pass, conditionally: the product reports customer-authorized observations
-      with resolver and timestamp provenance, and explicitly does not warrant
-      security, deliverability, uptime, or compliance. Authorization and
-      remediation remain customer responsibilities.
