@@ -14,7 +14,14 @@ test("flags a quote below target and names hidden time", () => {
 
 test("flags direct costs and missing revision time", () => {
   const [quote, report] = reportFor({ currency: "USD", price: 100, delivery_hours: 2, overhead: 80, subcontractor_cost: 40, target_hourly_rate: 20 });
-  assert.deepEqual(reviewQuote(quote, report).map((check) => check.title), ["Direct costs exceed the quoted price", "The quote is below the supplied target", "No revision hours are included"]);
+  assert.deepEqual(reviewQuote(quote, report).map((check) => check.title), ["Direct costs exceed the quoted price", "The quote is below the supplied target", "The scope exceeds the target-rate hour budget", "No revision hours are included"]);
+});
+
+test("reports remaining target-rate hours when scope is within budget", () => {
+  const [quote, report] = reportFor({ currency: "USD", price: 1000, delivery_hours: 5, target_hourly_rate: 100 });
+  const checks = reviewQuote(quote, report);
+  assert.equal(checks[0].title, "Target-rate hour budget remains");
+  assert.match(checks[0].detail, /5\.00 hours remain/);
 });
 
 test("returns a clear check when there are no flags", () => {

@@ -50,11 +50,14 @@ def calculate(quote: Quote) -> dict[str, float]:
     direct_costs = quote.overhead + quote.subcontractor_cost
     effective_rate = (quote.price - direct_costs) / total_hours
     target_price = total_hours * quote.target_hourly_rate + direct_costs
+    maximum_hours_at_target = (quote.price - direct_costs) / quote.target_hourly_rate
     return {
         "total_hours": total_hours,
         "direct_costs": direct_costs,
         "effective_hourly_rate": effective_rate,
         "target_price": target_price,
+        "maximum_hours_at_target": maximum_hours_at_target,
+        "hours_over_target_budget": total_hours - maximum_hours_at_target,
         "gap_to_target": quote.price - target_price,
         "cost_coverage": quote.price - direct_costs,
     }
@@ -74,6 +77,8 @@ def markdown(quote: Quote, result: dict[str, float]) -> str:
         f"| Direct costs | {quote.currency} {result['direct_costs']:.2f} |",
         f"| Effective hourly rate | {quote.currency} {result['effective_hourly_rate']:.2f}/hour |",
         f"| Price at supplied target rate | {quote.currency} {result['target_price']:.2f} |",
+        f"| Maximum total hours at target rate | {result['maximum_hours_at_target']:.2f} hours |",
+        f"| Hours over target-rate budget | {result['hours_over_target_budget']:.2f} hours |",
         f"| Gap to target price | {quote.currency} {result['gap_to_target']:.2f} |",
         f"| After direct costs | {quote.currency} {result['cost_coverage']:.2f} |",
         "",
@@ -93,6 +98,8 @@ def csv_report(quote: Quote, result: dict[str, float]) -> None:
             ("direct_costs", f"{result['direct_costs']:.2f}", quote.currency),
             ("effective_hourly_rate", f"{result['effective_hourly_rate']:.2f}", f"{quote.currency}/hour"),
             ("target_price", f"{result['target_price']:.2f}", quote.currency),
+            ("maximum_hours_at_target", f"{result['maximum_hours_at_target']:.2f}", "hours"),
+            ("hours_over_target_budget", f"{result['hours_over_target_budget']:.2f}", "hours"),
             ("gap_to_target", f"{result['gap_to_target']:.2f}", quote.currency),
             ("cost_coverage", f"{result['cost_coverage']:.2f}", quote.currency),
         )
@@ -102,9 +109,9 @@ def csv_report(quote: Quote, result: dict[str, float]) -> None:
 def batch_csv_report(reports: list[tuple[str, Quote, dict[str, float]]]) -> None:
     """Write a comparison table for several quote files."""
     writer = csv.writer(sys.stdout, lineterminator="\n")
-    writer.writerow(("quote", "currency", "quoted_price", "total_hours", "direct_costs", "effective_hourly_rate", "target_price", "gap_to_target"))
+    writer.writerow(("quote", "currency", "quoted_price", "total_hours", "direct_costs", "effective_hourly_rate", "target_price", "maximum_hours_at_target", "hours_over_target_budget", "gap_to_target"))
     for name, quote, result in reports:
-        writer.writerow((name, quote.currency, f"{quote.price:.2f}", f"{result['total_hours']:.2f}", f"{result['direct_costs']:.2f}", f"{result['effective_hourly_rate']:.2f}", f"{result['target_price']:.2f}", f"{result['gap_to_target']:.2f}"))
+        writer.writerow((name, quote.currency, f"{quote.price:.2f}", f"{result['total_hours']:.2f}", f"{result['direct_costs']:.2f}", f"{result['effective_hourly_rate']:.2f}", f"{result['target_price']:.2f}", f"{result['maximum_hours_at_target']:.2f}", f"{result['hours_over_target_budget']:.2f}", f"{result['gap_to_target']:.2f}"))
 
 
 def load_reports(directory: Path) -> list[tuple[str, Quote, dict[str, float]]]:

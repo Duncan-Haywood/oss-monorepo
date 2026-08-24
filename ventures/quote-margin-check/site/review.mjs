@@ -11,6 +11,11 @@ export function reviewQuote(quote, report) {
   if (report.gap_to_target < 0) {
     checks.push({ level: "attention", title: "The quote is below the supplied target", detail: `The arithmetic gap is ${quote.currency} ${Math.abs(report.gap_to_target).toFixed(2)} below the target price.` });
   }
+  if (report.hours_over_target_budget > 0) {
+    checks.push({ level: "attention", title: "The scope exceeds the target-rate hour budget", detail: `${report.hours_over_target_budget.toFixed(2)} hours above the ${report.maximum_hours_at_target.toFixed(2)}-hour budget implied by this price and target rate.` });
+  } else {
+    checks.push({ level: "note", title: "Target-rate hour budget remains", detail: `${Math.abs(report.hours_over_target_budget).toFixed(2)} hours remain before the supplied target rate is missed, based on these costs.` });
+  }
   if (hiddenHours > 0) {
     checks.push({ level: "note", title: "Hidden time is included", detail: `${hiddenHours.toFixed(2)} hours of admin and revisions are included in the effective rate.` });
   }

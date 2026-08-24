@@ -299,6 +299,8 @@
            <dt>Direct costs</dt><dd>${safeCurrency} ${fmt(r.direct_costs)}</dd>
            <dt>Effective hourly rate</dt><dd><strong>${safeCurrency} ${fmt(r.effective_hourly_rate)}/hour</strong></dd>
            <dt>Price at your target rate</dt><dd>${safeCurrency} ${fmt(r.target_price)}</dd>
+           <dt>Maximum total hours at target rate</dt><dd>${fmt(r.maximum_hours_at_target)} hours</dd>
+           <dt>Hours over target-rate budget</dt><dd>${fmt(r.hours_over_target_budget)} hours</dd>
            <dt>Gap to target price</dt><dd>${safeCurrency} ${fmt(r.gap_to_target)}</dd>
            <dt>Left after direct costs</dt><dd>${safeCurrency} ${fmt(r.cost_coverage)}</dd>
         </dl>
@@ -352,6 +354,8 @@
       `direct_costs,${r.direct_costs.toFixed(2)},${quote.currency}`,
       `effective_hourly_rate,${r.effective_hourly_rate.toFixed(2)},${quote.currency}/hour`,
       `target_price,${r.target_price.toFixed(2)},${quote.currency}`,
+      `maximum_hours_at_target,${r.maximum_hours_at_target.toFixed(2)},hours`,
+      `hours_over_target_budget,${r.hours_over_target_budget.toFixed(2)},hours`,
       `gap_to_target,${r.gap_to_target.toFixed(2)},${quote.currency}`,
       `cost_coverage,${r.cost_coverage.toFixed(2)},${quote.currency}`,
     ].join("\n");

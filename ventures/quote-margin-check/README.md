@@ -33,6 +33,9 @@ The CSV format emits stable `measure,value,unit` columns so you can append
 results from several proposals to a spreadsheet without retyping calculations.
 Batch CSV emits one comparison row per filename, making a folder of recurring
 proposal reviews easy to sort and filter without exposing the proposal data.
+Reports also show the maximum total hours a quote can absorb at the supplied
+target rate, plus any hours already over that budget. This is a scope-control
+signal, not a forecast or pricing recommendation.
 
 The browser also shows a small pre-send review: arithmetic observations for
 direct costs above the price, a gap below the supplied target, hidden time, and
