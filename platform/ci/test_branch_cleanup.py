@@ -18,6 +18,8 @@ from datetime import datetime, timedelta, timezone
 from branch_cleanup import (
     DEFAULT_PROTECTED,
     decide,
+    iter_closed_for_sweep,
+    refs_in_grace,
     run,
     summarise_pr,
 )
@@ -42,10 +44,14 @@ def pr(**overrides):
     return base
 
 
-def call(pull, branch_shas=None, reserved=(), now=NOW, grace_hours=24.0):
+def call(pull, branch_shas=None, reserved=(), now=NOW, grace_hours=24.0,
+         grace_refs=()):
     if branch_shas is None:
         branch_shas = {pull["head_ref"]: pull["head_sha"]}
-    return decide(pull, branch_shas, set(reserved), now, grace_hours, DEFAULT_PROTECTED)
+    return decide(
+        pull, branch_shas, set(reserved), now, grace_hours, DEFAULT_PROTECTED,
+        grace_refs,
+    )
 
 
 class DecideTest(unittest.TestCase):
@@ -135,6 +141,25 @@ class DecideTest(unittest.TestCase):
         self.assertFalse(decision.delete)
         self.assertIn("another open PR", decision.reason)
 
+    def test_past_grace_waits_if_another_pr_on_the_same_ref_is_in_grace(self):
+        pull = pr()  # 48h ago, past grace
+        decision = call(pull, grace_refs={pull["head_ref"]})
+        self.assertFalse(decision.delete)
+        self.assertIn("another PR's grace period", decision.reason)
+
+    def test_merged_pr_waits_if_another_pr_on_the_same_ref_is_in_grace(self):
+        pull = pr(merged_at="2026-08-24T11:00:00Z")
+        decision = call(pull, grace_refs={pull["head_ref"]})
+        self.assertFalse(decision.delete)
+        self.assertIn("another PR's grace period", decision.reason)
+
+    def test_own_grace_message_is_kept_when_this_pr_is_the_one_in_grace(self):
+        # grace_refs includes this PR's ref because refs_in_grace is computed
+        # across the whole list; decide must still report *this* PR's deadline.
+        decision = call(pr(closed_at="2026-08-24T11:00:00Z"), grace_refs={"claude/some-work-abc123"})
+        self.assertFalse(decision.delete)
+        self.assertIn("grace period ends", decision.reason)
+
     def test_missing_head_ref_is_a_no_op(self):
         self.assertFalse(call(pr(head_ref=None), branch_shas={}).delete)
 
@@ -183,19 +208,31 @@ class SummarisePrTest(unittest.TestCase):
 
 
 class FakeGitHub:
-    def __init__(self, branch_shas, open_refs=()):
+    def __init__(self, branch_shas, open_refs=(), after_snapshot=None):
         self._branch_shas = dict(branch_shas)
         self._open_refs = set(open_refs)
+        self._after_snapshot = after_snapshot
         self.deleted = []
 
     def branch_shas(self):
         return dict(self._branch_shas)
 
+    def branch_sha(self, ref):
+        return self._branch_shas.get(ref)
+
     def open_pr_refs(self, exclude=()):
-        return set(self._open_refs)
+        refs = set(self._open_refs)
+        # Fire after the reserved-ref snapshot is copied so run() still sees
+        # the stale view, then revalidation sees the drifted one.
+        if self._after_snapshot is not None:
+            hook = self._after_snapshot
+            self._after_snapshot = None
+            hook(self)
+        return refs
 
     def delete_branch(self, ref):
         self.deleted.append(ref)
+        self._branch_shas.pop(ref, None)
 
 
 class RunTest(unittest.TestCase):
@@ -270,6 +307,82 @@ class RunTest(unittest.TestCase):
         self.assertEqual(deleted, 1)
         self.assertEqual(github.deleted, ["claude/shared"])
         self.assertIn("already gone", out.getvalue())
+
+    def test_rechecks_tip_immediately_before_delete(self):
+        pull = pr(number=1, merged_at="2026-08-24T11:00:00Z")
+        ref = pull["head_ref"]
+
+        def drift(github):
+            github._branch_shas[ref] = "b" * 40
+
+        github = FakeGitHub({ref: pull["head_sha"]}, after_snapshot=drift)
+        out = io.StringIO()
+
+        deleted = run(github, [pull], DEFAULT_PROTECTED, 24.0, False, out)
+
+        self.assertEqual(deleted, 0)
+        self.assertEqual(github.deleted, [])
+        self.assertIn("has moved", out.getvalue())
+
+    def test_rechecks_reserved_refs_immediately_before_delete(self):
+        pull = pr(number=1, merged_at="2026-08-24T11:00:00Z")
+        ref = pull["head_ref"]
+
+        def drift(github):
+            github._open_refs.add(ref)
+
+        github = FakeGitHub({ref: pull["head_sha"]}, after_snapshot=drift)
+        out = io.StringIO()
+
+        deleted = run(github, [pull], DEFAULT_PROTECTED, 24.0, False, out)
+
+        self.assertEqual(deleted, 0)
+        self.assertEqual(github.deleted, [])
+        self.assertIn("another open PR", out.getvalue())
+
+    def test_older_closed_pr_does_not_bypass_newer_prs_grace(self):
+        ref = "claude/shared"
+        older = pr(number=1, head_ref=ref, closed_at="2026-08-22T12:00:00Z")  # 48h
+        newer = pr(number=2, head_ref=ref, closed_at="2026-08-24T11:00:00Z")  # 1h
+        github = FakeGitHub({ref: "a" * 40})
+
+        # Either order: the older PR is past grace, the newer one is not.
+        for prs in ([newer, older], [older, newer]):
+            with self.subTest(order=[p["number"] for p in prs]):
+                out = io.StringIO()
+                deleted = run(github, prs, DEFAULT_PROTECTED, 24.0, False, out)
+                self.assertEqual(deleted, 0)
+                self.assertEqual(github.deleted, [])
+                self.assertIn("grace", out.getvalue())
+
+
+class SweepWindowTest(unittest.TestCase):
+    def test_already_gone_heads_do_not_consume_the_sweep_cap(self):
+        payloads = [
+            {"number": 1, "head": {"ref": "gone-branch"}},
+            {"number": 2, "head": {"ref": "live-old"}},
+            {"number": 3, "head": {"ref": "also-gone"}},
+            {"number": 4, "head": {"ref": "live-older"}},
+        ]
+        selected = list(
+            iter_closed_for_sweep(payloads, cap=2, live_refs={"live-old", "live-older"})
+        )
+        self.assertEqual([p["number"] for p in selected], [2, 4])
+
+    def test_without_live_refs_the_cap_counts_every_row(self):
+        payloads = [
+            {"number": 1, "head": {"ref": "gone-branch"}},
+            {"number": 2, "head": {"ref": "live-old"}},
+        ]
+        selected = list(iter_closed_for_sweep(payloads, cap=1))
+        self.assertEqual([p["number"] for p in selected], [1])
+
+    def test_refs_in_grace_is_the_newer_closed_unmerged_head(self):
+        ref = "claude/shared"
+        older = pr(number=1, head_ref=ref, closed_at="2026-08-22T12:00:00Z")
+        newer = pr(number=2, head_ref=ref, closed_at="2026-08-24T11:00:00Z")
+        merged = pr(number=3, head_ref="claude/merged", merged_at="2026-08-24T11:00:00Z")
+        self.assertEqual(refs_in_grace([older, newer, merged], NOW, 24.0), {ref})
 
 
 if __name__ == "__main__":

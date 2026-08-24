@@ -66,10 +66,17 @@ DEFAULT_PROTECTED = ("main", "master", "develop", "gh-pages", "release/*", "hotf
 
 DEFAULT_GRACE_HOURS = 24.0
 
-# A single sweep looks at this many closed PRs, most-recently-updated first.
-# Bounded so one run always terminates; the next run picks up where it left off
-# because anything it deleted stops matching.
+# A single sweep keeps this many closed PRs that still have a head branch,
+# most-recently-updated first. Already-gone heads do not count toward the cap,
+# so a later run advances past them instead of revisiting the same window.
+# Bounded so one run always terminates.
 DEFAULT_MAX_PRS = 500
+
+# How many closed PR rows one sweep will page through while filling
+# DEFAULT_MAX_PRS live-head slots. Deleting a ref does not drop the PR from
+# GitHub's updated-desc list, so without a deeper scan the same already-gone
+# rows would occupy the whole window forever.
+DEFAULT_SWEEP_SCAN = 5000
 
 # Pause between deletions. GitHub's secondary rate limit asks for no more than
 # 80 content-generating requests a minute, and the first sweep over this repo's
@@ -98,8 +105,43 @@ def is_protected(ref, patterns):
     return any(fnmatch.fnmatch(ref, pattern) for pattern in patterns)
 
 
+def refs_in_grace(prs, now, grace_hours=DEFAULT_GRACE_HOURS):
+    """Head refs that some closed-unmerged PR still holds inside its grace."""
+    refs = set()
+    for pr in prs:
+        if pr.get("merged_at") or pr.get("state") == "open":
+            continue
+        ref = pr.get("head_ref")
+        if not ref:
+            continue
+        closed_at = parse_time(pr.get("closed_at"))
+        if closed_at is None:
+            continue
+        if now < closed_at + timedelta(hours=grace_hours):
+            refs.add(ref)
+    return refs
+
+
+def iter_closed_for_sweep(payloads, cap, live_refs=None):
+    """Yield closed PR payloads, most-recently-updated first.
+
+    When live_refs is set, a payload whose head is not in that set does not
+    count toward cap, so already-deleted heads do not fill the window.
+    """
+    kept = 0
+    for payload in payloads:
+        if live_refs is not None:
+            ref = (payload.get("head") or {}).get("ref")
+            if ref not in live_refs:
+                continue
+        yield payload
+        kept += 1
+        if kept >= cap:
+            return
+
+
 def decide(pr, branch_shas, reserved_refs, now, grace_hours=DEFAULT_GRACE_HOURS,
-           protected=DEFAULT_PROTECTED):
+           protected=DEFAULT_PROTECTED, grace_refs=()):
     """Decide whether `pr`'s head ref should be deleted.
 
     pr            mapping with number, state, merged_at, closed_at, head_ref,
@@ -107,6 +149,8 @@ def decide(pr, branch_shas, reserved_refs, now, grace_hours=DEFAULT_GRACE_HOURS,
     branch_shas   {ref: tip sha} for every branch that exists in this repo
     reserved_refs refs that some *other* open PR uses as its head or its base
     now           aware datetime, the moment the decision is made
+    grace_refs    refs that some *other* closed-unmerged PR still holds inside
+                  its grace period (branch reuse; see `refs_in_grace`)
     """
     ref = pr["head_ref"]
     number = pr["number"]
@@ -131,6 +175,10 @@ def decide(pr, branch_shas, reserved_refs, now, grace_hours=DEFAULT_GRACE_HOURS,
         return Decision(False, "%s is the head or base of another open PR" % ref)
 
     if pr["merged_at"]:
+        if ref in grace_refs:
+            return Decision(
+                False, "%s is still inside another PR's grace period" % ref
+            )
         return Decision(True, "%s: PR #%d merged" % (ref, number))
 
     closed_at = parse_time(pr["closed_at"])
@@ -144,6 +192,12 @@ def decide(pr, branch_shas, reserved_refs, now, grace_hours=DEFAULT_GRACE_HOURS,
             False,
             "%s: PR #%d closed unmerged, grace period ends %s"
             % (ref, number, due.strftime("%Y-%m-%dT%H:%MZ")),
+        )
+    if ref in grace_refs:
+        # This PR is past grace, but a newer closed PR reused the same head
+        # and is still inside its window. Deleting would end that window.
+        return Decision(
+            False, "%s is still inside another PR's grace period" % ref
         )
     age_hours = (now - closed_at).total_seconds() / 3600.0
     return Decision(
@@ -237,6 +291,17 @@ class GitHub:
             for branch in self._paginate("/repos/%s/branches" % self.repo, {}, 5000)
         }
 
+    def branch_sha(self, ref):
+        """Current tip of one branch, or None if it is gone."""
+        path = "/repos/%s/branches/%s" % (
+            self.repo,
+            urllib.parse.quote(ref, safe=""),
+        )
+        payload = self._request("GET", path, expect_missing=True)
+        if not payload:
+            return None
+        return (payload.get("commit") or {}).get("sha")
+
     def open_pr_refs(self, exclude=()):
         """Head and base refs held by open PRs, excluding the given PR numbers."""
         refs = set()
@@ -256,12 +321,21 @@ class GitHub:
     def pull_request(self, number):
         return self._request("GET", "/repos/%s/pulls/%d" % (self.repo, number))
 
-    def closed_pull_requests(self, cap):
-        """Closed PRs, most recently updated first."""
-        return self._paginate(
-            "/repos/%s/pulls" % self.repo,
-            {"state": "closed", "sort": "updated", "direction": "desc"},
+    def closed_pull_requests(self, cap, live_refs=None):
+        """Closed PRs, most recently updated first.
+
+        When live_refs is set, a PR whose head is not in that set does not
+        count toward cap, so already-deleted heads do not fill the window.
+        """
+        scan_cap = DEFAULT_SWEEP_SCAN if live_refs is not None else cap
+        return iter_closed_for_sweep(
+            self._paginate(
+                "/repos/%s/pulls" % self.repo,
+                {"state": "closed", "sort": "updated", "direction": "desc"},
+                scan_cap,
+            ),
             cap,
+            live_refs,
         )
 
     def delete_branch(self, ref):
@@ -279,16 +353,41 @@ def run(github, prs, protected, grace_hours, dry_run, out,
     branch_shas = github.branch_shas()
     reserved = github.open_pr_refs(exclude={pr["number"] for pr in prs})
     now = datetime.now(timezone.utc)
+    grace_refs = refs_in_grace(prs, now, grace_hours)
 
     deleted = 0
     for pr in prs:
-        decision = decide(pr, branch_shas, reserved, now, grace_hours, protected)
+        decision = decide(
+            pr, branch_shas, reserved, now, grace_hours, protected, grace_refs
+        )
         if not decision.delete:
             print("skip   %s" % decision.reason, file=out)
             continue
         if not dry_run:
             if deleted and delete_delay:
                 sleep(delete_delay)
+            # Re-check tip and reserved refs. Concurrent sessions push and
+            # open PRs during a paced sweep; a snapshot from the start of
+            # run() would miss both.
+            live_sha = github.branch_sha(pr["head_ref"])
+            live_shas = {pr["head_ref"]: live_sha} if live_sha else {}
+            live_reserved = github.open_pr_refs(exclude={pr["number"]})
+            decision = decide(
+                pr,
+                live_shas,
+                live_reserved,
+                datetime.now(timezone.utc),
+                grace_hours,
+                protected,
+                grace_refs,
+            )
+            if not decision.delete:
+                print("skip   %s" % decision.reason, file=out)
+                if live_sha is None:
+                    branch_shas.pop(pr["head_ref"], None)
+                else:
+                    branch_shas[pr["head_ref"]] = live_sha
+                continue
             github.delete_branch(pr["head_ref"])
         # Keep the local view consistent: a later PR in this same run may point
         # at the same ref (a branch reused across two PRs, which happens here
@@ -319,7 +418,7 @@ def main(argv=None, out=sys.stdout):
         "--max-prs",
         type=int,
         default=DEFAULT_MAX_PRS,
-        help="how many closed PRs one sweep reads (default %(default)s)",
+        help="how many closed PRs with a live head one sweep keeps (default %(default)s)",
     )
     parser.add_argument(
         "--protect",
@@ -345,7 +444,11 @@ def main(argv=None, out=sys.stdout):
     if args.pr:
         prs = [summarise_pr(github.pull_request(args.pr))]
     else:
-        prs = [summarise_pr(p) for p in github.closed_pull_requests(args.max_prs)]
+        live_refs = set(github.branch_shas())
+        prs = [
+            summarise_pr(p)
+            for p in github.closed_pull_requests(args.max_prs, live_refs)
+        ]
 
     deleted = run(github, prs, protected, args.grace_hours, args.dry_run, out)
     print(
